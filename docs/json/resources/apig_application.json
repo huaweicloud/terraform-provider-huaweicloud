@@ -1,0 +1,67 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_application": {
+          "block": {
+            "attributes": {
+              "app_codes": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true
+              },
+              "app_key": {
+                "type": "string",
+                "computed": true
+              },
+              "app_secret": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "registraion_time": {
+                "type": "string",
+                "computed": true
+              },
+              "secret_action": {
+                "type": "string",
+                "optional": true
+              },
+              "update_time": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Application",
+            "name": "API GateWay",
+            "short": "APIG"
+          }
+        }
+      }
+    }
+  }
+}

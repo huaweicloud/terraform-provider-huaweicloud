@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_custom_authorizer": {
+          "block": {
+            "attributes": {
+              "cache_age": {
+                "type": "number",
+                "optional": true
+              },
+              "create_time": {
+                "type": "string",
+                "computed": true
+              },
+              "function_urn": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "is_body_send": {
+                "type": "bool",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "default": "FRONTEND"
+              },
+              "user_data": {
+                "type": "string",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "identity": {
+                "block": {
+                  "attributes": {
+                    "location": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "validation": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

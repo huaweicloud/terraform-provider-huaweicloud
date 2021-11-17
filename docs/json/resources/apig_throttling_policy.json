@@ -1,0 +1,119 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_throttling_policy": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "max_api_requests": {
+                "type": "number",
+                "required": true
+              },
+              "max_app_requests": {
+                "type": "number",
+                "optional": true
+              },
+              "max_ip_requests": {
+                "type": "number",
+                "optional": true
+              },
+              "max_user_requests": {
+                "type": "number",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "period": {
+                "type": "number",
+                "required": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
+                "default": "MINUTE"
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true,
+                "default": "API-based"
+              }
+            },
+            "block_types": {
+              "app_throttles": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "max_api_requests": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "throttling_object_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "throttling_object_name": {
+                      "type": "string",
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "max_items": 30
+              },
+              "user_throttles": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "max_api_requests": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "throttling_object_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "throttling_object_name": {
+                      "type": "string",
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "max_items": 30
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

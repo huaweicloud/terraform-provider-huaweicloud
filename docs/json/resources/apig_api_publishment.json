@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_api_publishment": {
+          "block": {
+            "attributes": {
+              "api_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "env_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "env_name": {
+                "type": "string",
+                "computed": true
+              },
+              "histories": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "version_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "publish_time": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "version_id": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
