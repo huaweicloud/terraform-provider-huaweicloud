@@ -1,0 +1,111 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_instance": {
+          "block": {
+            "attributes": {
+              "available_zones": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              },
+              "bandwidth_size": {
+                "type": "number",
+                "optional": true
+              },
+              "create_time": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "edition": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "egress_address": {
+                "type": "string",
+                "computed": true
+              },
+              "eip_id": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ingress_address": {
+                "type": "string",
+                "computed": true
+              },
+              "maintain_begin": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "maintain_end": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "supported_features": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "vpc_ingress_address": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Application",
+            "name": "API GateWay",
+            "short": "APIG"
+          }
+        }
+      }
+    }
+  }
+}

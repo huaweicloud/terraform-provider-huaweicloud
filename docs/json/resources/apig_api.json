@@ -1,0 +1,561 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_api": {
+          "block": {
+            "attributes": {
+              "authorizer_id": {
+                "type": "string",
+                "optional": true
+              },
+              "body_description": {
+                "type": "string",
+                "optional": true
+              },
+              "cors": {
+                "type": "bool",
+                "optional": true,
+                "default": false
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "failure_response": {
+                "type": "string",
+                "optional": true
+              },
+              "group_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "matching": {
+                "type": "string",
+                "optional": true,
+                "default": "Exact"
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "register_time": {
+                "type": "string",
+                "computed": true
+              },
+              "request_method": {
+                "type": "string",
+                "required": true
+              },
+              "request_path": {
+                "type": "string",
+                "required": true
+              },
+              "request_protocol": {
+                "type": "string",
+                "required": true
+              },
+              "response_id": {
+                "type": "string",
+                "optional": true
+              },
+              "security_authentication": {
+                "type": "string",
+                "optional": true,
+                "default": "NONE"
+              },
+              "simple_authentication": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "success_response": {
+                "type": "string",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "required": true
+              },
+              "update_time": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "backend_params": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "location": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              },
+              "func_graph": {
+                "block": {
+                  "attributes": {
+                    "authorizer_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "function_urn": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "invocation_type": {
+                      "type": "string",
+                      "optional": true,
+                      "default": "sync"
+                    },
+                    "timeout": {
+                      "type": "number",
+                      "optional": true,
+                      "default": 5000
+                    },
+                    "version": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "func_graph_policy": {
+                "block": {
+                  "attributes": {
+                    "authorizer_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "effective_mode": {
+                      "type": "string",
+                      "optional": true,
+                      "default": "ANY"
+                    },
+                    "function_urn": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "invocation_mode": {
+                      "type": "string",
+                      "optional": true,
+                      "default": "sync"
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "timeout": {
+                      "type": "number",
+                      "optional": true,
+                      "default": 5000
+                    },
+                    "version": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "backend_params": {
+                      "block": {
+                        "attributes": {
+                          "description": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "location": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
+                    },
+                    "conditions": {
+                      "block": {
+                        "attributes": {
+                          "param_name": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "source": {
+                            "type": "string",
+                            "optional": true,
+                            "default": "param"
+                          },
+                          "type": {
+                            "type": "string",
+                            "optional": true,
+                            "default": "Equal"
+                          },
+                          "value": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set",
+                      "min_items": 1,
+                      "max_items": 5
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "max_items": 5
+              },
+              "mock": {
+                "block": {
+                  "attributes": {
+                    "authorizer_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "response": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "mock_policy": {
+                "block": {
+                  "attributes": {
+                    "authorizer_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "effective_mode": {
+                      "type": "string",
+                      "optional": true,
+                      "default": "ANY"
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "response": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "backend_params": {
+                      "block": {
+                        "attributes": {
+                          "description": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "location": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
+                    },
+                    "conditions": {
+                      "block": {
+                        "attributes": {
+                          "param_name": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "source": {
+                            "type": "string",
+                            "optional": true,
+                            "default": "param"
+                          },
+                          "type": {
+                            "type": "string",
+                            "optional": true,
+                            "default": "Equal"
+                          },
+                          "value": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set",
+                      "min_items": 1,
+                      "max_items": 5
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "max_items": 5
+              },
+              "request_params": {
+                "block": {
+                  "attributes": {
+                    "default": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "example": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "location": {
+                      "type": "string",
+                      "optional": true,
+                      "default": "PATH"
+                    },
+                    "maximum": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "minimum": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "required": {
+                      "type": "bool",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "optional": true,
+                      "default": "STRING"
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "max_items": 50
+              },
+              "web": {
+                "block": {
+                  "attributes": {
+                    "authorizer_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "backend_address": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "host_header": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "path": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "request_method": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "request_protocol": {
+                      "type": "string",
+                      "optional": true,
+                      "default": "HTTPS"
+                    },
+                    "ssl_enable": {
+                      "type": "bool",
+                      "optional": true,
+                      "default": false
+                    },
+                    "timeout": {
+                      "type": "number",
+                      "optional": true,
+                      "default": 5000
+                    },
+                    "vpc_channel_id": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "web_policy": {
+                "block": {
+                  "attributes": {
+                    "authorizer_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "backend_address": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "effective_mode": {
+                      "type": "string",
+                      "optional": true,
+                      "default": "ANY"
+                    },
+                    "host_header": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "path": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "request_method": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "request_protocol": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "timeout": {
+                      "type": "number",
+                      "optional": true,
+                      "default": 5000
+                    },
+                    "vpc_channel_id": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "backend_params": {
+                      "block": {
+                        "attributes": {
+                          "description": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "location": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
+                    },
+                    "conditions": {
+                      "block": {
+                        "attributes": {
+                          "param_name": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "source": {
+                            "type": "string",
+                            "optional": true,
+                            "default": "param"
+                          },
+                          "type": {
+                            "type": "string",
+                            "optional": true,
+                            "default": "Equal"
+                          },
+                          "value": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set",
+                      "min_items": 1,
+                      "max_items": 5
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "max_items": 5
+              }
+            }
+          },
+          "product": {
+            "catalog": "Application",
+            "name": "API GateWay",
+            "short": "APIG"
+          }
+        }
+      }
+    }
+  }
+}
