@@ -15,6 +15,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/evs/v3/volumes"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -301,7 +302,10 @@ func resourceEvsVolumeV3Update(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if d.HasChange("tags") {
-		_, err = resourceEVSTagV2Create(d, meta, "volumes", d.Id(), resourceContainerTags(d))
+		tagErr := utils.UpdateResourceTags(blockStorageClient, d, "cloudvolumes", d.Id())
+		if tagErr != nil {
+			return fmtp.Errorf("Error updating tags of HuaweiCloud volume:%s, err:%s", d.Id(), tagErr)
+		}
 	}
 
 	if d.HasChange("size") {
@@ -331,4 +335,12 @@ func resourceEvsVolumeV3Update(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return resourceEvsVolumeV3Read(d, meta)
+}
+
+func resourceContainerTags(d *schema.ResourceData) map[string]string {
+	m := make(map[string]string)
+	for key, val := range d.Get("tags").(map[string]interface{}) {
+		m[key] = val.(string)
+	}
+	return m
 }
