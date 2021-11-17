@@ -7,33 +7,56 @@
             "attributes": {
               "acl": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "default": "private"
               },
               "bucket": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "bucket_domain_name": {
                 "type": "string",
                 "computed": true
               },
+              "bucket_version": {
+                "type": "string",
+                "computed": true
+              },
+              "encryption": {
+                "type": "bool",
+                "optional": true,
+                "default": false
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "force_destroy": {
                 "type": "bool",
-                "optional": true
+                "optional": true,
+                "default": false
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
+              "kms_key_id": {
+                "type": "string",
+                "optional": true
+              },
               "multi_az": {
                 "type": "bool",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
+              },
+              "parallel_fs": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
               },
               "policy": {
                 "type": "string",
@@ -42,11 +65,13 @@
               },
               "policy_format": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "default": "obs"
               },
               "quota": {
                 "type": "number",
-                "optional": true
+                "optional": true,
+                "default": 0
               },
               "region": {
                 "type": "string",
@@ -54,7 +79,8 @@
               },
               "storage_class": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "default": "STANDARD"
               },
               "tags": {
                 "type": [
@@ -65,12 +91,12 @@
               },
               "versioning": {
                 "type": "bool",
-                "optional": true
+                "optional": true,
+                "default": false
               }
             },
             "block_types": {
               "cors_rule": {
-                "nesting_mode": "list",
                 "block": {
                   "attributes": {
                     "allowed_headers": {
@@ -103,13 +129,14 @@
                     },
                     "max_age_seconds": {
                       "type": "number",
-                      "optional": true
+                      "optional": true,
+                      "default": 100
                     }
                   }
-                }
+                },
+                "nesting_mode": "list"
               },
               "lifecycle_rule": {
-                "nesting_mode": "list",
                 "block": {
                   "attributes": {
                     "enabled": {
@@ -127,7 +154,6 @@
                   },
                   "block_types": {
                     "expiration": {
-                      "nesting_mode": "set",
                       "block": {
                         "attributes": {
                           "days": {
@@ -135,10 +161,10 @@
                             "required": true
                           }
                         }
-                      }
+                      },
+                      "nesting_mode": "set"
                     },
                     "noncurrent_version_expiration": {
-                      "nesting_mode": "set",
                       "block": {
                         "attributes": {
                           "days": {
@@ -146,10 +172,10 @@
                             "required": true
                           }
                         }
-                      }
+                      },
+                      "nesting_mode": "set"
                     },
                     "noncurrent_version_transition": {
-                      "nesting_mode": "list",
                       "block": {
                         "attributes": {
                           "days": {
@@ -161,10 +187,10 @@
                             "required": true
                           }
                         }
-                      }
+                      },
+                      "nesting_mode": "list"
                     },
                     "transition": {
-                      "nesting_mode": "list",
                       "block": {
                         "attributes": {
                           "days": {
@@ -176,13 +202,14 @@
                             "required": true
                           }
                         }
-                      }
+                      },
+                      "nesting_mode": "list"
                     }
                   }
-                }
+                },
+                "nesting_mode": "list"
               },
               "logging": {
-                "nesting_mode": "set",
                 "block": {
                   "attributes": {
                     "target_bucket": {
@@ -191,13 +218,14 @@
                     },
                     "target_prefix": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "default": "logs/"
                     }
                   }
-                }
+                },
+                "nesting_mode": "set"
               },
               "website": {
-                "nesting_mode": "list",
                 "block": {
                   "attributes": {
                     "error_document": {
@@ -218,6 +246,7 @@
                     }
                   }
                 },
+                "nesting_mode": "list",
                 "max_items": 1
               }
             }

@@ -7,7 +7,8 @@
             "attributes": {
               "cidr": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "floating_ip_address": {
                 "type": "string",
@@ -15,7 +16,8 @@
               },
               "floating_ip_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "id": {
                 "type": "string",
@@ -23,7 +25,8 @@
               },
               "nat_gateway_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "region": {
                 "type": "string",
@@ -31,7 +34,8 @@
               },
               "source_type": {
                 "type": "number",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "status": {
                 "type": "string",
@@ -40,7 +44,8 @@
               "subnet_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               }
             }
           },

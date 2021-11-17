@@ -11,7 +11,8 @@
               },
               "external_service_port": {
                 "type": "number",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "floating_ip_address": {
                 "type": "string",
@@ -19,7 +20,8 @@
               },
               "floating_ip_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "id": {
                 "type": "string",
@@ -27,23 +29,28 @@
               },
               "internal_service_port": {
                 "type": "number",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "nat_gateway_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "port_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "private_ip": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "protocol": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "region": {
                 "type": "string",

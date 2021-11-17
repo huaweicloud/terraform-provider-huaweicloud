@@ -13,7 +13,8 @@
               "default_pool_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "default_tls_container_ref": {
                 "type": "string",
@@ -25,7 +26,8 @@
               },
               "http2_enable": {
                 "type": "bool",
-                "optional": true
+                "optional": true,
+                "default": false
               },
               "id": {
                 "type": "string",
@@ -33,7 +35,8 @@
               },
               "loadbalancer_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "name": {
                 "type": "string",
@@ -42,11 +45,13 @@
               },
               "protocol": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "protocol_port": {
                 "type": "number",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "region": {
                 "type": "string",

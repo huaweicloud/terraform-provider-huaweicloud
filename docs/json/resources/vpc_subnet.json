@@ -8,15 +8,18 @@
               "availability_zone": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "cidr": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "dhcp_enable": {
                 "type": "bool",
-                "optional": true
+                "optional": true,
+                "default": true
               },
               "dns_list": {
                 "type": [
@@ -28,7 +31,8 @@
               },
               "gateway_ip": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "id": {
                 "type": "string",
@@ -81,7 +85,8 @@
               },
               "vpc_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               }
             }
           },

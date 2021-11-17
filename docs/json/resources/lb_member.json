@@ -7,7 +7,8 @@
             "attributes": {
               "address": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "id": {
                 "type": "string",
@@ -19,11 +20,13 @@
               },
               "pool_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "protocol_port": {
                 "type": "number",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "region": {
                 "type": "string",
@@ -31,7 +34,8 @@
               },
               "subnet_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "weight": {
                 "type": "number",

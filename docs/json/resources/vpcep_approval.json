@@ -37,7 +37,8 @@
               },
               "service_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               }
             }
           },

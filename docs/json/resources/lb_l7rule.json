@@ -15,11 +15,13 @@
               },
               "key": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "l7policy_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "listener_id": {
                 "type": "string",
@@ -31,7 +33,8 @@
               },
               "type": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "value": {
                 "type": "string",
