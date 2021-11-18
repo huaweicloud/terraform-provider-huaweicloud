@@ -1,0 +1,243 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cce_node_pool": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "default": "random"
+              },
+              "billing_mode": {
+                "type": "number",
+                "computed": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "extend_param": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "initial_node_count": {
+                "type": "number",
+                "required": true
+              },
+              "key_pair": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "labels": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "max_node_count": {
+                "type": "number",
+                "optional": true
+              },
+              "max_pods": {
+                "type": "number",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "min_node_count": {
+                "type": "number",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "os": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "password": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "postinstall": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "preinstall": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "priority": {
+                "type": "number",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "runtime": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "scale_down_cooldown_time": {
+                "type": "number",
+                "optional": true
+              },
+              "scall_enable": {
+                "type": "bool",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "data_volumes": {
+                "block": {
+                  "attributes": {
+                    "extend_params": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "hw_passthrough": {
+                      "type": "bool",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "kms_key_id": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "size": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "volumetype": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1
+              },
+              "root_volume": {
+                "block": {
+                  "attributes": {
+                    "extend_params": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "hw_passthrough": {
+                      "type": "bool",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "size": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "volumetype": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 1
+              },
+              "taints": {
+                "block": {
+                  "attributes": {
+                    "effect": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "key": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "catalog": "Container",
+            "name": "Cloud Container Engine",
+            "short": "CCE"
+          }
+        }
+      }
+    }
+  }
+}
