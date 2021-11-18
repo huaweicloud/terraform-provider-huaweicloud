@@ -17,6 +17,8 @@ type Key struct {
 	DomainID string `json:"domain_id"`
 	// Alias of a CMK
 	KeyAlias string `json:"key_alias"`
+	// Key algorithm
+	KeySpec string `json:"key_spec"`
 	// Region where a CMK resides
 	Realm string `json:"realm"`
 	// Description of a CMK

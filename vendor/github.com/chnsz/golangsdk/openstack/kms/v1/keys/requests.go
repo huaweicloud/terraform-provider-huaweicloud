@@ -14,6 +14,8 @@ type CreateOpts struct {
 	Realm string `json:"realm,omitempty"`
 	// Purpose of a CMK (The default value is Encrypt_Decrypt)
 	KeyUsage string `json:"key_usage,omitempty"`
+	// Key Algorithm
+	KeySpec string `json:"key_spec,omitempty"`
 	// Enterprise project id
 	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
 }
