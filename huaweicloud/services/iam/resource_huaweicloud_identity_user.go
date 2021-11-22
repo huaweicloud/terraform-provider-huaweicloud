@@ -63,6 +63,11 @@ func ResourceIdentityUserV3() *schema.Resource {
 				Optional: true,
 				Default:  true,
 			},
+			"pwd_reset": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
 			"access_type": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -99,15 +104,17 @@ func resourceIdentityUserV3Create(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	enabled := d.Get("enabled").(bool)
+	reset := d.Get("pwd_reset").(bool)
 	createOpts := iam_users.CreateOpts{
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
-		Email:       d.Get("email").(string),
-		Phone:       d.Get("phone").(string),
-		AreaCode:    d.Get("country_code").(string),
-		AccessMode:  d.Get("access_type").(string),
-		Enabled:     &enabled,
-		DomainID:    config.DomainID,
+		Name:          d.Get("name").(string),
+		Description:   d.Get("description").(string),
+		Email:         d.Get("email").(string),
+		Phone:         d.Get("phone").(string),
+		AreaCode:      d.Get("country_code").(string),
+		AccessMode:    d.Get("access_type").(string),
+		Enabled:       &enabled,
+		PasswordReset: &reset,
+		DomainID:      config.DomainID,
 	}
 
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -146,6 +153,7 @@ func resourceIdentityUserV3Read(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("country_code", user.AreaCode),
 		d.Set("access_type", user.AccessMode),
 		d.Set("password_strength", user.PasswordStrength),
+		d.Set("pwd_reset", user.PasswordStatus),
 		d.Set("create_time", user.CreateAt),
 		d.Set("last_login", user.LastLogin),
 	)
@@ -197,6 +205,11 @@ func resourceIdentityUserV3Update(ctx context.Context, d *schema.ResourceData, m
 	if d.HasChange("enabled") {
 		enabled := d.Get("enabled").(bool)
 		updateOpts.Enabled = &enabled
+	}
+
+	if d.HasChange("pwd_reset") {
+		reset := d.Get("pwd_reset").(bool)
+		updateOpts.PasswordReset = &reset
 	}
 
 	logp.Printf("[DEBUG] Update Options: %#v", updateOpts)
