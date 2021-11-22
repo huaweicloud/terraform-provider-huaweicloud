@@ -84,6 +84,12 @@ func resourceGaussDBInstance() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			"configuration_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -92,6 +98,13 @@ func resourceGaussDBInstance() *schema.Resource {
 			"dedicated_resource_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"dedicated_resource_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 			"table_name_case_sensitivity": {
@@ -192,14 +205,6 @@ func resourceGaussDBInstance() *schema.Resource {
 			},
 			"proxy_port": {
 				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"configuration_name": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"dedicated_resource_name": {
-				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"status": {
@@ -387,6 +392,47 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			Size: d.Get("volume_size").(int),
 		}
 		createOpts.Volume = volume
+	}
+
+	// configuration
+	if d.Get("configuration_id") == "" && d.Get("configuration_name") != "" {
+		configsList, err := configurations.List(client).Extract()
+		if err != nil {
+			return fmtp.Errorf("Unable to retrieve configurations: %s", err)
+		}
+		confName := d.Get("configuration_name").(string)
+		for _, conf := range configsList {
+			if conf.Name == confName {
+				createOpts.ConfigurationId = conf.ID
+				break
+			}
+		}
+		if createOpts.ConfigurationId == "" {
+			return fmtp.Errorf("Unable to find configuration named %s", confName)
+		}
+	}
+
+	// dedicated resource
+	if d.Get("dedicated_resource_id") == "" && d.Get("dedicated_resource_name") != "" {
+		pages, err := instances.ListDeh(client).AllPages()
+		if err != nil {
+			return fmtp.Errorf("Unable to retrieve dedicated resources: %s", err)
+		}
+		allResources, err := instances.ExtractDehResources(pages)
+		if err != nil {
+			return fmtp.Errorf("Unable to extract dedicated resources: %s", err)
+		}
+
+		derName := d.Get("dedicated_resource_name").(string)
+		for _, der := range allResources.Resources {
+			if der.ResourceName == derName {
+				createOpts.DedicatedResourceId = der.Id
+				break
+			}
+		}
+		if createOpts.DedicatedResourceId == "" {
+			return fmtp.Errorf("Unable to find dedicated resource named %s", derName)
+		}
 	}
 
 	// PrePaid
