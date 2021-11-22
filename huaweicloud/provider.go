@@ -23,6 +23,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dli"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dws"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/elb"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/eps"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/fgs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/gaussdb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
@@ -487,6 +488,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_elb_ipgroup":                     ResourceIpGroupV3(),
 			"huaweicloud_elb_pool":                        ResourcePoolV3(),
 			"huaweicloud_elb_member":                      ResourceMemberV3(),
+			"huaweicloud_enterprise_project":              eps.ResourceEnterpriseProject(),
 			"huaweicloud_evs_snapshot":                    ResourceEvsSnapshotV2(),
 			"huaweicloud_evs_volume":                      ResourceEvsStorageVolumeV3(),
 			"huaweicloud_fgs_function":                    fgs.ResourceFgsFunctionV2(),
