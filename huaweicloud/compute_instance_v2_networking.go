@@ -22,12 +22,13 @@ import (
 
 // InstanceNIC is a structured representation of a servers.Server virtual NIC
 type InstanceNIC struct {
-	NetworkID string
-	PortID    string
-	FixedIPv4 string
-	FixedIPv6 string
-	MAC       string
-	Fetched   bool
+	NetworkID       string
+	PortID          string
+	FixedIPv4       string
+	FixedIPv6       string
+	MAC             string
+	SourceDestCheck bool
+	Fetched         bool
 }
 
 // InstanceNetwork represents a collection of network information that a
@@ -90,9 +91,10 @@ func getInstanceAddresses(d *schema.ResourceData, meta interface{}, server *clou
 			}
 
 			instanceNIC := InstanceNIC{
-				NetworkID: networkID,
-				PortID:    addr.PortID,
-				MAC:       addr.MacAddr,
+				NetworkID:       networkID,
+				PortID:          addr.PortID,
+				MAC:             addr.MacAddr,
+				SourceDestCheck: len(p.AllowedAddressPairs) == 0,
 			}
 			if addr.Version == "6" {
 				instanceNIC.FixedIPv6 = addr.Addr
@@ -157,12 +159,13 @@ func flattenInstanceNetworks(
 
 			if isExist {
 				v := map[string]interface{}{
-					"uuid":           nic.NetworkID,
-					"port":           nic.PortID,
-					"fixed_ip_v4":    nic.FixedIPv4,
-					"fixed_ip_v6":    nic.FixedIPv6,
-					"mac":            nic.MAC,
-					"access_network": instanceNetwork.AccessNetwork,
+					"uuid":              nic.NetworkID,
+					"port":              nic.PortID,
+					"fixed_ip_v4":       nic.FixedIPv4,
+					"fixed_ip_v6":       nic.FixedIPv6,
+					"source_dest_check": nic.SourceDestCheck,
+					"mac":               nic.MAC,
+					"access_network":    instanceNetwork.AccessNetwork,
 				}
 				networks = append(networks, v)
 				break
