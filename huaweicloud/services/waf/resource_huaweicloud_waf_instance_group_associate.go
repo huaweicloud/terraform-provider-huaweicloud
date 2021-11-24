@@ -70,7 +70,7 @@ func resourceWafInsGroupAssociateCreate(ctx context.Context, d *schema.ResourceD
 
 	elbIDs := d.Get("load_balances").(*schema.Set).List()
 	mErr := addELBInstances(client, groupID, elbIDs)
-	if mErr != nil && mErr.ErrorOrNil() != nil {
+	if mErr.ErrorOrNil() != nil {
 		return diag.FromErr(mErr)
 	}
 	d.SetId(groupID)
@@ -112,7 +112,7 @@ func resourceWafInsGroupAssociateRead(_ context.Context, d *schema.ResourceData,
 		d.Set("load_balances", loadBalances),
 	)
 
-	if err = mErr.ErrorOrNil(); err != nil {
+	if mErr.ErrorOrNil() != nil {
 		return fmtp.DiagErrorf("error setting WAF dedicated group attributes: %s", err)
 	}
 
@@ -142,7 +142,7 @@ func resourceWafInsGroupAssociateUpdate(ctx context.Context, d *schema.ResourceD
 		errs := batchRemoveELBInstances(client, d.Id(), removeBindings.List())
 		mErr = multierror.Append(mErr, errs.Errors...)
 	}
-	if err = mErr.ErrorOrNil(); err != nil {
+	if mErr.ErrorOrNil() != nil {
 		return fmtp.DiagErrorf("error setting WAF dedicated group attributes: %s", err)
 	}
 
@@ -159,7 +159,7 @@ func resourceWafInsGroupAssociateDelete(_ context.Context, d *schema.ResourceDat
 	elbIDs := d.Get("load_balances").(*schema.Set)
 	if elbIDs.Len() > 0 {
 		mErr := batchRemoveELBInstances(client, d.Id(), elbIDs.List())
-		if err = mErr.ErrorOrNil(); err != nil {
+		if mErr.ErrorOrNil() != nil {
 			return fmtp.DiagErrorf("error in removing ELB instances from group: %s", err)
 		}
 	}

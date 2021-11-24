@@ -25,10 +25,10 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which the WAF instance group created.
   If omitted, the provider-level region will be used. Changing this setting will create a new resource.
 
-* `group_id` - (Required, String, ForceNew) Specifies the ID of instance group.
+* `group_id` - (Required, String, ForceNew) Specifies the ID of the WAF instance group.
   Changing this will create a new instance.
 
-* `load_balances` - (Required, List) Specifies the IDs of the ELB instances bound to the instance group.
+* `load_balances` - (Required, List) Specifies the IDs of the ELB instances bound to the WAF instance group.
   This is an array of security group ids.
 
 ## Attributes Reference
