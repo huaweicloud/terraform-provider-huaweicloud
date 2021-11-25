@@ -4,6 +4,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
+	iec_common "github.com/chnsz/golangsdk/openstack/iec/v1/common"
 	"github.com/chnsz/golangsdk/openstack/iec/v1/sites"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -22,22 +23,14 @@ func dataSourceIecSites() *schema.Resource {
 			"area": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"province": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"city": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
-			},
-			"operator": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
 			},
 			"sites": {
 				Type:     schema.TypeList,
@@ -64,9 +57,29 @@ func dataSourceIecSites() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"operator": {
-							Type:     schema.TypeString,
+						"lines": {
+							Type:     schema.TypeList,
 							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"operator": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"ip_version": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
 						},
 						"status": {
 							Type:     schema.TypeString,
@@ -91,7 +104,6 @@ func dataSourceIecSitesV1Read(d *schema.ResourceData, meta interface{}) error {
 		Area:     d.Get("area").(string),
 		Province: d.Get("province").(string),
 		City:     d.Get("city").(string),
-		Operator: d.Get("operator").(string),
 	}
 	pages, err := sites.List(iecClient, listOpts).AllPages()
 	if err != nil {
@@ -117,8 +129,8 @@ func dataSourceIecSitesV1Read(d *schema.ResourceData, meta interface{}) error {
 			"area":     item.Area,
 			"province": item.Province,
 			"city":     item.City,
-			"operator": item.Operator.Name,
 			"status":   item.Status,
+			"lines":    flattenSiteLines(&item),
 		}
 		iecSites = append(iecSites, val)
 	}
@@ -130,4 +142,18 @@ func dataSourceIecSitesV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(site.ID)
 
 	return nil
+}
+
+func flattenSiteLines(site *iec_common.Site) []map[string]interface{} {
+	siteLines := make([]map[string]interface{}, len(site.EipPools))
+	for i, item := range site.EipPools {
+		siteLines[i] = map[string]interface{}{
+			"id":         item.PoolID,
+			"name":       item.DisplayName,
+			"operator":   item.OperatorID.Name,
+			"ip_version": item.IPVersion,
+		}
+	}
+
+	return siteLines
 }
