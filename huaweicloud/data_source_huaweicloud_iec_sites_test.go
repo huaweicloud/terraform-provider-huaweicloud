@@ -2,10 +2,7 @@ package huaweicloud
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -19,13 +16,12 @@ func TestAccIECSitesDataSource_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIECSitesConfig(),
+				Config: testAccIECSitesConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIECSitesDataSourceID(resourceName),
-					resource.TestMatchResourceAttr(resourceName, "sites.#", regexp.MustCompile("[1-9]\\d*")),
-					resource.TestCheckResourceAttr(resourceName, "region", HW_REGION_NAME),
-					resource.TestCheckResourceAttr(resourceName, "area", "east"),
-					resource.TestCheckResourceAttr(resourceName, "city", "hangzhou"),
+					resource.TestCheckResourceAttrSet(resourceName, "sites.#"),
+					resource.TestCheckResourceAttr(resourceName, "sites.0.area", "east"),
+					resource.TestCheckResourceAttrSet(resourceName, "sites.0.lines.#"),
 				),
 			},
 		},
@@ -36,22 +32,18 @@ func testAccCheckIECSitesDataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Root module has no resource called %s", n)
+			return fmt.Errorf("Root module has no resource called %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("IEC sites data source ID not set")
+			return fmt.Errorf("IEC sites data source ID not set")
 		}
 		return nil
 	}
 }
 
-func testAccIECSitesConfig() string {
-	return fmt.Sprintf(`
+var testAccIECSitesConfig string = `
 data "huaweicloud_iec_sites" "sites_test" {
-  region = "%s"
-  area   = "east"
-  city   = "hangzhou"
+  area = "east"
 }
-	`, HW_REGION_NAME)
-}
+`
