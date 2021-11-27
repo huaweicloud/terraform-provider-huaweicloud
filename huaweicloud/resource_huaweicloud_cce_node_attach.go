@@ -1,9 +1,11 @@
 package huaweicloud
 
 import (
+	"context"
 	"time"
 
 	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -14,10 +16,10 @@ import (
 
 func ResourceCCENodeAttachV3() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCCENodeAttachV3Create,
-		Read:   resourceCCENodeV3Read,
-		Update: resourceCCENodeAttachV3Update,
-		Delete: resourceCCENodeAttachV3Delete,
+		CreateContext: resourceCCENodeAttachV3Create,
+		ReadContext:   resourceCCENodeV3Read,
+		UpdateContext: resourceCCENodeAttachV3Update,
+		DeleteContext: resourceCCENodeAttachV3Delete,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
@@ -294,11 +296,11 @@ func resourceCCENodeAttachV3Lifecycle(d *schema.ResourceData) *nodes.Lifecycle {
 	return nil
 }
 
-func resourceCCENodeAttachV3Create(d *schema.ResourceData, meta interface{}) error {
+func resourceCCENodeAttachV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	nodeClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CCE Node client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE Node client: %s", err)
 	}
 
 	// wait for the cce cluster to become available
@@ -310,7 +312,10 @@ func resourceCCENodeAttachV3Create(d *schema.ResourceData, meta interface{}) err
 		Delay:        5 * time.Second,
 		PollInterval: 5 * time.Second,
 	}
-	_, err = stateCluster.WaitForState()
+	_, err = stateCluster.WaitForStateContext(ctx)
+	if err != nil {
+		return fmtp.DiagErrorf("Error waiting for HuaweiCloud CCE cluster to be Available: %s", err)
+	}
 
 	addOpts := nodes.AddOpts{
 		Kind:       "List",
@@ -351,13 +356,13 @@ func resourceCCENodeAttachV3Create(d *schema.ResourceData, meta interface{}) err
 
 	s, err := nodes.Add(nodeClient, clusterID, addOpts).ExtractAddNode()
 	if err != nil {
-		return fmtp.Errorf("Error adding HuaweiCloud Node: %s", err)
+		return fmtp.DiagErrorf("Error adding HuaweiCloud Node: %s", err)
 	}
 
-	nodeID, err := getResourceIDFromJob(nodeClient, s.JobID, "CreateNode", "InstallNode",
+	nodeID, err := getResourceIDFromJob(ctx, nodeClient, s.JobID, "CreateNode", "InstallNode",
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(nodeID)
 
@@ -369,20 +374,20 @@ func resourceCCENodeAttachV3Create(d *schema.ResourceData, meta interface{}) err
 		Delay:        20 * time.Second,
 		PollInterval: 20 * time.Second,
 	}
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Error adding HuaweiCloud CCE Node: %s", err)
+		return fmtp.DiagErrorf("Error adding HuaweiCloud CCE Node: %s", err)
 	}
 
-	return resourceCCENodeV3Read(d, meta)
+	return resourceCCENodeV3Read(ctx, d, meta)
 }
 
-func resourceCCENodeAttachV3Update(d *schema.ResourceData, meta interface{}) error {
+func resourceCCENodeAttachV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	if d.HasChanges("os", "key_pair", "password") {
 		nodeClient, err := config.CceV3Client(GetRegion(d, config))
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
+			return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
 		}
 		clusterID := d.Get("cluster_id").(string)
 		resetOpts := nodes.ResetOpts{
@@ -424,13 +429,13 @@ func resourceCCENodeAttachV3Update(d *schema.ResourceData, meta interface{}) err
 
 		s, err := nodes.Reset(nodeClient, clusterID, resetOpts).ExtractAddNode()
 		if err != nil {
-			return fmtp.Errorf("Error resetting HuaweiCloud Node: %s", err)
+			return fmtp.DiagErrorf("Error resetting HuaweiCloud Node: %s", err)
 		}
 
-		nodeID, err := getResourceIDFromJob(nodeClient, s.JobID, "CreateNode", "InstallNode",
+		nodeID, err := getResourceIDFromJob(ctx, nodeClient, s.JobID, "CreateNode", "InstallNode",
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		d.SetId(nodeID)
 
@@ -442,23 +447,23 @@ func resourceCCENodeAttachV3Update(d *schema.ResourceData, meta interface{}) err
 			Delay:        20 * time.Second,
 			PollInterval: 20 * time.Second,
 		}
-		_, err = stateConf.WaitForState()
+		_, err = stateConf.WaitForStateContext(ctx)
 		if err != nil {
-			return fmtp.Errorf("Error resetting HuaweiCloud CCE Node: %s", err)
+			return fmtp.DiagErrorf("Error resetting HuaweiCloud CCE Node: %s", err)
 		}
 
-		return resourceCCENodeV3Read(d, config)
+		return resourceCCENodeV3Read(ctx, d, config)
 
 	} else {
-		return resourceCCENodeV3Update(d, config)
+		return resourceCCENodeV3Update(ctx, d, config)
 	}
 }
 
-func resourceCCENodeAttachV3Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceCCENodeAttachV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	nodeClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
 
 	clusterID := d.Get("cluster_id").(string)
@@ -487,7 +492,7 @@ func resourceCCENodeAttachV3Delete(d *schema.ResourceData, meta interface{}) err
 
 	err = nodes.Remove(nodeClient, clusterID, removeOpts).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error removing HuaweiCloud CCE node: %s", err)
+		return fmtp.DiagErrorf("Error removing HuaweiCloud CCE node: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -499,9 +504,9 @@ func resourceCCENodeAttachV3Delete(d *schema.ResourceData, meta interface{}) err
 		PollInterval: 20 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud CCE Node: %s", err)
+		return fmtp.DiagErrorf("Error deleting HuaweiCloud CCE Node: %s", err)
 	}
 
 	d.SetId("")

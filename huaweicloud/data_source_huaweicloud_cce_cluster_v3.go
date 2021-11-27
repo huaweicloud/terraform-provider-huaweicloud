@@ -1,10 +1,14 @@
 package huaweicloud
 
 import (
+	"context"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/chnsz/golangsdk/openstack/cce/v3/clusters"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -12,7 +16,7 @@ import (
 
 func DataSourceCCEClusterV3() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceCCEClusterV3Read,
+		ReadContext: dataSourceCCEClusterV3Read,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -172,11 +176,11 @@ func DataSourceCCEClusterV3() *schema.Resource {
 	}
 }
 
-func dataSourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
+func dataSourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Unable to create HuaweiCloud CCE client : %s", err)
+		return fmtp.DiagErrorf("Unable to create HuaweiCloud CCE client : %s", err)
 	}
 
 	listOpts := clusters.ListOpts{
@@ -190,22 +194,47 @@ func dataSourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error 
 	refinedClusters, err := clusters.List(cceClient, listOpts)
 	logp.Printf("[DEBUG] Value of allClusters: %#v", refinedClusters)
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve clusters: %s", err)
+		return fmtp.DiagErrorf("Unable to retrieve clusters: %s", err)
 	}
 
 	if len(refinedClusters) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
+		return fmtp.DiagErrorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(refinedClusters) > 1 {
-		return fmtp.Errorf("Your query returned more than one result." +
+		return fmtp.DiagErrorf("Your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
 	Cluster := refinedClusters[0]
 
 	logp.Printf("[DEBUG] Retrieved Clusters using given filter %s: %+v", Cluster.Metadata.Id, Cluster)
+
+	d.SetId(Cluster.Metadata.Id)
+	mErr := multierror.Append(nil,
+		d.Set("region", GetRegion(d, config)),
+		d.Set("name", Cluster.Metadata.Name),
+		d.Set("status", Cluster.Status.Phase),
+		d.Set("flavor_id", Cluster.Spec.Flavor),
+		d.Set("cluster_version", Cluster.Spec.Version),
+		d.Set("cluster_type", Cluster.Spec.Type),
+		d.Set("description", Cluster.Spec.Description),
+		d.Set("billing_mode", Cluster.Spec.BillingMode),
+		d.Set("vpc_id", Cluster.Spec.HostNetwork.VpcId),
+		d.Set("subnet_id", Cluster.Spec.HostNetwork.SubnetId),
+		d.Set("highway_subnet_id", Cluster.Spec.HostNetwork.HighwaySubnet),
+		d.Set("container_network_cidr", Cluster.Spec.ContainerNetwork.Cidr),
+		d.Set("container_network_type", Cluster.Spec.ContainerNetwork.Mode),
+		d.Set("eni_subnet_id", Cluster.Spec.EniNetwork.SubnetId),
+		d.Set("eni_subnet_cidr", Cluster.Spec.EniNetwork.Cidr),
+		d.Set("authentication_mode", Cluster.Spec.Authentication.Mode),
+		d.Set("security_group_id", Cluster.Spec.HostNetwork.SecurityGroup),
+		d.Set("enterprise_project_id", Cluster.Spec.ExtendParam["enterpriseProjectId"]),
+		d.Set("service_network_cidr", Cluster.Spec.KubernetesSvcIPRange),
+	)
+
+	// set endpoints
 	var v []map[string]interface{}
 	for _, endpoint := range Cluster.Status.Endpoints {
 
@@ -215,45 +244,17 @@ func dataSourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error 
 		}
 		v = append(v, mapping)
 	}
+	mErr = multierror.Append(mErr, d.Set("endpoints", v))
 
-	d.SetId(Cluster.Metadata.Id)
-
-	d.Set("name", Cluster.Metadata.Name)
-	d.Set("status", Cluster.Status.Phase)
-	d.Set("flavor_id", Cluster.Spec.Flavor)
-	d.Set("cluster_version", Cluster.Spec.Version)
-	d.Set("cluster_type", Cluster.Spec.Type)
-	d.Set("description", Cluster.Spec.Description)
-	d.Set("billing_mode", Cluster.Spec.BillingMode)
-	d.Set("vpc_id", Cluster.Spec.HostNetwork.VpcId)
-	d.Set("subnet_id", Cluster.Spec.HostNetwork.SubnetId)
-	d.Set("highway_subnet_id", Cluster.Spec.HostNetwork.HighwaySubnet)
-	d.Set("container_network_cidr", Cluster.Spec.ContainerNetwork.Cidr)
-	d.Set("container_network_type", Cluster.Spec.ContainerNetwork.Mode)
-	d.Set("eni_subnet_id", Cluster.Spec.EniNetwork.SubnetId)
-	d.Set("eni_subnet_cidr", Cluster.Spec.EniNetwork.Cidr)
-	d.Set("authentication_mode", Cluster.Spec.Authentication.Mode)
-	d.Set("security_group_id", Cluster.Spec.HostNetwork.SecurityGroup)
-	d.Set("enterprise_project_id", Cluster.Spec.ExtendParam["enterpriseProjectId"])
-	d.Set("service_network_cidr", Cluster.Spec.KubernetesSvcIPRange)
-
-	if err := d.Set("endpoints", v); err != nil {
-		return err
-	}
-	d.Set("region", GetRegion(d, config))
-
+	// set kube_config_raw
 	r := clusters.GetCert(cceClient, d.Id())
-
 	kubeConfigRaw, err := utils.JsonMarshal(r.Body)
-
 	if err != nil {
 		logp.Printf("Error marshaling r.Body: %s", err)
 	}
-
-	d.Set("kube_config_raw", string(kubeConfigRaw))
+	mErr = multierror.Append(mErr, d.Set("kube_config_raw", string(kubeConfigRaw)))
 
 	cert, err := r.Extract()
-
 	if err != nil {
 		logp.Printf("Error retrieving HuaweiCloud CCE cluster cert: %s", err)
 	}
@@ -267,7 +268,7 @@ func dataSourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error 
 		clusterCert["certificate_authority_data"] = clusterObj.Cluster.CertAuthorityData
 		clusterList = append(clusterList, clusterCert)
 	}
-	d.Set("certificate_clusters", clusterList)
+	mErr = multierror.Append(mErr, d.Set("certificate_clusters", clusterList))
 
 	//Set Certificate Users
 	var userList []map[string]interface{}
@@ -278,7 +279,7 @@ func dataSourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error 
 		userCert["client_key_data"] = userObj.User.ClientKeyData
 		userList = append(userList, userCert)
 	}
-	d.Set("certificate_users", userList)
+	mErr = multierror.Append(mErr, d.Set("certificate_users", userList))
 
 	// Set masters
 	var masterList []map[string]interface{}
@@ -287,7 +288,11 @@ func dataSourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error 
 		master["availability_zone"] = masterObj.MasterAZ
 		masterList = append(masterList, master)
 	}
-	d.Set("masters", masterList)
+	mErr = multierror.Append(mErr, d.Set("masters", masterList))
+
+	if err = mErr.ErrorOrNil(); err != nil {
+		return fmtp.DiagErrorf("Error setting cluster fields: %s", err)
+	}
 
 	return nil
 }

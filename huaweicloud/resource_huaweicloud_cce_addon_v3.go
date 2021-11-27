@@ -1,17 +1,21 @@
 package huaweicloud
 
 import (
+	"context"
 	"encoding/json"
 	"strings"
 	"time"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cce/v3/addons"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -19,12 +23,12 @@ import (
 
 func ResourceCCEAddonV3() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCCEAddonV3Create,
-		Read:   resourceCCEAddonV3Read,
-		Delete: resourceCCEAddonV3Delete,
+		CreateContext: resourceCCEAddonV3Create,
+		ReadContext:   resourceCCEAddonV3Read,
+		DeleteContext: resourceCCEAddonV3Delete,
 
 		Importer: &schema.ResourceImporter{
-			State: resourceCCEAddonV3Import,
+			StateContext: resourceCCEAddonV3Import,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -174,18 +178,18 @@ func getValuesValues(d *schema.ResourceData) (basic, custom, flavor map[string]i
 	return
 }
 
-func resourceCCEAddonV3Create(d *schema.ResourceData, meta interface{}) error {
+func resourceCCEAddonV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	cceClient, err := config.CceAddonV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Unable to create HuaweiCloud CCE client : %s", err)
+		return fmtp.DiagErrorf("Unable to create HuaweiCloud CCE client : %s", err)
 	}
 
 	var cluster_id = d.Get("cluster_id").(string)
 
 	basic, custom, flavor, err := getValuesValues(d)
 	if err != nil {
-		return fmtp.Errorf("error getting values for CCE addon: %s", err)
+		return fmtp.DiagErrorf("error getting values for CCE addon: %s", err)
 	}
 
 	createOpts := addons.CreateOpts{
@@ -210,7 +214,7 @@ func resourceCCEAddonV3Create(d *schema.ResourceData, meta interface{}) error {
 
 	create, err := addons.Create(cceClient, createOpts, cluster_id).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CCEAddon: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud CCEAddon: %s", err)
 	}
 
 	d.SetId(create.Metadata.Id)
@@ -225,54 +229,55 @@ func resourceCCEAddonV3Create(d *schema.ResourceData, meta interface{}) error {
 		PollInterval: 10 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CCEAddon: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud CCEAddon: %s", err)
 	}
 
-	return resourceCCEAddonV3Read(d, meta)
+	return resourceCCEAddonV3Read(ctx, d, meta)
 }
 
-func resourceCCEAddonV3Read(d *schema.ResourceData, meta interface{}) error {
+func resourceCCEAddonV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	cceClient, err := config.CceAddonV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
 
 	var cluster_id = d.Get("cluster_id").(string)
 
 	n, err := addons.Get(cceClient, d.Id(), cluster_id).Extract()
 	if err != nil {
-		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			d.SetId("")
-			return nil
-		}
-
-		return fmtp.Errorf("Error retrieving HuaweiCloud CCEAddon: %s", err)
+		return common.CheckDeletedDiag(d, err, "Error retrieving HuaweiCloud CCE Addon")
 	}
 
-	d.Set("cluster_id", n.Spec.ClusterID)
-	d.Set("version", n.Spec.Version)
-	d.Set("template_name", n.Spec.AddonTemplateName)
-	d.Set("status", n.Status.Status)
-	d.Set("description", n.Spec.Description)
+	mErr := multierror.Append(nil,
+		d.Set("region", config.GetRegion(d)),
+		d.Set("cluster_id", n.Spec.ClusterID),
+		d.Set("version", n.Spec.Version),
+		d.Set("template_name", n.Spec.AddonTemplateName),
+		d.Set("status", n.Status.Status),
+		d.Set("description", n.Spec.Description),
+	)
+	if err = mErr.ErrorOrNil(); err != nil {
+		return fmtp.DiagErrorf("Error setting CCE Addon fields: %s", err)
+	}
 
 	return nil
 }
 
-func resourceCCEAddonV3Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceCCEAddonV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	cceClient, err := config.CceAddonV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CCEAddon Client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud CCEAddon Client: %s", err)
 	}
 
 	var cluster_id = d.Get("cluster_id").(string)
 
 	err = addons.Delete(cceClient, d.Id(), cluster_id).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud CCE Addon: %s", err)
+		return fmtp.DiagErrorf("Error deleting HuaweiCloud CCE Addon: %s", err)
 	}
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Deleting", "Available", "Unavailable"},
@@ -283,10 +288,10 @@ func resourceCCEAddonV3Delete(d *schema.ResourceData, meta interface{}) error {
 		PollInterval: 10 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud CCE Addon: %s", err)
+		return fmtp.DiagErrorf("Error deleting HuaweiCloud CCE Addon: %s", err)
 	}
 
 	d.SetId("")
@@ -315,7 +320,9 @@ func waitForCCEAddonDelete(cceClient *golangsdk.ServiceClient, id, clusterID str
 				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud CCE Addon %s", id)
 				return r, "Deleted", nil
 			}
+			return nil, "Available", err
 		}
+
 		if r.Status.Status == "Deleting" {
 			return r, "Deleting", nil
 		}
@@ -324,7 +331,7 @@ func waitForCCEAddonDelete(cceClient *golangsdk.ServiceClient, id, clusterID str
 	}
 }
 
-func resourceCCEAddonV3Import(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceCCEAddonV3Import(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
 		err := fmtp.Errorf("Invalid format specified for CCE Addon. Format must be <cluster id>/<addon id>")
