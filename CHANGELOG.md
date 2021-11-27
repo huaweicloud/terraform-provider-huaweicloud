@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.30.1 (November 27, 2021)
+
+BUG FIXES:
+
+* data/huaweicloud_gaussdb_mysql_instances: Update public_ips type [GH-1740]
+
 ## 1.30.0 (October 30, 2021)
 
 * **New Resurce:**
