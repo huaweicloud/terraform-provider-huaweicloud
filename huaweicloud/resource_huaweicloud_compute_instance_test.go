@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -13,6 +11,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/servers"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccComputeV2Instance_basic(t *testing.T) {
@@ -34,8 +33,10 @@ func TestAccComputeV2Instance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 					resource.TestCheckResourceAttrSet(resourceName, "system_disk_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "security_groups.#"),
-					resource.TestCheckResourceAttrSet(resourceName, "network.#"),
 					resource.TestCheckResourceAttrSet(resourceName, "volume_attached.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "network.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "network.0.port"),
+					resource.TestCheckResourceAttr(resourceName, "network.0.source_dest_check", "true"),
 				),
 			},
 			{

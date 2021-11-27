@@ -298,6 +298,10 @@ The `network` block supports:
 * `fixed_ip_v4` - (Optional, String, ForceNew) Specifies a fixed IPv4 address to be used on this network.
   Changing this creates a new instance.
 
+* `source_dest_check` - (Optional, Bool) Specifies whether the ECS processes only traffic that is destined specifically
+  for it. This function is enabled by default but should be disabled if the ECS functions as a SNAT server or has a
+  virtual IP address bound to it.
+
 * `access_network` - (Optional, Bool) Specifies if this network should be used for provisioning access.
   Accepts true or false. Defaults to false.
 
