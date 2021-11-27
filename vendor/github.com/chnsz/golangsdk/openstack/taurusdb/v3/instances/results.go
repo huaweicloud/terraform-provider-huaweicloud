@@ -74,6 +74,36 @@ type TaurusDBInstance struct {
 	DedicatedResourceId string `json:"dedicated_resource_id"`
 }
 
+type ListTaurusDBInstance struct {
+	Id              string   `json:"id"`
+	Name            string   `json:"name"`
+	Status          string   `json:"status"`
+	Type            string   `json:"type"`
+	Port            string   `json:"port"`
+	NodeCount       int      `json:"node_count"`
+	VpcId           string   `json:"vpc_id"`
+	SubnetId        string   `json:"subnet_id"`
+	SecurityGroupId string   `json:"security_group_id"`
+	ConfigurationId string   `json:"configuration_id"`
+	AZMode          string   `json:"az_mode"`
+	MasterAZ        string   `json:"master_az_code"`
+	TimeZone        string   `json:"time_zone"`
+	ProjectId       string   `json:"project_id"`
+	DbUserName      string   `json:"db_user_name"`
+	PublicIps       []string `json:"public_ips"`
+	PrivateIps      []string `json:"private_write_ips"`
+	Created         string   `json:"-"`
+	Updated         string   `json:"-"`
+
+	Volume         Volume         `json:"volume"`
+	Nodes          []Nodes        `json:"nodes"`
+	DataStore      DataStore      `json:"datastore"`
+	BackupStrategy BackupStrategy `json:"backup_strategy"`
+
+	EnterpriseProjectId string `json:"enterprise_project_id"`
+	DedicatedResourceId string `json:"dedicated_resource_id"`
+}
+
 type Volume struct {
 	Type string `json:"type"`
 	Used string `json:"used"`
@@ -143,8 +173,8 @@ type ListTaurusDBResult struct {
 }
 
 type ListTaurusDBResponse struct {
-	Instances  []TaurusDBInstance `json:"instances"`
-	TotalCount int                `json:"total_count"`
+	Instances  []ListTaurusDBInstance `json:"instances"`
+	TotalCount int                    `json:"total_count"`
 }
 
 type TaurusDBPage struct {

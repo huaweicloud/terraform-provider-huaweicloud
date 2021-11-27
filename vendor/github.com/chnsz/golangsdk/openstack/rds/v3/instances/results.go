@@ -291,3 +291,12 @@ func (r RDSJobResult) Extract() (ListJob, error) {
 	err := r.ExtractInto(&s)
 	return s, err
 }
+
+type Engine struct {
+	Versions []VersionInfo `json:"dataStores"`
+}
+
+type VersionInfo struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}

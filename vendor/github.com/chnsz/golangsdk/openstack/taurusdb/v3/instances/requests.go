@@ -188,8 +188,8 @@ func List(client *golangsdk.ServiceClient, opts ListTaurusDBBuilder) pagination.
 	return pageList
 }
 
-func GetInstanceByName(client *golangsdk.ServiceClient, name string) (TaurusDBInstance, error) {
-	var instance TaurusDBInstance
+func GetInstanceByName(client *golangsdk.ServiceClient, name string) (ListTaurusDBInstance, error) {
+	var instance ListTaurusDBInstance
 
 	opts := ListTaurusDBInstanceOpts{
 		Name: name,

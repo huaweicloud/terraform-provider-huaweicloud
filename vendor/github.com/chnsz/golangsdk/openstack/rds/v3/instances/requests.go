@@ -424,3 +424,14 @@ func GetRDSJob(client *golangsdk.ServiceClient, opts RDSJobBuilder) (r RDSJobRes
 	})
 	return
 }
+
+func ListEngine(client *golangsdk.ServiceClient, dbName string) (*Engine, error) {
+	var rst golangsdk.Result
+	_, err := client.Get(engineURL(client, dbName), &rst.Body, nil)
+	if err == nil {
+		var s Engine
+		err := rst.ExtractInto(&s)
+		return &s, err
+	}
+	return nil, err
+}
