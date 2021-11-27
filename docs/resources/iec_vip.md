@@ -20,10 +20,14 @@ resource "huaweicloud_iec_vip" "vip_test" {
 
 The following arguments are supported:
 
-* `subnet_id` - (Required, String, ForceNew) Specifies the ID of the network to which the vip belongs. Changing this
-  parameter creates a new vip resource.
+* `subnet_id` - (Required, String, ForceNew) Specifies the ID of the network to which the vip belongs.
+  Changing this parameter creates a new vip resource.
 
-* `port_ids` - (Required, List) Specifies an array of IDs of the ports to attach the vip to.
+* `ip_address` - (Optional, String, ForceNew) Specifies the IP address desired in the subnet for this vip.
+  If you don't specify it, an available IP address from the specified subnet will be allocated to this vip.
+  Changing this parameter creates a new vip resource.
+
+* `port_ids` - (Optional, List) Specifies an array of IDs of the ports to attach the vip to.
 
 ## Attributes Reference
 
@@ -32,8 +36,6 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The id of the vip.
 
 * `mac_address` - The MAC address of the vip.
-
-* `fixed_ips` - An array of IP addresses binding to the vip.
 
 * `allowed_addresses` - An array of IP addresses of the ports to attach the vip to.
 

@@ -9,6 +9,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	iec_common "github.com/chnsz/golangsdk/openstack/iec/v1/common"
 	"github.com/chnsz/golangsdk/openstack/iec/v1/ports"
+	"github.com/chnsz/golangsdk/openstack/iec/v1/subnets"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -37,6 +38,12 @@ func resourceIecVipV1() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"ip_address": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"port_ids": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -45,11 +52,6 @@ func resourceIecVipV1() *schema.Resource {
 			"mac_address": {
 				Type:     schema.TypeString,
 				Computed: true,
-			},
-			"fixed_ips": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"allowed_addresses": {
 				Type:     schema.TypeList,
@@ -76,9 +78,25 @@ func resourceIecVIPV1Create(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
+	networkID := d.Get("subnet_id").(string)
+	n, err := subnets.Get(iecClient, networkID).Extract()
+	if err != nil {
+		return fmtp.Errorf("Error retrieving IEC subnet %s: %s", networkID, err)
+	}
+
 	createOpts := ports.CreateOpts{
-		NetworkId:   d.Get("subnet_id").(string),
+		NetworkId:   networkID,
 		DeviceOwner: "neutron:VIP_PORT",
+	}
+
+	// Contruct fixed ip
+	if fixedIP := d.Get("ip_address").(string); fixedIP != "" {
+		fixip := make([]ports.FixIPEntity, 1)
+		fixip[0] = ports.FixIPEntity{
+			SubnetID:  n.NeutronSubnetID,
+			IPAddress: fixedIP,
+		}
+		createOpts.FixedIPs = fixip
 	}
 
 	p, err := ports.Create(iecClient, createOpts).Extract()
@@ -123,11 +141,11 @@ func resourceIecVIPV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("subnet_id", vip.NetworkID)
 	d.Set("mac_address", vip.MacAddress)
 
-	allIPs := make([]string, len(vip.FixedIPs))
-	for i, ipObj := range vip.FixedIPs {
-		allIPs[i] = ipObj.IpAddress
+	var ipAddr string
+	if len(vip.FixedIPs) > 0 {
+		ipAddr = vip.FixedIPs[0].IpAddress
 	}
-	d.Set("fixed_ips", allIPs)
+	d.Set("ip_address", ipAddr)
 
 	allPortAddrs := make([]string, len(vip.AllowedAddressPairs))
 	for i, pair := range vip.AllowedAddressPairs {
