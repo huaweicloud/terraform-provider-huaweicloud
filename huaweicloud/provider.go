@@ -662,6 +662,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_identity_user_v3":                   iam.ResourceIdentityUserV3(),
 			"huaweicloud_identity_group_v3":                  iam.ResourceIdentityGroupV3(),
 			"huaweicloud_identity_group_membership_v3":       iam.ResourceIdentityGroupMembershipV3(),
+			"huaweicloud_identity_provider_conversion":       iam.ResourceIAMProviderConversion(),
 			"huaweicloud_cdm_cluster_v1":                     ResourceCdmClusterV1(),
 			"huaweicloud_ges_graph_v1":                       ResourceGesGraphV1(),
 			"huaweicloud_cloudtable_cluster_v2":              resourceCloudtableClusterV2(),
