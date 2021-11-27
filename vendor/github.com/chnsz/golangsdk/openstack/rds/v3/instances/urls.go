@@ -21,3 +21,7 @@ func updateURL(c *golangsdk.ServiceClient, instancesId string, updata string) st
 func jobURL(c *golangsdk.ServiceClient) string {
 	return c.ServiceURL("jobs")
 }
+
+func engineURL(c *golangsdk.ServiceClient, dbName string) string {
+	return c.ServiceURL("datastores", dbName)
+}

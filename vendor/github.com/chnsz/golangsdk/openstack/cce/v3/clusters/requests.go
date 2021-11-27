@@ -12,11 +12,12 @@ var RequestOpts golangsdk.RequestOpts = golangsdk.RequestOpts{
 
 // ListOpts allows the filtering of list data using given parameters.
 type ListOpts struct {
-	Name  string `json:"name"`
-	ID    string `json:"uuid"`
-	Type  string `json:"type"`
-	VpcID string `json:"vpc"`
-	Phase string `json:"phase"`
+	Name                string `json:"name"`
+	ID                  string `json:"uuid"`
+	Type                string `json:"type"`
+	VpcID               string `json:"vpc"`
+	Phase               string `json:"phase"`
+	EnterpriseProjectID string `json:"enterpriseProjectId"`
 }
 
 // List returns collection of clusters.
@@ -56,6 +57,9 @@ func FilterClusters(clusters []Clusters, opts ListOpts) []Clusters {
 	if opts.Phase != "" {
 		m["Phase"] = FilterStruct{Value: opts.Phase, Driller: []string{"Status"}}
 	}
+	if opts.EnterpriseProjectID != "" {
+		m["enterpriseProjectId"] = FilterStruct{Value: opts.EnterpriseProjectID, Driller: []string{"Spec", "ExtendParam"}}
+	}
 
 	if len(m) > 0 && len(clusters) > 0 {
 		for _, cluster := range clusters {
@@ -89,8 +93,20 @@ func GetStructNestedField(v *Clusters, field string, structDriller []string) str
 		f := reflect.Indirect(r).FieldByName(drillField).Interface()
 		r = reflect.ValueOf(f)
 	}
-	f1 := reflect.Indirect(r).FieldByName(field)
-	return string(f1.String())
+
+	if r.Kind() == reflect.Map {
+		keys := r.MapKeys()
+		for _, k := range keys {
+			if k.String() == field {
+				f1 := r.MapIndex(k)
+				return f1.Interface().(string)
+			}
+		}
+		return ""
+	} else {
+		f1 := reflect.Indirect(r).FieldByName(field)
+		return f1.String()
+	}
 }
 
 // CreateOptsBuilder allows extensions to add additional parameters to the

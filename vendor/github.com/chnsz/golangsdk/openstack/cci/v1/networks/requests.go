@@ -44,10 +44,10 @@ type Spec struct {
 	NetworkType string `json:"networkType" required:"true"`
 	// Network ID
 	NetworkID string `json:"networkID" required:"true"`
-	// Subnet ID
-	SubnetID string `json:"subnetID" required:"true"`
 	// Network AZ
 	AvailableZone string `json:"availableZone" required:"true"`
+	// Subnet ID
+	SubnetID string `json:"subnetID,omitempty"`
 }
 
 // ToNetworkCreateMap builds a create request body from CreateOpts.
