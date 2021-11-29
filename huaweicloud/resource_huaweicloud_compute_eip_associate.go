@@ -225,7 +225,7 @@ func getFloatingIPbyAddress(d *schema.ResourceData, config *config.Config, float
 	}
 
 	listOpts := &eips.ListOpts{
-		PublicIp: floatingIP,
+		PublicIp: []string{floatingIP},
 	}
 
 	pages, err := eips.List(networkingV1Client, listOpts).AllPages()

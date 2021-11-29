@@ -6,6 +6,10 @@ import (
 	"github.com/chnsz/golangsdk/pagination"
 )
 
+var requestOpts = golangsdk.RequestOpts{
+	MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+}
+
 // CreateOpsBuilder is used for creating instance parameters.
 // any struct providing the parameters should implement this interface
 type CreateOpsBuilder interface {
@@ -256,4 +260,30 @@ func List(client *golangsdk.ServiceClient, opts ListOpsBuilder) pagination.Pager
 	})
 
 	return pageList
+}
+
+type ResizeInstanceOpts struct {
+	NewSpecCode     string `json:"new_spec_code,omitempty"`
+	NewStorageSpace int    `json:"new_storage_space,omitempty"`
+}
+
+func Resize(client *golangsdk.ServiceClient, id string, opts ResizeInstanceOpts) (string, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return "", err
+	}
+
+	var rst golangsdk.Result
+	_, err = client.Post(extend(client, id), b, &rst.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	if err == nil {
+		var r struct {
+			JobID string `json:"job_id"`
+		}
+		rst.ExtractInto(&r)
+		return r.JobID, nil
+	}
+	return "", err
 }

@@ -105,10 +105,18 @@ type ListOpts struct {
 	IPVersion int `q:"ip_version"`
 
 	// Associated port id
-	PortId string `q:"port_id"`
+	PortId []string `q:"port_id"`
 
 	// Public IP address
-	PublicIp string `q:"public_ip_address"`
+	PublicIp []string `q:"public_ip_address"`
+
+	// private IP address
+	PrivateIp []string `q:"private_ip_address"`
+
+	// ID
+	Id []string `q:"id"`
+
+	AllowShareBandwidthTypeAny []string `q:"allow_share_bandwidth_type_any"`
 
 	// enterprise_project_id
 	// You can use this field to filter the elastic public IP under an enterprise project.

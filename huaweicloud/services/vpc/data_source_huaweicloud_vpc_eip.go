@@ -65,8 +65,8 @@ func dataSourceVpcEipRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	listOpts := &eips.ListOpts{
-		PortId:   d.Get("port_id").(string),
-		PublicIp: d.Get("public_ip").(string),
+		PortId:   []string{d.Get("port_id").(string)},
+		PublicIp: []string{d.Get("public_ip").(string)},
 	}
 
 	epsID := config.GetEnterpriseProjectID(d)
