@@ -77,10 +77,6 @@ func dataSourceObsBucketsRead(_ context.Context, d *schema.ResourceData, meta in
 		return fmtp.DiagErrorf("Error querying OBS buckets: %s", err)
 	}
 
-	if len(r.Buckets) == 0 {
-		return fmtp.DiagErrorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
-	}
 	ids := make([]string, 0, len(r.Buckets))
 	buckets := make([]map[string]interface{}, 0, len(r.Buckets))
 	for _, v := range r.Buckets {
