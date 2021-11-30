@@ -67,10 +67,9 @@ func ResourceKmsKeyV1() *schema.Resource {
 				Default:  "7",
 			},
 			"tags": {
-				Type:         schema.TypeMap,
-				Optional:     true,
-				ValidateFunc: utils.ValidateECSTagValue,
-				Elem:         &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"key_id": {
 				Type:     schema.TypeString,
