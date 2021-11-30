@@ -36,8 +36,6 @@ type CreateMetaData struct {
 
 // Specifications to create a network
 type Spec struct {
-	// Network CIDR
-	Cidr string `json:"type,omitempty"`
 	// Network VPC ID
 	AttachedVPC string `json:"attachedVPC" required:"true"`
 	// Network Type
@@ -46,6 +44,8 @@ type Spec struct {
 	NetworkID string `json:"networkID" required:"true"`
 	// Network AZ
 	AvailableZone string `json:"availableZone" required:"true"`
+	// Network CIDR
+	Cidr string `json:"cidr,omitempty"`
 	// Subnet ID
 	SubnetID string `json:"subnetID,omitempty"`
 }
