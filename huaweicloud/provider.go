@@ -354,6 +354,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_peering_connection":               vpc.DataSourceVpcPeeringConnectionV2(),
 			"huaweicloud_vpc_route_table":                      vpc.DataSourceVPCRouteTable(),
 			"huaweicloud_vpc_subnet":                           vpc.DataSourceVpcSubnetV1(),
+			"huaweicloud_vpc_subnets":                          vpc.DataSourceVpcSubnets(),
 			"huaweicloud_vpc_subnet_ids":                       vpc.DataSourceVpcSubnetIdsV1(),
 			"huaweicloud_vpcep_public_services":                DataSourceVPCEPPublicServices(),
 			"huaweicloud_waf_certificate":                      waf.DataSourceWafCertificateV1(),
