@@ -260,6 +260,64 @@ resource "huaweicloud_mapreduce_cluster" "test" {
 
 ```
 
+### Create an analysis cluster and bind public IP
+
+```hcl
+data "huaweicloud_availability_zones" "test" {}
+
+variable "cluster_name" {}
+variable "password" {}
+variable "vpc_id" {}
+variable "subnet_id" {}
+variable "public_ip" {}
+
+resource "huaweicloud_mapreduce_cluster" "test" {
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+  name               = var.cluster_name
+  version            = "MRS 1.9.2"
+  type               = "ANALYSIS"
+  component_list     = ["Hadoop", "Hive", "Tez"]
+  manager_admin_pass = var.password
+  node_admin_pass    = var.password
+  vpc_id             = var.vpc_id
+  subnet_id          = var.subnet_id
+  public_ip          = var.public_ip
+
+  master_nodes {
+    flavor            = "c6.2xlarge.4.linux.bigdata"
+    node_number       = 2
+    root_volume_type  = "SAS"
+    root_volume_size  = 300
+    data_volume_type  = "SAS"
+    data_volume_size  = 480
+    data_volume_count = 1
+  }
+  analysis_core_nodes {
+    flavor            = "c6.2xlarge.4.linux.bigdata"
+    node_number       = 2
+    root_volume_type  = "SAS"
+    root_volume_size  = 300
+    data_volume_type  = "SAS"
+    data_volume_size  = 480
+    data_volume_count = 1
+  }
+  analysis_task_nodes {
+    flavor            = "c6.2xlarge.4.linux.bigdata"
+    node_number       = 1
+    root_volume_type  = "SAS"
+    root_volume_size  = 300
+    data_volume_type  = "SAS"
+    data_volume_size  = 480
+    data_volume_count = 1
+  }
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -299,8 +357,13 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies a unique ID in UUID format of enterprise project.
   Changing this will create a new MapReduce cluster resource.
 
-* `eip_id` - (Optional, String, ForceNew) Specifies the EIP ID which bound to the MapReduce cluster. Changing this will
-  create a new MapReduce cluster resource.
+* `public_ip` - (Optional, String, ForceNew) Specifies the EIP address which bound to the MapReduce cluster.
+The EIP must have been created and must be in the same region as the cluster.
+ Changing this will create a new MapReduce cluster resource.
+
+* `eip_id` - (Optional, String, ForceNew) Specifies the EIP ID which bound to the MapReduce cluster.
+The EIP must have been created and must be in the same region as the cluster.
+ Changing this will create a new MapReduce cluster resource.
 
 * `log_collection` - (Optional, Bool, ForceNew) Specifies whether logs are collected when cluster installation fails.
   Default to true. If `log_collection` set true, the OBS buckets will be created and only used to collect logs that
@@ -456,7 +519,7 @@ terraform import huaweicloud_mapreduce_cluster.test b11b407c-e604-4e8d-8bc4-9239
 
 Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
 API response, security or some other reason. The missing attributes include:
-`manager_admin_pass`, `node_admin_pass`,`template_id`,`eip_id` and `assigned_roles`.
+`manager_admin_pass`, `node_admin_pass`,`template_id` and `assigned_roles`.
 It is generally recommended running `terraform plan` after importing a cluster.
 You can then decide if changes should be applied to the cluster, or the resource definition
 should be updated to align with the cluster. Also you can ignore changes as below.
@@ -467,7 +530,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
 
   lifecycle {
     ignore_changes = [
-      manager_admin_pass, node_admin_pass, eip_id,
+      manager_admin_pass, node_admin_pass,
     ]
   }
 }

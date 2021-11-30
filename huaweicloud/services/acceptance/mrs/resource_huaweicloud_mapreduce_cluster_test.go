@@ -1031,3 +1031,207 @@ resource "huaweicloud_mapreduce_cluster" "test" {
 
 }`, testAccMrsMapReduceClusterConfig_base(rName), rName, pwd, pwd, nodeNum1)
 }
+
+func TestAccMrsMapReduceCluster_Eip_id(t *testing.T) {
+	var clusterGet cluster.Cluster
+	resourceName := "huaweicloud_mapreduce_cluster.test"
+	eipResourceName := "huaweicloud_vpc_eip.test"
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	password := fmt.Sprintf("TF%s%s%d", acctest.RandString(10), acctest.RandStringFromCharSet(1, "-_"),
+		acctest.RandIntRange(0, 99))
+	bName := acceptance.RandomAccResourceName()
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckMRSV2ClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMrsMapReduceClusterConfig_Eip_id(rName, password, bName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "type", "STREAMING"),
+					resource.TestCheckResourceAttr(resourceName, "safe_mode", "true"),
+					resource.TestCheckResourceAttr(resourceName, "status", "running"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttrPair(resourceName, "eip_id", eipResourceName, "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "public_ip", eipResourceName, "address"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"manager_admin_pass",
+					"node_admin_pass",
+				},
+			},
+		},
+	})
+}
+
+func testAccMrsMapReduceClusterConfig_Eip_id(rName, pwd, bName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_vpc_eip" "test" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+	name        = "%s"
+    share_type  = "PER"
+    size        = 5
+    charge_mode = "traffic"
+  }
+}
+
+resource "huaweicloud_mapreduce_cluster" "test" {
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+  name               = "%s"
+  type               = "STREAMING"
+  version            = "MRS 1.9.2"
+  manager_admin_pass = "%s"
+  node_admin_pass    = "%s"
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = huaweicloud_vpc.test.id
+  eip_id             = huaweicloud_vpc_eip.test.id
+  component_list     = ["Storm"]
+
+  master_nodes {
+    flavor            = "c6.2xlarge.4.linux.bigdata"
+    node_number       = 2
+    root_volume_type  = "SAS"
+    root_volume_size  = 300
+    data_volume_type  = "SAS"
+    data_volume_size  = 480
+    data_volume_count = 1
+  }
+  streaming_core_nodes {
+    flavor            = "c6.2xlarge.4.linux.bigdata"
+    node_number       = 2
+    root_volume_type  = "SAS"
+    root_volume_size  = 300
+    data_volume_type  = "SAS"
+    data_volume_size  = 480
+    data_volume_count = 1
+  }
+  streaming_task_nodes {
+    flavor            = "c6.2xlarge.4.linux.bigdata"
+    node_number       = 1
+    root_volume_type  = "SAS"
+    root_volume_size  = 300
+    data_volume_count = 0
+  }
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}`, testAccMrsMapReduceClusterConfig_base(rName), bName, rName, pwd, pwd)
+}
+
+func TestAccMrsMapReduceCluster_Eip_publicIp(t *testing.T) {
+	var clusterGet cluster.Cluster
+	resourceName := "huaweicloud_mapreduce_cluster.test"
+	eipResourceName := "huaweicloud_vpc_eip.test"
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	password := fmt.Sprintf("TF%s%s%d", acctest.RandString(10), acctest.RandStringFromCharSet(1, "-_"),
+		acctest.RandIntRange(0, 99))
+	bName := acceptance.RandomAccResourceName()
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckMRSV2ClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMrsMapReduceClusterConfig_Eip_publicIp(rName, password, bName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "type", "STREAMING"),
+					resource.TestCheckResourceAttr(resourceName, "safe_mode", "true"),
+					resource.TestCheckResourceAttr(resourceName, "status", "running"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttrPair(resourceName, "eip_id", eipResourceName, "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "public_ip", eipResourceName, "address"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"manager_admin_pass",
+					"node_admin_pass",
+				},
+			},
+		},
+	})
+}
+
+func testAccMrsMapReduceClusterConfig_Eip_publicIp(rName, pwd, bName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_vpc_eip" "test" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+	name        = "%s"
+    share_type  = "PER"
+    size        = 5
+    charge_mode = "traffic"
+  }
+}
+
+resource "huaweicloud_mapreduce_cluster" "test" {
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+  name               = "%s"
+  type               = "STREAMING"
+  version            = "MRS 1.9.2"
+  manager_admin_pass = "%s"
+  node_admin_pass    = "%s"
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = huaweicloud_vpc.test.id
+  public_ip          = huaweicloud_vpc_eip.test.address
+  component_list     = ["Storm"]
+
+  master_nodes {
+    flavor            = "c6.2xlarge.4.linux.bigdata"
+    node_number       = 2
+    root_volume_type  = "SAS"
+    root_volume_size  = 300
+    data_volume_type  = "SAS"
+    data_volume_size  = 480
+    data_volume_count = 1
+  }
+  streaming_core_nodes {
+    flavor            = "c6.2xlarge.4.linux.bigdata"
+    node_number       = 2
+    root_volume_type  = "SAS"
+    root_volume_size  = 300
+    data_volume_type  = "SAS"
+    data_volume_size  = 480
+    data_volume_count = 1
+  }
+  streaming_task_nodes {
+    flavor            = "c6.2xlarge.4.linux.bigdata"
+    node_number       = 1
+    root_volume_type  = "SAS"
+    root_volume_size  = 300
+    data_volume_count = 0
+  }
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}`, testAccMrsMapReduceClusterConfig_base(rName), bName, rName, pwd, pwd)
+}

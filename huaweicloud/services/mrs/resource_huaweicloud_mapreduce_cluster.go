@@ -12,6 +12,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/mrs/v1/cluster"
 	clusterV2 "github.com/chnsz/golangsdk/openstack/mrs/v2/clusters"
+	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -134,6 +135,13 @@ func ResourceMRSClusterV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
+			},
+			"public_ip": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
 			},
 			"log_collection": {
 				Type:     schema.TypeBool,
@@ -525,6 +533,17 @@ func resourceMRSClusterV2Create(d *schema.ResourceData, meta interface{}) error 
 		return fmtp.Errorf("Unable to find the subnet (%s) on the server: %s", subnetId, err)
 	}
 
+	networkingClient, err := config.NetworkingV1Client(region)
+	if err != nil {
+		return fmtp.Errorf("Error creating networking client: %s", err)
+	}
+
+	eipId, publicIp, err := queryEipInfo(networkingClient, d.Get("eip_id").(string), d.Get("public_ip").(string))
+	if err != nil {
+		return fmtp.Errorf("Unable to find the eip_id=%s,public_ip=%s on the server: %s", d.Get("eip_id").(string),
+			d.Get("public_ip").(string), err)
+	}
+
 	createOpts := &clusterV2.CreateOpts{
 		Region:               region,
 		AvailabilityZone:     d.Get("availability_zone").(string),
@@ -535,7 +554,8 @@ func resourceMRSClusterV2Create(d *schema.ResourceData, meta interface{}) error 
 		VpcName:              vpcResp.Name,
 		SubnetId:             subnetId,
 		SubnetName:           subnetResp.Name,
-		EipId:                d.Get("eip_id").(string),
+		EipId:                eipId,
+		EipAddress:           publicIp,
 		Components:           buildMrsComponents(d),
 		EnterpriseProjectId:  common.GetEnterpriseProjectID(d, config),
 		LogCollection:        buildLogCollection(d),
@@ -575,6 +595,36 @@ func resourceMRSClusterV2Create(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	return resourceMRSClusterV2Read(d, meta)
+}
+
+func queryEipInfo(client *golangsdk.ServiceClient, eipId, PublicIp string) (string, string, error) {
+	if eipId == "" && PublicIp == "" {
+		return "", "", nil
+	}
+
+	var listOpts eips.ListOpts
+	if eipId != "" {
+		listOpts.Id = []string{eipId}
+	}
+	if PublicIp != "" {
+		listOpts.PublicIp = []string{PublicIp}
+	}
+
+	pages, err := eips.List(client, listOpts).AllPages()
+	if err != nil {
+		return "", "", err
+	}
+
+	allEips, err := eips.ExtractPublicIPs(pages)
+	if err != nil {
+		return "", "", fmtp.Errorf("Unable to retrieve eips: %s ", err)
+	}
+
+	if len(allEips) < 1 {
+		return "", "", fmtp.Errorf("Unable to retrieve eips")
+	}
+
+	return allEips[0].ID, allEips[0].PublicAddress, nil
 }
 
 func setMrsClsuterType(d *schema.ResourceData, resp *cluster.Cluster) error {
@@ -769,6 +819,8 @@ func resourceMRSClusterV2Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("master_node_ip", resp.Masternodeip),
 		d.Set("private_ip", resp.Privateipfirst),
 		d.Set("status", resp.Clusterstate),
+		d.Set("public_ip", resp.EipAddress),
+		d.Set("eip_id", resp.EipId),
 		setMrsClsuterType(d, resp),
 		setMrsClsuterComponentList(d, resp),
 		setMrsClsuterSafeMode(d, resp),
