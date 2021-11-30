@@ -28,6 +28,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mrs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rds"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/scm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/swr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
@@ -340,6 +341,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_networking_secgroup":                  DataSourceNetworkingSecGroupV2(),
 			"huaweicloud_obs_bucket_object":                    DataSourceObsBucketObject(),
 			"huaweicloud_rds_flavors":                          DataSourceRdsFlavorV3(),
+			"huaweicloud_rds_engine_versions":                  rds.DataSourceRdsEngineVersionsV3(),
 			"huaweicloud_sfs_file_system":                      DataSourceSFSFileSystemV2(),
 			"huaweicloud_vbs_backup_policy":                    dataSourceVBSBackupPolicyV2(),
 			"huaweicloud_vbs_backup":                           dataSourceVBSBackupV2(),
