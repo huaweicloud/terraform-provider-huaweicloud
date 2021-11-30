@@ -48,6 +48,7 @@ func TestAccIdentityV3User_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", userName),
 					resource.TestCheckResourceAttr(resourceName, "description", "tested by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "pwd_reset", "true"),
 					resource.TestCheckResourceAttr(resourceName, "email", "user_1@abc.com"),
 					resource.TestCheckResourceAttr(resourceName, "password_strength", "Strong"),
 				),
@@ -67,6 +68,7 @@ func TestAccIdentityV3User_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", userName),
 					resource.TestCheckResourceAttr(resourceName, "description", "updated by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "pwd_reset", "false"),
 					resource.TestCheckResourceAttr(resourceName, "email", "user_1@abcd.com"),
 				),
 			},
@@ -91,6 +93,7 @@ func testAccIdentityV3User_update(userName string) string {
 resource "huaweicloud_identity_user" "user_1" {
   name        = "%s"
   password    = "password123@!"
+  pwd_reset   = false
   enabled     = false
   email       = "user_1@abcd.com"
   description = "updated by terraform"
