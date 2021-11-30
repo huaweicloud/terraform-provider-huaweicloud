@@ -36,7 +36,7 @@ func ResourceWafInstGroupAssociate() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"load_balances": {
+			"load_balancers": {
 				Type:     schema.TypeSet,
 				Required: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -68,7 +68,7 @@ func resourceWafInsGroupAssociateCreate(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
-	elbIDs := d.Get("load_balances").(*schema.Set).List()
+	elbIDs := d.Get("load_balancers").(*schema.Set).List()
 	mErr := addELBInstances(client, groupID, elbIDs)
 	if mErr.ErrorOrNil() != nil {
 		return diag.FromErr(mErr)
@@ -109,7 +109,7 @@ func resourceWafInsGroupAssociateRead(_ context.Context, d *schema.ResourceData,
 	}
 	mErr := multierror.Append(nil,
 		d.Set("group_id", group.ID),
-		d.Set("load_balances", loadBalances),
+		d.Set("load_balancers", loadBalances),
 	)
 
 	if mErr.ErrorOrNil() != nil {
@@ -127,7 +127,7 @@ func resourceWafInsGroupAssociateUpdate(ctx context.Context, d *schema.ResourceD
 	}
 
 	mErr := &multierror.Error{}
-	oldVal, newVal := d.GetChange("load_balances")
+	oldVal, newVal := d.GetChange("load_balancers")
 	oldValSet := oldVal.(*schema.Set)
 	newValSet := newVal.(*schema.Set)
 
@@ -156,7 +156,7 @@ func resourceWafInsGroupAssociateDelete(_ context.Context, d *schema.ResourceDat
 		return fmtp.DiagErrorf("error in creating HuaweiCloud WAF dedicated client : %s", err)
 	}
 	// remove the bound ELB instances before deleting the group
-	elbIDs := d.Get("load_balances").(*schema.Set)
+	elbIDs := d.Get("load_balancers").(*schema.Set)
 	if elbIDs.Len() > 0 {
 		mErr := batchRemoveELBInstances(client, d.Id(), elbIDs.List())
 		if mErr.ErrorOrNil() != nil {

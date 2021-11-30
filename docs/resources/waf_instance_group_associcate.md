@@ -13,8 +13,8 @@ variable "group_id" {}
 variable "elb_instance_id" {}
 
 resource "huaweicloud_waf_instance_group_associate" "group_associate" {
-  group_id      = group_id
-  load_balances = [elb_instance_id]
+  group_id       = var.group_id
+  load_balancers = [var.elb_instance_id]
 }
 ```
 
@@ -26,10 +26,10 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Changing this setting will create a new resource.
 
 * `group_id` - (Required, String, ForceNew) Specifies the ID of the WAF instance group.
-  Changing this will create a new instance.
+  Changing this will create a new resource.
 
-* `load_balances` - (Required, List) Specifies the IDs of the ELB instances bound to the WAF instance group.
-  This is an array of security group ids.
+* `load_balancers` - (Required, List) Specifies the IDs of the ELB instances bound to the WAF instance group.
+  This is an array of ELB instance ids.
 
 ## Attributes Reference
 

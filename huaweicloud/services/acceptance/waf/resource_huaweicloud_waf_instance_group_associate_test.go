@@ -32,8 +32,8 @@ func TestAccWafInsGroupAssociate_basic(t *testing.T) {
 				Config: testAccWafInsGroupAssoicate_conf(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "load_balances.#", "1"),
-					acceptance.TestCheckResourceAttrWithVariable(resourceName, "load_balances.0",
+					resource.TestCheckResourceAttr(resourceName, "load_balancers.#", "1"),
+					acceptance.TestCheckResourceAttrWithVariable(resourceName, "load_balancers.0",
 						"${huaweicloud_elb_loadbalancer.elb.id}"),
 					acceptance.TestCheckResourceAttrWithVariable(resourceName,
 						"group_id", "${huaweicloud_waf_instance_group.group_1.id}"),
@@ -84,8 +84,8 @@ resource "huaweicloud_elb_loadbalancer" "elb" {
 }
 
 resource "huaweicloud_waf_instance_group_associate" "group_associate" {
-  group_id      = huaweicloud_waf_instance_group.group_1.id
-  load_balances = [huaweicloud_elb_loadbalancer.elb.id]
+  group_id       = huaweicloud_waf_instance_group.group_1.id
+  load_balancers = [huaweicloud_elb_loadbalancer.elb.id]
 
   depends_on = [huaweicloud_waf_dedicated_instance.instance_1]
 }
