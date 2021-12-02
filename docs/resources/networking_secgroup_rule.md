@@ -46,8 +46,9 @@ The following arguments are supported:
   group rule. This parameter can contain a maximum of 255 characters and cannot contain angle brackets (< or >).
   Changing this creates a new security group rule.
 
-* `protocol` - (Optional, String, ForceNew) Specifies the layer 4 protocol type, valid values are __tcp__, __udp__
-  and __icmp__. This is required if you want to specify a port range. Changing this creates a new security group rule.
+* `protocol` - (Optional, String, ForceNew) Specifies the layer 4 protocol type, valid values are __tcp__, __udp__,
+  __icmp__ and __icmpv6__. If omitted, the protocol means that all protocols are supported.
+  This is required if you want to specify a port range. Changing this creates a new security group rule.
 
 * `port_range_min` - (Optional, Int, ForceNew) Specifies the lower part of the allowed port range, valid integer value
   needs to be between 1 and 65535. Changing this creates a new security group rule.

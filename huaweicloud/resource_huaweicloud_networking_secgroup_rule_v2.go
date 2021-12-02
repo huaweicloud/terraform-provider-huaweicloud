@@ -1,7 +1,7 @@
 package huaweicloud
 
 import (
-	"strconv"
+	"regexp"
 	"strings"
 	"time"
 
@@ -74,6 +74,12 @@ func ResourceNetworkingSecGroupRuleV2() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
+				ValidateFunc: validation.Any(
+					validation.StringInSlice([]string{"tcp", "udp", "icmp", "icmpv6"}, false),
+					validation.StringMatch(regexp.MustCompile("^([0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])$"),
+						"The valid protocol is range from 0 to 255.",
+					),
+				),
 			},
 			"remote_group_id": {
 				Type:     schema.TypeString,
@@ -132,6 +138,7 @@ func resourceNetworkingSecGroupRuleV2Create(d *schema.ResourceData, meta interfa
 		RemoteGroupID:  d.Get("remote_group_id").(string),
 		RemoteIPPrefix: d.Get("remote_ip_prefix").(string),
 		TenantID:       d.Get("tenant_id").(string),
+		Protocol:       rules.RuleProtocol(d.Get("protocol").(string)),
 	}
 
 	if v, ok := d.GetOk("direction"); ok {
@@ -142,11 +149,6 @@ func resourceNetworkingSecGroupRuleV2Create(d *schema.ResourceData, meta interfa
 	if v, ok := d.GetOk("ethertype"); ok {
 		ethertype := resourceNetworkingSecGroupRuleV2DetermineEtherType(v.(string))
 		opts.EtherType = ethertype
-	}
-
-	if v, ok := d.GetOk("protocol"); ok {
-		protocol := resourceNetworkingSecGroupRuleV2DetermineProtocol(v.(string))
-		opts.Protocol = protocol
 	}
 
 	logp.Printf("[DEBUG] Create HuaweiCloud Neutron security group: %#v", opts)
@@ -242,66 +244,6 @@ func resourceNetworkingSecGroupRuleV2DetermineEtherType(v string) rules.RuleEthe
 	}
 
 	return etherType
-}
-
-func resourceNetworkingSecGroupRuleV2DetermineProtocol(v string) rules.RuleProtocol {
-	var protocol rules.RuleProtocol
-
-	// Check and see if the requested protocol matched a list of known protocol names.
-	switch v {
-	case "tcp":
-		protocol = rules.ProtocolTCP
-	case "udp":
-		protocol = rules.ProtocolUDP
-	case "icmp":
-		protocol = rules.ProtocolICMP
-	case "ah":
-		protocol = rules.ProtocolAH
-	case "dccp":
-		protocol = rules.ProtocolDCCP
-	case "egp":
-		protocol = rules.ProtocolEGP
-	case "esp":
-		protocol = rules.ProtocolESP
-	case "gre":
-		protocol = rules.ProtocolGRE
-	case "igmp":
-		protocol = rules.ProtocolIGMP
-	case "ipv6-encap":
-		protocol = rules.ProtocolIPv6Encap
-	case "ipv6-frag":
-		protocol = rules.ProtocolIPv6Frag
-	case "ipv6-icmp":
-		protocol = rules.ProtocolIPv6ICMP
-	case "ipv6-nonxt":
-		protocol = rules.ProtocolIPv6NoNxt
-	case "ipv6-opts":
-		protocol = rules.ProtocolIPv6Opts
-	case "ipv6-route":
-		protocol = rules.ProtocolIPv6Route
-	case "ospf":
-		protocol = rules.ProtocolOSPF
-	case "pgm":
-		protocol = rules.ProtocolPGM
-	case "rsvp":
-		protocol = rules.ProtocolRSVP
-	case "sctp":
-		protocol = rules.ProtocolSCTP
-	case "udplite":
-		protocol = rules.ProtocolUDPLite
-	case "vrrp":
-		protocol = rules.ProtocolVRRP
-	}
-
-	// If the protocol wasn't matched above, see if it's an integer.
-	if protocol == "" {
-		_, err := strconv.Atoi(v)
-		if err == nil {
-			protocol = rules.RuleProtocol(v)
-		}
-	}
-
-	return protocol
 }
 
 func waitForSecGroupRuleDelete(networkingClient *golangsdk.ServiceClient, secGroupRuleId string) resource.StateRefreshFunc {
