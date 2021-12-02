@@ -4,7 +4,7 @@ subcategory: "Relational Database Service (RDS)"
 
 # huaweicloud_rds_flavors
 
-Use this data source to get available HuaweiCloud rds flavors. This is an alternative to `huaweicloud_rds_flavors_v3`
+Use this data source to get available HuaweiCloud rds flavors.
 
 ## Example Usage
 
@@ -23,34 +23,41 @@ data "huaweicloud_rds_flavors" "flavor" {
 
 * `db_type` - (Required, String) Specifies the DB engine. Value: MySQL, PostgreSQL, SQLServer.
 
-* `db_version` - (Required, String) Specifies the database version. Available value:
+* `db_version` - (Optional, String) Specifies the database version. For more detail, please see
+[DB Engines and Versions](https://support.huaweicloud.com/intl/en-us/productdesc-rds/en-us_topic_0043898356.html).
+ Available value:
 
 <!-- markdownlint-disable MD033 -->
 type | version
 ---- | ---
 MySQL| 5.6 <br>5.7 <br>8.0
-PostgreSQL | 9.5 <br> 9.6 <br>10 <br>11
+PostgreSQL | 9.5 <br> 9.6 <br>10 <br>11 <br>12 <br>13
 SQLServer| 2008_R2_EE <br>2008_R2_WEB <br>2012_SE <br>2014_SE <br>2016_SE <br>2017_SE <br>2012_EE <br>2014_EE <br>2016_EE <br>2017_EE <br>2012_WEB <br>2014_WEB <br>2016_WEB <br>2017_WEB
 <!-- markdownlint-enable MD033 -->
 
-* `instance_mode` - (Required, String) The mode of instance. Value: *ha*(indicates primary/standby instance),
+* `instance_mode` - (Optional, String) The mode of instance. Value: *ha*(indicates primary/standby instance),
   *single*(indicates single instance) and *replica*(indicates read replicas).
 
 * `vcpus` - (Optional, Int) Specifies the number of vCPUs in the RDS flavor.
 
 * `memory` - (Optional, Int) Specifies the memory size(GB) in the RDS flavor.
 
+* `availability_zone` - (Optional, String) Specifies the availability zone which the RDS flavor belongs to.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a data source ID in UUID format.
+* `id` - The data source ID.
 
 * `flavors` - Indicates the flavors information. Structure is documented below.
 
 The `flavors` block contains:
 
+* `id` - The ID of the rds flavor.
 * `name` - The name of the rds flavor.
-* `vcpus` - Indicates the CPU size.
-* `memory` - Indicates the memory size in GB.
-* `mode` - See 'instance_mode' above.
+* `vcpus` - The CPU size.
+* `memory` - The memory size in GB.
+* `instance_mode` - The mode of instance.
+* `availability_zones` - The availability zones which the RDS flavor belongs to.
+* `db_versions` - The Available versions of the database.

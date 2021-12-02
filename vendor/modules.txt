@@ -56,7 +56,7 @@ github.com/aws/aws-sdk-go/service/sts
 github.com/aws/aws-sdk-go/service/sts/stsiface
 # github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d
 github.com/bgentry/go-netrc/netrc
-# github.com/chnsz/golangsdk v0.0.0-20211209120709-10ee0cdc99b3
+# github.com/chnsz/golangsdk v0.0.0-20211210025418-bfef50238f46
 ## explicit
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/internal
@@ -265,6 +265,7 @@ github.com/chnsz/golangsdk/openstack/opengauss/v3/backups
 github.com/chnsz/golangsdk/openstack/opengauss/v3/instances
 github.com/chnsz/golangsdk/openstack/rds/v3/backups
 github.com/chnsz/golangsdk/openstack/rds/v3/configurations
+github.com/chnsz/golangsdk/openstack/rds/v3/flavors
 github.com/chnsz/golangsdk/openstack/rds/v3/instances
 github.com/chnsz/golangsdk/openstack/rds/v3/securities
 github.com/chnsz/golangsdk/openstack/rts/v1/softwareconfig
