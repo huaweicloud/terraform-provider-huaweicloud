@@ -149,8 +149,9 @@ The following arguments are supported:
 * `multi_az` - (Optional, Bool, ForceNew) Enable multiple AZs for the cluster, only when using HA flavors. Changing this
   parameter will create a new cluster resource. This parameter and `masters` are alternative
 
-* `masters` - (Optional, List, ForceNew) Advanced configuration of master nodes. Changing this creates a new cluster.
-  This parameter and `multi_az` are alternative.
+* `masters` - (Optional, List, ForceNew) Advanced configuration of master nodes.
+  The [object](#cce_cluster_masters) structure is documented below.
+  This parameter and `multi_az` are alternative. Changing this parameter will create a new cluster resource.
 
 * `eip` - (Optional, String, ForceNew) EIP address of the cluster. Changing this parameter will create a new cluster
   resource.
@@ -204,6 +205,7 @@ The following arguments are supported:
   hibernated, resources such as workloads cannot be created or managed in the cluster, and the cluster cannot be
   deleted.
 
+<a name="cce_cluster_masters"></a>
 The `masters` block supports:
 
 * `availability_zone` - (Optional, String, ForceNew) Specifies the availability zone of the master node. Changing this
