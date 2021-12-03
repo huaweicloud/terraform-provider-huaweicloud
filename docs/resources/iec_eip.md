@@ -23,6 +23,9 @@ The following arguments are supported:
 * `site_id` - (Required, String, ForceNew) Specifies the ID of IEC sevice site. Changing this parameter creates a new
   resource.
 
+* `line_id` - (Optional, String, ForceNew) Specifies the line ID of IEC sevice site.
+  Changing this parameter creates a new resource.
+
 * `port_id` - (Optional, String) Specifies the port ID which this eip will associate with.
 
 ## Attributes Reference
