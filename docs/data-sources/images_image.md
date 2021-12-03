@@ -87,7 +87,6 @@ In addition to all arguments above, the following attributes are exported:
   and tags.
 * `min_disk_gb` - The minimum amount of disk space required to use the image.
 * `min_ram_mb` - The minimum amount of ram required to use the image.
-* `properties` - Freeform information about the image.
 * `protected` - Whether or not the image is protected.
 * `schema` - The path to the JSON-schema that represent the image or image.
 * `size_bytes` - The size of the image (in bytes).
