@@ -109,7 +109,7 @@ The `datastore` block supports:
 
 * `engine` - (Optional, String, ForceNew) Specifies the database engine. Only "GeminiDB-Cassandra" is supported now.
 
-* `version` - (Optional, String, ForceNew) Specifies the database version. Only "3.11" is supported now.
+* `version` - (Optional, String, ForceNew) Specifies the database version.
 
 * `storage_engine` - (Optional, String, ForceNew) Specifies the storage engine. Only "rocksDB" is supported now.
 
