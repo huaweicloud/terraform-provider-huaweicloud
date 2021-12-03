@@ -128,9 +128,6 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"3.11",
-							}, true),
 						},
 					},
 				},
