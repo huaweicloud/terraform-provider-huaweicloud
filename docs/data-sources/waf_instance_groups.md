@@ -52,4 +52,4 @@ The `groups` block supports:
 
 * `read_timeout` - The time for reading timeout in the forwarding policy.
 
-* `load_balances` - The IDs of the ELB instances that has been bound to the instance group.
+* `load_balancers` - The IDs of the ELB instances that has been bound to the instance group.
