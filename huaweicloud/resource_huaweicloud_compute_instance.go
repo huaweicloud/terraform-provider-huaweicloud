@@ -71,7 +71,8 @@ func ResourceComputeInstanceV2() *schema.Resource {
 			},
 			"availability_zone": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 			"name": {

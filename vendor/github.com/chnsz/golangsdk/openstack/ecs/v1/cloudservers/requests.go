@@ -38,7 +38,7 @@ type CreateOpts struct {
 
 	SecurityGroups []SecurityGroup `json:"security_groups,omitempty"`
 
-	AvailabilityZone string `json:"availability_zone" required:"true"`
+	AvailabilityZone string `json:"availability_zone,omitempty"`
 
 	ExtendParam *ServerExtendParam `json:"extendparam,omitempty"`
 
