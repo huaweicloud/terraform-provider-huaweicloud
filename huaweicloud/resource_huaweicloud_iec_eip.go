@@ -42,6 +42,12 @@ func resourceIecNetworkEip() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"line_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"ip_version": {
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -99,6 +105,7 @@ func resourceIecEipV1Create(d *schema.ResourceData, meta interface{}) error {
 	createOpts := publicips.CreateOpts{
 		Publicip: publicips.PublicIPRequest{
 			SiteID: d.Get("site_id").(string),
+			Type:   d.Get("line_id").(string),
 		},
 	}
 
@@ -116,14 +123,6 @@ func resourceIecEipV1Create(d *schema.ResourceData, meta interface{}) error {
 	logp.Printf("[DEBUG] IEC publicips ID: %s", n.ID)
 	d.SetId(n.ID)
 
-	newPort := d.Get("port_id").(string)
-	if newPort != "" {
-		logp.Printf("[DEBUG] bind public ip %s to port %s", d.Id(), newPort)
-		if err := operateOnPort(d, eipClient, newPort); err != nil {
-			return err
-		}
-	}
-
 	logp.Printf("[DEBUG] Waiting for public ip (%s) to become active", d.Id())
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE", "UNBOUND"},
@@ -138,6 +137,13 @@ func resourceIecEipV1Create(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf(
 			"Error waiting for public ip (%s) to become ACTIVE: %s",
 			d.Id(), stateErr)
+	}
+
+	if bindPort := d.Get("port_id").(string); bindPort != "" {
+		logp.Printf("[DEBUG] bind public ip %s to port %s", d.Id(), bindPort)
+		if err := operateOnPort(d, eipClient, bindPort); err != nil {
+			return err
+		}
 	}
 
 	return resourceIecEipV1Read(d, config)
@@ -167,6 +173,7 @@ func resourceIecEipV1Read(d *schema.ResourceData, meta interface{}) error {
 	logp.Printf("[DEBUG] IEC public ip %s: %+v", d.Id(), n)
 
 	d.Set("site_id", n.SiteID)
+	d.Set("line_id", n.Type)
 	d.Set("port_id", n.PortID)
 	d.Set("public_ip", n.PublicIpAddress)
 	d.Set("private_ip", n.PrivateIpAddress)
