@@ -1,14 +1,16 @@
-package huaweicloud
+package dms
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk/openstack/dms/v1/groups"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -20,9 +22,9 @@ func TestAccDmsGroupsV1_basic(t *testing.T) {
 	var queueName = fmt.Sprintf("dms_queue_%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDms(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDmsV1GroupDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDms(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckDmsV1GroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDmsV1Group_basic(groupName, queueName),
@@ -37,8 +39,8 @@ func TestAccDmsGroupsV1_basic(t *testing.T) {
 }
 
 func testAccCheckDmsV1GroupDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	dmsClient, err := config.DmsV1Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	dmsClient, err := config.DmsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud group client: %s", err)
 	}
@@ -78,8 +80,8 @@ func testAccCheckDmsV1GroupExists(n string, group groups.Group) resource.TestChe
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		dmsClient, err := config.DmsV1Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		dmsClient, err := config.DmsV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud group client: %s", err)
 		}

@@ -1,9 +1,10 @@
-package huaweicloud
+package dms
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -12,8 +13,8 @@ import (
 
 func TestAccDmsProductV1DataSource_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheckDms(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { acceptance.TestAccPreCheckDms(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDmsProductV1DataSource_basic,
@@ -33,8 +34,8 @@ func TestAccDmsProductV1DataSource_basic(t *testing.T) {
 
 func TestAccDmsProductV1DataSource_rabbitmqSingle(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheckDms(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { acceptance.TestAccPreCheckDms(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDmsProductV1DataSource_rabbitmqSingle,
@@ -43,11 +44,7 @@ func TestAccDmsProductV1DataSource_rabbitmqSingle(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"data.huaweicloud_dms_product_v1.product1", "engine", "rabbitmq"),
 					resource.TestCheckResourceAttr(
-						"data.huaweicloud_dms_product_v1.product1", "node_num", "3"),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_dms_product_v1.product1", "io_type", "normal"),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_dms_product_v1.product1", "storage", "100"),
+						"data.huaweicloud_dms_product_v1.product1", "io_type", "high"),
 				),
 			},
 		},
@@ -56,8 +53,8 @@ func TestAccDmsProductV1DataSource_rabbitmqSingle(t *testing.T) {
 
 func TestAccDmsProductV1DataSource_rabbitmqCluster(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheckDms(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { acceptance.TestAccPreCheckDms(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDmsProductV1DataSource_rabbitmqCluster,
@@ -65,10 +62,6 @@ func TestAccDmsProductV1DataSource_rabbitmqCluster(t *testing.T) {
 					testAccCheckDmsProductV1DataSourceID("data.huaweicloud_dms_product_v1.product1"),
 					resource.TestCheckResourceAttr(
 						"data.huaweicloud_dms_product_v1.product1", "engine", "rabbitmq"),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_dms_product_v1.product1", "node_num", "5"),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_dms_product_v1.product1", "storage", "500"),
 					resource.TestCheckResourceAttr(
 						"data.huaweicloud_dms_product_v1.product1", "io_type", "high"),
 					resource.TestCheckResourceAttr(
@@ -107,22 +100,16 @@ storage_spec_code = "dms.physical.storage.high"
 
 var testAccDmsProductV1DataSource_rabbitmqSingle = fmt.Sprintf(`
 data "huaweicloud_dms_product_v1" "product1" {
-engine = "rabbitmq"
-version = "3.7.0"
-instance_type = "single"
-node_num = 3
-storage = 100
-storage_spec_code = "dms.physical.storage.normal"
+  engine            = "rabbitmq"
+  instance_type     = "single"
+  storage_spec_code = "dms.physical.storage.high"
 }
 `)
 
 var testAccDmsProductV1DataSource_rabbitmqCluster = fmt.Sprintf(`
 data "huaweicloud_dms_product_v1" "product1" {
-engine = "rabbitmq"
-version = "3.7.0"
-instance_type = "cluster"
-node_num = 5
-storage = 500
-storage_spec_code = "dms.physical.storage.high"
+  engine            = "rabbitmq"
+  instance_type     = "cluster"
+  storage_spec_code = "dms.physical.storage.high"
 }
 `)

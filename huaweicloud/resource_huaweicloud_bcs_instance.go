@@ -12,8 +12,10 @@ import (
 	"github.com/chnsz/golangsdk/openstack/dms/v1/instances"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -546,7 +548,7 @@ func resourceBCSInstanceV2Delete(d *schema.ResourceData, meta interface{}) error
 		stateConf := &resource.StateChangeConf{
 			Pending:    []string{"DELETING", "RUNNING"},
 			Target:     []string{"DELETED"},
-			Refresh:    DmsInstancesV1StateRefreshFunc(dmsClient, kafkaID),
+			Refresh:    deprecated.DmsInstancesV1StateRefreshFunc(dmsClient, kafkaID),
 			Timeout:    d.Timeout(schema.TimeoutDelete),
 			Delay:      10 * time.Second,
 			MinTimeout: 3 * time.Second,

@@ -57,6 +57,7 @@ var (
 	HW_CERTIFICATE_SERVICE          = os.Getenv("HW_CERTIFICATE_SERVICE")
 	HW_CERTIFICATE_PROJECT          = os.Getenv("HW_CERTIFICATE_PROJECT")
 	HW_CERTIFICATE_PROJECT_UPDATED  = os.Getenv("HW_CERTIFICATE_PROJECT_UPDATED")
+	HW_DMS_ENVIRONMENT              = os.Getenv("HW_DMS_ENVIRONMENT")
 
 	HW_DLI_FLINK_JAR_OBS_PATH = os.Getenv("HW_DLI_FLINK_JAR_OBS_PATH")
 )
@@ -406,6 +407,13 @@ func TestAccPreCheckSWRDomian(t *testing.T) {
 	if HW_SWR_SHARING_ACCOUNT == "" {
 		t.Skip("HW_SWR_SHARING_ACCOUNT must be set for swr domian tests, " +
 			"the value of HW_SWR_SHARING_ACCOUNT should be another IAM user name")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckDms(t *testing.T) {
+	if HW_DMS_ENVIRONMENT == "" {
+		t.Skip("This environment does not support DMS tests")
 	}
 }
 

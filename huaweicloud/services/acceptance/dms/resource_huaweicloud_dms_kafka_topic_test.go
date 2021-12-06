@@ -1,4 +1,4 @@
-package huaweicloud
+package dms
 
 import (
 	"fmt"
@@ -9,7 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccDmsKafkaTopic_basic(t *testing.T) {
@@ -18,9 +20,9 @@ func TestAccDmsKafkaTopic_basic(t *testing.T) {
 	resourceName := "huaweicloud_dms_kafka_topic.topic"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDmsKafkaTopicDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckDmsKafkaTopicDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDmsKafkaTopic_basic(rName),
@@ -57,8 +59,8 @@ func TestAccDmsKafkaTopic_basic(t *testing.T) {
 }
 
 func testAccCheckDmsKafkaTopicDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	dmsClient, err := config.DmsV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	dmsClient, err := config.DmsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud DMS client: %s", err)
 	}
@@ -98,8 +100,8 @@ func testAccCheckDmsKafkaTopicExists(n string, topic *topics.Topic) resource.Tes
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		dmsClient, err := config.DmsV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		dmsClient, err := config.DmsV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud DMS client: %s", err)
 		}

@@ -1,15 +1,17 @@
-package huaweicloud
+package dms
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk/openstack/dms/v2/kafka/instances"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -20,9 +22,9 @@ func TestAccDmsKafkaInstances_basic(t *testing.T) {
 	resourceName := "huaweicloud_dms_kafka_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDmsKafkaInstanceDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckDmsKafkaInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDmsKafkaInstance_basic(rName),
@@ -64,9 +66,9 @@ func TestAccDmsKafkaInstances_withEpsId(t *testing.T) {
 	resourceName := "huaweicloud_dms_kafka_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckEpsID(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDmsKafkaInstanceDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckDmsKafkaInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDmsKafkaInstance_withEpsId(rName),
@@ -76,7 +78,7 @@ func TestAccDmsKafkaInstances_withEpsId(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "engine", "kafka"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -84,8 +86,8 @@ func TestAccDmsKafkaInstances_withEpsId(t *testing.T) {
 }
 
 func testAccCheckDmsKafkaInstanceDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	dmsClient, err := config.DmsV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	dmsClient, err := config.DmsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud dms instance client: %s", err)
 	}
@@ -114,8 +116,8 @@ func testAccCheckDmsKafkaInstanceExists(n string, instance instances.Instance) r
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		dmsClient, err := config.DmsV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		dmsClient, err := config.DmsV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud dms instance client: %s", err)
 		}
@@ -137,12 +139,17 @@ func testAccDmsKafkaInstance_Base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_dms_az" "test" {}
 
-data "huaweicloud_vpc" "test" {
-  name = "vpc-default"
+resource "huaweicloud_vpc" "test" {
+  name = "%s"
+  cidr = "192.168.0.0/24"
+  description = "test for kafka"
 }
 
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
+resource "huaweicloud_vpc_subnet" "test" {
+  name       = "%s"
+  cidr       = "192.168.0.0/24"
+  gateway_ip = "192.168.0.1"
+  vpc_id     = huaweicloud_vpc.test.id
 }
 
 data "huaweicloud_dms_product" "test" {
@@ -155,7 +162,7 @@ resource "huaweicloud_networking_secgroup" "test" {
   name        = "%s"
   description = "secgroup for kafka"
 }
-`, rName)
+`, rName, rName, rName)
 }
 
 func testAccDmsKafkaInstance_basic(rName string) string {
@@ -167,8 +174,8 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   description       = "kafka test"
   access_user       = "user"
   password          = "Kafkatest@123"
-  vpc_id            = data.huaweicloud_vpc.test.id
-  network_id        = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
   available_zones   = [data.huaweicloud_dms_az.test.id]
   product_id        = data.huaweicloud_dms_product.test.id
@@ -196,8 +203,8 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   description       = "kafka test update"
   access_user       = "user"
   password          = "Kafkatest@123"
-  vpc_id            = data.huaweicloud_vpc.test.id
-  network_id        = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
   available_zones   = [data.huaweicloud_dms_az.test.id]
   product_id        = data.huaweicloud_dms_product.test.id
@@ -225,8 +232,8 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   description           = "kafka test"
   access_user           = "user"
   password              = "Kafkatest@123"
-  vpc_id                = data.huaweicloud_vpc.test.id
-  network_id            = data.huaweicloud_vpc_subnet.test.id
+  vpc_id                = huaweicloud_vpc.test.id
+  network_id            = huaweicloud_vpc_subnet.test.id
   security_group_id     = huaweicloud_networking_secgroup.test.id
   available_zones       = [data.huaweicloud_dms_az.test.id]
   product_id            = data.huaweicloud_dms_product.test.id
@@ -243,5 +250,5 @@ resource "huaweicloud_dms_kafka_instance" "test" {
     owner = "terraform"
   }
 }
-`, testAccDmsKafkaInstance_Base(rName), rName, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccDmsKafkaInstance_Base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

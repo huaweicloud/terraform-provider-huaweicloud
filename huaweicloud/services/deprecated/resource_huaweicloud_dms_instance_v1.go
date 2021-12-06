@@ -1,6 +1,7 @@
-package huaweicloud
+package deprecated
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/chnsz/golangsdk"
@@ -9,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -112,7 +115,7 @@ func ResourceDmsInstancesV1() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -167,7 +170,7 @@ func ResourceDmsInstancesV1() *schema.Resource {
 
 func resourceDmsInstancesV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
+	dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud dms instance client: %s", err)
 	}
@@ -186,7 +189,7 @@ func resourceDmsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 		VPCID:           d.Get("vpc_id").(string),
 		SecurityGroupID: d.Get("security_group_id").(string),
 		SubnetID:        d.Get("subnet_id").(string),
-		AvailableZones:  getAllAvailableZones(d),
+		AvailableZones:  utils.ExpandToStringList(d.Get("available_zones").([]interface{})),
 		ProductID:       d.Get("product_id").(string),
 		MaintainBegin:   d.Get("maintain_begin").(string),
 		MaintainEnd:     d.Get("maintain_end").(string),
@@ -227,7 +230,7 @@ func resourceDmsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 	//set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		dmsV2Client, err := config.DmsV2Client(GetRegion(d, config))
+		dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud dms instance v2 client: %s", err)
 		}
@@ -245,13 +248,13 @@ func resourceDmsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 func resourceDmsInstancesV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 
-	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
+	dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud dms instance client: %s", err)
 	}
 	v, err := instances.Get(dmsV1Client, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "DMS instance")
+		return common.CheckDeleted(d, err, "DMS instance")
 	}
 
 	logp.Printf("[DEBUG] Dms instance %s: %+v", d.Id(), v)
@@ -263,10 +266,10 @@ func resourceDmsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("specification", v.Specification)
 	d.Set("used_storage_space", v.UsedStorageSpace)
 	d.Set("connect_address", v.ConnectAddress)
-	d.Set("port", v.Port)
+	d.Set("port", strconv.Itoa(v.Port))
 	d.Set("status", v.Status)
 	d.Set("description", v.Description)
-	d.Set("instance_id", v.InstanceID)
+	//d.Set("instance_id", v.InstanceID)
 	d.Set("resource_spec_code", v.ResourceSpecCode)
 	d.Set("type", v.Type)
 	d.Set("vpc_id", v.VPCID)
@@ -278,13 +281,13 @@ func resourceDmsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("subnet_id", v.SubnetID)
 	d.Set("subnet_name", v.SubnetName)
 	d.Set("user_id", v.UserID)
-	d.Set("user_name", v.UserName)
+	//d.Set("user_name", v.UserName)
 	d.Set("order_id", v.OrderID)
 	d.Set("maintain_begin", v.MaintainBegin)
 	d.Set("maintain_end", v.MaintainEnd)
 
 	// set tags
-	dmsV2Client, err := config.DmsV2Client(GetRegion(d, config))
+	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud dms instance v2 client: %s", err)
 	}
@@ -307,7 +310,7 @@ func resourceDmsInstancesV1Update(d *schema.ResourceData, meta interface{}) erro
 
 	//lintignore:R019
 	if d.HasChanges("name", "description", "maintain_begin", "maintain_end", "security_group_id") {
-		dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
+		dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
 		if err != nil {
 			return fmtp.Errorf("Error updating HuaweiCloud dms instance client: %s", err)
 		}
@@ -340,7 +343,7 @@ func resourceDmsInstancesV1Update(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if d.HasChange("tags") {
-		dmsV2Client, err := config.DmsV2Client(GetRegion(d, config))
+		dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
 		if err != nil {
 			return fmtp.Errorf("Error updating HuaweiCloud dms instance v2 client: %s", err)
 		}
@@ -357,14 +360,14 @@ func resourceDmsInstancesV1Update(d *schema.ResourceData, meta interface{}) erro
 
 func resourceDmsInstancesV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
+	dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud dms instance client: %s", err)
 	}
 
 	_, err = instances.Get(dmsV1Client, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "instance")
+		return common.CheckDeleted(d, err, "instance")
 	}
 
 	err = instances.Delete(dmsV1Client, d.Id()).ExtractErr()

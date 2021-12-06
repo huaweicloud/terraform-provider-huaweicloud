@@ -1,14 +1,16 @@
-package huaweicloud
+package dms
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk/openstack/dms/v1/queues"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -19,9 +21,9 @@ func TestAccDmsQueuesV1_basic(t *testing.T) {
 	var queueName = fmt.Sprintf("dms_queue_%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDms(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDmsV1QueueDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDms(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckDmsV1QueueDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDmsV1Queue_basic(queueName),
@@ -42,9 +44,9 @@ func TestAccDmsQueuesV1_FIFOmode(t *testing.T) {
 	var queueName = fmt.Sprintf("dms_queue_%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDms(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDmsV1QueueDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDms(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckDmsV1QueueDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDmsV1Queue_FIFOmode(queueName),
@@ -67,8 +69,8 @@ func TestAccDmsQueuesV1_FIFOmode(t *testing.T) {
 }
 
 func testAccCheckDmsV1QueueDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	dmsClient, err := config.DmsV1Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	dmsClient, err := config.DmsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud queue client: %s", err)
 	}
@@ -97,8 +99,8 @@ func testAccCheckDmsV1QueueExists(n string, queue queues.Queue) resource.TestChe
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		dmsClient, err := config.DmsV1Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		dmsClient, err := config.DmsV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud queue client: %s", err)
 		}
@@ -130,7 +132,7 @@ func testAccDmsV1Queue_FIFOmode(queueName string) string {
 			description  = "test create dms queue"
 			queue_mode  = "FIFO"
 			redrive_policy  = "enable"
-          max_consume_count = 80
+            max_consume_count = 80
 		}
 	`, queueName)
 }

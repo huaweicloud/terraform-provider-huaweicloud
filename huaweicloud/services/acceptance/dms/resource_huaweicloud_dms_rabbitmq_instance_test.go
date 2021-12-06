@@ -1,15 +1,17 @@
-package huaweicloud
+package dms
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk/openstack/dms/v2/rabbitmq/instances"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -20,9 +22,9 @@ func TestAccDmsRabbitmqInstances_basic(t *testing.T) {
 	resourceName := "huaweicloud_dms_rabbitmq_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDmsRabbitmqInstanceDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckDmsRabbitmqInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDmsRabbitmqInstance_basic(rName),
@@ -63,9 +65,9 @@ func TestAccDmsRabbitmqInstances_withEpsId(t *testing.T) {
 	resourceName := "huaweicloud_dms_rabbitmq_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckEpsID(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDmsRabbitmqInstanceDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckDmsRabbitmqInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDmsRabbitmqInstance_withEpsId(rName),
@@ -75,7 +77,7 @@ func TestAccDmsRabbitmqInstances_withEpsId(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "engine", "rabbitmq"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
 				),
 			},
 		},
@@ -83,8 +85,8 @@ func TestAccDmsRabbitmqInstances_withEpsId(t *testing.T) {
 }
 
 func testAccCheckDmsRabbitmqInstanceDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	dmsClient, err := config.DmsV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	dmsClient, err := config.DmsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud dms instance client: %s", err)
 	}
@@ -113,8 +115,8 @@ func testAccCheckDmsRabbitmqInstanceExists(n string, instance instances.Instance
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		dmsClient, err := config.DmsV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		dmsClient, err := config.DmsV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud dms instance client: %s", err)
 		}
@@ -233,5 +235,5 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
     owner = "terraform"
   }
 }
-`, testAccDmsRabbitmqInstance_Base(rName), rName, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccDmsRabbitmqInstance_Base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
