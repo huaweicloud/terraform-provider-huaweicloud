@@ -367,6 +367,10 @@ type AllowedAddressPair struct {
 }
 
 type Bandwidth struct {
+	// Specifies the bandwidth ID, which uniquely identifies the
+	// bandwidth.
+	ID string `json:"id"`
+
 	// Specifies the bandwidth name. The value is a string of 1 to 64
 	// characters that can contain letters, digits, underscores (_), and hyphens (-).
 	Name string `json:"name"`
@@ -374,10 +378,6 @@ type Bandwidth struct {
 	// Specifies the bandwidth size. The value ranges from 1 Mbit/s to
 	// 300 Mbit/s.
 	Size int `json:"size"`
-
-	// Specifies the bandwidth ID, which uniquely identifies the
-	// bandwidth.
-	ID string `json:"id"`
 
 	// Specifies whether the bandwidth is shared or exclusive. The
 	// value can be PER or WHOLE.
@@ -387,9 +387,6 @@ type Bandwidth struct {
 	// bandwidth, whose type is set to WHOLE, supports up to 20 elastic IP addresses. The
 	// bandwidth, whose type is set to PER, supports only one elastic IP address.
 	PublicipInfo []PublicIpinfo `json:"publicip_info"`
-
-	// Specifies the tenant ID of the user.
-	TenantId string `json:"tenant_id"`
 
 	// Specifies the bandwidth type.
 	BandwidthType string `json:"bandwidth_type"`
@@ -404,11 +401,11 @@ type Bandwidth struct {
 
 	CreateTime time.Time `json:"create_time,omitempty"`
 
+	UpdateTime time.Time `json:"update_time,omitempty"`
+
 	SiteInfo string `json:"site_info,omitempty"`
 
 	Operator Operator `json:"operator,omitempty"`
-
-	UpdateTime time.Time `json:"update_time,omitempty"`
 
 	PoolID string `json:"pool_id,omitempty"`
 }
