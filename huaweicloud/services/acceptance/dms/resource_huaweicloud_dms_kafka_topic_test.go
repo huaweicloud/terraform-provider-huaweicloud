@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/dms/v2/kafka/topics"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -14,20 +12,47 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
+func getDmsKafkaTopicFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := c.DmsV2Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating HuaweiCloud DMS client(V2): %s", err)
+	}
+	instanceID := state.Primary.Attributes["instance_id"]
+	allTopics, err := topics.List(client, instanceID).Extract()
+	if err != nil {
+		return nil, fmt.Errorf("Error listing DMS kafka topics in %s, error: %s", instanceID, err)
+	}
+
+	topicID := state.Primary.ID
+	for _, item := range allTopics {
+		if item.Name == topicID {
+			return item, nil
+		}
+	}
+
+	return nil, fmt.Errorf("can not found dms kafka topic instance")
+}
+
 func TestAccDmsKafkaTopic_basic(t *testing.T) {
 	var kafkaTopic topics.Topic
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_dms_kafka_topic.topic"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&kafkaTopic,
+		getDmsKafkaTopicFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckDmsKafkaTopicDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDmsKafkaTopic_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDmsKafkaTopicExists(resourceName, &kafkaTopic),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "partitions", "10"),
 					resource.TestCheckResourceAttr(resourceName, "replicas", "3"),
@@ -39,7 +64,7 @@ func TestAccDmsKafkaTopic_basic(t *testing.T) {
 			{
 				Config: testAccDmsKafkaTopic_update(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDmsKafkaTopicExists(resourceName, &kafkaTopic),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "partitions", "20"),
 					resource.TestCheckResourceAttr(resourceName, "replicas", "3"),
@@ -56,72 +81,6 @@ func TestAccDmsKafkaTopic_basic(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckDmsKafkaTopicDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	dmsClient, err := config.DmsV2Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DMS client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_dms_kafka_topic" {
-			continue
-		}
-
-		instanceID := rs.Primary.Attributes["instance_id"]
-		allTopics, err := topics.List(dmsClient, instanceID).Extract()
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return nil
-			}
-			return fmt.Errorf("Error listing DMS kafka topics in %s, err: %s", instanceID, err)
-		}
-
-		topicID := rs.Primary.ID
-		for _, item := range allTopics {
-			if item.Name == topicID {
-				return fmt.Errorf("The DMS kafka topic %s still exists", topicID)
-			}
-		}
-	}
-	return nil
-}
-
-func testAccCheckDmsKafkaTopicExists(n string, topic *topics.Topic) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		dmsClient, err := config.DmsV2Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud DMS client: %s", err)
-		}
-
-		instanceID := rs.Primary.Attributes["instance_id"]
-		allTopics, err := topics.List(dmsClient, instanceID).Extract()
-		if err != nil {
-			return fmt.Errorf("Error listing DMS kafka topics in %s, err: %s", instanceID, err)
-		}
-
-		topicID := rs.Primary.ID
-		for _, item := range allTopics {
-			if item.Name == topicID {
-				*topic = item
-				return nil
-			}
-		}
-
-		return fmt.Errorf("The DMS kafka topic %s not found", topicID)
-	}
 }
 
 // testAccKafkaTopicImportStateFunc is used to import the resource

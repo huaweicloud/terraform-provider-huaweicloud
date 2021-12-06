@@ -12,107 +12,67 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 )
+
+func getDmsGroupFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := c.DmsV1Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating HuaweiCloud DMS client(V1): %s", err)
+	}
+	queueID := state.Primary.Attributes["queue_id"]
+	page, err := groups.List(client, queueID, false).AllPages()
+	if err == nil {
+		groupsList, err := groups.ExtractGroups(page)
+		if err != nil {
+			return nil, fmtp.Errorf("Error getting groups in queue %s: %s", queueID, err)
+		}
+		if len(groupsList) > 0 {
+			for _, group := range groupsList {
+				if group.ID == state.Primary.ID {
+					return group, nil
+				}
+			}
+		}
+	}
+
+	return nil, fmt.Errorf("not found dms group: %s", err)
+}
 
 func TestAccDmsGroupsV1_basic(t *testing.T) {
 	var group groups.Group
-	var groupName = fmt.Sprintf("dms_group_%s", acctest.RandString(5))
-	var queueName = fmt.Sprintf("dms_queue_%s", acctest.RandString(5))
+	var groupName = acceptance.RandomAccResourceName()
+	var queueName = acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_dms_group_v1.group_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&group,
+		getDmsGroupFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheckDms(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckDmsV1GroupDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDmsV1Group_basic(groupName, queueName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDmsV1GroupExists("huaweicloud_dms_group_v1.group_1", group),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_dms_group_v1.group_1", "name", groupName),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", groupName),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckDmsV1GroupDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	dmsClient, err := config.DmsV1Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud group client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_dms_group_v1" {
-			continue
-		}
-
-		queueID := rs.Primary.Attributes["queue_id"]
-		page, err := groups.List(dmsClient, queueID, false).AllPages()
-		if err == nil {
-			groupsList, err := groups.ExtractGroups(page)
-			if err != nil {
-				return fmtp.Errorf("Error getting groups in queue %s: %s", queueID, err)
-			}
-			if len(groupsList) > 0 {
-				for _, group := range groupsList {
-					if group.ID == rs.Primary.ID {
-						return fmtp.Errorf("The Dms group still exists.")
-					}
-				}
-			}
-		}
-	}
-	return nil
-}
-
-func testAccCheckDmsV1GroupExists(n string, group groups.Group) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		dmsClient, err := config.DmsV1Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud group client: %s", err)
-		}
-
-		queueID := rs.Primary.Attributes["queue_id"]
-		page, err := groups.List(dmsClient, queueID, false).AllPages()
-		if err != nil {
-			return fmtp.Errorf("Error getting groups in queue %s: %s", queueID, err)
-		}
-
-		groupsList, err := groups.ExtractGroups(page)
-		if len(groupsList) > 0 {
-			for _, found := range groupsList {
-				if found.ID == rs.Primary.ID {
-					group = found
-					return nil
-				}
-			}
-		}
-		return fmtp.Errorf("The Dms group not found.")
-	}
-}
-
 func testAccDmsV1Group_basic(groupName string, queueName string) string {
 	return fmt.Sprintf(`
-		resource "huaweicloud_dms_queue_v1" "queue_1" {
-			name  = "%s"
-		}
-		resource "huaweicloud_dms_group_v1" "group_1" {
-			name = "%s"
-			queue_id = "${huaweicloud_dms_queue_v1.queue_1.id}"
-		}
-	`, queueName, groupName)
+resource "huaweicloud_dms_queue_v1" "queue_1" {
+  name = "%s"
+}
+resource "huaweicloud_dms_group_v1" "group_1" {
+  name     = "%s"
+  queue_id = "${huaweicloud_dms_queue_v1.queue_1.id}"
+}`, queueName, groupName)
 }

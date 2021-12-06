@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccDmsProductV1DataSource_basic(t *testing.T) {
+	dataSourceName := "data.huaweicloud_dms_product_v1.product1"
+	dc := acceptance.InitDataSourceCheck(dataSourceName)
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheckDms(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -19,13 +20,10 @@ func TestAccDmsProductV1DataSource_basic(t *testing.T) {
 			{
 				Config: testAccDmsProductV1DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDmsProductV1DataSourceID("data.huaweicloud_dms_product_v1.product1"),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_dms_product_v1.product1", "engine", "kafka"),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_dms_product_v1.product1", "partition_num", "300"),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_dms_product_v1.product1", "storage", "600"),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(dataSourceName, "engine", "kafka"),
+					resource.TestCheckResourceAttr(dataSourceName, "partition_num", "300"),
+					resource.TestCheckResourceAttr(dataSourceName, "storage", "600"),
 				),
 			},
 		},
@@ -33,6 +31,9 @@ func TestAccDmsProductV1DataSource_basic(t *testing.T) {
 }
 
 func TestAccDmsProductV1DataSource_rabbitmqSingle(t *testing.T) {
+	dataSourceName := "data.huaweicloud_dms_product_v1.product1"
+	dc := acceptance.InitDataSourceCheck(dataSourceName)
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheckDms(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -40,11 +41,9 @@ func TestAccDmsProductV1DataSource_rabbitmqSingle(t *testing.T) {
 			{
 				Config: testAccDmsProductV1DataSource_rabbitmqSingle,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDmsProductV1DataSourceID("data.huaweicloud_dms_product_v1.product1"),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_dms_product_v1.product1", "engine", "rabbitmq"),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_dms_product_v1.product1", "io_type", "high"),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(dataSourceName, "engine", "rabbitmq"),
+					resource.TestCheckResourceAttr(dataSourceName, "io_type", "high"),
 				),
 			},
 		},
@@ -52,6 +51,9 @@ func TestAccDmsProductV1DataSource_rabbitmqSingle(t *testing.T) {
 }
 
 func TestAccDmsProductV1DataSource_rabbitmqCluster(t *testing.T) {
+	dataSourceName := "data.huaweicloud_dms_product_v1.product1"
+	dc := acceptance.InitDataSourceCheck(dataSourceName)
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheckDms(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -59,42 +61,24 @@ func TestAccDmsProductV1DataSource_rabbitmqCluster(t *testing.T) {
 			{
 				Config: testAccDmsProductV1DataSource_rabbitmqCluster,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDmsProductV1DataSourceID("data.huaweicloud_dms_product_v1.product1"),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_dms_product_v1.product1", "engine", "rabbitmq"),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_dms_product_v1.product1", "io_type", "high"),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_dms_product_v1.product1", "storage_spec_code", "dms.physical.storage.high"),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(dataSourceName, "engine", "rabbitmq"),
+					resource.TestCheckResourceAttr(dataSourceName, "io_type", "high"),
+					resource.TestCheckResourceAttr(dataSourceName, "storage_spec_code", "dms.physical.storage.high"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckDmsProductV1DataSourceID(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Can't find Dms product data source: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("Dms product data source ID not set")
-		}
-
-		return nil
-	}
-}
-
 var testAccDmsProductV1DataSource_basic = fmt.Sprintf(`
 data "huaweicloud_dms_product_v1" "product1" {
-engine = "kafka"
-version = "1.1.0"
-instance_type = "cluster"
-partition_num = 300
-storage = 600
-storage_spec_code = "dms.physical.storage.high"
+  engine            = "kafka"
+  version           = "1.1.0"
+  instance_type     = "cluster"
+  partition_num     = 300
+  storage           = 600
+  storage_spec_code = "dms.physical.storage.high"
 }
 `)
 

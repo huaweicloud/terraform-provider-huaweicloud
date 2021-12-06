@@ -4,36 +4,57 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/chnsz/golangsdk/openstack/dms/v2/rabbitmq/instances"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+func getDmsRabitMqInstanceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := c.DmsV2Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating HuaweiCloud DMS client(V2): %s", err)
+	}
+	return instances.Get(client, state.Primary.ID).Extract()
+}
+
 func TestAccDmsRabbitmqInstances_basic(t *testing.T) {
 	var instance instances.Instance
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	updateName := rName + "update"
+	rName := acceptance.RandomAccResourceNameWithDash()
+	updateName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_dms_rabbitmq_instance.test"
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDmsRabitMqInstanceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckDmsRabbitmqInstanceDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDmsRabbitmqInstance_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDmsRabbitmqInstanceExists(resourceName, instance),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "engine", "rabbitmq"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+				),
+			},
+			{
+				Config: testAccDmsRabbitmqInstance_update(rName, updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
+					resource.TestCheckResourceAttr(resourceName, "description", "rabbitmq test update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
 				),
 			},
 			{
@@ -45,34 +66,29 @@ func TestAccDmsRabbitmqInstances_basic(t *testing.T) {
 					"used_storage_space",
 				},
 			},
-			{
-				Config: testAccDmsRabbitmqInstance_update(rName, updateName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDmsRabbitmqInstanceExists(resourceName, instance),
-					resource.TestCheckResourceAttr(resourceName, "name", updateName),
-					resource.TestCheckResourceAttr(resourceName, "description", "rabbitmq test update"),
-					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
-					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
-				),
-			},
 		},
 	})
 }
 
 func TestAccDmsRabbitmqInstances_withEpsId(t *testing.T) {
 	var instance instances.Instance
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_dms_rabbitmq_instance.test"
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDmsRabitMqInstanceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckDmsRabbitmqInstanceDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDmsRabbitmqInstance_withEpsId(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDmsRabbitmqInstanceExists(resourceName, instance),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "engine", "rabbitmq"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
@@ -82,56 +98,6 @@ func TestAccDmsRabbitmqInstances_withEpsId(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckDmsRabbitmqInstanceDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	dmsClient, err := config.DmsV2Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud dms instance client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_dms_rabbitmq_instance" {
-			continue
-		}
-
-		_, err := instances.Get(dmsClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmtp.Errorf("The Dms rabbitmq instance still exists.")
-		}
-	}
-	return nil
-}
-
-func testAccCheckDmsRabbitmqInstanceExists(n string, instance instances.Instance) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		dmsClient, err := config.DmsV2Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud dms instance client: %s", err)
-		}
-
-		v, err := instances.Get(dmsClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return fmtp.Errorf("Error getting HuaweiCloud dms rabbitmq instance: %s, err: %s", rs.Primary.ID, err)
-		}
-
-		if v.InstanceID != rs.Primary.ID {
-			return fmtp.Errorf("The Dms rabbitmq instance not found.")
-		}
-		instance = *v
-		return nil
-	}
 }
 
 func testAccDmsRabbitmqInstance_Base(rName string) string {

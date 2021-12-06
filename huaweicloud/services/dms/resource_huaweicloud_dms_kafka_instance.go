@@ -264,7 +264,6 @@ func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	rawZones := d.Get("available_zones").([]interface{})
-	utils.ExpandToStringList(rawZones)
 	zones := utils.ExpandToStringList(rawZones)
 
 	createOpts := &instances.CreateOps{
@@ -328,11 +327,9 @@ func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData,
 		MinTimeout:   3 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf(
-			"error waiting for instance (%s) to become ready: %s",
-			v.InstanceID, err)
+		return fmtp.DiagErrorf("error waiting for instance (%s) to become ready: %s", v.InstanceID, err)
 	}
 
 	// Store the instance ID now
@@ -476,11 +473,10 @@ func resourceDmsKafkaInstanceDelete(ctx context.Context, d *schema.ResourceData,
 		PollInterval: 10 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		return fmtp.DiagErrorf(
-			"error waiting for instance (%s) to delete: %s",
-			d.Id(), err)
+			"error waiting for instance (%s) to delete: %s", d.Id(), err)
 	}
 
 	logp.Printf("[DEBUG] Dms instance %s deactivated", d.Id())

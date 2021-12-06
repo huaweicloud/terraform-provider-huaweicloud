@@ -233,7 +233,7 @@ func resourceDmsRabbitmqInstanceCreate(ctx context.Context, d *schema.ResourceDa
 		MinTimeout:   3 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		return fmtp.DiagErrorf(
 			"error waiting for instance (%s) to become ready: %s",
@@ -385,11 +385,10 @@ func resourceDmsRabbitmqInstanceDelete(ctx context.Context, d *schema.ResourceDa
 		PollInterval: 10 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		return fmtp.DiagErrorf(
-			"error waiting for instance (%s) to delete: %s",
-			d.Id(), err)
+			"error waiting for instance (%s) to delete: %s", d.Id(), err)
 	}
 
 	logp.Printf("[DEBUG] Dms instance %s deactivated", d.Id())
