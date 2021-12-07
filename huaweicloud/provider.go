@@ -303,7 +303,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_product":                          DataSourceDmsProductV1(),
 			"huaweicloud_dms_maintainwindow":                   DataSourceDmsMaintainWindowV1(),
 			"huaweicloud_elb_flavors":                          dataSourceElbFlavorsV3(),
-			"huaweicloud_enterprise_project":                   DataSourceEnterpriseProject(),
+			"huaweicloud_enterprise_project":                   eps.DataSourceEnterpriseProject(),
 			"huaweicloud_fgs_dependencies":                     fgs.DataSourceFunctionGraphDependencies(),
 			"huaweicloud_gaussdb_cassandra_dedicated_resource": dataSourceGeminiDBDehResource(),
 			"huaweicloud_gaussdb_cassandra_flavors":            gaussdb.DataSourceCassandraFlavors(),
