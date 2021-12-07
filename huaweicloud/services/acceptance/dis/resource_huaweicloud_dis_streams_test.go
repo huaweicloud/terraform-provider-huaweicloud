@@ -43,6 +43,7 @@ func TestAccResourceDisStream_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "stream_name", name),
+					resource.TestCheckResourceAttr(resourceName, "partitions.#", "1"),
 				),
 			},
 			{
@@ -50,6 +51,7 @@ func TestAccResourceDisStream_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "stream_name", name),
+					resource.TestCheckResourceAttr(resourceName, "partitions.#", "4"),
 				),
 			},
 			{
@@ -94,6 +96,7 @@ func TestAccResourceDisStream_all(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "partition_count", "1"),
 					resource.TestCheckResourceAttr(resourceName, "auto_scale_min_partition_count", "2"),
 					resource.TestCheckResourceAttr(resourceName, "auto_scale_max_partition_count", "3"),
+					resource.TestCheckResourceAttr(resourceName, "partitions.#", "1"),
 				),
 			},
 			{
@@ -104,6 +107,7 @@ func TestAccResourceDisStream_all(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "partition_count", "2"),
 					resource.TestCheckResourceAttr(resourceName, "auto_scale_min_partition_count", "3"),
 					resource.TestCheckResourceAttr(resourceName, "auto_scale_max_partition_count", "4"),
+					resource.TestCheckResourceAttr(resourceName, "partitions.#", "2"),
 				),
 			},
 			{

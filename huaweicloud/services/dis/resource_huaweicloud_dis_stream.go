@@ -144,6 +144,31 @@ func ResourceDisStream() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"partitions": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"hash_range": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"sequence_number_range": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"status": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -233,6 +258,7 @@ func resourceDisStreamRead(ctx context.Context, d *schema.ResourceData, meta int
 		d.Set("partition_count", detail.WritablePartitionCount),
 		d.Set("status", detail.Status),
 		d.Set("stream_id", detail.StreamId),
+		queryAndSetPartitionsToState(client, d, detail.StreamName),
 	)
 
 	enterpriseProjectId := parseEnterpriseProjectIdFromSysTags(detail.SysTags)
@@ -342,4 +368,32 @@ func checkPartitionUpdateResult(ctx context.Context, client *golangsdk.ServiceCl
 		return fmtp.Errorf("waiting for DIS stream (%s) to update partition failed: %s", name, err)
 	}
 	return nil
+}
+
+func queryAndSetPartitionsToState(client *golangsdk.ServiceClient, d *schema.ResourceData, streamName string) error {
+	var result []map[string]interface{}
+	opts := streams.GetOpts{}
+	for {
+		rst, gErr := streams.Get(client, streamName, opts)
+		if gErr != nil {
+			return fmtp.Errorf("Error query the partitions of DIS stream, err=%s", gErr)
+		}
+
+		for _, partition := range rst.Partitions {
+			result = append(result, map[string]interface{}{
+				"id":                    partition.PartitionId,
+				"status":                partition.Status,
+				"hash_range":            partition.HashRange,
+				"sequence_number_range": partition.SequenceNumberRange,
+			})
+		}
+
+		if !rst.HasMorePartitions {
+			break
+		}
+
+		opts.StartPartitionId = rst.Partitions[len(rst.Partitions)-1].PartitionId
+	}
+
+	return d.Set("partitions", result)
 }
