@@ -71,7 +71,7 @@ func ResourceWafInstanceGroup() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"load_balances": {
+			"load_balancers": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -132,7 +132,7 @@ func resourceWafInstanceGroupRead(_ context.Context, d *schema.ResourceData, met
 	for _, v := range pool.Bindings {
 		loadBalances = append(loadBalances, v.Name)
 	}
-	d.Set("load_balances", loadBalances)
+	d.Set("load_balancers", loadBalances)
 	d.Set("description", pool.Description)
 
 	if err = mErr.ErrorOrNil(); err != nil {
@@ -173,7 +173,7 @@ func resourceWafInstanceGroupDelete(_ context.Context, d *schema.ResourceData, m
 		return fmtp.DiagErrorf("error in creating HuaweiCloud WAF dedicated client : %s", err)
 	}
 	// remove the bound ELB instances before deleting the group
-	elbs := d.Get("load_balances").([]interface{})
+	elbs := d.Get("load_balancers").([]interface{})
 	if len(elbs) > 0 {
 		mErr := batchRemoveELBInstances(client, d.Id(), elbs)
 		if err = mErr.ErrorOrNil(); err != nil {

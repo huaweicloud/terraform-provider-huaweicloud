@@ -47,7 +47,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `read_timeout` - The time for reading timeout in the forwarding policy.
 
-* `load_balances` - The IDs of the ELB instances that has been bound to the instance group.
+* `load_balancers` - The IDs of the ELB instances that has been bound to the instance group.
 
 ## Import
 
