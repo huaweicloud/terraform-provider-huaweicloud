@@ -477,6 +477,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_kafka_instance":              dms.ResourceDmsKafkaInstance(),
 			"huaweicloud_dms_kafka_topic":                 dms.ResourceDmsKafkaTopic(),
 			"huaweicloud_dms_rabbitmq_instance":           dms.ResourceDmsRabbitmqInstance(),
+			"huaweicloud_dli_permission":                  dli.ResourceDliPermission(),
 			"huaweicloud_dns_ptrrecord":                   ResourceDNSPtrRecordV2(),
 			"huaweicloud_dns_recordset":                   ResourceDNSRecordSetV2(),
 			"huaweicloud_dns_zone":                        ResourceDNSZoneV2(),
