@@ -215,7 +215,7 @@ The following arguments are supported:
 * `security_group_ids` - (Optional, List) Specifies an array of one or more security group IDs to associate with the
   instance.
 
-* `availability_zone` - (Required, String, ForceNew) Specifies the availability zone in which to create the instance.
+* `availability_zone` - (Optional, String, ForceNew) Specifies the availability zone in which to create the instance.
   Please following [reference](https://developer.huaweicloud.com/en-us/endpoint/?ECS)
   for the values. Changing this creates a new instance.
 
