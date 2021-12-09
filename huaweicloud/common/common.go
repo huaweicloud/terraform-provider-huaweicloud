@@ -12,6 +12,7 @@ package common
 import (
 	"context"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/chnsz/golangsdk"
@@ -153,5 +154,14 @@ func refreshOrderStatus(c *golangsdk.ServiceClient, orderNum string) resource.St
 			return nil, "Error", err
 		}
 		return r, strconv.Itoa(r.OrderInfo.Status), nil
+	}
+}
+
+func CaseInsensitiveFunc() schema.SchemaDiffSuppressFunc {
+	return func(k, old, new string, d *schema.ResourceData) bool {
+		if strings.ToLower(old) == strings.ToLower(new) {
+			return true
+		}
+		return false
 	}
 }
