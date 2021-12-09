@@ -1,20 +1,25 @@
-package huaweicloud
+package dms
 
 import (
+	"context"
+
 	"github.com/chnsz/golangsdk/openstack/dms/v1/queues"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func ResourceDmsQueuesV1() *schema.Resource {
+func ResourceDmsQueues() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceDmsQueuesV1Create,
-		Read:   resourceDmsQueuesV1Read,
-		Delete: resourceDmsQueuesV1Delete,
+		CreateContext: resourceDmsQueuesCreate,
+		ReadContext:   resourceDmsQueuesRead,
+		DeleteContext: resourceDmsQueuesDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -83,11 +88,11 @@ func ResourceDmsQueuesV1() *schema.Resource {
 	}
 }
 
-func resourceDmsQueuesV1Create(d *schema.ResourceData, meta interface{}) error {
+func resourceDmsQueuesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
+	dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud dms queue client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud dms queue client: %s", err)
 	}
 
 	createOpts := &queues.CreateOps{
@@ -102,26 +107,26 @@ func resourceDmsQueuesV1Create(d *schema.ResourceData, meta interface{}) error {
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	v, err := queues.Create(dmsV1Client, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud queue: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud queue: %s", err)
 	}
 	logp.Printf("[INFO] Queue ID: %s", v.ID)
 
 	// Store the queue ID now
 	d.SetId(v.ID)
 
-	return resourceDmsQueuesV1Read(d, meta)
+	return resourceDmsQueuesRead(ctx, d, meta)
 }
 
-func resourceDmsQueuesV1Read(d *schema.ResourceData, meta interface{}) error {
+func resourceDmsQueuesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 
-	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
+	dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud dms queue client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud dms queue client: %s", err)
 	}
 	v, err := queues.Get(dmsV1Client, d.Id(), true).Extract()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	logp.Printf("[DEBUG] Dms queue %s: %+v", d.Id(), v)
@@ -141,21 +146,21 @@ func resourceDmsQueuesV1Read(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceDmsQueuesV1Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceDmsQueuesDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
+	dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud dms queue client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud dms queue client: %s", err)
 	}
 
 	v, err := queues.Get(dmsV1Client, d.Id(), false).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "queue")
+		return common.CheckDeletedDiag(d, err, "queue")
 	}
 
 	err = queues.Delete(dmsV1Client, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud queue: %s", err)
+		return fmtp.DiagErrorf("Error deleting HuaweiCloud queue: %s", err)
 	}
 
 	logp.Printf("[DEBUG] Dms queue %s: %+v deactivated.", d.Id(), v)

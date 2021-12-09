@@ -1,19 +1,23 @@
-package huaweicloud
+package dms
 
 import (
+	"context"
 	"strconv"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/chnsz/golangsdk/openstack/dms/v1/maintainwindows"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func DataSourceDmsMaintainWindowV1() *schema.Resource {
+func DataSourceDmsMaintainWindow() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceDmsMaintainWindowV1Read,
+		ReadContext: dataSourceDmsMaintainWindowRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -45,16 +49,16 @@ func DataSourceDmsMaintainWindowV1() *schema.Resource {
 	}
 }
 
-func dataSourceDmsMaintainWindowV1Read(d *schema.ResourceData, meta interface{}) error {
+func dataSourceDmsMaintainWindowRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
+	dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud dms client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud dms client: %s", err)
 	}
 
 	v, err := maintainwindows.Get(dmsV1Client).Extract()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	maintainWindows := v.MaintainWindows
@@ -81,7 +85,7 @@ func dataSourceDmsMaintainWindowV1Read(d *schema.ResourceData, meta interface{})
 		filteredMVs = append(filteredMVs, mv)
 	}
 	if len(filteredMVs) < 1 {
-		return fmtp.Errorf("Your query returned no results. Please change your filters and try again.")
+		return fmtp.DiagErrorf("Your query returned no results. Please change your filters and try again.")
 	}
 	mw := filteredMVs[0]
 	d.SetId(strconv.Itoa(mw.ID))

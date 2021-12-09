@@ -1,17 +1,22 @@
-package huaweicloud
+package dms
 
 import (
+	"context"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/chnsz/golangsdk/openstack/dms/v1/products"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func DataSourceDmsProductV1() *schema.Resource {
+func DataSourceDmsProduct() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceDmsProductV1Read,
+		ReadContext: dataSourceDmsProductRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -86,28 +91,28 @@ func getIObyIOtype(d *schema.ResourceData, IOs []products.IO) []products.IO {
 	return IOs
 }
 
-func dataSourceDmsProductV1Read(d *schema.ResourceData, meta interface{}) error {
+func dataSourceDmsProductRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
+	dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error get HuaweiCloud dms product client: %s", err)
+		return fmtp.DiagErrorf("Error get HuaweiCloud dms product client: %s", err)
 	}
 
 	instance_engine := d.Get("engine").(string)
 	if instance_engine != "rabbitmq" && instance_engine != "kafka" {
-		return fmtp.Errorf("The instance_engine value should be 'rabbitmq' or 'kafka', not: %s", instance_engine)
+		return fmtp.DiagErrorf("The instance_engine value should be 'rabbitmq' or 'kafka', not: %s", instance_engine)
 	}
 
 	v, err := products.Get(dmsV1Client, instance_engine).Extract()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	Products := v.Hourly
 
 	logp.Printf("[DEBUG] Dms get products : %+v", Products)
 	instance_type := d.Get("instance_type").(string)
 	if instance_type != "single" && instance_type != "cluster" {
-		return fmtp.Errorf("The instance_type value should be 'single' or 'cluster', not: %s", instance_type)
+		return fmtp.DiagErrorf("The instance_type value should be 'single' or 'cluster', not: %s", instance_type)
 	}
 	var FilteredPd []products.Detail
 	var FilteredPdInfo []products.ProductInfo
@@ -170,7 +175,7 @@ func dataSourceDmsProductV1Read(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	if len(FilteredPd) < 1 {
-		return fmtp.Errorf("Your query returned no results. Please change your filters and try again.")
+		return fmtp.DiagErrorf("Your query returned no results. Please change your filters and try again.")
 	}
 
 	pd := FilteredPd[0]
@@ -185,7 +190,7 @@ func dataSourceDmsProductV1Read(d *schema.ResourceData, meta interface{}) error 
 		logp.Printf("[DEBUG] Dms product : %+v", pd)
 	} else {
 		if len(pd.ProductInfos) < 1 {
-			return fmtp.Errorf("Your query returned no results. Please change your filters and try again.")
+			return fmtp.DiagErrorf("Your query returned no results. Please change your filters and try again.")
 		}
 		pdInfo := pd.ProductInfos[0]
 		d.SetId(pdInfo.ProductID)

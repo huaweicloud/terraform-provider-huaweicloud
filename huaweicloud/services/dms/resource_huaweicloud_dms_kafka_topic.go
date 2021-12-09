@@ -1,11 +1,15 @@
-package huaweicloud
+package dms
 
 import (
+	"context"
 	"strings"
 
 	"github.com/chnsz/golangsdk/openstack/dms/v2/kafka/topics"
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -14,13 +18,13 @@ import (
 // ResourceDmsKafkaTopic implements the resource of "huaweicloud_dms_kafka_topic"
 func ResourceDmsKafkaTopic() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceDmsKafkaTopicCreate,
-		Read:   resourceDmsKafkaTopicRead,
-		Update: resourceDmsKafkaTopicUpdate,
-		Delete: resourceDmsKafkaTopicDelete,
+		CreateContext: resourceDmsKafkaTopicCreate,
+		ReadContext:   resourceDmsKafkaTopicRead,
+		UpdateContext: resourceDmsKafkaTopicUpdate,
+		DeleteContext: resourceDmsKafkaTopicDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: resourceDmsKafkaTopicImport,
+			StateContext: resourceDmsKafkaTopicImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -69,11 +73,11 @@ func ResourceDmsKafkaTopic() *schema.Resource {
 	}
 }
 
-func resourceDmsKafkaTopicCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceDmsKafkaTopicCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	dmsV2Client, err := config.DmsV2Client(GetRegion(d, config))
+	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud DMS client: %s", err)
+		return fmtp.DiagErrorf("error creating HuaweiCloud DMS client: %s", err)
 	}
 
 	createOpts := &topics.CreateOps{
@@ -89,25 +93,25 @@ func resourceDmsKafkaTopicCreate(d *schema.ResourceData, meta interface{}) error
 	instanceID := d.Get("instance_id").(string)
 	v, err := topics.Create(dmsV2Client, instanceID, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud DMS kafka topic: %s", err)
+		return fmtp.DiagErrorf("error creating HuaweiCloud DMS kafka topic: %s", err)
 	}
 
 	// use topic name as the resource ID
 	d.SetId(v.Name)
-	return resourceDmsKafkaTopicRead(d, meta)
+	return resourceDmsKafkaTopicRead(ctx, d, meta)
 }
 
-func resourceDmsKafkaTopicRead(d *schema.ResourceData, meta interface{}) error {
+func resourceDmsKafkaTopicRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	dmsV2Client, err := config.DmsV2Client(GetRegion(d, config))
+	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud DMS client: %s", err)
+		return fmtp.DiagErrorf("error creating HuaweiCloud DMS client: %s", err)
 	}
 
 	instanceID := d.Get("instance_id").(string)
 	allTopics, err := topics.List(dmsV2Client, instanceID).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "DMS kafka topic")
+		return common.CheckDeletedDiag(d, err, "DMS kafka topic")
 	}
 
 	topicID := d.Id()
@@ -127,7 +131,7 @@ func resourceDmsKafkaTopicRead(d *schema.ResourceData, meta interface{}) error {
 	logp.Printf("[DEBUG] DMS kafka topic %s: %+v", d.Id(), found)
 
 	mErr := multierror.Append(nil,
-		d.Set("region", GetRegion(d, config)),
+		d.Set("region", config.GetRegion(d)),
 		d.Set("name", found.Name),
 		d.Set("partitions", found.Partition),
 		d.Set("replicas", found.Replication),
@@ -136,17 +140,17 @@ func resourceDmsKafkaTopicRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("sync_flushing", found.SyncMessageFlush),
 	)
 	if mErr.ErrorOrNil() != nil {
-		return mErr
+		return diag.FromErr(mErr)
 	}
 
 	return nil
 }
 
-func resourceDmsKafkaTopicUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceDmsKafkaTopicUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	dmsV2Client, err := config.DmsV2Client(GetRegion(d, config))
+	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud DMS client: %s", err)
+		return fmtp.DiagErrorf("error creating HuaweiCloud DMS client: %s", err)
 	}
 
 	newPartition := d.Get("partitions").(int)
@@ -170,24 +174,24 @@ func resourceDmsKafkaTopicUpdate(d *schema.ResourceData, meta interface{}) error
 	instanceID := d.Get("instance_id").(string)
 	err = topics.Update(dmsV2Client, instanceID, updateOpts).Err
 	if err != nil {
-		return fmtp.Errorf("error updating HuaweiCloud DMS kafka topic: %s", err)
+		return fmtp.DiagErrorf("error updating HuaweiCloud DMS kafka topic: %s", err)
 	}
 
-	return resourceDmsKafkaTopicRead(d, meta)
+	return resourceDmsKafkaTopicRead(ctx, d, meta)
 }
 
-func resourceDmsKafkaTopicDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceDmsKafkaTopicDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	dmsV2Client, err := config.DmsV2Client(GetRegion(d, config))
+	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud DMS client: %s", err)
+		return fmtp.DiagErrorf("error creating HuaweiCloud DMS client: %s", err)
 	}
 
 	topicID := d.Id()
 	instanceID := d.Get("instance_id").(string)
 	response, err := topics.Delete(dmsV2Client, instanceID, []string{topicID}).Extract()
 	if err != nil {
-		return fmtp.Errorf("error deleting DMS kafka topic: %s", err)
+		return fmtp.DiagErrorf("error deleting DMS kafka topic: %s", err)
 	}
 
 	var success bool
@@ -198,7 +202,7 @@ func resourceDmsKafkaTopicDelete(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 	if !success {
-		return fmtp.Errorf("error deleting DMS kafka topic")
+		return fmtp.DiagErrorf("error deleting DMS kafka topic")
 	}
 
 	d.SetId("")
@@ -207,7 +211,8 @@ func resourceDmsKafkaTopicDelete(d *schema.ResourceData, meta interface{}) error
 
 // resourceDmsKafkaTopicImport query the rules from HuaweiCloud and imports them to Terraform.
 // It is a common function in waf and is also called by other rule resources.
-func resourceDmsKafkaTopicImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceDmsKafkaTopicImport(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData,
+	error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
 		err := fmtp.Errorf("Invalid format specified for DMS kafka topic. Format must be <instance id>/<topic name>")
