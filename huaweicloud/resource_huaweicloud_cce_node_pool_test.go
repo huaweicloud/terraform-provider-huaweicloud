@@ -33,6 +33,7 @@ func TestAccCCENodePool_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCENodePoolExists(resourceName, clusterName, &nodePool),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "current_node_count", "1"),
 				),
 			},
 			{
@@ -40,12 +41,15 @@ func TestAccCCENodePool_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccCCENodePoolImportStateIdFunc(),
+				ImportStateVerifyIgnore: []string{
+					"initial_node_count",
+				},
 			},
 			{
 				Config: testAccCCENodePool_update(rName, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
-					resource.TestCheckResourceAttr(resourceName, "initial_node_count", "2"),
+					resource.TestCheckResourceAttr(resourceName, "current_node_count", "2"),
 					resource.TestCheckResourceAttr(resourceName, "scall_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "min_node_count", "2"),
 					resource.TestCheckResourceAttr(resourceName, "max_node_count", "9"),
