@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccDmsProductV1DataSource_basic(t *testing.T) {
-	dataSourceName := "data.huaweicloud_dms_product_v1.product1"
+	dataSourceName := "data.huaweicloud_dms_product.product1"
 	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -31,7 +31,7 @@ func TestAccDmsProductV1DataSource_basic(t *testing.T) {
 }
 
 func TestAccDmsProductV1DataSource_rabbitmqSingle(t *testing.T) {
-	dataSourceName := "data.huaweicloud_dms_product_v1.product1"
+	dataSourceName := "data.huaweicloud_dms_product.product1"
 	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -51,7 +51,7 @@ func TestAccDmsProductV1DataSource_rabbitmqSingle(t *testing.T) {
 }
 
 func TestAccDmsProductV1DataSource_rabbitmqCluster(t *testing.T) {
-	dataSourceName := "data.huaweicloud_dms_product_v1.product1"
+	dataSourceName := "data.huaweicloud_dms_product.product1"
 	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -72,7 +72,7 @@ func TestAccDmsProductV1DataSource_rabbitmqCluster(t *testing.T) {
 }
 
 var testAccDmsProductV1DataSource_basic = fmt.Sprintf(`
-data "huaweicloud_dms_product_v1" "product1" {
+data "huaweicloud_dms_product" "product1" {
   engine            = "kafka"
   version           = "1.1.0"
   instance_type     = "cluster"
@@ -83,7 +83,7 @@ data "huaweicloud_dms_product_v1" "product1" {
 `)
 
 var testAccDmsProductV1DataSource_rabbitmqSingle = fmt.Sprintf(`
-data "huaweicloud_dms_product_v1" "product1" {
+data "huaweicloud_dms_product" "product1" {
   engine            = "rabbitmq"
   instance_type     = "single"
   storage_spec_code = "dms.physical.storage.high"
@@ -91,7 +91,7 @@ data "huaweicloud_dms_product_v1" "product1" {
 `)
 
 var testAccDmsProductV1DataSource_rabbitmqCluster = fmt.Sprintf(`
-data "huaweicloud_dms_product_v1" "product1" {
+data "huaweicloud_dms_product" "product1" {
   engine            = "rabbitmq"
   instance_type     = "cluster"
   storage_spec_code = "dms.physical.storage.high"
