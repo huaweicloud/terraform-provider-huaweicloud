@@ -29,6 +29,7 @@ func TestAccComputeV2InterfaceAttach_Basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2InterfaceAttachExists(resourceName, &ai),
 					testAccCheckComputeV2InterfaceAttachIP(&ai, "192.168.0.199"),
+					resource.TestCheckResourceAttr(resourceName, "source_dest_check", "true"),
 				),
 			},
 			{

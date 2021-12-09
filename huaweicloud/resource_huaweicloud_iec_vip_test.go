@@ -29,7 +29,7 @@ func TestAccIecVipResource_basic(t *testing.T) {
 				Config: testAccIecVip_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIecVipExists(resourceName, &iecPort),
-					resource.TestCheckResourceAttr(resourceName, "fixed_ips.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ip_address", "192.168.0.100"),
 					resource.TestCheckResourceAttrSet(resourceName, "mac_address"),
 				),
 			},
@@ -56,12 +56,14 @@ func TestAccIecVipResource_associate(t *testing.T) {
 				Config: testAccIecVip_associate(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIecVipExists(resourceName, &iecPort),
+					resource.TestCheckResourceAttrSet(resourceName, "mac_address"),
 					resource.TestCheckResourceAttr(resourceName, "allowed_addresses.#", "1"),
 				),
 			},
 			{
 				Config: testAccIecVip_disassociate(rName),
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(resourceName, "mac_address"),
 					resource.TestCheckResourceAttr(resourceName, "allowed_addresses.#", "0"),
 				),
 			},
@@ -122,7 +124,7 @@ func testAccCheckIecVipExists(n string, resource *iec_common.Port) resource.Test
 	}
 }
 
-func testAccIecVip_basic(rName string) string {
+func testAccIecVip_base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_iec_sites" "sites_test" {}
 
@@ -133,17 +135,24 @@ resource "huaweicloud_iec_vpc" "vpc_test" {
 }
 
 resource "huaweicloud_iec_vpc_subnet" "subnet_test" {
-  name = "subnet-%s"
-  cidr = "192.168.0.0/16"
+  name       = "subnet-%s"
+  vpc_id     = huaweicloud_iec_vpc.vpc_test.id
+  site_id    = data.huaweicloud_iec_sites.sites_test.sites[0].id
+  cidr       = "192.168.0.0/24"
   gateway_ip = "192.168.0.1"
-  vpc_id = huaweicloud_iec_vpc.vpc_test.id
-  site_id = data.huaweicloud_iec_sites.sites_test.sites[0].id
-}
-
-resource "huaweicloud_iec_vip" "vip_test" {
-  subnet_id = huaweicloud_iec_vpc_subnet.subnet_test.id
 }
 `, rName, rName)
+}
+
+func testAccIecVip_basic(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_iec_vip" "vip_test" {
+  subnet_id  = huaweicloud_iec_vpc_subnet.subnet_test.id
+  ip_address = "192.168.0.100"
+}
+`, testAccIecVip_base(rName))
 }
 
 func testAccIecVip_associate(rName string) string {

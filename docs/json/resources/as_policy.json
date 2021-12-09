@@ -11,7 +11,8 @@
               },
               "cool_down_time": {
                 "type": "number",
-                "optional": true
+                "optional": true,
+                "default": 900
               },
               "id": {
                 "type": "string",
@@ -23,7 +24,8 @@
               },
               "scaling_group_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "scaling_policy_name": {
                 "type": "string",
@@ -36,12 +38,12 @@
             },
             "block_types": {
               "scaling_policy_action": {
-                "nesting_mode": "list",
                 "block": {
                   "attributes": {
                     "instance_number": {
                       "type": "number",
-                      "optional": true
+                      "optional": true,
+                      "default": 1
                     },
                     "operation": {
                       "type": "string",
@@ -49,10 +51,10 @@
                     }
                   }
                 },
+                "nesting_mode": "list",
                 "max_items": 1
               },
               "scheduled_policy": {
-                "nesting_mode": "list",
                 "block": {
                   "attributes": {
                     "end_time": {
@@ -77,6 +79,7 @@
                     }
                   }
                 },
+                "nesting_mode": "list",
                 "max_items": 1
               }
             }

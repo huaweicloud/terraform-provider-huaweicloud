@@ -7,7 +7,9 @@ subcategory: "Identity and Access Management (IAM)"
 Manages a Project resource within HuaweiCloud Identity And Access Management service. This is an alternative
 to `huaweicloud_identity_project_v3`
 
-Note: You _must_ have security admin privileges in your HuaweiCloud cloud to use this resource.
+-> You _must_ have security admin privileges in your HuaweiCloud cloud to use this resource.
+
+!>  Deleting projects is not supported. The project is only removed from the state, but it remains in the cloud.
 
 ## Example Usage
 

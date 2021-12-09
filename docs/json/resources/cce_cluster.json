@@ -10,19 +10,34 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "authenticating_proxy_ca": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
+              },
+              "authenticating_proxy_cert": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "authenticating_proxy_private_key": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
               },
               "authentication_mode": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true,
+                "default": "rbac"
               },
               "auto_renew": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "certificate_clusters": {
                 "type": [
@@ -55,25 +70,31 @@
               "charging_mode": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "cluster_type": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true,
+                "default": "VirtualMachine"
               },
               "cluster_version": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "container_network_cidr": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "container_network_type": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "delete_all": {
                 "type": "string",
@@ -110,38 +131,49 @@
               },
               "eip": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "eni_subnet_cidr": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "eni_subnet_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "extend_param": {
                 "type": [
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "flavor_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
+              },
+              "hibernate": {
+                "type": "bool",
+                "optional": true
               },
               "highway_subnet_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "id": {
                 "type": "string",
@@ -153,30 +185,36 @@
               },
               "kube_proxy_mode": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "labels": {
                 "type": [
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "multi_az": {
                 "type": "bool",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "name": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "period": {
                 "type": "number",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "period_unit": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "region": {
                 "type": "string",
@@ -189,7 +227,8 @@
               "service_network_cidr": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "status": {
                 "type": "string",
@@ -197,25 +236,29 @@
               },
               "subnet_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "vpc_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               }
             },
             "block_types": {
               "masters": {
-                "nesting_mode": "list",
                 "block": {
                   "attributes": {
                     "availability_zone": {
                       "type": "string",
                       "optional": true,
-                      "computed": true
+                      "computed": true,
+                      "forcenew": true
                     }
                   }
                 },
+                "nesting_mode": "list",
+                "forcenew": true,
                 "max_items": 3
               }
             }

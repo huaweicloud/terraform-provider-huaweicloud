@@ -68,7 +68,13 @@ The following arguments are supported:
 * `configuration_id` - (Optional, String, ForceNew) Specifies the configuration ID. Changing this parameter will create
   a new resource.
 
+* `configuration_name` - (Optional, String, ForceNew) Specifies the configuration name. Changing this parameter will create
+  a new resource.
+
 * `dedicated_resource_id` - (Optional, String, ForceNew) Specifies the dedicated resource ID. Changing this parameter
+  will create a new resource.
+
+* `dedicated_resource_name` - (Optional, String, ForceNew) Specifies the dedicated resource name. Changing this parameter
   will create a new resource.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id. Required if EPS enabled.

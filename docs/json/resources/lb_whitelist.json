@@ -15,7 +15,8 @@
               },
               "listener_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "region": {
                 "type": "string",

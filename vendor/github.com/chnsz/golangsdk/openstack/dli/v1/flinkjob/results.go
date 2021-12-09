@@ -1,12 +1,5 @@
 package flinkjob
 
-import (
-	"encoding/json"
-	"fmt"
-
-	"github.com/chnsz/golangsdk"
-)
-
 type CreateJobResp struct {
 	IsSuccess bool      `json:"is_success,string"`
 	Message   string    `json:"message"`
@@ -180,6 +173,9 @@ type JobConfBase struct {
 	TmSlotNum        int    `json:"tm_slot_num"`
 	ResumeMaxNum     int    `json:"resume_max_num"`
 	CheckpointPath   string `json:"checkpoint_path"`
+	Feature          string `json:"feature"`
+	FlinkVersion     string `json:"flink_version"`
+	Image            string `json:"image"`
 }
 
 type ListResp struct {
@@ -242,16 +238,4 @@ type JobConf struct {
 type DliError struct {
 	ErrorCode string `json:"error_code"`
 	ErrorMsg  string `json:"error_msg"`
-}
-
-func ExtractDliErr(respErr error) (*DliError, error) {
-	var rst DliError
-	if errCode, ok := respErr.(golangsdk.ErrUnexpectedResponseCode); ok {
-		pErr := json.Unmarshal(errCode.Body, &rst)
-		if pErr != nil {
-			return &rst, respErr
-		}
-		return &rst, nil
-	}
-	return &rst, fmt.Errorf("expect type ErrUnexpectedResponseCode,actual %t", respErr)
 }

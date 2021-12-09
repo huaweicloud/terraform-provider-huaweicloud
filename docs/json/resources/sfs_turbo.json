@@ -7,7 +7,8 @@
             "attributes": {
               "availability_zone": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "available_capacity": {
                 "type": "string",
@@ -15,17 +16,20 @@
               },
               "crypt_key_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "enhanced": {
                 "type": "bool",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "export_location": {
                 "type": "string",
@@ -37,7 +41,8 @@
               },
               "name": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "region": {
                 "type": "string",
@@ -45,15 +50,19 @@
               },
               "security_group_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "share_proto": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "default": "NFS"
               },
               "share_type": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true,
+                "default": "STANDARD"
               },
               "size": {
                 "type": "number",
@@ -65,7 +74,8 @@
               },
               "subnet_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "version": {
                 "type": "string",
@@ -73,7 +83,8 @@
               },
               "vpc_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               }
             }
           },

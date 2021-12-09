@@ -50,7 +50,7 @@ func ResourcePoolV3() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					"TCP", "UDP", "HTTP",
+					"TCP", "UDP", "HTTP", "HTTPS", "QUIC",
 				}, false),
 			},
 

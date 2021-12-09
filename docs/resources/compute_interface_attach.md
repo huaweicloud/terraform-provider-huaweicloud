@@ -112,11 +112,16 @@ The following arguments are supported:
   _NOTE_: This option cannot be used with port_id. You must specifiy a network_id. The IP address must lie in a range on
   the supplied network.
 
+* `source_dest_check` - (Optional, Bool) Specifies whether the ECS processes only traffic that is destined specifically
+  for it. This function is enabled by default but should be disabled if the ECS functions as a SNAT server or has a
+  virtual IP address bound to it.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - The resource ID in format of ECS instance ID and port ID separated by a slash.
+* `mac` - The MAC address of the NIC.
 
 ## Timeouts
 

@@ -39,6 +39,9 @@ The following arguments are supported:
 * `password` - (Optional, String) Specifies the password for the user with 6 to 32 characters. It must contain at least
   two of the following character types: uppercase letters, lowercase letters, digits, and special characters.
 
+* `pwd_reset` - (Optional, Bool) Specifies whether or not the password should be reset. By default, the password is asked
+   to reset at the first login.
+
 * `enabled` - (Optional, Bool) Specifies whether the user is enabled or disabled. Valid values are `true` and `false`.
 
 * `access_type` - (Optional, String) Specifies the access type of the user. Available values are:

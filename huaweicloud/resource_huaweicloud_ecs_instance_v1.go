@@ -190,10 +190,9 @@ func resourceEcsInstanceV1() *schema.Resource {
 				ForceNew: true,
 			},
 			"tags": {
-				Type:         schema.TypeMap,
-				Optional:     true,
-				ValidateFunc: utils.ValidateECSTagValue,
-				Elem:         &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"auto_recovery": {
 				Type:     schema.TypeBool,

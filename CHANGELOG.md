@@ -1,5 +1,39 @@
 # CHANGELOG
 
+## 1.31.0 (November 30, 2021)
+
+* **New Resurce:**
+  + `huaweicloud_cci_namespace` [GH-1648]
+  + `huaweicloud_swr_repository_sharing` [GH-1671]
+  + `huaweicloud_enterprise_project` [GH-1731]
+  + `huaweicloud_cci_network` [GH-1726]
+
+* **New Data Source:**
+  + `huaweicloud_rds_engine_versions` [GH-1729]
+  + `huaweicloud_vpcs` [GH-1694]
+  + `huaweicloud_vpc_subnets` [GH-1707]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_gaussdb_mysql_instance: Add configuration_name and dedicated_resource_name [GH-1709]
+* resource/huaweicloud_kms_key: Add key_algorithm parameter [GH-1712]
+* data/huaweicloud_iec_sites: Add lines attribute [GH-1733]
+* resource/huaweicloud_compute_instance: Add source_dest_check parameter [GH-1727]
+* resource/huaweicloud_iec_vip: Add ip_address support [GH-1736]
+* resource/huaweicloud_identity_user: Add pwd_reset support [GH-1725]
+
+BUG FIXES:
+
+* resource/huaweicloud_evs_volume: Fix update of tag [GH-1705]
+* resource/huaweicloud_elb_pool: Add HTTPS and QUIC to protocl [GH-1715]
+* resource/huaweicloud_obs_bucket: Ignore FsNotSupport error [GH-1723]
+
+## 1.30.1 (November 27, 2021)
+
+BUG FIXES:
+
+* data/huaweicloud_gaussdb_mysql_instances: Update public_ips type [GH-1740]
+
 ## 1.30.0 (October 30, 2021)
 
 * **New Resurce:**

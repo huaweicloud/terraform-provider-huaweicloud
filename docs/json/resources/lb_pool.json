@@ -19,11 +19,13 @@
               },
               "listener_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "loadbalancer_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "name": {
                 "type": "string",
@@ -31,7 +33,8 @@
               },
               "protocol": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "region": {
                 "type": "string",
@@ -40,19 +43,22 @@
             },
             "block_types": {
               "persistence": {
-                "nesting_mode": "list",
                 "block": {
                   "attributes": {
                     "cookie_name": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "forcenew": true
                     },
                     "type": {
                       "type": "string",
-                      "required": true
+                      "required": true,
+                      "forcenew": true
                     }
                   }
-                }
+                },
+                "nesting_mode": "list",
+                "forcenew": true
               }
             }
           },

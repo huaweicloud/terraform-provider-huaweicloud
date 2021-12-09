@@ -1,0 +1,110 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_vpc_channel": {
+          "block": {
+            "attributes": {
+              "algorithm": {
+                "type": "string",
+                "optional": true,
+                "default": "WRR"
+              },
+              "create_time": {
+                "type": "string",
+                "computed": true
+              },
+              "healthy_threshold": {
+                "type": "number",
+                "optional": true,
+                "default": 2
+              },
+              "http_code": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "interval": {
+                "type": "number",
+                "optional": true,
+                "default": 10
+              },
+              "member_type": {
+                "type": "string",
+                "optional": true,
+                "default": "ECS"
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "path": {
+                "type": "string",
+                "optional": true
+              },
+              "port": {
+                "type": "number",
+                "required": true
+              },
+              "protocol": {
+                "type": "string",
+                "optional": true,
+                "default": "TCP"
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "timeout": {
+                "type": "number",
+                "optional": true,
+                "default": 5
+              },
+              "unhealthy_threshold": {
+                "type": "number",
+                "optional": true,
+                "default": 5
+              }
+            },
+            "block_types": {
+              "members": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "ip_address": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "weight": {
+                      "type": "number",
+                      "optional": true,
+                      "default": 1
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "min_items": 1,
+                "max_items": 10
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

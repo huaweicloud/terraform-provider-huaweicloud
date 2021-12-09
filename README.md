@@ -8,7 +8,7 @@ Terraform HuaweiCloud Provider
 * Mailing list: [Google Groups](http://groups.google.com/group/terraform-tool)
 
 <!-- markdownlint-disable-next-line MD033 -->
-<img src="https://cdn.rawgit.com/hashicorp/terraform-website/master/content/source/assets/images/logo-hashicorp.svg" width="600px">
+<a href="https://www.huaweicloud.com/"><img width="450px" height="102px" src="https://console-static.huaweicloud.com/static/authui/20210202115135/public/custom/images/logo-en.svg"></a>
 
 Requirements
 ------------

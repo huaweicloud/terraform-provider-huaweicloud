@@ -154,7 +154,7 @@ resource "huaweicloud_iec_server" "server_test" {
   
   coverage_sites {
     site_id  = data.huaweicloud_iec_sites.sites_test.sites[0].id
-    operator = data.huaweicloud_iec_sites.sites_test.sites[0].operator
+    operator = data.huaweicloud_iec_sites.sites_test.sites[0].lines[0].operator
   }
 }
 `, rName, rName, rName, rName, rName)

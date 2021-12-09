@@ -170,7 +170,7 @@ func waitForInstanceCreated(c *golangsdk.ServiceClient, id string) resource.Stat
 			return r, "Created", nil
 		default:
 			err = fmtp.Errorf("Error in create WAF dedicated instance[%s]. "+
-				"Unexpected run_status: %s.", r.Id, r.RunStatus)
+				"Unexpected run_status: %v.", r.Id, r.RunStatus)
 			return r, "Error", err
 		}
 	}

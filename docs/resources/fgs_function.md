@@ -132,12 +132,17 @@ resource "huaweicloud_fgs_function" "function" {
   memory_size = 128
   timeout     = 3
   runtime     = "Node.js6.10"
-  user_data   = jsonencode({
-    environmentVariable1 = "someValue"
-    environmentVariable2 = 5
-  })
   code_type   = "obs"
   code_url    = "https://your-bucket.obs.your-region.myhuaweicloud.com/your-function.zip"
+
+  user_data = jsonencode({
+    environmentVariable1 = "someValue"
+    environmentVariable2 = "5"
+  })
+
+  encrypted_user_data = jsonencode({
+    secret_key = "xxxxxxx"
+  })
 }
 ```
 
@@ -176,6 +181,9 @@ The following arguments are supported:
 
 * `user_data` - (Optional, String) Specifies the Key/Value information defined for the function. Key/value data might be
   parsed with [Terraform `jsonencode()` function]('https://www.terraform.io/docs/language/functions/jsonencode.html').
+
+* `encrypted_user_data` - (Optional, String) Specifies the key/value information defined to be encrypted for the
+  function. The format is the same as `user_data`.
 
 * `agency` - (Optional, String) Specifies the agency. This parameter is mandatory if the function needs to access other
   cloud services.

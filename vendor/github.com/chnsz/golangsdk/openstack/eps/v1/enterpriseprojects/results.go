@@ -28,3 +28,31 @@ func (r ListResult) Extract() ([]Project, error) {
 	err := r.Result.ExtractInto(&a)
 	return a.EnterpriseProjects, err
 }
+
+type commonResult struct {
+	golangsdk.Result
+}
+
+type CreatResult struct {
+	commonResult
+}
+
+type GetResult struct {
+	commonResult
+}
+
+type UpdateResult struct {
+	commonResult
+}
+
+type ActionResult struct {
+	commonResult
+}
+
+func (r commonResult) Extract() (Project, error) {
+	var s struct {
+		EnterpriseProject Project `json:"enterprise_project"`
+	}
+	err := r.ExtractInto(&s)
+	return s.EnterpriseProject, err
+}

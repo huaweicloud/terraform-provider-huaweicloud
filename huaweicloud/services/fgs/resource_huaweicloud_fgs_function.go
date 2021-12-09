@@ -93,6 +93,11 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"encrypted_user_data": {
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
+			},
 			"xrole": {
 				Type:          schema.TypeString,
 				Optional:      true,
@@ -237,6 +242,7 @@ func buildFgsFunctionV2Parameters(d *schema.ResourceData, config *config.Config)
 		Runtime:             d.Get("runtime").(string),
 		Timeout:             d.Get("timeout").(int),
 		UserData:            d.Get("user_data").(string),
+		EncryptedUserData:   d.Get("encrypted_user_data").(string),
 		Xrole:               agency_v,
 		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
 	}
@@ -363,6 +369,7 @@ func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("runtime", f.Runtime),
 		d.Set("timeout", f.Timeout),
 		d.Set("user_data", f.UserData),
+		d.Set("encrypted_user_data", f.EncryptedUserData),
 		d.Set("version", f.Version),
 		d.Set("urn", resourceFgsFunctionUrn(d.Id())),
 		d.Set("app_agency", f.AppXrole),
@@ -399,7 +406,7 @@ func resourceFgsFunctionV2Update(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 	// lintignore:R019
-	if d.HasChanges("app", "handler", "depend_list", "memory_size", "timeout",
+	if d.HasChanges("app", "handler", "depend_list", "memory_size", "timeout", "encrypted_user_data",
 		"user_data", "agency", "app_agency", "description", "initializer_handler", "initializer_timeout",
 		"vpc_id", "network_id", "mount_user_id", "mount_user_group_id", "func_mounts") {
 		err := resourceFgsFunctionV2MetadataUpdate(fgsClient, urn, d)
@@ -458,6 +465,7 @@ func resourceFgsFunctionV2MetadataUpdate(fgsClient *golangsdk.ServiceClient, urn
 		Package:            pack_v,
 		Description:        d.Get("description").(string),
 		UserData:           d.Get("user_data").(string),
+		EncryptedUserData:  d.Get("encrypted_user_data").(string),
 		Xrole:              agency_v,
 		AppXrole:           d.Get("app_agency").(string),
 		InitializerHandler: d.Get("initializer_handler").(string),

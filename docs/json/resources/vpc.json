@@ -9,10 +9,15 @@
                 "type": "string",
                 "required": true
               },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "id": {
                 "type": "string",
@@ -24,19 +29,6 @@
               },
               "region": {
                 "type": "string",
-                "computed": true
-              },
-              "routes": {
-                "type": [
-                  "list",
-                  [
-                    "object",
-                    {
-                      "destination": "string",
-                      "nexthop": "string"
-                    }
-                  ]
-                ],
                 "computed": true
               },
               "status": {

@@ -8,6 +8,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -74,6 +75,18 @@ func TestAccServiceEndpoints_Global(t *testing.T) {
 		t.Fatalf("Identity endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
 	t.Logf("Identity endpoint:\t %s", actualURL)
+
+	// test the endpoint of IAM service without version number
+	serviceClient, err = config.IAMNoVersionClient(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud IAM client without version number: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://iam.%s/", config.Cloud)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("Identity endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("IAM endpoint without version number:\t %s", actualURL)
 
 	// test the endpoint of CDN service
 	serviceClient, err = config.CdnV1Client(HW_REGION_NAME)

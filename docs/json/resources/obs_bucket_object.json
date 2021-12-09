@@ -11,7 +11,8 @@
               },
               "bucket": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "content": {
                 "type": "string",
@@ -36,7 +37,8 @@
               },
               "key": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "kms_key_id": {
                 "type": "string",

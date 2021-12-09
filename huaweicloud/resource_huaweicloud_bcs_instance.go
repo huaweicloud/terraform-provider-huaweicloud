@@ -9,11 +9,13 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bcs/v2/blockchains"
 	"github.com/chnsz/golangsdk/openstack/cce/v3/clusters"
-	"github.com/chnsz/golangsdk/openstack/dms/v1/instances"
+	"github.com/chnsz/golangsdk/openstack/dms/v2/kafka/instances"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -520,7 +522,7 @@ func resourceBCSInstanceV2Delete(d *schema.ResourceData, meta interface{}) error
 			return fmtp.Errorf("Error creating HuaweiCloud Kafka client: %s", err)
 		}
 		kafkaName := d.Get("kafka.0.name").(string)
-		listOpts := instances.ListDmsInstanceOpts{
+		listOpts := instances.ListOpts{
 			Engine: "kafka",
 			Name:   kafkaName,
 		}
@@ -528,7 +530,7 @@ func resourceBCSInstanceV2Delete(d *schema.ResourceData, meta interface{}) error
 		if err != nil {
 			return fmtp.Errorf("Error getting kafka instance in queue (%s): %s", kafkaName, err)
 		}
-		res, err := instances.ExtractDmsInstances(pages)
+		res, err := instances.ExtractInstances(pages)
 		if err != nil {
 			return fmtp.Errorf("Error quering HuaweiCloud kafka instances: %s", err)
 		}
@@ -546,7 +548,7 @@ func resourceBCSInstanceV2Delete(d *schema.ResourceData, meta interface{}) error
 		stateConf := &resource.StateChangeConf{
 			Pending:    []string{"DELETING", "RUNNING"},
 			Target:     []string{"DELETED"},
-			Refresh:    DmsInstancesV1StateRefreshFunc(dmsClient, kafkaID),
+			Refresh:    dms.DmsKafkaInstanceStateRefreshFunc(dmsClient, kafkaID),
 			Timeout:    d.Timeout(schema.TimeoutDelete),
 			Delay:      10 * time.Second,
 			MinTimeout: 3 * time.Second,

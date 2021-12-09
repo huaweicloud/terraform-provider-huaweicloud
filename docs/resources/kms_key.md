@@ -30,6 +30,9 @@ The following arguments are supported:
 * `key_description` - (Optional, String) The description of the key as viewed in Huawei console. Changing this updates
   the description of key.
 
+* `key_algorithm` - (Optional, String, ForceNew) The algorithm of the key. Valid values are AES_256, SM4, RSA_2048, RSA_3072,
+  RSA_4096, EC_P256, EC_P384, SM2. Changing this creates a new key.
+
 * `pending_days` - (Optional, String) Duration in days after which the key is deleted after destruction of the resource,
   must be between 7 and 1096 days. It doesn't have default value. It only be used when delete a key.
 

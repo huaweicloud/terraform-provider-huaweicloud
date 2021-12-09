@@ -7,7 +7,8 @@
             "attributes": {
               "availability_zone": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "db": {
                 "type": [
@@ -27,7 +28,8 @@
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "flavor": {
                 "type": "string",
@@ -39,11 +41,13 @@
               },
               "name": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "primary_instance_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "private_ips": {
                 "type": [
@@ -93,12 +97,12 @@
             },
             "block_types": {
               "volume": {
-                "nesting_mode": "list",
                 "block": {
                   "attributes": {
                     "disk_encryption_id": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "forcenew": true
                     },
                     "size": {
                       "type": "number",
@@ -107,10 +111,13 @@
                     },
                     "type": {
                       "type": "string",
-                      "required": true
+                      "required": true,
+                      "forcenew": true
                     }
                   }
                 },
+                "nesting_mode": "list",
+                "forcenew": true,
                 "min_items": 1,
                 "max_items": 1
               }

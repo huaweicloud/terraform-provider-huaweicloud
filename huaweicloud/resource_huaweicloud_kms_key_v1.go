@@ -44,6 +44,12 @@ func ResourceKmsKeyV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"key_algorithm": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -61,10 +67,9 @@ func ResourceKmsKeyV1() *schema.Resource {
 				Default:  "7",
 			},
 			"tags": {
-				Type:         schema.TypeMap,
-				Optional:     true,
-				ValidateFunc: utils.ValidateECSTagValue,
-				Elem:         &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"key_id": {
 				Type:     schema.TypeString,
@@ -104,6 +109,7 @@ func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 	createOpts := &keys.CreateOpts{
 		KeyAlias:            d.Get("key_alias").(string),
 		KeyDescription:      d.Get("key_description").(string),
+		KeySpec:             d.Get("key_algorithm").(string),
 		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
 	}
 
@@ -186,6 +192,7 @@ func resourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("key_alias", v.KeyAlias)
 	d.Set("region", kmsRegion)
 	d.Set("key_description", v.KeyDescription)
+	d.Set("key_algorithm", v.KeySpec)
 	d.Set("creation_date", v.CreationDate)
 	d.Set("scheduled_deletion_date", v.ScheduledDeletionDate)
 	d.Set("is_enabled", v.KeyState == EnabledState)

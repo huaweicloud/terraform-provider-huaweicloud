@@ -9,6 +9,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/backups"
+	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/configurations"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -83,6 +84,12 @@ func resourceGaussDBInstance() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			"configuration_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -91,6 +98,13 @@ func resourceGaussDBInstance() *schema.Resource {
 			"dedicated_resource_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"dedicated_resource_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 			"table_name_case_sensitivity": {
@@ -380,6 +394,47 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		createOpts.Volume = volume
 	}
 
+	// configuration
+	if d.Get("configuration_id") == "" && d.Get("configuration_name") != "" {
+		configsList, err := configurations.List(client).Extract()
+		if err != nil {
+			return fmtp.Errorf("Unable to retrieve configurations: %s", err)
+		}
+		confName := d.Get("configuration_name").(string)
+		for _, conf := range configsList {
+			if conf.Name == confName {
+				createOpts.ConfigurationId = conf.ID
+				break
+			}
+		}
+		if createOpts.ConfigurationId == "" {
+			return fmtp.Errorf("Unable to find configuration named %s", confName)
+		}
+	}
+
+	// dedicated resource
+	if d.Get("dedicated_resource_id") == "" && d.Get("dedicated_resource_name") != "" {
+		pages, err := instances.ListDeh(client).AllPages()
+		if err != nil {
+			return fmtp.Errorf("Unable to retrieve dedicated resources: %s", err)
+		}
+		allResources, err := instances.ExtractDehResources(pages)
+		if err != nil {
+			return fmtp.Errorf("Unable to extract dedicated resources: %s", err)
+		}
+
+		derName := d.Get("dedicated_resource_name").(string)
+		for _, der := range allResources.Resources {
+			if der.ResourceName == derName {
+				createOpts.DedicatedResourceId = der.Id
+				break
+			}
+		}
+		if createOpts.DedicatedResourceId == "" {
+			return fmtp.Errorf("Unable to find dedicated resource named %s", derName)
+		}
+	}
+
 	// PrePaid
 	if d.Get("charging_mode") == "prePaid" {
 		if err := validatePrePaidChargeInfo(d); err != nil {
@@ -516,6 +571,39 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("time_zone", instance.TimeZone)
 	d.Set("availability_zone_mode", instance.AZMode)
 	d.Set("master_availability_zone", instance.MasterAZ)
+
+	if instance.ConfigurationId != "" {
+		configsList, err := configurations.List(client).Extract()
+		if err != nil {
+			logp.Printf("Unable to retrieve configurations: %s", err)
+		} else {
+			for _, conf := range configsList {
+				if conf.ID == instance.ConfigurationId {
+					d.Set("configuration_name", conf.Name)
+					break
+				}
+			}
+		}
+	}
+
+	if instance.DedicatedResourceId != "" {
+		pages, err := instances.ListDeh(client).AllPages()
+		if err != nil {
+			logp.Printf("Unable to retrieve dedicated resources: %s", err)
+		} else {
+			allResources, err := instances.ExtractDehResources(pages)
+			if err != nil {
+				logp.Printf("Unable to extract dedicated resources: %s", err)
+			} else {
+				for _, der := range allResources.Resources {
+					if der.Id == instance.DedicatedResourceId {
+						d.Set("dedicated_resource_name", der.ResourceName)
+						break
+					}
+				}
+			}
+		}
+	}
 
 	if dbPort, err := strconv.Atoi(instance.Port); err == nil {
 		d.Set("port", dbPort)

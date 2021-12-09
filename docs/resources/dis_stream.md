@@ -88,6 +88,18 @@ In addition to all arguments above, the following attributes are exported:
 
 * `stream_id` - Indicates a stream ID in UUID format.
 
+* `partitions` - The information of stream partitions. Structure is documented below.
+
+The `partitions` block contains:
+
+* `id` - The ID of the partition.
+
+* `status` - The status of the partition.
+
+* `hash_range` - Possible value range of the hash key used by each partition.
+
+* `sequence_number_range` - Sequence number range of each partition.
+
 ## Import
 
 Dis stream can be imported by `stream_name`. For example,

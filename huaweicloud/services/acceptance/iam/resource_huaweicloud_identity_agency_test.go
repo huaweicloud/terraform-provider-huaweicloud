@@ -8,30 +8,42 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk/openstack/identity/v3/agency"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+func getIdentityAgencyResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := c.IAMV3Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmtp.Errorf("Error creating HuaweiCloud IAM client: %s", err)
+	}
+	return agency.Get(client, state.Primary.ID).Extract()
+}
+
 func TestAccIdentityAgency_basic(t *testing.T) {
 	var agency agency.Agency
-
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_identity_agency.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&agency,
+		getIdentityAgencyResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckIdentityAgencyDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIdentityAgency_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityAgencyExists(resourceName, &agency),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "This is a test agency"),
 					resource.TestCheckResourceAttr(resourceName, "delegated_service_name", "op_svc_evs"),
@@ -47,7 +59,7 @@ func TestAccIdentityAgency_basic(t *testing.T) {
 			{
 				Config: testAccIdentityAgency_update(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityAgencyExists(resourceName, &agency),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "This is a updated test agency"),
 					resource.TestCheckResourceAttr(resourceName, "delegated_service_name", "op_svc_evs"),
@@ -61,22 +73,27 @@ func TestAccIdentityAgency_basic(t *testing.T) {
 
 func TestAccIdentityAgency_domain(t *testing.T) {
 	var agency agency.Agency
-
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_identity_agency.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&agency,
+		getIdentityAgencyResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckIdentityAgencyDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIdentityAgency_domain(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityAgencyExists(resourceName, &agency),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "This is a test agency"),
 					resource.TestCheckResourceAttr(resourceName, "delegated_domain_name", acceptance.HW_DOMAIN_NAME),
@@ -92,7 +109,7 @@ func TestAccIdentityAgency_domain(t *testing.T) {
 			{
 				Config: testAccIdentityAgency_domainUpdate(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityAgencyExists(resourceName, &agency),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "This is a updated test agency"),
 					resource.TestCheckResourceAttr(resourceName, "delegated_domain_name", acceptance.HW_DOMAIN_NAME),
@@ -102,57 +119,6 @@ func TestAccIdentityAgency_domain(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckIdentityAgencyDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	client, err := config.IAMV3Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud IAM client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_identity_agency" {
-			continue
-		}
-
-		v, err := agency.Get(client, rs.Primary.ID).Extract()
-		if err == nil && v.ID == rs.Primary.ID {
-			return fmtp.Errorf("Identity Agency <%s> still exists", rs.Primary.ID)
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckIdentityAgencyExists(n string, ag *agency.Agency) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		client, err := config.IAMV3Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud Identity Agency: %s", err)
-		}
-
-		found, err := agency.Get(client, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Identity Agency <%s> not found", rs.Primary.ID)
-		}
-		ag = found
-
-		return nil
-	}
 }
 
 func testAccIdentityAgency_basic(rName string) string {

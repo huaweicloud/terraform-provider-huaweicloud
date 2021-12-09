@@ -56,7 +56,7 @@ github.com/aws/aws-sdk-go/service/sts
 github.com/aws/aws-sdk-go/service/sts/stsiface
 # github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d
 github.com/bgentry/go-netrc/netrc
-# github.com/chnsz/golangsdk v0.0.0-20211030022355-e5b519b9f8fa
+# github.com/chnsz/golangsdk v0.0.0-20211207074309-a210ec49281c
 ## explicit
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/internal
@@ -95,6 +95,7 @@ github.com/chnsz/golangsdk/openstack/cce/v3/clusters
 github.com/chnsz/golangsdk/openstack/cce/v3/nodepools
 github.com/chnsz/golangsdk/openstack/cce/v3/nodes
 github.com/chnsz/golangsdk/openstack/cce/v3/templates
+github.com/chnsz/golangsdk/openstack/cci/v1/namespaces
 github.com/chnsz/golangsdk/openstack/cci/v1/networks
 github.com/chnsz/golangsdk/openstack/cci/v1/persistentvolumeclaims
 github.com/chnsz/golangsdk/openstack/cdn/v1/domains
@@ -130,6 +131,7 @@ github.com/chnsz/golangsdk/openstack/dcs/v2/whitelists
 github.com/chnsz/golangsdk/openstack/dds/v3/flavors
 github.com/chnsz/golangsdk/openstack/dds/v3/instances
 github.com/chnsz/golangsdk/openstack/dis/v2/streams
+github.com/chnsz/golangsdk/openstack/dli/v1/auth
 github.com/chnsz/golangsdk/openstack/dli/v1/databases
 github.com/chnsz/golangsdk/openstack/dli/v1/flinkjob
 github.com/chnsz/golangsdk/openstack/dli/v1/queues
@@ -169,7 +171,6 @@ github.com/chnsz/golangsdk/openstack/elb/v3/monitors
 github.com/chnsz/golangsdk/openstack/elb/v3/pools
 github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects
 github.com/chnsz/golangsdk/openstack/evs/v2/snapshots
-github.com/chnsz/golangsdk/openstack/evs/v2/tags
 github.com/chnsz/golangsdk/openstack/evs/v3/volumes
 github.com/chnsz/golangsdk/openstack/fgs/v2/dependencies
 github.com/chnsz/golangsdk/openstack/fgs/v2/function
@@ -178,6 +179,11 @@ github.com/chnsz/golangsdk/openstack/geminidb/v3/backups
 github.com/chnsz/golangsdk/openstack/geminidb/v3/configurations
 github.com/chnsz/golangsdk/openstack/geminidb/v3/flavors
 github.com/chnsz/golangsdk/openstack/geminidb/v3/instances
+github.com/chnsz/golangsdk/openstack/identity/federatedauth/mappings
+github.com/chnsz/golangsdk/openstack/identity/federatedauth/metadatas
+github.com/chnsz/golangsdk/openstack/identity/federatedauth/oidcconfig
+github.com/chnsz/golangsdk/openstack/identity/federatedauth/protocols
+github.com/chnsz/golangsdk/openstack/identity/federatedauth/providers
 github.com/chnsz/golangsdk/openstack/identity/v2/tenants
 github.com/chnsz/golangsdk/openstack/identity/v2/tokens
 github.com/chnsz/golangsdk/openstack/identity/v3.0/acl
@@ -270,6 +276,7 @@ github.com/chnsz/golangsdk/openstack/sfs/v2/shares
 github.com/chnsz/golangsdk/openstack/sfs_turbo/v1/shares
 github.com/chnsz/golangsdk/openstack/smn/v2/subscriptions
 github.com/chnsz/golangsdk/openstack/smn/v2/topics
+github.com/chnsz/golangsdk/openstack/swr/v2/domains
 github.com/chnsz/golangsdk/openstack/swr/v2/namespaces
 github.com/chnsz/golangsdk/openstack/swr/v2/repositories
 github.com/chnsz/golangsdk/openstack/taurusdb/v3/backups

@@ -42,7 +42,8 @@
               "availability_zone": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "description": {
                 "type": "string",
@@ -52,7 +53,8 @@
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "export_location": {
                 "type": "string",
@@ -64,14 +66,16 @@
               },
               "is_public": {
                 "type": "bool",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "metadata": {
                 "type": [
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "name": {
                 "type": "string",
@@ -87,7 +91,8 @@
               },
               "share_proto": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "default": "NFS"
               },
               "size": {
                 "type": "number",

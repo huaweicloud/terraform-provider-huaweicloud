@@ -15,12 +15,12 @@
               },
               "scaling_configuration_name": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               }
             },
             "block_types": {
               "instance_config": {
-                "nesting_mode": "list",
                 "block": {
                   "attributes": {
                     "flavor": {
@@ -48,12 +48,12 @@
                     },
                     "user_data": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "forcenew": true
                     }
                   },
                   "block_types": {
                     "disk": {
-                      "nesting_mode": "list",
                       "block": {
                         "attributes": {
                           "disk_type": {
@@ -62,7 +62,8 @@
                           },
                           "kms_id": {
                             "type": "string",
-                            "optional": true
+                            "optional": true,
+                            "forcenew": true
                           },
                           "size": {
                             "type": "number",
@@ -73,10 +74,10 @@
                             "required": true
                           }
                         }
-                      }
+                      },
+                      "nesting_mode": "list"
                     },
                     "personality": {
-                      "nesting_mode": "list",
                       "block": {
                         "attributes": {
                           "content": {
@@ -89,14 +90,13 @@
                           }
                         }
                       },
+                      "nesting_mode": "list",
                       "max_items": 5
                     },
                     "public_ip": {
-                      "nesting_mode": "list",
                       "block": {
                         "block_types": {
                           "eip": {
-                            "nesting_mode": "list",
                             "block": {
                               "attributes": {
                                 "ip_type": {
@@ -106,7 +106,6 @@
                               },
                               "block_types": {
                                 "bandwidth": {
-                                  "nesting_mode": "list",
                                   "block": {
                                     "attributes": {
                                       "charging_mode": {
@@ -123,20 +122,25 @@
                                       }
                                     }
                                   },
+                                  "nesting_mode": "list",
                                   "min_items": 1,
                                   "max_items": 1
                                 }
                               }
                             },
+                            "nesting_mode": "list",
                             "min_items": 1,
                             "max_items": 1
                           }
                         }
                       },
+                      "nesting_mode": "list",
                       "max_items": 1
                     }
                   }
                 },
+                "nesting_mode": "list",
+                "forcenew": true,
                 "min_items": 1,
                 "max_items": 1
               }

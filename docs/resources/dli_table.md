@@ -45,8 +45,8 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the dli table resource. If omitted,
   the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the table name.The name can contain only digits, letters,
- and underscores (_), but cannot contain only digits or start with an underscore (_). Length range: 1 to 128 characters.
+* `name` - (Required, String, ForceNew) Specifies the table name. The name can contain only digits, letters,
+ and underscores, but cannot contain only digits or start with an underscore. Length range: 1 to 128 characters.
  Changing this parameter will create a new resource.
 
 * `database_name` - (Required, String, ForceNew) Specifies the database name which the table belongs to.
@@ -61,21 +61,13 @@ The following arguments are supported:
 * `description` - (Optional, String, ForceNew) Specifies description of the table.
   Changing this parameter will create a new resource.
 
-* `Columns` - (Required, List, ForceNew) Specifies Columns of the new table. Structure is documented below.
-
- The `column` block supports:
-    + `name` - (Optional, String, ForceNew) Specifies the name of column
-    + `type` - (Optional, String, ForceNew) Specifies data type of column
-    + `description` - (Optional, String, ForceNew) Specifies the description of column
-    + `is_partition` - (Optional, Bool, ForceNew) Specifies whether the column is a partition column. The value
-    true indicates a partition column, and the value false indicates a non-partition column. The default value is false.
-  
-  -> When creating a partition table, ensure that at least one column in the table is a non-partition column.
+* `columns` - (Optional, List, ForceNew) Specifies Columns of the new table. Structure is documented below.
+  Changing this parameter will create a new resource.
 
 * `data_format` - (Optional, String, ForceNew) Specifies type of the data to be added to the OBS table.
  The options: parquet, orc, csv, json, carbon, and avro. Changing this parameter will create a new resource.
 
-* `data_path` - (Optional, String, ForceNew) Specifies storage path of data which will be import to the OBS table.
+* `bucket_location` - (Optional, String, ForceNew) Specifies storage path of data which will be import to the OBS table.
  Changing this parameter will create a new resource.
  -> If you need to import data stored in OBS to the OBS table, set this parameter to the path of a folder. If the table
   creation path is a file, data fails to be imported. which must be a path on OBS and must begin with obs.
@@ -97,6 +89,20 @@ The following arguments are supported:
 
 * `timestamp_format` - (Optional, String, ForceNew) Specifies timestamp type. `yyyy-MM-dd HH:mm:ss` is used by default.
  Only data in CSV and JSON files has this attribute. Changing this parameter will create a new resource.
+
+The `column` block supports:
+
+  * `name` - (Required, String, ForceNew) Specifies the name of column. Changing this parameter will create a new
+   resource.
+  * `type` - (Required, String, ForceNew) Specifies data type of column. Changing this parameter will create a new
+   resource.
+  * `description` - (Required, String, ForceNew) Specifies the description of column. Changing this parameter will
+   create a new resource.
+  * `is_partition` - (Required, Bool, ForceNew) Specifies whether the column is a partition column. The value
+    `true` indicates a partition column, and the value false indicates a non-partition column. The default value
+     is false. Changing this parameter will create a new resource.
+  
+  -> When creating a partition table, ensure that at least one column in the table is a non-partition column.
 
 ## Attributes Reference
 

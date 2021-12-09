@@ -1057,7 +1057,7 @@ func setObsBucketEncryption(obsClient *obs.ObsClient, d *schema.ResourceData) er
 	output, err := obsClient.GetBucketEncryption(bucket)
 	if err != nil {
 		if obsError, ok := err.(obs.ObsError); ok {
-			if obsError.Code == "NoSuchEncryptionConfiguration" {
+			if obsError.Code == "NoSuchEncryptionConfiguration" || obsError.Code == "FsNotSupport" {
 				d.Set("encryption", false)
 				d.Set("kms_key_id", nil)
 				return nil

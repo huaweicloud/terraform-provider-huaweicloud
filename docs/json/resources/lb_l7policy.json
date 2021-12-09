@@ -7,7 +7,8 @@
             "attributes": {
               "action": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "description": {
                 "type": "string",
@@ -19,7 +20,8 @@
               },
               "listener_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "name": {
                 "type": "string",
@@ -28,7 +30,8 @@
               "position": {
                 "type": "number",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "redirect_listener_id": {
                 "type": "string",

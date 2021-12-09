@@ -1,6 +1,7 @@
 package acceptance
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"regexp"
@@ -45,9 +46,10 @@ var (
 
 	HW_WAF_ENABLE_FLAG = os.Getenv("HW_WAF_ENABLE_FLAG")
 
-	HW_DEST_REGION     = os.Getenv("HW_DEST_REGION")
-	HW_DEST_PROJECT_ID = os.Getenv("HW_DEST_PROJECT_ID")
-	HW_CHARGING_MODE   = os.Getenv("HW_CHARGING_MODE")
+	HW_DEST_REGION         = os.Getenv("HW_DEST_REGION")
+	HW_DEST_PROJECT_ID     = os.Getenv("HW_DEST_PROJECT_ID")
+	HW_CHARGING_MODE       = os.Getenv("HW_CHARGING_MODE")
+	HW_SWR_SHARING_ACCOUNT = os.Getenv("HW_SWR_SHARING_ACCOUNT")
 
 	HW_CERTIFICATE_KEY_PATH         = os.Getenv("HW_CERTIFICATE_KEY_PATH")
 	HW_CERTIFICATE_CHAIN_PATH       = os.Getenv("HW_CERTIFICATE_CHAIN_PATH")
@@ -55,6 +57,9 @@ var (
 	HW_CERTIFICATE_SERVICE          = os.Getenv("HW_CERTIFICATE_SERVICE")
 	HW_CERTIFICATE_PROJECT          = os.Getenv("HW_CERTIFICATE_PROJECT")
 	HW_CERTIFICATE_PROJECT_UPDATED  = os.Getenv("HW_CERTIFICATE_PROJECT_UPDATED")
+	HW_DMS_ENVIRONMENT              = os.Getenv("HW_DMS_ENVIRONMENT")
+
+	HW_DLI_FLINK_JAR_OBS_PATH = os.Getenv("HW_DLI_FLINK_JAR_OBS_PATH")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -257,7 +262,12 @@ func (rc *resourceCheck) CheckResourceExists() resource.TestCheckFunc {
 					rc.resourceName, rs.Primary.ID, err)
 			}
 			if rc.resourceObject != nil {
-				rc.resourceObject = r
+				b, err := json.Marshal(r)
+				if err != nil {
+					return fmtp.Errorf("marshaling resource %s %s error: %s ",
+						rc.resourceName, rs.Primary.ID, err)
+				}
+				json.Unmarshal(b, rc.resourceObject)
 			} else {
 				logp.Printf("[WARN] The 'resourceObject' is nil, please set it during initialization.")
 			}
@@ -389,5 +399,27 @@ func TestAccPreCheckScm(t *testing.T) {
 		t.Skip("HW_CERTIFICATE_KEY_PATH, HW_CERTIFICATE_CHAIN_PATH, HW_CERTIFICATE_PRIVATE_KEY_PATH, " +
 			"HW_CERTIFICATE_SERVICE, HW_CERTIFICATE_PROJECT and HW_CERTIFICATE_TARGET_UPDATED " +
 			"can not be empty for SCM certificate tests")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckSWRDomian(t *testing.T) {
+	if HW_SWR_SHARING_ACCOUNT == "" {
+		t.Skip("HW_SWR_SHARING_ACCOUNT must be set for swr domian tests, " +
+			"the value of HW_SWR_SHARING_ACCOUNT should be another IAM user name")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckDms(t *testing.T) {
+	if HW_DMS_ENVIRONMENT == "" {
+		t.Skip("This environment does not support DMS tests")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckDliJarPath(t *testing.T) {
+	if HW_DLI_FLINK_JAR_OBS_PATH == "" {
+		t.Skip("HW_DLI_FLINK_JAR_OBS_PATH must be set for DLI Flink Jar job acceptance tests.")
 	}
 }

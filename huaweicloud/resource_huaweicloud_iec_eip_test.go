@@ -31,6 +31,7 @@ func TestAccIecEIPResource_basic(t *testing.T) {
 					resource.TestMatchResourceAttr(resourceName, "public_ip", regexp.MustCompile("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$")),
 					resource.TestCheckResourceAttrSet(resourceName, "site_info"),
 					resource.TestCheckResourceAttrSet(resourceName, "site_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "line_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "bandwidth_id"),
 				),
 			},

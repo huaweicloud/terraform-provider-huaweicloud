@@ -205,28 +205,39 @@ func FormatHeaders(headers http.Header, seperator string) string {
 	return strings.Join(redactedHeaders, seperator)
 }
 
-// "password" is apply to the most request JSON body
-// "adminPass" is apply to the ecs instance request JSON body
-// "adminPwd" is apply to the css cluster request JSON body
-// "secret" is apply to the AK/SK response JSON body
-var securityFields = []string{"password", "adminPass", "adminPwd", "secret"}
-
 func maskSecurityFields(data map[string]interface{}) bool {
-	for _, field := range securityFields {
-		if _, ok := data[field].(string); ok {
-			data[field] = "***"
-			return true
-		}
-	}
-
-	for _, v := range data {
-		switch v.(type) {
+	for k, val := range data {
+		switch val.(type) {
+		case string:
+			if isSecurityFields(k) {
+				data[k] = "***"
+			}
 		case map[string]interface{}:
-			subData := v.(map[string]interface{})
+			subData := val.(map[string]interface{})
 			if masked := maskSecurityFields(subData); masked {
 				return true
 			}
 		}
 	}
+	return false
+}
+
+func isSecurityFields(field string) bool {
+	// "password" is apply to the most request JSON body
+	// "secret" is apply to the AK/SK response JSON body
+	if strings.Contains(field, "password") || strings.Contains(field, "secret") {
+		return true
+	}
+
+	// "adminPass" is apply to the ecs/bms instance request JSON body
+	// "adminPwd" is apply to the css cluster request JSON body
+	// 'encrypted_user_data' is apply to the function request JSON body of FunctionGraph
+	securityFields := []string{"adminPass", "adminPwd", "encrypted_user_data"}
+	for _, key := range securityFields {
+		if key == field {
+			return true
+		}
+	}
+
 	return false
 }

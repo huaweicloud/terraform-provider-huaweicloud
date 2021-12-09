@@ -50,7 +50,8 @@ The following arguments are supported:
 
 * `name` - (Required, String) Node Pool Name.
 
-* `initial_node_count` - (Required, Int) Initial number of expected nodes in the node pool.
+* `initial_node_count` - (Required, Int) Specifies the initial number of expected nodes in the node pool.
+  This parameter can be also used to manually scale the node count afterwards.
 
 * `flavor_id` - (Required, String, ForceNew) Specifies the flavor id. Changing this parameter will create a new
   resource.
@@ -163,6 +164,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `billing_mode` - Billing mode of a node.
 
+* `current_node_count` - The current number of the nodes.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
@@ -180,8 +183,9 @@ $ terraform import huaweicloud_cce_node_pool.my_node_pool 5c20fdad-7288-11eb-b81
 
 Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
 API response, security or some other reason. The missing attributes include:
-`password`, `subnet_id`, `preinstall`, `posteinstall`, `taints`. It is generally recommended running `terraform plan`
-after importing a node pool. You can then decide if changes should be applied to the node pool, or the resource
+`password`, `subnet_id`, `preinstall`, `posteinstall`, `taints` and `initial_node_count`.
+It is generally recommended running `terraform plan` after importing a node pool.
+You can then decide if changes should be applied to the node pool, or the resource
 definition should be updated to align with the node pool. Also you can ignore changes as below.
 
 ```

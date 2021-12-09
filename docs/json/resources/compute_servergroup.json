@@ -26,14 +26,16 @@
               },
               "name": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "policies": {
                 "type": [
                   "list",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "region": {
                 "type": "string",

@@ -15,7 +15,8 @@
               "cool_down_time": {
                 "type": "number",
                 "description": "The cooling duration, in seconds.",
-                "optional": true
+                "optional": true,
+                "default": 300
               },
               "current_instance_number": {
                 "type": "number",
@@ -24,11 +25,13 @@
               "delete_instances": {
                 "type": "string",
                 "description": "Whether to delete instances when they are removed from the AS group.",
-                "optional": true
+                "optional": true,
+                "default": "no"
               },
               "delete_publicip": {
                 "type": "bool",
-                "optional": true
+                "optional": true,
+                "default": false
               },
               "desire_instance_number": {
                 "type": "number",
@@ -36,7 +39,8 @@
               },
               "enable": {
                 "type": "bool",
-                "optional": true
+                "optional": true,
+                "default": true
               },
               "enterprise_project_id": {
                 "type": "string",
@@ -45,12 +49,14 @@
               },
               "health_periodic_audit_method": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "default": "NOVA_AUDIT"
               },
               "health_periodic_audit_time": {
                 "type": "number",
                 "description": "The health check period for instances, in minutes.",
-                "optional": true
+                "optional": true,
+                "default": 5
               },
               "id": {
                 "type": "string",
@@ -58,7 +64,8 @@
               },
               "instance_terminate_policy": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "default": "OLD_CONFIG_OLD_INSTANCE"
               },
               "instances": {
                 "type": [
@@ -70,11 +77,13 @@
               },
               "max_instance_number": {
                 "type": "number",
-                "optional": true
+                "optional": true,
+                "default": 0
               },
               "min_instance_number": {
                 "type": "number",
-                "optional": true
+                "optional": true,
+                "default": 0
               },
               "notifications": {
                 "type": [
@@ -109,12 +118,12 @@
               },
               "vpc_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               }
             },
             "block_types": {
               "lbaas_listeners": {
-                "nesting_mode": "list",
                 "block": {
                   "attributes": {
                     "pool_id": {
@@ -127,14 +136,15 @@
                     },
                     "weight": {
                       "type": "number",
-                      "optional": true
+                      "optional": true,
+                      "default": 1
                     }
                   }
                 },
+                "nesting_mode": "list",
                 "max_items": 6
               },
               "networks": {
-                "nesting_mode": "list",
                 "block": {
                   "attributes": {
                     "id": {
@@ -143,11 +153,11 @@
                     }
                   }
                 },
+                "nesting_mode": "list",
                 "min_items": 1,
                 "max_items": 5
               },
               "security_groups": {
-                "nesting_mode": "list",
                 "block": {
                   "attributes": {
                     "id": {
@@ -156,6 +166,7 @@
                     }
                   }
                 },
+                "nesting_mode": "list",
                 "min_items": 1
               }
             }

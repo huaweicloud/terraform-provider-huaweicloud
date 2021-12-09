@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_swr_repository": {
+          "block": {
+            "attributes": {
+              "category": {
+                "type": "string",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "internal_path": {
+                "type": "string",
+                "computed": true
+              },
+              "is_public": {
+                "type": "bool",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "num_images": {
+                "type": "number",
+                "computed": true
+              },
+              "organization": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "path": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "repository_id": {
+                "type": "number",
+                "computed": true
+              },
+              "size": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

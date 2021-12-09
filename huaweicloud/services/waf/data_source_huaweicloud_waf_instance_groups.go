@@ -73,7 +73,7 @@ func DataSourceWafInstanceGroups() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
-						"load_balances": {
+						"load_balancers": {
 							Type:     schema.TypeList,
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
@@ -176,7 +176,7 @@ func DataSourceWafInstanceGroupsRead(_ context.Context, d *schema.ResourceData, 
 			"connection_timeout": g.Option.ConnectTimeout,
 			"write_timeout":      g.Option.SendTimeout,
 			"read_timeout":       g.Option.ReadTimeout,
-			"load_balances":      loadBalances,
+			"load_balancers":     loadBalances,
 			"domain_names":       domainNames,
 		}
 		grps = append(grps, group)

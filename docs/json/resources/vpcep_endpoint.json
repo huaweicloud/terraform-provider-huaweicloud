@@ -7,11 +7,14 @@
             "attributes": {
               "enable_dns": {
                 "type": "bool",
-                "optional": true
+                "optional": true,
+                "forcenew": true,
+                "default": true
               },
               "enable_whitelist": {
                 "type": "bool",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "id": {
                 "type": "string",
@@ -20,11 +23,13 @@
               "ip_address": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "network_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "packet_id": {
                 "type": "number",
@@ -40,7 +45,8 @@
               },
               "service_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "service_name": {
                 "type": "string",
@@ -63,14 +69,16 @@
               },
               "vpc_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "whitelist": {
                 "type": [
                   "set",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "forcenew": true
               }
             }
           },
