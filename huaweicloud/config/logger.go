@@ -231,7 +231,8 @@ func isSecurityFields(field string) bool {
 
 	// "adminPass" is apply to the ecs/bms instance request JSON body
 	// "adminPwd" is apply to the css cluster request JSON body
-	securityFields := []string{"adminPass", "adminPwd"}
+	// 'encrypted_user_data' is apply to the function request JSON body of FunctionGraph
+	securityFields := []string{"adminPass", "adminPwd", "encrypted_user_data"}
 	for _, key := range securityFields {
 		if key == field {
 			return true

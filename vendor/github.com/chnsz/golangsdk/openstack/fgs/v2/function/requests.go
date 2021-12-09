@@ -32,6 +32,7 @@ type CreateOpts struct {
 	Runtime             string           `json:"runtime" required:"true"`
 	Timeout             int              `json:"timeout" required:"true"`
 	UserData            string           `json:"user_data,omitempty"`
+	EncryptedUserData   string           `json:"encrypted_user_data,omitempty"`
 	Xrole               string           `json:"xrole,omitempty"`
 	AppXrole            string           `json:"app_xrole,omitempty"`
 	FuncCode            FunctionCodeOpts `json:"func_code,omitempty"`
@@ -141,6 +142,7 @@ type UpdateMetadataOpts struct {
 	CodeUrl            string       `json:"code_url,omitempty"`
 	Description        string       `json:"description,omitempty"`
 	UserData           string       `json:"user_data,omitempty"`
+	EncryptedUserData  string       `json:"encrypted_user_data,omitempty"`
 	Xrole              string       `json:"xrole,omitempty"`
 	AppXrole           string       `json:"app_xrole,omitempty"`
 	InitializerHandler string       `json:"initializer_handler,omitempty"`

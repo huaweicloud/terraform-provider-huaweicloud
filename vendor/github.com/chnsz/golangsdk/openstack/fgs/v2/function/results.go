@@ -24,6 +24,7 @@ type Function struct {
 	CodeFileName        string         `json:"code_filename"`
 	CodeSize            int64          `json:"code_size"`
 	UserData            string         `json:"user_data"`
+	EncryptedUserData   string         `json:"encrypted_user_data"`
 	Digest              string         `json:"digest"`
 	Version             string         `json:"version"`
 	ImageName           string         `json:"image_name"`
@@ -74,6 +75,7 @@ type FunctionVersion struct {
 	CodeFileName       string        `json:"code_file_name"`
 	CodeSize           int64         `json:"code_size"`
 	UserData           string        `json:"user_data"`
+	EncryptedUserData  string        `json:"encrypted_user_data"`
 	ImageName          string        `json:"image_name"`
 	Digest             string        `json:"digest"`
 	Version            string        `json:"version"`
