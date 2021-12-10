@@ -266,6 +266,7 @@ github.com/chnsz/golangsdk/openstack/opengauss/v3/backups
 github.com/chnsz/golangsdk/openstack/opengauss/v3/instances
 github.com/chnsz/golangsdk/openstack/rds/v3/backups
 github.com/chnsz/golangsdk/openstack/rds/v3/configurations
+github.com/chnsz/golangsdk/openstack/rds/v3/flavors
 github.com/chnsz/golangsdk/openstack/rds/v3/instances
 github.com/chnsz/golangsdk/openstack/rds/v3/securities
 github.com/chnsz/golangsdk/openstack/rts/v1/softwareconfig
