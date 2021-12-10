@@ -16,6 +16,9 @@ import (
 	"github.com/unknwon/com"
 )
 
+// MAXFieldLength is the maximum string length of single field when logging
+const MAXFieldLength int = 256
+
 var maxTimeout = 10 * time.Minute
 
 // LogRoundTripper satisfies the http.RoundTripper interface and is used to
@@ -131,7 +134,7 @@ func (lrt *LogRoundTripper) logResponse(original io.ReadCloser, contentType stri
 		if err != nil {
 			return nil, err
 		}
-		debugInfo := lrt.formatJSON(bs.Bytes(), false)
+		debugInfo := lrt.formatJSON(bs.Bytes(), true)
 		if debugInfo != "" {
 			log.Printf("[DEBUG] API Response Body: %s", debugInfo)
 		}
@@ -211,6 +214,8 @@ func maskSecurityFields(data map[string]interface{}) bool {
 		case string:
 			if isSecurityFields(k) {
 				data[k] = "***"
+			} else if len(val.(string)) > MAXFieldLength {
+				data[k] = "** large string **"
 			}
 		case map[string]interface{}:
 			subData := val.(map[string]interface{})
