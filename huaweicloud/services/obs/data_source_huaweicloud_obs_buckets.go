@@ -79,6 +79,10 @@ func dataSourceObsBucketsRead(_ context.Context, d *schema.ResourceData, meta in
 
 	ids := make([]string, 0, len(r.Buckets))
 	buckets := make([]map[string]interface{}, 0, len(r.Buckets))
+
+	bucket := d.Get("bucket").(string)
+	epd := d.Get("enterprise_project_id").(string)
+
 	for _, v := range r.Buckets {
 		metadata, err := queryMetadata(client, v.Name)
 		if err != nil && !errors.As(err, &golangsdk.ErrDefault404{}) {
@@ -92,16 +96,13 @@ func dataSourceObsBucketsRead(_ context.Context, d *schema.ResourceData, meta in
 			region = metadata.Location
 		}
 
-		if bucket, ok := d.GetOk("bucket"); ok {
-			if v.Name != bucket {
-				continue
-			}
+		if epd != "" && enterpriseProjectID != epd {
+			continue
 		}
-		if epid, ok := d.GetOk("enterprise_project_id"); ok {
-			if enterpriseProjectID != epid {
-				continue
-			}
+		if bucket != "" && v.Name != bucket {
+			continue
 		}
+
 		bucket := map[string]interface{}{
 			"region":                region,
 			"bucket":                v.Name,
@@ -128,5 +129,12 @@ func queryMetadata(client *obs.ObsClient, name string) (*obs.GetBucketMetadataOu
 	if obsError, ok := err.(obs.ObsError); ok && obsError.StatusCode == 404 {
 		err = golangsdk.ErrDefault404{}
 	}
-	return metadata, err
+	return metadata, getObsError("Error querying OBS bucket metadata", name, err)
+}
+
+func getObsError(action string, bucket string, err error) error {
+	if obsError, ok := err.(obs.ObsError); ok {
+		return fmtp.Errorf("%s %s: %s,\n Reason: %s", action, bucket, obsError.Code, obsError.Message)
+	}
+	return err
 }
