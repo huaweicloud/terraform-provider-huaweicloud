@@ -1,5 +1,36 @@
 # CHANGELOG
 
+## 1.31.1 (December 10, 2021)
+
+* **New Resurce:**
+  + `huaweicloud_dli_flinkjar_job` [GH-1666]
+  + `huaweicloud_dli_permission` [GH-1695]
+  + `huaweicloud_identity_provider` [GH-1625]
+  + `huaweicloud_identity_provider_conversion` [GH-1737]
+  + `huaweicloud_waf_instance_group_associate` [GH-1684]
+
+* **New Data Source:**
+  + `huaweicloud_cbr_vaults` [GH-1687]
+  + `huaweicloud_obs_buckets` [GH-1691]
+  + `huaweicloud_iec_bandwidths` [GH-1762]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_iec_eip: support multi line [GH-1755]
+* resource/huaweicloud_fgs_function: add encrypted user data support [GH-1766]
+* resource/huaweicloud_dis_stream: add `partitions` attribute [GH-1771]
+* resource/huaweicloud_mapreduce_cluster: support `public_ip` parameter [GH-1765]
+* resoure/huaweicloud_dms_kafka_instance: support to update storage capacity and bandwidth [GH-1776]
+* data/huaweicloud_rds_flavors: add availability_zone filter [GH-1767]
+
+BUG FIXES:
+
+* resource/huaweicloud_rds_configuration: ignore case for `type` [GH-1756]
+
+Removed:
+
+* data/huaweicloud_dis_partition [GH-1768]
+
 ## 1.31.0 (November 30, 2021)
 
 * **New Resurce:**
