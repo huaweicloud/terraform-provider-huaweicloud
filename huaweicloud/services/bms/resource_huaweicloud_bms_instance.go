@@ -2,8 +2,6 @@ package bms
 
 import (
 	"context"
-	"crypto/sha1"
-	"encoding/hex"
 	"time"
 
 	"github.com/chnsz/golangsdk"
@@ -103,15 +101,7 @@ func ResourceBmsInstance() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				// just stash the hash for state & diff comparisons
-				StateFunc: func(v interface{}) string {
-					switch v.(type) {
-					case string:
-						hash := sha1.Sum([]byte(v.(string)))
-						return hex.EncodeToString(hash[:])
-					default:
-						return ""
-					}
-				},
+				StateFunc: utils.HashAndHexEncode,
 			},
 			"admin_pass": {
 				Type:      schema.TypeString,

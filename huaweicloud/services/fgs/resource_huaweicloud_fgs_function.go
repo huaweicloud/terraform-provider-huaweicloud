@@ -1,9 +1,6 @@
 package fgs
 
 import (
-	"crypto/sha1"
-	"encoding/base64"
-	"encoding/hex"
 	"strings"
 	"time"
 
@@ -13,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -115,16 +113,9 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				Computed: true,
 			},
 			"func_code": {
-				Type:     schema.TypeString,
-				Optional: true,
-				StateFunc: func(v interface{}) string {
-					switch v.(type) {
-					case string:
-						return funcCodeHashSum(v.(string))
-					default:
-						return ""
-					}
-				},
+				Type:      schema.TypeString,
+				Optional:  true,
+				StateFunc: utils.DecodeHashAndHexEncode,
 			},
 			"depend_list": {
 				Type:     schema.TypeList,
@@ -247,11 +238,10 @@ func buildFgsFunctionV2Parameters(d *schema.ResourceData, config *config.Config)
 		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
 	}
 	if v, ok := d.GetOk("func_code"); ok {
-		funcCode := funcCodeEncode(v.(string))
-		func_code := function.FunctionCodeOpts{
-			File: funcCode,
+		funcCode := function.FunctionCodeOpts{
+			File: utils.TryBase64EncodeToString(v.(string)),
 		}
-		result.FuncCode = func_code
+		result.FuncCode = funcCode
 	}
 	return result, nil
 }
@@ -506,11 +496,10 @@ func resourceFgsFunctionV2CodeUpdate(fgsClient *golangsdk.ServiceClient, urn str
 	}
 
 	if v, ok := d.GetOk("func_code"); ok {
-		funcCode := funcCodeEncode(v.(string))
-		func_code := function.FunctionCodeOpts{
-			File: funcCode,
+		funcCode := function.FunctionCodeOpts{
+			File: utils.TryBase64EncodeToString(v.(string)),
 		}
-		updateCodeOpts.FuncCode = func_code
+		updateCodeOpts.FuncCode = funcCode
 	}
 
 	logp.Printf("[DEBUG] Code Update Options: %#v", updateCodeOpts)
@@ -520,26 +509,6 @@ func resourceFgsFunctionV2CodeUpdate(fgsClient *golangsdk.ServiceClient, urn str
 	}
 
 	return nil
-}
-
-func funcCodeHashSum(script string) string {
-	// Check whether the func_code is not Base64 encoded.
-	// Always calculate hash of base64 decoded value since we
-	// check against double-encoding when setting it
-	v, base64DecodeError := base64.StdEncoding.DecodeString(script)
-	if base64DecodeError != nil {
-		v = []byte(script)
-	}
-
-	hash := sha1.Sum(v)
-	return hex.EncodeToString(hash[:])
-}
-
-func funcCodeEncode(script string) string {
-	if _, err := base64.StdEncoding.DecodeString(script); err != nil {
-		return base64.StdEncoding.EncodeToString([]byte(script))
-	}
-	return script
 }
 
 func resourceFgsFunctionFuncVpc(d *schema.ResourceData) *function.FuncVpc {
