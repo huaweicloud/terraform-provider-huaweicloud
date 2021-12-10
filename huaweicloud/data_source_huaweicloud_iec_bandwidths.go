@@ -3,6 +3,7 @@ package huaweicloud
 import (
 	"context"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
@@ -84,18 +85,12 @@ func dataSourceIECBandWidthsRead(_ context.Context, d *schema.ResourceData, meta
 	}
 
 	total := len(allBWs.BandWidth)
-	if total < 1 {
-		return fmtp.DiagErrorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
-	}
-
 	logp.Printf("[INFO] Retrieved [%d] IEC bandwidths using given filter", total)
-	firstBW := allBWs.BandWidth[0]
-	d.SetId(firstBW.ID)
-	d.Set("site_info", firstBW.SiteInfo)
 
+	ids := make([]string, 0, total)
 	iecBWs := make([]map[string]interface{}, total)
 	for i, item := range allBWs.BandWidth {
+		ids = append(ids, item.ID)
 		iecBWs[i] = map[string]interface{}{
 			"id":          item.ID,
 			"name":        item.Name,
@@ -106,8 +101,14 @@ func dataSourceIECBandWidthsRead(_ context.Context, d *schema.ResourceData, meta
 			"line":        getLineName(item.Operator),
 		}
 	}
+
+	d.SetId(hashcode.Strings(ids))
+
 	if err := d.Set("bandwidths", iecBWs); err != nil {
 		return fmtp.DiagErrorf("Error saving IEC bandwidths: %s", err)
+	}
+	if total > 0 {
+		d.Set("site_info", allBWs.BandWidth[0].SiteInfo)
 	}
 
 	return nil
