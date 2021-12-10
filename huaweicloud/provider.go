@@ -284,6 +284,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_antiddos":                             dataSourceAntiDdosV1(),
 			"huaweicloud_availability_zones":                   DataSourceAvailabilityZones(),
 			"huaweicloud_bms_flavors":                          bms.DataSourceBmsFlavors(),
+			"huaweicloud_cbr_vaults":                           cbr.DataSourceCbrVaultsV3(),
 			"huaweicloud_cce_addon_template":                   DataSourceCCEAddonTemplateV3(),
 			"huaweicloud_cce_cluster":                          DataSourceCCEClusterV3(),
 			"huaweicloud_cce_clusters":                         cce.DataSourceCCEClusters(),
