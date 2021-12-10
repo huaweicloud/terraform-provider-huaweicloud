@@ -1,0 +1,154 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cce_node_pool": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "computed": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "required": true
+              },
+              "current_node_count": {
+                "type": "number",
+                "computed": true
+              },
+              "data_volumes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "extend_params": [
+                        "map",
+                        "string"
+                      ],
+                      "size": "number",
+                      "volumetype": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "extend_param": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "initial_node_count": {
+                "type": "number",
+                "computed": true
+              },
+              "key_pair": {
+                "type": "string",
+                "computed": true
+              },
+              "labels": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
+              "max_node_count": {
+                "type": "number",
+                "computed": true
+              },
+              "max_pods": {
+                "type": "number",
+                "computed": true
+              },
+              "min_node_count": {
+                "type": "number",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "node_pool_id": {
+                "type": "string",
+                "optional": true
+              },
+              "os": {
+                "type": "string",
+                "computed": true
+              },
+              "priority": {
+                "type": "number",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "root_volume": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "extend_params": [
+                        "map",
+                        "string"
+                      ],
+                      "size": "number",
+                      "volumetype": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "scale_down_cooldown_time": {
+                "type": "number",
+                "computed": true
+              },
+              "scall_enable": {
+                "type": "bool",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Container",
+            "name": "Cloud Container Engine",
+            "short": "CCE"
+          }
+        }
+      }
+    }
+  }
+}

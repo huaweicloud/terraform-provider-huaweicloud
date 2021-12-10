@@ -1,0 +1,156 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cce_cluster": {
+          "block": {
+            "attributes": {
+              "authentication_mode": {
+                "type": "string",
+                "computed": true
+              },
+              "billing_mode": {
+                "type": "number",
+                "computed": true
+              },
+              "certificate_clusters": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "certificate_authority_data": "string",
+                      "name": "string",
+                      "server": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "certificate_users": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "client_certificate_data": "string",
+                      "client_key_data": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "cluster_type": {
+                "type": "string",
+                "optional": true
+              },
+              "cluster_version": {
+                "type": "string",
+                "computed": true
+              },
+              "container_network_cidr": {
+                "type": "string",
+                "computed": true
+              },
+              "container_network_type": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "computed": true
+              },
+              "endpoints": {
+                "type": [
+                  "set",
+                  [
+                    "object",
+                    {
+                      "type": "string",
+                      "url": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "eni_subnet_cidr": {
+                "type": "string",
+                "computed": true
+              },
+              "eni_subnet_id": {
+                "type": "string",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "computed": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "computed": true
+              },
+              "highway_subnet_id": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "optional": true
+              },
+              "kube_config_raw": {
+                "type": "string",
+                "computed": true
+              },
+              "masters": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "computed": true
+              },
+              "service_network_cidr": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Container",
+            "name": "Cloud Container Engine",
+            "short": "CCE"
+          }
+        }
+      }
+    }
+  }
+}

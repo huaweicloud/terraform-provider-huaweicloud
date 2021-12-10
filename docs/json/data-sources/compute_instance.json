@@ -1,0 +1,147 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_compute_instance": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "fixed_ip_v4": {
+                "type": "string",
+                "optional": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "flavor_name": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_name": {
+                "type": "string",
+                "computed": true
+              },
+              "key_pair": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "network": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "fixed_ip_v4": "string",
+                      "fixed_ip_v6": "string",
+                      "mac": "string",
+                      "port": "string",
+                      "uuid": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "public_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_group_ids": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "computed": true
+              },
+              "security_groups": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "system_disk_id": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
+              "user_data": {
+                "type": "string",
+                "computed": true
+              },
+              "volume_attached": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "boot_index": "number",
+                      "pci_address": "string",
+                      "size": "number",
+                      "type": "string",
+                      "volume_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            },
+            "block_types": {
+              "scheduler_hints": {
+                "block": {
+                  "attributes": {
+                    "group": {
+                      "type": "string",
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              }
+            }
+          },
+          "product": {
+            "catalog": "Compute",
+            "name": "Elastic Cloud Server",
+            "short": "ECS"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,124 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cce_node": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "computed": true
+              },
+              "billing_mode": {
+                "type": "number",
+                "computed": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "required": true
+              },
+              "data_volumes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "extend_params": [
+                        "map",
+                        "string"
+                      ],
+                      "size": "number",
+                      "volumetype": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "ecs_group_id": {
+                "type": "string",
+                "computed": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key_pair": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "node_id": {
+                "type": "string",
+                "optional": true
+              },
+              "os": {
+                "type": "string",
+                "computed": true
+              },
+              "private_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "public_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "root_volume": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "extend_params": [
+                        "map",
+                        "string"
+                      ],
+                      "size": "number",
+                      "volumetype": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "server_id": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Container",
+            "name": "Cloud Container Engine",
+            "short": "CCE"
+          }
+        }
+      }
+    }
+  }
+}

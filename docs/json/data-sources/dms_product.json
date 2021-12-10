@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_product": {
+          "block": {
+            "attributes": {
+              "bandwidth": {
+                "type": "string",
+                "optional": true
+              },
+              "engine": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_type": {
+                "type": "string",
+                "required": true
+              },
+              "io_type": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "node_num": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "partition_num": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "storage": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "storage_spec_code": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "vm_specification": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

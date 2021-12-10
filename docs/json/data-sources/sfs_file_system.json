@@ -1,0 +1,98 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_sfs_file_system": {
+          "block": {
+            "attributes": {
+              "access_level": {
+                "type": "string",
+                "computed": true
+              },
+              "access_to": {
+                "type": "string",
+                "computed": true
+              },
+              "access_type": {
+                "type": "string",
+                "computed": true
+              },
+              "availability_zone": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "computed": true
+              },
+              "export_location": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "optional": true
+              },
+              "is_public": {
+                "type": "bool",
+                "computed": true
+              },
+              "metadata": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
+              "mount_id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "preferred": {
+                "type": "bool",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "share_access_id": {
+                "type": "string",
+                "computed": true
+              },
+              "share_instance_id": {
+                "type": "string",
+                "computed": true
+              },
+              "share_proto": {
+                "type": "string",
+                "computed": true
+              },
+              "size": {
+                "type": "number",
+                "computed": true
+              },
+              "state": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Storage",
+            "name": "Scalable File Service",
+            "short": "SFS"
+          }
+        }
+      }
+    }
+  }
+}

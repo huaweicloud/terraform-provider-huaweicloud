@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dds_flavors": {
+          "block": {
+            "attributes": {
+              "engine_name": {
+                "type": "string",
+                "required": true
+              },
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "memory": "string",
+                      "spec_code": "string",
+                      "type": "string",
+                      "vcpus": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "memory": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              },
+              "vcpus": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Database",
+            "name": "Document Database Service",
+            "short": "DDS"
+          }
+        }
+      }
+    }
+  }
+}
