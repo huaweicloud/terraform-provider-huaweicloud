@@ -1,0 +1,128 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_images_image": {
+          "block": {
+            "attributes": {
+              "architecture": {
+                "type": "string",
+                "optional": true
+              },
+              "checksum": {
+                "type": "string",
+                "computed": true
+              },
+              "container_format": {
+                "type": "string",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "disk_format": {
+                "type": "string",
+                "computed": true
+              },
+              "file": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_type": {
+                "type": "string",
+                "optional": true
+              },
+              "metadata": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
+              "min_disk_gb": {
+                "type": "number",
+                "computed": true
+              },
+              "min_ram_mb": {
+                "type": "number",
+                "computed": true
+              },
+              "most_recent": {
+                "type": "bool",
+                "optional": true,
+                "default": false
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "name_regex": {
+                "type": "string",
+                "optional": true
+              },
+              "os": {
+                "type": "string",
+                "optional": true
+              },
+              "os_version": {
+                "type": "string",
+                "optional": true
+              },
+              "owner": {
+                "type": "string",
+                "optional": true
+              },
+              "protected": {
+                "type": "bool",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "schema": {
+                "type": "string",
+                "computed": true
+              },
+              "size_bytes": {
+                "type": "number",
+                "computed": true
+              },
+              "sort_direction": {
+                "type": "string",
+                "optional": true,
+                "default": "asc"
+              },
+              "sort_key": {
+                "type": "string",
+                "optional": true,
+                "default": "name"
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "tag": {
+                "type": "string",
+                "optional": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              },
+              "visibility": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

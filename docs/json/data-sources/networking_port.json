@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_networking_port": {
+          "block": {
+            "attributes": {
+              "all_fixed_ips": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "all_security_group_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "device_id": {
+                "type": "string",
+                "optional": true
+              },
+              "device_owner": {
+                "type": "string",
+                "optional": true
+              },
+              "fixed_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "mac_address": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "network_id": {
+                "type": "string",
+                "optional": true
+              },
+              "port_id": {
+                "type": "string",
+                "optional": true
+              },
+              "project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "security_group_ids": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Network",
+            "name": "Virtual Private Cloud",
+            "short": "VPC"
+          }
+        }
+      }
+    }
+  }
+}

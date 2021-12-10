@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_mysql_flavors": {
+          "block": {
+            "attributes": {
+              "availability_zone_mode": {
+                "type": "string",
+                "optional": true,
+                "default": "single"
+              },
+              "engine": {
+                "type": "string",
+                "optional": true,
+                "default": "gaussdb-mysql"
+              },
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "az_status": [
+                        "map",
+                        "string"
+                      ],
+                      "memory": "string",
+                      "mode": "string",
+                      "name": "string",
+                      "type": "string",
+                      "vcpus": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "optional": true,
+                "default": "8.0"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

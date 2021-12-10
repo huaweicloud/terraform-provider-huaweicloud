@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_cassandra_flavors": {
+          "block": {
+            "attributes": {
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "az_status": [
+                        "map",
+                        "string"
+                      ],
+                      "memory": "string",
+                      "name": "string",
+                      "vcpus": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "memory": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "vcpus": {
+                "type": "string",
+                "optional": true
+              },
+              "version": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

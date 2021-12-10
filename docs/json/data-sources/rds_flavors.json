@@ -1,0 +1,62 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rds_flavors": {
+          "block": {
+            "attributes": {
+              "db_type": {
+                "type": "string",
+                "required": true
+              },
+              "db_version": {
+                "type": "string",
+                "required": true
+              },
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "memory": "number",
+                      "mode": "string",
+                      "name": "string",
+                      "vcpus": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_mode": {
+                "type": "string",
+                "required": true
+              },
+              "memory": {
+                "type": "number",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "vcpus": {
+                "type": "number",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Database",
+            "name": "Relational Database Service",
+            "short": "RDS"
+          }
+        }
+      }
+    }
+  }
+}

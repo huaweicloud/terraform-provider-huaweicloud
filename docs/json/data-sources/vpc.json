@@ -1,0 +1,54 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpc": {
+          "block": {
+            "attributes": {
+              "cidr": {
+                "type": "string",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Network",
+            "name": "Virtual Private Cloud",
+            "short": "VPC"
+          }
+        }
+      }
+    }
+  }
+}

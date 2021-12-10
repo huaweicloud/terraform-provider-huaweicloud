@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_iec_sites": {
+          "block": {
+            "attributes": {
+              "area": {
+                "type": "string",
+                "optional": true
+              },
+              "city": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "province": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sites": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "area": "string",
+                      "city": "string",
+                      "id": "string",
+                      "lines": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "ip_version": "string",
+                            "name": "string",
+                            "operator": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "province": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

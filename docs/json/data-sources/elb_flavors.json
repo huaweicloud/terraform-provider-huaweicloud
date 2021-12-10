@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_elb_flavors": {
+          "block": {
+            "attributes": {
+              "bandwidth": {
+                "type": "number",
+                "optional": true
+              },
+              "cps": {
+                "type": "number",
+                "optional": true
+              },
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bandwidth": "number",
+                      "cps": "number",
+                      "id": "string",
+                      "max_connections": "number",
+                      "name": "string",
+                      "qps": "number",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "max_connections": {
+                "type": "number",
+                "optional": true
+              },
+              "qps": {
+                "type": "number",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Network",
+            "name": "Elastic Load Balance",
+            "short": "ELB"
+          }
+        }
+      }
+    }
+  }
+}

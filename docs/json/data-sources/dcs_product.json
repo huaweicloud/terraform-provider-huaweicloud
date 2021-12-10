@@ -1,0 +1,11 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dcs_product": {
+          "block": {}
+        }
+      }
+    }
+  }
+}
