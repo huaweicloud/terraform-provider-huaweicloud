@@ -198,6 +198,7 @@ github.com/chnsz/golangsdk/openstack/identity/v3/projects
 github.com/chnsz/golangsdk/openstack/identity/v3/roles
 github.com/chnsz/golangsdk/openstack/identity/v3/tokens
 github.com/chnsz/golangsdk/openstack/identity/v3/users
+github.com/chnsz/golangsdk/openstack/iec/v1/bandwidths
 github.com/chnsz/golangsdk/openstack/iec/v1/cloudvolumes
 github.com/chnsz/golangsdk/openstack/iec/v1/common
 github.com/chnsz/golangsdk/openstack/iec/v1/firewalls
