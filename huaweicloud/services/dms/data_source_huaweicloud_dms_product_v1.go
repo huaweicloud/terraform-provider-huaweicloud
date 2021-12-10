@@ -91,19 +91,24 @@ func getIObyIOtype(d *schema.ResourceData, IOs []products.IO) []products.IO {
 	return IOs
 }
 
+func getProducts(config *config.Config, region, engine string) (*products.GetResponse, error) {
+	dmsV1Client, err := config.DmsV1Client(region)
+	if err != nil {
+		return nil, fmtp.Errorf("Error get HuaweiCloud dms product client: %s", err)
+	}
+	v, err := products.Get(dmsV1Client, engine).Extract()
+	return v, err
+}
+
 func dataSourceDmsProductRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
-	if err != nil {
-		return fmtp.DiagErrorf("Error get HuaweiCloud dms product client: %s", err)
-	}
 
 	instance_engine := d.Get("engine").(string)
 	if instance_engine != "rabbitmq" && instance_engine != "kafka" {
 		return fmtp.DiagErrorf("The instance_engine value should be 'rabbitmq' or 'kafka', not: %s", instance_engine)
 	}
 
-	v, err := products.Get(dmsV1Client, instance_engine).Extract()
+	v, err := getProducts(config, config.GetRegion(d), instance_engine)
 	if err != nil {
 		return diag.FromErr(err)
 	}
