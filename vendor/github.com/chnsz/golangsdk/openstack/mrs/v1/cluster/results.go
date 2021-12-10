@@ -65,6 +65,9 @@ type Cluster struct {
 	IsMrsManagerFinish    bool              `json:"ismrsManagerFinish"`
 	PeriodType            int               `json:"periodType"`
 	Scale                 string            `json:"scale"`
+	EipId                 string            `json:"eipId"`
+	EipAddress            string            `json:"eipAddress"`
+	Eipv6Address          string            `json:"eipv6Address"`
 }
 
 type Component struct {

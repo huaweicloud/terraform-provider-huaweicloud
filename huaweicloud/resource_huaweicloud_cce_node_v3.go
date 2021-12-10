@@ -1026,7 +1026,7 @@ func installScriptEncode(script string) string {
 
 func getEipIDbyAddress(client *golangsdk.ServiceClient, address string) (string, error) {
 	listOpts := &eips.ListOpts{
-		PublicIp: address,
+		PublicIp: []string{address},
 	}
 	pages, err := eips.List(client, listOpts).AllPages()
 	if err != nil {
