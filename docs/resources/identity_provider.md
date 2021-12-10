@@ -69,10 +69,11 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the identity provider.
 
-* `metadata` - (Optional, String) Specifies the metadata of the IdP(Identity Provider) server.
-  To obtain the metadata file of your enterprise IdP, contact the enterprise administrator.
+* `metadata` - (Optional, String) Specifies the metadata of the IDP(Identity Provider) server.
+  To obtain the metadata file of your enterprise IDP, contact the enterprise administrator.
   This field is used to import a metadata file to IAM to implement federated identity authentication.
   This field is required only if the protocol is set to *saml*.
+  The maximum length is 30,000 characters and it stores in the state with SHA1 algorithm.
 
 -> **NOTE:**
 The metadata file specifies API addresses and certificate information in compliance with the SAML 2.0 standard.
@@ -144,7 +145,7 @@ The `local` block supports:
 
 The `remote` block supports:
 
-* `attribute` - The attribute in the IdP assertion.
+* `attribute` - The attribute in the IDP assertion.
 
 * `condition` - The condition of conversion rule.
 

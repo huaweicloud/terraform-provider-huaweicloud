@@ -62,8 +62,9 @@ func ResourceIdentityProvider() *schema.Resource {
 				Default:  true,
 			},
 			"metadata": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				StateFunc: utils.HashAndHexEncode,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -362,7 +363,7 @@ func resourceIdentityProviderRead(_ context.Context, d *schema.ResourceData, met
 	if protocol == protocolSAML {
 		r, err := metadatas.Get(client, d.Id(), protocolSAML)
 		if err == nil {
-			err = d.Set("metadata", r.Data)
+			err = d.Set("metadata", utils.HashAndHexEncode(r.Data))
 			mErr = multierror.Append(mErr, err)
 		}
 	}
