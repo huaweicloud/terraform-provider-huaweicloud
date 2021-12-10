@@ -64,9 +64,13 @@ func dataSourceVpcEipRead(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf("Error creating networking client: %s", err)
 	}
 
-	listOpts := &eips.ListOpts{
-		PortId:   []string{d.Get("port_id").(string)},
-		PublicIp: []string{d.Get("public_ip").(string)},
+	var listOpts eips.ListOpts
+	if portId, ok := d.GetOk("port_id"); ok {
+		listOpts.PortId = []string{portId.(string)}
+	}
+
+	if publicIp, ok := d.GetOk("public_ip"); ok {
+		listOpts.PublicIp = []string{publicIp.(string)}
 	}
 
 	epsID := config.GetEnterpriseProjectID(d)
