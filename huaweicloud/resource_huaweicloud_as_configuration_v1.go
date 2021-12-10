@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"crypto/sha1"
-	"encoding/hex"
 	"regexp"
 
 	"github.com/chnsz/golangsdk"
@@ -11,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -63,15 +62,7 @@ func ResourceASConfiguration() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 							// just stash the hash for state & diff comparisons
-							StateFunc: func(v interface{}) string {
-								switch v.(type) {
-								case string:
-									hash := sha1.Sum([]byte(v.(string)))
-									return hex.EncodeToString(hash[:])
-								default:
-									return ""
-								}
-							},
+							StateFunc: utils.HashAndHexEncode,
 						},
 						"disk": {
 							Type:     schema.TypeList,

@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -93,30 +94,16 @@ func ResourceCCENodeAttachV3() *schema.Resource {
 				ForceNew: true,
 			},
 			"preinstall": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				StateFunc: func(v interface{}) string {
-					switch v.(type) {
-					case string:
-						return installScriptHashSum(v.(string))
-					default:
-						return ""
-					}
-				},
+				Type:      schema.TypeString,
+				Optional:  true,
+				ForceNew:  true,
+				StateFunc: utils.DecodeHashAndHexEncode,
 			},
 			"postinstall": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				StateFunc: func(v interface{}) string {
-					switch v.(type) {
-					case string:
-						return installScriptHashSum(v.(string))
-					default:
-						return ""
-					}
-				},
+				Type:      schema.TypeString,
+				Optional:  true,
+				ForceNew:  true,
+				StateFunc: utils.DecodeHashAndHexEncode,
 			},
 			"taints": {
 				Type:     schema.TypeList,

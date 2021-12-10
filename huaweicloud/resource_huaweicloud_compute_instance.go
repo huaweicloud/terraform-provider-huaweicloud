@@ -2,8 +2,6 @@ package huaweicloud
 
 import (
 	"bytes"
-	"crypto/sha1"
-	"encoding/hex"
 	"fmt"
 	"strings"
 	"time"
@@ -259,15 +257,7 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				// just stash the hash for state & diff comparisons
-				StateFunc: func(v interface{}) string {
-					switch v.(type) {
-					case string:
-						hash := sha1.Sum([]byte(v.(string)))
-						return hex.EncodeToString(hash[:])
-					default:
-						return ""
-					}
-				},
+				StateFunc: utils.HashAndHexEncode,
 			},
 			"stop_before_destroy": {
 				Type:     schema.TypeBool,

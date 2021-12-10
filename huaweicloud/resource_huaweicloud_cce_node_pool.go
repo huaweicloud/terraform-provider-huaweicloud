@@ -200,30 +200,16 @@ func ResourceCCENodePool() *schema.Resource {
 				Computed: true,
 			},
 			"preinstall": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				StateFunc: func(v interface{}) string {
-					switch v.(type) {
-					case string:
-						return installScriptHashSum(v.(string))
-					default:
-						return ""
-					}
-				},
+				Type:      schema.TypeString,
+				Optional:  true,
+				ForceNew:  true,
+				StateFunc: utils.DecodeHashAndHexEncode,
 			},
 			"postinstall": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				StateFunc: func(v interface{}) string {
-					switch v.(type) {
-					case string:
-						return installScriptHashSum(v.(string))
-					default:
-						return ""
-					}
-				},
+				Type:      schema.TypeString,
+				Optional:  true,
+				ForceNew:  true,
+				StateFunc: utils.DecodeHashAndHexEncode,
 			},
 			"runtime": {
 				Type:     schema.TypeString,

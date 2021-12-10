@@ -1,9 +1,6 @@
 package huaweicloud
 
 import (
-	"crypto/sha1"
-	"encoding/base64"
-	"encoding/hex"
 	"strconv"
 	"strings"
 	"time"
@@ -258,30 +255,16 @@ func ResourceCCENodeV3() *schema.Resource {
 				ForceNew: true,
 			},
 			"preinstall": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				StateFunc: func(v interface{}) string {
-					switch v.(type) {
-					case string:
-						return installScriptHashSum(v.(string))
-					default:
-						return ""
-					}
-				},
+				Type:      schema.TypeString,
+				Optional:  true,
+				ForceNew:  true,
+				StateFunc: utils.DecodeHashAndHexEncode,
 			},
 			"postinstall": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				StateFunc: func(v interface{}) string {
-					switch v.(type) {
-					case string:
-						return installScriptHashSum(v.(string))
-					default:
-						return ""
-					}
-				},
+				Type:      schema.TypeString,
+				Optional:  true,
+				ForceNew:  true,
+				StateFunc: utils.DecodeHashAndHexEncode,
 			},
 			"labels": { //(k8s_tags)
 				Type:     schema.TypeMap,
@@ -516,10 +499,10 @@ func resourceCCEExtendParam(d *schema.ResourceData) map[string]interface{} {
 		extendParam["publicKey"] = v.(string)
 	}
 	if v, ok := d.GetOk("preinstall"); ok {
-		extendParam["alpha.cce/preInstall"] = installScriptEncode(v.(string))
+		extendParam["alpha.cce/preInstall"] = utils.TryBase64EncodeToString(v.(string))
 	}
 	if v, ok := d.GetOk("postinstall"); ok {
-		extendParam["alpha.cce/postInstall"] = installScriptEncode(v.(string))
+		extendParam["alpha.cce/postInstall"] = utils.TryBase64EncodeToString(v.(string))
 	}
 
 	return extendParam
@@ -1002,26 +985,6 @@ func waitForJobStatus(cceClient *golangsdk.ServiceClient, jobID string) resource
 
 		return job, job.Status.Phase, nil
 	}
-}
-
-func installScriptHashSum(script string) string {
-	// Check whether the preinstall/postinstall is not Base64 encoded.
-	// Always calculate hash of base64 decoded value since we
-	// check against double-encoding when setting it
-	v, base64DecodeError := base64.StdEncoding.DecodeString(script)
-	if base64DecodeError != nil {
-		v = []byte(script)
-	}
-
-	hash := sha1.Sum(v)
-	return hex.EncodeToString(hash[:])
-}
-
-func installScriptEncode(script string) string {
-	if _, err := base64.StdEncoding.DecodeString(script); err != nil {
-		return base64.StdEncoding.EncodeToString([]byte(script))
-	}
-	return script
 }
 
 func getEipIDbyAddress(client *golangsdk.ServiceClient, address string) (string, error) {
