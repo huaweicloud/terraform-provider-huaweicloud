@@ -29,7 +29,8 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   storage_spec_code  = data.huaweicloud_dms_product.product_1.storage_spec_code
   availability_zones = [
     data.huaweicloud_availability_zones.zones.names[0],
-    data.huaweicloud_availability_zones.zones.names[1]
+    data.huaweicloud_availability_zones.zones.names[1],
+    data.huaweicloud_availability_zones.zones.names[2]
   ]
   
   vpc_id            = var.vpc_id
@@ -57,9 +58,9 @@ The following arguments are supported:
 * `product_id` - (Required, String) Specifies a product ID, which includes bandwidth, partition, broker and default
   storage capacity.
 
--> **NOTE:** Change this to change the bandwidth, partition and broker of the Kafka instances. Please note that the
-broker changes may cause storage capacity changes. So, if you specify the value of `storage_space`, you need to manually
-modify the value of `storage_space` after changing the `product_id`.
+  -> **NOTE:** Change this to change the bandwidth, partition and broker of the Kafka instances. Please note that the
+  broker changes may cause storage capacity changes. So, if you specify the value of `storage_space`, you need to
+  manually modify the value of `storage_space` after changing the `product_id`.
 
 * `engine_version` - (Required, String, ForceNew) Specifies the version of the kafka engine. Valid values are "1.1.0"
   and "2.3.0". Changing this creates a new instance resource.
@@ -82,6 +83,10 @@ modify the value of `storage_space` after changing the `product_id`.
 * `availability_zones` - (Required, List, ForceNew) The codes of the AZ where the Kafka instances reside.
   The parameter value can not be left blank or an empty array. Changing this creates a new instance resource.
 
+  -> **NOTE:** Deploy one availability zone or at least three availability zones. Do not select two availability zones.
+  Deploy to more availability zones, the better the reliability and SLA coverage.
+  [Learn more](https://support.huaweicloud.com/en-us/kafka_faq/kafka-faq-200426002.html)
+
 * `manager_user` - (Required, String, ForceNew) Specifies the username for logging in to the Kafka Manager. The username
   consists of 4 to 64 characters and can contain letters, digits, hyphens (-), and underscores (_). Changing this
   creates a new instance resource.
@@ -92,10 +97,10 @@ modify the value of `storage_space` after changing the `product_id`.
   =+\\|[{}]:'",<.>/?). Changing this creates a new instance resource.
 
 * `storage_space` - (Optional, Int) Specifies the message storage capacity, the unit is GB. Value range:
-  + When bandwidth is 100MB: 600–90000 GB
-  + When bandwidth is 300MB: 1200–90000 GB
-  + When bandwidth is 600MB: 2400–90000 GB
-  + When bandwidth is 1200MB: 4800–90000 GB
+  + When bandwidth is 100MB: 600–90,000 GB
+  + When bandwidth is 300MB: 1,200–90,000 GB
+  + When bandwidth is 600MB: 2,400–90,000 GB
+  + When bandwidth is 1,200MB: 4,800–90,000 GB
 
   The storage capacity of the product used by default.
 
@@ -110,7 +115,7 @@ modify the value of `storage_space` after changing the `product_id`.
   -> **NOTE:** If `access_user` and `password` are specified, Kafka SASL_SSL will be automatically enabled.
 
 * `description` - (Optional, String) Specifies the description of the DMS kafka instance. It is a character string
-  containing not more than 1024 characters.
+  containing not more than 1,024 characters.
 
 * `maintain_begin` - (Optional, String) Specifies the time at which a maintenance time window starts. Format: HH:mm. The
   start time and end time of a maintenance time window must indicate the time segment of a supported maintenance time
@@ -130,7 +135,7 @@ modify the value of `storage_space` after changing the `product_id`.
   + When bandwidth is 100MB: 3
   + When bandwidth is 300MB: 3
   + When bandwidth is 600MB: 4
-  + When bandwidth is 1200MB: 8
+  + When bandwidth is 1,200MB: 8
 
   Changing this creates a new instance resource.
 

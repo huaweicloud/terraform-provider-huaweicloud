@@ -94,7 +94,37 @@ func TestAccDmsKafkaInstances_withEpsId(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "engine", "kafka"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDmsKafkaInstances_compatible(t *testing.T) {
+	var instance instances.Instance
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_dms_kafka_instance.test"
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDmsKafkaInstanceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDmsKafkaInstance_compatible(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "kafka"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					acceptance.TestCheckResourceAttrWithVariable(resourceName, "storage_space", "${data.huaweicloud_dms_product.test1.storage}"),
 				),
 			},
 		},
@@ -229,5 +259,38 @@ resource "huaweicloud_dms_kafka_instance" "test" {
     owner = "terraform"
   }
 }
-`, testAccDmsKafkaInstance_Base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccDmsKafkaInstance_Base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+}
+
+func testAccDmsKafkaInstance_compatible(rName string) string {
+	return fmt.Sprintf(`
+%s
+data "huaweicloud_dms_az" "test" {}
+resource "huaweicloud_dms_kafka_instance" "test" {
+  name        = "%s"
+  description = "kafka test"
+
+  # use deprecated argument "available_zones"
+  available_zones   = [data.huaweicloud_dms_az.test.id]
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  product_id        = data.huaweicloud_dms_product.test1.id
+  engine_version    = data.huaweicloud_dms_product.test1.version
+  storage_spec_code = data.huaweicloud_dms_product.test1.storage_spec_code
+  storage_space     = data.huaweicloud_dms_product.test1.storage
+  # use deprecated argument "bandwidth"
+  bandwidth         = data.huaweicloud_dms_product.test1.bandwidth
+
+  access_user      = "user"
+  password         = "Kafkatest@123"
+  manager_user     = "kafka-user"
+  manager_password = "Kafkatest@123"
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+}`, testAccDmsKafkaInstance_Base(rName), rName)
 }
