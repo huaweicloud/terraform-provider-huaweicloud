@@ -560,17 +560,18 @@ func resizeInstance(ctx context.Context, d *schema.ResourceData, meta interface{
 		return fmtp.Errorf("resize failed, error: %s", err)
 	}
 
+	productID := d.Get("product_id").(string)
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"EXTENDING"},
+		Pending:      []string{"EXTENDING", "REFRESHING"},
 		Target:       []string{"RUNNING"},
-		Refresh:      DmsKafkaInstanceStateRefreshFunc(dmsV2Client, d.Id()),
+		Refresh:      refreshResizeProductIDFunc(dmsV2Client, d.Id(), productID),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		Delay:        300 * time.Second,
-		PollInterval: 30 * time.Second,
+		PollInterval: 15 * time.Second,
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("error waiting for instance (%s) to delete: %s", d.Id(), err)
+		return fmtp.Errorf("error waiting for instance (%s) to resized: %v", d.Id(), err)
 	}
 	return nil
 }
@@ -621,6 +622,23 @@ func DmsKafkaInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceI
 			return nil, "", err
 		}
 
+		return v, v.Status, nil
+	}
+}
+
+func refreshResizeProductIDFunc(client *golangsdk.ServiceClient, instanceID,
+	productID string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		v, err := instances.Get(client, instanceID).Extract()
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return v, "DELETED", nil
+			}
+			return nil, "", err
+		}
+		if v.Status == "RUNNING" && v.ProductID != productID {
+			return v, "REFRESHING", nil
+		}
 		return v, v.Status, nil
 	}
 }
