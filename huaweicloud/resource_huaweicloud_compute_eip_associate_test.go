@@ -11,13 +11,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/compute/v2/servers"
+	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccComputeV2EIPAssociate_basic(t *testing.T) {
-	var instance servers.Server
+	var instance cloudservers.CloudServer
 	var eip eips.PublicIp
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -46,7 +46,7 @@ func TestAccComputeV2EIPAssociate_basic(t *testing.T) {
 }
 
 func TestAccComputeV2EIPAssociate_fixedIP(t *testing.T) {
-	var instance servers.Server
+	var instance cloudservers.CloudServer
 	var eip eips.PublicIp
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -76,7 +76,7 @@ func TestAccComputeV2EIPAssociate_fixedIP(t *testing.T) {
 
 func testAccCheckComputeV2EIPAssociateDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
-	computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
+	computeClient, err := config.ComputeV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -91,7 +91,7 @@ func testAccCheckComputeV2EIPAssociateDestroy(s *terraform.State) error {
 			return err
 		}
 
-		instance, err := servers.Get(computeClient, instanceId).Extract()
+		instance, err := cloudservers.Get(computeClient, instanceId).Extract()
 		if err != nil {
 			// If the error is a 404, then the instance does not exist,
 			// and therefore the floating IP cannot be associated to it.
@@ -104,9 +104,8 @@ func testAccCheckComputeV2EIPAssociateDestroy(s *terraform.State) error {
 		// But if the instance still exists, then walk through its known addresses
 		// and see if there's a floating IP.
 		for _, networkAddresses := range instance.Addresses {
-			for _, element := range networkAddresses.([]interface{}) {
-				address := element.(map[string]interface{})
-				if address["OS-EXT-IPS:type"] == "floating" || address["OS-EXT-IPS:type"] == "fixed" {
+			for _, address := range networkAddresses {
+				if address.Type == "floating" || address.Type == "fixed" {
 					return fmtp.Errorf("EIP %s is still attached to instance %s", floatingIP, instanceId)
 				}
 			}
@@ -117,12 +116,12 @@ func testAccCheckComputeV2EIPAssociateDestroy(s *terraform.State) error {
 }
 
 func testAccCheckComputeV2EIPAssociateAssociated(
-	eip *eips.PublicIp, instance *servers.Server, n int) resource.TestCheckFunc {
+	eip *eips.PublicIp, instance *cloudservers.CloudServer, n int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*config.Config)
-		computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
+		computeClient, err := config.ComputeV1Client(HW_REGION_NAME)
 
-		newInstance, err := servers.Get(computeClient, instance.ID).Extract()
+		newInstance, err := cloudservers.Get(computeClient, instance.ID).Extract()
 		if err != nil {
 			return err
 		}
@@ -134,9 +133,8 @@ func testAccCheckComputeV2EIPAssociateAssociated(
 			if i != n {
 				continue
 			}
-			for _, element := range networkAddresses.([]interface{}) {
-				address := element.(map[string]interface{})
-				if address["OS-EXT-IPS:type"] == "floating" && address["addr"] == eip.PublicAddress {
+			for _, address := range networkAddresses {
+				if address.Type == "floating" && address.Addr == eip.PublicAddress {
 					return nil
 				}
 			}
