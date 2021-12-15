@@ -52,6 +52,7 @@ func TestAccCBRV3Vault_BasicServer(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "resources.0.excludes.#", "2"),
 				),
 			},
 			{
@@ -67,6 +68,7 @@ func TestAccCBRV3Vault_BasicServer(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo1", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
+					resource.TestCheckResourceAttr(resourceName, "resources.0.excludes.#", "2"),
 					acceptance.TestCheckResourceAttrWithVariable(resourceName, "policy_id",
 						"${huaweicloud_cbr_policy.test.id}"),
 				),
@@ -150,6 +152,7 @@ func TestAccCBRV3Vault_BasicVolume(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "auto_expand", "false"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "resources.0.includes.#", "2"),
 				),
 			},
 			{
@@ -165,6 +168,7 @@ func TestAccCBRV3Vault_BasicVolume(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "policy_id"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "resources.0.includes.#", "2"),
 				),
 			},
 			{
@@ -286,8 +290,40 @@ resource "huaweicloud_cbr_policy" "test" {
 `, rName)
 }
 
-func testAccCBRV3Vault_serverBase(rName string) string {
+func testAccEvsVolumeConfiguration_basic() string {
 	return fmt.Sprintf(`
+variable "volume_configuration" {
+  type = list(object({
+    volume_type = string
+    size        = number
+    device_type = string
+  }))
+  default = [
+    {volume_type = "SSD", size = 100, device_type = "VBD"},
+    {volume_type = "SSD", size = 100, device_type = "SCSI"},
+  ]
+}`)
+}
+
+func testAccEvsVolumeConfiguration_update() string {
+	return fmt.Sprintf(`
+variable "volume_configuration" {
+  type = list(object({
+    volume_type = string
+    size        = number
+    device_type = string
+  }))
+  default = [
+    {volume_type = "GPSSD", size = 100, device_type = "VBD"},
+    {volume_type = "SAS", size = 100, device_type = "SCSI"},
+  ]
+}`)
+}
+
+func testAccCBRV3VaultBasicConfiguration(config, rName string) string {
+	return fmt.Sprintf(`
+%s
+
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_compute_flavors" "test" {
@@ -314,6 +350,11 @@ resource "huaweicloud_vpc_subnet" "test" {
   gateway_ip = "192.168.0.1"
 }
 
+resource "huaweicloud_networking_secgroup" "test" {
+  name                 = "%s"
+  delete_default_rules = true
+}
+
 resource "huaweicloud_compute_keypair" "test" {
   name = "%s"
   lifecycle {
@@ -324,31 +365,40 @@ resource "huaweicloud_compute_keypair" "test" {
 }
 
 resource "huaweicloud_compute_instance" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
   name              = "%s"
   image_id          = data.huaweicloud_images_image.test.id
   flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
-  security_groups   = ["default"]
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  system_disk_type  = "SAS"
-  system_disk_size  = 50
   key_pair          = huaweicloud_compute_keypair.test.name
+
+  system_disk_type = "SSD"
+  system_disk_size = 50
+
+  security_group_ids = [
+    huaweicloud_networking_secgroup.test.id
+  ]
 
   network {
     uuid = huaweicloud_vpc_subnet.test.id
   }
 }
 
-resource "huaweicloud_evs_volume" "test1" {
-  name              = "%s"
-  volume_type       = "SSD"
-  size              = 20
+resource "huaweicloud_evs_volume" "test" {
+  count = length(var.volume_configuration)
+
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  volume_type       = var.volume_configuration[count.index].volume_type
+  name              = "%s_${tostring(count.index)}"
+  size              = var.volume_configuration[count.index].size
+  device_type       = var.volume_configuration[count.index].device_type
 }
 
-resource "huaweicloud_compute_volume_attach" "test1" {
+resource "huaweicloud_compute_volume_attach" "test" {
+  count = length(huaweicloud_evs_volume.test)
+
   instance_id = huaweicloud_compute_instance.test.id
-  volume_id   = huaweicloud_evs_volume.test1.id
-}`, rName, rName, rName, rName, rName)
+  volume_id   = huaweicloud_evs_volume.test[count.index].id
+}`, config, rName, rName, rName, rName, rName, rName)
 }
 
 func testAccCBRV3Vault_serverBasic(rName string) string {
@@ -356,10 +406,6 @@ func testAccCBRV3Vault_serverBasic(rName string) string {
 %s
 
 resource "huaweicloud_cbr_vault" "test" {
-  depends_on = [
-	huaweicloud_compute_volume_attach.test1
-  ]
-
   name                  = "%s"
   type                  = "server"
   consistent_level      = "app_consistent"
@@ -369,10 +415,7 @@ resource "huaweicloud_cbr_vault" "test" {
 
   resources {
     server_id = huaweicloud_compute_instance.test.id
-
-    excludes = [
-      huaweicloud_evs_volume.test1.id
-    ]
+    excludes  = huaweicloud_compute_volume_attach.test[*].volume_id
   }
 
   tags = {
@@ -380,7 +423,8 @@ resource "huaweicloud_cbr_vault" "test" {
     key = "value"
   }
 }
-`, testAccCBRV3Vault_serverBase(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+`, testAccCBRV3VaultBasicConfiguration(testAccEvsVolumeConfiguration_basic(), rName),
+		rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
 }
 
 func testAccCBRV3Vault_serverUpdate(rName string) string {
@@ -389,24 +433,7 @@ func testAccCBRV3Vault_serverUpdate(rName string) string {
 
 %s
 
-resource "huaweicloud_evs_volume" "test2" {
- name              = "%s"
- volume_type       = "SSD"
- size              = 30
- availability_zone = data.huaweicloud_availability_zones.test.names[0]
-}
-
-resource "huaweicloud_compute_volume_attach" "test2" {
-  instance_id = huaweicloud_compute_instance.test.id
-  volume_id   = huaweicloud_evs_volume.test2.id
-}
-
 resource "huaweicloud_cbr_vault" "test" {
-  depends_on = [
-    huaweicloud_compute_volume_attach.test1,
-    huaweicloud_compute_volume_attach.test2
-  ]
-
   name                  = "%s-update"
   type                  = "server"
   consistent_level      = "app_consistent"
@@ -418,9 +445,7 @@ resource "huaweicloud_cbr_vault" "test" {
   resources {
     server_id = huaweicloud_compute_instance.test.id
 
-    excludes = [
-      huaweicloud_evs_volume.test1.id
-    ]
+    excludes = huaweicloud_compute_volume_attach.test[*].volume_id
   }
 
   tags = {
@@ -428,8 +453,8 @@ resource "huaweicloud_cbr_vault" "test" {
     key  = "value_update"
   }
 }
-`, testAccCBRV3Vault_serverBase(rName), testAccCBRV3Vault_policy(rName), rName, rName,
-		acceptance.HW_ENTERPRISE_PROJECT_ID)
+`, testAccCBRV3VaultBasicConfiguration(testAccEvsVolumeConfiguration_update(), rName), testAccCBRV3Vault_policy(rName),
+		rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
 }
 
 func testAccCBRV3Vault_serverReplication(rName string) string {
@@ -445,19 +470,6 @@ resource "huaweicloud_cbr_vault" "test" {
 `, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
 }
 
-//Vaults of type 'disk'
-func testAccCBRV3Vault_volumeBase(rName string) string {
-	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_evs_volume" "test1" {
-  name              = "%s-1"
-  volume_type       = "SSD"
-  size              = 50
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-}`, rName)
-}
-
 func testAccCBRV3Vault_volumeBasic(rName string) string {
 	return fmt.Sprintf(`
 %s
@@ -471,12 +483,11 @@ resource "huaweicloud_cbr_vault" "test" {
   enterprise_project_id = "%s"
 
   resources {
-    includes = [
-      huaweicloud_evs_volume.test1.id
-    ]
+    includes = huaweicloud_compute_volume_attach.test[*].volume_id
   }
 }
-`, testAccCBRV3Vault_volumeBase(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+`, testAccCBRV3VaultBasicConfiguration(testAccEvsVolumeConfiguration_basic(), rName),
+		rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
 }
 
 func testAccCBRV3Vault_volumeUpdate(rName string) string {
@@ -484,13 +495,6 @@ func testAccCBRV3Vault_volumeUpdate(rName string) string {
 %s
 
 %s
-
-resource "huaweicloud_evs_volume" "test2" {
-  name              = "%s-2"
-  volume_type       = "SAS"
-  size              = 20
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-}
 
 resource "huaweicloud_cbr_vault" "test" {
   name                  = "%s-update"
@@ -503,14 +507,11 @@ resource "huaweicloud_cbr_vault" "test" {
   policy_id             = huaweicloud_cbr_policy.test.id
 
   resources {
-    includes = [
-      huaweicloud_evs_volume.test1.id,
-      huaweicloud_evs_volume.test2.id
-    ]
+    includes = huaweicloud_compute_volume_attach.test[*].volume_id
   }
 }
-`, testAccCBRV3Vault_volumeBase(rName), testAccCBRV3Vault_policy(rName), rName, rName,
-		acceptance.HW_ENTERPRISE_PROJECT_ID)
+`, testAccCBRV3VaultBasicConfiguration(testAccEvsVolumeConfiguration_basic(), rName),
+		testAccCBRV3Vault_policy(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
 }
 
 //Vaults of type 'turbo'

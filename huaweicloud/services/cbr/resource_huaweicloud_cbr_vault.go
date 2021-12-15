@@ -156,7 +156,7 @@ func ResourceCBRVaultV3() *schema.Resource {
 	}
 }
 
-func buildCbrVaultResourcesForServer(rType string, resources []interface{}) ([]vaults.ResourceCreate, error) {
+func buildAssociateResourcesForServer(rType string, resources []interface{}) ([]vaults.ResourceCreate, error) {
 	if len(resources) == 0 {
 		return []vaults.ResourceCreate{}, nil
 	}
@@ -184,7 +184,7 @@ func buildCbrVaultResourcesForServer(rType string, resources []interface{}) ([]v
 	return results, nil
 }
 
-func buildCbrVaultResourcesForDisk(rType string, resources []interface{}) ([]vaults.ResourceCreate, error) {
+func buildAssociateResourcesForDisk(rType string, resources []interface{}) ([]vaults.ResourceCreate, error) {
 	if len(resources) > 1 {
 		return []vaults.ResourceCreate{},
 			fmtp.Errorf("The size of resources cannot grant than one for disk and turbo vault.")
@@ -205,7 +205,7 @@ func buildCbrVaultResourcesForDisk(rType string, resources []interface{}) ([]vau
 	return []vaults.ResourceCreate{}, fmtp.Errorf("Only includes can be set for disk and turbo vault.")
 }
 
-func buildCBRVaultResources(vType string, resources *schema.Set) ([]vaults.ResourceCreate, error) {
+func buildAssociateResources(vType string, resources *schema.Set) ([]vaults.ResourceCreate, error) {
 	var result []vaults.ResourceCreate
 	var err error
 	rType, ok := ResourceType[vType]
@@ -215,13 +215,46 @@ func buildCBRVaultResources(vType string, resources *schema.Set) ([]vaults.Resou
 	logp.Printf("[DEBUG] The resource type is %s", rType)
 	switch rType {
 	case ResourceTypeServer:
-		result, err = buildCbrVaultResourcesForServer(rType, resources.List())
+		result, err = buildAssociateResourcesForServer(rType, resources.List())
 	case ResourceTypeDisk, ResourceTypeTurbo:
-		result, err = buildCbrVaultResourcesForDisk(rType, resources.List())
+		result, err = buildAssociateResourcesForDisk(rType, resources.List())
 	default:
 		err = fmtp.Errorf("The vault type only support server, disk and turbo.")
 	}
 	return result, err
+}
+
+func buildDissociateResourcesForServer(rType string, resources []interface{}) []string {
+	result := make([]string, len(resources))
+	for i, val := range resources {
+		res := val.(map[string]interface{})
+		// ID list of all servers attached in the specified vault.
+		result[i] = res["server_id"].(string)
+	}
+	return result
+}
+
+func buildDissociateResourcesForDisk(rType string, resources []interface{}) []string {
+	rMap := resources[0].(map[string]interface{})
+
+	// All disks attached in the specified vault.
+	return utils.ExpandToStringList(rMap["includes"].(*schema.Set).List())
+}
+
+func buildDissociateResources(vType string, resources *schema.Set) ([]string, error) {
+	rType, ok := ResourceType[vType]
+	if !ok {
+		return nil, fmtp.Errorf("Invalid resource type: %s", vType)
+	}
+	logp.Printf("[DEBUG] The resource type is %s", rType)
+	switch rType {
+	case ResourceTypeServer:
+		return buildDissociateResourcesForServer(rType, resources.List()), nil
+	case ResourceTypeDisk, ResourceTypeTurbo:
+		return buildDissociateResourcesForDisk(rType, resources.List()), nil
+	default:
+		return nil, fmtp.Errorf("The vault type only support server, disk and turbo.")
+	}
 }
 
 func buildCBRVaultBilling(d *schema.ResourceData) *vaults.BillingCreate {
@@ -242,7 +275,7 @@ func resourceCBRVaultV3Create(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf("Error creating Huaweicloud CBR v3 client: %s", err)
 	}
 
-	resources, err := buildCBRVaultResources(d.Get("type").(string), d.Get("resources").(*schema.Set))
+	resources, err := buildAssociateResources(d.Get("type").(string), d.Get("resources").(*schema.Set))
 	if err != nil {
 		return fmtp.Errorf("Error building vault resources: %s", err)
 	}
@@ -399,18 +432,40 @@ func resourceCBRVaultV3Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func updateResources(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	resources, err := buildCBRVaultResources(d.Get("type").(string), d.Get("resources").(*schema.Set))
-	if err != nil {
-		return fmtp.Errorf("Error building vault resources: %s", err)
+	oldResources, newResources := d.GetChange("resources")
+	addRaws := newResources.(*schema.Set).Difference(oldResources.(*schema.Set))
+	delRaws := oldResources.(*schema.Set).Difference(newResources.(*schema.Set))
+
+	// Remove all resources bound to the vault.
+	if delRaws.Len() > 0 {
+		resources, err := buildDissociateResources(d.Get("type").(string), delRaws)
+		if err != nil {
+			return fmtp.Errorf("Error building dissociate list of vault resources: %s", err)
+		}
+		dissociateOpt := vaults.DissociateResourcesOpts{
+			ResourceIDs: resources,
+		}
+		logp.Printf("[DEBUG] The dissociate opt is: %+v", dissociateOpt)
+		_, err = vaults.DissociateResources(client, d.Id(), dissociateOpt).Extract()
+		if err != nil {
+			return fmtp.Errorf("Error dissociating resources: %s", err)
+		}
 	}
 
-	opts := vaults.AssociateResourcesOpts{
-		Resources: resources,
-	}
-	logp.Printf("[DEBUG] The updateOpts is: %+v", opts)
-	_, err = vaults.AssociateResources(client, d.Id(), opts).Extract()
-	if err != nil {
-		return fmtp.Errorf("Error binding resources: %s", err)
+	// Add resources to the specified vault.
+	if addRaws.Len() > 0 {
+		resources, err := buildAssociateResources(d.Get("type").(string), addRaws)
+		if err != nil {
+			return fmtp.Errorf("Error building associate list of vault resources: %s", err)
+		}
+		associateOpt := vaults.AssociateResourcesOpts{
+			Resources: resources,
+		}
+		logp.Printf("[DEBUG] The associate opt is: %+v", associateOpt)
+		_, err = vaults.AssociateResources(client, d.Id(), associateOpt).Extract()
+		if err != nil {
+			return fmtp.Errorf("Error binding resources: %s", err)
+		}
 	}
 
 	return nil
