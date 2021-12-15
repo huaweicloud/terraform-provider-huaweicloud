@@ -52,6 +52,7 @@ func TestAccDmsRabbitmqInstances_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
+					acceptance.TestCheckResourceAttrWithVariable(resourceName, "product_id", "${data.huaweicloud_dms_product.test2.id}"),
 					resource.TestCheckResourceAttr(resourceName, "description", "rabbitmq test update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
@@ -63,7 +64,6 @@ func TestAccDmsRabbitmqInstances_basic(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
 					"password",
-					"used_storage_space",
 				},
 			},
 		},
@@ -100,9 +100,45 @@ func TestAccDmsRabbitmqInstances_withEpsId(t *testing.T) {
 	})
 }
 
+func TestAccDmsRabbitmqInstances_compatible(t *testing.T) {
+	var instance instances.Instance
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_dms_rabbitmq_instance.test"
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDmsRabitMqInstanceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDmsRabbitmqInstance_compatible(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "rabbitmq"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"password",
+				},
+			},
+		},
+	})
+}
+
 func testAccDmsRabbitmqInstance_Base(rName string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_dms_az" "test" {}
 
 data "huaweicloud_vpc" "test" {
   name = "vpc-default"
@@ -112,16 +148,26 @@ data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
 
-data "huaweicloud_dms_product" "test" {
-  engine        = "rabbitmq"
-  instance_type = "cluster"
-  version       = "3.7.17"
-}
-
 resource "huaweicloud_networking_secgroup" "test" {
   name        = "%s"
   description = "secgroup for rabbitmq"
 }
+
+data "huaweicloud_dms_product" "test1" {
+  engine        = "rabbitmq"
+  instance_type = "cluster"
+  version       = "3.7.17"
+  node_num      = 3
+}
+
+data "huaweicloud_dms_product" "test2" {
+  engine        = "rabbitmq"
+  instance_type = "cluster"
+  version       = "3.7.17"
+  node_num      = 5
+}
+
+data "huaweicloud_availability_zones" "test" {}
 `, rName)
 }
 
@@ -130,18 +176,22 @@ func testAccDmsRabbitmqInstance_basic(rName string) string {
 %s
 
 resource "huaweicloud_dms_rabbitmq_instance" "test" {
-  name              = "%s"
-  description       = "rabbitmq test"
-  access_user       = "user"
-  password          = "Rabbitmqtest@123"
-  vpc_id            = data.huaweicloud_vpc.test.id
-  network_id        = data.huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  available_zones   = [data.huaweicloud_dms_az.test.id]
-  product_id        = data.huaweicloud_dms_product.test.id
-  engine_version    = data.huaweicloud_dms_product.test.version
-  storage_space     = data.huaweicloud_dms_product.test.storage
-  storage_spec_code = data.huaweicloud_dms_product.test.storage_spec_code
+  name        = "%s"
+  description = "rabbitmq test"
+  
+  vpc_id             = data.huaweicloud_vpc.test.id
+  network_id         = data.huaweicloud_vpc_subnet.test.id
+  security_group_id  = huaweicloud_networking_secgroup.test.id
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  product_id        = data.huaweicloud_dms_product.test1.id
+  engine_version    = data.huaweicloud_dms_product.test1.version
+  storage_spec_code = data.huaweicloud_dms_product.test1.storage_spec_code
+
+  access_user = "user"
+  password    = "Rabbitmqtest@123"
 
   tags = {
     key   = "value"
@@ -156,18 +206,22 @@ func testAccDmsRabbitmqInstance_update(rName, updateName string) string {
 %s
 
 resource "huaweicloud_dms_rabbitmq_instance" "test" {
-  name              = "%s"
-  description       = "rabbitmq test update"
-  access_user       = "user"
-  password          = "Rabbitmqtest@123"
-  vpc_id            = data.huaweicloud_vpc.test.id
-  network_id        = data.huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  available_zones   = [data.huaweicloud_dms_az.test.id]
-  product_id        = data.huaweicloud_dms_product.test.id
-  engine_version    = data.huaweicloud_dms_product.test.version
-  storage_space     = data.huaweicloud_dms_product.test.storage
-  storage_spec_code = data.huaweicloud_dms_product.test.storage_spec_code
+  name        = "%s"
+  description = "rabbitmq test update"
+
+  vpc_id             = data.huaweicloud_vpc.test.id
+  network_id         = data.huaweicloud_vpc_subnet.test.id
+  security_group_id  = huaweicloud_networking_secgroup.test.id
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  product_id        = data.huaweicloud_dms_product.test2.id
+  engine_version    = data.huaweicloud_dms_product.test2.version
+  storage_spec_code = data.huaweicloud_dms_product.test2.storage_spec_code
+
+  access_user = "user"
+  password    = "Rabbitmqtest@123"
 
   tags = {
     key1  = "value"
@@ -184,22 +238,59 @@ func testAccDmsRabbitmqInstance_withEpsId(rName string) string {
 resource "huaweicloud_dms_rabbitmq_instance" "test" {
   name                  = "%s"
   description           = "rabbitmq test"
-  access_user           = "user"
-  password              = "Rabbitmqtest@123"
-  vpc_id                = data.huaweicloud_vpc.test.id
-  network_id            = data.huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  available_zones       = [data.huaweicloud_dms_az.test.id]
-  product_id            = data.huaweicloud_dms_product.test.id
-  engine_version        = data.huaweicloud_dms_product.test.version
-  storage_space         = data.huaweicloud_dms_product.test.storage
-  storage_spec_code     = data.huaweicloud_dms_product.test.storage_spec_code
   enterprise_project_id = "%s"
+
+  vpc_id             = data.huaweicloud_vpc.test.id
+  network_id         = data.huaweicloud_vpc_subnet.test.id
+  security_group_id  = huaweicloud_networking_secgroup.test.id
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[1]
+  ]
+  
+  product_id        = data.huaweicloud_dms_product.test1.id
+  engine_version    = data.huaweicloud_dms_product.test1.version
+  storage_spec_code = data.huaweicloud_dms_product.test1.storage_spec_code
+
+  access_user = "user"
+  password    = "Rabbitmqtest@123"
 
   tags = {
     key   = "value"
     owner = "terraform"
   }
 }
-`, testAccDmsRabbitmqInstance_Base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccDmsRabbitmqInstance_Base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+}
+
+// After the 1.31.1 version, arguments storage_space and available_zones are deprecated.
+func testAccDmsRabbitmqInstance_compatible(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_dms_az" "test" {}
+resource "huaweicloud_dms_rabbitmq_instance" "test" {
+  name        = "%s"
+  description = "rabbitmq test"
+  
+  vpc_id            = data.huaweicloud_vpc.test.id
+  network_id        = data.huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  available_zones   = [data.huaweicloud_dms_az.test.id]
+
+  product_id        = data.huaweicloud_dms_product.test1.id
+  engine_version    = data.huaweicloud_dms_product.test1.version
+  storage_space     = data.huaweicloud_dms_product.test1.storage
+  storage_spec_code = data.huaweicloud_dms_product.test1.storage_spec_code
+
+
+  access_user = "user"
+  password    = "Rabbitmqtest@123"
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+}
+`, testAccDmsRabbitmqInstance_Base(rName), rName)
 }

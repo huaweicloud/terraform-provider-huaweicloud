@@ -2,11 +2,13 @@ package dms
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/dms/v2/rabbitmq/instances"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -26,6 +28,11 @@ func ResourceDmsRabbitmqInstance() *schema.Resource {
 		DeleteContext: resourceDmsRabbitmqInstanceDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
+		},
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(15 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -51,8 +58,9 @@ func ResourceDmsRabbitmqInstance() *schema.Resource {
 			},
 			"storage_space": {
 				Type:     schema.TypeInt,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"storage_spec_code": {
 				Type:     schema.TypeString,
@@ -84,16 +92,17 @@ func ResourceDmsRabbitmqInstance() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"available_zones": {
-				Type:     schema.TypeList,
-				Required: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+			"availability_zones": {
+				Type:          schema.TypeList,
+				Optional:      true,
+				Computed:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"available_zones"},
+				Elem:          &schema.Schema{Type: schema.TypeString},
 			},
 			"product_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"maintain_begin": {
 				Type:     schema.TypeString,
@@ -168,32 +177,65 @@ func ResourceDmsRabbitmqInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"available_zones": {
+				Type:         schema.TypeList,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				Elem:         &schema.Schema{Type: schema.TypeString},
+				AtLeastOneOf: []string{"available_zones", "availability_zones"},
+				Deprecated:   "available_zones has deprecated, please use \"availability_zones\" instead.",
+			},
 		},
 	}
 }
 
 func resourceDmsRabbitmqInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
+	region := config.GetRegion(d)
+	dmsV2Client, err := config.DmsV2Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud dms instance client: %s", err)
+		return fmtp.DiagErrorf("error creating HuaweiCloud DMS instance client: %s", err)
 	}
 
-	rawZones := d.Get("available_zones").([]interface{})
-	utils.ExpandToStringList(rawZones)
-	zones := utils.ExpandToStringList(rawZones)
+	var availableZones []string
+	zoneIDs, ok := d.GetOk("available_zones")
+	if ok {
+		availableZones = utils.ExpandToStringList(zoneIDs.([]interface{}))
+	} else {
+		// convert the codes of the availability zone into ids
+		azCodes := d.Get("availability_zones").([]interface{})
+		availableZones, err = getAvailableZoneIDByCode(config, region, azCodes)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	storageSpace := d.Get("storage_space").(int)
+	if storageSpace == 0 {
+		product, err := getProductDetail(config, d, "rabbitmq")
+		if err != nil || product == nil {
+			return fmtp.DiagErrorf("query DMS RabbimtMQ product failed: %s", err)
+		}
+		space := product.ProductInfos[0].Storage
+		defaultStorageSpace, err := strconv.ParseInt(space, 10, 32)
+		if err != nil {
+			return fmtp.DiagErrorf("Parse storage capacity to int error, %v: %s", space, err)
+		}
+		storageSpace = int(defaultStorageSpace)
+	}
 
 	createOpts := &instances.CreateOps{
 		Name:                d.Get("name").(string),
 		Description:         d.Get("description").(string),
 		Engine:              "rabbitmq",
 		EngineVersion:       d.Get("engine_version").(string),
-		StorageSpace:        d.Get("storage_space").(int),
+		StorageSpace:        storageSpace,
 		AccessUser:          d.Get("access_user").(string),
 		VPCID:               d.Get("vpc_id").(string),
 		SecurityGroupID:     d.Get("security_group_id").(string),
 		SubnetID:            d.Get("network_id").(string),
-		AvailableZones:      zones,
+		AvailableZones:      availableZones,
 		ProductID:           d.Get("product_id").(string),
 		MaintainBegin:       d.Get("maintain_begin").(string),
 		MaintainEnd:         d.Get("maintain_end").(string),
@@ -220,7 +262,7 @@ func resourceDmsRabbitmqInstanceCreate(ctx context.Context, d *schema.ResourceDa
 
 	v, err := instances.Create(dmsV2Client, createOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud dms rabbitmq instance: %s", err)
+		return fmtp.DiagErrorf("error creating HuaweiCloud DMS rabbitmq instance: %s", err)
 	}
 	logp.Printf("[INFO] instance ID: %s", v.InstanceID)
 
@@ -248,61 +290,76 @@ func resourceDmsRabbitmqInstanceCreate(ctx context.Context, d *schema.ResourceDa
 
 func resourceDmsRabbitmqInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
+	region := config.GetRegion(d)
 
-	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
+	dmsV2Client, err := config.DmsV2Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud dms instance client: %s", err)
+		return fmtp.DiagErrorf("error creating HuaweiCloud DMS instance client: %s", err)
 	}
 	v, err := instances.Get(dmsV2Client, d.Id()).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "DMS instance")
 	}
 
-	logp.Printf("[DEBUG] Dms rabbitmq instance %s: %+v", d.Id(), v)
+	logp.Printf("[DEBUG] DMS rabbitmq instance %s: %+v", d.Id(), v)
+
+	availableZoneIDs := v.AvailableZones
+	availableZoneCodes, err := getAvailableZoneCodeByID(config, region, availableZoneIDs)
+	mErr := multierror.Append(nil, err)
 
 	d.SetId(v.InstanceID)
-	d.Set("region", config.GetRegion(d))
-	d.Set("name", v.Name)
-	d.Set("description", v.Description)
-	d.Set("engine", v.Engine)
-	d.Set("engine_version", v.EngineVersion)
-	d.Set("specification", v.Specification)
-	// storage_space indicates total_storage_space while creating
-	// set value of total_storage_space to storage_space to keep consistent
-	d.Set("storage_space", v.TotalStorageSpace)
+	mErr = multierror.Append(mErr,
+		d.Set("region", config.GetRegion(d)),
+		d.Set("name", v.Name),
+		d.Set("description", v.Description),
+		d.Set("engine", v.Engine),
+		d.Set("engine_version", v.EngineVersion),
+		d.Set("specification", v.Specification),
+		// storage_space indicates total_storage_space while creating
+		// set value of total_storage_space to storage_space to keep consistent
+		d.Set("storage_space", v.TotalStorageSpace),
 
-	d.Set("vpc_id", v.VPCID)
-	d.Set("security_group_id", v.SecurityGroupID)
-	d.Set("network_id", v.SubnetID)
-	d.Set("available_zones", v.AvailableZones)
-	d.Set("product_id", v.ProductID)
-	d.Set("maintain_begin", v.MaintainBegin)
-	d.Set("maintain_end", v.MaintainEnd)
-	d.Set("enable_public_ip", v.EnablePublicIP)
-	d.Set("public_ip_id", v.PublicIPID)
-	d.Set("ssl_enable", v.SslEnable)
-	d.Set("storage_spec_code", v.StorageSpecCode)
-	d.Set("enterprise_project_id", v.EnterpriseProjectID)
-	d.Set("used_storage_space", v.UsedStorageSpace)
-	d.Set("connect_address", v.ConnectAddress)
-	d.Set("manegement_connect_address", v.ManagementConnectAddress)
-	d.Set("port", v.Port)
-	d.Set("status", v.Status)
-	d.Set("resource_spec_code", v.ResourceSpecCode)
-	d.Set("user_id", v.UserID)
-	d.Set("user_name", v.UserName)
-	d.Set("type", v.Type)
-	d.Set("access_user", v.AccessUser)
+		d.Set("vpc_id", v.VPCID),
+		d.Set("security_group_id", v.SecurityGroupID),
+		d.Set("network_id", v.SubnetID),
+		d.Set("available_zones", v.AvailableZones),
+		d.Set("availability_zones", availableZoneCodes),
+		d.Set("product_id", v.ProductID),
+		d.Set("maintain_begin", v.MaintainBegin),
+		d.Set("maintain_end", v.MaintainEnd),
+		d.Set("enable_public_ip", v.EnablePublicIP),
+		d.Set("public_ip_id", v.PublicIPID),
+		d.Set("ssl_enable", v.SslEnable),
+		d.Set("storage_spec_code", v.StorageSpecCode),
+		d.Set("enterprise_project_id", v.EnterpriseProjectID),
+		d.Set("used_storage_space", v.UsedStorageSpace),
+		d.Set("connect_address", v.ConnectAddress),
+		d.Set("manegement_connect_address", v.ManagementConnectAddress),
+		d.Set("port", v.Port),
+		d.Set("status", v.Status),
+		d.Set("resource_spec_code", v.ResourceSpecCode),
+		d.Set("user_id", v.UserID),
+		d.Set("user_name", v.UserName),
+		d.Set("type", v.Type),
+		d.Set("access_user", v.AccessUser),
+	)
 
 	// set tags
 	engine := "rabbitmq"
 	if resourceTags, err := tags.Get(dmsV2Client, engine, d.Id()).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
-		if err := d.Set("tags", tagmap); err != nil {
-			return fmtp.DiagErrorf("error saving tags to state for dms rabbitmq instance (%s): %s", d.Id(), err)
+		err = d.Set("tags", tagmap)
+		if err != nil {
+			mErr = multierror.Append(mErr, err)
 		}
 	} else {
-		logp.Printf("[WARN] error fetching tags of dms rabbitmq instance (%s): %s", d.Id(), err)
+		logp.Printf("[WARN] error fetching tags of DMS rabbitmq instance (%s): %s", d.Id(), err)
+		e := fmtp.Errorf("error fetching tags of DMS rabbitmq instance (%s): %s", d.Id(), err)
+		mErr = multierror.Append(mErr, e)
+	}
+
+	if mErr.ErrorOrNil() != nil {
+		return fmtp.DiagErrorf("Error setting attributes for DMS rabbitmq instance: %s", mErr)
 	}
 
 	return nil
@@ -312,10 +369,10 @@ func resourceDmsRabbitmqInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 	config := meta.(*config.Config)
 	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud dms instance client: %s", err)
+		return fmtp.DiagErrorf("error creating HuaweiCloud DMS instance client: %s", err)
 	}
 
-	//lintignore:R019
+	var mErr *multierror.Error
 	if d.HasChanges("name", "description", "maintain_begin", "maintain_end",
 		"security_group_id", "public_ip_id", "enterprise_project_id") {
 		description := d.Get("description").(string)
@@ -344,7 +401,8 @@ func resourceDmsRabbitmqInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 
 		err = instances.Update(dmsV2Client, d.Id(), updateOpts).Err
 		if err != nil {
-			return fmtp.DiagErrorf("error updating HuaweiCloud Dms rabbitmq Instance: %s", err)
+			e := fmtp.Errorf("error updating HuaweiCloud DMS rabbitMQ Instance: %s", err)
+			mErr = multierror.Append(mErr, e)
 		}
 	}
 
@@ -353,8 +411,20 @@ func resourceDmsRabbitmqInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 		engine := "rabbitmq"
 		tagErr := utils.UpdateResourceTags(dmsV2Client, d, engine, d.Id())
 		if tagErr != nil {
-			return fmtp.DiagErrorf("error updating tags of dms rabbitmq instance:%s, err:%s", d.Id(), tagErr)
+			e := fmtp.Errorf("error updating tags of DMS rabbitmq instance:%s, err:%s", d.Id(), tagErr)
+			mErr = multierror.Append(mErr, e)
 		}
+	}
+
+	if d.HasChange("product_id") {
+		err = resizeInstance(ctx, d, meta, "rabbitmq")
+		if err != nil {
+			e := fmtp.Errorf("error resizing HuaweiCloud DMS rabbitMQ Instance: %s", err)
+			mErr = multierror.Append(mErr, e)
+		}
+	}
+	if mErr.ErrorOrNil() != nil {
+		return fmtp.DiagErrorf("error while updating DMS rabbitMQ instances, there %s", mErr)
 	}
 
 	return resourceDmsRabbitmqInstanceRead(ctx, d, meta)
@@ -364,7 +434,7 @@ func resourceDmsRabbitmqInstanceDelete(ctx context.Context, d *schema.ResourceDa
 	config := meta.(*config.Config)
 	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud dms instance client: %s", err)
+		return fmtp.DiagErrorf("error creating HuaweiCloud DMS instance client: %s", err)
 	}
 
 	err = instances.Delete(dmsV2Client, d.Id()).ExtractErr()
@@ -391,7 +461,7 @@ func resourceDmsRabbitmqInstanceDelete(ctx context.Context, d *schema.ResourceDa
 			"error waiting for instance (%s) to delete: %s", d.Id(), err)
 	}
 
-	logp.Printf("[DEBUG] Dms instance %s deactivated", d.Id())
+	logp.Printf("[DEBUG] DMS instance %s deactivated", d.Id())
 	d.SetId("")
 	return nil
 }
