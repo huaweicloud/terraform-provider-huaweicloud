@@ -704,6 +704,11 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 	server, err := cloudservers.Get(ecsClient, d.Id()).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "compute instance")
+	} else {
+		if server.Status == "DELETED" {
+			d.SetId("")
+			return nil
+		}
 	}
 
 	logp.Printf("[DEBUG] Retrieved compute instance %s: %+v", d.Id(), server)

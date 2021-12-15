@@ -6,7 +6,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
-	"github.com/chnsz/golangsdk/openstack/compute/v2/servers"
+	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -15,7 +15,7 @@ import (
 func TestAccComputeInstanceDataSource_basic(t *testing.T) {
 	rName := fmt.Sprintf("ecs-data-test-%s", acctest.RandString(5))
 	resourceName := "data.huaweicloud_compute_instance.this"
-	var instance servers.Server
+	var instance cloudservers.CloudServer
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

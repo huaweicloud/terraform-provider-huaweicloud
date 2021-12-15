@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/compute/v2/servers"
+	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/servergroups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
@@ -40,7 +40,7 @@ func TestAccComputeServerGroup_basic(t *testing.T) {
 }
 
 func TestAccComputeServerGroup_scheduler(t *testing.T) {
-	var instance servers.Server
+	var instance cloudservers.CloudServer
 	var sg servergroups.ServerGroup
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_compute_servergroup.sg_1"
@@ -64,7 +64,7 @@ func TestAccComputeServerGroup_scheduler(t *testing.T) {
 }
 
 func TestAccComputeServerGroup_members(t *testing.T) {
-	var instance servers.Server
+	var instance cloudservers.CloudServer
 	var sg servergroups.ServerGroup
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_compute_servergroup.sg_1"
@@ -140,7 +140,7 @@ func testAccCheckComputeServerGroupExists(n string, kp *servergroups.ServerGroup
 	}
 }
 
-func testAccCheckComputeInstanceInServerGroup(instance *servers.Server, sg *servergroups.ServerGroup) resource.TestCheckFunc {
+func testAccCheckComputeInstanceInServerGroup(instance *cloudservers.CloudServer, sg *servergroups.ServerGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if len(sg.Members) > 0 {
 			for _, m := range sg.Members {
