@@ -19,7 +19,7 @@ resource "huaweicloud_networking_secgroup" "secgroup" {
 resource "huaweicloud_rds_instance" "instance" {
   name                  = "terraform_test_rds_instance"
   flavor                = "rds.pg.n1.large.2"
-  availability_zone     = ["{{ availability_zone }}"]
+  availability_zone     = "{{ availability_zone }}"
   vpc_id                = "{{ vpc_id }}"
   subnet_id             = "{{ subnet_id }}"
   security_group_id     = huaweicloud_networking_secgroup.secgroup.id
@@ -59,7 +59,7 @@ The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) The region in which to create the rds read replica instance resource. If
   omitted, the provider-level region will be used.
-
+  Changing this parameter will create a new resource.
   Currently, read replicas can be created *only* in the same region as that of the primary DB instance.
 
 * `availability_zone` - (Required, String, ForceNew) Specifies the AZ name. Changing this parameter will create a new
