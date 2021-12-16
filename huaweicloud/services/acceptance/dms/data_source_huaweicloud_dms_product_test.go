@@ -9,69 +9,78 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDmsProductV1DataSource_basic(t *testing.T) {
+func TestAccDmsProductDataSource_basic(t *testing.T) {
 	dataSourceName := "data.huaweicloud_dms_product.product1"
 	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckDms(t) },
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDmsProductV1DataSource_basic,
+				Config: testAccDmsProductDataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "engine", "kafka"),
 					resource.TestCheckResourceAttr(dataSourceName, "partition_num", "300"),
 					resource.TestCheckResourceAttr(dataSourceName, "storage", "600"),
+					resource.TestCheckResourceAttr(dataSourceName, "storage_spec_codes.#", "1"),
+					resource.TestCheckResourceAttr(dataSourceName, "storage_spec_code", "dms.physical.storage.high"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "id"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccDmsProductV1DataSource_rabbitmqSingle(t *testing.T) {
+func TestAccDmsProductDataSource_rabbitmqSingle(t *testing.T) {
 	dataSourceName := "data.huaweicloud_dms_product.product1"
 	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckDms(t) },
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDmsProductV1DataSource_rabbitmqSingle,
+				Config: testAccDmsProductDataSource_rabbitmqSingle,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "engine", "rabbitmq"),
 					resource.TestCheckResourceAttr(dataSourceName, "io_type", "high"),
+					resource.TestCheckResourceAttr(dataSourceName, "storage_spec_codes.#", "1"),
+					resource.TestCheckResourceAttr(dataSourceName, "storage_spec_code", "dms.physical.storage.high"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "id"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccDmsProductV1DataSource_rabbitmqCluster(t *testing.T) {
+func TestAccDmsProductDataSource_rabbitmqCluster(t *testing.T) {
 	dataSourceName := "data.huaweicloud_dms_product.product1"
 	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckDms(t) },
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDmsProductV1DataSource_rabbitmqCluster,
+				Config: testAccDmsProductDataSource_rabbitmqCluster,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "engine", "rabbitmq"),
 					resource.TestCheckResourceAttr(dataSourceName, "io_type", "high"),
 					resource.TestCheckResourceAttr(dataSourceName, "storage_spec_code", "dms.physical.storage.high"),
+					resource.TestCheckResourceAttr(dataSourceName, "storage_spec_codes.#", "1"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "node_num"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "id"),
 				),
 			},
 		},
 	})
 }
 
-var testAccDmsProductV1DataSource_basic = fmt.Sprintf(`
+var testAccDmsProductDataSource_basic = fmt.Sprintf(`
 data "huaweicloud_dms_product" "product1" {
   engine            = "kafka"
   version           = "1.1.0"
@@ -82,7 +91,7 @@ data "huaweicloud_dms_product" "product1" {
 }
 `)
 
-var testAccDmsProductV1DataSource_rabbitmqSingle = fmt.Sprintf(`
+var testAccDmsProductDataSource_rabbitmqSingle = fmt.Sprintf(`
 data "huaweicloud_dms_product" "product1" {
   engine            = "rabbitmq"
   instance_type     = "single"
@@ -90,7 +99,7 @@ data "huaweicloud_dms_product" "product1" {
 }
 `)
 
-var testAccDmsProductV1DataSource_rabbitmqCluster = fmt.Sprintf(`
+var testAccDmsProductDataSource_rabbitmqCluster = fmt.Sprintf(`
 data "huaweicloud_dms_product" "product1" {
   engine            = "rabbitmq"
   instance_type     = "cluster"

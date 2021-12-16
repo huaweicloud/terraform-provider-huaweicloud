@@ -33,7 +33,8 @@ data "huaweicloud_dms_product" "product1" {
 
 * `vm_specification` - (Optional, String) Indicates VM specifications.
 
-* `storage` - (Optional, String) Indicates the message storage space.
+* `storage` - (Optional, String) Indicates the storage capacity of the resource.
+  The default value is the storage capacity of the product.
 
 * `bandwidth` - (Optional, String) Indicates the baseline bandwidth of a Kafka instance.
 
