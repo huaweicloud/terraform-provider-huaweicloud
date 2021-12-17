@@ -40,6 +40,10 @@ func DataSourceDmsAZ() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"ipv6_enable": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -95,6 +99,7 @@ func dataSourceDmsAZRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("code", az.Code),
 		d.Set("name", az.Name),
 		d.Set("port", az.Port),
+		d.Set("ipv6_enable", az.Ipv6Enable),
 	)
 	if mErr.ErrorOrNil() != nil {
 		return fmtp.DiagErrorf("Error setting DMS AZ attributes: %s", mErr)
