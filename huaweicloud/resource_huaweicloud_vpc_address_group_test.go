@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestResourceVpcAddressGroupV3(t *testing.T) {
+func TestAccResourceVpcAddressGroupV3(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
