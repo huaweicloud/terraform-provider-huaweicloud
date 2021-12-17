@@ -653,6 +653,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_peering_connection_accepter_v2": vpc.ResourceVpcPeeringConnectionAccepterV2(),
 			"huaweicloud_vpc_route_v2":                       vpc.ResourceVPCRouteV2(),
 			"huaweicloud_vpc_subnet_v1":                      vpc.ResourceVpcSubnetV1(),
+			"huaweicloud_vpc_address_group":                  ResourceVpcAddressGroupV3(),
 			"huaweicloud_cce_cluster_v3":                     ResourceCCEClusterV3(),
 			"huaweicloud_cce_node_v3":                        ResourceCCENodeV3(),
 			"huaweicloud_as_configuration_v1":                ResourceASConfiguration(),
