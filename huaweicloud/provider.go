@@ -688,6 +688,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_networking_vip_associate_v2":        resourceNetworkingVIPAssociateV2(),
 			"huaweicloud_fgs_function_v2":                    fgs.ResourceFgsFunctionV2(),
 			"huaweicloud_cdn_domain_v1":                      resourceCdnDomainV1(),
+			"huaweicloud_tms_tags":                           ResourceTMSTagsV1(),
 			// Deprecated
 			"huaweicloud_blockstorage_volume_v2":             resourceBlockStorageVolumeV2(),
 			"huaweicloud_networking_network_v2":              resourceNetworkingNetworkV2(),
