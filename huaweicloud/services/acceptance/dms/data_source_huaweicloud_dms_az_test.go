@@ -14,7 +14,7 @@ func TestAccDmsAZDataSource_basic(t *testing.T) {
 	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckDms(t) },
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
@@ -22,6 +22,7 @@ func TestAccDmsAZDataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSourceName, "code"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "ipv6_enable"),
 				),
 			},
 		},

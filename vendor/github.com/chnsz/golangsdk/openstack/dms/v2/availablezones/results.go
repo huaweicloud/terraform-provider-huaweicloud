@@ -1,9 +1,5 @@
 package availablezones
 
-import (
-	"github.com/chnsz/golangsdk"
-)
-
 // GetResponse response
 type GetResponse struct {
 	RegionID       string          `json:"regionId"`
@@ -17,16 +13,8 @@ type AvailableZone struct {
 	Name                 string `json:"name"`
 	Port                 string `json:"port"`
 	ResourceAvailability string `json:"resource_availability"`
-}
-
-// GetResult contains the body of getting detailed
-type GetResult struct {
-	golangsdk.Result
-}
-
-// Extract from GetResult
-func (r GetResult) Extract() (*GetResponse, error) {
-	var s GetResponse
-	err := r.Result.ExtractInto(&s)
-	return &s, err
+	SoldOut              bool   `json:"soldOut"`
+	DefaultAz            bool   `json:"default_az"`
+	RemainTime           uint64 `json:"remain_time"`
+	Ipv6Enable           bool   `json:"ipv6_enable"`
 }

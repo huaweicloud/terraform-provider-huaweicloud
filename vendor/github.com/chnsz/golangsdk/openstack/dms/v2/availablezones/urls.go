@@ -6,8 +6,8 @@ import (
 	"github.com/chnsz/golangsdk"
 )
 
-// endpoint/availablezones
-const resourcePath = "availableZones"
+// endpoint/available-zones
+const resourcePath = "available-zones"
 
 // getURL will build the get url of get function
 func getURL(client *golangsdk.ServiceClient) string {

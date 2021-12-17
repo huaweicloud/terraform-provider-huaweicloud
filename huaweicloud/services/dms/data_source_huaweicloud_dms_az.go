@@ -3,12 +3,13 @@ package dms
 import (
 	"context"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
-	"github.com/chnsz/golangsdk/openstack/dms/v1/availablezones"
+	"github.com/chnsz/golangsdk/openstack/dms/v2/availablezones"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -45,12 +46,12 @@ func DataSourceDmsAZ() *schema.Resource {
 
 func dataSourceDmsAZRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
+	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud kms key client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud DMS key client V2: %s", err)
 	}
 
-	v, err := availablezones.Get(dmsV1Client).Extract()
+	v, err := availablezones.Get(dmsV2Client)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -60,7 +61,7 @@ func dataSourceDmsAZRead(_ context.Context, d *schema.ResourceData, meta interfa
 	if v.RegionID == config.GetRegion(d) {
 		AZs := v.AvailableZones
 		for _, newAZ := range AZs {
-			if newAZ.ResourceAvailability != "true" {
+			if newAZ.ResourceAvailability != "true" || newAZ.SoldOut {
 				continue
 			}
 
@@ -90,9 +91,13 @@ func dataSourceDmsAZRead(_ context.Context, d *schema.ResourceData, meta interfa
 	logp.Printf("[DEBUG] Dms az : %+v", az)
 
 	d.SetId(az.ID)
-	d.Set("code", az.Code)
-	d.Set("name", az.Name)
-	d.Set("port", az.Port)
-
+	mErr := multierror.Append(
+		d.Set("code", az.Code),
+		d.Set("name", az.Name),
+		d.Set("port", az.Port),
+	)
+	if mErr.ErrorOrNil() != nil {
+		return fmtp.DiagErrorf("Error setting DMS AZ attributes: %s", mErr)
+	}
 	return nil
 }
