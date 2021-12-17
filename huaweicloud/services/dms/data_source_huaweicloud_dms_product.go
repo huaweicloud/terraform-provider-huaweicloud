@@ -55,6 +55,12 @@ func DataSourceDmsProduct() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"availability_zones": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"vm_specification": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -146,6 +152,7 @@ func dataSourceDmsProductRead(_ context.Context, d *schema.ResourceData, meta in
 	version := d.Get("version").(string)
 
 	partitionNum := d.Get("partition_num").(string)
+	filterAZs := d.Get("availability_zones").([]interface{})
 
 	filteredProducts := make([]products.Detail, 0)
 	isFound := false
@@ -175,6 +182,9 @@ func dataSourceDmsProductRead(_ context.Context, d *schema.ResourceData, meta in
 					if storage != "" && detail.Storage != storage {
 						continue
 					}
+					if !filterAZ(detail.AvailableZones, filterAZs) {
+						continue
+					}
 
 					IOs := getIObyIOtype(d, detail.IOs)
 					if len(IOs) == 0 {
@@ -188,6 +198,9 @@ func dataSourceDmsProductRead(_ context.Context, d *schema.ResourceData, meta in
 							continue
 						}
 						if nodeNum != "" && productInfo.NodeNum != nodeNum {
+							continue
+						}
+						if !filterAZ(productInfo.AvailableZones, filterAZs) {
 							continue
 						}
 
@@ -238,6 +251,7 @@ func dataSourceDmsProductRead(_ context.Context, d *schema.ResourceData, meta in
 			d.Set("storage_spec_code", pd.IOs[0].StorageSpecCode),
 			d.Set("storage_spec_codes", storageSpecCodes),
 			d.Set("io_type", pd.IOs[0].IOType),
+			d.Set("availability_zones", pd.AvailableZones),
 		)
 	} else {
 		if len(pd.ProductInfos) < 1 {
@@ -257,6 +271,7 @@ func dataSourceDmsProductRead(_ context.Context, d *schema.ResourceData, meta in
 			d.Set("node_num", pdInfo.NodeNum),
 			d.Set("storage_spec_codes", storageSpecCodes),
 			d.Set("storage_spec_code", pdInfo.IOs[0].StorageSpecCode),
+			d.Set("availability_zones", pdInfo.AvailableZones),
 		)
 	}
 	logp.Printf("[DEBUG] DMS product detail : %#v", pd)
@@ -265,4 +280,25 @@ func dataSourceDmsProductRead(_ context.Context, d *schema.ResourceData, meta in
 	}
 
 	return nil
+}
+
+func filterAZ(azs []string, filterAZs []interface{}) bool {
+	if len(azs) == 0 {
+		return false
+	}
+	if len(filterAZs) == 0 {
+		return true
+	}
+
+	validAZMap := map[string]bool{}
+	for _, v := range azs {
+		validAZMap[v] = true
+	}
+
+	for _, v := range filterAZs {
+		if _, ok := validAZMap[v.(string)]; !ok {
+			return false
+		}
+	}
+	return true
 }
