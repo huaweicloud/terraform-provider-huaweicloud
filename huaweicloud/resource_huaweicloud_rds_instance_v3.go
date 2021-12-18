@@ -418,7 +418,10 @@ func resourceRdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 		privateIps[i] = v
 	}
 	d.Set("private_ips", privateIps)
-	d.Set("fixed_ip", privateIps[0])
+	// If the creation of the RDS instance is failed, the length of the private IP list will be zero.
+	if len(privateIps) > 0 {
+		d.Set("fixed_ip", privateIps[0])
+	}
 
 	volume := make([]map[string]interface{}, 1)
 	volume[0] = map[string]interface{}{
