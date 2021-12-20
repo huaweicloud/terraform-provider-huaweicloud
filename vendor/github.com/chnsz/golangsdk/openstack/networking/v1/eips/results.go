@@ -40,6 +40,7 @@ type PublicIp struct {
 	OrderID                  string   `json:"order_id"`
 	CreateTime               string   `json:"create_time"`
 	BandwidthID              string   `json:"bandwidth_id"`
+	BandwidthName            string   `json:"bandwidth_name"`
 	BandwidthSize            int      `json:"bandwidth_size"`
 	BandwidthShareType       string   `json:"bandwidth_share_type"`
 	EnterpriseProjectID      string   `json:"enterprise_project_id"`

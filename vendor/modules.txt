@@ -56,7 +56,7 @@ github.com/aws/aws-sdk-go/service/sts
 github.com/aws/aws-sdk-go/service/sts/stsiface
 # github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d
 github.com/bgentry/go-netrc/netrc
-# github.com/chnsz/golangsdk v0.0.0-20211210025418-bfef50238f46
+# github.com/chnsz/golangsdk v0.0.0-20211220062704-6fcf8f15ce8f
 ## explicit
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/internal
