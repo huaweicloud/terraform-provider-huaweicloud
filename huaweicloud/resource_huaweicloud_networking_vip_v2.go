@@ -8,7 +8,9 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -35,11 +37,12 @@ func resourceNetworkingVIPV2() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"subnet_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+			"ip_version": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntInSlice([]int{4, 6}),
 			},
 			"ip_address": {
 				Type:     schema.TypeString,
@@ -56,10 +59,6 @@ func resourceNetworkingVIPV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"tenant_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"device_owner": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -67,6 +66,15 @@ func resourceNetworkingVIPV2() *schema.Resource {
 			"mac_address": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+
+			"subnet_id": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				Computed:      true,
+				ConflictsWith: []string{"ip_version"},
+				Deprecated:    "use ip_version instead",
 			},
 		},
 	}
@@ -79,38 +87,46 @@ func resourceNetworkingVIPV2Create(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
-
-	networkID := d.Get("network_id").(string)
-	createOpts := ports.CreateOpts{
-		Name:        d.Get("name").(string),
-		NetworkID:   networkID,
-		DeviceOwner: "neutron:VIP_PORT",
+	vpcClient, err := config.NetworkingV1Client(region)
+	if err != nil {
+		return fmtp.Errorf("Error creating Huaweicloud VPC client: %s", err)
 	}
 
-	// Contruct fixed ip
+	networkID := d.Get("network_id").(string)
+	n, err := subnets.Get(vpcClient, networkID).Extract()
+	if err != nil {
+		return fmtp.Errorf("Error retrieving Huaweicloud Subnet %s: %s", networkID, err)
+	}
+
+	// validate the value of subnet_id
 	subnetID := d.Get("subnet_id").(string)
-	fixedIP := d.Get("ip_address").(string)
-	if subnetID != "" || fixedIP != "" {
-		vpcClient, err := config.NetworkingV1Client(region)
-		if err != nil {
-			return fmtp.Errorf("Error creating Huaweicloud VPC client: %s", err)
-		}
+	if subnetID != "" && subnetID != n.SubnetId && subnetID != n.IPv6SubnetId {
+		return fmtp.Errorf("Error invalid value of subnet_id %s, expect to %s or %s",
+			subnetID, n.SubnetId, n.IPv6SubnetId)
+	}
 
-		n, err := subnets.Get(vpcClient, networkID).Extract()
-		if err != nil {
-			return fmtp.Errorf("Error retrieving Huaweicloud Subnet %s: %s", networkID, err)
+	// update subnetID for IPv6
+	ipVersion := d.Get("ip_version").(int)
+	if ipVersion == 6 {
+		if n.IPv6SubnetId == "" {
+			return fmtp.Errorf("the subnet does not support IPv6, please enable IPv6 first")
 		}
+		subnetID = n.IPv6SubnetId
+	} else {
+		subnetID = n.SubnetId
+	}
 
-		if subnetID != "" && subnetID != n.SubnetId {
-			return fmtp.Errorf("Error invalid value of subnet_id %s, expect to %s", subnetID, n.SubnetId)
-		}
+	fixip := make([]ports.IP, 1)
+	fixip[0] = ports.IP{
+		SubnetID:  subnetID,
+		IPAddress: d.Get("ip_address").(string),
+	}
 
-		fixip := make([]ports.IP, 1)
-		fixip[0] = ports.IP{
-			SubnetID:  n.SubnetId,
-			IPAddress: fixedIP,
-		}
-		createOpts.FixedIPs = fixip
+	createOpts := ports.CreateOpts{
+		Name:        d.Get("name").(string),
+		DeviceOwner: "neutron:VIP_PORT",
+		NetworkID:   networkID,
+		FixedIPs:    fixip,
 	}
 
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -153,8 +169,14 @@ func resourceNetworkingVIPV2Read(d *schema.ResourceData, meta interface{}) error
 	// Computed values
 	d.Set("network_id", vip.NetworkID)
 	if len(vip.FixedIPs) > 0 {
+		addr := vip.FixedIPs[0].IPAddress
+		d.Set("ip_address", addr)
 		d.Set("subnet_id", vip.FixedIPs[0].SubnetID)
-		d.Set("ip_address", vip.FixedIPs[0].IPAddress)
+		if utils.IsIPv4Address(addr) {
+			d.Set("ip_version", 4)
+		} else {
+			d.Set("ip_version", 6)
+		}
 	} else {
 		d.Set("subnet_id", "")
 		d.Set("ip_address", "")
@@ -162,7 +184,6 @@ func resourceNetworkingVIPV2Read(d *schema.ResourceData, meta interface{}) error
 
 	d.Set("name", vip.Name)
 	d.Set("status", vip.Status)
-	d.Set("tenant_id", vip.TenantID)
 	d.Set("device_owner", vip.DeviceOwner)
 	d.Set("mac_address", vip.MACAddress)
 
