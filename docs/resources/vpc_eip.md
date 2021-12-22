@@ -47,12 +47,15 @@ resource "huaweicloud_vpc_eip" "eip_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the eip resource. If omitted, the provider-level
-  region will be used. Changing this creates a new eip resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the EIP resource. If omitted, the provider-level
+  region will be used. Changing this creates a new resource.
 
 * `publicip` - (Required, List) The elastic IP address object.
 
 * `bandwidth` - (Required, List) The bandwidth object.
+
+* `name` - (Optional, String) Specifies the name of the elastic IP. The value can contain 1 to 64 characters,
+  including letters, digits, underscores (_), hyphens (-), and periods (.).
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the elastic IP.
 
@@ -75,18 +78,22 @@ The following arguments are supported:
 
 The `publicip` block supports:
 
-* `type` - (Required, String, ForceNew) The type of the eip. Changing this creates a new eip.
+* `type` - (Optional, String, ForceNew) Specifies the EIP type. Possible values are *5_bgp* (dynamic BGP)
+  and *5_sbgp* (static BGP), the default value is *5_bgp*. Changing this creates a new resource.
 
-* `ip_address` - (Optional, String, ForceNew) The value must be a valid IP address in the available IP address segment.
-  Changing this creates a new eip.
+* `ip_address` - (Optional, String, ForceNew) Specifies the EIP to be assigned. The value must be a valid **IPv4**
+  address in the available IP address range. The system automatically assigns an EIP if you do not specify it.
+  Changing this creates a new resource.
 
-* `port_id` - (Optional, String) The port id which this eip will associate with. If the value is "" or this not
-  specified, the eip will be in unbind state.
+* `ip_version` - (Optional, Int) Specifies the IP version, either 4 (default) or 6.
+
+* `port_id` - (Optional, String) The port id which this EIP will associate with. If the value is "" or not
+  specified, the EIP will be in unbind state.
 
 The `bandwidth` block supports:
 
 * `share_type` - (Required, String, ForceNew) Whether the bandwidth is dedicated or shared. Changing this creates a new
-  eip. Possible values are as follows:
+  resource. Possible values are as follows:
   + *PER*: Dedicated bandwidth
   + *WHOLE*: Shared bandwidth
 
@@ -97,18 +104,20 @@ The `bandwidth` block supports:
   when `share_type` is set to *PER*.
 
 * `id` - (Optional, String, ForceNew) The shared bandwidth id. This parameter is mandatory when
-  `share_type` is set to *WHOLE*. Changing this creates a new eip.
+  `share_type` is set to *WHOLE*. Changing this creates a new resource.
 
 * `charge_mode` - (Optional, String, ForceNew) Specifies whether the bandwidth is billed by traffic or by bandwidth
-  size. The value can be *traffic* or *bandwidth*. Changing this creates a new eip.
+  size. The value can be *traffic* or *bandwidth*. Changing this creates a new resource.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID in UUID format.
-* `address` - The IP address of the eip.
-* `status` - The status of eip.
+* `address` - The IPv4 address of the EIP.
+* `ipv6_address` - The IPv6 address of the EIP.
+* `private_ip` - The private IP address bound to the EIP.
+* `status` - The status of EIP.
 
 ## Timeouts
 
