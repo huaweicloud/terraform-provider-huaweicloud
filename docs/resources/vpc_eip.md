@@ -94,17 +94,17 @@ The `bandwidth` block supports:
 
 * `share_type` - (Required, String, ForceNew) Whether the bandwidth is dedicated or shared. Changing this creates a new
   resource. Possible values are as follows:
-  + *PER*: Dedicated bandwidth
-  + *WHOLE*: Shared bandwidth
+  + **PER**: Dedicated bandwidth
+  + **WHOLE**: Shared bandwidth
 
 * `name` - (Optional, String) The bandwidth name, which is a string of 1 to 64 characters that contain letters, digits,
-  underscores (_), and hyphens (-). This parameter is mandatory when `share_type` is set to *PER*.
+  underscores (_), and hyphens (-). This parameter is mandatory when `share_type` is set to **PER**.
 
 * `size` - (Optional, Int) The bandwidth size. The value ranges from 1 to 300 Mbit/s. This parameter is mandatory
-  when `share_type` is set to *PER*.
+  when `share_type` is set to **PER**.
 
 * `id` - (Optional, String, ForceNew) The shared bandwidth id. This parameter is mandatory when
-  `share_type` is set to *WHOLE*. Changing this creates a new resource.
+  `share_type` is set to **WHOLE**. Changing this creates a new resource.
 
 * `charge_mode` - (Optional, String, ForceNew) Specifies whether the bandwidth is billed by traffic or by bandwidth
   size. The value can be *traffic* or *bandwidth*. Changing this creates a new resource.

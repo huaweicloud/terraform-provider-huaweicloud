@@ -26,6 +26,7 @@ func TestAccVpcEipDataSource_basic(t *testing.T) {
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "status", "UNBOUND"),
 					resource.TestCheckResourceAttr(dataSourceName, "type", "5_bgp"),
+					resource.TestCheckResourceAttr(dataSourceName, "ip_version", "4"),
 					resource.TestCheckResourceAttr(dataSourceName, "bandwidth_size", "5"),
 					resource.TestCheckResourceAttr(dataSourceName, "bandwidth_share_type", "PER"),
 				),
