@@ -348,6 +348,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_obs_bucket_object":                    DataSourceObsBucketObject(),
 			"huaweicloud_rds_flavors":                          rds.DataSourceRdsFlavor(),
 			"huaweicloud_rds_engine_versions":                  rds.DataSourceRdsEngineVersionsV3(),
+			"huaweicloud_rds_instances":                        rds.DataSourceRdsInstances(),
 			"huaweicloud_sfs_file_system":                      DataSourceSFSFileSystemV2(),
 			"huaweicloud_vbs_backup_policy":                    dataSourceVBSBackupPolicyV2(),
 			"huaweicloud_vbs_backup":                           dataSourceVBSBackupV2(),
