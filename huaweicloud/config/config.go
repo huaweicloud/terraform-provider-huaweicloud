@@ -704,6 +704,14 @@ func (c *Config) BmsV1Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 // ********** client for Storage **********
+func (c *Config) BlockStorageV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("evsv1", region)
+}
+
+func (c *Config) BlockStorageV21Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("evsv21", region)
+}
+
 func (c *Config) BlockStorageV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("volumev2", region)
 }

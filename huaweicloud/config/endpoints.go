@@ -128,6 +128,14 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	},
 
 	// ******* catalog for storage ******
+	"evsv1": {
+		Name:    "evs",
+		Version: "v1",
+	},
+	"evsv21": {
+		Name:    "evs",
+		Version: "v2.1",
+	},
 	"volumev2": {
 		Name:    "evs",
 		Version: "v2",

@@ -93,12 +93,20 @@ func testAccCheckEvsSnapshotV2Exists(n string, sp *snapshots.Snapshot) resource.
 
 func testAccEvsSnapshotV2_basic(rName string) string {
 	return fmt.Sprintf(`
-%s
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_evs_volume" "test" {
+  name              = "%s"
+  description       = "Created by acc test"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  volume_type       = "SAS"
+  size              = 12
+}
 
 resource "huaweicloud_evs_snapshot" "test" {
   volume_id   = huaweicloud_evs_volume.test.id
   name        = "%s"
   description = "Daily backup"
 }
-`, testAccEvsVolume_basic(rName), rName)
+`, rName, rName)
 }
