@@ -6,7 +6,7 @@ github.com/apparentlymart/go-cidr/cidr
 github.com/apparentlymart/go-textseg/textseg
 # github.com/apparentlymart/go-textseg/v13 v13.0.0
 github.com/apparentlymart/go-textseg/v13/textseg
-# github.com/chnsz/golangsdk v0.0.0-20211225020530-3788c45a3975
+# github.com/chnsz/golangsdk v0.0.0-20211230113445-8ac8a77cfe95
 ## explicit
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/internal

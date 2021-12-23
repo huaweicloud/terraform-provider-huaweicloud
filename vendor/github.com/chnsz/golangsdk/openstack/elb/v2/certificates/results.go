@@ -40,3 +40,30 @@ func (r ListResult) Extract() (*CertificateList, error) {
 	err := r.ExtractInto(&s)
 	return &s, err
 }
+
+func (r commonResult) Extract() (*Certificate, error) {
+	s := &Certificate{}
+	return s, r.ExtractInto(s)
+}
+
+type commonResult struct {
+	golangsdk.Result
+}
+
+type CreateResult struct {
+	commonResult
+}
+
+// GetResult represents the result of a get operation.
+type GetResult struct {
+	commonResult
+}
+
+type UpdateResult struct {
+	commonResult
+}
+
+// DeleteResult represents the result of a delete operation.
+type DeleteResult struct {
+	golangsdk.ErrResult
+}
