@@ -35,9 +35,8 @@ func resourceLTSStreamV2() *schema.Resource {
 				ForceNew: true,
 			},
 			"filter_count": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:     schema.TypeInt,
+				Computed: true,
 			},
 		},
 	}

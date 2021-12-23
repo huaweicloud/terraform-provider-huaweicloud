@@ -1,9 +1,11 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/chnsz/golangsdk/openstack/lts/huawei/logstreams"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -12,18 +14,20 @@ import (
 
 func TestAccLogTankStreamV2_basic(t *testing.T) {
 	var stream logstreams.LogStream
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLogTankStreamV2Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLogTankStreamV2_basic,
+				Config: testAccLogTankStreamV2_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLogTankStreamV2Exists(
 						"huaweicloud_lts_stream.testacc_stream", &stream),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_lts_stream.testacc_stream", "stream_name", "testacc_stream"),
+					resource.TestCheckResourceAttr("huaweicloud_lts_stream.testacc_stream", "stream_name", rName),
+					resource.TestCheckResourceAttr("huaweicloud_lts_stream.testacc_stream", "filter_count", "0"),
 				),
 			},
 		},
@@ -85,13 +89,15 @@ func testAccCheckLogTankStreamV2Exists(n string, stream *logstreams.LogStream) r
 	}
 }
 
-const testAccLogTankStreamV2_basic = `
+func testAccLogTankStreamV2_basic(rName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_lts_group" "testacc_group" {
-	group_name  = "testacc_group"
-	ttl_in_days = 1
+  group_name  = "%s"
+  ttl_in_days = 1
 }
 resource "huaweicloud_lts_stream" "testacc_stream" {
-  group_id = "${huaweicloud_lts_group.testacc_group.id}"
-  stream_name = "testacc_stream"
+  group_id    = huaweicloud_lts_group.testacc_group.id
+  stream_name = "%s"
 }
-`
+`, rName, rName)
+}
