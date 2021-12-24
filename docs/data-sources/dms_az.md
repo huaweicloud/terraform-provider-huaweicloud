@@ -31,4 +31,4 @@ In addition to all arguments above, the following attributes are exported:
 
 * `port` - Indicates the port number of an AZ.
 
-* `ipv6_enable` - Whether the IPv6 is enabled.
+* `ipv6_enabled` - Whether the IPv6 network is enabled.
