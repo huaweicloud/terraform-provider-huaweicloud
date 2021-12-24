@@ -1,10 +1,15 @@
 ---
-subcategory: "Distributed Message Service (DMS)"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud_dms_az
 
 Use this data source to get the ID of an available HuaweiCloud dms az. This is an alternative to `huaweicloud_dms_az_v1`
+
+!> **WARNING:** It has been deprecated. This data source is used for the `available_zones` of the
+`huaweicloud_dms_kafka_instance` and `huaweicloud_dms_rabbitmq_instance` resource.
+Now argument `available_zones` has been deprecated, instead `availability_zones`,
+this data source will no longer be used.
 
 ## Example Usage
 

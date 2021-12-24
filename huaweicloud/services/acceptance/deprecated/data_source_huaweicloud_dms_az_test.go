@@ -1,4 +1,4 @@
-package dms
+package deprecated
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ func TestAccDmsAZDataSource_basic(t *testing.T) {
 	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
@@ -22,7 +22,7 @@ func TestAccDmsAZDataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSourceName, "code"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "ipv6_enabled"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "ipv6_enable"),
 				),
 			},
 		},
