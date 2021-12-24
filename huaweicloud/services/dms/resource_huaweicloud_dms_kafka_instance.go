@@ -9,8 +9,8 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/dms/v1/availablezones"
-	"github.com/chnsz/golangsdk/openstack/dms/v1/products"
 	"github.com/chnsz/golangsdk/openstack/dms/v2/kafka/instances"
+	"github.com/chnsz/golangsdk/openstack/dms/v2/products"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -657,9 +657,6 @@ func getAvailableZoneIDByCode(config *config.Config, region string, azCodes []in
 	for _, v := range availableZones {
 		mappingData[v.Code] = v
 	}
-
-	logp.Printf("[DEBUG] availability__zone1: \n%#v", availableZones)
-	logp.Printf("[DEBUG] availability__zone2: \n%#v", mappingData)
 
 	azIDs := make([]string, 0, len(azCodes))
 	for _, code := range azCodes {

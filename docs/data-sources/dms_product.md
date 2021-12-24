@@ -25,23 +25,27 @@ data "huaweicloud_dms_product" "product1" {
 * `region` - (Optional, String) The region in which to obtain the dms products. If omitted, the provider-level region
   will be used.
 
-* `engine` - (Required, String) Indicates the name of a message engine.
+* `engine` - (Required, String) Indicates the name of a message engine. The valid values are __kafka__, __rabbitmq__.
+
+* `instance_type` - (Required, String) Indicates an instance type. The valid values are __single__ and __cluster__.
 
 * `version` - (Optional, String) Indicates the version of a message engine.
 
-* `instance_type` - (Required, String) Indicates an instance type. Options: "single" and "cluster"
+* `availability_zones` - (Optional, List) Indicates the list of availability zones with available resources.
 
 * `vm_specification` - (Optional, String) Indicates VM specifications.
 
-* `storage` - (Optional, String) Indicates the message storage space.
+* `storage` - (Optional, String) Indicates the storage capacity of the resource.
+  The default value is the storage capacity of the product.
 
-* `bandwidth` - (Optional, String) Indicates the baseline bandwidth of a Kafka instance.
+* `bandwidth` - (Optional, String) Indicates the baseline bandwidth of a DMS instance.
+  The valid values are __100MB__, __300MB__, __600MB__ and __1200MB__.
 
 * `partition_num` - (Optional, String) Indicates the maximum number of topics that can be created for a Kafka instance.
+  The valid values are __300__, __900__ and __1800__.
 
 * `storage_spec_code` - (Optional, String) Indicates an I/O specification.
-
-* `io_type` - (Optional, String) Indicates an I/O type.
+  The valid values are __dms.physical.storage.high__ and __dms.physical.storage.ultra__.
 
 * `node_num` - (Optional, String) Indicates the number of nodes in a cluster.
 
@@ -49,4 +53,4 @@ data "huaweicloud_dms_product" "product1" {
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a data source ID in UUID format.
+* `id` - The data source ID.
