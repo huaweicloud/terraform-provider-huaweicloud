@@ -22,7 +22,7 @@ func TestAccDmsAZDataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSourceName, "code"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "ipv6_enable"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "ipv6_enabled"),
 				),
 			},
 		},
