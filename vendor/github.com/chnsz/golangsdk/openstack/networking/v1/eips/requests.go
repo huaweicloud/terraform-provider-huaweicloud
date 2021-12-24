@@ -23,8 +23,10 @@ type ApplyOpts struct {
 }
 
 type PublicIpOpts struct {
-	Type    string `json:"type" required:"true"`
-	Address string `json:"ip_address,omitempty"`
+	Type      string `json:"type" required:"true"`
+	Address   string `json:"ip_address,omitempty"`
+	Alias     string `json:"alias,omitempty"`
+	IPVersion int    `json:"ip_version,omitempty"`
 }
 
 type BandwidthOpts struct {
@@ -70,9 +72,12 @@ type UpdateOptsBuilder interface {
 	ToPublicIpUpdateMap() (map[string]interface{}, error)
 }
 
-//UpdateOpts is a struct which represents the request body of update method
+// UpdateOpts is a struct which represents the request body of update method
+// NOTE: ip_version and port_id can not be updated at the same time
 type UpdateOpts struct {
-	PortID string `json:"port_id,omitempty"`
+	PortID    string  `json:"port_id,omitempty"`
+	Alias     *string `json:"alias,omitempty"`
+	IPVersion int     `json:"ip_version,omitempty"`
 }
 
 func (opts UpdateOpts) ToPublicIpUpdateMap() (map[string]interface{}, error) {
