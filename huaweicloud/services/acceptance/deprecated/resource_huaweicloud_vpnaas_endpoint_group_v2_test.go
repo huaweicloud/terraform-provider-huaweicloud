@@ -16,7 +16,7 @@ import (
 func TestAccVpnGroupV2_basic(t *testing.T) {
 	var group endpointgroups.EndpointGroup
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      testAccCheckEndpointGroupV2Destroy,
 		Steps: []resource.TestStep{

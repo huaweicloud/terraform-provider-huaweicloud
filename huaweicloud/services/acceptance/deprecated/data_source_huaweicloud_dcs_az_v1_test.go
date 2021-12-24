@@ -14,7 +14,7 @@ func TestAccDcsAZV1DataSource_basic(t *testing.T) {
 	resourceName := "data.huaweicloud_dcs_az.az1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
