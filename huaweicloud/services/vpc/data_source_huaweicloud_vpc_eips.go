@@ -173,14 +173,11 @@ func dataSourceVpcEipsRead(_ context.Context, d *schema.ResourceData, meta inter
 
 		if resourceTags, err := tags.Get(clientV2, "publicips", item.ID).Extract(); err == nil {
 			tagmap := utils.TagsToMap(resourceTags.Tags)
-			tagsAfterFilter, isMatch := filterByTags(tagmap, tagFilter)
 
-			if !isMatch {
+			if !utils.HasMapContains(tagmap, tagFilter) {
 				continue
 			}
-
-			tagRst = tagsAfterFilter
-
+			tagRst = tagmap
 		} else {
 			return fmtp.DiagErrorf("Error query tags of eip (%s): %s", d.Id(), err)
 		}

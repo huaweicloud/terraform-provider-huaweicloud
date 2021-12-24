@@ -2,7 +2,6 @@ package vpc
 
 import (
 	"context"
-	"strings"
 
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/vpcs"
@@ -134,12 +133,11 @@ func dataSourceVpcsRead(_ context.Context, d *schema.ResourceData, meta interfac
 
 		if resourceTags, err := tags.Get(vpcV2Client, "vpcs", vpcResource.ID).Extract(); err == nil {
 			tagmap := utils.TagsToMap(resourceTags.Tags)
-			tags, isMatch := filterByTags(tagmap, tagFilter)
-			if isMatch {
-				vpc["tags"] = tags
-			} else {
+
+			if !utils.HasMapContains(tagmap, tagFilter) {
 				continue
 			}
+			vpc["tags"] = tagmap
 		} else {
 			return fmtp.DiagErrorf("Error query tags of VPC (%s): %s", d.Id(), err)
 		}
@@ -156,41 +154,4 @@ func dataSourceVpcsRead(_ context.Context, d *schema.ResourceData, meta interfac
 
 	d.SetId(hashcode.Strings(ids))
 	return nil
-}
-
-// if filterTags = {"foo":"a,b"} , the rawTags must hava a key is "foo" and value is "a" OR "b"
-func filterByTags(rawTags map[string]string, filterTags map[string]interface{}) (map[string]string, bool) {
-	if len(filterTags) < 1 {
-		return rawTags, true
-	}
-	if len(filterTags) > 0 && len(rawTags) < 1 {
-		return nil, false
-	}
-
-	isMatch := true
-	for key, value := range filterTags {
-		isMatch = isMatch && isTagMatch(rawTags, key, value.(string))
-	}
-
-	if isMatch {
-		return rawTags, true
-	}
-
-	return nil, false
-}
-
-func isTagMatch(rawTags map[string]string, filterKey, filterValue string) bool {
-	if rawTag, ok := rawTags[filterKey]; ok {
-		if filterValue != "" {
-			filterTagValues := strings.Split(filterValue, ",")
-			return utils.StrSliceContains(filterTagValues, rawTag)
-
-		} else {
-			return true
-		}
-
-	} else {
-		return false
-	}
-
 }

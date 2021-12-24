@@ -266,3 +266,37 @@ func IsIPv4Address(addr string) bool {
 	matched, _ := regexp.MatchString(pattern, addr)
 	return matched
 }
+
+// This function compares whether there is a containment relationship between two maps, that is,
+// whether map A (rawMap) contains map B (filterMap).
+//   Map A is {'foo': 'bar'} and filter map B is {'foo': 'bar'} or {'foo': 'bar,dor'} will return true.
+//   Map A is {'foo': 'bar'} and filter map B is {'foo': 'dor'} or {'foo1': 'bar'} will return false.
+//   Map A is {'foo': 'bar'} and filter map B is {'foo': ''} will return true.
+//   Map A is {'foo': 'bar'} and filter map B is {'': 'bar'} or {'': ''} will return false.
+// The value of filter map 'bar,for' means that the object value can be either 'bar' or 'dor'.
+// Note: There is no spaces before and after the delimiter (,).
+func HasMapContains(rawMap map[string]string, filterMap map[string]interface{}) bool {
+	if len(filterMap) < 1 {
+		return true
+	}
+
+	hasContain := true
+	for key, value := range filterMap {
+		hasContain = hasContain && hasMapContain(rawMap, key, value.(string))
+	}
+
+	return hasContain
+}
+
+func hasMapContain(rawMap map[string]string, filterKey, filterValue string) bool {
+	if rawTag, ok := rawMap[filterKey]; ok {
+		if filterValue != "" {
+			filterTagValues := strings.Split(filterValue, ",")
+			return StrSliceContains(filterTagValues, rawTag)
+		} else {
+			return true
+		}
+	} else {
+		return false
+	}
+}
