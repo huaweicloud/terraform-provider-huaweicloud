@@ -1,15 +1,19 @@
 package huaweicloud
 
 import (
+	"context"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/lbaas_v2/l7policies"
-	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/lbaas_v2/listeners"
-	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/lbaas_v2/pools"
+	"github.com/chnsz/golangsdk/openstack/elb/v2/l7policies"
+	"github.com/chnsz/golangsdk/openstack/elb/v2/listeners"
+	"github.com/chnsz/golangsdk/openstack/elb/v2/pools"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -18,12 +22,12 @@ import (
 
 func ResourceL7PolicyV2() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceL7PolicyV2Create,
-		Read:   resourceL7PolicyV2Read,
-		Update: resourceL7PolicyV2Update,
-		Delete: resourceL7PolicyV2Delete,
+		CreateContext: resourceL7PolicyV2Create,
+		ReadContext:   resourceL7PolicyV2Read,
+		UpdateContext: resourceL7PolicyV2Update,
+		DeleteContext: resourceL7PolicyV2Delete,
 		Importer: &schema.ResourceImporter{
-			State: resourceL7PolicyV2Import,
+			StateContext: resourceL7PolicyV2Import,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -101,11 +105,11 @@ func ResourceL7PolicyV2() *schema.Resource {
 	}
 }
 
-func resourceL7PolicyV2Create(d *schema.ResourceData, meta interface{}) error {
+func resourceL7PolicyV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.ElbV2Client(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	// Assign some required variables for use in creation.
@@ -117,7 +121,7 @@ func resourceL7PolicyV2Create(d *schema.ResourceData, meta interface{}) error {
 	// Ensure the right combination of options have been specified.
 	err = checkL7PolicyAction(action, redirectListenerID, redirectPoolID)
 	if err != nil {
-		return fmtp.Errorf("Unable to create L7 Policy: %s", err)
+		return fmtp.DiagErrorf("Unable to create L7 Policy: %s", err)
 	}
 
 	adminStateUp := d.Get("admin_state_up").(bool)
@@ -144,76 +148,81 @@ func resourceL7PolicyV2Create(d *schema.ResourceData, meta interface{}) error {
 	if redirectPoolID != "" {
 		pool, err := pools.Get(lbClient, redirectPoolID).Extract()
 		if err != nil {
-			return fmtp.Errorf("Unable to retrieve %s: %s", redirectPoolID, err)
+			return fmtp.DiagErrorf("Unable to retrieve %s: %s", redirectPoolID, err)
 		}
 
 		err = waitForLBV2Pool(lbClient, pool.ID, "ACTIVE", lbPendingStatuses, timeout)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	// Get a clean copy of the parent listener.
 	parentListener, err := listeners.Get(lbClient, listenerID).Extract()
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve listener %s: %s", listenerID, err)
+		return fmtp.DiagErrorf("Unable to retrieve listener %s: %s", listenerID, err)
 	}
 
 	// Wait for parent Listener to become active before continuing.
 	err = waitForLBV2Listener(lbClient, parentListener.ID, "ACTIVE", lbPendingStatuses, timeout)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	logp.Printf("[DEBUG] Attempting to create L7 Policy")
 	l7Policy, err := l7policies.Create(lbClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating L7 Policy: %s", err)
+		return fmtp.DiagErrorf("Error creating L7 Policy: %s", err)
 	}
 
 	// Wait for L7 Policy to become active before continuing
 	err = waitForLBV2L7Policy(lbClient, parentListener, l7Policy, "ACTIVE", lbPendingStatuses, timeout)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(l7Policy.ID)
 
-	return resourceL7PolicyV2Read(d, meta)
+	return resourceL7PolicyV2Read(ctx, d, meta)
 }
 
-func resourceL7PolicyV2Read(d *schema.ResourceData, meta interface{}) error {
+func resourceL7PolicyV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.ElbV2Client(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	l7Policy, err := l7policies.Get(lbClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "L7 Policy")
+		return common.CheckDeletedDiag(d, err, "Error retrieving L7 Policy")
 	}
 
 	logp.Printf("[DEBUG] Retrieved L7 Policy %s: %#v", d.Id(), l7Policy)
 
-	d.Set("action", l7Policy.Action)
-	d.Set("description", l7Policy.Description)
-	d.Set("tenant_id", l7Policy.TenantID)
-	d.Set("name", l7Policy.Name)
-	d.Set("position", int(l7Policy.Position))
-	d.Set("redirect_listener_id", l7Policy.RedirectListenerID)
-	d.Set("redirect_pool_id", l7Policy.RedirectPoolID)
-	d.Set("region", GetRegion(d, config))
-	d.Set("admin_state_up", l7Policy.AdminStateUp)
+	mErr := multierror.Append(nil,
+		d.Set("region", config.GetRegion(d)),
+		d.Set("action", l7Policy.Action),
+		d.Set("description", l7Policy.Description),
+		d.Set("tenant_id", l7Policy.TenantID),
+		d.Set("name", l7Policy.Name),
+		d.Set("position", int(l7Policy.Position)),
+		d.Set("redirect_listener_id", l7Policy.RedirectListenerID),
+		d.Set("redirect_pool_id", l7Policy.RedirectPoolID),
+		d.Set("admin_state_up", l7Policy.AdminStateUp),
+	)
+	if err = mErr.ErrorOrNil(); err != nil {
+		return fmtp.DiagErrorf("Error setting L7 Policy fields: %s", err)
+	}
 
 	return nil
 }
 
-func resourceL7PolicyV2Update(d *schema.ResourceData, meta interface{}) error {
+func resourceL7PolicyV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.ElbV2Client(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	// Assign some required variables for use in updating.
@@ -245,7 +254,7 @@ func resourceL7PolicyV2Update(d *schema.ResourceData, meta interface{}) error {
 	// Ensure the right combination of options have been specified.
 	err = checkL7PolicyAction(action, redirectListenerID, redirectPoolID)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Make sure the pool is active before continuing.
@@ -253,42 +262,42 @@ func resourceL7PolicyV2Update(d *schema.ResourceData, meta interface{}) error {
 	if redirectPoolID != "" {
 		pool, err := pools.Get(lbClient, redirectPoolID).Extract()
 		if err != nil {
-			return fmtp.Errorf("Unable to retrieve %s: %s", redirectPoolID, err)
+			return fmtp.DiagErrorf("Unable to retrieve %s: %s", redirectPoolID, err)
 		}
 
 		err = waitForLBV2Pool(lbClient, pool.ID, "ACTIVE", lbPendingStatuses, timeout)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	// Get a clean copy of the parent listener.
 	parentListener, err := listeners.Get(lbClient, listenerID).Extract()
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve parent listener %s: %s", listenerID, err)
+		return fmtp.DiagErrorf("Unable to retrieve parent listener %s: %s", listenerID, err)
 	}
 
 	// Get a clean copy of the L7 Policy.
 	l7Policy, err := l7policies.Get(lbClient, d.Id()).Extract()
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve L7 Policy: %s: %s", d.Id(), err)
+		return fmtp.DiagErrorf("Unable to retrieve L7 Policy: %s: %s", d.Id(), err)
 	}
 
 	// Wait for parent Listener to become active before continuing.
 	err = waitForLBV2Listener(lbClient, parentListener.ID, "ACTIVE", lbPendingStatuses, timeout)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Wait for L7 Policy to become active before continuing
 	err = waitForLBV2L7Policy(lbClient, parentListener, l7Policy, "ACTIVE", lbPendingStatuses, timeout)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	logp.Printf("[DEBUG] Updating L7 Policy %s with options: %#v", d.Id(), updateOpts)
 	//lintignore:R006
-	err = resource.Retry(timeout, func() *resource.RetryError {
+	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		_, err = l7policies.Update(lbClient, d.Id(), updateOpts).Extract()
 		if err != nil {
 			return checkForRetryableError(err)
@@ -297,23 +306,23 @@ func resourceL7PolicyV2Update(d *schema.ResourceData, meta interface{}) error {
 	})
 
 	if err != nil {
-		return fmtp.Errorf("Unable to update L7 Policy %s: %s", d.Id(), err)
+		return fmtp.DiagErrorf("Unable to update L7 Policy %s: %s", d.Id(), err)
 	}
 
 	// Wait for L7 Policy to become active before continuing
 	err = waitForLBV2L7Policy(lbClient, parentListener, l7Policy, "ACTIVE", lbPendingStatuses, timeout)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return resourceL7PolicyV2Read(d, meta)
+	return resourceL7PolicyV2Read(ctx, d, meta)
 }
 
-func resourceL7PolicyV2Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceL7PolicyV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.ElbV2Client(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	timeout := d.Timeout(schema.TimeoutDelete)
@@ -322,24 +331,24 @@ func resourceL7PolicyV2Delete(d *schema.ResourceData, meta interface{}) error {
 	// Get a clean copy of the listener.
 	listener, err := listeners.Get(lbClient, listenerID).Extract()
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve parent listener (%s) for the L7 Policy: %s", listenerID, err)
+		return fmtp.DiagErrorf("Unable to retrieve parent listener (%s) for the L7 Policy: %s", listenerID, err)
 	}
 
 	// Get a clean copy of the L7 Policy.
 	l7Policy, err := l7policies.Get(lbClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "Unable to retrieve L7 Policy")
+		return common.CheckDeletedDiag(d, err, "Unable to retrieve L7 Policy")
 	}
 
 	// Wait for Listener to become active before continuing.
 	err = waitForLBV2Listener(lbClient, listener.ID, "ACTIVE", lbPendingStatuses, timeout)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	logp.Printf("[DEBUG] Attempting to delete L7 Policy %s", d.Id())
 	//lintignore:R006
-	err = resource.Retry(timeout, func() *resource.RetryError {
+	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		err = l7policies.Delete(lbClient, d.Id()).ExtractErr()
 		if err != nil {
 			return checkForRetryableError(err)
@@ -348,20 +357,20 @@ func resourceL7PolicyV2Delete(d *schema.ResourceData, meta interface{}) error {
 	})
 
 	if err != nil {
-		return CheckDeleted(d, err, "Error deleting L7 Policy")
+		return common.CheckDeletedDiag(d, err, "Error deleting L7 Policy")
 	}
 
 	err = waitForLBV2L7Policy(lbClient, listener, l7Policy, "DELETED", lbPendingDeleteStatuses, timeout)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil
 }
 
-func resourceL7PolicyV2Import(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceL7PolicyV2Import(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*config.Config)
-	lbClient, err := config.ElbV2Client(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
 	if err != nil {
 		return nil, fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}

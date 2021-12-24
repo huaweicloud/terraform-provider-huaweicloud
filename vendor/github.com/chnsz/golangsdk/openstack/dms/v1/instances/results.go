@@ -38,11 +38,16 @@ type Instance struct {
 	Engine            string   `json:"engine"`
 	EngineVersion     string   `json:"engine_version"`
 	Specification     string   `json:"specification"`
+	PartitionNum      string   `json:"partition_num"`
+	StorageSpecCode   string   `json:"storage_spec_code"`
 	StorageSpace      int      `json:"storage_space"`
 	UsedStorageSpace  int      `json:"used_storage_space"`
+	TotalStorageSpace int      `json:"total_storage_space"`
 	ConnectAddress    string   `json:"connect_address"`
 	Port              int      `json:"port"`
+	Nodeum            int      `json:"node_num"`
 	Status            string   `json:"status"`
+	SslEnable         bool     `json:"ssl_enable"`
 	Description       string   `json:"description"`
 	InstanceID        string   `json:"instance_id"`
 	ResourceSpecCode  string   `json:"resource_spec_code"`

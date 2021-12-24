@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/lbaas_v2/l7policies"
+	"github.com/chnsz/golangsdk/openstack/elb/v2/l7policies"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -43,7 +43,7 @@ func TestAccLBV2L7Policy_basic(t *testing.T) {
 
 func testAccCheckLBV2L7PolicyDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
-	lbClient, err := config.ElbV2Client(HW_REGION_NAME)
+	lbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud load balancing client: %s", err)
 	}
@@ -74,7 +74,7 @@ func testAccCheckLBV2L7PolicyExists(n string, l7Policy *l7policies.L7Policy) res
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
-		lbClient, err := config.ElbV2Client(HW_REGION_NAME)
+		lbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud load balancing client: %s", err)
 		}

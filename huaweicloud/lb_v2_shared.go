@@ -6,11 +6,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/elb/v2/l7policies"
 	"github.com/chnsz/golangsdk/openstack/elb/v2/listeners"
 	loadbalancers_v2 "github.com/chnsz/golangsdk/openstack/elb/v2/loadbalancers"
 	"github.com/chnsz/golangsdk/openstack/elb/v2/pools"
-	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/lbaas_v2/l7policies"
-	listeners_lbass "github.com/chnsz/golangsdk/openstack/networking/v2/extensions/lbaas_v2/listeners"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/lbaas_v2/loadbalancers"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/lbaas_v2/monitors"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -393,7 +392,7 @@ func resourceLBV2LoadBalancerStatusRefreshFuncNeutron(lbClient *golangsdk.Servic
 func resourceLBV2L7PolicyRefreshFunc(lbClient *golangsdk.ServiceClient, lbID string, l7policy *l7policies.L7Policy) resource.StateRefreshFunc {
 	if l7policy.ProvisioningStatus != "" {
 		return func() (interface{}, string, error) {
-			lb, status, err := resourceLBV2LoadBalancerRefreshFunc(lbClient, lbID)()
+			lb, status, err := resourceLBV2LoadBalancerRefreshFunc_v2(lbClient, lbID)()
 			if err != nil {
 				return lb, status, err
 			}
@@ -413,7 +412,7 @@ func resourceLBV2L7PolicyRefreshFunc(lbClient *golangsdk.ServiceClient, lbID str
 	return resourceLBV2LoadBalancerStatusRefreshFuncNeutron(lbClient, lbID, "l7policy", l7policy.ID)
 }
 
-func waitForLBV2L7Policy(lbClient *golangsdk.ServiceClient, parentListener *listeners_lbass.Listener, l7policy *l7policies.L7Policy, target string, pending []string, timeout time.Duration) error {
+func waitForLBV2L7Policy(lbClient *golangsdk.ServiceClient, parentListener *listeners.Listener, l7policy *l7policies.L7Policy, target string, pending []string, timeout time.Duration) error {
 	logp.Printf("[DEBUG] Waiting for l7policy %s to become %s.", l7policy.ID, target)
 
 	if len(parentListener.Loadbalancers) == 0 {
@@ -477,7 +476,7 @@ func getListenerIDForL7Policy(lbClient *golangsdk.ServiceClient, id string) (str
 func resourceLBV2L7RuleRefreshFunc(lbClient *golangsdk.ServiceClient, lbID string, l7policyID string, l7rule *l7policies.Rule) resource.StateRefreshFunc {
 	if l7rule.ProvisioningStatus != "" {
 		return func() (interface{}, string, error) {
-			lb, status, err := resourceLBV2LoadBalancerRefreshFunc(lbClient, lbID)()
+			lb, status, err := resourceLBV2LoadBalancerRefreshFunc_v2(lbClient, lbID)()
 			if err != nil {
 				return lb, status, err
 			}
@@ -497,7 +496,7 @@ func resourceLBV2L7RuleRefreshFunc(lbClient *golangsdk.ServiceClient, lbID strin
 	return resourceLBV2LoadBalancerStatusRefreshFuncNeutron(lbClient, lbID, "l7rule", l7rule.ID)
 }
 
-func waitForLBV2L7Rule(lbClient *golangsdk.ServiceClient, parentListener *listeners_lbass.Listener, parentL7policy *l7policies.L7Policy, l7rule *l7policies.Rule, target string, pending []string, timeout time.Duration) error {
+func waitForLBV2L7Rule(lbClient *golangsdk.ServiceClient, parentListener *listeners.Listener, parentL7policy *l7policies.L7Policy, l7rule *l7policies.Rule, target string, pending []string, timeout time.Duration) error {
 	logp.Printf("[DEBUG] Waiting for l7rule %s to become %s.", l7rule.ID, target)
 
 	if len(parentListener.Loadbalancers) == 0 {

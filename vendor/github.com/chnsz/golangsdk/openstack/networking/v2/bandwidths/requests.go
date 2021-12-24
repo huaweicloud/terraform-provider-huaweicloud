@@ -27,6 +27,7 @@ type CreateOptsBuilder interface {
 type CreateOpts struct {
 	Name                string `json:"name" required:"true"`
 	Size                *int   `json:"size" required:"true"`
+	ChargeMode          string `json:"charge_mode,omitempty"`
 	EnterpriseProjectId string `json:"enterprise_project_id,omitempty"`
 }
 
@@ -88,7 +89,8 @@ func (opts BandWidthRemoveOpts) ToBandWidthBatchRemoveMap() (map[string]interfac
 }
 
 type PublicIpInfoID struct {
-	PublicIPID string `json:"publicip_id" required:"true"`
+	PublicIPID   string `json:"publicip_id" required:"true"`
+	PublicIPType string `json:"publicip_type,omitempty"`
 }
 
 func Insert(client *golangsdk.ServiceClient, bandwidthID string, opts BandWidthInsertOptsBuilder) (r CreateResult) {
