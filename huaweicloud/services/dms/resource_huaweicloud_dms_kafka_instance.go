@@ -8,7 +8,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/dms/v1/availablezones"
+	"github.com/chnsz/golangsdk/openstack/dms/v2/availablezones"
 	"github.com/chnsz/golangsdk/openstack/dms/v2/kafka/instances"
 	"github.com/chnsz/golangsdk/openstack/dms/v2/products"
 	"github.com/hashicorp/go-multierror"
@@ -696,12 +696,12 @@ func getAvailableZoneCodeByID(config *config.Config, region string, azIDs []stri
 }
 
 func getAvailableZones(config *config.Config, region string) ([]availablezones.AvailableZone, error) {
-	dmsV1Client, err := config.DmsV1Client(region)
+	dmsV2Client, err := config.DmsV2Client(region)
 	if err != nil {
-		return nil, fmtp.Errorf("Error creating HuaweiCloud DMS v1 client: %s", err)
+		return nil, fmtp.Errorf("Error creating HuaweiCloud DMS client V2 : %s", err)
 	}
 
-	r, err := availablezones.Get(dmsV1Client).Extract()
+	r, err := availablezones.Get(dmsV2Client)
 	if err != nil {
 		return nil, fmtp.Errorf("Error querying available Zones: %s", err)
 	}
