@@ -93,11 +93,11 @@ github.com/chnsz/golangsdk/openstack/dli/v2/spark/resources
 github.com/chnsz/golangsdk/openstack/dms/v1/availablezones
 github.com/chnsz/golangsdk/openstack/dms/v1/groups
 github.com/chnsz/golangsdk/openstack/dms/v1/instances
-github.com/chnsz/golangsdk/openstack/dms/v1/maintainwindows
-github.com/chnsz/golangsdk/openstack/dms/v1/products
 github.com/chnsz/golangsdk/openstack/dms/v1/queues
 github.com/chnsz/golangsdk/openstack/dms/v2/kafka/instances
 github.com/chnsz/golangsdk/openstack/dms/v2/kafka/topics
+github.com/chnsz/golangsdk/openstack/dms/v2/maintainwindows
+github.com/chnsz/golangsdk/openstack/dms/v2/products
 github.com/chnsz/golangsdk/openstack/dms/v2/rabbitmq/instances
 github.com/chnsz/golangsdk/openstack/dns/v2/ptrrecords
 github.com/chnsz/golangsdk/openstack/dns/v2/recordsets

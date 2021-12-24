@@ -4,12 +4,14 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
-	"github.com/chnsz/golangsdk/openstack/dms/v1/maintainwindows"
+	"github.com/chnsz/golangsdk/openstack/dms/v2/maintainwindows"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -51,48 +53,51 @@ func DataSourceDmsMaintainWindow() *schema.Resource {
 
 func dataSourceDmsMaintainWindowRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
+	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud dms client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud DMS client V2: %s", err)
 	}
 
-	v, err := maintainwindows.Get(dmsV1Client).Extract()
+	maintainWindows, err := maintainwindows.Get(dmsV2Client)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	maintainWindows := v.MaintainWindows
-	var filteredMVs []maintainwindows.MaintainWindow
-	for _, mv := range maintainWindows {
-		seq := d.Get("seq").(int)
-		if seq != 0 && mv.ID != seq {
-			continue
-		}
-
-		begin := d.Get("begin").(string)
-		if begin != "" && mv.Begin != begin {
-			continue
-		}
-		end := d.Get("end").(string)
-		if end != "" && mv.End != end {
-			continue
-		}
-
-		df := d.Get("default").(bool)
-		if mv.Default != df {
-			continue
-		}
-		filteredMVs = append(filteredMVs, mv)
+	filter := make(map[string]interface{})
+	if v, ok := d.GetOk("seq"); ok {
+		filter["ID"] = v.(int)
 	}
-	if len(filteredMVs) < 1 {
+	if v, ok := d.GetOk("begin"); ok {
+		filter["Begin"] = v.(string)
+	}
+	if v, ok := d.GetOk("end"); ok {
+		filter["End"] = v.(string)
+	}
+	if v, ok := d.GetOk("default"); ok {
+		filter["Default"] = v.(bool)
+	}
+
+	data, err := utils.FilterSliceWithZeroField(maintainWindows, filter)
+	if err != nil {
+		return fmtp.DiagErrorf("Error filtering DMS maintain window data, %s", err)
+	}
+	if len(data) < 1 {
 		return fmtp.DiagErrorf("Your query returned no results. Please change your filters and try again.")
 	}
-	mw := filteredMVs[0]
+
+	mw := data[0].(maintainwindows.MaintainWindow)
+	logp.Printf("[DEBUG] Dms MaintainWindow : %#v", mw)
+
 	d.SetId(strconv.Itoa(mw.ID))
-	d.Set("begin", mw.Begin)
-	d.Set("end", mw.End)
-	d.Set("default", mw.Default)
-	logp.Printf("[DEBUG] Dms MaintainWindow : %+v", mw)
+	mErr := multierror.Append(
+		d.Set("seq", mw.ID),
+		d.Set("begin", mw.Begin),
+		d.Set("end", mw.End),
+		d.Set("default", mw.Default),
+	)
+	if mErr.ErrorOrNil() != nil {
+		return fmtp.DiagErrorf("error setting DMS maintain window attributes: %s", mErr)
+	}
 
 	return nil
 }
