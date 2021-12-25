@@ -16,6 +16,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -73,15 +74,23 @@ func getInstanceAddresses(d *schema.ResourceData, meta interface{}, server *clou
 		return nil, fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
-	allInstanceNics := make([]InstanceNIC, 0)
 	var networkID string
+	var lastPort string
+	allInstanceNics := make([]InstanceNIC, 0)
 	for _, addresses := range server.Addresses {
 		for _, addr := range addresses {
-			// Skip if not fixed ip
+			// skip if not fixed ip
 			if addr.Type != "fixed" {
 				continue
 			}
 
+			// IPv4 nic and IPv6 nic have the same port ID, and
+			// they are continuous in the array, so skip one of them.
+			if lastPort == addr.PortID {
+				continue
+			}
+
+			lastPort = addr.PortID
 			p, err := ports.Get(networkingClient, addr.PortID).Extract()
 			if err != nil {
 				networkID = ""
@@ -96,17 +105,24 @@ func getInstanceAddresses(d *schema.ResourceData, meta interface{}, server *clou
 				MAC:             addr.MacAddr,
 				SourceDestCheck: len(p.AllowedAddressPairs) == 0,
 			}
-			if addr.Version == "6" {
-				instanceNIC.FixedIPv6 = addr.Addr
-			} else {
-				instanceNIC.FixedIPv4 = addr.Addr
+
+			for _, portIP := range p.FixedIPs {
+				if portIP.IPAddress == "" {
+					continue
+				}
+
+				if utils.IsIPv4Address(portIP.IPAddress) {
+					instanceNIC.FixedIPv4 = portIP.IPAddress
+				} else {
+					instanceNIC.FixedIPv6 = portIP.IPAddress
+				}
 			}
 
 			allInstanceNics = append(allInstanceNics, instanceNIC)
 		}
 	}
 
-	logp.Printf("[DEBUG] get all of the Instance Addresses: %#v", allInstanceNics)
+	logp.Printf("[DEBUG] get all of the Instance Addresses from cloud: %#v", allInstanceNics)
 
 	return allInstanceNics, nil
 }
@@ -128,7 +144,7 @@ func getAllInstanceNetworks(d *schema.ResourceData) []InstanceNetwork {
 		instanceNetworks = append(instanceNetworks, network)
 	}
 
-	logp.Printf("[DEBUG] get all of the Instance Networks: %#v", instanceNetworks)
+	logp.Printf("[DEBUG] get all of the Instance Networks from config: %#v", instanceNetworks)
 	return instanceNetworks
 }
 
@@ -163,6 +179,7 @@ func flattenInstanceNetworks(
 					"port":              nic.PortID,
 					"fixed_ip_v4":       nic.FixedIPv4,
 					"fixed_ip_v6":       nic.FixedIPv6,
+					"ipv6_enable":       nic.FixedIPv6 != "",
 					"source_dest_check": nic.SourceDestCheck,
 					"mac":               nic.MAC,
 					"access_network":    instanceNetwork.AccessNetwork,

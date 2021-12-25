@@ -298,6 +298,9 @@ The `network` block supports:
 * `fixed_ip_v4` - (Optional, String, ForceNew) Specifies a fixed IPv4 address to be used on this network.
   Changing this creates a new instance.
 
+* `ipv6_enable` - (Optional, Bool, ForceNew) Specifies whether the IPv6 function is enabled for the nic.
+  Defaults to false. Changing this creates a new instance.
+
 * `source_dest_check` - (Optional, Bool) Specifies whether the ECS processes only traffic that is destined specifically
   for it. This function is enabled by default but should be disabled if the ECS functions as a SNAT server or has a
   virtual IP address bound to it.
@@ -336,6 +339,7 @@ In addition to all arguments above, the following attributes are exported:
 * `public_ip` - The EIP address that is associted to the instance.
 * `access_ip_v4` - The first detected Fixed IPv4 address _or_ the Floating IP.
 * `network/fixed_ip_v4` - The Fixed IPv4 address of the Instance on that network.
+* `network/fixed_ip_v6` - The Fixed IPv6 address of the Instance on that network.
 * `network/mac` - The MAC address of the NIC on that network.
 * `network/port` - The port ID corresponding to the IP address on that network.
 * `volume_attached/volume_id` - The volume id on that attachment.
