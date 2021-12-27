@@ -16,7 +16,7 @@ import (
 func TestAccVpnServiceV2_basic(t *testing.T) {
 	var service services.Service
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      testAccCheckVpnServiceV2Destroy,
 		Steps: []resource.TestStep{

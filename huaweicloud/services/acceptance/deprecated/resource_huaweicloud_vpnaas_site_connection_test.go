@@ -18,7 +18,7 @@ func TestAccVpnSiteConnectionV2_basic(t *testing.T) {
 	resourceName := "huaweicloud_vpnaas_site_connection_v2.conn_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      testAccCheckSiteConnectionV2Destroy,
 		Steps: []resource.TestStep{

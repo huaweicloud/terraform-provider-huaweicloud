@@ -16,7 +16,7 @@ import (
 func TestAccVpnIPSecPolicyV2_basic(t *testing.T) {
 	var policy ipsecpolicies.Policy
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      testAccCheckIPSecPolicyV2Destroy,
 		Steps: []resource.TestStep{
