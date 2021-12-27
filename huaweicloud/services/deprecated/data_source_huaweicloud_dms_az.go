@@ -1,4 +1,4 @@
-package dms
+package deprecated
 
 import (
 	"context"
@@ -17,7 +17,8 @@ import (
 
 func DataSourceDmsAZ() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceDmsAZRead,
+		ReadContext:        dataSourceDmsAZRead,
+		DeprecationMessage: "Deprecated. Please use \"huaweicloud_availability_zones\" instead.",
 
 		Schema: map[string]*schema.Schema{
 			"region": {
