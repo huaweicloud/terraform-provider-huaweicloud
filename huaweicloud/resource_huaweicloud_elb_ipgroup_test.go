@@ -51,7 +51,7 @@ func TestAccElbV3IpGroup_withEpsId(t *testing.T) {
 	resourceName := "huaweicloud_elb_ipgroup.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckEpsID(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckElbV3IpGroupDestroy,
 		Steps: []resource.TestStep{

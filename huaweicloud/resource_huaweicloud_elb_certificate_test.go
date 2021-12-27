@@ -70,7 +70,7 @@ func TestAccElbV3Certificate_withEpsId(t *testing.T) {
 	resourceName := "huaweicloud_elb_certificate.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckEpsID(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckElbV3CertificateDestroy,
 		Steps: []resource.TestStep{
