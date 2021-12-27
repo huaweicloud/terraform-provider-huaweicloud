@@ -79,9 +79,17 @@ func (opts CreateOpts) ToServerCreateMap() (map[string]interface{}, error) {
 }
 
 type Nic struct {
-	SubnetId string `json:"subnet_id" required:"true"`
-
+	SubnetId  string `json:"subnet_id" required:"true"`
 	IpAddress string `json:"ip_address,omitempty"`
+
+	// enable ipv6 or not
+	Ipv6Enable bool `json:"ipv6_enable,omitempty"`
+	// bandWidth id when ipv6 is enabled
+	BandWidth *Ipv6BandWidth `json:"ipv6_bandwidth,omitempty"`
+}
+
+type Ipv6BandWidth struct {
+	ID string `json:"id,omitempty"`
 }
 
 type PublicIp struct {

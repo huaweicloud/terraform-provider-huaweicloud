@@ -150,13 +150,12 @@ func ResourceComputeInstanceV2() *schema.Resource {
 							Computed:    true,
 							Description: "schema: Computed",
 						},
-						"fixed_ip_v4": {
-							Type:     schema.TypeString,
+						"ipv6_enable": {
+							Type:     schema.TypeBool,
 							Optional: true,
 							ForceNew: true,
-							Computed: true,
 						},
-						"fixed_ip_v6": {
+						"fixed_ip_v4": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
@@ -166,6 +165,13 @@ func ResourceComputeInstanceV2() *schema.Resource {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Computed: true,
+						},
+						"fixed_ip_v6": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
+							Description: "schema: Computed",
 						},
 						"mac": {
 							Type:     schema.TypeString,
@@ -1143,6 +1149,7 @@ func resourceComputeInstanceV2ImportState(d *schema.ResourceData, meta interface
 			"port":              nic.PortID,
 			"fixed_ip_v4":       nic.FixedIPv4,
 			"fixed_ip_v6":       nic.FixedIPv6,
+			"ipv6_enable":       nic.FixedIPv6 != "",
 			"source_dest_check": nic.SourceDestCheck,
 			"mac":               nic.MAC,
 		}
@@ -1245,8 +1252,9 @@ func resourceInstanceNicsV2(d *schema.ResourceData) []cloudservers.Nic {
 	for _, v := range networks {
 		network := v.(map[string]interface{})
 		nicRequest := cloudservers.Nic{
-			SubnetId:  network["uuid"].(string),
-			IpAddress: network["fixed_ip_v4"].(string),
+			SubnetId:   network["uuid"].(string),
+			IpAddress:  network["fixed_ip_v4"].(string),
+			Ipv6Enable: network["ipv6_enable"].(bool),
 		}
 
 		nicRequests = append(nicRequests, nicRequest)
