@@ -142,6 +142,7 @@ func ResourceSqlJob() *schema.Resource {
 			},
 		},
 		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(45 * time.Minute),
 		},
 	}
@@ -179,6 +180,12 @@ func resourceSqlJobCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	d.SetId(rst.JobId)
 	d.Set("schema", rst.Schema)
 	d.Set("rows", rst.Rows)
+
+	errCheckRt := waitingforJobRunning(ctx, client, rst.JobId, d.Timeout(schema.TimeoutCreate))
+	if errCheckRt != nil {
+		return diag.FromErr(errCheckRt)
+	}
+
 	return resourceSqlJobRead(ctx, d, meta)
 }
 
@@ -262,35 +269,31 @@ func resourceSqlJobDelete(ctx context.Context, d *schema.ResourceData, meta inte
 }
 
 func buildConfParam(d *schema.ResourceData) []string {
-	raw := d.Get("conf").([]interface{})
 	var rt []string
-	if len(raw) == 1 {
-		config := raw[0].(map[string]interface{})
 
-		if v, ok := config["spark_sql_max_records_per_file"]; ok {
-			rt = append(rt, fmt.Sprint(sqljob.ConfigSparkSqlFilesMaxRecordsPerFile, "=", v))
-		}
-		if v, ok := config["spark_sql_auto_broadcast_join_threshold"]; ok {
-			rt = append(rt, fmt.Sprint(sqljob.ConfigSparkSqlAutoBroadcastJoinThreshold, "=", v))
-		}
-		if v, ok := config["spark_sql_shuffle_partitions"]; ok {
-			rt = append(rt, fmt.Sprint(sqljob.ConfigSparkSqlShufflePartitions, "=", v))
-		}
-		if v, ok := config["spark_sql_dynamic_partition_overwrite_enabled"]; ok {
-			rt = append(rt, fmt.Sprint(sqljob.ConfigSparkSqlDynamicPartitionOverwriteEnabled, "=", v))
-		}
-		if v, ok := config["spark_sql_files_max_partition_bytes"]; ok {
-			rt = append(rt, fmt.Sprint(sqljob.ConfigSparkSqlMaxPartitionBytes, "=", v))
-		}
-		if v, ok := config["spark_sql_bad_records_path"]; ok {
-			rt = append(rt, fmt.Sprint(sqljob.ConfigSparkSqlBadRecordsPath, "=", v))
-		}
-		if v, ok := config["dli_sql_sqlasync_enabled"]; ok {
-			rt = append(rt, fmt.Sprint(sqljob.ConfigDliSqlasyncEnabled, "=", v))
-		}
-		if v, ok := config["dli_sql_job_timeout"]; ok {
-			rt = append(rt, fmt.Sprint(sqljob.ConfigDliSqljobTimeout, "=", v))
-		}
+	if v, ok := d.GetOk("conf.0.spark_sql_max_records_per_file"); ok {
+		rt = append(rt, fmt.Sprint(sqljob.ConfigSparkSqlFilesMaxRecordsPerFile, "=", v))
+	}
+	if v, ok := d.GetOk("conf.0.spark_sql_auto_broadcast_join_threshold"); ok {
+		rt = append(rt, fmt.Sprint(sqljob.ConfigSparkSqlAutoBroadcastJoinThreshold, "=", v))
+	}
+	if v, ok := d.GetOk("conf.0.spark_sql_shuffle_partitions"); ok {
+		rt = append(rt, fmt.Sprint(sqljob.ConfigSparkSqlShufflePartitions, "=", v))
+	}
+	if v, ok := d.GetOk("conf.0.spark_sql_dynamic_partition_overwrite_enabled"); ok {
+		rt = append(rt, fmt.Sprint(sqljob.ConfigSparkSqlDynamicPartitionOverwriteEnabled, "=", v))
+	}
+	if v, ok := d.GetOk("conf.0.spark_sql_files_max_partition_bytes"); ok {
+		rt = append(rt, fmt.Sprint(sqljob.ConfigSparkSqlMaxPartitionBytes, "=", v))
+	}
+	if v, ok := d.GetOk("conf.0.spark_sql_bad_records_path"); ok {
+		rt = append(rt, fmt.Sprint(sqljob.ConfigSparkSqlBadRecordsPath, "=", v))
+	}
+	if v, ok := d.GetOk("conf.0.dli_sql_sqlasync_enabled"); ok {
+		rt = append(rt, fmt.Sprint(sqljob.ConfigDliSqlasyncEnabled, "=", v))
+	}
+	if v, ok := d.GetOk("conf.0.dli_sql_job_timeout"); ok {
+		rt = append(rt, fmt.Sprint(sqljob.ConfigDliSqljobTimeout, "=", v))
 	}
 
 	return rt
@@ -325,6 +328,37 @@ func checkSqlJobCancelledResult(ctx context.Context, client *golangsdk.ServiceCl
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		return fmtp.Errorf("error waiting for Dli sql job (%s) to be cancelled: %s", id, err)
+	}
+	return nil
+}
+
+func waitingforJobRunning(ctx context.Context, client *golangsdk.ServiceClient, id string, timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"Pending"},
+		Target:  []string{"Done"},
+		Refresh: func() (interface{}, string, error) {
+			jobStatus, err := sqljob.Status(client, id)
+			if err != nil {
+				return nil, "failed", err
+			}
+
+			if jobStatus.Status == sqljob.JobStatusLaunching {
+				return true, "Pending", nil
+			}
+
+			if jobStatus.Status == sqljob.JobStatusCancelled || jobStatus.Status == sqljob.JobStatusFailed {
+				return true, "failed", fmtp.Errorf("current status is %s", jobStatus.Status)
+			}
+
+			return true, "Done", nil
+		},
+		Timeout:      timeout,
+		PollInterval: 20 * timeout,
+		Delay:        20 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmtp.Errorf("error waiting for Dli sql job (%s) to be running: %s", id, err)
 	}
 	return nil
 }
