@@ -394,6 +394,15 @@ func waitForVpcSubnetDelete(subnetClient *golangsdk.ServiceClient, vpcId string,
 				logp.Printf("[DEBUG] Got 500 error when delting HuaweiCloud subnet %s, it should be stream control on API server, try again later", subnetId)
 				return r, "ACTIVE", nil
 			}
+
+			// due to api problem, under enterprise project permissions, when the subnet is deleted,
+			// there will be a temporary 403 error, try again later will get 404 error which is excepted,
+			// add this in retry can avoid temporary 403 error
+			// but the real 403 error can only be returned after the timeout period is reached
+			if _, ok := err.(golangsdk.ErrDefault403); ok {
+				logp.Printf("[DEBUG] Got 403 error when delting HuaweiCloud subnet %s, it should be temporary permission error, try again later", subnetId)
+				return r, "ACTIVE", nil
+			}
 			return r, "ACTIVE", err
 		}
 		err = subnets.Delete(subnetClient, vpcId, subnetId).ExtractErr()
