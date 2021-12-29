@@ -206,12 +206,11 @@ func dataSourceVpcSubnetsRead(_ context.Context, d *schema.ResourceData, meta in
 
 		if resourceTags, err := tags.Get(clientV2, "subnets", item.ID).Extract(); err == nil {
 			tagmap := utils.TagsToMap(resourceTags.Tags)
-			tags, isMatch := filterByTags(tagmap, tagFilter)
-			if isMatch {
-				subnet["tags"] = tags
-			} else {
+
+			if !utils.HasMapContains(tagmap, tagFilter) {
 				continue
 			}
+			subnet["tags"] = tagmap
 		} else {
 			return fmtp.DiagErrorf("Error query tags of subnets (%s): %s", item.ID, err)
 		}
