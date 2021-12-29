@@ -8,6 +8,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/subnets"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -63,8 +64,8 @@ func ResourceVpcSubnetV1() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(5 * time.Minute),
+			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{ //request and response parameters
@@ -186,12 +187,12 @@ func resourceVpcSubnetCreate(ctx context.Context, d *schema.ResourceData, meta i
 	logp.Printf("[INFO] Vpc Subnet ID: %s", n.ID)
 
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"UNKNOWN"},
-		Target:     []string{"ACTIVE"},
-		Refresh:    waitForVpcSubnetActive(subnetClient, n.ID),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Pending:      []string{"UNKNOWN"},
+		Target:       []string{"ACTIVE"},
+		Refresh:      waitForVpcSubnetActive(subnetClient, n.ID),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        5 * time.Second,
+		PollInterval: 5 * time.Second,
 	}
 
 	_, stateErr := stateConf.WaitForStateContext(ctx)
@@ -236,34 +237,38 @@ func resourceVpcSubnetRead(_ context.Context, d *schema.ResourceData, meta inter
 		return common.CheckDeletedDiag(d, err, "Error obtain Subnet information")
 	}
 
-	d.Set("name", n.Name)
-	d.Set("cidr", n.CIDR)
-	d.Set("dns_list", n.DnsList)
-	d.Set("gateway_ip", n.GatewayIP)
-	d.Set("ipv6_enable", n.EnableIPv6)
-	d.Set("dhcp_enable", n.EnableDHCP)
-	d.Set("primary_dns", n.PRIMARY_DNS)
-	d.Set("secondary_dns", n.SECONDARY_DNS)
-	d.Set("availability_zone", n.AvailabilityZone)
-	d.Set("vpc_id", n.VPC_ID)
-	d.Set("subnet_id", n.SubnetId)
-	d.Set("ipv6_subnet_id", n.IPv6SubnetId)
-	d.Set("ipv6_cidr", n.IPv6CIDR)
-	d.Set("ipv6_gateway", n.IPv6Gateway)
-	d.Set("region", config.GetRegion(d))
+	mErr := multierror.Append(nil,
+		d.Set("name", n.Name),
+		d.Set("cidr", n.CIDR),
+		d.Set("dns_list", n.DnsList),
+		d.Set("gateway_ip", n.GatewayIP),
+		d.Set("ipv6_enable", n.EnableIPv6),
+		d.Set("dhcp_enable", n.EnableDHCP),
+		d.Set("primary_dns", n.PRIMARY_DNS),
+		d.Set("secondary_dns", n.SECONDARY_DNS),
+		d.Set("availability_zone", n.AvailabilityZone),
+		d.Set("vpc_id", n.VPC_ID),
+		d.Set("subnet_id", n.SubnetId),
+		d.Set("ipv6_subnet_id", n.IPv6SubnetId),
+		d.Set("ipv6_cidr", n.IPv6CIDR),
+		d.Set("ipv6_gateway", n.IPv6Gateway),
+		d.Set("region", config.GetRegion(d)),
+	)
 
 	// save VpcSubnet tags
 	if vpcSubnetV2Client, err := config.NetworkingV2Client(config.GetRegion(d)); err == nil {
 		if resourceTags, err := tags.Get(vpcSubnetV2Client, "subnets", d.Id()).Extract(); err == nil {
 			tagmap := utils.TagsToMap(resourceTags.Tags)
-			if err := d.Set("tags", tagmap); err != nil {
-				return fmtp.DiagErrorf("Error saving tags to state for Subnet (%s): %s", d.Id(), err)
-			}
+			mErr = multierror.Append(mErr, d.Set("tags", tagmap))
 		} else {
 			logp.Printf("[WARN] Error fetching tags of Subnet (%s): %s", d.Id(), err)
 		}
 	} else {
 		return fmtp.DiagErrorf("Error creating Huaweicloud VpcSubnet client: %s", err)
+	}
+
+	if err := mErr.ErrorOrNil(); err != nil {
+		return fmtp.DiagErrorf("error setting HuaweiCloud VPC subnet fields: %s", err)
 	}
 
 	return nil
@@ -338,12 +343,12 @@ func resourceVpcSubnetDelete(ctx context.Context, d *schema.ResourceData, meta i
 
 	vpcID := d.Get("vpc_id").(string)
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"ACTIVE"},
-		Target:     []string{"DELETED"},
-		Refresh:    waitForVpcSubnetDelete(subnetClient, vpcID, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Pending:      []string{"ACTIVE"},
+		Target:       []string{"DELETED"},
+		Refresh:      waitForVpcSubnetDelete(subnetClient, vpcID, d.Id()),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        5 * time.Second,
+		PollInterval: 5 * time.Second,
 	}
 
 	_, err = stateConf.WaitForStateContext(ctx)
