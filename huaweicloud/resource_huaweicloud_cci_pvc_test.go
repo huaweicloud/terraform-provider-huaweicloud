@@ -215,7 +215,16 @@ func testAccCCIPvcImportStateIdFunc(pvcRes string) resource.ImportStateIdFunc {
 
 func testAccCCIPersistentVolumeClaims_basic(rName, volumeType string) string {
 	return fmt.Sprintf(`
-%s
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_evs_volume" "test" {
+  name                  = "%s"
+  description           = "Created by acc test"
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  volume_type           = "SAS"
+  size                  = 12
+  enterprise_project_id = "%s"
+}
 
 resource "huaweicloud_cci_pvc" "test" {
   name        = "%s"
@@ -223,7 +232,7 @@ resource "huaweicloud_cci_pvc" "test" {
   volume_type = "%s"
   volume_id   = huaweicloud_evs_volume.test.id
 }
-`, testAccEvsVolume_epsID(rName), rName, HW_CCI_NAMESPACE, volumeType)
+`, rName, HW_ENTERPRISE_PROJECT_ID_TEST, rName, HW_CCI_NAMESPACE, volumeType)
 }
 
 func testAccCCIPersistentVolumeClaims_obs(rName, volumeType string, suffix int) string {
