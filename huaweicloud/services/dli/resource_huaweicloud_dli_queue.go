@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/dli/v1/queues"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -115,6 +116,12 @@ func ResourceDliQueue() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"vpc_cidr": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
 			"create_time": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -132,13 +139,6 @@ func ResourceDliQueue() *schema.Resource {
 				Optional:   true,
 				ForceNew:   true,
 				Deprecated: "subnet_cidr is Deprecated",
-			},
-
-			"vpc_cidr": {
-				Type:       schema.TypeString,
-				Optional:   true,
-				ForceNew:   true,
-				Deprecated: "vpc_cidr is Deprecated",
 			},
 		},
 
@@ -180,7 +180,14 @@ func resourceDliQueueCreate(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(queueName)
 
 	// This is a workaround to avoid issue: the queue is assigning, which is not available
-	time.Sleep(120 * time.Second) //lintignore:R018
+	time.Sleep(4 * time.Minute) //lintignore:R018
+
+	if v, ok := d.GetOk("vpc_cidr"); ok {
+		err = updateVpcCidrOfQueue(dliClient, queueName, v.(string))
+		if err != nil {
+			return fmtp.Errorf("update cidr failed when creating dli queues: %s", err)
+		}
+	}
 
 	return resourceDliQueueRead(d, meta)
 }
@@ -194,6 +201,7 @@ func assembleTagsFromRecource(key string, d *schema.ResourceData) []tags.Resourc
 	return nil
 
 }
+
 func resourceDliQueueRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	dliClient, err := config.DliV1Client(config.GetRegion(d))
@@ -235,11 +243,13 @@ func resourceDliQueueRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("resource_mode", queueDetail.ResourceMode)
 		d.Set("feature", queueDetail.Feature)
 		d.Set("create_time", queueDetail.CreateTime)
+		d.Set("vpc_cidr", queueDetail.CidrInVpc)
 
 	}
 
 	return nil
 }
+
 func filterByQueueName(body interface{}, queueName string) (r *queues.Queue, err error) {
 	if queueList, ok := body.(*queues.ListResult); ok {
 		logp.Printf("[DEBUG]The list of queue from SDK:%+v", queueList)
@@ -257,6 +267,7 @@ func filterByQueueName(body interface{}, queueName string) (r *queues.Queue, err
 	}
 
 }
+
 func resourceDliQueueDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.DliV1Client(config.GetRegion(d))
@@ -318,6 +329,14 @@ func resourceDliQueueUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	}
 
+	if d.HasChange("vpc_cidr") {
+		cidr := d.Get("vpc_cidr").(string)
+		err = updateVpcCidrOfQueue(client, d.Id(), cidr)
+		if err != nil {
+			return fmtp.Errorf("update cidr failed when updating dli queues: %s", err)
+		}
+	}
+
 	return resourceDliQueueRead(d, meta)
 }
 
@@ -336,4 +355,9 @@ func validCuCount(val interface{}, key string) (warns []string, errs []error) {
 		return warns, errs
 	}
 	return validation.IntDivisibleBy(diviNum)(val, key)
+}
+
+func updateVpcCidrOfQueue(client *golangsdk.ServiceClient, queueName, cidr string) error {
+	_, err := queues.UpdateCidr(client, queueName, queues.UpdateCidrOpts{Cidr: cidr})
+	return err
 }

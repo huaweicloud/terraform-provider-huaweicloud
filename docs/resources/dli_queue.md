@@ -8,12 +8,28 @@ Manages DLI Queue resource within HuaweiCloud
 
 ## Example Usage
 
-### create a queue
+### Create a queue
 
 ```hcl
 resource "huaweicloud_dli_queue" "queue" {
   name     = "terraform_dli_queue_test"
   cu_count = 16
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+```
+
+### Create a queue with CIDR Block
+
+```hcl
+resource "huaweicloud_dli_queue" "queue" {
+  name          = "terraform_dli_queue_test"
+  cu_count      = 16
+  resource_mode = 1
+  vpc_cidr      = "172.16.0.0/14"
 
   tags = {
     foo = "bar"
@@ -37,7 +53,8 @@ The following arguments are supported:
   resource. The options are as follows:
   + sql
   + general
-      > NOTE: If the type is not specified, the default value sql is used.
+
+  The default value is `sql`.
 
 * `description` - (Optional, String, ForceNew) Description of a queue. Changing this parameter will create a new
   resource.
@@ -62,6 +79,14 @@ The following arguments are supported:
   resource. The options are as follows:
   + basic: basic type (default value)
   + ai: AI-enhanced (Only the SQL x86_64 dedicated queue supports this option.)
+
+* `vpc_cidr` - (Optional, String) The CIDR block of a queue. If use DLI enhanced datasource connections, the CIDR block
+  cannot be the same as that of the data source.
+  The CIDR blocks supported by different CU specifications:
+
+    + When `cu_count` is `16` or `64`: 10.0.0.0~10.255.0.0/8~24, 172.16.0.0~172.31.0.0/12~24,
+      192.168.0.0~192.168.0.0/16~24.
+    + When `cu_count` is `256`: 10.0.0.0~10.255.0.0/8~22, 172.16.0.0~172.31.0.0/12~22, 192.168.0.0~192.168.0.0/16~22.
 
 * `tags` - (Optional, Map, ForceNew) Label of a queue. Changing this parameter will create a new resource.
 

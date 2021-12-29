@@ -2,33 +2,49 @@ package dli
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/chnsz/golangsdk/openstack/dli/v1/queues"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	act "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dli"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+func getDliQueueResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := config.DliV1Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmtp.Errorf("error creating Dli v1 client, err=%s", err)
+	}
+
+	result := queues.Get(client, state.Primary.ID)
+	return result.Body, result.Err
+}
+
 func TestAccDliQueue_basic(t *testing.T) {
 	rName := act.RandomAccResourceName()
 	resourceName := "huaweicloud_dli_queue.test"
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { act.TestAccPreCheck(t) },
-		Providers:    act.TestAccProviders,
-		CheckDestroy: testAccCheckDliQueueDestroy,
+	var obj queues.CreateOpts
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getDliQueueResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { act.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDliQueue_basic(rName, dli.CU_16),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDliQueueExists(resourceName),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QUEUE_TYPE_SQL),
 					resource.TestCheckResourceAttr(resourceName, "cu_count", fmt.Sprintf("%d", dli.CU_16)),
@@ -40,7 +56,7 @@ func TestAccDliQueue_basic(t *testing.T) {
 			{
 				Config: testAccDliQueue_basic(rName, 2*dli.CU_16),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDliQueueExists(resourceName),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QUEUE_TYPE_SQL),
 					resource.TestCheckResourceAttr(resourceName, "cu_count", fmt.Sprintf("%d", 2*dli.CU_16)),
@@ -50,7 +66,7 @@ func TestAccDliQueue_basic(t *testing.T) {
 			{
 				Config: testAccDliQueue_basic(rName, dli.CU_16),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDliQueueExists(resourceName),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QUEUE_TYPE_SQL),
 					resource.TestCheckResourceAttr(resourceName, "cu_count", fmt.Sprintf("%d", dli.CU_16)),
@@ -71,61 +87,77 @@ func TestAccDliQueue_basic(t *testing.T) {
 func testAccDliQueue_basic(rName string, cuCount int) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dli_queue" "test" {
-  name          = "%s"
-  cu_count      = %d
-  
+  name     = "%s"
+  cu_count = %d
+
   tags = {
-    k1 = "1"
+    foo = "bar"
   }
-}`, rName, cuCount)
+}
+`, rName, cuCount)
 }
 
-func testAccCheckDliQueueDestroy(s *terraform.State) error {
-	config := act.TestAccProvider.Meta().(*config.Config)
-	client, err := config.DliV1Client(act.HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("error creating Dli client, err=%s", err)
-	}
+func TestAccDliQueue_cidr(t *testing.T) {
+	rName := act.RandomAccResourceName()
+	resourceName := "huaweicloud_dli_queue.test"
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_dli_queue" {
-			continue
-		}
+	var obj queues.CreateOpts
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getDliQueueResourceFunc,
+	)
 
-		res, err := fetchDliQueueByQueueNameOnTest(rs.Primary.ID, client)
-		if err == nil && res != nil {
-			return fmtp.Errorf("huaweicloud_dli_queue still exists:%s,%+v,%+v", rs.Primary.ID, err, res)
-		}
-	}
-
-	return nil
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { act.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDliQueue_cidr(rName, "172.16.0.0/14"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QUEUE_TYPE_SQL),
+					resource.TestCheckResourceAttr(resourceName, "cu_count", "16"),
+					resource.TestCheckResourceAttr(resourceName, "resource_mode", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpc_cidr", "172.16.0.0/14"),
+					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
+				),
+			},
+			{
+				Config: testAccDliQueue_cidr(rName, "172.16.0.0/15"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QUEUE_TYPE_SQL),
+					resource.TestCheckResourceAttr(resourceName, "cu_count", "16"),
+					resource.TestCheckResourceAttr(resourceName, "resource_mode", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpc_cidr", "172.16.0.0/15"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"tags",
+				},
+			},
+		},
+	})
 }
 
-func testAccCheckDliQueueExists(resourceName string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		config := act.TestAccProvider.Meta().(*config.Config)
-		client, err := config.DliV1Client(act.HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("error creating Dli client, err=%s", err)
-		}
+func testAccDliQueue_cidr(rName string, cidr string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_dli_queue" "test" {
+  name          = "%s"
+  cu_count      = 16
+  resource_mode = 1
+  vpc_cidr      = "%s"
 
-		rs, ok := s.RootModule().Resources[resourceName]
-		if !ok {
-			return fmtp.Errorf("Error checking huaweicloud_dli_queue.queue exist, err=not found this resource")
-		}
-		_, err = fetchDliQueueByQueueNameOnTest(rs.Primary.ID, client)
-		if err != nil {
-			if strings.Contains(err.Error(), "Error finding the resource by list api") {
-				return fmtp.Errorf("huaweicloud_dli_queue is not exist")
-			}
-			return fmtp.Errorf("Error checking huaweicloud_dli_queue.queue exist, err=%s", err)
-		}
-		return nil
-	}
-}
-
-func fetchDliQueueByQueueNameOnTest(primaryID string,
-	client *golangsdk.ServiceClient) (interface{}, error) {
-	result := queues.Get(client, primaryID)
-	return result.Body, result.Err
+  tags = {
+    foo = "bar"
+  }
+}`, rName, cidr)
 }
