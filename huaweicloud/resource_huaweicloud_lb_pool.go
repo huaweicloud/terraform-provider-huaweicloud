@@ -162,8 +162,6 @@ func resourcePoolV2Create(d *schema.ResourceData, meta interface{}) error {
 		createOpts.Persistence = &persistence
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
-
 	// Wait for LoadBalancer to become active before continuing
 	timeout := d.Timeout(schema.TimeoutCreate)
 	lbID := createOpts.LoadbalancerID
@@ -181,17 +179,8 @@ func resourcePoolV2Create(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	logp.Printf("[DEBUG] Attempting to create pool")
-	var pool *pools.Pool
-	//lintignore:R006
-	err = resource.Retry(timeout, func() *resource.RetryError {
-		pool, err = pools.Create(lbClient, createOpts).Extract()
-		if err != nil {
-			return checkForRetryableError(err)
-		}
-		return nil
-	})
-
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	pool, err := pools.Create(lbClient, createOpts).Extract()
 	if err != nil {
 		return fmtp.Errorf("Error creating pool: %s", err)
 	}

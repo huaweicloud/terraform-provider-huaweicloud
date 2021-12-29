@@ -115,8 +115,6 @@ func resourceMemberV2Create(d *schema.ResourceData, meta interface{}) error {
 		createOpts.SubnetID = v.(string)
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
-
 	// Wait for LB to become active before continuing
 	poolID := d.Get("pool_id").(string)
 	timeout := d.Timeout(schema.TimeoutCreate)
@@ -125,17 +123,8 @@ func resourceMemberV2Create(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	logp.Printf("[DEBUG] Attempting to create member")
-	var member *pools.Member
-	//lintignore:R006
-	err = resource.Retry(timeout, func() *resource.RetryError {
-		member, err = pools.CreateMember(lbClient, poolID, createOpts).Extract()
-		if err != nil {
-			return checkForRetryableError(err)
-		}
-		return nil
-	})
-
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	member, err := pools.CreateMember(lbClient, poolID, createOpts).Extract()
 	if err != nil {
 		return fmtp.Errorf("Error creating member: %s", err)
 	}

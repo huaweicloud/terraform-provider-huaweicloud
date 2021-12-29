@@ -133,6 +133,7 @@ func resourceListenerV2Create(ctx context.Context, d *schema.ResourceData, meta 
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb v2.0 client: %s", err)
 	}
 
+	lbID := d.Get("loadbalancer_id").(string)
 	adminStateUp := d.Get("admin_state_up").(bool)
 	http2_enable := d.Get("http2_enable").(bool)
 	var sniContainerRefs []string
@@ -145,7 +146,7 @@ func resourceListenerV2Create(ctx context.Context, d *schema.ResourceData, meta 
 		Protocol:               listeners.Protocol(d.Get("protocol").(string)),
 		ProtocolPort:           d.Get("protocol_port").(int),
 		TenantID:               d.Get("tenant_id").(string),
-		LoadbalancerID:         d.Get("loadbalancer_id").(string),
+		LoadbalancerID:         lbID,
 		Name:                   d.Get("name").(string),
 		DefaultPoolID:          d.Get("default_pool_id").(string),
 		Description:            d.Get("description").(string),
@@ -160,26 +161,15 @@ func resourceListenerV2Create(ctx context.Context, d *schema.ResourceData, meta 
 		createOpts.ConnLimit = &connectionLimit
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
-
 	// Wait for LoadBalancer to become active before continuing
-	lbID := createOpts.LoadbalancerID
 	timeout := d.Timeout(schema.TimeoutCreate)
 	err = waitForLBV2LoadBalancer_v2(lbClient, lbID, "ACTIVE", nil, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Attempting to create listener")
-	var listener *listeners.Listener
-	//lintignore:R006
-	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
-		listener, err = listeners.Create(lbClient, createOpts).Extract()
-		if err != nil {
-			return checkForRetryableError(err)
-		}
-		return nil
-	})
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	listener, err := listeners.Create(lbClient, createOpts).Extract()
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating listener: %s", err)
 	}
