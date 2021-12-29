@@ -111,6 +111,7 @@ github.com/chnsz/golangsdk/openstack/ecs/v1/flavors
 github.com/chnsz/golangsdk/openstack/ecs/v1/powers
 github.com/chnsz/golangsdk/openstack/ecs/v1/servergroups
 github.com/chnsz/golangsdk/openstack/elb/v2/certificates
+github.com/chnsz/golangsdk/openstack/elb/v2/listeners
 github.com/chnsz/golangsdk/openstack/elb/v2/loadbalancers
 github.com/chnsz/golangsdk/openstack/elb/v3/certificates
 github.com/chnsz/golangsdk/openstack/elb/v3/flavors

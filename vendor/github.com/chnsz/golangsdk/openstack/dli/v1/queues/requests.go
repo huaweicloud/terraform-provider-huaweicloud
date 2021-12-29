@@ -74,6 +74,10 @@ type ActionOpts struct {
 	QueueName string `json:"-" required:"true"`
 }
 
+type UpdateCidrOpts struct {
+	Cidr string `json:"cidr_in_vpc,omitempty"`
+}
+
 // CreateOptsBuilder allows extensions to add additional parameters to the
 // Create request.
 type CreateOptsBuilder interface {
@@ -192,4 +196,15 @@ func ScaleOrRestart(c *golangsdk.ServiceClient, opts ActionOpts) (r PutResult) {
 	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{200}}
 	_, r.Err = c.Put(ActionURL(c, opts.QueueName), requstbody, &r.Body, reqOpt)
 	return
+}
+
+func UpdateCidr(c *golangsdk.ServiceClient, queueName string, opts UpdateCidrOpts) (*UpdateCidrResp, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var rst UpdateCidrResp
+	_, err = c.Put(resourceURL(c, queueName), b, &rst, nil)
+	return &rst, err
 }

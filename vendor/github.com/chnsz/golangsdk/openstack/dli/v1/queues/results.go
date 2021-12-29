@@ -114,3 +114,8 @@ type DeleteResult struct {
 type PutResult struct {
 	golangsdk.Result
 }
+
+type UpdateCidrResp struct {
+	IsSuccess bool   `json:"is_success"`
+	Message   string `json:"message"`
+}
