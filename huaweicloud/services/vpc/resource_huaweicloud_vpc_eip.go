@@ -3,8 +3,10 @@ package vpc
 import (
 	"time"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
@@ -42,6 +44,10 @@ func ResourceVpcEIPV1() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"publicip": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -50,7 +56,8 @@ func ResourceVpcEIPV1() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"type": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
+							Default:  "5_bgp",
 							ForceNew: true,
 						},
 						"ip_address": {
@@ -59,10 +66,15 @@ func ResourceVpcEIPV1() *schema.Resource {
 							ForceNew: true,
 							Computed: true,
 						},
+						"ip_version": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validation.IntInSlice([]int{4, 6}),
+						},
 						"port_id": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Computed: true,
 						},
 					},
 				},
@@ -112,6 +124,14 @@ func ResourceVpcEIPV1() *schema.Resource {
 				Computed: true,
 			},
 			"address": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"ipv6_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"private_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -264,7 +284,8 @@ func resourceVpcEIPV1Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceVpcEIPV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV1Client(config.GetRegion(d))
+	region := config.GetRegion(d)
+	networkingClient, err := config.NetworkingV1Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating networking client: %s", err)
 	}
@@ -278,17 +299,17 @@ func resourceVpcEIPV1Read(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf("Error fetching bandwidth: %s", err)
 	}
 
-	// Set public ip
-	publicIP := []map[string]string{
+	// build public ip
+	publicIP := []map[string]interface{}{
 		{
 			"type":       eIP.Type,
+			"ip_version": eIP.IpVersion,
 			"ip_address": eIP.PublicAddress,
 			"port_id":    eIP.PortID,
 		},
 	}
-	d.Set("publicip", publicIP)
 
-	// Set bandwidth
+	// build bandwidth
 	bW := []map[string]interface{}{
 		{
 			"name":        bandWidth.Name,
@@ -298,14 +319,25 @@ func resourceVpcEIPV1Read(d *schema.ResourceData, meta interface{}) error {
 			"charge_mode": bandWidth.ChargeMode,
 		},
 	}
-	d.Set("bandwidth", bW)
-	d.Set("address", eIP.PublicAddress)
-	d.Set("enterprise_project_id", eIP.EnterpriseProjectID)
-	d.Set("region", config.GetRegion(d))
-	d.Set("status", NormalizeEIPStatus(eIP.Status))
+
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("name", eIP.Alias),
+		d.Set("address", eIP.PublicAddress),
+		d.Set("ipv6_address", eIP.PublicIpv6Address),
+		d.Set("private_ip", eIP.PrivateAddress),
+		d.Set("enterprise_project_id", eIP.EnterpriseProjectID),
+		d.Set("status", NormalizeEIPStatus(eIP.Status)),
+		d.Set("publicip", publicIP),
+		d.Set("bandwidth", bW),
+	)
+
+	if mErr.ErrorOrNil() != nil {
+		return mErr
+	}
 
 	// save tags
-	if vpcV2Client, err := config.NetworkingV2Client(config.GetRegion(d)); err == nil {
+	if vpcV2Client, err := config.NetworkingV2Client(region); err == nil {
 		if resourceTags, err := tags.Get(vpcV2Client, "publicips", d.Id()).Extract(); err == nil {
 			tagmap := utils.TagsToMap(resourceTags.Tags)
 			if err := d.Set("tags", tagmap); err != nil {
@@ -350,13 +382,30 @@ func resourceVpcEIPV1Update(d *schema.ResourceData, meta interface{}) error {
 
 	}
 
-	// Update publicip change
-	if d.HasChange("publicip") {
-		var updateOpts eips.UpdateOpts
+	newIPList := d.Get("publicip").([]interface{})
+	newMap := newIPList[0].(map[string]interface{})
 
-		newIPList := d.Get("publicip").([]interface{})
-		newMap := newIPList[0].(map[string]interface{})
-		updateOpts.PortID = newMap["port_id"].(string)
+	// Update publicip port_id
+	if d.HasChange("publicip.0.port_id") {
+		updateOpts := eips.UpdateOpts{
+			PortID: newMap["port_id"].(string),
+		}
+
+		logp.Printf("[DEBUG] PublicIP Update Options: %#v", updateOpts)
+		_, err = eips.Update(networkingClient, d.Id(), updateOpts).Extract()
+		if err != nil {
+			return fmtp.Errorf("Error updating publicip: %s", err)
+		}
+	}
+
+	// Update publicip name and ip_version
+	// API limitation: port_id and ip_version cannot be updated at the same time
+	if d.HasChanges("name", "publicip.0.ip_version") {
+		newName := d.Get("name").(string)
+		updateOpts := eips.UpdateOpts{
+			Alias:     &newName,
+			IPVersion: newMap["ip_version"].(int),
+		}
 
 		logp.Printf("[DEBUG] PublicIP Update Options: %#v", updateOpts)
 		_, err = eips.Update(networkingClient, d.Id(), updateOpts).Extract()
@@ -435,8 +484,10 @@ func resourcePublicIP(d *schema.ResourceData) eips.PublicIpOpts {
 	rawMap := publicIPRaw[0].(map[string]interface{})
 
 	publicip := eips.PublicIpOpts{
-		Type:    rawMap["type"].(string),
-		Address: rawMap["ip_address"].(string),
+		Alias:     d.Get("name").(string),
+		Type:      rawMap["type"].(string),
+		Address:   rawMap["ip_address"].(string),
+		IPVersion: rawMap["ip_version"].(int),
 	}
 	return publicip
 }

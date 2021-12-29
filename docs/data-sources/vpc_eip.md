@@ -16,14 +16,14 @@ data "huaweicloud_vpc_eip" "by_address" {
 
 ## Argument Reference
 
-* `region` - (Optional, String) The region in which to obtain the EIP. If omitted, the provider-level region will be
-  used.
+* `region` - (Optional, String) Specifies the region in which to obtain the EIP.
+  If omitted, the provider-level region will be used.
 
-* `public_ip` - (Optional, String) The public ip address of the EIP.
+* `public_ip` - (Optional, String) Specifies the public **IPv4** address of the EIP.
 
-* `port_id` - (Optional, String) The port id of the EIP.
+* `port_id` - (Optional, String) Specifies the port id of the EIP.
 
-* `enterprise_project_id` - (Optional, String) The enterprise project id of the EIP.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project id of the EIP.
 
 ## Attributes Reference
 
@@ -34,6 +34,10 @@ In addition to all arguments above, the following attributes are exported:
 * `type` - The type of the EIP.
 
 * `private_ip` - The private ip of the EIP.
+
+* `ip_version` - The IP version, either 4 or 6.
+
+* `ipv6_address` - The IPv6 address of the EIP.
 
 * `bandwidth_id` - The bandwidth id of the EIP.
 
