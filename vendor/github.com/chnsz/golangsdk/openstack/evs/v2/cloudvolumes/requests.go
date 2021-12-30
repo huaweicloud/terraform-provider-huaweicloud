@@ -217,26 +217,52 @@ type ListOptsBuilder interface {
 type ListOpts struct {
 	// Name will filter by the specified volume name.
 	Name string `q:"name"`
-
 	// Status will filter by the specified status.
 	Status string `q:"status"`
-
 	// Metadata will filter results based on specified metadata.
-	Metadata map[string]string `q:"metadata"`
-
+	Metadata string `q:"metadata"`
+	// Specifies the disk ID.
 	ID string `q:"id"`
-
+	// Specifies the disk IDs. The parameter value is in the ids=["id1","id2",...,"idx"] format.
+	// In the response, the ids value contains valid disk IDs only. Invalid disk IDs will be ignored.
+	// Details about a maximum of 60 disks can be queried.
+	// If parameters id and ids are both specified in the request, id will be ignored.
+	IDs string `q:"ids"`
+	// Specifies the AZ.
+	AvailabilityZone string `q:"availability_zone"`
+	// Specifies the ID of the DSS storage pool. All disks in the DSS storage pool can be filtered out.
+	// Only precise match is supported.
+	DedicatedStorageID string `q:"dedicated_storage_id"`
+	// Specifies the name of the DSS storage pool. All disks in the DSS storage pool can be filtered out.
+	// Fuzzy match is supported.
+	DedicatedStorageName string `q:"dedicated_storage_name"`
+	// Specifies the enterprise project ID for filtering. If input parameter all_granted_eps exists, disks in all
+	// enterprise projects that are within the permission scope will be queried.
+	EnterpriseProjectID string `q:"enterprise_project_id"`
+	// Specifies whether the disk is shareable.
+	//   true: specifies a shared disk.
+	//   false: specifies a non-shared disk.
+	Multiattach bool `q:"multiattach"`
+	// Specifies the service type. Currently, the supported services are EVS, DSS, and DESS.
+	ServiceType string `q:"service_type"`
+	// Specifies the server ID.
+	// This parameter is used to filter all the EVS disks that have been attached to this server.
 	ServerID string `q:"server_id"`
-
+	// Specifies the keyword based on which the returned results are sorted.
+	// The value can be id, status, size, or created_at, and the default value is created_at.
 	SortKey string `q:"sort_key"`
+	// Specifies the result sorting order. The default value is desc.
+	//   desc: indicates the descending order.
+	//   asc: indicates the ascending order.
 	SortDir string `q:"sort_dir"`
-
+	// Specifies the disk type ID.
+	// You can obtain the disk type ID in Querying EVS Disk Types.
+	// That is, the id value in the volume_types parameter description table.
+	VolumeTypeID string `q:"volume_type_id"`
 	// Requests a page size of items.
 	Limit int `q:"limit"`
-
 	// Used in conjunction with limit to return a slice of items.
 	Offset int `q:"offset"`
-
 	// The ID of the last-seen item.
 	Marker string `q:"marker"`
 }
