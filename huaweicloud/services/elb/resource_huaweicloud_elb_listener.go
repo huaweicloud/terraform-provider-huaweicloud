@@ -354,7 +354,7 @@ func resourceListenerV3Update(ctx context.Context, d *schema.ResourceData, meta 
 		}
 		if d.HasChange("ca_certificate") {
 			caCert := d.Get("ca_certificate").(string)
-			updateOpts.DefaultTlsContainerRef = &caCert
+			updateOpts.CAContainerRef = &caCert
 		}
 		if d.HasChange("tls_ciphers_policy") {
 			tlsCiphersPolicy := d.Get("tls_ciphers_policy").(string)
