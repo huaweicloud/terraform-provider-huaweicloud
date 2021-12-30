@@ -49,6 +49,7 @@ github.com/chnsz/golangsdk/openstack/cci/v1/namespaces
 github.com/chnsz/golangsdk/openstack/cci/v1/networks
 github.com/chnsz/golangsdk/openstack/cci/v1/persistentvolumeclaims
 github.com/chnsz/golangsdk/openstack/cdm/v1/clusters
+github.com/chnsz/golangsdk/openstack/cdm/v1/link
 github.com/chnsz/golangsdk/openstack/cdn/v1/domains
 github.com/chnsz/golangsdk/openstack/cloudeyeservice/alarmrule
 github.com/chnsz/golangsdk/openstack/common/structs

@@ -451,6 +451,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cci_network":                     cci.ResourceCciNetworkV1(),
 			"huaweicloud_cci_pvc":                         ResourceCCIPersistentVolumeClaimV1(),
 			"huaweicloud_cdm_cluster":                     cdm.ResourceCdmCluster(),
+			"huaweicloud_cdm_link":                        cdm.ResourceCdmLink(),
 			"huaweicloud_cdn_domain":                      resourceCdnDomainV1(),
 			"huaweicloud_ces_alarmrule":                   ResourceAlarmRule(),
 			"huaweicloud_cloudtable_cluster":              resourceCloudtableClusterV2(),
