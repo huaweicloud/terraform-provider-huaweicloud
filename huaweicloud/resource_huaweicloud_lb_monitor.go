@@ -136,17 +136,7 @@ func resourceMonitorV2Create(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
-	logp.Printf("[DEBUG] Attempting to create monitor")
-	var monitor *monitors.Monitor
-	//lintignore:R006
-	err = resource.Retry(timeout, func() *resource.RetryError {
-		monitor, err = monitors.Create(lbClient, createOpts).Extract()
-		if err != nil {
-			return checkForRetryableError(err)
-		}
-		return nil
-	})
-
+	monitor, err := monitors.Create(lbClient, createOpts).Extract()
 	if err != nil {
 		return fmtp.Errorf("Unable to create monitor: %s", err)
 	}

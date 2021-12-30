@@ -166,16 +166,7 @@ func resourceL7RuleV2Create(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	logp.Printf("[DEBUG] Attempting to create L7 Rule")
-	var l7Rule *l7policies.Rule
-	//lintignore:R006
-	err = resource.Retry(timeout, func() *resource.RetryError {
-		l7Rule, err = l7policies.CreateRule(lbClient, l7policyID, createOpts).Extract()
-		if err != nil {
-			return checkForRetryableError(err)
-		}
-		return nil
-	})
-
+	l7Rule, err := l7policies.CreateRule(lbClient, l7policyID, createOpts).Extract()
 	if err != nil {
 		return fmtp.Errorf("Error creating L7 Rule: %s", err)
 	}
