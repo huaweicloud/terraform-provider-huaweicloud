@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"context"
 	"strings"
 	"time"
 
@@ -8,9 +9,12 @@ import (
 	"github.com/chnsz/golangsdk/openstack/cce/v3/nodepools"
 	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -19,12 +23,12 @@ import (
 
 func ResourceCCENodePool() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCCENodePoolCreate,
-		Read:   resourceCCENodePoolRead,
-		Update: resourceCCENodePoolUpdate,
-		Delete: resourceCCENodePoolDelete,
+		CreateContext: resourceCCENodePoolCreate,
+		ReadContext:   resourceCCENodePoolRead,
+		UpdateContext: resourceCCENodePoolUpdate,
+		DeleteContext: resourceCCENodePoolDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceCCENodePoolV3Import,
+			StateContext: resourceCCENodePoolV3Import,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -269,11 +273,11 @@ func resourceCCENodePoolTags(d *schema.ResourceData) []tags.ResourceTag {
 	return utils.ExpandResourceTags(tagRaw)
 }
 
-func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceCCENodePoolCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	nodePoolClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CCE Node Pool client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE Node Pool client: %s", err)
 	}
 
 	// wait for the cce cluster to become available
@@ -285,7 +289,10 @@ func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 		Delay:      5 * time.Second,
 		MinTimeout: 5 * time.Second,
 	}
-	_, err = stateCluster.WaitForState()
+	_, err = stateCluster.WaitForStateContext(ctx)
+	if err != nil {
+		return fmtp.DiagErrorf("Error waiting for HuaweiCloud CCE cluster to be Available: %s", err)
+	}
 
 	initialNodeCount := d.Get("initial_node_count").(int)
 	createOpts := nodepools.CreateOpts{
@@ -350,11 +357,11 @@ func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 
 	s, err := nodepools.Create(nodePoolClient, clusterid, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud Node Pool: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud Node Pool: %s", err)
 	}
 
 	if len(s.Metadata.Id) == 0 {
-		return fmtp.Errorf("Error fetching CreateNodePool id")
+		return fmtp.DiagErrorf("Error fetching CreateNodePool id")
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -365,57 +372,55 @@ func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 		Delay:        120 * time.Second,
 		PollInterval: 20 * time.Second,
 	}
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CCE Node Pool: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE Node Pool: %s", err)
 	}
 
 	logp.Printf("[DEBUG] Create node pool: %v", s)
 
 	d.SetId(s.Metadata.Id)
-	return resourceCCENodePoolRead(d, meta)
+	return resourceCCENodePoolRead(ctx, d, meta)
 }
 
-func resourceCCENodePoolRead(d *schema.ResourceData, meta interface{}) error {
+func resourceCCENodePoolRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	nodePoolClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CCE Node Pool client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE Node Pool client: %s", err)
 	}
 	clusterid := d.Get("cluster_id").(string)
 	s, err := nodepools.Get(nodePoolClient, clusterid, d.Id()).Extract()
 
 	if err != nil {
-		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			d.SetId("")
-			return nil
-		}
-
-		return fmtp.Errorf("Error retrieving HuaweiCloud Node Pool: %s", err)
+		return common.CheckDeletedDiag(d, err, "Error retrieving HuaweiCloud Node Pool")
 	}
 
-	d.Set("name", s.Metadata.Name)
-	d.Set("flavor_id", s.Spec.NodeTemplate.Flavor)
-	d.Set("availability_zone", s.Spec.NodeTemplate.Az)
-	d.Set("os", s.Spec.NodeTemplate.Os)
-	d.Set("billing_mode", s.Spec.NodeTemplate.BillingMode)
-	d.Set("key_pair", s.Spec.NodeTemplate.Login.SshKey)
-	d.Set("scall_enable", s.Spec.Autoscaling.Enable)
-	d.Set("min_node_count", s.Spec.Autoscaling.MinNodeCount)
-	d.Set("max_node_count", s.Spec.Autoscaling.MaxNodeCount)
-	d.Set("current_node_count", s.Status.CurrentNode)
-	d.Set("scale_down_cooldown_time", s.Spec.Autoscaling.ScaleDownCooldownTime)
-	d.Set("priority", s.Spec.Autoscaling.Priority)
-	d.Set("type", s.Spec.Type)
+	mErr := multierror.Append(nil,
+		d.Set("region", config.GetRegion(d)),
+		d.Set("name", s.Metadata.Name),
+		d.Set("flavor_id", s.Spec.NodeTemplate.Flavor),
+		d.Set("availability_zone", s.Spec.NodeTemplate.Az),
+		d.Set("os", s.Spec.NodeTemplate.Os),
+		d.Set("billing_mode", s.Spec.NodeTemplate.BillingMode),
+		d.Set("key_pair", s.Spec.NodeTemplate.Login.SshKey),
+		d.Set("initial_node_count", s.Spec.InitialNodeCount),
+		d.Set("scall_enable", s.Spec.Autoscaling.Enable),
+		d.Set("min_node_count", s.Spec.Autoscaling.MinNodeCount),
+		d.Set("max_node_count", s.Spec.Autoscaling.MaxNodeCount),
+		d.Set("scale_down_cooldown_time", s.Spec.Autoscaling.ScaleDownCooldownTime),
+		d.Set("priority", s.Spec.Autoscaling.Priority),
+		d.Set("type", s.Spec.Type),
+	)
 
 	// set extend_param
 	var extendParam = s.Spec.NodeTemplate.ExtendParam
-	d.Set("max_pods", extendParam["maxPods"])
+	mErr = multierror.Append(mErr, d.Set("max_pods", extendParam["maxPods"]))
 	delete(extendParam, "maxPods")
-	d.Set("extend_param", extendParam)
+	mErr = multierror.Append(mErr, d.Set("extend_param", extendParam))
 
 	if s.Spec.NodeTemplate.RunTime != nil {
-		d.Set("runtime", s.Spec.NodeTemplate.RunTime.Name)
+		mErr = multierror.Append(mErr, d.Set("runtime", s.Spec.NodeTemplate.RunTime.Name))
 	}
 
 	labels := map[string]string{}
@@ -425,7 +430,7 @@ func resourceCCENodePoolRead(d *schema.ResourceData, meta interface{}) error {
 		}
 		labels[key] = val
 	}
-	d.Set("labels", labels)
+	mErr = multierror.Append(mErr, d.Set("labels", labels))
 
 	var volumes []map[string]interface{}
 	for _, pairObject := range s.Spec.NodeTemplate.DataVolumes {
@@ -440,9 +445,7 @@ func resourceCCENodePoolRead(d *schema.ResourceData, meta interface{}) error {
 		}
 		volumes = append(volumes, volume)
 	}
-	if err := d.Set("data_volumes", volumes); err != nil {
-		return fmtp.Errorf("[DEBUG] Error saving dataVolumes to state for HuaweiCloud Node Pool (%s): %s", d.Id(), err)
-	}
+	mErr = multierror.Append(mErr, d.Set("data_volumes", volumes))
 
 	rootVolume := []map[string]interface{}{
 		{
@@ -453,25 +456,26 @@ func resourceCCENodePoolRead(d *schema.ResourceData, meta interface{}) error {
 			"extend_param":   "",
 		},
 	}
-	if err := d.Set("root_volume", rootVolume); err != nil {
-		return fmtp.Errorf("[DEBUG] Error saving root Volume to state for HuaweiCloud Node Pool (%s): %s", d.Id(), err)
-	}
+	mErr = multierror.Append(mErr, d.Set("root_volume", rootVolume))
 
 	tagmap := utils.TagsToMap(s.Spec.NodeTemplate.UserTags)
-	if err := d.Set("tags", tagmap); err != nil {
-		return fmtp.Errorf("Error saving tags to state for CCE Node Pool(%s): %s", d.Id(), err)
-	}
+	mErr = multierror.Append(mErr,
+		d.Set("tags", tagmap),
+		d.Set("status", s.Status.Phase),
+	)
 
-	d.Set("status", s.Status.Phase)
+	if err = mErr.ErrorOrNil(); err != nil {
+		return fmtp.DiagErrorf("Error setting CCE Node Pool fields: %s", err)
+	}
 
 	return nil
 }
 
-func resourceCCENodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceCCENodePoolUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	nodePoolClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
 
 	initialNodeCount := d.Get("initial_node_count").(int)
@@ -520,7 +524,7 @@ func resourceCCENodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
 	clusterid := d.Get("cluster_id").(string)
 	_, err = nodepools.Update(nodePoolClient, clusterid, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error updating HuaweiCloud Node Node Pool: %s", err)
+		return fmtp.DiagErrorf("Error updating HuaweiCloud Node Node Pool: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -531,24 +535,24 @@ func resourceCCENodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
 		Delay:        15 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CCE Node Pool: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE Node Pool: %s", err)
 	}
 
-	return resourceCCENodePoolRead(d, meta)
+	return resourceCCENodePoolRead(ctx, d, meta)
 }
 
-func resourceCCENodePoolDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceCCENodePoolDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	nodePoolClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
 	clusterid := d.Get("cluster_id").(string)
 	err = nodepools.Delete(nodePoolClient, clusterid, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud CCE Node Pool: %s", err)
+		return fmtp.DiagErrorf("Error deleting HuaweiCloud CCE Node Pool: %s", err)
 	}
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Deleting"},
@@ -559,9 +563,9 @@ func resourceCCENodePoolDelete(d *schema.ResourceData, meta interface{}) error {
 		PollInterval: 20 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud CCE Node Pool: %s", err)
+		return fmtp.DiagErrorf("Error deleting HuaweiCloud CCE Node Pool: %s", err)
 	}
 
 	d.SetId("")
@@ -597,7 +601,7 @@ func waitForCceNodePoolDelete(cceClient *golangsdk.ServiceClient, clusterId, nod
 	}
 }
 
-func resourceCCENodePoolV3Import(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceCCENodePoolV3Import(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
 		err := fmtp.Errorf("Invalid format specified for CCE Node Pool. Format must be <cluster id>/<node pool id>")

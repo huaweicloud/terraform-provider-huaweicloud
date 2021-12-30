@@ -53,6 +53,8 @@ func testAccCCEClusterV3DataSource_basic(rName string) string {
 
 data "huaweicloud_cce_cluster" "test" {
   name = huaweicloud_cce_cluster.test.name
+
+  depends_on = [huaweicloud_cce_cluster.test]
 }
 `, testAccCCEClusterV3_basic(rName))
 }

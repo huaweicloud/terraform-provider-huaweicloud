@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"context"
 	"encoding/json"
 	"reflect"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/cce/v3/addons"
 	"github.com/chnsz/golangsdk/openstack/cce/v3/templates"
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
@@ -29,7 +31,7 @@ func (t Template) IsEmpty() bool {
 
 func DataSourceCCEAddonTemplateV3() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceCCEAddonTemplateV3Read,
+		ReadContext: dataSourceCCEAddonTemplateV3Read,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -85,25 +87,25 @@ func DataSourceCCEAddonTemplateV3() *schema.Resource {
 	}
 }
 
-func dataSourceCCEAddonTemplateV3Read(d *schema.ResourceData, meta interface{}) error {
+func dataSourceCCEAddonTemplateV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	region := GetRegion(d, config)
 	client, err := config.CceAddonV3Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CCE client : %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client : %s", err)
 	}
 	// Get all addon templates by List function
 	cluster_id := d.Get("cluster_id").(string)
 	templateList, err := templates.List(client, cluster_id).Extract()
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve template list: %s", err)
+		return fmtp.DiagErrorf("Unable to retrieve template list: %s", err)
 	}
 
 	name := d.Get("name").(string)
 	version := d.Get("version").(string)
 	template, err := getTemplateByNameAndVersion(templateList, name, version)
 	if err != nil {
-		return fmtp.Errorf("Unable to find specifies template by name (%s) and version (%s): %s", name, version, err)
+		return fmtp.DiagErrorf("Unable to find specifies template by name (%s) and version (%s): %s", name, version, err)
 	}
 
 	d.SetId(template.UID)
@@ -114,8 +116,8 @@ func dataSourceCCEAddonTemplateV3Read(d *schema.ResourceData, meta interface{}) 
 		d.Set("stable", template.Stable),
 		setTemplateSupportVersionState(d, template.SupportVersions),
 	)
-	if mErr.ErrorOrNil() != nil {
-		return mErr
+	if err = mErr.ErrorOrNil(); err != nil {
+		return fmtp.DiagErrorf("Error setting template fields: %s", err)
 	}
 	return nil
 }

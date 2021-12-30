@@ -10,10 +10,12 @@ import (
 	"github.com/chnsz/golangsdk/openstack/aom/v1/icagents"
 	"github.com/chnsz/golangsdk/openstack/cce/v3/clusters"
 	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -531,35 +533,33 @@ func resourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta in
 
 	n, err := clusters.Get(cceClient, d.Id()).Extract()
 	if err != nil {
-		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			d.SetId("")
-			return nil
-		}
-
-		return fmtp.DiagErrorf("Error retrieving HuaweiCloud CCE: %s", err)
+		return common.CheckDeletedDiag(d, err, "Error retrieving HuaweiCloud CCE cluster")
 	}
 
-	d.Set("name", n.Metadata.Name)
-	d.Set("status", n.Status.Phase)
-	d.Set("flavor_id", n.Spec.Flavor)
-	d.Set("cluster_version", n.Spec.Version)
-	d.Set("cluster_type", n.Spec.Type)
-	d.Set("description", n.Spec.Description)
-	d.Set("vpc_id", n.Spec.HostNetwork.VpcId)
-	d.Set("subnet_id", n.Spec.HostNetwork.SubnetId)
-	d.Set("highway_subnet_id", n.Spec.HostNetwork.HighwaySubnet)
-	d.Set("container_network_type", n.Spec.ContainerNetwork.Mode)
-	d.Set("container_network_cidr", n.Spec.ContainerNetwork.Cidr)
-	d.Set("eni_subnet_id", n.Spec.EniNetwork.SubnetId)
-	d.Set("eni_subnet_cidr", n.Spec.EniNetwork.Cidr)
-	d.Set("authentication_mode", n.Spec.Authentication.Mode)
-	d.Set("security_group_id", n.Spec.HostNetwork.SecurityGroup)
-	d.Set("region", GetRegion(d, config))
-	d.Set("enterprise_project_id", n.Spec.ExtendParam["enterpriseProjectId"])
-	d.Set("service_network_cidr", n.Spec.KubernetesSvcIPRange)
-	d.Set("billing_mode", n.Spec.BillingMode)
+	mErr := multierror.Append(nil,
+		d.Set("region", config.GetRegion(d)),
+		d.Set("name", n.Metadata.Name),
+		d.Set("status", n.Status.Phase),
+		d.Set("flavor_id", n.Spec.Flavor),
+		d.Set("cluster_version", n.Spec.Version),
+		d.Set("cluster_type", n.Spec.Type),
+		d.Set("description", n.Spec.Description),
+		d.Set("vpc_id", n.Spec.HostNetwork.VpcId),
+		d.Set("subnet_id", n.Spec.HostNetwork.SubnetId),
+		d.Set("highway_subnet_id", n.Spec.HostNetwork.HighwaySubnet),
+		d.Set("container_network_type", n.Spec.ContainerNetwork.Mode),
+		d.Set("container_network_cidr", n.Spec.ContainerNetwork.Cidr),
+		d.Set("eni_subnet_id", n.Spec.EniNetwork.SubnetId),
+		d.Set("eni_subnet_cidr", n.Spec.EniNetwork.Cidr),
+		d.Set("authentication_mode", n.Spec.Authentication.Mode),
+		d.Set("security_group_id", n.Spec.HostNetwork.SecurityGroup),
+		d.Set("enterprise_project_id", n.Spec.ExtendParam["enterpriseProjectId"]),
+		d.Set("service_network_cidr", n.Spec.KubernetesSvcIPRange),
+		d.Set("billing_mode", n.Spec.BillingMode),
+	)
+
 	if n.Spec.BillingMode != 0 {
-		d.Set("charging_mode", "prePaid")
+		mErr = multierror.Append(mErr, d.Set("charging_mode", "prePaid"))
 	}
 
 	r := clusters.GetCert(cceClient, d.Id())
@@ -570,7 +570,7 @@ func resourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta in
 		logp.Printf("Error marshaling r.Body: %s", err)
 	}
 
-	d.Set("kube_config_raw", string(kubeConfigRaw))
+	mErr = multierror.Append(mErr, d.Set("kube_config_raw", string(kubeConfigRaw)))
 
 	cert, err := r.Extract()
 
@@ -587,7 +587,7 @@ func resourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta in
 		clusterCert["certificate_authority_data"] = clusterObj.Cluster.CertAuthorityData
 		clusterList = append(clusterList, clusterCert)
 	}
-	d.Set("certificate_clusters", clusterList)
+	mErr = multierror.Append(mErr, d.Set("certificate_clusters", clusterList))
 
 	//Set Certificate Users
 	var userList []map[string]interface{}
@@ -598,7 +598,7 @@ func resourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta in
 		userCert["client_key_data"] = userObj.User.ClientKeyData
 		userList = append(userList, userCert)
 	}
-	d.Set("certificate_users", userList)
+	mErr = multierror.Append(mErr, d.Set("certificate_users", userList))
 
 	// Set masters
 	var masterList []map[string]interface{}
@@ -607,7 +607,11 @@ func resourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta in
 		master["availability_zone"] = masterObj.MasterAZ
 		masterList = append(masterList, master)
 	}
-	d.Set("masters", masterList)
+	mErr = multierror.Append(mErr, d.Set("masters", masterList))
+
+	if err = mErr.ErrorOrNil(); err != nil {
+		return fmtp.DiagErrorf("Error setting CCE cluster fields: %s", err)
+	}
 
 	return nil
 }
