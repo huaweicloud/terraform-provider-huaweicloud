@@ -1,5 +1,34 @@
 # CHANGELOG
 
+## 1.32.0 (December 31, 2021)
+
+* **New Resurce:**
+  + `huaweicloud_cdm_link` [GH-1819]
+  + `huaweicloud_cdm_job` [GH-1840]
+
+* **New Data Source:**
+  + `huaweicloud_vpc_eips` [GH-1792]
+  + `huaweicloud_evs_volumes` [GH-1794]
+  + `huaweicloud_rds_instances` [GH-1826]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_elb_pool: make name and description can be updated to empty [GH-1816]
+* resource/huaweicloud_networking_vip: support IPv6 function [GH-1818]
+* resource/huaweicloud_vpc_eip: support IPv6 function [GH-1821]
+* resource/huaweicloud_compute_instance: support IPv6 function [GH-1834]
+
+BUG FIXES:
+
+* resource/huaweicloud_compute_instance: fix checkdeleted issue [GH-1793]
+* resource/huaweicloud_cbr_vaults: fix the resources cannot be removed [GH-1796]
+* resource/huaweicloud_vpc_subnet: retry to delete when the error code was 403 [GH-1841]
+* resource/huaweicloud_lb_*: don't resty to create resources when an error occurs [GH-1842]
+
+DEPRECATE:
+
+* data/huaweicloud_dms_az [GH-1828]
+
 ## 1.31.1 (December 10, 2021)
 
 * **New Resurce:**
