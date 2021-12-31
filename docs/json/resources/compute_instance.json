@@ -30,7 +30,8 @@
               },
               "availability_zone": {
                 "type": "string",
-                "required": true,
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "charging_mode": {
@@ -222,8 +223,12 @@
                     },
                     "fixed_ip_v6": {
                       "type": "string",
+                      "description": "schema: Computed",
+                      "computed": true
+                    },
+                    "ipv6_enable": {
+                      "type": "bool",
                       "optional": true,
-                      "computed": true,
                       "forcenew": true
                     },
                     "mac": {
@@ -233,6 +238,11 @@
                     "port": {
                       "type": "string",
                       "description": "schema: Computed",
+                      "computed": true
+                    },
+                    "source_dest_check": {
+                      "type": "bool",
+                      "optional": true,
                       "computed": true
                     },
                     "uuid": {
