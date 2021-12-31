@@ -81,15 +81,14 @@ func ResourceL7PolicyV2() *schema.Resource {
 			},
 
 			"redirect_pool_id": {
-				Type:          schema.TypeString,
-				ConflictsWith: []string{"redirect_listener_id"},
-				Optional:      true,
+				Type:         schema.TypeString,
+				ExactlyOneOf: []string{"redirect_listener_id"},
+				Optional:     true,
 			},
 
 			"redirect_listener_id": {
-				Type:          schema.TypeString,
-				ConflictsWith: []string{"redirect_pool_id"},
-				Optional:      true,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"admin_state_up": {
