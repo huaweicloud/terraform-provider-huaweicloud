@@ -49,20 +49,29 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Human-readable description for the L7 Policy.
 
-* `action` - (Required, String, ForceNew) The L7 Policy action - can either be REDIRECT\_TO\_POOL, or
-  REDIRECT\_TO\_LISTENER. Changing this creates a new L7 Policy.
+* `listener_id` - (Required, String, ForceNew) Specifies the ID of the listener for which the forwarding policy is added.
+  Changing this creates a new L7 Policy.
 
-* `listener_id` - (Required, String, ForceNew) The Listener on which the L7 Policy will be associated with. Changing
-  this creates a new L7 Policy.
+* `action` - (Required, String, ForceNew) Specifies whether requests are forwarded to another backend server group
+  or redirected to an HTTPS listener. Changing this creates a new L7 Policy. The value ranges:
+  + **REDIRECT_TO_POOL**: Requests are forwarded to the backend server group specified by `redirect_pool_id`.
+  + **REDIRECT_TO_LISTENER**: Requests are redirected from the HTTP listener specified by `listener_id` to the
+    HTTPS listener specified by `redirect_listener_id`.
 
-* `position` - (Optional, Int, ForceNew) The position of this policy on the listener. Positions start at 1. Changing
-  this creates a new L7 Policy.
+* `position` - (Optional, Int, ForceNew) The position of this policy on the listener. Positions start at 1.
+  Changing this creates a new L7 Policy.
 
-* `redirect_pool_id` - (Optional, String) Requests matching this policy will be redirected to the pool with this ID.
-  Only valid if action is REDIRECT\_TO\_POOL.
+* `redirect_pool_id` - (Optional, String) Specifies the ID of the backend server group to which traffic is forwarded.
+  This parameter is mandatory when `action` is set to **REDIRECT_TO_POOL**. The backend server group must meet the
+  following requirements:
+  + Cannot be the default backend server group of the listener.
+  + Cannot be the backend server group used by forwarding policies of other listeners.
 
-* `redirect_listener_id` - (Optional, String) Requests matching this policy will be redirected to the listener with this
-  ID. Only valid if action is REDIRECT\_TO\_LISTENER.
+* `redirect_listener_id` - (Optional, String) Specifies the ID of the listener to which the traffic is redirected.
+  This parameter is mandatory when `action` is set to **REDIRECT_TO_LISTENER**. The listener must meet the
+  following requirements:
+  + Can only be an HTTPS listener.
+  + Can only be a listener of the same load balancer.
 
 * `admin_state_up` - (Optional, Bool) The administrative state of the L7 Policy. This value can only be true (UP).
 
@@ -70,7 +79,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The unique ID for the L7 {olicy.
+* `id` - The unique ID for the L7 policy.
 
 ## Timeouts
 
