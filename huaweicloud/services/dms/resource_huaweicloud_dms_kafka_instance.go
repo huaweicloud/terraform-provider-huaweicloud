@@ -256,8 +256,8 @@ func resourceDmsKafkaPublicIpIDs(d *schema.ResourceData, bandwidth string) (stri
 	return strings.Join(publicIpIDs, ","), nil
 }
 
-func getProductDetail(config *config.Config, d *schema.ResourceData) (*products.Detail, error) {
-	products, err := getProducts(config, config.GetRegion(d), "kafka")
+func getProductDetail(config *config.Config, d *schema.ResourceData, instanceType string) (*products.Detail, error) {
+	productRsp, err := getProducts(config, config.GetRegion(d), instanceType)
 	if err != nil {
 		return nil, fmtp.Errorf("error querying product detail, please check product_id, error: %s", err)
 	}
@@ -265,15 +265,25 @@ func getProductDetail(config *config.Config, d *schema.ResourceData) (*products.
 	productID := d.Get("product_id").(string)
 	engineVersion := d.Get("engine_version").(string)
 
-	for _, ps := range products.Hourly {
+	for _, ps := range productRsp.Hourly {
 		if ps.Version != engineVersion {
 			continue
 		}
 		for _, v := range ps.Values {
 			for _, p := range v.Details {
-				if p.ProductID == productID {
-					return &p, nil
+				if instanceType == "kafka" {
+					if p.ProductID == productID {
+						return &p, nil
+					}
+				} else if instanceType == "rabbitmq" {
+					for _, pi := range p.ProductInfos {
+						if pi.ProductID == productID {
+							p.ProductInfos = []products.ProductInfo{pi}
+							return &p, nil
+						}
+					}
 				}
+
 			}
 		}
 	}
@@ -288,7 +298,7 @@ func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData,
 		return fmtp.DiagErrorf("error creating HuaweiCloud DMS instance client: %s", err)
 	}
 
-	product, err := getProductDetail(config, d)
+	product, err := getProductDetail(config, d, "kafka")
 	if err != nil {
 		return fmtp.DiagErrorf("Error querying product detail: %s", err)
 	}
@@ -392,7 +402,7 @@ func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData,
 
 	// resize storage capacity of the instance
 	if ok && storageSpace.(int) != int(defaultStorageSpace) {
-		err = resizeInstance(ctx, d, meta)
+		err = resizeInstance(ctx, d, meta, "kafka")
 		if err != nil {
 			dErrs := fmtp.DiagErrorf("Kafka instance has created, "+
 				"but an error occurred while resizing the storage capacity. "+
@@ -516,7 +526,7 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if d.HasChanges("storage_space", "product_id") {
-		err = resizeInstance(ctx, d, meta)
+		err = resizeInstance(ctx, d, meta, "kafka")
 		if err != nil {
 			e := fmtp.Errorf("error resizing HuaweiCloud DMS kafka Instance: %s", err)
 			mErr = multierror.Append(mErr, e)
@@ -538,23 +548,30 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 	return resourceDmsKafkaInstanceRead(ctx, d, meta)
 }
 
-func resizeInstance(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
+func resizeInstance(ctx context.Context, d *schema.ResourceData, meta interface{}, instanceType string) error {
 	config := meta.(*config.Config)
 	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("error creating HuaweiCloud DMS instance client: %s", err)
 	}
 
-	product, err := getProductDetail(config, d)
+	product, err := getProductDetail(config, d, instanceType)
 	if err != nil || product == nil {
 		return fmtp.Errorf("change storage_space failed, error querying product detail: %s", err)
 	}
+	logp.Printf("[DEBUG] Get DMS product detail: %#v", product)
 
 	storage := d.Get("storage_space").(int)
+	specCode := product.SpecCode
+	if instanceType == "rabbitmq" {
+		specCode = product.ProductInfos[0].SpecCode
+	}
 	opts := instances.ResizeInstanceOpts{
-		NewSpecCode:     product.SpecCode,
+		NewSpecCode:     specCode,
 		NewStorageSpace: storage,
 	}
+	logp.Printf("[DEBUG] Resize DMS storage capacity option : %#v", opts)
+
 	_, err = instances.Resize(dmsV2Client, d.Id(), opts)
 	if err != nil {
 		return fmtp.Errorf("resize failed, error: %s", err)

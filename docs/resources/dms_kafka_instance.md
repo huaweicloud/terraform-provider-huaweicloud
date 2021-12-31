@@ -80,7 +80,7 @@ The following arguments are supported:
 
 * `security_group_id` - (Required, String) Specifies the ID of a security group.
 
-* `availability_zones` - (Required, List, ForceNew) The codes of the AZ where the Kafka instances reside.
+* `availability_zones` - (Required, List, ForceNew) The names of the AZ where the Kafka instances reside.
   The parameter value can not be left blank or an empty array. Changing this creates a new instance resource.
 
   -> **NOTE:** Deploy one availability zone or at least three availability zones. Do not select two availability zones.
