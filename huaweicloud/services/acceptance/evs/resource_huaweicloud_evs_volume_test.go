@@ -41,6 +41,7 @@ func TestAccEvsVolume_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "size", "100"),
+					resource.TestCheckResourceAttr(resourceName, "device_type", "SCSI"),
 					resource.TestCheckResourceAttr(resourceName, "volume_type", "SAS"),
 					resource.TestCheckResourceAttr(resourceName, "description", "Created by acc test script."),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
@@ -53,6 +54,7 @@ func TestAccEvsVolume_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName+"_update"),
 					resource.TestCheckResourceAttr(resourceName, "size", "200"),
+					resource.TestCheckResourceAttr(resourceName, "device_type", "SCSI"),
 					resource.TestCheckResourceAttr(resourceName, "volume_type", "SAS"),
 					resource.TestCheckResourceAttr(resourceName, "description", "Updated by acc test script."),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo1", "bar"),
@@ -124,6 +126,7 @@ resource "huaweicloud_evs_volume" "test" {
   name              = "%s"
   description       = "Created by acc test script."
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  device_type       = "SCSI"
   volume_type       = "SAS"
   size              = 100
   image_id          = data.huaweicloud_images_image.test.id
@@ -149,6 +152,7 @@ resource "huaweicloud_evs_volume" "test" {
   name              = "%s_update"
   description       = "Updated by acc test script."
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  device_type       = "SCSI"
   volume_type       = "SAS"
   size              = 200
   image_id          = data.huaweicloud_images_image.test.id
