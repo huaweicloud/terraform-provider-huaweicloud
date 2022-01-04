@@ -228,7 +228,7 @@ func resourceEvsVolumeCreate(ctx context.Context, d *schema.ResourceData, meta i
 }
 
 func setEvsVolumeDeviceType(d *schema.ResourceData, resp *cloudvolumes.Volume) error {
-	if value, ok := resp.ImageMetadata["hw:passthrough"]; ok && value == "true" {
+	if resp.Metadata.HwPassthrough == "true" {
 		return d.Set("device_type", "SCSI")
 	}
 	return d.Set("device_type", "VBD")
