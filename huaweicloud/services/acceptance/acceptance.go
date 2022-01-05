@@ -196,7 +196,7 @@ func TestCheckResourceAttrWithVariable(resourceName, key, varStr string) resourc
 		// Get the value based on resName and keyName from the state.
 		rs, ok := s.RootModule().Resources[resName]
 		if !ok {
-			return fmtp.Errorf("Can't find %s in state : %s.", resName, ok)
+			return fmtp.Errorf("Can't find %s in state : %v.", resName, ok)
 		}
 		value := rs.Primary.Attributes[keyName]
 
@@ -240,39 +240,64 @@ func (rc *resourceCheck) CheckResourceDestroy() resource.TestCheckFunc {
 	}
 }
 
+func (rc *resourceCheck) checkResourceExists(s *terraform.State) error {
+	rs, ok := s.RootModule().Resources[rc.resourceName]
+	if !ok {
+		return fmtp.Errorf("Can not found the resource or data source in state: %s", rc.resourceName)
+	}
+	if rs.Primary.ID == "" {
+		return fmtp.Errorf("No id set for the resource or data source: %s", rc.resourceName)
+	}
+	if strings.EqualFold(rc.resourceType, dataSourceTypeCode) {
+		return nil
+	}
+
+	if rc.getResourceFunc != nil {
+		conf := TestAccProvider.Meta().(*config.Config)
+		r, err := rc.getResourceFunc(conf, rs)
+		if err != nil {
+			return fmtp.Errorf("checking resource %s %s exists error: %s ",
+				rc.resourceName, rs.Primary.ID, err)
+		}
+		if rc.resourceObject != nil {
+			b, err := json.Marshal(r)
+			if err != nil {
+				return fmtp.Errorf("marshaling resource %s %s error: %s ",
+					rc.resourceName, rs.Primary.ID, err)
+			}
+			json.Unmarshal(b, rc.resourceObject)
+		} else {
+			logp.Printf("[WARN] The 'resourceObject' is nil, please set it during initialization.")
+		}
+	} else {
+		return fmtp.Errorf("The 'getResourceFunc' is nil, please set it.")
+	}
+
+	return nil
+}
+
 // CheckResourceExists check whether resources exist in HuaweiCloud.
 func (rc *resourceCheck) CheckResourceExists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[rc.resourceName]
-		if !ok {
-			return fmtp.Errorf("Can not found the resource or data source in state: %s", rc.resourceName)
-		}
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No id set for the resource or data source: %s", rc.resourceName)
-		}
-		if strings.EqualFold(rc.resourceType, dataSourceTypeCode) {
-			return nil
-		}
+		return rc.checkResourceExists(s)
+	}
+}
 
-		if rc.getResourceFunc != nil {
-			conf := TestAccProvider.Meta().(*config.Config)
-			r, err := rc.getResourceFunc(conf, rs)
+/*
+CheckMultiResourcesExists checks whether multiple resources created by count in HuaweiCloud are both existed.
+  Parameters:
+    expCount: the expected number of resources that will be created.
+*/
+func (rc *resourceCheck) CheckMultiResourcesExists(expCount int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		var err error
+		for i := 0; i < expCount; i++ {
+			rcCopy := *rc
+			rcCopy.resourceName = fmt.Sprintf("%s.%d", rcCopy.resourceName, i)
+			err = rcCopy.checkResourceExists(s)
 			if err != nil {
-				return fmtp.Errorf("checking resource %s %s exists error: %s ",
-					rc.resourceName, rs.Primary.ID, err)
+				return err
 			}
-			if rc.resourceObject != nil {
-				b, err := json.Marshal(r)
-				if err != nil {
-					return fmtp.Errorf("marshaling resource %s %s error: %s ",
-						rc.resourceName, rs.Primary.ID, err)
-				}
-				json.Unmarshal(b, rc.resourceObject)
-			} else {
-				logp.Printf("[WARN] The 'resourceObject' is nil, please set it during initialization.")
-			}
-		} else {
-			return fmtp.Errorf("The 'getResourceFunc' is nil, please set it.")
 		}
 
 		return nil
