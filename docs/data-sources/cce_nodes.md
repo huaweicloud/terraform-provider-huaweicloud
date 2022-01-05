@@ -59,7 +59,7 @@ The `nodes` block supports:
 
 * `subnet_id` - The ID of the subnet which the NIC belongs to.
 
-* `esc_group_id` - The ID of Ecs group which the node belongs to.
+* `ecs_group_id` - The ID of Ecs group which the node belongs to.
 
 * `tags` - The tags of a VM node, key/value pair format.
 

@@ -89,12 +89,12 @@ The following arguments are supported:
 * `flavor_id` - (Required, String, ForceNew) Cluster specifications. Changing this parameter will create a new cluster
   resource. Possible values:
 
-  + `cce.s1.small` - small-scale single cluster (up to 50 nodes).
-  + `cce.s1.medium` - medium-scale single cluster (up to 200 nodes).
-  + `cce.s2.small` - small-scale HA cluster (up to 50 nodes).
-  + `cce.s2.medium` - medium-scale HA cluster (up to 200 nodes).
-  + `cce.s2.large` - large-scale HA cluster (up to 1000 nodes).
-  + `cce.s2.xlarge` - large-scale HA cluster (up to 2000 nodes).
+  + **cce.s1.small**: small-scale single cluster (up to 50 nodes).
+  + **cce.s1.medium**: medium-scale single cluster (up to 200 nodes).
+  + **cce.s2.small**: small-scale HA cluster (up to 50 nodes).
+  + **cce.s2.medium**: medium-scale HA cluster (up to 200 nodes).
+  + **cce.s2.large**: large-scale HA cluster (up to 1000 nodes).
+  + **cce.s2.xlarge**: large-scale HA cluster (up to 2000 nodes).
 
 * `cluster_version` - (Optional, String, ForceNew) For the cluster version, defaults to the latest supported version.
   Changing this parameter will create a new cluster resource.
@@ -112,9 +112,9 @@ The following arguments are supported:
 
 * `container_network_type` - (Required, String, ForceNew) Container network parameters. Possible values:
 
-  + `overlay_l2` - An overlay_l2 network built for containers by using Open vSwitch(OVS).
-  + `vpc-router` - An vpc-router network built for containers by using ipvlan and custom VPC routes.
-  + `eni` - A Yangtse network built for cce turbo cluster. The container network deeply integrates the native ENI
+  + **overlay_l2**: An overlay_l2 network built for containers by using Open vSwitch(OVS).
+  + **vpc-router**: An vpc-router network built for containers by using ipvlan and custom VPC routes.
+  + **eni**: A Yangtse network built for cce turbo cluster. The container network deeply integrates the native ENI
       capability of VPC, uses the VPC CIDR block to allocate container addresses, and supports direct connections
       between ELB and containers to provide high performance.
 
@@ -158,10 +158,10 @@ The following arguments are supported:
 
 * `kube_proxy_mode` - (Optional, String, ForceNew) Service forwarding mode. Two modes are available:
 
-  + iptables: Traditional kube-proxy uses iptables rules to implement service load balancing. In this mode, too many
+  + **iptables**: Traditional kube-proxy uses iptables rules to implement service load balancing. In this mode, too many
       iptables rules will be generated when many services are deployed. In addition, non-incremental updates will cause
       a latency and even obvious performance issues in the case of heavy service traffic.
-  + ipvs: Optimized kube-proxy mode with higher throughput and faster speed. This mode supports incremental updates
+  + **ipvs**: Optimized kube-proxy mode with higher throughput and faster speed. This mode supports incremental updates
       and can keep connections uninterrupted during service updates. It is suitable for large-sized clusters.
 
 * `extend_param` - (Optional, Map, ForceNew) Extended parameter. Changing this parameter will create a new cluster

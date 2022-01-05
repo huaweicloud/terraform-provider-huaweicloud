@@ -33,11 +33,13 @@ The following arguments are supported:
 
 * `cluster_type` - (Optional, String) Type of the cluster. Possible values: VirtualMachine, BareMetal.
 
+* `vpc_id` - (Optional, String) Specifies the VPC ID to which the cluster belongs.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `billingMode` - Charging mode of the cluster.
+* `billing_mode` - Charging mode of the cluster.
 
 * `description` - Cluster description.
 
@@ -59,7 +61,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `authentication_mode` - Authentication mode of the cluster, possible values are x509 and rbac. Defaults to *rbac*.
 
-* `masters` - Advanced configuration of master nodes.
+* `masters` - Advanced configuration of master nodes. Structure is documented below.
 
 * `security_group_id` - Security group ID of the cluster.
 
@@ -85,13 +87,15 @@ In addition to all arguments above, the following attributes are exported:
 
 * `kube_config_raw` - Raw Kubernetes config to be used by kubectl and other compatible tools.
 
+The `masters` block supports:
+
+* `availability_zone` - The availability zone (AZ) of the master node.
+
 The `endpoints` block supports:
 
 * `url` - The URL of the cluster access address.
 
 * `type` - The type of the cluster access address.
-
-  + `Internal` - The user's subnet access address.
-
-  + `External` - The public network access address.
+  + **Internal**: The user's subnet access address.
+  + **External**: The public network access address.
   

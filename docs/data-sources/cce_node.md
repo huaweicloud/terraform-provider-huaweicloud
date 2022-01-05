@@ -37,6 +37,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The node ID.
+
 * `flavor_id` - The flavor id to be used.
 
 * `availability_zone` - Available partitions where the node is located.

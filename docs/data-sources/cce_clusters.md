@@ -62,7 +62,7 @@ The `clusters` block supports:
 
 * `description` - The description of the cluster.
 
-* `billingMode` - The charging mode of the cluster.
+* `billing_mode` - The charging mode of the cluster.
 
 * `container_network_cidr` - The container network segment.
 
@@ -101,10 +101,8 @@ The `endpoints` block supports:
 * `url` - The URL of the cluster access address.
 
 * `type` - The type of the cluster access address.
-
-  + `Internal` - The user's subnet access address.
-
-  + `External` - The public network access address.
+  + **Internal**: The user's subnet access address.
+  + **External**: The public network access address.
 
 The `certificate_clusters` block supports:
 
