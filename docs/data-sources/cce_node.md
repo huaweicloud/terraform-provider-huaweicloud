@@ -22,16 +22,16 @@ data "huaweicloud_cce_node" "node" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) The region in which to obtain the CCE nodes. If omitted, the provider-level region will
-  be used.
+* `region` - (Optional, String) Specifies the region in which to obtain the CCE nodes.
+  If omitted, the provider-level region will be used.
 
-* `cluster_id` - (Required, String) The ID of container cluster.
+* `cluster_id` - (Required, String) Specifies the ID of container cluster.
 
-* `name` - (Optional, String) Name of the node.
+* `name` - (Optional, String) Specifies the name of the node.
 
-* `node_id` - (Optional, String) The ID of the node.
+* `node_id` - (Optional, String) Specifies the ID of the node.
 
-* `status` - (Optional, String) The state of the node.
+* `status` - (Optional, String) Specifies the state of the node.
 
 ## Attributes Reference
 
@@ -45,9 +45,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `os` - Operating System of the node.
 
-* `subnet_id` - The ID of the subnet which the NIC belongs to.
+* `subnet_id` - The ID of the subnet to which the NIC belongs.
 
-* `ecs_group_id` - The ID of ECS group which the node belongs to.
+* `ecs_group_id` - The ID of ECS group to which the node belongs.
 
 * `tags` - Tags of a VM node, key/value pair format.
 
@@ -59,16 +59,16 @@ In addition to all arguments above, the following attributes are exported:
 
 * `public_ip` - Elastic IP parameters of the node.
 
-* `private_ip` - Private IP of the node
+* `private_ip` - Private IP of the node.
 
-* `root_volume` - It corresponds to the system disk related configuration.
+* `root_volume` - It corresponds to the system disk related configuration. Structure is documented below.
 
-  + `size` - Disk size in GB.
-  + `volumetype` - Disk type.
-  + `extend_params` - Disk expansion parameters.
+* `data_volumes` - Represents the data disk to be created. Structure is documented below.
 
-* `data_volumes` - Represents the data disk to be created.
+The `root_volume` and `data_volumes` blocks support:
 
-  + `size` - Disk size in GB.
-  + `volumetype` - Disk type.
-  + `extend_params` - Disk expansion parameters.
+* `size` - Disk size in GB.
+
+* `volumetype` - Disk type.
+
+* `extend_params` - Disk expansion parameters.

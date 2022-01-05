@@ -46,9 +46,10 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the CCE pool resource. If omitted, the
   provider-level region will be used. Changing this creates a new CCE node pool resource.
 
-* `cluster_id` - (Required, String, ForceNew) ID of the cluster. Changing this parameter will create a new resource.
+* `cluster_id` - (Required, String, ForceNew) Specifies the cluster ID.
+  Changing this parameter will create a new resource.
 
-* `name` - (Required, String) Node Pool Name.
+* `name` - (Required, String) Specifies the node pool name.
 
 * `initial_node_count` - (Required, Int) Specifies the initial number of expected nodes in the node pool.
   This parameter can be also used to manually scale the node count afterwards.
@@ -56,91 +57,92 @@ The following arguments are supported:
 * `flavor_id` - (Required, String, ForceNew) Specifies the flavor ID. Changing this parameter will create a new
   resource.
 
-* `type` - (Optional, String, ForceNew) Node Pool type. Possible values are: "vm" and "ElasticBMS".
+* `type` - (Optional, String, ForceNew) Specifies the node pool type. Possible values are: **vm** and **ElasticBMS**.
 
-* `availability_zone` - (Optional, String, ForceNew) specify the name of the available partition (AZ). Default value is
-  random to create nodes in a random AZ in the node pool. Changing this parameter will create a new resource.
+* `availability_zone` - (Optional, String, ForceNew) Specifies the name of the available partition (AZ). Default value
+  is random to create nodes in a random AZ in the node pool. Changing this parameter will create a new resource.
 
-* `os` - (Optional, String, ForceNew) Operating System of the node. The value can be EulerOS 2.5 and CentOS 7.6.
+* `os` - (Optional, String, ForceNew) Specifies the operating system of the node.
   Changing this parameter will create a new resource.
 
-* `key_pair` - (Optional, String, ForceNew) Key pair name when logging in to select the key pair mode. This parameter
-  and `password` are alternative. Changing this parameter will create a new resource.
+* `key_pair` - (Optional, String, ForceNew) Specifies the key pair name when logging in to select the key pair mode.
+  This parameter and `password` are alternative. Changing this parameter will create a new resource.
 
-* `password` - (Optional, String, ForceNew) root password when logging in to select the password mode. This parameter
-  must be salted and alternative to `key_pair`. Changing this parameter will create a new resource.
+* `password` - (Optional, String, ForceNew) Specifies the root password when logging in to select the password mode.
+  This parameter must be salted and alternative to `key_pair`. Changing this parameter will create a new resource.
 
-* `subnet_id` - (Optional, String, ForceNew) The ID of the subnet to which the NIC belongs. Changing this parameter will
-  create a new resource.
+* `subnet_id` - (Optional, String, ForceNew) Specifies the ID of the subnet to which the NIC belongs.
+  Changing this parameter will create a new resource.
 
-* `max_pods` - (Optional, Int, ForceNew) The maximum number of instances a node is allowed to create. Changing this
-  parameter will create a new resource.
+* `max_pods` - (Optional, Int, ForceNew) Specifies the maximum number of instances a node is allowed to create.
+  Changing this parameter will create a new resource.
 
-* `preinstall` - (Optional, String, ForceNew) Script required before installation. The input value can be a Base64
-  encoded string or not. Changing this parameter will create a new resource.
+* `preinstall` - (Optional, String, ForceNew) Specifies the script to be executed before installation.
+  The input value can be a Base64 encoded string or not. Changing this parameter will create a new resource.
 
-* `postinstall` - (Optional, String, ForceNew) Script required after the installation. The input value can be a Base64
-  encoded string or not. Changing this parameter will create a new resource.
+* `postinstall` - (Optional, String, ForceNew) Specifies the script to be executed after installation.
+  The input value can be a Base64 encoded string or not. Changing this parameter will create a new resource.
 
-* `extend_param` - (Optional, Map, ForceNew) Extended parameter. Changing this parameter will create a new resource.
-  Availiable keys :
-
-  + `agency_name` - Specifies the agency name to provide temporary credentials for CCE node to access other cloud
-    services.
-  + `alpha.cce/NodeImageID` - This parameter is required when a custom image is used to create a BMS node.
-  + `dockerBaseSize` - The available disk space of a single docker container on the node in device mapper mode.
-  + `DockerLVMConfigOverride` - Docker data disk configurations. The following is an example default configuration:
+* `extend_param` - (Optional, Map, ForceNew) Specifies the extended parameter.
+  Changing this parameter will create a new resource.
+  The available keys are as follows:
+  + **agency_name**: The agency name to provide temporary credentials for CCE node to access other cloud services.
+  + **alpha.cce/NodeImageID**: The custom image ID used to create the BMS nodes.
+  + **dockerBaseSize**: The available disk space of a single docker container on the node in device mapper mode.
+  + **DockerLVMConfigOverride**: Specifies the data disk configurations of Docker.
+  
+  The following is an example default configuration:
 
 ```hcl
-  extend_param = {
+extend_param = {
   DockerLVMConfigOverride = "dockerThinpool=vgpaas/90%VG;kubernetesLV=vgpaas/10%VG;diskType=evs;lvType=linear"
 }
 ```
 
-* `scall_enable` - (Optional, Bool) Whether to enable auto scaling. If Autoscaler is enabled, install the autoscaler
-  add-on to use the auto scaling feature.
+* `scall_enable` - (Optional, Bool) Specifies whether to enable auto scaling.
+  If Autoscaler is enabled, install the autoscaler add-on to use the auto scaling feature.
 
-* `min_node_count` - (Optional, Int) Minimum number of nodes allowed if auto scaling is enabled.
+* `min_node_count` - (Optional, Int) Specifies the minimum number of nodes allowed if auto scaling is enabled.
 
-* `max_node_count` - (Optional, Int) Maximum number of nodes allowed if auto scaling is enabled.
+* `max_node_count` - (Optional, Int) Specifies the maximum number of nodes allowed if auto scaling is enabled.
 
-* `scale_down_cooldown_time` - (Optional, Int) Interval between two scaling operations, in minutes.
+* `scale_down_cooldown_time` - (Optional, Int) Specifies the time interval between two scaling operations, in minutes.
 
-* `priority` - (Optional, Int) Weight of a node pool. A node pool with a higher weight has a higher priority during
-  scaling.
+* `priority` - (Optional, Int) Specifies the weight of the node pool.
+  A node pool with a higher weight has a higher priority during scaling.
 
-* `labels` - (Optional, Map) Tags of a Kubernetes node, key/value pair format.
+* `labels` - (Optional, Map) Specifies the tags of a Kubernetes node, key/value pair format.
 
-* `tags` - (Optional, Map) Tags of a VM node, key/value pair format.
+* `tags` - (Optional, Map) Specifies the tags of a VM node, key/value pair format.
 
-* `root_volume` - (Required, List, ForceNew) It corresponds to the system disk related configuration. The structure is
-  described below. Changing this parameter will create a new resource.
+* `root_volume` - (Required, List, ForceNew) Specifies the configuration of the system disk.
+  The structure is described below. Changing this parameter will create a new resource.
 
-* `data_volumes` - (Required, List, ForceNew) Represents the data disk to be created. The structure is described below.
-  Changing this parameter will create a new resource.
+* `data_volumes` - (Required, List, ForceNew) Specifies the configuration of the data disks.
+  The structure is described below. Changing this parameter will create a new resource.
 
-* `taints` - (Optional, List) You can add taints to created nodes to configure anti-affinity. The structure is described
-  below.
+* `taints` - (Optional, List) Specifies the taints configuration of the nodes to set anti-affinity.
+  The structure is described below.
 
 The `root_volume` block supports:
 
-* `size` - (Required, Int, ForceNew) Disk size in GB. Changing this parameter will create a new resource.
+* `size` - (Required, Int, ForceNew) Specifies the disk size in GB. Changing this parameter will create a new resource.
 
-* `volumetype` - (Required, String, ForceNew) Disk type. Changing this parameter will create a new resource.
+* `volumetype` - (Required, String, ForceNew) Specifies the disk type. Changing this parameter will create a new resource.
 
-* `extend_params` - (Optional, Map, ForceNew) Disk expansion parameters.
+* `extend_params` - (Optional, Map, ForceNew) Specifies the disk expansion parameters.
   Changing this parameter will create a new resource.
 
 The `data_volumes` block supports:
 
-* `size` - (Required, Int, ForceNew) Disk size in GB. Changing this parameter will create a new resource.
+* `size` - (Required, Int, ForceNew) Specifies the disk size in GB. Changing this parameter will create a new resource.
 
-* `volumetype` - (Required, String, ForceNew) Disk type. Changing this parameter will create a new resource.
+* `volumetype` - (Required, String, ForceNew) Specifies the disk type. Changing this parameter will create a new resource.
 
-* `extend_params` - (Optional, Map, ForceNew) Disk expansion parameters.
+* `extend_params` - (Optional, Map, ForceNew) Specifies the disk expansion parameters.
   Changing this parameter will create a new resource.
 
-* `kms_key_id` - (Optional, String, ForceNew) Specifies the ID of a KMS key. This is used to encrypt the volume.
+* `kms_key_id` - (Optional, String, ForceNew) Specifies the KMS key ID. This is used to encrypt the volume.
   Changing this parameter will create a new resource.
 
 The `taints` block supports:
@@ -158,7 +160,7 @@ The `taints` block supports:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - The resource ID in UUID format.
 
 * `status` - Node status information.
 

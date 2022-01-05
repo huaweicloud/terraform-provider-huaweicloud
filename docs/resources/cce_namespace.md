@@ -29,21 +29,21 @@ The following arguments are supported:
 * `cluster_id` - (Required, String, ForceNew) Specifies the cluster ID to which the CCE namespace belongs.
   Changing this will create a new namespace resource.
 
-* `name` - (Optional, String, ForceNew) Specifies the name of the namespace. Must be unique. This parameter can
-  contain a maximum of 63 characters, which may consist of lowercase letters, digits and hyphens (-), and must
-  start and end with lowercase letters and digits. Changing this will create a new namespace resource.
+* `name` - (Optional, String, ForceNew) Specifies the unique name of the namespace.
+  This parameter can contain a maximum of 63 characters, which may consist of lowercase letters, digits and hyphens (-),
+  and must start and end with lowercase letters and digits. Changing this will create a new namespace resource.
   Exactly one of `name` or `prefix` must be provided.
 
-* `prefix` - (Optional, String, ForceNew) Specifies A prefix used by the server to generate a unique name.
+* `prefix` - (Optional, String, ForceNew) Specifies a prefix used by the server to generate a unique name.
   This parameter can contain a maximum of 63 characters, which may consist of lowercase letters, digits and
   hyphens (-), and must start and end with lowercase letters and digits.
   Changing this will create a new namespace resource. Exactly one of `name` or `prefix` must be provided.
 
-* `annotations` - (Optional, Map, ForceNew) An unstructured key value map for external parameters. Changing this
-  will create a new namespace resource.
+* `annotations` - (Optional, Map, ForceNew) Specifies an unstructured key value map for external parameters.
+  Changing this will create a new namespace resource.
 
-* `labels` - (Optional, Map, ForceNew) Map of string keys and values for labels. Changing this
-  will create a new namespace resource.
+* `labels` - (Optional, Map, ForceNew) Specifies the map of string keys and values for labels.
+  Changing this will create a new namespace resource.
 
 ## Attributes Reference
 

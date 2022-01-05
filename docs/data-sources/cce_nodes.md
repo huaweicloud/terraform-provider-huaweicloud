@@ -57,9 +57,9 @@ The `nodes` block supports:
 
 * `os` - The operating System of the node.
 
-* `subnet_id` - The ID of the subnet which the NIC belongs to.
+* `subnet_id` - The ID of the subnet to which the NIC belongs.
 
-* `ecs_group_id` - The ID of ECS group which the node belongs to.
+* `ecs_group_id` - The ID of ECS group to which the node belongs.
 
 * `tags` - The tags of a VM node, key/value pair format.
 
@@ -71,21 +71,13 @@ The `nodes` block supports:
 
 * `public_ip` - The elastic IP parameters of the node.
 
-* `private_ip` - The private IP of the node
+* `private_ip` - The private IP of the node.
 
 * `root_volume` - The system disk related configuration. Structure is documented below.
 
 * `data_volumes` - The data related configuration. Structure is documented below.
 
-The `root_volume` block supports:
-
-* `size` - Disk size in GB.
-
-* `volumetype` - Disk type.
-
-* `extend_params` - Disk expansion parameters.
-
-The `data_volumes` block supports:
+The `root_volume` and `data_volumes` blocks support:
 
 * `size` - Disk size in GB.
 

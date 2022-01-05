@@ -67,12 +67,12 @@ Changing this parameter will create a new resource.
 * `postinstall` - (Optional, String, ForceNew) Specifies the script required after installation. The input value can be
   a Base64 encoded string or not. Changing this parameter will create a new resource.
 
-* `labels` - (Optional, Map, ForceNew) Tags of a Kubernetes node, key/value pair format. Changing this parameter will
-  create a new resource.
+* `labels` - (Optional, Map, ForceNew) Specifies the tags of a Kubernetes node, key/value pair format.
+  Changing this parameter will create a new resource.
 
 * `tags` - (Optional, Map) Specifies the tags of a VM node, key/value pair format.
 
-* `taints` - (Optional, List, ForceNew) You can add taints to created nodes to configure anti-affinity.
+* `taints` - (Optional, List, ForceNew) Specifies the taints configuration of the nodes to set anti-affinity.
   Changing this parameter will create a new resource. Each taint contains the following parameters:
 
   + `key` - (Required, String, ForceNew) A key must contain 1 to 63 characters starting with a letter or digit.
@@ -88,7 +88,7 @@ Changing this parameter will create a new resource.
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - The resource ID in UUID format.
 * `status` - Node status information.
 * `private_ip` - Private IP of the CCE node.
 * `public_ip` - Public IP of the CCE node.
