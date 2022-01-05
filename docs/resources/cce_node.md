@@ -110,14 +110,14 @@ resource "huaweicloud_cce_node" "mynode" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the cce node resource. If omitted, the
-  provider-level region will be used. Changing this creates a new cce node resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the CCE node resource. If omitted, the
+  provider-level region will be used. Changing this creates a new CCE node resource.
 
 * `cluster_id` - (Required, String, ForceNew) ID of the cluster. Changing this parameter will create a new resource.
 
 * `name` - (Optional, String) Node Name.
 
-* `flavor_id` - (Required, String, ForceNew) Specifies the flavor id. Changing this parameter will create a new
+* `flavor_id` - (Required, String, ForceNew) Specifies the flavor ID. Changing this parameter will create a new
   resource.
 
 * `availability_zone` - (Required, String, ForceNew) specify the name of the available partition (AZ). Changing this
@@ -148,7 +148,7 @@ The following arguments are supported:
   + `volumetype` - (Required, String, ForceNew) Disk type. Changing this parameter will create a new resource.
   + `extend_params` - (Optional, Map, ForceNew) Disk expansion parameters. Changing this parameter will create
     a new resource.
-  + `kms_key_id` - (Optional, String, ForceNew) Specifies the ID of a kms key. This is used to encrypt the volume.
+  + `kms_key_id` - (Optional, String, ForceNew) Specifies the ID of a KMS key. This is used to encrypt the volume.
     Changing this parameter will create a new resource.
 
 * `subnet_id` - (Optional, String, ForceNew) The ID of the subnet to which the NIC belongs. Changing this parameter will
@@ -173,7 +173,7 @@ The following arguments are supported:
 * `max_pods` - (Optional, Int, ForceNew) The maximum number of instances a node is allowed to create. Changing this
   parameter will create a new resource.
 
-* `ecs_group_id` - (Optional, String, ForceNew) Ecs group id. If specified, the node will be created under the cloud
+* `ecs_group_id` - (Optional, String, ForceNew) ECS group ID. If specified, the node will be created under the cloud
   server group. Changing this parameter will create a new resource.
 
 * `preinstall` - (Optional, String, ForceNew) Script required before installation. The input value can be a Base64

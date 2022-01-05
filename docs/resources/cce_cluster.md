@@ -81,8 +81,8 @@ resource "huaweicloud_cce_cluster" "cluster" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the cce cluster resource. If omitted, the
-  provider-level region will be used. Changing this creates a new cce cluster resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the CCE cluster resource. If omitted, the
+  provider-level region will be used. Changing this creates a new CCE cluster resource.
 
 * `name` - (Required, String, ForceNew) Cluster name. Changing this parameter will create a new cluster resource.
 
@@ -114,7 +114,7 @@ The following arguments are supported:
 
   + **overlay_l2**: An overlay_l2 network built for containers by using Open vSwitch(OVS).
   + **vpc-router**: An vpc-router network built for containers by using ipvlan and custom VPC routes.
-  + **eni**: A Yangtse network built for cce turbo cluster. The container network deeply integrates the native ENI
+  + **eni**: A Yangtse network built for CCE Turbo cluster. The container network deeply integrates the native ENI
       capability of VPC, uses the VPC CIDR block to allocate container addresses, and supports direct connections
       between ELB and containers to provide high performance.
 
@@ -124,7 +124,7 @@ The following arguments are supported:
 * `service_network_cidr` - (Optional, String, ForceNew) Service network segment. Changing this parameter will create a
   new cluster resource.
 
-* `eni_subnet_id` - (Optional, String, ForceNew) ENI subnet id. Specified when creating a CCE Turbo cluster. Changing
+* `eni_subnet_id` - (Optional, String, ForceNew) ENI subnet ID. Specified when creating a CCE Turbo cluster. Changing
   this parameter will create a new cluster resource.
 
 * `eni_subnet_cidr` - (Optional, String, ForceNew) ENI network segment. Specified when creating a CCE Turbo cluster.
@@ -183,7 +183,7 @@ The following arguments are supported:
 * `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled. Valid values are "true" and "
   false". Changing this creates a new cluster.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the cce cluster. Changing this
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project ID of the CCE cluster. Changing this
   creates a new cluster.
 
 * `delete_evs` - (Optional, String) Specified whether to delete associated EVS disks when deleting the CCE cluster.
@@ -215,7 +215,7 @@ The `masters` block supports:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Id of the cluster resource.
+* `id` - ID of the cluster resource.
 
 * `status` - Cluster status information.
 
@@ -245,7 +245,7 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-Cluster can be imported using the cluster id, e.g.
+Cluster can be imported using the cluster ID, e.g.
 
 ```
  $ terraform import huaweicloud_cce_cluster.cluster_1 4779ab1c-7c1a-44b1-a02e-93dfc361b32d
@@ -254,7 +254,7 @@ Cluster can be imported using the cluster id, e.g.
 Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
 API response, security or some other reason. The missing attributes include:
 `delete_efs`, `delete_eni`, `delete_evs`, `delete_net`, `delete_obs`, `delete_sfs` and `delete_all`. It is generally
-recommended running `terraform plan` after importing an cce cluster. You can then decide if changes should be applied to
+recommended running `terraform plan` after importing an CCE cluster. You can then decide if changes should be applied to
 the cluster, or the resource definition should be updated to align with the cluster. Also you can ignore changes as
 below.
 

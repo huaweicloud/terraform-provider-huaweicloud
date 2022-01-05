@@ -22,14 +22,14 @@ data "huaweicloud_cce_node" "node" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) The region in which to obtain the cce nodes. If omitted, the provider-level region will
+* `region` - (Optional, String) The region in which to obtain the CCE nodes. If omitted, the provider-level region will
   be used.
 
-* `cluster_id` - (Required, String) The id of container cluster.
+* `cluster_id` - (Required, String) The ID of container cluster.
 
 * `name` - (Optional, String) Name of the node.
 
-* `node_id` - (Optional, String) The id of the node.
+* `node_id` - (Optional, String) The ID of the node.
 
 * `status` - (Optional, String) The state of the node.
 
@@ -39,7 +39,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The node ID.
 
-* `flavor_id` - The flavor id to be used.
+* `flavor_id` - The flavor ID to be used.
 
 * `availability_zone` - Available partitions where the node is located.
 
@@ -47,7 +47,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `subnet_id` - The ID of the subnet which the NIC belongs to.
 
-* `ecs_group_id` - The ID of Ecs group which the node belongs to.
+* `ecs_group_id` - The ID of ECS group which the node belongs to.
 
 * `tags` - Tags of a VM node, key/value pair format.
 

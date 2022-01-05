@@ -43,8 +43,8 @@ resource "huaweicloud_cce_node_pool" "node_pool" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the cce pool resource. If omitted, the
-  provider-level region will be used. Changing this creates a new cce node pool resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the CCE pool resource. If omitted, the
+  provider-level region will be used. Changing this creates a new CCE node pool resource.
 
 * `cluster_id` - (Required, String, ForceNew) ID of the cluster. Changing this parameter will create a new resource.
 
@@ -53,7 +53,7 @@ The following arguments are supported:
 * `initial_node_count` - (Required, Int) Specifies the initial number of expected nodes in the node pool.
   This parameter can be also used to manually scale the node count afterwards.
 
-* `flavor_id` - (Required, String, ForceNew) Specifies the flavor id. Changing this parameter will create a new
+* `flavor_id` - (Required, String, ForceNew) Specifies the flavor ID. Changing this parameter will create a new
   resource.
 
 * `type` - (Optional, String, ForceNew) Node Pool type. Possible values are: "vm" and "ElasticBMS".
@@ -140,7 +140,7 @@ The `data_volumes` block supports:
 * `extend_params` - (Optional, Map, ForceNew) Disk expansion parameters.
   Changing this parameter will create a new resource.
 
-* `kms_key_id` - (Optional, String, ForceNew) Specifies the ID of a kms key. This is used to encrypt the volume.
+* `kms_key_id` - (Optional, String, ForceNew) Specifies the ID of a KMS key. This is used to encrypt the volume.
   Changing this parameter will create a new resource.
 
 The `taints` block supports:

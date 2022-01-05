@@ -22,7 +22,7 @@ data "huaweicloud_cce_cluster" "cluster" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) The region in which to obtain the cce clusters. If omitted, the provider-level region
+* `region` - (Optional, String) The region in which to obtain the CCE clusters. If omitted, the provider-level region
   will be used.
 
 * `name` - (Optional, String)The Name of the cluster resource.
@@ -53,9 +53,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `container_network_type` - The container network type: overlay_l2 , underlay_ipvlan, vpc-router or eni.
 
-* `eni_subnet_id` - Eni subnet id. Specified when creating a CCE Turbo cluster.
+* `eni_subnet_id` - ENI subnet ID. Specified when creating a CCE Turbo cluster.
 
-* `eni_subnet_cidr` - Eni network segment. Specified when creating a CCE Turbo cluster.
+* `eni_subnet_cidr` - ENI network segment. Specified when creating a CCE Turbo cluster.
 
 * `service_network_cidr` - The service network segment.
 
@@ -69,7 +69,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `highway_subnet_id` - The ID of the high speed network used to create bare metal nodes.
 
-* `enterprise_project_id` - The enterprise project id of the cce cluster.
+* `enterprise_project_id` - The enterprise project ID of the CCE cluster.
 
 * `endpoints` - The access addresses of kube-apiserver in the cluster. Structure is documented below.
 

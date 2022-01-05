@@ -22,14 +22,14 @@ data "huaweicloud_cce_node_pool" "node_pool" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) The region in which to obtain the cce node pools. If omitted, the provider-level region
+* `region` - (Optional, String) The region in which to obtain the CCE node pools. If omitted, the provider-level region
   will be used.
 
-* `cluster_id` - (Required, String) Specifies the id of container cluster.
+* `cluster_id` - (Required, String) Specifies the ID of container cluster.
 
 * `name` - (Optional, String) Specifies the name of the node pool.
 
-* `node_pool_id` - (Optional, String) Specifies the id of the node pool.
+* `node_pool_id` - (Optional, String) Specifies the ID of the node pool.
 
 * `status` - (Optional, String) Specifies the state of the node pool.
 
@@ -43,7 +43,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `current_node_count` - Current number of nodes in the node pool.
 
-* `flavor_id` - The flavor id.
+* `flavor_id` - The flavor ID.
 
 * `type` - Node Pool type.
 

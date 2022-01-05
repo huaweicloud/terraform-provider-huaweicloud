@@ -26,15 +26,15 @@ resource "huaweicloud_cce_node_attach" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the cce node attach resource. If omitted, the
-  provider-level region will be used. Changing this creates a new cce node attach resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the CCE node attach resource. If omitted, the
+  provider-level region will be used. Changing this creates a new CCE node attach resource.
 
 * `cluster_id` - (Required, String, ForceNew) Specifies the ID of the cluster. Changing this parameter will create a new
   resource.
 
 * `name` - (Optional, String) Specifies the Node Name.
 
-* `server_id` - (Required, String, ForceNew) Specifies the ecs server id. Changing this parameter will create a new
+* `server_id` - (Required, String, ForceNew) Specifies the ecs server ID. Changing this parameter will create a new
   resource.
 
 * `os` - (Required, String) Specifies the operating System of the node. Changing this parameter will reset the node.
@@ -92,12 +92,12 @@ In addition to all arguments above, the following attributes are exported:
 * `status` - Node status information.
 * `private_ip` - Private IP of the CCE node.
 * `public_ip` - Public IP of the CCE node.
-* `flavor_id` - The flavor id of the CCE node.
+* `flavor_id` - The flavor ID of the CCE node.
 * `availability_zone` - The name of the available partition (AZ).
 * `root_volume` - The system disk related configuration.
 * `data_volumes` - The data disks related configuration.
 * `runtime` - The runtime of the CCE node.
-* `ecs_group_id` - The Ecs group id.
+* `ecs_group_id` - The Ecs group ID.
 * `subnet_id` - The ID of the subnet to which the NIC belongs.
 
 ## Timeouts

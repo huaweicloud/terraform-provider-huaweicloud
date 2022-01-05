@@ -30,7 +30,7 @@ The following arguments are supported:
 
 * `cluster_type` - (Optional, String) Specifies the type of the cluster. Possible values: VirtualMachine, BareMetal.
 
-* `vpc_id` - (Optional, String) Specifies the vpc ID of the cluster.
+* `vpc_id` - (Optional, String) Specifies the VPC ID of the cluster.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the cluster.
 
@@ -68,9 +68,9 @@ The `clusters` block supports:
 
 * `container_network_type` - The container network type: overlay_l2 , underlay_ipvlan, vpc-router or eni.
 
-* `eni_subnet_id` - The eni subnet id.
+* `eni_subnet_id` - The subnet ID of ENI.
 
-* `eni_subnet_cidr` - The eni network segment.
+* `eni_subnet_cidr` - The network segment of ENI.
 
 * `service_network_cidr` - The service network segment.
 
@@ -86,7 +86,7 @@ The `clusters` block supports:
 
 * `highway_subnet_id` - The ID of the high speed network used to create bare metal nodes.
 
-* `enterprise_project_id` - The enterprise project id of the CCE cluster.
+* `enterprise_project_id` - The enterprise project ID of the CCE cluster.
 
 * `endpoints` - The access addresses of kube-apiserver in the cluster. Structure is documented below.
 

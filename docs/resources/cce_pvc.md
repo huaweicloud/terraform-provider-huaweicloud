@@ -88,7 +88,7 @@ The following arguments are supported:
 * `labels` - (Optional, Map, ForceNew) Map of string keys and values for labels. Changing this
   will create a new PVC resource.
 
-* `storage_class_name` - (Required, String, ForceNew) Specifies the type of the storage bound to the CCE pvc.
+* `storage_class_name` - (Required, String, ForceNew) Specifies the type of the storage bound to the CCE PVC.
   The valid values are as follows:
   + **csi-disk**: EVS.
   + **csi-obs**: OBS.

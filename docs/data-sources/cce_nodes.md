@@ -29,7 +29,7 @@ The following arguments are supported:
 
 * `name` - (Optional, String) Specifies the of the node.
 
-* `node_id` - (Optional, String) Specifies the id of the node.
+* `node_id` - (Optional, String) Specifies the ID of the node.
 
 * `status` - (Optional, String) Specifies the status of the node.
 
@@ -47,11 +47,11 @@ The `nodes` block supports:
 
 * `name` - The name of the node.
 
-* `id` - The id of the node.
+* `id` - The ID of the node.
 
 * `status` - The state of the node.
 
-* `flavor_id` - The flavor id to be used.
+* `flavor_id` - The flavor ID to be used.
 
 * `availability_zone` - The available partitions where the node is located.
 
@@ -59,7 +59,7 @@ The `nodes` block supports:
 
 * `subnet_id` - The ID of the subnet which the NIC belongs to.
 
-* `ecs_group_id` - The ID of Ecs group which the node belongs to.
+* `ecs_group_id` - The ID of ECS group which the node belongs to.
 
 * `tags` - The tags of a VM node, key/value pair format.
 
