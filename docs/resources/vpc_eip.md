@@ -87,9 +87,6 @@ The `publicip` block supports:
 
 * `ip_version` - (Optional, Int) Specifies the IP version, either 4 (default) or 6.
 
-* `port_id` - (Optional, String) The port id which this EIP will associate with. If the value is "" or not
-  specified, the EIP will be in unbind state.
-
 The `bandwidth` block supports:
 
 * `share_type` - (Required, String, ForceNew) Whether the bandwidth is dedicated or shared. Changing this creates a new

@@ -73,8 +73,10 @@ func ResourceVpcEIPV1() *schema.Resource {
 							ValidateFunc: validation.IntInSlice([]int{4, 6}),
 						},
 						"port_id": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:       schema.TypeString,
+							Optional:   true,
+							Computed:   true,
+							Deprecated: "use huaweicloud_networking_eip_associate instead",
 						},
 					},
 				},
