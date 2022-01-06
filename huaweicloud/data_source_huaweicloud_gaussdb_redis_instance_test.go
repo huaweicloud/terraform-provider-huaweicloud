@@ -53,10 +53,16 @@ data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
 
+data "huaweicloud_gaussdb_nosql_flavors" "test" {
+  vcpus             = 4
+  engine            = "redis"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+}
+
 resource "huaweicloud_gaussdb_redis_instance" "test" {
   name        = "%s"
   password    = "Test@123"
-  flavor      = "nosql.redis.xlarge.4"
+  flavor      = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
   volume_size = 100
   vpc_id      = huaweicloud_vpc.test.id
   subnet_id   = huaweicloud_vpc_subnet.test.id
