@@ -62,7 +62,7 @@ func TestAccCCEAddonV3_values(t *testing.T) {
 				Config: testAccCCEAddonV3_values(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCEAddonV3Exists(resourceName, clusterName, &addon),
-					resource.TestCheckResourceAttr(resourceName, "status", "available"),
+					resource.TestCheckResourceAttr(resourceName, "status", "running"),
 				),
 			},
 		},
@@ -183,7 +183,7 @@ func testAccCCEAddonV3_basic(rName string) string {
 
 resource "huaweicloud_cce_addon" "test" {
   cluster_id    = huaweicloud_cce_cluster.test.id
-  version       = "1.1.0"
+  version       = "1.1.10"
   template_name = "metrics-server"
   depends_on    = [huaweicloud_cce_node.test]
 }
@@ -194,16 +194,40 @@ func testAccCCEAddonV3_values(rName string) string {
 	return fmt.Sprintf(`
 %s
 
+resource "huaweicloud_cce_node_pool" "test" {
+  cluster_id         = huaweicloud_cce_cluster.test.id
+  name               = "%s"
+  os                 = "EulerOS 2.5"
+  flavor_id          = "s6.large.2"
+  initial_node_count = 4
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+  key_pair           = huaweicloud_compute_keypair.test.name
+  scall_enable       = true
+  min_node_count     = 2
+  max_node_count     = 10
+  priority           = 1
+  type               = "vm"
+
+  root_volume {
+    size       = 40
+    volumetype = "SSD"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SSD"
+  }
+}
+
 data "huaweicloud_cce_addon_template" "test" {
   cluster_id = huaweicloud_cce_cluster.test.id
   name       = "autoscaler"
-  version    = "1.19.6"
+  version    = "1.21.1"
 }
 
 resource "huaweicloud_cce_addon" "test" {
   cluster_id    = huaweicloud_cce_cluster.test.id
   template_name = "autoscaler"
-  version       = "1.19.6"
+  version       = "1.21.1"
 
   values {
     basic  = jsondecode(data.huaweicloud_cce_addon_template.test.spec).basic
@@ -217,7 +241,7 @@ resource "huaweicloud_cce_addon" "test" {
     flavor_json = jsonencode(jsondecode(data.huaweicloud_cce_addon_template.test.spec).parameters.flavor2)
   }
   
-  depends_on = [huaweicloud_cce_node.test]
+  depends_on = [huaweicloud_cce_node_pool.test]
 }
-`, testAccCCEAddonV3_Base(rName), HW_PROJECT_ID)
+`, testAccCCENodePool_Base(rName), rName, HW_PROJECT_ID)
 }
