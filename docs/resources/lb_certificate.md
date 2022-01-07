@@ -94,6 +94,9 @@ The following arguments are supported:
 * `domain` - (Optional, String) The domain of the Certificate. The value contains a maximum of 100 characters. This
   parameter is valid only when `type` is set to "server".
 
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project ID of the certificate. Changing this
+  creates a new certificate.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
