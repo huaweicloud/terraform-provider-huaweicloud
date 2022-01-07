@@ -501,7 +501,11 @@ func (c *Config) newServiceClientByEndpoint(client *golangsdk.ProviderClient, sr
 		ProviderClient: client,
 		Endpoint:       endpoint,
 	}
-	sc.ResourceBase = sc.Endpoint + catalog.Version + "/"
+
+	sc.ResourceBase = sc.Endpoint
+	if catalog.Version != "" {
+		sc.ResourceBase = sc.ResourceBase + catalog.Version + "/"
+	}
 	if !catalog.WithOutProjectID {
 		sc.ResourceBase = sc.ResourceBase + client.ProjectID + "/"
 	}
