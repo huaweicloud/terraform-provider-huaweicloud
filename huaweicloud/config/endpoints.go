@@ -277,6 +277,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:          "v1.0",
 		WithOutProjectID: true,
 	},
+	"kmsv1": {
+		Name:    "kms",
+		Version: "v1",
+	},
 	"waf": {
 		Name:         "waf",
 		Version:      "v1",
