@@ -85,17 +85,24 @@ resource "huaweicloud_compute_eip_associate" "associated" {
 
 The following arguments are supported:
 
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the associated resource.
+  If omitted, the provider-level region will be used. Changing this creates a new resource.
+
 * `public_ip` - (Required, String, ForceNew) Specifies the EIP address to associate.
+  Changing this creates a new resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the instance to associte the EIP with.
+* `instance_id` - (Required, String, ForceNew) Specifies the ECS instance to associate the EIP with.
+  Changing this creates a new resource.
 
-* `fixed_ip` - (Optional, String, ForceNew) Specifies the IP address to direct traffic to.
+* `fixed_ip` - (Optional, String, ForceNew) Specifies the private IP address to direct traffic to.
+  Changing this creates a new resource.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - The resource ID in UUID format.
+* `port_id` - The port ID of the ECS instance that associated the EIP with.
 
 ## Import
 
