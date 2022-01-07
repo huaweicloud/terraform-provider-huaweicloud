@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/lbaas_v2/certificates"
+	"github.com/chnsz/golangsdk/openstack/elb/v2/certificates"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -66,7 +66,7 @@ func TestAccLBV2Certificate_client(t *testing.T) {
 
 func testAccCheckLBV2CertificateDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
-	elbClient, err := config.ElbV2Client(HW_REGION_NAME)
+	elbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -98,7 +98,7 @@ func testAccCheckLBV2CertificateExists(
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
-		elbClient, err := config.ElbV2Client(HW_REGION_NAME)
+		elbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 		}
@@ -108,7 +108,7 @@ func testAccCheckLBV2CertificateExists(
 			return err
 		}
 
-		if found.ID != rs.Primary.ID {
+		if found.Id != rs.Primary.ID {
 			return fmtp.Errorf("Certificate not found")
 		}
 
