@@ -1,6 +1,7 @@
 package vpc
 
 import (
+	"context"
 	"time"
 
 	"github.com/chnsz/golangsdk"
@@ -12,6 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -19,12 +21,12 @@ import (
 
 func ResourceVpcBandWidthV2() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceVpcBandWidthV2Create,
-		Read:   resourceVpcBandWidthV2Read,
-		Update: resourceVpcBandWidthV2Update,
-		Delete: resourceVpcBandWidthV2Delete,
+		CreateContext: resourceVpcBandWidthV2Create,
+		ReadContext:   resourceVpcBandWidthV2Read,
+		UpdateContext: resourceVpcBandWidthV2Update,
+		DeleteContext: resourceVpcBandWidthV2Delete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -76,16 +78,15 @@ func ResourceVpcBandWidthV2() *schema.Resource {
 	}
 }
 
-func resourceVpcBandWidthV2Create(d *schema.ResourceData, meta interface{}) error {
+func resourceVpcBandWidthV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	NetworkingV1Client, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating networking client: %s", err)
+		return fmtp.DiagErrorf("Error creating networking client: %s", err)
 	}
 
 	size := d.Get("size").(int)
-
 	createOpts := bandwidths.CreateOpts{
 		Name: d.Get("name").(string),
 		Size: &size,
@@ -99,7 +100,7 @@ func resourceVpcBandWidthV2Create(d *schema.ResourceData, meta interface{}) erro
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	b, err := bandwidths.Create(networkingClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating Bandwidth: %s", err)
+		return fmtp.DiagErrorf("Error creating Bandwidth: %s", err)
 	}
 
 	logp.Printf("[DEBUG] Waiting for Bandwidth (%s) to become available.", b.ID)
@@ -112,56 +113,50 @@ func resourceVpcBandWidthV2Create(d *schema.ResourceData, meta interface{}) erro
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf(
+		return fmtp.DiagErrorf(
 			"Error waiting for Bandwidth (%s) to become ACTIVE for creation: %s",
 			b.ID, err)
 	}
 	d.SetId(b.ID)
 
-	return resourceVpcBandWidthV2Read(d, meta)
+	return resourceVpcBandWidthV2Read(ctx, d, meta)
 }
 
-func resourceVpcBandWidthV2Update(d *schema.ResourceData, meta interface{}) error {
+func resourceVpcBandWidthV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating networking client: %s", err)
+		return fmtp.DiagErrorf("Error creating networking client: %s", err)
 	}
 
-	var bandwidthOpts bandwidths.Bandwidth
-
-	if d.HasChange("name") {
-		bandwidthOpts.Name = d.Get("name").(string)
-	}
-	if d.HasChange("size") {
-		bandwidthOpts.Size = d.Get("size").(int)
-	}
-
-	if bandwidthOpts != (bandwidths.Bandwidth{}) {
+	if d.HasChanges("name", "size") {
 		updateOpts := bandwidths.UpdateOpts{
-			Bandwidth: bandwidthOpts,
+			Bandwidth: bandwidths.Bandwidth{
+				Name: d.Get("name").(string),
+				Size: d.Get("size").(int),
+			},
 		}
 		_, err := bandwidths.Update(networkingClient, d.Id(), updateOpts)
 		if err != nil {
-			return fmtp.Errorf("Error updating Huaweicloud BandWidth (%s): %s", d.Id(), err)
+			return fmtp.DiagErrorf("Error updating HuaweiCloud BandWidth (%s): %s", d.Id(), err)
 		}
 	}
 
-	return resourceVpcBandWidthV2Read(d, meta)
+	return resourceVpcBandWidthV2Read(ctx, d, meta)
 }
 
-func resourceVpcBandWidthV2Read(d *schema.ResourceData, meta interface{}) error {
+func resourceVpcBandWidthV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating networking client: %s", err)
+		return fmtp.DiagErrorf("Error creating networking client: %s", err)
 	}
 
 	b, err := bandwidthsv1.Get(networkingClient, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "bandwidth")
+		return common.CheckDeletedDiag(d, err, "bandwidth")
 	}
 
 	mErr := multierror.Append(
@@ -175,23 +170,23 @@ func resourceVpcBandWidthV2Read(d *schema.ResourceData, meta interface{}) error 
 		d.Set("status", b.Status),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.Errorf("Error setting vault fields: %s", err)
+		return fmtp.DiagErrorf("Error setting bandwidth fields: %s", err)
 	}
 
 	return nil
 }
 
-func resourceVpcBandWidthV2Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceVpcBandWidthV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	NetworkingV1Client, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating networking client: %s", err)
+		return fmtp.DiagErrorf("Error creating networking client: %s", err)
 	}
 
 	err = bandwidths.Delete(networkingClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud Bandwidth: %s", err)
+		return fmtp.DiagErrorf("Error deleting HuaweiCloud Bandwidth: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -203,9 +198,9 @@ func resourceVpcBandWidthV2Delete(d *schema.ResourceData, meta interface{}) erro
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Error deleting Bandwidth: %s", err)
+		return fmtp.DiagErrorf("Error deleting Bandwidth: %s", err)
 	}
 
 	d.SetId("")
