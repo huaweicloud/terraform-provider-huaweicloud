@@ -77,6 +77,13 @@ func ResourceCertificateV2() *schema.Resource {
 				Sensitive:        true,
 			},
 
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+
 			"update_time": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -98,10 +105,11 @@ func resourceCertificateV2Create(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	createOpts := certificates.CreateOpts{
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
-		Type:        d.Get("type").(string),
-		Domain:      d.Get("domain").(string),
+		Name:                d.Get("name").(string),
+		Description:         d.Get("description").(string),
+		Type:                d.Get("type").(string),
+		Domain:              d.Get("domain").(string),
+		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
 	}
 
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
