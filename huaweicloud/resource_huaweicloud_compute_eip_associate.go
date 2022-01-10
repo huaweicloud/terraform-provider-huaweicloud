@@ -5,11 +5,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/layer3/floatingips"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -54,6 +55,10 @@ func ResourceComputeFloatingIPAssociateV2() *schema.Resource {
 				Computed:         true,
 				DiffSuppressFunc: utils.SuppressComputedFixedWhenFloatingIp,
 			},
+			"port_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -70,17 +75,17 @@ func resourceComputeFloatingIPAssociateV2Create(d *schema.ResourceData, meta int
 	fixedIP := d.Get("fixed_ip").(string)
 
 	// get port id
-	portID, err := getComputeInstancePortIDbyFixedIP(d, config, instanceID, fixedIP)
+	portID, privateIP, err := getComputeInstancePortIDbyFixedIP(d, config, instanceID, fixedIP)
 	if err != nil {
 		return fmtp.Errorf("Error get port id of compute instance: %s", err)
 	}
 
 	// get floating_ip id
-	Eip, err := getFloatingIPbyAddress(d, config, floatingIP)
+	pAddress, err := getFloatingIPbyAddress(d, config, floatingIP)
 	if err != nil {
 		return fmtp.Errorf("Error get eip: %s", err)
 	}
-	floatingID := Eip.ID
+	floatingID := pAddress.ID
 
 	// Associate Eip to compute instance
 	associateOpts := floatingips.UpdateOpts{
@@ -93,13 +98,13 @@ func resourceComputeFloatingIPAssociateV2Create(d *schema.ResourceData, meta int
 		return fmtp.Errorf("Error associating Floating IP: %s", err)
 	}
 
-	id := fmt.Sprintf("%s/%s/%s", floatingIP, instanceID, fixedIP)
+	id := fmt.Sprintf("%s/%s/%s", floatingIP, instanceID, privateIP)
 	d.SetId(id)
 
 	logp.Printf("[DEBUG] Waiting for eip associate to instance %s", id)
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{""},
-		Target:     []string{fmt.Sprintf("floating/%s", floatingIP), fmt.Sprintf("fixed/%s", floatingIP)},
+		Target:     []string{fmt.Sprintf("floating/%s", floatingIP)},
 		Refresh:    resourceComputeFloatingIPAssociateStateRefreshFunc(d, config, instanceID, floatingIP),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      10 * time.Second,
@@ -130,7 +135,7 @@ func resourceComputeFloatingIPAssociateV2Read(d *schema.ResourceData, meta inter
 	}
 
 	// get port id of compute instance
-	portID, err := getComputeInstancePortIDbyFixedIP(d, config, instanceID, fixedIP)
+	portID, privateIP, err := getComputeInstancePortIDbyFixedIP(d, config, instanceID, fixedIP)
 	if err != nil {
 		return fmtp.Errorf("Error get port id of compute instance: %s", err)
 	}
@@ -144,10 +149,14 @@ func resourceComputeFloatingIPAssociateV2Read(d *schema.ResourceData, meta inter
 		d.SetId("")
 	}
 
+	id := fmt.Sprintf("%s/%s/%s", floatingIP, instanceID, privateIP)
+	d.SetId(id)
+
 	// Set the attributes pulled from the composed resource ID
 	d.Set("public_ip", floatingIP)
 	d.Set("instance_id", instanceID)
-	d.Set("fixed_ip", fixedIP)
+	d.Set("fixed_ip", privateIP)
+	d.Set("port_id", portID)
 	d.Set("region", GetRegion(d, config))
 
 	return nil
@@ -162,11 +171,11 @@ func resourceComputeFloatingIPAssociateV2Delete(d *schema.ResourceData, meta int
 
 	// get floating_ip id
 	floatingIP := d.Get("public_ip").(string)
-	Eip, err := getFloatingIPbyAddress(d, config, floatingIP)
+	pAddress, err := getFloatingIPbyAddress(d, config, floatingIP)
 	if err != nil {
 		return fmtp.Errorf("Error get eip: %s", err)
 	}
-	floatingID := Eip.ID
+	floatingID := pAddress.ID
 
 	disassociateOpts := floatingips.UpdateOpts{}
 	logp.Printf("[DEBUG] Disssociate Options: %#v", disassociateOpts)
@@ -179,56 +188,52 @@ func resourceComputeFloatingIPAssociateV2Delete(d *schema.ResourceData, meta int
 	return nil
 }
 
-func getComputeInstancePortIDbyFixedIP(d *schema.ResourceData, config *config.Config, instanceId, fixedIP string) (string, error) {
+func getComputeInstancePortIDbyFixedIP(d *schema.ResourceData, config *config.Config,
+	instanceId, fixedIP string) (string, string, error) {
+
 	computeClient, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
-		return "", fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return "", "", fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	instance, err := cloudservers.Get(computeClient, instanceId).Extract()
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	var portId string
-	if fixedIP != "" {
-		for _, networkAddresses := range instance.Addresses {
-			for _, address := range networkAddresses {
-				if address.Type == "fixed" && address.Addr == fixedIP {
-					portId = address.PortID
+	var portID, privateIP string
+	for _, networkAddresses := range instance.Addresses {
+		for _, address := range networkAddresses {
+			if address.Type == "fixed" {
+				if fixedIP == "" || address.Addr == fixedIP {
+					portID = address.PortID
+					privateIP = address.Addr
 					break
 				}
 			}
-			if portId != "" {
-				break
-			}
 		}
-	} else {
-		// return the first port if fixedIP not specified
-		for _, networkAddresses := range instance.Addresses {
-			for _, address := range networkAddresses {
-				portId = address.PortID
-				break
-			}
-			if portId != "" {
-				break
-			}
+		if portID != "" {
+			break
 		}
 	}
-	return portId, nil
+
+	if portID == "" {
+		return "", "", fmt.Errorf("the port ID does not exist")
+	}
+	return portID, privateIP, nil
 }
 
 func getFloatingIPbyAddress(d *schema.ResourceData, config *config.Config, floatingIP string) (eips.PublicIp, error) {
-	networkingV1Client, err := config.NetworkingV1Client(GetRegion(d, config))
+	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
-		return eips.PublicIp{}, fmtp.Errorf("Error creating networking client: %s", err)
+		return eips.PublicIp{}, fmtp.Errorf("Error creating VPC client: %s", err)
 	}
 
 	listOpts := &eips.ListOpts{
 		PublicIp: []string{floatingIP},
 	}
 
-	pages, err := eips.List(networkingV1Client, listOpts).AllPages()
+	pages, err := eips.List(vpcClient, listOpts).AllPages()
 	if err != nil {
 		return eips.PublicIp{}, err
 	}

@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -14,6 +12,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccComputeV2EIPAssociate_basic(t *testing.T) {
@@ -34,6 +33,7 @@ func TestAccComputeV2EIPAssociate_basic(t *testing.T) {
 					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.test", &instance),
 					testAccCheckVpcV1EIPExists("huaweicloud_vpc_eip.test", &eip),
 					testAccCheckComputeV2EIPAssociateAssociated(&eip, &instance, 1),
+					resource.TestCheckResourceAttrSet(resourceName, "port_id"),
 				),
 			},
 			{
@@ -63,6 +63,7 @@ func TestAccComputeV2EIPAssociate_fixedIP(t *testing.T) {
 					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.test", &instance),
 					testAccCheckVpcV1EIPExists("huaweicloud_vpc_eip.test", &eip),
 					testAccCheckComputeV2EIPAssociateAssociated(&eip, &instance, 1),
+					resource.TestCheckResourceAttrSet(resourceName, "port_id"),
 				),
 			},
 			{
