@@ -38,36 +38,56 @@ func TestAccEvsVolume_basic(t *testing.T) {
 			{
 				Config: testAccEvsVolume_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "size", "100"),
-					resource.TestCheckResourceAttr(resourceName, "device_type", "SCSI"),
-					resource.TestCheckResourceAttr(resourceName, "volume_type", "SAS"),
-					resource.TestCheckResourceAttr(resourceName, "description", "Created by acc test script."),
-					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					rc.CheckMultiResourcesExists(4),
+					// Common configuration
+					resource.TestCheckResourceAttrPair("huaweicloud_evs_volume.test.0", "availability_zone",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.0", "description", "Created by acc test script."),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.0", "volume_type", "SSD"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.0", "size", "100"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.0", "tags.foo", "bar"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.0", "tags.key", "value"),
+					// Personalized configuration
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.0", "name", rName+"_vbd_normal_volume"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.0", "device_type", "VBD"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.0", "multiattach", "false"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.1", "name", rName+"_vbd_share_volume"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.1", "device_type", "VBD"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.1", "multiattach", "true"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.2", "name", rName+"_scsi_normal_volume"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.2", "device_type", "SCSI"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.2", "multiattach", "false"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.3", "name", rName+"_scsi_share_volume"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.3", "device_type", "SCSI"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.3", "multiattach", "true"),
 				),
 			},
 			{
 				Config: testAccEvsVolume_update(rName),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName+"_update"),
-					resource.TestCheckResourceAttr(resourceName, "size", "200"),
-					resource.TestCheckResourceAttr(resourceName, "device_type", "SCSI"),
-					resource.TestCheckResourceAttr(resourceName, "volume_type", "SAS"),
-					resource.TestCheckResourceAttr(resourceName, "description", "Updated by acc test script."),
-					resource.TestCheckResourceAttr(resourceName, "tags.foo1", "bar"),
-					resource.TestCheckResourceAttr(resourceName, "tags.key", "value1"),
+					rc.CheckMultiResourcesExists(4),
+					// Common configuration
+					resource.TestCheckResourceAttrPair("huaweicloud_evs_volume.test.0", "availability_zone",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.0", "description", "Updated by acc test script."),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.0", "volume_type", "SSD"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.0", "size", "200"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.0", "tags.foo1", "bar"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.0", "tags.key", "value1"),
+					// Personalized configuration
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.0", "name", rName+"_vbd_normal_volume_update"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.0", "device_type", "VBD"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.0", "multiattach", "false"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.1", "name", rName+"_vbd_share_volume_update"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.1", "device_type", "VBD"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.1", "multiattach", "true"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.2", "name", rName+"_scsi_normal_volume_update"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.2", "device_type", "SCSI"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.2", "multiattach", "false"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.3", "name", rName+"_scsi_share_volume_update"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.3", "device_type", "SCSI"),
+					resource.TestCheckResourceAttr("huaweicloud_evs_volume.test.3", "multiattach", "true"),
 				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"cascade",
-				},
 			},
 		},
 	})
@@ -113,56 +133,70 @@ func TestAccEvsVolume_withEpsId(t *testing.T) {
 	})
 }
 
-func testAccEvsVolume_basic(rName string) string {
+func testAccEvsVolume_base() string {
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_images_image" "test" {
-  name        = "Ubuntu 18.04 server 64bit"
-  most_recent = true
+variable "volume_configuration" {
+  type = list(object({
+    suffix      = string
+    device_type = string
+    multiattach = bool
+  }))
+  default = [
+    {suffix = "vbd_normal_volume",  device_type = "VBD",  multiattach = false},
+    {suffix = "vbd_share_volume",   device_type = "VBD",  multiattach = true},
+    {suffix = "scsi_normal_volume", device_type = "SCSI", multiattach = false},
+    {suffix = "scsi_share_volume",  device_type = "SCSI", multiattach = true},
+  ]
 }
 
+data "huaweicloud_availability_zones" "test" {}
+`)
+}
+
+func testAccEvsVolume_basic(rName string) string {
+	return fmt.Sprintf(`
+%s
+
 resource "huaweicloud_evs_volume" "test" {
-  name              = "%s"
-  description       = "Created by acc test script."
+  count = length(var.volume_configuration)
+
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  device_type       = "SCSI"
-  volume_type       = "SAS"
+  name              = "%s_${var.volume_configuration[count.index].suffix}"
   size              = 100
-  image_id          = data.huaweicloud_images_image.test.id
+  description       = "Created by acc test script."
+  volume_type       = "SSD"
+  device_type       = var.volume_configuration[count.index].device_type
+  multiattach       = var.volume_configuration[count.index].multiattach
 
   tags = {
     foo = "bar"
     key = "value"
   }
 }
-`, rName)
+`, testAccEvsVolume_base(), rName)
 }
 
 func testAccEvsVolume_update(rName string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
+%s
 
-data "huaweicloud_images_image" "test" {
-  name        = "Ubuntu 18.04 server 64bit"
-  most_recent = true
-}
-  
 resource "huaweicloud_evs_volume" "test" {
-  name              = "%s_update"
-  description       = "Updated by acc test script."
+  count = length(var.volume_configuration)
+
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  device_type       = "SCSI"
-  volume_type       = "SAS"
+  name              = "%s_${var.volume_configuration[count.index].suffix}_update"
   size              = 200
-  image_id          = data.huaweicloud_images_image.test.id
+  description       = "Updated by acc test script."
+  volume_type       = "SSD"
+  device_type       = var.volume_configuration[count.index].device_type
+  multiattach       = var.volume_configuration[count.index].multiattach
 
   tags = {
     foo1 = "bar"
     key  = "value1"
   }
 }
-`, rName)
+`, testAccEvsVolume_base(), rName)
 }
 
 func testAccEvsVolume_epsId(rName string) string {
