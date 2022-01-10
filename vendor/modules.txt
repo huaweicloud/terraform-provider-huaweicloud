@@ -136,7 +136,6 @@ github.com/chnsz/golangsdk/openstack/elb/v3/loadbalancers
 github.com/chnsz/golangsdk/openstack/elb/v3/monitors
 github.com/chnsz/golangsdk/openstack/elb/v3/pools
 github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects
-github.com/chnsz/golangsdk/openstack/evs/v1/jobs
 github.com/chnsz/golangsdk/openstack/evs/v2/cloudvolumes
 github.com/chnsz/golangsdk/openstack/evs/v2/snapshots
 github.com/chnsz/golangsdk/openstack/fgs/v2/dependencies

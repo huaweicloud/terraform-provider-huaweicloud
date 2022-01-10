@@ -133,8 +133,8 @@ func WaitOrderComplete(ctx context.Context, d *schema.ResourceData, config *conf
 		return fmtp.Errorf("Error creating HuaweiCloud bss V2 client: %s", err)
 	}
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"3"},
-		Target:       []string{"5"},
+		Pending:      []string{"3"}, // 3: Processing; 6: Pending payment.
+		Target:       []string{"5"}, // 5: Completed.
 		Refresh:      refreshOrderStatus(bssV2Client, orderNum),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        5 * time.Second,
@@ -142,7 +142,7 @@ func WaitOrderComplete(ctx context.Context, d *schema.ResourceData, config *conf
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Error while waiting for the order(%s) to complete payment: %#v", d.Id(), err)
+		return fmtp.Errorf("Error while waiting for the order (%s) to complete payment: %#v", orderNum, err)
 	}
 	return nil
 }

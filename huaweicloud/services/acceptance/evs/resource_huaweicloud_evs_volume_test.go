@@ -133,6 +133,45 @@ func TestAccEvsVolume_withEpsId(t *testing.T) {
 	})
 }
 
+func TestAccEvsVolume_prePaid(t *testing.T) {
+	var volume cloudvolumes.Volume
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_evs_volume.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&volume,
+		getVolumeResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccEvsVolume_prePaid(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"cascade",
+					"period_unit",
+					"period",
+					"auto_renew",
+				},
+			},
+		},
+	})
+}
+
 func testAccEvsVolume_base() string {
 	return fmt.Sprintf(`
 variable "volume_configuration" {
@@ -212,4 +251,23 @@ resource "huaweicloud_evs_volume" "test" {
   enterprise_project_id = "%s"
 }
 `, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccEvsVolume_prePaid(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_evs_volume" "test" {
+  name              = "%s"
+  description       = "test volume for charging mode"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  volume_type       = "SSD"
+  size              = 100
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "true"
+}
+`, rName)
 }
