@@ -1,13 +1,17 @@
 package huaweicloud
 
 import (
+	"context"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/lbaas_v2/pools"
+	"github.com/chnsz/golangsdk/openstack/elb/v2/pools"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -15,10 +19,10 @@ import (
 
 func ResourcePoolV2() *schema.Resource {
 	return &schema.Resource{
-		Create: resourcePoolV2Create,
-		Read:   resourcePoolV2Read,
-		Update: resourcePoolV2Update,
-		Delete: resourcePoolV2Delete,
+		CreateContext: resourcePoolV2Create,
+		ReadContext:   resourcePoolV2Read,
+		UpdateContext: resourcePoolV2Update,
+		DeleteContext: resourcePoolV2Delete,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -116,11 +120,11 @@ func ResourcePoolV2() *schema.Resource {
 	}
 }
 
-func resourcePoolV2Create(d *schema.ResourceData, meta interface{}) error {
+func resourcePoolV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.ElbV2Client(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	adminStateUp := d.Get("admin_state_up").(bool)
@@ -134,13 +138,13 @@ func resourcePoolV2Create(d *schema.ResourceData, meta interface{}) error {
 
 		if persistence.Type == "APP_COOKIE" {
 			if pV["cookie_name"].(string) == "" {
-				return fmtp.Errorf(
+				return fmtp.DiagErrorf(
 					"Persistence cookie_name needs to be set if using 'APP_COOKIE' persistence type")
 			}
 			persistence.CookieName = pV["cookie_name"].(string)
 		} else {
 			if pV["cookie_name"].(string) != "" {
-				return fmtp.Errorf(
+				return fmtp.DiagErrorf(
 					"Persistence cookie_name can only be set if using 'APP_COOKIE' persistence type")
 			}
 		}
@@ -167,61 +171,63 @@ func resourcePoolV2Create(d *schema.ResourceData, meta interface{}) error {
 	lbID := createOpts.LoadbalancerID
 	listenerID := createOpts.ListenerID
 	if lbID != "" {
-		err = waitForLBV2LoadBalancer(lbClient, lbID, "ACTIVE", nil, timeout)
+		err = waitForLBV2LoadBalancer_v2(lbClient, lbID, "ACTIVE", nil, timeout)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	} else if listenerID != "" {
 		// Wait for Listener to become active before continuing
 		err = waitForLBV2Listener(lbClient, listenerID, "ACTIVE", nil, timeout)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	pool, err := pools.Create(lbClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating pool: %s", err)
+		return fmtp.DiagErrorf("Error creating pool: %s", err)
 	}
 
 	// Wait for LoadBalancer to become active before continuing
 	if lbID != "" {
-		err = waitForLBV2LoadBalancer(lbClient, lbID, "ACTIVE", nil, timeout)
+		err = waitForLBV2LoadBalancer_v2(lbClient, lbID, "ACTIVE", nil, timeout)
 	} else {
 		// Pool exists by now so we can ask for lbID
 		err = waitForLBV2viaPool(lbClient, pool.ID, "ACTIVE", timeout)
 	}
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(pool.ID)
 
-	return resourcePoolV2Read(d, meta)
+	return resourcePoolV2Read(ctx, d, meta)
 }
 
-func resourcePoolV2Read(d *schema.ResourceData, meta interface{}) error {
+func resourcePoolV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.ElbV2Client(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud elb v2 client: %s", err)
 	}
 
 	pool, err := pools.Get(lbClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "pool")
+		return common.CheckDeletedDiag(d, err, "Error retrieving member")
 	}
 
 	logp.Printf("[DEBUG] Retrieved pool %s: %#v", d.Id(), pool)
 
-	d.Set("lb_method", pool.LBMethod)
-	d.Set("protocol", pool.Protocol)
-	d.Set("description", pool.Description)
-	d.Set("tenant_id", pool.TenantID)
-	d.Set("admin_state_up", pool.AdminStateUp)
-	d.Set("name", pool.Name)
-	d.Set("region", GetRegion(d, config))
+	mErr := multierror.Append(nil,
+		d.Set("region", config.GetRegion(d)),
+		d.Set("lb_method", pool.LBMethod),
+		d.Set("protocol", pool.Protocol),
+		d.Set("description", pool.Description),
+		d.Set("tenant_id", pool.TenantID),
+		d.Set("admin_state_up", pool.AdminStateUp),
+		d.Set("name", pool.Name),
+	)
 
 	if pool.Persistence.Type != "" {
 		var persistence []map[string]interface{} = make([]map[string]interface{}, 1)
@@ -229,19 +235,20 @@ func resourcePoolV2Read(d *schema.ResourceData, meta interface{}) error {
 		params["cookie_name"] = pool.Persistence.CookieName
 		params["type"] = pool.Persistence.Type
 		persistence[0] = params
-		if err = d.Set("persistence", persistence); err != nil {
-			return fmtp.Errorf("Load balance persistence set error: %s", err)
-		}
+		mErr = multierror.Append(mErr, d.Set("persistence", persistence))
 	}
 
+	if err = mErr.ErrorOrNil(); err != nil {
+		return fmtp.DiagErrorf("Error setting pool fields: %s", err)
+	}
 	return nil
 }
 
-func resourcePoolV2Update(d *schema.ResourceData, meta interface{}) error {
+func resourcePoolV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.ElbV2Client(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	var updateOpts pools.UpdateOpts
@@ -263,17 +270,17 @@ func resourcePoolV2Update(d *schema.ResourceData, meta interface{}) error {
 	timeout := d.Timeout(schema.TimeoutUpdate)
 	lbID := d.Get("loadbalancer_id").(string)
 	if lbID != "" {
-		err = waitForLBV2LoadBalancer(lbClient, lbID, "ACTIVE", nil, timeout)
+		err = waitForLBV2LoadBalancer_v2(lbClient, lbID, "ACTIVE", nil, timeout)
 	} else {
 		err = waitForLBV2viaPool(lbClient, d.Id(), "ACTIVE", timeout)
 	}
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	logp.Printf("[DEBUG] Updating pool %s with options: %#v", d.Id(), updateOpts)
 	//lintignore:R006
-	err = resource.Retry(timeout, func() *resource.RetryError {
+	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		_, err = pools.Update(lbClient, d.Id(), updateOpts).Extract()
 		if err != nil {
 			return checkForRetryableError(err)
@@ -282,42 +289,42 @@ func resourcePoolV2Update(d *schema.ResourceData, meta interface{}) error {
 	})
 
 	if err != nil {
-		return fmtp.Errorf("Unable to update pool %s: %s", d.Id(), err)
+		return fmtp.DiagErrorf("Unable to update pool %s: %s", d.Id(), err)
 	}
 
 	// Wait for LoadBalancer to become active before continuing
 	if lbID != "" {
-		err = waitForLBV2LoadBalancer(lbClient, lbID, "ACTIVE", nil, timeout)
+		err = waitForLBV2LoadBalancer_v2(lbClient, lbID, "ACTIVE", nil, timeout)
 	} else {
 		err = waitForLBV2viaPool(lbClient, d.Id(), "ACTIVE", timeout)
 	}
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return resourcePoolV2Read(d, meta)
+	return resourcePoolV2Read(ctx, d, meta)
 }
 
-func resourcePoolV2Delete(d *schema.ResourceData, meta interface{}) error {
+func resourcePoolV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.ElbV2Client(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	// Wait for LoadBalancer to become active before continuing
 	timeout := d.Timeout(schema.TimeoutDelete)
 	lbID := d.Get("loadbalancer_id").(string)
 	if lbID != "" {
-		err = waitForLBV2LoadBalancer(lbClient, lbID, "ACTIVE", nil, timeout)
+		err = waitForLBV2LoadBalancer_v2(lbClient, lbID, "ACTIVE", nil, timeout)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	logp.Printf("[DEBUG] Attempting to delete pool %s", d.Id())
 	//lintignore:R006
-	err = resource.Retry(timeout, func() *resource.RetryError {
+	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		err = pools.Delete(lbClient, d.Id()).ExtractErr()
 		if err != nil {
 			return checkForRetryableError(err)
@@ -326,13 +333,13 @@ func resourcePoolV2Delete(d *schema.ResourceData, meta interface{}) error {
 	})
 
 	if lbID != "" {
-		err = waitForLBV2LoadBalancer(lbClient, lbID, "ACTIVE", nil, timeout)
+		err = waitForLBV2LoadBalancer_v2(lbClient, lbID, "ACTIVE", nil, timeout)
 	} else {
 		// Wait for Pool to delete
 		err = waitForLBV2Pool(lbClient, d.Id(), "DELETED", nil, timeout)
 	}
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil
