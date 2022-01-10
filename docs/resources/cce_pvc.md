@@ -82,13 +82,13 @@ The following arguments are supported:
   maximum of 63 characters, which may consist of lowercase letters, digits and hyphens (-), and must start and end with
   lowercase letters and digits. Changing this will create a new PVC resource.
 
-* `annotations` - (Optional, Map, ForceNew) An unstructured key value map for external parameters. Changing this
-  will create a new PVC resource.
+* `annotations` - (Optional, Map, ForceNew) Specifies the unstructured key value map for external parameters.
+  Changing this will create a new PVC resource.
 
-* `labels` - (Optional, Map, ForceNew) Map of string keys and values for labels. Changing this
-  will create a new PVC resource.
+* `labels` - (Optional, Map, ForceNew) Specifies the map of string keys and values for labels.
+  Changing this will create a new PVC resource.
 
-* `storage_class_name` - (Required, String, ForceNew) Specifies the type of the storage bound to the CCE pvc.
+* `storage_class_name` - (Required, String, ForceNew) Specifies the type of the storage bound to the CCE PVC.
   The valid values are as follows:
   + **csi-disk**: EVS.
   + **csi-obs**: OBS.

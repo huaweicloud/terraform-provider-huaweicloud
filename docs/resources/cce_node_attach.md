@@ -26,15 +26,15 @@ resource "huaweicloud_cce_node_attach" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the cce node attach resource. If omitted, the
-  provider-level region will be used. Changing this creates a new cce node attach resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the CCE node attach resource. If omitted, the
+  provider-level region will be used. Changing this creates a new CCE node attach resource.
 
 * `cluster_id` - (Required, String, ForceNew) Specifies the ID of the cluster. Changing this parameter will create a new
   resource.
 
 * `name` - (Optional, String) Specifies the Node Name.
 
-* `server_id` - (Required, String, ForceNew) Specifies the ecs server id. Changing this parameter will create a new
+* `server_id` - (Required, String, ForceNew) Specifies the ecs server ID. Changing this parameter will create a new
   resource.
 
 * `os` - (Required, String) Specifies the operating System of the node. Changing this parameter will reset the node.
@@ -67,12 +67,12 @@ Changing this parameter will create a new resource.
 * `postinstall` - (Optional, String, ForceNew) Specifies the script required after installation. The input value can be
   a Base64 encoded string or not. Changing this parameter will create a new resource.
 
-* `labels` - (Optional, Map, ForceNew) Tags of a Kubernetes node, key/value pair format. Changing this parameter will
-  create a new resource.
+* `labels` - (Optional, Map, ForceNew) Specifies the tags of a Kubernetes node, key/value pair format.
+  Changing this parameter will create a new resource.
 
 * `tags` - (Optional, Map) Specifies the tags of a VM node, key/value pair format.
 
-* `taints` - (Optional, List, ForceNew) You can add taints to created nodes to configure anti-affinity.
+* `taints` - (Optional, List, ForceNew) Specifies the taints configuration of the nodes to set anti-affinity.
   Changing this parameter will create a new resource. Each taint contains the following parameters:
 
   + `key` - (Required, String, ForceNew) A key must contain 1 to 63 characters starting with a letter or digit.
@@ -88,16 +88,16 @@ Changing this parameter will create a new resource.
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - The resource ID in UUID format.
 * `status` - Node status information.
 * `private_ip` - Private IP of the CCE node.
 * `public_ip` - Public IP of the CCE node.
-* `flavor_id` - The flavor id of the CCE node.
+* `flavor_id` - The flavor ID of the CCE node.
 * `availability_zone` - The name of the available partition (AZ).
 * `root_volume` - The system disk related configuration.
 * `data_volumes` - The data disks related configuration.
 * `runtime` - The runtime of the CCE node.
-* `ecs_group_id` - The Ecs group id.
+* `ecs_group_id` - The Ecs group ID.
 * `subnet_id` - The ID of the subnet to which the NIC belongs.
 
 ## Timeouts
