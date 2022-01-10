@@ -89,10 +89,10 @@ jobs:
             if [ -f "./${test_file}" ]; then
               basic_cases=$(grep "^func TestAcc" ./${test_file} | grep _basic | awk '{print $2}' | awk -F '(' '{print $1}')
               if [ "X$basic_cases" != "X" ]; then
-                echo "run acceptance basic tests: $basic_cases"
+                echo -e "\nrun acceptance basic tests: $basic_cases"
                 make testacc TEST="./$path" TESTARGS="-run ${basic_cases}"
               fi
             else
-              echo "[skipped] --- ./${test_file} does not exist"
+              echo -e "\n[skipped] --- ./${test_file} does not exist"
             fi
           done
