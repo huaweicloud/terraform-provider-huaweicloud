@@ -1,10 +1,12 @@
 ---
-subcategory: "Distributed Message Service (DMS)"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud_dms_group
 
 Manages a DMS group in the huaweicloud DMS Service.
+
+-> **NOTE:** Distributed Message Service (Shared Edition) has withdrawn. Please use DMS for Kafka instead.
 
 ## Example Usage
 
