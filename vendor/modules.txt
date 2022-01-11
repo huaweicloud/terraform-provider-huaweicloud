@@ -29,6 +29,7 @@ github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/instances
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/responses
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/throttles
 github.com/chnsz/golangsdk/openstack/apigw/shared/v1/apis
+github.com/chnsz/golangsdk/openstack/apigw/shared/v1/environments
 github.com/chnsz/golangsdk/openstack/apigw/shared/v1/groups
 github.com/chnsz/golangsdk/openstack/autoscaling/v1/configurations
 github.com/chnsz/golangsdk/openstack/autoscaling/v1/groups

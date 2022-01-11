@@ -7,6 +7,10 @@ import (
 	"time"
 
 	"github.com/chnsz/golangsdk"
+	dedicatedGroups "github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/apigroups"
+	dedicatedEnvs "github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/environments"
+	"github.com/chnsz/golangsdk/openstack/apigw/shared/v1/environments"
+	"github.com/chnsz/golangsdk/openstack/apigw/shared/v1/groups"
 	"github.com/chnsz/golangsdk/openstack/fgs/v2/trigger"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -19,11 +23,13 @@ import (
 )
 
 const (
-	timingTrigger = "TIMER"
-	obsTrigger    = "OBS"
-	smnTrigger    = "SMN"
-	disTrigger    = "DIS"
-	kafkaTrigger  = "KAFKA"
+	timingTrigger        = "TIMER"
+	obsTrigger           = "OBS"
+	smnTrigger           = "SMN"
+	disTrigger           = "DIS"
+	kafkaTrigger         = "KAFKA"
+	apigTrigger          = "APIG"
+	dedicatedApigTrigger = "DEDICATEDGATEWAY"
 
 	obsEventCreated             = "ObjectCreated"
 	obsEventPut                 = "Put"
@@ -66,7 +72,7 @@ func ResourceFunctionGraphTrigger() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					timingTrigger, obsTrigger, smnTrigger, disTrigger, kafkaTrigger,
+					timingTrigger, obsTrigger, smnTrigger, disTrigger, kafkaTrigger, apigTrigger, dedicatedApigTrigger,
 				}, false),
 			},
 			// SMN trigger does not support status.
@@ -84,7 +90,7 @@ func ResourceFunctionGraphTrigger() *schema.Resource {
 				ForceNew:     true,
 				MaxItems:     1,
 				Elem:         timerSchemaResource(),
-				ExactlyOneOf: []string{"obs", "smn", "dis", "kafka"},
+				ExactlyOneOf: []string{"obs", "smn", "dis", "kafka", "apig"},
 			},
 			"obs": {
 				Type:     schema.TypeList,
@@ -113,6 +119,13 @@ func ResourceFunctionGraphTrigger() *schema.Resource {
 				ForceNew: true,
 				MaxItems: 1,
 				Elem:     kafkaSchemaResource(),
+			},
+			"apig": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem:     apigSchemaResource(),
 			},
 		},
 	}
@@ -265,6 +278,59 @@ func kafkaSchemaResource() *schema.Resource {
 		},
 	}
 }
+
+func apigSchemaResource() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"group_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"api_name": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"env_name": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"instance_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"security_authentication": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"IAM", "APP", "NONE",
+				}, false),
+				Default: "IAM",
+			},
+			"request_protocol": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"HTTP", "HTTPS",
+				}, false),
+				Default: "HTTPS",
+			},
+			"timeout": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.IntBetween(1, 60000),
+				Default:      5000,
+			},
+		},
+	}
+}
+
 func buildTimingEventData(d *schema.ResourceData) map[string]interface{} {
 	event := make(map[string]interface{})
 
@@ -338,6 +404,116 @@ func buildKafkaEventData(d *schema.ResourceData) map[string]interface{} {
 	}
 }
 
+// Obtain environment ID and sub-domain of shared APIG.
+func getSharedApigSubDomainAndEnvId(d *schema.ResourceData, config *config.Config) (string, string, error) {
+	var envId, subDomain string
+	apigwClient, err := config.ApiGatewayV1Client(config.GetRegion(d))
+	if err != nil {
+		return envId, subDomain, fmtp.Errorf("Error creating HuaweiCloud shared APIG v1.0 client: %s", err)
+	}
+
+	envName := d.Get("apig.0.env_name").(string)
+	// Obtain environment information.
+	envOpt := environments.ListOpts{
+		EnvName: envName,
+	}
+	envList, err := environments.List(apigwClient, envOpt)
+	if err != nil {
+		return envId, subDomain, fmtp.Errorf("Unable to obtain the environment list: %s", err)
+	}
+	if len(envList) <= 0 {
+		return envId, subDomain, fmtp.Errorf("There is no environment named %s: %s", envName, err)
+	}
+	envId = envList[0].Id
+
+	// Obtain group information.
+	groupId := d.Get("apig.0.group_id").(string)
+	groupResp, err := groups.Get(apigwClient, groupId).Extract()
+	if err != nil {
+		return envId, subDomain, fmtp.Errorf("Unable to obtain the APIG group (%s): %s", groupId, err)
+	}
+	subDomain = groupResp.SlDomain
+
+	return envId, subDomain, nil
+}
+
+// Obtain environment ID and sub-domain of dedicated APIG.
+func getDedicatedApigSubDomainAndEnvId(d *schema.ResourceData, config *config.Config) (string, string, error) {
+	var envId, subDomain string
+	apigwClient, err := config.ApigV2Client(config.GetRegion(d))
+	if err != nil {
+		return envId, subDomain, fmtp.Errorf("Error creating HuaweiCloud dedicated APIG v2 client: %s", err)
+	}
+
+	instanceId := d.Get("apig.0.instance_id").(string)
+	envName := d.Get("apig.0.env_name").(string)
+	// Obtain environment information.
+	envOpt := dedicatedEnvs.ListOpts{
+		Name: envName,
+	}
+	pages, err := dedicatedEnvs.List(apigwClient, instanceId, envOpt).AllPages()
+	if err != nil {
+		return envId, subDomain, fmtp.Errorf("Error getting environment list: %s", err)
+	}
+	envList, err := dedicatedEnvs.ExtractEnvironments(pages)
+	if err != nil {
+		return envId, subDomain, fmtp.Errorf("Unable to retrive the response to list: %s", err)
+	}
+	if len(envList) <= 0 {
+		return envId, subDomain, fmtp.Errorf("There is no environment named %s: %s", envName, err)
+	}
+	envId = envList[0].Id
+
+	// Obtain group information.
+	groupId := d.Get("apig.0.group_id").(string)
+	groupResp, err := dedicatedGroups.Get(apigwClient, instanceId, groupId).Extract()
+	if err != nil {
+		return envId, subDomain, fmtp.Errorf("Unable to obtain the APIG group (%s): %s", groupId, err)
+	}
+	subDomain = groupResp.Subdomain
+
+	return envId, subDomain, nil
+}
+
+func buildApigEventData(d *schema.ResourceData, config *config.Config) (map[string]interface{}, error) {
+	// Common configuration
+	result := map[string]interface{}{
+		"env_name":     d.Get("apig.0.env_name").(string),
+		"group_id":     d.Get("apig.0.group_id").(string),
+		"protocol":     d.Get("apig.0.request_protocol").(string),
+		"auth":         d.Get("apig.0.security_authentication").(string),
+		"name":         d.Get("apig.0.api_name").(string),
+		"path":         fmt.Sprintf("/%s", d.Get("apig.0.api_name").(string)), // Use API name as path.
+		"backend_type": "FUNCTION",
+		"match_mode":   "SWA",
+		"req_method":   "ANY",
+		"type":         1,
+		"func_info": map[string]interface{}{
+			"timeout": d.Get("apig.0.timeout").(int),
+		},
+	}
+
+	var envId, subDomain string
+	var err error
+	// The different between the shared APIG and the dedicated APIG is whether the instance ID is set.
+	if instanceId, ok := d.GetOk("apig.0.instance_id"); ok {
+		result["instance_id"] = instanceId
+		envId, subDomain, err = getDedicatedApigSubDomainAndEnvId(d, config)
+		if err != nil {
+			return result, err
+		}
+	} else {
+		envId, subDomain, err = getSharedApigSubDomainAndEnvId(d, config)
+		if err != nil {
+			return result, err
+		}
+	}
+	result["env_id"] = envId
+	result["sl_domain"] = subDomain
+
+	return result, nil
+}
+
 func buildFunctionGraphTriggerParameters(d *schema.ResourceData, config *config.Config) (trigger.CreateOpts, error) {
 	triggerType := d.Get("type").(string)
 
@@ -358,8 +534,15 @@ func buildFunctionGraphTriggerParameters(d *schema.ResourceData, config *config.
 		opts.EventData = buildDisEventData(d)
 	case kafkaTrigger:
 		opts.EventData = buildKafkaEventData(d)
+	case apigTrigger, dedicatedApigTrigger:
+		eventData, err := buildApigEventData(d, config)
+		if err != nil {
+			return opts, err
+		}
+		opts.EventData = eventData
 	default:
-		return opts, fmtp.Errorf("Currently, trigger type only support 'TIMER', 'OBS', 'SMN', 'DIS' and 'KAFKA'.")
+		return opts, fmtp.Errorf("Currently, trigger type only support 'TIMER', 'OBS', 'SMN', 'DIS', 'KAFKA', 'APIG' " +
+			"and 'DEDICATEDGATEWAY'.")
 	}
 	return opts, nil
 }
@@ -492,6 +675,23 @@ func setKafkaEventData(d *schema.ResourceData, eventData map[string]interface{})
 	return d.Set("kafka", result)
 }
 
+func setApigEventData(d *schema.ResourceData, eventData map[string]interface{}) error {
+	result := make([]map[string]interface{}, 1)
+	funcInfo := eventData["func_info"].(map[string]interface{})
+	apigInfo := map[string]interface{}{
+		"group_id":                eventData["group_id"],
+		"api_name":                eventData["api_name"],
+		"env_name":                eventData["env_name"],
+		"security_authentication": eventData["auth"],
+		"request_protocol":        eventData["protocol"],
+		"timeout":                 funcInfo["timeout"],
+	}
+	if instanceId, ok := eventData["instance_id"]; ok {
+		apigInfo["instance_id"] = instanceId
+	}
+	return d.Set("apig", result)
+}
+
 func setTriggerEventData(d *schema.ResourceData, resp *trigger.Trigger) error {
 	switch resp.TriggerTypeCode {
 	case timingTrigger:
@@ -504,8 +704,11 @@ func setTriggerEventData(d *schema.ResourceData, resp *trigger.Trigger) error {
 		return setDisEventData(d, resp.EventData)
 	case kafkaTrigger:
 		return setKafkaEventData(d, resp.EventData)
+	case apigTrigger, dedicatedApigTrigger:
+		return setApigEventData(d, resp.EventData)
 	}
-	return fmtp.Errorf("The type of trigger currently only support 'TIMER', 'OBS', 'SMN', 'DIS' and 'KAFKA'")
+	return fmtp.Errorf("The type of trigger currently only support 'TIMER', 'OBS', 'SMN', 'DIS', 'KAFKA', 'APIG' and " +
+		"'DEDICATEDGATEWAY'.")
 }
 
 func setTriggerParamters(d *schema.ResourceData, resp *trigger.Trigger) error {
