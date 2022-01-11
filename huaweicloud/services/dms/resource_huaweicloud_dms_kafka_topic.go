@@ -153,20 +153,30 @@ func resourceDmsKafkaTopicUpdate(ctx context.Context, d *schema.ResourceData, me
 		return fmtp.DiagErrorf("error creating HuaweiCloud DMS client: %s", err)
 	}
 
-	newPartition := d.Get("partitions").(int)
-	retentionTime := d.Get("aging_time").(int)
-	syncReplication := d.Get("sync_replication").(bool)
-	syncMessageFlush := d.Get("sync_flushing").(bool)
+	updateItem := topics.UpdateItem{
+		Name: d.Get("name").(string),
+	}
+	// Set value if it changed.
+	if d.HasChange("partitions") {
+		newPartition := d.Get("partitions").(int)
+		updateItem.Partition = &newPartition
+	}
+	if d.HasChange("aging_time") {
+		retentionTime := d.Get("aging_time").(int)
+		updateItem.RetentionTime = &retentionTime
+	}
+	if d.HasChange("sync_replication") {
+		syncReplication := d.Get("sync_replication").(bool)
+		updateItem.SyncReplication = &syncReplication
+	}
+	if d.HasChange("sync_flushing") {
+		syncMessageFlush := d.Get("sync_flushing").(bool)
+		updateItem.SyncMessageFlush = &syncMessageFlush
+	}
 
 	updateOpts := topics.UpdateOpts{
 		Topics: []topics.UpdateItem{
-			{
-				Name:             d.Get("name").(string),
-				Partition:        &newPartition,
-				RetentionTime:    &retentionTime,
-				SyncMessageFlush: &syncMessageFlush,
-				SyncReplication:  &syncReplication,
-			},
+			updateItem,
 		},
 	}
 
