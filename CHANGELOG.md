@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 1.32.1 (January 11, 2022)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_compute_eip_associate: add `port_id` attribute [GH-1864]
+* resource/huaweicloud_lb_certificate: support `enterprise_project_id` field [GH-1865]
+
+BUG FIXES:
+
+* resource/huaweicloud_evs_volume: fix incorrect device_type configuration [GH-1852]
+* resource/huaweicloud_vpc_eip: set `port_id` to computed and deprecated [GH-1856]
+* resource/huaweicloud_dms_kafka_topic: fix an API issue when updating [GH-1874]
+* fix a URL splicing error for customizing endpoint of IAM service [GH-1866]
+
 ## 1.32.0 (December 31, 2021)
 
 * **New Resurce:**
