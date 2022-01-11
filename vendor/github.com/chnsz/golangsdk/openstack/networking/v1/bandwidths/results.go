@@ -6,11 +6,10 @@ import (
 
 //BandWidth is a struct that represents a bandwidth
 type BandWidth struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	Size      int    `json:"size"`
-	ShareType string `json:"share_type"`
-	//PublicIPInfo  string `json:"publicip_info"`
+	ID            string `json:"id"`
+	Name          string `json:"name"`
+	Size          int    `json:"size"`
+	ShareType     string `json:"share_type"`
 	TenantID      string `json:"tenant_id"`
 	BandwidthType string `json:"bandwidth_type"`
 	ChargeMode    string `json:"charge_mode"`
@@ -28,7 +27,7 @@ type BandWidth struct {
 }
 
 type PublicIpinfo struct {
-	// Specifies the tenant ID of the user.
+	// Specifies the ID of EIP or IPv6 port that use the bandwidth
 	PublicipId string `json:"publicip_id"`
 
 	// Specifies the elastic IP address.

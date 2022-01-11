@@ -26,7 +26,7 @@ following arguments are supported:
 
 * `name` - (Required, String) The name of the Shared Bandwidth to retrieve.
 
-* `size` - (Optional, Int) The size of the Shared Bandwidth to retrieve. The value ranges from 5 to 2000 G.
+* `size` - (Optional, Int) The size of the Shared Bandwidth to retrieve. The value ranges from 5 Mbit/s to 2000 Mbit/s.
 
 * `enterprise_project_id` - (Optional, String) The enterprise project id of the Shared Bandwidth to retrieve.
 
@@ -43,3 +43,9 @@ In addition to all arguments above, the following attributes are exported:
 * `charge_mode` - Indicates whether the billing is based on traffic, bandwidth, or 95th percentile bandwidth (enhanced).
 
 * `status` - Indicates the bandwidth status.
+
+* `publicips` - An array of EIPs that use the bandwidth. The object includes the following:
+  + `id` - The ID of the EIP or IPv6 port that uses the bandwidth.
+  + `type` - The EIP type. Possible values are *5_bgp* (dynamic BGP) and *5_sbgp* (static BGP).
+  + `ip_version` - The IP version, either 4 or 6.
+  + `ip_address` - The IPv4 or IPv6 address.
