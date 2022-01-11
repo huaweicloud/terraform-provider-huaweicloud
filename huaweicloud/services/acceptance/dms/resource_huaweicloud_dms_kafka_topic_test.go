@@ -62,14 +62,24 @@ func TestAccDmsKafkaTopic_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDmsKafkaTopic_update(rName),
+				Config: testAccDmsKafkaTopic_update_part1(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "partitions", "20"),
 					resource.TestCheckResourceAttr(resourceName, "replicas", "3"),
 					resource.TestCheckResourceAttr(resourceName, "aging_time", "72"),
-					resource.TestCheckResourceAttr(resourceName, "sync_replication", "false"),
+				),
+			},
+			{
+				Config: testAccDmsKafkaTopic_update_part2(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "partitions", "20"),
+					resource.TestCheckResourceAttr(resourceName, "replicas", "3"),
+					resource.TestCheckResourceAttr(resourceName, "aging_time", "72"),
+					resource.TestCheckResourceAttr(resourceName, "sync_replication", "true"),
 					resource.TestCheckResourceAttr(resourceName, "sync_flushing", "true"),
 				),
 			},
@@ -112,16 +122,30 @@ resource "huaweicloud_dms_kafka_topic" "topic" {
 `, testAccDmsKafkaInstance_basic(rName), rName)
 }
 
-func testAccDmsKafkaTopic_update(rName string) string {
+func testAccDmsKafkaTopic_update_part1(rName string) string {
 	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_dms_kafka_topic" "topic" {
-  instance_id   = huaweicloud_dms_kafka_instance.test.id
-  name          = "%s"
-  partitions    = 20
-  aging_time    = 72
-  sync_flushing = true
+  instance_id = huaweicloud_dms_kafka_instance.test.id
+  name        = "%s"
+  partitions  = 20
+  aging_time  = 72
+}
+`, testAccDmsKafkaInstance_basic(rName), rName)
+}
+
+func testAccDmsKafkaTopic_update_part2(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_dms_kafka_topic" "topic" {
+  instance_id      = huaweicloud_dms_kafka_instance.test.id
+  name             = "%s"
+  partitions       = 20
+  aging_time       = 72
+  sync_flushing    = true
+  sync_replication = true
 }
 `, testAccDmsKafkaInstance_basic(rName), rName)
 }
