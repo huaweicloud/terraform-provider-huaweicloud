@@ -35,8 +35,8 @@ func TestAccBandWidthDataSource_basic(t *testing.T) {
 func testAccBandWidthDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc_bandwidth" "test" {
-	name = "%s"
-	size = 10
+  name = "%s"
+  size = 10
 }
 
 data "huaweicloud_vpc_bandwidth" "test" {
