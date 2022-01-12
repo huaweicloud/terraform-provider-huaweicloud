@@ -81,8 +81,8 @@ func testAccDewCsmsSecret_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_csms_secret" "test" {
   name        = "%s"
-  secret_text = "this is a password"
   description = "csms secret test"
+  secret_text = "this is a password"
 
   tags = {
     foo = "bar"
@@ -96,8 +96,12 @@ func testAccDewCsmsSecret_update(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_csms_secret" "test" {
   name        = "%s"
-  secret_text = "this is a secret"
   description = "csms secret test"
+
+  secret_text = jsonencode({
+    username = "admin"
+    password = "123456"
+  })
 
   tags = {
     foo   = "new_bar"
