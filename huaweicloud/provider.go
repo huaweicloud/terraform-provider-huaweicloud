@@ -20,6 +20,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dds"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dew"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dis"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dli"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dms"
@@ -468,6 +469,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cs_route":                        deprecated.ResourceCsRouteV1(),
 			"huaweicloud_csbs_backup":                     resourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy":              resourceCSBSBackupPolicyV1(),
+			"huaweicloud_csms_secret":                     dew.ResourceCsmsSecret(),
 			"huaweicloud_css_cluster":                     css.ResourceCssCluster(),
 			"huaweicloud_css_snapshot":                    css.ResourceCssSnapshot(),
 			"huaweicloud_css_thesaurus":                   css.ResourceCssthesaurus(),
