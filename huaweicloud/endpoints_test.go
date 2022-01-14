@@ -304,17 +304,29 @@ func TestAccServiceEndpoints_Security(t *testing.T) {
 	}
 	t.Logf("anti-ddos endpoint:\t %s", actualURL)
 
-	// test the endpoint of KMS service
+	// test the endpoint of KMS service v1.0
 	serviceClient, err = config.KmsKeyV1Client(HW_REGION_NAME)
 	if err != nil {
-		t.Fatalf("Error creating HuaweiCloud KMS client: %s", err)
+		t.Fatalf("Error creating HuaweiCloud KMS(v1.0) client: %s", err)
 	}
 	expectedURL = fmt.Sprintf("https://kms.%s.%s/v1.0/", HW_REGION_NAME, config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
-		t.Fatalf("KMS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+		t.Fatalf("KMS(v1.0) endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
-	t.Logf("KMS endpoint:\t %s", actualURL)
+	t.Logf("KMS(v1.0) endpoint:\t %s", actualURL)
+
+	// test the endpoint of KMS service v1
+	serviceClient, err = config.KmsV1Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud KMS(v1) client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://kms.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("KMS(v1) endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("KMS(v1) endpoint:\t %s", actualURL)
 
 	// test the endpoint of SCM service
 	serviceClient, err = config.ScmV3Client(HW_REGION_NAME)
