@@ -1,4 +1,4 @@
-package dms
+package deprecated
 
 import (
 	"context"
@@ -20,6 +20,8 @@ func ResourceDmsGroups() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+		DeprecationMessage: "Deprecated, Distributed Message Service (Shared Edition) has withdrawn, " +
+			"please use DMS for Kafka instead.",
 
 		Schema: map[string]*schema.Schema{
 			"region": {

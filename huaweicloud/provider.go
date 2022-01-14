@@ -482,7 +482,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_dli_table":                       dli.ResourceDliTable(),
 			"huaweicloud_dli_flinksql_job":                dli.ResourceFlinkSqlJob(),
 			"huaweicloud_dli_flinkjar_job":                dli.ResourceFlinkJarJob(),
-			"huaweicloud_dms_group":                       dms.ResourceDmsGroups(),
 			"huaweicloud_dms_instance":                    deprecated.ResourceDmsInstancesV1(),
 			"huaweicloud_dms_queue":                       dms.ResourceDmsQueues(),
 			"huaweicloud_dms_kafka_instance":              dms.ResourceDmsKafkaInstance(),
@@ -625,7 +624,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_fw_rule_v2":                         resourceFWRuleV2(),
 			"huaweicloud_kms_key_v1":                         ResourceKmsKeyV1(),
 			"huaweicloud_dms_queue_v1":                       dms.ResourceDmsQueues(),
-			"huaweicloud_dms_group_v1":                       dms.ResourceDmsGroups(),
+			"huaweicloud_dms_group_v1":                       deprecated.ResourceDmsGroups(),
 			"huaweicloud_dms_instance_v1":                    deprecated.ResourceDmsInstancesV1(),
 			"huaweicloud_lb_certificate_v2":                  ResourceCertificateV2(),
 			"huaweicloud_lb_loadbalancer_v2":                 ResourceLoadBalancerV2(),
@@ -711,6 +710,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rts_software_config_v1":             resourceSoftwareConfigV1(),
 			"huaweicloud_cts_tracker":                        deprecated.ResourceCTSTrackerV1(),
 			"huaweicloud_images_image_v2":                    deprecated.ResourceImagesImageV2(),
+			"huaweicloud_dms_group":                          deprecated.ResourceDmsGroups(),
 		},
 	}
 
