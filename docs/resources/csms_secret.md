@@ -8,10 +8,24 @@ Manages CSMS(Cloud Secret Management Service) secrets within HuaweiCloud.
 
 ## Example Usage
 
+### Encrypt Plaintext
+
 ```hcl
-resource "huaweicloud_csms_secret" "test" {
+resource "huaweicloud_csms_secret" "test1" {
   name        = "test_secret"
   secret_text = "this is a password"
+}
+```
+
+### Encrypt JSON Data
+
+```hcl
+resource "huaweicloud_csms_secret" "test2" {
+  name        = "mysql_admin"
+  secret_text = jsonencode({
+    username = "admin"
+    password = "123456"
+  })
 }
 ```
 
@@ -50,7 +64,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `latest_version` - The latest version id.
 
-* `state` - The CSMS secret status. Values can be: ENABLED, DISABLED, PENDING_DELETE and FROZEN.
+* `status` - The CSMS secret status. Values can be: ENABLED, DISABLED, PENDING_DELETE and FROZEN.
 
 * `create_time` - Time when the CSMS secrets created, in UTC format.
 

@@ -61,7 +61,7 @@ func TestAccDewCsmsSecret_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						resourceName,
 						"secret_text",
-						utils.HashAndHexEncode("this is a secret"),
+						utils.HashAndHexEncode(`{"password":"123456","username":"admin"}`),
 					),
 					resource.TestCheckResourceAttr(resourceName, "tags.%", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "new_bar"),
