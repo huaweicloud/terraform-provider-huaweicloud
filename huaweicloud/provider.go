@@ -906,6 +906,9 @@ func flattenProviderEndpoints(d *schema.ResourceData) (map[string]string, error)
 		epMap["networkv2"] = endpoint
 		epMap["security_group"] = endpoint
 	}
+	if endpoint, ok := epMap["geminidb"]; ok {
+		epMap["geminidbv31"] = endpoint
+	}
 
 	log.Printf("[DEBUG] customer endpoints: %+v", epMap)
 	return epMap, nil
