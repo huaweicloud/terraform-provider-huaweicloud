@@ -1,4 +1,4 @@
-package dms
+package deprecated
 
 import (
 	"fmt"
@@ -33,7 +33,10 @@ func TestAccDmsQueuesV1_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckDms(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheckDeprecated(t)
+			acceptance.TestAccPreCheckDms(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -60,7 +63,10 @@ func TestAccDmsQueuesV1_FIFOmode(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckDms(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheckDeprecated(t)
+			acceptance.TestAccPreCheckDms(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
