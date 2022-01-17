@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -154,8 +155,7 @@ func resourceVpcRTBRouteRead(_ context.Context, d *schema.ResourceData, meta int
 
 	routeTable, err := routetables.Get(vpcClient, routeTableID).Extract()
 	if err != nil {
-		diags = append(diags, fmtp.DiagErrorf("Error retrieving VPC route table %s: %s", routeTableID, err)[0])
-		return diags
+		return common.CheckDeletedDiag(d, err, "VPC route table")
 	}
 
 	var route *routetables.Route
@@ -167,8 +167,10 @@ func resourceVpcRTBRouteRead(_ context.Context, d *schema.ResourceData, meta int
 	}
 
 	if route == nil {
-		diags = append(diags, fmtp.DiagErrorf("can not find the vpc route %s with %s", routeTableID, destination)[0])
-		return diags
+		logp.Printf("[INFO] Since can not find destination %s in the vpc route %s, remove %s from state",
+			routeTableID, destination, d.Id())
+		d.SetId("")
+		return nil
 	}
 
 	mErr := multierror.Append(nil,
