@@ -1,4 +1,4 @@
-package vpc
+package eip
 
 import (
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"

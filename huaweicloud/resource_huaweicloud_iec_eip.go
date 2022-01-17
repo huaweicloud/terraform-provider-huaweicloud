@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/eip"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -183,7 +183,7 @@ func resourceIecEipV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("bandwidth_size", n.BandwidthSize)
 	d.Set("bandwidth_share_type", n.BandwidthShareType)
 	d.Set("site_info", n.SiteInfo)
-	d.Set("status", vpc.NormalizeEIPStatus(n.Status))
+	d.Set("status", eip.NormalizeEIPStatus(n.Status))
 
 	return nil
 }
