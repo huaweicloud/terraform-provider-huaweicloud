@@ -248,7 +248,7 @@ func resourceNatDnatRuleRead(d *schema.ResourceData, meta interface{}) error {
 		url, &r.Body,
 		&golangsdk.RequestOpts{MoreHeaders: map[string]string{"Accept": "application/json"}})
 	if r.Err != nil {
-		return fmtp.Errorf("Error reading %s: %s", fmt.Sprintf("NatDnat %q", d.Id()), r.Err)
+		return CheckDeleted(d, r.Err, "dnat rule")
 	}
 	v, ok := r.Body.(map[string]interface{})
 	if !ok {
