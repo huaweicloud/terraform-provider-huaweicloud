@@ -58,6 +58,7 @@ supported, in this order, and explained below:
 
 * Static credentials
 * Environment variables
+* ECS Instance Metadata Service
 
 ### Static credentials
 
@@ -94,6 +95,16 @@ $ export HW_SECRET_KEY="asecretkey"
 $ export HW_REGION_NAME="cn-north-1"
 $ terraform plan
 ```
+
+### ECS Instance Metadata Service
+
+If you're running Terraform from an ECS instance with Agency configured, Terraform will just ask
+[the metadata API](https://support.huaweicloud.com/intl/en-us/usermanual-ecs/ecs_03_0166.html)
+for credentials.
+
+This is a preferred approach over any other when running in ECS as you can avoid
+hard coding credentials. Instead these are leased on-the-fly by Terraform
+which reduces the chance of leakage.
 
 ## Configuration Reference
 

@@ -374,6 +374,9 @@ github.com/hashicorp/yamux
 # github.com/jen20/awspolicyequivalence v1.1.0
 ## explicit
 github.com/jen20/awspolicyequivalence
+# github.com/jmespath/go-jmespath v0.4.0
+## explicit
+github.com/jmespath/go-jmespath
 # github.com/keybase/go-crypto v0.0.0-20200123153347-de78d2cb44f4
 ## explicit
 github.com/keybase/go-crypto/brainpool

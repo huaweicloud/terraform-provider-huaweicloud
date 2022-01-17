@@ -12,8 +12,9 @@ type UpdateOptsBuilder interface {
 
 //UpdateOpts is a struct which represents the request body of update method
 type UpdateOpts struct {
-	Size int    `json:"size,omitempty"`
-	Name string `json:"name,omitempty"`
+	Size       int    `json:"size,omitempty"`
+	Name       string `json:"name,omitempty"`
+	ChargeMode string `json:"charge_mode,omitempty"`
 }
 
 func (opts UpdateOpts) ToBWUpdateMap() (map[string]interface{}, error) {
