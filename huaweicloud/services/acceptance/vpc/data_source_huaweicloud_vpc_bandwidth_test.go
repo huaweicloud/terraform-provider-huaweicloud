@@ -12,6 +12,7 @@ import (
 func TestAccBandWidthDataSource_basic(t *testing.T) {
 	randName := acceptance.RandomAccResourceName()
 	dataSourceName := "data.huaweicloud_vpc_bandwidth.test"
+	eipResourceName := "huaweicloud_vpc_eip.test"
 
 	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
@@ -26,6 +27,11 @@ func TestAccBandWidthDataSource_basic(t *testing.T) {
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "name", randName),
 					resource.TestCheckResourceAttr(dataSourceName, "size", "10"),
+					resource.TestCheckResourceAttr(dataSourceName, "publicips.#", "1"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "publicips.0.id",
+						eipResourceName, "id"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "publicips.0.ip_address",
+						eipResourceName, "address"),
 				),
 			},
 		},
@@ -39,7 +45,19 @@ resource "huaweicloud_vpc_bandwidth" "test" {
   size = 10
 }
 
+resource "huaweicloud_vpc_eip" "test" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    share_type = "WHOLE"
+    id         = huaweicloud_vpc_bandwidth.test.id
+  }
+}
+
 data "huaweicloud_vpc_bandwidth" "test" {
+  depends_on = [huaweicloud_vpc_eip.test]
+
   name = huaweicloud_vpc_bandwidth.test.name
 }
 `, rName)
