@@ -300,6 +300,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_instances":                    DataSourceComputeInstances(),
 			"huaweicloud_csbs_backup":                          dataSourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy":                   dataSourceCSBSBackupPolicyV1(),
+			"huaweicloud_css_flavors":                          css.DataSourceCssFlavors(),
 			"huaweicloud_dcs_az":                               deprecated.DataSourceDcsAZV1(),
 			"huaweicloud_dcs_maintainwindow":                   dcs.DataSourceDcsMaintainWindow(),
 			"huaweicloud_dcs_product":                          deprecated.DataSourceDcsProductV1(),
