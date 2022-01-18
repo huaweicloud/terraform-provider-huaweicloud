@@ -3,7 +3,7 @@ package whitelists
 import "github.com/chnsz/golangsdk"
 
 const (
-	rootPath     = "lbaas"
+	rootPath     = "elb"
 	resourcePath = "whitelists"
 )
 
