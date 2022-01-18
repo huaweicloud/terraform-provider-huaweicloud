@@ -1,18 +1,21 @@
 package huaweicloud
 
 import (
+	"context"
+
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/security/groups"
+	"github.com/chnsz/golangsdk/openstack/networking/v3/security/groups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func DataSourceNetworkingSecGroupV2() *schema.Resource {
+func DataSourceNetworkingSecGroup() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceNetworkingSecGroupV2Read,
+		ReadContext: dataSourceNetworkingSecGroupRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -32,46 +35,42 @@ func DataSourceNetworkingSecGroupV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"rules": sgRuleComputedSchema,
-
-			"tenant_id": {
-				Type:       schema.TypeString,
-				Optional:   true,
-				Deprecated: "tenant_id is deprecated",
+			"rules": securityGroupRuleSchema,
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
 }
 
-func dataSourceNetworkingSecGroupV2Read(d *schema.ResourceData, meta interface{}) error {
+func dataSourceNetworkingSecGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	listOpts := groups.ListOpts{
-		ID:       d.Get("secgroup_id").(string),
-		Name:     d.Get("name").(string),
-		TenantID: d.Get("tenant_id").(string),
+		ID:   d.Get("secgroup_id").(string),
+		Name: d.Get("name").(string),
 	}
 
-	pages, err := groups.List(networkingClient, listOpts).AllPages()
+	allSecGroups, err := groups.List(networkingClient, listOpts)
 	if err != nil {
-		return err
-	}
-
-	allSecGroups, err := groups.ExtractGroups(pages)
-	if err != nil {
-		return fmtp.Errorf("Unable to retrieve security groups: %s", err)
+		return fmtp.DiagErrorf("Unable to get security groups: %s", err)
 	}
 
 	if len(allSecGroups) < 1 {
-		return fmtp.Errorf("No Security Group found with name: %s", d.Get("name"))
+		return fmtp.DiagErrorf("No Security Group found with name: %s", d.Get("name"))
 	}
 
 	if len(allSecGroups) > 1 {
-		return fmtp.Errorf("More than one Security Group found with name: %s", d.Get("name"))
+		return fmtp.DiagErrorf("More than one Security Group found with name: %s", d.Get("name"))
 	}
 
 	secGroup := allSecGroups[0]
@@ -79,34 +78,22 @@ func dataSourceNetworkingSecGroupV2Read(d *schema.ResourceData, meta interface{}
 	logp.Printf("[DEBUG] Retrieved Security Group %s: %+v", secGroup.ID, secGroup)
 	d.SetId(secGroup.ID)
 
+	secGroupRule, err := flattenSecurityGroupRules(&secGroup)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	mErr := multierror.Append(nil,
 		d.Set("region", GetRegion(d, config)),
 		d.Set("name", secGroup.Name),
 		d.Set("description", secGroup.Description),
-		d.Set("rules", flattenSecurityGroupDataRules(&secGroup)),
+		d.Set("rules", secGroupRule),
+		d.Set("created_at", secGroup.CreatedAt),
+		d.Set("updated_at", secGroup.UpdatedAt),
 	)
 	if mErr.ErrorOrNil() != nil {
-		return mErr
+		return diag.FromErr(mErr)
 	}
 
 	return nil
-}
-
-func flattenSecurityGroupDataRules(secGroup *groups.SecGroup) []map[string]interface{} {
-	sgRules := make([]map[string]interface{}, len(secGroup.Rules))
-	for i, rule := range secGroup.Rules {
-		sgRules[i] = map[string]interface{}{
-			"id":               rule.ID,
-			"direction":        rule.Direction,
-			"protocol":         rule.Protocol,
-			"ethertype":        rule.EtherType,
-			"port_range_max":   rule.PortRangeMax,
-			"port_range_min":   rule.PortRangeMin,
-			"remote_ip_prefix": rule.RemoteIPPrefix,
-			"remote_group_id":  rule.RemoteGroupID,
-			"description":      rule.Description,
-		}
-	}
-
-	return sgRules
 }

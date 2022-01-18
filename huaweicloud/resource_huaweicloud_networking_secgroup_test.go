@@ -8,13 +8,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/security/groups"
+	"github.com/chnsz/golangsdk/openstack/networking/v3/security/groups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
-func TestAccNetworkingV2SecGroup_basic(t *testing.T) {
-	var secGroup groups.SecGroup
+func TestAccNetworkingV3SecGroup_basic(t *testing.T) {
+	var secGroup groups.SecurityGroup
 	name := fmt.Sprintf("seg-acc-test-%s", acctest.RandString(5))
 	updatedName := fmt.Sprintf("%s-updated", name)
 	resourceName := "huaweicloud_networking_secgroup.secgroup_1"
@@ -22,15 +22,14 @@ func TestAccNetworkingV2SecGroup_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2SecGroupDestroy,
+		CheckDestroy: testAccCheckNetworkingV3SecGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSecGroup_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2SecGroupExists(resourceName, &secGroup),
-					testAccCheckNetworkingV2SecGroupRuleCount(&secGroup, 6),
+					testAccCheckNetworkingV3SecGroupExists(resourceName, &secGroup),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "rules.#", "6"),
+					resource.TestCheckResourceAttr(resourceName, "rules.#", "4"),
 				),
 			},
 			{
@@ -49,20 +48,20 @@ func TestAccNetworkingV2SecGroup_basic(t *testing.T) {
 	})
 }
 
-func TestAccNetworkingV2SecGroup_withEpsId(t *testing.T) {
-	var secGroup groups.SecGroup
+func TestAccNetworkingV3SecGroup_withEpsId(t *testing.T) {
+	var secGroup groups.SecurityGroup
 	name := fmt.Sprintf("seg-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_networking_secgroup.secgroup_1"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckEpsID(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2SecGroupDestroy,
+		CheckDestroy: testAccCheckNetworkingV3SecGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSecGroup_epsId(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2SecGroupExists(resourceName, &secGroup),
+					testAccCheckNetworkingV3SecGroupExists(resourceName, &secGroup),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
@@ -71,21 +70,20 @@ func TestAccNetworkingV2SecGroup_withEpsId(t *testing.T) {
 	})
 }
 
-func TestAccNetworkingV2SecGroup_noDefaultRules(t *testing.T) {
-	var secGroup groups.SecGroup
+func TestAccNetworkingV3SecGroup_noDefaultRules(t *testing.T) {
+	var secGroup groups.SecurityGroup
 	name := fmt.Sprintf("seg-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_networking_secgroup.secgroup_1"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2SecGroupDestroy,
+		CheckDestroy: testAccCheckNetworkingV3SecGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSecGroup_noDefaultRules(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2SecGroupExists(resourceName, &secGroup),
-					testAccCheckNetworkingV2SecGroupRuleCount(&secGroup, 0),
+					testAccCheckNetworkingV3SecGroupExists(resourceName, &secGroup),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "rules.#", "0"),
 				),
@@ -94,11 +92,11 @@ func TestAccNetworkingV2SecGroup_noDefaultRules(t *testing.T) {
 	})
 }
 
-func testAccCheckNetworkingV2SecGroupDestroy(s *terraform.State) error {
+func testAccCheckNetworkingV3SecGroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
+	networkingClient, err := config.NetworkingV3Client(HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking v3 client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -106,7 +104,7 @@ func testAccCheckNetworkingV2SecGroupDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := groups.Get(networkingClient, rs.Primary.ID).Extract()
+		_, err := groups.Get(networkingClient, rs.Primary.ID)
 		if err == nil {
 			return fmtp.Errorf("Security group still exists")
 		}
@@ -115,7 +113,7 @@ func testAccCheckNetworkingV2SecGroupDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckNetworkingV2SecGroupExists(n string, secGroup *groups.SecGroup) resource.TestCheckFunc {
+func testAccCheckNetworkingV3SecGroupExists(n string, secGroup *groups.SecurityGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -127,12 +125,12 @@ func testAccCheckNetworkingV2SecGroupExists(n string, secGroup *groups.SecGroup)
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
-		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
+		networkingClient, err := config.NetworkingV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
-		found, err := groups.Get(networkingClient, rs.Primary.ID).Extract()
+		found, err := groups.Get(networkingClient, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -144,18 +142,6 @@ func testAccCheckNetworkingV2SecGroupExists(n string, secGroup *groups.SecGroup)
 		*secGroup = *found
 
 		return nil
-	}
-}
-
-func testAccCheckNetworkingV2SecGroupRuleCount(
-	sg *groups.SecGroup, count int) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if len(sg.Rules) == count {
-			return nil
-		}
-
-		return fmtp.Errorf("Unexpected number of rules in group %s. Expected %d, got %d",
-			sg.ID, count, len(sg.Rules))
 	}
 }
 

@@ -176,6 +176,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:          "v2.0",
 		WithOutProjectID: true,
 	},
+	"vpcv3": {
+		Name:    "vpc",
+		Version: "v3",
+	},
 	"security_group": {
 		Name:    "vpc",
 		Version: "v1",

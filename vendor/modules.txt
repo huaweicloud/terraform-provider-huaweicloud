@@ -12,7 +12,7 @@ github.com/apparentlymart/go-cidr/cidr
 github.com/apparentlymart/go-textseg/textseg
 # github.com/apparentlymart/go-textseg/v13 v13.0.0
 github.com/apparentlymart/go-textseg/v13/textseg
-# github.com/chnsz/golangsdk v0.0.0-20220125092117-e13751718b24
+# github.com/chnsz/golangsdk v0.0.0-20220211032246-40ea6636749f
 ## explicit
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/internal
@@ -195,7 +195,6 @@ github.com/chnsz/golangsdk/openstack/mrs/v2/jobs
 github.com/chnsz/golangsdk/openstack/networking/v1/bandwidths
 github.com/chnsz/golangsdk/openstack/networking/v1/eips
 github.com/chnsz/golangsdk/openstack/networking/v1/routetables
-github.com/chnsz/golangsdk/openstack/networking/v1/security/securitygroups
 github.com/chnsz/golangsdk/openstack/networking/v1/subnets
 github.com/chnsz/golangsdk/openstack/networking/v1/vpcs
 github.com/chnsz/golangsdk/openstack/networking/v2/bandwidths
@@ -209,7 +208,6 @@ github.com/chnsz/golangsdk/openstack/networking/v2/extensions/layer3/floatingips
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/layer3/routers
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/natgateways
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/provider
-github.com/chnsz/golangsdk/openstack/networking/v2/extensions/security/groups
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/security/rules
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/vpnaas/endpointgroups
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/vpnaas/ikepolicies
@@ -221,6 +219,8 @@ github.com/chnsz/golangsdk/openstack/networking/v2/peerings
 github.com/chnsz/golangsdk/openstack/networking/v2/ports
 github.com/chnsz/golangsdk/openstack/networking/v2/routes
 github.com/chnsz/golangsdk/openstack/networking/v2/subnets
+github.com/chnsz/golangsdk/openstack/networking/v3/security/groups
+github.com/chnsz/golangsdk/openstack/networking/v3/security/rules
 github.com/chnsz/golangsdk/openstack/obs
 github.com/chnsz/golangsdk/openstack/opengauss/v3/backups
 github.com/chnsz/golangsdk/openstack/opengauss/v3/instances
