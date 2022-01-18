@@ -33,8 +33,7 @@ func TestAccGaussRedisInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "password", password),
 					resource.TestCheckResourceAttr(resourceName, "node_num", "3"),
-					resource.TestCheckResourceAttr(resourceName, "volume_size", "80"),
-					resource.TestCheckResourceAttr(resourceName, "flavor", "geminidb.redis.large.4"),
+					resource.TestCheckResourceAttr(resourceName, "volume_size", "50"),
 					resource.TestCheckResourceAttr(resourceName, "status", "normal"),
 				),
 			},
@@ -46,7 +45,6 @@ func TestAccGaussRedisInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "password", newPassword),
 					resource.TestCheckResourceAttr(resourceName, "node_num", "4"),
 					resource.TestCheckResourceAttr(resourceName, "volume_size", "100"),
-					resource.TestCheckResourceAttr(resourceName, "flavor", "geminidb.redis.xlarge.4"),
 					resource.TestCheckResourceAttr(resourceName, "status", "normal"),
 				),
 			},
@@ -118,11 +116,17 @@ data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
 
+data "huaweicloud_gaussdb_nosql_flavors" "test" {
+  vcpus             = 2
+  engine            = "redis"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+}
+
 resource "huaweicloud_gaussdb_redis_instance" "test" {
   name        = "%s"
   password    = "%s"
-  flavor      = "geminidb.redis.large.4"
-  volume_size = 80
+  flavor      = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
+  volume_size = 50
   vpc_id      = huaweicloud_vpc.test.id
   subnet_id   = huaweicloud_vpc_subnet.test.id
   node_num    = 3
@@ -153,10 +157,16 @@ data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
 
+data "huaweicloud_gaussdb_nosql_flavors" "test" {
+  vcpus             = 4
+  engine            = "redis"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+}
+
 resource "huaweicloud_gaussdb_redis_instance" "test" {
   name        = "%s-update"
   password    = "%s"
-  flavor      = "geminidb.redis.xlarge.4"
+  flavor      = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
   volume_size = 100
   vpc_id      = huaweicloud_vpc.test.id
   subnet_id   = huaweicloud_vpc_subnet.test.id
