@@ -1,7 +1,7 @@
 package huaweicloud
 
 import (
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/eip"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
@@ -114,7 +114,7 @@ func dataSourceIECNetworkEipsRead(d *schema.ResourceData, meta interface{}) erro
 			"public_ip":            item.PublicIpAddress,
 			"private_ip":           item.PrivateIpAddress,
 			"port_id":              item.PortID,
-			"status":               vpc.NormalizeEIPStatus(item.Status),
+			"status":               eip.NormalizeEIPStatus(item.Status),
 			"ip_version":           item.IPVersion,
 			"bandwidth_id":         item.BandwidthID,
 			"bandwidth_name":       item.BandwidthName,

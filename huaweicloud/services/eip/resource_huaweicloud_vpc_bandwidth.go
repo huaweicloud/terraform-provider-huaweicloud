@@ -1,4 +1,4 @@
-package vpc
+package eip
 
 import (
 	"context"
