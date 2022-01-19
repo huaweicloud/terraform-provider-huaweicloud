@@ -171,13 +171,13 @@ func resourcePoolV2Create(ctx context.Context, d *schema.ResourceData, meta inte
 	lbID := createOpts.LoadbalancerID
 	listenerID := createOpts.ListenerID
 	if lbID != "" {
-		err = waitForLBV2LoadBalancer_v2(lbClient, lbID, "ACTIVE", nil, timeout)
+		err = waitForLBV2LoadBalancer(ctx, lbClient, lbID, "ACTIVE", nil, timeout)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	} else if listenerID != "" {
 		// Wait for Listener to become active before continuing
-		err = waitForLBV2Listener(lbClient, listenerID, "ACTIVE", nil, timeout)
+		err = waitForLBV2Listener(ctx, lbClient, listenerID, "ACTIVE", nil, timeout)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -191,10 +191,10 @@ func resourcePoolV2Create(ctx context.Context, d *schema.ResourceData, meta inte
 
 	// Wait for LoadBalancer to become active before continuing
 	if lbID != "" {
-		err = waitForLBV2LoadBalancer_v2(lbClient, lbID, "ACTIVE", nil, timeout)
+		err = waitForLBV2LoadBalancer(ctx, lbClient, lbID, "ACTIVE", nil, timeout)
 	} else {
 		// Pool exists by now so we can ask for lbID
-		err = waitForLBV2viaPool(lbClient, pool.ID, "ACTIVE", timeout)
+		err = waitForLBV2viaPool(ctx, lbClient, pool.ID, "ACTIVE", timeout)
 	}
 	if err != nil {
 		return diag.FromErr(err)
@@ -270,9 +270,9 @@ func resourcePoolV2Update(ctx context.Context, d *schema.ResourceData, meta inte
 	timeout := d.Timeout(schema.TimeoutUpdate)
 	lbID := d.Get("loadbalancer_id").(string)
 	if lbID != "" {
-		err = waitForLBV2LoadBalancer_v2(lbClient, lbID, "ACTIVE", nil, timeout)
+		err = waitForLBV2LoadBalancer(ctx, lbClient, lbID, "ACTIVE", nil, timeout)
 	} else {
-		err = waitForLBV2viaPool(lbClient, d.Id(), "ACTIVE", timeout)
+		err = waitForLBV2viaPool(ctx, lbClient, d.Id(), "ACTIVE", timeout)
 	}
 	if err != nil {
 		return diag.FromErr(err)
@@ -294,9 +294,9 @@ func resourcePoolV2Update(ctx context.Context, d *schema.ResourceData, meta inte
 
 	// Wait for LoadBalancer to become active before continuing
 	if lbID != "" {
-		err = waitForLBV2LoadBalancer_v2(lbClient, lbID, "ACTIVE", nil, timeout)
+		err = waitForLBV2LoadBalancer(ctx, lbClient, lbID, "ACTIVE", nil, timeout)
 	} else {
-		err = waitForLBV2viaPool(lbClient, d.Id(), "ACTIVE", timeout)
+		err = waitForLBV2viaPool(ctx, lbClient, d.Id(), "ACTIVE", timeout)
 	}
 	if err != nil {
 		return diag.FromErr(err)
@@ -316,7 +316,7 @@ func resourcePoolV2Delete(ctx context.Context, d *schema.ResourceData, meta inte
 	timeout := d.Timeout(schema.TimeoutDelete)
 	lbID := d.Get("loadbalancer_id").(string)
 	if lbID != "" {
-		err = waitForLBV2LoadBalancer_v2(lbClient, lbID, "ACTIVE", nil, timeout)
+		err = waitForLBV2LoadBalancer(ctx, lbClient, lbID, "ACTIVE", nil, timeout)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -333,10 +333,10 @@ func resourcePoolV2Delete(ctx context.Context, d *schema.ResourceData, meta inte
 	})
 
 	if lbID != "" {
-		err = waitForLBV2LoadBalancer_v2(lbClient, lbID, "ACTIVE", nil, timeout)
+		err = waitForLBV2LoadBalancer(ctx, lbClient, lbID, "ACTIVE", nil, timeout)
 	} else {
 		// Wait for Pool to delete
-		err = waitForLBV2Pool(lbClient, d.Id(), "DELETED", nil, timeout)
+		err = waitForLBV2Pool(ctx, lbClient, d.Id(), "DELETED", nil, timeout)
 	}
 	if err != nil {
 		return diag.FromErr(err)

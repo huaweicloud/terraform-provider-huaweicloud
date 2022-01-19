@@ -214,7 +214,7 @@ type UpdateOpts struct {
 
 	// Specifies the health check protocol.
 	// The value can be TCP, UDP_CONNECT, or HTTP.
-	Type string `json:"type" required:"true"`
+	Type string `json:"type,omitempty"`
 
 	// URI path that will be accessed if Monitor type is HTTP or HTTPS.
 	// Required for HTTP(S) types.

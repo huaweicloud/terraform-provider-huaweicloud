@@ -122,7 +122,7 @@ func resourceMemberV2Create(ctx context.Context, d *schema.ResourceData, meta in
 	// Wait for LB to become active before continuing
 	poolID := d.Get("pool_id").(string)
 	timeout := d.Timeout(schema.TimeoutCreate)
-	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
+	err = waitForLBV2viaPool(ctx, lbClient, poolID, "ACTIVE", timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -134,7 +134,7 @@ func resourceMemberV2Create(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	// Wait for LB to become ACTIVE again
-	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
+	err = waitForLBV2viaPool(ctx, lbClient, poolID, "ACTIVE", timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -198,7 +198,7 @@ func resourceMemberV2Update(ctx context.Context, d *schema.ResourceData, meta in
 	// Wait for LB to become active before continuing
 	poolID := d.Get("pool_id").(string)
 	timeout := d.Timeout(schema.TimeoutUpdate)
-	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
+	err = waitForLBV2viaPool(ctx, lbClient, poolID, "ACTIVE", timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -217,7 +217,7 @@ func resourceMemberV2Update(ctx context.Context, d *schema.ResourceData, meta in
 		return fmtp.DiagErrorf("Unable to update member %s: %s", d.Id(), err)
 	}
 
-	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
+	err = waitForLBV2viaPool(ctx, lbClient, poolID, "ACTIVE", timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -235,7 +235,7 @@ func resourceMemberV2Delete(ctx context.Context, d *schema.ResourceData, meta in
 	// Wait for Pool to become active before continuing
 	poolID := d.Get("pool_id").(string)
 	timeout := d.Timeout(schema.TimeoutDelete)
-	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
+	err = waitForLBV2viaPool(ctx, lbClient, poolID, "ACTIVE", timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -251,7 +251,7 @@ func resourceMemberV2Delete(ctx context.Context, d *schema.ResourceData, meta in
 	})
 
 	// Wait for LB to become ACTIVE
-	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
+	err = waitForLBV2viaPool(ctx, lbClient, poolID, "ACTIVE", timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}

@@ -163,7 +163,7 @@ func resourceListenerV2Create(ctx context.Context, d *schema.ResourceData, meta 
 
 	// Wait for LoadBalancer to become active before continuing
 	timeout := d.Timeout(schema.TimeoutCreate)
-	err = waitForLBV2LoadBalancer_v2(lbClient, lbID, "ACTIVE", nil, timeout)
+	err = waitForLBV2LoadBalancer(ctx, lbClient, lbID, "ACTIVE", nil, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -175,7 +175,7 @@ func resourceListenerV2Create(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	// Wait for LoadBalancer to become active again before continuing
-	err = waitForLBV2LoadBalancer_v2(lbClient, lbID, "ACTIVE", nil, timeout)
+	err = waitForLBV2LoadBalancer(ctx, lbClient, lbID, "ACTIVE", nil, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -295,7 +295,7 @@ func resourceListenerV2Update(ctx context.Context, d *schema.ResourceData, meta 
 		// Wait for LoadBalancer to become active before continuing
 		lbID := d.Get("loadbalancer_id").(string)
 		timeout := d.Timeout(schema.TimeoutUpdate)
-		err = waitForLBV2LoadBalancer_v2(lbClient, lbID, "ACTIVE", nil, timeout)
+		err = waitForLBV2LoadBalancer(ctx, lbClient, lbID, "ACTIVE", nil, timeout)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -315,7 +315,7 @@ func resourceListenerV2Update(ctx context.Context, d *schema.ResourceData, meta 
 		}
 
 		// Wait for LoadBalancer to become active again before continuing
-		err = waitForLBV2LoadBalancer_v2(lbClient, lbID, "ACTIVE", nil, timeout)
+		err = waitForLBV2LoadBalancer(ctx, lbClient, lbID, "ACTIVE", nil, timeout)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -343,7 +343,7 @@ func resourceListenerV2Delete(ctx context.Context, d *schema.ResourceData, meta 
 	// Wait for LoadBalancer to become active before continuing
 	lbID := d.Get("loadbalancer_id").(string)
 	timeout := d.Timeout(schema.TimeoutDelete)
-	err = waitForLBV2LoadBalancer_v2(lbClient, lbID, "ACTIVE", nil, timeout)
+	err = waitForLBV2LoadBalancer(ctx, lbClient, lbID, "ACTIVE", nil, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -363,13 +363,13 @@ func resourceListenerV2Delete(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	// Wait for LoadBalancer to become active again before continuing
-	err = waitForLBV2LoadBalancer_v2(lbClient, lbID, "ACTIVE", nil, timeout)
+	err = waitForLBV2LoadBalancer(ctx, lbClient, lbID, "ACTIVE", nil, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	// Wait for Listener to delete
-	err = waitForLBV2Listener(lbClient, d.Id(), "DELETED", nil, timeout)
+	err = waitForLBV2Listener(ctx, lbClient, d.Id(), "DELETED", nil, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}

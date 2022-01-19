@@ -151,7 +151,7 @@ func resourceL7PolicyV2Create(ctx context.Context, d *schema.ResourceData, meta 
 			return fmtp.DiagErrorf("Unable to retrieve %s: %s", redirectPoolID, err)
 		}
 
-		err = waitForLBV2Pool(lbClient, pool.ID, "ACTIVE", lbPendingStatuses, timeout)
+		err = waitForLBV2Pool(ctx, lbClient, pool.ID, "ACTIVE", lbPendingStatuses, timeout)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -164,7 +164,7 @@ func resourceL7PolicyV2Create(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	// Wait for parent Listener to become active before continuing.
-	err = waitForLBV2Listener(lbClient, parentListener.ID, "ACTIVE", lbPendingStatuses, timeout)
+	err = waitForLBV2Listener(ctx, lbClient, parentListener.ID, "ACTIVE", lbPendingStatuses, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -176,7 +176,7 @@ func resourceL7PolicyV2Create(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	// Wait for L7 Policy to become active before continuing
-	err = waitForLBV2L7Policy(lbClient, parentListener, l7Policy, "ACTIVE", lbPendingStatuses, timeout)
+	err = waitForLBV2L7Policy(ctx, lbClient, parentListener, l7Policy, "ACTIVE", lbPendingStatuses, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -265,7 +265,7 @@ func resourceL7PolicyV2Update(ctx context.Context, d *schema.ResourceData, meta 
 			return fmtp.DiagErrorf("Unable to retrieve %s: %s", redirectPoolID, err)
 		}
 
-		err = waitForLBV2Pool(lbClient, pool.ID, "ACTIVE", lbPendingStatuses, timeout)
+		err = waitForLBV2Pool(ctx, lbClient, pool.ID, "ACTIVE", lbPendingStatuses, timeout)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -284,13 +284,13 @@ func resourceL7PolicyV2Update(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	// Wait for parent Listener to become active before continuing.
-	err = waitForLBV2Listener(lbClient, parentListener.ID, "ACTIVE", lbPendingStatuses, timeout)
+	err = waitForLBV2Listener(ctx, lbClient, parentListener.ID, "ACTIVE", lbPendingStatuses, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	// Wait for L7 Policy to become active before continuing
-	err = waitForLBV2L7Policy(lbClient, parentListener, l7Policy, "ACTIVE", lbPendingStatuses, timeout)
+	err = waitForLBV2L7Policy(ctx, lbClient, parentListener, l7Policy, "ACTIVE", lbPendingStatuses, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -310,7 +310,7 @@ func resourceL7PolicyV2Update(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	// Wait for L7 Policy to become active before continuing
-	err = waitForLBV2L7Policy(lbClient, parentListener, l7Policy, "ACTIVE", lbPendingStatuses, timeout)
+	err = waitForLBV2L7Policy(ctx, lbClient, parentListener, l7Policy, "ACTIVE", lbPendingStatuses, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -341,7 +341,7 @@ func resourceL7PolicyV2Delete(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	// Wait for Listener to become active before continuing.
-	err = waitForLBV2Listener(lbClient, listener.ID, "ACTIVE", lbPendingStatuses, timeout)
+	err = waitForLBV2Listener(ctx, lbClient, listener.ID, "ACTIVE", lbPendingStatuses, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -360,7 +360,7 @@ func resourceL7PolicyV2Delete(ctx context.Context, d *schema.ResourceData, meta 
 		return common.CheckDeletedDiag(d, err, "Error deleting L7 Policy")
 	}
 
-	err = waitForLBV2L7Policy(lbClient, listener, l7Policy, "DELETED", lbPendingDeleteStatuses, timeout)
+	err = waitForLBV2L7Policy(ctx, lbClient, listener, l7Policy, "DELETED", lbPendingDeleteStatuses, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
