@@ -585,6 +585,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vbs_backup_policy":               resourceVBSBackupPolicyV2(),
 			"huaweicloud_vpc_bandwidth":                   eip.ResourceVpcBandWidthV2(),
 			"huaweicloud_vpc_eip":                         eip.ResourceVpcEIPV1(),
+			"huaweicloud_vpc_eip_associate":               eip.ResourceEIPAssociate(),
 			"huaweicloud_vpc_peering_connection":          vpc.ResourceVpcPeeringConnectionV2(),
 			"huaweicloud_vpc_peering_connection_accepter": vpc.ResourceVpcPeeringConnectionAccepterV2(),
 			"huaweicloud_vpc_route_table":                 vpc.ResourceVPCRouteTable(),
@@ -694,6 +695,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_networking_vip_associate_v2":        resourceNetworkingVIPAssociateV2(),
 			"huaweicloud_fgs_function_v2":                    fgs.ResourceFgsFunctionV2(),
 			"huaweicloud_cdn_domain_v1":                      resourceCdnDomainV1(),
+
 			// Deprecated
 			"huaweicloud_blockstorage_volume_v2":             resourceBlockStorageVolumeV2(),
 			"huaweicloud_networking_network_v2":              resourceNetworkingNetworkV2(),
