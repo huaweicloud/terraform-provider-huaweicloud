@@ -208,7 +208,6 @@ github.com/chnsz/golangsdk/openstack/networking/v2/extensions/layer3/floatingips
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/layer3/routers
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/natgateways
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/provider
-github.com/chnsz/golangsdk/openstack/networking/v2/extensions/security/rules
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/vpnaas/endpointgroups
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/vpnaas/ikepolicies
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/vpnaas/ipsecpolicies
