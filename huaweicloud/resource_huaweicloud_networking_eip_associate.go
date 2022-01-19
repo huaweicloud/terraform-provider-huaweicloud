@@ -10,6 +10,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// ResourceNetworkingFloatingIPAssociateV2 is not uesd in huaweicloud,
+// but it is used by other Joint-Operation cloud providers, so keep it.
 func ResourceNetworkingFloatingIPAssociateV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetworkingFloatingIPAssociateV2Create,

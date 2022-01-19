@@ -560,7 +560,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_nat_snat_rule":                   ResourceNatSnatRuleV2(),
 			"huaweicloud_network_acl":                     ResourceNetworkACL(),
 			"huaweicloud_network_acl_rule":                ResourceNetworkACLRule(),
-			"huaweicloud_networking_eip_associate":        ResourceNetworkingFloatingIPAssociateV2(),
 			"huaweicloud_networking_port":                 ResourceNetworkingPortV2(),
 			"huaweicloud_networking_secgroup":             ResourceNetworkingSecGroupV2(),
 			"huaweicloud_networking_secgroup_rule":        ResourceNetworkingSecGroupRuleV2(),
@@ -614,6 +613,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_reference_table":             waf.ResourceWafReferenceTableV1(),
 
 			// Legacy
+			"huaweicloud_networking_eip_associate":           eip.ResourceEIPAssociate(),
 			"huaweicloud_compute_instance_v2":                ResourceComputeInstanceV2(),
 			"huaweicloud_compute_interface_attach_v2":        ResourceComputeInterfaceAttachV2(),
 			"huaweicloud_compute_keypair_v2":                 ResourceComputeKeypairV2(),
