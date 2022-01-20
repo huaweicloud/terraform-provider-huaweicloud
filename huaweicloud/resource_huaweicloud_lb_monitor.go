@@ -1,12 +1,16 @@
 package huaweicloud
 
 import (
+	"context"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/lbaas_v2/monitors"
+	"github.com/chnsz/golangsdk/openstack/elb/v2/monitors"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -14,10 +18,10 @@ import (
 
 func ResourceMonitorV2() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceMonitorV2Create,
-		Read:   resourceMonitorV2Read,
-		Update: resourceMonitorV2Update,
-		Delete: resourceMonitorV2Delete,
+		CreateContext: resourceMonitorV2Create,
+		ReadContext:   resourceMonitorV2Read,
+		UpdateContext: resourceMonitorV2Update,
+		DeleteContext: resourceMonitorV2Delete,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -105,11 +109,11 @@ func ResourceMonitorV2() *schema.Resource {
 	}
 }
 
-func resourceMonitorV2Create(d *schema.ResourceData, meta interface{}) error {
+func resourceMonitorV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.ElbV2Client(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	adminStateUp := d.Get("admin_state_up").(bool)
@@ -132,62 +136,69 @@ func resourceMonitorV2Create(d *schema.ResourceData, meta interface{}) error {
 	poolID := createOpts.PoolID
 	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	monitor, err := monitors.Create(lbClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Unable to create monitor: %s", err)
+		return fmtp.DiagErrorf("Unable to create monitor: %s", err)
 	}
 
 	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(monitor.ID)
 
-	return resourceMonitorV2Read(d, meta)
+	return resourceMonitorV2Read(ctx, d, meta)
 }
 
-func resourceMonitorV2Read(d *schema.ResourceData, meta interface{}) error {
+func resourceMonitorV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.ElbV2Client(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	monitor, err := monitors.Get(lbClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "monitor")
+		return common.CheckDeletedDiag(d, err, "Error retrieving monitor")
 	}
 
 	logp.Printf("[DEBUG] Retrieved monitor %s: %#v", d.Id(), monitor)
 
-	d.Set("tenant_id", monitor.TenantID)
-	d.Set("type", monitor.Type)
-	d.Set("delay", monitor.Delay)
-	d.Set("timeout", monitor.Timeout)
-	d.Set("max_retries", monitor.MaxRetries)
-	d.Set("url_path", monitor.URLPath)
-	d.Set("http_method", monitor.HTTPMethod)
-	d.Set("expected_codes", monitor.ExpectedCodes)
-	d.Set("admin_state_up", monitor.AdminStateUp)
-	d.Set("name", monitor.Name)
-	d.Set("region", GetRegion(d, config))
+	mErr := multierror.Append(nil,
+		d.Set("region", config.GetRegion(d)),
+		d.Set("tenant_id", monitor.TenantID),
+		d.Set("type", monitor.Type),
+		d.Set("delay", monitor.Delay),
+		d.Set("timeout", monitor.Timeout),
+		d.Set("max_retries", monitor.MaxRetries),
+		d.Set("url_path", monitor.URLPath),
+		d.Set("http_method", monitor.HTTPMethod),
+		d.Set("expected_codes", monitor.ExpectedCodes),
+		d.Set("admin_state_up", monitor.AdminStateUp),
+		d.Set("name", monitor.Name),
+	)
+
 	if monitor.MonitorPort != 0 {
-		d.Set("port", monitor.MonitorPort)
+		mErr = multierror.Append(mErr, d.Set("port", monitor.MonitorPort))
+	}
+
+	if err = mErr.ErrorOrNil(); err != nil {
+		return fmtp.DiagErrorf("Error setting monitor fields: %s", err)
 	}
 
 	return nil
 }
 
-func resourceMonitorV2Update(d *schema.ResourceData, meta interface{}) error {
+func resourceMonitorV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.ElbV2Client(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	var updateOpts monitors.UpdateOpts
@@ -225,10 +236,10 @@ func resourceMonitorV2Update(d *schema.ResourceData, meta interface{}) error {
 	poolID := d.Get("pool_id").(string)
 	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	//lintignore:R006
-	err = resource.Retry(timeout, func() *resource.RetryError {
+	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		_, err = monitors.Update(lbClient, d.Id(), updateOpts).Extract()
 		if err != nil {
 			return checkForRetryableError(err)
@@ -237,23 +248,23 @@ func resourceMonitorV2Update(d *schema.ResourceData, meta interface{}) error {
 	})
 
 	if err != nil {
-		return fmtp.Errorf("Unable to update monitor %s: %s", d.Id(), err)
+		return fmtp.DiagErrorf("Unable to update monitor %s: %s", d.Id(), err)
 	}
 
 	// Wait for LB to become active before continuing
 	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return resourceMonitorV2Read(d, meta)
+	return resourceMonitorV2Read(ctx, d, meta)
 }
 
-func resourceMonitorV2Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceMonitorV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.ElbV2Client(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	logp.Printf("[DEBUG] Deleting monitor %s", d.Id())
@@ -261,10 +272,10 @@ func resourceMonitorV2Delete(d *schema.ResourceData, meta interface{}) error {
 	poolID := d.Get("pool_id").(string)
 	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	//lintignore:R006
-	err = resource.Retry(timeout, func() *resource.RetryError {
+	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		err = monitors.Delete(lbClient, d.Id()).ExtractErr()
 		if err != nil {
 			return checkForRetryableError(err)
@@ -273,12 +284,12 @@ func resourceMonitorV2Delete(d *schema.ResourceData, meta interface{}) error {
 	})
 
 	if err != nil {
-		return fmtp.Errorf("Unable to delete monitor %s: %s", d.Id(), err)
+		return fmtp.DiagErrorf("Unable to delete monitor %s: %s", d.Id(), err)
 	}
 
 	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil

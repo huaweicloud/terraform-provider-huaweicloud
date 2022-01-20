@@ -1,4 +1,4 @@
-package vpc
+package eip
 
 import (
 	"context"
@@ -51,6 +51,15 @@ func ResourceVpcBandWidthV2() *schema.Resource {
 				Required:     true,
 				ValidateFunc: validation.IntBetween(5, 2000),
 			},
+			"charge_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"bandwidth", "95peak_plus",
+				}, false),
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -66,13 +75,37 @@ func ResourceVpcBandWidthV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"charge_mode": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			"publicips": publicIPListComputedSchema(),
+		},
+	}
+}
+
+func publicIPListComputedSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeList,
+		Computed: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"id": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"type": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"ip_version": {
+					Type:     schema.TypeInt,
+					Computed: true,
+				},
+				"ip_address": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
 			},
 		},
 	}
@@ -88,8 +121,9 @@ func resourceVpcBandWidthV2Create(ctx context.Context, d *schema.ResourceData, m
 
 	size := d.Get("size").(int)
 	createOpts := bandwidths.CreateOpts{
-		Name: d.Get("name").(string),
-		Size: &size,
+		Name:       d.Get("name").(string),
+		ChargeMode: d.Get("charge_mode").(string),
+		Size:       &size,
 	}
 
 	epsID := config.GetEnterpriseProjectID(d)
@@ -162,12 +196,13 @@ func resourceVpcBandWidthV2Read(_ context.Context, d *schema.ResourceData, meta 
 	mErr := multierror.Append(
 		d.Set("name", b.Name),
 		d.Set("size", b.Size),
+		d.Set("charge_mode", b.ChargeMode),
 		d.Set("enterprise_project_id", b.EnterpriseProjectID),
 
 		d.Set("share_type", b.ShareType),
 		d.Set("bandwidth_type", b.BandwidthType),
-		d.Set("charge_mode", b.ChargeMode),
 		d.Set("status", b.Status),
+		d.Set("publicips", flattenPublicIPs(b)),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return fmtp.DiagErrorf("Error setting bandwidth fields: %s", err)
@@ -220,4 +255,24 @@ func waitForBandwidth(networkingClient *golangsdk.ServiceClient, Id string) reso
 		logp.Printf("[DEBUG] HuaweiCloud Bandwidth (%s) current status: %s", b.ID, b.Status)
 		return b, b.Status, nil
 	}
+}
+
+func flattenPublicIPs(band bandwidthsv1.BandWidth) []map[string]interface{} {
+	allIPs := make([]map[string]interface{}, len(band.PublicipInfo))
+	for i, ipInfo := range band.PublicipInfo {
+		address := ipInfo.PublicipAddress
+		if ipInfo.Publicipv6Address != "" {
+			address = ipInfo.Publicipv6Address
+		}
+
+		allIPs[i] = map[string]interface{}{
+			"id":         ipInfo.PublicipId,
+			"type":       ipInfo.PublicipType,
+			"ip_version": ipInfo.IPVersion,
+			"ip_address": address,
+		}
+
+	}
+
+	return allIPs
 }

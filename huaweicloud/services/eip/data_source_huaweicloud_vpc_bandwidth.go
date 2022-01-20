@@ -1,4 +1,4 @@
-package vpc
+package eip
 
 import (
 	"context"
@@ -54,6 +54,7 @@ func DataSourceBandWidth() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"publicips": publicIPListComputedSchema(),
 		},
 	}
 }
@@ -108,6 +109,7 @@ func dataSourceBandWidthRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("bandwidth_type", result.BandwidthType),
 		d.Set("charge_mode", result.ChargeMode),
 		d.Set("status", result.Status),
+		d.Set("publicips", flattenPublicIPs(result)),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return fmtp.DiagErrorf("Error setting bandwidth fields: %s", err)

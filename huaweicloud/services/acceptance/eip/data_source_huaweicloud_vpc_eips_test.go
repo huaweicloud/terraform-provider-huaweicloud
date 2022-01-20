@@ -1,4 +1,4 @@
-package vpc
+package eip
 
 import (
 	"fmt"
@@ -28,8 +28,8 @@ func TestAccVpcEipsDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(dataSourceName, "eips.0.status", "UNBOUND"),
 					resource.TestCheckResourceAttr(dataSourceName, "eips.0.bandwidth_size", "5"),
 					resource.TestCheckResourceAttr(dataSourceName, "eips.0.bandwidth_name", randName),
-					acceptance.TestCheckResourceAttrWithVariable(dataSourceName, "eips.0.id",
-						"${huaweicloud_vpc_eip.test.id}"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "eips.0.id",
+						"huaweicloud_vpc_eip.test", "id"),
 				),
 			},
 		},
@@ -65,8 +65,8 @@ func TestAccVpcEipsDataSource_byTag(t *testing.T) {
 					resource.TestCheckResourceAttr(dataSourceName, "eips.0.status", "UNBOUND"),
 					resource.TestCheckResourceAttr(dataSourceName, "eips.0.bandwidth_size", "5"),
 					resource.TestCheckResourceAttr(dataSourceName, "eips.0.bandwidth_name", randName),
-					acceptance.TestCheckResourceAttrWithVariable(dataSourceName, "eips.0.id",
-						"${huaweicloud_vpc_eip.test.id}"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "eips.0.id",
+						"huaweicloud_vpc_eip.test", "id"),
 				),
 			},
 		},

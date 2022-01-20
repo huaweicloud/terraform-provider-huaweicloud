@@ -6,7 +6,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
-	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/lbaas_v2/whitelists"
+	"github.com/chnsz/golangsdk/openstack/elb/v2/whitelists"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -41,7 +41,7 @@ func TestAccLBV2Whitelist_basic(t *testing.T) {
 
 func testAccCheckLBV2WhitelistDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
-	elbClient, err := config.ElbV2Client(HW_REGION_NAME)
+	elbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -72,7 +72,7 @@ func testAccCheckLBV2WhitelistExists(n string, whitelist *whitelists.Whitelist) 
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
-		elbClient, err := config.ElbV2Client(HW_REGION_NAME)
+		elbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 		}

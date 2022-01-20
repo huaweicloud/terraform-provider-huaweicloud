@@ -1,4 +1,4 @@
-package vpc
+package eip
 
 import (
 	"fmt"
@@ -45,6 +45,7 @@ func TestAccVpcBandWidth_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "size", "5"),
 					resource.TestCheckResourceAttr(resourceName, "share_type", "WHOLE"),
 					resource.TestCheckResourceAttr(resourceName, "status", "NORMAL"),
+					resource.TestCheckResourceAttr(resourceName, "publicips.#", "0"),
 				),
 			},
 			{

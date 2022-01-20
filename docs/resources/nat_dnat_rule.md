@@ -38,6 +38,32 @@ resource "huaweicloud_nat_dnat_rule" "dnat_2" {
 }
 ```
 
+### DNAT rule in VPC scenario, allow the rds instance to provide external services
+
+```hcl
+variable "subnet_id" {}
+variable "natgw_id" {}
+variable "publicip_id" {}
+
+resource "huaweicloud_rds_instance" "db_pgSql" {
+  ...
+}
+
+data "huaweicloud_networking_port" "pgSql_network_port" {
+  network_id = var.subnet_id
+  fixed_ip   = huaweicloud_rds_instance.db_pgSql.fixed_ip
+}
+
+resource "huaweicloud_nat_dnat_rule" "dnat_rule_pgSql" {
+  nat_gateway_id        = var.natgw_id
+  floating_ip_id        = var.publicip_id
+  port_id               = data.huaweicloud_networking_port.pgSql_network_port.port_id
+  protocol              = "tcp"
+  internal_service_port = huaweicloud_rds_instance.db_pgSql.db.0.port
+  external_service_port = 5432
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -60,8 +86,9 @@ The following arguments are supported:
 * `external_service_port` - (Required, Int, ForceNew) Specifies port used by ECSs or BMSs to provide services for
   external systems. Changing this creates a new dnat rule.
 
-* `port_id` - (Optional, String, ForceNew) Specifies the port ID of an ECS or a BMS. This parameter is mandatory in VPC
-  scenario. Changing this creates a new dnat rule.
+* `port_id` - (Optional, String, ForceNew) Specifies the port ID of network. This parameter is mandatory in VPC
+ scenario. Use [huaweicloud_networking_port](../data-sources/networking_port) to get the port if just know a fixed IP
+ addresses on the port. Changing this creates a new dnat rule.
 
 * `private_ip` - (Optional, String, ForceNew) Specifies the private IP address of a user. This parameter is mandatory in
   Direct Connect scenario. Changing this creates a new dnat rule.
