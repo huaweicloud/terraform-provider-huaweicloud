@@ -76,7 +76,7 @@ func ResourceVpcEIPV1() *schema.Resource {
 							Type:       schema.TypeString,
 							Optional:   true,
 							Computed:   true,
-							Deprecated: "use huaweicloud_networking_eip_associate instead",
+							Deprecated: "will be Computed after v1.35",
 						},
 					},
 				},
