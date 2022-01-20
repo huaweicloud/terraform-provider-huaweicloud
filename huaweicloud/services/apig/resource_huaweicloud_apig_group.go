@@ -4,8 +4,8 @@ import (
 	"regexp"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/apigw/v2/apigroups"
-	"github.com/chnsz/golangsdk/openstack/apigw/v2/environments"
+	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/apigroups"
+	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/environments"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"

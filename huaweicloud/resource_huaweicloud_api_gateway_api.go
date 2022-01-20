@@ -3,7 +3,7 @@ package huaweicloud
 import (
 	"time"
 
-	"github.com/chnsz/golangsdk/openstack/apigw/apis"
+	"github.com/chnsz/golangsdk/openstack/apigw/shared/v1/apis"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"

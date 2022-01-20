@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/chnsz/golangsdk/openstack/apigw/v2/responses"
+	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/responses"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
