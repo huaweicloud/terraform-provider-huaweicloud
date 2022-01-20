@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/networking/v3/security/groups"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -28,6 +29,10 @@ func DataSourceNetworkingSecGroup() *schema.Resource {
 				Optional: true,
 			},
 			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -58,6 +63,11 @@ func dataSourceNetworkingSecGroupRead(_ context.Context, d *schema.ResourceData,
 	listOpts := groups.ListOpts{
 		ID:   d.Get("secgroup_id").(string),
 		Name: d.Get("name").(string),
+	}
+	if epsId := common.GetEnterpriseProjectID(d, config); epsId != "" {
+		listOpts.EnterpriseProjectId = epsId
+	} else {
+		listOpts.EnterpriseProjectId = "all_granted_eps"
 	}
 
 	allSecGroups, err := groups.List(networkingClient, listOpts)
