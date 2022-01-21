@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/chnsz/golangsdk/openstack/apigw/v2/channels"
+	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/channels"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 
 	"github.com/hashicorp/go-multierror"
