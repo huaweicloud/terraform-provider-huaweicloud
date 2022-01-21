@@ -2,8 +2,8 @@ package loadbalancers
 
 import (
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/lbaas_v2/listeners"
-	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/lbaas_v2/pools"
+	"github.com/chnsz/golangsdk/openstack/elb/v2/listeners"
+	"github.com/chnsz/golangsdk/openstack/elb/v2/pools"
 	"github.com/chnsz/golangsdk/pagination"
 )
 
