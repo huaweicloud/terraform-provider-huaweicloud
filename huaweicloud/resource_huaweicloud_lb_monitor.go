@@ -134,7 +134,7 @@ func resourceMonitorV2Create(ctx context.Context, d *schema.ResourceData, meta i
 
 	timeout := d.Timeout(schema.TimeoutCreate)
 	poolID := createOpts.PoolID
-	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
+	err = waitForLBV2viaPool(ctx, lbClient, poolID, "ACTIVE", timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -145,7 +145,7 @@ func resourceMonitorV2Create(ctx context.Context, d *schema.ResourceData, meta i
 		return fmtp.DiagErrorf("Unable to create monitor: %s", err)
 	}
 
-	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
+	err = waitForLBV2viaPool(ctx, lbClient, poolID, "ACTIVE", timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -234,7 +234,7 @@ func resourceMonitorV2Update(ctx context.Context, d *schema.ResourceData, meta i
 	logp.Printf("[DEBUG] Updating monitor %s with options: %#v", d.Id(), updateOpts)
 	timeout := d.Timeout(schema.TimeoutUpdate)
 	poolID := d.Get("pool_id").(string)
-	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
+	err = waitForLBV2viaPool(ctx, lbClient, poolID, "ACTIVE", timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -252,7 +252,7 @@ func resourceMonitorV2Update(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	// Wait for LB to become active before continuing
-	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
+	err = waitForLBV2viaPool(ctx, lbClient, poolID, "ACTIVE", timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -270,7 +270,7 @@ func resourceMonitorV2Delete(ctx context.Context, d *schema.ResourceData, meta i
 	logp.Printf("[DEBUG] Deleting monitor %s", d.Id())
 	timeout := d.Timeout(schema.TimeoutUpdate)
 	poolID := d.Get("pool_id").(string)
-	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
+	err = waitForLBV2viaPool(ctx, lbClient, poolID, "ACTIVE", timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -287,7 +287,7 @@ func resourceMonitorV2Delete(ctx context.Context, d *schema.ResourceData, meta i
 		return fmtp.DiagErrorf("Unable to delete monitor %s: %s", d.Id(), err)
 	}
 
-	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
+	err = waitForLBV2viaPool(ctx, lbClient, poolID, "ACTIVE", timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
