@@ -1006,6 +1006,10 @@ func (c *Config) GesV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("ges", region)
 }
 
+func (c *Config) ModelArtsV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("modelarts", region)
+}
+
 // ********** client for Application **********
 func (c *Config) ApiGatewayV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("apig", region)
