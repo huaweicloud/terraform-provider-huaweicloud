@@ -188,6 +188,7 @@ github.com/chnsz/golangsdk/openstack/kms/v1/keys
 github.com/chnsz/golangsdk/openstack/lts/huawei/loggroups
 github.com/chnsz/golangsdk/openstack/lts/huawei/logstreams
 github.com/chnsz/golangsdk/openstack/maas/v1/task
+github.com/chnsz/golangsdk/openstack/modelarts/v1/notebook
 github.com/chnsz/golangsdk/openstack/mrs/v1/cluster
 github.com/chnsz/golangsdk/openstack/mrs/v1/job
 github.com/chnsz/golangsdk/openstack/mrs/v2/clusters
