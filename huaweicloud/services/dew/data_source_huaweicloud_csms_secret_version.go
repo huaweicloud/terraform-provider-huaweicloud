@@ -47,7 +47,7 @@ func DataSourceDewCsmsSecret() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"create_time": {
+			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -84,7 +84,7 @@ func dataSourceDewCsmsSecretRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("kms_key_id", vMetadata.KmsKeyID),
 		d.Set("version", vMetadata.ID),
 		d.Set("status", vMetadata.VersionStages),
-		d.Set("create_time", createTime),
+		d.Set("created_at", createTime),
 	)
 
 	if mErr.ErrorOrNil() != nil {
