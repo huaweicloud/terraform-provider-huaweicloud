@@ -24,7 +24,7 @@ The following arguments are supported:
 * `secret_name` - (Required, String) The name of the CSMS secret to query.
 
 * `version` - (Optional, String) The version ID of the CSMS secret version to query.
-  If omitted, the last version will be used.
+  If omitted, the latest version will be used.
 
 ## Attributes Reference
 
@@ -38,4 +38,4 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - The status of the CSMS secret version.
 
-* `create_time` - Time when the CSMS secret version created, in UTC format.
+* `created_at` - Time when the CSMS secret version created, in UTC format.
