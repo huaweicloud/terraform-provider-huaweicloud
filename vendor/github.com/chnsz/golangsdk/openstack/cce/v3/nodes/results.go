@@ -57,6 +57,9 @@ type Spec struct {
 	RootVolume VolumeSpec `json:"rootVolume" required:"true"`
 	// The data disk parameter of the node must currently be a disk
 	DataVolumes []VolumeSpec `json:"dataVolumes" required:"true"`
+	// Disk initialization configuration management parameters
+	// If omit, disk management is performed according to the DockerLVMConfigOverride parameter in extendParam
+	Storage *StorageSpec `json:"storage,omitempty"`
 	// Elastic IP parameters of the node
 	PublicIP PublicIPSpec `json:"publicIP,omitempty"`
 	// The billing mode of the node: the value is 0 (on demand)
@@ -189,6 +192,79 @@ type Conditions struct {
 	Status string `json:"status"`
 	//The reason that the component becomes current
 	Reason string `json:"reason"`
+}
+
+type StorageSpec struct {
+	// Disk selection. Matched disks are managed according to matchLabels and storageType
+	StorageSelectors []StorageSelectorsSpec `json:"storageSelectors" required:"true"`
+	// A storage group consists of multiple storage devices. It is used to divide storage space
+	StorageGroups []StorageGroupsSpec `json:"storageGroups" required:"true"`
+}
+
+type StorageSelectorsSpec struct {
+	// Selector name, used as the index of selectorNames in storageGroup, the name of each selector must be unique
+	Name string `json:"name" required:"true"`
+	// Specifies the storage type. Currently, only evs and local are supported
+	// The local storage does not support disk selection. All local disks will form a VG
+	// Therefore, only one storageSelector of the local type is allowed
+	StorageType string `json:"storageType" required:"true"`
+	// Matching field of an EVS volume
+	MatchLabels MatchLabelsSpec `json:"matchLabels,omitempty"`
+}
+
+type MatchLabelsSpec struct {
+	// Matched disk size if left unspecified, the disk size is not limited
+	Size string `json:"size,omitempty"`
+	// EVS disk type
+	VolumeType string `json:"volume,omitempty"`
+	// Disk encryption identifier
+	// 0 indicates that the disk is not encrypted, and 1 indicates that the disk is encrypted
+	MetadataEncrypted string `json:"metadataEncrypted,omitempty"`
+	// Customer master key ID of an encrypted disk
+	MetadataCmkid string `json:"metadataCmkid,omitempty"`
+	// Number of disks to be selected, if left blank, all disks of this type are selected
+	Count string `json:"count,omitempty"`
+}
+
+type StorageGroupsSpec struct {
+	// Name of a virtual storage group, each group name must be unique
+	Name string `json:"name" required:"true"`
+	// Storage space for Kubernetes and runtime components
+	// Only one group can be set to true, default value is false
+	CceManaged bool `json:"cceManaged,omitempty"`
+	// This parameter corresponds to name in storageSelectors
+	// A group can match multiple selectors, but a selector can match only one group
+	SelectorNames []string `json:"selectorNames" required:"true"`
+	// Detailed management of space configuration in a group
+	VirtualSpaces []VirtualSpacesSpec `json:"virtualSpaces" required:"true"`
+}
+
+type VirtualSpacesSpec struct {
+	// virtualSpace name, currently, only kubernetes, runtime, and user are supported
+	// kubernetes and user require lvmConfig to be configured, runtime requires runtimeConfig to be configured
+	Name string `json:"name" required:"true"`
+	// Size of a virtual space, only an integer percentage is supported, example: 90%
+	// Note that the total percentage of all virtual spaces in a group cannot exceed 100%
+	Size string `json:"size" required:"true"`
+	// LVM configurations, applicable to kubernetes and user spaces
+	// One virtual space supports only one config
+	LVMConfig *LVMConfigSpec `json:"lvmConfig,omitempty"`
+	// runtime configurations, applicable to the runtime space
+	// One virtual space supports only one config
+	RuntimeConfig *RuntimeConfigSpec `json:"runtimeConfig,omitempty"`
+}
+
+type LVMConfigSpec struct {
+	// LVM write mode, values can be linear and striped
+	LvType string `json:"lvType" required:"true"`
+	// Path to which the disk is attached, this parameter takes effect only in user configuration
+	// The value is an absolute path
+	Path string `json:"path,omitempty"`
+}
+
+type RuntimeConfigSpec struct {
+	// LVM write mode, values can be linear and striped
+	LvType string `json:"lvType" required:"true"`
 }
 
 // Describes the Job Structure

@@ -163,6 +163,118 @@ func ResourceCCENodeV3() *schema.Resource {
 						},
 					}},
 			},
+			"storage": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"selectors": {
+							Type:     schema.TypeList,
+							Required: true,
+							ForceNew: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+									},
+									"type": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Default:  "evs",
+									},
+									"match_label_size": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+									},
+									"match_label_volume_type": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+									},
+									"match_label_metadata_encrypted": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+									},
+									"match_label_metadata_cmkid": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+									},
+									"match_label_count": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+									},
+								},
+							},
+						},
+						"groups": {
+							Type:     schema.TypeList,
+							Required: true,
+							ForceNew: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+									},
+									"cce_managed": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										ForceNew: true,
+									},
+									"selector_names": {
+										Type:     schema.TypeList,
+										Required: true,
+										ForceNew: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+									"virtual_spaces": {
+										Type:     schema.TypeList,
+										Required: true,
+										ForceNew: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:     schema.TypeString,
+													Required: true,
+													ForceNew: true,
+												},
+												"size": {
+													Type:     schema.TypeString,
+													Required: true,
+													ForceNew: true,
+												},
+												"lvm_lv_type": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+												},
+												"lvm_path": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+												},
+												"runtime_lv_type": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+												},
+											},
+										}},
+								},
+							},
+						},
+					}},
+			},
 			"taints": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -512,6 +624,76 @@ func resourceCCEExtendParam(d *schema.ResourceData) map[string]interface{} {
 	return extendParam
 }
 
+func resourceCCEStorage(d *schema.ResourceData) *nodes.StorageSpec {
+	if v, ok := d.GetOk("storage"); ok {
+		var storageSpec nodes.StorageSpec
+		storageSpecRaw := v.([]interface{})
+		storageSpecRawMap := storageSpecRaw[0].(map[string]interface{})
+		storageSelectorSpecRaw := storageSpecRawMap["selectors"].([]interface{})
+		storageGroupSpecRaw := storageSpecRawMap["groups"].([]interface{})
+
+		var selectors []nodes.StorageSelectorsSpec
+		for _, s := range storageSelectorSpecRaw {
+			var selector nodes.StorageSelectorsSpec
+			sMap := s.(map[string]interface{})
+			selector.Name = sMap["name"].(string)
+			selector.StorageType = sMap["type"].(string)
+			selector.MatchLabels.Size = sMap["match_label_size"].(string)
+			selector.MatchLabels.VolumeType = sMap["match_label_volume_type"].(string)
+			selector.MatchLabels.MetadataEncrypted = sMap["match_label_metadata_encrypted"].(string)
+			selector.MatchLabels.MetadataCmkid = sMap["match_label_metadata_cmkid"].(string)
+			selector.MatchLabels.Count = sMap["match_label_count"].(string)
+
+			selectors = append(selectors, selector)
+		}
+		storageSpec.StorageSelectors = selectors
+
+		var groups []nodes.StorageGroupsSpec
+		for _, g := range storageGroupSpecRaw {
+			var group nodes.StorageGroupsSpec
+			gMap := g.(map[string]interface{})
+			group.Name = gMap["name"].(string)
+			group.CceManaged = gMap["cce_managed"].(bool)
+
+			selectorNamesRaw := gMap["selector_names"].([]interface{})
+			selectorNames := make([]string, 0, len(selectorNamesRaw))
+			for _, v := range selectorNamesRaw {
+				selectorNames = append(selectorNames, v.(string))
+			}
+			group.SelectorNames = selectorNames
+
+			virtualSpacesRaw := gMap["virtual_spaces"].([]interface{})
+			virtualSpaces := make([]nodes.VirtualSpacesSpec, 0, len(virtualSpacesRaw))
+			for _, v := range virtualSpacesRaw {
+				var virtualSpace nodes.VirtualSpacesSpec
+				virtualSpaceMap := v.(map[string]interface{})
+				virtualSpace.Name = virtualSpaceMap["name"].(string)
+				virtualSpace.Size = virtualSpaceMap["size"].(string)
+				if virtualSpaceMap["lvm_lv_type"].(string) != "" {
+					var lvmConfig nodes.LVMConfigSpec
+					lvmConfig.LvType = virtualSpaceMap["lvm_lv_type"].(string)
+					lvmConfig.Path = virtualSpaceMap["lvm_path"].(string)
+					virtualSpace.LVMConfig = &lvmConfig
+				}
+				if virtualSpaceMap["runtime_lv_type"].(string) != "" {
+					var runtimeConfig nodes.RuntimeConfigSpec
+					runtimeConfig.LvType = virtualSpaceMap["runtime_lv_type"].(string)
+					virtualSpace.RuntimeConfig = &runtimeConfig
+				}
+
+				virtualSpaces = append(virtualSpaces, virtualSpace)
+			}
+			group.VirtualSpaces = virtualSpaces
+
+			groups = append(groups, group)
+		}
+
+		storageSpec.StorageGroups = groups
+
+	}
+	return nil
+}
+
 func resourceCCENodeV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	nodeClient, err := config.CceV3Client(GetRegion(d, config))
@@ -560,6 +742,7 @@ func resourceCCENodeV3Create(ctx context.Context, d *schema.ResourceData, meta i
 			Os:          d.Get("os").(string),
 			RootVolume:  resourceCCERootVolume(d),
 			DataVolumes: resourceCCEDataVolume(d),
+			Storage:     resourceCCEStorage(d),
 			PublicIP: nodes.PublicIPSpec{
 				Ids:   resourceCCEEipIDs(d),
 				Count: eipCount,

@@ -106,6 +106,81 @@ resource "huaweicloud_cce_node" "mynode" {
 }
 ```
 
+## Node with storage configuration
+
+```hcl
+resource "huaweicloud_cce_node" "mynode" {
+  cluster_id        = huaweicloud_cce_cluster.mycluster.id
+  name              = "mynode"
+  flavor_id         = "s3.large.2"
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+  key_pair          = huaweicloud_compute_keypair.mykp.name
+
+  root_volume {
+    size       = 40
+    volumetype = "SSD"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SSD"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SSD"
+    kms_key_id = huaweicloud_kms_key.mykey.id
+  }
+
+  // Storage configuration
+  storage {
+    selectors {
+      name              = "cceUse"
+      type              = "evs"
+      match_label_size  = "100"
+      match_label_count = 1
+    }
+
+    selectors {
+      name                           = "user"
+      type                           = "evs"
+      match_label_size               = "100"
+      match_label_metadata_encrypted = "1"
+      match_label_metadata_cmkid     = huaweicloud_kms_key.mykey.id
+      match_label_count              = "1"
+    }
+
+    groups {
+      name           = "vgpaas"
+      selector_names = ["cceUse"]
+      cce_managed    = true
+
+      virtual_spaces {
+        name        = "kubernetes"
+        size        = "10%"
+        lvm_lv_type = "linear"
+      }
+
+      virtual_spaces {
+        name        = "runtime"
+        size        = "90%"
+        lvm_lv_type = "linear"
+      }
+    }
+
+    groups {
+      name           = "vguser"
+      selector_names = ["user"]
+
+      virtual_spaces {
+        name        = "user"
+        size        = "100%"
+        lvm_lv_type = "linear"
+        lvm_path    = "/workspace"
+      }
+    }
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -156,6 +231,17 @@ The following arguments are supported:
   + `extend_params` - (Optional, Map, ForceNew) Specifies the disk expansion parameters.
     Changing this parameter will create a new resource.
   + `kms_key_id` - (Optional, String, ForceNew) Specifies the ID of a KMS key. This is used to encrypt the volume.
+    Changing this parameter will create a new resource.
+
+* `storage` - (Optional, List, ForceNew) Specifies the disk initialization management parameter.
+  If omitted, disks are managed based on the DockerLVMConfigOverride parameter in extendParam.
+  This parameter is supported for clusters of v1.15.11 and later. Changing this parameter will create a new resource.
+
+  + `selectors` - (Required, List, ForceNew) Specifies the disk selection.
+    Matched disks are managed according to match labels and storage type. Structure is documented below.
+    Changing this parameter will create a new resource.
+  + `groups` - (Required, List, ForceNew) Specifies the storage group consists of multiple storage devices.
+    This is used to divide storage space. Structure is documented below.
     Changing this parameter will create a new resource.
 
 * `subnet_id` - (Optional, String, ForceNew) Specifies the ID of the subnet to which the NIC belongs.
@@ -243,6 +329,51 @@ extend_param = {
     create a new resource.
   + `effect` - (Required, String, ForceNew) Available options are NoSchedule, PreferNoSchedule, and NoExecute.
     Changing this parameter will create a new resource.
+
+The `selectors` block supports:
+
+* `name` - (Required, String, ForceNew) Specifies the selector name, used as the index of `selector_names` in storage group.
+  The name of each selector must be unique. Changing this parameter will create a new resource.
+* `type` - (Optional, String, ForceNew) Specifies the storage type. Currently, only **evs (EVS volumes)** is supported.
+  The default value is **evs**. Changing this parameter will create a new resource.
+* `match_label_size` - (Optional, String, ForceNew) Specifies the matched disk size. If omitted,
+  the disk size is not limited. Example: 100. Changing this parameter will create a new resource.
+* `match_label_volume_type` - (Optional, String, ForceNew) Specifies the EVS disk type. Currently,
+  **SSD**, **GPSSD**, and **SAS** are supported. If omitted, the disk type is not limited.
+  Changing this parameter will create a new resource.
+* `match_label_metadata_encrypted` - (Optional, String, ForceNew) Specifies the disk encryption identifier.
+  Values can be: **0** indicates that the disk is not encrypted and **1** indicates that the disk is encrypted.
+  If omitted, whether the disk is encrypted is not limited. Changing this parameter will create a new resource.
+* `match_label_metadata_cmkid` - (Optional, String, ForceNew) Specifies the cstomer master key ID of an encrypted
+  disk. Changing this parameter will create a new resource.
+* `match_label_count` - (Optional, String, ForceNew) Specifies the number of disks to be selected. If omitted,
+  all disks of this type are selected. Changing this parameter will create a new resource.
+
+The `groups` block supports:
+
+* `name` - (Required, String, ForceNew) Specifies the name of a virtual storage group. Each group name must be unique.
+  Changing this parameter will create a new resource.
+* `cce_managed`  - (Optional, Bool, ForceNew) Specifies the whether the storage space is for **kubernetes** and
+  **runtime** components. Only one group can be set to true. The default value is **false**.
+  Changing this parameter will create a new resource.
+* `selector_names` - (Required, List, ForceNew) Specifies the list of names of seletors to match.
+  This parameter corresponds to name in `selectors`. A group can match multiple selectors,
+  but a selector can match only one group. Changing this parameter will create a new resource.
+* `virtual_spaces` - (Required, List, ForceNew) Specifies the detailed management of space configuration in a group.
+  Changing this parameter will create a new resource.
+
+  + `name` - (Required, String, ForceNew) Specifies the virtual space name. Currently, only **kubernetes**, **runtime**,
+    and **user** are supported. Changing this parameter will create a new resource.
+  + `size` - (Required, String, ForceNew) Specifies the size of a virtual space. Only an integer percentage is supported.
+    Example: 90%. Note that the total percentage of all virtual spaces in a group cannot exceed 100%.
+    Changing this parameter will create a new resource.
+  + `lvm_lv_type` - (Optional, String, ForceNew) Specifies the LVM write mode, values can be **linear** and **striped**.
+    This parameter takes effect only in **kubernetes** and **user** configuration. Changing this parameter will create
+    a new resource.
+  + `lvm_path` - (Optional, String, ForceNew) Specifies the absolute path to which the disk is attached.
+    This parameter takes effect only in **user** configuration. Changing this parameter will create a new resource.
+  + `runtime_lv_type` - (Optional, String, ForceNew) Specifies the LVM write mode, values can be **linear** and **striped**.
+    This parameter takes effect only in **runtime** configuration. Changing this parameter will create a new resource.
 
 ## Attributes Reference
 
