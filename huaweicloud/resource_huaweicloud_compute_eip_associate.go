@@ -10,7 +10,6 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
-	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/layer3/floatingips"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -65,9 +64,9 @@ func ResourceComputeFloatingIPAssociateV2() *schema.Resource {
 
 func resourceComputeFloatingIPAssociateV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud network client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud VPC client: %s", err)
 	}
 
 	floatingIP := d.Get("public_ip").(string)
@@ -80,22 +79,22 @@ func resourceComputeFloatingIPAssociateV2Create(d *schema.ResourceData, meta int
 		return fmtp.Errorf("Error get port id of compute instance: %s", err)
 	}
 
-	// get floating_ip id
+	// get EIP id
 	pAddress, err := getFloatingIPbyAddress(d, config, floatingIP)
 	if err != nil {
 		return fmtp.Errorf("Error get eip: %s", err)
 	}
 	floatingID := pAddress.ID
 
-	// Associate Eip to compute instance
-	associateOpts := floatingips.UpdateOpts{
-		PortID: &portID,
+	// Associate EIP to compute instance
+	associateOpts := eips.UpdateOpts{
+		PortID: portID,
 	}
-	logp.Printf("[DEBUG] Associate Options: %#v", associateOpts)
+	logp.Printf("[DEBUG] EIP Associate Options: %#v", associateOpts)
 
-	_, err = floatingips.Update(networkingClient, floatingID, associateOpts).Extract()
+	_, err = eips.Update(vpcClient, floatingID, associateOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error associating Floating IP: %s", err)
+		return fmtp.Errorf("Error associating EIP: %s", err)
 	}
 
 	id := fmt.Sprintf("%s/%s/%s", floatingIP, instanceID, privateIP)
@@ -129,7 +128,7 @@ func resourceComputeFloatingIPAssociateV2Read(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	Eip, err := getFloatingIPbyAddress(d, config, floatingIP)
+	eipInfo, err := getFloatingIPbyAddress(d, config, floatingIP)
 	if err != nil {
 		return fmtp.Errorf("Error get eip: %s", err)
 	}
@@ -141,7 +140,7 @@ func resourceComputeFloatingIPAssociateV2Read(d *schema.ResourceData, meta inter
 	}
 
 	var associated bool
-	if Eip.PortID == portID {
+	if eipInfo.PortID == portID {
 		associated = true
 	}
 
@@ -164,23 +163,23 @@ func resourceComputeFloatingIPAssociateV2Read(d *schema.ResourceData, meta inter
 
 func resourceComputeFloatingIPAssociateV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud network client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud VPC client: %s", err)
 	}
 
-	// get floating_ip id
+	// get EIP id
 	floatingIP := d.Get("public_ip").(string)
-	pAddress, err := getFloatingIPbyAddress(d, config, floatingIP)
+	eipInfo, err := getFloatingIPbyAddress(d, config, floatingIP)
 	if err != nil {
 		return fmtp.Errorf("Error get eip: %s", err)
 	}
-	floatingID := pAddress.ID
+	floatingID := eipInfo.ID
 
-	disassociateOpts := floatingips.UpdateOpts{}
-	logp.Printf("[DEBUG] Disssociate Options: %#v", disassociateOpts)
+	disassociateOpts := eips.UpdateOpts{PortID: ""}
+	logp.Printf("[DEBUG] EIP Disssociate Options: %#v", disassociateOpts)
 
-	_, err = floatingips.Update(networkingClient, floatingID, disassociateOpts).Extract()
+	_, err = eips.Update(vpcClient, floatingID, disassociateOpts).Extract()
 	if err != nil {
 		return fmtp.Errorf("Error disassociating Floating IP: %s", err)
 	}
@@ -243,14 +242,8 @@ func getFloatingIPbyAddress(d *schema.ResourceData, config *config.Config, float
 		return eips.PublicIp{}, fmtp.Errorf("Unable to retrieve eips: %s ", err)
 	}
 
-	if len(allEips) < 1 {
-		return eips.PublicIp{}, fmtp.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
-	}
-
-	if len(allEips) > 1 {
-		return eips.PublicIp{}, fmtp.Errorf("Your query returned more than one result." +
-			" Please try a more specific search criteria")
+	if len(allEips) != 1 {
+		return eips.PublicIp{}, fmtp.Errorf("can not find the EIP %s", floatingIP)
 	}
 
 	return allEips[0], nil
