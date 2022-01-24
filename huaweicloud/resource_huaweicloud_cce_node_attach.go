@@ -61,7 +61,6 @@ func ResourceCCENodeAttachV3() *schema.Resource {
 			"password": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				Sensitive:    true,
 				ExactlyOneOf: []string{"password", "key_pair"},
 			},
@@ -345,10 +344,14 @@ func resourceCCENodeAttachV3Create(ctx context.Context, d *schema.ResourceData, 
 			SshKey: d.Get("key_pair").(string),
 		}
 	} else {
+		password, err := utils.TryPasswordEncrypt(d.Get("password").(string))
+		if err != nil {
+			return diag.FromErr(err)
+		}
 		loginSpec = nodes.LoginSpec{
 			UserPassword: nodes.UserPassword{
 				Username: "root",
-				Password: d.Get("password").(string),
+				Password: password,
 			},
 		}
 	}
@@ -418,10 +421,14 @@ func resourceCCENodeAttachV3Update(ctx context.Context, d *schema.ResourceData, 
 				SshKey: d.Get("key_pair").(string),
 			}
 		} else {
+			password, err := utils.TryPasswordEncrypt(d.Get("password").(string))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 			loginSpec = nodes.LoginSpec{
 				UserPassword: nodes.UserPassword{
 					Username: "root",
-					Password: d.Get("password").(string),
+					Password: password,
 				},
 			}
 		}
@@ -476,10 +483,14 @@ func resourceCCENodeAttachV3Delete(ctx context.Context, d *schema.ResourceData, 
 			SshKey: d.Get("key_pair").(string),
 		}
 	} else {
+		password, err := utils.TryPasswordEncrypt(d.Get("password").(string))
+		if err != nil {
+			return diag.FromErr(err)
+		}
 		loginSpec = nodes.LoginSpec{
 			UserPassword: nodes.UserPassword{
 				Username: "root",
-				Password: d.Get("password").(string),
+				Password: password,
 			},
 		}
 	}

@@ -133,7 +133,8 @@ The following arguments are supported:
   This parameter and `password` are alternative. Changing this parameter will create a new resource.
 
 * `password` - (Optional, String, ForceNew) Specifies the root password when logging in to select the password mode.
-  This parameter must be salted and alternative to `key_pair`. Changing this parameter will create a new resource.
+  This parameter can be plain or salted and is alternative to `key_pair`.
+  Changing this parameter will create a new resource.
 
 * `root_volume` - (Required, List, ForceNew) Specifies the configuration of the system disk.
   Changing this parameter will create a new resource.

@@ -604,10 +604,14 @@ func resourceCCENodeV3Create(ctx context.Context, d *schema.ResourceData, meta i
 			SshKey: d.Get("key_pair").(string),
 		}
 	} else if hasFilledOpt(d, "password") {
+		password, err := utils.TryPasswordEncrypt(d.Get("password").(string))
+		if err != nil {
+			return diag.FromErr(err)
+		}
 		loginSpec = nodes.LoginSpec{
 			UserPassword: nodes.UserPassword{
 				Username: "root",
-				Password: d.Get("password").(string),
+				Password: password,
 			},
 		}
 	}
@@ -780,10 +784,14 @@ func resourceCCENodeV3Delete(ctx context.Context, d *schema.ResourceData, meta i
 				SshKey: d.Get("key_pair").(string),
 			}
 		} else if hasFilledOpt(d, "password") {
+			password, err := utils.TryPasswordEncrypt(d.Get("password").(string))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 			loginSpec = nodes.LoginSpec{
 				UserPassword: nodes.UserPassword{
 					Username: "root",
-					Password: d.Get("password").(string),
+					Password: password,
 				},
 			}
 		}

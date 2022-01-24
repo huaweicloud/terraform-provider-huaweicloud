@@ -188,6 +188,30 @@ func TestAccCCENodeV3_prePaid(t *testing.T) {
 	})
 }
 
+func TestAccCCENodeV3_password(t *testing.T) {
+	var node nodes.Nodes
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_cce_node.test"
+	//clusterName here is used to provide the cluster id to fetch cce node.
+	clusterName := "huaweicloud_cce_cluster.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCCENodeV3Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCCENodeV3_password(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCCENodeV3Exists(resourceName, clusterName, &node),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckCCENodeV3Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	cceClient, err := config.CceV3Client(HW_REGION_NAME)
@@ -505,6 +529,56 @@ resource "huaweicloud_cce_node" "test" {
   tags = {
     foo = "bar"
     key = "value"
+  }
+}
+`, testAccCCENodeV3_Base(rName), rName)
+}
+
+func testAccCCENodeV3_password(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_vpc_eip" "test" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    name        = "test"
+    size        = 8
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
+}
+
+resource "huaweicloud_cce_node" "test" {
+  cluster_id        = huaweicloud_cce_cluster.test.id
+  name              = "%s"
+  flavor_id         = "s6.large.2"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  password          = "Test@123"
+  eip_id            = huaweicloud_vpc_eip.test.id
+
+  root_volume {
+    size       = 40
+    volumetype = "SSD"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SSD"
+  }
+
+  provisioner "remote-exec" {
+    connection {
+      user     = "root"
+      password = "Test@123"
+      host     = huaweicloud_vpc_eip.test.address
+      port     = "22"
+      timeout  = "20s"
+    }
+
+    inline = [
+      "date"
+    ]
   }
 }
 `, testAccCCENodeV3_Base(rName), rName)

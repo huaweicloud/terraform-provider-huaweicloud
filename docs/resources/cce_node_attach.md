@@ -44,7 +44,8 @@ The following arguments are supported:
   This parameter and `password` are alternative. Changing this parameter will reset the node.
 
 * `password` - (Optional, String) Specifies the root password when logging in to select the password mode.
-  This parameter must be salted and alternative to `key_pair`. Changing this parameter will reset the node.
+  This parameter can be plain or salted and is alternative to `key_pair`.
+  Changing this parameter will reset the node.
 
 * `max_pods` - (Optional, Int, ForceNew) Specifies the the maximum number of instances a node is allowed to create.
   Changing this parameter will create a new resource.
