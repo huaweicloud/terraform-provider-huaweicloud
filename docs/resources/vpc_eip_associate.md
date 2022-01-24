@@ -1,11 +1,10 @@
 ---
-subcategory: "Virtual Private Cloud (VPC)"
+subcategory: "Elastic IP (EIP)"
 ---
 
-# huaweicloud_networking_eip_associate
+# huaweicloud_vpc_eip_associate
 
-Associates an EIP to a port. This can be used instead of the
-`huaweicloud_networking_floatingip_associate_v2` resource.
+Associates an EIP to a specified port.
 
 ## Example Usage
 
@@ -27,7 +26,7 @@ resource "huaweicloud_vpc_eip" "myeip" {
   }
 }
 
-resource "huaweicloud_networking_eip_associate" "associated" {
+resource "huaweicloud_vpc_eip_associate" "associated" {
   public_ip = huaweicloud_vpc_eip.myeip.address
   port_id   = data.huaweicloud_networking_port.myport.id
 }
@@ -52,5 +51,5 @@ In addition to all arguments above, the following attributes are exported:
 EIP associations can be imported using the `id` of the EIP, e.g.
 
 ```
-$ terraform import huaweicloud_networking_eip_associate.eip 2c7f39f3-702b-48d1-940c-b50384177ee1
+$ terraform import huaweicloud_vpc_eip_associate.eip 2c7f39f3-702b-48d1-940c-b50384177ee1
 ```

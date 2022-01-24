@@ -561,7 +561,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_nat_snat_rule":                   ResourceNatSnatRuleV2(),
 			"huaweicloud_network_acl":                     ResourceNetworkACL(),
 			"huaweicloud_network_acl_rule":                ResourceNetworkACLRule(),
-			"huaweicloud_networking_eip_associate":        ResourceNetworkingFloatingIPAssociateV2(),
 			"huaweicloud_networking_port":                 ResourceNetworkingPortV2(),
 			"huaweicloud_networking_secgroup":             ResourceNetworkingSecGroupV2(),
 			"huaweicloud_networking_secgroup_rule":        ResourceNetworkingSecGroupRuleV2(),
@@ -586,6 +585,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vbs_backup_policy":               resourceVBSBackupPolicyV2(),
 			"huaweicloud_vpc_bandwidth":                   eip.ResourceVpcBandWidthV2(),
 			"huaweicloud_vpc_eip":                         eip.ResourceVpcEIPV1(),
+			"huaweicloud_vpc_eip_associate":               eip.ResourceEIPAssociate(),
 			"huaweicloud_vpc_peering_connection":          vpc.ResourceVpcPeeringConnectionV2(),
 			"huaweicloud_vpc_peering_connection_accepter": vpc.ResourceVpcPeeringConnectionAccepterV2(),
 			"huaweicloud_vpc_route_table":                 vpc.ResourceVPCRouteTable(),
@@ -614,6 +614,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_reference_table":             waf.ResourceWafReferenceTableV1(),
 
 			// Legacy
+			"huaweicloud_networking_eip_associate":           eip.ResourceEIPAssociate(),
 			"huaweicloud_compute_instance_v2":                ResourceComputeInstanceV2(),
 			"huaweicloud_compute_interface_attach_v2":        ResourceComputeInterfaceAttachV2(),
 			"huaweicloud_compute_keypair_v2":                 ResourceComputeKeypairV2(),
@@ -695,6 +696,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_networking_vip_associate_v2":        resourceNetworkingVIPAssociateV2(),
 			"huaweicloud_fgs_function_v2":                    fgs.ResourceFgsFunctionV2(),
 			"huaweicloud_cdn_domain_v1":                      resourceCdnDomainV1(),
+
 			// Deprecated
 			"huaweicloud_blockstorage_volume_v2":             resourceBlockStorageVolumeV2(),
 			"huaweicloud_networking_network_v2":              resourceNetworkingNetworkV2(),
