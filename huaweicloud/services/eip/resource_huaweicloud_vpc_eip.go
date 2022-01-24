@@ -74,10 +74,10 @@ func ResourceVpcEIPV1() *schema.Resource {
 							ValidateFunc: validation.IntInSlice([]int{4, 6}),
 						},
 						"port_id": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Computed:   true,
-							Deprecated: "use huaweicloud_networking_eip_associate instead",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "schema: Deprecated",
 						},
 					},
 				},
@@ -135,6 +135,10 @@ func ResourceVpcEIPV1() *schema.Resource {
 				Computed: true,
 			},
 			"private_ip": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"port_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -332,6 +336,7 @@ func resourceVpcEIPV1Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("address", eIP.PublicAddress),
 		d.Set("ipv6_address", eIP.PublicIpv6Address),
 		d.Set("private_ip", eIP.PrivateAddress),
+		d.Set("port_id", eIP.PortID),
 		d.Set("enterprise_project_id", eIP.EnterpriseProjectID),
 		d.Set("status", NormalizeEIPStatus(eIP.Status)),
 		d.Set("publicip", publicIP),
