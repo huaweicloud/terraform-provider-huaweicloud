@@ -63,12 +63,11 @@ func ResourceComputeFloatingIPAssociateV2() *schema.Resource {
 				RequiredWith: []string{"fixed_ip"},
 			},
 			"fixed_ip": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				ForceNew:         true,
-				Computed:         true,
-				ValidateFunc:     validation.IsIPAddress,
-				DiffSuppressFunc: utils.SuppressComputedFixedWhenFloatingIp,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Computed:     true,
+				ValidateFunc: validation.IsIPAddress,
 			},
 			"port_id": {
 				Type:     schema.TypeString,
