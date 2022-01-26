@@ -64,7 +64,7 @@ data "huaweicloud_images_image" "myimage" {
 
 resource "huaweicloud_compute_instance" "myecs" {
   name                        = var.ecs_name
-  image_id                    = data.huaweicloud_images_image.myimage.id
+  image_id                    = data.huaweicloud_images_image.myimage.name
   flavor_id                   = var.ecs_flavor
   availability_zone           = data.huaweicloud_availability_zones.myaz.names[0]
   key_pair                    = huaweicloud_compute_keypair.mykeypair.name
