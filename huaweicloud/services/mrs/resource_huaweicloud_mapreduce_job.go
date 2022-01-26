@@ -486,7 +486,7 @@ func setMRSJobProperties(d *schema.ResourceData, resp string) error {
 
 func setMRSTimeProperties(d *schema.ResourceData, key string, value int) error {
 	keyTime := time.Unix(int64(value), 0)
-	// lintignore:R001
+	//lintignore:R001
 	return d.Set(key, keyTime.Format(time.RFC3339))
 }
 

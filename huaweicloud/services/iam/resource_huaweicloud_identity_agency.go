@@ -464,7 +464,7 @@ func resourceIAMAgencyV3Update(ctx context.Context, d *schema.ResourceData, meta
 
 		logp.Printf("[DEBUG] Updating IAM-Agency %s with options: %#v", agencyID, updateOpts)
 		timeout := d.Timeout(schema.TimeoutUpdate)
-		// lintignore:R006
+		//lintignore:R006
 		err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 			_, err := agency.Update(iamClient, agencyID, updateOpts).Extract()
 			if err != nil {
@@ -570,7 +570,7 @@ func resourceIAMAgencyV3Delete(ctx context.Context, d *schema.ResourceData, meta
 	logp.Printf("[DEBUG] Deleting IAM-Agency %s", rID)
 
 	timeout := d.Timeout(schema.TimeoutDelete)
-	// lintignore:R006
+	//lintignore:R006
 	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		err := agency.Delete(iamClient, rID).ExtractErr()
 		if err != nil {
