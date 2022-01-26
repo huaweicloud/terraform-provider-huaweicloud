@@ -859,6 +859,7 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		TerraformVersion:    terraformVersion,
 		RegionProjectIDMap:  make(map[string]string),
 		RPLock:              new(sync.Mutex),
+		SecurityKeyLock:     new(sync.Mutex),
 	}
 
 	// get custom endpoints
