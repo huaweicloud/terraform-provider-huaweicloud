@@ -350,7 +350,7 @@ func resourceApigThrottlingPolicyV2Read(d *schema.ResourceData, meta interface{}
 }
 
 func isBasicParamsChanged(d *schema.ResourceData) bool {
-	// lintignore:R019
+	//lintignore:R019
 	if d.HasChanges("name", "period", "max_api_requests", "description", "period_unit") ||
 		d.HasChanges("max_app_requests", "max_ip_requests", "max_user_requests", "type") {
 		return true

@@ -267,7 +267,7 @@ func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error
 	// in terraform, we convert to id, not using FuncUrn
 	d.SetId(f.FuncUrn)
 	urn := resourceFgsFunctionUrn(d.Id())
-	// lintignore:R019
+	//lintignore:R019
 	if d.HasChanges("vpc_id", "func_mounts", "app_agency", "initializer_handler", "initializer_timeout") {
 		err := resourceFgsFunctionV2MetadataUpdate(fgsClient, urn, d)
 		if err != nil {
@@ -388,14 +388,14 @@ func resourceFgsFunctionV2Update(d *schema.ResourceData, meta interface{}) error
 
 	urn := resourceFgsFunctionUrn(d.Id())
 
-	// lintignore:R019
+	//lintignore:R019
 	if d.HasChanges("code_type", "code_url", "code_filename", "depend_list", "func_code") {
 		err := resourceFgsFunctionV2CodeUpdate(fgsClient, urn, d)
 		if err != nil {
 			return err
 		}
 	}
-	// lintignore:R019
+	//lintignore:R019
 	if d.HasChanges("app", "handler", "depend_list", "memory_size", "timeout", "encrypted_user_data",
 		"user_data", "agency", "app_agency", "description", "initializer_handler", "initializer_timeout",
 		"vpc_id", "network_id", "mount_user_id", "mount_user_group_id", "func_mounts") {
