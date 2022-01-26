@@ -5,19 +5,33 @@ import (
 	"testing"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v3/loadbalancers"
+	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func getELBResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.ElbV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return nil, fmt.Errorf("Error creating ELB v3 client: %s", err)
 	}
+
+	eipID := state.Primary.Attributes["ipv4_eip_id"]
+	eipType := state.Primary.Attributes["iptype"]
+	if eipType != "" && eipID != "" {
+		eipClient, err := c.NetworkingV1Client(acceptance.HW_REGION_NAME)
+		if err != nil {
+			return nil, fmt.Errorf("Error creating VPC v1 client: %s", err)
+		}
+
+		if _, err := eips.Get(eipClient, eipID).Extract(); err != nil {
+			return nil, err
+		}
+	}
+
 	return loadbalancers.Get(client, state.Primary.ID).Extract()
 }
 
@@ -83,6 +97,35 @@ func TestAccElbV3LoadBalancer_withEpsId(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+		},
+	})
+}
+
+func TestAccElbV3LoadBalancer_withEIP(t *testing.T) {
+	var lb loadbalancers.LoadBalancer
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_elb_loadbalancer.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&lb,
+		getELBResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccElbV3LoadBalancerConfig_withEIP(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "iptype", "5_bgp"),
+					resource.TestCheckResourceAttrSet(resourceName, "ipv4_eip_id"),
 				),
 			},
 		},
@@ -162,4 +205,25 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   }
 }
 `, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccElbV3LoadBalancerConfig_withEIP(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name              = "%s"
+  ipv4_subnet_id    = data.huaweicloud_vpc_subnet.test.subnet_id
+  availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
+
+  iptype                = "5_bgp"
+  bandwidth_charge_mode = "traffic"
+  sharetype             = "PER"
+  bandwidth_size        = 5
+}
+`, rName)
 }
