@@ -309,8 +309,7 @@ func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) pagination.Page
 	}
 
 	return pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
-		p := VolumePage{pagination.MarkerPageBase{PageResult: r}}
-		p.MarkerPageBase.Owner = p
+		p := VolumePage{pagination.OffsetPageBase{PageResult: r}}
 		return p
 	})
 }

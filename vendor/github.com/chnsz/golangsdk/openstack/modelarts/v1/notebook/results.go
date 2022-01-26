@@ -107,7 +107,7 @@ type ImageDetail struct {
 }
 
 type ImagePage struct {
-	pagination.OffsetPagebase
+	pagination.OffsetPageBase
 }
 
 // IsEmpty checks whether a RouteTablePage struct is empty.

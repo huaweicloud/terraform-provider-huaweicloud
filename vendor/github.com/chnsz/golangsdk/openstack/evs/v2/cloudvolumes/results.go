@@ -129,19 +129,7 @@ type Volume struct {
 
 // VolumePage is a pagination.pager that is returned from a call to the List function.
 type VolumePage struct {
-	pagination.MarkerPageBase
-}
-
-// LastMarker returns the last route table ID in a ListResult
-func (b VolumePage) LastMarker() (string, error) {
-	volumes, err := ExtractVolumes(b)
-	if err != nil {
-		return "", err
-	}
-	if len(volumes) == 0 {
-		return "", nil
-	}
-	return volumes[len(volumes)-1].ID, nil
+	pagination.OffsetPageBase
 }
 
 // IsEmpty returns true if a ListResult contains no Volumes.
