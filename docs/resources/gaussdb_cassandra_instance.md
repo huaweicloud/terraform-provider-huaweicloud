@@ -89,6 +89,9 @@ The following arguments are supported:
 * `dedicated_resource_id` - (Optional, String, ForceNew) Specifies the dedicated resource ID. Changing this parameter
   will create a new resource.
 
+* `dedicated_resource_name` - (Optional, String, ForceNew) Specifies the dedicated resource name. Changing this parameter
+  will create a new resource.
+
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id, Only valid for users who
   have enabled the enterprise multi-project service. Changing this parameter will create a new resource.
 
