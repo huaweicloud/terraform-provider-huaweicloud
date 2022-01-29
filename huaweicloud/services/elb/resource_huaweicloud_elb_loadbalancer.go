@@ -2,6 +2,7 @@ package elb
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -11,6 +12,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/elb/v3/loadbalancers"
+	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -419,7 +421,8 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 
 func resourceLoadBalancerV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(config.GetRegion(d))
+	region := config.GetRegion(d)
+	elbClient, err := config.ElbV3Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb v3 client: %s", err)
 	}
@@ -437,7 +440,34 @@ func resourceLoadBalancerV3Delete(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	return nil
+	var diags diag.Diagnostics
+
+	// delete the EIP if necessary
+	eipID := d.Get("ipv4_eip_id").(string)
+	if _, ok := d.GetOk("iptype"); ok && eipID != "" {
+		eipClient, err := config.NetworkingV1Client(region)
+		if err == nil {
+			if eipErr := eips.Delete(eipClient, eipID).ExtractErr(); eipErr != nil {
+				if _, ok := err.(golangsdk.ErrDefault404); !ok {
+					eipDiag := diag.Diagnostic{
+						Severity: diag.Warning,
+						Summary:  "failed to delete EIP",
+						Detail:   fmt.Sprintf("failed to delete EIP %s: %s", eipID, eipErr),
+					}
+					diags = append(diags, eipDiag)
+				}
+			}
+		} else {
+			clientDiag := diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "failed to create VPC client",
+				Detail:   fmt.Sprintf("failed to create VPC client: %s", err),
+			}
+			diags = append(diags, clientDiag)
+		}
+	}
+
+	return diags
 }
 
 func waitForElbV3LoadBalancer(elbClient *golangsdk.ServiceClient,
