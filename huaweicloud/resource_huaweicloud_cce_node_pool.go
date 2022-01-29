@@ -346,10 +346,14 @@ func resourceCCENodePoolCreate(ctx context.Context, d *schema.ResourceData, meta
 			SshKey: d.Get("key_pair").(string),
 		}
 	} else if hasFilledOpt(d, "password") {
+		password, err := utils.TryPasswordEncrypt(d.Get("password").(string))
+		if err != nil {
+			return diag.FromErr(err)
+		}
 		loginSpec = nodes.LoginSpec{
 			UserPassword: nodes.UserPassword{
 				Username: "root",
-				Password: d.Get("password").(string),
+				Password: password,
 			},
 		}
 	}
@@ -483,10 +487,14 @@ func resourceCCENodePoolUpdate(ctx context.Context, d *schema.ResourceData, meta
 	if hasFilledOpt(d, "key_pair") {
 		loginSpec = nodes.LoginSpec{SshKey: d.Get("key_pair").(string)}
 	} else if hasFilledOpt(d, "password") {
+		password, err := utils.TryPasswordEncrypt(d.Get("password").(string))
+		if err != nil {
+			return diag.FromErr(err)
+		}
 		loginSpec = nodes.LoginSpec{
 			UserPassword: nodes.UserPassword{
 				Username: "root",
-				Password: d.Get("password").(string),
+				Password: password,
 			},
 		}
 	}
