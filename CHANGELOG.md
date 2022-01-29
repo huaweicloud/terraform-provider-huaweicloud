@@ -1,5 +1,36 @@
 # CHANGELOG
 
+## 1.33.0 (January 29, 2022)
+
+* **New Resurce:**
+  + `huaweicloud_csms_secret` [GH-1889]
+
+* **New Data Source:**
+  + `huaweicloud_gaussdb_nosql_flavors` [GH-1862]
+  + `huaweicloud_css_flavors` [GH-1895]
+  + `huaweicloud_csms_secret_version` [GH-1898]
+
+ENHANCEMENTS:
+
+* Authentication: Add ECS metadata API authentication support [GH-1907]
+* rename `huaweicloud_networking_eip_associate` to `huaweicloud_vpc_eip_associate` resource [GH-1908]
+* resource/huaweicloud_vpc_bandwidth: add `publicips` attribute [GH-1888]
+* resource/huaweicloud_vpc_eip: add `port_id` attribute [GH-1916]
+* resource/huaweicloud_cce_node: support `password` as plain or salted format [GH-1918]
+* resource/huaweicloud_compute_eip_associate: support to associate IPv6 address to a shared bandwidth [GH-1919]
+* resource/huaweicloud_gaussdb_cassandra_instance: add `dedicated_resource_name` support [GH-1925]
+* resource/huaweicloud_lb_*: update shared ELB resources with v2 API [GH-1900]
+
+BUG FIXES:
+
+* resource/huaweicloud_elb_loadbalancer: release eip when deleting the loadbalancer [GH-1893]
+* resource/huaweicloud_nat_dnat_rule: add checkDeleted in read function [GH-1899]
+
+DEPRECATE:
+
+* resource/huaweicloud_dms_group [GH-1878]
+* resource/huaweicloud_dms_queue [GH-1880]
+
 ## 1.32.1 (January 11, 2022)
 
 ENHANCEMENTS:
