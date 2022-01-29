@@ -11,7 +11,9 @@
               },
               "charge_mode": {
                 "type": "string",
-                "computed": true
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "enterprise_project_id": {
                 "type": "string",
@@ -26,6 +28,21 @@
               "name": {
                 "type": "string",
                 "required": true
+              },
+              "publicips": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "ip_address": "string",
+                      "ip_version": "number",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
               },
               "region": {
                 "type": "string",
