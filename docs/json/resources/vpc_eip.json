@@ -30,6 +30,14 @@
                 "type": "string",
                 "computed": true
               },
+              "ipv6_address": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
               "period": {
                 "type": "number",
                 "optional": true,
@@ -39,6 +47,14 @@
                 "type": "string",
                 "optional": true,
                 "forcenew": true
+              },
+              "port_id": {
+                "type": "string",
+                "computed": true
+              },
+              "private_ip": {
+                "type": "string",
+                "computed": true
               },
               "region": {
                 "type": "string",
@@ -102,15 +118,16 @@
                       "computed": true,
                       "forcenew": true
                     },
-                    "port_id": {
-                      "type": "string",
+                    "ip_version": {
+                      "type": "number",
                       "optional": true,
                       "computed": true
                     },
                     "type": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "optional": true,
+                      "forcenew": true,
+                      "default": "5_bgp"
                     }
                   }
                 },

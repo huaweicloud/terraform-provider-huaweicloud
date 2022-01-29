@@ -1,0 +1,47 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_compute_eip_associate": {
+          "block": {
+            "attributes": {
+              "bandwidth_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "fixed_ip": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "port_id": {
+                "type": "string",
+                "computed": true
+              },
+              "public_ip": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
