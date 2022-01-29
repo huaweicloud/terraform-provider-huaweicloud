@@ -35,6 +35,7 @@ func ResourceVpcEIPV1() *schema.Resource {
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(5 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -73,10 +74,10 @@ func ResourceVpcEIPV1() *schema.Resource {
 							ValidateFunc: validation.IntInSlice([]int{4, 6}),
 						},
 						"port_id": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Computed:   true,
-							Deprecated: "use huaweicloud_networking_eip_associate instead",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "schema: Deprecated",
 						},
 					},
 				},
@@ -134,6 +135,10 @@ func ResourceVpcEIPV1() *schema.Resource {
 				Computed: true,
 			},
 			"private_ip": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"port_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -267,9 +272,12 @@ func resourceVpcEIPV1Create(d *schema.ResourceData, meta interface{}) error {
 			eIP.ID, err)
 	}
 
-	err = bindToPort(d, eIP.ID, networkingClient, timeout)
-	if err != nil {
-		return fmtp.Errorf("Error binding eip:%s to port: %s", eIP.ID, err)
+	if v, ok := d.GetOk("publicip.0.port_id"); ok {
+		portID := v.(string)
+		err = bindPort(networkingClient, eIP.ID, portID, timeout)
+		if err != nil {
+			return fmtp.Errorf("Error binding EIP %s to port %s: %s", eIP.ID, portID, err)
+		}
 	}
 
 	// create tags
@@ -328,6 +336,7 @@ func resourceVpcEIPV1Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("address", eIP.PublicAddress),
 		d.Set("ipv6_address", eIP.PublicIpv6Address),
 		d.Set("private_ip", eIP.PrivateAddress),
+		d.Set("port_id", eIP.PortID),
 		d.Set("enterprise_project_id", eIP.EnterpriseProjectID),
 		d.Set("status", NormalizeEIPStatus(eIP.Status)),
 		d.Set("publicip", publicIP),
@@ -389,14 +398,23 @@ func resourceVpcEIPV1Update(d *schema.ResourceData, meta interface{}) error {
 
 	// Update publicip port_id
 	if d.HasChange("publicip.0.port_id") {
-		updateOpts := eips.UpdateOpts{
-			PortID: newMap["port_id"].(string),
+		timeout := d.Timeout(schema.TimeoutUpdate)
+		old, new := d.GetChange("publicip.0.port_id")
+		oldPort := old.(string)
+		newPort := new.(string)
+
+		if oldPort != "" {
+			err = unbindPort(networkingClient, d.Id(), oldPort, timeout)
+			if err != nil {
+				logp.Printf("[WARN] Error trying to unbind EIP %s :%s", d.Id(), err)
+			}
 		}
 
-		logp.Printf("[DEBUG] PublicIP Update Options: %#v", updateOpts)
-		_, err = eips.Update(networkingClient, d.Id(), updateOpts).Extract()
-		if err != nil {
-			return fmtp.Errorf("Error updating publicip: %s", err)
+		if newPort != "" {
+			err = bindPort(networkingClient, d.Id(), newPort, timeout)
+			if err != nil {
+				return fmtp.Errorf("Error binding EIP %s to port %s: %s", d.Id(), newPort, err)
+			}
 		}
 	}
 
@@ -439,20 +457,24 @@ func resourceVpcEIPV1Delete(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf("Error creating VPC client: %s", err)
 	}
 
+	id := d.Id()
+
 	// check whether the eip exists before delete it
 	// because resource could not be found cannot be deleteed
-	_, err = eips.Get(networkingClient, d.Id()).Extract()
+	_, err = eips.Get(networkingClient, id).Extract()
 	if err != nil {
 		return common.CheckDeleted(d, err, "Error retrieving HuaweiCloud EIP")
 	}
 
 	timeout := d.Timeout(schema.TimeoutDelete)
-	err = unbindToPort(d, d.Id(), networkingClient, timeout)
-	if err != nil {
-		logp.Printf("[WARN] Error trying to unbind eip %s :%s", d.Id(), err)
+	if v, ok := d.GetOk("publicip.0.port_id"); ok {
+		portID := v.(string)
+		err = unbindPort(networkingClient, id, portID, timeout)
+		if err != nil {
+			logp.Printf("[WARN] Error trying to unbind eip %s :%s", id, err)
+		}
 	}
 
-	id := d.Id()
 	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
 		if err := common.UnsubscribePrePaidResource(d, config, []string{id}); err != nil {
 			return fmtp.Errorf("Error unsubscribe publicip: %s", err)
@@ -506,44 +528,6 @@ func resourceBandWidth(d *schema.ResourceData) eips.BandwidthOpts {
 		ChargeMode: rawMap["charge_mode"].(string),
 	}
 	return bandwidth
-}
-
-func bindToPort(d *schema.ResourceData, eipID string, networkingClient *golangsdk.ServiceClient, timeout time.Duration) error {
-	publicIPRaw := d.Get("publicip").([]interface{})
-	rawMap := publicIPRaw[0].(map[string]interface{})
-	portID, ok := rawMap["port_id"]
-	if !ok || portID == "" {
-		return nil
-	}
-
-	pd := portID.(string)
-	logp.Printf("[DEBUG] Bind eip:%s to port: %s", eipID, pd)
-
-	updateOpts := eips.UpdateOpts{PortID: pd}
-	_, err := eips.Update(networkingClient, eipID, updateOpts).Extract()
-	if err != nil {
-		return err
-	}
-	return waitForEIPActive(networkingClient, eipID, timeout)
-}
-
-func unbindToPort(d *schema.ResourceData, eipID string, networkingClient *golangsdk.ServiceClient, timeout time.Duration) error {
-	publicIPRaw := d.Get("publicip").([]interface{})
-	rawMap := publicIPRaw[0].(map[string]interface{})
-	portID, ok := rawMap["port_id"]
-	if !ok || portID == "" {
-		return nil
-	}
-
-	pd := portID.(string)
-	logp.Printf("[DEBUG] Unbind eip:%s to port: %s", eipID, pd)
-
-	updateOpts := eips.UpdateOpts{PortID: ""}
-	_, err := eips.Update(networkingClient, eipID, updateOpts).Extract()
-	if err != nil {
-		return err
-	}
-	return waitForEIPActive(networkingClient, eipID, timeout)
 }
 
 func NormalizeEIPStatus(status string) string {

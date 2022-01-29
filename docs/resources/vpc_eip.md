@@ -114,6 +114,7 @@ In addition to all arguments above, the following attributes are exported:
 * `address` - The IPv4 address of the EIP.
 * `ipv6_address` - The IPv6 address of the EIP.
 * `private_ip` - The private IP address bound to the EIP.
+* `port_id` - The port ID which the EIP associated with.
 * `status` - The status of EIP.
 
 ## Timeouts

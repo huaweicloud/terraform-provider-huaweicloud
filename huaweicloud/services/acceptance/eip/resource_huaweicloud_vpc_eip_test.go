@@ -211,6 +211,44 @@ func TestAccVpcEIP_ipv6(t *testing.T) {
 	})
 }
 
+func TestAccVpcEIP_port(t *testing.T) {
+	var eip eips.PublicIp
+
+	randName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_vpc_eip.test"
+	vipResourceName := "huaweicloud_networking_vip.vip_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&eip,
+		getEipResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVpcEip_port(randName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "status", "BOUND"),
+					resource.TestCheckResourceAttr(resourceName, "publicip.0.type", "5_bgp"),
+					resource.TestCheckResourceAttr(resourceName, "publicip.0.ip_version", "4"),
+					resource.TestCheckResourceAttrPair(resourceName, "private_ip", vipResourceName, "ip_address"),
+					resource.TestCheckResourceAttrPair(resourceName, "port_id", vipResourceName, "id"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccVpcEip_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc_eip" "test" {
@@ -319,4 +357,38 @@ resource "huaweicloud_vpc_eip" "test" {
   }
 }
 `, rName, rName)
+}
+
+func testAccVpcEip_port(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc" "vpc_1" {
+  name = "%s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "subnet_1" {
+  vpc_id     = huaweicloud_vpc.vpc_1.id
+  name       = "%s"
+  cidr       = "192.168.0.0/24"
+  gateway_ip = "192.168.0.1"
+}
+
+resource "huaweicloud_networking_vip" "vip_1" {
+  name       = "%s"
+  network_id = huaweicloud_vpc_subnet.subnet_1.id
+}
+
+resource "huaweicloud_vpc_eip" "test" {
+  publicip {
+    type    = "5_bgp"
+    port_id = huaweicloud_networking_vip.vip_1.id
+  }
+  bandwidth {
+    name        = "%s"
+    size        = 5
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
+}
+`, rName, rName, rName, rName)
 }
