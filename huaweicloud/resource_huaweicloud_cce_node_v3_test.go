@@ -597,7 +597,7 @@ resource "huaweicloud_cce_node" "test" {
       password = "Test@123"
       host     = huaweicloud_vpc_eip.test.address
       port     = "22"
-      timeout  = "20s"
+      timeout  = "60s"
     }
 
     inline = [

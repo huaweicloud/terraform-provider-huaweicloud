@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"io"
 
-	crypt "github.com/amoghe/go-crypt"
+	"github.com/GehirnInc/crypt"
+	_ "github.com/GehirnInc/crypt/sha512_crypt"
 )
 
 var letters = []byte("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ=_")
@@ -35,7 +36,8 @@ func PasswordEncrypt(password string) (string, error) {
 	}
 	salt := "$6$" + string(saltBytes) + "$"
 
-	passwordEncrypted, err := crypt.Crypt(password, salt)
+	sha512crypt := crypt.SHA512.New()
+	passwordEncrypted, err := sha512crypt.Generate([]byte(password), []byte(salt))
 	if err != nil {
 		return "", fmt.Errorf("error encrypting the password: %s", err)
 	}
