@@ -287,7 +287,7 @@ func waitForVpcDelete(vpcClient *golangsdk.ServiceClient, vpcId string) resource
 		r, err := vpcs.Get(vpcClient, vpcId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[INFO] Successfully deleted Huaweicloud vpc %s", vpcId)
+				logp.Printf("[INFO] Successfully deleted Huaweicloud VPC %s", vpcId)
 				return r, "DELETED", nil
 			}
 			return r, "ACTIVE", err
