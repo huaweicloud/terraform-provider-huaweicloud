@@ -262,19 +262,19 @@ func testAccCCENodePool_basic(rName string) string {
 %s
 
 resource "huaweicloud_cce_node_pool" "test" {
-  cluster_id         = huaweicloud_cce_cluster.test.id
-  name               = "%s"
-  os                 = "EulerOS 2.5"
-  flavor_id          = "s6.large.2"
-  initial_node_count = 1
-  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-  key_pair           = huaweicloud_compute_keypair.test.name
-  scall_enable      = false
-  min_node_count    = 0
-  max_node_count    = 0
+  cluster_id               = huaweicloud_cce_cluster.test.id
+  name                     = "%s"
+  os                       = "EulerOS 2.5"
+  flavor_id                = "s6.large.2"
+  initial_node_count       = 1
+  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  key_pair                 = huaweicloud_compute_keypair.test.name
+  scall_enable             = false
+  min_node_count           = 0
+  max_node_count           = 0
   scale_down_cooldown_time = 0
-  priority          = 0
-  type 				= "vm"
+  priority                 = 0
+  type 				       = "vm"
 
   root_volume {
     size       = 40
@@ -293,19 +293,19 @@ func testAccCCENodePool_update(rName, updateName string) string {
 %s
 
 resource "huaweicloud_cce_node_pool" "test" {
-  cluster_id         = huaweicloud_cce_cluster.test.id
-  name               = "%s"
-  os                 = "EulerOS 2.5"
-  flavor_id          = "s6.large.2"
-  initial_node_count = 2
-  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-  key_pair           = huaweicloud_compute_keypair.test.name
-  scall_enable      = true
-  min_node_count    = 2
-  max_node_count    = 9
+  cluster_id               = huaweicloud_cce_cluster.test.id
+  name                     = "%s"
+  os                       = "EulerOS 2.5"
+  flavor_id                = "s6.large.2"
+  initial_node_count       = 2
+  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  key_pair                 = huaweicloud_compute_keypair.test.name
+  scall_enable             = true
+  min_node_count           = 2
+  max_node_count           = 9
   scale_down_cooldown_time = 100
-  priority          = 1
-  type 				= "vm"
+  priority                 = 1
+  type 				       = "vm"
 
   root_volume {
     size       = 40
@@ -324,19 +324,19 @@ func testAccCCENodePool_volume_extendParams(rName string) string {
 %s
 
 resource "huaweicloud_cce_node_pool" "test" {
-  cluster_id         = huaweicloud_cce_cluster.test.id
-  name               = "%s"
-  os                 = "EulerOS 2.5"
-  flavor_id          = "s6.large.2"
-  initial_node_count = 1
-  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-  key_pair           = huaweicloud_compute_keypair.test.name
-  scall_enable      = false
-  min_node_count    = 0
-  max_node_count    = 0
+  cluster_id               = huaweicloud_cce_cluster.test.id
+  name                     = "%s"
+  os                       = "EulerOS 2.5"
+  flavor_id                = "s6.large.2"
+  initial_node_count       = 1
+  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  key_pair                 = huaweicloud_compute_keypair.test.name
+  scall_enable             = false
+  min_node_count           = 0
+  max_node_count           = 0
   scale_down_cooldown_time = 0
-  priority          = 0
-  type 				= "vm"
+  priority                 = 0
+  type 				       = "vm"
 
   root_volume {
     size       = 40
