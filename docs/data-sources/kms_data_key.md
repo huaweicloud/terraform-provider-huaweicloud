@@ -1,5 +1,5 @@
 ---
-subcategory: "Key Management Service (KMS)"
+subcategory: "Data Encryption Workshop (DEW)"
 ---
 
 # huaweicloud_kms_data_key

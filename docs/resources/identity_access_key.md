@@ -6,7 +6,7 @@ subcategory: "Identity and Access Management (IAM)"
 
 Manages a permanent Access Key resource within HuaweiCloud IAM service.
 
--> **NOTE:** You _must_ have admin privileges in your HuaweiCloud cloud to use this resource.
+-> **NOTE:** You *must* have admin privileges in your HuaweiCloud cloud to use this resource.
 
 ## Example Usage
 

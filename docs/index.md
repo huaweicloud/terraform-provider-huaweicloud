@@ -21,7 +21,7 @@ terraform {
 
 # Configure the HuaweiCloud Provider
 provider "huaweicloud" {
-  region     = "cn-north-1"
+  region     = "cn-north-4"
   access_key = "my-access-key"
   secret_key = "my-secret-key"
 }
@@ -39,7 +39,7 @@ Terraform 0.12 and earlier:
 # Configure the HuaweiCloud Provider
 provider "huaweicloud" {
   version    = "~> 1.26.0"
-  region     = "cn-north-1"
+  region     = "cn-north-4"
   access_key = "my-access-key"
   secret_key = "my-secret-key"
 }
@@ -72,7 +72,7 @@ Usage:
 
 ```hcl
 provider "huaweicloud" {
-  region     = "cn-north-1"
+  region     = "cn-north-4"
   access_key = "my-access-key"
   secret_key = "my-secret-key"
 }
@@ -92,7 +92,7 @@ Usage:
 ```sh
 $ export HW_ACCESS_KEY="anaccesskey"
 $ export HW_SECRET_KEY="asecretkey"
-$ export HW_REGION_NAME="cn-north-1"
+$ export HW_REGION_NAME="cn-north-4"
 $ terraform plan
 ```
 
