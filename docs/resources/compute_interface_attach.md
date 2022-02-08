@@ -102,14 +102,15 @@ The following arguments are supported:
 * `instance_id` - (Required, String, ForceNew) The ID of the Instance to attach the Port or Network to.
 
 * `port_id` - (Optional, String, ForceNew) The ID of the Port to attach to an Instance.
-  _NOTE_: This option and `network_id` are mutually exclusive.
+  This option and `network_id` are mutually exclusive.
 
 * `network_id` - (Optional, String, ForceNew) The ID of the Network to attach to an Instance. A port will be created
   automatically.
-  _NOTE_: This option and `port_id` are mutually exclusive.
+  This option and `port_id` are mutually exclusive.
 
 * `fixed_ip` - (Optional, String, ForceNew) An IP address to assosciate with the port.
-  _NOTE_: This option cannot be used with port_id. You must specifiy a network_id. The IP address must lie in a range on
+
+  ->This option cannot be used with port_id. You must specifiy a network_id. The IP address must lie in a range on
   the supplied network.
 
 * `source_dest_check` - (Optional, Bool) Specifies whether the ECS processes only traffic that is destined specifically

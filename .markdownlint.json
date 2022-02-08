@@ -19,5 +19,11 @@
             "a"
         ]
     },
-    "MD040": false
+    "MD040": false,
+    "MD049": {
+        "style": "asterisk"
+    },
+    "MD050": {
+        "style": "asterisk"
+    }
 }

@@ -24,7 +24,7 @@ data "huaweicloud_identity_custom_role" "role" {
 
 * `description` - (Optional, String) Description of the custom policy.
 
-* `type` - (Optional, String) Display mode. Valid options are _AX_: Account level and _XA_: Project level.
+* `type` - (Optional, String) Display mode. Valid options are *AX*: Account level and *XA*: Project level.
 
 * `references` - (Optional, Int) The number of citations for the custom policy.
 

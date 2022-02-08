@@ -48,7 +48,7 @@ The following arguments are supported:
   Changing this will create a new agency.
 
 * `description` - (Optional, String) Specifies the supplementary information about the agency. The value is a string of
-  0 to 255 characters, excluding these characters: **@#$%^&*<>\\**.
+  0 to 255 characters, excluding these characters: '**@#$%^&*<>\\**'.
 
 * `delegated_domain_name` - (Optional, String) Specifies the name of delegated user domain. This parameter
   and `delegated_service_name` are alternative.
