@@ -26,14 +26,14 @@ resource "huaweicloud_iec_security_group_rule" "secgroup_rule_test" {
 
 The following arguments are supported:
 
-* `direction` - (Required, String, ForceNew) Specifies the direction of the rule, valid values are __ingress__ or
-  __egress__. Changing this parameter creates a new security group rule resource.
+* `direction` - (Required, String, ForceNew) Specifies the direction of the rule, valid values are **ingress** or
+  **egress**. Changing this parameter creates a new security group rule resource.
 
-* `ethertype` - (Required, String, ForceNew) Specifies the layer 3 protocol type, valid values are __IPv4__(IPv4 is
-  default) or __IPv6__. Changing this parameter creates a new security group rule resource.
+* `ethertype` - (Required, String, ForceNew) Specifies the layer 3 protocol type, valid values are **IPv4**(IPv4 is
+  default) or **IPv6**. Changing this parameter creates a new security group rule resource.
 
 * `protocol` - (Required, String, ForceNew) Specifies the layer 4 protocol type, valid values are following. The valid
-  values are: __tcp__, __udp__, __icmp__ and __gre__. Changing this parameter creates a new security group rule
+  values are: **tcp**, **udp**, **icmp** and **gre**. Changing this parameter creates a new security group rule
   resource.
 
 * `security_group_id` - (Required, String, ForceNew) Specifies the security group id the rule should belong to. Changing

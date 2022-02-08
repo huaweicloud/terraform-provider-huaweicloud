@@ -80,7 +80,8 @@ The following arguments are supported:
 * `volume_id` - (Required, String, ForceNew) The ID of the Volume to attach to an Instance.
 
 * `device` - (Optional, String) The device of the volume attachment (ex: `/dev/vdc`).
-  _NOTE_: Being able to specify a device is dependent upon the hypervisor in use. There is a chance that the device
+
+  -> Being able to specify a device is dependent upon the hypervisor in use. There is a chance that the device
   specified in Terraform will not be the same device the hypervisor chose. If this happens, Terraform will wish to
   update the device upon subsequent applying which will cause the volume to be detached and reattached indefinitely.
   Please use with caution.

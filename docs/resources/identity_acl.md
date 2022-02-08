@@ -7,7 +7,7 @@ subcategory: "Identity and Access Management (IAM)"
 Manages a ACL resource within HuaweiCloud IAM service. The ACL allowing user access only from specified IP address
 ranges and IPv4 CIDR blocks. The ACL take effect for IAM users under the Domain account rather than the account itself.
 
-Note: You _must_ have admin privileges in your HuaweiCloud cloud to use this resource.
+Note: You *must* have admin privileges in your HuaweiCloud cloud to use this resource.
 
 ## Example Usage
 
@@ -41,17 +41,17 @@ The following arguments are supported:
 
 The `ip_cidrs` block supports:
 
-* `cidr` - (Required, String) Specifies the IPv4 CIDR block, for example, __192.168.0.0/24__.
+* `cidr` - (Required, String) Specifies the IPv4 CIDR block, for example, **192.168.0.0/24**.
 
 * `description` - (Optional, String) Specifies a description about an IPv4 CIDR block. This parameter can contain a
-  maximum of 255 characters and the following charactors are not allowed:__@#%^&*<>\\__.
+  maximum of 255 characters and the following charactors are not allowed:**@#%^&*<>\\**.
 
 The `ip_ranges` block supports:
 
-* `range` - (Required, String) Specifies the Ip address range, for example, __0.0.0.0-255.255.255.0__.
+* `range` - (Required, String) Specifies the Ip address range, for example, **0.0.0.0-255.255.255.0**.
 
 * `description` - (Optional, String) Specifies a description about an IP address range. This parameter can contain a
-  maximum of 255 characters and the following charactors are not allowed:__@#%^&*<>\\__.
+  maximum of 255 characters and the following charactors are not allowed:**@#%^&*<>\\**.
 
 **note**: Up to 200 `ip_cidrs` and `ip_ranges` can be created in total for each access method.
 

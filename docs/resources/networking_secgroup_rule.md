@@ -36,18 +36,18 @@ The following arguments are supported:
 * `security_group_id` - (Required, String, ForceNew) Specifies the security group id the rule should belong to. Changing
   this creates a new security group rule.
 
-* `direction` - (Required, String, ForceNew) Specifies the direction of the rule, valid values are __ingress__ or
-  __egress__. Changing this creates a new security group rule.
+* `direction` - (Required, String, ForceNew) Specifies the direction of the rule, valid values are **ingress** or
+  **egress**. Changing this creates a new security group rule.
 
-* `ethertype` - (Required, String, ForceNew) Specifies the layer 3 protocol type, valid values are __IPv4__ or __IPv6__.
+* `ethertype` - (Required, String, ForceNew) Specifies the layer 3 protocol type, valid values are **IPv4** or **IPv6**.
   Changing this creates a new security group rule.
 
 * `description` - (Optional, String, ForceNew) Specifies the supplementary information about the networking security
   group rule. This parameter can contain a maximum of 255 characters and cannot contain angle brackets (< or >).
   Changing this creates a new security group rule.
 
-* `protocol` - (Optional, String, ForceNew) Specifies the layer 4 protocol type, valid values are __tcp__, __udp__,
-  __icmp__ and __icmpv6__. If omitted, the protocol means that all protocols are supported.
+* `protocol` - (Optional, String, ForceNew) Specifies the layer 4 protocol type, valid values are **tcp**, **udp**,
+  **icmp** and **icmpv6**. If omitted, the protocol means that all protocols are supported.
   This is required if you want to specify a port range. Changing this creates a new security group rule.
 
 * `port_range_min` - (Optional, Int, ForceNew) Specifies the lower part of the allowed port range, valid integer value

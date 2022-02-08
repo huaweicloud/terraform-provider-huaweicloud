@@ -7,7 +7,7 @@ subcategory: "Identity and Access Management (IAM)"
 Manages a Role assignment within group on HuaweiCloud IAM Service. This is an alternative
 to `huaweicloud_identity_role_assignment_v3`
 
-Note: You _must_ have admin privileges in your HuaweiCloud cloud to use this resource.
+Note: You *must* have admin privileges in your HuaweiCloud cloud to use this resource.
 
 ## Example Usage: Assign Role On Project Level
 

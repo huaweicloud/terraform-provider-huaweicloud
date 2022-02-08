@@ -32,19 +32,19 @@ The following arguments are supported:
 * `server_id` - (Optional, String) Specifies the server ID to which the disks are attached.
 
 * `status` - (Optional, String) Specifies the disk status. The valid values are as following:
-  + __FREEZED__
-  + __BIND_ERROR__
-  + __BINDING__
-  + __PENDING_DELETE__
-  + __PENDING_CREATE__
-  + __NOTIFYING__
-  + __NOTIFY_DELETE__
-  + __PENDING_UPDATE__
-  + __DOWN__
-  + __ACTIVE__
-  + __ELB__
-  + __ERROR__
-  + __VPN__
+  + **FREEZED**
+  + **BIND_ERROR**
+  + **BINDING**
+  + **PENDING_DELETE**
+  + **PENDING_CREATE**
+  + **NOTIFYING**
+  + **NOTIFY_DELETE**
+  + **PENDING_UPDATE**
+  + **DOWN**
+  + **ACTIVE**
+  + **ELB**
+  + **ERROR**
+  + **VPN**
 
 * `tags` - (Optional, Map) Specifies the included key/value pairs which associated with the desired disk.
 

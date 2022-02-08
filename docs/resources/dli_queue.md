@@ -46,7 +46,7 @@ The following arguments are supported:
   the provider-level region will be used. Changing this will create a new VPC channel resource.
 
 * `name` - (Required, String, ForceNew) Name of a queue. Name of a newly created resource queue. The name can contain
-  only digits, letters, and underscores (_), but cannot contain only digits or start with an underscore (_). Length
+  only digits, letters, and underscores (\_), but cannot contain only digits or start with an underscore (_). Length
   range: 1 to 128 characters. Changing this parameter will create a new resource.
 
 * `queue_type` - (Optional, String, ForceNew) Indicates the queue type. Changing this parameter will create a new
