@@ -7,7 +7,7 @@ subcategory: "Identity and Access Management (IAM)"
 Manages a ACL resource within HuaweiCloud IAM service. The ACL allowing user access only from specified IP address
 ranges and IPv4 CIDR blocks. The ACL take effect for IAM users under the Domain account rather than the account itself.
 
-Note: You _must_ have admin privileges in your HuaweiCloud cloud to use this resource.
+Note: You *must* have admin privileges in your HuaweiCloud cloud to use this resource.
 
 ## Example Usage
 

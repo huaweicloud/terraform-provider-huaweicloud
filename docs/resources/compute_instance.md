@@ -337,7 +337,7 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - A resource ID in UUID format.
 * `status` - The status of the instance.
 * `public_ip` - The EIP address that is associted to the instance.
-* `access_ip_v4` - The first detected Fixed IPv4 address _or_ the Floating IP.
+* `access_ip_v4` - The first detected Fixed IPv4 address or the Floating IP.
 * `network/fixed_ip_v4` - The Fixed IPv4 address of the Instance on that network.
 * `network/fixed_ip_v6` - The Fixed IPv6 address of the Instance on that network.
 * `network/mac` - The MAC address of the NIC on that network.
