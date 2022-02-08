@@ -36,7 +36,7 @@ The following arguments are supported:
 * `cidr` - (Required, String, ForceNew) Specifies the network segment on which the subnet resides. The value must be in
   CIDR format and within the CIDR block of the iec vpc. Changing this parameter creates a new subnet resource.
 
-* `vpc_id` - (Required, String, ForceNew) Specifies the ID of the iec __CUSTOMER__
+* `vpc_id` - (Required, String, ForceNew) Specifies the ID of the iec **CUSTOMER**
   vpc to which the subnet belongs. Changing this parameter creates a new subnet resource.
 
 * `site_id` - (Required, String, ForceNew) Specifies the ID of the iec site. Changing this parameter creates a new

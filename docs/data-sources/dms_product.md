@@ -25,9 +25,9 @@ data "huaweicloud_dms_product" "product1" {
 * `region` - (Optional, String) The region in which to obtain the dms products. If omitted, the provider-level region
   will be used.
 
-* `engine` - (Required, String) Indicates the name of a message engine. The valid values are __kafka__, __rabbitmq__.
+* `engine` - (Required, String) Indicates the name of a message engine. The valid values are **kafka**, **rabbitmq**.
 
-* `instance_type` - (Required, String) Indicates an instance type. The valid values are __single__ and __cluster__.
+* `instance_type` - (Required, String) Indicates an instance type. The valid values are **single** and **cluster**.
 
 * `version` - (Optional, String) Indicates the version of a message engine.
 
@@ -39,13 +39,13 @@ data "huaweicloud_dms_product" "product1" {
   The default value is the storage capacity of the product.
 
 * `bandwidth` - (Optional, String) Indicates the baseline bandwidth of a DMS instance.
-  The valid values are __100MB__, __300MB__, __600MB__ and __1200MB__.
+  The valid values are **100MB**, **300MB**, **600MB** and **1200MB**.
 
 * `partition_num` - (Optional, String) Indicates the maximum number of topics that can be created for a Kafka instance.
-  The valid values are __300__, __900__ and __1800__.
+  The valid values are **300**, **900** and **1800**.
 
 * `storage_spec_code` - (Optional, String) Indicates an I/O specification.
-  The valid values are __dms.physical.storage.high__ and __dms.physical.storage.ultra__.
+  The valid values are **dms.physical.storage.high** and **dms.physical.storage.ultra**.
 
 * `node_num` - (Optional, String) Indicates the number of nodes in a cluster.
 
