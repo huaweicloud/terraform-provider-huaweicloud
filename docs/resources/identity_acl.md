@@ -53,7 +53,7 @@ The `ip_ranges` block supports:
 * `description` - (Optional, String) Specifies a description about an IP address range. This parameter can contain a
   maximum of 255 characters and the following charactors are not allowed:**@#%^&*<>\\**.
 
-**note**: Up to 200 `ip_cidrs` and `ip_ranges` can be created in total for each access method.
+->**NOTE:** Up to 200 `ip_cidrs` and `ip_ranges` can be created in total for each access method.
 
 ## Attributes Reference
 
