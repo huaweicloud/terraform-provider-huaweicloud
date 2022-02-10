@@ -1,33 +1,50 @@
-package huaweicloud
+package lb
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v2/monitors"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+func getMonitorResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	c, err := conf.LoadBalancerClient(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating HuaweiCloud LB v2 client: %s", err)
+	}
+	resp, err := monitors.Get(c, state.Primary.ID).Extract()
+	if resp == nil && err == nil {
+		return resp, fmt.Errorf("Unable to find the monitor (%s)", state.Primary.ID)
+	}
+	return resp, err
+}
+
 func TestAccLBV2Monitor_basic(t *testing.T) {
 	var monitor monitors.Monitor
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameUpdate := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
+	rNameUpdate := rName + "-update"
 	resourceName := "huaweicloud_lb_monitor.monitor_1"
 
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&monitor,
+		getMonitorResourceFunc,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBV2MonitorDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLBV2MonitorConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV2MonitorExists(resourceName, &monitor),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "type", "TCP"),
 					resource.TestCheckResourceAttr(resourceName, "delay", "20"),
@@ -51,18 +68,24 @@ func TestAccLBV2Monitor_basic(t *testing.T) {
 
 func TestAccLBV2Monitor_udp(t *testing.T) {
 	var monitor monitors.Monitor
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_lb_monitor.monitor_udp"
 
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&monitor,
+		getMonitorResourceFunc,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBV2MonitorDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLBV2MonitorConfig_udp(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV2MonitorExists(resourceName, &monitor),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "type", "UDP_CONNECT"),
 					resource.TestCheckResourceAttr(resourceName, "delay", "20"),
@@ -76,18 +99,24 @@ func TestAccLBV2Monitor_udp(t *testing.T) {
 
 func TestAccLBV2Monitor_http(t *testing.T) {
 	var monitor monitors.Monitor
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_lb_monitor.monitor_http"
 
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&monitor,
+		getMonitorResourceFunc,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBV2MonitorDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLBV2MonitorConfig_http(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV2MonitorExists(resourceName, &monitor),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "type", "HTTP"),
 					resource.TestCheckResourceAttr(resourceName, "delay", "20"),
@@ -100,59 +129,6 @@ func TestAccLBV2Monitor_http(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckLBV2MonitorDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	elbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_lb_monitor" {
-			continue
-		}
-
-		_, err := monitors.Get(elbClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmtp.Errorf("Monitor still exists: %s", rs.Primary.ID)
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckLBV2MonitorExists(n string, monitor *monitors.Monitor) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*config.Config)
-		elbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
-		}
-
-		found, err := monitors.Get(elbClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Monitor not found")
-		}
-
-		*monitor = *found
-
-		return nil
-	}
 }
 
 func testAccLBV2MonitorConfig_base(rName string) string {

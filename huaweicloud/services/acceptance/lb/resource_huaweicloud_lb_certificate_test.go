@@ -1,12 +1,11 @@
-package huaweicloud
+package lb
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -14,20 +13,38 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+func getCertificateResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	c, err := conf.LoadBalancerClient(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating HuaweiCloud LB v2 client: %s", err)
+	}
+	resp, err := certificates.Get(c, state.Primary.ID).Extract()
+	if resp == nil && err == nil {
+		return resp, fmt.Errorf("Unable to find the certificate (%s)", state.Primary.ID)
+	}
+	return resp, err
+}
+
 func TestAccLBV2Certificate_basic(t *testing.T) {
 	var c certificates.Certificate
-	name := fmt.Sprintf("tf-cert-%s", acctest.RandString(5))
+	name := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_lb_certificate.certificate_1"
 
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&c,
+		getCertificateResourceFunc,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBV2CertificateDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLBV2CertificateConfig_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV2CertificateExists(resourceName, &c),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "type", "server"),
 				),
@@ -44,18 +61,24 @@ func TestAccLBV2Certificate_basic(t *testing.T) {
 
 func TestAccLBV2Certificate_client(t *testing.T) {
 	var c certificates.Certificate
-	name := fmt.Sprintf("tf-cert-%s", acctest.RandString(5))
+	name := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_lb_certificate.certificate_client"
 
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&c,
+		getCertificateResourceFunc,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBV2CertificateDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLBV2CertificateConfig_client(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV2CertificateExists(resourceName, &c),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "type", "client"),
 				),
@@ -66,79 +89,31 @@ func TestAccLBV2Certificate_client(t *testing.T) {
 
 func TestAccLBV2Certificate_withEpsId(t *testing.T) {
 	var c certificates.Certificate
-	name := fmt.Sprintf("tf-cert-%s", acctest.RandString(5))
+	name := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_lb_certificate.certificate_1"
 
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&c,
+		getCertificateResourceFunc,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckEpsID(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBV2CertificateDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLBV2CertificateConfig_withEpsId(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV2CertificateExists(resourceName, &c),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "type", "server"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
 	})
-}
-
-func testAccCheckLBV2CertificateDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	elbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_lb_certificate" {
-			continue
-		}
-
-		_, err := certificates.Get(elbClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmtp.Errorf("Certificate still exists: %s", rs.Primary.ID)
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckLBV2CertificateExists(
-	n string, c *certificates.Certificate) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*config.Config)
-		elbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
-		}
-
-		found, err := certificates.Get(elbClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.Id != rs.Primary.ID {
-			return fmtp.Errorf("Certificate not found")
-		}
-
-		*c = *found
-
-		return nil
-	}
 }
 
 func testAccLBV2CertificateConfig_basic(name string) string {
@@ -378,5 +353,5 @@ i1YhgnQbn5E0hz55OLu5jvOkKQjPCW+8Kg==
 -----END CERTIFICATE-----
 EOT
 }
-`, name, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

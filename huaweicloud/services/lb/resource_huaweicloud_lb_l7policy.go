@@ -1,4 +1,4 @@
-package huaweicloud
+package lb
 
 import (
 	"context"
@@ -107,7 +107,7 @@ func ResourceL7PolicyV2() *schema.Resource {
 
 func resourceL7PolicyV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -188,7 +188,7 @@ func resourceL7PolicyV2Create(ctx context.Context, d *schema.ResourceData, meta 
 
 func resourceL7PolicyV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -220,7 +220,7 @@ func resourceL7PolicyV2Read(_ context.Context, d *schema.ResourceData, meta inte
 
 func resourceL7PolicyV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -300,7 +300,7 @@ func resourceL7PolicyV2Update(ctx context.Context, d *schema.ResourceData, meta 
 	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		_, err = l7policies.Update(lbClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return checkForRetryableError(err)
+			return common.CheckForRetryableError(err)
 		}
 		return nil
 	})
@@ -320,7 +320,7 @@ func resourceL7PolicyV2Update(ctx context.Context, d *schema.ResourceData, meta 
 
 func resourceL7PolicyV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -351,7 +351,7 @@ func resourceL7PolicyV2Delete(ctx context.Context, d *schema.ResourceData, meta 
 	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		err = l7policies.Delete(lbClient, d.Id()).ExtractErr()
 		if err != nil {
-			return checkForRetryableError(err)
+			return common.CheckForRetryableError(err)
 		}
 		return nil
 	})
@@ -370,14 +370,14 @@ func resourceL7PolicyV2Delete(ctx context.Context, d *schema.ResourceData, meta 
 
 func resourceL7PolicyV2Import(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
 	if err != nil {
 		return nil, fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	l7Policy, err := l7policies.Get(lbClient, d.Id()).Extract()
 	if err != nil {
-		return nil, CheckDeleted(d, err, "L7 Policy")
+		return nil, common.CheckDeleted(d, err, "L7 Policy")
 	}
 
 	logp.Printf("[DEBUG] Retrieved L7 Policy %s during the import: %#v", d.Id(), l7Policy)

@@ -1,4 +1,4 @@
-package huaweicloud
+package lb
 
 import (
 	"context"
@@ -99,7 +99,7 @@ func ResourceCertificateV2() *schema.Resource {
 
 func resourceCertificateV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	elbClient, err := config.LoadBalancerClient(GetRegion(d, config))
+	elbClient, err := config.LoadBalancerClient(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -109,7 +109,7 @@ func resourceCertificateV2Create(ctx context.Context, d *schema.ResourceData, me
 		Description:         d.Get("description").(string),
 		Type:                d.Get("type").(string),
 		Domain:              d.Get("domain").(string),
-		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID: common.GetEnterpriseProjectID(d, config),
 	}
 
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -131,7 +131,7 @@ func resourceCertificateV2Create(ctx context.Context, d *schema.ResourceData, me
 
 func resourceCertificateV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	elbClient, err := config.LoadBalancerClient(GetRegion(d, config))
+	elbClient, err := config.LoadBalancerClient(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -162,7 +162,7 @@ func resourceCertificateV2Read(_ context.Context, d *schema.ResourceData, meta i
 
 func resourceCertificateV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	elbClient, err := config.LoadBalancerClient(GetRegion(d, config))
+	elbClient, err := config.LoadBalancerClient(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -193,7 +193,7 @@ func resourceCertificateV2Update(ctx context.Context, d *schema.ResourceData, me
 	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		_, err := certificates.Update(elbClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return checkForRetryableError(err)
+			return common.CheckForRetryableError(err)
 		}
 		return nil
 	})
@@ -206,7 +206,7 @@ func resourceCertificateV2Update(ctx context.Context, d *schema.ResourceData, me
 
 func resourceCertificateV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	elbClient, err := config.LoadBalancerClient(GetRegion(d, config))
+	elbClient, err := config.LoadBalancerClient(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -217,7 +217,7 @@ func resourceCertificateV2Delete(ctx context.Context, d *schema.ResourceData, me
 	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		err := certificates.Delete(elbClient, d.Id()).ExtractErr()
 		if err != nil {
-			return checkForRetryableError(err)
+			return common.CheckForRetryableError(err)
 		}
 		return nil
 	})

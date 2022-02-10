@@ -1,4 +1,4 @@
-package huaweicloud
+package lb
 
 import (
 	"context"
@@ -122,7 +122,7 @@ func ResourcePoolV2() *schema.Resource {
 
 func resourcePoolV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -207,7 +207,7 @@ func resourcePoolV2Create(ctx context.Context, d *schema.ResourceData, meta inte
 
 func resourcePoolV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb v2 client: %s", err)
 	}
@@ -246,7 +246,7 @@ func resourcePoolV2Read(_ context.Context, d *schema.ResourceData, meta interfac
 
 func resourcePoolV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -283,7 +283,7 @@ func resourcePoolV2Update(ctx context.Context, d *schema.ResourceData, meta inte
 	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		_, err = pools.Update(lbClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return checkForRetryableError(err)
+			return common.CheckForRetryableError(err)
 		}
 		return nil
 	})
@@ -307,7 +307,7 @@ func resourcePoolV2Update(ctx context.Context, d *schema.ResourceData, meta inte
 
 func resourcePoolV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -327,7 +327,7 @@ func resourcePoolV2Delete(ctx context.Context, d *schema.ResourceData, meta inte
 	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		err = pools.Delete(lbClient, d.Id()).ExtractErr()
 		if err != nil {
-			return checkForRetryableError(err)
+			return common.CheckForRetryableError(err)
 		}
 		return nil
 	})

@@ -1,4 +1,4 @@
-package huaweicloud
+package lb
 
 import (
 	"context"
@@ -115,20 +115,20 @@ func ResourceListenerV2() *schema.Resource {
 				Default:  true,
 				Optional: true,
 			},
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 		},
 	}
 }
 
 func resourceListenerV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	// client for tags
-	lbv2Client, err := config.ElbV2Client(GetRegion(d, config))
+	lbv2Client, err := config.ElbV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb v2.0 client: %s", err)
 	}
@@ -196,13 +196,13 @@ func resourceListenerV2Create(ctx context.Context, d *schema.ResourceData, meta 
 
 func resourceListenerV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb v2 client: %s", err)
 	}
 
 	// client for tags
-	lbv2Client, err := config.ElbV2Client(GetRegion(d, config))
+	lbv2Client, err := config.ElbV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb v2.0 client: %s", err)
 	}
@@ -246,13 +246,13 @@ func resourceListenerV2Read(_ context.Context, d *schema.ResourceData, meta inte
 
 func resourceListenerV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	// client for tags
-	lbv2Client, err := config.ElbV2Client(GetRegion(d, config))
+	lbv2Client, err := config.ElbV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb v2.0 client: %s", err)
 	}
@@ -305,7 +305,7 @@ func resourceListenerV2Update(ctx context.Context, d *schema.ResourceData, meta 
 		err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 			_, err = listeners.Update(lbClient, d.Id(), updateOpts).Extract()
 			if err != nil {
-				return checkForRetryableError(err)
+				return common.CheckForRetryableError(err)
 			}
 			return nil
 		})
@@ -335,7 +335,7 @@ func resourceListenerV2Update(ctx context.Context, d *schema.ResourceData, meta 
 
 func resourceListenerV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(GetRegion(d, config))
+	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -353,7 +353,7 @@ func resourceListenerV2Delete(ctx context.Context, d *schema.ResourceData, meta 
 	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		err = listeners.Delete(lbClient, d.Id()).ExtractErr()
 		if err != nil {
-			return checkForRetryableError(err)
+			return common.CheckForRetryableError(err)
 		}
 		return nil
 	})

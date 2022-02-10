@@ -1,6 +1,7 @@
-package huaweicloud
+package lb
 
 import (
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
@@ -68,7 +69,7 @@ func DataSourceELBV2Loadbalancer() *schema.Resource {
 
 func dataSourceELBV2LoadbalancerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	region := GetRegion(d, config)
+	region := config.GetRegion(d)
 	elbClient, err := config.LoadBalancerClient(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating Huaweicloud elb client %s", err)
@@ -80,7 +81,7 @@ func dataSourceELBV2LoadbalancerRead(d *schema.ResourceData, meta interface{}) e
 		Description:         d.Get("description").(string),
 		VipAddress:          d.Get("vip_address").(string),
 		VipSubnetID:         d.Get("vip_subnet_id").(string),
-		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID: common.GetEnterpriseProjectID(d, config),
 	}
 	pages, err := loadbalancers.List(elbClient, listOpts).AllPages()
 	if err != nil {
@@ -100,7 +101,7 @@ func dataSourceELBV2LoadbalancerRead(d *schema.ResourceData, meta interface{}) e
 	lb := lbList[0]
 	d.SetId(lb.ID)
 	mErr := multierror.Append(
-		d.Set("region", GetRegion(d, config)),
+		d.Set("region", config.GetRegion(d)),
 		d.Set("name", lb.Name),
 		d.Set("status", lb.OperatingStatus),
 		d.Set("description", lb.Description),
@@ -114,7 +115,7 @@ func dataSourceELBV2LoadbalancerRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Get tags for v2.0 API
-	elbV2Client, err := config.ElbV2Client(GetRegion(d, config))
+	elbV2Client, err := config.ElbV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb v2.0 client: %s", err)
 	}

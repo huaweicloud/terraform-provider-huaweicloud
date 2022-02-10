@@ -10,23 +10,22 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccDataSourceLBCertificateV2_basic(t *testing.T) {
 	name := fmt.Sprintf("cert-%s", acctest.RandString(6))
 	dataSourceName := "data.huaweicloud_lb_certificate.cert_1"
+	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { acceptance.TestAccPreCheck(t) },
-		Providers: acceptance.TestAccProviders,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLBCertificateSourceV2_conf(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBCertDataSourceID(dataSourceName),
+					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "name", name),
 					resource.TestCheckResourceAttr(dataSourceName, "type", "server"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "expiration"),
@@ -38,23 +37,12 @@ func TestAccDataSourceLBCertificateV2_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckLBCertDataSourceID(r string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[r]
-		if !ok {
-			return fmtp.Errorf("Can't find LB Certificate data source: %s ", r)
-		}
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("The LB Certificate data source ID not set ")
-		}
-		return nil
-	}
-}
-
 func testAccLBCertificateSourceV2_conf(name string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_lb_certificate" "cert_1" {
   name = huaweicloud_elb_certificate.certificate_1.name
+
+  depends_on = [huaweicloud_elb_certificate.certificate_1]
 }
 
 resource "huaweicloud_elb_certificate" "certificate_1" {

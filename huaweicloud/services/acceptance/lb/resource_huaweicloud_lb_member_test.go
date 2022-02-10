@@ -1,34 +1,59 @@
-package huaweicloud
+package lb
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v2/pools"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+func getMemberResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	c, err := conf.LoadBalancerClient(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating HuaweiCloud LB v2 client: %s", err)
+	}
+	resp, err := pools.GetMember(c, state.Primary.Attributes["pool_id"], state.Primary.ID).Extract()
+	if resp == nil && err == nil {
+		return resp, fmt.Errorf("Unable to find the member (%s)", state.Primary.ID)
+	}
+	return resp, err
+}
+
 func TestAccLBV2Member_basic(t *testing.T) {
 	var member_1 pools.Member
 	var member_2 pools.Member
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName1 := "huaweicloud_lb_member.member_1"
+	resourceName2 := "huaweicloud_lb_member.member_2"
+	rName := acceptance.RandomAccResourceNameWithDash()
+
+	rc1 := acceptance.InitResourceCheck(
+		resourceName1,
+		&member_1,
+		getMemberResourceFunc,
+	)
+	rc2 := acceptance.InitResourceCheck(
+		resourceName2,
+		&member_2,
+		getMemberResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBV2MemberDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckLBV2MemberDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:             testAccLBV2MemberConfig_basic(rName),
 				ExpectNonEmptyPlan: true, // Because admin_state_up remains false.
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV2MemberExists("huaweicloud_lb_member.member_1", &member_1),
-					testAccCheckLBV2MemberExists("huaweicloud_lb_member.member_2", &member_2),
+					rc1.CheckResourceExists(),
+					rc2.CheckResourceExists(),
 				),
 			},
 			{
@@ -44,8 +69,8 @@ func TestAccLBV2Member_basic(t *testing.T) {
 }
 
 func testAccCheckLBV2MemberDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	elbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	elbClient, err := config.LoadBalancerClient(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -63,39 +88,6 @@ func testAccCheckLBV2MemberDestroy(s *terraform.State) error {
 	}
 
 	return nil
-}
-
-func testAccCheckLBV2MemberExists(n string, member *pools.Member) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*config.Config)
-		elbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
-		}
-
-		poolId := rs.Primary.Attributes["pool_id"]
-		found, err := pools.GetMember(elbClient, poolId, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Member not found")
-		}
-
-		*member = *found
-
-		return nil
-	}
 }
 
 func testAccLBV2MemberConfig_basic(rName string) string {
