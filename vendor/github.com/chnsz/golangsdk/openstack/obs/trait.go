@@ -345,6 +345,13 @@ func (input SetBucketEncryptionInput) trans(isObs bool) (params map[string]strin
 	return
 }
 
+func (input SetBucketReplicationInput) trans(isObs bool) (params map[string]string, headers map[string][]string, data interface{}, err error) {
+	params = map[string]string{string(SubResourceReplication): ""}
+	data, md5 := convertReplicationConfigurationToXml(input.BucketReplicationConfiguration, true, isObs)
+	headers = map[string][]string{HEADER_MD5_CAMEL: {md5}}
+	return
+}
+
 func (input SetBucketTaggingInput) trans(isObs bool) (params map[string]string, headers map[string][]string, data interface{}, err error) {
 	params = map[string]string{string(SubResourceTagging): ""}
 	data, md5, err := ConvertRequestToIoReaderV2(input)

@@ -2,7 +2,7 @@
 
 ## Version
 
-3.21.8
+3.21.12
 
 You can get the latest source code from [huaweicloud-sdk-go-obs](https://github.com/huaweicloud/huaweicloud-sdk-go-obs).
 

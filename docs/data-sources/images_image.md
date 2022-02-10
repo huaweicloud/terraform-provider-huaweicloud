@@ -73,6 +73,8 @@ data "huaweicloud_images_image" "bms_image" {
 * `sort_key` - (Optional, String) Sort images based on a certain key. Must be one of
   "name", "container_format", "disk_format", "status", "id" or "size". Defaults to `name`.
 
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the image.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:

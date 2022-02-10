@@ -47,6 +47,7 @@ type ListOpts struct {
 	SupportKvmInfiniband   string `q:"__support_kvm_infiniband"`
 	VirtualEnvType         string `q:"virtual_env_type"`
 	Architecture           string `q:"architecture"`
+	EnterpriseProjectID    string `q:"enterprise_project_id"`
 	// CreatedAtQuery filters images based on their creation date.
 	CreatedAtQuery *ImageDateQuery
 	// UpdatedAtQuery filters images based on their updated date.

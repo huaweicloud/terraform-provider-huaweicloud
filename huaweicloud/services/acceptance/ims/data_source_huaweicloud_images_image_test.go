@@ -5,16 +5,15 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccImsImageDataSource_basic(t *testing.T) {
 	imageName := "CentOS 7.4 64bit"
 	dataSourceName := "data.huaweicloud_images_image.test"
+	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -23,7 +22,7 @@ func TestAccImsImageDataSource_basic(t *testing.T) {
 			{
 				Config: testAccImsImageDataSource_publicName(imageName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImagesV2DataSourceID(dataSourceName),
+					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "name", imageName),
 					resource.TestCheckResourceAttr(dataSourceName, "protected", "true"),
 					resource.TestCheckResourceAttr(dataSourceName, "visibility", "public"),
@@ -33,7 +32,7 @@ func TestAccImsImageDataSource_basic(t *testing.T) {
 			{
 				Config: testAccImsImageDataSource_osVersion(imageName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImagesV2DataSourceID(dataSourceName),
+					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "protected", "true"),
 					resource.TestCheckResourceAttr(dataSourceName, "visibility", "public"),
 					resource.TestCheckResourceAttr(dataSourceName, "status", "active"),
@@ -42,7 +41,7 @@ func TestAccImsImageDataSource_basic(t *testing.T) {
 			{
 				Config: testAccImsImageDataSource_nameRegex("^CentOS 7.4"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImagesV2DataSourceID(dataSourceName),
+					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "protected", "true"),
 					resource.TestCheckResourceAttr(dataSourceName, "visibility", "public"),
 					resource.TestCheckResourceAttr(dataSourceName, "status", "active"),
@@ -55,6 +54,7 @@ func TestAccImsImageDataSource_basic(t *testing.T) {
 func TestAccImsImageDataSource_testQueries(t *testing.T) {
 	var rName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	dataSourceName := "data.huaweicloud_images_image.test"
+	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -66,7 +66,7 @@ func TestAccImsImageDataSource_testQueries(t *testing.T) {
 			{
 				Config: testAccImsImageDataSource_queryName(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImagesV2DataSourceID(dataSourceName),
+					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "name", rName),
 					resource.TestCheckResourceAttr(dataSourceName, "protected", "false"),
 					resource.TestCheckResourceAttr(dataSourceName, "visibility", "private"),
@@ -76,26 +76,11 @@ func TestAccImsImageDataSource_testQueries(t *testing.T) {
 			{
 				Config: testAccImsImageDataSource_queryTag(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImagesV2DataSourceID(dataSourceName),
+					dc.CheckResourceExists(),
 				),
 			},
 		},
 	})
-}
-
-func testAccCheckImagesV2DataSourceID(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Can't find image data source: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("Image data source ID not set")
-		}
-
-		return nil
-	}
 }
 
 func testAccImsImageDataSource_publicName(imageName string) string {

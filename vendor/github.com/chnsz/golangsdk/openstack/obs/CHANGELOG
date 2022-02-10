@@ -1,3 +1,16 @@
+Version 3.21.12
+
+New Features:
+1. Added the `obs.WithTrafficLimitHeader` method to limit the bandwidth of a single connection.
+
+Documentation & Demo:
+1. Added descriptions about single-connection bandwidth throttling.
+2. Added descriptions about extended configurations of SDK APIs.
+
+Resolved Issues:
+1. Optimized some code.
+
+-----------------------------------------------------------------------------------
 Version 3.21.8
 
 New Features:
