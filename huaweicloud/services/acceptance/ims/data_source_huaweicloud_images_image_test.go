@@ -1,9 +1,10 @@
-package huaweicloud
+package ims
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -16,8 +17,8 @@ func TestAccImsImageDataSource_basic(t *testing.T) {
 	dataSourceName := "data.huaweicloud_images_image.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccImsImageDataSource_publicName(imageName),
@@ -56,8 +57,8 @@ func TestAccImsImageDataSource_testQueries(t *testing.T) {
 	dataSourceName := "data.huaweicloud_images_image.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccImsImageDataSource_base(rName),
