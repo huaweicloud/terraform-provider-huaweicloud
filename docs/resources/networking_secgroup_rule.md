@@ -20,8 +20,7 @@ resource "huaweicloud_networking_secgroup_rule" "secgroup_rule" {
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
-  port_range_min    = 8080
-  port_range_max    = 8080
+  ports             = "334,466-468,8000"
   remote_ip_prefix  = "0.0.0.0/0"
 }
 ```
@@ -50,11 +49,9 @@ The following arguments are supported:
   **icmp** and **icmpv6**. If omitted, the protocol means that all protocols are supported.
   This is required if you want to specify a port range. Changing this creates a new security group rule.
 
-* `port_range_min` - (Optional, Int, ForceNew) Specifies the lower part of the allowed port range, valid integer value
-  needs to be between 1 and 65535. Changing this creates a new security group rule.
-
-* `port_range_max` - (Optional, Int, ForceNew) Specifies the higher part of the allowed port range, valid integer value
-  needs to be between 1 and 65535. Changing this creates a new security group rule.
+* `ports` - (Optional, String, ForceNew) Specifies the allowed port value range, which supports single port (80),
+  continuous port (1-30) and discontinous port (22, 3389, 80) The valid port values is range form `1` to `65,535`.
+  Changing this creates a new security group rule.
 
 * `remote_ip_prefix` - (Optional, String, ForceNew) Specifies the remote CIDR, the value needs to be a valid CIDR (i.e.
   192.168.0.0/16). Changing this creates a new security group rule.

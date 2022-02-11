@@ -12,7 +12,7 @@ github.com/apparentlymart/go-cidr/cidr
 github.com/apparentlymart/go-textseg/textseg
 # github.com/apparentlymart/go-textseg/v13 v13.0.0
 github.com/apparentlymart/go-textseg/v13/textseg
-# github.com/chnsz/golangsdk v0.0.0-20220209065033-9c6e4ab42695
+# github.com/chnsz/golangsdk v0.0.0-20220211032246-40ea6636749f
 ## explicit
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/internal
@@ -29,6 +29,7 @@ github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/instances
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/responses
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/throttles
 github.com/chnsz/golangsdk/openstack/apigw/shared/v1/apis
+github.com/chnsz/golangsdk/openstack/apigw/shared/v1/environments
 github.com/chnsz/golangsdk/openstack/apigw/shared/v1/groups
 github.com/chnsz/golangsdk/openstack/autoscaling/v1/configurations
 github.com/chnsz/golangsdk/openstack/autoscaling/v1/groups
@@ -194,7 +195,6 @@ github.com/chnsz/golangsdk/openstack/mrs/v2/jobs
 github.com/chnsz/golangsdk/openstack/networking/v1/bandwidths
 github.com/chnsz/golangsdk/openstack/networking/v1/eips
 github.com/chnsz/golangsdk/openstack/networking/v1/routetables
-github.com/chnsz/golangsdk/openstack/networking/v1/security/securitygroups
 github.com/chnsz/golangsdk/openstack/networking/v1/subnets
 github.com/chnsz/golangsdk/openstack/networking/v1/vpcs
 github.com/chnsz/golangsdk/openstack/networking/v2/bandwidths
@@ -208,8 +208,6 @@ github.com/chnsz/golangsdk/openstack/networking/v2/extensions/layer3/floatingips
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/layer3/routers
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/natgateways
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/provider
-github.com/chnsz/golangsdk/openstack/networking/v2/extensions/security/groups
-github.com/chnsz/golangsdk/openstack/networking/v2/extensions/security/rules
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/vpnaas/endpointgroups
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/vpnaas/ikepolicies
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/vpnaas/ipsecpolicies
@@ -220,6 +218,8 @@ github.com/chnsz/golangsdk/openstack/networking/v2/peerings
 github.com/chnsz/golangsdk/openstack/networking/v2/ports
 github.com/chnsz/golangsdk/openstack/networking/v2/routes
 github.com/chnsz/golangsdk/openstack/networking/v2/subnets
+github.com/chnsz/golangsdk/openstack/networking/v3/security/groups
+github.com/chnsz/golangsdk/openstack/networking/v3/security/rules
 github.com/chnsz/golangsdk/openstack/obs
 github.com/chnsz/golangsdk/openstack/opengauss/v3/backups
 github.com/chnsz/golangsdk/openstack/opengauss/v3/instances
@@ -228,10 +228,6 @@ github.com/chnsz/golangsdk/openstack/rds/v3/configurations
 github.com/chnsz/golangsdk/openstack/rds/v3/flavors
 github.com/chnsz/golangsdk/openstack/rds/v3/instances
 github.com/chnsz/golangsdk/openstack/rds/v3/securities
-github.com/chnsz/golangsdk/openstack/rts/v1/softwareconfig
-github.com/chnsz/golangsdk/openstack/rts/v1/stackresources
-github.com/chnsz/golangsdk/openstack/rts/v1/stacks
-github.com/chnsz/golangsdk/openstack/rts/v1/stacktemplates
 github.com/chnsz/golangsdk/openstack/scm/v3/certificates
 github.com/chnsz/golangsdk/openstack/sfs/v2/shares
 github.com/chnsz/golangsdk/openstack/sfs_turbo/v1/shares
@@ -562,8 +558,5 @@ google.golang.org/protobuf/types/known/anypb
 google.golang.org/protobuf/types/known/durationpb
 google.golang.org/protobuf/types/known/emptypb
 google.golang.org/protobuf/types/known/timestamppb
-# gopkg.in/yaml.v2 v2.3.0
-## explicit
-gopkg.in/yaml.v2
 # gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 gopkg.in/yaml.v3

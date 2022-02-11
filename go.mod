@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	github.com/GehirnInc/crypt v0.0.0-20200316065508-bb7000b8a962
-	github.com/chnsz/golangsdk v0.0.0-20220209065033-9c6e4ab42695
+	github.com/chnsz/golangsdk v0.0.0-20220211032246-40ea6636749f
 	github.com/hashicorp/errwrap v1.1.0
 	github.com/hashicorp/go-cleanhttp v0.5.2
 	github.com/hashicorp/go-multierror v1.1.1
@@ -17,5 +17,4 @@ require (
 	github.com/smartystreets/goconvey v0.0.0-20190222223459-a17d461953aa // indirect
 	github.com/stretchr/testify v1.7.0
 	github.com/unknwon/com v1.0.1
-	gopkg.in/yaml.v2 v2.3.0
 )

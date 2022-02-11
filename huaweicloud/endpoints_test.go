@@ -770,6 +770,16 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "security group", "v1", t)
 
+	// test endpoint of secgroup v3
+	serviceClient, err = nil, nil
+	serviceClient, err = config.NetworkingV3Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud security group v3 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://vpc.%s.%s/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	compareURL(expectedURL, actualURL, "security group", "v3", t)
+
 	// test endpoint of elb v2.0
 	serviceClient, err = nil, nil
 	serviceClient, err = config.ElbV2Client(HW_REGION_NAME)
@@ -1085,18 +1095,6 @@ func TestAccServiceEndpoints_Others(t *testing.T) {
 		t.Fatalf("MAAS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
 	t.Logf("MAAS endpoint:\t %s", actualURL)
-
-	// test the endpoint of RTS service
-	serviceClient, err = config.OrchestrationV1Client(HW_REGION_NAME)
-	if err != nil {
-		t.Fatalf("Error creating HuaweiCloud RTS client: %s", err)
-	}
-	expectedURL = fmt.Sprintf("https://rts.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
-	actualURL = serviceClient.ResourceBaseURL()
-	if actualURL != expectedURL {
-		t.Fatalf("RTS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
-	}
-	t.Logf("RTS endpoint:\t %s", actualURL)
 
 	// test the endpoint of AOM service
 	serviceClient, err = config.AomV1Client(HW_REGION_NAME)

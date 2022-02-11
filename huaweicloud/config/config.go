@@ -859,6 +859,10 @@ func (c *Config) NetworkingV2Client(region string) (*golangsdk.ServiceClient, er
 	return c.NewServiceClient("networkv2", region)
 }
 
+func (c *Config) NetworkingV3Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("vpcv3", region)
+}
+
 func (c *Config) SecurityGroupV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("security_group", region)
 }
@@ -1068,10 +1072,6 @@ func (c *Config) BssV2Client(region string) (*golangsdk.ServiceClient, error) {
 
 func (c *Config) MaasV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("oms", region)
-}
-
-func (c *Config) OrchestrationV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("rts", region)
 }
 
 func (c *Config) MlsV1Client(region string) (*golangsdk.ServiceClient, error) {
