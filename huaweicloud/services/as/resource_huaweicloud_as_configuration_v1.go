@@ -354,7 +354,8 @@ func resourceASConfigurationDelete(d *schema.ResourceData, meta interface{}) err
 func getASGroupsByConfiguration(asClient *golangsdk.ServiceClient, configurationID string) ([]groups.Group, error) {
 	var gs []groups.Group
 	listOpts := groups.ListOpts{
-		ConfigurationID: configurationID,
+		ConfigurationID:     configurationID,
+		EnterpriseProjectID: "all_granted_eps",
 	}
 	page, err := groups.List(asClient, listOpts).AllPages()
 	if err != nil {

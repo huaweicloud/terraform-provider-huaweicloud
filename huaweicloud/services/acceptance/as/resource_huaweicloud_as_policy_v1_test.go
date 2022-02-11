@@ -157,7 +157,7 @@ resource "huaweicloud_as_policy" "acc_as_policy"{
     instance_number = 1
   }
   scheduled_policy {
-    launch_time = "2021-12-22T12:00Z"
+    launch_time = "2099-12-22T12:00Z"
   }
 }
 `, rName, rName, rName, rName, rName)
