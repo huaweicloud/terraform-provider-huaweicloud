@@ -31,23 +31,6 @@ func ValidateJsonString(v interface{}, k string) (ws []string, errors []error) {
 	return
 }
 
-func looksLikeJsonString(s interface{}) bool {
-	return regexp.MustCompile(`^\s*{`).MatchString(s.(string))
-}
-
-func ValidateStackTemplate(v interface{}, k string) (ws []string, errors []error) {
-	if looksLikeJsonString(v) {
-		if _, err := NormalizeJsonString(v); err != nil {
-			errors = append(errors, fmt.Errorf("%q contains an invalid JSON: %s", k, err))
-		}
-	} else {
-		if _, err := checkYamlString(v); err != nil {
-			errors = append(errors, fmt.Errorf("%q contains an invalid YAML: %s", k, err))
-		}
-	}
-	return
-}
-
 //lintignore:V001
 func ValidateName(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
