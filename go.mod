@@ -17,5 +17,4 @@ require (
 	github.com/smartystreets/goconvey v0.0.0-20190222223459-a17d461953aa // indirect
 	github.com/stretchr/testify v1.7.0
 	github.com/unknwon/com v1.0.1
-	gopkg.in/yaml.v2 v2.3.0
 )

@@ -1096,18 +1096,6 @@ func TestAccServiceEndpoints_Others(t *testing.T) {
 	}
 	t.Logf("MAAS endpoint:\t %s", actualURL)
 
-	// test the endpoint of RTS service
-	serviceClient, err = config.OrchestrationV1Client(HW_REGION_NAME)
-	if err != nil {
-		t.Fatalf("Error creating HuaweiCloud RTS client: %s", err)
-	}
-	expectedURL = fmt.Sprintf("https://rts.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
-	actualURL = serviceClient.ResourceBaseURL()
-	if actualURL != expectedURL {
-		t.Fatalf("RTS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
-	}
-	t.Logf("RTS endpoint:\t %s", actualURL)
-
 	// test the endpoint of AOM service
 	serviceClient, err = config.AomV1Client(HW_REGION_NAME)
 	if err != nil {

@@ -419,9 +419,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_availability_zones_v2": dataSourceComputeAvailabilityZonesV2(),
 			"huaweicloud_networking_network_v2":         dataSourceNetworkingNetworkV2(),
 			"huaweicloud_networking_subnet_v2":          dataSourceNetworkingSubnetV2(),
-			"huaweicloud_rts_stack_v1":                  dataSourceRTSStackV1(),
-			"huaweicloud_rts_stack_resource_v1":         dataSourceRTSStackResourcesV1(),
-			"huaweicloud_rts_software_config_v1":        dataSourceRtsSoftwareConfigV1(),
 			"huaweicloud_cts_tracker":                   deprecated.DataSourceCTSTrackerV1(),
 		},
 
@@ -709,8 +706,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_secgroup_v2":             ResourceComputeSecGroupV2(),
 			"huaweicloud_compute_floatingip_v2":           ResourceComputeFloatingIPV2(),
 			"huaweicloud_compute_floatingip_associate_v2": ResourceComputeFloatingIPAssociateV2(),
-			"huaweicloud_rts_stack_v1":                    resourceRTSStackV1(),
-			"huaweicloud_rts_software_config_v1":          resourceSoftwareConfigV1(),
 			"huaweicloud_cts_tracker":                     deprecated.ResourceCTSTrackerV1(),
 			"huaweicloud_images_image_v2":                 deprecated.ResourceImagesImageV2(),
 			"huaweicloud_dms_instance_v1":                 deprecated.ResourceDmsInstancesV1(),
