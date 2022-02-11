@@ -1,9 +1,10 @@
-package huaweicloud
+package as
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
@@ -20,9 +21,9 @@ func TestAccASV1Policy_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckASV1PolicyDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckASV1PolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testASV1Policy_basic(rName),
@@ -35,8 +36,8 @@ func TestAccASV1Policy_basic(t *testing.T) {
 }
 
 func testAccCheckASV1PolicyDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	asClient, err := config.AutoscalingV1Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	asClient, err := config.AutoscalingV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating huaweicloud autoscaling client: %s", err)
 	}
@@ -68,8 +69,8 @@ func testAccCheckASV1PolicyExists(n string, policy *policies.Policy) resource.Te
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		asClient, err := config.AutoscalingV1Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		asClient, err := config.AutoscalingV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating huaweicloud autoscaling client: %s", err)
 		}

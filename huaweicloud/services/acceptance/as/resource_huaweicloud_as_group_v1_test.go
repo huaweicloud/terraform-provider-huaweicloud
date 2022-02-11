@@ -1,9 +1,10 @@
-package huaweicloud
+package as
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
@@ -21,9 +22,9 @@ func TestAccASV1Group_basic(t *testing.T) {
 	resourceName := "huaweicloud_as_group.hth_as_group"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckASV1GroupDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckASV1GroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testASV1Group_basic(rName),
@@ -66,15 +67,15 @@ func TestAccASV1Group_withEpsId(t *testing.T) {
 	resourceName := "huaweicloud_as_group.hth_as_group"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckEpsID(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckASV1GroupDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckASV1GroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testASV1Group_withEpsId(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckASV1GroupExists(resourceName, &asGroup),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -82,8 +83,8 @@ func TestAccASV1Group_withEpsId(t *testing.T) {
 }
 
 func testAccCheckASV1GroupDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	asClient, err := config.AutoscalingV1Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	asClient, err := config.AutoscalingV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating huaweicloud autoscaling client: %s", err)
 	}
@@ -115,8 +116,8 @@ func testAccCheckASV1GroupExists(n string, group *groups.Group) resource.TestChe
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		asClient, err := config.AutoscalingV1Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		asClient, err := config.AutoscalingV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating huaweicloud autoscaling client: %s", err)
 		}
@@ -312,5 +313,5 @@ resource "huaweicloud_as_group" "hth_as_group"{
     key = "value"
   }
 }
-`, testASV1Group_Base(rName), rName, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testASV1Group_Base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
