@@ -1,13 +1,12 @@
-package huaweicloud
+package lb
 
 import (
 	"fmt"
 	"regexp"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -15,20 +14,38 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+func getL7RuleResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	c, err := conf.LoadBalancerClient(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating HuaweiCloud LB v2 client: %s", err)
+	}
+	resp, err := l7rules.GetRule(c, state.Primary.Attributes["l7policy_id"], state.Primary.ID).Extract()
+	if resp == nil && err == nil {
+		return resp, fmt.Errorf("Unable to find the l7rule (%s)", state.Primary.ID)
+	}
+	return resp, err
+}
+
 func TestAccLBV2L7Rule_basic(t *testing.T) {
 	var l7rule l7rules.Rule
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_lb_l7rule.l7rule_1"
 
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&l7rule,
+		getL7RuleResourceFunc,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBV2L7RuleDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckLBV2L7RuleConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV2L7RuleExists(resourceName, &l7rule),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "type", "PATH"),
 					resource.TestCheckResourceAttr(resourceName, "compare_type", "EQUAL_TO"),
 					resource.TestCheckResourceAttr(resourceName, "value", "/api"),
@@ -41,7 +58,7 @@ func TestAccLBV2L7Rule_basic(t *testing.T) {
 			{
 				Config: testAccCheckLBV2L7RuleConfig_update2(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV2L7RuleExists(resourceName, &l7rule),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "type", "PATH"),
 					resource.TestCheckResourceAttr(resourceName, "compare_type", "STARTS_WITH"),
 					resource.TestCheckResourceAttr(resourceName, "key", ""),
@@ -50,83 +67,6 @@ func TestAccLBV2L7Rule_basic(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckLBV2L7RuleDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	lbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud load balancing client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_lb_l7rule" {
-			continue
-		}
-
-		l7policyID := ""
-		for k, v := range rs.Primary.Attributes {
-			if k == "l7policy_id" {
-				l7policyID = v
-				break
-			}
-		}
-
-		if l7policyID == "" {
-			return fmtp.Errorf("Unable to find l7policy_id")
-		}
-
-		_, err := l7rules.GetRule(lbClient, l7policyID, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmtp.Errorf("L7 Rule still exists: %s", rs.Primary.ID)
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckLBV2L7RuleExists(n string, l7rule *l7rules.Rule) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*config.Config)
-		lbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud load balancing client: %s", err)
-		}
-
-		l7policyID := ""
-		for k, v := range rs.Primary.Attributes {
-			if k == "l7policy_id" {
-				l7policyID = v
-				break
-			}
-		}
-
-		if l7policyID == "" {
-			return fmtp.Errorf("Unable to find l7policy_id")
-		}
-
-		found, err := l7rules.GetRule(lbClient, l7policyID, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Policy not found")
-		}
-
-		*l7rule = *found
-
-		return nil
-	}
 }
 
 func testAccCheckLBV2L7RuleConfig(rName string) string {

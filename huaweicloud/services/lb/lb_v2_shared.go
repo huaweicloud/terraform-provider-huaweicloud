@@ -1,4 +1,4 @@
-package huaweicloud
+package lb
 
 import (
 	"context"

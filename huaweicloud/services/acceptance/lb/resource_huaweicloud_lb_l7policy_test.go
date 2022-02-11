@@ -1,13 +1,12 @@
-package huaweicloud
+package lb
 
 import (
 	"fmt"
 	"regexp"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -15,20 +14,38 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+func getL7PolicyResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	c, err := conf.LoadBalancerClient(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating HuaweiCloud LB v2 client: %s", err)
+	}
+	resp, err := l7policies.Get(c, state.Primary.ID).Extract()
+	if resp == nil && err == nil {
+		return resp, fmt.Errorf("Unable to find the l7policy (%s)", state.Primary.ID)
+	}
+	return resp, err
+}
+
 func TestAccLBV2L7Policy_basic(t *testing.T) {
 	var l7Policy l7policies.L7Policy
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_lb_l7policy.l7policy_1"
 
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&l7Policy,
+		getL7PolicyResourceFunc,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBV2L7PolicyDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckLBV2L7PolicyConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV2L7PolicyExists(resourceName, &l7Policy),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "test description"),
 					resource.TestCheckResourceAttr(resourceName, "action", "REDIRECT_TO_POOL"),
@@ -39,59 +56,6 @@ func TestAccLBV2L7Policy_basic(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckLBV2L7PolicyDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	lbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud load balancing client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_lb_l7policy" {
-			continue
-		}
-
-		_, err := l7policies.Get(lbClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmtp.Errorf("L7 Policy still exists: %s", rs.Primary.ID)
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckLBV2L7PolicyExists(n string, l7Policy *l7policies.L7Policy) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*config.Config)
-		lbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud load balancing client: %s", err)
-		}
-
-		found, err := l7policies.Get(lbClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Policy not found")
-		}
-
-		*l7Policy = *found
-
-		return nil
-	}
 }
 
 func testAccCheckLBV2L7PolicyConfig_basic(rName string) string {

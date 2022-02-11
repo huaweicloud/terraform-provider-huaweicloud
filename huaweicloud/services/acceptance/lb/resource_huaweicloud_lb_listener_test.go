@@ -1,33 +1,50 @@
-package huaweicloud
+package lb
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v2/listeners"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+func getL7ListenerResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	c, err := conf.LoadBalancerClient(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating HuaweiCloud LB v2 client: %s", err)
+	}
+	resp, err := listeners.Get(c, state.Primary.ID).Extract()
+	if resp == nil && err == nil {
+		return resp, fmt.Errorf("Unable to find the listener (%s)", state.Primary.ID)
+	}
+	return resp, err
+}
+
 func TestAccLBV2Listener_basic(t *testing.T) {
 	var listener listeners.Listener
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameUpdate := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
+	rNameUpdate := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_lb_listener.listener_1"
 
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&listener,
+		getL7ListenerResourceFunc,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLBV2ListenerDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLBV2ListenerConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV2ListenerExists(resourceName, &listener),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
@@ -44,59 +61,6 @@ func TestAccLBV2Listener_basic(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckLBV2ListenerDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	elbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_lb_listener" {
-			continue
-		}
-
-		_, err := listeners.Get(elbClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmtp.Errorf("Listener still exists: %s", rs.Primary.ID)
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckLBV2ListenerExists(n string, listener *listeners.Listener) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*config.Config)
-		elbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
-		}
-
-		found, err := listeners.Get(elbClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Member not found")
-		}
-
-		*listener = *found
-
-		return nil
-	}
 }
 
 func testAccLBV2ListenerConfig_basic(rName string) string {
