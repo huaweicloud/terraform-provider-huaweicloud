@@ -12,8 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v2/loadbalancers"
-	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/security/groups"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
+	"github.com/chnsz/golangsdk/openstack/networking/v3/security/groups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -76,7 +76,7 @@ func TestAccLBV2LoadBalancer_basic(t *testing.T) {
 
 func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
-	var sg_1, sg_2 groups.SecGroup
+	var sg_1, sg_2 groups.SecurityGroup
 	rName := acceptance.RandomAccResourceNameWithDash()
 	rNameSecg1 := acceptance.RandomAccResourceNameWithDash()
 	rNameSecg2 := acceptance.RandomAccResourceNameWithDash()
@@ -98,9 +98,9 @@ func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "security_group_ids.#", "1"),
-					testAccCheckNetworkingV2SecGroupExists(
+					testAccCheckNetworkingV3SecGroupExists(
 						"huaweicloud_networking_secgroup.secgroup_1", &sg_1),
-					testAccCheckNetworkingV2SecGroupExists(
+					testAccCheckNetworkingV3SecGroupExists(
 						"huaweicloud_networking_secgroup.secgroup_1", &sg_2),
 					testAccCheckLBV2LoadBalancerHasSecGroup(&lb, &sg_1),
 				),
@@ -110,9 +110,9 @@ func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "security_group_ids.#", "2"),
-					testAccCheckNetworkingV2SecGroupExists(
+					testAccCheckNetworkingV3SecGroupExists(
 						"huaweicloud_networking_secgroup.secgroup_2", &sg_1),
-					testAccCheckNetworkingV2SecGroupExists(
+					testAccCheckNetworkingV3SecGroupExists(
 						"huaweicloud_networking_secgroup.secgroup_2", &sg_2),
 					testAccCheckLBV2LoadBalancerHasSecGroup(&lb, &sg_1),
 					testAccCheckLBV2LoadBalancerHasSecGroup(&lb, &sg_2),
@@ -123,9 +123,9 @@ func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "security_group_ids.#", "1"),
-					testAccCheckNetworkingV2SecGroupExists(
+					testAccCheckNetworkingV3SecGroupExists(
 						"huaweicloud_networking_secgroup.secgroup_2", &sg_1),
-					testAccCheckNetworkingV2SecGroupExists(
+					testAccCheckNetworkingV3SecGroupExists(
 						"huaweicloud_networking_secgroup.secgroup_2", &sg_2),
 					testAccCheckLBV2LoadBalancerHasSecGroup(&lb, &sg_2),
 				),
@@ -173,7 +173,7 @@ func TestAccLBV2LoadBalancer_withEpsId(t *testing.T) {
 }
 
 func testAccCheckLBV2LoadBalancerHasSecGroup(
-	lb *loadbalancers.LoadBalancer, sg *groups.SecGroup) resource.TestCheckFunc {
+	lb *loadbalancers.LoadBalancer, sg *groups.SecurityGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
@@ -196,7 +196,7 @@ func testAccCheckLBV2LoadBalancerHasSecGroup(
 	}
 }
 
-func testAccCheckNetworkingV2SecGroupExists(n string, secGroup *groups.SecGroup) resource.TestCheckFunc {
+func testAccCheckNetworkingV3SecGroupExists(n string, secGroup *groups.SecurityGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -208,12 +208,12 @@ func testAccCheckNetworkingV2SecGroupExists(n string, secGroup *groups.SecGroup)
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
+		networkingClient, err := config.NetworkingV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
-		found, err := groups.Get(networkingClient, rs.Primary.ID).Extract()
+		found, err := groups.Get(networkingClient, rs.Primary.ID)
 		if err != nil {
 			return err
 		}

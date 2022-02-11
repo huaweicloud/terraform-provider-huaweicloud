@@ -22,8 +22,8 @@ import (
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/powers"
 	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/subnets"
-	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/security/groups"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
+	"github.com/chnsz/golangsdk/openstack/networking/v3/security/groups"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -467,7 +467,7 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 	if !hasFilledOpt(d, "block_device") && !hasFilledOpt(d, "metadata") {
 		ecsV11Client, err := config.ComputeV11Client(GetRegion(d, config))
 		vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
-		sgClient, err := config.NetworkingV2Client(GetRegion(d, config))
+		sgClient, err := config.NetworkingV3Client(GetRegion(d, config))
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud Client: %s", err)
 		}

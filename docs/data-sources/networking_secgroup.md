@@ -34,6 +34,10 @@ In addition to all arguments above, the following attributes are exported:
 * `rules` - The array of security group rules associating with the security group.
   The [rule object](#security_group_rule) is documented below.
 
+* `created_at` - The creation time, in UTC format.
+
+* `updated_at` - The last update time, in UTC format.
+
 <a name="security_group_rule"></a>
 The `rules` block supports:
 
@@ -42,7 +46,6 @@ The `rules` block supports:
 * `direction` - The direction of the rule. The value can be *egress* or *ingress*.
 * `ethertype` - The IP protocol version. The value can be *IPv4* or *IPv6*.
 * `protocol` - The protocol type.
-* `port_range_min` - The lower part of the allowed port range.
-* `port_range_max` - The higher part of the allowed port range.
+* `ports` - The port value range.
 * `remote_ip_prefix` - The remote IP address. The value can be in the CIDR format or IP addresses.
 * `remote_group_id` - The ID of the peer security group.

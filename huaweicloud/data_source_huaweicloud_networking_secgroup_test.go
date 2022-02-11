@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccNetworkingSecGroupV2DataSource_basic(t *testing.T) {
+func TestAccNetworkingSecGroupV3DataSource_basic(t *testing.T) {
 	var rName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "data.huaweicloud_networking_secgroup.secgroup_1"
 
@@ -18,12 +18,12 @@ func TestAccNetworkingSecGroupV2DataSource_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkingSecGroupV2DataSource_group(rName),
+				Config: testAccNetworkingSecGroupV3DataSource_group(rName),
 			},
 			{
-				Config: testAccNetworkingSecGroupV2DataSource_basic(rName),
+				Config: testAccNetworkingSecGroupV3DataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingSecGroupV2DataSourceID(resourceName),
+					testAccCheckNetworkingSecGroupV3DataSourceID(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttrSet(resourceName, "rules.#"),
 				),
@@ -32,7 +32,7 @@ func TestAccNetworkingSecGroupV2DataSource_basic(t *testing.T) {
 	})
 }
 
-func TestAccNetworkingSecGroupV2DataSource_byID(t *testing.T) {
+func TestAccNetworkingSecGroupV3DataSource_byID(t *testing.T) {
 	var rName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "data.huaweicloud_networking_secgroup.secgroup_1"
 
@@ -41,12 +41,12 @@ func TestAccNetworkingSecGroupV2DataSource_byID(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkingSecGroupV2DataSource_group(rName),
+				Config: testAccNetworkingSecGroupV3DataSource_group(rName),
 			},
 			{
-				Config: testAccNetworkingSecGroupV2DataSource_secGroupID(rName),
+				Config: testAccNetworkingSecGroupV3DataSource_secGroupID(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingSecGroupV2DataSourceID(resourceName),
+					testAccCheckNetworkingSecGroupV3DataSourceID(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttrSet(resourceName, "rules.#"),
 				),
@@ -55,7 +55,7 @@ func TestAccNetworkingSecGroupV2DataSource_byID(t *testing.T) {
 	})
 }
 
-func testAccCheckNetworkingSecGroupV2DataSourceID(n string) resource.TestCheckFunc {
+func testAccCheckNetworkingSecGroupV3DataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -70,7 +70,7 @@ func testAccCheckNetworkingSecGroupV2DataSourceID(n string) resource.TestCheckFu
 	}
 }
 
-func testAccNetworkingSecGroupV2DataSource_group(rName string) string {
+func testAccNetworkingSecGroupV3DataSource_group(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
   name        = "%s"
@@ -79,22 +79,22 @@ resource "huaweicloud_networking_secgroup" "secgroup_1" {
 `, rName)
 }
 
-func testAccNetworkingSecGroupV2DataSource_basic(rName string) string {
+func testAccNetworkingSecGroupV3DataSource_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_networking_secgroup" "secgroup_1" {
   name = huaweicloud_networking_secgroup.secgroup_1.name
 }
-`, testAccNetworkingSecGroupV2DataSource_group(rName))
+`, testAccNetworkingSecGroupV3DataSource_group(rName))
 }
 
-func testAccNetworkingSecGroupV2DataSource_secGroupID(rName string) string {
+func testAccNetworkingSecGroupV3DataSource_secGroupID(rName string) string {
 	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_networking_secgroup" "secgroup_1" {
   secgroup_id = huaweicloud_networking_secgroup.secgroup_1.id
 }
-`, testAccNetworkingSecGroupV2DataSource_group(rName))
+`, testAccNetworkingSecGroupV3DataSource_group(rName))
 }
