@@ -126,6 +126,48 @@ resource "huaweicloud_fgs_trigger" "test" {
 }
 ```
 
+### Create a Dedicated APIG trigger
+
+```hcl
+variable "function_urn" {}
+variable "instance_id" {}
+variable "group_id" {}
+variable "api_name" {}
+
+resource "huaweicloud_fgs_trigger" "test" {
+  function_urn = var.function_urn
+  type         = "DEDICATEDGATEWAY"
+  status       = "ACTIVE"
+
+  apig {
+    instance_id = var.instance_id
+    group_id    = var.group_id
+    api_name    = var.api_name
+    env_name    = "RELEASE"
+  }
+}
+```
+
+### Create a Shared APIG trigger
+
+```hcl
+variable "function_urn" {}
+variable "group_id" {}
+variable "api_name" {}
+
+resource "huaweicloud_fgs_trigger" "test" {
+  function_urn = var.function_urn
+  type         = "APIG"
+  status       = "ACTIVE"
+
+  apig {
+    group_id = var.group_id
+    api_name = var.api_name
+    env_name = "RELEASE"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -138,8 +180,8 @@ The following arguments are supported:
   Changing this will create a new trigger resource.
 
 * `type` - (Required, String, ForceNew) Specifies the type of the function.
-  The valid values currently only support **TIMER**, **OBS**, **SMN**, **DIS** and **KAFKA**.
-  Changing this will create a new trigger resource.
+  The valid values currently only support **TIMER**, **OBS**, **SMN**, **DIS**, **KAFKA**, **APIG** and
+  **DEDICATEDGATEWAY**. Changing this will create a new trigger resource.
 
 * `status` - (Optional, String) Specifies whether trigger is enabled. The valid values are **ACTIVE** and **DISABLED**.
   About DMS kafka trigger, the default value is **ACTIVE**.
@@ -171,6 +213,10 @@ The following arguments are supported:
 
   -> **NOTE:** VPC access must be enabled for the function before you create a Kafka trigger.
   The port `9092` must be opened for security group ingress rules.
+
+* `apig` - (Optional, List, ForceNew) Specifies the configuration of the shared APIG and dedicated APIG trigger.
+  Changing this will create a new trigger resource.
+  The [object](#fgs_trigger_apig) structure is documented below.
 
 <a name="fgs_trigger_timer"></a>
 The `timer` block supports:
@@ -260,6 +306,29 @@ The `kafka` block supports:
 * `batch_size` - (Required, Int, ForceNew) Specifies the The number of messages consumed from the topic each time.
   The valid value is range from `1` to `1,000`.
   Changing this will create a new trigger resource.
+
+<a name="fgs_trigger_apig"></a>
+The `apig` block supports:
+
+* `group_id` - (Required, String, ForceNew) Specifies the ID of the APIG group to which the API belongs.
+  Changing this will create a new trigger resource.
+
+* `env_name` - (Required, String, ForceNew) Specifies the API environment name.
+  Changing this will create a new trigger resource.
+
+* `api_name` - (Required, String, ForceNew) Specifies the API name. Changing this will create a new trigger resource.
+
+* `instance_id` - (Optional, String, ForceNew) Specifies the ID of the APIG dedicated instance to which the API belongs.
+  Required if the `type` is `DEDICATEDGATEWAY`. Changing this will create a new trigger resource.
+
+* `security_authentication` - (Optional, String, ForceNew) Specifies the security authentication mode. The valid values
+  are **NONE**, **APP** and **IAM**, default to **IAM**. Changing this will create a new trigger resource.
+
+* `request_protocol` - (Optional, String, ForceNew) Specifies the request protocol of the API. The valid value are
+  **HTTP** and **HTTPS**. Default to **HTTPS**. Changing this will create a new trigger resource.
+
+* `timeout` - (Optional, Int, ForceNew) Specifies the timeout for request sending. The valid value is range form
+  `1` to `60,000`, default to `5,000`. Changing this will create a new trigger resource.
 
 ## Attributes Reference
 
