@@ -653,16 +653,6 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "blockStorage", "v2.1", t)
 
-	// test for blockStorageV3Client
-	serviceClient, err = nil, nil
-	serviceClient, err = config.BlockStorageV3Client(HW_REGION_NAME)
-	if err != nil {
-		t.Fatalf("Error creating HuaweiCloud blockStorage v3 client: %s", err)
-	}
-	expectedURL = fmt.Sprintf("https://evs.%s.%s/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
-	actualURL = serviceClient.ResourceBaseURL()
-	compareURL(expectedURL, actualURL, "blockStorage", "v3", t)
-
 	// test for cbrV3Client
 	serviceClient, err = nil, nil
 	serviceClient, err = config.CbrV3Client(HW_REGION_NAME)
