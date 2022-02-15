@@ -1,15 +1,19 @@
-package huaweicloud
+package ims
 
 import (
+	"context"
 	"regexp"
 	"sort"
 	"strconv"
 	"time"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -24,7 +28,7 @@ var imageValidVisibilities = []string{
 
 func DataSourceImagesImageV2() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceImagesImageV2Read,
+		ReadContext: dataSourceImagesImageV2Read,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -102,6 +106,10 @@ func DataSourceImagesImageV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 
 			// Deprecated values
 			"size_min": {
@@ -174,11 +182,11 @@ func DataSourceImagesImageV2() *schema.Resource {
 }
 
 // dataSourceImagesImageV2Read performs the image lookup.
-func dataSourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error {
+func dataSourceImagesImageV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	imageClient, err := config.ImageV2Client(GetRegion(d, config))
+	imageClient, err := config.ImageV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
 	visibility := d.Get("visibility").(string)
@@ -200,21 +208,27 @@ func dataSourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error
 		Status:         "active",
 	}
 
+	if epsId := common.GetEnterpriseProjectID(d, config); epsId != "" {
+		listOpts.EnterpriseProjectID = epsId
+	} else {
+		listOpts.EnterpriseProjectID = "all_granted_eps"
+	}
+
 	logp.Printf("[DEBUG] List Options: %#v", listOpts)
 
 	var image cloudimages.Image
 	allPages, err := cloudimages.List(imageClient, listOpts).AllPages()
 	if err != nil {
-		return fmtp.Errorf("Unable to query images: %s", err)
+		return fmtp.DiagErrorf("Unable to query images: %s", err)
 	}
 
 	allImages, err := cloudimages.ExtractImages(allPages)
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve images: %s", err)
+		return fmtp.DiagErrorf("Unable to retrieve images: %s", err)
 	}
 
 	if len(allImages) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
+		return fmtp.DiagErrorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
@@ -223,7 +237,7 @@ func dataSourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error
 	if nameRegex, ok := d.GetOk("name_regex"); ok {
 		r, err := regexp.Compile(nameRegex.(string))
 		if err != nil {
-			return fmtp.Errorf("name_regex format error: %s", err)
+			return fmtp.DiagErrorf("name_regex format error: %s", err)
 		}
 
 		for _, image := range allImages {
@@ -236,7 +250,7 @@ func dataSourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if len(filteredImages) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
+		return fmtp.DiagErrorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
@@ -246,7 +260,7 @@ func dataSourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error
 		if recent {
 			image = mostRecentImage(filteredImages)
 		} else {
-			return fmtp.Errorf("Your query returned more than one result. Please try a more " +
+			return fmtp.DiagErrorf("Your query returned more than one result. Please try a more " +
 				"specific search criteria, or set `most_recent` attribute to true.")
 		}
 	} else {
@@ -254,34 +268,41 @@ func dataSourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error
 	}
 
 	logp.Printf("[DEBUG] Single Image found: %s", image.ID)
-	return dataSourceImagesImageV2Attributes(d, &image)
+	return dataSourceImagesImageV2Attributes(ctx, d, &image)
 }
 
 // dataSourceImagesImageV2Attributes populates the fields of an Image resource.
-func dataSourceImagesImageV2Attributes(d *schema.ResourceData, image *cloudimages.Image) error {
+func dataSourceImagesImageV2Attributes(_ context.Context, d *schema.ResourceData, image *cloudimages.Image) diag.Diagnostics {
 	logp.Printf("[DEBUG] huaweicloud_images_image details: %#v", image)
-
 	d.SetId(image.ID)
-	d.Set("name", image.Name)
-	d.Set("container_format", image.ContainerFormat)
-	d.Set("disk_format", image.DiskFormat)
-	d.Set("min_disk_gb", image.MinDisk)
-	d.Set("min_ram_mb", image.MinRam)
-	d.Set("owner", image.Owner)
-	d.Set("protected", image.Protected)
-	d.Set("visibility", image.Visibility)
-	d.Set("image_type", image.VirtualEnvType)
-	d.Set("os", image.Platform)
-	d.Set("os_version", image.OsVersion)
-	d.Set("checksum", image.Checksum)
-	d.Set("file", image.File)
-	d.Set("schema", image.Schema)
-	d.Set("status", image.Status)
-	d.Set("created_at", image.CreatedAt.Format(time.RFC3339))
-	d.Set("updated_at", image.UpdatedAt.Format(time.RFC3339))
+
+	mErr := multierror.Append(
+		d.Set("name", image.Name),
+		d.Set("container_format", image.ContainerFormat),
+		d.Set("disk_format", image.DiskFormat),
+		d.Set("min_disk_gb", image.MinDisk),
+		d.Set("min_ram_mb", image.MinRam),
+		d.Set("owner", image.Owner),
+		d.Set("protected", image.Protected),
+		d.Set("visibility", image.Visibility),
+		d.Set("image_type", image.VirtualEnvType),
+		d.Set("os", image.Platform),
+		d.Set("os_version", image.OsVersion),
+		d.Set("checksum", image.Checksum),
+		d.Set("file", image.File),
+		d.Set("schema", image.Schema),
+		d.Set("enterprise_project_id", image.EnterpriseProjectID),
+		d.Set("status", image.Status),
+		d.Set("created_at", image.CreatedAt.Format(time.RFC3339)),
+		d.Set("updated_at", image.UpdatedAt.Format(time.RFC3339)),
+	)
 
 	if size, err := strconv.Atoi(image.ImageSize); err == nil {
-		d.Set("size_bytes", size)
+		mErr = multierror.Append(mErr, d.Set("size_bytes", size))
+	}
+
+	if err := mErr.ErrorOrNil(); err != nil {
+		return fmtp.DiagErrorf("Error setting IMS image fields: %s", err)
 	}
 
 	return nil

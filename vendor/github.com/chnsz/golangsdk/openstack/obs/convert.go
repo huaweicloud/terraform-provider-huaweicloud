@@ -432,6 +432,53 @@ func ConvertEncryptionConfigurationToXml(input BucketEncryptionConfiguration, re
 	return
 }
 
+// convertReplicationConfigurationToXml converts BucketReplicationConfiguration value to XML data and returns it
+func convertReplicationConfigurationToXml(input BucketReplicationConfiguration, returnMd5 bool, isObs bool) (data string, md5 string) {
+	xml := make([]string, 0, 3+len(input.ReplicationRules)*6)
+
+	xml = append(xml, "<ReplicationConfiguration>")
+	xml = append(xml, fmt.Sprintf("<Agency>%s</Agency>", XmlTranscoding(input.Agency)))
+
+	for _, rule := range input.ReplicationRules {
+		xml = append(xml, "<Rule>")
+		xml = append(xml, fmt.Sprintf("<Status>%s</Status>", rule.Status))
+		xml = append(xml, fmt.Sprintf("<Prefix>%s</Prefix>", XmlTranscoding(rule.Prefix)))
+
+		xml = append(xml, fmt.Sprintf("<Destination><Bucket>%s</Bucket>", XmlTranscoding(rule.DestinationBucket)))
+		if rule.StorageClass != "" {
+			storageClass := string(rule.StorageClass)
+			if !isObs {
+				if storageClass == string(StorageClassWarm) {
+					storageClass = string(storageClassStandardIA)
+				} else if storageClass == string(StorageClassCold) {
+					storageClass = string(storageClassGlacier)
+				}
+			}
+			xml = append(xml, fmt.Sprintf("<StorageClass>%s</StorageClass>", storageClass))
+		}
+		if rule.DeleteDate != "" {
+			xml = append(xml, fmt.Sprintf("<DeleteDate>%s</DeleteDate>", rule.DeleteDate))
+		}
+		xml = append(xml, "</Destination>")
+
+		if rule.ID != "" {
+			xml = append(xml, fmt.Sprintf("<ID>%s</ID>", XmlTranscoding(rule.ID)))
+		}
+
+		if rule.HistoricalObjectReplication != "" {
+			xml = append(xml, fmt.Sprintf("<HistoricalObjectReplication>%s</HistoricalObjectReplication>",
+				rule.HistoricalObjectReplication))
+		}
+		xml = append(xml, "</Rule>")
+	}
+	xml = append(xml, "</ReplicationConfiguration>")
+	data = strings.Join(xml, "")
+	if returnMd5 {
+		md5 = Base64Md5([]byte(data))
+	}
+	return
+}
+
 func converntFilterRulesToXML(filterRules []FilterRule, isObs bool) string {
 	if length := len(filterRules); length > 0 {
 		xml := make([]string, 0, length*4)

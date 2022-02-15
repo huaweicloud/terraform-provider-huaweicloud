@@ -32,6 +32,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/fgs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/gaussdb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mrs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/obs"
@@ -342,7 +343,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_iec_sites":                            dataSourceIecSites(),
 			"huaweicloud_iec_vpc":                              DataSourceIECVpc(),
 			"huaweicloud_iec_vpc_subnets":                      DataSourceIECVpcSubnets(),
-			"huaweicloud_images_image":                         DataSourceImagesImageV2(),
+			"huaweicloud_images_image":                         ims.DataSourceImagesImageV2(),
 			"huaweicloud_kms_key":                              DataSourceKmsKeyV1(),
 			"huaweicloud_kms_data_key":                         DataSourceKmsDataKeyV1(),
 			"huaweicloud_lb_loadbalancer":                      lb.DataSourceELBV2Loadbalancer(),
@@ -379,7 +380,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dws_flavors":                          dws.DataSourceDwsFlavlors(),
 
 			// Legacy
-			"huaweicloud_images_image_v2":           DataSourceImagesImageV2(),
+			"huaweicloud_images_image_v2":           ims.DataSourceImagesImageV2(),
 			"huaweicloud_networking_port_v2":        DataSourceNetworkingPortV2(),
 			"huaweicloud_networking_secgroup_v2":    DataSourceNetworkingSecGroup(),
 			"huaweicloud_kms_key_v1":                DataSourceKmsKeyV1(),

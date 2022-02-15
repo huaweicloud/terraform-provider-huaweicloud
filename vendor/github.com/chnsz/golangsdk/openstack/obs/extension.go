@@ -14,6 +14,7 @@ package obs
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -33,4 +34,8 @@ func setHeaderPrefix(key string, value string) extensionHeaders {
 // WithReqPaymentHeader sets header for requester-pays
 func WithReqPaymentHeader(requester PayerType) extensionHeaders {
 	return setHeaderPrefix(REQUEST_PAYER, string(requester))
+}
+
+func WithTrafficLimitHeader(trafficLimit int64) extensionHeaders {
+	return setHeaderPrefix(TRAFFIC_LIMIT, strconv.FormatInt(trafficLimit, 10))
 }
