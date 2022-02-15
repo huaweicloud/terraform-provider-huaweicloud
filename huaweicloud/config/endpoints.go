@@ -93,6 +93,13 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 	},
 
+	"rms": {
+		Name:             "rms",
+		Version:          "v1",
+		Scope:            "global",
+		WithOutProjectID: true,
+	},
+
 	// ******* catalog for Compute *******
 	"ecs": {
 		Name:    "ecs",

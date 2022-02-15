@@ -768,6 +768,10 @@ func (c *Config) EnterpriseProjectClient(region string) (*golangsdk.ServiceClien
 	return c.NewServiceClient("eps", region)
 }
 
+func (c *Config) RmsV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("rms", region)
+}
+
 // ********** client for Compute **********
 func (c *Config) ComputeV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("ecs", region)
