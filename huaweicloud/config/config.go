@@ -733,6 +733,20 @@ func (c *Config) GetEnterpriseProjectID(d *schema.ResourceData) string {
 	return c.EnterpriseProjectID
 }
 
+// DataGetEnterpriseProjectID returns the enterprise_project_id that was specified in the data source.
+// If it was not set, the provider-level value is checked. The provider-level value can
+// either be set by the `enterprise_project_id` argument or by HW_ENTERPRISE_PROJECT_ID.
+// If the provider-level value is also not set, `all_granted_eps` will be returned.
+func (c *Config) DataGetEnterpriseProjectID(d *schema.ResourceData) string {
+	if v, ok := d.GetOk("enterprise_project_id"); ok {
+		return v.(string)
+	}
+	if c.EnterpriseProjectID != "" {
+		return c.EnterpriseProjectID
+	}
+	return "all_granted_eps"
+}
+
 // ********** client for Global Service **********
 func (c *Config) IAMV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("iam", region)

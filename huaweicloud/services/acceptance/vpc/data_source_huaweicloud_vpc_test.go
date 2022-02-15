@@ -102,6 +102,10 @@ func testAccDataSourceVpc_basic(rName, cidr string) string {
 
 data "huaweicloud_vpc" "test" {
   id = huaweicloud_vpc.test.id
+
+  depends_on = [
+	huaweicloud_vpc.test
+  ]
 }
 `, testAccDataSourceVpc_base(rName, cidr))
 }
@@ -112,6 +116,10 @@ func testAccDataSourceVpc_byCidr(rName, cidr string) string {
 
 data "huaweicloud_vpc" "test" {
   cidr = huaweicloud_vpc.test.cidr
+
+  depends_on = [
+	huaweicloud_vpc.test
+  ]
 }
 `, testAccDataSourceVpc_base(rName, cidr))
 }
@@ -122,6 +130,10 @@ func testAccDataSourceVpc_byName(rName, cidr string) string {
 
 data "huaweicloud_vpc" "test" {
   name = huaweicloud_vpc.test.name
+
+  depends_on = [
+	huaweicloud_vpc.test
+  ]
 }
 `, testAccDataSourceVpc_base(rName, cidr))
 }

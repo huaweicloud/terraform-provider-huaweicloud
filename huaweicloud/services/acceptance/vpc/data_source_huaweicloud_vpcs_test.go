@@ -87,6 +87,10 @@ func testAccDataSourceVpcs_byCidr(rName, cidr string) string {
 
 data "huaweicloud_vpcs" "test" {
   cidr = huaweicloud_vpc.test.cidr
+
+  depends_on = [
+    huaweicloud_vpc.test
+  ]
 }
 `, testAccDataSourceVpcs_base(rName, cidr))
 }
@@ -125,6 +129,10 @@ func testAccDataSourceVpcs_byName(rName, cidr string) string {
 
 data "huaweicloud_vpcs" "test" {
   name = huaweicloud_vpc.test.name
+
+  depends_on = [
+    huaweicloud_vpc.test
+  ]
 }
 `, testAccDataSourceVpcs_base(rName, cidr))
 }
@@ -169,6 +177,10 @@ data "huaweicloud_vpcs" "test" {
   cidr                  = huaweicloud_vpc.test.cidr
   enterprise_project_id = "%s"
   status                = "OK"
+
+  depends_on = [
+    huaweicloud_vpc.test
+  ]
 }
 `, testAccDataSourceVpcs_base(rName, cidr), enterpriseProjectID)
 }

@@ -81,15 +81,11 @@ func dataSourceVpcV1Read(_ context.Context, d *schema.ResourceData, meta interfa
 	}
 
 	listOpts := vpcs.ListOpts{
-		ID:     d.Get("id").(string),
-		Name:   d.Get("name").(string),
-		Status: d.Get("status").(string),
-		CIDR:   d.Get("cidr").(string),
-	}
-
-	epsID := config.GetEnterpriseProjectID(d)
-	if epsID != "" {
-		listOpts.EnterpriseProjectID = epsID
+		ID:                  d.Get("id").(string),
+		Name:                d.Get("name").(string),
+		Status:              d.Get("status").(string),
+		CIDR:                d.Get("cidr").(string),
+		EnterpriseProjectID: config.DataGetEnterpriseProjectID(d),
 	}
 
 	refinedVpcs, err := vpcs.List(vpcClient, listOpts)

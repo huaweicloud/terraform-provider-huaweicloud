@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/common/structs"
 	"github.com/chnsz/golangsdk/pagination"
 )
 
@@ -17,10 +16,35 @@ type CreateOptsBuilder interface {
 // CreateOpts contains options for creating a Volume. This object is passed to
 // the cloudvolumes.Create function.
 type CreateOpts struct {
-	Volume     VolumeOpts          `json:"volume" required:"true"`
-	ChargeInfo *structs.ChargeInfo `json:"bssParam,omitempty"`
-	Scheduler  *SchedulerOpts      `json:"OS-SCH-HNT:scheduler_hints,omitempty"`
-	ServerID   string              `json:"server_id,omitempty"`
+	Volume     VolumeOpts     `json:"volume" required:"true"`
+	ChargeInfo *BssParam      `json:"bssParam,omitempty"`
+	Scheduler  *SchedulerOpts `json:"OS-SCH-HNT:scheduler_hints,omitempty"`
+	ServerID   string         `json:"server_id,omitempty"`
+}
+
+type BssParam struct {
+	// Specifies the billing mode. The default value is postPaid.
+	//   prePaid: indicates the yearly/monthly billing mode.
+	//   postPaid: indicates the pay-per-use billing mode.
+	ChargingMode string `json:"chargingMode" required:"true"`
+	// Specifies the unit of the subscription term.
+	// This parameter is valid and mandatory only when chargingMode is set to prePaid.
+	//   month: indicates that the unit is month.
+	//   year: indicates that the unit is year.
+	PeriodType string `json:"periodType,omitempty"`
+	// Specifies the subscription term. This parameter is valid and mandatory only when chargingMode is set to prePaid.
+	//   When periodType is set to month, the parameter value ranges from 1 to 9.
+	//   When periodType is set to year, the parameter value must be set to 1.
+	PeriodNum int `json:"periodNum,omitempty"`
+	// Specifies whether to pay immediately. This parameter is valid only when chargingMode is set to prePaid. The default value is false.
+	//   false: indicates not to pay immediately after an order is created.
+	//   true: indicates to pay immediately after an order is created. The system will automatically deduct fees from the account balance.
+	IsAutoPay string `json:"isAutoPay,omitempty"`
+	// Specifies whether to automatically renew the subscription.
+	// This parameter is valid only when chargingMode is set to prePaid. The default value is false.
+	//   false: indicates not to automatically renew the subscription.
+	//   true: indicates to automatically renew the subscription. The automatic renewal term is the same as the subscription term.
+	IsAutoRenew string `json:"isAutoRenew,omitempty"`
 }
 
 // VolumeOpts contains options for creating a Volume.
@@ -285,6 +309,8 @@ func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) pagination.Page
 	}
 
 	return pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
-		return VolumePage{pagination.LinkedPageBase{PageResult: r}}
+		p := VolumePage{pagination.MarkerPageBase{PageResult: r}}
+		p.MarkerPageBase.Owner = p
+		return p
 	})
 }

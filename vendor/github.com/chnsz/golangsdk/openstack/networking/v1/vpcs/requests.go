@@ -25,10 +25,19 @@ type ListOpts struct {
 	CIDR string `json:"cidr"`
 
 	// Enterprise project ID.
-	EnterpriseProjectID string `json:"enterprise_project_id"`
+	EnterpriseProjectID string `q:"enterprise_project_id"`
 
 	// Status indicates whether or not a vpc is currently operational.
 	Status string `json:"status"`
+}
+
+// ToVpcListQuery formats a ListOpts into a query string
+func (opts ListOpts) ToVpcListQuery() (string, error) {
+	q, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return "", err
+	}
+	return q.String(), nil
 }
 
 // List returns collection of
@@ -38,8 +47,15 @@ type ListOpts struct {
 // Default policy settings return only those vpcs that are owned by the
 // tenant who submits the request, unless an admin user submits the request.
 func List(c *golangsdk.ServiceClient, opts ListOpts) ([]Vpc, error) {
-	u := rootURL(c)
-	pages, err := pagination.NewPager(c, u, func(r pagination.PageResult) pagination.Page {
+	url := rootURL(c)
+	if opts.EnterpriseProjectID != "" {
+		query, err := opts.ToVpcListQuery()
+		if err != nil {
+			return nil, err
+		}
+		url += query
+	}
+	pages, err := pagination.NewPager(c, url, func(r pagination.PageResult) pagination.Page {
 		return VpcPage{pagination.LinkedPageBase{PageResult: r}}
 	}).AllPages()
 	if err != nil {
@@ -65,9 +81,6 @@ func FilterVPCs(vpcs []Vpc, opts ListOpts) ([]Vpc, error) {
 	}
 	if opts.Name != "" {
 		m["Name"] = opts.Name
-	}
-	if opts.EnterpriseProjectID != "" {
-		m["EnterpriseProjectID"] = opts.EnterpriseProjectID
 	}
 	if opts.Status != "" {
 		m["Status"] = opts.Status
