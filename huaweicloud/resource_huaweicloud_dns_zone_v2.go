@@ -324,35 +324,41 @@ func resourceDNSZoneV2Update(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	var updateOpts zones.UpdateOpts
-	if d.HasChange("email") {
-		updateOpts.Email = d.Get("email").(string)
-	}
-	if d.HasChange("ttl") {
-		updateOpts.TTL = d.Get("ttl").(int)
-	}
-	if d.HasChange("description") {
-		updateOpts.Description = d.Get("description").(string)
-	}
+	if d.HasChanges("description", "ttl", "email") {
+		var updateOpts zones.UpdateOpts
+		if d.HasChange("email") {
+			updateOpts.Email = d.Get("email").(string)
+		}
+		if d.HasChange("ttl") {
+			updateOpts.TTL = d.Get("ttl").(int)
+		}
+		if d.HasChange("description") {
+			updateOpts.Description = d.Get("description").(string)
+		}
 
-	logp.Printf("[DEBUG] Updating Zone %s with options: %#v", d.Id(), updateOpts)
+		logp.Printf("[DEBUG] Updating Zone %s with options: %#v", d.Id(), updateOpts)
+		_, err = zones.Update(dnsClient, d.Id(), updateOpts).Extract()
+		if err != nil {
+			return fmtp.Errorf("Error updating HuaweiCloud DNS Zone: %s", err)
+		}
 
-	_, err = zones.Update(dnsClient, d.Id(), updateOpts).Extract()
-	if err != nil {
-		return fmtp.Errorf("Error updating HuaweiCloud DNS Zone: %s", err)
+		logp.Printf("[DEBUG] Waiting for DNS Zone (%s) to update", d.Id())
+		stateConf := &resource.StateChangeConf{
+			Target:     []string{"ACTIVE"},
+			Pending:    []string{"PENDING"},
+			Refresh:    waitForDNSZone(dnsClient, d.Id()),
+			Timeout:    d.Timeout(schema.TimeoutUpdate),
+			Delay:      5 * time.Second,
+			MinTimeout: 3 * time.Second,
+		}
+
+		_, err = stateConf.WaitForState()
+		if err != nil {
+			return fmtp.Errorf(
+				"Error waiting for DNS Zone (%s) to become ACTIVE for update: %s",
+				d.Id(), err)
+		}
 	}
-
-	logp.Printf("[DEBUG] Waiting for DNS Zone (%s) to update", d.Id())
-	stateConf := &resource.StateChangeConf{
-		Target:     []string{"ACTIVE"},
-		Pending:    []string{"PENDING"},
-		Refresh:    waitForDNSZone(dnsClient, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutUpdate),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
-	}
-
-	_, err = stateConf.WaitForState()
 
 	if d.HasChange("router") {
 		// when updating private zone
