@@ -248,8 +248,8 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "mysql/v3",
 	},
 	"opengauss": {
-		Name:    "gaussdb",
-		Version: "opengauss/v3",
+		Name:    "gaussdb-opengauss",
+		Version: "v3",
 	},
 
 	// catalog for management service
