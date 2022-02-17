@@ -297,24 +297,26 @@ func resourceVPCEndpointServiceUpdate(d *schema.ResourceData, meta interface{}) 
 		return fmtp.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
 	}
 
-	updateOpts := services.UpdateOpts{
-		ServiceName: d.Get("name").(string),
-	}
+	if d.HasChanges("name", "approval", "port_id", "port_mapping") {
+		updateOpts := services.UpdateOpts{
+			ServiceName: d.Get("name").(string),
+		}
 
-	if d.HasChange("approval") {
-		approval := d.Get("approval").(bool)
-		updateOpts.Approval = &approval
-	}
-	if d.HasChange("port_id") {
-		updateOpts.PortID = d.Get("port_id").(string)
-	}
-	if d.HasChange("port_mapping") {
-		updateOpts.Ports = expandPortMappingOpts(d)
-	}
+		if d.HasChange("approval") {
+			approval := d.Get("approval").(bool)
+			updateOpts.Approval = &approval
+		}
+		if d.HasChange("port_id") {
+			updateOpts.PortID = d.Get("port_id").(string)
+		}
+		if d.HasChange("port_mapping") {
+			updateOpts.Ports = expandPortMappingOpts(d)
+		}
 
-	_, err = services.Update(vpcepClient, d.Id(), updateOpts).Extract()
-	if err != nil {
-		return fmtp.Errorf("Error updating Huaweicloud VPC endpoint service: %s", err)
+		_, err = services.Update(vpcepClient, d.Id(), updateOpts).Extract()
+		if err != nil {
+			return fmtp.Errorf("Error updating Huaweicloud VPC endpoint service: %s", err)
+		}
 	}
 
 	//update tags

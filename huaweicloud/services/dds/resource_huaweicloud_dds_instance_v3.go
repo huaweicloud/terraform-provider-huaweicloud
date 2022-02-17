@@ -531,25 +531,27 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 		opts = append(opts, opt)
 	}
 
-	r := instances.Update(client, d.Id(), opts)
-	if r.Err != nil {
-		return fmtp.DiagErrorf("Error updating instance from result: %s ", r.Err)
-	}
+	if len(opts) > 0 {
+		r := instances.Update(client, d.Id(), opts)
+		if r.Err != nil {
+			return fmtp.DiagErrorf("Error updating instance from result: %s ", r.Err)
+		}
 
-	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"updating"},
-		Target:     []string{"normal"},
-		Refresh:    DdsInstanceStateRefreshFunc(client, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutUpdate),
-		Delay:      15 * time.Second,
-		MinTimeout: 10 * time.Second,
-	}
+		stateConf := &resource.StateChangeConf{
+			Pending:    []string{"updating"},
+			Target:     []string{"normal"},
+			Refresh:    DdsInstanceStateRefreshFunc(client, d.Id()),
+			Timeout:    d.Timeout(schema.TimeoutUpdate),
+			Delay:      15 * time.Second,
+			MinTimeout: 10 * time.Second,
+		}
 
-	_, err = stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return fmtp.DiagErrorf(
-			"Error waiting for instance (%s) to become ready: %s ",
-			d.Id(), err)
+		_, err = stateConf.WaitForStateContext(ctx)
+		if err != nil {
+			return fmtp.DiagErrorf(
+				"Error waiting for instance (%s) to become ready: %s ",
+				d.Id(), err)
+		}
 	}
 
 	if d.HasChange("tags") {
