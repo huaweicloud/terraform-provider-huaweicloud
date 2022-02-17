@@ -3,6 +3,7 @@ package vpc
 import (
 	"context"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/vpcs"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -108,7 +109,7 @@ func dataSourceVpcsRead(_ context.Context, d *schema.ResourceData, meta interfac
 		Name:                d.Get("name").(string),
 		Status:              d.Get("status").(string),
 		CIDR:                d.Get("cidr").(string),
-		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
+		EnterpriseProjectID: config.DataGetEnterpriseProjectID(d),
 	}
 
 	vpcList, err := vpcs.List(client, listOpts)
@@ -139,7 +140,12 @@ func dataSourceVpcsRead(_ context.Context, d *schema.ResourceData, meta interfac
 			}
 			vpc["tags"] = tagmap
 		} else {
-			return fmtp.DiagErrorf("Error query tags of VPC (%s): %s", d.Id(), err)
+			// The tags api does not support eps authorization, so don't return 403 to avoid error
+			if _, ok := err.(golangsdk.ErrDefault403); ok {
+				logp.Printf("[WARN] Error query tags of VPC (%s): %s", vpcResource.ID, err)
+			} else {
+				return fmtp.DiagErrorf("Error query tags of VPC (%s): %s", vpcResource.ID, err)
+			}
 		}
 
 		vpcs = append(vpcs, vpc)
