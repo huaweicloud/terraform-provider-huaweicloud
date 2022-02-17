@@ -78,3 +78,32 @@ func TestHasMapContainsFunc_empty(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestIsIPv4Address(t *testing.T) {
+	var validAddresses = []string{
+		"10.250.4.192", "192.168.10.1", "192.168.10.255", "255.255.255.255", "0.0.0.0",
+	}
+	for _, addr := range validAddresses {
+		if !utils.IsIPv4Address(addr) {
+			t.Fatalf("%s should be a valid IPv4 address", addr)
+		}
+	}
+
+	var invalidAddresses = []string{
+		"258.255.255.300", "192.168.010.76", "a.b.c.def",
+	}
+	for _, addr := range invalidAddresses {
+		if utils.IsIPv4Address(addr) {
+			t.Fatalf("%s should not be a valid IPv4 address", addr)
+		}
+	}
+
+	var ipv6Addresses = []string{
+		"2407:c080:1200:e4e:49ad:b067:d81f:6467", "2407:c080:1200:e4e::1", "2002:0:0:0:0:0:9f8a:20c3",
+	}
+	for _, addr := range ipv6Addresses {
+		if utils.IsIPv4Address(addr) {
+			t.Fatalf("%s should be a valid IPv6 address", addr)
+		}
+	}
+}

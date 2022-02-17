@@ -209,7 +209,7 @@ func EncodeBase64IfNot(str string) string {
 
 // IsIPv4Address is used to check whether the addr string is IPv4 format
 func IsIPv4Address(addr string) bool {
-	pattern := "^(25[0-5]|2[0-4]\\d|(1\\d{2}|[1-9]?\\d)\\.){3}(25[0-5]|2[0-4]\\d|(1\\d{2}|[1-9]?\\d))$"
+	pattern := "^((25[0-5]|2[0-4]\\d|(1\\d{2}|[1-9]?\\d))\\.){3}(25[0-5]|2[0-4]\\d|(1\\d{2}|[1-9]?\\d))$"
 	matched, _ := regexp.MatchString(pattern, addr)
 	return matched
 }
