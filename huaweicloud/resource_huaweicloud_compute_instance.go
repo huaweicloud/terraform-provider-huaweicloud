@@ -8,7 +8,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/blockstorage/extensions/volumeactions"
-	"github.com/chnsz/golangsdk/openstack/blockstorage/v2/volumes"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/bootfromvolume"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/keypairs"
@@ -20,6 +19,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/block_devices"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/powers"
+	"github.com/chnsz/golangsdk/openstack/evs/v2/cloudvolumes"
 	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/subnets"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
@@ -698,7 +698,7 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
-	blockStorageClient, err := config.BlockStorageV3Client(GetRegion(d, config))
+	blockStorageClient, err := config.BlockStorageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud client: %s", err)
 	}
@@ -804,7 +804,7 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 		bds := make([]map[string]interface{}, len(server.VolumeAttached))
 		for i, b := range server.VolumeAttached {
 			// retrieve volume `size` and `type`
-			volumeInfo, err := volumes.Get(blockStorageClient, b.ID).Extract()
+			volumeInfo, err := cloudvolumes.Get(blockStorageClient, b.ID).Extract()
 			if err != nil {
 				return err
 			}
