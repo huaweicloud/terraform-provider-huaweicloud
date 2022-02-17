@@ -275,7 +275,7 @@ The `dis` block supports:
 * `stream_name` - (Required, String, ForceNew) Specifies the name of the DIS stream resource.
   Changing this will create a new trigger resource.
 
-* `starting_position` - (Required, List, ForceNew) Specifies the type of starting position for DIS queue.
+* `starting_position` - (Required, String, ForceNew) Specifies the type of starting position for DIS queue.
   The valid values are as follows:
   + **TRIM_HORIZON**: Starts reading from the earliest data stored in the partitions.
   + **LATEST**: Starts reading from the latest data stored in the partitions.
@@ -303,8 +303,8 @@ The `kafka` block supports:
 * `topic_ids` - (Required, List, ForceNew) Specifies one or more topic IDs of DMS kafka instance.
   Changing this will create a new trigger resource.
 
-* `batch_size` - (Required, Int, ForceNew) Specifies the The number of messages consumed from the topic each time.
-  The valid value is range from `1` to `1,000`.
+* `batch_size` - (Optional, Int, ForceNew) Specifies the The number of messages consumed from the topic each time.
+  The valid value is range from `1` to `1,000`. Defaults to `100`.
   Changing this will create a new trigger resource.
 
 <a name="fgs_trigger_apig"></a>

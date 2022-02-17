@@ -838,10 +838,6 @@ func (c *Config) BlockStorageV2Client(region string) (*golangsdk.ServiceClient, 
 	return c.NewServiceClient("volumev2", region)
 }
 
-func (c *Config) BlockStorageV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("evs", region)
-}
-
 func (c *Config) SfsV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("sfs", region)
 }

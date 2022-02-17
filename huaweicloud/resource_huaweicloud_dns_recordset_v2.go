@@ -216,46 +216,47 @@ func resourceDNSRecordSetV2Update(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	var updateOpts recordsets.UpdateOpts
-	if d.HasChange("ttl") {
-		updateOpts.TTL = d.Get("ttl").(int)
-	}
-
-	if d.HasChange("records") {
-		recordsraw := d.Get("records").([]interface{})
-		records := make([]string, len(recordsraw))
-		for i, recordraw := range recordsraw {
-			records[i] = recordraw.(string)
+	if d.HasChanges("description", "ttl", "records") {
+		var updateOpts recordsets.UpdateOpts
+		if d.HasChange("ttl") {
+			updateOpts.TTL = d.Get("ttl").(int)
 		}
-		updateOpts.Records = records
-	}
 
-	if d.HasChange("description") {
-		updateOpts.Description = d.Get("description").(string)
-	}
+		if d.HasChange("records") {
+			recordsraw := d.Get("records").([]interface{})
+			records := make([]string, len(recordsraw))
+			for i, recordraw := range recordsraw {
+				records[i] = recordraw.(string)
+			}
+			updateOpts.Records = records
+		}
 
-	logp.Printf("[DEBUG] Updating  record set %s with options: %#v", recordsetID, updateOpts)
+		if d.HasChange("description") {
+			updateOpts.Description = d.Get("description").(string)
+		}
 
-	_, err = recordsets.Update(dnsClient, zoneID, recordsetID, updateOpts).Extract()
-	if err != nil {
-		return fmtp.Errorf("Error updating HuaweiCloud DNS  record set: %s", err)
-	}
+		logp.Printf("[DEBUG] Updating  record set %s with options: %#v", recordsetID, updateOpts)
+		_, err = recordsets.Update(dnsClient, zoneID, recordsetID, updateOpts).Extract()
+		if err != nil {
+			return fmtp.Errorf("Error updating HuaweiCloud DNS  record set: %s", err)
+		}
 
-	logp.Printf("[DEBUG] Waiting for DNS record set (%s) to update", recordsetID)
-	stateConf := &resource.StateChangeConf{
-		Target:     []string{"ACTIVE"},
-		Pending:    []string{"PENDING"},
-		Refresh:    waitForDNSRecordSet(dnsClient, zoneID, recordsetID),
-		Timeout:    d.Timeout(schema.TimeoutUpdate),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
-	}
+		logp.Printf("[DEBUG] Waiting for DNS record set (%s) to update", recordsetID)
+		stateConf := &resource.StateChangeConf{
+			Target:     []string{"ACTIVE"},
+			Pending:    []string{"PENDING"},
+			Refresh:    waitForDNSRecordSet(dnsClient, zoneID, recordsetID),
+			Timeout:    d.Timeout(schema.TimeoutUpdate),
+			Delay:      5 * time.Second,
+			MinTimeout: 3 * time.Second,
+		}
 
-	_, err = stateConf.WaitForState()
-	if err != nil {
-		return fmtp.Errorf(
-			"Error waiting for record set (%s) to become ACTIVE for updation: %s",
-			recordsetID, err)
+		_, err = stateConf.WaitForState()
+		if err != nil {
+			return fmtp.Errorf(
+				"Error waiting for record set (%s) to become ACTIVE for updation: %s",
+				recordsetID, err)
+		}
 	}
 
 	// update tags

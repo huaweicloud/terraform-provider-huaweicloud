@@ -37,14 +37,17 @@ func TestAccDNSV2RecordSet_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "a record set"),
 					resource.TestCheckResourceAttr(resourceName, "type", "A"),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "3000"),
-					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "records.0", "10.1.0.0"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				Config: testAccDNSV2RecordSet_tags(zoneName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", zoneName),
+					resource.TestCheckResourceAttr(resourceName, "description", "a record set"),
+					resource.TestCheckResourceAttr(resourceName, "ttl", "3000"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+				),
 			},
 			{
 				Config: testAccDNSV2RecordSet_update(zoneName),
@@ -54,6 +57,11 @@ func TestAccDNSV2RecordSet_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_updated"),
 					resource.TestCheckResourceAttr(resourceName, "records.0", "10.1.0.1"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -74,6 +82,7 @@ func TestAccDNSV2RecordSet_readTTL(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDNSV2RecordSetExists(resourceName, &recordset),
 					resource.TestMatchResourceAttr(resourceName, "ttl", regexp.MustCompile("^[0-9]+$")),
+					resource.TestCheckResourceAttr(resourceName, "records.0", "10.1.0.2"),
 				),
 			},
 		},
@@ -169,14 +178,35 @@ func testAccCheckDNSV2RecordSetExists(n string, recordset *recordsets.RecordSet)
 	}
 }
 
-func testAccDNSV2RecordSet_basic(zoneName string) string {
+func testAccDNSV2RecordSet_base(zoneName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dns_zone" "zone_1" {
   name        = "%s"
-  email       = "email2@example.com"
-  description = "a zone"
+  email       = "email@example.com"
+  description = "a zone for acc test"
   ttl         = 6000
 }
+`, zoneName)
+}
+
+func testAccDNSV2RecordSet_basic(zoneName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_dns_recordset" "recordset_1" {
+  zone_id     = huaweicloud_dns_zone.zone_1.id
+  name        = "%s"
+  type        = "A"
+  description = "a record set"
+  ttl         = 3000
+  records     = ["10.1.0.0"]
+}
+`, testAccDNSV2RecordSet_base(zoneName), zoneName)
+}
+
+func testAccDNSV2RecordSet_tags(zoneName string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_dns_recordset" "recordset_1" {
   zone_id     = huaweicloud_dns_zone.zone_1.id
@@ -191,17 +221,12 @@ resource "huaweicloud_dns_recordset" "recordset_1" {
     key = "value"
   }
 }
-`, zoneName, zoneName)
+`, testAccDNSV2RecordSet_base(zoneName), zoneName)
 }
 
 func testAccDNSV2RecordSet_update(zoneName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dns_zone" "zone_1" {
-  name        = "%s"
-  email       = "email2@example.com"
-  description = "an updated zone"
-  ttl         = 6000
-}
+%s
 
 resource "huaweicloud_dns_recordset" "recordset_1" {
   zone_id     = huaweicloud_dns_zone.zone_1.id
@@ -216,17 +241,12 @@ resource "huaweicloud_dns_recordset" "recordset_1" {
     key = "value_updated"
   }
 }
-`, zoneName, zoneName)
+`, testAccDNSV2RecordSet_base(zoneName), zoneName)
 }
 
 func testAccDNSV2RecordSet_readTTL(zoneName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dns_zone" "zone_1" {
-  name        = "%s"
-  email       = "email2@example.com"
-  description = "a zone"
-  ttl         = 6000
-}
+%s
 
 resource "huaweicloud_dns_recordset" "recordset_1" {
   zone_id = huaweicloud_dns_zone.zone_1.id
@@ -234,7 +254,7 @@ resource "huaweicloud_dns_recordset" "recordset_1" {
   type    = "A"
   records = ["10.1.0.2"]
 }
-`, zoneName, zoneName)
+`, testAccDNSV2RecordSet_base(zoneName), zoneName)
 }
 
 func testAccDNSV2RecordSet_private(zoneName string) string {

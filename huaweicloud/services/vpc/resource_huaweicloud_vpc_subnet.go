@@ -281,40 +281,38 @@ func resourceVpcSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		return fmtp.DiagErrorf("Error creating Huaweicloud networking client: %s", err)
 	}
 
-	var updateOpts subnets.UpdateOpts
+	if d.HasChanges("name", "dhcp_enable", "primary_dns", "secondary_dns", "dns_list", "ipv6_enable") {
+		var updateOpts subnets.UpdateOpts
 
-	// name is mandatory while updating subnet
-	updateOpts.Name = d.Get("name").(string)
-
-	if d.HasChange("ipv6_enable") {
-		if d.Get("ipv6_enable").(bool) {
-			enable := d.Get("ipv6_enable").(bool)
-			updateOpts.EnableIPv6 = &enable
-		} else {
-			return fmtp.DiagErrorf("Parameter cannot be disabled after IPv6 enable")
-		}
-	}
-	if d.HasChange("primary_dns") {
-		updateOpts.PRIMARY_DNS = d.Get("primary_dns").(string)
-	}
-	if d.HasChange("secondary_dns") {
-		updateOpts.SECONDARY_DNS = d.Get("secondary_dns").(string)
-	}
-	if d.HasChange("dns_list") {
-		dnsList := ResourceSubnetDNSListV1(d, "")
-		updateOpts.DnsList = &dnsList
-	}
-	if d.HasChange("dhcp_enable") {
+		// name is mandatory while updating subnet
+		updateOpts.Name = d.Get("name").(string)
+		// always setting dhcp in updateOpts as the field defauts to be false in golangsdk
 		updateOpts.EnableDHCP = d.Get("dhcp_enable").(bool)
 
-	} else if d.Get("dhcp_enable").(bool) { //maintaining dhcp to be true if it was true earlier as default update option for dhcp bool is always going to be false in golangsdk
-		updateOpts.EnableDHCP = true
-	}
+		if d.HasChange("ipv6_enable") {
+			if d.Get("ipv6_enable").(bool) {
+				enable := d.Get("ipv6_enable").(bool)
+				updateOpts.EnableIPv6 = &enable
+			} else {
+				return fmtp.DiagErrorf("Parameter cannot be disabled after IPv6 enable")
+			}
+		}
+		if d.HasChange("primary_dns") {
+			updateOpts.PRIMARY_DNS = d.Get("primary_dns").(string)
+		}
+		if d.HasChange("secondary_dns") {
+			updateOpts.SECONDARY_DNS = d.Get("secondary_dns").(string)
+		}
+		if d.HasChange("dns_list") {
+			dnsList := ResourceSubnetDNSListV1(d, "")
+			updateOpts.DnsList = &dnsList
+		}
 
-	vpcID := d.Get("vpc_id").(string)
-	_, err = subnets.Update(subnetClient, vpcID, d.Id(), updateOpts).Extract()
-	if err != nil {
-		return fmtp.DiagErrorf("Error updating VPC Subnet: %s", err)
+		vpcID := d.Get("vpc_id").(string)
+		_, err = subnets.Update(subnetClient, vpcID, d.Id(), updateOpts).Extract()
+		if err != nil {
+			return fmtp.DiagErrorf("Error updating VPC Subnet: %s", err)
+		}
 	}
 
 	//update tags
