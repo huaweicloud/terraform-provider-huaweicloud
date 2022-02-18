@@ -12,6 +12,36 @@ type ServiceCatalog struct {
 	WithOutProjectID bool
 }
 
+// multiCatalogKeys is a map of primary and derived catalog keys for services with multiple clients.
+// If we add another version of a service client, don't forget to update it.
+var multiCatalogKeys = map[string][]string{
+	"iam":      {"identity", "iam_no_version"},
+	"bss":      {"bssv2"},
+	"ecs":      {"ecsv21", "ecsv11"},
+	"evs":      {"evsv21"},
+	"cce":      {"ccev1", "cce_addon"},
+	"cci":      {"cciv1_bata"},
+	"vpc":      {"networkv2", "vpcv3", "security_group", "fwv2"},
+	"elb":      {"elbv2", "elbv3"},
+	"dns":      {"dns_region"},
+	"kms":      {"kmsv1"},
+	"mrs":      {"mrsv2"},
+	"rds":      {"rdsv1"},
+	"waf":      {"waf-dedicated"},
+	"geminidb": {"geminidbv31"},
+	"dli":      {"dliv2"},
+	"dcs":      {"dcsv1"},
+	"dis":      {"disv3"},
+	"dms":      {"dmsv2"},
+	"dws":      {"dwsv2"},
+	"apig":     {"apigv2"},
+}
+
+// GetServiceDerivedCatalogKeys returns the derived catalog keys of a service.
+func GetServiceDerivedCatalogKeys(mainKey string) []string {
+	return multiCatalogKeys[mainKey]
+}
+
 var allServiceCatalog = map[string]ServiceCatalog{
 	// catalog for global service
 	// identity is used for openstack keystone APIs
@@ -135,10 +165,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"evsv21": {
 		Name:    "evs",
 		Version: "v2.1",
-	},
-	"evsv1": {
-		Name:    "evs",
-		Version: "v1",
 	},
 	"sfs": {
 		Name:    "sfs",
