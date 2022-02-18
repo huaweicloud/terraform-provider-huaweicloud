@@ -810,11 +810,11 @@ func (c *Config) CciV1BetaClient(region string) (*golangsdk.ServiceClient, error
 }
 
 func (c *Config) CciV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("cciv1", region)
+	return c.NewServiceClient("cci", region)
 }
 
 func (c *Config) FgsV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("fgsv2", region)
+	return c.NewServiceClient("fgs", region)
 }
 
 func (c *Config) SwrV2Client(region string) (*golangsdk.ServiceClient, error) {
@@ -831,7 +831,7 @@ func (c *Config) BlockStorageV21Client(region string) (*golangsdk.ServiceClient,
 }
 
 func (c *Config) BlockStorageV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("volumev2", region)
+	return c.NewServiceClient("evs", region)
 }
 
 func (c *Config) SfsV2Client(region string) (*golangsdk.ServiceClient, error) {
@@ -963,7 +963,7 @@ func (c *Config) DwsV1Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 func (c *Config) DwsV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("dwsV2", region)
+	return c.NewServiceClient("dwsv2", region)
 }
 
 func (c *Config) DliV1Client(region string) (*golangsdk.ServiceClient, error) {
@@ -975,7 +975,7 @@ func (c *Config) DliV2Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 func (c *Config) DisV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("disv2", region)
+	return c.NewServiceClient("dis", region)
 }
 
 func (c *Config) DisV3Client(region string) (*golangsdk.ServiceClient, error) {
@@ -1012,7 +1012,7 @@ func (c *Config) ApiGatewayV1Client(region string) (*golangsdk.ServiceClient, er
 }
 
 func (c *Config) ApigV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("apig_v2", region)
+	return c.NewServiceClient("apigv2", region)
 }
 
 func (c *Config) BcsV2Client(region string) (*golangsdk.ServiceClient, error) {
@@ -1024,7 +1024,7 @@ func (c *Config) DcsV1Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 func (c *Config) DcsV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("dcsv2", region)
+	return c.NewServiceClient("dcs", region)
 }
 
 func (c *Config) DmsV1Client(region string) (*golangsdk.ServiceClient, error) {
