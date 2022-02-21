@@ -3,6 +3,7 @@ package eip
 import (
 	"context"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -142,15 +143,11 @@ func dataSourceVpcEipsRead(_ context.Context, d *schema.ResourceData, meta inter
 	}
 
 	listOpts := &eips.ListOpts{
-		Id:        utils.ExpandToStringList(d.Get("ids").([]interface{})),
-		PublicIp:  utils.ExpandToStringList(d.Get("public_ips").([]interface{})),
-		PortId:    utils.ExpandToStringList(d.Get("port_ids").([]interface{})),
-		IPVersion: d.Get("ip_version").(int),
-	}
-
-	epsID := config.GetEnterpriseProjectID(d)
-	if epsID != "" {
-		listOpts.EnterpriseProjectId = epsID
+		Id:                  utils.ExpandToStringList(d.Get("ids").([]interface{})),
+		PublicIp:            utils.ExpandToStringList(d.Get("public_ips").([]interface{})),
+		PortId:              utils.ExpandToStringList(d.Get("port_ids").([]interface{})),
+		IPVersion:           d.Get("ip_version").(int),
+		EnterpriseProjectId: config.DataGetEnterpriseProjectID(d),
 	}
 
 	pages, err := eips.List(client, listOpts).AllPages()
@@ -179,7 +176,12 @@ func dataSourceVpcEipsRead(_ context.Context, d *schema.ResourceData, meta inter
 			}
 			tagRst = tagmap
 		} else {
-			return fmtp.DiagErrorf("Error query tags of eip (%s): %s", d.Id(), err)
+			// The tags api does not support eps authorization, so don't return 403 to avoid error
+			if _, ok := err.(golangsdk.ErrDefault403); ok {
+				logp.Printf("[WARN] Error query tags of EIP (%s): %s", item.ID, err)
+			} else {
+				return fmtp.DiagErrorf("Error query tags of EIP (%s): %s", item.ID, err)
+			}
 		}
 
 		eip := map[string]interface{}{

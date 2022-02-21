@@ -67,10 +67,8 @@ func dataSourceBandWidthRead(_ context.Context, d *schema.ResourceData, meta int
 	}
 
 	listOpts := bandwidths.ListOpts{
-		ShareType: "WHOLE",
-	}
-	if v, ok := d.GetOk("enterprise_project_id"); ok {
-		listOpts.EnterpriseProjectID = v.(string)
+		ShareType:           "WHOLE",
+		EnterpriseProjectID: config.DataGetEnterpriseProjectID(d),
 	}
 
 	allBWs, err := bandwidths.List(vpcClient, listOpts).Extract()
