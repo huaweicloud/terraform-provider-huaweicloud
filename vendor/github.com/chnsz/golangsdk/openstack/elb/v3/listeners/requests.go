@@ -143,6 +143,12 @@ type IpGroupUpdate struct {
 
 // UpdateOpts represents options for updating a Listener.
 type UpdateOpts struct {
+	// Human-readable name for the Listener. Does not have to be unique.
+	Name string `json:"name,omitempty"`
+
+	// Human-readable description for the Listener.
+	Description *string `json:"description,omitempty"`
+
 	// The administrative state of the Listener. A valid value is true (UP)
 	// or false (DOWN).
 	AdminStateUp *bool `json:"admin_state_up,omitempty"`
@@ -156,14 +162,8 @@ type UpdateOpts struct {
 	// A reference to a container of TLS secrets.
 	DefaultTlsContainerRef *string `json:"default_tls_container_ref,omitempty"`
 
-	// Human-readable description for the Listener.
-	Description string `json:"description,omitempty"`
-
 	// whether to use HTTP2.
 	Http2Enable *bool `json:"http2_enable,omitempty"`
-
-	// Human-readable name for the Listener. Does not have to be unique.
-	Name string `json:"name,omitempty"`
 
 	// A list of references to TLS secrets.
 	SniContainerRefs *[]string `json:"sni_container_refs,omitempty"`

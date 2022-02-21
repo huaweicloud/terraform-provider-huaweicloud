@@ -33,6 +33,10 @@ func (current MarkerPageBase) NextPageURL() (string, error) {
 		return "", err
 	}
 
+	if mark == "" {
+		return "", nil
+	}
+
 	q := currentURL.Query()
 	q.Set("marker", mark)
 	currentURL.RawQuery = q.Encode()

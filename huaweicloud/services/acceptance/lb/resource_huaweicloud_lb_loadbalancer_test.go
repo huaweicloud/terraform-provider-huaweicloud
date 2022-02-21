@@ -51,6 +51,7 @@ func TestAccLBV2LoadBalancer_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "created by acceptance test"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestMatchResourceAttr(resourceName, "vip_port_id",
@@ -61,6 +62,7 @@ func TestAccLBV2LoadBalancer_basic(t *testing.T) {
 				Config: testAccLBV2LoadBalancerConfig_update(rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
 				),
@@ -236,17 +238,12 @@ data "huaweicloud_vpc_subnet" "test" {
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
   name          = "%s"
+  description   = "created by acceptance test"
   vip_subnet_id = data.huaweicloud_vpc_subnet.test.subnet_id
 
   tags = {
     key   = "value"
     owner = "terraform"
-  }
-
-  timeouts {
-    create = "5m"
-    update = "5m"
-    delete = "5m"
   }
 }
 `, rName)
@@ -266,12 +263,6 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
   tags = {
     key1  = "value1"
     owner = "terraform_update"
-  }
-
-  timeouts {
-    create = "5m"
-    update = "5m"
-    delete = "5m"
   }
 }
 `, rNameUpdate)
