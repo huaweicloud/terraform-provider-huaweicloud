@@ -605,8 +605,8 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 }
 
 // TestAccServiceEndpoints_Storage test for the endpoints of the clients used in storage
-// include blockStorageV2Client,BlockStorageV21Client,blockStorageV3Client,sfsV2Client
-// sfsV1Client,csbsV1Client and vbsV2Client
+// include blockStorageV2Client, BlockStorageV21Client, sfsV2Client, sfsV1Client,
+// csbsV1Client, vbsV2Client and cbrV3Client
 func TestAccServiceEndpoints_Storage(t *testing.T) {
 
 	testAccPreCheckServiceEndpoints(t)
