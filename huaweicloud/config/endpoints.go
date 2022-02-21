@@ -305,6 +305,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "mrs",
 		Version: "v2",
 	},
+	"modelarts": {
+		Name:    "modelarts",
+		Version: "v1",
+	},
 	"dws": {
 		Name:    "dws",
 		Version: "v1.0",

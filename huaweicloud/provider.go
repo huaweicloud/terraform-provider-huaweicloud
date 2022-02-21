@@ -34,6 +34,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lb"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/modelarts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mrs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rds"
@@ -552,6 +553,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_mls_instance":                    resourceMlsInstance(),
 			"huaweicloud_mapreduce_cluster":               mrs.ResourceMRSClusterV2(),
 			"huaweicloud_mapreduce_job":                   mrs.ResourceMRSJobV2(),
+			"huaweicloud_modelarts_notebook":              modelarts.ResourceNotebook(),
 			"huaweicloud_mrs_cluster":                     ResourceMRSClusterV1(),
 			"huaweicloud_mrs_job":                         ResourceMRSJobV1(),
 			"huaweicloud_nat_dnat_rule":                   ResourceNatDnatRuleV2(),
