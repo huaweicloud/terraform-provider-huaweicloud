@@ -125,7 +125,7 @@ type ExtendSizeOpts struct {
 
 // ExtendChargeOpts contains the charging parameters of the volume
 type ExtendChargeOpts struct {
-	IsAutoPay string `json:"is_auto_pay,omitempty"`
+	IsAutoPay string `json:"isAutoPay,omitempty"`
 }
 
 // ToVolumeExtendMap assembles a request body based on the contents of an
@@ -147,7 +147,7 @@ func ExtendSize(client *golangsdk.ServiceClient, id string, opts ExtendOptsBuild
 	baseURL := newClient.ResourceBaseURL()
 	newClient.ResourceBase = strings.Replace(baseURL, "/v2/", "/v2.1/", 1)
 
-	_, r.Err = newClient.Post(actionURL(&newClient, id), b, nil, &golangsdk.RequestOpts{
+	_, r.Err = newClient.Post(actionURL(&newClient, id), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{202},
 	})
 	return

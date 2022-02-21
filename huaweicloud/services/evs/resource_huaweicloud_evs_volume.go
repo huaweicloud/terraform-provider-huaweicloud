@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -14,7 +15,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/volumeattach"
-	"github.com/chnsz/golangsdk/openstack/evs/v1/jobs"
 	"github.com/chnsz/golangsdk/openstack/evs/v2/cloudvolumes"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -108,7 +108,11 @@ func ResourceEvsVolume() *schema.Resource {
 				ForceNew: true,
 				Default:  false,
 			},
-			"tags": common.TagsSchema(),
+			"charging_mode": common.SchemeChargingMode(nil),
+			"period_unit":   common.SchemaPeriodUnit(nil),
+			"period":        common.SchemaPeriod(nil),
+			"auto_renew":    common.SchemaAutoRenew(nil),
+			"tags":          common.TagsSchema(),
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -149,6 +153,16 @@ func ResourceEvsVolume() *schema.Resource {
 	}
 }
 
+func buildBssParamParams(d *schema.ResourceData) *cloudvolumes.BssParam {
+	return &cloudvolumes.BssParam{
+		ChargingMode: d.Get("charging_mode").(string),
+		PeriodType:   d.Get("period_unit").(string),
+		PeriodNum:    d.Get("period").(int),
+		IsAutoRenew:  d.Get("auto_renew").(string),
+		IsAutoPay:    "true",
+	}
+}
+
 func resourceVolumeAttachmentHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
@@ -172,7 +186,9 @@ func buildEvsVolumeCreateOpts(d *schema.ResourceData, config *config.Config) clo
 		EnterpriseProjectID: common.GetEnterpriseProjectID(d, config),
 		Tags:                resourceContainerTags(d),
 	}
-	m := make(map[string]string)
+	m := map[string]string{
+		"create_for_volume_id": "true",
+	}
 	if v, ok := d.GetOk("kms_id"); ok {
 		m["__system__cmkid"] = v.(string)
 		m["__system__encrypted"] = "1"
@@ -180,21 +196,23 @@ func buildEvsVolumeCreateOpts(d *schema.ResourceData, config *config.Config) clo
 	if d.Get("device_type").(string) == "SCSI" {
 		m["hw:passthrough"] = "true"
 	}
-	if len(m) > 0 {
-		volumeOpts.Metadata = m
-	}
+	volumeOpts.Metadata = m
 
-	return cloudvolumes.CreateOpts{
+	result := cloudvolumes.CreateOpts{
 		Volume: volumeOpts,
 	}
+	if v, ok := d.GetOk("charging_mode"); ok && v == "prePaid" {
+		result.ChargeInfo = buildBssParamParams(d)
+	}
+	return result
 }
 
 func resourceEvsVolumeCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	// The v1 client is used to get the volume jobs.
-	evsV1Client, err := config.BlockStorageV1Client(config.GetRegion(d))
+	// The v2 client is used to obtain the volume detail.
+	evsV2Client, err := config.BlockStorageV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud block storage v1 client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud block storage v2 client: %s", err)
 	}
 	// The v2.1 client is used to create the volume.
 	evsV21Client, err := config.BlockStorageV21Client(config.GetRegion(d))
@@ -208,22 +226,33 @@ func resourceEvsVolumeCreate(ctx context.Context, d *schema.ResourceData, meta i
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud EVS volume: %s", err)
 	}
-	logp.Printf("[INFO] Volume Job ID: %s", job.JobID)
+	if len(job.VolumeIDs) < 1 {
+		return fmtp.DiagErrorf("The volume ID was not included in the response to the request to create the volume.")
+	}
+	d.SetId(job.VolumeIDs[0])
 
-	logp.Printf("[DEBUG] Waiting for the EVS volume to become available, the job ID is %s.", job.JobID)
-	stateConf := &resource.StateChangeConf{
-		Target:     []string{"SUCCESS"},
-		Refresh:    jobRefreshFunc(evsV1Client, job.JobID),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		MinTimeout: 3 * time.Second,
+	// If charging mode is PrePaid, wait for the order to be completed.
+	if job.OrderID != "" {
+		err = common.WaitOrderComplete(ctx, d, config, job.OrderID)
+		if err != nil {
+			return fmtp.DiagErrorf("The order is not completed while creating EVS volume (%s): %#v", d.Id(), err)
+		}
 	}
 
-	resp, err := stateConf.WaitForStateContext(ctx)
+	logp.Printf("[DEBUG] Waiting for the EVS volume to become available, the volume ID is %s.", d.Id())
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{"creating"},
+		Target:     []string{"available"},
+		Refresh:    cloudVolumeRefreshFunc(evsV2Client, d.Id()),
+		Timeout:    d.Timeout(schema.TimeoutCreate),
+		Delay:      3 * time.Second,
+		MinTimeout: 5 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		return fmtp.DiagErrorf("Error waiting for the creation of EVS volume (%s) to complete: %s", d.Id(), err)
 	}
 
-	d.SetId(resp.(*jobs.Job).Entities.VolumeID)
 	return resourceEvsVolumeRead(ctx, d, meta)
 }
 
@@ -248,10 +277,14 @@ func setEvsVolumeAttachment(d *schema.ResourceData, resp *cloudvolumes.Volume) e
 		attachments[i]["id"] = attachment.AttachmentID
 		attachments[i]["instance_id"] = attachment.ServerID
 		attachments[i]["device"] = attachment.Device
-		logp.Printf("[DEBUG] attachment: %v", attachment)
 	}
-	if err := d.Set("attachment", attachments); err != nil {
-		return fmtp.Errorf("[DEBUG] Error saving attachment to state for HuaweiCloud EVS volume (%s): %s", d.Id(), err)
+	logp.Printf("[DEBUG] The relevant attach information for EVS volume is: %v", attachments)
+	return d.Set("attachment", attachments)
+}
+
+func setEvsVolumeChargingInfo(d *schema.ResourceData, resp *cloudvolumes.Volume) error {
+	if resp.Metadata.OrderID != "" {
+		return d.Set("charging_mode", "prePaid")
 	}
 	return nil
 }
@@ -281,6 +314,7 @@ func resourceEvsVolumeRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("wwn", resp.WWN),
 		d.Set("multiattach", resp.Multiattach),
 		d.Set("tags", resp.Tags),
+		setEvsVolumeChargingInfo(d, resp),
 		setEvsVolumeDeviceType(d, resp),
 		setEvsVolumeImageId(d, resp),
 		setEvsVolumeAttachment(d, resp),
@@ -320,7 +354,7 @@ func resourceEvsVolumeUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	if d.HasChange("size") {
 		evsV21Client, err := config.BlockStorageV21Client(config.GetRegion(d))
 		if err != nil {
-			return fmtp.DiagErrorf("Error creating HuaweiCloud block storage client: %s", err)
+			return fmtp.DiagErrorf("Error creating HuaweiCloud block storage v2.1 client: %s", err)
 		}
 		extendOpts := cloudvolumes.ExtendOpts{
 			SizeOpts: cloudvolumes.ExtendSizeOpts{
@@ -328,9 +362,24 @@ func resourceEvsVolumeUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			},
 		}
 
-		_, err = cloudvolumes.ExtendSize(evsV21Client, d.Id(), extendOpts).Extract()
+		// If charging mode is PrePaid, the order is automatically paid to adjust the volume size.
+		if strings.EqualFold(d.Get("charging_mode").(string), "prePaid") {
+			extendOpts.ChargeInfo = &cloudvolumes.ExtendChargeOpts{
+				IsAutoPay: "true",
+			}
+		}
+
+		resp, err := cloudvolumes.ExtendSize(evsV21Client, d.Id(), extendOpts).Extract()
 		if err != nil {
 			return fmtp.DiagErrorf("Error extending EVS volume (%s) size: %s", d.Id(), err)
+		}
+
+		if strings.EqualFold(d.Get("charging_mode").(string), "prePaid") {
+			err = common.WaitOrderComplete(ctx, d, config, resp.OrderID)
+			if err != nil {
+				return fmtp.DiagErrorf("The order (%s) is not completed while extending EVS volume (%s) size: %#v",
+					resp.OrderID, d.Id(), err)
+			}
 		}
 
 		stateConf := &resource.StateChangeConf{
@@ -344,7 +393,7 @@ func resourceEvsVolumeUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 		_, err = stateConf.WaitForStateContext(ctx)
 		if err != nil {
-			return fmtp.DiagErrorf("Error waiting for huaweicloud_evs_volume %s to become ready: %s", d.Id(), err)
+			return fmtp.DiagErrorf("Error waiting for EVS volume (%s) to become ready: %s", d.Id(), err)
 		}
 	}
 
@@ -402,16 +451,23 @@ func resourceEvsVolumeDelete(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
-	// The snapshots associated with the disk are deleted together with the EVS disk if cascade value is true
-	deleteOpts := cloudvolumes.DeleteOpts{
-		Cascade: d.Get("cascade").(bool),
-	}
-	// It's possible that this volume was used as a boot device and is currently
-	// in a "deleting" state from when the instance was terminated.
-	// If this is true, just move on. It'll eventually delete.
-	if v.Status != "deleting" {
-		if err := cloudvolumes.Delete(evsV2Client, d.Id(), deleteOpts).ExtractErr(); err != nil {
-			return common.CheckDeletedDiag(d, err, "EVS volume")
+	if d.Get("charging_mode").(string) == "prePaid" {
+		err = common.UnsubscribePrePaidResource(d, config, []string{d.Id()})
+		if err != nil {
+			return fmtp.DiagErrorf("error unsubscribing HuaweiCloud EVS volume : %s", err)
+		}
+	} else {
+		// The snapshots associated with the disk are deleted together with the EVS disk if cascade value is true
+		deleteOpts := cloudvolumes.DeleteOpts{
+			Cascade: d.Get("cascade").(bool),
+		}
+		// It's possible that this volume was used as a boot device and is currently
+		// in a "deleting" state from when the instance was terminated.
+		// If this is true, just move on. It'll eventually delete.
+		if v.Status != "deleting" {
+			if err := cloudvolumes.Delete(evsV2Client, d.Id(), deleteOpts).ExtractErr(); err != nil {
+				return common.CheckDeletedDiag(d, err, "EVS volume")
+			}
 		}
 	}
 
@@ -433,19 +489,6 @@ func resourceEvsVolumeDelete(ctx context.Context, d *schema.ResourceData, meta i
 
 	d.SetId("")
 	return nil
-}
-
-func jobRefreshFunc(c *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		response, err := jobs.GetJobDetails(c, jobId).ExtractJob()
-		if err != nil {
-			return response, "ERROR", err
-		}
-		if response != nil {
-			return response, response.Status, nil
-		}
-		return response, "ERROR", nil
-	}
 }
 
 func cloudVolumeRefreshFunc(c *golangsdk.ServiceClient, volumeId string) resource.StateRefreshFunc {

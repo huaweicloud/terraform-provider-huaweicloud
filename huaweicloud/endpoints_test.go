@@ -605,7 +605,7 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 }
 
 // TestAccServiceEndpoints_Storage test for the endpoints of the clients used in storage
-// include BlockStorageV1Client,blockStorageV2Client,BlockStorageV21Client,blockStorageV3Client,sfsV2Client
+// include blockStorageV2Client,BlockStorageV21Client,blockStorageV3Client,sfsV2Client
 // sfsV1Client,csbsV1Client and vbsV2Client
 func TestAccServiceEndpoints_Storage(t *testing.T) {
 
@@ -622,16 +622,6 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
 	var err error
-
-	// test for blockStorageV1Client
-	serviceClient, err = nil, nil
-	serviceClient, err = config.BlockStorageV1Client(HW_REGION_NAME)
-	if err != nil {
-		t.Fatalf("Error creating HuaweiCloud blockStorage v1 client: %s", err)
-	}
-	expectedURL = fmt.Sprintf("https://evs.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
-	actualURL = serviceClient.ResourceBaseURL()
-	compareURL(expectedURL, actualURL, "blockStorage", "v1", t)
 
 	// test for blockStorageV2Client
 	serviceClient, err = nil, nil

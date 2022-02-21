@@ -106,6 +106,29 @@ The following arguments are supported:
 * `cascade` - (Optional, Bool) Specifies the delete mode of snapshot. The default value is false. All snapshot
   associated with the disk will also be deleted when the parameter is set to true.
 
+  -> This parameter is only valid for pay-as-you-go resources, and the snapshots bound to the package period resources
+     will be removed while resources unsubscribed.
+
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the disk.
+  The valid values are as follows:
+  + **prePaid**: the yearly/monthly billing mode.
+  + **postPaid**: the pay-per-use billing mode.
+    Changing this creates a new disk.
+
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the disk.
+  Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.
+  Changing this creates a new disk.
+
+* `period` - (Optional, Int, ForceNew) Specifies the charging period of the disk.
+  If `period_unit` is set to **month**, the value ranges from 1 to 9.
+  If `period_unit` is set to **year**, the valid value is 1.
+  This parameter is mandatory if `charging_mode` is set to **prePaid**.
+  Changing this creates a new disk.
+
+* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
+  Valid values are **true** and **false**.
+  Changing this creates a new disk.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -124,8 +147,8 @@ $ terraform import huaweicloud_evs_volume.volume_1 14a80bc7-c12c-4fe0-a38a-cb77e
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
-API response, security or some other reason. The missing attributes include: cascade.
-It is generally recommended running terraform plan after importing an disk.
+API response, security or some other reason. The missing attributes include: **cascade**, **period_unit**, **period**
+and **auto_renew**. It is generally recommended running terraform plan after importing an disk.
 You can then decide if changes should be applied to the disk, or the resource definition should be updated to align
 with the disk. Also you can ignore changes as below.
 
