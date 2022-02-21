@@ -1,4 +1,4 @@
-package huaweicloud
+package ces
 
 import (
 	"time"
@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -291,7 +292,7 @@ func getAlarmCondition(d *schema.ResourceData) alarmrule.ConditionOpts {
 
 func resourceAlarmRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.CesV1Client(GetRegion(d, config))
+	client, err := config.CesV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating Cloud Eye Service client: %s", err)
 	}
@@ -312,7 +313,7 @@ func resourceAlarmRuleCreate(d *schema.ResourceData, meta interface{}) error {
 		InsufficientdataActions: getAlarmAction(d, "insufficientdata_actions"),
 		AlarmEnabled:            d.Get("alarm_enabled").(bool),
 		AlarmActionEnabled:      d.Get("alarm_action_enabled").(bool),
-		EnterpriseProjectID:     GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID:     config.GetEnterpriseProjectID(d),
 	}
 	logp.Printf("[DEBUG] Create %s Options: %#v", nameCESAR, createOpts)
 
@@ -329,14 +330,14 @@ func resourceAlarmRuleCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceAlarmRuleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.CesV1Client(GetRegion(d, config))
+	client, err := config.CesV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating Cloud Eye Service client: %s", err)
 	}
 
 	r, err := alarmrule.Get(client, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "alarmrule")
+		return common.CheckDeleted(d, err, "alarmrule")
 	}
 	logp.Printf("[DEBUG] Retrieved %s %s: %#v", nameCESAR, d.Id(), r)
 
@@ -373,7 +374,7 @@ func resourceAlarmRuleRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceAlarmRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.CesV1Client(GetRegion(d, config))
+	client, err := config.CesV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating Cloud Eye Service client: %s", err)
 	}
@@ -392,7 +393,7 @@ func resourceAlarmRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 		err = resource.Retry(timeout, func() *resource.RetryError {
 			err := alarmrule.Enable(client, arId, enableOpts).ExtractErr()
 			if err != nil {
-				return checkForRetryableError(err)
+				return common.CheckForRetryableError(err)
 			}
 			return nil
 		})
@@ -435,7 +436,7 @@ func resourceAlarmRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceAlarmRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.CesV1Client(GetRegion(d, config))
+	client, err := config.CesV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating Cloud Eye Service client: %s", err)
 	}
@@ -448,7 +449,7 @@ func resourceAlarmRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		err := alarmrule.Delete(client, arId).ExtractErr()
 		if err != nil {
-			return checkForRetryableError(err)
+			return common.CheckForRetryableError(err)
 		}
 		return nil
 	})

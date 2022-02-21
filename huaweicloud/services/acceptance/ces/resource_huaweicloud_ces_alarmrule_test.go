@@ -1,9 +1,10 @@
-package huaweicloud
+package ces
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk/openstack/cloudeyeservice/alarmrule"
@@ -19,9 +20,9 @@ func TestAccCESAlarmRule_basic(t *testing.T) {
 	resourceName := "huaweicloud_ces_alarmrule.alarmrule_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testCESAlarmRuleDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testCESAlarmRuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCESAlarmRule_basic(rName),
@@ -58,9 +59,9 @@ func TestAccCESAlarmRule_withEpsId(t *testing.T) {
 	resourceName := "huaweicloud_ces_alarmrule.alarmrule_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckEpsID(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testCESAlarmRuleDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testCESAlarmRuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCESAlarmRule_withEpsId(rName),
@@ -71,7 +72,7 @@ func TestAccCESAlarmRule_withEpsId(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "alarm_action_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "alarm_level", "2"),
 					resource.TestCheckResourceAttr(resourceName, "condition.0.value", "6"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -79,8 +80,8 @@ func TestAccCESAlarmRule_withEpsId(t *testing.T) {
 }
 
 func testCESAlarmRuleDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	networkingClient, err := config.CesV1Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	networkingClient, err := config.CesV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud ces client: %s", err)
 	}
@@ -111,8 +112,8 @@ func testCESAlarmRuleExists(n string, ar *alarmrule.AlarmRule) resource.TestChec
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		networkingClient, err := config.CesV1Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		networkingClient, err := config.CesV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud ces client: %s", err)
 		}
@@ -279,5 +280,5 @@ resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
     ]
   }
 }
-`, testCESAlarmRule_base(rName), rName, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testCESAlarmRule_base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
