@@ -52,7 +52,7 @@ func testRequestRetry(t *testing.T, count int) {
 }
 
 func TestRequestRetry(t *testing.T) {
-	t.Run("TestRequestMultipleRetries", func(t *testing.T) { testRequestRetry(t, 2) })
+	t.Run("TestRequestMultipleRetries", func(t *testing.T) { testRequestRetry(t, 5) })
 	t.Run("TestRequestSingleRetry", func(t *testing.T) { testRequestRetry(t, 1) })
 	t.Run("TestRequestZeroRetry", func(t *testing.T) { testRequestRetry(t, 0) })
 }

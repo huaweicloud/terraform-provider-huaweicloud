@@ -115,7 +115,7 @@ func (lrt *LogRoundTripper) logRequest(original io.ReadCloser, contentType strin
 
 	// Handle request contentType
 	if strings.HasPrefix(contentType, "application/json") {
-		debugInfo := lrt.formatJSON(bs.Bytes(), true)
+		debugInfo := formatJSON(bs.Bytes(), true)
 		log.Printf("[DEBUG] API Request Body: %s", debugInfo)
 	} else {
 		log.Printf("[DEBUG] Not logging because the request body isn't JSON")
@@ -134,7 +134,7 @@ func (lrt *LogRoundTripper) logResponse(original io.ReadCloser, contentType stri
 		if err != nil {
 			return nil, err
 		}
-		debugInfo := lrt.formatJSON(bs.Bytes(), true)
+		debugInfo := formatJSON(bs.Bytes(), true)
 		if debugInfo != "" {
 			log.Printf("[DEBUG] API Response Body: %s", debugInfo)
 		}
@@ -147,7 +147,7 @@ func (lrt *LogRoundTripper) logResponse(original io.ReadCloser, contentType stri
 
 // formatJSON will try to pretty-format a JSON body.
 // It will also mask known fields which contain sensitive information.
-func (lrt *LogRoundTripper) formatJSON(raw []byte, maskBody bool) string {
+func formatJSON(raw []byte, maskBody bool) string {
 	var data map[string]interface{}
 
 	err := json.Unmarshal(raw, &data)
