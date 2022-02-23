@@ -81,6 +81,16 @@ The following arguments are supported:
 
 -> **NOTE:** If this `backup_quantity` and `time_period` are both left blank, the backups will be retained permanently.
 
+* `long_term_retention` - (Optional, List) Specifies the long-term retention rules, which is an advanced options of
+  the `backup_quantity`. The [object](#cbr_policy_long_term_retention) structure is documented below.
+
+-> The configuration of `long_term_retention` and `backup_quantity` will take effect together.
+  When the number of retained backups exceeds the preset value (number of `backup_quantity`), the system automatically
+  deletes the earliest backups. By default, the system automatically clears data every other day.
+
+* `time_zone` - (Optional, String) Specifies the UTC time zone, e.g.: `UTC+08:00`.
+  Required if `long_term_retention` is set.
+
 <a name="cbr_policy_backup_cycle"></a>
 The `backup_cycle` block supports:
 
@@ -94,6 +104,20 @@ The `backup_cycle` block supports:
 * `execution_times` - (Required, List) Specifies the backup time. Automated backups will be triggered at the backup
   time. The current time is in the UTC format (HH:MM). The minutes in the list must be set to **00** and the hours
   cannot be repeated. In the replication policy, you are advised to set one time point for one day.
+
+<a name="cbr_policy_long_term_retention"></a>
+The `long_term_retention` block supports:
+
+* `daily` - (Optional, Int) - Specifies the latest backup of each day is saved in the long term.
+
+* `weekly` - (Optional, Int) - Specifies the latest backup of each week is saved in the long term.
+
+* `monthly` - (Optional, Int) - Specifies the latest backup of each month is saved in the long term.
+
+* `yearly` - (Optional, Int) - Specifies the latest backup of each year is saved in the long term.
+
+-> A maximum of 10 backups are retained for failed periodic backup tasks. They are retained for one month and can be
+  manually deleted on the web console.
 
 ## Attributes Reference
 
