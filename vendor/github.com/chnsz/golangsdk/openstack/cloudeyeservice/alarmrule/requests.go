@@ -18,11 +18,12 @@ type DimensionOpts struct {
 type MetricOpts struct {
 	Namespace  string          `json:"namespace" required:"true"`
 	MetricName string          `json:"metric_name" required:"true"`
-	Dimensions []DimensionOpts `json:"dimensions" required:"true"`
+	Dimensions []DimensionOpts `json:"dimensions,omitempty"`
 }
 
 type ConditionOpts struct {
-	Period             int    `json:"period" required:"true"`
+	// The value can be 0
+	Period             int    `json:"period"`
 	Filter             string `json:"filter" required:"true"`
 	ComparisonOperator string `json:"comparison_operator" required:"true"`
 	// The Value ranges from 0 to MAX_VALUE
