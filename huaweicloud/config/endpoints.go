@@ -273,6 +273,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "gaussdb-opengauss",
 		Version: "v3",
 	},
+	"drs": {
+		Name:    "drs",
+		Version: "v3",
+	},
 
 	// catalog for management service
 	"ces": {
