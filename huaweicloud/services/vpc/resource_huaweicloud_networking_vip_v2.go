@@ -9,13 +9,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func resourceNetworkingVIPV2() *schema.Resource {
+func ResourceNetworkingVIPV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetworkingVIPV2Create,
 		Read:   resourceNetworkingVIPV2Read,
@@ -82,7 +83,7 @@ func resourceNetworkingVIPV2() *schema.Resource {
 
 func resourceNetworkingVIPV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	region := GetRegion(d, config)
+	region := config.GetRegion(d)
 	networkingClient, err := config.NetworkingV2Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
@@ -153,14 +154,14 @@ func resourceNetworkingVIPV2Create(d *schema.ResourceData, meta interface{}) err
 
 func resourceNetworkingVIPV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	vip, err := ports.Get(networkingClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "vip")
+		return common.CheckDeleted(d, err, "vip")
 	}
 
 	logp.Printf("[DEBUG] Retrieved VIP %s: %+v", d.Id(), vip)
@@ -192,7 +193,7 @@ func resourceNetworkingVIPV2Read(d *schema.ResourceData, meta interface{}) error
 
 func resourceNetworkingVIPV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -214,7 +215,7 @@ func resourceNetworkingVIPV2Update(d *schema.ResourceData, meta interface{}) err
 
 func resourceNetworkingVIPV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}

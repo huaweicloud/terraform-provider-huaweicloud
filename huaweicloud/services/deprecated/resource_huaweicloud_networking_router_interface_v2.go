@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func resourceNetworkingRouterInterfaceV2() *schema.Resource {
+func ResourceNetworkingRouterInterfaceV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetworkingRouterInterfaceV2Create,
 		Read:   resourceNetworkingRouterInterfaceV2Read,
@@ -59,7 +59,7 @@ func resourceNetworkingRouterInterfaceV2() *schema.Resource {
 
 func resourceNetworkingRouterInterfaceV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -96,7 +96,7 @@ func resourceNetworkingRouterInterfaceV2Create(d *schema.ResourceData, meta inte
 
 func resourceNetworkingRouterInterfaceV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -125,14 +125,14 @@ func resourceNetworkingRouterInterfaceV2Read(d *schema.ResourceData, meta interf
 		d.Set("subnet_id", n.FixedIPs[0].SubnetID)
 	}
 
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 
 	return nil
 }
 
 func resourceNetworkingRouterInterfaceV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}

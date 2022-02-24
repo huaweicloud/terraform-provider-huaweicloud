@@ -8,6 +8,7 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/networking/v2/subnets"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
@@ -15,9 +16,9 @@ func TestAccNetworkingV2Subnet_basic(t *testing.T) {
 	var subnet subnets.Subnet
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2SubnetDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkingV2SubnetDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2Subnet_basic,
@@ -53,9 +54,9 @@ func TestAccNetworkingV2Subnet_enableDHCP(t *testing.T) {
 	var subnet subnets.Subnet
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2SubnetDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkingV2SubnetDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2Subnet_enableDHCP,
@@ -73,9 +74,9 @@ func TestAccNetworkingV2Subnet_noGateway(t *testing.T) {
 	var subnet subnets.Subnet
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2SubnetDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkingV2SubnetDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2Subnet_noGateway,
@@ -93,9 +94,9 @@ func TestAccNetworkingV2Subnet_impliedGateway(t *testing.T) {
 	var subnet subnets.Subnet
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2SubnetDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkingV2SubnetDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2Subnet_impliedGateway,
@@ -113,9 +114,9 @@ func TestAccNetworkingV2Subnet_timeout(t *testing.T) {
 	var subnet subnets.Subnet
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2SubnetDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkingV2SubnetDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2Subnet_timeout,
@@ -128,8 +129,8 @@ func TestAccNetworkingV2Subnet_timeout(t *testing.T) {
 }
 
 func testAccCheckNetworkingV2SubnetDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -159,8 +160,8 @@ func testAccCheckNetworkingV2SubnetExists(n string, subnet *subnets.Subnet) reso
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}

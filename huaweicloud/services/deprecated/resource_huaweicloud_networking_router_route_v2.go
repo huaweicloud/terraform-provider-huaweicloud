@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func resourceNetworkingRouterRouteV2() *schema.Resource {
+func ResourceNetworkingRouterRouteV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetworkingRouterRouteV2Create,
 		Read:   resourceNetworkingRouterRouteV2Read,
@@ -50,16 +50,13 @@ func resourceNetworkingRouterRouteV2() *schema.Resource {
 }
 
 func resourceNetworkingRouterRouteV2Create(d *schema.ResourceData, meta interface{}) error {
-
 	routerId := d.Get("router_id").(string)
-	osMutexKV.Lock(routerId)
-	defer osMutexKV.Unlock(routerId)
 
 	var destCidr string = d.Get("destination_cidr").(string)
 	var nextHop string = d.Get("next_hop").(string)
 
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -117,7 +114,7 @@ func resourceNetworkingRouterRouteV2Read(d *schema.ResourceData, meta interface{
 	routerId := d.Get("router_id").(string)
 
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -166,20 +163,16 @@ func resourceNetworkingRouterRouteV2Read(d *schema.ResourceData, meta interface{
 		}
 	}
 
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 
 	return nil
 }
 
 func resourceNetworkingRouterRouteV2Delete(d *schema.ResourceData, meta interface{}) error {
-
 	routerId := d.Get("router_id").(string)
-	osMutexKV.Lock(routerId)
-	defer osMutexKV.Unlock(routerId)
-
 	config := meta.(*config.Config)
 
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}

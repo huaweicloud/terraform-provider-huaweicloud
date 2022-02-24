@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func dataSourceNetworkingNetworkV2() *schema.Resource {
+func DataSourceNetworkingNetworkV2() *schema.Resource {
 	return &schema.Resource{
 		Read:               dataSourceNetworkingNetworkV2Read,
 		DeprecationMessage: "use huaweicloud_vpc_subnet data source instead",
@@ -48,7 +48,7 @@ func dataSourceNetworkingNetworkV2() *schema.Resource {
 					"HW_PROJECT_ID",
 					"OS_TENANT_ID",
 				}, ""),
-				Description: descriptions["tenant_id"],
+				Description: "The ID of the Tenant (Identity v2) to login with.",
 			},
 			"admin_state_up": {
 				Type:     schema.TypeString,
@@ -64,7 +64,7 @@ func dataSourceNetworkingNetworkV2() *schema.Resource {
 
 func dataSourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -128,7 +128,7 @@ func dataSourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{})
 	d.Set("admin_state_up", strconv.FormatBool(network.AdminStateUp))
 	d.Set("shared", strconv.FormatBool(network.Shared))
 	d.Set("tenant_id", network.TenantID)
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 
 	return nil
 }

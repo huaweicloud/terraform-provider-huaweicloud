@@ -9,13 +9,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccFWPolicyV2_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDeprecated(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckFWPolicyV2Destroy,
 		Steps: []resource.TestStep{
 			{
@@ -31,8 +32,8 @@ func TestAccFWPolicyV2_basic(t *testing.T) {
 
 func TestAccFWPolicyV2_addRules(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDeprecated(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckFWPolicyV2Destroy,
 		Steps: []resource.TestStep{
 			{
@@ -53,8 +54,8 @@ func TestAccFWPolicyV2_addRules(t *testing.T) {
 
 func TestAccFWPolicyV2_deleteRules(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDeprecated(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckFWPolicyV2Destroy,
 		Steps: []resource.TestStep{
 			{
@@ -70,8 +71,8 @@ func TestAccFWPolicyV2_deleteRules(t *testing.T) {
 
 func TestAccFWPolicyV2_timeout(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDeprecated(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckFWPolicyV2Destroy,
 		Steps: []resource.TestStep{
 			{
@@ -86,8 +87,8 @@ func TestAccFWPolicyV2_timeout(t *testing.T) {
 }
 
 func testAccCheckFWPolicyV2Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	fwClient, err := config.FwV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -117,8 +118,8 @@ func testAccCheckFWPolicyV2Exists(n, name, description string, ruleCount int) re
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		fwClient, err := config.FwV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 		}

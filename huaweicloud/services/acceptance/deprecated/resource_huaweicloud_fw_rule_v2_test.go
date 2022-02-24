@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
@@ -49,8 +50,8 @@ func TestAccFWRuleV2_basic(t *testing.T) {
 	}
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDeprecated(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckFWRuleV2Destroy,
 		Steps: []resource.TestStep{
 			{
@@ -92,8 +93,8 @@ func TestAccFWRuleV2_anyProtocol(t *testing.T) {
 	}
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDeprecated(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckFWRuleV2Destroy,
 		Steps: []resource.TestStep{
 			{
@@ -107,8 +108,8 @@ func TestAccFWRuleV2_anyProtocol(t *testing.T) {
 }
 
 func testAccCheckFWRuleV2Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	fwClient, err := config.FwV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -139,8 +140,8 @@ func testAccCheckFWRuleV2Exists(n string, expected *rules.Rule) resource.TestChe
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		fwClient, err := config.FwV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 		}

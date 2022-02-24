@@ -55,7 +55,7 @@ func DataSourceNetworkingSecGroup() *schema.Resource {
 
 func dataSourceNetworkingSecGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV3Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -94,7 +94,7 @@ func dataSourceNetworkingSecGroupRead(_ context.Context, d *schema.ResourceData,
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("region", GetRegion(d, config)),
+		d.Set("region", config.GetRegion(d)),
 		d.Set("name", secGroup.Name),
 		d.Set("description", secGroup.Description),
 		d.Set("rules", secGroupRule),

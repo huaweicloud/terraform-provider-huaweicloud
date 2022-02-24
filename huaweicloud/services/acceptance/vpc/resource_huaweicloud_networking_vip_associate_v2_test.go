@@ -4,35 +4,30 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccNetworkingV2VIPAssociate_basic(t *testing.T) {
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	var instance cloudservers.CloudServer
 	var vip ports.Port
 	var port ports.Port
+	rName := acceptance.RandomAccResourceNameWithDash()
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2VIPAssociateDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkingV2VIPAssociateDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2VIPAssociateConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.test", &instance),
-					testAccCheckNetworkingV2VIPExists("data.huaweicloud_networking_port.port", &port),
-					testAccCheckNetworkingV2VIPExists("huaweicloud_networking_vip.vip_1", &vip),
 					testAccCheckNetworkingV2VIPAssociated(&port, &vip),
 				),
 			},
@@ -41,8 +36,8 @@ func TestAccNetworkingV2VIPAssociate_basic(t *testing.T) {
 }
 
 func testAccCheckNetworkingV2VIPAssociateDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -84,20 +79,58 @@ func testAccCheckNetworkingV2VIPAssociated(p *ports.Port, vip *ports.Port) resou
 }
 
 func testAccNetworkingV2VIPAssociateConfig_basic(rName string) string {
-	return fmt.Sprintf(`
-%s
+	cidr, gatewayIp := acceptance.RandomCidrAndGatewayIp()
 
-data "huaweicloud_networking_port" "port" {
-  port_id = huaweicloud_compute_instance.test.network[0].port
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
 }
 
-resource "huaweicloud_networking_vip" "vip_1" {
+data "huaweicloud_images_image" "test" {
+  name        = "Ubuntu 18.04 server 64bit"
+  most_recent = true
+}
+
+resource "huaweicloud_vpc" "test" {
+  name = "%s"
+  cidr = "%s"
+}
+  
+resource "huaweicloud_vpc_subnet" "test" {
+  name       = "%s"
+  cidr       = "%s"
+  gateway_ip = "%s"
+  vpc_id     = huaweicloud_vpc.test.id
+}
+
+resource "huaweicloud_networking_secgroup" "test" {
+  name ="%s"
+}
+
+resource "huaweicloud_compute_instance" "test" {
+  name               = "%s"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+
+  network {
+    uuid = huaweicloud_vpc_subnet.test.id
+  }
+}
+
+resource "huaweicloud_networking_vip" "test" {
   network_id = data.huaweicloud_vpc_subnet.test.id
 }
 
-resource "huaweicloud_networking_vip_associate" "vip_associate_1" {
-  vip_id   = huaweicloud_networking_vip.vip_1.id
+resource "huaweicloud_networking_vip_associate" "test" {
+  vip_id   = huaweicloud_networking_vip.test.id
   port_ids = [huaweicloud_compute_instance.test.network[0].port]
 }
-`, testAccComputeV2Instance_basic(rName))
+`, rName, cidr, rName, cidr, gatewayIp, rName, rName)
 }

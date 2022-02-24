@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk"
@@ -19,8 +21,8 @@ func TestAccFWFirewallGroupV2_basic(t *testing.T) {
 	var ipolicyID *string
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDeprecated(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckFWFirewallGroupV2Destroy,
 		Steps: []resource.TestStep{
 			{
@@ -46,11 +48,11 @@ func TestAccFWFirewallGroupV2_basic(t *testing.T) {
 }
 
 func TestAccFWFirewallGroupV2_port0(t *testing.T) {
-	var firewall_group FirewallGroup
+	var firewall_group deprecated.FirewallGroup
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDeprecated(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckFWFirewallGroupV2Destroy,
 		Steps: []resource.TestStep{
 			{
@@ -65,11 +67,11 @@ func TestAccFWFirewallGroupV2_port0(t *testing.T) {
 }
 
 func TestAccFWFirewallGroupV2_no_ports(t *testing.T) {
-	var firewall_group FirewallGroup
+	var firewall_group deprecated.FirewallGroup
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDeprecated(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckFWFirewallGroupV2Destroy,
 		Steps: []resource.TestStep{
 			{
@@ -85,11 +87,11 @@ func TestAccFWFirewallGroupV2_no_ports(t *testing.T) {
 }
 
 func TestAccFWFirewallGroupV2_port_update(t *testing.T) {
-	var firewall_group FirewallGroup
+	var firewall_group deprecated.FirewallGroup
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDeprecated(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckFWFirewallGroupV2Destroy,
 		Steps: []resource.TestStep{
 			{
@@ -111,11 +113,11 @@ func TestAccFWFirewallGroupV2_port_update(t *testing.T) {
 }
 
 func TestAccFWFirewallGroupV2_port_remove(t *testing.T) {
-	var firewall_group FirewallGroup
+	var firewall_group deprecated.FirewallGroup
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDeprecated(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckFWFirewallGroupV2Destroy,
 		Steps: []resource.TestStep{
 			{
@@ -137,8 +139,8 @@ func TestAccFWFirewallGroupV2_port_remove(t *testing.T) {
 }
 
 func testAccCheckFWFirewallGroupV2Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	fwClient, err := config.FwV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -158,7 +160,7 @@ func testAccCheckFWFirewallGroupV2Destroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckFWFirewallGroupV2Exists(n string, firewall_group *FirewallGroup) resource.TestCheckFunc {
+func testAccCheckFWFirewallGroupV2Exists(n string, firewall_group *deprecated.FirewallGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -169,13 +171,13 @@ func testAccCheckFWFirewallGroupV2Exists(n string, firewall_group *FirewallGroup
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		fwClient, err := config.FwV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Exists) Error creating HuaweiCloud fw client: %s", err)
 		}
 
-		var found FirewallGroup
+		var found deprecated.FirewallGroup
 		err = firewall_groups.Get(fwClient, rs.Primary.ID).ExtractInto(&found)
 		if err != nil {
 			return err
@@ -191,7 +193,7 @@ func testAccCheckFWFirewallGroupV2Exists(n string, firewall_group *FirewallGroup
 	}
 }
 
-func testAccCheckFWFirewallPortCount(firewall_group *FirewallGroup, expected int) resource.TestCheckFunc {
+func testAccCheckFWFirewallPortCount(firewall_group *deprecated.FirewallGroup, expected int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if len(firewall_group.PortIDs) != expected {
 			return fmtp.Errorf("Expected %d Ports, got %d", expected, len(firewall_group.PortIDs))
@@ -212,8 +214,8 @@ func testAccCheckFWFirewallGroupV2(n, expectedName, expectedDescription string, 
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		fwClient, err := config.FwV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Exists) Error creating HuaweiCloud fw client: %s", err)
 		}
@@ -350,7 +352,7 @@ resource "huaweicloud_fw_firewall_group_v2" "fw_1" {
   ]
   depends_on = ["huaweicloud_networking_router_interface_v2.router_interface_1"]
 }
-`, HW_EXTGW_ID)
+`, acceptance.HW_EXTGW_ID)
 
 var testAccFWFirewallV2_port_add = fmt.Sprintf(`
 resource "huaweicloud_networking_network_v2" "network_1" {
@@ -424,7 +426,7 @@ resource "huaweicloud_fw_firewall_group_v2" "fw_1" {
   ]
   depends_on = ["huaweicloud_networking_router_interface_v2.router_interface_1", "huaweicloud_networking_router_interface_v2.router_interface_2"]
 }
-`, HW_EXTGW_ID, HW_EXTGW_ID)
+`, acceptance.HW_EXTGW_ID, acceptance.HW_EXTGW_ID)
 
 const testAccFWFirewallV2_port_remove = `
 resource "huaweicloud_fw_policy_v2" "policy_1" {

@@ -127,7 +127,7 @@ func ResourceNetworkingSecGroup() *schema.Resource {
 func resourceNetworkingSecGroupCreate(ctx context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	client, err := config.NetworkingV3Client(GetRegion(d, config))
+	client, err := config.NetworkingV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v3 client: %s", err)
 	}
@@ -135,7 +135,7 @@ func resourceNetworkingSecGroupCreate(ctx context.Context, d *schema.ResourceDat
 	// only name and enterprise_project_id are supported
 	createOpts := groups.CreateOpts{
 		Name:                d.Get("name").(string),
-		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 	}
 
 	logp.Printf("[DEBUG] Create HuaweiCloud Security Group: %#v", createOpts)
@@ -174,7 +174,7 @@ func resourceNetworkingSecGroupCreate(ctx context.Context, d *schema.ResourceDat
 
 func resourceNetworkingSecGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	client, err := config.NetworkingV3Client(GetRegion(d, config))
+	client, err := config.NetworkingV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v3 client: %s", err)
 	}
@@ -193,7 +193,7 @@ func resourceNetworkingSecGroupRead(_ context.Context, d *schema.ResourceData, m
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("region", GetRegion(d, config)),
+		d.Set("region", config.GetRegion(d)),
 		d.Set("name", securityGroup.Name),
 		d.Set("description", securityGroup.Description),
 		d.Set("enterprise_project_id", securityGroup.EnterpriseProjectId),
@@ -249,7 +249,7 @@ func flattenSecurityGroupRules(secGroup *groups.SecurityGroup) ([]map[string]int
 func resourceNetworkingSecGroupUpdate(ctx context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	client, err := config.NetworkingV3Client(GetRegion(d, config))
+	client, err := config.NetworkingV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v3 client: %s", err)
 	}
@@ -274,7 +274,7 @@ func resourceNetworkingSecGroupUpdate(ctx context.Context, d *schema.ResourceDat
 
 func resourceNetworkingSecGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	client, err := config.NetworkingV3Client(GetRegion(d, config))
+	client, err := config.NetworkingV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v3 client: %s", err)
 	}

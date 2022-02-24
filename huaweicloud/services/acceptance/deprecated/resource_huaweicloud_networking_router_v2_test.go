@@ -9,6 +9,7 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/layer3/routers"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
@@ -16,9 +17,9 @@ func TestAccNetworkingV2Router_basic(t *testing.T) {
 	var router routers.Router
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2RouterDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkingV2RouterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2Router_basic,
@@ -46,9 +47,9 @@ func TestAccNetworkingV2Router_updateExternalGateway(t *testing.T) {
 	var router routers.Router
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2RouterDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkingV2RouterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2Router_updateExternalGateway1,
@@ -60,7 +61,7 @@ func TestAccNetworkingV2Router_updateExternalGateway(t *testing.T) {
 				Config: testAccNetworkingV2Router_updateExternalGateway2,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"huaweicloud_networking_router_v2.router_1", "external_network_id", HW_EXTGW_ID),
+						"huaweicloud_networking_router_v2.router_1", "external_network_id", acceptance.HW_EXTGW_ID),
 				),
 			},
 		},
@@ -71,9 +72,9 @@ func TestAccNetworkingV2Router_timeout(t *testing.T) {
 	var router routers.Router
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2RouterDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkingV2RouterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2Router_timeout,
@@ -86,8 +87,8 @@ func TestAccNetworkingV2Router_timeout(t *testing.T) {
 }
 
 func testAccCheckNetworkingV2RouterDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -117,8 +118,8 @@ func testAccCheckNetworkingV2RouterExists(n string, router *routers.Router) reso
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
@@ -169,7 +170,7 @@ resource "huaweicloud_networking_router_v2" "router_1" {
 	distributed = "false"
 	external_network_id = "%s"
 }
-`, HW_EXTGW_ID)
+`, acceptance.HW_EXTGW_ID)
 
 const testAccNetworkingV2Router_timeout = `
 resource "huaweicloud_networking_router_v2" "router_1" {

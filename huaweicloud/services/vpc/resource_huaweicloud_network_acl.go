@@ -12,7 +12,9 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/fwaas_v2/policies"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/fwaas_v2/routerinsertion"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -87,7 +89,7 @@ func resourceNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
 	var inboundPolicyID, outboundPolicyID string
 
 	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -200,7 +202,7 @@ func resourceNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
 		// so we seems the "INACTIVE" as a target state.
 		Pending:    []string{"PENDING_CREATE"},
 		Target:     []string{"ACTIVE", "INACTIVE"},
-		Refresh:    waitForFirewallGroupActive(fwClient, group.ID),
+		Refresh:    deprecated.WaitForFirewallGroupActive(fwClient, group.ID),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      2,
 		MinTimeout: 2 * time.Second,
@@ -217,15 +219,15 @@ func resourceNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceNetworkACLRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
 
-	var fwGroup FirewallGroup
+	var fwGroup deprecated.FirewallGroup
 	err = firewall_groups.Get(fwClient, d.Id()).ExtractInto(&fwGroup)
 	if err != nil {
-		return CheckDeleted(d, err, "firewall")
+		return common.CheckDeleted(d, err, "firewall")
 	}
 
 	logp.Printf("[DEBUG] Read HuaweiCloud Firewall group %s: %#v", d.Id(), fwGroup)
@@ -244,7 +246,7 @@ func resourceNetworkACLRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceNetworkACLUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -308,7 +310,7 @@ func resourceNetworkACLUpdate(d *schema.ResourceData, meta interface{}) error {
 		stateConf := &resource.StateChangeConf{
 			Pending:    []string{"PENDING_CREATE", "PENDING_UPDATE"},
 			Target:     []string{"ACTIVE", "INACTIVE"},
-			Refresh:    waitForFirewallGroupActive(fwClient, d.Id()),
+			Refresh:    deprecated.WaitForFirewallGroupActive(fwClient, d.Id()),
 			Timeout:    d.Timeout(schema.TimeoutUpdate),
 			Delay:      2,
 			MinTimeout: 2 * time.Second,
@@ -327,7 +329,7 @@ func resourceNetworkACLDelete(d *schema.ResourceData, meta interface{}) error {
 	logp.Printf("[DEBUG] Destroy firewall group: %s", d.Id())
 
 	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -343,7 +345,7 @@ func resourceNetworkACLDelete(d *schema.ResourceData, meta interface{}) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"DELETING"},
 		Target:     []string{"DELETED"},
-		Refresh:    waitForFirewallGroupDeletion(fwClient, d.Id()),
+		Refresh:    deprecated.WaitForFirewallGroupDeletion(fwClient, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      2,
 		MinTimeout: 2 * time.Second,

@@ -11,6 +11,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/subnets"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
@@ -20,9 +21,9 @@ func TestAccNetworkingV2RouterInterface_basic_subnet(t *testing.T) {
 	var subnet subnets.Subnet
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2RouterInterfaceDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkingV2RouterInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2RouterInterface_basic_subnet,
@@ -49,9 +50,9 @@ func TestAccNetworkingV2RouterInterface_basic_port(t *testing.T) {
 	var subnet subnets.Subnet
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2RouterInterfaceDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkingV2RouterInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2RouterInterface_basic_port,
@@ -78,9 +79,9 @@ func TestAccNetworkingV2RouterInterface_timeout(t *testing.T) {
 	var subnet subnets.Subnet
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2RouterInterfaceDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkingV2RouterInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2RouterInterface_timeout,
@@ -96,8 +97,8 @@ func TestAccNetworkingV2RouterInterface_timeout(t *testing.T) {
 }
 
 func testAccCheckNetworkingV2RouterInterfaceDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -127,8 +128,8 @@ func testAccCheckNetworkingV2RouterInterfaceExists(n string) resource.TestCheckF
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
@@ -141,6 +142,38 @@ func testAccCheckNetworkingV2RouterInterfaceExists(n string) resource.TestCheckF
 		if found.ID != rs.Primary.ID {
 			return fmtp.Errorf("Router interface not found")
 		}
+
+		return nil
+	}
+}
+
+func testAccCheckNetworkingV2PortExists(n string, port *ports.Port) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmtp.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmtp.Errorf("No ID is set")
+		}
+
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
+		if err != nil {
+			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		}
+
+		found, err := ports.Get(networkingClient, rs.Primary.ID).Extract()
+		if err != nil {
+			return err
+		}
+
+		if found.ID != rs.Primary.ID {
+			return fmtp.Errorf("Port not found")
+		}
+
+		*port = *found
 
 		return nil
 	}

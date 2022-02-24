@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -18,9 +19,9 @@ func TestAccNetworkingV2FloatingIP_basic(t *testing.T) {
 	var fip floatingips.FloatingIP
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2FloatingIPDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkingV2FloatingIPDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2FloatingIP_basic,
@@ -41,9 +42,9 @@ func TestAccNetworkingV2FloatingIP_fixedip_bind(t *testing.T) {
 	var fip floatingips.FloatingIP
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2FloatingIPDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkingV2FloatingIPDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2FloatingIP_fixedip_bind,
@@ -57,8 +58,8 @@ func TestAccNetworkingV2FloatingIP_fixedip_bind(t *testing.T) {
 }
 
 func testAccCheckNetworkingV2FloatingIPDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	networkClient, err := config.NetworkingV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	networkClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud floating IP: %s", err)
 	}
@@ -88,8 +89,8 @@ func testAccCheckNetworkingV2FloatingIPExists(n string, kp *floatingips.Floating
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		networkClient, err := config.NetworkingV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		networkClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
@@ -184,4 +185,4 @@ resource "huaweicloud_networking_floatingip_v2" "fip_1" {
   port_id = "${huaweicloud_networking_port_v2.port_1.id}"
   fixed_ip = "${huaweicloud_networking_port_v2.port_1.fixed_ip.0.ip_address}"
 }
-`, HW_EXTGW_ID, HW_POOL_NAME)
+`, acceptance.HW_EXTGW_ID, acceptance.HW_POOL_NAME)

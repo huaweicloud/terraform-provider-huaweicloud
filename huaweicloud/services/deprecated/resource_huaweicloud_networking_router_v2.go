@@ -13,7 +13,19 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func resourceNetworkingRouterV2() *schema.Resource {
+// RouterCreateOpts represents the attributes used when creating a new router.
+type RouterCreateOpts struct {
+	routers.CreateOpts
+	ValueSpecs map[string]string `json:"value_specs,omitempty"`
+}
+
+// ToRouterCreateMap casts a CreateOpts struct to a map.
+// It overrides routers.ToRouterCreateMap to add the ValueSpecs field.
+func (opts RouterCreateOpts) ToRouterCreateMap() (map[string]interface{}, error) {
+	return BuildRequest(opts, "router")
+}
+
+func ResourceNetworkingRouterV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetworkingRouterV2Create,
 		Read:   resourceNetworkingRouterV2Read,
@@ -97,7 +109,7 @@ func resourceNetworkingRouterV2() *schema.Resource {
 
 func resourceNetworkingRouterV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -175,7 +187,7 @@ func resourceNetworkingRouterV2Create(d *schema.ResourceData, meta interface{}) 
 
 func resourceNetworkingRouterV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -196,7 +208,7 @@ func resourceNetworkingRouterV2Read(d *schema.ResourceData, meta interface{}) er
 	d.Set("admin_state_up", n.AdminStateUp)
 	d.Set("distributed", n.Distributed)
 	d.Set("tenant_id", n.TenantID)
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 
 	// Gateway settings
 	d.Set("external_network_id", n.GatewayInfo.NetworkID)
@@ -218,12 +230,8 @@ func resourceNetworkingRouterV2Read(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceNetworkingRouterV2Update(d *schema.ResourceData, meta interface{}) error {
-	routerId := d.Id()
-	osMutexKV.Lock(routerId)
-	defer osMutexKV.Unlock(routerId)
-
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -292,7 +300,7 @@ func resourceNetworkingRouterV2Update(d *schema.ResourceData, meta interface{}) 
 
 func resourceNetworkingRouterV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}

@@ -4,12 +4,18 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/stretchr/testify/assert"
 
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/extradhcpopts"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/networks"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/subnets"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
@@ -19,9 +25,9 @@ func TestAccNetworkingV2Port_basic(t *testing.T) {
 	var subnet subnets.Subnet
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2PortDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkingV2NetworkDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2Port_basic,
@@ -49,9 +55,9 @@ func TestAccNetworkingV2Port_noip(t *testing.T) {
 	var subnet subnets.Subnet
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2PortDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkingV2NetworkDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2Port_noip,
@@ -72,9 +78,9 @@ func TestAccNetworkingV2Port_timeout(t *testing.T) {
 	var subnet subnets.Subnet
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2PortDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkingV2NetworkDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2Port_timeout,
@@ -94,9 +100,9 @@ func TestAccNetworkingV2Port_createExtraDHCPOpts(t *testing.T) {
 	var port ports.Port
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2PortDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkingV2NetworkDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2Port_createExtraDHCPOpts,
@@ -126,9 +132,9 @@ func TestAccNetworkingV2Port_updateExtraDHCPOpts(t *testing.T) {
 	var port ports.Port
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2PortDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkingV2NetworkDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2Port_basic,
@@ -182,9 +188,272 @@ func TestAccNetworkingV2Port_updateExtraDHCPOpts(t *testing.T) {
 	})
 }
 
+func TestExpandNetworkingPortDHCPOptsV2Create(t *testing.T) {
+	r := deprecated.ResourceNetworkingPortV2()
+	d := r.TestResourceData()
+	d.SetId("1")
+	dhcpOpts1 := map[string]interface{}{
+		"ip_version": 4,
+		"name":       "A",
+		"value":      "true",
+	}
+	dhcpOpts2 := map[string]interface{}{
+		"ip_version": 6,
+		"name":       "B",
+		"value":      "false",
+	}
+	extraDHCPOpts := []map[string]interface{}{dhcpOpts1, dhcpOpts2}
+	d.Set("extra_dhcp_option", extraDHCPOpts)
+
+	expectedDHCPOptions := []extradhcpopts.CreateExtraDHCPOpt{
+		{
+			OptName:   "B",
+			OptValue:  "false",
+			IPVersion: golangsdk.IPVersion(6),
+		},
+		{
+			OptName:   "A",
+			OptValue:  "true",
+			IPVersion: golangsdk.IPVersion(4),
+		},
+	}
+
+	actualDHCPOptions := deprecated.ExpandNetworkingPortDHCPOptsV2Create(d.Get("extra_dhcp_option").(*schema.Set))
+
+	assert.ElementsMatch(t, expectedDHCPOptions, actualDHCPOptions)
+}
+
+func TestExpandNetworkingPortDHCPOptsEmptyV2Create(t *testing.T) {
+	r := deprecated.ResourceNetworkingPortV2()
+	d := r.TestResourceData()
+	d.SetId("1")
+
+	expectedDHCPOptions := []extradhcpopts.CreateExtraDHCPOpt{}
+
+	actualDHCPOptions := deprecated.ExpandNetworkingPortDHCPOptsV2Create(d.Get("extra_dhcp_option").(*schema.Set))
+
+	assert.ElementsMatch(t, expectedDHCPOptions, actualDHCPOptions)
+}
+
+func TestExpandNetworkingPortDHCPOptsV2Update(t *testing.T) {
+	r := deprecated.ResourceNetworkingPortV2()
+	d := r.TestResourceData()
+	d.SetId("1")
+	dhcpOpts1 := map[string]interface{}{
+		"ip_version": 4,
+		"name":       "A",
+		"value":      "true",
+	}
+	dhcpOpts2 := map[string]interface{}{
+		"ip_version": 6,
+		"name":       "B",
+		"value":      "false",
+	}
+	extraDHCPOpts := []map[string]interface{}{dhcpOpts1, dhcpOpts2}
+	d.Set("extra_dhcp_option", extraDHCPOpts)
+
+	optsValueTrue := "true"
+	optsValueFalse := "false"
+	expectedDHCPOptions := []extradhcpopts.UpdateExtraDHCPOpt{
+		{
+			OptName:   "B",
+			OptValue:  &optsValueFalse,
+			IPVersion: golangsdk.IPVersion(6),
+		},
+		{
+			OptName:   "A",
+			OptValue:  &optsValueTrue,
+			IPVersion: golangsdk.IPVersion(4),
+		},
+	}
+
+	actualDHCPOptions := deprecated.ExpandNetworkingPortDHCPOptsV2Update(d.Get("extra_dhcp_option").(*schema.Set))
+
+	assert.ElementsMatch(t, expectedDHCPOptions, actualDHCPOptions)
+}
+
+func TestExpandNetworkingPortDHCPOptsEmptyV2Update(t *testing.T) {
+	r := deprecated.ResourceNetworkingPortV2()
+	d := r.TestResourceData()
+	d.SetId("1")
+
+	expectedDHCPOptions := []extradhcpopts.UpdateExtraDHCPOpt{}
+
+	actualDHCPOptions := deprecated.ExpandNetworkingPortDHCPOptsV2Update(d.Get("extra_dhcp_option").(*schema.Set))
+
+	assert.ElementsMatch(t, expectedDHCPOptions, actualDHCPOptions)
+}
+
+func TestExpandNetworkingPortDHCPOptsV2Delete(t *testing.T) {
+	r := deprecated.ResourceNetworkingPortV2()
+	d := r.TestResourceData()
+	d.SetId("1")
+	dhcpOpts1 := map[string]interface{}{
+		"ip_version": 4,
+		"name":       "A",
+		"value":      "true",
+	}
+	dhcpOpts2 := map[string]interface{}{
+		"ip_version": 6,
+		"name":       "B",
+		"value":      "false",
+	}
+	extraDHCPOpts := []map[string]interface{}{dhcpOpts1, dhcpOpts2}
+	d.Set("extra_dhcp_option", extraDHCPOpts)
+
+	expectedDHCPOptions := []extradhcpopts.UpdateExtraDHCPOpt{
+		{
+			OptName: "B",
+		},
+		{
+			OptName: "A",
+		},
+	}
+
+	actualDHCPOptions := deprecated.ExpandNetworkingPortDHCPOptsV2Delete(d.Get("extra_dhcp_option").(*schema.Set))
+
+	assert.ElementsMatch(t, expectedDHCPOptions, actualDHCPOptions)
+}
+
+func TestFlattenNetworkingPort2DHCPOptionsV2(t *testing.T) {
+	dhcpOptions := extradhcpopts.ExtraDHCPOptsExt{
+		ExtraDHCPOpts: []extradhcpopts.ExtraDHCPOpt{
+			{
+				OptName:   "A",
+				OptValue:  "true",
+				IPVersion: "4",
+			},
+			{
+				OptName:   "B",
+				OptValue:  "false",
+				IPVersion: "6",
+			},
+		},
+	}
+
+	expectedDHCPOptions := []map[string]interface{}{
+		{
+			"ip_version": 4,
+			"name":       "A",
+			"value":      "true",
+		},
+		{
+			"ip_version": 6,
+			"name":       "B",
+			"value":      "false",
+		},
+	}
+
+	actualDHCPOptions := deprecated.FlattenNetworkingPortDHCPOptsV2(dhcpOptions)
+
+	assert.ElementsMatch(t, expectedDHCPOptions, actualDHCPOptions)
+}
+
+func TestExpandNetworkingPortAllowedAddressPairsV2(t *testing.T) {
+	r := deprecated.ResourceNetworkingPortV2()
+	d := r.TestResourceData()
+	d.SetId("1")
+	addressPairs1 := map[string]interface{}{
+		"ip_address":  "192.0.2.1",
+		"mac_address": "mac1",
+	}
+	addressPairs2 := map[string]interface{}{
+		"ip_address":  "198.51.100.1",
+		"mac_address": "mac2",
+	}
+	allowedAddressPairs := []map[string]interface{}{addressPairs1, addressPairs2}
+	d.Set("allowed_address_pairs", allowedAddressPairs)
+
+	expectedAllowedAddressPairs := []ports.AddressPair{
+		{
+			IPAddress:  "192.0.2.1",
+			MACAddress: "mac1",
+		},
+		{
+			IPAddress:  "198.51.100.1",
+			MACAddress: "mac2",
+		},
+	}
+
+	actualAllowedAddressPairs := deprecated.ExpandNetworkingPortAllowedAddressPairsV2(d.Get("allowed_address_pairs").(*schema.Set))
+
+	assert.ElementsMatch(t, expectedAllowedAddressPairs, actualAllowedAddressPairs)
+}
+
+func TestFlattenNetworkingPortAllowedAddressPairsV2(t *testing.T) {
+	allowedAddressPairs := []ports.AddressPair{
+		{
+			IPAddress:  "192.0.2.1",
+			MACAddress: "mac1",
+		},
+		{
+			IPAddress:  "198.51.100.1",
+			MACAddress: "mac2",
+		},
+	}
+	mac := "mac3"
+
+	expectedAllowedAddressPairs := []map[string]interface{}{
+		{
+			"ip_address":  "192.0.2.1",
+			"mac_address": "mac1",
+		},
+		{
+			"ip_address":  "198.51.100.1",
+			"mac_address": "mac2",
+		},
+	}
+
+	actualAllowedAddressPairs := deprecated.FlattenNetworkingPortAllowedAddressPairsV2(mac, allowedAddressPairs)
+
+	assert.ElementsMatch(t, expectedAllowedAddressPairs, actualAllowedAddressPairs)
+}
+
+func TestExpandNetworkingPortFixedIPV2NoFixedIPs(t *testing.T) {
+	r := deprecated.ResourceNetworkingPortV2()
+	d := r.TestResourceData()
+	d.SetId("1")
+	d.Set("no_fixed_ip", true)
+
+	actualFixedIP := deprecated.ExpandNetworkingPortFixedIPV2(d)
+
+	assert.Empty(t, actualFixedIP)
+}
+
+func TestExpandNetworkingPortFixedIPV2SomeFixedIPs(t *testing.T) {
+	r := deprecated.ResourceNetworkingPortV2()
+	d := r.TestResourceData()
+	d.SetId("1")
+	fixedIP1 := map[string]interface{}{
+		"subnet_id":  "aaa",
+		"ip_address": "192.0.201.101",
+	}
+	fixedIP2 := map[string]interface{}{
+		"subnet_id":  "bbb",
+		"ip_address": "192.0.202.102",
+	}
+	fixedIP := []map[string]interface{}{fixedIP1, fixedIP2}
+	d.Set("fixed_ip", fixedIP)
+
+	expectedFixedIP := []ports.IP{
+		{
+			SubnetID:  "aaa",
+			IPAddress: "192.0.201.101",
+		},
+		{
+			SubnetID:  "bbb",
+			IPAddress: "192.0.202.102",
+		},
+	}
+
+	actualFixedIP := deprecated.ExpandNetworkingPortFixedIPV2(d)
+
+	assert.ElementsMatch(t, expectedFixedIP, actualFixedIP)
+}
+
 func testAccCheckNetworkingV2PortDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -201,38 +470,6 @@ func testAccCheckNetworkingV2PortDestroy(s *terraform.State) error {
 	}
 
 	return nil
-}
-
-func testAccCheckNetworkingV2PortExists(n string, port *ports.Port) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*config.Config)
-		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
-		}
-
-		found, err := ports.Get(networkingClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Port not found")
-		}
-
-		*port = *found
-
-		return nil
-	}
 }
 
 func testAccCheckNetworkingV2PortCountFixedIPs(port *ports.Port, expected int) resource.TestCheckFunc {

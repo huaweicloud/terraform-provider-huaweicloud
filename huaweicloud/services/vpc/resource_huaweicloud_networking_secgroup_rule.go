@@ -126,7 +126,7 @@ func ResourceNetworkingSecGroupRule() *schema.Resource {
 func resourceNetworkingSecGroupRuleCreate(ctx context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	client, err := config.NetworkingV3Client(GetRegion(d, config))
+	client, err := config.NetworkingV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v3 client: %s", err)
 	}
@@ -174,7 +174,7 @@ func resourceNetworkingSecGroupRuleRead(_ context.Context, d *schema.ResourceDat
 	logp.Printf("[DEBUG] Retrieve information about security group rule: %s", d.Id())
 
 	config := meta.(*config.Config)
-	client, err := config.NetworkingV3Client(GetRegion(d, config))
+	client, err := config.NetworkingV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -193,7 +193,7 @@ func resourceNetworkingSecGroupRuleRead(_ context.Context, d *schema.ResourceDat
 		d.Set("remote_group_id", resp.RemoteGroupId),
 		d.Set("remote_ip_prefix", resp.RemoteIpPrefix),
 		d.Set("security_group_id", resp.SecurityGroupId),
-		d.Set("region", GetRegion(d, config)),
+		d.Set("region", config.GetRegion(d)),
 		setSecurityGroupRulePorts(d, resp.MultiPort),
 	)
 	if mErr.ErrorOrNil() != nil {
@@ -236,7 +236,7 @@ func resourceNetworkingSecGroupRuleDelete(ctx context.Context, d *schema.Resourc
 	logp.Printf("[DEBUG] Destroy security group rule: %s", d.Id())
 
 	config := meta.(*config.Config)
-	client, err := config.NetworkingV3Client(GetRegion(d, config))
+	client, err := config.NetworkingV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud networking client: %s", err)
 	}

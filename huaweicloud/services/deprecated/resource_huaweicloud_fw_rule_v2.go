@@ -6,12 +6,34 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/fwaas_v2/rules"
 	"github.com/chnsz/golangsdk/pagination"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func resourceFWRuleV2() *schema.Resource {
+// RuleCreateOpts represents the attributes used when creating a new firewall rule.
+type RuleCreateOpts struct {
+	rules.CreateOpts
+	ValueSpecs map[string]string `json:"value_specs,omitempty"`
+}
+
+// ToRuleCreateMap casts a CreateOpts struct to a map.
+// It overrides rules.ToRuleCreateMap to add the ValueSpecs field.
+func (opts RuleCreateOpts) ToRuleCreateMap() (map[string]interface{}, error) {
+	b, err := BuildRequest(opts, "firewall_rule")
+	if err != nil {
+		return nil, err
+	}
+
+	if m := b["firewall_rule"].(map[string]interface{}); m["protocol"] == "any" {
+		m["protocol"] = nil
+	}
+
+	return b, nil
+}
+
+func ResourceFWRuleV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceFWRuleV2Create,
 		Read:   resourceFWRuleV2Read,
@@ -89,7 +111,7 @@ func resourceFWRuleV2() *schema.Resource {
 func resourceFWRuleV2Create(d *schema.ResourceData, meta interface{}) error {
 
 	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -134,14 +156,14 @@ func resourceFWRuleV2Read(d *schema.ResourceData, meta interface{}) error {
 	logp.Printf("[DEBUG] Retrieve information about firewall rule: %s", d.Id())
 
 	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
 
 	rule, err := rules.Get(fwClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "FW rule")
+		return common.CheckDeleted(d, err, "FW rule")
 	}
 
 	logp.Printf("[DEBUG] Read HuaweiCloud Firewall Rule %s: %#v", d.Id(), rule)
@@ -162,14 +184,14 @@ func resourceFWRuleV2Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("protocol", rule.Protocol)
 	}
 
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 
 	return nil
 }
 
 func resourceFWRuleV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -229,7 +251,7 @@ func resourceFWRuleV2Delete(d *schema.ResourceData, meta interface{}) error {
 	logp.Printf("[DEBUG] Destroy firewall rule: %s", d.Id())
 
 	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -239,7 +261,7 @@ func resourceFWRuleV2Delete(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	policyID, err := assignedPolicyID(fwClient, rule.ID)
+	policyID, err := AssignedPolicyID(fwClient, rule.ID)
 	if err != nil {
 		return err
 	}
@@ -253,7 +275,7 @@ func resourceFWRuleV2Delete(d *schema.ResourceData, meta interface{}) error {
 	return rules.Delete(fwClient, d.Id()).Err
 }
 
-func assignedPolicyID(fwClient *golangsdk.ServiceClient, ruleID string) (string, error) {
+func AssignedPolicyID(fwClient *golangsdk.ServiceClient, ruleID string) (string, error) {
 	pager := policies.List(fwClient, policies.ListOpts{})
 	policyID := ""
 	err := pager.EachPage(func(page pagination.Page) (b bool, err error) {

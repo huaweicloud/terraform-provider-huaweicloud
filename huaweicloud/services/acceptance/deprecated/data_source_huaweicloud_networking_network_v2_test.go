@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -18,8 +19,8 @@ func TestAccNetworkingNetworkV2DataSource_basic(t *testing.T) {
 	cidr := fmt.Sprintf("192.168.%d.0/24", rand.Intn(200))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheckDeprecated(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingNetworkV2DataSource_basic(network, cidr),

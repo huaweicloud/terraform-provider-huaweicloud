@@ -3,6 +3,7 @@ package deprecated
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -11,11 +12,24 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/extradhcpopts"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
+
+// PortCreateOpts represents the attributes used when creating a new port.
+type PortCreateOpts struct {
+	ports.CreateOpts
+	ValueSpecs map[string]string `json:"value_specs,omitempty"`
+}
+
+// ToPortCreateMap casts a CreateOpts struct to a map.
+// It overrides ports.ToPortCreateMap to add the ValueSpecs field.
+func (opts PortCreateOpts) ToPortCreateMap() (map[string]interface{}, error) {
+	return BuildRequest(opts, "port")
+}
 
 func ResourceNetworkingPortV2() *schema.Resource {
 	return &schema.Resource{
@@ -26,6 +40,7 @@ func ResourceNetworkingPortV2() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+		DeprecationMessage: "Networking port v2 has been deprecated.",
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -167,7 +182,7 @@ func ResourceNetworkingPortV2() *schema.Resource {
 
 func resourceNetworkingPortV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -217,7 +232,7 @@ func resourceNetworkingPortV2Create(d *schema.ResourceData, meta interface{}) er
 	if dhcpOpts.Len() > 0 {
 		finalCreateOpts = extradhcpopts.CreateOptsExt{
 			CreateOptsBuilder: createOpts,
-			ExtraDHCPOpts:     expandNetworkingPortDHCPOptsV2Create(dhcpOpts),
+			ExtraDHCPOpts:     ExpandNetworkingPortDHCPOptsV2Create(dhcpOpts),
 		}
 	}
 
@@ -254,7 +269,7 @@ func resourceNetworkingPortV2Create(d *schema.ResourceData, meta interface{}) er
 
 func resourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -266,7 +281,7 @@ func resourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) erro
 
 	err = ports.Get(networkingClient, d.Id()).ExtractInto(&p)
 	if err != nil {
-		return CheckDeleted(d, err, "port")
+		return common.CheckDeleted(d, err, "port")
 	}
 
 	logp.Printf("[DEBUG] Retrieved Port %s: %+v", d.Id(), p)
@@ -302,16 +317,16 @@ func resourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) erro
 		pairs = append(pairs, pair)
 	}
 	d.Set("allowed_address_pairs", pairs)
-	d.Set("extra_dhcp_option", flattenNetworkingPortDHCPOptsV2(p.ExtraDHCPOptsExt))
+	d.Set("extra_dhcp_option", FlattenNetworkingPortDHCPOptsV2(p.ExtraDHCPOptsExt))
 
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 
 	return nil
 }
 
 func resourceNetworkingPortV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -392,7 +407,7 @@ func resourceNetworkingPortV2Update(d *schema.ResourceData, meta interface{}) er
 		// Delete all old DHCP options, regardless of if they still exist.
 		// If they do still exist, they will be re-added below.
 		if oldDHCPOpts.Len() != 0 {
-			deleteExtraDHCPOpts := expandNetworkingPortDHCPOptsV2Delete(oldDHCPOpts)
+			deleteExtraDHCPOpts := ExpandNetworkingPortDHCPOptsV2Delete(oldDHCPOpts)
 			dhcpUpdateOpts := extradhcpopts.UpdateOptsExt{
 				UpdateOptsBuilder: &ports.UpdateOpts{},
 				ExtraDHCPOpts:     deleteExtraDHCPOpts,
@@ -407,7 +422,7 @@ func resourceNetworkingPortV2Update(d *schema.ResourceData, meta interface{}) er
 
 		// Add any new DHCP options and re-add previously set DHCP options.
 		if newDHCPOpts.Len() != 0 {
-			updateExtraDHCPOpts := expandNetworkingPortDHCPOptsV2Update(newDHCPOpts)
+			updateExtraDHCPOpts := ExpandNetworkingPortDHCPOptsV2Update(newDHCPOpts)
 			dhcpUpdateOpts := extradhcpopts.UpdateOptsExt{
 				UpdateOptsBuilder: &ports.UpdateOpts{},
 				ExtraDHCPOpts:     updateExtraDHCPOpts,
@@ -426,7 +441,7 @@ func resourceNetworkingPortV2Update(d *schema.ResourceData, meta interface{}) er
 
 func resourceNetworkingPortV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -549,4 +564,140 @@ func waitForNetworkPortDelete(networkingClient *golangsdk.ServiceClient, portId 
 		logp.Printf("[DEBUG] HuaweiCloud Port %s still active.\n", portId)
 		return p, "ACTIVE", nil
 	}
+}
+
+func ExpandNetworkingPortDHCPOptsV2Create(dhcpOpts *schema.Set) []extradhcpopts.CreateExtraDHCPOpt {
+	rawDHCPOpts := dhcpOpts.List()
+
+	extraDHCPOpts := make([]extradhcpopts.CreateExtraDHCPOpt, len(rawDHCPOpts))
+	for i, raw := range rawDHCPOpts {
+		rawMap := raw.(map[string]interface{})
+
+		ipVersion := rawMap["ip_version"].(int)
+		optName := rawMap["name"].(string)
+		optValue := rawMap["value"].(string)
+
+		extraDHCPOpts[i] = extradhcpopts.CreateExtraDHCPOpt{
+			OptName:   optName,
+			OptValue:  optValue,
+			IPVersion: golangsdk.IPVersion(ipVersion),
+		}
+	}
+
+	return extraDHCPOpts
+}
+
+func ExpandNetworkingPortDHCPOptsV2Update(dhcpOpts *schema.Set) []extradhcpopts.UpdateExtraDHCPOpt {
+	rawDHCPOpts := dhcpOpts.List()
+
+	extraDHCPOpts := make([]extradhcpopts.UpdateExtraDHCPOpt, len(rawDHCPOpts))
+	for i, raw := range rawDHCPOpts {
+		rawMap := raw.(map[string]interface{})
+
+		ipVersion := rawMap["ip_version"].(int)
+		optName := rawMap["name"].(string)
+		optValue := rawMap["value"].(string)
+
+		extraDHCPOpts[i] = extradhcpopts.UpdateExtraDHCPOpt{
+			OptName:   optName,
+			OptValue:  &optValue,
+			IPVersion: golangsdk.IPVersion(ipVersion),
+		}
+	}
+
+	return extraDHCPOpts
+}
+
+func ExpandNetworkingPortDHCPOptsV2Delete(dhcpOpts *schema.Set) []extradhcpopts.UpdateExtraDHCPOpt {
+	if dhcpOpts == nil {
+		return []extradhcpopts.UpdateExtraDHCPOpt{}
+	}
+
+	rawDHCPOpts := dhcpOpts.List()
+
+	extraDHCPOpts := make([]extradhcpopts.UpdateExtraDHCPOpt, len(rawDHCPOpts))
+	for i, raw := range rawDHCPOpts {
+		rawMap := raw.(map[string]interface{})
+		extraDHCPOpts[i] = extradhcpopts.UpdateExtraDHCPOpt{
+			OptName:  rawMap["name"].(string),
+			OptValue: nil,
+		}
+	}
+
+	return extraDHCPOpts
+}
+
+func FlattenNetworkingPortDHCPOptsV2(dhcpOpts extradhcpopts.ExtraDHCPOptsExt) []map[string]interface{} {
+	dhcpOptsSet := make([]map[string]interface{}, len(dhcpOpts.ExtraDHCPOpts))
+
+	for i, dhcpOpt := range dhcpOpts.ExtraDHCPOpts {
+		ipVersion, _ := strconv.Atoi(dhcpOpt.IPVersion)
+		dhcpOptsSet[i] = map[string]interface{}{
+			"ip_version": ipVersion,
+			"name":       dhcpOpt.OptName,
+			"value":      dhcpOpt.OptValue,
+		}
+	}
+
+	return dhcpOptsSet
+}
+
+func ExpandNetworkingPortAllowedAddressPairsV2(allowedAddressPairs *schema.Set) []ports.AddressPair {
+	rawPairs := allowedAddressPairs.List()
+
+	pairs := make([]ports.AddressPair, len(rawPairs))
+	for i, raw := range rawPairs {
+		rawMap := raw.(map[string]interface{})
+		pairs[i] = ports.AddressPair{
+			IPAddress:  rawMap["ip_address"].(string),
+			MACAddress: rawMap["mac_address"].(string),
+		}
+	}
+
+	return pairs
+}
+
+func FlattenNetworkingPortAllowedAddressPairsV2(mac string, allowedAddressPairs []ports.AddressPair) []map[string]interface{} {
+	pairs := make([]map[string]interface{}, len(allowedAddressPairs))
+
+	for i, pair := range allowedAddressPairs {
+		pairs[i] = map[string]interface{}{
+			"ip_address": pair.IPAddress,
+		}
+		// Only set the MAC address if it is different than the
+		// port's MAC. This means that a specific MAC was set.
+		if pair.MACAddress != mac {
+			pairs[i]["mac_address"] = pair.MACAddress
+		}
+	}
+
+	return pairs
+}
+
+func ExpandNetworkingPortFixedIPV2(d *schema.ResourceData) interface{} {
+	// If no_fixed_ip was specified, then just return an empty array.
+	// Since no_fixed_ip is mutually exclusive to fixed_ip,
+	// we can safely do this.
+	//
+	// Since we're only concerned about no_fixed_ip being set to "true",
+	// GetOk is used.
+	if _, ok := d.GetOk("no_fixed_ip"); ok {
+		return []interface{}{}
+	}
+
+	rawIP := d.Get("fixed_ip").([]interface{})
+
+	if len(rawIP) == 0 {
+		return nil
+	}
+
+	ip := make([]ports.IP, len(rawIP))
+	for i, raw := range rawIP {
+		rawMap := raw.(map[string]interface{})
+		ip[i] = ports.IP{
+			SubnetID:  rawMap["subnet_id"].(string),
+			IPAddress: rawMap["ip_address"].(string),
+		}
+	}
+	return ip
 }

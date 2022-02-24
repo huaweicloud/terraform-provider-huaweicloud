@@ -60,6 +60,10 @@ var (
 	HW_DMS_ENVIRONMENT              = os.Getenv("HW_DMS_ENVIRONMENT")
 
 	HW_DLI_FLINK_JAR_OBS_PATH = os.Getenv("HW_DLI_FLINK_JAR_OBS_PATH")
+
+	// Deprecated
+	HW_EXTGW_ID  = os.Getenv("HW_EXTGW_ID")
+	HW_POOL_NAME = os.Getenv("HW_POOL_NAME")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.

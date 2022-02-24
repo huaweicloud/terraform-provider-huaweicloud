@@ -9,6 +9,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/layer3/floatingips"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -19,7 +20,19 @@ const (
 	PoolName = "admin_external_net"
 )
 
-func resourceNetworkingFloatingIPV2() *schema.Resource {
+// FloatingIPCreateOpts represents the attributes used when creating a new floating ip.
+type FloatingIPCreateOpts struct {
+	floatingips.CreateOpts
+	ValueSpecs map[string]string `json:"value_specs,omitempty"`
+}
+
+// ToFloatingIPCreateMap casts a CreateOpts struct to a map.
+// It overrides floatingips.ToFloatingIPCreateMap to add the ValueSpecs field.
+func (opts FloatingIPCreateOpts) ToFloatingIPCreateMap() (map[string]interface{}, error) {
+	return BuildRequest(opts, "floatingip")
+}
+
+func ResourceNetworkingFloatingIPV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetworkFloatingIPV2Create,
 		Read:   resourceNetworkFloatingIPV2Read,
@@ -84,7 +97,7 @@ func resourceNetworkingFloatingIPV2() *schema.Resource {
 
 func resourceNetworkFloatingIPV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud network client: %s", err)
 	}
@@ -127,14 +140,14 @@ func resourceNetworkFloatingIPV2Create(d *schema.ResourceData, meta interface{})
 
 func resourceNetworkFloatingIPV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud network client: %s", err)
 	}
 
 	floatingIP, err := floatingips.Get(networkingClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "floating IP")
+		return common.CheckDeleted(d, err, "floating IP")
 	}
 
 	d.Set("address", floatingIP.FloatingIP)
@@ -143,14 +156,14 @@ func resourceNetworkFloatingIPV2Read(d *schema.ResourceData, meta interface{}) e
 	d.Set("tenant_id", floatingIP.TenantID)
 	d.Set("pool", PoolName)
 
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 
 	return nil
 }
 
 func resourceNetworkFloatingIPV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud network client: %s", err)
 	}
@@ -174,7 +187,7 @@ func resourceNetworkFloatingIPV2Update(d *schema.ResourceData, meta interface{})
 
 func resourceNetworkFloatingIPV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud network client: %s", err)
 	}

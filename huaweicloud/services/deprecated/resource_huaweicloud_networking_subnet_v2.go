@@ -8,13 +8,35 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/subnets"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func resourceNetworkingSubnetV2() *schema.Resource {
+// SubnetCreateOpts represents the attributes used when creating a new subnet.
+type SubnetCreateOpts struct {
+	subnets.CreateOpts
+	ValueSpecs map[string]string `json:"value_specs,omitempty"`
+}
+
+// ToSubnetCreateMap casts a CreateOpts struct to a map.
+// It overrides subnets.ToSubnetCreateMap to add the ValueSpecs field.
+func (opts SubnetCreateOpts) ToSubnetCreateMap() (map[string]interface{}, error) {
+	b, err := BuildRequest(opts, "subnet")
+	if err != nil {
+		return nil, err
+	}
+
+	if m := b["subnet"].(map[string]interface{}); m["gateway_ip"] == "" {
+		m["gateway_ip"] = nil
+	}
+
+	return b, nil
+}
+
+func ResourceNetworkingSubnetV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetworkingSubnetV2Create,
 		Read:   resourceNetworkingSubnetV2Read,
@@ -147,7 +169,7 @@ func resourceNetworkingSubnetV2() *schema.Resource {
 
 func resourceNetworkingSubnetV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -211,14 +233,14 @@ func resourceNetworkingSubnetV2Create(d *schema.ResourceData, meta interface{}) 
 
 func resourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	s, err := subnets.Get(networkingClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "subnet")
+		return common.CheckDeleted(d, err, "subnet")
 	}
 
 	logp.Printf("[DEBUG] Retrieved Subnet %s: %#v", d.Id(), s)
@@ -268,14 +290,14 @@ func resourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) er
 		d.Set("no_gateway", false)
 	}
 
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 
 	return nil
 }
 
 func resourceNetworkingSubnetV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -330,7 +352,7 @@ func resourceNetworkingSubnetV2Update(d *schema.ResourceData, meta interface{}) 
 
 func resourceNetworkingSubnetV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}

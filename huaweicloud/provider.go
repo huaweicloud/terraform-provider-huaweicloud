@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/mutexkv"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/bms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbr"
@@ -45,9 +44,6 @@ import (
 )
 
 const defaultCloud string = "myhuaweicloud.com"
-
-// This is a global MutexKV for use within this plugin.
-var osMutexKV = mutexkv.NewMutexKV()
 
 // Provider returns a schema.Provider for HuaweiCloud.
 func Provider() *schema.Provider {
@@ -351,8 +347,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_lb_certificate":                       lb.DataSourceLBCertificateV2(),
 			"huaweicloud_elb_certificate":                      elb.DataSourceELBCertificateV3(),
 			"huaweicloud_nat_gateway":                          DataSourceNatGatewayV2(),
-			"huaweicloud_networking_port":                      DataSourceNetworkingPortV2(),
-			"huaweicloud_networking_secgroup":                  DataSourceNetworkingSecGroup(),
+			"huaweicloud_networking_port":                      vpc.DataSourceNetworkingPortV2(),
+			"huaweicloud_networking_secgroup":                  vpc.DataSourceNetworkingSecGroup(),
 			"huaweicloud_modelarts_notebook_images":            modelarts.DataSourceNotebookImages(),
 			"huaweicloud_obs_buckets":                          obs.DataSourceObsBuckets(),
 			"huaweicloud_obs_bucket_object":                    DataSourceObsBucketObject(),
@@ -383,8 +379,7 @@ func Provider() *schema.Provider {
 
 			// Legacy
 			"huaweicloud_images_image_v2":           ims.DataSourceImagesImageV2(),
-			"huaweicloud_networking_port_v2":        DataSourceNetworkingPortV2(),
-			"huaweicloud_networking_secgroup_v2":    DataSourceNetworkingSecGroup(),
+			"huaweicloud_networking_secgroup_v2":    vpc.DataSourceNetworkingSecGroup(),
 			"huaweicloud_kms_key_v1":                DataSourceKmsKeyV1(),
 			"huaweicloud_kms_data_key_v1":           DataSourceKmsDataKeyV1(),
 			"huaweicloud_rds_flavors_v3":            rds.DataSourceRdsFlavor(),
@@ -420,8 +415,8 @@ func Provider() *schema.Provider {
 
 			// Deprecated
 			"huaweicloud_compute_availability_zones_v2": dataSourceComputeAvailabilityZonesV2(),
-			"huaweicloud_networking_network_v2":         dataSourceNetworkingNetworkV2(),
-			"huaweicloud_networking_subnet_v2":          dataSourceNetworkingSubnetV2(),
+			"huaweicloud_networking_network_v2":         deprecated.DataSourceNetworkingNetworkV2(),
+			"huaweicloud_networking_subnet_v2":          deprecated.DataSourceNetworkingSubnetV2(),
 			"huaweicloud_cts_tracker":                   deprecated.DataSourceCTSTrackerV1(),
 		},
 
@@ -560,13 +555,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_nat_dnat_rule":                   ResourceNatDnatRuleV2(),
 			"huaweicloud_nat_gateway":                     ResourceNatGatewayV2(),
 			"huaweicloud_nat_snat_rule":                   ResourceNatSnatRuleV2(),
-			"huaweicloud_network_acl":                     ResourceNetworkACL(),
-			"huaweicloud_network_acl_rule":                ResourceNetworkACLRule(),
-			"huaweicloud_networking_port":                 ResourceNetworkingPortV2(),
-			"huaweicloud_networking_secgroup":             ResourceNetworkingSecGroup(),
-			"huaweicloud_networking_secgroup_rule":        ResourceNetworkingSecGroupRule(),
-			"huaweicloud_networking_vip":                  resourceNetworkingVIPV2(),
-			"huaweicloud_networking_vip_associate":        resourceNetworkingVIPAssociateV2(),
+			"huaweicloud_network_acl":                     vpc.ResourceNetworkACL(),
+			"huaweicloud_network_acl_rule":                vpc.ResourceNetworkACLRule(),
+			"huaweicloud_networking_secgroup":             vpc.ResourceNetworkingSecGroup(),
+			"huaweicloud_networking_secgroup_rule":        vpc.ResourceNetworkingSecGroupRule(),
+			"huaweicloud_networking_vip":                  vpc.ResourceNetworkingVIPV2(),
+			"huaweicloud_networking_vip_associate":        vpc.ResourceNetworkingVIPAssociateV2(),
 			"huaweicloud_obs_bucket":                      ResourceObsBucket(),
 			"huaweicloud_obs_bucket_object":               ResourceObsBucketObject(),
 			"huaweicloud_obs_bucket_policy":               ResourceObsBucketPolicy(),
@@ -626,9 +620,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_dns_zone_v2":                        ResourceDNSZoneV2(),
 			"huaweicloud_dcs_instance_v1":                    dcs.ResourceDcsInstance(),
 			"huaweicloud_dds_instance_v3":                    dds.ResourceDdsInstanceV3(),
-			"huaweicloud_fw_firewall_group_v2":               resourceFWFirewallGroupV2(),
-			"huaweicloud_fw_policy_v2":                       resourceFWPolicyV2(),
-			"huaweicloud_fw_rule_v2":                         resourceFWRuleV2(),
 			"huaweicloud_kms_key_v1":                         ResourceKmsKeyV1(),
 			"huaweicloud_lb_certificate_v2":                  lb.ResourceCertificateV2(),
 			"huaweicloud_lb_loadbalancer_v2":                 lb.ResourceLoadBalancerV2(),
@@ -641,9 +632,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_lb_whitelist_v2":                    lb.ResourceWhitelistV2(),
 			"huaweicloud_mrs_cluster_v1":                     ResourceMRSClusterV1(),
 			"huaweicloud_mrs_job_v1":                         ResourceMRSJobV1(),
-			"huaweicloud_networking_port_v2":                 ResourceNetworkingPortV2(),
-			"huaweicloud_networking_secgroup_v2":             ResourceNetworkingSecGroup(),
-			"huaweicloud_networking_secgroup_rule_v2":        ResourceNetworkingSecGroupRule(),
+			"huaweicloud_networking_secgroup_v2":             vpc.ResourceNetworkingSecGroup(),
+			"huaweicloud_networking_secgroup_rule_v2":        vpc.ResourceNetworkingSecGroupRule(),
 			"huaweicloud_smn_topic_v2":                       ResourceTopic(),
 			"huaweicloud_smn_subscription_v2":                ResourceSubscription(),
 			"huaweicloud_rds_instance_v3":                    ResourceRdsInstanceV3(),
@@ -693,19 +683,24 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpnaas_site_connection_v2":          deprecated.ResourceVpnSiteConnectionV2(),
 			"huaweicloud_dli_queue_v1":                       dli.ResourceDliQueue(),
 			"huaweicloud_cs_route_v1":                        deprecated.ResourceCsRouteV1(),
-			"huaweicloud_networking_vip_v2":                  resourceNetworkingVIPV2(),
-			"huaweicloud_networking_vip_associate_v2":        resourceNetworkingVIPAssociateV2(),
+			"huaweicloud_networking_vip_v2":                  vpc.ResourceNetworkingVIPV2(),
+			"huaweicloud_networking_vip_associate_v2":        vpc.ResourceNetworkingVIPAssociateV2(),
 			"huaweicloud_fgs_function_v2":                    fgs.ResourceFgsFunctionV2(),
 			"huaweicloud_cdn_domain_v1":                      resourceCdnDomainV1(),
 
 			// Deprecated
 			"huaweicloud_blockstorage_volume_v2":          resourceBlockStorageVolumeV2(),
-			"huaweicloud_networking_network_v2":           resourceNetworkingNetworkV2(),
-			"huaweicloud_networking_subnet_v2":            resourceNetworkingSubnetV2(),
-			"huaweicloud_networking_floatingip_v2":        resourceNetworkingFloatingIPV2(),
-			"huaweicloud_networking_router_v2":            resourceNetworkingRouterV2(),
-			"huaweicloud_networking_router_interface_v2":  resourceNetworkingRouterInterfaceV2(),
-			"huaweicloud_networking_router_route_v2":      resourceNetworkingRouterRouteV2(),
+			"huaweicloud_fw_firewall_group_v2":            deprecated.ResourceFWFirewallGroupV2(),
+			"huaweicloud_fw_policy_v2":                    deprecated.ResourceFWPolicyV2(),
+			"huaweicloud_fw_rule_v2":                      deprecated.ResourceFWRuleV2(),
+			"huaweicloud_networking_network_v2":           deprecated.ResourceNetworkingNetworkV2(),
+			"huaweicloud_networking_port":                 deprecated.ResourceNetworkingPortV2(),
+			"huaweicloud_networking_port_v2":              deprecated.ResourceNetworkingPortV2(),
+			"huaweicloud_networking_subnet_v2":            deprecated.ResourceNetworkingSubnetV2(),
+			"huaweicloud_networking_floatingip_v2":        deprecated.ResourceNetworkingFloatingIPV2(),
+			"huaweicloud_networking_router_v2":            deprecated.ResourceNetworkingRouterV2(),
+			"huaweicloud_networking_router_interface_v2":  deprecated.ResourceNetworkingRouterInterfaceV2(),
+			"huaweicloud_networking_router_route_v2":      deprecated.ResourceNetworkingRouterRouteV2(),
 			"huaweicloud_ecs_instance_v1":                 resourceEcsInstanceV1(),
 			"huaweicloud_compute_secgroup_v2":             ResourceComputeSecGroupV2(),
 			"huaweicloud_compute_floatingip_v2":           ResourceComputeFloatingIPV2(),
