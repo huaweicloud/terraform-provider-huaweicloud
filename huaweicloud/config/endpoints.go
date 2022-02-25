@@ -12,6 +12,36 @@ type ServiceCatalog struct {
 	WithOutProjectID bool
 }
 
+// multiCatalogKeys is a map of primary and derived catalog keys for services with multiple clients.
+// If we add another version of a service client, don't forget to update it.
+var multiCatalogKeys = map[string][]string{
+	"iam":      {"identity", "iam_no_version"},
+	"bss":      {"bssv2"},
+	"ecs":      {"ecsv21", "ecsv11"},
+	"evs":      {"evsv21"},
+	"cce":      {"ccev1", "cce_addon"},
+	"cci":      {"cciv1_bata"},
+	"vpc":      {"networkv2", "vpcv3", "security_group", "fwv2"},
+	"elb":      {"elbv2", "elbv3"},
+	"dns":      {"dns_region"},
+	"kms":      {"kmsv1"},
+	"mrs":      {"mrsv2"},
+	"rds":      {"rdsv1"},
+	"waf":      {"waf-dedicated"},
+	"geminidb": {"geminidbv31"},
+	"dli":      {"dliv2"},
+	"dcs":      {"dcsv1"},
+	"dis":      {"disv3"},
+	"dms":      {"dmsv2"},
+	"dws":      {"dwsv2"},
+	"apig":     {"apigv2"},
+}
+
+// GetServiceDerivedCatalogKeys returns the derived catalog keys of a service.
+func GetServiceDerivedCatalogKeys(mainKey string) []string {
+	return multiCatalogKeys[mainKey]
+}
+
 var allServiceCatalog = map[string]ServiceCatalog{
 	// catalog for global service
 	// identity is used for openstack keystone APIs
@@ -103,7 +133,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "aom",
 		Version: "svcstg/icmgr/v1",
 	},
-	"cciv1": {
+	"cci": {
 		Name:             "cci",
 		Version:          "api/v1",
 		WithOutProjectID: true,
@@ -113,7 +143,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:          "apis/networking.cci.io/v1beta1",
 		WithOutProjectID: true,
 	},
-	"fgsv2": {
+	"fgs": {
 		Name:    "functiongraph",
 		Version: "v2",
 	},
@@ -128,21 +158,13 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	},
 
 	// ******* catalog for storage ******
-	"evsv1": {
+	"evs": {
 		Name:    "evs",
-		Version: "v1",
+		Version: "v2",
 	},
 	"evsv21": {
 		Name:    "evs",
 		Version: "v2.1",
-	},
-	"volumev2": {
-		Name:    "evs",
-		Version: "v2",
-	},
-	"evs": {
-		Name:    "evs",
-		Version: "v3",
 	},
 	"sfs": {
 		Name:    "sfs",
@@ -313,7 +335,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "dws",
 		Version: "v1.0",
 	},
-	"dwsV2": {
+	"dwsv2": {
 		Name:    "dws",
 		Version: "v2",
 	},
@@ -325,7 +347,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "dli",
 		Version: "v2.0",
 	},
-	"disv2": {
+	"dis": {
 		Name:    "dis",
 		Version: "v2",
 	},
@@ -361,7 +383,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		ResourceBase:     "apigw",
 		WithOutProjectID: true,
 	},
-	"apig_v2": {
+	"apigv2": {
 		Name:         "apig",
 		Version:      "v2",
 		ResourceBase: "apigw",
@@ -374,7 +396,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "dcs",
 		Version: "v1.0",
 	},
-	"dcsv2": {
+	"dcs": {
 		Name:    "dcs",
 		Version: "v2",
 	},
