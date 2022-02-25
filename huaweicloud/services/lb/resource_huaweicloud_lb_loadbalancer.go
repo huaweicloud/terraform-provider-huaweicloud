@@ -169,7 +169,7 @@ func resourceLoadBalancerV2Create(ctx context.Context, d *schema.ResourceData, m
 	// Once the loadbalancer has been created, apply any requested security groups
 	// to the port that was created behind the scenes.
 	if lb.VipPortID != "" {
-		networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+		networkingClient, err := config.SecurityGroupV1Client(config.GetRegion(d))
 		if err != nil {
 			return fmtp.DiagErrorf("Error creating HuaweiCloud networking client: %s", err)
 		}
@@ -227,7 +227,7 @@ func resourceLoadBalancerV2Read(_ context.Context, d *schema.ResourceData, meta 
 
 	// Get any security groups on the VIP Port
 	if lb.VipPortID != "" {
-		networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+		networkingClient, err := config.SecurityGroupV1Client(config.GetRegion(d))
 		if err != nil {
 			return fmtp.DiagErrorf("Error creating HuaweiCloud networking client: %s", err)
 		}
@@ -304,7 +304,7 @@ func resourceLoadBalancerV2Update(ctx context.Context, d *schema.ResourceData, m
 	if d.HasChange("security_group_ids") {
 		vipPortID := d.Get("vip_port_id").(string)
 		if vipPortID != "" {
-			networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+			networkingClient, err := config.SecurityGroupV1Client(config.GetRegion(d))
 			if err != nil {
 				return fmtp.DiagErrorf("Error creating HuaweiCloud networking client: %s", err)
 			}
