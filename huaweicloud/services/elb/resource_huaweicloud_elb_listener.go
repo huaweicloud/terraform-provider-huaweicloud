@@ -320,7 +320,8 @@ func resourceListenerV3Update(ctx context.Context, d *schema.ResourceData, meta 
 			updateOpts.Name = d.Get("name").(string)
 		}
 		if d.HasChange("description") {
-			updateOpts.Description = d.Get("description").(string)
+			desc := d.Get("description").(string)
+			updateOpts.Description = &desc
 		}
 		if d.HasChange("idle_timeout") {
 			idleTimeout := d.Get("idle_timeout").(int)

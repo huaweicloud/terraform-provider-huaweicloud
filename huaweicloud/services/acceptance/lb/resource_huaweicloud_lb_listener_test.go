@@ -46,6 +46,7 @@ func TestAccLBV2Listener_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "created by acceptance test"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "connection_limit", "-1"),
@@ -55,6 +56,7 @@ func TestAccLBV2Listener_basic(t *testing.T) {
 				Config: testAccLBV2ListenerConfig_update(rName, rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
 				),
@@ -71,11 +73,13 @@ data "huaweicloud_vpc_subnet" "test" {
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
   name          = "%s"
+  description   = "created by acceptance test"
   vip_subnet_id = data.huaweicloud_vpc_subnet.test.subnet_id
 }
 
 resource "huaweicloud_lb_listener" "listener_1" {
   name            = "%s"
+  description     = "created by acceptance test"
   protocol        = "HTTP"
   protocol_port   = 8080
   loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
@@ -96,6 +100,7 @@ data "huaweicloud_vpc_subnet" "test" {
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
   name          = "%s"
+  description   = "created by acceptance test"
   vip_subnet_id = data.huaweicloud_vpc_subnet.test.subnet_id
 }
 
