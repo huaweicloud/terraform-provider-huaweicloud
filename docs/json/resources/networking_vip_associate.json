@@ -1,0 +1,54 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_networking_vip_associate": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_addresses": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "port_ids": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "vip_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "vip_ip_address": {
+                "type": "string",
+                "computed": true
+              },
+              "vip_subnet_id": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Network",
+            "name": "Virtual Private Cloud",
+            "short": "VPC"
+          }
+        }
+      }
+    }
+  }
+}

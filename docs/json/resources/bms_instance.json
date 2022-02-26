@@ -1,0 +1,237 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_bms_instance": {
+          "block": {
+            "attributes": {
+              "admin_pass": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "agency_name": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "auto_renew": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "availability_zone": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "bandwidth_charge_mode": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "bandwidth_size": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "computed": true
+              },
+              "disk_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "eip_charge_mode": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "eip_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "host_id": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "image_name": {
+                "type": "string",
+                "computed": true
+              },
+              "iptype": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "key_pair": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "public_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_groups": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "sharetype": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "system_disk_size": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "system_disk_type": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "user_data": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "user_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "data_disks": {
+                "block": {
+                  "attributes": {
+                    "size": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 59
+              },
+              "nics": {
+                "block": {
+                  "attributes": {
+                    "ip_address": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "mac_address": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "port_id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "subnet_id": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 2
+              }
+            }
+          },
+          "product": {
+            "catalog": "Compute",
+            "name": "Bare Metal Server",
+            "short": "BMS"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_as_lifecycle_hook": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "string",
+                "computed": true
+              },
+              "default_result": {
+                "type": "string",
+                "optional": true,
+                "default": "ABANDON"
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "notification_message": {
+                "type": "string",
+                "optional": true
+              },
+              "notification_topic_name": {
+                "type": "string",
+                "computed": true
+              },
+              "notification_topic_urn": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "scaling_group_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "timeout": {
+                "type": "number",
+                "optional": true,
+                "default": 3600
+              },
+              "type": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Compute",
+            "name": "Auto Scaling",
+            "short": "AS"
+          }
+        }
+      }
+    }
+  }
+}
