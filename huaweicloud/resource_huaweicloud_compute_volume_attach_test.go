@@ -10,24 +10,24 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/volumeattach"
+	"github.com/chnsz/golangsdk/openstack/ecs/v1/block_devices"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func TestAccComputeV2VolumeAttach_basic(t *testing.T) {
-	var va volumeattach.VolumeAttachment
+func TestAccComputeVolumeAttach_basic(t *testing.T) {
+	var va block_devices.VolumeAttachment
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_compute_volume_attach.va_1"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeV2VolumeAttachDestroy,
+		CheckDestroy: testAccCheckComputeVolumeAttachDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeV2VolumeAttach_basic(rName),
+				Config: testAccComputeVolumeAttach_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2VolumeAttachExists(resourceName, &va),
+					testAccCheckComputeVolumeAttachExists(resourceName, &va),
 				),
 			},
 			{
@@ -39,28 +39,28 @@ func TestAccComputeV2VolumeAttach_basic(t *testing.T) {
 	})
 }
 
-func TestAccComputeV2VolumeAttach_device(t *testing.T) {
-	var va volumeattach.VolumeAttachment
+func TestAccComputeVolumeAttach_device(t *testing.T) {
+	var va block_devices.VolumeAttachment
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeV2VolumeAttachDestroy,
+		CheckDestroy: testAccCheckComputeVolumeAttachDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeV2VolumeAttach_device(rName),
+				Config: testAccComputeVolumeAttach_device(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2VolumeAttachExists("huaweicloud_compute_volume_attach.va_1", &va),
+					testAccCheckComputeVolumeAttachExists("huaweicloud_compute_volume_attach.va_1", &va),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckComputeV2VolumeAttachDestroy(s *terraform.State) error {
+func testAccCheckComputeVolumeAttachDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
-	computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
+	computeClient, err := config.ComputeV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -75,7 +75,7 @@ func testAccCheckComputeV2VolumeAttachDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = volumeattach.Get(computeClient, instanceId, volumeId).Extract()
+		_, err = block_devices.Get(computeClient, instanceId, volumeId).Extract()
 		if err == nil {
 			return fmtp.Errorf("Volume attachment still exists")
 		}
@@ -84,7 +84,7 @@ func testAccCheckComputeV2VolumeAttachDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckComputeV2VolumeAttachExists(n string, va *volumeattach.VolumeAttachment) resource.TestCheckFunc {
+func testAccCheckComputeVolumeAttachExists(n string, va *block_devices.VolumeAttachment) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -96,7 +96,7 @@ func testAccCheckComputeV2VolumeAttachExists(n string, va *volumeattach.VolumeAt
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
-		computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
+		computeClient, err := config.ComputeV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}
@@ -106,12 +106,12 @@ func testAccCheckComputeV2VolumeAttachExists(n string, va *volumeattach.VolumeAt
 			return err
 		}
 
-		found, err := volumeattach.Get(computeClient, instanceId, volumeId).Extract()
+		found, err := block_devices.Get(computeClient, instanceId, volumeId).Extract()
 		if err != nil {
 			return err
 		}
 
-		if found.ServerID != instanceId || found.VolumeID != volumeId {
+		if found.ServerId != instanceId || found.VolumeId != volumeId {
 			return fmtp.Errorf("VolumeAttach not found")
 		}
 
@@ -121,8 +121,8 @@ func testAccCheckComputeV2VolumeAttachExists(n string, va *volumeattach.VolumeAt
 	}
 }
 
-func testAccCheckComputeV2VolumeAttachDevice(
-	va *volumeattach.VolumeAttachment, device string) resource.TestCheckFunc {
+func testAccCheckComputeVolumeAttachDevice(
+	va *block_devices.VolumeAttachment, device string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if va.Device != device {
 			return fmtp.Errorf("Requested device of volume attachment (%s) does not match: %s",
@@ -133,7 +133,7 @@ func testAccCheckComputeV2VolumeAttachDevice(
 	}
 }
 
-func testAccComputeV2VolumeAttach_basic(rName string) string {
+func testAccComputeVolumeAttach_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -162,7 +162,7 @@ resource "huaweicloud_compute_volume_attach" "va_1" {
 `, testAccCompute_data, rName, rName)
 }
 
-func testAccComputeV2VolumeAttach_device(rName string) string {
+func testAccComputeVolumeAttach_device(rName string) string {
 	return fmt.Sprintf(`
 %s
 
