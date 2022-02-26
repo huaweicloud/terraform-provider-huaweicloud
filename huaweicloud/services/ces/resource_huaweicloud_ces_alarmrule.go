@@ -1,13 +1,16 @@
-package huaweicloud
+package ces
 
 import (
+	"context"
 	"time"
 
 	"github.com/chnsz/golangsdk/openstack/cloudeyeservice/alarmrule"
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -44,12 +47,12 @@ var cesAlarmActions = schema.Schema{
 
 func ResourceAlarmRule() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceAlarmRuleCreate,
-		Read:   resourceAlarmRuleRead,
-		Update: resourceAlarmRuleUpdate,
-		Delete: resourceAlarmRuleDelete,
+		CreateContext: resourceAlarmRuleCreate,
+		ReadContext:   resourceAlarmRuleRead,
+		UpdateContext: resourceAlarmRuleUpdate,
+		DeleteContext: resourceAlarmRuleDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -94,8 +97,7 @@ func ResourceAlarmRule() *schema.Resource {
 
 						"dimensions": {
 							Type:     schema.TypeList,
-							Required: true,
-							MaxItems: 3,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": {
@@ -176,6 +178,13 @@ func ResourceAlarmRule() *schema.Resource {
 				Optional:     true,
 				Default:      2,
 				ValidateFunc: validation.IntBetween(1, 4),
+			},
+
+			"alarm_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringInSlice([]string{"EVENT.SYS", "EVENT.CUSTOM", "MULTI_INSTANCE"}, false),
 			},
 
 			"alarm_action_enabled": {
@@ -289,22 +298,23 @@ func getAlarmCondition(d *schema.ResourceData) alarmrule.ConditionOpts {
 	return opts
 }
 
-func resourceAlarmRuleCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	client, err := config.CesV1Client(GetRegion(d, config))
+	client, err := config.CesV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating Cloud Eye Service client: %s", err)
+		return fmtp.DiagErrorf("Error creating Cloud Eye Service client: %s", err)
 	}
 
 	metric, err := getMetricOpts(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	createOpts := alarmrule.CreateOpts{
 		AlarmName:               d.Get("alarm_name").(string),
 		AlarmDescription:        d.Get("alarm_description").(string),
 		AlarmLevel:              d.Get("alarm_level").(int),
+		AlarmType:               d.Get("alarm_type").(string),
 		Metric:                  metric,
 		Condition:               getAlarmCondition(d),
 		AlarmActions:            getAlarmAction(d, "alarm_actions"),
@@ -312,37 +322,37 @@ func resourceAlarmRuleCreate(d *schema.ResourceData, meta interface{}) error {
 		InsufficientdataActions: getAlarmAction(d, "insufficientdata_actions"),
 		AlarmEnabled:            d.Get("alarm_enabled").(bool),
 		AlarmActionEnabled:      d.Get("alarm_action_enabled").(bool),
-		EnterpriseProjectID:     GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID:     config.GetEnterpriseProjectID(d),
 	}
 	logp.Printf("[DEBUG] Create %s Options: %#v", nameCESAR, createOpts)
 
 	r, err := alarmrule.Create(client, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating %s: %s", nameCESAR, err)
+		return fmtp.DiagErrorf("Error creating %s: %s", nameCESAR, err)
 	}
 	logp.Printf("[DEBUG] Create %s: %#v", nameCESAR, *r)
 
 	d.SetId(r.AlarmID)
 
-	return resourceAlarmRuleRead(d, meta)
+	return resourceAlarmRuleRead(ctx, d, meta)
 }
 
-func resourceAlarmRuleRead(d *schema.ResourceData, meta interface{}) error {
+func resourceAlarmRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	client, err := config.CesV1Client(GetRegion(d, config))
+	client, err := config.CesV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating Cloud Eye Service client: %s", err)
+		return fmtp.DiagErrorf("Error creating Cloud Eye Service client: %s", err)
 	}
 
 	r, err := alarmrule.Get(client, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "alarmrule")
+		return common.CheckDeletedDiag(d, err, "alarmrule")
 	}
 	logp.Printf("[DEBUG] Retrieved %s %s: %#v", nameCESAR, d.Id(), r)
 
 	m, err := utils.ConvertStructToMap(r, map[string]string{"notificationList": "notification_list"})
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	alarmMetric := make([]interface{}, 1)
@@ -354,6 +364,7 @@ func resourceAlarmRuleRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("alarm_name", m["alarm_name"]),
 		d.Set("alarm_description", m["alarm_description"]),
 		d.Set("alarm_level", m["alarm_level"]),
+		d.Set("alarm_type", m["alarm_type"]),
 		d.Set("metric", alarmMetric),
 		d.Set("condition", alarmCondition),
 		d.Set("alarm_actions", m["alarm_actions"]),
@@ -365,17 +376,17 @@ func resourceAlarmRuleRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("enterprise_project_id", m["enterprise_project_id"]),
 	)
 	if mErr.ErrorOrNil() != nil {
-		return mErr
+		return diag.FromErr(err)
 	}
 
 	return nil
 }
 
-func resourceAlarmRuleUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	client, err := config.CesV1Client(GetRegion(d, config))
+	client, err := config.CesV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating Cloud Eye Service client: %s", err)
+		return fmtp.DiagErrorf("Error creating Cloud Eye Service client: %s", err)
 	}
 
 	arId := d.Id()
@@ -389,15 +400,15 @@ func resourceAlarmRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		timeout := d.Timeout(schema.TimeoutUpdate)
 		//lintignore:R006
-		err = resource.Retry(timeout, func() *resource.RetryError {
+		err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 			err := alarmrule.Enable(client, arId, enableOpts).ExtractErr()
 			if err != nil {
-				return checkForRetryableError(err)
+				return common.CheckForRetryableError(err)
 			}
 			return nil
 		})
 		if err != nil {
-			return fmtp.Errorf("Error updating %s %s: %s", nameCESAR, arId, err)
+			return fmtp.DiagErrorf("Error updating %s %s: %s", nameCESAR, arId, err)
 		}
 	}
 
@@ -426,18 +437,18 @@ func resourceAlarmRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 		logp.Printf("[DEBUG] Updating %s %s opts: %#v", nameCESAR, arId, updateOpts)
 		err := alarmrule.Update(client, arId, updateOpts).ExtractErr()
 		if err != nil {
-			return fmtp.Errorf("Error updating %s %s: %s", nameCESAR, arId, err)
+			return fmtp.DiagErrorf("Error updating %s %s: %s", nameCESAR, arId, err)
 		}
 	}
 
-	return resourceAlarmRuleRead(d, meta)
+	return resourceAlarmRuleRead(ctx, d, meta)
 }
 
-func resourceAlarmRuleDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceAlarmRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	client, err := config.CesV1Client(GetRegion(d, config))
+	client, err := config.CesV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating Cloud Eye Service client: %s", err)
+		return fmtp.DiagErrorf("Error creating Cloud Eye Service client: %s", err)
 	}
 
 	arId := d.Id()
@@ -445,10 +456,10 @@ func resourceAlarmRuleDelete(d *schema.ResourceData, meta interface{}) error {
 
 	timeout := d.Timeout(schema.TimeoutDelete)
 	//lintignore:R006
-	err = resource.Retry(timeout, func() *resource.RetryError {
+	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		err := alarmrule.Delete(client, arId).ExtractErr()
 		if err != nil {
-			return checkForRetryableError(err)
+			return common.CheckForRetryableError(err)
 		}
 		return nil
 	})
@@ -457,7 +468,7 @@ func resourceAlarmRuleDelete(d *schema.ResourceData, meta interface{}) error {
 			logp.Printf("[INFO] deleting an unavailable %s: %s", nameCESAR, arId)
 			return nil
 		}
-		return fmtp.Errorf("Error deleting %s %s: %s", nameCESAR, arId, err)
+		return fmtp.DiagErrorf("Error deleting %s %s: %s", nameCESAR, arId, err)
 	}
 
 	return nil

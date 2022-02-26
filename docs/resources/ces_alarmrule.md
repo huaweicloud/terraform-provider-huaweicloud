@@ -8,6 +8,8 @@ Manages a Cloud Eye alarm rule resource within HuaweiCloud.
 
 ## Example Usage
 
+### Basic example
+
 ```hcl
 resource "huaweicloud_ces_alarmrule" "alarm_rule" {
   alarm_name = "alarm_rule"
@@ -28,6 +30,35 @@ resource "huaweicloud_ces_alarmrule" "alarm_rule" {
     unit                = "B/s"
     count               = 1
   }
+  alarm_actions {
+    type              = "notification"
+    notification_list = [var.smn_topic_id]
+  }
+}
+```
+
+## Alarm rule for event monitoring
+
+```hcl
+resource "huaweicloud_ces_alarmrule" "alarm_rule" {
+  alarm_name           = "alarm_rule"
+  alarm_action_enabled = true
+  alarm_type           = "EVENT.SYS"
+
+  metric {
+    namespace   = "SYS.ECS"
+    metric_name = "stopServer"
+  }
+  
+  condition  {
+    period              = 0
+    filter              = "average"
+    comparison_operator = ">="
+    value               = 1
+    unit                = "count"
+    count               = 1
+  }
+
   alarm_actions {
     type              = "notification"
     notification_list = [var.smn_topic_id]
@@ -58,6 +89,9 @@ The following arguments are supported:
   which indicates *critical*, *major*, *minor*, and *informational*, respectively.
   The default value is 2.
 
+* `alarm_type` - (Optional, String) Specifies the alarm type. The value can be **EVENT.SYS**, **EVENT.CUSTOM**
+  or **MULTI_INSTANCE**. Defaults to **MULTI_INSTANCE**.
+
 * `alarm_actions` - (Optional, List, ForceNew) Specifies the action triggered by an alarm. The structure is described
   below. Changing this creates a new resource.
 
@@ -82,9 +116,9 @@ The `metric` block supports:
 
 * `metric_name` - (Required, String) Specifies the metric name. The value can be a string of 1 to 64 characters that
   must start with a letter and can consists of uppercase letters, lowercase letters, numbers, or underscores (_).
+  For details, see [Services Interconnected with Cloud Eye](https://support.huaweicloud.com/intl/en-us/api-ces/ces_03_0059.html).
 
-* `dimensions` - (Required, List) Specifies the list of metric dimensions. Currently, the maximum length of the dimesion
-  list that are supported is 3. The structure is described below.
+* `dimensions` - (Optional, List) Specifies the list of metric dimensions. The structure is described below.
 
 The `dimensions` block supports:
 
@@ -98,10 +132,11 @@ The `dimensions` block supports:
 
 The `condition` block supports:
 
-* `period` - (Required, Int) Specifies the alarm checking period in seconds. The value can be 1, 300, 1200, 3600, 14400,
+* `period` - (Required, Int) Specifies the alarm checking period in seconds. The value can be 0, 1, 300, 1200, 3600, 14400,
   and 86400.
 
-  Note: If period is set to 1, the raw metric data is used to determine whether to generate an alarm.
+  Note: If period is set to 1, the raw metric data is used to determine whether to generate an alarm. When the value of
+  `alarm_type` is **EVENT.SYS** or **EVENT.CUSTOM**, period can be set to 0.
 
 * `filter` - (Required, String) Specifies the data rollup methods. The value can be max, min, average, sum, and vaiance.
 
