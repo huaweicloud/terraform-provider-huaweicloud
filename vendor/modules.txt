@@ -60,6 +60,7 @@ github.com/chnsz/golangsdk/openstack/cdm/v1/job
 github.com/chnsz/golangsdk/openstack/cdm/v1/link
 github.com/chnsz/golangsdk/openstack/cdn/v1/domains
 github.com/chnsz/golangsdk/openstack/cloudeyeservice/alarmrule
+github.com/chnsz/golangsdk/openstack/cloudtable/v2/clusters
 github.com/chnsz/golangsdk/openstack/common/structs
 github.com/chnsz/golangsdk/openstack/common/tags
 github.com/chnsz/golangsdk/openstack/compute/v2/extensions/attachinterfaces
