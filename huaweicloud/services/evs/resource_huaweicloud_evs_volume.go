@@ -334,9 +334,10 @@ func resourceEvsVolumeUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	if d.HasChanges("name", "description") {
+		desc := d.Get("description").(string)
 		updateOpts := cloudvolumes.UpdateOpts{
 			Name:        d.Get("name").(string),
-			Description: golangsdk.MaybeString(d.Get("description").(string)),
+			Description: &desc,
 		}
 		_, err = cloudvolumes.Update(evsV2Client, d.Id(), updateOpts).Extract()
 		if err != nil {

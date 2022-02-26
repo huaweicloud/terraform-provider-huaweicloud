@@ -202,12 +202,13 @@ func buildDliSaprkGroups(packages []interface{}) []batches.Group {
 }
 
 func buildDliSaprkJobCreateOpts(d *schema.ResourceData) batches.CreateOpts {
+	mClass := d.Get("main_class").(string)
 	result := batches.CreateOpts{
 		Queue: d.Get("queue_name").(string),
 		Name:  d.Get("name").(string),
 		File:  d.Get("app_name").(string),
 		// This parameter is required according to API ducumentation.
-		ClassName:      golangsdk.MaybeString(d.Get("main_class").(string)),
+		ClassName:      &mClass,
 		Groups:         buildDliSaprkGroups(d.Get("dependent_packages").([]interface{})),
 		Configurations: d.Get("configurations").(map[string]interface{}),
 		ExecutorMemory: d.Get("executor_memory").(string),
