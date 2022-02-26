@@ -748,7 +748,8 @@ func buildAPIBackendParameters(backends *schema.Set) []apis.BackendParamBase {
 			Value:    buildAPIBackendParameterValue(origin, paramMap["value"].(string)),
 		}
 		if origin != "REQUEST" {
-			param.Description = golangsdk.MaybeString(paramMap["description"].(string))
+			desc := paramMap["description"].(string)
+			param.Description = &desc
 		}
 		result[i] = param
 	}
