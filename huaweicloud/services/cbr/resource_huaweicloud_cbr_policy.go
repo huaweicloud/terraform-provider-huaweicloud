@@ -98,15 +98,52 @@ func ResourceCBRPolicyV3() *schema.Resource {
 				RequiredWith: []string{"destination_region"},
 			},
 			"backup_quantity": {
-				Type:          schema.TypeInt,
-				Optional:      true,
-				ValidateFunc:  validation.IntBetween(2, 99999),
-				ConflictsWith: []string{"time_period"},
-			},
-			"time_period": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ValidateFunc: validation.IntBetween(2, 99999),
+			},
+			"time_period": {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				ValidateFunc:  validation.IntBetween(2, 99999),
+				ConflictsWith: []string{"backup_quantity"},
+			},
+			"long_term_retention": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"daily": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(1, 100),
+						},
+						"weekly": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(1, 100),
+						},
+						"monthly": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(1, 100),
+						},
+						"yearly": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(1, 100),
+						},
+					},
+				},
+				RequiredWith: []string{"backup_quantity", "time_zone"},
+			},
+			"time_zone": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^UTC[+-]\d{2}:00$`),
+					"The time zone must be in UTC format, such as 'UTC+08:00'."),
 			},
 		},
 	}
@@ -174,10 +211,14 @@ func resourceCBRPolicyV3Read(d *schema.ResourceData, meta interface{}) error {
 		return mErr
 	}
 	if operationDefinition.MaxBackups != -1 {
-		d.Set("backup_quantity", operationDefinition.MaxBackups)
+		mErr = multierror.Append(mErr,
+			d.Set("backup_quantity", operationDefinition.MaxBackups),
+			d.Set("time_zone", operationDefinition.Timezone),
+			setCBRPolicyV3LongTermRetention(d, operationDefinition),
+		)
 	}
 	if operationDefinition.RetentionDurationDays != -1 {
-		d.Set("time_period", operationDefinition.RetentionDurationDays)
+		mErr = multierror.Append(mErr, d.Set("time_period", operationDefinition.RetentionDurationDays))
 	}
 
 	return nil
@@ -211,7 +252,7 @@ func resourceCBRPolicyV3Update(d *schema.ResourceData, meta interface{}) error {
 			},
 		}
 	}
-	if d.HasChanges("backup_quantity", "time_period", "destination_region") {
+	if d.HasChanges("backup_quantity", "time_period", "destination_region", "long_term_retention", "time_zone") {
 		opDefinition := resourceCBRPolicyV3OpDefinition(d)
 		updateOpts.OperationDefinition = opDefinition
 	}
@@ -258,6 +299,14 @@ func resourceCBRPolicyV3OpDefinition(d *schema.ResourceData) *policies.PolicyODC
 	policyODCreate.MaxBackups = maxBackups.(int)
 	policyODCreate.RetentionDurationDays = durationDays.(int)
 
+	if _, ok := d.GetOk("long_term_retention"); ok {
+		policyODCreate.DailyBackups = d.Get("long_term_retention.0.daily").(int)
+		policyODCreate.WeekBackups = d.Get("long_term_retention.0.weekly").(int)
+		policyODCreate.MonthBackups = d.Get("long_term_retention.0.monthly").(int)
+		policyODCreate.YearBackups = d.Get("long_term_retention.0.yearly").(int)
+		policyODCreate.Timezone = d.Get("time_zone").(string)
+	}
+
 	return &policyODCreate
 }
 
@@ -297,6 +346,21 @@ func resourceCBRPolicyV3BackupSchedule(d *schema.ResourceData) ([]string, error)
 		schedules[i] = schedule
 	}
 	return schedules, nil
+}
+
+func setCBRPolicyV3LongTermRetention(d *schema.ResourceData, resp *policies.PolicyODCreate) error {
+	if resp.DailyBackups == 0 && resp.WeekBackups == 0 && resp.MonthBackups == 0 && resp.YearBackups == 0 {
+		return nil
+	}
+	result := make([]map[string]interface{}, 1)
+	retention := map[string]interface{}{
+		"daily":   resp.DailyBackups,
+		"weekly":  resp.WeekBackups,
+		"monthly": resp.MonthBackups,
+		"yearly":  resp.YearBackups,
+	}
+	result[0] = retention
+	return d.Set("long_term_retention", result)
 }
 
 func setCBRPolicyV3BackupCycle(d *schema.ResourceData, schedules []string) error {
