@@ -1,56 +1,68 @@
 package pagination
 
 import (
+	"fmt"
+	"reflect"
 	"strconv"
+
+	"github.com/chnsz/golangsdk"
 )
 
-// OffsetPagebase is used for paging queries based on "limit" and "offset".
-// Pagination parameters must be specified explicitly.
-// You can change the parameter name of the pagination by overriding the GetPaginateParamsName method.
-type OffsetPagebase struct {
+type OffsetPage interface {
+	LastOffset() int
+}
+
+// OffsetPageBase is used for paging queries based on offset and limit.
+type OffsetPageBase struct {
+	Offset int
+	Limit  int
+
 	PageResult
 }
 
-// GetPaginateParamsName Overwrite this function for changing the parameter name of the pagination
-// Default value is "limit", "offset"
-func (current OffsetPagebase) GetPaginateParamsName() (string, string) {
-	return "limit", "offset"
+// LastOffset returns index of the last element of the page.
+func (current OffsetPageBase) LastOffset() int {
+	q := current.URL.Query()
+	offset, err := strconv.Atoi(q.Get("offset"))
+	if err != nil {
+		offset = current.Offset
+		q.Set("offset", strconv.Itoa(offset))
+	}
+	limit, err := strconv.Atoi(q.Get("limit"))
+	if err != nil {
+		limit = current.Limit
+		q.Set("limit", strconv.Itoa(limit))
+	}
+	return offset + limit
 }
 
 // NextPageURL generates the URL for the page of results after this one.
-func (current OffsetPagebase) NextPageURL() (string, error) {
+func (current OffsetPageBase) NextPageURL() (string, error) {
 	currentURL := current.URL
-
 	q := currentURL.Query()
-	limitKey, offsetKey := current.GetPaginateParamsName()
-	limit := q.Get(limitKey)
-	if limit == "" {
-		limit = "100"
+
+	if q.Get("offset") == "" && q.Get("limit") == "" {
+		// Without offset and limit, the page just a SinglePageBase.
+		return "", nil
 	}
 
-	offset := q.Get(offsetKey)
-	if offset == "" {
-		offset = "0"
-	}
-
-	sizeVal, err := strconv.ParseInt(limit, 10, 32)
-	if err != nil {
-		return "", err
-	}
-
-	offsetVal, err := strconv.ParseInt(offset, 10, 32)
-	if err != nil {
-		return "", err
-	}
-
-	offset = strconv.Itoa(int(offsetVal + sizeVal))
-	q.Set(offsetKey, offset)
+	q.Set("offset", strconv.Itoa(current.LastOffset()))
 	currentURL.RawQuery = q.Encode()
 	return currentURL.String(), nil
 }
 
-// GetBody returns the page's body. This method is needed to satisfy the
-// Page interface.
-func (current OffsetPagebase) GetBody() interface{} {
+// IsEmpty satisifies the IsEmpty method of the Page interface.
+func (current OffsetPageBase) IsEmpty() (bool, error) {
+	if b, ok := current.Body.([]interface{}); ok {
+		return len(b) == 0, nil
+	}
+	err := golangsdk.ErrUnexpectedType{}
+	err.Expected = "[]interface{}"
+	err.Actual = fmt.Sprintf("%v", reflect.TypeOf(current.Body))
+	return true, err
+}
+
+// GetBody returns the page's body. This method is needed to satisfy the Page interface.
+func (current OffsetPageBase) GetBody() interface{} {
 	return current.Body
 }
