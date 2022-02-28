@@ -58,6 +58,7 @@ jobs:
       HW_ACCESS_KEY: ${{ secrets.HW_ACCESS_KEY }}
       HW_SECRET_KEY: ${{ secrets.HW_SECRET_KEY }}
       HW_REGION_NAME: cn-north-4
+      HW_ENTERPRISE_PROJECT_ID: "0"
 
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
