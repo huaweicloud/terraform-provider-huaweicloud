@@ -1,5 +1,34 @@
 # CHANGELOG
 
+## 1.34.0 (February 28, 2022)
+
+* **New Resurce:**
+  + `huaweicloud_drs_job` [GH-1978]
+  + `huaweicloud_modelarts_notebook` [GH-1920]
+  + `huaweicloud_modelarts_notebook_mount_storage` [GH-1941]
+
+* **New Data Source:**
+  + `huaweicloud_modelarts_notebook_images` [GH-1921]
+
+ENHANCEMENTS:
+
+* config: update all versions for a specified customizing service endpoint [GH-1967]
+* resource/huaweicloud_fgs_trigger: support apig type for trigger [GH-1982]
+* resource/huaweicloud_evs_volume: support prepaid resource creation [GH-1945]
+* resource/huaweicloud_cbr_policy: support long-term retention settings [GH-1971]
+* support EPS Authorization for the following resources or data sources:
+  + huaweicloud_vpc [GH-1958]
+  + huaweicloud_vpc_eip [GH-1968]
+  + huaweicloud_vpc_bandwidth [GH-1968]
+  + huaweicloud_networking_secgroup [GH-1913]
+  + huaweicloud_networking_secgroup_rule [GH-1913]
+  + huaweicloud_images_image [GH-1943]
+
+BUG FIXES:
+
+* dns: do not update other fields when only tags was changed [GH-1957]
+* resource/huaweicloud_compute_instance: fix regexp error for IsIPv4Address [GH-1944]
+
 ## 1.33.0 (January 29, 2022)
 
 * **New Resurce:**
