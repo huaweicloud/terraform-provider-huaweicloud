@@ -46,6 +46,7 @@ func TestAccCloudtableCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "storage_type", "ULTRAHIGH"),
 					resource.TestCheckResourceAttr(resourceName, "storage_size", "10240"),
 					resource.TestCheckResourceAttr(resourceName, "rs_num", "4"),
+					resource.TestCheckResourceAttr(resourceName, "hbase_version", "1.0.6"),
 					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "network_id", "huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
@@ -65,24 +66,22 @@ func TestAccCloudtableCluster_basic(t *testing.T) {
 }
 
 func testAccCloudtableCluster_base(rName string) string {
-	randCidr, randGatewayIp := acceptance.RandomCidrAndGatewayIp()
-
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
-  cidr = "%s"
+  cidr = "192.168.0.0/16"
 }
 
 resource "huaweicloud_vpc_subnet" "test" {
   name       = "%s"
   vpc_id     = huaweicloud_vpc.test.id
-  cidr       = "%s"
-  gateway_ip = "%s"
+  cidr       = "192.168.0.0/24"
+  gateway_ip = "192.168.0.1"
 }
 
 resource "huaweicloud_networking_secgroup" "test" {
   name = "%s"
-}`, rName, randCidr, rName, randCidr, randGatewayIp, rName)
+}`, rName, rName, rName)
 }
 
 func testAccCloudtableCluster_basic(rName string) string {
@@ -96,6 +95,7 @@ resource "huaweicloud_cloudtable_cluster" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   network_id        = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
+  hbase_version     = "1.0.6"
   rs_num            = 4
 }
 `, testAccCloudtableCluster_base(rName), acceptance.HW_AVAILABILITY_ZONE, rName)
