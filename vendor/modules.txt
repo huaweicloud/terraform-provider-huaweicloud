@@ -113,6 +113,7 @@ github.com/chnsz/golangsdk/openstack/dms/v2/rabbitmq/instances
 github.com/chnsz/golangsdk/openstack/dns/v2/ptrrecords
 github.com/chnsz/golangsdk/openstack/dns/v2/recordsets
 github.com/chnsz/golangsdk/openstack/dns/v2/zones
+github.com/chnsz/golangsdk/openstack/drs/v3/jobs
 github.com/chnsz/golangsdk/openstack/dws/v1/cluster
 github.com/chnsz/golangsdk/openstack/dws/v2/flavors
 github.com/chnsz/golangsdk/openstack/ecs/v1/auto_recovery

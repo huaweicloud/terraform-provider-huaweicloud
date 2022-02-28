@@ -9,6 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+const SysTagKeyEnterpriseProjectId = "_sys_enterprise_project_id"
+
 // UpdateResourceTags is a helper to update the tags for a resource.
 // It expects the tags field to be named "tags"
 func UpdateResourceTags(conn *golangsdk.ServiceClient, d *schema.ResourceData, resourceType, id string) error {
@@ -99,4 +101,29 @@ func GetDNSRecordSetTagType(zoneType string) (string, error) {
 		return "DNS-private_recordset", nil
 	}
 	return "", fmt.Errorf("invalid zone type: %s", zoneType)
+}
+
+func ParseEnterpriseProjectIdFromSysTags(value []tags.ResourceTag) (enterpriseProjectId string) {
+	if len(value) == 0 {
+		return
+	}
+
+	for i := 0; i < len(value); i++ {
+		item := value[i]
+		if item.Key == SysTagKeyEnterpriseProjectId {
+			return item.Value
+		}
+	}
+	return
+}
+
+func BuildSysTags(enterpriseProjectID string) (enterpriseProjectTags []tags.ResourceTag) {
+	if enterpriseProjectID != "" {
+		t := tags.ResourceTag{
+			Key:   SysTagKeyEnterpriseProjectId,
+			Value: enterpriseProjectID,
+		}
+		enterpriseProjectTags = append(enterpriseProjectTags, t)
+	}
+	return
 }

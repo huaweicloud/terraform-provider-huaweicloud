@@ -275,6 +275,18 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 		t.Fatalf("openGauss endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
 	t.Logf("openGauss endpoint:\t %s", actualURL)
+
+	// test the endpoint of DRS
+	serviceClient, err = config.DrsV3Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud DRS client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://drs.%s.%s/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("DRS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("DRS endpoint:\t %s", actualURL)
 }
 
 func TestAccServiceEndpoints_Security(t *testing.T) {
