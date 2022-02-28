@@ -95,11 +95,11 @@ func writeToPemFile(path, privateKey string) error {
 	// If the private key exists, give it write permission for editing (-rw-------) for root user.
 	if _, err = ioutil.ReadFile(path); err == nil {
 		os.Chmod(path, 0600)
+		defer os.Chmod(path, 0400) // read-only permission (-r--------).
 	}
 	if err = ioutil.WriteFile(path, []byte(privateKey), 0600); err != nil {
 		return err
 	}
-	os.Chmod(path, 0400) // read-only permission (-r--------).
 	return nil
 }
 
