@@ -1,5 +1,5 @@
 ---
-subcategory: "AI Development Platform (ModelArts)"
+subcategory: "Beta"
 ---
 
 # huaweicloud_modelarts_notebook
