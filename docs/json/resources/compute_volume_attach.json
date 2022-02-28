@@ -2,33 +2,42 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_vpc_eip_associate": {
+        "huaweicloud_compute_volume_attach": {
           "block": {
             "attributes": {
+              "device": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "port_id": {
+              "instance_id": {
                 "type": "string",
                 "required": true,
                 "forcenew": true
               },
-              "public_ip": {
+              "pci_address": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "computed": true
               },
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "volume_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
               }
             }
           },
           "product": {
-            "catalog": "Network",
-            "name": "Elastic IP",
-            "short": "EIP"
+            "catalog": "Compute",
+            "name": "Elastic Cloud Server",
+            "short": "ECS"
           }
         }
       }
