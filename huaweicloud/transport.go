@@ -2,10 +2,8 @@ package huaweicloud
 
 import (
 	"fmt"
-	"net/url"
 	"reflect"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -34,19 +32,6 @@ func isEmptyValue(v reflect.Value) (bool, error) {
 		return true, nil
 	}
 	return false, fmt.Errorf("isEmptyValue:: unknown type")
-}
-
-func addQueryParams(rawurl string, params map[string]string) (string, error) {
-	u, err := url.Parse(rawurl)
-	if err != nil {
-		return "", err
-	}
-	q := u.Query()
-	for k, v := range params {
-		q.Set(k, v)
-	}
-	u.RawQuery = q.Encode()
-	return u.String(), nil
 }
 
 func replaceVars(d *schema.ResourceData, linkTmpl string, kv map[string]interface{}) (string, error) {
@@ -158,48 +143,8 @@ func navigateValue(d interface{}, index []string, arrayIndex map[string]int) (in
 	return d, nil
 }
 
-func isUserInput(d *schema.ResourceData, index []string, arrayIndex map[string]int) bool {
-	var r = make([]string, 0, len(index)*2)
-	for n, i := range index {
-		r = append(r, i)
-
-		if arrayIndex != nil {
-			if j, ok := arrayIndex[strings.Join(index[:n+1], ".")]; ok {
-				r = append(r, strconv.Itoa(j))
-			}
-		}
-	}
-	_, e := d.GetOkExists(strings.Join(r[:len(r)], "."))
-	return e
-}
-
-func convertToInt(v interface{}) (int64, error) {
-	s := fmt.Sprintf("%v", v)
-	r, err := strconv.ParseInt(s, 10, 64)
-	if err == nil {
-		return r, err
-	}
-
-	if i, ok := v.(int); ok {
-		return int64(i), nil
-
-	} else if i, ok := v.(float64); ok {
-		return int64(i), nil
-
-	} else if i, ok := v.(float32); ok {
-		return int64(i), nil
-	}
-
-	return 0, fmt.Errorf("can not convert to integer")
-}
-
 func convertToStr(v interface{}) string {
 	return fmt.Sprintf("%v", v)
-}
-
-func convertSeconds2Str(v int64) string {
-	t := time.Unix(v, 0)
-	return t.Format("2006-01-02 15:04:05")
 }
 
 func waitToFinish(target, pending []string, timeout, interval time.Duration, f resource.StateRefreshFunc) (interface{}, error) {
