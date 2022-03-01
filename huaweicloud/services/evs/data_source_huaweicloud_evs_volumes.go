@@ -145,10 +145,10 @@ func DataSourceEvsVolumesV2() *schema.Resource {
 	}
 }
 
-func buildQueryOpts(d *schema.ResourceData) cloudvolumes.ListOpts {
+func buildQueryOpts(d *schema.ResourceData, config *config.Config) cloudvolumes.ListOpts {
 	result := cloudvolumes.ListOpts{
 		AvailabilityZone:    d.Get("availability_zone").(string),
-		EnterpriseProjectID: d.Get("enterprise_project_id").(string),
+		EnterpriseProjectID: config.DataGetEnterpriseProjectID(d),
 		ServerID:            d.Get("server_id").(string),
 		Status:              d.Get("status").(string),
 	}
@@ -214,7 +214,7 @@ func dataSourceEvsVolumesV2Read(_ context.Context, d *schema.ResourceData, meta 
 		return fmtp.DiagErrorf("Error creating HuaweiCloud EVS v2 client: %s", err)
 	}
 
-	pages, err := cloudvolumes.List(client, buildQueryOpts(d)).AllPages()
+	pages, err := cloudvolumes.List(client, buildQueryOpts(d, config)).AllPages()
 	if err != nil {
 		return fmtp.DiagErrorf("An error occurred while fetching the pages of the EVS disks: %s", err)
 	}
