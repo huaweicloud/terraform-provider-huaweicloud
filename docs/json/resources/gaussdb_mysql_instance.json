@@ -25,6 +25,12 @@
                 "computed": true,
                 "forcenew": true
               },
+              "configuration_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "db_user_name": {
                 "type": "string",
                 "computed": true
@@ -32,6 +38,13 @@
               "dedicated_resource_id": {
                 "type": "string",
                 "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "dedicated_resource_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "enterprise_project_id": {

@@ -20,6 +20,10 @@
                 "required": true,
                 "forcenew": true
               },
+              "current_node_count": {
+                "type": "number",
+                "computed": true
+              },
               "extend_param": {
                 "type": [
                   "map",
