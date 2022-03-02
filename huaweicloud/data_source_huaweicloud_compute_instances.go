@@ -149,7 +149,7 @@ func DataSourceComputeInstances() *schema.Resource {
 func buildListOptsWithoutIP(d *schema.ResourceData, conf *config.Config) *cloudservers.ListOpts {
 	result := cloudservers.ListOpts{
 		Limit:               100,
-		EnterpriseProjectID: GetEnterpriseProjectID(d, conf),
+		EnterpriseProjectID: conf.DataGetEnterpriseProjectID(d),
 		Name:                d.Get("name").(string),
 		Flavor:              d.Get("flavor_id").(string),
 		Status:              d.Get("status").(string),
@@ -213,10 +213,7 @@ func dataSourceComputeInstancesRead(_ context.Context, d *schema.ResourceData, m
 }
 
 func IsSystemVolume(index string) bool {
-	if index == "0" {
-		return true
-	}
-	return false
+	return index == "0"
 }
 
 func parseEcsInstanceSecurityGroupIds(groups []cloudservers.SecurityGroups) []string {
