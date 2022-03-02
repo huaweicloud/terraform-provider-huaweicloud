@@ -301,6 +301,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_node":                             DataSourceCCENodeV3(),
 			"huaweicloud_cce_nodes":                            cce.DataSourceCCENodes(),
 			"huaweicloud_cce_node_pool":                        DataSourceCCENodePoolV3(),
+			"huaweicloud_cci_namespaces":                       cci.DataSourceCciNamespaces(),
 			"huaweicloud_cdm_flavors":                          DataSourceCdmFlavorV1(),
 			"huaweicloud_compute_flavors":                      DataSourceEcsFlavors(),
 			"huaweicloud_compute_instance":                     DataSourceComputeInstance(),
