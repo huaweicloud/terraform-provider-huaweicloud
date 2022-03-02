@@ -598,6 +598,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc":                              vpc.ResourceVirtualPrivateCloudV1(),
 			"huaweicloud_vpc_route":                        vpc.ResourceVPCRouteTableRoute(),
 			"huaweicloud_vpc_subnet":                       vpc.ResourceVpcSubnetV1(),
+			"huaweicloud_vpc_address_group":                vpc.ResourceVpcAddressGroup(),
 			"huaweicloud_vpcep_approval":                   ResourceVPCEndpointApproval(),
 			"huaweicloud_vpcep_endpoint":                   ResourceVPCEndpoint(),
 			"huaweicloud_vpcep_service":                    ResourceVPCEndpointService(),

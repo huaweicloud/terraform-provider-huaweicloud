@@ -11,6 +11,7 @@ package common
 
 import (
 	"context"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -23,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
@@ -91,6 +93,19 @@ func CheckDeletedDiag(d *schema.ResourceData, err error, msg string) diag.Diagno
 	if _, ok := err.(golangsdk.ErrDefault404); ok {
 		d.SetId("")
 		return nil
+	}
+
+	return fmtp.DiagErrorf("%s: %s", msg, err)
+}
+
+// CheckDeletedError checks the error raised by **huaweicloud-sdk-go-v3** is 404 (Not Found),
+// if so, sets the resource ID to the empty string instead of throwing an error.
+func CheckDeletedError(d *schema.ResourceData, err error, msg string) diag.Diagnostics {
+	if responseErr, ok := err.(*sdkerr.ServiceResponseError); ok {
+		if responseErr.StatusCode == http.StatusNotFound {
+			d.SetId("")
+			return nil
+		}
 	}
 
 	return fmtp.DiagErrorf("%s: %s", msg, err)

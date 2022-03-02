@@ -116,6 +116,7 @@ func (c *Config) LoadAndValidate() error {
 	if c.HwClient != nil && c.HwClient.ProjectID != "" {
 		c.RegionProjectIDMap[c.Region] = c.HwClient.ProjectID
 	}
+	log.Printf("[DEBUG] init region and project map: %#v", c.RegionProjectIDMap)
 
 	// set DomainID for IAM resource
 	if c.DomainID == "" {
@@ -226,7 +227,10 @@ func genClient(c *Config, ao golangsdk.AuthOptionsProvider) (*golangsdk.Provider
 	if err != nil {
 		return nil, err
 	}
-	transport := &http.Transport{Proxy: http.ProxyFromEnvironment, TLSClientConfig: config}
+	transport := &http.Transport{
+		Proxy:           http.ProxyFromEnvironment,
+		TLSClientConfig: config,
+	}
 
 	client.HTTPClient = http.Client{
 		Transport: &LogRoundTripper{
@@ -564,14 +568,16 @@ func (c *Config) newServiceClientByName(client *golangsdk.ProviderClient, catalo
 		projectID, _ = c.RegionProjectIDMap[region]
 	}
 
-	sc := new(golangsdk.ServiceClient)
-
+	// update ProjectID and region in ProviderClient
 	clone := new(golangsdk.ProviderClient)
 	*clone = *client
 	clone.ProjectID = projectID
 	clone.AKSKAuthOptions.ProjectId = projectID
 	clone.AKSKAuthOptions.Region = region
-	sc.ProviderClient = clone
+
+	sc := &golangsdk.ServiceClient{
+		ProviderClient: clone,
+	}
 
 	if catalog.Scope == "global" && !c.RegionClient {
 		sc.Endpoint = fmt.Sprintf("https://%s.%s/", catalog.Name, c.Cloud)
@@ -682,7 +688,7 @@ func (c *Config) getUserIDbyName(name string) (string, error) {
 // loadUserProjects will query the region-projectId pair and store it into RegionProjectIDMap
 func (c *Config) loadUserProjects(client *golangsdk.ProviderClient, region string) error {
 
-	log.Printf("Load projectID for region: %s", region)
+	log.Printf("[DEBUG] Load project ID for region: %s", region)
 	domainID := client.DomainID
 	opts := projects.ListOpts{
 		DomainID: domainID,
@@ -706,6 +712,7 @@ func (c *Config) loadUserProjects(client *golangsdk.ProviderClient, region strin
 	}
 
 	for _, item := range all {
+		log.Printf("[DEBUG] add %s/%s to region and project map", item.Name, item.ID)
 		c.RegionProjectIDMap[item.Name] = item.ID
 	}
 	return nil
