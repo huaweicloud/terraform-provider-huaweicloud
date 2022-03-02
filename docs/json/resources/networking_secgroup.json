@@ -5,6 +5,10 @@
         "huaweicloud_networking_secgroup": {
           "block": {
             "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
               "delete_default_rules": {
                 "type": "bool",
                 "optional": true,
@@ -45,12 +49,17 @@
                       "id": "string",
                       "port_range_max": "number",
                       "port_range_min": "number",
+                      "ports": "string",
                       "protocol": "string",
                       "remote_group_id": "string",
                       "remote_ip_prefix": "string"
                     }
                   ]
                 ],
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
                 "computed": true
               }
             }

@@ -19,6 +19,11 @@
                 ],
                 "computed": true
               },
+              "auto_renew": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "availability_zone": {
                 "type": "string",
                 "required": true,
@@ -33,6 +38,12 @@
                 "type": "bool",
                 "optional": true,
                 "default": false
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "description": {
                 "type": "string",
@@ -73,6 +84,16 @@
               "name": {
                 "type": "string",
                 "optional": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
               },
               "region": {
                 "type": "string",
