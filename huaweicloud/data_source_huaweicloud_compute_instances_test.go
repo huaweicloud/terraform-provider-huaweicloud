@@ -81,6 +81,10 @@ resource "huaweicloud_compute_instance" "test" {
 
 data "huaweicloud_compute_instances" "test" {
   name = huaweicloud_compute_instance.test.name
+
+  depends_on = [
+    huaweicloud_compute_instance.test
+  ]
 }
 `, testAccCompute_data, rName)
 }

@@ -171,7 +171,7 @@ func DataSourceComputeInstance() *schema.Resource {
 func buildListOptsWithoutStatus(d *schema.ResourceData, conf *config.Config) *cloudservers.ListOpts {
 	result := cloudservers.ListOpts{
 		Limit:               100,
-		EnterpriseProjectID: GetEnterpriseProjectID(d, conf),
+		EnterpriseProjectID: conf.DataGetEnterpriseProjectID(d),
 		Name:                d.Get("name").(string),
 		Flavor:              d.Get("flavor_id").(string),
 		IP:                  d.Get("fixed_ip_v4").(string),

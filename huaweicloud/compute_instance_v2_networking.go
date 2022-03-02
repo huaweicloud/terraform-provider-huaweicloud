@@ -69,7 +69,7 @@ func expandInstanceNetworks(d *schema.ResourceData) ([]servers.Network, error) {
 // InstanceNIC list struct.
 func getInstanceAddresses(d *schema.ResourceData, meta interface{}, server *cloudservers.CloudServer) ([]InstanceNIC, error) {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.SecurityGroupV1Client(GetRegion(d, config))
 	if err != nil {
 		return nil, fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}

@@ -1326,9 +1326,10 @@ func resourceInstanceSchedulerHintsV2(d *schema.ResourceData, schedulerHintsRaw 
 
 func getImage(client *golangsdk.ServiceClient, id, name string) (*cloudimages.Image, error) {
 	listOpts := &cloudimages.ListOpts{
-		ID:    id,
-		Name:  name,
-		Limit: 1,
+		ID:                  id,
+		Name:                name,
+		Limit:               1,
+		EnterpriseProjectID: "all_granted_eps",
 	}
 	allPages, err := cloudimages.List(client, listOpts).AllPages()
 	if err != nil {
