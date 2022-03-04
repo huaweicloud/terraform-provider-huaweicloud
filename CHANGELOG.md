@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## 1.34.1 (March 4, 2022)
+
+* **New Resurce:**
+  + `huaweicloud_vpc_address_group` [GH-1972]
+  + `huaweicloud_fgs_dependency` [GH-1999]
+
+* **New Data Source:**
+  + `huaweicloud_networking_secgroups` [GH-1992]
+
+ENHANCEMENTS:
+
+* support EPS Authorization for the following resources or data sources:
+  + huaweicloud_evs_volumes [GH-1995]
+  + huaweicloud_compute_instance [GH-1996]
+  + huaweicloud_as [GH-1983]
+
 ## 1.34.0 (February 28, 2022)
 
 * **New Resurce:**
