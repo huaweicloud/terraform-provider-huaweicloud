@@ -1,4 +1,4 @@
-package huaweicloud
+package as
 
 import (
 	"regexp"
@@ -8,6 +8,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/groups"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -281,7 +282,7 @@ func getInstanceConfig(configDataMap map[string]interface{}) (configurations.Ins
 
 func resourceASConfigurationCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
@@ -310,14 +311,14 @@ func resourceASConfigurationCreate(d *schema.ResourceData, meta interface{}) err
 
 func resourceASConfigurationRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
 
 	asConfig, err := configurations.Get(asClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "AS Configuration")
+		return common.CheckDeleted(d, err, "AS Configuration")
 	}
 
 	logp.Printf("[DEBUG] Retrieved ASConfiguration %q: %+v", d.Id(), asConfig)
@@ -327,7 +328,7 @@ func resourceASConfigurationRead(d *schema.ResourceData, meta interface{}) error
 
 func resourceASConfigurationDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
@@ -353,7 +354,8 @@ func resourceASConfigurationDelete(d *schema.ResourceData, meta interface{}) err
 func getASGroupsByConfiguration(asClient *golangsdk.ServiceClient, configurationID string) ([]groups.Group, error) {
 	var gs []groups.Group
 	listOpts := groups.ListOpts{
-		ConfigurationID: configurationID,
+		ConfigurationID:     configurationID,
+		EnterpriseProjectID: "all_granted_eps",
 	}
 	page, err := groups.List(asClient, listOpts).AllPages()
 	if err != nil {

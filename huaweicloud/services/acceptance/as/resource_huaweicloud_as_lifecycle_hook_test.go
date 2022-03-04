@@ -1,10 +1,11 @@
-package huaweicloud
+package as
 
 import (
 	"fmt"
 	"regexp"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -23,9 +24,9 @@ func TestAccASLifecycleHook_basic(t *testing.T) {
 	resourceHookName := "huaweicloud_as_lifecycle_hook.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckASLifecycleHookDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckASLifecycleHookDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testASLifecycleHook_basic(rName),
@@ -37,7 +38,7 @@ func TestAccASLifecycleHook_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceHookName, "timeout", "3600"),
 					resource.TestCheckResourceAttr(resourceHookName, "notification_message", "This is a test message"),
 					resource.TestMatchResourceAttr(resourceHookName, "notification_topic_urn",
-						regexp.MustCompile(fmt.Sprintf("^(urn:smn:%s:%s:%s)$", HW_REGION_NAME, HW_PROJECT_ID, rName))),
+						regexp.MustCompile(fmt.Sprintf("^(urn:smn:%s:%s:%s)$", acceptance.HW_REGION_NAME, acceptance.HW_PROJECT_ID, rName))),
 				),
 			},
 			{
@@ -52,7 +53,7 @@ func TestAccASLifecycleHook_basic(t *testing.T) {
 						"This is a update message"),
 					resource.TestMatchResourceAttr(resourceHookName, "notification_topic_urn",
 						regexp.MustCompile(fmt.Sprintf("^(urn:smn:%s:%s:%s-update)$",
-							HW_REGION_NAME, HW_PROJECT_ID, rName))),
+							acceptance.HW_REGION_NAME, acceptance.HW_PROJECT_ID, rName))),
 				),
 			},
 			{
@@ -66,8 +67,8 @@ func TestAccASLifecycleHook_basic(t *testing.T) {
 }
 
 func testAccCheckASLifecycleHookDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	asClient, err := config.AutoscalingV1Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	asClient, err := config.AutoscalingV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating huaweicloud autoscaling client: %s", err)
 	}
@@ -109,8 +110,8 @@ func testAccCheckASLifecycleHookExists(resGroup, resHook string, hook *lifecycle
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		asClient, err := config.AutoscalingV1Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		asClient, err := config.AutoscalingV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating huaweicloud autoscaling client: %s", err)
 		}

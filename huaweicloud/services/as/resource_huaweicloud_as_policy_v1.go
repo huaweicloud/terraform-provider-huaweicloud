@@ -1,4 +1,4 @@
-package huaweicloud
+package as
 
 import (
 	"regexp"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/policies"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -172,7 +173,7 @@ func getPolicyAction(rawPolicyAction map[string]interface{}) policies.ActionOpts
 
 func resourceASPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
@@ -213,14 +214,14 @@ func resourceASPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceASPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
 
 	asPolicy, err := policies.Get(asClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "AS Policy")
+		return common.CheckDeleted(d, err, "AS Policy")
 	}
 
 	logp.Printf("[DEBUG] Retrieved ASPolicy %q: %+v", d.Id(), asPolicy)
@@ -253,14 +254,14 @@ func resourceASPolicyRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("scheduled_policy", nil)
 	}
 
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 
 	return nil
 }
 
 func resourceASPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
@@ -298,7 +299,7 @@ func resourceASPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceASPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}

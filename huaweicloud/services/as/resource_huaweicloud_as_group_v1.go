@@ -1,10 +1,11 @@
-package huaweicloud
+package as
 
 import (
 	"regexp"
 	"strings"
 	"time"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
@@ -176,7 +177,7 @@ func ResourceASGroup() *schema.Resource {
 				Optional: true,
 				Default:  true,
 			},
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -417,7 +418,7 @@ func checkASGroupInstancesRemoved(asClient *golangsdk.ServiceClient, groupID str
 
 func resourceASGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
@@ -471,7 +472,7 @@ func resourceASGroupCreate(d *schema.ResourceData, meta interface{}) error {
 		InstanceTerminatePolicy:   d.Get("instance_terminate_policy").(string),
 		Notifications:             getAllNotifications(d),
 		IsDeletePublicip:          d.Get("delete_publicip").(bool),
-		EnterpriseProjectID:       GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID:       common.GetEnterpriseProjectID(d, config),
 	}
 
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -513,14 +514,14 @@ func resourceASGroupCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceASGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
 
 	asg, err := groups.Get(asClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "AS group")
+		return common.CheckDeleted(d, err, "AS group")
 	}
 	logp.Printf("[DEBUG] Retrieved ASGroup %q: %+v", d.Id(), asg)
 	logp.Printf("[DEBUG] Retrieved ASGroup %q notifications: %+v", d.Id(), asg.Notifications)
@@ -592,7 +593,7 @@ func resourceASGroupRead(d *schema.ResourceData, meta interface{}) error {
 	allIDs := getInstancesIDs(allIns)
 	d.Set("instances", allIDs)
 
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 
 	// save group tags
 	if resourceTags, err := tags.Get(asClient, d.Id()).Extract(); err == nil {
@@ -612,7 +613,7 @@ func resourceASGroupRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
@@ -657,7 +658,7 @@ func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 		InstanceTerminatePolicy:   d.Get("instance_terminate_policy").(string),
 		Notifications:             getAllNotifications(d),
 		IsDeletePublicip:          d.Get("delete_publicip").(bool),
-		EnterpriseProjectID:       GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID:       common.GetEnterpriseProjectID(d, config),
 	}
 
 	logp.Printf("[DEBUG] AS Group update options: %#v", updateOpts)
@@ -708,7 +709,7 @@ func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceASGroupDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}

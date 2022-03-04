@@ -81,9 +81,10 @@ type ListOptsBuilder interface {
 }
 
 type ListOpts struct {
-	Name            string `q:"scaling_group_name"`
-	ConfigurationID string `q:"scaling_configuration_id"`
-	Status          string `q:"scaling_group_status"`
+	Name                string `q:"scaling_group_name"`
+	ConfigurationID     string `q:"scaling_configuration_id"`
+	Status              string `q:"scaling_group_status"`
+	EnterpriseProjectID string `q:"enterprise_project_id"`
 }
 
 // ToGroupListQuery formats a ListOpts into a query string.

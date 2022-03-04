@@ -1,4 +1,4 @@
-package huaweicloud
+package as
 
 import (
 	"regexp"
@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/lifecyclehooks"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
@@ -90,7 +91,7 @@ func ResourceASLifecycleHook() *schema.Resource {
 
 func resourceASLifecycleHookCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.AutoscalingV1Client(GetRegion(d, config))
+	client, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud AutoScaling client: %s", err)
 	}
@@ -119,7 +120,7 @@ func resourceASLifecycleHookCreate(d *schema.ResourceData, meta interface{}) err
 
 func resourceASLifecycleHookRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	region := GetRegion(d, config)
+	region := config.GetRegion(d)
 	client, err := config.AutoscalingV1Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud AutoScaling client: %s", err)
@@ -127,7 +128,7 @@ func resourceASLifecycleHookRead(d *schema.ResourceData, meta interface{}) error
 	groupId := d.Get("scaling_group_id").(string)
 	hook, err := lifecyclehooks.Get(client, groupId, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "Error getting the specifies lifecycle hook of the AutoScaling service")
+		return common.CheckDeleted(d, err, "Error getting the specifies lifecycle hook of the AutoScaling service")
 	}
 	d.Set("region", region)
 	if err = setASLifecycleHookToState(d, hook); err != nil {
@@ -138,7 +139,7 @@ func resourceASLifecycleHookRead(d *schema.ResourceData, meta interface{}) error
 
 func resourceASLifecycleHookUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.AutoscalingV1Client(GetRegion(d, config))
+	client, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud AutoScaling client: %s", err)
 	}
@@ -174,7 +175,7 @@ func resourceASLifecycleHookUpdate(d *schema.ResourceData, meta interface{}) err
 
 func resourceASLifecycleHookDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.AutoscalingV1Client(GetRegion(d, config))
+	client, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud AutoScaling client: %s", err)
 	}

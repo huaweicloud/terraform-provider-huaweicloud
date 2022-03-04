@@ -11,6 +11,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/mutexkv"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/as"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/bms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cce"
@@ -441,10 +442,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_response":                    apig.ResourceApigResponseV2(),
 			"huaweicloud_apig_throttling_policy":           apig.ResourceApigThrottlingPolicyV2(),
 			"huaweicloud_apig_vpc_channel":                 apig.ResourceApigVpcChannelV2(),
-			"huaweicloud_as_configuration":                 ResourceASConfiguration(),
-			"huaweicloud_as_group":                         ResourceASGroup(),
-			"huaweicloud_as_lifecycle_hook":                ResourceASLifecycleHook(),
-			"huaweicloud_as_policy":                        ResourceASPolicy(),
+			"huaweicloud_as_configuration":                 as.ResourceASConfiguration(),
+			"huaweicloud_as_group":                         as.ResourceASGroup(),
+			"huaweicloud_as_lifecycle_hook":                as.ResourceASLifecycleHook(),
+			"huaweicloud_as_policy":                        as.ResourceASPolicy(),
 			"huaweicloud_bms_instance":                     bms.ResourceBmsInstance(),
 			"huaweicloud_bcs_instance":                     resourceBCSInstanceV2(),
 			"huaweicloud_cbr_policy":                       cbr.ResourceCBRPolicyV3(),
@@ -670,9 +671,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_subnet_v1":                      vpc.ResourceVpcSubnetV1(),
 			"huaweicloud_cce_cluster_v3":                     ResourceCCEClusterV3(),
 			"huaweicloud_cce_node_v3":                        ResourceCCENodeV3(),
-			"huaweicloud_as_configuration_v1":                ResourceASConfiguration(),
-			"huaweicloud_as_group_v1":                        ResourceASGroup(),
-			"huaweicloud_as_policy_v1":                       ResourceASPolicy(),
+			"huaweicloud_as_configuration_v1":                as.ResourceASConfiguration(),
+			"huaweicloud_as_group_v1":                        as.ResourceASGroup(),
+			"huaweicloud_as_policy_v1":                       as.ResourceASPolicy(),
 			"huaweicloud_csbs_backup_v1":                     resourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy_v1":              resourceCSBSBackupPolicyV1(),
 			"huaweicloud_vbs_backup_policy_v2":               resourceVBSBackupPolicyV2(),
