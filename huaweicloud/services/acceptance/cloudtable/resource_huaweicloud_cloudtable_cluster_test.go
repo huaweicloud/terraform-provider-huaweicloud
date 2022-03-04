@@ -41,7 +41,8 @@ func TestAccCloudtableCluster_basic(t *testing.T) {
 				Config: testAccCloudtableCluster_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "availability_zone", acceptance.HW_AVAILABILITY_ZONE),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zone",
+						"data.huaweicloud_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "storage_type", "ULTRAHIGH"),
 					resource.TestCheckResourceAttr(resourceName, "storage_size", "10240"),
@@ -67,6 +68,8 @@ func TestAccCloudtableCluster_basic(t *testing.T) {
 
 func testAccCloudtableCluster_base(rName string) string {
 	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"
@@ -89,7 +92,7 @@ func testAccCloudtableCluster_basic(rName string) string {
 %s
 
 resource "huaweicloud_cloudtable_cluster" "test" {
-  availability_zone = "%s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
   name              = "%s"
   storage_type      = "ULTRAHIGH"
   vpc_id            = huaweicloud_vpc.test.id
@@ -98,5 +101,5 @@ resource "huaweicloud_cloudtable_cluster" "test" {
   hbase_version     = "1.0.6"
   rs_num            = 4
 }
-`, testAccCloudtableCluster_base(rName), acceptance.HW_AVAILABILITY_ZONE, rName)
+`, testAccCloudtableCluster_base(rName), rName)
 }
