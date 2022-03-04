@@ -357,6 +357,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_nat_gateway":                          DataSourceNatGatewayV2(),
 			"huaweicloud_networking_port":                      DataSourceNetworkingPortV2(),
 			"huaweicloud_networking_secgroup":                  DataSourceNetworkingSecGroup(),
+			"huaweicloud_networking_secgroups":                 vpc.DataSourceNetworkingSecGroups(),
 			"huaweicloud_modelarts_notebook_images":            modelarts.DataSourceNotebookImages(),
 			"huaweicloud_obs_buckets":                          obs.DataSourceObsBuckets(),
 			"huaweicloud_obs_bucket_object":                    DataSourceObsBucketObject(),
