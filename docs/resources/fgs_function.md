@@ -177,7 +177,7 @@ The following arguments are supported:
 * `code_filename` - (Optional, String) Specifies the name of a function file, This field is mandatory only when coe_type
   is set to jar or zip.
 
-* `depend_list` - (Optional, String) Specifies the dependencies of the function.
+* `depend_list` - (Optional, String) Specifies the ID list of the dependencies.
 
 * `user_data` - (Optional, String) Specifies the Key/Value information defined for the function. Key/value data might be
   parsed with [Terraform `jsonencode()` function]('https://www.terraform.io/docs/language/functions/jsonencode.html').
