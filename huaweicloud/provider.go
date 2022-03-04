@@ -515,6 +515,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_enterprise_project":               eps.ResourceEnterpriseProject(),
 			"huaweicloud_evs_snapshot":                     ResourceEvsSnapshotV2(),
 			"huaweicloud_evs_volume":                       evs.ResourceEvsVolume(),
+			"huaweicloud_fgs_dependency":                   fgs.ResourceFgsDependency(),
 			"huaweicloud_fgs_function":                     fgs.ResourceFgsFunctionV2(),
 			"huaweicloud_fgs_trigger":                      fgs.ResourceFunctionGraphTrigger(),
 			"huaweicloud_gaussdb_cassandra_instance":       resourceGeminiDBInstanceV3(),
