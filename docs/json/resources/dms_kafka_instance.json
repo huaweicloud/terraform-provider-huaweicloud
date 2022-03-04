@@ -1,0 +1,198 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dms_kafka_instance": {
+          "block": {
+            "attributes": {
+              "access_user": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "availability_zones": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "connect_address": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "dumping": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "enable_auto_topic": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "enable_public_ip": {
+                "type": "bool",
+                "computed": true
+              },
+              "engine": {
+                "type": "string",
+                "computed": true
+              },
+              "engine_version": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "maintain_begin": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "maintain_end": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "manager_password": {
+                "type": "string",
+                "required": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "manager_user": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "manegement_connect_address": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "network_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "partition_num": {
+                "type": "number",
+                "computed": true
+              },
+              "password": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "port": {
+                "type": "number",
+                "computed": true
+              },
+              "product_id": {
+                "type": "string",
+                "required": true
+              },
+              "public_ip_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_spec_code": {
+                "type": "string",
+                "computed": true
+              },
+              "retention_policy": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "required": true
+              },
+              "ssl_enable": {
+                "type": "bool",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "storage_space": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "storage_spec_code": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "computed": true
+              },
+              "used_storage_space": {
+                "type": "number",
+                "computed": true
+              },
+              "user_id": {
+                "type": "string",
+                "computed": true
+              },
+              "user_name": {
+                "type": "string",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Application",
+            "name": "Distributed Message Service for Kafka",
+            "short": "DMS"
+          }
+        }
+      }
+    }
+  }
+}
