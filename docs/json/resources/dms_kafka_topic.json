@@ -1,0 +1,62 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dms_kafka_topic": {
+          "block": {
+            "attributes": {
+              "aging_time": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "partitions": {
+                "type": "number",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "replicas": {
+                "type": "number",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "sync_flushing": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "sync_replication": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Application",
+            "name": "Distributed Message Service for Kafka",
+            "short": "DMS"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,243 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dcs_instance": {
+          "block": {
+            "attributes": {
+              "access_user": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "auto_renew": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "availability_zones": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "capacity": {
+                "type": "number",
+                "required": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "domain_name": {
+                "type": "string",
+                "computed": true
+              },
+              "engine": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "engine_version": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "flavor": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "maintain_begin": {
+                "type": "string",
+                "optional": true,
+                "default": "02:00:00"
+              },
+              "maintain_end": {
+                "type": "string",
+                "optional": true,
+                "default": "06:00:00"
+              },
+              "max_memory": {
+                "type": "number",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "order_id": {
+                "type": "string",
+                "computed": true
+              },
+              "password": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "port": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "private_ip": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "rename_commands": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "optional": true
+              },
+              "security_group_name": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "subnet_name": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "used_memory": {
+                "type": "number",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "vpc_name": {
+                "type": "string",
+                "computed": true
+              },
+              "whitelist_enable": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              }
+            },
+            "block_types": {
+              "backup_policy": {
+                "block": {
+                  "attributes": {
+                    "backup_at": {
+                      "type": [
+                        "list",
+                        "number"
+                      ],
+                      "required": true
+                    },
+                    "backup_type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "begin_at": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "period_type": {
+                      "type": "string",
+                      "optional": true,
+                      "default": "weekly"
+                    },
+                    "save_days": {
+                      "type": "number",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "whitelists": {
+                "block": {
+                  "attributes": {
+                    "group_name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "ip_address": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "max_items": 4
+              }
+            }
+          },
+          "product": {
+            "catalog": "Application",
+            "name": "Distributed Cache Service",
+            "short": "DCS"
+          }
+        }
+      }
+    }
+  }
+}
