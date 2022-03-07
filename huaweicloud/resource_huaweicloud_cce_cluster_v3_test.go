@@ -249,7 +249,12 @@ resource "huaweicloud_cce_cluster" "test" {
   vpc_id                 = huaweicloud_vpc.test.id
   subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "overlay_l2"
-  service_network_cidr = "10.248.0.0/16"
+  service_network_cidr   = "10.248.0.0/16"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 `, testAccCCEClusterV3_Base(rName), rName)
 }
@@ -264,8 +269,13 @@ resource "huaweicloud_cce_cluster" "test" {
   vpc_id                 = huaweicloud_vpc.test.id
   subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "overlay_l2"
-  service_network_cidr = "10.248.0.0/16"
+  service_network_cidr   = "10.248.0.0/16"
   description            = "new description"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 `, testAccCCEClusterV3_Base(rName), rName)
 }
