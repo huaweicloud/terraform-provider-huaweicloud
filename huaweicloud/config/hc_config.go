@@ -12,8 +12,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/basic"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/global"
 	hc_config "github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/httphandler"
+	tms "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1"
 	vpc "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -22,7 +24,6 @@ import (
 This file is used to impl the configuration of huaweicloud-sdk-go-v3 package and
 genetate service clients.
 */
-
 func buildAuthCredentials(c *Config, region string) (*basic.Credentials, error) {
 	if c.AccessKey == "" || c.SecretKey == "" {
 		return nil, fmt.Errorf("access_key or secret_key is missing in the provider")
@@ -49,6 +50,22 @@ func buildAuthCredentials(c *Config, region string) (*basic.Credentials, error) 
 	}
 
 	credentials.ProjectId = projectID
+	return &credentials, nil
+}
+
+func buildGlobalAuthCredentials(c *Config, region string) (*global.Credentials, error) {
+	if c.AccessKey == "" || c.SecretKey == "" {
+		return nil, fmt.Errorf("access_key or secret_key is missing in the provider")
+	}
+
+	credentials := global.Credentials{
+		AK:            c.AccessKey,
+		SK:            c.SecretKey,
+		DomainId:      c.DomainID,
+		SecurityToken: c.SecurityToken,
+		IamEndpoint:   c.IdentityEndpoint,
+	}
+
 	return &credentials, nil
 }
 
@@ -126,6 +143,26 @@ func NewVpcClient(c *Config, region string) (*vpc.VpcClient, error) {
 	return vpc.NewVpcClient(
 		vpc.VpcClientBuilder().
 			WithEndpoint(vpcEndpoint).
+			WithCredential(*credentials).
+			WithHttpConfig(buildHTTPConfig(c)).
+			Build()), nil
+}
+
+// NewTmsClient is the TMS service client using huaweicloud-sdk-go-v3 package
+func NewTmsClient(c *Config, region string) (*tms.TmsClient, error) {
+	credentials, err := buildGlobalAuthCredentials(c, region)
+	if err != nil {
+		return nil, err
+	}
+
+	tmsEndpoint := getServiceEndpoint(c, "tms", region)
+	if tmsEndpoint == "" {
+		return nil, fmt.Errorf("failed to get the endpoint of TMS service")
+	}
+
+	return tms.NewTmsClient(
+		tms.TmsClientBuilder().
+			WithEndpoint(tmsEndpoint).
 			WithCredential(*credentials).
 			WithHttpConfig(buildHTTPConfig(c)).
 			Build()), nil

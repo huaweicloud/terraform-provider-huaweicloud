@@ -296,6 +296,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:      "v2",
 		ResourceBase: "notifications",
 	},
+	"tms": {
+		Name:             "tms",
+		Version:          "v1.0",
+		Scope:            "global",
+		WithOutProjectID: true,
+	},
 
 	// catalog for Security service
 	"anti-ddos": {
