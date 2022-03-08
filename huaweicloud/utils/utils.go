@@ -193,6 +193,11 @@ func FormatTimeStampRFC3339(timestamp int64) string {
 	return createTime.Format(time.RFC3339)
 }
 
+// FormatTimeStampUTC is used to unify the unix second time to UTC time string, format: YYYY-MM-DD HH:MM:SS.
+func FormatTimeStampUTC(timestamp int64) string {
+	return time.Unix(timestamp, 0).UTC().Format("2006-01-02 15:04:05")
+}
+
 // EncodeBase64String is used to encode a string by base64.
 func EncodeBase64String(str string) string {
 	strByte := []byte(str)
