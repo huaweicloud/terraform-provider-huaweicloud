@@ -3,6 +3,7 @@ package elb
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -164,6 +165,12 @@ func ResourceLoadBalancerV3() *schema.Resource {
 
 			"tags": common.TagsSchema(),
 
+			// charge info: charging_mode, period_unit, period, auto_renew
+			"charging_mode": common.SchemeChargingMode(nil),
+			"period_unit":   common.SchemaPeriodUnit(nil),
+			"period":        common.SchemaPeriod(nil),
+			"auto_renew":    common.SchemaAutoRenew(nil),
+
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -245,21 +252,49 @@ func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
-	lb, err := loadbalancers.Create(elbClient, createOpts).Extract()
-	if err != nil {
-		return fmtp.DiagErrorf("Error creating LoadBalancer: %s", err)
+	var loadBalancerID string
+	if d.Get("charging_mode").(string) == "prePaid" {
+		autoRenew, _ := strconv.ParseBool(d.Get("auto_renew").(string))
+		prepaidOpts := loadbalancers.PrepaidOpts{
+			PeriodType: d.Get("period_unit").(string),
+			PeriodNum:  d.Get("period").(int),
+			AutoRenew:  autoRenew,
+			AutoPay:    true,
+		}
+		createOpts.PrepaidOpts = &prepaidOpts
+
+		logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+		resp, err := loadbalancers.Create(elbClient, createOpts).ExtractPrepaid()
+		if err != nil {
+			return fmtp.DiagErrorf("Error creating prepaid LoadBalancer: %s", err)
+		}
+
+		// wait for the order to be completed.
+		err = common.WaitOrderComplete(ctx, d, config, resp.OrderID)
+		if err != nil {
+			return fmtp.DiagErrorf("The order is not completed while creating ELB loadbalancer (%s): %#v", resp.LoadBalancerID, err)
+		}
+
+		loadBalancerID = resp.LoadBalancerID
+	} else {
+		logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+		lb, err := loadbalancers.Create(elbClient, createOpts).Extract()
+		if err != nil {
+			return fmtp.DiagErrorf("Error creating LoadBalancer: %s", err)
+		}
+
+		loadBalancerID = lb.ID
 	}
 
 	// Wait for LoadBalancer to become active before continuing
 	timeout := d.Timeout(schema.TimeoutCreate)
-	err = waitForElbV3LoadBalancer(elbClient, lb.ID, "ACTIVE", nil, timeout)
+	err = waitForElbV3LoadBalancer(elbClient, loadBalancerID, "ACTIVE", nil, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	// set the ID on the resource
-	d.SetId(lb.ID)
+	d.SetId(loadBalancerID)
 
 	//set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
@@ -269,8 +304,8 @@ func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, m
 			return fmtp.DiagErrorf("Error creating HuaweiCloud elb v2.0 client: %s", err)
 		}
 		taglist := utils.ExpandResourceTags(tagRaw)
-		if tagErr := tags.Create(elbV2Client, "loadbalancers", lb.ID, taglist).ExtractErr(); tagErr != nil {
-			return fmtp.DiagErrorf("Error setting tags of load balancer %s: %s", lb.ID, tagErr)
+		if tagErr := tags.Create(elbV2Client, "loadbalancers", d.Id(), taglist).ExtractErr(); tagErr != nil {
+			return fmtp.DiagErrorf("Error setting tags of load balancer %s: %s", d.Id(), tagErr)
 		}
 	}
 
@@ -428,12 +463,20 @@ func resourceLoadBalancerV3Delete(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	logp.Printf("[DEBUG] Deleting loadbalancer %s", d.Id())
-	timeout := d.Timeout(schema.TimeoutDelete)
-	if err = loadbalancers.Delete(elbClient, d.Id()).ExtractErr(); err != nil {
-		return fmtp.DiagErrorf("Error deleting HuaweiCloud elb loadbalancer: %s", err)
+
+	if d.Get("charging_mode").(string) == "prePaid" {
+		// Unsubscribe the prepaid loadbalancer will automatically delete it
+		if err = common.UnsubscribePrePaidResource(d, config, []string{d.Id()}); err != nil {
+			return fmtp.DiagErrorf("error unsubscribing HuaweiCloud ELB loadbalancer : %s", err)
+		}
+	} else {
+		if err = loadbalancers.Delete(elbClient, d.Id()).ExtractErr(); err != nil {
+			return fmtp.DiagErrorf("Error deleting HuaweiCloud elb loadbalancer: %s", err)
+		}
 	}
 
 	// Wait for LoadBalancer to become delete
+	timeout := d.Timeout(schema.TimeoutDelete)
 	pending := []string{"PENDING_UPDATE", "PENDING_DELETE", "ACTIVE"}
 	err = waitForElbV3LoadBalancer(elbClient, d.Id(), "DELETED", pending, timeout)
 	if err != nil {

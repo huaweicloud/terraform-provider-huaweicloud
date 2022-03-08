@@ -62,6 +62,9 @@ func dataSourceELbCertificateV3Read(d *schema.ResourceData, meta interface{}) er
 		Name: d.Get("name").(string),
 	}
 	r, err := certificates.List(client, listOpts).AllPages()
+	if err != nil {
+		return fmtp.Errorf("Unable to list HuaweiCloud ELB certificates: %s", err)
+	}
 	certs, err := certificates.ExtractCertificates(r)
 	if err != nil {
 		return fmtp.Errorf("Unable to retrieve certs from Dedicated ELB(V3): %s", err)

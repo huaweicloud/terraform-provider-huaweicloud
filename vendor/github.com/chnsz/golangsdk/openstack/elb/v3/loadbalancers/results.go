@@ -149,6 +149,12 @@ type StatusTree struct {
 	Loadbalancer *LoadBalancer `json:"loadbalancer"`
 }
 
+// Prepaid response
+type PrepaidResponse struct {
+	LoadBalancerID string `json:"loadbalancer_id"`
+	OrderID        string `json:"order_id"`
+}
+
 type commonResult struct {
 	golangsdk.Result
 }
@@ -160,6 +166,13 @@ func (r commonResult) Extract() (*LoadBalancer, error) {
 	}
 	err := r.ExtractInto(&s)
 	return s.LoadBalancer, err
+}
+
+// Extract is a function that accepts a result and extracts a loadbalancer.
+func (r commonResult) ExtractPrepaid() (*PrepaidResponse, error) {
+	var s PrepaidResponse
+	err := r.ExtractInto(&s)
+	return &s, err
 }
 
 // GetStatusesResult represents the result of a GetStatuses operation.
