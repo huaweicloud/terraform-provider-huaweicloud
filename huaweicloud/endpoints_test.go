@@ -1042,6 +1042,17 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 		t.Fatalf("ModelArts v1 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
 	t.Logf("ModelArts v1 endpoint:\t %s", actualURL)
+
+	serviceClient, err = config.ModelArtsV2Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating ModelArts v2 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://modelarts.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("ModelArts v2 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("ModelArts v2 endpoint:\t %s", actualURL)
 }
 
 func TestAccServiceEndpoints_Edge(t *testing.T) {

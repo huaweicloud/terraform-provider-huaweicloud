@@ -70,6 +70,9 @@ type CreateOpts struct {
 
 	// Deletion Protection Enable.
 	DeletionProtectionEnable *bool `json:"deletion_protection_enable,omitempty"`
+
+	// Prepaid configuration
+	PrepaidOpts *PrepaidOpts `json:"prepaid_options,omitempty"`
 }
 
 // BandwidthRef
@@ -126,6 +129,14 @@ type Tag struct {
 	Key string `json:"key,omitempty"`
 	// Tag Value
 	Value string `json:"value,omitempty"`
+}
+
+// Prepaid configuration
+type PrepaidOpts struct {
+	PeriodType string `json:"period_type,omitempty"`
+	PeriodNum  int    `json:"period_num,omitempty"`
+	AutoRenew  bool   `json:"auto_renew,omitempty"`
+	AutoPay    bool   `json:"auto_pay,omitempty"`
 }
 
 // ToLoadBalancerCreateMap builds a request body from CreateOpts.

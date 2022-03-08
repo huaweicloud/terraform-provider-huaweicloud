@@ -1013,6 +1013,10 @@ func (c *Config) ModelArtsV1Client(region string) (*golangsdk.ServiceClient, err
 	return c.NewServiceClient("modelarts", region)
 }
 
+func (c *Config) ModelArtsV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("modelartsv2", region)
+}
+
 // ********** client for Application **********
 func (c *Config) ApiGatewayV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("apig", region)
