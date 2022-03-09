@@ -34,6 +34,28 @@ func TestAccDmsProductDataSource_basic(t *testing.T) {
 	})
 }
 
+func TestAccDmsProductDataSource_kafkaVmSpec(t *testing.T) {
+	dataSourceName := "data.huaweicloud_dms_product.test"
+	dc := acceptance.InitDataSourceCheck(dataSourceName)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDmsProductDataSource_kafkaVmSpec,
+				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(dataSourceName, "engine", "kafka"),
+					resource.TestCheckResourceAttr(dataSourceName, "vm_specification", "c6.large.2"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "availability_zones.0"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDmsProductDataSource_rabbitmqSingle(t *testing.T) {
 	dataSourceName := "data.huaweicloud_dms_product.product1"
 	dc := acceptance.InitDataSourceCheck(dataSourceName)
@@ -91,6 +113,15 @@ data "huaweicloud_dms_product" "product1" {
   partition_num     = 300
   storage           = 600
   storage_spec_code = "dms.physical.storage.high"
+}
+`)
+
+var testAccDmsProductDataSource_kafkaVmSpec = fmt.Sprintf(`
+data "huaweicloud_dms_product" "test" {
+  instance_type    = "cluster"
+  version          = "2.3.0"
+  engine           = "kafka"
+  vm_specification = "c6.large.2"
 }
 `)
 

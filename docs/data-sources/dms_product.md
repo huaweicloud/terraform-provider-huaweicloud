@@ -9,6 +9,8 @@ to `huaweicloud_dms_product_v1`
 
 ## Example Usage
 
+### Filter DMS kafka product list by I/O specification
+
 ```hcl
 data "huaweicloud_dms_product" "product1" {
   engine            = "kafka"
@@ -17,6 +19,17 @@ data "huaweicloud_dms_product" "product1" {
   partition_num     = 300
   storage           = 600
   storage_spec_code = "dms.physical.storage.high"
+}
+```
+
+### Filter DMS kafka product list by underlying VM specification
+
+```
+data "huaweicloud_dms_product" "product2" {
+  engine           = "kafka"
+  version          = "2.3.0"
+  instance_type    = "cluster"
+  vm_specification = "c6.large.2"
 }
 ```
 
@@ -33,7 +46,7 @@ data "huaweicloud_dms_product" "product1" {
 
 * `availability_zones` - (Optional, List) Indicates the list of availability zones with available resources.
 
-* `vm_specification` - (Optional, String) Indicates VM specifications.
+* `vm_specification` - (Optional, String) Indicates underlying VM specification, such as **c6.large.2**.
 
 * `storage` - (Optional, String) Indicates the storage capacity of the resource.
   The default value is the storage capacity of the product.

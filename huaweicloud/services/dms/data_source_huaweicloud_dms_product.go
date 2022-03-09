@@ -166,7 +166,9 @@ func dataSourceDmsProductRead(_ context.Context, d *schema.ResourceData, meta in
 				continue
 			}
 			for _, detail := range value.Details {
-				if vmSpecification != "" && detail.VMSpecification != vmSpecification {
+				// The vm_specification has been removed and the evs_flavor_id return is the same as the
+				// vm_specification.
+				if vmSpecification != "" && detail.EcsFlavorId != vmSpecification {
 					continue
 				}
 
@@ -244,7 +246,7 @@ func dataSourceDmsProductRead(_ context.Context, d *schema.ResourceData, meta in
 			storageSpecCodes = append(storageSpecCodes, v.StorageSpecCode)
 		}
 		mErr = multierror.Append(err,
-			d.Set("vm_specification", pd.VMSpecification),
+			d.Set("vm_specification", pd.EcsFlavorId),
 			d.Set("storage", pd.Storage),
 			d.Set("partition_num", pd.PartitionNum),
 			d.Set("bandwidth", pd.Bandwidth),
@@ -265,7 +267,7 @@ func dataSourceDmsProductRead(_ context.Context, d *schema.ResourceData, meta in
 			storageSpecCodes = append(storageSpecCodes, v.StorageSpecCode)
 		}
 		mErr = multierror.Append(err,
-			d.Set("vm_specification", pd.VMSpecification),
+			d.Set("vm_specification", pd.EcsFlavorId),
 			d.Set("storage", pdInfo.Storage),
 			d.Set("io_type", pdInfo.IOs[0].IOType),
 			d.Set("node_num", pdInfo.NodeNum),
