@@ -87,6 +87,8 @@ The following arguments are supported:
   Deploy to more availability zones, the better the reliability and SLA coverage.
   [Learn more](https://support.huaweicloud.com/en-us/kafka_faq/kafka-faq-200426002.html)
 
+  ~> The parameter behavior of `availability_zones` has been changed from `list` to `set`.
+
 * `manager_user` - (Required, String, ForceNew) Specifies the username for logging in to the Kafka Manager. The username
   consists of 4 to 64 characters and can contain letters, digits, hyphens (-), and underscores (_). Changing this
   creates a new instance resource.

@@ -75,6 +75,8 @@ The following arguments are supported:
   The parameter value can not be left blank or an empty array.
   Changing this creates a new instance resource.
 
+  ~> The parameter behavior of `availability_zones` has been changed from `list` to `set`.
+
 * `access_user` - (Required, String, ForceNew) Specifies a username. A username consists of 4 to 64 characters and
   supports only letters, digits, and hyphens (-). Changing this creates a new instance resource.
 
