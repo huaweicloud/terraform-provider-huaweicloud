@@ -1,32 +1,13 @@
 package huaweicloud
 
 import (
-	"bytes"
-	"fmt"
 	"strconv"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/extradhcpopts"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
-
-func resourceNetworkingPortV2StateRefreshFunc(client *golangsdk.ServiceClient, portID string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		n, err := ports.Get(client, portID).Extract()
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return n, "DELETED", nil
-			}
-
-			return n, "", err
-		}
-
-		return n, n.Status, nil
-	}
-}
 
 func expandNetworkingPortDHCPOptsV2Create(dhcpOpts *schema.Set) []extradhcpopts.CreateExtraDHCPOpt {
 	rawDHCPOpts := dhcpOpts.List()
@@ -162,12 +143,4 @@ func expandNetworkingPortFixedIPV2(d *schema.ResourceData) interface{} {
 		}
 	}
 	return ip
-}
-
-func resourceNetworkingPortV2AllowedAddressPairsHash(v interface{}) int {
-	var buf bytes.Buffer
-	m := v.(map[string]interface{})
-	buf.WriteString(fmt.Sprintf("%s-%s", m["ip_address"].(string), m["mac_address"].(string)))
-
-	return hashcode.String(buf.String())
 }
