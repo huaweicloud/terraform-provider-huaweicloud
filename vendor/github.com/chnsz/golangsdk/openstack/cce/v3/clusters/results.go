@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
 )
 
 type ListCluster struct {
@@ -68,6 +69,8 @@ type Spec struct {
 	Masters []MasterSpec `json:"masters,omitempty"`
 	//Range of kubernetes clusterIp
 	KubernetesSvcIPRange string `json:"kubernetesSvcIpRange,omitempty"`
+	// Tags of cluster, key value pair format
+	ClusterTags []tags.ResourceTag `json:"clusterTags,omitempty"`
 }
 
 // Node network parameters

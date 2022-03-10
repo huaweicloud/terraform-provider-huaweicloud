@@ -10,6 +10,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/aom/v1/icagents"
 	"github.com/chnsz/golangsdk/openstack/cce/v3/clusters"
 	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -216,6 +217,7 @@ func ResourceCCEClusterV3() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"tags": tagsForceNewSchema(),
 
 			// charge info: charging_mode, period_unit, period, auto_renew
 			"charging_mode": schemeChargingMode(nil),
@@ -308,6 +310,12 @@ func resourceClusterLabelsV3(d *schema.ResourceData) map[string]string {
 	}
 	return m
 }
+
+func resourceCCEClusterTags(d *schema.ResourceData) []tags.ResourceTag {
+	tagRaw := d.Get("tags").(map[string]interface{})
+	return utils.ExpandResourceTags(tagRaw)
+}
+
 func resourceClusterAnnotationsV3(d *schema.ResourceData) map[string]string {
 	m := make(map[string]string)
 	for key, val := range d.Get("annotations").(map[string]interface{}) {
@@ -446,6 +454,7 @@ func resourceCCEClusterV3Create(ctx context.Context, d *schema.ResourceData, met
 			BillingMode:          billingMode,
 			ExtendParam:          resourceClusterExtendParamV3(d, config),
 			KubernetesSvcIPRange: d.Get("service_network_cidr").(string),
+			ClusterTags:          resourceCCEClusterTags(d),
 		},
 	}
 
@@ -556,6 +565,7 @@ func resourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("enterprise_project_id", n.Spec.ExtendParam["enterpriseProjectId"]),
 		d.Set("service_network_cidr", n.Spec.KubernetesSvcIPRange),
 		d.Set("billing_mode", n.Spec.BillingMode),
+		d.Set("tags", utils.TagsToMap(n.Spec.ClusterTags)),
 	)
 
 	if n.Spec.BillingMode != 0 {

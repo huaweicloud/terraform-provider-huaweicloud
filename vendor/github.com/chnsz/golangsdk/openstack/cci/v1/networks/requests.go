@@ -76,6 +76,18 @@ func Get(c *golangsdk.ServiceClient, ns, id string) (r GetResult) {
 	return
 }
 
+// List is a method to obtain namespace networks.
+func List(c *golangsdk.ServiceClient, ns string) ([]Network, error) {
+	var rst golangsdk.Result
+	_, err := c.Get(rootURL(c, ns), &rst.Body, nil)
+	if err == nil {
+		var r []Network
+		rst.ExtractIntoSlicePtr(&r, "items")
+		return r, nil
+	}
+	return nil, err
+}
+
 // Delete will permanently delete a particular network based on its unique ID.
 func Delete(c *golangsdk.ServiceClient, ns, id string) (r DeleteResult) {
 	_, r.Err = c.Delete(resourceURL(c, ns, id), &golangsdk.RequestOpts{

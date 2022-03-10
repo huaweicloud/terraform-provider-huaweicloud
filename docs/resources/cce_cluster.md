@@ -192,6 +192,9 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project ID of the CCE cluster.
   Changing this parameter will create a new cluster resource.
 
+* `tags` - (Optional, Map, ForceNew) Specifies the tags of the CCE cluster, key/value pair format.
+  Changing this parameter will create a new cluster resource.
+
 * `delete_evs` - (Optional, String) Specified whether to delete associated EVS disks when deleting the CCE cluster.
   valid values are **true**, **try** and **false**. Default is **false**.
 
