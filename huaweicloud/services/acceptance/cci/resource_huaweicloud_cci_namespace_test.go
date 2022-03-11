@@ -21,7 +21,7 @@ func getNamespaceResourceFunc(conf *config.Config, state *terraform.ResourceStat
 	return cci.GetCciNamespaceInfoById(c, state.Primary.ID)
 }
 
-func TestAccCciNamespaces_basic(t *testing.T) {
+func TestAccCciNamespace_basic(t *testing.T) {
 	var ns namespaces.Namespace
 	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_cci_namespace.test"
@@ -41,7 +41,7 @@ func TestAccCciNamespaces_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCciNamespaces_basic(rName),
+				Config: testAccCciNamespace_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -66,7 +66,7 @@ func TestAccCciNamespaces_basic(t *testing.T) {
 	})
 }
 
-func TestAccCciNamespaces_network(t *testing.T) {
+func TestAccCciNamespace_network(t *testing.T) {
 	var ns namespaces.Namespace
 	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_cci_namespace.test"
@@ -86,7 +86,7 @@ func TestAccCciNamespaces_network(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCciNamespaces_network(rName),
+				Config: testAccCciNamespace_network(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -121,7 +121,7 @@ func testAccCciNamespaceImportStateFunc(rName string) resource.ImportStateIdFunc
 	}
 }
 
-func testAccCciNamespaces_basic(rName string) string {
+func testAccCciNamespace_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cci_namespace" "test" {
   name                      = "%s"
@@ -134,7 +134,7 @@ resource "huaweicloud_cci_namespace" "test" {
 }
 
 // The container network of namespace is only supported in cn-north-4.
-func testAccCciNamespaces_network(rName string) string {
+func testAccCciNamespace_network(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cci_namespace" "test" {
   name                      = "%s"

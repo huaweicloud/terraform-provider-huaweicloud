@@ -177,13 +177,11 @@ func resourceCciNamespaceCreate(ctx context.Context, d *schema.ResourceData, met
 	return resourceCciNamespaceRead(ctx, d, meta)
 }
 
-func setCciNamespaceContainNetwork(d *schema.ResourceData, network string) error {
+func isContainNetworkEnabled(network string) bool {
 	if network == "vpc-network-ready" {
-		return d.Set("container_network_enabled", true)
-	} else if network == "" {
-		return d.Set("container_network_enabled", false)
+		return true
 	}
-	return fmtp.Errorf("Invalid container network return: %s.", network)
+	return false
 }
 
 func setCciNamespaceParams(d *schema.ResourceData, resp *namespaces.Namespace) error {
@@ -199,7 +197,7 @@ func setCciNamespaceParams(d *schema.ResourceData, resp *namespaces.Namespace) e
 		d.Set("status", &resp.Status.Phase),
 		d.Set("warmup_pool_size", metadata.Annotations.PoolSize),
 		d.Set("recycling_interval", metadata.Annotations.RecyclingInterval),
-		setCciNamespaceContainNetwork(d, metadata.Annotations.NetworkEnable),
+		d.Set("container_network_enabled", isContainNetworkEnabled(metadata.Annotations.NetworkEnable)),
 	)
 	if mErr.ErrorOrNil() != nil {
 		return mErr
