@@ -132,6 +132,36 @@ func TestAccElbV3LoadBalancer_withEIP(t *testing.T) {
 	})
 }
 
+func TestAccElbV3LoadBalancer_prePaid(t *testing.T) {
+	var lb loadbalancers.LoadBalancer
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_elb_loadbalancer.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&lb,
+		getELBResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccElbV3LoadBalancerConfig_prePaid(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "cross_vpc_backend", "false"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+				),
+			},
+		},
+	})
+}
+
 func testAccElbV3LoadBalancerConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
@@ -224,6 +254,34 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   bandwidth_charge_mode = "traffic"
   sharetype             = "PER"
   bandwidth_size        = 5
+}
+`, rName)
+}
+
+func testAccElbV3LoadBalancerConfig_prePaid(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name            = "%s"
+  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.subnet_id
+  ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
+  charging_mode   = "prePaid"
+  period_unit     = "month"
+  period          = 1
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
 }
 `, rName)
 }
