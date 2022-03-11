@@ -84,11 +84,13 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				ForceNew: true,
 			},
 			"availability_zones": {
-				Type:     schema.TypeList,
+				// There is a problem with order of elements in Availability Zone list returned by Kafka API.
+				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
 			},
 			"product_id": {
 				Type:     schema.TypeString,
@@ -325,8 +327,8 @@ func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData,
 		availableZones = utils.ExpandToStringList(zoneIDs.([]interface{}))
 	} else {
 		// convert the codes of the availability zone into ids
-		azCodes := d.Get("availability_zones").([]interface{})
-		availableZones, err = getAvailableZoneIDByCode(config, region, azCodes)
+		azCodes := d.Get("availability_zones").(*schema.Set)
+		availableZones, err = getAvailableZoneIDByCode(config, region, azCodes.List())
 		if err != nil {
 			return diag.FromErr(err)
 		}
