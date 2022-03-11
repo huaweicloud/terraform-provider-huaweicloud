@@ -2,7 +2,6 @@ package cci
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -41,24 +40,6 @@ func TestAccDataCciNamespaces_basic(t *testing.T) {
 						"huaweicloud_vpc_subnet.test", "cidr"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "namespaces.0.network.0.vpc.0.network_id",
 						"huaweicloud_vpc_subnet.test", "id"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccDataCciNamespaces_byKeyword(t *testing.T) {
-	dataSourceName := "data.huaweicloud_cci_namespaces.test"
-	rName := acceptance.RandomAccResourceNameWithDash()
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataCciNamespaces_byKeyword(rName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestMatchResourceAttr(dataSourceName, "namespaces.#", regexp.MustCompile(`[1-9][0-9]*`)),
 				),
 			},
 		},
@@ -111,16 +92,4 @@ data "huaweicloud_cci_namespaces" "test" {
   type = "general-computing"
 }
 `, testAccDataCciNamespaces_base(rName), rName)
-}
-
-func testAccDataCciNamespaces_byKeyword(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_cci_namespaces" "test" {
-  depends_on = [huaweicloud_cci_network.test]
-
-  name = "tf-acc-test"
-}  
-`, testAccDataCciNamespaces_base(rName))
 }

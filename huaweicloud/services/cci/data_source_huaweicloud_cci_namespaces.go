@@ -3,7 +3,6 @@ package cci
 import (
 	"context"
 	"regexp"
-	"strings"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cci/v1/namespaces"
@@ -38,9 +37,9 @@ func DataSourceCciNamespaces() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: validation.All(
-					// Release head and tail restrictions on prefix and suffix matching.
-					validation.StringMatch(regexp.MustCompile(`^[-a-z0-9]*$`),
-						"The name can only consist of lowercase letters, numbers, and hyphens (-)"),
+					validation.StringMatch(regexp.MustCompile(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`),
+						"The name can only consist of lowercase letters, numbers, and hyphens (-), "+
+							"and it must start and end with a letter or digit."),
 					validation.StringLenBetween(1, 63),
 				),
 			},
@@ -145,11 +144,6 @@ func DataSourceCciNamespaces() *schema.Resource {
 }
 
 func isNamespaceParamMatch(d *schema.ResourceData, ns namespaces.Namespace) bool {
-	if val, ok := d.GetOk("name"); ok {
-		if !strings.Contains(ns.Metadata.Name, val.(string)) {
-			return false
-		}
-	}
 	if val, ok := d.GetOk("type"); ok {
 		if val.(string) != ns.Metadata.Annotations.Flavor {
 			return false
@@ -225,13 +219,22 @@ func dataSourceCciNamespacesRead(_ context.Context, d *schema.ResourceData, meta
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCI v1 beta1 client: %s", err)
 	}
 
-	pages, err := namespaces.List(client, namespaces.ListOpts{}).AllPages()
-	if err != nil {
-		return fmtp.DiagErrorf("Error finding the namespace list from the server: %s", err)
-	}
-	nsList, err := namespaces.ExtractNamespaces(pages)
-	if err != nil {
-		return fmtp.DiagErrorf("Error extracting HuaweiCloud CCI namespaces: %s", err)
+	var nsList []namespaces.Namespace
+	if ns, ok := d.GetOk("name"); ok {
+		nsResp, err := namespaces.Get(client, ns.(string)).Extract()
+		if err != nil {
+			return fmtp.DiagErrorf("Error getting the namespace (%s) from the server: %s", ns.(string), err)
+		}
+		nsList = append(nsList, *nsResp)
+	} else {
+		pages, err := namespaces.List(client, namespaces.ListOpts{}).AllPages()
+		if err != nil {
+			return fmtp.DiagErrorf("Error finding the namespace list from the server: %s", err)
+		}
+		nsList, err = namespaces.ExtractNamespaces(pages)
+		if err != nil {
+			return fmtp.DiagErrorf("Error extracting HuaweiCloud CCI namespaces: %s", err)
+		}
 	}
 
 	resp, ids, err := filterDataCciNamespaces(d, betaClient, nsList)

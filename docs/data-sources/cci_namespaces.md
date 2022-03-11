@@ -8,13 +8,13 @@ Use this data source to obtain CCI namespaces within HuaweiCloud.
 
 ## Example Usage
 
-### Filter the list of namespaces by a name keyword
+### Get the specified namespace details
 
 ```hcl
-variable "key_word" {}
+variable "namespace_name" {}
 
 data "huaweicloud_cci_namespaces" "test" {
-  name = var.key_word
+  name = var.namespace_name
 }
 ```
 
@@ -28,8 +28,9 @@ The following arguments are supported:
 * `type` - (Optional, String) Specifies the CCI namespace type.
   The valid values are **general-computing** and **gpu-accelerated**.
 
-* `name` - (Optional, String) Specifies the unique name or keyword of the CCI namespace.
-  This parameter can contain a maximum of 63 characters, which may consist of lowercase letters, digits and hyphens.
+* `name` - (Optional, String) Specifies th name of the specified CCI namespace.
+  This parameter can contain a maximum of 63 characters, which may consist of lowercase letters, digits and hyphens,
+  and must start and end with lowercase letters and digits.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID in UUID format.
 
