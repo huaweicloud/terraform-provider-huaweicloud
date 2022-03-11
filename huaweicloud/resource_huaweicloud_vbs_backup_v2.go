@@ -127,7 +127,6 @@ func resourceVBSBackupTagsV2(d *schema.ResourceData) []backups.Tag {
 func resourceVBSBackupV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	vbsClient, err := config.VbsV2Client(GetRegion(d, config))
-
 	if err != nil {
 		return fmtp.Errorf("Error creating huaweicloud vbs client: %s", err)
 	}
@@ -141,40 +140,36 @@ func resourceVBSBackupV2Create(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	n, err := backups.Create(vbsClient, createOpts).ExtractJobResponse()
-
 	if err != nil {
 		return fmtp.Errorf("Error creating huaweicloud VBS Backup: %s", err)
 	}
 
+	// for job APIs: update the endpoint of vbsClient
+	vbsClient.Endpoint = vbsClient.ResourceBase
 	if err := backups.WaitForJobSuccess(vbsClient, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
 		return err
 	}
 
 	entity, err := backups.GetJobEntity(vbsClient, n.JobID, "backup_id")
-
-	if id, ok := entity.(string); ok {
-		d.SetId(id)
-		return resourceVBSBackupV2Read(d, meta)
+	id, ok := entity.(string)
+	if !ok {
+		return fmtp.Errorf("Unexpected error when converting the VBS Backup ID")
 	}
 
-	return fmtp.Errorf("Unexpected conversion error in resourceVBSBackupV2Create.")
+	d.SetId(id)
+	return resourceVBSBackupV2Read(d, meta)
 }
 
 func resourceVBSBackupV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	vbsClient, err := config.VbsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating huaweicloud Vbs client: %s", err)
+		return fmtp.Errorf("Error creating huaweicloud vbs client: %s", err)
 	}
 
 	n, err := backups.Get(vbsClient, d.Id()).Extract()
 	if err != nil {
-		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			d.SetId("")
-			return nil
-		}
-
-		return fmtp.Errorf("Error retrieving huaweicloud VBS Backup: %s", err)
+		return CheckDeleted(d, err, "VBS Backup")
 	}
 
 	d.Set("name", n.Name)
@@ -193,7 +188,6 @@ func resourceVBSBackupV2Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceVBSBackupV2Delete(d *schema.ResourceData, meta interface{}) error {
-
 	config := meta.(*config.Config)
 	vbsClient, err := config.VbsV2Client(GetRegion(d, config))
 	if err != nil {
@@ -205,8 +199,8 @@ func resourceVBSBackupV2Delete(d *schema.ResourceData, meta interface{}) error {
 		Target:     []string{"deleted"},
 		Refresh:    waitForBackupDelete(vbsClient, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Delay:      10 * time.Second,
+		MinTimeout: 5 * time.Second,
 	}
 
 	_, err = stateConf.WaitForState()

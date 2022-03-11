@@ -106,7 +106,7 @@ type Backup struct {
 
 type ExtendInfo struct {
 	AutoTrigger          bool           `json:"auto_trigger"`
-	AverageSpeed         int            `json:"average_speed"`
+	AverageSpeed         int            `json:"-"`
 	CopyFrom             string         `json:"copy_from"`
 	CopyStatus           string         `json:"copy_status"`
 	FailCode             FailCode       `json:"fail_code"`
@@ -145,7 +145,7 @@ type FailCode struct {
 }
 
 type VolumeBackup struct {
-	AverageSpeed     int    `json:"average_speed"`
+	AverageSpeed     int    `json:"-"`
 	Bootable         bool   `json:"bootable"`
 	Id               string `json:"id"`
 	ImageType        string `json:"image_type"`

@@ -16,6 +16,7 @@ import (
 func TestAccVBSBackupV2_basic(t *testing.T) {
 	var config backups.Backup
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_vbs_backup.backup_1"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
@@ -25,36 +26,15 @@ func TestAccVBSBackupV2_basic(t *testing.T) {
 			{
 				Config: testAccVBSBackupV2_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckVBSBackupV2Exists("huaweicloud_vbs_backup.backup_1", &config),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_vbs_backup.backup_1", "name", rName),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_vbs_backup.backup_1", "status", "available"),
+					testAccCheckVBSBackupV2Exists(resourceName, &config),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "available"),
 				),
 			},
 			{
-				ResourceName:      "huaweicloud_vbs_backup.backup_1",
+				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccVBSBackupV2_timeout(t *testing.T) {
-	var config backups.Backup
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVBSBackupV2Destroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccVBSBackupV2_timeout(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckVBSBackupV2Exists("huaweicloud_vbs_backup.backup_1", &config),
-				),
 			},
 		},
 	})
@@ -115,12 +95,14 @@ func testAccCheckVBSBackupV2Exists(n string, configs *backups.Backup) resource.T
 
 func testAccVBSBackupV2_basic(rName string) string {
 	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "zones" {}
+
 resource "huaweicloud_evs_volume" "volume" {
   name              = "%s"
   description       = "my volume"
   volume_type       = "SAS"
   size              = 20
-  availability_zone = "%s"
+  availability_zone = data.huaweicloud_availability_zones.zones.names[0]
 }
   
 resource "huaweicloud_evs_snapshot" "snapshot_1" {
@@ -134,33 +116,5 @@ resource "huaweicloud_vbs_backup" "backup_1" {
   snapshot_id = huaweicloud_evs_snapshot.snapshot_1.id
   name        = "%s"
 }
-`, rName, HW_AVAILABILITY_ZONE, rName, rName)
-}
-
-func testAccVBSBackupV2_timeout(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_evs_volume" "volume" {
-  name              = "%s"
-  description       = "my volume"
-  volume_type       = "SAS"
-  size              = 20
-  availability_zone = "%s"
-}
-
-resource "huaweicloud_evs_snapshot" "snapshot_1" {
-  name        = "%s"
-  description = "for vbs backup"
-  volume_id   = huaweicloud_evs_volume.volume.id
-}
-
-resource "huaweicloud_vbs_backup" "backup_1" {
-  volume_id   = huaweicloud_evs_volume.volume.id
-  snapshot_id = huaweicloud_evs_snapshot.snapshot_1.id
-  name        = "%s"
-  timeouts {
-    create = "5m"
-    delete = "5m"
-  }
-}
-`, rName, HW_AVAILABILITY_ZONE, rName, rName)
+`, rName, rName, rName)
 }
