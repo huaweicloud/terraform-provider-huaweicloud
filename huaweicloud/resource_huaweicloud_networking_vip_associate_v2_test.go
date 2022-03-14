@@ -8,7 +8,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -18,9 +17,6 @@ import (
 
 func TestAccNetworkingV2VIPAssociate_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	var instance cloudservers.CloudServer
-	var vip ports.Port
-	var port ports.Port
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -30,10 +26,10 @@ func TestAccNetworkingV2VIPAssociate_basic(t *testing.T) {
 			{
 				Config: testAccNetworkingV2VIPAssociateConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.test", &instance),
-					testAccCheckNetworkingV2VIPExists("data.huaweicloud_networking_port.port", &port),
-					testAccCheckNetworkingV2VIPExists("huaweicloud_networking_vip.vip_1", &vip),
-					testAccCheckNetworkingV2VIPAssociated(&port, &vip),
+					resource.TestCheckResourceAttrPair("huaweicloud_networking_vip_associate.vip_associate_1",
+						"port_ids.0", "huaweicloud_compute_instance.test", "network.0.port"),
+					resource.TestCheckResourceAttrPair("huaweicloud_networking_vip_associate.vip_associate_1",
+						"vip_id", "huaweicloud_networking_vip.vip_1", "id"),
 				),
 			},
 		},
@@ -66,21 +62,6 @@ func testAccCheckNetworkingV2VIPAssociateDestroy(s *terraform.State) error {
 
 	logp.Printf("[DEBUG] Destroy NetworkingVIPAssociated success!")
 	return nil
-}
-
-func testAccCheckNetworkingV2VIPAssociated(p *ports.Port, vip *ports.Port) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		for _, ip := range p.FixedIPs {
-			for _, addresspair := range vip.AllowedAddressPairs {
-				if ip.IPAddress == addresspair.IPAddress {
-					logp.Printf("[DEBUG] Check NetworkingVIPAssociated success!")
-					return nil
-				}
-			}
-		}
-
-		return fmtp.Errorf("VIP %s was not attached to port %s", vip.ID, p.ID)
-	}
 }
 
 func testAccNetworkingV2VIPAssociateConfig_basic(rName string) string {

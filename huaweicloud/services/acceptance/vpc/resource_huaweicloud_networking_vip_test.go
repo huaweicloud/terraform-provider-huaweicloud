@@ -1,36 +1,55 @@
-package huaweicloud
+package vpc
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/networking/v1/ports"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccNetworkingV2VIP_basic(t *testing.T) {
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	updateName := rName + "update"
-	resourceName := "huaweicloud_networking_vip.vip_1"
+func getNetworkVipResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := config.NetworkingV1Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("Error creating HuaweiCloud VPC network v1 client: %s", err)
+	}
+
+	return ports.Get(client, state.Primary.ID)
+}
+
+func TestAccNetworkingVip_basic(t *testing.T) {
 	var vip ports.Port
+	resourceName := "huaweicloud_networking_vip.test"
+	rName := acceptance.RandomAccResourceName()
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&vip,
+		getNetworkVipResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2VIPDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2VIPConfig_ipv4(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2VIPExists(resourceName, &vip),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "ip_version", "4"),
 					resource.TestCheckResourceAttrSet(resourceName, "mac_address"),
+				),
+			},
+			{
+				Config: testAccNetworkingV2VIPConfig_ipv4(rName + "_update"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", rName+"_update"),
 				),
 			},
 			{
@@ -38,30 +57,30 @@ func TestAccNetworkingV2VIP_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
-				Config: testAccNetworkingV2VIPConfig_ipv4(updateName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", updateName),
-				),
-			},
 		},
 	})
 }
 
-func TestAccNetworkingV2VIP_ipv6(t *testing.T) {
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_networking_vip.vip_1"
+func TestAccNetworkingVip_ipv6(t *testing.T) {
 	var vip ports.Port
+	resourceName := "huaweicloud_networking_vip.test"
+	rName := acceptance.RandomAccResourceName()
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&vip,
+		getNetworkVipResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2VIPDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2VIPConfig_ipv6(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2VIPExists(resourceName, &vip),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "ip_version", "6"),
 					resource.TestCheckResourceAttrSet(resourceName, "mac_address"),
@@ -76,101 +95,46 @@ func TestAccNetworkingV2VIP_ipv6(t *testing.T) {
 	})
 }
 
-func testAccCheckNetworkingV2VIPDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_networking_vip" {
-			continue
-		}
-
-		_, err := ports.Get(networkingClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmtp.Errorf("VIP still exists")
-		}
-	}
-
-	logp.Printf("[DEBUG] testAccCheckNetworkingV2VIPDestroy success!")
-
-	return nil
-}
-
-func testAccCheckNetworkingV2VIPExists(n string, vip *ports.Port) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*config.Config)
-		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
-		}
-
-		found, err := ports.Get(networkingClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("VIP not found")
-		}
-		logp.Printf("[DEBUG] test found is: %#v", found)
-		*vip = *found
-
-		return nil
-	}
-}
-
 func testAccNetworkingV2VIPConfig_ipv4(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "vpc_1" {
-  name = "%s"
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
   cidr = "192.168.0.0/16"
 }
 
-resource "huaweicloud_vpc_subnet" "subnet_1" {
-  vpc_id     = huaweicloud_vpc.vpc_1.id
-  name       = "%s"
+resource "huaweicloud_vpc_subnet" "test" {
+  vpc_id     = huaweicloud_vpc.test.id
+  name       = "%[1]s"
   cidr       = "192.168.0.0/24"
   gateway_ip = "192.168.0.1"
 }
 
-resource "huaweicloud_networking_vip" "vip_1" {
-  name       = "%s"
-  network_id = huaweicloud_vpc_subnet.subnet_1.id
+resource "huaweicloud_networking_vip" "test" {
+  name       = "%[1]s"
+  network_id = huaweicloud_vpc_subnet.test.id
 }
-	`, rName, rName, rName)
+`, rName)
 }
 
 func testAccNetworkingV2VIPConfig_ipv6(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "vpc_1" {
-  name = "%s"
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
   cidr = "192.168.0.0/16"
 }
 
-resource "huaweicloud_vpc_subnet" "subnet_1" {
-  vpc_id      = huaweicloud_vpc.vpc_1.id
-  name        = "%s"
+resource "huaweicloud_vpc_subnet" "test" {
+  vpc_id      = huaweicloud_vpc.test.id
+  name        = "%[1]s"
   cidr        = "192.168.0.0/24"
   gateway_ip  = "192.168.0.1"
   ipv6_enable = true
 }
 
-resource "huaweicloud_networking_vip" "vip_1" {
-  name       = "%s"
-  network_id = huaweicloud_vpc_subnet.subnet_1.id
+resource "huaweicloud_networking_vip" "test" {
+  name       = "%[1]s"
+  network_id = huaweicloud_vpc_subnet.test.id
   ip_version = 6
 }
-	`, rName, rName, rName)
+`, rName)
 }
