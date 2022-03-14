@@ -10,6 +10,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 
@@ -22,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jmespath/go-jmespath"
+	"github.com/mitchellh/go-homedir"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/pathorcontents"
 )
@@ -32,6 +34,26 @@ const (
 	securityKeyURL     string = "http://169.254.169.254/openstack/latest/securitykey"
 	keyExpiresDuration int64  = 600
 )
+
+// CLI Shared Config
+type SharedConfig struct {
+	Current  string    `json:"current"`
+	Profiles []Profile `json:"profiles"`
+}
+
+type Profile struct {
+	Name             string `json:"name"`
+	Mode             string `json:"mode"`
+	AccessKeyId      string `json:"accessKeyId"`
+	SecretAccessKey  string `json:"secretAccessKey"`
+	SecurityToken    string `json:"securityToken"`
+	Region           string `json:"region"`
+	ProjectId        string `json:"projectId"`
+	DomainId         string `json:"domainId"`
+	AgencyDomainId   string `json:"agencyDomainId"`
+	AgencyDomainName string `json:"agencyDomainName"`
+	AgencyName       string `json:"agencyName"`
+}
 
 type Config struct {
 	AccessKey           string
@@ -59,6 +81,8 @@ type Config struct {
 	TerraformVersion    string
 	RegionClient        bool
 	EnterpriseProjectID string
+	SharedConfigFile    string
+	Profile             string
 
 	// metadata security key expires at
 	SecurityKeyExpiresAt time.Time
@@ -101,6 +125,9 @@ func (c *Config) LoadAndValidate() error {
 		} else {
 			err = buildClientByPassword(c)
 		}
+	} else if c.SharedConfigFile != "" {
+		err = buildClientByConfig(c)
+
 	} else {
 		err = getAuthConfigByMeta(c)
 		if err != nil {
@@ -111,6 +138,10 @@ func (c *Config) LoadAndValidate() error {
 	}
 	if err != nil {
 		return err
+	}
+
+	if c.Region == "" {
+		return fmt.Errorf("region should be provided.")
 	}
 
 	if c.HwClient != nil && c.HwClient.ProjectID != "" {
@@ -341,6 +372,64 @@ func buildClientByAKSK(c *Config) error {
 		}
 	}
 	return genClients(c, pao, dao)
+}
+
+func buildClientByConfig(c *Config) error {
+	profilePath, err := homedir.Expand(c.SharedConfigFile)
+	if err != nil {
+		return err
+	}
+
+	current := c.Profile
+	var providerConfig Profile
+	_, err = os.Stat(profilePath)
+	if !os.IsNotExist(err) {
+		data, err := ioutil.ReadFile(profilePath)
+		if err != nil {
+			return fmt.Errorf("Err reading from shared config file: %s", err)
+		}
+		sharedConfig := SharedConfig{}
+		err = json.Unmarshal(data, &sharedConfig)
+		if err != nil {
+			return err
+		}
+
+		// fetch current from shared config if not specified with provider
+		if current == "" {
+			current = sharedConfig.Current
+		}
+
+		// fetch the current profile config
+		for _, v := range sharedConfig.Profiles {
+			if current == v.Name {
+				providerConfig = v
+				break
+			}
+		}
+		if (providerConfig == Profile{}) {
+			return fmt.Errorf("Error finding profile %s from shared config file", current)
+		}
+	} else {
+		return fmt.Errorf("The specified shared config file %s does not exist", profilePath)
+	}
+
+	if providerConfig.Mode == "AKSK" {
+		c.AccessKey = providerConfig.AccessKeyId
+		c.SecretKey = providerConfig.SecretAccessKey
+		if providerConfig.Region != "" {
+			c.Region = providerConfig.Region
+		}
+		// non required fields
+		if providerConfig.DomainId != "" {
+			c.DomainID = providerConfig.DomainId
+		}
+		if providerConfig.ProjectId != "" {
+			c.TenantID = providerConfig.ProjectId
+		}
+	} else {
+		return fmt.Errorf("Unsupported mode %s in shared config file", providerConfig.Mode)
+	}
+	return buildClientByAKSK(c)
 }
 
 func buildClientByPassword(c *Config) error {
