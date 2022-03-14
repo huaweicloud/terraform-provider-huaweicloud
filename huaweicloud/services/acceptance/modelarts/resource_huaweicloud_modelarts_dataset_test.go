@@ -56,7 +56,6 @@ func TestAccResourceDateset_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "data_source.0.data_type", "0"),
 					resource.TestCheckResourceAttr(resourceName, "data_source.0.path", fmt.Sprintf("/%s/%s/", obsName, "input")),
 					resource.TestCheckResourceAttr(resourceName, "labels.0.name", name),
-					resource.TestCheckResourceAttr(resourceName, "labels.0.type", "1"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 				),
 			},
@@ -73,7 +72,6 @@ func TestAccResourceDateset_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "data_source.0.data_type", "0"),
 					resource.TestCheckResourceAttr(resourceName, "data_source.0.path", fmt.Sprintf("/%s/%s/", obsName, "input")),
 					resource.TestCheckResourceAttr(resourceName, "labels.0.name", updateName),
-					resource.TestCheckResourceAttr(resourceName, "labels.0.type", "1"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 				),
 			},
@@ -130,7 +128,6 @@ resource "huaweicloud_modelarts_dataset" "test" {
 
   labels {
     name = "%s"
-    type = 1
   }
 
   depends_on = [

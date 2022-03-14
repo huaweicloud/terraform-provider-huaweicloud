@@ -67,7 +67,7 @@ func ResourceDataset() *schema.Resource {
 				Optional: true,
 				ValidateFunc: validation.All(
 					validation.StringLenBetween(1, 256),
-					validation.StringMatch(regexp.MustCompile(`^[&<>=!"'/]+$`),
+					validation.StringMatch(regexp.MustCompile(`^[^&<>=!"'/]+$`),
 						"The description contains a maximum of 256 characters, "+
 							"and cannot contain special characters !<>=&\"'."),
 				),
@@ -577,7 +577,6 @@ func setLabelsToState(d *schema.ResourceData, labels []dataset.Label) error {
 	for i, v := range labels {
 		result[i] = map[string]interface{}{
 			"name":              v.Name,
-			"type":              v.Type,
 			"property_color":    v.Property.Color,
 			"property_shape":    v.Property.DefaultShape,
 			"property_shortcut": v.Property.Shortcut,
