@@ -24,7 +24,7 @@ var multiCatalogKeys = map[string][]string{
 	"vpc":       {"networkv2", "vpcv3", "security_group", "fwv2"},
 	"elb":       {"elbv2", "elbv3"},
 	"dns":       {"dns_region"},
-	"kms":       {"kmsv1"},
+	"kms":       {"kmsv1", "kmsv3"},
 	"mrs":       {"mrsv2"},
 	"rds":       {"rdsv1"},
 	"waf":       {"waf-dedicated"},
@@ -317,6 +317,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"kmsv1": {
 		Name:    "kms",
 		Version: "v1",
+	},
+	"kmsv3": {
+		Name:    "kms",
+		Version: "v3",
 	},
 	"waf": {
 		Name:         "waf",
