@@ -48,6 +48,14 @@ func TestAccDmsRabbitmqInstances_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"password",
+				},
+			},
+			{
 				Config: testAccDmsRabbitmqInstance_update(rName, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
@@ -57,14 +65,6 @@ func TestAccDmsRabbitmqInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
 				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"password",
-				},
 			},
 		},
 	})
