@@ -25,6 +25,7 @@ func TestAccResourceDrsJob_basic(t *testing.T) {
 	var obj jobs.BatchCreateJobReq
 	resourceName := "huaweicloud_drs_job.test"
 	name := acceptance.RandomAccResourceName()
+	dbName := acceptance.RandomAccResourceName()
 	updateName := acceptance.RandomAccResourceName()
 	pwd := "TestDrs@123"
 
@@ -40,7 +41,7 @@ func TestAccResourceDrsJob_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDrsJob_migrate_mysql(name, pwd),
+				Config: testAccDrsJob_migrate_mysql(name, dbName, pwd),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -67,7 +68,7 @@ func TestAccResourceDrsJob_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDrsJob_migrate_mysql(updateName, pwd),
+				Config: testAccDrsJob_migrate_mysql(updateName, dbName, pwd),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
@@ -131,7 +132,7 @@ resource "huaweicloud_networking_secgroup" "test" {
 func testAccDrsJob_mysql(index int, name, pwd, ip string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_rds_instance" "test%d" {
-  name                = "%s"
+  name                = "%s%d"
   flavor              = "rds.mysql.sld4.large.ha"
   security_group_id   = huaweicloud_networking_secgroup.test.id
   subnet_id           = huaweicloud_vpc_subnet.test.id
@@ -156,13 +157,13 @@ resource "huaweicloud_rds_instance" "test%d" {
     size = 40
   }
 }
-`, index, name, ip, pwd)
+`, index, name, index, ip, pwd)
 }
 
-func testAccDrsJob_migrate_mysql(name, pwd string) string {
+func testAccDrsJob_migrate_mysql(name, dbName, pwd string) string {
 	netConfig := testAccDrsNet_base(name)
-	sourceDb := testAccDrsJob_mysql(1, name, pwd, "192.168.0.58")
-	destDb := testAccDrsJob_mysql(2, name, pwd, "192.168.0.59")
+	sourceDb := testAccDrsJob_mysql(1, dbName, pwd, "192.168.0.58")
+	destDb := testAccDrsJob_mysql(2, dbName, pwd, "192.168.0.59")
 
 	return fmt.Sprintf(`
 %s
