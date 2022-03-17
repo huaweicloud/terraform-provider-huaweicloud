@@ -60,7 +60,7 @@ func Provider() *schema.Provider {
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
 				Description:  descriptions["region"],
 				InputDefault: "cn-north-1",
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
@@ -274,6 +274,20 @@ func Provider() *schema.Provider {
 				Optional:    true,
 				Description: descriptions["endpoints"],
 				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"shared_config_file": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: descriptions["shared_config_file"],
+				DefaultFunc: schema.EnvDefaultFunc("HW_SHARED_CONFIG_FILE", ""),
+			},
+
+			"profile": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: descriptions["profile"],
+				DefaultFunc: schema.EnvDefaultFunc("HW_PROFILE", ""),
 			},
 
 			"enterprise_project_id": {
@@ -795,6 +809,10 @@ func init() {
 
 		"endpoints": "The custom endpoints used to override the default endpoint URL.",
 
+		"shared_config_file": "The path to the shared config file. If not set, the default is ~/.hcloud/config.json.",
+
+		"profile": "The profile name as set in the shared config file.",
+
 		"max_retries": "How many times HTTP connection should be retried until giving up.",
 
 		"enterprise_project_id": "enterprise project id",
@@ -866,6 +884,8 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		Cloud:               cloud,
 		MaxRetries:          d.Get("max_retries").(int),
 		EnterpriseProjectID: d.Get("enterprise_project_id").(string),
+		SharedConfigFile:    d.Get("shared_config_file").(string),
+		Profile:             d.Get("profile").(string),
 		TerraformVersion:    terraformVersion,
 		RegionProjectIDMap:  make(map[string]string),
 		RPLock:              new(sync.Mutex),
