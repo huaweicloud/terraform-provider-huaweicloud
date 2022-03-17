@@ -25,7 +25,6 @@ resource "huaweicloud_modelarts_dataset" "test" {
 
   labels {
     name = "foo"
-    type = 1
   }
 }
 ```
