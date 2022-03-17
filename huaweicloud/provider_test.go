@@ -68,12 +68,6 @@ func testAccPreCheck(t *testing.T) {
 	}
 }
 
-func testAccPrecheckCustomRegion(t *testing.T) {
-	if HW_CUSTOM_REGION_NAME == "" {
-		t.Skip("This environment does not support custom region tests")
-	}
-}
-
 func testAccPreCheckDeprecated(t *testing.T) {
 	if HW_DEPRECATED_ENVIRONMENT == "" {
 		t.Skip("This environment does not support deprecated tests")
@@ -92,12 +86,6 @@ func testAccPreCheckDNS(t *testing.T) {
 	}
 }
 
-func testAccPreCheckULB(t *testing.T) {
-	if HW_SUBNET_ID == "" {
-		t.Skip("HW_SUBNET_ID must be set for LB acceptance tests")
-	}
-}
-
 func testAccPreCheckMaas(t *testing.T) {
 	if HW_ACCESS_KEY == "" || HW_SECRET_KEY == "" || HW_SRC_ACCESS_KEY == "" || HW_SRC_SECRET_KEY == "" {
 		t.Skip("HW_ACCESS_KEY, HW_SECRET_KEY, HW_SRC_ACCESS_KEY, and HW_SRC_SECRET_KEY  must be set for MAAS acceptance tests")
@@ -110,27 +98,9 @@ func testAccPreCheckOBS(t *testing.T) {
 	}
 }
 
-func testAccPreCheckDws(t *testing.T) {
-	if HW_DWS_ENVIRONMENT == "" {
-		t.Skip("This environment does not support DWS tests")
-	}
-}
-
-func testAccPreCheckCloudTable(t *testing.T) {
-	if HW_CLOUDTABLE_AVAILABILITY_ZONE == "" {
-		t.Skip("HW_CLOUDTABLE_AVAILABILITY_ZONE must be set for CloudTable tests")
-	}
-}
-
 func testAccPreCheckMrs(t *testing.T) {
 	if HW_MRS_ENVIRONMENT == "" {
 		t.Skip("This environment does not support MRS tests")
-	}
-}
-
-func testAccPreCheckDms(t *testing.T) {
-	if HW_DMS_ENVIRONMENT == "" {
-		t.Skip("This environment does not support DMS tests")
 	}
 }
 
@@ -158,33 +128,15 @@ func testAccPreCheckCCI(t *testing.T) {
 	}
 }
 
-func testAccPreCheckDestProject(t *testing.T) {
-	if HW_DEST_REGION == "" || HW_DEST_PROJECT_ID == "" {
-		t.Skip("This environment does not support destination project tests")
-	}
-}
-
 func testAccPreCheckEpsID(t *testing.T) {
 	if HW_ENTERPRISE_PROJECT_ID_TEST == "" {
 		t.Skip("This environment does not support Enterprise Project ID tests")
 	}
 }
 
-func testAccPreCheckProject(t *testing.T) {
-	if HW_ENTERPRISE_PROJECT_ID_TEST != "" {
-		t.Skip("This environment does not support project tests")
-	}
-}
-
 func testAccPreCheckProjectID(t *testing.T) {
 	if HW_PROJECT_ID == "" {
 		t.Skip("HW_PROJECT_ID must be set for acceptance tests")
-	}
-}
-
-func testAccAsConfigPreCheck(t *testing.T) {
-	if HW_FLAVOR_ID == "" {
-		t.Skip("HW_FLAVOR_ID must be set for acceptance tests")
 	}
 }
 

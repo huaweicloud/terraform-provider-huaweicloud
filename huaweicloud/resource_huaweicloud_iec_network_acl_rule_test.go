@@ -45,27 +45,6 @@ func TestAccIecNetworkACLRuleResource_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckIecNetworkACLRuleDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	iecV1Client, err := config.IECV1Client(HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_iec_network_acl" {
-			continue
-		}
-
-		_, err := firewalls.Get(iecV1Client, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmtp.Errorf("IEC network acl still exists")
-		}
-	}
-
-	return nil
-}
-
 func testAccCheckIecNetworkACLRuleExists(n, direction string, resource *firewalls.RespFirewallRulesEntity) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]

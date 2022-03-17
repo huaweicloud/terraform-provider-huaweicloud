@@ -68,13 +68,3 @@ data "huaweicloud_networking_secgroups" "test" {
 }
 `, testAccNetworkingSecGroupsDataSource_base(rName))
 }
-
-func testAccNetworkingSecGroupV3DataSource_description(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_networking_secgroups" "test" {
-  description = "[Acc Test]"
-}
-`, testAccNetworkingSecGroupsDataSource_base(rName))
-}

@@ -205,18 +205,19 @@ func getTriggerConditions(v []interface{}) []string {
 	return conds
 }
 
-func getSmnInfo(d *schema.ResourceData) task.SmnInfoOpts {
-	smnInfos := d.Get("smn_info").([]interface{})
-	smnInfo := smnInfos[0].(map[string]interface{})
-	triggerConditions := smnInfo["trigger_conditions"].(*schema.Set).List()
+func getSmnInfo(d *schema.ResourceData) *task.SmnInfoOpts {
+	if s, ok := d.GetOk("smn_info"); ok {
+		smnInfo := (s.([]interface{}))[0].(map[string]interface{})
+		triggerConditions := smnInfo["trigger_conditions"].(*schema.Set).List()
 
-	smnInfoOpts := task.SmnInfoOpts{
-		TopicUrn:          smnInfo["topic_urn"].(string),
-		Language:          smnInfo["language"].(string),
-		TriggerConditions: getTriggerConditions(triggerConditions),
+		smnInfoOpts := task.SmnInfoOpts{
+			TopicUrn:          smnInfo["topic_urn"].(string),
+			Language:          smnInfo["language"].(string),
+			TriggerConditions: getTriggerConditions(triggerConditions),
+		}
+		return &smnInfoOpts
 	}
-	logp.Printf("[DEBUG] getSmnInfo: %#v", smnInfoOpts)
-	return smnInfoOpts
+	return nil
 }
 
 func resourceMaasTaskV1Create(d *schema.ResourceData, meta interface{}) error {
@@ -233,19 +234,7 @@ func resourceMaasTaskV1Create(d *schema.ResourceData, meta interface{}) error {
 		EnableKMS:   &enableKMS,
 		ThreadNum:   d.Get("thread_num").(int),
 		Description: d.Get("description").(string),
-	}
-
-	var smnInfoOpts task.SmnInfoOpts
-	if s, ok := d.GetOk("smn_info"); ok {
-		smnInfo := (s.([]interface{}))[0].(map[string]interface{})
-		triggerConditions := smnInfo["trigger_conditions"].(*schema.Set).List()
-
-		smnInfoOpts = task.SmnInfoOpts{
-			TopicUrn:          smnInfo["topic_urn"].(string),
-			Language:          smnInfo["language"].(string),
-			TriggerConditions: getTriggerConditions(triggerConditions),
-		}
-		createOpts.SmnInfo = &smnInfoOpts
+		SmnInfo:     getSmnInfo(d),
 	}
 
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)

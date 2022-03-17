@@ -121,18 +121,6 @@ func testAccCheckComputeVolumeAttachExists(n string, va *block_devices.VolumeAtt
 	}
 }
 
-func testAccCheckComputeVolumeAttachDevice(
-	va *block_devices.VolumeAttachment, device string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if va.Device != device {
-			return fmtp.Errorf("Requested device of volume attachment (%s) does not match: %s",
-				device, va.Device)
-		}
-
-		return nil
-	}
-}
-
 func testAccComputeVolumeAttach_basic(rName string) string {
 	return fmt.Sprintf(`
 %s

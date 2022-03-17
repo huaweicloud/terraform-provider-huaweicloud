@@ -44,17 +44,6 @@ func TestAccIecSecurityGroupResource_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckIecSecurityGroupV1RuleCount(group *groups.RespSecurityGroupEntity, count int) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if len(group.SecurityGroupRules) == count {
-			return nil
-		}
-
-		return fmtp.Errorf("Unexpected number of rules in group %s. Expected %d, got %d",
-			group.ID, count, len(group.SecurityGroupRules))
-	}
-}
-
 func testAccCheckIecSecurityGroupV1Exists(n string, group *groups.RespSecurityGroupEntity) resource.TestCheckFunc {
 
 	return func(state *terraform.State) error {

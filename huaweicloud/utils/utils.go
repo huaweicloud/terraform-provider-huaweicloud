@@ -85,24 +85,6 @@ func ExpandToStringListBySet(v *schema.Set) []string {
 	return s
 }
 
-// Takes list of pointers to strings. Expand to an array
-// of raw strings and returns a []interface{}
-func flattenToStringList(list []*string) []interface{} {
-	vs := make([]interface{}, 0, len(list))
-	for _, v := range list {
-		vs = append(vs, *v)
-	}
-	return vs
-}
-
-func pointersMapToStringList(pointers map[string]*string) map[string]interface{} {
-	list := make(map[string]interface{}, len(pointers))
-	for i, v := range pointers {
-		list[i] = *v
-	}
-	return list
-}
-
 // Takes a value containing JSON string and passes it through
 // the JSON parser to normalize it, returns either a parsing
 // error or normalized JSON string.
