@@ -67,10 +67,11 @@ func ResourceCCEClusterV3() *schema.Resource {
 				ForceNew: true,
 			},
 			"cluster_version": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: utils.SuppressVersionDiffs,
 			},
 			"cluster_type": {
 				Type:     schema.TypeString,

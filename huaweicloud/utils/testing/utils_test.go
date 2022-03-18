@@ -107,3 +107,23 @@ func TestIsIPv4Address(t *testing.T) {
 		}
 	}
 }
+
+func TestSuppressVersionDiffs(t *testing.T) {
+	var validVersions = []string{
+		"v1.19", "v1.19.10", "v1.19.10-r0",
+	}
+	for _, version := range validVersions {
+		if !utils.SuppressVersionDiffs("", "v1.19.10-r0", version, nil) {
+			t.Fatalf("%s and v1.19.10-r0 should be considered the same version", version)
+		}
+	}
+
+	var invalidVersions = []string{
+		"v1.21", "v1.19.1", "v1.19.10-r1",
+	}
+	for _, version := range invalidVersions {
+		if utils.SuppressVersionDiffs("", "v1.19.10-r0", version, nil) {
+			t.Fatalf("%s and v1.19.10-r0 should be considered different versions", version)
+		}
+	}
+}

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"reflect"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -78,6 +79,20 @@ func SuppressEquivilentTimeDiffs(k, old, new string, d *schema.ResourceData) boo
 	}
 
 	return oldTime.Equal(newTime)
+}
+
+func SuppressVersionDiffs(k, old, new string, d *schema.ResourceData) bool {
+	oldArray := regexp.MustCompile(`[\.\-]+`).Split(old, -1)
+	newArray := regexp.MustCompile(`[\.\-]+`).Split(new, -1)
+	if len(newArray) > len(oldArray) {
+		return false
+	}
+	for i, v := range newArray {
+		if v != oldArray[i] {
+			return false
+		}
+	}
+	return true
 }
 
 func CompareJsonTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
