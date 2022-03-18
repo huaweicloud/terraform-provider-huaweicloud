@@ -6,8 +6,9 @@ import (
 	"time"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/volumeattach"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/block_devices"
+	"github.com/chnsz/golangsdk/openstack/ecs/v1/jobs"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -16,11 +17,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func ResourceComputeVolumeAttachV2() *schema.Resource {
+func ResourceComputeVolumeAttach() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceComputeVolumeAttachV2Create,
-		Read:   resourceComputeVolumeAttachV2Read,
-		Delete: resourceComputeVolumeAttachV2Delete,
+		Create: resourceComputeVolumeAttachCreate,
+		Read:   resourceComputeVolumeAttachRead,
+		Delete: resourceComputeVolumeAttachDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -65,11 +66,11 @@ func ResourceComputeVolumeAttachV2() *schema.Resource {
 	}
 }
 
-func resourceComputeVolumeAttachV2Create(d *schema.ResourceData, meta interface{}) error {
+func resourceComputeVolumeAttachCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute v1 client: %s", err)
 	}
 
 	instanceId := d.Get("instance_id").(string)
@@ -80,21 +81,23 @@ func resourceComputeVolumeAttachV2Create(d *schema.ResourceData, meta interface{
 		device = v.(string)
 	}
 
-	attachOpts := volumeattach.CreateOpts{
+	attachOpts := block_devices.AttachOpts{
 		Device:   device,
-		VolumeID: volumeId,
+		VolumeId: volumeId,
+		ServerId: instanceId,
 	}
 
 	logp.Printf("[DEBUG] Creating volume attachment: %#v", attachOpts)
-	attachment, err := volumeattach.Create(computeClient, instanceId, attachOpts).Extract()
+	job, err := block_devices.Attach(computeClient, attachOpts)
 	if err != nil {
 		return err
 	}
 
+	logp.Printf("[DEBUG] The response of volume attachment request is: %#v", job)
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"ATTACHING"},
-		Target:     []string{"ATTACHED"},
-		Refresh:    resourceComputeVolumeAttachV2AttachFunc(computeClient, instanceId, attachment.ID),
+		Pending:    []string{"INIT", "RUNNING"},
+		Target:     []string{"SUCCESS"},
+		Refresh:    AttachmentJobRefreshFunc(computeClient, job.ID),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      30 * time.Second,
 		MinTimeout: 15 * time.Second,
@@ -104,72 +107,68 @@ func resourceComputeVolumeAttachV2Create(d *schema.ResourceData, meta interface{
 		return fmtp.Errorf("Error attaching HuaweiCloud volume: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Created volume attachment: %#v", attachment)
-
-	// Use the instance ID and attachment ID as the resource ID.
-	// This is because an attachment cannot be retrieved just by its ID alone.
-	// attachment ID equals the volume ID
-	id := fmt.Sprintf("%s/%s", instanceId, attachment.ID)
+	// The old logic use the instance ID and attachment ID as the resource ID, and the attachment ID equals
+	// the volume ID.
+	id := fmt.Sprintf("%s/%s", instanceId, volumeId)
 	d.SetId(id)
 
-	return resourceComputeVolumeAttachV2Read(d, meta)
+	return resourceComputeVolumeAttachRead(d, meta)
 }
 
-func resourceComputeVolumeAttachV2Read(d *schema.ResourceData, meta interface{}) error {
+func resourceComputeVolumeAttachRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
+	region := GetRegion(d, config)
+	computeClient, err := config.ComputeV1Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
-	instanceId, attachmentId, err := parseComputeVolumeAttachmentId(d.Id())
+	instanceId, volumeId, err := parseComputeVolumeAttachmentId(d.Id())
 	if err != nil {
 		return err
 	}
 
-	attachment, err := volumeattach.Get(computeClient, instanceId, attachmentId).Extract()
+	attachment, err := block_devices.Get(computeClient, instanceId, volumeId).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "compute_volume_attach")
 	}
 
 	logp.Printf("[DEBUG] Retrieved volume attachment: %#v", attachment)
 
-	d.Set("instance_id", attachment.ServerID)
-	d.Set("volume_id", attachment.VolumeID)
-	d.Set("device", attachment.Device)
-	d.Set("region", GetRegion(d, config))
+	mErr := multierror.Append(nil,
+		d.Set("instance_id", attachment.ServerId),
+		d.Set("volume_id", attachment.VolumeId),
+		d.Set("device", attachment.Device),
+		d.Set("region", region),
+		d.Set("pci_address", attachment.PciAddress),
+	)
 
-	computeV1Client, err := config.ComputeV1Client(GetRegion(d, config))
-	if err != nil {
-		logp.Printf("[WARN] Error creating HuaweiCloud compute V1 client: %s", err)
-	} else {
-		bd, err := block_devices.Get(computeV1Client, attachment.ServerID, attachment.VolumeID).Extract()
-		if err != nil {
-			logp.Printf("[WARN] Error fetching HuaweiCloud block device: %s", err)
-		}
-		logp.Printf("[DEBUG] Retrieved volume attachment extra info: %#v", bd)
-		d.Set("pci_address", bd.PciAddress)
-	}
-
-	return nil
+	return mErr.ErrorOrNil()
 }
 
-func resourceComputeVolumeAttachV2Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceComputeVolumeAttachDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
-	instanceId, attachmentId, err := parseComputeVolumeAttachmentId(d.Id())
+	instanceId, volumeId, err := parseComputeVolumeAttachmentId(d.Id())
 	if err != nil {
 		return err
 	}
 
+	opts := block_devices.DetachOpts{
+		ServerId: instanceId,
+	}
+	job, err := block_devices.Detach(computeClient, volumeId, opts)
+	if err != nil {
+		return err
+	}
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{""},
-		Target:     []string{"DETACHED"},
-		Refresh:    resourceComputeVolumeAttachV2DetachFunc(computeClient, instanceId, attachmentId),
+		Pending:    []string{"RUNNING"},
+		Target:     []string{"SUCCESS", "NOTFOUND"},
+		Refresh:    AttachmentJobRefreshFunc(computeClient, job.ID),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      15 * time.Second,
 		MinTimeout: 15 * time.Second,
@@ -182,50 +181,17 @@ func resourceComputeVolumeAttachV2Delete(d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func resourceComputeVolumeAttachV2AttachFunc(
-	computeClient *golangsdk.ServiceClient, instanceId, attachmentId string) resource.StateRefreshFunc {
+func AttachmentJobRefreshFunc(c *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		va, err := volumeattach.Get(computeClient, instanceId, attachmentId).Extract()
+		resp, err := jobs.Get(c, jobId)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return va, "ATTACHING", nil
+				return resp, "NOTFOUND", nil
 			}
-			return va, "", err
+			return resp, "ERROR", err
 		}
 
-		return va, "ATTACHED", nil
-	}
-}
-
-func resourceComputeVolumeAttachV2DetachFunc(
-	computeClient *golangsdk.ServiceClient, instanceId, attachmentId string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		logp.Printf("[DEBUG] Attempting to detach HuaweiCloud volume %s from instance %s",
-			attachmentId, instanceId)
-
-		va, err := volumeattach.Get(computeClient, instanceId, attachmentId).Extract()
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return va, "DETACHED", nil
-			}
-			return va, "", err
-		}
-
-		err = volumeattach.Delete(computeClient, instanceId, attachmentId).ExtractErr()
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return va, "DETACHED", nil
-			}
-
-			if _, ok := err.(golangsdk.ErrDefault400); ok {
-				return nil, "", nil
-			}
-
-			return nil, "", err
-		}
-
-		logp.Printf("[DEBUG] HuaweiCloud Volume Attachment (%s) is still active.", attachmentId)
-		return nil, "", nil
+		return resp, resp.Status, nil
 	}
 }
 
@@ -236,7 +202,7 @@ func parseComputeVolumeAttachmentId(id string) (string, string, error) {
 	}
 
 	instanceId := idParts[0]
-	attachmentId := idParts[1]
+	volumeId := idParts[1]
 
-	return instanceId, attachmentId, nil
+	return instanceId, volumeId, nil
 }

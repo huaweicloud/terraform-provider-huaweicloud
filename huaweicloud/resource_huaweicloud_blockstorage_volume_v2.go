@@ -8,7 +8,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/blockstorage/extensions/volumeactions"
 	"github.com/chnsz/golangsdk/openstack/blockstorage/v2/volumes"
-	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/volumeattach"
+	"github.com/chnsz/golangsdk/openstack/ecs/v1/block_devices"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -297,30 +297,30 @@ func resourceBlockStorageVolumeV2Delete(d *schema.ResourceData, meta interface{}
 	// make sure this volume is detached from all instances before deleting
 	if len(v.Attachments) > 0 {
 		logp.Printf("[DEBUG] detaching volumes")
-		if computeClient, err := config.ComputeV2Client(GetRegion(d, config)); err != nil {
+		computeClient, err := config.ComputeV1Client(GetRegion(d, config))
+		if err != nil {
 			return err
-		} else {
-			for _, volumeAttachment := range v.Attachments {
-				logp.Printf("[DEBUG] Attachment: %v", volumeAttachment)
-				if err := volumeattach.Delete(computeClient, volumeAttachment.ServerID, volumeAttachment.ID).ExtractErr(); err != nil {
-					return err
-				}
-			}
+		}
+		for _, volumeAttachment := range v.Attachments {
+			logp.Printf("[DEBUG] Attachment: %v", volumeAttachment)
 
+			opts := block_devices.DetachOpts{
+				ServerId: volumeAttachment.ServerID,
+			}
+			job, err := block_devices.Detach(computeClient, volumeAttachment.ID, opts)
+			if err != nil {
+				return err
+			}
 			stateConf := &resource.StateChangeConf{
-				Pending:    []string{"in-use", "attaching", "detaching"},
-				Target:     []string{"available"},
-				Refresh:    VolumeV2StateRefreshFunc(blockStorageClient, d.Id()),
+				Pending:    []string{"RUNNING"},
+				Target:     []string{"SUCCESS", "NOTFOUND"},
+				Refresh:    AttachmentJobRefreshFunc(computeClient, job.ID),
 				Timeout:    10 * time.Minute,
 				Delay:      10 * time.Second,
 				MinTimeout: 3 * time.Second,
 			}
-
-			_, err = stateConf.WaitForState()
-			if err != nil {
-				return fmtp.Errorf(
-					"Error waiting for volume (%s) to become available: %s",
-					d.Id(), err)
+			if _, err = stateConf.WaitForState(); err != nil {
+				return err
 			}
 		}
 	}

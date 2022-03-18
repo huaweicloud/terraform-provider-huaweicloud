@@ -71,7 +71,6 @@ github.com/chnsz/golangsdk/openstack/compute/v2/extensions/keypairs
 github.com/chnsz/golangsdk/openstack/compute/v2/extensions/schedulerhints
 github.com/chnsz/golangsdk/openstack/compute/v2/extensions/secgroups
 github.com/chnsz/golangsdk/openstack/compute/v2/extensions/startstop
-github.com/chnsz/golangsdk/openstack/compute/v2/extensions/volumeattach
 github.com/chnsz/golangsdk/openstack/compute/v2/flavors
 github.com/chnsz/golangsdk/openstack/compute/v2/images
 github.com/chnsz/golangsdk/openstack/compute/v2/servers
