@@ -18,6 +18,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+var (
+	ValidDiskTypes     = []string{"SYS", "DATA"}
+	ValidVolumeTypes   = []string{"SAS", "SSD", "GPSSD", "ESSD", "SATA"}
+	ValidEipTypes      = []string{"5_bgp", "5_sbgp"}
+	ValidShareTypes    = []string{"PER", "WHOLE"}
+	ValidChargingModes = []string{"traffic", "bandwidth"}
+)
+
 func ResourceASConfiguration() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceASConfigurationCreate,
@@ -32,10 +40,14 @@ func ResourceASConfiguration() *schema.Resource {
 				ForceNew: true,
 			},
 			"scaling_configuration_name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: resourceASConfigurationValidateName,
-				ForceNew:     true,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				ValidateFunc: validation.All(
+					validation.StringLenBetween(1, 64),
+					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa50-9a-zA-Z-_]+$"),
+						"only letters, digits, underscores (_), and hyphens (-) are allowed"),
+				),
 			},
 			"instance_config": {
 				Required: true,
@@ -77,18 +89,14 @@ func ResourceASConfiguration() *schema.Resource {
 										Required: true,
 									},
 									"volume_type": {
-										Type:     schema.TypeString,
-										Required: true,
-										ValidateFunc: validation.StringInSlice([]string{
-											"SAS", "SSD", "GPSSD", "ESSD", "SATA",
-										}, false),
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validation.StringInSlice(ValidVolumeTypes, false),
 									},
 									"disk_type": {
-										Type:     schema.TypeString,
-										Required: true,
-										ValidateFunc: validation.StringInSlice([]string{
-											"SYS", "DATA",
-										}, false),
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validation.StringInSlice(ValidDiskTypes, false),
 									},
 									"kms_id": {
 										Type:     schema.TypeString,
@@ -130,7 +138,7 @@ func ResourceASConfiguration() *schema.Resource {
 												"ip_type": {
 													Type:         schema.TypeString,
 													Required:     true,
-													ValidateFunc: resourceASConfigurationValidateIpType,
+													ValidateFunc: validation.StringInSlice(ValidEipTypes, false),
 												},
 												"bandwidth": {
 													Type:     schema.TypeList,
@@ -141,17 +149,17 @@ func ResourceASConfiguration() *schema.Resource {
 															"size": {
 																Type:         schema.TypeInt,
 																Required:     true,
-																ValidateFunc: resourceASConfigurationValidateEipBandWidthSize,
+																ValidateFunc: validation.IntBetween(1, 2000),
 															},
 															"share_type": {
 																Type:         schema.TypeString,
 																Required:     true,
-																ValidateFunc: resourceASConfigurationValidateShareType,
+																ValidateFunc: validation.StringInSlice(ValidShareTypes, false),
 															},
 															"charging_mode": {
 																Type:         schema.TypeString,
 																Required:     true,
-																ValidateFunc: resourceASConfigurationValidateChargeMode,
+																ValidateFunc: validation.StringInSlice(ValidChargingModes, false),
 															},
 														},
 													},
@@ -365,64 +373,4 @@ func getASGroupsByConfiguration(asClient *golangsdk.ServiceClient, configuration
 	}
 	gs, err = page.(groups.GroupPage).Extract()
 	return gs, err
-}
-
-var BandWidthChargeMode = [1]string{"traffic"}
-
-func resourceASConfigurationValidateChargeMode(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	for i := range BandWidthChargeMode {
-		if value == BandWidthChargeMode[i] {
-			return
-		}
-	}
-	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, BandWidthChargeMode))
-	return
-}
-
-var BandWidthShareType = [1]string{"PER"}
-
-func resourceASConfigurationValidateShareType(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	for i := range BandWidthShareType {
-		if value == BandWidthShareType[i] {
-			return
-		}
-	}
-	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, BandWidthShareType))
-	return
-}
-
-func resourceASConfigurationValidateEipBandWidthSize(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(int)
-	if 1 <= value && value <= 300 {
-		return
-	}
-	errors = append(errors, fmtp.Errorf("%q must be [1, 300], but it is %d", k, value))
-	return
-}
-
-var IpTypes = [1]string{"5_bgp"}
-
-func resourceASConfigurationValidateIpType(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	for i := range IpTypes {
-		if value == IpTypes[i] {
-			return
-		}
-	}
-	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, IpTypes))
-	return
-}
-
-//lintignore:V001
-func resourceASConfigurationValidateName(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	if len(value) > 64 || len(value) < 1 {
-		errors = append(errors, fmtp.Errorf("%q must contain more than 1 and less than 64 characters", k))
-	}
-	if !regexp.MustCompile(`^[0-9a-zA-Z-_]+$`).MatchString(value) {
-		errors = append(errors, fmtp.Errorf("only alphanumeric characters, hyphens, and underscores allowed in %q", k))
-	}
-	return
 }

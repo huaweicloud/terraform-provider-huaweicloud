@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/groups"
@@ -18,6 +19,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+)
+
+var (
+	HealthAuditMethods = []string{"ELB_AUDIT", "NOVA_AUDIT"}
+	HealthAuditTime    = []int{0, 1, 5, 15, 60, 180}
+	TerminatePolices   = []string{"OLD_CONFIG_OLD_INSTANCE", "OLD_CONFIG_NEW_INSTANCE", "OLD_INSTANCE", "NEW_INSTANCE"}
 )
 
 func ResourceASGroup() *schema.Resource {
@@ -43,9 +50,13 @@ func ResourceASGroup() *schema.Resource {
 				ForceNew: true,
 			},
 			"scaling_group_name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: resourceASGroupValidateGroupName,
+				Type:     schema.TypeString,
+				Required: true,
+				ValidateFunc: validation.All(
+					validation.StringLenBetween(1, 64),
+					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa50-9a-zA-Z-_]+$"),
+						"only letters, digits, underscores (_), and hyphens (-) are allowed"),
+				),
 			},
 			"scaling_configuration_id": {
 				Type:     schema.TypeString,
@@ -70,15 +81,8 @@ func ResourceASGroup() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      300,
-				ValidateFunc: resourceASGroupValidateCoolDownTime,
+				ValidateFunc: validation.IntBetween(0, 86400),
 				Description:  "The cooling duration, in seconds.",
-			},
-			"lb_listener_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: resourceASGroupValidateListenerId,
-				Description:  "The system supports the binding of up to six ELB listeners, the IDs of which are separated using a comma.",
-				Deprecated:   "use lbaas_listeners instead",
 			},
 			"lbaas_listeners": {
 				Type:          schema.TypeList,
@@ -141,21 +145,21 @@ func ResourceASGroup() *schema.Resource {
 			"health_periodic_audit_method": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: resourceASGroupValidateHealthAuditMethod,
+				ValidateFunc: validation.StringInSlice(HealthAuditMethods, false),
 				Default:      "NOVA_AUDIT",
 			},
 			"health_periodic_audit_time": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      5,
-				ValidateFunc: resourceASGroupValidateHealthAuditTime,
+				ValidateFunc: validation.IntInSlice(HealthAuditTime),
 				Description:  "The health check period for instances, in minutes.",
 			},
 			"instance_terminate_policy": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "OLD_CONFIG_OLD_INSTANCE",
-				ValidateFunc: resourceASGroupValidateTerminatePolicy,
+				ValidateFunc: validation.StringInSlice(TerminatePolices, false),
 			},
 			"notifications": {
 				Type:     schema.TypeList,
@@ -197,6 +201,15 @@ func ResourceASGroup() *schema.Resource {
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+
+			// Deprecated
+			"lb_listener_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: resourceASGroupValidateListenerId,
+				Description:  "The system supports the binding of up to six ELB listeners, the IDs of which are separated using a comma.",
+				Deprecated:   "use lbaas_listeners instead",
 			},
 		},
 	}
@@ -757,28 +770,6 @@ func resourceASGroupDelete(ctx context.Context, d *schema.ResourceData, meta int
 	return nil
 }
 
-var TerminatePolices = [4]string{"OLD_CONFIG_OLD_INSTANCE", "OLD_CONFIG_NEW_INSTANCE", "OLD_INSTANCE", "NEW_INSTANCE"}
-
-func resourceASGroupValidateTerminatePolicy(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	for i := range TerminatePolices {
-		if value == TerminatePolices[i] {
-			return
-		}
-	}
-	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, TerminatePolices))
-	return
-}
-
-func resourceASGroupValidateCoolDownTime(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(int)
-	if 0 <= value && value <= 86400 {
-		return
-	}
-	errors = append(errors, fmtp.Errorf("%q must be [0, 86400]", k))
-	return
-}
-
 func resourceASGroupValidateListenerId(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	split := strings.Split(value, ",")
@@ -786,43 +777,5 @@ func resourceASGroupValidateListenerId(v interface{}, k string) (ws []string, er
 		return
 	}
 	errors = append(errors, fmtp.Errorf("%q supports binding up to 6 ELB listeners which are separated by a comma.", k))
-	return
-}
-
-var HealthAuditMethods = [2]string{"ELB_AUDIT", "NOVA_AUDIT"}
-
-func resourceASGroupValidateHealthAuditMethod(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	for i := range HealthAuditMethods {
-		if value == HealthAuditMethods[i] {
-			return
-		}
-	}
-	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, HealthAuditMethods))
-	return
-}
-
-var HealthAuditTime = [4]int{5, 15, 60, 180}
-
-func resourceASGroupValidateHealthAuditTime(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(int)
-	for i := range HealthAuditTime {
-		if value == HealthAuditTime[i] {
-			return
-		}
-	}
-	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, HealthAuditTime))
-	return
-}
-
-//lintignore:V001
-func resourceASGroupValidateGroupName(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	if len(value) > 64 || len(value) < 1 {
-		errors = append(errors, fmtp.Errorf("%q must contain more than 1 and less than 64 characters", k))
-	}
-	if !regexp.MustCompile(`^[0-9a-zA-Z-_]+$`).MatchString(value) {
-		errors = append(errors, fmtp.Errorf("only alphanumeric characters, hyphens, and underscores allowed in %q", k))
-	}
 	return
 }

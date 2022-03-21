@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/policies"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -15,6 +16,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+)
+
+var (
+	PolicyTypes       = []string{"ALARM", "SCHEDULED", "RECURRENCE"}
+	RecurrencePeriods = []string{"Daily", "Weekly", "Monthly"}
+	PolicyActions     = []string{"ADD", "REMOVE", "SET"}
 )
 
 func ResourceASPolicy() *schema.Resource {
@@ -32,9 +39,13 @@ func ResourceASPolicy() *schema.Resource {
 				ForceNew: true,
 			},
 			"scaling_policy_name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: resourceASPolicyValidateName,
+				Type:     schema.TypeString,
+				Required: true,
+				ValidateFunc: validation.All(
+					validation.StringLenBetween(1, 64),
+					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa50-9a-zA-Z-_]+$"),
+						"only letters, digits, underscores (_), and hyphens (-) are allowed"),
+				),
 			},
 			"scaling_group_id": {
 				Type:     schema.TypeString,
@@ -44,7 +55,7 @@ func ResourceASPolicy() *schema.Resource {
 			"scaling_policy_type": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: resourceASPolicyValidatePolicyType,
+				ValidateFunc: validation.StringInSlice(PolicyTypes, false),
 			},
 			"alarm_id": {
 				Type:     schema.TypeString,
@@ -63,7 +74,7 @@ func ResourceASPolicy() *schema.Resource {
 						"recurrence_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: resourceASPolicyValidateRecurrenceType,
+							ValidateFunc: validation.StringInSlice(RecurrencePeriods, false),
 						},
 						"recurrence_value": {
 							Type:     schema.TypeString,
@@ -91,7 +102,7 @@ func ResourceASPolicy() *schema.Resource {
 						"operation": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: resourceASPolicyValidateActionOperation,
+							ValidateFunc: validation.StringInSlice(PolicyActions, false),
 						},
 						"instance_number": {
 							Type:     schema.TypeInt,
@@ -313,55 +324,4 @@ func resourceASPolicyDelete(_ context.Context, d *schema.ResourceData, meta inte
 	}
 
 	return nil
-}
-
-var RecurrenceTypes = [3]string{"Daily", "Weekly", "Monthly"}
-
-func resourceASPolicyValidateRecurrenceType(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	for i := range RecurrenceTypes {
-		if value == RecurrenceTypes[i] {
-			return
-		}
-	}
-	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, RecurrenceTypes))
-	return
-}
-
-var PolicyActions = [3]string{"ADD", "REMOVE", "SET"}
-
-func resourceASPolicyValidateActionOperation(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	for i := range PolicyActions {
-		if value == PolicyActions[i] {
-			return
-		}
-	}
-	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, PolicyActions))
-	return
-}
-
-var PolicyTypes = [3]string{"ALARM", "SCHEDULED", "RECURRENCE"}
-
-func resourceASPolicyValidatePolicyType(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	for i := range PolicyTypes {
-		if value == PolicyTypes[i] {
-			return
-		}
-	}
-	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, PolicyTypes))
-	return
-}
-
-//lintignore:V001
-func resourceASPolicyValidateName(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	if len(value) > 64 || len(value) < 1 {
-		errors = append(errors, fmtp.Errorf("%q must contain more than 1 and less than 64 characters", value))
-	}
-	if !regexp.MustCompile(`^[0-9a-zA-Z-_]+$`).MatchString(value) {
-		errors = append(errors, fmtp.Errorf("only alphanumeric characters, hyphens, and underscores allowed in %q", value))
-	}
-	return
 }
