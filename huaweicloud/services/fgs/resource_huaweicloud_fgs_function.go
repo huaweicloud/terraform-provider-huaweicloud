@@ -8,6 +8,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/fgs/v2/function"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -62,6 +63,15 @@ func ResourceFgsFunctionV2() *schema.Resource {
 			"timeout": {
 				Type:     schema.TypeInt,
 				Required: true,
+			},
+			"functiongraph_version": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"v1", "v2",
+				}, false), // The current default value is v1, which may be adjusted in the future.
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -223,6 +233,7 @@ func buildFgsFunctionV2Parameters(d *schema.ResourceData, config *config.Config)
 	}
 	result := function.CreateOpts{
 		FuncName:            d.Get("name").(string),
+		Type:                d.Get("functiongraph_version").(string),
 		Package:             pack_v,
 		CodeType:            d.Get("code_type").(string),
 		CodeUrl:             d.Get("code_url").(string),
@@ -367,6 +378,7 @@ func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("initializer_handler", f.InitializerHandler),
 		d.Set("initializer_timeout", f.InitializerTimeout),
 		d.Set("enterprise_project_id", f.EnterpriseProjectID),
+		d.Set("functiongraph_version", f.Type),
 		setFgsFunctionApp(d, f.Package),
 		setFgsFunctionAgency(d, f.Xrole),
 		setFgsFunctionVpcAccess(d, f.FuncVpc),

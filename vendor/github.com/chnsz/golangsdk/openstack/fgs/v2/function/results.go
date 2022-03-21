@@ -45,6 +45,7 @@ type Function struct {
 	InitializerTimeout  int            `json:"initializer_timeout,omitempty"`
 	InitializerHandler  string         `json:"initializer_handler,omitempty"`
 	EnterpriseProjectID string         `json:"enterprise_project_id"`
+	Type                string         `json:"type"`
 }
 
 type FuncMount struct {

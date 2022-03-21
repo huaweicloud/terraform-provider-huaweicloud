@@ -41,6 +41,7 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 				Config: testAccFgsV2Function_basic(randName),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "functiongraph_version", "v1"),
 					resource.TestCheckResourceAttrSet(resourceName, "urn"),
 					resource.TestCheckResourceAttrSet(resourceName, "version"),
 				),
