@@ -230,7 +230,8 @@ func maskSecurityFields(data map[string]interface{}) bool {
 func isSecurityFields(field string) bool {
 	// "password" is apply to the most request JSON body
 	// "secret" is apply to the AK/SK response JSON body
-	if strings.Contains(field, "password") || strings.Contains(field, "secret") {
+	// "securitytoken" is apply to the AK/SK response JSON body
+	if strings.Contains(field, "password") || strings.Contains(field, "secret") || strings.Contains(field, "securitytoken") {
 		return true
 	}
 

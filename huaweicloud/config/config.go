@@ -37,6 +37,8 @@ type Config struct {
 	TenantName          string
 	Token               string
 	SecurityToken       string
+	AssumeRoleAgency    string
+	AssumeRoleDomain    string
 	Cloud               string
 	MaxRetries          int
 	TerraformVersion    string
@@ -87,6 +89,14 @@ func (c *Config) LoadAndValidate() error {
 
 	if c.Region == "" {
 		return fmt.Errorf("region should be provided")
+	}
+
+	// Assume role
+	if c.AssumeRoleAgency != "" {
+		err = buildClientByAgency(c)
+		if err != nil {
+			return err
+		}
 	}
 
 	if c.HwClient != nil && c.HwClient.ProjectID != "" {
