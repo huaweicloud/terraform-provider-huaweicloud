@@ -107,21 +107,21 @@ data "huaweicloud_compute_flavors" "test" {
 }
 
 resource "huaweicloud_compute_keypair" "hth_key" {
-  name = "%s"
+  name       = "%s"
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
 }
 
 resource "huaweicloud_as_configuration" "hth_as_config"{
   scaling_configuration_name = "%s"
   instance_config {
-	image = data.huaweicloud_images_image.test.id
+	image  = data.huaweicloud_images_image.test.id
 	flavor = data.huaweicloud_compute_flavors.test.ids[0]
     disk {
-      size = 40
+      size        = 40
       volume_type = "SATA"
-      disk_type = "SYS"
+      disk_type   = "SYS"
     }
-    key_name = "${huaweicloud_compute_keypair.hth_key.id}"
+    key_name = huaweicloud_compute_keypair.hth_key.id
   }
 }
 `, rName, rName)

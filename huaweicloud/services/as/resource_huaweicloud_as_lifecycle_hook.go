@@ -1,10 +1,12 @@
 package as
 
 import (
+	"context"
 	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -21,12 +23,12 @@ var hookTypeMap = map[string]string{
 
 func ResourceASLifecycleHook() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceASLifecycleHookCreate,
-		Read:   resourceASLifecycleHookRead,
-		Update: resourceASLifecycleHookUpdate,
-		Delete: resourceASLifecycleHookDelete,
+		CreateContext: resourceASLifecycleHookCreate,
+		ReadContext:   resourceASLifecycleHookRead,
+		UpdateContext: resourceASLifecycleHookUpdate,
+		DeleteContext: resourceASLifecycleHookDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceASLifecycleHookImportState,
+			StateContext: resourceASLifecycleHookImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -89,12 +91,13 @@ func ResourceASLifecycleHook() *schema.Resource {
 	}
 }
 
-func resourceASLifecycleHookCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceASLifecycleHookCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud AutoScaling client: %s", err)
+		return diag.Errorf("Error creating AutoScaling client: %s", err)
 	}
+
 	groupId := d.Get("scaling_group_id").(string)
 	createOpts := lifecyclehooks.CreateOpts{
 		Name:                 d.Get("name").(string),
@@ -106,49 +109,51 @@ func resourceASLifecycleHookCreate(d *schema.ResourceData, meta interface{}) err
 	hookType := d.Get("type").(string)
 	v, ok := hookTypeMap[hookType]
 	if !ok {
-		return fmtp.Errorf("Lifecycle hook type (%s) is not in the map (%#v)", hookType, hookTypeMap)
+		return diag.Errorf("Lifecycle hook type (%s) is not in the map (%#v)", hookType, hookTypeMap)
 	}
 	createOpts.Type = v
 	hook, err := lifecyclehooks.Create(client, createOpts, groupId).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating lifecycle hook: %s", err)
+		return diag.Errorf("Error creating lifecycle hook: %s", err)
 	}
 	d.SetId(hook.Name)
 
-	return resourceASLifecycleHookRead(d, meta)
+	return resourceASLifecycleHookRead(ctx, d, meta)
 }
 
-func resourceASLifecycleHookRead(d *schema.ResourceData, meta interface{}) error {
+func resourceASLifecycleHookRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
 	client, err := config.AutoscalingV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud AutoScaling client: %s", err)
+		return diag.Errorf("Error creating AutoScaling client: %s", err)
 	}
+
 	groupId := d.Get("scaling_group_id").(string)
 	hook, err := lifecyclehooks.Get(client, groupId, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "Error getting the specifies lifecycle hook of the AutoScaling service")
+		return common.CheckDeletedDiag(d, err, "Error getting the specifies lifecycle hook of the AutoScaling service")
 	}
 	d.Set("region", region)
 	if err = setASLifecycleHookToState(d, hook); err != nil {
-		return fmtp.Errorf("Error setting the lifecycle hook to state: %s", err)
+		return diag.Errorf("Error setting the lifecycle hook to state: %s", err)
 	}
 	return nil
 }
 
-func resourceASLifecycleHookUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceASLifecycleHookUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud AutoScaling client: %s", err)
+		return diag.Errorf("Error creating AutoScaling client: %s", err)
 	}
+
 	updateOpts := lifecyclehooks.UpdateOpts{}
 	if d.HasChange("type") {
 		hookType := d.Get("type").(string)
 		v, ok := hookTypeMap[hookType]
 		if !ok {
-			return fmtp.Errorf("The type (%s) of hook is not in the map (%#v)", hookType, hookTypeMap)
+			return diag.Errorf("The type (%s) of hook is not in the map (%#v)", hookType, hookTypeMap)
 		}
 		updateOpts.Type = v
 	}
@@ -167,22 +172,23 @@ func resourceASLifecycleHookUpdate(d *schema.ResourceData, meta interface{}) err
 	groupId := d.Get("scaling_group_id").(string)
 	_, err = lifecyclehooks.Update(client, updateOpts, groupId, d.Id()).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error updating the lifecycle hook of the AutoScaling service: %s", err)
+		return diag.Errorf("Error updating the lifecycle hook of the AutoScaling service: %s", err)
 	}
 
-	return resourceASLifecycleHookRead(d, meta)
+	return resourceASLifecycleHookRead(ctx, d, meta)
 }
 
-func resourceASLifecycleHookDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceASLifecycleHookDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud AutoScaling client: %s", err)
+		return diag.Errorf("Error creating AutoScaling client: %s", err)
 	}
+
 	groupId := d.Get("scaling_group_id").(string)
 	err = lifecyclehooks.Delete(client, groupId, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting the lifecycle hook of the AutoScaling service: %s", err)
+		return diag.Errorf("Error deleting the lifecycle hook of the AutoScaling service: %s", err)
 	}
 
 	return nil
@@ -215,7 +221,7 @@ func setASLifecycleHookType(d *schema.ResourceData, hook *lifecyclehooks.Hook) e
 	return fmtp.Errorf("The type of hook response is not in the map")
 }
 
-func resourceASLifecycleHookImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceASLifecycleHookImportState(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
 		return nil, fmtp.Errorf("Invalid format specified for lifecycle hook, must be <scaling_group_id>/<hook_id>")

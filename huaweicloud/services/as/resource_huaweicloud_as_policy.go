@@ -1,12 +1,15 @@
 package as
 
 import (
+	"context"
 	"regexp"
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/policies"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/policies"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -16,10 +19,10 @@ import (
 
 func ResourceASPolicy() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceASPolicyCreate,
-		Read:   resourceASPolicyRead,
-		Update: resourceASPolicyUpdate,
-		Delete: resourceASPolicyDelete,
+		CreateContext: resourceASPolicyCreate,
+		ReadContext:   resourceASPolicyRead,
+		UpdateContext: resourceASPolicyUpdate,
+		DeleteContext: resourceASPolicyDelete,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -171,16 +174,16 @@ func getPolicyAction(rawPolicyAction map[string]interface{}) policies.ActionOpts
 	return policyAction
 }
 
-func resourceASPolicyCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceASPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
+		return diag.Errorf("Error creating autoscaling client: %s", err)
 	}
-	logp.Printf("[DEBUG] asClient: %#v", asClient)
+
 	err = validateParameters(d)
 	if err != nil {
-		return fmtp.Errorf("Error creating ASPolicy: %s", err)
+		return diag.Errorf("Error creating ASPolicy: %s", err)
 	}
 	createOpts := policies.CreateOpts{
 		Name:         d.Get("scaling_policy_name").(string),
@@ -205,23 +208,23 @@ func resourceASPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	logp.Printf("[DEBUG] Create AS policy Options: %#v", createOpts)
 	asPolicyId, err := policies.Create(asClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating ASPolicy: %s", err)
+		return diag.Errorf("Error creating ASPolicy: %s", err)
 	}
 	d.SetId(asPolicyId)
 	logp.Printf("[DEBUG] Create AS Policy %q Success!", asPolicyId)
-	return resourceASPolicyRead(d, meta)
+	return resourceASPolicyRead(ctx, d, meta)
 }
 
-func resourceASPolicyRead(d *schema.ResourceData, meta interface{}) error {
+func resourceASPolicyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
+		return diag.Errorf("Error creating autoscaling client: %s", err)
 	}
 
 	asPolicy, err := policies.Get(asClient, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "AS Policy")
+		return common.CheckDeletedDiag(d, err, "AS Policy")
 	}
 
 	logp.Printf("[DEBUG] Retrieved ASPolicy %q: %+v", d.Id(), asPolicy)
@@ -259,16 +262,16 @@ func resourceASPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceASPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceASPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
+		return diag.Errorf("Error creating autoscaling client: %s", err)
 	}
 
 	err = validateParameters(d)
 	if err != nil {
-		return fmtp.Errorf("Error updating ASPolicy: %s", err)
+		return diag.Errorf("Error updating ASPolicy: %s", err)
 	}
 	updateOpts := policies.UpdateOpts{
 		Name:         d.Get("scaling_policy_name").(string),
@@ -291,21 +294,22 @@ func resourceASPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	logp.Printf("[DEBUG] Update AS policy Options: %#v", updateOpts)
 	asPolicyID, err := policies.Update(asClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error updating ASPolicy %q: %s", asPolicyID, err)
+		return diag.Errorf("Error updating ASPolicy %q: %s", asPolicyID, err)
 	}
 
-	return resourceASPolicyRead(d, meta)
+	return resourceASPolicyRead(ctx, d, meta)
 }
 
-func resourceASPolicyDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceASPolicyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
+		return diag.Errorf("Error creating autoscaling client: %s", err)
 	}
+
 	logp.Printf("[DEBUG] Begin to delete AS policy %q", d.Id())
 	if delErr := policies.Delete(asClient, d.Id()).ExtractErr(); delErr != nil {
-		return fmtp.Errorf("Error deleting AS policy: %s", delErr)
+		return diag.Errorf("Error deleting AS policy: %s", delErr)
 	}
 
 	return nil
