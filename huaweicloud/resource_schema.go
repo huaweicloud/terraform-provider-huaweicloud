@@ -82,6 +82,18 @@ func schemaAutoRenew(conflicts []string) *schema.Schema {
 	return &resourceSchema
 }
 
+func schemaAutoPay(conflicts []string) *schema.Schema {
+	resourceSchema := schema.Schema{
+		Type:          schema.TypeBool,
+		Optional:      true,
+		ForceNew:      true,
+		Default:       true,
+		ConflictsWith: conflicts,
+	}
+
+	return &resourceSchema
+}
+
 func validatePrePaidChargeInfo(d *schema.ResourceData) error {
 	if _, ok := d.GetOk("period_unit"); !ok {
 		return fmtp.Errorf("both of `period, period_unit` must be specified in prePaid charging mode")

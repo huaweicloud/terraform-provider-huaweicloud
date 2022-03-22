@@ -283,11 +283,12 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				ConflictsWith: novaConflicts,
 			},
 
-			// charge info: charging_mode, period_unit, period, auto_renew
+			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
 			"charging_mode": schemeChargingMode(novaConflicts),
 			"period_unit":   schemaPeriodUnit(novaConflicts),
 			"period":        schemaPeriod(novaConflicts),
 			"auto_renew":    schemaAutoRenew(novaConflicts),
+			"auto_pay":      schemaAutoPay(novaConflicts),
 
 			"user_id": { // required if in prePaid charging mode with key_pair.
 				Type:     schema.TypeString,
@@ -505,8 +506,12 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 			extendParam.ChargingMode = d.Get("charging_mode").(string)
 			extendParam.PeriodType = d.Get("period_unit").(string)
 			extendParam.PeriodNum = d.Get("period").(int)
-			extendParam.IsAutoPay = "true"
 			extendParam.IsAutoRenew = d.Get("auto_renew").(string)
+			if d.Get("auto_pay").(bool) {
+				extendParam.IsAutoPay = "true"
+			} else {
+				extendParam.IsAutoPay = "false"
+			}
 		}
 
 		epsID := GetEnterpriseProjectID(d, config)
