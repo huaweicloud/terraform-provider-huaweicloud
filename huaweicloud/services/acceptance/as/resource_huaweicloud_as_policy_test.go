@@ -4,42 +4,38 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/policies"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccASV1Policy_basic(t *testing.T) {
+func TestAccASPolicy_basic(t *testing.T) {
 	var asPolicy policies.Policy
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceName()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckASV1PolicyDestroy,
+		CheckDestroy:      testAccCheckASPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testASV1Policy_basic(rName),
+				Config: testASPolicy_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckASV1PolicyExists("huaweicloud_as_policy.acc_as_policy", &asPolicy),
+					testAccCheckASPolicyExists("huaweicloud_as_policy.acc_as_policy", &asPolicy),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckASV1PolicyDestroy(s *terraform.State) error {
+func testAccCheckASPolicyDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	asClient, err := config.AutoscalingV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating huaweicloud autoscaling client: %s", err)
+		return fmt.Errorf("Error creating autoscaling client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -49,30 +45,28 @@ func testAccCheckASV1PolicyDestroy(s *terraform.State) error {
 
 		_, err := policies.Get(asClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("AS policy still exists")
+			return fmt.Errorf("AS policy still exists")
 		}
 	}
-
-	logp.Printf("[DEBUG] testCheckASV1PolicyDestroy success!")
 
 	return nil
 }
 
-func testAccCheckASV1PolicyExists(n string, policy *policies.Policy) resource.TestCheckFunc {
+func testAccCheckASPolicyExists(n string, policy *policies.Policy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("No ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		asClient, err := config.AutoscalingV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating huaweicloud autoscaling client: %s", err)
+			return fmt.Errorf("Error creating autoscaling client: %s", err)
 		}
 
 		found, err := policies.Get(asClient, rs.Primary.ID).Extract()
@@ -80,14 +74,12 @@ func testAccCheckASV1PolicyExists(n string, policy *policies.Policy) resource.Te
 			return err
 		}
 
-		logp.Printf("[DEBUG] test found is: %#v", found)
 		policy = &found
-
 		return nil
 	}
 }
 
-func testASV1Policy_basic(rName string) string {
+func testASPolicy_basic(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
@@ -124,9 +116,9 @@ resource "huaweicloud_compute_keypair" "acc_key" {
 resource "huaweicloud_as_configuration" "acc_as_config"{
   scaling_configuration_name = "%s"
   instance_config {
-	image    = data.huaweicloud_images_image.test.id
-	flavor   = data.huaweicloud_compute_flavors.test.ids[0]
-	key_name = huaweicloud_compute_keypair.acc_key.id
+    image    = data.huaweicloud_images_image.test.id
+    flavor   = data.huaweicloud_compute_flavors.test.ids[0]
+    key_name = huaweicloud_compute_keypair.acc_key.id
     disk {
       size        = 40
       volume_type = "SATA"

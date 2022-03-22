@@ -5,22 +5,19 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/lifecyclehooks"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccASLifecycleHook_basic(t *testing.T) {
 	var hook lifecyclehooks.Hook
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	// If the group name of the testASV1Group_basic method is updated, the resource name must also be updated.
-	resourceGroupName := "huaweicloud_as_group.hth_as_group"
+	rName := acceptance.RandomAccResourceName()
+	// If the group name of the testASGroup_basic method is updated, the resource name must also be updated.
+	resourceGroupName := "huaweicloud_as_group.acc_as_group"
 	resourceHookName := "huaweicloud_as_lifecycle_hook.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -70,7 +67,7 @@ func testAccCheckASLifecycleHookDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	asClient, err := config.AutoscalingV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating huaweicloud autoscaling client: %s", err)
+		return fmt.Errorf("Error creating autoscaling client: %s", err)
 	}
 
 	var groupID string
@@ -87,7 +84,7 @@ func testAccCheckASLifecycleHookDestroy(s *terraform.State) error {
 
 		_, err := lifecyclehooks.Get(asClient, groupID, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("AS lifecycle hook still exists")
+			return fmt.Errorf("AS lifecycle hook still exists")
 		}
 	}
 
@@ -98,22 +95,22 @@ func testAccCheckASLifecycleHookExists(resGroup, resHook string, hook *lifecycle
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resGroup]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", resGroup)
+			return fmt.Errorf("Not found: %s", resGroup)
 		}
 		groupID := rs.Primary.ID
 
 		rs, ok = s.RootModule().Resources[resHook]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", resHook)
+			return fmt.Errorf("Not found: %s", resHook)
 		}
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("No ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		asClient, err := config.AutoscalingV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating huaweicloud autoscaling client: %s", err)
+			return fmt.Errorf("Error creating autoscaling client: %s", err)
 		}
 		found, err := lifecyclehooks.Get(asClient, groupID, rs.Primary.ID).Extract()
 		if err != nil {
@@ -129,14 +126,14 @@ func testAccASLifecycleHookImportStateIdFunc(groupRes, hookRes string) resource.
 	return func(s *terraform.State) (string, error) {
 		group, ok := s.RootModule().Resources[groupRes]
 		if !ok {
-			return "", fmtp.Errorf("Auto Scaling group not found: %s", group)
+			return "", fmt.Errorf("Auto Scaling group not found: %s", group)
 		}
 		hook, ok := s.RootModule().Resources[hookRes]
 		if !ok {
-			return "", fmtp.Errorf("Auto Scaling lifecycle hook not found: %s", hook)
+			return "", fmt.Errorf("Auto Scaling lifecycle hook not found: %s", hook)
 		}
 		if group.Primary.ID == "" || hook.Primary.ID == "" {
-			return "", fmtp.Errorf("resource not found: %s/%s", group.Primary.ID, hook.Primary.ID)
+			return "", fmt.Errorf("resource not found: %s/%s", group.Primary.ID, hook.Primary.ID)
 		}
 		return fmt.Sprintf("%s/%s", group.Primary.ID, hook.Primary.ID), nil
 	}
@@ -153,7 +150,7 @@ resource "huaweicloud_smn_topic" "test" {
 resource "huaweicloud_smn_topic" "update" {
   name = "%s-update"
 }
-`, testASV1Group_basic(rName), rName, rName)
+`, testASGroup_basic(rName), rName, rName)
 }
 
 func testASLifecycleHook_basic(rName string) string {
@@ -163,7 +160,7 @@ func testASLifecycleHook_basic(rName string) string {
 resource "huaweicloud_as_lifecycle_hook" "test" {
   name                   = "%s"
   type                   = "ADD"
-  scaling_group_id       = huaweicloud_as_group.hth_as_group.id
+  scaling_group_id       = huaweicloud_as_group.acc_as_group.id
   notification_topic_urn = huaweicloud_smn_topic.test.topic_urn
   notification_message   = "This is a test message"
 }
@@ -177,7 +174,7 @@ func testASLifecycleHook_update(rName string) string {
 resource "huaweicloud_as_lifecycle_hook" "test" {
   name                   = "%s"
   type                   = "REMOVE"
-  scaling_group_id       = huaweicloud_as_group.hth_as_group.id
+  scaling_group_id       = huaweicloud_as_group.acc_as_group.id
   default_result         = "CONTINUE"
   notification_topic_urn = huaweicloud_smn_topic.update.topic_urn
   notification_message   = "This is a update message"
