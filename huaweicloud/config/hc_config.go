@@ -15,11 +15,14 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/global"
 	hc_config "github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/httphandler"
+	gaussdbv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/gaussdb/v3"
 	iam "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3"
 	kps "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3"
 	tms "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1"
 	vpc "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
 )
 
 /*
@@ -208,6 +211,41 @@ func NewIamClient(c *Config, region string) (*iam.IamClient, error) {
 			WithCredential(*credentials).
 			WithHttpConfig(buildHTTPConfig(c)).
 			Build()), nil
+}
+
+// HcGaussdbV3Client is the Gaussdb service client using huaweicloud-sdk-go-v3 package
+func (c *Config) HcGaussdbV3Client(region string) (*gaussdbv3.GaussDBClient, error) {
+	hcClient, err := NewHcClient(c, region, "gaussdbv3", false)
+	if err != nil {
+		return nil, err
+	}
+	return &gaussdbv3.GaussDBClient{HcClient: hcClient}, nil
+}
+
+// NewHcClient is the common service client using huaweicloud-sdk-go-v3 package
+func NewHcClient(c *Config, region, product string, globalFlag bool) (*core.HcHttpClient, error) {
+	endpoint := getServiceEndpoint(c, product, region)
+	if endpoint == "" {
+		return nil, fmt.Errorf("failed to get the endpoint of %q service in region %s", product, region)
+	}
+
+	builder := core.NewHcHttpClientBuilder().WithEndpoint(endpoint).WithHttpConfig(buildHTTPConfig(c))
+
+	if globalFlag {
+		credentials, err := buildAuthCredentials(c, region)
+		if err != nil {
+			return nil, err
+		}
+		builder.WithCredential(*credentials)
+	} else {
+		credentials, err := buildGlobalAuthCredentials(c, region)
+		if err != nil {
+			return nil, err
+		}
+		builder.WithCredentialsType("global.Credentials").WithCredential(*credentials)
+	}
+
+	return builder.Build(), nil
 }
 
 func getProxyFromEnv() string {

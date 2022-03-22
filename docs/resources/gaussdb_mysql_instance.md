@@ -143,6 +143,8 @@ The `backup_strategy` block supports:
   0 to 35. If this parameter is set to 0, the automated backup policy is not set. If this parameter is not transferred,
   the automated backup policy is enabled by default. Backup files are stored for seven days by default.
 
+* `audit_log_enabled` - (Optional, Bool) Specifies whether audit log is enabled. The default value is `false`.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:

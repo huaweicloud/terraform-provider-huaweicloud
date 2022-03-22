@@ -29,6 +29,15 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGaussDBInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "audit_log_enabled", "false"),
+				),
+			},
+			{
+				Config: testAccGaussDBInstanceConfig_basicUpdate(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGaussDBInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "audit_log_enabled", "true"),
 				),
 			},
 		},
@@ -95,15 +104,39 @@ data "huaweicloud_networking_secgroup" "test" {
 }
 
 resource "huaweicloud_gaussdb_mysql_instance" "test" {
-  name        = "%s"
-  password    = "Test@123"
-  flavor      = "gaussdb.mysql.4xlarge.x86.4"
-  vpc_id      = huaweicloud_vpc.test.id
-  subnet_id   = huaweicloud_vpc_subnet.test.id
+  name      = "%s"
+  password  = "Test@123"
+  flavor    = "gaussdb.mysql.4xlarge.x86.4"
+  vpc_id    = huaweicloud_vpc.test.id
+  subnet_id = huaweicloud_vpc_subnet.test.id
 
   security_group_id = data.huaweicloud_networking_secgroup.test.id
 
   enterprise_project_id = "0"
+}
+`, testAccVpcConfig_Base(rName), rName)
+}
+
+func testAccGaussDBInstanceConfig_basicUpdate(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_networking_secgroup" "test" {
+  name = "default"
+}
+
+resource "huaweicloud_gaussdb_mysql_instance" "test" {
+  name      = "%s"
+  password  = "Test@123"
+  flavor    = "gaussdb.mysql.4xlarge.x86.4"
+  vpc_id    = huaweicloud_vpc.test.id
+  subnet_id = huaweicloud_vpc_subnet.test.id
+
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+
+  enterprise_project_id = "0"
+
+  audit_log_enabled = true
 }
 `, testAccVpcConfig_Base(rName), rName)
 }
