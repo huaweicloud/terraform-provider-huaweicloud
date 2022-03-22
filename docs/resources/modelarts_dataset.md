@@ -1,5 +1,5 @@
 ---
-subcategory: "Beta"
+subcategory: "AI Development Platform (ModelArts)"
 ---
 
 # huaweicloud_modelarts_dataset
