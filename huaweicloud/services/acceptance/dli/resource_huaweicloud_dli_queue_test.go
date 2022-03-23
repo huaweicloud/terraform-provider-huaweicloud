@@ -52,26 +52,6 @@ func TestAccDliQueue_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
 				),
 			},
-			//test scale_out
-			{
-				Config: testAccDliQueue_basic(rName, 2*dli.CU_16),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QUEUE_TYPE_SQL),
-					resource.TestCheckResourceAttr(resourceName, "cu_count", fmt.Sprintf("%d", 2*dli.CU_16)),
-				),
-			},
-			//test scale_in
-			{
-				Config: testAccDliQueue_basic(rName, dli.CU_16),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QUEUE_TYPE_SQL),
-					resource.TestCheckResourceAttr(resourceName, "cu_count", fmt.Sprintf("%d", dli.CU_16)),
-				),
-			},
 			{
 				ResourceName:      resourceName,
 				ImportState:       true,
