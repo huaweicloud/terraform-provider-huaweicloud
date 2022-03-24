@@ -279,6 +279,10 @@ The following arguments are supported:
 * `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
   Valid values are "true" and "false". Changing this creates a new resource.
 
+* `auto_pay` - (Optional, Bool, ForceNew) Specifies whether auto pay is enabled.
+  Defaults to *true*. If you set this to *false*, you need to pay the order yourself in time,
+  be careful about the timeout of resource creation. Changing this creates a new resource.
+
 * `user_id` - (Optional, String, ForceNew) Specifies a user ID, required when using key_pair in prePaid charging mode.
   Changing this creates a new instance.
 

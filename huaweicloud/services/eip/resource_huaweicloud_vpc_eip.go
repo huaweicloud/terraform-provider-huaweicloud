@@ -147,11 +147,12 @@ func ResourceVpcEIPV1() *schema.Resource {
 				Computed: true,
 			},
 
-			// charge info: charging_mode, period_unit, period, auto_renew
+			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
 			"charging_mode": common.SchemeChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit([]string{"publicip.0.ip_address"}),
 			"period":        common.SchemaPeriod([]string{"publicip.0.ip_address"}),
 			"auto_renew":    common.SchemaAutoRenew([]string{"publicip.0.ip_address"}),
+			"auto_pay":      common.SchemaAutoPay([]string{"publicip.0.ip_address"}),
 		},
 	}
 }
@@ -229,8 +230,12 @@ func resourceVpcEIPV1Create(d *schema.ResourceData, meta interface{}) error {
 			ChargeMode:  d.Get("charging_mode").(string),
 			PeriodType:  d.Get("period_unit").(string),
 			PeriodNum:   d.Get("period").(int),
-			IsAutoPay:   "true",
 			IsAutoRenew: d.Get("auto_renew").(string),
+		}
+		if d.Get("auto_pay").(bool) {
+			chargeInfo.IsAutoPay = "true"
+		} else {
+			chargeInfo.IsAutoPay = "false"
 		}
 		createOpts.ExtendParam = chargeInfo
 	}
