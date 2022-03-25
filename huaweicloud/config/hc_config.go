@@ -15,6 +15,7 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/global"
 	hc_config "github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/httphandler"
+	kps "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3"
 	tms "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1"
 	vpc "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -163,6 +164,25 @@ func NewTmsClient(c *Config, region string) (*tms.TmsClient, error) {
 	return tms.NewTmsClient(
 		tms.TmsClientBuilder().
 			WithEndpoint(tmsEndpoint).
+			WithCredential(*credentials).
+			WithHttpConfig(buildHTTPConfig(c)).
+			Build()), nil
+}
+
+// NewKmsClient is the KMS service client using huaweicloud-sdk-go-v3 package
+func NewKmsClient(c *Config, region string) (*kps.KpsClient, error) {
+	credentials, err := buildAuthCredentials(c, region)
+	if err != nil {
+		return nil, err
+	}
+
+	endpoint := getServiceEndpoint(c, "kmsv3", region)
+	if endpoint == "" {
+		return nil, fmt.Errorf("failed to get the endpoint of KMS service")
+	}
+	return kps.NewKpsClient(
+		kps.KpsClientBuilder().
+			WithEndpoint(endpoint).
 			WithCredential(*credentials).
 			WithHttpConfig(buildHTTPConfig(c)).
 			Build()), nil

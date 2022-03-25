@@ -31,11 +31,12 @@ import (
 )
 
 type HcHttpClientBuilder struct {
-	CredentialsType []string
-	credentials     auth.ICredential
-	endpoint        string
-	httpConfig      *config.HttpConfig
-	region          *region.Region
+	CredentialsType        []string
+	derivedAuthServiceName string
+	credentials            auth.ICredential
+	endpoint               string
+	httpConfig             *config.HttpConfig
+	region                 *region.Region
 }
 
 func NewHcHttpClientBuilder() *HcHttpClientBuilder {
@@ -47,6 +48,11 @@ func NewHcHttpClientBuilder() *HcHttpClientBuilder {
 
 func (builder *HcHttpClientBuilder) WithCredentialsType(credentialsType string) *HcHttpClientBuilder {
 	builder.CredentialsType = strings.Split(credentialsType, ",")
+	return builder
+}
+
+func (builder *HcHttpClientBuilder) WithDerivedAuthServiceName(derivedAuthServiceName string) *HcHttpClientBuilder {
+	builder.derivedAuthServiceName = derivedAuthServiceName
 	return builder
 }
 
@@ -97,6 +103,10 @@ func (builder *HcHttpClientBuilder) Build() *HcHttpClient {
 	if builder.region != nil {
 		builder.endpoint = builder.region.Endpoint
 		builder.credentials = builder.credentials.ProcessAuthParams(defaultHttpClient, builder.region.Id)
+
+		if credential, ok := builder.credentials.(auth.DerivedCredential); ok {
+			builder.credentials = credential.ProcessDerivedAuthParams(builder.derivedAuthServiceName, builder.region.Id)
+		}
 	}
 
 	if !strings.HasPrefix(builder.endpoint, "http") {

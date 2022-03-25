@@ -23,14 +23,19 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/basic"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/global"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/request"
 	"os"
 )
 
 const (
-	AkEnvName        = "HUAWEICLOUD_SDK_AK"
-	SkEnvName        = "HUAWEICLOUD_SDK_SK"
-	ProjectIdEnvName = "HUAWEICLOUD_SDK_PROJECT_ID"
-	DomainIdEnvName  = "HUAWEICLOUD_SDK_DOMAIN_ID"
+	AkEnvName                     = "HUAWEICLOUD_SDK_AK"
+	SkEnvName                     = "HUAWEICLOUD_SDK_SK"
+	ProjectIdEnvName              = "HUAWEICLOUD_SDK_PROJECT_ID"
+	DomainIdEnvName               = "HUAWEICLOUD_SDK_DOMAIN_ID"
+	RegionIdEnvName               = "HUAWEICLOUD_SDK_REGION_ID"
+	DerivedAuthServiceNameEnvName = "HUAWEICLOUD_SDK_DERIVED_AUTH_SERVICE_NAME"
+	DerivedPredicateEnvName       = "HUAWEICLOUD_SDK_DERIVED_PREDICATE"
+	DefaultDerivedPredicate       = "DEFAULT_DERIVED_PREDICATE"
 
 	BasicCredentialType  = "basic.Credentials"
 	GlobalCredentialType = "global.Credentials"
@@ -40,20 +45,31 @@ func LoadCredentialFromEnv(defaultType string) auth.ICredential {
 	ak := os.Getenv(AkEnvName)
 	sk := os.Getenv(SkEnvName)
 
+	derivedAuthServiceName := os.Getenv(DerivedAuthServiceNameEnvName)
+	regionId := os.Getenv(RegionIdEnvName)
+
+	var derivedPredicate func(*request.DefaultHttpRequest) bool
+	if os.Getenv(DerivedPredicateEnvName) == DefaultDerivedPredicate {
+		derivedPredicate = auth.GetDefaultDerivedPredicate()
+	}
+
 	if defaultType == BasicCredentialType {
 		projectId := os.Getenv(ProjectIdEnvName)
-		return basic.NewCredentialsBuilder().
+		credential := basic.NewCredentialsBuilder().
 			WithAk(ak).
 			WithSk(sk).
 			WithProjectId(projectId).
-			Build()
+			WithDerivedPredicate(derivedPredicate).Build()
+		return credential.ProcessDerivedAuthParams(derivedAuthServiceName, regionId)
 	} else if defaultType == GlobalCredentialType {
 		domainId := os.Getenv(DomainIdEnvName)
-		return global.NewCredentialsBuilder().
+		credential := global.NewCredentialsBuilder().
 			WithAk(ak).
 			WithSk(sk).
 			WithDomainId(domainId).
+			WithDerivedPredicate(derivedPredicate).
 			Build()
+		return credential.ProcessDerivedAuthParams(derivedAuthServiceName, global.GlobalRegionId)
 	} else {
 		return nil
 	}

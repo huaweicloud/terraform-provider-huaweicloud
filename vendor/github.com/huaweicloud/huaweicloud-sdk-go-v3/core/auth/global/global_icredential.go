@@ -34,14 +34,21 @@ const (
 	DomainIdInHeader      = "X-Domain-Id"
 	SecurityTokenInHeader = "X-Security-Token"
 	ContentTypeInHeader   = "Content-Type"
+	GlobalRegionId        = "globe"
 )
 
+var DefaultDerivedPredicate = auth.GetDefaultDerivedPredicate()
+
 type Credentials struct {
-	IamEndpoint   string
-	AK            string
-	SK            string
-	DomainId      string
-	SecurityToken string
+	IamEndpoint      string
+	AK               string
+	SK               string
+	DomainId         string
+	SecurityToken    string
+	DerivedPredicate func(*request.DefaultHttpRequest) bool
+
+	derivedAuthServiceName string
+	regionId               string
 }
 
 func (s Credentials) ProcessAuthParams(client *impl.DefaultHttpClient, region string) auth.ICredential {
@@ -55,6 +62,9 @@ func (s Credentials) ProcessAuthParams(client *impl.DefaultHttpClient, region st
 		return s
 	}
 
+	derivedPredicate := s.DerivedPredicate
+	s.DerivedPredicate = nil
+
 	req, err := s.ProcessAuthRequest(client, iam.GetKeystoneListAuthDomainsRequest(s.IamEndpoint))
 	if err != nil {
 		panic(fmt.Sprintf("failed to get domain id, %s", err.Error()))
@@ -67,6 +77,9 @@ func (s Credentials) ProcessAuthParams(client *impl.DefaultHttpClient, region st
 
 	s.DomainId = id
 	authCache.PutAuth(s.AK, id)
+
+	s.DerivedPredicate = derivedPredicate
+
 	return s
 }
 
@@ -89,7 +102,17 @@ func (s Credentials) ProcessAuthRequest(client *impl.DefaultHttpClient, req *req
 		}
 	}
 
-	headerParams, err := signer.Sign(reqBuilder.Build(), s.AK, s.SK)
+	var (
+		headerParams map[string]string
+		err          error
+	)
+
+	if s.IsDerivedAuth(req) {
+		headerParams, err = signer.SignDerived(reqBuilder.Build(), s.AK, s.SK, s.derivedAuthServiceName, s.regionId)
+	} else {
+		headerParams, err = signer.Sign(reqBuilder.Build(), s.AK, s.SK)
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -99,6 +122,26 @@ func (s Credentials) ProcessAuthRequest(client *impl.DefaultHttpClient, req *req
 	}
 
 	return req, nil
+}
+
+func (s Credentials) ProcessDerivedAuthParams(derivedAuthServiceName, regionId string) auth.ICredential {
+	if s.derivedAuthServiceName == "" {
+		s.derivedAuthServiceName = derivedAuthServiceName
+	}
+
+	if s.regionId == "" {
+		s.regionId = GlobalRegionId
+	}
+
+	return s
+}
+
+func (s Credentials) IsDerivedAuth(httpRequest *request.DefaultHttpRequest) bool {
+	if s.DerivedPredicate == nil {
+		return false
+	}
+
+	return s.DerivedPredicate(httpRequest)
 }
 
 type CredentialsBuilder struct {
@@ -133,6 +176,11 @@ func (builder *CredentialsBuilder) WithDomainId(domainId string) *CredentialsBui
 
 func (builder *CredentialsBuilder) WithSecurityToken(token string) *CredentialsBuilder {
 	builder.Credentials.SecurityToken = token
+	return builder
+}
+
+func (builder *CredentialsBuilder) WithDerivedPredicate(derivedPredicate func(*request.DefaultHttpRequest) bool) *CredentialsBuilder {
+	builder.Credentials.DerivedPredicate = derivedPredicate
 	return builder
 }
 
