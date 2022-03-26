@@ -21,7 +21,7 @@ var multiCatalogKeys = map[string][]string{
 	"evs":       {"evsv21"},
 	"cce":       {"ccev1", "cce_addon"},
 	"cci":       {"cciv1_bata"},
-	"vpc":       {"networkv2", "vpcv3", "security_group", "fwv2"},
+	"vpc":       {"networkv2", "vpcv3", "fwv2"},
 	"elb":       {"elbv2", "elbv3"},
 	"dns":       {"dns_region"},
 	"kms":       {"kmsv1", "kmsv3"},
@@ -202,10 +202,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"vpcv3": {
 		Name:    "vpc",
 		Version: "v3",
-	},
-	"security_group": {
-		Name:    "vpc",
-		Version: "v1",
 	},
 	"nat": {
 		Name:    "nat",

@@ -559,10 +559,6 @@ func (c *Config) NetworkingV3Client(region string) (*golangsdk.ServiceClient, er
 	return c.NewServiceClient("vpcv3", region)
 }
 
-func (c *Config) SecurityGroupV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("security_group", region)
-}
-
 // VPCEPClient returns a ServiceClient for VPC Endpoint APIs
 // the endpoint likes: https://vpcep.{region}.myhuaweicloud.com/v1/{project_id}/
 func (c *Config) VPCEPClient(region string) (*golangsdk.ServiceClient, error) {
