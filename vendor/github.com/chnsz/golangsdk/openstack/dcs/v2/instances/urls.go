@@ -3,17 +3,17 @@ package instances
 import "github.com/chnsz/golangsdk"
 
 func rootURL(c *golangsdk.ServiceClient) string {
-	return c.ServiceURL("instances")
+	return c.ServiceURL(c.ProjectID, "instances")
 }
 
 func resourceURL(c *golangsdk.ServiceClient, id string) string {
-	return c.ServiceURL("instances", id)
+	return c.ServiceURL(c.ProjectID, "instances", id)
 }
 
 func resizeResourceURL(c *golangsdk.ServiceClient, id string) string {
-	return c.ServiceURL("instances", id, "resize")
+	return c.ServiceURL(c.ProjectID, "instances", id, "resize")
 }
 
 func updatePasswordURL(c *golangsdk.ServiceClient, id string) string {
-	return c.ServiceURL("instances", id, "password")
+	return c.ServiceURL(c.ProjectID, "instances", id, "password")
 }
