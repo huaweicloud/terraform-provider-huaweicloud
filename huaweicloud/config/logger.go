@@ -150,6 +150,10 @@ func (lrt *LogRoundTripper) logResponse(original io.ReadCloser, contentType stri
 func formatJSON(raw []byte, maskBody bool) string {
 	var data map[string]interface{}
 
+	if len(raw) == 0 {
+		return ""
+	}
+
 	err := json.Unmarshal(raw, &data)
 	if err != nil {
 		log.Printf("[DEBUG] Unable to parse JSON: %s", err)
