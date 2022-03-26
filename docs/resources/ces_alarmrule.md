@@ -74,7 +74,7 @@ The following arguments are supported:
   provider-level region will be used. Changing this creates a new resource.
 
 * `alarm_name` - (Required, String) Specifies the name of an alarm rule. The value can be a string of 1 to 128
-  characters that can consist of numbers, lowercase letters, uppercase letters, underscores (_), or hyphens (-).
+  characters that can consist of letters, digits, underscores (_), hyphens (-) and chinese characters.
 
 * `metric` - (Required, List, ForceNew) Specifies the alarm metrics. The structure is described below. Changing this
   creates a new resource.
@@ -109,26 +109,28 @@ and ok_actions coexist, their corresponding notification_list must be of the **s
 
 The `metric` block supports:
 
-* `namespace` - (Required, String) Specifies the namespace in **service.item** format. service.item can be a string of 3
-  to 32 characters that must start with a letter and can consists of uppercase letters, lowercase letters, numbers, or
-  underscores (_). For details,
-  see [Services Interconnected with Cloud Eye](https://support.huaweicloud.com/intl/en-us/api-ces/ces_03_0059.html).
-
-* `metric_name` - (Required, String) Specifies the metric name. The value can be a string of 1 to 64 characters that
-  must start with a letter and can consists of uppercase letters, lowercase letters, numbers, or underscores (_).
+* `namespace` - (Required, String, ForceNew) Specifies the namespace in **service.item** format. **service** and **item**
+  each must be a string that starts with a letter and contains only letters, digits, and underscores (_).
+  Changing this creates a new resource.
   For details, see [Services Interconnected with Cloud Eye](https://support.huaweicloud.com/intl/en-us/api-ces/ces_03_0059.html).
 
-* `dimensions` - (Optional, List) Specifies the list of metric dimensions. The structure is described below.
+* `metric_name` - (Required, String, ForceNew) Specifies the metric name. The value can be a string of 1 to 64
+  characters that must start with a letter and contain only letters, digits, and underscores (_).
+  Changing this creates a new resource.
+  For details, see [Services Interconnected with Cloud Eye](https://support.huaweicloud.com/intl/en-us/api-ces/ces_03_0059.html).
+
+* `dimensions` - (Optional, List, ForceNew) Specifies the list of metric dimensions. The structure is described below.
+  Changing this creates a new resource.
 
 The `dimensions` block supports:
 
-* `name` - (Required, String) Specifies the dimension name. The value can be a string of 1 to 32 characters that must
-  start with a letter and can consists of uppercase letters, lowercase letters, numbers, underscores (_), or
-  hyphens (-).
+* `name` - (Required, String, ForceNew) Specifies the dimension name. The value can be a string of 1 to 32 characters
+  that must start with a letter and contain only letters, digits, underscores (_), and hyphens (-).
+  Changing this creates a new resource.
 
-* `value` - (Required, String) Specifies the dimension value. The value can be a string of 1 to 64 characters that must
-  start with a letter or a number and can consists of uppercase letters, lowercase letters, numbers, underscores (_), or
-  hyphens (-).
+* `value` - (Required, String, ForceNew) Specifies the dimension value. The value can be a string of 1 to 64 characters
+  that must start with a letter or a number and contain only letters, digits, underscores (_), and hyphens (-).
+  Changing this creates a new resource.
 
 The `condition` block supports:
 
@@ -148,7 +150,23 @@ The `condition` block supports:
 
 * `count` - (Required, Int) Specifies the number of consecutive occurrence times. The value ranges from 1 to 5.
 
-* `unit` - (Optional, String) Specifies the data unit.
+* `unit` - (Optional, String, ForceNew) Specifies the data unit. Changing this creates a new resource.
+  For details, see [Services Interconnected with Cloud Eye](https://support.huaweicloud.com/intl/en-us/api-ces/ces_03_0059.html).
+
+* `suppress_duration` - (Optional, Int, ForceNew) Specifies the interval for triggering an alarm if the alarm persists.
+  Changing this creates a new resource. Possible values are as follows:
+  + **0**: Cloud Eye triggers the alarm only once;
+  + **300**: Cloud Eye triggers the alarm every 5 minutes;
+  + **600**: Cloud Eye triggers the alarm every 10 minutes;
+  + **900**: Cloud Eye triggers the alarm every 15 minutes;
+  + **1800**: Cloud Eye triggers the alarm every 30 minutes;
+  + **3600**: Cloud Eye triggers the alarm every hour;
+  + **10800**: Cloud Eye triggers the alarm every 3 hours;
+  + **21600**: Cloud Eye triggers the alarm every 6 hours;
+  + **43200**: Cloud Eye triggers the alarm every 12 hour;
+  + **86400**: Cloud Eye triggers the alarm every day.
+
+  The default value is **0**.
 
 the `alarm_actions` block supports:
 

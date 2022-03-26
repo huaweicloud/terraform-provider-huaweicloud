@@ -76,7 +76,7 @@ func ResourceAlarmRule() *schema.Resource {
 				ValidateFunc: validation.All(
 					validation.StringLenBetween(1, 128),
 					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa5-_A-Za-z0-9]+$"),
-						"The name can contain a maximum of 128 characters, including letters, digits, underscores (_),"+
+						"The name can only consist of letters, digits, underscores (_),"+
 							" hyphens (-) and chinese characters."),
 				),
 			},
@@ -174,6 +174,14 @@ func ResourceAlarmRule() *schema.Resource {
 							ForceNew:     true,
 							ValidateFunc: validation.StringLenBetween(1, 32),
 						},
+						"suppress_duration": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							ForceNew: true,
+							ValidateFunc: validation.IntInSlice([]int{
+								0, 300, 600, 900, 1800, 3600, 10800, 21600, 43200, 86400,
+							}),
+						},
 					},
 				},
 			},
@@ -248,28 +256,31 @@ func ResourceAlarmRule() *schema.Resource {
 	}
 }
 
-func getMetricOpts(d *schema.ResourceData) alarmrule.MetricOpts {
+func buildMetricOpts(d *schema.ResourceData) alarmrule.MetricOpts {
+	var metricOpts alarmrule.MetricOpts
 	metricRaw := d.Get("metric").([]interface{})
-	metric := metricRaw[0].(map[string]interface{})
 
-	dimensionsRaw := metric["dimensions"].([]interface{})
-	dimensionsOpts := make([]alarmrule.DimensionOpts, len(dimensionsRaw))
-	for i, dimensionRaw := range dimensionsRaw {
-		dimension := dimensionRaw.(map[string]interface{})
-		dimensionsOpts[i] = alarmrule.DimensionOpts{
-			Name:  dimension["name"].(string),
-			Value: dimension["value"].(string),
+	if len(metricRaw) == 1 {
+		metric := metricRaw[0].(map[string]interface{})
+		dimensionsRaw := metric["dimensions"].([]interface{})
+		dimensionsOpts := make([]alarmrule.DimensionOpts, len(dimensionsRaw))
+		for i, dimensionRaw := range dimensionsRaw {
+			dimension := dimensionRaw.(map[string]interface{})
+			dimensionsOpts[i] = alarmrule.DimensionOpts{
+				Name:  dimension["name"].(string),
+				Value: dimension["value"].(string),
+			}
 		}
+
+		metricOpts.Namespace = metric["namespace"].(string)
+		metricOpts.MetricName = metric["metric_name"].(string)
+		metricOpts.Dimensions = dimensionsOpts
 	}
 
-	return alarmrule.MetricOpts{
-		Namespace:  metric["namespace"].(string),
-		MetricName: metric["metric_name"].(string),
-		Dimensions: dimensionsOpts,
-	}
+	return metricOpts
 }
 
-func getAlarmAction(d *schema.ResourceData, name string) []alarmrule.ActionOpts {
+func buildAlarmAction(d *schema.ResourceData, name string) []alarmrule.ActionOpts {
 	if v, ok := d.GetOk(name); ok {
 		actionOptsRaw := v.([]interface{})
 		actionOpts := make([]alarmrule.ActionOpts, len(actionOptsRaw))
@@ -292,7 +303,7 @@ func getAlarmAction(d *schema.ResourceData, name string) []alarmrule.ActionOpts 
 	return nil
 }
 
-func getAlarmCondition(d *schema.ResourceData) alarmrule.ConditionOpts {
+func buildAlarmCondition(d *schema.ResourceData) alarmrule.ConditionOpts {
 	var opts alarmrule.ConditionOpts
 
 	rawCondition := d.Get("condition").([]interface{})
@@ -305,6 +316,7 @@ func getAlarmCondition(d *schema.ResourceData) alarmrule.ConditionOpts {
 		opts.Value = condition["value"].(int)
 		opts.Unit = condition["unit"].(string)
 		opts.Count = condition["count"].(int)
+		opts.SuppressDuration = condition["suppress_duration"].(int)
 	}
 
 	return opts
@@ -322,11 +334,11 @@ func resourceAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, meta i
 		AlarmDescription:        d.Get("alarm_description").(string),
 		AlarmLevel:              d.Get("alarm_level").(int),
 		AlarmType:               d.Get("alarm_type").(string),
-		Metric:                  getMetricOpts(d),
-		Condition:               getAlarmCondition(d),
-		AlarmActions:            getAlarmAction(d, "alarm_actions"),
-		OkActions:               getAlarmAction(d, "ok_actions"),
-		InsufficientdataActions: getAlarmAction(d, "insufficientdata_actions"),
+		Metric:                  buildMetricOpts(d),
+		Condition:               buildAlarmCondition(d),
+		AlarmActions:            buildAlarmAction(d, "alarm_actions"),
+		OkActions:               buildAlarmAction(d, "ok_actions"),
+		InsufficientdataActions: buildAlarmAction(d, "insufficientdata_actions"),
 		AlarmEnabled:            d.Get("alarm_enabled").(bool),
 		AlarmActionEnabled:      d.Get("alarm_action_enabled").(bool),
 		EnterpriseProjectID:     config.GetEnterpriseProjectID(d),
@@ -433,7 +445,7 @@ func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	if d.HasChange("condition") {
-		condition := getAlarmCondition(d)
+		condition := buildAlarmCondition(d)
 		// unit field is not supported in Update
 		condition.Unit = ""
 		updateOpts.Condition = &condition
