@@ -1,5 +1,5 @@
 ---
-subcategory: "GaussDB"
+subcategory: "GaussDB NoSQL"
 ---
 
 # huaweicloud_gaussdb_cassandra_dedicated_resource
