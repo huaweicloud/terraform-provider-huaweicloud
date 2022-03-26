@@ -289,7 +289,8 @@ func testAccDcsV1Instance_epsId(instanceName string) string {
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_vpc" "test" {
-  name = "vpc-default"
+  name                  = "vpc-default"
+  enterprise_project_id = "0"
 }
 
 data "huaweicloud_vpc_subnet" "test" {
