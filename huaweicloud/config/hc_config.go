@@ -15,6 +15,7 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/global"
 	hc_config "github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/httphandler"
+	iam "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3"
 	kps "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3"
 	tms "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1"
 	vpc "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3"
@@ -180,9 +181,30 @@ func NewKmsClient(c *Config, region string) (*kps.KpsClient, error) {
 	if endpoint == "" {
 		return nil, fmt.Errorf("failed to get the endpoint of KMS service")
 	}
+
 	return kps.NewKpsClient(
 		kps.KpsClientBuilder().
 			WithEndpoint(endpoint).
+			WithCredential(*credentials).
+			WithHttpConfig(buildHTTPConfig(c)).
+			Build()), nil
+}
+
+// NewIamClient is the IAM service client using huaweicloud-sdk-go-v3 package
+func NewIamClient(c *Config, region string) (*iam.IamClient, error) {
+	credentials, err := buildGlobalAuthCredentials(c, region)
+	if err != nil {
+		return nil, err
+	}
+
+	iamEndpoint := getServiceEndpoint(c, "iam", region)
+	if iamEndpoint == "" {
+		return nil, fmt.Errorf("failed to get the endpoint of IAM service")
+	}
+
+	return iam.NewIamClient(
+		iam.IamClientBuilder().
+			WithEndpoint(iamEndpoint).
 			WithCredential(*credentials).
 			WithHttpConfig(buildHTTPConfig(c)).
 			Build()), nil

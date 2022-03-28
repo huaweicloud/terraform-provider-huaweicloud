@@ -61,6 +61,9 @@ supported, in this order, and explained below:
 * Shared configuration file
 * ECS Instance Metadata Service
 
+The Huawei Cloud Provider supports assuming role with IAM agency, either in the provider configuration
+block parameter assume_role or shared configuration file.
+
 ### Static credentials
 
 !> **WARNING:** Hard-coding credentials into any Terraform configuration is not recommended, and risks secret leakage
@@ -124,6 +127,21 @@ This is a preferred approach over any other when running in ECS as you can avoid
 hard coding credentials. Instead these are leased on-the-fly by Terraform
 which reduces the chance of leakage.
 
+### Assume role
+
+If provided with an IAM agency, Terraform will attempt to assume this role using the supplied credentials.
+
+Usage:
+
+```hcl
+provider "huaweicloud" {
+  assume_role {
+    agency_name = "agency"
+    domain_name = "agency_domain"
+  }
+}
+```
+
 ## Configuration Reference
 
 The following arguments are supported:
@@ -142,6 +160,9 @@ The following arguments are supported:
 
 * `profile` - (Optional) The profile name as set in the shared config file. If omitted, the `HW_PROFILE` environment
   variable is used. Defaults to the `current` profile in the shared config file.
+
+* `assume_role` - (Optional) Configuration block for an assumed role. See below. Only one assume_role
+  block may be in the configuration.
 
 * `project_name` - (Optional) The Name of the project to login with. If omitted, the `HW_PROJECT_NAME` environment
   variable or `region` is used.
@@ -183,6 +204,14 @@ provider "huaweicloud" {
   }
 }
 ```
+
+The `assume_role` block supports:
+
+* `agency_name` - (Required) The name of the agency for assume role.
+  If omitted, the `HW_ASSUME_ROLE_AGENCY_NAME` environment variable is used.
+
+* `domain_name` - (Required) The name of the agency domain for assume role.
+  If omitted, the `HW_ASSUME_ROLE_DOMAIN_NAME` environment variable is used.
 
 ## Testing and Development
 

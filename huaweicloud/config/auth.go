@@ -14,6 +14,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	huaweisdk "github.com/chnsz/golangsdk/openstack"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
+	iam_model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/model"
 	"github.com/jmespath/go-jmespath"
 	"github.com/mitchellh/go-homedir"
 
@@ -23,6 +24,7 @@ import (
 const (
 	securityKeyURL     string = "http://169.254.169.254/openstack/latest/securitykey"
 	keyExpiresDuration int64  = 600
+	assumeRoleDuration int32  = 24 * 60 * 60
 )
 
 // CLI Shared Config
@@ -294,6 +296,13 @@ func buildClientByConfig(c *Config) error {
 	if providerConfig.ProjectId != "" {
 		c.TenantID = providerConfig.ProjectId
 	}
+	// assume role
+	if providerConfig.AgencyName != "" {
+		c.AssumeRoleAgency = providerConfig.AgencyName
+	}
+	if providerConfig.AgencyDomainName != "" {
+		c.AssumeRoleDomain = providerConfig.AgencyDomainName
+	}
 
 	return buildClientByAKSK(c)
 }
@@ -337,6 +346,42 @@ func buildClientByPassword(c *Config) error {
 		ao.UserID = c.UserID
 	}
 	return genClients(c, projectAuthOptions, domainAuthOptions)
+}
+
+func buildClientByAgency(c *Config) error {
+	client, err := NewIamClient(c, "")
+	if err != nil {
+		return fmt.Errorf("Error creating Huaweicloud IAM client: %s", err)
+	}
+
+	request := &iam_model.CreateTemporaryAccessKeyByAgencyRequest{}
+	domainNameAssumeRoleIdentityAssumerole := c.AssumeRoleDomain
+	durationSecondsAssumeRoleIdentityAssumerole := assumeRoleDuration
+	assumeRoleIdentity := &iam_model.IdentityAssumerole{
+		AgencyName:      c.AssumeRoleAgency,
+		DomainName:      &domainNameAssumeRoleIdentityAssumerole,
+		DurationSeconds: &durationSecondsAssumeRoleIdentityAssumerole,
+	}
+	var listMethodsIdentity = []iam_model.AgencyAuthIdentityMethods{
+		iam_model.GetAgencyAuthIdentityMethodsEnum().ASSUME_ROLE,
+	}
+	identityAuth := &iam_model.AgencyAuthIdentity{
+		Methods:    listMethodsIdentity,
+		AssumeRole: assumeRoleIdentity,
+	}
+	authbody := &iam_model.AgencyAuth{
+		Identity: identityAuth,
+	}
+	request.Body = &iam_model.CreateTemporaryAccessKeyByAgencyRequestBody{
+		Auth: authbody,
+	}
+	response, err := client.CreateTemporaryAccessKeyByAgency(request)
+	if err != nil {
+		return fmt.Errorf("Error Creating temporary accesskey by agency: %s", err)
+	}
+	c.AccessKey, c.SecretKey, c.SecurityToken = response.Credential.Access, response.Credential.Secret, response.Credential.Securitytoken
+
+	return buildClientByAKSK(c)
 }
 
 func (c *Config) reloadSecurityKey() error {

@@ -156,6 +156,28 @@ func Provider() *schema.Provider {
 				}, ""),
 			},
 
+			"assume_role": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"agency_name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: descriptions["assume_role_agency_name"],
+							DefaultFunc: schema.EnvDefaultFunc("HW_ASSUME_ROLE_AGENCY_NAME", nil),
+						},
+						"domain_name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: descriptions["assume_role_domain_name"],
+							DefaultFunc: schema.EnvDefaultFunc("HW_ASSUME_ROLE_DOMAIN_NAME", nil),
+						},
+					},
+				},
+			},
+
 			"project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -912,6 +934,10 @@ func init() {
 
 		"delegated_project": "The name of delegated project (Identity v3).",
 
+		"assume_role_agency_name": "The name of agency for assume role.",
+
+		"assume_role_domain_name": "The name of domain for assume role.",
+
 		"cloud": "The endpoint of cloud provider, defaults to myhuaweicloud.com",
 
 		"endpoints": "The custom endpoints used to override the default endpoint URL.",
@@ -998,6 +1024,14 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		RegionProjectIDMap:  make(map[string]string),
 		RPLock:              new(sync.Mutex),
 		SecurityKeyLock:     new(sync.Mutex),
+	}
+
+	// get assume role
+	assumeRoleList := d.Get("assume_role").([]interface{})
+	if len(assumeRoleList) == 1 {
+		assumeRole := assumeRoleList[0].(map[string]interface{})
+		config.AssumeRoleAgency = assumeRole["agency_name"].(string)
+		config.AssumeRoleDomain = assumeRole["domain_name"].(string)
 	}
 
 	// get custom endpoints
