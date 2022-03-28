@@ -232,10 +232,10 @@ func resourceVpcEIPV1Create(d *schema.ResourceData, meta interface{}) error {
 			PeriodNum:   d.Get("period").(int),
 			IsAutoRenew: d.Get("auto_renew").(string),
 		}
-		if d.Get("auto_pay").(bool) {
-			chargeInfo.IsAutoPay = "true"
-		} else {
+		if d.Get("auto_pay").(string) == "false" {
 			chargeInfo.IsAutoPay = "false"
+		} else {
+			chargeInfo.IsAutoPay = "true"
 		}
 		createOpts.ExtendParam = chargeInfo
 	}

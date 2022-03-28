@@ -507,10 +507,10 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 			extendParam.PeriodType = d.Get("period_unit").(string)
 			extendParam.PeriodNum = d.Get("period").(int)
 			extendParam.IsAutoRenew = d.Get("auto_renew").(string)
-			if d.Get("auto_pay").(bool) {
-				extendParam.IsAutoPay = "true"
-			} else {
+			if d.Get("auto_pay").(string) == "false" {
 				extendParam.IsAutoPay = "false"
+			} else {
+				extendParam.IsAutoPay = "true"
 			}
 		}
 
