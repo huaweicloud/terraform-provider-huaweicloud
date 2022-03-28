@@ -130,7 +130,15 @@ func resourceEIPAssociateRead(_ context.Context, d *schema.ResourceData, meta in
 	}
 
 	if eIP.PortID == "" {
-		return fmtp.DiagErrorf("the EIP %s(%s) is not associated", d.Id(), eIP.PublicAddress)
+		diags := diag.Diagnostics{
+			diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  fmt.Sprintf("the EIP %s(%s) is not associated", eIP.PublicAddress, d.Id()),
+			},
+		}
+
+		d.SetId("")
+		return diags
 	}
 
 	associatedPort, err := ports.Get(vpcClient, eIP.PortID)
@@ -149,7 +157,7 @@ func resourceEIPAssociateRead(_ context.Context, d *schema.ResourceData, meta in
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting eip fields: %s", err)
+		return fmtp.DiagErrorf("Error setting eip associate fields: %s", err)
 	}
 
 	return nil
