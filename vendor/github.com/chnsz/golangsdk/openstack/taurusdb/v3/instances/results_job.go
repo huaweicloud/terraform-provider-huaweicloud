@@ -41,7 +41,9 @@ func (r JobResult) ExtractJobStatus() (*JobStatus, error) {
 func WaitForJobSuccess(client *golangsdk.ServiceClient, secs int, jobID string) error {
 	return golangsdk.WaitFor(secs, func() (bool, error) {
 		job_status := new(JobStatus)
-		_, err := client.Get(jobURL(client, jobID), &job_status, &golangsdk.RequestOpts{
+		url := jobURL(client)
+		url += fmt.Sprintf("?id=%s", jobID)
+		_, err := client.Get(url, &job_status, &golangsdk.RequestOpts{
 			MoreHeaders: requestOpts.MoreHeaders,
 		})
 		time.Sleep(15 * time.Second)
@@ -54,7 +56,7 @@ func WaitForJobSuccess(client *golangsdk.ServiceClient, secs int, jobID string) 
 			return true, nil
 		}
 		if job.Status == "Failed" {
-			err = fmt.Errorf("Job failed: %s.\n", job.FailReason)
+			err = fmt.Errorf("Job failed: %s.", job.FailReason)
 			return false, err
 		}
 

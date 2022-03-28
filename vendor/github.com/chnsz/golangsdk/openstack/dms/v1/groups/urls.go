@@ -1,8 +1,6 @@
 package groups
 
 import (
-	"fmt"
-
 	"github.com/chnsz/golangsdk"
 )
 
@@ -21,6 +19,6 @@ func deleteURL(client *golangsdk.ServiceClient, queueID string, groupID string) 
 }
 
 // listURL will build the list url of list function
-func listURL(client *golangsdk.ServiceClient, queueID string, includeDeadLetter bool) string {
-	return client.ServiceURL(resourcePathQueues, queueID, fmt.Sprintf("%s?include_deadletter=%t", resourcePathGroups, includeDeadLetter))
+func listURL(client *golangsdk.ServiceClient, queueID string) string {
+	return client.ServiceURL(resourcePathQueues, queueID, "resourcePathGroups")
 }

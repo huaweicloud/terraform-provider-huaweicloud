@@ -68,7 +68,7 @@ func Create(client *golangsdk.ServiceClient, opts ResponseOptsBuilder) (r Create
 		r.Err = err
 		return
 	}
-	_, r.Err = client.Post(rootURL(client, buildResponsesPath(opts.GetInstanceId(), opts.GetGroupId())),
+	_, r.Err = client.Post(rootURL(client, opts.GetInstanceId(), opts.GetGroupId()),
 		reqBody, &r.Body, nil)
 	return
 }
@@ -80,7 +80,7 @@ func Update(client *golangsdk.ServiceClient, respId string, opts ResponseOptsBui
 		r.Err = err
 		return
 	}
-	_, r.Err = client.Put(resourceURL(client, buildResponsesPath(opts.GetInstanceId(), opts.GetGroupId()), respId),
+	_, r.Err = client.Put(resourceURL(client, opts.GetInstanceId(), opts.GetGroupId(), respId),
 		reqBody, &r.Body, &golangsdk.RequestOpts{
 			OkCodes: []int{200},
 		})
@@ -89,7 +89,7 @@ func Update(client *golangsdk.ServiceClient, respId string, opts ResponseOptsBui
 
 // Get is a method to obtain the specified custom response according to the instanceId, appId and respId.
 func Get(client *golangsdk.ServiceClient, instanceId, groupId, respId string) (r GetResult) {
-	_, r.Err = client.Get(resourceURL(client, buildResponsesPath(instanceId, groupId), respId), &r.Body, nil)
+	_, r.Err = client.Get(resourceURL(client, instanceId, groupId, respId), &r.Body, nil)
 	return
 }
 
@@ -130,7 +130,7 @@ func (opts ListOpts) ToListQuery() (string, error) {
 
 // List is a method to obtain an array of one or more custom reponses according to the query parameters.
 func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) pagination.Pager {
-	url := rootURL(client, buildResponsesPath(opts.GetInstanceId(), opts.GetGroupId()))
+	url := rootURL(client, opts.GetInstanceId(), opts.GetGroupId())
 	if opts != nil {
 		query, err := opts.ToListQuery()
 		if err != nil {
@@ -146,7 +146,7 @@ func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) pagination.Page
 
 // Delete is a method to delete the existing custom response.
 func Delete(client *golangsdk.ServiceClient, instanceId, groupId, respId string) (r DeleteResult) {
-	_, r.Err = client.Delete(resourceURL(client, buildResponsesPath(instanceId, groupId), respId), nil)
+	_, r.Err = client.Delete(resourceURL(client, instanceId, groupId, respId), nil)
 	return
 }
 
@@ -177,8 +177,8 @@ func (opts SpecRespOpts) GetResponseId() string {
 
 // GetSpecResp is a method to get the specifies custom response configuration from an group.
 func GetSpecResp(client *golangsdk.ServiceClient, respType string, opts SpecRespOptsBuilder) (r GetSpecRespResult) {
-	_, r.Err = client.Get(specResponsesURL(client, buildResponsesPath(opts.GetInstanceId(), opts.GetGroupId()),
-		opts.GetResponseId(), respType), &r.Body, nil)
+	url := specResponsesURL(client, opts.GetInstanceId(), opts.GetGroupId(), opts.GetResponseId(), respType)
+	_, r.Err = client.Get(url, &r.Body, nil)
 	return
 }
 
@@ -198,8 +198,8 @@ func UpdateSpecResp(client *golangsdk.ServiceClient, respType string, specOpts S
 		r.Err = err
 		return
 	}
-	_, r.Err = client.Put(specResponsesURL(client, buildResponsesPath(specOpts.GetInstanceId(), specOpts.GetGroupId()),
-		specOpts.GetResponseId(), respType), reqBody, &r.Body, &golangsdk.RequestOpts{
+	url := specResponsesURL(client, specOpts.GetInstanceId(), specOpts.GetGroupId(), specOpts.GetResponseId(), respType)
+	_, r.Err = client.Put(url, reqBody, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{200},
 	})
 	return
@@ -207,7 +207,7 @@ func UpdateSpecResp(client *golangsdk.ServiceClient, respType string, specOpts S
 
 // DeleteSpecResp is a method to delete an existing custom response configuration from an group.
 func DeleteSpecResp(client *golangsdk.ServiceClient, respType string, specOpts SpecRespOptsBuilder) (r DeleteResult) {
-	_, r.Err = client.Delete(specResponsesURL(client, buildResponsesPath(specOpts.GetInstanceId(),
-		specOpts.GetGroupId()), specOpts.GetResponseId(), respType), nil)
+	url := specResponsesURL(client, specOpts.GetInstanceId(), specOpts.GetGroupId(), specOpts.GetResponseId(), respType)
+	_, r.Err = client.Delete(url, nil)
 	return
 }

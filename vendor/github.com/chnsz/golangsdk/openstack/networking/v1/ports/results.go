@@ -1,5 +1,9 @@
 package ports
 
+import (
+	"github.com/chnsz/golangsdk/pagination"
+)
+
 // Port is an API response structure of the network VIP.
 type Port struct {
 	// Specifies the administrative state of the port.
@@ -44,7 +48,7 @@ type Port struct {
 	// Specifies the VIF details. Parameter ovs_hybrid_plug specifies whether the OVS/bridge hybrid mode is used.
 	VifDetails VifDetail `json:"binding:vif_details"`
 	// Specifies the custom information configured by users. This is an extended attribute.
-	Profile string `json:"binding:profile"`
+	Profile interface{} `json:"binding:profile"`
 	// Specifies the type of the bound vNIC. The value can be normal or direct.
 	// Parameter normal indicates software switching.
 	// Parameter direct indicates SR-IOV PCIe passthrough, which is not supported.
@@ -82,4 +86,38 @@ type DnsAssignment struct {
 	IpAddress string `json:"ip_address"`
 	// Specifies the FQDN.
 	Fqdn string `json:"fqdn"`
+}
+
+// PortPage is the page returned by a pager when traversing over a collection
+// of network ports.
+type PortPage struct {
+	pagination.MarkerPageBase
+}
+
+// LastMarker method returns the last ID in a ports page.
+func (p PortPage) LastMarker() (string, error) {
+	pagePorts, err := ExtractPorts(p)
+	if err != nil {
+		return "", err
+	}
+	if len(pagePorts) == 0 {
+		return "", nil
+	}
+	lastPort := pagePorts[len(pagePorts)-1]
+	return lastPort.ID, nil
+}
+
+// IsEmpty method checks whether a PortPage struct is empty.
+func (p PortPage) IsEmpty() (bool, error) {
+	pagePorts, err := ExtractPorts(p)
+	return len(pagePorts) == 0, err
+}
+
+// ExtractPorts accepts a Page struct, specifically a PortPage struct,
+// and extracts the elements into a slice of Port structs. In other words,
+// a generic collection is mapped into a relevant slice.
+func ExtractPorts(r pagination.Page) ([]Port, error) {
+	var s []Port
+	err := r.(PortPage).Result.ExtractIntoSlicePtr(&s, "ports")
+	return s, err
 }

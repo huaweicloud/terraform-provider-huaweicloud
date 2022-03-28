@@ -54,7 +54,7 @@ type ClusterDetailResponse struct {
 	CmkId string `json:"cmkId"`
 	// ID of the enterprise project to which a cluster belongs.
 	// If the user of the cluster does not enable the enterprise project, the setting of this parameter is not returned.
-	EnterpriseProjectId string             `json:"enterprise_project_id"`
+	EnterpriseProjectId string             `json:"enterpriseProjectId"`
 	Tags                []tags.ResourceTag `json:"tags"`
 }
 

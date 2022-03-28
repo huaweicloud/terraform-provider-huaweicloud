@@ -1,6 +1,8 @@
 package groups
 
 import (
+	"fmt"
+
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
 )
@@ -53,7 +55,8 @@ func Delete(client *golangsdk.ServiceClient, queueID string, groupID string) (r 
 
 // List all the groups
 func List(client *golangsdk.ServiceClient, queueID string, includeDeadLetter bool) pagination.Pager {
-	url := listURL(client, queueID, includeDeadLetter)
+	url := listURL(client, queueID)
+	url += fmt.Sprintf("?include_deadletter=%t", includeDeadLetter)
 
 	return pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
 		return GroupPage{pagination.SinglePageBase(r)}

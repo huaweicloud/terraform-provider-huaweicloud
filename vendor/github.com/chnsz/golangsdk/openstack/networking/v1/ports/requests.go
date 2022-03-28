@@ -1,8 +1,11 @@
 package ports
 
-import "github.com/chnsz/golangsdk"
+import (
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/pagination"
+)
 
-// CreateOpts is the structure required by the Create method to build a new network VIP.
+// CreateOpts is the structure required by the Create method to build a new network port.
 type CreateOpts struct {
 	// Specifies the ID of the network to which the port belongs.
 	NetworkId string `json:"network_id" required:"true"`
@@ -63,7 +66,7 @@ var requestOpts = golangsdk.RequestOpts{
 	MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
 }
 
-// Create is a method to build a new network VIP.
+// Create is a method to build a new network port.
 func Create(c *golangsdk.ServiceClient, opts CreateOpts) (*Port, error) {
 	b, err := golangsdk.BuildRequestBody(opts, "port")
 	if err != nil {
@@ -82,10 +85,10 @@ func Create(c *golangsdk.ServiceClient, opts CreateOpts) (*Port, error) {
 	return nil, err
 }
 
-// Get is a method to obtain the network VIP details.
-func Get(c *golangsdk.ServiceClient, vipId string) (*Port, error) {
+// Get is a method to obtain the network port details.
+func Get(c *golangsdk.ServiceClient, portID string) (*Port, error) {
 	var rst golangsdk.Result
-	_, err := c.Get(resourceURL(c, vipId), &rst.Body, &golangsdk.RequestOpts{
+	_, err := c.Get(resourceURL(c, portID), &rst.Body, &golangsdk.RequestOpts{
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 	if err == nil {
@@ -96,7 +99,7 @@ func Get(c *golangsdk.ServiceClient, vipId string) (*Port, error) {
 	return nil, err
 }
 
-// UpdateOpts is the structure required by the Update method to update the configuration of the specified network VIP.
+// UpdateOpts is the structure required by the Update method to update the configuration of the specified network port.
 type UpdateOpts struct {
 	// Specifies the ID of the network to which the port belongs.
 	Name string `json:"name"`
@@ -108,15 +111,15 @@ type UpdateOpts struct {
 	ExtraDhcpOpts []ExtraDhcpOpt `json:"extra_dhcp_opts"`
 }
 
-// Update is a method to update the existing network VIP.
-func Update(c *golangsdk.ServiceClient, vipId string, opts UpdateOpts) (*Port, error) {
+// Update is a method to update the existing network port.
+func Update(c *golangsdk.ServiceClient, portID string, opts UpdateOpts) (*Port, error) {
 	b, err := golangsdk.BuildRequestBody(opts, "port")
 	if err != nil {
 		return nil, err
 	}
 
 	var rst golangsdk.Result
-	_, err = c.Put(resourceURL(c, vipId), b, &rst.Body, &golangsdk.RequestOpts{
+	_, err = c.Put(resourceURL(c, portID), b, &rst.Body, &golangsdk.RequestOpts{
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 	if err == nil {
@@ -127,11 +130,62 @@ func Update(c *golangsdk.ServiceClient, vipId string, opts UpdateOpts) (*Port, e
 	return nil, err
 }
 
-// Delete is a method to remove an existing network VIP by ID.
-func Delete(c *golangsdk.ServiceClient, clusterId string) *golangsdk.ErrResult {
+// Delete is a method to remove an existing network port by ID.
+func Delete(c *golangsdk.ServiceClient, portID string) *golangsdk.ErrResult {
 	var r golangsdk.ErrResult
-	_, r.Err = c.Delete(resourceURL(c, clusterId), &golangsdk.RequestOpts{
+	_, r.Err = c.Delete(resourceURL(c, portID), &golangsdk.RequestOpts{
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 	return &r
+}
+
+// ListOptsBuilder allows extensions to add additional parameters to the
+// List request.
+type ListOptsBuilder interface {
+	ToPortListQuery() (string, error)
+}
+
+// ListOpts allows the filtering of paginated collections through the API.
+// Filtering is achieved by passing in struct field values that map to the port
+// attributes you want to see returned. Marker and Limit are used for pagination.
+type ListOpts struct {
+	ID                  string `q:"id"`
+	Name                string `q:"name"`
+	NetworkID           string `q:"network_id"`
+	MACAddress          string `q:"mac_address"`
+	AdminStateUp        *bool  `q:"admin_state_up"`
+	DeviceID            string `q:"device_id"`
+	DeviceOwner         string `q:"device_owner"`
+	Status              string `q:"status"`
+	Marker              string `q:"marker"`
+	Limit               int    `q:"limit"`
+	EnterpriseProjectID string `q:"enterprise_project_id"`
+	// fixed_ips=ip_address={ip_address}&fixed_ips=subnet_id={subnet_id}
+	FixedIps []string `q:"fixed_ips"`
+}
+
+// ToPortListQuery formats a ListOpts into a query string.
+func (opts ListOpts) ToPortListQuery() (string, error) {
+	q, err := golangsdk.BuildQueryString(opts)
+	return q.String(), err
+}
+
+// List returns a Pager which allows you to iterate over a collection of
+// ports. It accepts a ListOpts struct, which allows you to filter the
+// returned collection for greater efficiency.
+func List(c *golangsdk.ServiceClient, opts ListOptsBuilder) pagination.Pager {
+	url := rootURL(c)
+	if opts != nil {
+		query, err := opts.ToPortListQuery()
+		if err != nil {
+			return pagination.Pager{Err: err}
+		}
+		url += query
+	}
+
+	return pagination.NewPager(c, url, func(r pagination.PageResult) pagination.Page {
+		p := PortPage{pagination.MarkerPageBase{PageResult: r}}
+		p.MarkerPageBase.Owner = p
+		return p
+	})
 }

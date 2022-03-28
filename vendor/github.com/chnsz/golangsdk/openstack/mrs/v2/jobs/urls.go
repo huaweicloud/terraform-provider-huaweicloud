@@ -1,23 +1,17 @@
 package jobs
 
 import (
-	"fmt"
-
 	"github.com/chnsz/golangsdk"
 )
 
-func buildRootPath(clusterId string) string {
-	return fmt.Sprintf("clusters/%s/job-executions", clusterId)
-}
-
 func rootURL(c *golangsdk.ServiceClient, clusterId string) string {
-	return c.ServiceURL(buildRootPath(clusterId))
+	return c.ServiceURL("clusters", clusterId, "job-executions")
 }
 
 func resourceURL(c *golangsdk.ServiceClient, clusterId, jobId string) string {
-	return c.ServiceURL(buildRootPath(clusterId), jobId)
+	return c.ServiceURL("clusters", clusterId, "job-executions", jobId)
 }
 
 func deleteURL(c *golangsdk.ServiceClient, clusterId string) string {
-	return c.ServiceURL(buildRootPath(clusterId), "batch-delete")
+	return c.ServiceURL("clusters", clusterId, "job-executions", "batch-delete")
 }
