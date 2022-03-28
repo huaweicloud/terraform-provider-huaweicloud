@@ -34,6 +34,7 @@ func TestAccEIPAssociate_basic(t *testing.T) {
 				Config: testAccEIPAssociate_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(associateName, "status", "BOUND"),
 					resource.TestCheckResourceAttrPair(
 						associateName, "public_ip", resourceName, "address"),
 					resource.TestCheckResourceAttrPair(
@@ -74,6 +75,7 @@ func TestAccEIPAssociate_port(t *testing.T) {
 				Config: testAccEIPAssociate_port(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(associateName, "status", "BOUND"),
 					resource.TestCheckResourceAttrPtr(
 						associateName, "port_id", &eip.PortID),
 					resource.TestCheckResourceAttrPair(
