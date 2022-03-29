@@ -284,7 +284,7 @@ func ResourceComputeInstanceV2() *schema.Resource {
 			},
 
 			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
-			"charging_mode": schemeChargingMode(novaConflicts),
+			"charging_mode": schemaChargingMode(novaConflicts),
 			"period_unit":   schemaPeriodUnit(novaConflicts),
 			"period":        schemaPeriod(novaConflicts),
 			"auto_renew":    schemaAutoRenew(novaConflicts),
@@ -983,6 +983,9 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 
 		extendParam := &cloudservers.ResizeExtendParam{
 			AutoPay: "true",
+		}
+		if d.Get("auto_pay").(string) == "false" {
+			extendParam.AutoPay = "false"
 		}
 		resizeOpts := &cloudservers.ResizeOpts{
 			FlavorRef:   newFlavorId,

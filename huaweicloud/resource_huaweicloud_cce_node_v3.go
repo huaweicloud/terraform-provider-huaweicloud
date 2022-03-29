@@ -398,7 +398,7 @@ func ResourceCCENodeV3() *schema.Resource {
 			},
 
 			// charge info: charging_mode, period_unit, period, auto_renew
-			"charging_mode": schemeChargingMode(nil),
+			"charging_mode": schemaChargingMode(nil),
 			"period_unit":   schemaPeriodUnit(nil),
 			"period":        schemaPeriod(nil),
 			"auto_renew":    schemaAutoRenew(nil),

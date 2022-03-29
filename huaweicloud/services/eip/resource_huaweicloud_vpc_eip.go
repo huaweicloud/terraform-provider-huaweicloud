@@ -14,6 +14,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/bandwidths"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
+	bandwidthsv2 "github.com/chnsz/golangsdk/openstack/networking/v2/bandwidths"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -148,7 +149,7 @@ func ResourceVpcEIPV1() *schema.Resource {
 			},
 
 			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
-			"charging_mode": common.SchemeChargingMode(nil),
+			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit([]string{"publicip.0.ip_address"}),
 			"period":        common.SchemaPeriod([]string{"publicip.0.ip_address"}),
 			"auto_renew":    common.SchemaAutoRenew([]string{"publicip.0.ip_address"}),
@@ -378,24 +379,66 @@ func resourceVpcEIPV1Update(d *schema.ResourceData, meta interface{}) error {
 
 	// Update bandwidth change
 	if d.HasChange("bandwidth") {
-		var updateOpts bandwidths.UpdateOpts
-
 		newBWList := d.Get("bandwidth").([]interface{})
 		newMap := newBWList[0].(map[string]interface{})
-		updateOpts.Size = newMap["size"].(int)
-		updateOpts.Name = newMap["name"].(string)
 
-		logp.Printf("[DEBUG] Bandwidth Update Options: %#v", updateOpts)
-
+		// Check if eip exists
 		eIP, err := eips.Get(networkingClient, d.Id()).Extract()
 		if err != nil {
 			return common.CheckDeleted(d, err, "eIP")
 		}
-		_, err = bandwidths.Update(networkingClient, eIP.BandwidthID, updateOpts).Extract()
-		if err != nil {
-			return fmtp.Errorf("Error updating bandwidth: %s", err)
-		}
 
+		if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
+			networkingV2Client, err := config.NetworkingV2Client(config.GetRegion(d))
+			if err != nil {
+				return fmtp.Errorf("error creating networking v2 client: %s", err)
+			}
+			bandwidth := bandwidthsv2.Bandwidth{
+				Name: newMap["name"].(string),
+				Size: newMap["size"].(int),
+			}
+			extendParam := &bandwidthsv2.ExtendParam{
+				IsAutoPay: "true",
+			}
+			if d.Get("auto_pay").(string) == "false" {
+				extendParam.IsAutoPay = "false"
+			}
+			updateOpts := bandwidthsv2.UpdateOpts{
+				Bandwidth:   bandwidth,
+				ExtendParam: extendParam,
+			}
+			logp.Printf("[DEBUG] Bandwidth Update Options: %#v", updateOpts)
+
+			order, err := bandwidthsv2.Update(networkingV2Client, eIP.BandwidthID, updateOpts)
+			if err != nil {
+				return fmtp.Errorf("error updating bandwidth: %s", err)
+			}
+
+			// wait for order success
+			orderData, ok := order.(bandwidthsv2.PrePaid)
+			if !ok {
+				return fmtp.Errorf("error extracting order data")
+			}
+			if orderData.OrderID != "" {
+				bssClient, err := config.BssV2Client(config.GetRegion(d))
+				if err != nil {
+					return fmtp.Errorf("error creating bss v2 client: %s", err)
+				}
+				if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutCreate)/time.Second), orderData.OrderID); err != nil {
+					return err
+				}
+			}
+		} else {
+			var updateOpts bandwidths.UpdateOpts
+			updateOpts.Size = newMap["size"].(int)
+			updateOpts.Name = newMap["name"].(string)
+			logp.Printf("[DEBUG] Bandwidth Update Options: %#v", updateOpts)
+
+			_, err = bandwidths.Update(networkingClient, eIP.BandwidthID, updateOpts).Extract()
+			if err != nil {
+				return fmtp.Errorf("error updating bandwidth: %s", err)
+			}
+		}
 	}
 
 	newIPList := d.Get("publicip").([]interface{})

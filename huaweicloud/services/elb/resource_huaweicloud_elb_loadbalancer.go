@@ -166,7 +166,7 @@ func ResourceLoadBalancerV3() *schema.Resource {
 			"tags": common.TagsSchema(),
 
 			// charge info: charging_mode, period_unit, period, auto_renew
-			"charging_mode": common.SchemeChargingMode(nil),
+			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
 			"auto_renew":    common.SchemaAutoRenew(nil),

@@ -228,7 +228,7 @@ func ResourceBmsInstance() *schema.Resource {
 					},
 				},
 			},
-			"charging_mode": common.SchemeChargingMode([]string{}),
+			"charging_mode": common.SchemaChargingMode([]string{}),
 			"period_unit":   common.SchemaPeriodUnit([]string{}),
 			"period":        common.SchemaPeriod([]string{}),
 			"auto_renew":    common.SchemaAutoRenew([]string{}),
