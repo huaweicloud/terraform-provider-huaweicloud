@@ -29,6 +29,7 @@ var multiCatalogKeys = map[string][]string{
 	"rds":       {"rdsv1"},
 	"waf":       {"waf-dedicated"},
 	"geminidb":  {"geminidbv31"},
+	"gaussdb":   {"gaussdbv3"},
 	"dli":       {"dliv2"},
 	"dcs":       {"dcsv1"},
 	"dis":       {"disv3"},
@@ -265,6 +266,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"gaussdb": {
 		Name:    "gaussdb",
 		Version: "mysql/v3",
+	},
+	"gaussdbv3": {
+		Name:    "gaussdb",
+		Version: "v3",
 	},
 	"opengauss": {
 		Name:    "gaussdb-opengauss",

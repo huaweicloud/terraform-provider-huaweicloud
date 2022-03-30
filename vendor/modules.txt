@@ -400,6 +400,8 @@ github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/model
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/gaussdb/v3
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/gaussdb/v3/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3

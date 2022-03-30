@@ -14,6 +14,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	gaussdb "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/gaussdb/v3"
+	gaussdb_model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/gaussdb/v3/model"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -290,6 +292,11 @@ func resourceGaussDBInstance() *schema.Resource {
 					"true", "false",
 				}, false),
 			},
+			"audit_log_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -331,6 +338,11 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	client, err := config.GaussdbV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
+	}
+
+	newClient, err := config.HcGaussdbV3Client(GetRegion(d, config))
+	if err != nil {
+		return fmtp.Errorf("Error creating GaussDB v3 SDK client: %s ", err)
 	}
 
 	// If force_import set, try to import it instead of creating
@@ -501,6 +513,14 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			id, err)
 	}
 
+	//audit-log switch
+	if v, ok := d.GetOk("audit_log_enabled"); ok {
+		err = switchAuditLog(newClient, id, v.(bool))
+		if err != nil {
+			return err
+		}
+	}
+
 	if hasFilledOpt(d, "backup_strategy") {
 		var updateOpts backups.UpdateOpts
 		backupRaw := d.Get("backup_strategy").([]interface{})
@@ -544,6 +564,10 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	client, err := config.GaussdbV3Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
+	}
+	HcGaussdbV3Client, err := config.HcGaussdbV3Client(GetRegion(d, config))
+	if err != nil {
+		return fmtp.Errorf("Error creating GaussDB v3 SDK client: %s ", err)
 	}
 
 	instanceID := d.Id()
@@ -683,6 +707,21 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 		d.Set("proxy_port", proxy.Port)
 	}
 
+	// set audit log status
+	opts := gaussdb_model.ShowAuditLogRequest{
+		InstanceId: instanceID,
+	}
+	resp, err := HcGaussdbV3Client.ShowAuditLog(&opts)
+	if err != nil {
+		logp.Printf("[DEBUG] query Instance %s audit log status failed: %s", instanceID, err)
+	} else {
+		var status bool
+		if *resp.SwitchStatus == "ON" {
+			status = true
+		}
+		d.Set("audit_log_enabled", status)
+	}
+
 	return nil
 }
 
@@ -696,6 +735,11 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud bss V2 client: %s", err)
 	}
+	HcGaussdbV3Client, err := config.HcGaussdbV3Client(GetRegion(d, config))
+	if err != nil {
+		return fmtp.Errorf("Error creating GaussDB v3 SDK client: %s ", err)
+	}
+
 	instanceId := d.Id()
 
 	if d.HasChange("name") {
@@ -962,6 +1006,13 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
+	if d.HasChange("audit_log_enabled") {
+		err = switchAuditLog(HcGaussdbV3Client, instanceId, d.Get("audit_log_enabled").(bool))
+		if err != nil {
+			return err
+		}
+	}
+
 	return resourceGaussDBInstanceRead(d, meta)
 }
 
@@ -1004,5 +1055,26 @@ func resourceGaussDBInstanceDelete(d *schema.ResourceData, meta interface{}) err
 			instanceId, err)
 	}
 	logp.Printf("[DEBUG] Successfully deleted instance %s", instanceId)
+	return nil
+}
+
+func switchAuditLog(client *gaussdb.GaussDBClient, instanceId string, v bool) error {
+	var flag string
+	if v {
+		flag = "ON"
+	} else {
+		flag = "OFF"
+	}
+	opts := gaussdb_model.UpdateAuditLogRequest{
+		InstanceId: instanceId,
+		Body: &gaussdb_model.OperateAuditLogRequestV3Body{
+			SwitchStatus: flag,
+		},
+	}
+	_, err := client.UpdateAuditLog(&opts)
+	if err != nil {
+		return fmtp.Errorf("switch audit log to %q failed: %s", flag, err)
+	}
+
 	return nil
 }
