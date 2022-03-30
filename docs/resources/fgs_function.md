@@ -169,6 +169,10 @@ The following arguments are supported:
 * `code_type` - (Required, String) Specifies the function code type, which can be inline: inline code, zip: ZIP file,
   jar: JAR file or java functions, obs: function code stored in an OBS bucket.
 
+* `functiongraph_version` - (Optional, String, ForceNew) Specifies the FunctionGraph version, defaults to **v1**.
+  + **v1**: Hosts event-driven functions in a serverless context.
+  + **v2**: Next-generation function hosting service powered by Huawei YuanRong architecture.
+
 * `func_code` - (Optional, String) Specifies the function code. When code_type is set to inline, zip, or jar, this
   parameter is mandatory, and the code can be encoded using Base64 or just with the text code.
 

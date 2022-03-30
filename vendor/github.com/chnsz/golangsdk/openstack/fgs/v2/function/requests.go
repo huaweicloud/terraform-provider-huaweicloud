@@ -37,6 +37,7 @@ type CreateOpts struct {
 	AppXrole            string           `json:"app_xrole,omitempty"`
 	FuncCode            FunctionCodeOpts `json:"func_code,omitempty"`
 	EnterpriseProjectID string           `json:"enterprise_project_id,omitempty"`
+	Type                string           `json:"type,omitempty"`
 }
 
 func (opts CreateOpts) ToCreateFunctionMap() (map[string]interface{}, error) {
