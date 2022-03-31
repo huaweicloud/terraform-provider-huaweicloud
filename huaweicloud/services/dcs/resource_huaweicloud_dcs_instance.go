@@ -232,7 +232,7 @@ func ResourceDcsInstance() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
-			"charging_mode": common.SchemeChargingMode(nil),
+			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
 			"auto_renew":    common.SchemaAutoRenew(nil),

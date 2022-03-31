@@ -25,7 +25,7 @@ func TagsForceNewSchema() *schema.Schema {
 	}
 }
 
-func SchemeChargingMode(conflicts []string) *schema.Schema {
+func SchemaChargingMode(conflicts []string) *schema.Schema {
 	resourceSchema := schema.Schema{
 		Type:     schema.TypeString,
 		Optional: true,
