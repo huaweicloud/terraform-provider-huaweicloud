@@ -47,6 +47,7 @@ func ResourceDNSZoneV2() *schema.Resource {
 			"email": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"zone_type": {
 				Type:         schema.TypeString,
