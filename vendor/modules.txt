@@ -199,6 +199,8 @@ github.com/chnsz/golangsdk/openstack/networking/v1/bandwidths
 github.com/chnsz/golangsdk/openstack/networking/v1/eips
 github.com/chnsz/golangsdk/openstack/networking/v1/ports
 github.com/chnsz/golangsdk/openstack/networking/v1/routetables
+github.com/chnsz/golangsdk/openstack/networking/v1/security/rules
+github.com/chnsz/golangsdk/openstack/networking/v1/security/securitygroups
 github.com/chnsz/golangsdk/openstack/networking/v1/subnets
 github.com/chnsz/golangsdk/openstack/networking/v1/vpcs
 github.com/chnsz/golangsdk/openstack/networking/v2/bandwidths
@@ -212,6 +214,8 @@ github.com/chnsz/golangsdk/openstack/networking/v2/extensions/layer3/floatingips
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/layer3/routers
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/natgateways
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/provider
+github.com/chnsz/golangsdk/openstack/networking/v2/extensions/security/groups
+github.com/chnsz/golangsdk/openstack/networking/v2/extensions/security/rules
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/vpnaas/endpointgroups
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/vpnaas/ikepolicies
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/vpnaas/ipsecpolicies
