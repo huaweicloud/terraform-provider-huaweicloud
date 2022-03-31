@@ -13,13 +13,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/basic"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/global"
-	hc_config "github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config"
+	hcconfig "github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/httphandler"
 	gaussdbv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/gaussdb/v3"
-	iam "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3"
-	kps "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3"
-	tms "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1"
-	vpc "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3"
+	iamv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3"
+	kpsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3"
+	tmsv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1"
+	vpcv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
@@ -51,6 +51,7 @@ func buildAuthCredentials(c *Config, region string) (*basic.Credentials, error) 
 		if err != nil {
 			return nil, err
 		}
+		// S1005
 		projectID, _ = c.RegionProjectIDMap[region]
 	}
 
@@ -74,8 +75,8 @@ func buildGlobalAuthCredentials(c *Config, region string) (*global.Credentials, 
 	return &credentials, nil
 }
 
-func buildHTTPConfig(c *Config) *hc_config.HttpConfig {
-	httpConfig := hc_config.DefaultHttpConfig()
+func buildHTTPConfig(c *Config) *hcconfig.HttpConfig {
+	httpConfig := hcconfig.DefaultHttpConfig()
 
 	if c.MaxRetries > 0 {
 		httpConfig = httpConfig.WithRetries(c.MaxRetries)
@@ -94,7 +95,7 @@ func buildHTTPConfig(c *Config) *hc_config.HttpConfig {
 		if parsed, err := url.Parse(proxyURL); err == nil {
 			logp.Printf("[DEBUG] using https proxy: %s://%s", parsed.Scheme, parsed.Host)
 
-			httpProxy := hc_config.Proxy{
+			httpProxy := hcconfig.Proxy{
 				Schema:   parsed.Scheme,
 				Host:     parsed.Host,
 				Username: parsed.User.Username(),
@@ -112,8 +113,8 @@ func buildHTTPConfig(c *Config) *hc_config.HttpConfig {
 	return httpConfig
 }
 
+// try to get the endpoint from customizing map
 func getServiceEndpoint(c *Config, srv, region string) string {
-	// try to get the endpoint from customizing map
 	if endpoint, ok := c.Endpoints[srv]; ok {
 		return endpoint
 	}
@@ -133,96 +134,53 @@ func getServiceEndpoint(c *Config, srv, region string) string {
 	return ep
 }
 
-// NewVpcClient is the VPC service client using huaweicloud-sdk-go-v3 package
-func NewVpcClient(c *Config, region string) (*vpc.VpcClient, error) {
-	credentials, err := buildAuthCredentials(c, region)
+// HcVpcV3Client is the VPC service client using huaweicloud-sdk-go-v3 package
+func (c *Config) HcVpcV3Client(region string) (*vpcv3.VpcClient, error) {
+	hcClient, err := NewHcClient(c, region, "vpc", false)
 	if err != nil {
 		return nil, err
 	}
 
-	vpcEndpoint := getServiceEndpoint(c, "vpc", region)
-	if vpcEndpoint == "" {
-		return nil, fmt.Errorf("failed to get the endpoint of VPC service")
-	}
-
-	return vpc.NewVpcClient(
-		vpc.VpcClientBuilder().
-			WithEndpoint(vpcEndpoint).
-			WithCredential(*credentials).
-			WithHttpConfig(buildHTTPConfig(c)).
-			Build()), nil
+	return vpcv3.NewVpcClient(hcClient), nil
 }
 
-// NewTmsClient is the TMS service client using huaweicloud-sdk-go-v3 package
-func NewTmsClient(c *Config, region string) (*tms.TmsClient, error) {
-	credentials, err := buildGlobalAuthCredentials(c, region)
+// HcTmsV1Client is the TMS service client using huaweicloud-sdk-go-v3 package
+func (c *Config) HcTmsV1Client() (*tmsv1.TmsClient, error) {
+	hcClient, err := NewHcClient(c, "", "tms", true)
 	if err != nil {
 		return nil, err
 	}
-
-	tmsEndpoint := getServiceEndpoint(c, "tms", region)
-	if tmsEndpoint == "" {
-		return nil, fmt.Errorf("failed to get the endpoint of TMS service")
-	}
-
-	return tms.NewTmsClient(
-		tms.TmsClientBuilder().
-			WithEndpoint(tmsEndpoint).
-			WithCredential(*credentials).
-			WithHttpConfig(buildHTTPConfig(c)).
-			Build()), nil
+	return tmsv1.NewTmsClient(hcClient), nil
 }
 
-// NewKmsClient is the KMS service client using huaweicloud-sdk-go-v3 package
-func NewKmsClient(c *Config, region string) (*kps.KpsClient, error) {
-	credentials, err := buildAuthCredentials(c, region)
+// HcKmsV3Client is the KMS service client using huaweicloud-sdk-go-v3 package
+func (c *Config) HcKmsV3Client(region string) (*kpsv3.KpsClient, error) {
+	hcClient, err := NewHcClient(c, region, "kms", false)
 	if err != nil {
 		return nil, err
 	}
-
-	endpoint := getServiceEndpoint(c, "kmsv3", region)
-	if endpoint == "" {
-		return nil, fmt.Errorf("failed to get the endpoint of KMS service")
-	}
-
-	return kps.NewKpsClient(
-		kps.KpsClientBuilder().
-			WithEndpoint(endpoint).
-			WithCredential(*credentials).
-			WithHttpConfig(buildHTTPConfig(c)).
-			Build()), nil
+	return kpsv3.NewKpsClient(hcClient), nil
 }
 
-// NewIamClient is the IAM service client using huaweicloud-sdk-go-v3 package
-func NewIamClient(c *Config, region string) (*iam.IamClient, error) {
-	credentials, err := buildGlobalAuthCredentials(c, region)
+// HcIamV3Client is the IAM service client using huaweicloud-sdk-go-v3 package
+func (c *Config) HcIamV3Client() (*iamv3.IamClient, error) {
+	hcClient, err := NewHcClient(c, "", "iam", true)
 	if err != nil {
 		return nil, err
 	}
-
-	iamEndpoint := getServiceEndpoint(c, "iam", region)
-	if iamEndpoint == "" {
-		return nil, fmt.Errorf("failed to get the endpoint of IAM service")
-	}
-
-	return iam.NewIamClient(
-		iam.IamClientBuilder().
-			WithEndpoint(iamEndpoint).
-			WithCredential(*credentials).
-			WithHttpConfig(buildHTTPConfig(c)).
-			Build()), nil
+	return iamv3.NewIamClient(hcClient), nil
 }
 
 // HcGaussdbV3Client is the Gaussdb service client using huaweicloud-sdk-go-v3 package
 func (c *Config) HcGaussdbV3Client(region string) (*gaussdbv3.GaussDBClient, error) {
-	hcClient, err := NewHcClient(c, region, "gaussdbv3", false)
+	hcClient, err := NewHcClient(c, region, "gaussdb", false)
 	if err != nil {
 		return nil, err
 	}
-	return &gaussdbv3.GaussDBClient{HcClient: hcClient}, nil
+	return gaussdbv3.NewGaussDBClient(hcClient), nil
 }
 
-// NewHcClient is the common service client using huaweicloud-sdk-go-v3 package
+// NewHcClient is the common client using huaweicloud-sdk-go-v3 package
 func NewHcClient(c *Config, region, product string, globalFlag bool) (*core.HcHttpClient, error) {
 	endpoint := getServiceEndpoint(c, product, region)
 	if endpoint == "" {
@@ -232,17 +190,17 @@ func NewHcClient(c *Config, region, product string, globalFlag bool) (*core.HcHt
 	builder := core.NewHcHttpClientBuilder().WithEndpoint(endpoint).WithHttpConfig(buildHTTPConfig(c))
 
 	if globalFlag {
-		credentials, err := buildAuthCredentials(c, region)
-		if err != nil {
-			return nil, err
-		}
-		builder.WithCredential(*credentials)
-	} else {
 		credentials, err := buildGlobalAuthCredentials(c, region)
 		if err != nil {
 			return nil, err
 		}
 		builder.WithCredentialsType("global.Credentials").WithCredential(*credentials)
+	} else {
+		credentials, err := buildAuthCredentials(c, region)
+		if err != nil {
+			return nil, err
+		}
+		builder.WithCredential(*credentials)
 	}
 
 	return builder.Build(), nil

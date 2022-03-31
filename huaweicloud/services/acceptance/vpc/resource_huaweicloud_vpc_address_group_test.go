@@ -12,7 +12,7 @@ import (
 )
 
 func getVpcAddressGroupResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := config.NewVpcClient(conf, acceptance.HW_REGION_NAME)
+	client, err := conf.HcVpcV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Huaweicloud VPC client: %s", err)
 	}

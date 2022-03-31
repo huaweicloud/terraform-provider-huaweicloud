@@ -63,7 +63,7 @@ func ResourceVpcAddressGroup() *schema.Resource {
 func resourceVpcAddressGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	client, err := config.NewVpcClient(c, region)
+	client, err := c.HcVpcV3Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
 	}
@@ -103,7 +103,7 @@ func resourceVpcAddressGroupCreate(ctx context.Context, d *schema.ResourceData, 
 func resourceVpcAddressGroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	client, err := config.NewVpcClient(c, region)
+	client, err := c.HcVpcV3Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
 	}
@@ -134,7 +134,7 @@ func resourceVpcAddressGroupRead(ctx context.Context, d *schema.ResourceData, me
 
 func resourceVpcAddressGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
-	client, err := config.NewVpcClient(c, c.GetRegion(d))
+	client, err := c.HcVpcV3Client(c.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
 	}
@@ -177,7 +177,8 @@ func resourceVpcAddressGroupUpdate(ctx context.Context, d *schema.ResourceData, 
 
 func resourceVpcAddressGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
-	client, err := config.NewVpcClient(c, c.GetRegion(d))
+	region := c.GetRegion(d)
+	client, err := c.HcVpcV3Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
 	}

@@ -349,7 +349,7 @@ func buildClientByPassword(c *Config) error {
 }
 
 func buildClientByAgency(c *Config) error {
-	client, err := NewIamClient(c, "")
+	client, err := c.HcIamV3Client()
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud IAM client: %s", err)
 	}

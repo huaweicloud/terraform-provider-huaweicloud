@@ -14,7 +14,7 @@ import (
 )
 
 func getKpsKeypairResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := config.NewKmsClient(conf, acceptance.HW_REGION_NAME)
+	client, err := conf.HcKmsV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating KMS v3 client: %s", err)
 	}

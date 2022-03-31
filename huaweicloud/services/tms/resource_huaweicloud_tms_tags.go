@@ -63,7 +63,7 @@ func ResourceTmsTag() *schema.Resource {
 
 func resourceTmsTagCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
-	client, err := config.NewTmsClient(c, "")
+	client, err := c.HcTmsV1Client()
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating Huaweicloud TMS client: %s", err)
 	}
@@ -101,7 +101,7 @@ func resourceTmsTagCreate(ctx context.Context, d *schema.ResourceData, meta inte
 
 func resourceTmsTagRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
-	client, err := config.NewTmsClient(c, "")
+	client, err := c.HcTmsV1Client()
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating Huaweicloud TMS client: %s", err)
 	}
@@ -152,7 +152,7 @@ func resourceTmsTagRead(ctx context.Context, d *schema.ResourceData, meta interf
 
 func resourceTmsTagDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
-	client, err := config.NewTmsClient(c, "")
+	client, err := c.HcTmsV1Client()
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating Huaweicloud TMS client: %s", err)
 	}

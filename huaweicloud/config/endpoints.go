@@ -24,12 +24,11 @@ var multiCatalogKeys = map[string][]string{
 	"vpc":       {"networkv2", "vpcv3", "fwv2"},
 	"elb":       {"elbv2", "elbv3"},
 	"dns":       {"dns_region"},
-	"kms":       {"kmsv1", "kmsv3"},
+	"kms":       {"kmsv1"},
 	"mrs":       {"mrsv2"},
 	"rds":       {"rdsv1"},
 	"waf":       {"waf-dedicated"},
 	"geminidb":  {"geminidbv31"},
-	"gaussdb":   {"gaussdbv3"},
 	"dli":       {"dliv2"},
 	"dcs":       {"dcsv1"},
 	"dis":       {"disv3"},
@@ -267,10 +266,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "gaussdb",
 		Version: "mysql/v3",
 	},
-	"gaussdbv3": {
-		Name:    "gaussdb",
-		Version: "v3",
-	},
 	"opengauss": {
 		Name:    "gaussdb-opengauss",
 		Version: "v3",
@@ -318,10 +313,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"kmsv1": {
 		Name:    "kms",
 		Version: "v1",
-	},
-	"kmsv3": {
-		Name:    "kms",
-		Version: "v3",
 	},
 	"waf": {
 		Name:         "waf",
