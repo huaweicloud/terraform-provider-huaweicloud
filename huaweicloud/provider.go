@@ -22,6 +22,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ces"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cloudtable"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/css"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dds"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
@@ -535,6 +536,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_namespace":   cce.ResourceCCENamespaceV1(),
 			"huaweicloud_cce_pvc":         cce.ResourceCcePersistentVolumeClaimsV1(),
 
+			"huaweicloud_cts_tracker":   cts.ResourceCTSTracker(),
 			"huaweicloud_cci_namespace": cci.ResourceCciNamespace(),
 			"huaweicloud_cci_network":   cci.ResourceCciNetworkV1(),
 			"huaweicloud_cci_pvc":       ResourceCCIPersistentVolumeClaimV1(),
@@ -864,7 +866,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_secgroup_v2":             ResourceComputeSecGroupV2(),
 			"huaweicloud_compute_floatingip_v2":           ResourceComputeFloatingIPV2(),
 			"huaweicloud_compute_floatingip_associate_v2": ResourceComputeFloatingIPAssociateV2(),
-			"huaweicloud_cts_tracker":                     deprecated.ResourceCTSTrackerV1(),
 			"huaweicloud_images_image_v2":                 deprecated.ResourceImagesImageV2(),
 			"huaweicloud_dms_instance_v1":                 deprecated.ResourceDmsInstancesV1(),
 			"huaweicloud_dms_group_v1":                    deprecated.ResourceDmsGroups(),
