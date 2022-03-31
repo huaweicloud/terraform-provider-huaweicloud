@@ -1,5 +1,33 @@
 # CHANGELOG
 
+## 1.35.0 (March 31, 2022)
+
+* **New Resurce:**
+  + `huaweicloud_tms_tags` [GH-2007]
+  + `huaweicloud_modelarts_dataset` [GH-2010]
+  + `huaweicloud_kps_keypair` [GH-2032]
+  + `huaweicloud_cts_tracker` [GH-2066]
+
+* **New Data Source:**
+  + `huaweicloud_cci_namespaces` [GH-2004]
+  + `huaweicloud_modelarts_datasets` [GH-2017]
+
+ENHANCEMENTS:
+
+* Authentication: Add **shared config profile** support [GH-2025]
+* Authentication: Add assume_role support [GH-2040]
+* resource/huaweicloud_cce_cluster: Add tags support [GH-2011]
+* resource/huaweicloud_elb_loadbalancer: Add prepaid support [GH-2019]
+* resource/huaweicloud_fgs_function: Support to specify the functiongraph version [GH-2042]
+* resource/huaweicloud_compute_instance: Add `auto_pay` support [GH-2046]
+* resource/huaweicloud_vpc_eip: Add `auto_pay` support [GH-2046]
+* resource/huaweicloud_vpc_eip_associate: Support to associate an EIP with network_id and fixed_ip [GH-2059]
+
+BUG FIXES:
+
+* resource/huaweicloud_cce_cluster: diff suppressing `cluster_version` [GH-1980]
+* data/huaweicloud_dms_product: fix the problem of `vm_specification` parameter [GH-2005]
+
 ## 1.34.1 (March 4, 2022)
 
 * **New Resurce:**
