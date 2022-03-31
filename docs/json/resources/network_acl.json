@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_network_acl": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "inbound_policy_id": {
+                "type": "string",
+                "computed": true
+              },
+              "inbound_rules": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "outbound_policy_id": {
+                "type": "string",
+                "computed": true
+              },
+              "outbound_rules": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "ports": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subnets": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,228 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_fgs_trigger": {
+          "block": {
+            "attributes": {
+              "function_urn": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "apig": {
+                "block": {
+                  "attributes": {
+                    "api_name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "env_name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "group_id": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "instance_id": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "request_protocol": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true,
+                      "default": "HTTPS"
+                    },
+                    "security_authentication": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true,
+                      "default": "IAM"
+                    },
+                    "timeout": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true,
+                      "default": 5000
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "dis": {
+                "block": {
+                  "attributes": {
+                    "max_fetch_bytes": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "pull_period": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "serial_enable": {
+                      "type": "bool",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "starting_position": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "stream_name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "kafka": {
+                "block": {
+                  "attributes": {
+                    "batch_size": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true,
+                      "default": 100
+                    },
+                    "instance_id": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "topic_ids": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "obs": {
+                "block": {
+                  "attributes": {
+                    "bucket_name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "event_notification_name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "events": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "prefix": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "suffix": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "smn": {
+                "block": {
+                  "attributes": {
+                    "topic_urn": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "timer": {
+                "block": {
+                  "attributes": {
+                    "additional_information": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "schedule": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "schedule_type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

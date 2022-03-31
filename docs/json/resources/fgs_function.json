@@ -1,0 +1,166 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_fgs_function": {
+          "block": {
+            "attributes": {
+              "agency": {
+                "type": "string",
+                "optional": true
+              },
+              "app": {
+                "type": "string",
+                "optional": true
+              },
+              "app_agency": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "code_filename": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "code_type": {
+                "type": "string",
+                "required": true
+              },
+              "code_url": {
+                "type": "string",
+                "optional": true
+              },
+              "depend_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "encrypted_user_data": {
+                "type": "string",
+                "optional": true,
+                "sensitive": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "func_code": {
+                "type": "string",
+                "optional": true
+              },
+              "handler": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "initializer_handler": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "initializer_timeout": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "memory_size": {
+                "type": "number",
+                "required": true
+              },
+              "mount_user_group_id": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "mount_user_id": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "network_id": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "runtime": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "timeout": {
+                "type": "number",
+                "required": true
+              },
+              "urn": {
+                "type": "string",
+                "computed": true
+              },
+              "user_data": {
+                "type": "string",
+                "optional": true
+              },
+              "version": {
+                "type": "string",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "func_mounts": {
+                "block": {
+                  "attributes": {
+                    "local_mount_path": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "mount_resource": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "mount_share_path": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "mount_type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

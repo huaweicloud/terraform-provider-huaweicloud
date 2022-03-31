@@ -1,0 +1,107 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cbr_policy": {
+          "block": {
+            "attributes": {
+              "backup_quantity": {
+                "type": "number",
+                "optional": true
+              },
+              "destination_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "destination_region": {
+                "type": "string",
+                "optional": true
+              },
+              "enabled": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "time_period": {
+                "type": "number",
+                "optional": true
+              },
+              "time_zone": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "backup_cycle": {
+                "block": {
+                  "attributes": {
+                    "days": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "execution_times": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    },
+                    "interval": {
+                      "type": "number",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "long_term_retention": {
+                "block": {
+                  "attributes": {
+                    "daily": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "monthly": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "weekly": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "yearly": {
+                      "type": "number",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
