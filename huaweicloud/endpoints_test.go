@@ -762,6 +762,16 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "nat", "v2", t)
 
+	// test endpoint of nat gateway v2.0
+	serviceClient, err = nil, nil
+	serviceClient, err = config.NatV2Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud nat gateway v2.0 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://nat.%s.%s/v2.0/", HW_REGION_NAME, config.Cloud)
+	actualURL = serviceClient.ResourceBaseURL()
+	compareURL(expectedURL, actualURL, "nat", "v2.0", t)
+
 	// test endpoint of elb v2.0
 	serviceClient, err = nil, nil
 	serviceClient, err = config.ElbV2Client(HW_REGION_NAME)

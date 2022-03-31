@@ -447,4 +447,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:          "v3",
 		WithOutProjectID: true,
 	},
+
+	// catalog for Joint-Operation Cloud only
+	// no need to put the key into allServiceCatalog
+	"natv2": {
+		Name:             "nat",
+		Version:          "v2.0",
+		WithOutProjectID: true,
+	},
 }
