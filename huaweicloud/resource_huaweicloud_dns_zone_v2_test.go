@@ -32,10 +32,10 @@ func TestAccDNSV2Zone_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", zoneName),
 					resource.TestCheckResourceAttr(resourceName, "zone_type", "public"),
 					resource.TestCheckResourceAttr(resourceName, "description", "a zone"),
-					resource.TestCheckResourceAttr(resourceName, "email", "email1@example.com"),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "300"),
 					resource.TestCheckResourceAttr(resourceName, "tags.zone_type", "public"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttrSet(resourceName, "email"),
 				),
 			},
 			{
@@ -47,10 +47,10 @@ func TestAccDNSV2Zone_basic(t *testing.T) {
 				Config: testAccDNSV2Zone_update(zoneName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "description", "an updated zone"),
-					resource.TestCheckResourceAttr(resourceName, "email", "email2@example.com"),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "600"),
 					resource.TestCheckResourceAttr(resourceName, "tags.zone_type", "public"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "tf-acc"),
+					resource.TestCheckResourceAttrSet(resourceName, "email"),
 				),
 			},
 		},
@@ -185,7 +185,6 @@ func testAccDNSV2Zone_basic(zoneName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dns_zone" "zone_1" {
   name        = "%s"
-  email       = "email1@example.com"
   description = "a zone"
   ttl         = 300
 
@@ -201,7 +200,6 @@ func testAccDNSV2Zone_update(zoneName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dns_zone" "zone_1" {
   name        = "%s"
-  email       = "email2@example.com"
   description = "an updated zone"
   ttl         = 600
 
