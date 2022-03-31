@@ -37,6 +37,7 @@ type ConditionInfo struct {
 	Value              int    `json:"value"`
 	Unit               string `json:"unit"`
 	Count              int    `json:"count"`
+	SuppressDuration   int    `json:"suppress_duration"`
 }
 
 type ActionInfo struct {

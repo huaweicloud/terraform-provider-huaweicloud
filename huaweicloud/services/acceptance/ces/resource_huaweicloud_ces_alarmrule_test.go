@@ -7,7 +7,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 
 	"github.com/chnsz/golangsdk/openstack/cloudeyeservice/alarmrule"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -46,6 +45,7 @@ func TestAccCESAlarmRule_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "alarm_action_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "alarm_level", "2"),
 					resource.TestCheckResourceAttr(resourceName, "condition.0.value", "6"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.suppress_duration", "300"),
 				),
 			},
 			{
@@ -68,7 +68,7 @@ func TestAccCESAlarmRule_basic(t *testing.T) {
 
 func TestAccCESAlarmRule_withEpsId(t *testing.T) {
 	var ar alarmrule.AlarmRule
-	rName := fmt.Sprintf("tf-acc-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_ces_alarmrule.alarmrule_1"
 
 	rc := acceptance.InitResourceCheck(
@@ -100,7 +100,7 @@ func TestAccCESAlarmRule_withEpsId(t *testing.T) {
 
 func TestAccCESAlarmRule_sysEvent(t *testing.T) {
 	var ar alarmrule.AlarmRule
-	rName := fmt.Sprintf("tf-acc-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_ces_alarmrule.alarmrule_1"
 
 	rc := acceptance.InitResourceCheck(
@@ -193,6 +193,7 @@ resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
     value               = 6
     unit                = "B/s"
     count               = 1
+    suppress_duration   = 300
   }
 
   alarm_actions {

@@ -30,6 +30,8 @@ type ConditionOpts struct {
 	Value int    `json:"value"`
 	Unit  string `json:"unit,omitempty"`
 	Count int    `json:"count" required:"true"`
+	// The value can be 0
+	SuppressDuration int `json:"suppress_duration"`
 }
 
 type ActionOpts struct {
