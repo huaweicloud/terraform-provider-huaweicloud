@@ -1,0 +1,187 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dds_instance": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "db_username": {
+                "type": "string",
+                "computed": true
+              },
+              "disk_encryption_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "mode": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "nodes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "name": "string",
+                      "private_ip": "string",
+                      "public_ip": "string",
+                      "role": "string",
+                      "status": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "password": {
+                "type": "string",
+                "required": true,
+                "sensitive": true
+              },
+              "port": {
+                "type": "number",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "required": true
+              },
+              "ssl": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "backup_strategy": {
+                "block": {
+                  "attributes": {
+                    "keep_days": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "start_time": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "datastore": {
+                "block": {
+                  "attributes": {
+                    "storage_engine": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "version": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 1
+              },
+              "flavor": {
+                "block": {
+                  "attributes": {
+                    "num": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "size": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "spec_code": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "storage": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "catalog": "Database",
+            "name": "Document Database Service",
+            "short": "DDS"
+          }
+        }
+      }
+    }
+  }
+}

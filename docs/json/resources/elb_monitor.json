@@ -1,0 +1,62 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_elb_monitor": {
+          "block": {
+            "attributes": {
+              "domain_name": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "interval": {
+                "type": "number",
+                "required": true
+              },
+              "max_retries": {
+                "type": "number",
+                "required": true
+              },
+              "pool_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "port": {
+                "type": "number",
+                "optional": true
+              },
+              "protocol": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "timeout": {
+                "type": "number",
+                "required": true
+              },
+              "url_path": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Network",
+            "name": "Elastic Load Balance",
+            "short": "ELB"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_network_acl_rule": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "required": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "destination_ip_address": {
+                "type": "string",
+                "optional": true
+              },
+              "destination_port": {
+                "type": "string",
+                "optional": true
+              },
+              "enabled": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_version": {
+                "type": "number",
+                "optional": true,
+                "default": 4
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "protocol": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source_ip_address": {
+                "type": "string",
+                "optional": true
+              },
+              "source_port": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

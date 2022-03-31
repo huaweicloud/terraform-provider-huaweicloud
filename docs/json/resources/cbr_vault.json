@@ -1,0 +1,116 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cbr_vault": {
+          "block": {
+            "attributes": {
+              "allocated": {
+                "type": "number",
+                "computed": true
+              },
+              "auto_expand": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "consistent_level": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "policy_id": {
+                "type": "string",
+                "optional": true
+              },
+              "protection_type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "size": {
+                "type": "number",
+                "required": true
+              },
+              "spec_code": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "storage": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "used": {
+                "type": "number",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "resources": {
+                "block": {
+                  "attributes": {
+                    "excludes": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    },
+                    "includes": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    },
+                    "server_id": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

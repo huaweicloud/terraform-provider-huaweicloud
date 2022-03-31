@@ -1,0 +1,140 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_elb_loadbalancer": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true,
+                "forcenew": true
+              },
+              "bandwidth_charge_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "bandwidth_size": {
+                "type": "number",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "cross_vpc_backend": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "iptype": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "ipv4_address": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "ipv4_eip": {
+                "type": "string",
+                "computed": true
+              },
+              "ipv4_eip_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "ipv4_subnet_id": {
+                "type": "string",
+                "optional": true
+              },
+              "ipv6_address": {
+                "type": "string",
+                "computed": true
+              },
+              "ipv6_bandwidth_id": {
+                "type": "string",
+                "optional": true
+              },
+              "ipv6_eip": {
+                "type": "string",
+                "computed": true
+              },
+              "ipv6_eip_id": {
+                "type": "string",
+                "computed": true
+              },
+              "ipv6_network_id": {
+                "type": "string",
+                "optional": true
+              },
+              "l4_flavor_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "l7_flavor_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sharetype": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Network",
+            "name": "Elastic Load Balance",
+            "short": "ELB"
+          }
+        }
+      }
+    }
+  }
+}
