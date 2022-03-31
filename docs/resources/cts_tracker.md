@@ -1,76 +1,65 @@
 ---
-subcategory: "Deprecated"
+subcategory: "Cloud Trace Service (CTS)"
 ---
 
-# huaweicloud\_cts\_tracker
+# huaweicloud_cts_tracker
 
-!> **WARNING:** It has been deprecated.
-
-Allows you to collect, store, and query cloud resource operation records.
+Manages CTS **system** tracker resource within HuaweiCloud.
 
 ## Example Usage
 
- ```hcl
+```hcl
 variable "bucket_name" {}
-variable "topic_id" {}
 
-resource "huaweicloud_cts_tracker" "tracker_v1" {
-  bucket_name               = var.bucket_name
-  file_prefix_name          = "yO8Q"
-  is_support_smn            = true
-  topic_id                  = var.topic_id
-  is_send_all_key_operation = false
-  operations                = ["login"]
-  need_notify_user_list     = ["user1"]
+resource "huaweicloud_cts_tracker" "tracker" {
+  bucket_name = var.bucket_name
+  file_prefix = "cts"
+  lts_enabled = true
+  status      = "enabled"
 }
-
- ```
+```
 
 ## Argument Reference
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the CTS tracker resource. If omitted, the
-  provider-level region will be used. Changing this creates a new CTS tracker resource.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to manage the CTS system tracker resource.
+  If omitted, the provider-level region will be used. Changing this creates a new resource.
 
-* `bucket_name` - (Required, String) The OBS bucket name for a tracker.
+* `bucket_name` - (Optional, String) Specifies the OBS bucket to which traces will be transferred.
 
-* `file_prefix_name` - (Optional, String) The prefix of a log that needs to be stored in an OBS bucket.
+* `file_prefix` - (Optional, String) Specifies the file name prefix to mark trace files that need to be stored
+  in an OBS bucket. The value contains 0 to 64 characters. Only letters, numbers, hyphens (-), underscores (_),
+  and periods (.) are allowed.
 
-* `is_support_smn` - (Required, Bool) Specifies whether SMN is supported. When the value is false, topic_id and
-  operations can be left empty.
+* `lts_enabled` - (Optional, Bool) Specifies whether trace analysis is enabled.
 
-* `topic_id` - (Optional, String) Required if the value of `is_support_smn` is true. The theme of the SMN service, Is
-  obtained from SMN and in the format of **urn:smn:([a-z]|[A-Z]|[0-9]|\-){1,32}:([a-z]|[A-Z]|[0-9]){32}:([a-z]|[A-Z]
-  |[0-9]|\-|\_){1,256}**.
+* `validate_file` - (Optional, Bool) Specifies whether trace file verification is enabled during trace transfer.
 
-* `operations` - (Required, String) Trigger conditions for sending a notification.
+* `kms_id` - (Optional, String) Specifies the ID of KMS key used for trace file encryption.
 
-* `is_send_all_key_operation` - (Required, Bool) When the value is **false**, operations cannot be left empty.
-
-* `need_notify_user_list` - (Optional, String) The users using the login function. When these users log in,
-  notifications will be sent.
+* `enabled` - (Optional, Bool) Specifies whether tracker is enabled.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
-
-* `status` - The status of a tracker. The value is **enabled**.
-
-* `tracker_name` - The tracker name. Currently, only tracker **system** is available.
+* `id` - The resource ID in UUID format.
+* `name` - The tracker name. Currently, only **system** is available.
+* `type` - The tracker type. Currently, only **system** is available.
+* `transfer_enabled` - Whether traces will be transferred.
+* `status` - The tracker status, the value can be **enabled**, **disabled** or **error**.
 
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 10 minute.
-* `delete` - Default is 10 minute.
+* `create` - Default is 5 minute.
+* `delete` - Default is 5 minute.
 
 ## Import
 
-CTS tracker can be imported using  `tracker_name`, e.g.
+CTS tracker can be imported using `name`. Currently, only **system** is available. e.g.
 
 ```
 $ terraform import huaweicloud_cts_tracker_v1.tracker system
