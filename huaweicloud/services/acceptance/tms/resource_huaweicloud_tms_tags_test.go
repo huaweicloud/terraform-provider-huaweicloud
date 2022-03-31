@@ -33,7 +33,7 @@ func TestAccTmsTag_basic(t *testing.T) {
 
 func testAccCheckTmsTagDestroy(s *terraform.State) error {
 	conf := acceptance.TestAccProvider.Meta().(*config.Config)
-	client, err := config.NewTmsClient(conf, acceptance.HW_REGION_NAME)
+	client, err := conf.HcTmsV1Client()
 	if err != nil {
 		return fmt.Errorf("Error creating TMS client: %s", err)
 	}
@@ -61,7 +61,7 @@ func testAccCheckTmsTagDestroy(s *terraform.State) error {
 func testAccCheckTmsTagExists(key, value string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		conf := acceptance.TestAccProvider.Meta().(*config.Config)
-		client, err := config.NewTmsClient(conf, acceptance.HW_REGION_NAME)
+		client, err := conf.HcTmsV1Client()
 		if err != nil {
 			return fmt.Errorf("Error creating TMS client: %s", err)
 		}

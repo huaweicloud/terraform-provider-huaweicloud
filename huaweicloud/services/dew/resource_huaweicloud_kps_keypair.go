@@ -127,7 +127,7 @@ func ResourceKeypair() *schema.Resource {
 func resourceKeypairCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	client, err := config.NewKmsClient(c, region)
+	client, err := c.HcKmsV3Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating KMS v3 client: %s", err)
 	}
@@ -168,7 +168,7 @@ func resourceKeypairCreate(ctx context.Context, d *schema.ResourceData, meta int
 func resourceKeypairRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	client, err := config.NewKmsClient(c, region)
+	client, err := c.HcKmsV3Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating KMS v3 client: %s", err)
 	}
@@ -209,7 +209,7 @@ func resourceKeypairRead(ctx context.Context, d *schema.ResourceData, meta inter
 func resourceKeypairUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	client, err := config.NewKmsClient(c, region)
+	client, err := c.HcKmsV3Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating KMS v3 client: %s", err)
 	}
@@ -226,7 +226,7 @@ func resourceKeypairUpdate(ctx context.Context, d *schema.ResourceData, meta int
 func resourceKeypairDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	client, err := config.NewKmsClient(c, region)
+	client, err := c.HcKmsV3Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating KMS v3 client: %s", err)
 	}
