@@ -140,7 +140,7 @@ The following arguments are supported:
   The password of a DCS instance must meet the following complexity requirements:
   + Must be a string of 8 to 32 bits in length.
   + Must contain three combinations of the following four characters: Lower case letters, uppercase letter, digital,
-    Special characters include (`~!@#$%^&*()-_=+|[{}]:'",<.>/?).
+    Special characters include (`~!@#$^&*()-_=+\\|{}:,<.>/?).
   + The new password cannot be the same as the old password.
     Redis instance defaults to 6379. Memcached instance does not use this argument.
 
