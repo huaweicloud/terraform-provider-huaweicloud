@@ -1,27 +1,21 @@
 package channels
 
 import (
-	"fmt"
-
 	"github.com/chnsz/golangsdk"
 )
 
-func buildRootPath(instanceId string) string {
-	return fmt.Sprintf("instances/%s/vpc-channels", instanceId)
-}
-
 func rootURL(c *golangsdk.ServiceClient, instanceId string) string {
-	return c.ServiceURL(buildRootPath(instanceId))
+	return c.ServiceURL("instances", instanceId, "vpc-channels")
 }
 
 func resourceURL(c *golangsdk.ServiceClient, instanceId, chanId string) string {
-	return c.ServiceURL(buildRootPath(instanceId), chanId)
+	return c.ServiceURL("instances", instanceId, "vpc-channels", chanId)
 }
 
 func membersURL(c *golangsdk.ServiceClient, instanceId, chanId string) string {
-	return c.ServiceURL(buildRootPath(instanceId), chanId, "members")
+	return c.ServiceURL("instances", instanceId, "vpc-channels", chanId, "members")
 }
 
 func memberURL(c *golangsdk.ServiceClient, instanceId, chanId, memberId string) string {
-	return c.ServiceURL(buildRootPath(instanceId), chanId, "members", memberId)
+	return c.ServiceURL("instances", instanceId, "vpc-channels", chanId, "members", memberId)
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
@@ -13,9 +12,10 @@ import (
 
 func TestAccEIPAssociate_basic(t *testing.T) {
 	var eip eips.PublicIp
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceName()
 	associateName := "huaweicloud_vpc_eip_associate.test"
 	resourceName := "huaweicloud_vpc_eip.test"
+	vipResource := "huaweicloud_networking_vip.vip_1"
 
 	// huaweicloud_vpc_eip_associate and huaweicloud_vpc_eip have the same ID
 	// and call the same API to get resource
@@ -34,6 +34,48 @@ func TestAccEIPAssociate_basic(t *testing.T) {
 				Config: testAccEIPAssociate_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(associateName, "status", "BOUND"),
+					resource.TestCheckResourceAttrPair(
+						associateName, "public_ip", resourceName, "address"),
+					resource.TestCheckResourceAttrPair(
+						associateName, "port_id", vipResource, "id"),
+					resource.TestCheckResourceAttrPair(
+						associateName, "fixed_ip", vipResource, "ip_address"),
+				),
+			},
+			{
+				ResourceName:      associateName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccEIPAssociate_port(t *testing.T) {
+	var eip eips.PublicIp
+	rName := acceptance.RandomAccResourceName()
+	associateName := "huaweicloud_vpc_eip_associate.test"
+	resourceName := "huaweicloud_vpc_eip.test"
+
+	// huaweicloud_vpc_eip_associate and huaweicloud_vpc_eip have the same ID
+	// and call the same API to get resource
+	rc := acceptance.InitResourceCheck(
+		associateName,
+		&eip,
+		getEipResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccEIPAssociate_port(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(associateName, "status", "BOUND"),
 					resource.TestCheckResourceAttrPtr(
 						associateName, "port_id", &eip.PortID),
 					resource.TestCheckResourceAttrPair(
@@ -51,7 +93,7 @@ func TestAccEIPAssociate_basic(t *testing.T) {
 
 func TestAccEIPAssociate_compatible(t *testing.T) {
 	var eip eips.PublicIp
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceName()
 	associateName := "huaweicloud_networking_eip_associate.test"
 	resourceName := "huaweicloud_vpc_eip.test"
 
@@ -121,6 +163,18 @@ resource "huaweicloud_vpc_eip" "test" {
 }
 
 func testAccEIPAssociate_basic(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_vpc_eip_associate" "test" {
+  public_ip  = huaweicloud_vpc_eip.test.address
+  network_id = huaweicloud_networking_vip.vip_1.network_id
+  fixed_ip   = huaweicloud_networking_vip.vip_1.ip_address
+}
+`, testAccEIPAssociate_base(rName))
+}
+
+func testAccEIPAssociate_port(rName string) string {
 	return fmt.Sprintf(`
 %s
 

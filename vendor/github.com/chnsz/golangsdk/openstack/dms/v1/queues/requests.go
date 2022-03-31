@@ -1,6 +1,8 @@
 package queues
 
 import (
+	"fmt"
+
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
 )
@@ -80,13 +82,17 @@ func Delete(client *golangsdk.ServiceClient, id string) (r DeleteResult) {
 
 // Get a queue with detailed information by id
 func Get(client *golangsdk.ServiceClient, id string, includeDeadLetter bool) (r GetResult) {
-	_, r.Err = client.Get(getURL(client, id, includeDeadLetter), &r.Body, nil)
+	url := getURL(client, id)
+	url += fmt.Sprintf("?include_deadletter=%t", includeDeadLetter)
+
+	_, r.Err = client.Get(url, &r.Body, nil)
 	return
 }
 
 // List all the queues
 func List(client *golangsdk.ServiceClient, includeDeadLetter bool) pagination.Pager {
-	url := listURL(client, includeDeadLetter)
+	url := listURL(client)
+	url += fmt.Sprintf("?include_deadletter=%t", includeDeadLetter)
 
 	return pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
 		return QueuePage{pagination.SinglePageBase(r)}
