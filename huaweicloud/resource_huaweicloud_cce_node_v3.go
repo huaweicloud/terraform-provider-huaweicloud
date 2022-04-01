@@ -996,7 +996,7 @@ func resourceCCENodeV3Delete(ctx context.Context, d *schema.ResourceData, meta i
 			publicIP := d.Get("public_ip").(string)
 
 			resourceIDs := make([]string, 0, 2)
-			computeClient, err := config.ComputeV2Client(GetRegion(d, config))
+			computeClient, err := config.ComputeV1Client(GetRegion(d, config))
 			if err != nil {
 				return fmtp.DiagErrorf("Error creating HuaweiCloud compute client: %s", err)
 			}
