@@ -211,7 +211,7 @@ func resourceNetworkingSecGroupCreateV1(ctx context.Context, d *schema.ResourceD
 			}
 		}
 	}
-	return nil
+	return resourceNetworkingSecGroupRead(ctx, d, meta)
 }
 
 func resourceNetworkingSecGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -232,17 +232,13 @@ func resourceNetworkingSecGroupRead(_ context.Context, d *schema.ResourceData, m
 	}
 
 	logp.Printf("[DEBUG] Retrieved Security Group (%s) by v1 client: %v", d.Id(), v1Resp)
-	secGroupRule, err := flattenSecurityGroupRulesV1(v1Resp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("name", v1Resp.Name),
 		d.Set("description", v1Resp.Description),
 		d.Set("enterprise_project_id", v1Resp.EnterpriseProjectId),
-		d.Set("rules", secGroupRule),
+		d.Set("rules", flattenSecurityGroupRulesV1(v1Resp)),
 	)
 
 	// If the v3 API is supported, setting related parameters.
@@ -267,7 +263,7 @@ func resourceNetworkingSecGroupRead(_ context.Context, d *schema.ResourceData, m
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenSecurityGroupRulesV1(secGroup *v1groups.SecurityGroup) ([]map[string]interface{}, error) {
+func flattenSecurityGroupRulesV1(secGroup *v1groups.SecurityGroup) []map[string]interface{} {
 	sgRules := make([]map[string]interface{}, len(secGroup.SecurityGroupRules))
 	for i, rule := range secGroup.SecurityGroupRules {
 		sgRules[i] = map[string]interface{}{
@@ -283,7 +279,7 @@ func flattenSecurityGroupRulesV1(secGroup *v1groups.SecurityGroup) ([]map[string
 		}
 	}
 
-	return sgRules, nil
+	return sgRules
 }
 
 func flattenSecurityGroupRulesV3(rules []v3rules.SecurityGroupRule) ([]map[string]interface{}, error) {

@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/networking/v3/security/rules"
+	"github.com/chnsz/golangsdk/openstack/networking/v1/security/rules"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
@@ -132,7 +132,7 @@ func TestAccNetworkingSecGroupRule_lowerCaseCIDR(t *testing.T) {
 
 func testAccCheckNetworkingSecGroupRuleDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
-	networkingClient, err := config.NetworkingV3Client(HW_REGION_NAME)
+	networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -163,7 +163,7 @@ func testAccCheckNetworkingSecGroupRuleExists(n string, secGroupRule *rules.Secu
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
-		networkingClient, err := config.NetworkingV3Client(HW_REGION_NAME)
+		networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
