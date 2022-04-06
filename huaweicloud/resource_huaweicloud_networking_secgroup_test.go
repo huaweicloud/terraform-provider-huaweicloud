@@ -8,13 +8,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/networking/v3/security/groups"
+	"github.com/chnsz/golangsdk/openstack/networking/v1/security/securitygroups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccNetworkingV3SecGroup_basic(t *testing.T) {
-	var secGroup groups.SecurityGroup
+	var secGroup securitygroups.SecurityGroup
 	name := fmt.Sprintf("seg-acc-test-%s", acctest.RandString(5))
 	updatedName := fmt.Sprintf("%s-updated", name)
 	resourceName := "huaweicloud_networking_secgroup.secgroup_1"
@@ -49,7 +49,7 @@ func TestAccNetworkingV3SecGroup_basic(t *testing.T) {
 }
 
 func TestAccNetworkingV3SecGroup_withEpsId(t *testing.T) {
-	var secGroup groups.SecurityGroup
+	var secGroup securitygroups.SecurityGroup
 	name := fmt.Sprintf("seg-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_networking_secgroup.secgroup_1"
 
@@ -71,7 +71,7 @@ func TestAccNetworkingV3SecGroup_withEpsId(t *testing.T) {
 }
 
 func TestAccNetworkingV3SecGroup_noDefaultRules(t *testing.T) {
-	var secGroup groups.SecurityGroup
+	var secGroup securitygroups.SecurityGroup
 	name := fmt.Sprintf("seg-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_networking_secgroup.secgroup_1"
 
@@ -94,7 +94,7 @@ func TestAccNetworkingV3SecGroup_noDefaultRules(t *testing.T) {
 
 func testAccCheckNetworkingV3SecGroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
-	networkingClient, err := config.NetworkingV3Client(HW_REGION_NAME)
+	networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking v3 client: %s", err)
 	}
@@ -104,7 +104,7 @@ func testAccCheckNetworkingV3SecGroupDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := groups.Get(networkingClient, rs.Primary.ID)
+		_, err := securitygroups.Get(networkingClient, rs.Primary.ID).Extract()
 		if err == nil {
 			return fmtp.Errorf("Security group still exists")
 		}
@@ -113,7 +113,7 @@ func testAccCheckNetworkingV3SecGroupDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckNetworkingV3SecGroupExists(n string, secGroup *groups.SecurityGroup) resource.TestCheckFunc {
+func testAccCheckNetworkingV3SecGroupExists(n string, secGroup *securitygroups.SecurityGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -125,12 +125,12 @@ func testAccCheckNetworkingV3SecGroupExists(n string, secGroup *groups.SecurityG
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
-		networkingClient, err := config.NetworkingV3Client(HW_REGION_NAME)
+		networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
-		found, err := groups.Get(networkingClient, rs.Primary.ID)
+		found, err := securitygroups.Get(networkingClient, rs.Primary.ID).Extract()
 		if err != nil {
 			return err
 		}

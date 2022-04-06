@@ -166,10 +166,7 @@ func dataSourceNetworkingSecGroupReadV1(_ context.Context, d *schema.ResourceDat
 	resp := filterGroups[0].(v1groups.SecurityGroup)
 	d.SetId(resp.ID)
 
-	rules, err := flattenSecurityGroupRulesV1(&resp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
+	rules := flattenSecurityGroupRulesV1(&resp)
 	logp.Printf("[DEBUG] The retrieved rules list is: %v", rules)
 
 	mErr := multierror.Append(nil,
