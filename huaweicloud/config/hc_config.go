@@ -146,8 +146,8 @@ func (c *Config) HcVpcV3Client(region string) (*vpcv3.VpcClient, error) {
 }
 
 // HcTmsV1Client is the TMS service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcTmsV1Client() (*tmsv1.TmsClient, error) {
-	hcClient, err := NewHcClient(c, "", "tms", true)
+func (c *Config) HcTmsV1Client(region string) (*tmsv1.TmsClient, error) {
+	hcClient, err := NewHcClient(c, region, "tms", true)
 	if err != nil {
 		return nil, err
 	}
@@ -164,8 +164,8 @@ func (c *Config) HcKmsV3Client(region string) (*kpsv3.KpsClient, error) {
 }
 
 // HcIamV3Client is the IAM service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcIamV3Client() (*iamv3.IamClient, error) {
-	hcClient, err := NewHcClient(c, "", "iam", true)
+func (c *Config) HcIamV3Client(region string) (*iamv3.IamClient, error) {
+	hcClient, err := NewHcClient(c, region, "iam", true)
 	if err != nil {
 		return nil, err
 	}
