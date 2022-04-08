@@ -47,6 +47,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rds"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/scm"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/servicestage"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/swr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/tms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
@@ -698,6 +699,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_instance":              ResourceRdsInstanceV3(),
 			"huaweicloud_rds_parametergroup":        ResourceRdsConfigurationV3(),
 			"huaweicloud_rds_read_replica_instance": ResourceRdsReadReplicaInstance(),
+
+			"huaweicloud_servicestage_repo_token_authorization": servicestage.ResourceRepoTokenAuth(),
 
 			"huaweicloud_sfs_access_rule": ResourceSFSAccessRuleV2(),
 			"huaweicloud_sfs_file_system": ResourceSFSFileSystemV2(),

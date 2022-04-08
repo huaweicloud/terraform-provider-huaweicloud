@@ -61,6 +61,9 @@ var (
 	HW_DMS_ENVIRONMENT              = os.Getenv("HW_DMS_ENVIRONMENT")
 
 	HW_DLI_FLINK_JAR_OBS_PATH = os.Getenv("HW_DLI_FLINK_JAR_OBS_PATH")
+
+	HW_GITHUB_REPO_HOST      = os.Getenv("HW_GITHUB_REPO_HOST")      // Repository host (Github, Gitlab, Gitee)
+	HW_GITHUB_PERSONAL_TOKEN = os.Getenv("HW_GITHUB_PERSONAL_TOKEN") // Personal access token (Github, Gitlab, Gitee)
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -458,5 +461,12 @@ func TestAccPreCheckDms(t *testing.T) {
 func TestAccPreCheckDliJarPath(t *testing.T) {
 	if HW_DLI_FLINK_JAR_OBS_PATH == "" {
 		t.Skip("HW_DLI_FLINK_JAR_OBS_PATH must be set for DLI Flink Jar job acceptance tests.")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckRepoTokenAuth(t *testing.T) {
+	if HW_GITHUB_REPO_HOST == "" || HW_GITHUB_PERSONAL_TOKEN == "" {
+		t.Skip("Repository configuration are not completed for acceptance test of personal access token authorization.")
 	}
 }
