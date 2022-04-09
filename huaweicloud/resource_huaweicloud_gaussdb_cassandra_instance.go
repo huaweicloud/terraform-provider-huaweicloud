@@ -2,6 +2,7 @@ package huaweicloud
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 
@@ -806,19 +807,38 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 			}
 		}
 		if newnum.(int) < old.(int) {
-			//Reduce Nodes
+			// Reduce Nodes
 			shrinkSize := old.(int) - newnum.(int)
-			reduceNodeOpts := instances.ReduceNodeOpts{
-				Num: 1,
+			// API accepts maxinum num of 10
+			reduceNum := 10
+			loopSize := shrinkSize / reduceNum
+			lastNum := shrinkSize % reduceNum
+			if lastNum > 0 {
+				loopSize += 1
 			}
-			logp.Printf("[DEBUG] Reduce Node Options: %+v", reduceNodeOpts)
 
-			for i := 0; i < shrinkSize; i++ {
-				result := instances.ReduceNode(client, d.Id(), reduceNodeOpts)
-				if result.Err != nil {
-					return fmtp.Errorf("Error shrinking huaweicloud_gaussdb_cassandra_instance %s node size: %s", d.Id(), result.Err)
+			for i := 0; i < loopSize; i++ {
+				if lastNum > 0 && (i == loopSize-1) {
+					reduceNum = lastNum
+				}
+				reduceNodeOpts := instances.ReduceNodeOpts{
+					Num: reduceNum,
+				}
+				log.Printf("[DEBUG] Reduce Node Options: %+v", reduceNodeOpts)
+
+				n, err := instances.ReduceNode(client, d.Id(), reduceNodeOpts).Extract()
+				if err != nil {
+					return fmt.Errorf("error shrinking gaussdb cassandra instance %s node size: %s", d.Id(), err)
 				}
 
+				// 1. wait for order success
+				if n.OrderId != "" {
+					if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.OrderId); err != nil {
+						return err
+					}
+				}
+
+				// 2. wait instance status
 				stateConf := &resource.StateChangeConf{
 					Pending:      []string{"REDUCING"},
 					Target:       []string{"available"},
@@ -828,10 +848,10 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 					PollInterval: 20 * time.Second,
 				}
 
-				_, err := stateConf.WaitForState()
+				_, err = stateConf.WaitForState()
 				if err != nil {
-					return fmtp.Errorf(
-						"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
+					return fmt.Errorf(
+						"error waiting for gaussdb cassandra instance %s to become ready: %s", d.Id(), err)
 				}
 			}
 		}
@@ -1001,8 +1021,14 @@ func GeminiDBInstanceUpdateRefreshFunc(client *golangsdk.ServiceClient, instance
 			return instance, "deleted", nil
 		}
 		for _, action := range instance.Actions {
-			if action == state {
-				return instance, state, nil
+			if state == "REDUCING" {
+				if action == "REDUCING" || action == "PERIOD_RESOURCE_DELETE" {
+					return instance, state, nil
+				}
+			} else {
+				if action == state {
+					return instance, state, nil
+				}
 			}
 		}
 
