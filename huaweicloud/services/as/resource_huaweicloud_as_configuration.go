@@ -59,18 +59,22 @@ func ResourceASConfiguration() *schema.Resource {
 						"instance_id": {
 							Type:     schema.TypeString,
 							Optional: true,
+							ForceNew: true,
 						},
 						"flavor": {
 							Type:     schema.TypeString,
 							Required: true,
+							ForceNew: true,
 						},
 						"image": {
 							Type:     schema.TypeString,
 							Optional: true,
+							ForceNew: true,
 						},
 						"key_name": {
 							Type:     schema.TypeString,
 							Required: true,
+							ForceNew: true,
 						},
 						"user_data": {
 							Type:     schema.TypeString,
@@ -82,20 +86,24 @@ func ResourceASConfiguration() *schema.Resource {
 						"disk": {
 							Type:     schema.TypeList,
 							Optional: true,
+							ForceNew: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"size": {
 										Type:     schema.TypeInt,
 										Required: true,
+										ForceNew: true,
 									},
 									"volume_type": {
 										Type:         schema.TypeString,
 										Required:     true,
+										ForceNew:     true,
 										ValidateFunc: validation.StringInSlice(ValidVolumeTypes, false),
 									},
 									"disk_type": {
 										Type:         schema.TypeString,
 										Required:     true,
+										ForceNew:     true,
 										ValidateFunc: validation.StringInSlice(ValidDiskTypes, false),
 									},
 									"kms_id": {
@@ -109,16 +117,19 @@ func ResourceASConfiguration() *schema.Resource {
 						"personality": {
 							Type:     schema.TypeList,
 							Optional: true,
+							ForceNew: true,
 							MaxItems: 5,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"path": {
 										Type:     schema.TypeString,
 										Required: true,
+										ForceNew: true,
 									},
 									"content": {
 										Type:     schema.TypeString,
 										Required: true,
+										ForceNew: true,
 									},
 								},
 							},
@@ -126,6 +137,7 @@ func ResourceASConfiguration() *schema.Resource {
 						"public_ip": {
 							Type:     schema.TypeList,
 							Optional: true,
+							ForceNew: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -133,32 +145,38 @@ func ResourceASConfiguration() *schema.Resource {
 										Type:     schema.TypeList,
 										MaxItems: 1,
 										Required: true,
+										ForceNew: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"ip_type": {
 													Type:         schema.TypeString,
 													Required:     true,
+													ForceNew:     true,
 													ValidateFunc: validation.StringInSlice(ValidEipTypes, false),
 												},
 												"bandwidth": {
 													Type:     schema.TypeList,
 													MaxItems: 1,
 													Required: true,
+													ForceNew: true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"size": {
 																Type:         schema.TypeInt,
 																Required:     true,
+																ForceNew:     true,
 																ValidateFunc: validation.IntBetween(1, 2000),
 															},
 															"share_type": {
 																Type:         schema.TypeString,
 																Required:     true,
+																ForceNew:     true,
 																ValidateFunc: validation.StringInSlice(ValidShareTypes, false),
 															},
 															"charging_mode": {
 																Type:         schema.TypeString,
 																Required:     true,
+																ForceNew:     true,
 																ValidateFunc: validation.StringInSlice(ValidChargingModes, false),
 															},
 														},
@@ -173,6 +191,7 @@ func ResourceASConfiguration() *schema.Resource {
 						"metadata": {
 							Type:     schema.TypeMap,
 							Optional: true,
+							ForceNew: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					},
