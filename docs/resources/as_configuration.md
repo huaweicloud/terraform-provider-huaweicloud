@@ -116,7 +116,7 @@ The `instance_config` block supports:
   If this argument is not specified, `flavor`, `image`, and `disk` arguments are mandatory.
   Changing this will create a new resource.
 
-* `flavor` - (Required, String, ForceNew) Specifies the ECS flavor name. A maximum of 10 flavors can be selected.
+* `flavor` - (Optional, String, ForceNew) Specifies the ECS flavor name. A maximum of 10 flavors can be selected.
   Use a comma (,) to separate multiple flavor names. Changing this will create a new resource.
 
 * `image` - (Optional, String, ForceNew) Specifies the ECS image ID. Changing this will create a new resource.

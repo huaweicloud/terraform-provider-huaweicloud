@@ -60,33 +60,33 @@ func ResourceASConfiguration() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
+							AtLeastOneOf: []string{
+								"instance_config.0.instance_id", "instance_config.0.flavor",
+								"instance_config.0.image", "instance_config.0.disk",
+							},
 						},
 						"flavor": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							RequiredWith: []string{"instance_config.0.image", "instance_config.0.disk"},
 						},
 						"image": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							RequiredWith: []string{"instance_config.0.flavor", "instance_config.0.disk"},
 						},
 						"key_name": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"user_data": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-							// just stash the hash for state & diff comparisons
-							StateFunc: utils.HashAndHexEncode,
-						},
 						"disk": {
-							Type:     schema.TypeList,
-							Optional: true,
-							ForceNew: true,
+							Type:         schema.TypeList,
+							Optional:     true,
+							ForceNew:     true,
+							RequiredWith: []string{"instance_config.0.flavor", "instance_config.0.image"},
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"size": {
@@ -187,6 +187,13 @@ func ResourceASConfiguration() *schema.Resource {
 									},
 								},
 							},
+						},
+						"user_data": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							// just stash the hash for state & diff comparisons
+							StateFunc: utils.HashAndHexEncode,
 						},
 						"metadata": {
 							Type:     schema.TypeMap,
