@@ -30,10 +30,10 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [
     data.huaweicloud_availability_zones.zones.names[0]
   ]
-  vpc_id             = huaweicloud_vpc.vpc_1.id
-  subnet_id          = huaweicloud_vpc_subnet.vpc_subnet_1.id
-  password           = "Abc@123"
-  charging_mode      = "postPaid"
+  vpc_id        = huaweicloud_vpc.vpc_1.id
+  subnet_id     = huaweicloud_vpc_subnet.vpc_subnet_1.id
+  password      = "Abc@123"
+  charging_mode = "postPaid"
 }
 
 # 2.1 Query the available Master/Standby flavors of the specified capacity.
@@ -54,10 +54,10 @@ resource "huaweicloud_dcs_instance" "master_standby_instance" {
     data.huaweicloud_availability_zones.zones.names[0],
     data.huaweicloud_availability_zones.zones.names[1]
   ]
-  vpc_id             = huaweicloud_vpc.vpc_1.id
-  subnet_id          = huaweicloud_vpc_subnet.vpc_subnet_1.id
-  password           = "Abc@123"
-  charging_mode      = "postPaid"
+  vpc_id        = huaweicloud_vpc.vpc_1.id
+  subnet_id     = huaweicloud_vpc_subnet.vpc_subnet_1.id
+  password      = "Abc@123"
+  charging_mode = "postPaid"
 }
 
 # 3.1 Query the available Proxy Cluster flavors of the specified capacity.
@@ -78,10 +78,10 @@ resource "huaweicloud_dcs_instance" "proxy_cluster_instance" {
     data.huaweicloud_availability_zones.zones.names[0],
     data.huaweicloud_availability_zones.zones.names[1]
   ]
-  vpc_id             = huaweicloud_vpc.vpc_1.id
-  subnet_id          = huaweicloud_vpc_subnet.vpc_subnet_1.id
-  password           = "Abc@123"
-  charging_mode      = "postPaid"
+  vpc_id        = huaweicloud_vpc.vpc_1.id
+  subnet_id     = huaweicloud_vpc_subnet.vpc_subnet_1.id
+  password      = "Abc@123"
+  charging_mode = "postPaid"
 }
 
 # 4.1 Query the available Cluster flavors of the specified capacity.
@@ -102,10 +102,10 @@ resource "huaweicloud_dcs_instance" "redis_cluster_instance" {
     data.huaweicloud_availability_zones.zones.names[0],
     data.huaweicloud_availability_zones.zones.names[1]
   ]
-  vpc_id             = huaweicloud_vpc.vpc_1.id
-  subnet_id          = huaweicloud_vpc_subnet.vpc_subnet_1.id
-  password           = "Abc@123"
-  charging_mode      = "postPaid"
+  vpc_id        = huaweicloud_vpc.vpc_1.id
+  subnet_id     = huaweicloud_vpc_subnet.vpc_subnet_1.id
+  password      = "Abc@123"
+  charging_mode = "postPaid"
 
   backup_policy {
     backup_type = "auto"

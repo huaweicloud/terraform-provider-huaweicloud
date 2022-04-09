@@ -75,7 +75,7 @@ resource "huaweicloud_vpc_eip" "default" {
 }
 
 resource "huaweicloud_compute_eip_associate" "default" {
-  public_ip = huaweicloud_vpc_eip.default.address
+  public_ip   = huaweicloud_vpc_eip.default.address
   instance_id = huaweicloud_compute_instance.default.id
 }
 
@@ -143,7 +143,7 @@ resource "huaweicloud_apig_instance" "default" {
   subnet_id         = huaweicloud_vpc_subnet.default.id
   security_group_id = huaweicloud_networking_secgroup.default.id
 
-  available_zones    = [
+  available_zones = [
     data.huaweicloud_availability_zones.default.names[0],
   ]
 }

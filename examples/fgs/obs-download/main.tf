@@ -39,7 +39,7 @@ resource "huaweicloud_fgs_function" "test" {
   timeout     = 15
   runtime     = "Python2.7"
   code_type   = "inline"
-  user_data   = jsonencode({"srcBucket"=var.bucket_name,"srcObjPath"=var.object_path,"srcObjName"=var.object_name,"obsAddress"=var.obs_address})
+  user_data   = jsonencode({ "srcBucket" = var.bucket_name, "srcObjPath" = var.object_path, "srcObjName" = var.object_name, "obsAddress" = var.obs_address })
   func_code   = <<EOF
 # -*- coding: utf-8 -*-
 # When running this sample code to access OBS, you must specify an agency with global service access permissions (or at least with OBS access permissions).

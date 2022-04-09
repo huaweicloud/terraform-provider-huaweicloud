@@ -46,5 +46,5 @@ resource "huaweicloud_compute_interface_attach" "attached" {
   network_id  = huaweicloud_vpc_subnet.attach.id
 
   # This is optional
-  fixed_ip    = "192.168.1.100"
+  fixed_ip = "192.168.1.100"
 }

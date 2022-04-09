@@ -119,7 +119,7 @@ resource "huaweicloud_ces_alarmrule" "scaling_down_rule" {
 resource "huaweicloud_as_policy" "scaling_up_policy" {
   scaling_policy_name = "scaling_up_policy"
   scaling_policy_type = "ALARM"
-  scaling_group_id    = huaweicloud_as_group.my_as_group.id  
+  scaling_group_id    = huaweicloud_as_group.my_as_group.id
   alarm_id            = huaweicloud_ces_alarmrule.scaling_up_rule.id
   cool_down_time      = 300
 
@@ -132,7 +132,7 @@ resource "huaweicloud_as_policy" "scaling_up_policy" {
 resource "huaweicloud_as_policy" "scaling_down_policy" {
   scaling_policy_name = "scaling_down_policy"
   scaling_policy_type = "ALARM"
-  scaling_group_id    = huaweicloud_as_group.my_as_group.id  
+  scaling_group_id    = huaweicloud_as_group.my_as_group.id
   alarm_id            = huaweicloud_ces_alarmrule.scaling_down_rule.id
   cool_down_time      = 300
 
