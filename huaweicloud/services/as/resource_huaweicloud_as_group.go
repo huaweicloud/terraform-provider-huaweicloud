@@ -59,9 +59,10 @@ func ResourceASGroup() *schema.Resource {
 				),
 			},
 			"scaling_configuration_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "schema: Required",
 			},
 			"desire_instance_number": {
 				Type:     schema.TypeInt,

@@ -131,7 +131,7 @@ The following arguments are supported:
 * `scaling_group_name` - (Required, String) The name of the scaling group. The name can contain letters, digits,
   underscores(_), and hyphens(-),and cannot exceed 64 characters.
 
-* `scaling_configuration_id` - (Optional, String) The configuration ID which defines configurations of instances in the
+* `scaling_configuration_id` - (Required, String) The configuration ID which defines configurations of instances in the
   AS group.
 
 * `desire_instance_number` - (Optional, Int) The expected number of instances. The default value is the minimum number
