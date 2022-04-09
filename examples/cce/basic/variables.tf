@@ -23,61 +23,61 @@ variable "primary_dns" {
 }
 
 variable "secondary_dns" {
-    default = "100.125.21.250"
+  default = "100.125.21.250"
 }
 
 variable "bandwidth_name" {
-    default = "mybandwidth"
+  default = "mybandwidth"
 }
 
 variable "key_pair_name" {
-    default = "mykey_pair"
+  default = "mykey_pair"
 }
 
 variable "cce_cluster_name" {
-    default = "mycce"
+  default = "mycce"
 }
 
 variable "cce_cluster_flavor" {
-    default = "cce.s1.small"
+  default = "cce.s1.small"
 }
 
 variable "node_name" {
-    default = "mynode"
+  default = "mynode"
 }
 
 variable "node_flavor" {
-    default = "t6.large.2"
+  default = "t6.large.2"
 }
 
 variable "root_volume_size" {
-    default = 40
+  default = 40
 }
 
 variable "root_volume_type" {
-    default = "SAS"
+  default = "SAS"
 }
 
 variable "data_volume_size" {
-    default = 100
+  default = 100
 }
 
 variable "data_volume_type" {
-    default = "SAS"
+  default = "SAS"
 }
 
 variable "ecs_flavor" {
-    default = "sn3.large.2"
+  default = "sn3.large.2"
 }
 
 variable "ecs_name" {
-    default = "myecs"
+  default = "myecs"
 }
 
 variable "os" {
-    default = "EulerOS 2.5"
+  default = "EulerOS 2.5"
 }
 
 variable "image_name" {
-    default = "EulerOS 2.5 64bit"
+  default = "EulerOS 2.5 64bit"
 }

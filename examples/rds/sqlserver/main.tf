@@ -14,17 +14,17 @@ data "huaweicloud_rds_engine_versions" "default" {
 
 # Query an available flavor of web edition using specified vcpus and memory numbers.
 data "huaweicloud_rds_flavors" "default" {
-  db_type       = "SQLServer"
+  db_type = "SQLServer"
   # Use the latest version of the RDS engine version
-  db_version    = element(local.web_version_names, length(local.web_version_names)-1)
+  db_version    = element(local.web_version_names, length(local.web_version_names) - 1)
   instance_mode = "single"
 }
 
 # Query an available flavor of standard edition using specified vcpus and memory numbers.
 data "huaweicloud_rds_flavors" "ha_database" {
-  db_type       = "SQLServer"
+  db_type = "SQLServer"
   # Use latest version of the RDS engine versions
-  db_version    = element(local.se_version_names, length(local.se_version_names)-1)
+  db_version    = element(local.se_version_names, length(local.se_version_names) - 1)
   instance_mode = "ha"
 }
 
@@ -67,7 +67,7 @@ resource "huaweicloud_rds_instance" "default" {
 
   db {
     type     = "SQLServer"
-    version  = element(local.web_version_names, length(local.web_version_names)-1)
+    version  = element(local.web_version_names, length(local.web_version_names) - 1)
     password = random_password.password.result
   }
 
@@ -98,7 +98,7 @@ resource "huaweicloud_rds_instance" "ha_database" {
 
   db {
     type     = "SQLServer"
-    version  = element(local.se_version_names, length(local.se_version_names)-1)
+    version  = element(local.se_version_names, length(local.se_version_names) - 1)
     password = random_password.password.result
   }
 

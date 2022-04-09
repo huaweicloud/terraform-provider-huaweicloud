@@ -33,10 +33,10 @@ resource "huaweicloud_vpc_eip" "nat" {
 }
 
 resource "huaweicloud_nat_gateway" "nat_1" {
-  name        = var.nat_name
-  spec        = "1"
-  vpc_id      = data.huaweicloud_vpc.myvpc.id
-  subnet_id   = data.huaweicloud_vpc_subnet.mysubnet.id
+  name      = var.nat_name
+  spec      = "1"
+  vpc_id    = data.huaweicloud_vpc.myvpc.id
+  subnet_id = data.huaweicloud_vpc_subnet.mysubnet.id
 }
 
 resource "huaweicloud_nat_snat_rule" "snat_1" {
@@ -110,6 +110,7 @@ resource "huaweicloud_cce_node" "cce-node3" {
 }
 
 resource "local_file" "kubeconfig" {
-    content     = huaweicloud_cce_cluster.cluster.kube_config_raw
-    filename    = "$Local kubeconfig file path"
+  content  = huaweicloud_cce_cluster.cluster.kube_config_raw
+  filename = "$Local kubeconfig file path"
 }
+

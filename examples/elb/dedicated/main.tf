@@ -140,11 +140,11 @@ resource "huaweicloud_compute_eip_associate" "default" {
 }
 
 resource "huaweicloud_elb_loadbalancer" "default" {
-  name              = var.elb_loadbalancer_name
-  description       = "Created by terraform"
-  vpc_id            = huaweicloud_vpc.default.id
-  ipv4_subnet_id    = huaweicloud_vpc_subnet.default.subnet_id
-  ipv6_network_id   = huaweicloud_vpc_subnet.default.id
+  name            = var.elb_loadbalancer_name
+  description     = "Created by terraform"
+  vpc_id          = huaweicloud_vpc.default.id
+  ipv4_subnet_id  = huaweicloud_vpc_subnet.default.subnet_id
+  ipv6_network_id = huaweicloud_vpc_subnet.default.id
 
   availability_zone = [
     data.huaweicloud_availability_zones.default.names[0]

@@ -2,9 +2,9 @@ data "huaweicloud_availability_zones" "myaz" {}
 
 data "huaweicloud_compute_flavors" "myflavor" {
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
-  performance_type = "normal"
-  cpu_core_count   = 2
-  memory_size      = 4
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
 }
 
 data "huaweicloud_vpc_subnet" "mynet" {
@@ -22,10 +22,10 @@ resource "huaweicloud_compute_keypair" "mykey" {
 }
 
 resource "huaweicloud_compute_instance" "basic" {
-  name              = "basic"
-  image_id          = data.huaweicloud_images_image.myimage.id
-  flavor_id         = data.huaweicloud_compute_flavors.myflavor.ids[0]
-  security_groups   = ["default"]
+  name            = "basic"
+  image_id        = data.huaweicloud_images_image.myimage.id
+  flavor_id       = data.huaweicloud_compute_flavors.myflavor.ids[0]
+  security_groups = ["default"]
 
   # NOTE: admin_pass doesn't work with user_data, use key_pair instead.
   key_pair          = huaweicloud_compute_keypair.mykey.name

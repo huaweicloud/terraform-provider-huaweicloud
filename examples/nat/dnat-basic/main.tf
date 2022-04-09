@@ -23,11 +23,11 @@ resource "huaweicloud_compute_instance" "newCompute_Example" {
   admin_pass        = random_password.password.result
   availability_zone = data.huaweicloud_availability_zones.newAZ_Example.names[0]
 
-  system_disk_type  = "SSD"
-  system_disk_size  = 40
+  system_disk_type = "SSD"
+  system_disk_size = 40
 
   network {
-    uuid  = huaweicloud_vpc_subnet.newSubnet_Example.id
+    uuid = huaweicloud_vpc_subnet.newSubnet_Example.id
   }
 }
 
@@ -63,7 +63,7 @@ resource "huaweicloud_networking_secgroup" "newSecgroup_Example" {
 }
 
 resource "huaweicloud_networking_secgroup_rule" "newSecgroupRule_Example" {
-  count             = length(var.security_group_rule)
+  count = length(var.security_group_rule)
 
   direction         = lookup(var.security_group_rule[count.index], "direction", null)
   ethertype         = lookup(var.security_group_rule[count.index], "ethertype", null)
@@ -91,9 +91,9 @@ resource "huaweicloud_nat_snat_rule" "newSNATRule_Example" {
 resource "huaweicloud_nat_dnat_rule" "newDNATRule_Example" {
   count = length(var.example_dnat_rule)
 
-  floating_ip_id        = huaweicloud_vpc_eip.newEIP_Example.id
-  nat_gateway_id        = huaweicloud_nat_gateway.newNet_gateway_Example.id
-  port_id               = huaweicloud_compute_instance.newCompute_Example.network[0].port     
+  floating_ip_id = huaweicloud_vpc_eip.newEIP_Example.id
+  nat_gateway_id = huaweicloud_nat_gateway.newNet_gateway_Example.id
+  port_id        = huaweicloud_compute_instance.newCompute_Example.network[0].port
 
   internal_service_port = lookup(var.example_dnat_rule[count.index], "internal_service_port", null)
   protocol              = lookup(var.example_dnat_rule[count.index], "protocol", null)

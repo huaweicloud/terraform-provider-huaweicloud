@@ -50,15 +50,15 @@ variable "subnet_gateway_ip" {
 
 variable "security_group_rule" {
   type = list(object({
-    direction         = string
-    ethertype         = string
-    protocol          = string
-    port_range_min    = number
-    port_range_max    = number
-    remote_ip_prefix  = string
+    direction        = string
+    ethertype        = string
+    protocol         = string
+    port_range_min   = number
+    port_range_max   = number
+    remote_ip_prefix = string
   }))
   default = [
-    {direction="ingress", ethertype="IPv4", protocol="tcp",  port_range_min=80,   port_range_max=80, remote_ip_prefix="0.0.0.0/0"},
+    { direction = "ingress", ethertype = "IPv4", protocol = "tcp", port_range_min = 80, port_range_max = 80, remote_ip_prefix = "0.0.0.0/0" },
   ]
 }
 
@@ -70,8 +70,8 @@ variable "example_dnat_rule" {
     external_service_port = number
   }))
   default = [
-    {private_ip="192.168.64.15", internal_service_port=80,  protocol="tcp", external_service_port=8080},
-    {private_ip="192.168.64.15", internal_service_port=22,  protocol="tcp", external_service_port=8022},
+    { private_ip = "192.168.64.15", internal_service_port = 80, protocol = "tcp", external_service_port = 8080 },
+    { private_ip = "192.168.64.15", internal_service_port = 22, protocol = "tcp", external_service_port = 8022 },
   ]
 }
 

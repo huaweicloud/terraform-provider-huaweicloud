@@ -4,15 +4,15 @@ variable "iden_user_name" {
 }
 
 variable "iden_group" {
-    description = "List of identity group."
-    type = list(object({
-        name        = string
-        description = string
-    }))
-    default = [
-        {name = "group_A", description = "This is a identity group."},
-        {name = "group_B", description = "This is a identity group."}
-    ]
+  description = "List of identity group."
+  type = list(object({
+    name        = string
+    description = string
+  }))
+  default = [
+    { name = "group_A", description = "This is a identity group." },
+    { name = "group_B", description = "This is a identity group." }
+  ]
 }
 
 variable "domain_id" {
