@@ -1,32 +1,40 @@
 package as
 
 import (
+	"context"
 	"regexp"
 	"strings"
 	"time"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
-
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/groups"
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/instances"
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/tags"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+)
+
+var (
+	HealthAuditMethods = []string{"ELB_AUDIT", "NOVA_AUDIT"}
+	HealthAuditTime    = []int{0, 1, 5, 15, 60, 180}
+	TerminatePolices   = []string{"OLD_CONFIG_OLD_INSTANCE", "OLD_CONFIG_NEW_INSTANCE", "OLD_INSTANCE", "NEW_INSTANCE"}
 )
 
 func ResourceASGroup() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceASGroupCreate,
-		Read:   resourceASGroupRead,
-		Update: resourceASGroupUpdate,
-		Delete: resourceASGroupDelete,
+		CreateContext: resourceASGroupCreate,
+		ReadContext:   resourceASGroupRead,
+		UpdateContext: resourceASGroupUpdate,
+		DeleteContext: resourceASGroupDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -42,9 +50,13 @@ func ResourceASGroup() *schema.Resource {
 				ForceNew: true,
 			},
 			"scaling_group_name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: resourceASGroupValidateGroupName,
+				Type:     schema.TypeString,
+				Required: true,
+				ValidateFunc: validation.All(
+					validation.StringLenBetween(1, 64),
+					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa50-9a-zA-Z-_]+$"),
+						"only letters, digits, underscores (_), and hyphens (-) are allowed"),
+				),
 			},
 			"scaling_configuration_id": {
 				Type:     schema.TypeString,
@@ -69,15 +81,8 @@ func ResourceASGroup() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      300,
-				ValidateFunc: resourceASGroupValidateCoolDownTime,
+				ValidateFunc: validation.IntBetween(0, 86400),
 				Description:  "The cooling duration, in seconds.",
-			},
-			"lb_listener_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: resourceASGroupValidateListenerId,
-				Description:  "The system supports the binding of up to six ELB listeners, the IDs of which are separated using a comma.",
-				Deprecated:   "use lbaas_listeners instead",
 			},
 			"lbaas_listeners": {
 				Type:          schema.TypeList,
@@ -140,21 +145,21 @@ func ResourceASGroup() *schema.Resource {
 			"health_periodic_audit_method": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: resourceASGroupValidateHealthAuditMethod,
+				ValidateFunc: validation.StringInSlice(HealthAuditMethods, false),
 				Default:      "NOVA_AUDIT",
 			},
 			"health_periodic_audit_time": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      5,
-				ValidateFunc: resourceASGroupValidateHealthAuditTime,
+				ValidateFunc: validation.IntInSlice(HealthAuditTime),
 				Description:  "The health check period for instances, in minutes.",
 			},
 			"instance_terminate_policy": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "OLD_CONFIG_OLD_INSTANCE",
-				ValidateFunc: resourceASGroupValidateTerminatePolicy,
+				ValidateFunc: validation.StringInSlice(TerminatePolices, false),
 			},
 			"notifications": {
 				Type:     schema.TypeList,
@@ -196,6 +201,15 @@ func ResourceASGroup() *schema.Resource {
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+
+			// Deprecated
+			"lb_listener_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: resourceASGroupValidateListenerId,
+				Description:  "The system supports the binding of up to six ELB listeners, the IDs of which are separated using a comma.",
+				Deprecated:   "use lbaas_listeners instead",
 			},
 		},
 	}
@@ -388,7 +402,7 @@ func refreshInstancesLifeStates(asClient *golangsdk.ServiceClient, groupID strin
 	}
 }
 
-func checkASGroupInstancesInService(asClient *golangsdk.ServiceClient, groupID string, insNum int, timeout time.Duration) error {
+func checkASGroupInstancesInService(ctx context.Context, asClient *golangsdk.ServiceClient, groupID string, insNum int, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"INSERVICE"}, //if there is no lifecyclestatus, meaning no instances in asg
@@ -397,12 +411,12 @@ func checkASGroupInstancesInService(asClient *golangsdk.ServiceClient, groupID s
 		Delay:   10 * time.Second,
 	}
 
-	_, err := stateConf.WaitForState()
+	_, err := stateConf.WaitForStateContext(ctx)
 
 	return err
 }
 
-func checkASGroupInstancesRemoved(asClient *golangsdk.ServiceClient, groupID string, timeout time.Duration) error {
+func checkASGroupInstancesRemoved(ctx context.Context, asClient *golangsdk.ServiceClient, groupID string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"REMOVING"},
 		Target:  []string{""}, //if there is no lifecyclestatus, meaning no instances in asg
@@ -411,18 +425,17 @@ func checkASGroupInstancesRemoved(asClient *golangsdk.ServiceClient, groupID str
 		Delay:   10 * time.Second,
 	}
 
-	_, err := stateConf.WaitForState()
+	_, err := stateConf.WaitForStateContext(ctx)
 
 	return err
 }
 
-func resourceASGroupCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
+		return diag.Errorf("Error creating autoscaling client: %s", err)
 	}
-	logp.Printf("[DEBUG] asClient: %#v", asClient)
 
 	minNum := d.Get("min_instance_number").(int)
 	maxNum := d.Get("max_instance_number").(int)
@@ -436,7 +449,7 @@ func resourceASGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	logp.Printf("[DEBUG] Max instance number is: %#v", maxNum)
 	logp.Printf("[DEBUG] Desire instance number is: %#v", desireNum)
 	if desireNum < minNum || desireNum > maxNum {
-		return fmtp.Errorf("Invalid parameters: it should be min_instance_number<=desire_instance_number<=max_instance_number")
+		return diag.Errorf("Invalid parameters: it should be min_instance_number<=desire_instance_number<=max_instance_number")
 	}
 	var initNum int
 	if desireNum > 0 {
@@ -478,7 +491,7 @@ func resourceASGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	asgId, err := groups.Create(asClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating ASGroup: %s", err)
+		return diag.Errorf("Error creating ASGroup: %s", err)
 	}
 
 	d.SetId(asgId)
@@ -488,7 +501,7 @@ func resourceASGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	if len(tagRaw) > 0 {
 		taglist := expandGroupsTags(tagRaw)
 		if tagErr := tags.Create(asClient, asgId, taglist).ExtractErr(); tagErr != nil {
-			return fmtp.Errorf("Error setting tags of ASGroup %q: %s", asgId, tagErr)
+			return diag.Errorf("Error setting tags of ASGroup %q: %s", asgId, tagErr)
 		}
 	}
 
@@ -496,32 +509,32 @@ func resourceASGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	if d.Get("enable").(bool) {
 		enableResult := groups.Enable(asClient, asgId)
 		if enableResult.Err != nil {
-			return fmtp.Errorf("Error enabling ASGroup %q: %s", asgId, enableResult.Err)
+			return diag.Errorf("Error enabling ASGroup %q: %s", asgId, enableResult.Err)
 		}
 		logp.Printf("[DEBUG] Enable ASGroup %q success!", asgId)
 	}
 	// check all instances are inservice
 	if initNum > 0 {
 		timeout := d.Timeout(schema.TimeoutCreate)
-		err = checkASGroupInstancesInService(asClient, asgId, initNum, timeout)
+		err = checkASGroupInstancesInService(ctx, asClient, asgId, initNum, timeout)
 		if err != nil {
-			return fmtp.Errorf("Error waiting for instances in the ASGroup %q to become inservice!!: %s", asgId, err)
+			return diag.Errorf("Error waiting for instances in the ASGroup %q to become inservice!!: %s", asgId, err)
 		}
 	}
 
-	return resourceASGroupRead(d, meta)
+	return resourceASGroupRead(ctx, d, meta)
 }
 
-func resourceASGroupRead(d *schema.ResourceData, meta interface{}) error {
+func resourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
+		return diag.Errorf("Error creating autoscaling client: %s", err)
 	}
 
 	asg, err := groups.Get(asClient, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "AS group")
+		return common.CheckDeletedDiag(d, err, "AS group")
 	}
 	logp.Printf("[DEBUG] Retrieved ASGroup %q: %+v", d.Id(), asg)
 	logp.Printf("[DEBUG] Retrieved ASGroup %q notifications: %+v", d.Id(), asg.Notifications)
@@ -588,7 +601,7 @@ func resourceASGroupRead(d *schema.ResourceData, meta interface{}) error {
 	var opts instances.ListOptsBuilder
 	allIns, err := getInstancesInGroup(asClient, d.Id(), opts)
 	if err != nil {
-		return fmtp.Errorf("Can not get the instances in ASGroup %q!!: %s", d.Id(), err)
+		return diag.Errorf("Can not get the instances in ASGroup %q!!: %s", d.Id(), err)
 	}
 	allIDs := getInstancesIDs(allIns)
 	d.Set("instances", allIDs)
@@ -602,7 +615,7 @@ func resourceASGroupRead(d *schema.ResourceData, meta interface{}) error {
 			tagmap[val.Key] = val.Value
 		}
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmtp.Errorf("Error saving tags to state for ASGroup (%s): %s", d.Id(), err)
+			return diag.Errorf("Error saving tags to state for ASGroup (%s): %s", d.Id(), err)
 		}
 	} else {
 		logp.Printf("[WARN] Error fetching tags of ASGroup (%s): %s", d.Id(), err)
@@ -611,12 +624,13 @@ func resourceASGroupRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
+		return diag.Errorf("Error creating autoscaling client: %s", err)
 	}
+
 	var desireNum int
 	minNum := d.Get("min_instance_number").(int)
 	maxNum := d.Get("max_instance_number").(int)
@@ -630,7 +644,7 @@ func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 		logp.Printf("[DEBUG] Max instance number is: %#v", maxNum)
 		logp.Printf("[DEBUG] Desire instance number is: %#v", desireNum)
 		if desireNum < minNum || desireNum > maxNum {
-			return fmtp.Errorf("Invalid parameters: it should be min_instance_number<=desire_instance_number<=max_instance_number")
+			return diag.Errorf("Invalid parameters: it should be min_instance_number<=desire_instance_number<=max_instance_number")
 		}
 	}
 
@@ -664,7 +678,7 @@ func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 	logp.Printf("[DEBUG] AS Group update options: %#v", updateOpts)
 	asgID, err := groups.Update(asClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error updating ASGroup %q: %s", asgID, err)
+		return diag.Errorf("Error updating ASGroup %q: %s", asgID, err)
 	}
 
 	//update tags
@@ -675,7 +689,7 @@ func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 		if len(oldRaw) > 0 {
 			taglist := expandGroupsTags(oldRaw)
 			if tagErr := tags.Delete(asClient, asgID, taglist).ExtractErr(); tagErr != nil {
-				return fmtp.Errorf("Error deleting tags of ASGroup %q: %s", asgID, tagErr)
+				return diag.Errorf("Error deleting tags of ASGroup %q: %s", asgID, tagErr)
 			}
 		}
 
@@ -683,7 +697,7 @@ func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 		if len(newRaw) > 0 {
 			taglist := expandGroupsTags(newRaw)
 			if tagErr := tags.Create(asClient, asgID, taglist).ExtractErr(); tagErr != nil {
-				return fmtp.Errorf("Error setting tags of ASGroup %q: %s", asgID, tagErr)
+				return diag.Errorf("Error setting tags of ASGroup %q: %s", asgID, tagErr)
 			}
 		}
 	}
@@ -692,38 +706,38 @@ func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 		if d.Get("enable").(bool) {
 			enableResult := groups.Enable(asClient, asgID)
 			if enableResult.Err != nil {
-				return fmtp.Errorf("Error enabling ASGroup %q: %s", asgID, enableResult.Err)
+				return diag.Errorf("Error enabling ASGroup %q: %s", asgID, enableResult.Err)
 			}
 			logp.Printf("[DEBUG] Enable ASGroup %q success!", asgID)
 		} else {
 			enableResult := groups.Disable(asClient, asgID)
 			if enableResult.Err != nil {
-				return fmtp.Errorf("Error disabling ASGroup %q: %s", asgID, enableResult.Err)
+				return diag.Errorf("Error disabling ASGroup %q: %s", asgID, enableResult.Err)
 			}
 			logp.Printf("[DEBUG] Disable ASGroup %q success!", asgID)
 		}
 	}
 
-	return resourceASGroupRead(d, meta)
+	return resourceASGroupRead(ctx, d, meta)
 }
 
-func resourceASGroupDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceASGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
+		return diag.Errorf("Error creating autoscaling client: %s", err)
 	}
 
 	logp.Printf("[DEBUG] Begin to get instances of ASGroup %q", d.Id())
 	var listOpts instances.ListOptsBuilder
 	allIns, err := getInstancesInGroup(asClient, d.Id(), listOpts)
 	if err != nil {
-		return fmtp.Errorf("Error listing instances of asg: %s", err)
+		return diag.Errorf("Error listing instances of asg: %s", err)
 	}
 	allLifeStatus := getInstancesLifeStates(allIns)
 	for _, lifeCycleState := range allLifeStatus {
 		if lifeCycleState != "INSERVICE" {
-			return fmtp.Errorf("[DEBUG] Can't delete the ASGroup %q: There are some instances not in INSERVICE but in %s, try again latter.", d.Id(), lifeCycleState)
+			return diag.Errorf("[DEBUG] Can't delete the ASGroup %q: There are some instances not in INSERVICE but in %s, try again latter.", d.Id(), lifeCycleState)
 		}
 	}
 	allIDs := getInstancesIDs(allIns)
@@ -732,51 +746,28 @@ func resourceASGroupDelete(d *schema.ResourceData, meta interface{}) error {
 	if len(allLifeStatus) > 0 {
 		min_number := d.Get("min_instance_number").(int)
 		if min_number > 0 {
-			return fmtp.Errorf("[DEBUG] Can't delete the ASGroup %q: The instance number after the removal will less than the min number %d, modify the min number to zero first.", d.Id(), min_number)
+			return diag.Errorf("[DEBUG] Can't delete the ASGroup %q: The instance number after the removal will less than the min number %d, modify the min number to zero first.", d.Id(), min_number)
 		}
 		delete_ins := d.Get("delete_instances").(string)
 		logp.Printf("[DEBUG] The flag delete_instances in ASGroup is %s", delete_ins)
 		batchResult := instances.BatchDelete(asClient, d.Id(), allIDs, delete_ins)
 		if batchResult.Err != nil {
-			return fmtp.Errorf("Error removing instancess of asg: %s", batchResult.Err)
+			return diag.Errorf("Error removing instancess of asg: %s", batchResult.Err)
 		}
 		logp.Printf("[DEBUG] Begin to remove instances of ASGroup %q", d.Id())
 		timeout := d.Timeout(schema.TimeoutDelete)
-		err = checkASGroupInstancesRemoved(asClient, d.Id(), timeout)
+		err = checkASGroupInstancesRemoved(ctx, asClient, d.Id(), timeout)
 		if err != nil {
-			return fmtp.Errorf(
-				"[DEBUG] Error removing instances from ASGroup %q: %s", d.Id(), err)
+			return diag.Errorf("Error removing instances from ASGroup %q: %s", d.Id(), err)
 		}
 	}
 
 	logp.Printf("[DEBUG] Begin to delete ASGroup %q", d.Id())
 	if delErr := groups.Delete(asClient, d.Id()).ExtractErr(); delErr != nil {
-		return fmtp.Errorf("Error deleting ASGroup: %s", delErr)
+		return diag.Errorf("Error deleting ASGroup: %s", delErr)
 	}
 
 	return nil
-}
-
-var TerminatePolices = [4]string{"OLD_CONFIG_OLD_INSTANCE", "OLD_CONFIG_NEW_INSTANCE", "OLD_INSTANCE", "NEW_INSTANCE"}
-
-func resourceASGroupValidateTerminatePolicy(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	for i := range TerminatePolices {
-		if value == TerminatePolices[i] {
-			return
-		}
-	}
-	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, TerminatePolices))
-	return
-}
-
-func resourceASGroupValidateCoolDownTime(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(int)
-	if 0 <= value && value <= 86400 {
-		return
-	}
-	errors = append(errors, fmtp.Errorf("%q must be [0, 86400]", k))
-	return
 }
 
 func resourceASGroupValidateListenerId(v interface{}, k string) (ws []string, errors []error) {
@@ -786,43 +777,5 @@ func resourceASGroupValidateListenerId(v interface{}, k string) (ws []string, er
 		return
 	}
 	errors = append(errors, fmtp.Errorf("%q supports binding up to 6 ELB listeners which are separated by a comma.", k))
-	return
-}
-
-var HealthAuditMethods = [2]string{"ELB_AUDIT", "NOVA_AUDIT"}
-
-func resourceASGroupValidateHealthAuditMethod(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	for i := range HealthAuditMethods {
-		if value == HealthAuditMethods[i] {
-			return
-		}
-	}
-	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, HealthAuditMethods))
-	return
-}
-
-var HealthAuditTime = [4]int{5, 15, 60, 180}
-
-func resourceASGroupValidateHealthAuditTime(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(int)
-	for i := range HealthAuditTime {
-		if value == HealthAuditTime[i] {
-			return
-		}
-	}
-	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, HealthAuditTime))
-	return
-}
-
-//lintignore:V001
-func resourceASGroupValidateGroupName(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	if len(value) > 64 || len(value) < 1 {
-		errors = append(errors, fmtp.Errorf("%q must contain more than 1 and less than 64 characters", k))
-	}
-	if !regexp.MustCompile(`^[0-9a-zA-Z-_]+$`).MatchString(value) {
-		errors = append(errors, fmtp.Errorf("only alphanumeric characters, hyphens, and underscores allowed in %q", k))
-	}
 	return
 }

@@ -1,12 +1,16 @@
 package as
 
 import (
+	"context"
 	"regexp"
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/policies"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/policies"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -14,12 +18,18 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+var (
+	PolicyTypes       = []string{"ALARM", "SCHEDULED", "RECURRENCE"}
+	RecurrencePeriods = []string{"Daily", "Weekly", "Monthly"}
+	PolicyActions     = []string{"ADD", "REMOVE", "SET"}
+)
+
 func ResourceASPolicy() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceASPolicyCreate,
-		Read:   resourceASPolicyRead,
-		Update: resourceASPolicyUpdate,
-		Delete: resourceASPolicyDelete,
+		CreateContext: resourceASPolicyCreate,
+		ReadContext:   resourceASPolicyRead,
+		UpdateContext: resourceASPolicyUpdate,
+		DeleteContext: resourceASPolicyDelete,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -29,9 +39,13 @@ func ResourceASPolicy() *schema.Resource {
 				ForceNew: true,
 			},
 			"scaling_policy_name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: resourceASPolicyValidateName,
+				Type:     schema.TypeString,
+				Required: true,
+				ValidateFunc: validation.All(
+					validation.StringLenBetween(1, 64),
+					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa50-9a-zA-Z-_]+$"),
+						"only letters, digits, underscores (_), and hyphens (-) are allowed"),
+				),
 			},
 			"scaling_group_id": {
 				Type:     schema.TypeString,
@@ -41,7 +55,7 @@ func ResourceASPolicy() *schema.Resource {
 			"scaling_policy_type": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: resourceASPolicyValidatePolicyType,
+				ValidateFunc: validation.StringInSlice(PolicyTypes, false),
 			},
 			"alarm_id": {
 				Type:     schema.TypeString,
@@ -60,7 +74,7 @@ func ResourceASPolicy() *schema.Resource {
 						"recurrence_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: resourceASPolicyValidateRecurrenceType,
+							ValidateFunc: validation.StringInSlice(RecurrencePeriods, false),
 						},
 						"recurrence_value": {
 							Type:     schema.TypeString,
@@ -88,7 +102,7 @@ func ResourceASPolicy() *schema.Resource {
 						"operation": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: resourceASPolicyValidateActionOperation,
+							ValidateFunc: validation.StringInSlice(PolicyActions, false),
 						},
 						"instance_number": {
 							Type:     schema.TypeInt,
@@ -171,16 +185,16 @@ func getPolicyAction(rawPolicyAction map[string]interface{}) policies.ActionOpts
 	return policyAction
 }
 
-func resourceASPolicyCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceASPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
+		return diag.Errorf("Error creating autoscaling client: %s", err)
 	}
-	logp.Printf("[DEBUG] asClient: %#v", asClient)
+
 	err = validateParameters(d)
 	if err != nil {
-		return fmtp.Errorf("Error creating ASPolicy: %s", err)
+		return diag.Errorf("Error creating ASPolicy: %s", err)
 	}
 	createOpts := policies.CreateOpts{
 		Name:         d.Get("scaling_policy_name").(string),
@@ -205,23 +219,23 @@ func resourceASPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	logp.Printf("[DEBUG] Create AS policy Options: %#v", createOpts)
 	asPolicyId, err := policies.Create(asClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating ASPolicy: %s", err)
+		return diag.Errorf("Error creating ASPolicy: %s", err)
 	}
 	d.SetId(asPolicyId)
 	logp.Printf("[DEBUG] Create AS Policy %q Success!", asPolicyId)
-	return resourceASPolicyRead(d, meta)
+	return resourceASPolicyRead(ctx, d, meta)
 }
 
-func resourceASPolicyRead(d *schema.ResourceData, meta interface{}) error {
+func resourceASPolicyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
+		return diag.Errorf("Error creating autoscaling client: %s", err)
 	}
 
 	asPolicy, err := policies.Get(asClient, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "AS Policy")
+		return common.CheckDeletedDiag(d, err, "AS Policy")
 	}
 
 	logp.Printf("[DEBUG] Retrieved ASPolicy %q: %+v", d.Id(), asPolicy)
@@ -259,16 +273,16 @@ func resourceASPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceASPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceASPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
+		return diag.Errorf("Error creating autoscaling client: %s", err)
 	}
 
 	err = validateParameters(d)
 	if err != nil {
-		return fmtp.Errorf("Error updating ASPolicy: %s", err)
+		return diag.Errorf("Error updating ASPolicy: %s", err)
 	}
 	updateOpts := policies.UpdateOpts{
 		Name:         d.Get("scaling_policy_name").(string),
@@ -291,73 +305,23 @@ func resourceASPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	logp.Printf("[DEBUG] Update AS policy Options: %#v", updateOpts)
 	asPolicyID, err := policies.Update(asClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error updating ASPolicy %q: %s", asPolicyID, err)
+		return diag.Errorf("Error updating ASPolicy %q: %s", asPolicyID, err)
 	}
 
-	return resourceASPolicyRead(d, meta)
+	return resourceASPolicyRead(ctx, d, meta)
 }
 
-func resourceASPolicyDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceASPolicyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
+		return diag.Errorf("Error creating autoscaling client: %s", err)
 	}
+
 	logp.Printf("[DEBUG] Begin to delete AS policy %q", d.Id())
 	if delErr := policies.Delete(asClient, d.Id()).ExtractErr(); delErr != nil {
-		return fmtp.Errorf("Error deleting AS policy: %s", delErr)
+		return diag.Errorf("Error deleting AS policy: %s", delErr)
 	}
 
 	return nil
-}
-
-var RecurrenceTypes = [3]string{"Daily", "Weekly", "Monthly"}
-
-func resourceASPolicyValidateRecurrenceType(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	for i := range RecurrenceTypes {
-		if value == RecurrenceTypes[i] {
-			return
-		}
-	}
-	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, RecurrenceTypes))
-	return
-}
-
-var PolicyActions = [3]string{"ADD", "REMOVE", "SET"}
-
-func resourceASPolicyValidateActionOperation(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	for i := range PolicyActions {
-		if value == PolicyActions[i] {
-			return
-		}
-	}
-	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, PolicyActions))
-	return
-}
-
-var PolicyTypes = [3]string{"ALARM", "SCHEDULED", "RECURRENCE"}
-
-func resourceASPolicyValidatePolicyType(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	for i := range PolicyTypes {
-		if value == PolicyTypes[i] {
-			return
-		}
-	}
-	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, PolicyTypes))
-	return
-}
-
-//lintignore:V001
-func resourceASPolicyValidateName(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	if len(value) > 64 || len(value) < 1 {
-		errors = append(errors, fmtp.Errorf("%q must contain more than 1 and less than 64 characters", value))
-	}
-	if !regexp.MustCompile(`^[0-9a-zA-Z-_]+$`).MatchString(value) {
-		errors = append(errors, fmtp.Errorf("only alphanumeric characters, hyphens, and underscores allowed in %q", value))
-	}
-	return
 }
