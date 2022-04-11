@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/blockstorage/extensions/volumeactions"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/bootfromvolume"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/keypairs"
@@ -32,6 +31,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/evs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -474,11 +474,11 @@ func resourceComputeInstanceV2Create(ctx context.Context, d *schema.ResourceData
 		}
 		vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 		if err != nil {
-			return diag.Errorf("error creating networking v1 client: %s", err)
+			return diag.Errorf("error creating networking V1 client: %s", err)
 		}
 		sgClient, err := config.NetworkingV3Client(GetRegion(d, config))
 		if err != nil {
-			return diag.Errorf("error creating networking v3 Client: %s", err)
+			return diag.Errorf("error creating networking V3 Client: %s", err)
 		}
 
 		vpcId, err := getVpcID(vpcClient, d)
@@ -1045,36 +1045,55 @@ func resourceComputeInstanceV2Update(ctx context.Context, d *schema.ResourceData
 	}
 
 	if d.HasChange("system_disk_size") {
-		extendOpts := volumeactions.ExtendSizeOpts{
-			NewSize: d.Get("system_disk_size").(int),
+		extendOpts := cloudvolumes.ExtendOpts{
+			SizeOpts: cloudvolumes.ExtendSizeOpts{
+				NewSize: d.Get("system_disk_size").(int),
+			},
 		}
 
-		blockStorageClient, err := config.BlockStorageV2Client(GetRegion(d, config))
+		if strings.EqualFold(d.Get("charging_mode").(string), "prePaid") && d.Get("auto_pay").(string) == "true" {
+			extendOpts.ChargeInfo = &cloudvolumes.ExtendChargeOpts{
+				IsAutoPay: "true",
+			}
+		}
 
+		evsV2Client, err := config.BlockStorageV2Client(config.GetRegion(d))
 		if err != nil {
-			return diag.Errorf("error creating block storage client: %s", err)
+			return diag.Errorf("error creating evs V2 client: %s", err)
+		}
+		evsV21Client, err := config.BlockStorageV21Client(GetRegion(d, config))
+		if err != nil {
+			return diag.Errorf("error creating evs V2.1 client: %s", err)
 		}
 
 		systemDiskID := d.Get("system_disk_id").(string)
 
-		err = volumeactions.ExtendSize(blockStorageClient, systemDiskID, extendOpts).ExtractErr()
+		resp, err := cloudvolumes.ExtendSize(evsV21Client, systemDiskID, extendOpts).Extract()
 		if err != nil {
-			return diag.Errorf("error extending compute instance system disk %s size: %s", systemDiskID, err)
+			return diag.Errorf("error extending EVS volume (%s) size: %s", systemDiskID, err)
+		}
+
+		if strings.EqualFold(d.Get("charging_mode").(string), "prePaid") {
+			err = common.WaitOrderComplete(ctx, d, config, resp.OrderID)
+			if err != nil {
+				return diag.Errorf("The order (%s) is not completed while extending system disk (%s) size: %#v",
+					resp.OrderID, d.Id(), err)
+			}
 		}
 
 		stateConf := &resource.StateChangeConf{
 			Pending:    []string{"extending"},
 			Target:     []string{"available", "in-use"},
-			Refresh:    VolumeV2StateRefreshFunc(blockStorageClient, systemDiskID),
+			Refresh:    evs.CloudVolumeRefreshFunc(evsV2Client, systemDiskID),
 			Timeout:    d.Timeout(schema.TimeoutUpdate),
 			Delay:      10 * time.Second,
 			MinTimeout: 3 * time.Second,
 		}
 
-		_, err = stateConf.WaitForState()
+		_, err = stateConf.WaitForStateContext(ctx)
 		if err != nil {
 			return diag.Errorf(
-				"error waiting for compute instance system disk %s to become ready: %s", systemDiskID, err)
+				"error waiting for huaweicloud_compute_instance system disk %s to become ready: %s", systemDiskID, err)
 		}
 	}
 
@@ -1093,22 +1112,18 @@ func resourceComputeInstanceV2Delete(ctx context.Context, d *schema.ResourceData
 	config := meta.(*config.Config)
 	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
-		return diag.Errorf("error creating compute V1 client: %s", err)
-	}
-	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
-	if err != nil {
-		return diag.Errorf("error creating compute V2 client: %s", err)
+		return diag.Errorf("error creating compute client: %s", err)
 	}
 
 	if d.Get("stop_before_destroy").(bool) {
 		if err = doPowerAction(ecsClient, d, "FORCE-OFF"); err != nil {
-			logp.Printf("[WARN] Error stopping HuaweiCloud instance: %s", err)
+			logp.Printf("[WARN] Error stopping instance: %s", err)
 		} else {
 			logp.Printf("[DEBUG] Waiting for instance (%s) to stop", d.Id())
 			pending := []string{"ACTIVE"}
 			target := []string{"SHUTOFF"}
-			timeout := d.Timeout(schema.TimeoutCreate)
-			if err := waitForServerTargetState(ctx, computeClient, d.Id(), pending, target, timeout); err != nil {
+			timeout := d.Timeout(schema.TimeoutDelete)
+			if err := waitForServerTargetState(ctx, ecsClient, d.Id(), pending, target, timeout); err != nil {
 				return diag.Errorf("State waiting timeout: %s", err)
 			}
 		}
@@ -1144,7 +1159,7 @@ func resourceComputeInstanceV2Delete(ctx context.Context, d *schema.ResourceData
 	pending := []string{"ACTIVE", "SHUTOFF"}
 	target := []string{"DELETED", "SOFT_DELETED"}
 	deleteTimeout := d.Timeout(schema.TimeoutDelete)
-	if err := waitForServerTargetState(ctx, computeClient, d.Id(), pending, target, deleteTimeout); err != nil {
+	if err := waitForServerTargetState(ctx, ecsClient, d.Id(), pending, target, deleteTimeout); err != nil {
 		return diag.Errorf("State waiting timeout: %s", err)
 	}
 
@@ -1579,11 +1594,11 @@ func doPowerAction(client *golangsdk.ServiceClient, d *schema.ResourceData, acti
 	}
 	op, ok := powerActionMap[action]
 	if !ok {
-		return fmt.Errorf("The powerMap does not contain option (%s)", action)
+		return fmt.Errorf("the powerMap does not contain option (%s)", action)
 	}
 	jobResp, err := powers.PowerAction(client, powerOpts, op).ExtractJobResponse()
 	if err != nil {
-		return fmt.Errorf("Doing power action (%s) for instance (%s) failed: %s", action, d.Id(), err)
+		return fmt.Errorf("doing power action (%s) for instance (%s) failed: %s", action, d.Id(), err)
 	}
 	// The time of the power on/off and reboot is usually between 15 and 35 seconds.
 	timeout := 3 * time.Minute

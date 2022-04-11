@@ -244,7 +244,7 @@ func resourceEvsVolumeCreate(ctx context.Context, d *schema.ResourceData, meta i
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"creating"},
 		Target:     []string{"available"},
-		Refresh:    cloudVolumeRefreshFunc(evsV2Client, d.Id()),
+		Refresh:    CloudVolumeRefreshFunc(evsV2Client, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      3 * time.Second,
 		MinTimeout: 5 * time.Second,
@@ -387,7 +387,7 @@ func resourceEvsVolumeUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		stateConf := &resource.StateChangeConf{
 			Pending:    []string{"extending"},
 			Target:     []string{"available", "in-use"},
-			Refresh:    cloudVolumeRefreshFunc(evsV2Client, d.Id()),
+			Refresh:    CloudVolumeRefreshFunc(evsV2Client, d.Id()),
 			Timeout:    d.Timeout(schema.TimeoutUpdate),
 			Delay:      10 * time.Second,
 			MinTimeout: 3 * time.Second,
@@ -478,7 +478,7 @@ func resourceEvsVolumeDelete(ctx context.Context, d *schema.ResourceData, meta i
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"deleting", "downloading", "available"},
 		Target:     []string{"deleted"},
-		Refresh:    cloudVolumeRefreshFunc(evsV2Client, d.Id()),
+		Refresh:    CloudVolumeRefreshFunc(evsV2Client, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      10 * time.Second,
 		MinTimeout: 3 * time.Second,
@@ -507,7 +507,7 @@ func AttachmentJobRefreshFunc(c *golangsdk.ServiceClient, jobId string) resource
 	}
 }
 
-func cloudVolumeRefreshFunc(c *golangsdk.ServiceClient, volumeId string) resource.StateRefreshFunc {
+func CloudVolumeRefreshFunc(c *golangsdk.ServiceClient, volumeId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		response, err := cloudvolumes.Get(c, volumeId).Extract()
 		if err != nil {
