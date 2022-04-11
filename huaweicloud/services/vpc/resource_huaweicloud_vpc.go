@@ -2,6 +2,7 @@ package vpc
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/chnsz/golangsdk"
@@ -11,11 +12,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	client "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3"
+	v3vpc "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3/model"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceVirtualPrivateCloudV1() *schema.Resource {
@@ -54,6 +56,11 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"secondary_cidr": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: utils.ValidateCIDR,
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -88,7 +95,8 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 
 func resourceVirtualPrivateCloudCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
+	region := config.GetRegion(d)
+	vpcClient, err := config.NetworkingV1Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
 	}
@@ -110,7 +118,7 @@ func resourceVirtualPrivateCloudCreate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	d.SetId(n.ID)
-	logp.Printf("[INFO] Vpc ID: %s", n.ID)
+	log.Printf("[DEBUG] Vpc ID: %s", n.ID)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"CREATING"},
@@ -131,13 +139,25 @@ func resourceVirtualPrivateCloudCreate(ctx context.Context, d *schema.ResourceDa
 	//set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		vpcV2Client, err := config.NetworkingV2Client(config.GetRegion(d))
+		vpcV2Client, err := config.NetworkingV2Client(region)
 		if err != nil {
 			return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
 		}
 		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(vpcV2Client, "vpcs", n.ID, taglist).ExtractErr(); tagErr != nil {
 			return fmtp.DiagErrorf("Error setting tags of VPC %q: %s", n.ID, tagErr)
+		}
+	}
+
+	if v, ok := d.GetOk("secondary_cidr"); ok {
+		v3Client, err := config.HcVpcV3Client(region)
+		if err != nil {
+			return diag.Errorf("error creating VPC v3 client: %s", err)
+		}
+
+		extendCidr := v.(string)
+		if err := addSecondaryCIDR(v3Client, d.Id(), extendCidr); err != nil {
+			return diag.Errorf("error adding VPC secondary CIDR: %s", err)
 		}
 	}
 
@@ -187,7 +207,7 @@ func resourceVirtualPrivateCloudRead(_ context.Context, d *schema.ResourceData, 
 				return fmtp.DiagErrorf("Error saving tags to state for VPC (%s): %s", d.Id(), err)
 			}
 		} else {
-			logp.Printf("[WARN] Error fetching tags of VPC (%s): %s", d.Id(), err)
+			log.Printf("[WARN] Error fetching tags of VPC (%s): %s", d.Id(), err)
 		}
 	} else {
 		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
@@ -198,11 +218,13 @@ func resourceVirtualPrivateCloudRead(_ context.Context, d *schema.ResourceData, 
 
 func resourceVirtualPrivateCloudUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
+	region := config.GetRegion(d)
+	vpcClient, err := config.NetworkingV1Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
 	}
 
+	vpcID := d.Id()
 	if d.HasChanges("name", "cidr", "description") {
 		updateOpts := vpcs.UpdateOpts{
 			Name: d.Get("name").(string),
@@ -213,7 +235,7 @@ func resourceVirtualPrivateCloudUpdate(ctx context.Context, d *schema.ResourceDa
 			updateOpts.Description = &desc
 		}
 
-		_, err = vpcs.Update(vpcClient, d.Id(), updateOpts).Extract()
+		_, err = vpcs.Update(vpcClient, vpcID, updateOpts).Extract()
 		if err != nil {
 			return fmtp.DiagErrorf("Error updating Huaweicloud VPC: %s", err)
 		}
@@ -221,14 +243,36 @@ func resourceVirtualPrivateCloudUpdate(ctx context.Context, d *schema.ResourceDa
 
 	//update tags
 	if d.HasChange("tags") {
-		vpcV2Client, err := config.NetworkingV2Client(config.GetRegion(d))
+		vpcV2Client, err := config.NetworkingV2Client(region)
 		if err != nil {
 			return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
 		}
 
-		tagErr := utils.UpdateResourceTags(vpcV2Client, d, "vpcs", d.Id())
+		tagErr := utils.UpdateResourceTags(vpcV2Client, d, "vpcs", vpcID)
 		if tagErr != nil {
-			return fmtp.DiagErrorf("Error updating tags of VPC %s: %s", d.Id(), tagErr)
+			return fmtp.DiagErrorf("Error updating tags of VPC %s: %s", vpcID, tagErr)
+		}
+	}
+
+	if d.HasChange("secondary_cidr") {
+		v3Client, err := config.HcVpcV3Client(region)
+		if err != nil {
+			return diag.Errorf("error creating VPC v3 client: %s", err)
+		}
+
+		old, new := d.GetChange("secondary_cidr")
+		preExtendCidr := old.(string)
+		newExtendCidr := new.(string)
+
+		if preExtendCidr != "" {
+			if err := removeSecondaryCIDR(v3Client, vpcID, preExtendCidr); err != nil {
+				return diag.Errorf("error deleting VPC secondary CIDR: %s", err)
+			}
+		}
+		if newExtendCidr != "" {
+			if err := addSecondaryCIDR(v3Client, vpcID, newExtendCidr); err != nil {
+				return diag.Errorf("error adding VPC secondary CIDR: %s", err)
+			}
 		}
 	}
 
@@ -287,17 +331,16 @@ func waitForVpcDelete(vpcClient *golangsdk.ServiceClient, vpcId string) resource
 		r, err := vpcs.Get(vpcClient, vpcId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[INFO] Successfully deleted Huaweicloud vpc %s", vpcId)
+				log.Printf("[INFO] Successfully delete VPC %s", vpcId)
 				return r, "DELETED", nil
 			}
 			return r, "ACTIVE", err
 		}
 
 		err = vpcs.Delete(vpcClient, vpcId).ExtractErr()
-
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[INFO] Successfully deleted Huaweicloud vpc %s", vpcId)
+				log.Printf("[INFO] Successfully delete VPC %s", vpcId)
 				return r, "DELETED", nil
 			}
 			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
@@ -310,4 +353,36 @@ func waitForVpcDelete(vpcClient *golangsdk.ServiceClient, vpcId string) resource
 
 		return r, "ACTIVE", nil
 	}
+}
+
+func addSecondaryCIDR(client *client.VpcClient, vpcID, cidr string) error {
+	reqBody := v3vpc.AddVpcExtendCidrRequestBody{
+		Vpc: &v3vpc.AddExtendCidrOption{
+			ExtendCidrs: []string{cidr},
+		},
+	}
+	reqOpts := v3vpc.AddVpcExtendCidrRequest{
+		VpcId: vpcID,
+		Body:  &reqBody,
+	}
+
+	log.Printf("[DEBUG] add secondary CIDR %s into VPC %s", cidr, vpcID)
+	_, err := client.AddVpcExtendCidr(&reqOpts)
+	return err
+}
+
+func removeSecondaryCIDR(client *client.VpcClient, vpcID, preCidr string) error {
+	reqBody := v3vpc.RemoveVpcExtendCidrRequestBody{
+		Vpc: &v3vpc.RemoveExtendCidrOption{
+			ExtendCidrs: []string{preCidr},
+		},
+	}
+	reqOpts := v3vpc.RemoveVpcExtendCidrRequest{
+		VpcId: vpcID,
+		Body:  &reqBody,
+	}
+
+	log.Printf("[DEBUG] remove secondary CIDR %s from VPC %s", preCidr, vpcID)
+	_, err := client.RemoveVpcExtendCidr(&reqOpts)
+	return err
 }
