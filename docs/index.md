@@ -112,8 +112,8 @@ Usage:
 
 ```terraform
 provider "huaweicloud" {
-  shared_configuration_file = "/home/tf_user/.hcloud/config.json"
-  profile                   = "customprofile"
+  shared_config_file = "/home/tf_user/.hcloud/config.json"
+  profile            = "customprofile"
 }
 ```
 
