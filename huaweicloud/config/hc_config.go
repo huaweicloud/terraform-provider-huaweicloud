@@ -19,6 +19,7 @@ import (
 	gaussdbv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/gaussdb/v3"
 	iamv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3"
 	kpsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3"
+	rdsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3"
 	tmsv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1"
 	vpcv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -188,6 +189,15 @@ func (c *Config) HcCtsV3Client(region string) (*ctsv3.CtsClient, error) {
 		return nil, err
 	}
 	return ctsv3.NewCtsClient(hcClient), nil
+}
+
+// HcRdsV3Client is the RDS service client using huaweicloud-sdk-go-v3 package
+func (c *Config) HcRdsV3Client(region string) (*rdsv3.RdsClient, error) {
+	hcClient, err := NewHcClient(c, region, "rds", false)
+	if err != nil {
+		return nil, err
+	}
+	return rdsv3.NewRdsClient(hcClient), nil
 }
 
 // NewHcClient is the common client using huaweicloud-sdk-go-v3 package
