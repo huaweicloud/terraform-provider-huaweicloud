@@ -1,7 +1,7 @@
 package groups
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/chnsz/golangsdk"
 )
@@ -9,17 +9,24 @@ import (
 const resourcePath = "scaling_group"
 
 func createURL(c *golangsdk.ServiceClient) string {
-	ur := c.ServiceURL(resourcePath)
-	log.Printf("[DEBUG] Create URL is: %#v", ur)
-	return ur
+	return c.ServiceURL(resourcePath)
+}
+
+func updateURL(c *golangsdk.ServiceClient, id string) string {
+	return c.ServiceURL(resourcePath, id)
+}
+
+func getURL(c *golangsdk.ServiceClient, id string) string {
+	return c.ServiceURL(resourcePath, id)
 }
 
 func deleteURL(c *golangsdk.ServiceClient, id string) string {
 	return c.ServiceURL(resourcePath, id)
 }
 
-func getURL(c *golangsdk.ServiceClient, id string) string {
-	return c.ServiceURL(resourcePath, id)
+func forceDeleteURL(c *golangsdk.ServiceClient, id string) string {
+	url := c.ServiceURL(resourcePath, id)
+	return fmt.Sprintf("%s?force_delete=yes", url)
 }
 
 func listURL(c *golangsdk.ServiceClient) string {
@@ -28,8 +35,4 @@ func listURL(c *golangsdk.ServiceClient) string {
 
 func enableURL(c *golangsdk.ServiceClient, id string) string {
 	return c.ServiceURL(resourcePath, id, "action")
-}
-
-func updateURL(c *golangsdk.ServiceClient, id string) string {
-	return c.ServiceURL(resourcePath, id)
 }

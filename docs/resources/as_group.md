@@ -179,6 +179,9 @@ The following arguments are supported:
 * `delete_instances` - (Optional, String) Whether to delete the instances in the AS group when deleting the AS group.
   The options are `yes` and `no`.
 
+* `force_delete` - (Optional, Bool) Whether to forcibly delete the AS group, remove the ECS instances and release them.
+  The default value is `false`.
+
 * `enable` - (Optional, Bool) Whether to enable the AS Group. The options are `true` and `false`. The default value
   is `true`.
 

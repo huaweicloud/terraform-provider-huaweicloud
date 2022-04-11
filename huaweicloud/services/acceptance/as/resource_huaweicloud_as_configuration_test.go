@@ -148,7 +148,7 @@ resource "huaweicloud_as_configuration" "acc_as_config"{
     flavor = data.huaweicloud_compute_flavors.test.ids[0]
     disk {
       size        = 40
-      volume_type = "SATA"
+      volume_type = "SSD"
       disk_type   = "SYS"
     }
     key_name = huaweicloud_compute_keypair.acc_key.id
