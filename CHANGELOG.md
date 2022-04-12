@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.35.1 (April 12, 2022)
+
+BUG FIXES:
+
+* resource/huaweicloud_gaussdb_cassandra_instance: fix reducing nodes issue in prepaid mode [GH-2074]
+* resource/huaweicloud_networking_secgroup: fix ForceNew issue [GH-2075]
+
 ## 1.35.0 (March 31, 2022)
 
 * **New Resurce:**
