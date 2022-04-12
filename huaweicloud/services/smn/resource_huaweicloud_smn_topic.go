@@ -1,10 +1,11 @@
-package huaweicloud
+package smn
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/smn/v2/topics"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -62,7 +63,7 @@ func ResourceTopic() *schema.Resource {
 
 func resourceTopicCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.SmnV2Client(GetRegion(d, config))
+	client, err := config.SmnV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud smn client: %s", err)
 	}
@@ -89,7 +90,7 @@ func resourceTopicCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceTopicRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.SmnV2Client(GetRegion(d, config))
+	client, err := config.SmnV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud smn client: %s", err)
 	}
@@ -97,7 +98,7 @@ func resourceTopicRead(d *schema.ResourceData, meta interface{}) error {
 	topicUrn := d.Id()
 	topicGet, err := topics.Get(client, topicUrn).ExtractGet()
 	if err != nil {
-		return CheckDeleted(d, err, "topic")
+		return common.CheckDeleted(d, err, "topic")
 	}
 
 	logp.Printf("[DEBUG] Retrieved topic %s: %#v", topicUrn, topicGet)
@@ -115,7 +116,7 @@ func resourceTopicRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceTopicDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.SmnV2Client(GetRegion(d, config))
+	client, err := config.SmnV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud smn client: %s", err)
 	}
@@ -143,7 +144,7 @@ func resourceTopicDelete(d *schema.ResourceData, meta interface{}) error {
 
 func resourceTopicUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.SmnV2Client(GetRegion(d, config))
+	client, err := config.SmnV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud smn client: %s", err)
 	}

@@ -50,6 +50,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rds"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/scm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/servicestage"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/smn"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/swr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/tms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
@@ -719,8 +720,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_sfs_file_system": ResourceSFSFileSystemV2(),
 			"huaweicloud_sfs_turbo":       ResourceSFSTurbo(),
 
-			"huaweicloud_smn_topic":        ResourceTopic(),
-			"huaweicloud_smn_subscription": ResourceSubscription(),
+			"huaweicloud_smn_topic":        smn.ResourceTopic(),
+			"huaweicloud_smn_subscription": smn.ResourceSubscription(),
 
 			"huaweicloud_swr_organization":             swr.ResourceSWROrganization(),
 			"huaweicloud_swr_organization_permissions": swr.ResourceSWROrganizationPermissions(),
@@ -809,8 +810,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_networking_secgroup_v2":      ResourceNetworkingSecGroup(),
 			"huaweicloud_networking_secgroup_rule_v2": ResourceNetworkingSecGroupRule(),
 
-			"huaweicloud_smn_topic_v2":        ResourceTopic(),
-			"huaweicloud_smn_subscription_v2": ResourceSubscription(),
+			"huaweicloud_smn_topic_v2":        smn.ResourceTopic(),
+			"huaweicloud_smn_subscription_v2": smn.ResourceSubscription(),
 
 			"huaweicloud_rds_instance_v3":       rds.ResourceRdsInstance(),
 			"huaweicloud_rds_parametergroup_v3": rds.ResourceRdsConfiguration(),

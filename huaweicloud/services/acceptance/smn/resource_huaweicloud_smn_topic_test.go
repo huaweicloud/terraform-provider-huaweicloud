@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
@@ -19,8 +20,8 @@ func TestAccSMNV2Topic_basic(t *testing.T) {
 	update_displayName := fmt.Sprintf("The update display name of %s", rName)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckSMNTopicV2Destroy,
 		Steps: []resource.TestStep{
 			{
@@ -49,8 +50,8 @@ func TestAccSMNV2Topic_basic(t *testing.T) {
 }
 
 func testAccCheckSMNTopicV2Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	smnClient, err := config.SmnV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	smnClient, err := config.SmnV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud smn: %s", err)
 	}
@@ -80,8 +81,8 @@ func testAccCheckSMNV2TopicExists(n string, topic *topics.TopicGet) resource.Tes
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		smnClient, err := config.SmnV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		smnClient, err := config.SmnV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud smn client: %s", err)
 		}
