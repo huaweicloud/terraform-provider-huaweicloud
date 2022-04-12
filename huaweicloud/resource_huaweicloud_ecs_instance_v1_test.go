@@ -6,6 +6,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -15,6 +16,7 @@ import (
 
 func TestAccEcsV1Instance_basic(t *testing.T) {
 	var instance cloudservers.CloudServer
+	rName := fmt.Sprintf("tf-acc-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
@@ -22,7 +24,7 @@ func TestAccEcsV1Instance_basic(t *testing.T) {
 		CheckDestroy: testAccCheckEcsV1InstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEcsV1Instance_basic,
+				Config: testAccEcsV1Instance_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckEcsV1InstanceExists("huaweicloud_ecs_instance_v1.instance_1", &instance),
 					resource.TestCheckResourceAttr(
@@ -40,7 +42,7 @@ func TestAccEcsV1Instance_basic(t *testing.T) {
 				},
 			},
 			{
-				Config: testAccEcsV1Instance_update,
+				Config: testAccEcsV1Instance_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckEcsV1InstanceExists("huaweicloud_ecs_instance_v1.instance_1", &instance),
 					resource.TestCheckResourceAttr(
@@ -108,20 +110,23 @@ func testAccCheckEcsV1InstanceExists(n string, instance *cloudservers.CloudServe
 	}
 }
 
-var testAccEcsV1Instance_basic = fmt.Sprintf(`
+func testAccEcsV1Instance_basic(rName string) string {
+	return fmt.Sprintf(`
+%s
+
 resource "huaweicloud_ecs_instance_v1" "instance_1" {
-  name     = "server_1"
-  image_id = "%s"
-  flavor   = "%s"
-  vpc_id   = "%s"
+  name     = "%s"
+  image_id = data.huaweicloud_images_image.test.id
+  flavor   = data.huaweicloud_compute_flavors.test.ids[0]
+  vpc_id   = data.huaweicloud_vpc_subnet.test.vpc_id
 
   nics {
-    network_id = "%s"
+    network_id = data.huaweicloud_vpc_subnet.test.id
   }
 
   password          = "Password@123"
-  security_groups   = ["default"]
-  availability_zone = "%s"
+  security_groups   = [data.huaweicloud_networking_secgroup.test.id]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
   auto_recovery     = true
 
   tags = {
@@ -129,33 +134,38 @@ resource "huaweicloud_ecs_instance_v1" "instance_1" {
     key = "value"
   }
 }
-`, HW_IMAGE_ID, HW_FLAVOR_NAME, HW_VPC_ID, HW_NETWORK_ID, HW_AVAILABILITY_ZONE)
+`, testAccCompute_data, rName)
+}
 
-var testAccEcsV1Instance_update = fmt.Sprintf(`
+func testAccEcsV1Instance_update(rName string) string {
+	return fmt.Sprintf(`
+%s
+
 resource "huaweicloud_compute_secgroup_v2" "secgroup_1" {
   name        = "secgroup_ecs"
   description = "a security group"
 }
 
 resource "huaweicloud_ecs_instance_v1" "instance_1" {
-  name     = "server_updated"
-  image_id = "%s"
-  flavor   = "%s"
-  vpc_id   = "%s"
+  name     = "%s_updated"
+  image_id = data.huaweicloud_images_image.test.id
+  flavor   = data.huaweicloud_compute_flavors.test.ids[0]
+  vpc_id   = data.huaweicloud_vpc_subnet.test.vpc_id
 
   nics {
-    network_id = "%s"
+    network_id = data.huaweicloud_vpc_subnet.test.id
   }
 
   password                    = "Password@123"
-  security_groups             = ["default", "${huaweicloud_compute_secgroup_v2.secgroup_1.name}"]
-  availability_zone           = "%s"
+  security_groups             = [data.huaweicloud_networking_secgroup.test.id, huaweicloud_compute_secgroup_v2.secgroup_1.id]
+  availability_zone           = data.huaweicloud_availability_zones.test.names[0]
   auto_recovery               = false
   delete_disks_on_termination = true
 
   tags = {
-    foo = "bar1"
+    foo  = "bar1"
     key1 = "value"
   }
 }
-`, HW_IMAGE_ID, HW_FLAVOR_NAME, HW_VPC_ID, HW_NETWORK_ID, HW_AVAILABILITY_ZONE)
+`, testAccCompute_data, rName)
+}

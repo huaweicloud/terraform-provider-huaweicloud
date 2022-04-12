@@ -121,6 +121,15 @@ type CloudServer struct {
 	HypervisorHostname  string               `json:"OS-EXT-SRV-ATTR:hypervisor_hostname"`
 	VolumeAttached      []VolumeAttached     `json:"os-extended-volumes:volumes_attached"`
 	OsSchedulerHints    OsSchedulerHints     `json:"os:scheduler_hints"`
+	Fault               Fault                `json:"fault"`
+}
+
+// ECS fault causes
+type Fault struct {
+	Code    int       `json:"code"`
+	Created time.Time `json:"created"`
+	Details string    `json:"details"`
+	Message string    `json:"message"`
 }
 
 // NewCloudServer defines the response from details on a single server, by ID.

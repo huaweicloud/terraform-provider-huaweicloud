@@ -13,7 +13,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/keypairs"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/schedulerhints"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/secgroups"
-	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/startstop"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/flavors"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/servers"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/block_devices"
@@ -650,7 +649,7 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 		pending := []string{"BUILD"}
 		target := []string{"ACTIVE"}
 		timeout := d.Timeout(schema.TimeoutCreate)
-		if err := waitForServerTargetState(computeClient, d.Id(), pending, target, timeout); err != nil {
+		if err := waitForServerTargetState(ecsClient, d.Id(), pending, target, timeout); err != nil {
 			return fmtp.Errorf("State waiting timeout: %s", err)
 		}
 	}
@@ -1075,21 +1074,19 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
-	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	if d.Get("stop_before_destroy").(bool) {
-		err = startstop.Stop(computeClient, d.Id()).ExtractErr()
-		if err != nil {
+		if err = doPowerAction(ecsClient, d, "FORCE-OFF"); err != nil {
 			logp.Printf("[WARN] Error stopping HuaweiCloud instance: %s", err)
 		} else {
 			logp.Printf("[DEBUG] Waiting for instance (%s) to stop", d.Id())
 			pending := []string{"ACTIVE"}
 			target := []string{"SHUTOFF"}
-			timeout := d.Timeout(schema.TimeoutCreate)
-			if err := waitForServerTargetState(computeClient, d.Id(), pending, target, timeout); err != nil {
+			timeout := d.Timeout(schema.TimeoutDelete)
+			if err := waitForServerTargetState(ecsClient, d.Id(), pending, target, timeout); err != nil {
 				return fmtp.Errorf("State waiting timeout: %s", err)
 			}
 		}
@@ -1125,7 +1122,7 @@ func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) e
 	pending := []string{"ACTIVE", "SHUTOFF"}
 	target := []string{"DELETED", "SOFT_DELETED"}
 	deleteTimeout := d.Timeout(schema.TimeoutDelete)
-	if err := waitForServerTargetState(computeClient, d.Id(), pending, target, deleteTimeout); err != nil {
+	if err := waitForServerTargetState(ecsClient, d.Id(), pending, target, deleteTimeout); err != nil {
 		return fmtp.Errorf("State waiting timeout: %s", err)
 	}
 
@@ -1170,11 +1167,10 @@ func resourceComputeInstanceV2ImportState(d *schema.ResourceData, meta interface
 	return []*schema.ResourceData{d}, nil
 }
 
-// ServerV2StateRefreshFunc returns a resource.StateRefreshFunc that is used to watch
-// an HuaweiCloud instance.
-func ServerV2StateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+// ServerV1StateRefreshFunc returns a resource.StateRefreshFunc that is used to watch an HuaweiCloud instance.
+func ServerV1StateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		s, err := servers.Get(client, instanceID).Extract()
+		s, err := cloudservers.Get(client, instanceID).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				return s, "DELETED", nil
@@ -1528,7 +1524,7 @@ func waitForServerTargetState(client *golangsdk.ServiceClient, ID string, pendin
 	stateConf := &resource.StateChangeConf{
 		Pending:      pending,
 		Target:       target,
-		Refresh:      ServerV2StateRefreshFunc(client, ID),
+		Refresh:      ServerV1StateRefreshFunc(client, ID),
 		Timeout:      timeout,
 		Delay:        5 * time.Second,
 		PollInterval: 5 * time.Second,

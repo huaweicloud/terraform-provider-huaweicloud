@@ -12,7 +12,7 @@ github.com/apparentlymart/go-cidr/cidr
 github.com/apparentlymart/go-textseg/textseg
 # github.com/apparentlymart/go-textseg/v13 v13.0.0
 github.com/apparentlymart/go-textseg/v13/textseg
-# github.com/chnsz/golangsdk v0.0.0-20220402015046-523087b23e78
+# github.com/chnsz/golangsdk v0.0.0-20220407022843-88376a549c27
 ## explicit
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/internal
@@ -70,7 +70,6 @@ github.com/chnsz/golangsdk/openstack/compute/v2/extensions/floatingips
 github.com/chnsz/golangsdk/openstack/compute/v2/extensions/keypairs
 github.com/chnsz/golangsdk/openstack/compute/v2/extensions/schedulerhints
 github.com/chnsz/golangsdk/openstack/compute/v2/extensions/secgroups
-github.com/chnsz/golangsdk/openstack/compute/v2/extensions/startstop
 github.com/chnsz/golangsdk/openstack/compute/v2/flavors
 github.com/chnsz/golangsdk/openstack/compute/v2/images
 github.com/chnsz/golangsdk/openstack/compute/v2/servers

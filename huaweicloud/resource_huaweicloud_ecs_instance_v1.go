@@ -348,6 +348,13 @@ func resourceEcsInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("vpc_id", server.Metadata.VpcID)
 	d.Set("availability_zone", server.AvailabilityZone)
 
+	// set secgroups
+	secGrpIDs := make([]string, len(server.SecurityGroups))
+	for i, sg := range server.SecurityGroups {
+		secGrpIDs[i] = sg.ID
+	}
+	d.Set("security_groups", secGrpIDs)
+
 	// Get the instance network and address information
 	nics := flattenInstanceNicsV1(d, meta, server.Addresses)
 	d.Set("nics", nics)
@@ -373,9 +380,14 @@ func resourceEcsInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
+	computeV2Client, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute v2.1 client: %s", err)
+	}
+
+	computeV1Client, err := config.ComputeV1Client(GetRegion(d, config))
+	if err != nil {
+		return fmtp.Errorf("Error creating HuaweiCloud compute v1 client: %s", err)
 	}
 
 	var updateOpts servers.UpdateOpts
@@ -384,7 +396,7 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if updateOpts != (servers.UpdateOpts{}) {
-		_, err := servers.Update(computeClient, d.Id(), updateOpts).Extract()
+		_, err := servers.Update(computeV2Client, d.Id(), updateOpts).Extract()
 		if err != nil {
 			return fmtp.Errorf("Error updating HuaweiCloud server: %s", err)
 		}
@@ -402,7 +414,7 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 		logp.Printf("[DEBUG] Security groups to remove: %v", secgroupsToRemove)
 
 		for _, g := range secgroupsToRemove.List() {
-			err := secgroups.RemoveServer(computeClient, d.Id(), g.(string)).ExtractErr()
+			err := secgroups.RemoveServer(computeV2Client, d.Id(), g.(string)).ExtractErr()
 			if err != nil && err.Error() != "EOF" {
 				if _, ok := err.(golangsdk.ErrDefault404); ok {
 					continue
@@ -415,7 +427,7 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 		}
 
 		for _, g := range secgroupsToAdd.List() {
-			err := secgroups.AddServer(computeClient, d.Id(), g.(string)).ExtractErr()
+			err := secgroups.AddServer(computeV2Client, d.Id(), g.(string)).ExtractErr()
 			if err != nil && err.Error() != "EOF" {
 				return fmtp.Errorf("Error adding security group (%s) to HuaweiCloud server (%s): %s", g, d.Id(), err)
 			}
@@ -430,7 +442,7 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 			FlavorRef: newFlavorId,
 		}
 		logp.Printf("[DEBUG] Resize configuration: %#v", resizeOpts)
-		err := servers.Resize(computeClient, d.Id(), resizeOpts).ExtractErr()
+		err := servers.Resize(computeV2Client, d.Id(), resizeOpts).ExtractErr()
 		if err != nil {
 			return fmtp.Errorf("Error resizing HuaweiCloud server: %s", err)
 		}
@@ -441,7 +453,7 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 		stateConf := &resource.StateChangeConf{
 			Pending:    []string{"RESIZE"},
 			Target:     []string{"VERIFY_RESIZE"},
-			Refresh:    ServerV2StateRefreshFunc(computeClient, d.Id()),
+			Refresh:    ServerV1StateRefreshFunc(computeV1Client, d.Id()),
 			Timeout:    d.Timeout(schema.TimeoutUpdate),
 			Delay:      10 * time.Second,
 			MinTimeout: 3 * time.Second,
@@ -454,7 +466,7 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 
 		// Confirm resize.
 		logp.Printf("[DEBUG] Confirming resize")
-		err = servers.ConfirmResize(computeClient, d.Id()).ExtractErr()
+		err = servers.ConfirmResize(computeV2Client, d.Id()).ExtractErr()
 		if err != nil {
 			return fmtp.Errorf("Error confirming resize of HuaweiCloud server: %s", err)
 		}
@@ -462,7 +474,7 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 		stateConf = &resource.StateChangeConf{
 			Pending:    []string{"VERIFY_RESIZE"},
 			Target:     []string{"ACTIVE"},
-			Refresh:    ServerV2StateRefreshFunc(computeClient, d.Id()),
+			Refresh:    ServerV1StateRefreshFunc(computeV1Client, d.Id()),
 			Timeout:    d.Timeout(schema.TimeoutUpdate),
 			Delay:      10 * time.Second,
 			MinTimeout: 3 * time.Second,
@@ -503,10 +515,6 @@ func resourceEcsInstanceV1Delete(d *schema.ResourceData, meta interface{}) error
 	computeV1Client, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
-	}
-	computeV2Client, err := config.ComputeV2Client(GetRegion(d, config))
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute V2 client: %s", err)
 	}
 
 	if d.Get("charging_mode") == "prePaid" {
@@ -556,7 +564,7 @@ func resourceEcsInstanceV1Delete(d *schema.ResourceData, meta interface{}) error
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"ACTIVE", "SHUTOFF"},
 		Target:     []string{"DELETED", "SOFT_DELETED"},
-		Refresh:    ServerV2StateRefreshFunc(computeV2Client, d.Id()),
+		Refresh:    ServerV1StateRefreshFunc(computeV1Client, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      10 * time.Second,
 		MinTimeout: 3 * time.Second,

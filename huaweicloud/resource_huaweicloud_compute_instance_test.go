@@ -38,6 +38,7 @@ func TestAccComputeV2Instance_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "network.0.port"),
 					resource.TestCheckResourceAttrSet(resourceName, "availability_zone"),
 					resource.TestCheckResourceAttr(resourceName, "network.0.source_dest_check", "true"),
+					resource.TestCheckResourceAttr(resourceName, "stop_before_destroy", "true"),
 				),
 			},
 			{
@@ -343,10 +344,11 @@ func testAccComputeV2Instance_basic(rName string) string {
 %s
 
 resource "huaweicloud_compute_instance" "test" {
-  name               = "%s"
-  image_id           = data.huaweicloud_images_image.test.id
-  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
-  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+  name                = "%s"
+  image_id            = data.huaweicloud_images_image.test.id
+  flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]
+  stop_before_destroy = true
 
   network {
     uuid = data.huaweicloud_vpc_subnet.test.id
