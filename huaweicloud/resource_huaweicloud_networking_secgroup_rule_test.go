@@ -130,6 +130,35 @@ func TestAccNetworkingSecGroupRule_lowerCaseCIDR(t *testing.T) {
 	})
 }
 
+func TestAccNetworkingSecGroupRule_noPorts(t *testing.T) {
+	var secgroupRule rules.SecurityGroupRule
+	var resourceRuleName string = "huaweicloud_networking_secgroup_rule.test"
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNetworkingSecGroupRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkingSecGroupRule_noPorts(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckNetworkingSecGroupRuleExists(resourceRuleName, &secgroupRule),
+					resource.TestCheckResourceAttr(resourceRuleName, "direction", "ingress"),
+					resource.TestCheckResourceAttr(resourceRuleName, "ethertype", "IPv4"),
+					resource.TestCheckResourceAttr(resourceRuleName, "protocol", "icmp"),
+					resource.TestCheckResourceAttr(resourceRuleName, "remote_ip_prefix", "0.0.0.0/0"),
+				),
+			},
+			{
+				ResourceName:      resourceRuleName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckNetworkingSecGroupRuleDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
@@ -250,6 +279,20 @@ resource "huaweicloud_networking_secgroup_rule" "secgroup_rule_test" {
   protocol          = "tcp"
   remote_ip_prefix  = "2001:558:FC00::/39"
   security_group_id = huaweicloud_networking_secgroup.secgroup_test.id
+}
+`, testAccNetworkingSecGroupRule_base(rName))
+}
+
+func testAccNetworkingSecGroupRule_noPorts(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_networking_secgroup_rule" "test" {
+  security_group_id = huaweicloud_networking_secgroup.secgroup_test.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "icmp"
+  remote_ip_prefix  = "0.0.0.0/0"
 }
 `, testAccNetworkingSecGroupRule_base(rName))
 }
