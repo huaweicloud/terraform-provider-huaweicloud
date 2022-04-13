@@ -26,9 +26,13 @@ func TestAccASGroup_basic(t *testing.T) {
 				Config: testASGroup_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckASGroupExists(resourceName, &asGroup),
+					resource.TestCheckResourceAttr(resourceName, "desire_instance_number", "0"),
+					resource.TestCheckResourceAttr(resourceName, "min_instance_number", "0"),
+					resource.TestCheckResourceAttr(resourceName, "max_instance_number", "0"),
 					resource.TestCheckResourceAttr(resourceName, "lbaas_listeners.0.protocol_port", "8080"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
 				),
 			},
 			{
@@ -72,6 +76,31 @@ func TestAccASGroup_withEpsId(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckASGroupExists(resourceName, &asGroup),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+		},
+	})
+}
+
+func TestAccASGroup_forceDelete(t *testing.T) {
+	var asGroup groups.Group
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_as_group.acc_as_group"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckASGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testASGroup_forceDelete(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckASGroupExists(resourceName, &asGroup),
+					resource.TestCheckResourceAttr(resourceName, "desire_instance_number", "2"),
+					resource.TestCheckResourceAttr(resourceName, "min_instance_number", "2"),
+					resource.TestCheckResourceAttr(resourceName, "max_instance_number", "5"),
+					resource.TestCheckResourceAttr(resourceName, "instances.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
 				),
 			},
 		},
@@ -191,7 +220,7 @@ resource "huaweicloud_as_configuration" "acc_as_config"{
     key_name = huaweicloud_compute_keypair.acc_key.id
     disk {
       size        = 40
-      volume_type = "SATA"
+      volume_type = "SSD"
       disk_type   = "SYS"
     }
   }
@@ -307,4 +336,26 @@ resource "huaweicloud_as_group" "acc_as_group"{
   }
 }
 `, testASGroup_Base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testASGroup_forceDelete(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_as_group" "acc_as_group"{
+  scaling_group_name       = "%s"
+  scaling_configuration_id = huaweicloud_as_configuration.acc_as_config.id
+  min_instance_number      = 2
+  max_instance_number      = 5
+  force_delete             = true
+  vpc_id                   = data.huaweicloud_vpc.test.id
+
+  networks {
+    id = data.huaweicloud_vpc_subnet.test.id
+  }
+  security_groups {
+    id = huaweicloud_networking_secgroup.secgroup.id
+  }
+}
+`, testASGroup_Base(rName), rName)
 }

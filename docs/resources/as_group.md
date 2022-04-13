@@ -131,7 +131,7 @@ The following arguments are supported:
 * `scaling_group_name` - (Required, String) The name of the scaling group. The name can contain letters, digits,
   underscores(_), and hyphens(-),and cannot exceed 64 characters.
 
-* `scaling_configuration_id` - (Optional, String) The configuration ID which defines configurations of instances in the
+* `scaling_configuration_id` - (Required, String) The configuration ID which defines configurations of instances in the
   AS group.
 
 * `desire_instance_number` - (Optional, Int) The expected number of instances. The default value is the minimum number
@@ -178,6 +178,9 @@ The following arguments are supported:
 
 * `delete_instances` - (Optional, String) Whether to delete the instances in the AS group when deleting the AS group.
   The options are `yes` and `no`.
+
+* `force_delete` - (Optional, Bool) Whether to forcibly delete the AS group, remove the ECS instances and release them.
+  The default value is `false`.
 
 * `enable` - (Optional, Bool) Whether to enable the AS Group. The options are `true` and `false`. The default value
   is `true`.

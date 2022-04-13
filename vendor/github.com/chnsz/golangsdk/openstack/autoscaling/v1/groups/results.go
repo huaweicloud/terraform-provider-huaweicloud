@@ -5,12 +5,12 @@ import (
 	"github.com/chnsz/golangsdk/pagination"
 )
 
-//CreateGroupResult is a struct retured by CreateGroup request
+// CreateResult is a struct retured by CreateGroup request
 type CreateResult struct {
 	golangsdk.Result
 }
 
-//Extract the create group result as a string type.
+// Extract the create group result as a string type.
 func (r CreateResult) Extract() (string, error) {
 	var a struct {
 		GroupID string `json:"scaling_group_id"`
@@ -19,24 +19,24 @@ func (r CreateResult) Extract() (string, error) {
 	return a.GroupID, err
 }
 
-//DeleteGroupResult contains the body of the deleting group request
+// DeleteResult contains the body of the deleting group request
 type DeleteResult struct {
 	golangsdk.ErrResult
 }
 
-//GetGroupResult contains the body of getting detailed group request
+// GetResult contains the body of getting detailed group request
 type GetResult struct {
 	golangsdk.Result
 }
 
-//Extract method will parse the result body into Group struct
+// Extract method will parse the result body into Group struct
 func (r GetResult) Extract() (Group, error) {
 	var g Group
 	err := r.Result.ExtractIntoStructPtr(&g, "scaling_group")
 	return g, err
 }
 
-//Group represents the struct of one autoscaling group
+// Group represents the struct of one autoscaling group
 type Group struct {
 	Name                      string          `json:"scaling_group_name"`
 	ID                        string          `json:"scaling_group_id"`
@@ -98,12 +98,12 @@ func (r GroupPage) Extract() ([]Group, error) {
 	return gs, err
 }
 
-//UpdateResult is a struct from which can get the result of udpate method
+// UpdateResult is a struct from which can get the result of udpate method
 type UpdateResult struct {
 	golangsdk.Result
 }
 
-//Extract will deserialize the result to group id with string
+// Extract will deserialize the result to group id with string
 func (r UpdateResult) Extract() (string, error) {
 	var a struct {
 		ID string `json:"scaling_group_id"`
@@ -112,7 +112,7 @@ func (r UpdateResult) Extract() (string, error) {
 	return a.ID, err
 }
 
-//this is the action result which is the result of enable or disable operations
+// ActionResult is the action result which is the result of enable or disable operations
 type ActionResult struct {
 	golangsdk.ErrResult
 }
