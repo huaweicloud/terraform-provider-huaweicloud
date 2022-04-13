@@ -537,10 +537,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_namespace":   cce.ResourceCCENamespaceV1(),
 			"huaweicloud_cce_pvc":         cce.ResourceCcePersistentVolumeClaimsV1(),
 
-			"huaweicloud_cts_tracker":   cts.ResourceCTSTracker(),
-			"huaweicloud_cci_namespace": cci.ResourceCciNamespace(),
-			"huaweicloud_cci_network":   cci.ResourceCciNetworkV1(),
-			"huaweicloud_cci_pvc":       ResourceCCIPersistentVolumeClaimV1(),
+			"huaweicloud_cts_tracker":      cts.ResourceCTSTracker(),
+			"huaweicloud_cts_data_tracker": cts.ResourceCTSDataTracker(),
+			"huaweicloud_cci_namespace":    cci.ResourceCciNamespace(),
+			"huaweicloud_cci_network":      cci.ResourceCciNetworkV1(),
+			"huaweicloud_cci_pvc":          ResourceCCIPersistentVolumeClaimV1(),
 
 			"huaweicloud_cdm_cluster": cdm.ResourceCdmCluster(),
 			"huaweicloud_cdm_job":     cdm.ResourceCdmJob(),
