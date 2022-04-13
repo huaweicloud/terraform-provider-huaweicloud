@@ -68,6 +68,7 @@ func testAccCTSTrackerImportState(name string) resource.ImportStateIdFunc {
 }
 
 func testAccCheckCTSTrackerDestroy(s *terraform.State) error {
+	// the system tracker always exists
 	return nil
 }
 

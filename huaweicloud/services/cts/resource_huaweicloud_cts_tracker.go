@@ -135,7 +135,7 @@ func resourceCTSTrackerUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		FilePrefixName: utils.String(d.Get("file_prefix").(string)),
 	}
 
-	createOpts := cts.UpdateTrackerRequestBody{
+	updateBody := cts.UpdateTrackerRequestBody{
 		TrackerName:       "system",
 		TrackerType:       trackerType,
 		IsLtsEnabled:      utils.Bool(d.Get("lts_enabled").(bool)),
@@ -146,16 +146,16 @@ func resourceCTSTrackerUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	var encryption bool
 	if v, ok := d.GetOk("kms_id"); ok {
 		encryption = true
-		createOpts.KmsId = utils.String(v.(string))
+		updateBody.KmsId = utils.String(v.(string))
 	}
-	createOpts.IsSupportTraceFilesEncryption = &encryption
+	updateBody.IsSupportTraceFilesEncryption = &encryption
 
-	logp.Printf("[DEBUG] updating CTS tracker options: %#v", createOpts)
-	createReq := cts.UpdateTrackerRequest{
-		Body: &createOpts,
+	logp.Printf("[DEBUG] updating CTS tracker options: %#v", updateBody)
+	updateOpts := cts.UpdateTrackerRequest{
+		Body: &updateBody,
 	}
 
-	_, err = ctsClient.UpdateTracker(&createReq)
+	_, err = ctsClient.UpdateTracker(&updateOpts)
 	if err != nil {
 		return diag.Errorf("error updating CTS tracker: %s", err)
 	}
@@ -179,7 +179,7 @@ func resourceCTSTrackerRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	response, err := ctsClient.ListTrackers(listOpts)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving CTS tracker")
+		return common.CheckDeletedError(d, err, "error retrieving CTS tracker")
 	}
 
 	if response.Trackers == nil || len(*response.Trackers) == 0 {
@@ -237,7 +237,7 @@ func resourceCTSTrackerDelete(_ context.Context, d *schema.ResourceData, meta in
 		FilePrefixName: utils.String(""),
 	}
 
-	createOpts := cts.UpdateTrackerRequestBody{
+	updateBody := cts.UpdateTrackerRequestBody{
 		TrackerName:                   "system",
 		TrackerType:                   cts.GetUpdateTrackerRequestBodyTrackerTypeEnum().SYSTEM,
 		IsLtsEnabled:                  utils.Bool(false),
@@ -247,12 +247,12 @@ func resourceCTSTrackerDelete(_ context.Context, d *schema.ResourceData, meta in
 		ObsInfo:                       &obsInfo,
 	}
 
-	logp.Printf("[DEBUG] updating CTS tracker to default configuration: %#v", createOpts)
-	createReq := cts.UpdateTrackerRequest{
-		Body: &createOpts,
+	logp.Printf("[DEBUG] updating CTS tracker to default configuration: %#v", updateBody)
+	updateOpts := cts.UpdateTrackerRequest{
+		Body: &updateBody,
 	}
 
-	_, err = ctsClient.UpdateTracker(&createReq)
+	_, err = ctsClient.UpdateTracker(&updateOpts)
 	if err != nil {
 		return diag.Errorf("error updating CTS tracker: %s", err)
 	}
