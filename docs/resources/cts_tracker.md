@@ -15,7 +15,6 @@ resource "huaweicloud_cts_tracker" "tracker" {
   bucket_name = var.bucket_name
   file_prefix = "cts"
   lts_enabled = true
-  status      = "enabled"
 }
 ```
 
@@ -45,8 +44,8 @@ The following arguments are supported:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID in UUID format.
-* `name` - The tracker name. Currently, only **system** is available.
-* `type` - The tracker type. Currently, only **system** is available.
+* `name` - The tracker name, only **system** is available.
+* `type` - The tracker type, only **system** is available.
 * `transfer_enabled` - Whether traces will be transferred.
 * `status` - The tracker status, the value can be **enabled**, **disabled** or **error**.
 
@@ -59,7 +58,7 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-CTS tracker can be imported using `name`. Currently, only **system** is available. e.g.
+CTS tracker can be imported using `name`, only **system** is available. e.g.
 
 ```
 $ terraform import huaweicloud_cts_tracker_v1.tracker system
