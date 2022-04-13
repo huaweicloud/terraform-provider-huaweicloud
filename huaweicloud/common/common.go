@@ -92,7 +92,12 @@ func CheckDeleted(d *schema.ResourceData, err error, msg string) error {
 func CheckDeletedDiag(d *schema.ResourceData, err error, msg string) diag.Diagnostics {
 	if _, ok := err.(golangsdk.ErrDefault404); ok {
 		d.SetId("")
-		return nil
+		return diag.Diagnostics{
+			diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "Resource not found",
+			},
+		}
 	}
 
 	return fmtp.DiagErrorf("%s: %s", msg, err)
@@ -104,7 +109,12 @@ func CheckDeletedError(d *schema.ResourceData, err error, msg string) diag.Diagn
 	if responseErr, ok := err.(*sdkerr.ServiceResponseError); ok {
 		if responseErr.StatusCode == http.StatusNotFound {
 			d.SetId("")
-			return nil
+			return diag.Diagnostics{
+				diag.Diagnostic{
+					Severity: diag.Warning,
+					Summary:  "Resource not found",
+				},
+			}
 		}
 	}
 
