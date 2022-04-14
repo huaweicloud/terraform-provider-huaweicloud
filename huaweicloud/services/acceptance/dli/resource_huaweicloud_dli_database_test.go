@@ -47,7 +47,7 @@ func TestAccDliDatabase_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "For terraform acc test"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttrSet(resourceName, "owner"),
 				),
 			},
@@ -67,5 +67,5 @@ resource "huaweicloud_dli_database" "test" {
   description           = "For terraform acc test"
   enterprise_project_id = "%s"
 }
-`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

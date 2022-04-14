@@ -93,7 +93,7 @@ func TestAccDmsRabbitmqInstances_withEpsId(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "engine", "rabbitmq"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -260,7 +260,7 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
     owner = "terraform"
   }
 }
-`, testAccDmsRabbitmqInstance_Base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+`, testAccDmsRabbitmqInstance_Base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 // After the 1.31.1 version, arguments storage_space and available_zones are deprecated.

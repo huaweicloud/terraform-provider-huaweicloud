@@ -94,7 +94,7 @@ func TestAccDmsKafkaInstances_withEpsId(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "engine", "kafka"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -259,7 +259,7 @@ resource "huaweicloud_dms_kafka_instance" "test" {
     owner = "terraform"
   }
 }
-`, testAccDmsKafkaInstance_Base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+`, testAccDmsKafkaInstance_Base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccDmsKafkaInstance_compatible(rName string) string {

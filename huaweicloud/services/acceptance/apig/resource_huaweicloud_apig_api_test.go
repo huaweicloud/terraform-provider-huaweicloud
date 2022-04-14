@@ -24,7 +24,7 @@ func TestAccApigAPIV2_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheckEpsID(t) // The creation of APIG instance needs the enterprise project ID.
 		},
 		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckApigAPIDestroy,
