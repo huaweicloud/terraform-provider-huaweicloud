@@ -180,12 +180,12 @@ type DeleteResult struct {
 
 // EnableEgressResult represents the result of a EnableEgressAccess operation.
 type EnableEgressResult struct {
-	EgressResult
+	golangsdk.Result
 }
 
 // UdpateEgressResult represents the result of a UpdateEgressBandwidth operation.
 type UdpateEgressResult struct {
-	EgressResult
+	golangsdk.Result
 }
 
 type EgressResult struct {
@@ -202,13 +202,25 @@ type Egress struct {
 	BandwidthSize    int    `json:"bandwidthSize"`
 }
 
-// Call its Extract method to interpret it as a Egress.
-func (r EgressResult) Extract() (*Egress, error) {
+// Extract is a method to interpret the response body or json string as an Egress.
+func (r UdpateEgressResult) Extract() (*Egress, error) {
 	var s Egress
 	if r.Err != nil {
 		return &s, r.Err
 	}
-	err := json.Unmarshal([]byte(r.Body.(string)), &s)
+	body, ok := r.Body.(string)
+	if ok {
+		err := json.Unmarshal([]byte(body), &s)
+		return &s, err
+	}
+	err := r.ExtractInto(&s)
+	return &s, err
+}
+
+// Extract is a method to interpret the response body as an Egress.
+func (r EnableEgressResult) Extract() (*Egress, error) {
+	var s Egress
+	err := r.ExtractInto(&s)
 	return &s, err
 }
 
