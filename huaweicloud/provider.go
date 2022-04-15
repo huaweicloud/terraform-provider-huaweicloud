@@ -32,6 +32,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/drs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dws"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ecs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/eip"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/elb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/eps"
@@ -555,7 +556,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_keypair":          ResourceComputeKeypairV2(),
 			"huaweicloud_compute_servergroup":      ResourceComputeServerGroupV2(),
 			"huaweicloud_compute_eip_associate":    ResourceComputeFloatingIPAssociateV2(),
-			"huaweicloud_compute_volume_attach":    ResourceComputeVolumeAttach(),
+			"huaweicloud_compute_volume_attach":    ecs.ResourceComputeVolumeAttach(),
 
 			"huaweicloud_cs_cluster":         deprecated.ResourceCsClusterV1(),
 			"huaweicloud_cs_peering_connect": deprecated.ResourceCsPeeringConnectV1(),
@@ -757,7 +758,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_interface_attach_v2": ResourceComputeInterfaceAttachV2(),
 			"huaweicloud_compute_keypair_v2":          ResourceComputeKeypairV2(),
 			"huaweicloud_compute_servergroup_v2":      ResourceComputeServerGroupV2(),
-			"huaweicloud_compute_volume_attach_v2":    ResourceComputeVolumeAttach(),
+			"huaweicloud_compute_volume_attach_v2":    ecs.ResourceComputeVolumeAttach(),
 
 			"huaweicloud_dns_ptrrecord_v2": ResourceDNSPtrRecordV2(),
 			"huaweicloud_dns_recordset_v2": ResourceDNSRecordSetV2(),

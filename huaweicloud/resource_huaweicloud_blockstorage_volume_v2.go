@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ecs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -314,7 +315,7 @@ func resourceBlockStorageVolumeV2Delete(d *schema.ResourceData, meta interface{}
 			stateConf := &resource.StateChangeConf{
 				Pending:    []string{"RUNNING"},
 				Target:     []string{"SUCCESS", "NOTFOUND"},
-				Refresh:    AttachmentJobRefreshFunc(computeClient, job.ID),
+				Refresh:    ecs.AttachmentJobRefreshFunc(computeClient, job.ID),
 				Timeout:    10 * time.Minute,
 				Delay:      10 * time.Second,
 				MinTimeout: 3 * time.Second,

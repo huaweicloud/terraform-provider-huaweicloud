@@ -4,7 +4,7 @@ subcategory: "Elastic Cloud Server (ECS)"
 
 # huaweicloud_compute_volume_attach
 
-Attaches a Volume to an Instance. This is an alternative to `huaweicloud_compute_volume_attach_v2`
+Attaches a volume to an ECS Instance.
 
 ## Example Usage
 
@@ -60,11 +60,11 @@ resource "huaweicloud_compute_instance" "myinstance" {
 resource "huaweicloud_compute_volume_attach" "attachments" {
   count       = 2
   instance_id = huaweicloud_compute_instance.myinstance.id
-  volume_id   = element(huaweicloud_evs_volume.myvol.*.id, count.index)
+  volume_id   = element(huaweicloud_evs_volume.myvol[*].id, count.index)
 }
 
 output "volume devices" {
-  value = huaweicloud_compute_volume_attach.attachments.*.device
+  value = huaweicloud_compute_volume_attach.attachments[*].device
 }
 ```
 
@@ -72,14 +72,14 @@ output "volume devices" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the volume resource. If omitted, the
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the volume resource. If omitted, the
   provider-level region will be used. Changing this creates a new resource.
 
-* `instance_id` - (Required, String, ForceNew) The ID of the Instance to attach the Volume to.
+* `instance_id` - (Required, String, ForceNew) Specifies the ID of the Instance to attach the Volume to.
 
-* `volume_id` - (Required, String, ForceNew) The ID of the Volume to attach to an Instance.
+* `volume_id` - (Required, String, ForceNew) Specifies the ID of the Volume to attach to an Instance.
 
-* `device` - (Optional, String) The device of the volume attachment (ex: `/dev/vdc`).
+* `device` - (Optional, String) Specifies the device of the volume attachment (ex: `/dev/vdc`).
 
   -> Being able to specify a device is dependent upon the hypervisor in use. There is a chance that the device
   specified in Terraform will not be the same device the hypervisor chose. If this happens, Terraform will wish to
@@ -90,7 +90,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - The resource ID in UUID format.
 
 * `pci_address` - PCI address of the block device.
 
