@@ -25,6 +25,7 @@ import (
 
 var (
 	c    *Cache
+	m    sync.RWMutex
 	once sync.Once
 )
 
@@ -43,11 +44,15 @@ func GetCache() *Cache {
 }
 
 func (c *Cache) PutAuth(key string, value string) error {
+	m.Lock()
+	defer m.Unlock()
 	c.value[key] = value
 	return nil
 }
 
 func (c *Cache) GetAuth(key string) (string, bool) {
+	m.RLock()
+	defer m.RUnlock()
 	value, ok := c.value[key]
 	return value, ok
 }

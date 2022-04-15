@@ -693,6 +693,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_oms_task": resourceMaasTaskV1(),
 
+			"huaweicloud_rds_account":               rds.ResourceRdsAccount(),
 			"huaweicloud_rds_instance":              ResourceRdsInstanceV3(),
 			"huaweicloud_rds_parametergroup":        ResourceRdsConfigurationV3(),
 			"huaweicloud_rds_read_replica_instance": ResourceRdsReadReplicaInstance(),
