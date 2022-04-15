@@ -25,7 +25,7 @@ func deleteURL(c *golangsdk.ServiceClient, id string) string {
 }
 
 func serverURL(c *golangsdk.ServiceClient, serverID string) string {
-	return c.ServiceURL("servers/" + serverID + "/action")
+	return c.ServiceURL("servers", serverID, "action")
 }
 
 func associateURL(c *golangsdk.ServiceClient, serverID string) string {
