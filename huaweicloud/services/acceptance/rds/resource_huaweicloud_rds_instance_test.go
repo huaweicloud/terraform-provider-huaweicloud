@@ -12,12 +12,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rds"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccRdsInstance_basic(t *testing.T) {
 	var instance instances.RdsInstanceResponse
-	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	name := acceptance.RandomAccResourceName()
 	resourceType := "huaweicloud_rds_instance"
 	resourceName := "huaweicloud_rds_instance.test"
 
@@ -71,7 +70,7 @@ func TestAccRdsInstance_basic(t *testing.T) {
 
 func TestAccRdsInstance_withEpsId(t *testing.T) {
 	var instance instances.RdsInstanceResponse
-	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	name := acceptance.RandomAccResourceName()
 	resourceType := "huaweicloud_rds_instance"
 	resourceName := "huaweicloud_rds_instance.test"
 
@@ -96,7 +95,7 @@ func TestAccRdsInstance_withEpsId(t *testing.T) {
 
 func TestAccRdsInstance_ha(t *testing.T) {
 	var instance instances.RdsInstanceResponse
-	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	name := acceptance.RandomAccResourceName()
 	resourceType := "huaweicloud_rds_instance"
 	resourceName := "huaweicloud_rds_instance.test"
 
@@ -126,7 +125,7 @@ func TestAccRdsInstance_ha(t *testing.T) {
 
 func TestAccRdsInstance_mysql(t *testing.T) {
 	var instance instances.RdsInstanceResponse
-	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	name := acceptance.RandomAccResourceName()
 	resourceType := "huaweicloud_rds_instance"
 	resourceName := "huaweicloud_rds_instance.test"
 	pwd := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
@@ -168,7 +167,7 @@ func testAccCheckRdsInstanceDestroy(rsType string) resource.TestCheckFunc {
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		client, err := config.RdsV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating huaweicloud rds client: %s", err)
+			return fmt.Errorf("error creating rds client: %s", err)
 		}
 
 		for _, rs := range s.RootModule().Resources {
@@ -182,7 +181,7 @@ func testAccCheckRdsInstanceDestroy(rsType string) resource.TestCheckFunc {
 				return err
 			}
 			if instance.Id != "" {
-				return fmtp.Errorf("%s (%s) still exists", rsType, id)
+				return fmt.Errorf("%s (%s) still exists", rsType, id)
 			}
 		}
 		return nil
@@ -193,26 +192,26 @@ func testAccCheckRdsInstanceExists(name string, instance *instances.RdsInstanceR
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", name)
+			return fmt.Errorf("Not found: %s", name)
 		}
 
 		id := rs.Primary.ID
 		if id == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("No ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		client, err := config.RdsV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating huaweicloud rds client: %s", err)
+			return fmt.Errorf("error creating rds client: %s", err)
 		}
 
 		found, err := rds.GetRdsInstanceByID(client, id)
 		if err != nil {
-			return fmtp.Errorf("Error checking %s exist, err=%s", name, err)
+			return fmt.Errorf("error checking %s exist, err=%s", name, err)
 		}
 		if found.Id == "" {
-			return fmtp.Errorf("resource %s does not exist", name)
+			return fmt.Errorf("resource %s does not exist", name)
 		}
 
 		instance = found

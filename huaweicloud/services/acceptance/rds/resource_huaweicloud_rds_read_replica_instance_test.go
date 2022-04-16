@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/chnsz/golangsdk/openstack/rds/v3/instances"
@@ -13,7 +12,7 @@ import (
 
 func TestAccReadReplicaInstance_basic(t *testing.T) {
 	var replica instances.RdsInstanceResponse
-	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	name := acceptance.RandomAccResourceName()
 	resourceType := "huaweicloud_rds_read_replica_instance"
 	resourceName := "huaweicloud_rds_read_replica_instance.test"
 
@@ -60,7 +59,7 @@ func TestAccReadReplicaInstance_basic(t *testing.T) {
 
 func TestAccReadReplicaInstance_withEpsId(t *testing.T) {
 	var replica instances.RdsInstanceResponse
-	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	name := acceptance.RandomAccResourceName()
 	resourceType := "huaweicloud_rds_read_replica_instance"
 	resourceName := "huaweicloud_rds_read_replica_instance.test"
 

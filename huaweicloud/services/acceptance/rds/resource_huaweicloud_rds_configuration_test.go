@@ -4,20 +4,18 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/rds/v3/configurations"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccRdsConfiguration_basic(t *testing.T) {
 	var config configurations.Configuration
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	updateName := fmt.Sprintf("tf-acc-test-%s-update", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceName()
+	updateName := rName + "-update"
 	resourceName := "huaweicloud_rds_parametergroup.pg_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -49,7 +47,7 @@ func testAccCheckRdsConfigDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	rdsClient, err := config.RdsV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud RDS client: %s", err)
+		return fmt.Errorf("error creating RDS client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -59,7 +57,7 @@ func testAccCheckRdsConfigDestroy(s *terraform.State) error {
 
 		_, err := configurations.Get(rdsClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("Rds configuration still exists")
+			return fmt.Errorf("RDS configuration still exists")
 		}
 	}
 
@@ -70,17 +68,17 @@ func testAccCheckRdsConfigExists(n string, configuration *configurations.Configu
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("No ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		rdsClient, err := config.RdsV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud RDS client: %s", err)
+			return fmt.Errorf("error creating RDS client: %s", err)
 		}
 
 		found, err := configurations.Get(rdsClient, rs.Primary.ID).Extract()
@@ -89,7 +87,7 @@ func testAccCheckRdsConfigExists(n string, configuration *configurations.Configu
 		}
 
 		if found.Id != rs.Primary.ID {
-			return fmtp.Errorf("Rds configuration not found")
+			return fmt.Errorf("RDS configuration not found")
 		}
 
 		*configuration = *found
