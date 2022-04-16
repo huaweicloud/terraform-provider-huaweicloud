@@ -26,6 +26,7 @@ var (
 	HW_ACCESS_KEY                 = os.Getenv("HW_ACCESS_KEY")
 	HW_SECRET_KEY                 = os.Getenv("HW_SECRET_KEY")
 	HW_USER_ID                    = os.Getenv("HW_USER_ID")
+	HW_USER_NAME                  = os.Getenv("HW_USER_NAME")
 	HW_PROJECT_ID                 = os.Getenv("HW_PROJECT_ID")
 	HW_DOMAIN_ID                  = os.Getenv("HW_DOMAIN_ID")
 	HW_DOMAIN_NAME                = os.Getenv("HW_DOMAIN_NAME")
@@ -61,6 +62,10 @@ var (
 	HW_DMS_ENVIRONMENT              = os.Getenv("HW_DMS_ENVIRONMENT")
 
 	HW_DLI_FLINK_JAR_OBS_PATH = os.Getenv("HW_DLI_FLINK_JAR_OBS_PATH")
+
+	HW_GITHUB_REPO_HOST      = os.Getenv("HW_GITHUB_REPO_HOST")      // Repository host (Github, Gitlab, Gitee)
+	HW_GITHUB_PERSONAL_TOKEN = os.Getenv("HW_GITHUB_PERSONAL_TOKEN") // Personal access token (Github, Gitlab, Gitee)
+	HW_GITHUB_REPO_PWD       = os.Getenv("HW_GITHUB_REPO_PWD")       // Repository password (DevCloud, BitBucket)
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -458,5 +463,19 @@ func TestAccPreCheckDms(t *testing.T) {
 func TestAccPreCheckDliJarPath(t *testing.T) {
 	if HW_DLI_FLINK_JAR_OBS_PATH == "" {
 		t.Skip("HW_DLI_FLINK_JAR_OBS_PATH must be set for DLI Flink Jar job acceptance tests.")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckRepoTokenAuth(t *testing.T) {
+	if HW_GITHUB_REPO_HOST == "" || HW_GITHUB_PERSONAL_TOKEN == "" {
+		t.Skip("Repository configuration are not completed for acceptance test of personal access token authorization.")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckRepoPwdAuth(t *testing.T) {
+	if HW_DOMAIN_NAME == "" || HW_USER_NAME == "" || HW_GITHUB_REPO_PWD == "" {
+		t.Skip("Repository configuration are not completed for acceptance test of password authorization.")
 	}
 }

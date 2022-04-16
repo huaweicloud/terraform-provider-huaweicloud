@@ -504,6 +504,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "DMS",
 	},
+	"servicestage": {
+		Name:    "servicestage",
+		Version: "v1",
+		Product: "ServiceStage",
+	},
 
 	// catalog for IEC which is a global service
 	"iec": {

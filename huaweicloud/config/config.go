@@ -735,6 +735,10 @@ func (c *Config) DmsV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("dmsv2", region)
 }
 
+func (c *Config) ServiceStageV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("servicestage", region)
+}
+
 // ********** client for Database **********
 func (c *Config) RdsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("rdsv1", region)
