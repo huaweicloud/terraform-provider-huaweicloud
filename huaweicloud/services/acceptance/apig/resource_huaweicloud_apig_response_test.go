@@ -23,7 +23,7 @@ func TestAccApigResponseV2_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t) // Method testAccApigApplication_base needs HW_ENTERPRISE_PROJECT_ID.
+			acceptance.TestAccPreCheckEpsID(t) // The creation of APIG instance needs the enterprise project ID.
 		},
 		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckApigResponseDestroy,
@@ -63,7 +63,7 @@ func TestAccApigResponseV2_customRules(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t) // Method testAccApigApplication_base needs HW_ENTERPRISE_PROJECT_ID.
+			acceptance.TestAccPreCheckEpsID(t) // The creation of APIG instance needs the enterprise project ID.
 		},
 		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckApigResponseDestroy,

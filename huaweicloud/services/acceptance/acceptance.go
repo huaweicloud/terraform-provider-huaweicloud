@@ -348,8 +348,11 @@ func TestAccPreCheckDeprecated(t *testing.T) {
 
 //lintignore:AT003
 func TestAccPreCheckEpsID(t *testing.T) {
-	if HW_ENTERPRISE_PROJECT_ID == "" {
-		t.Skip("This environment does not support Enterprise Project ID tests")
+	// The environment variables in tests take HW_ENTERPRISE_PROJECT_ID_TEST instead of HW_ENTERPRISE_PROJECT_ID to
+	// ensure that other data-resources that support enterprise projects query the default project without being
+	// affected by this variable.
+	if HW_ENTERPRISE_PROJECT_ID_TEST == "" {
+		t.Skip("The environment variables does not support Enterprise Project ID for acc tests")
 	}
 }
 

@@ -49,7 +49,7 @@ func TestAccCBRV3Vault_BasicServer(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "size", "200"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "resources.0.excludes.#", "2"),
@@ -65,7 +65,7 @@ func TestAccCBRV3Vault_BasicServer(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "size", "300"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo1", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 					resource.TestCheckResourceAttr(resourceName, "resources.0.excludes.#", "2"),
@@ -151,7 +151,7 @@ func TestAccCBRV3Vault_BasicVolume(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "size", "50"),
 					resource.TestCheckResourceAttr(resourceName, "auto_expand", "false"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "resources.0.includes.#", "2"),
 				),
 			},
@@ -167,7 +167,7 @@ func TestAccCBRV3Vault_BasicVolume(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "auto_expand", "true"),
 					resource.TestCheckResourceAttrSet(resourceName, "policy_id"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "resources.0.includes.#", "2"),
 				),
 			},
@@ -209,7 +209,7 @@ func TestAccCBRV3Vault_BasicTurbo(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "size", "800"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 			{
@@ -223,7 +223,7 @@ func TestAccCBRV3Vault_BasicTurbo(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "size", "1000"),
 					resource.TestCheckResourceAttrSet(resourceName, "policy_id"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 			{
@@ -263,7 +263,7 @@ func TestAccCBRV3Vault_ReplicaTurbo(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "type", cbr.VaultTypeTurbo),
 					resource.TestCheckResourceAttr(resourceName, "protection_type", "replication"),
 					resource.TestCheckResourceAttr(resourceName, "size", "1000"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 			{
@@ -424,7 +424,7 @@ resource "huaweicloud_cbr_vault" "test" {
   }
 }
 `, testAccCBRV3VaultBasicConfiguration(testAccEvsVolumeConfiguration_basic(), rName),
-		rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+		rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccCBRV3Vault_serverUpdate(rName string) string {
@@ -454,7 +454,7 @@ resource "huaweicloud_cbr_vault" "test" {
   }
 }
 `, testAccCBRV3VaultBasicConfiguration(testAccEvsVolumeConfiguration_update(), rName), testAccCBRV3Vault_policy(rName),
-		rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+		rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccCBRV3Vault_serverReplication(rName string) string {
@@ -467,7 +467,7 @@ resource "huaweicloud_cbr_vault" "test" {
   size                  = 200
   enterprise_project_id = "%s"
 }
-`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccCBRV3Vault_volumeBasic(rName string) string {
@@ -487,7 +487,7 @@ resource "huaweicloud_cbr_vault" "test" {
   }
 }
 `, testAccCBRV3VaultBasicConfiguration(testAccEvsVolumeConfiguration_basic(), rName),
-		rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+		rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccCBRV3Vault_volumeUpdate(rName string) string {
@@ -511,7 +511,7 @@ resource "huaweicloud_cbr_vault" "test" {
   }
 }
 `, testAccCBRV3VaultBasicConfiguration(testAccEvsVolumeConfiguration_basic(), rName),
-		testAccCBRV3Vault_policy(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+		testAccCBRV3Vault_policy(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 //Vaults of type 'turbo'
@@ -564,7 +564,7 @@ resource "huaweicloud_cbr_vault" "test" {
     ]
   }
 }
-`, testAccCBRV3Vault_turboBase(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+`, testAccCBRV3Vault_turboBase(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccCBRV3Vault_turboUpdate(rName string) string {
@@ -600,7 +600,7 @@ resource "huaweicloud_cbr_vault" "test" {
   }
 }
 `, testAccCBRV3Vault_turboBase(rName), testAccCBRV3Vault_policy(rName), rName, rName,
-		acceptance.HW_ENTERPRISE_PROJECT_ID)
+		acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccCBRV3Vault_turboReplication(rName string) string {
@@ -613,5 +613,5 @@ resource "huaweicloud_cbr_vault" "test" {
   size                  = 1000
   enterprise_project_id = "%s"
 }
-`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

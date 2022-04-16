@@ -24,7 +24,7 @@ func TestAccApigApplicationV2_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t) // Method testAccApigApplication_base needs HW_ENTERPRISE_PROJECT_ID.
+			acceptance.TestAccPreCheckEpsID(t) // The creation of APIG instance needs the enterprise project ID.
 		},
 		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckApigApplicationDestroy,
@@ -135,7 +135,7 @@ resource "huaweicloud_apig_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0],
   ]
 }
-`, testAccApigInstance_base(rName), rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+`, testAccApigInstance_base(rName), rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccApigApplication_basic(rName, code string) string {

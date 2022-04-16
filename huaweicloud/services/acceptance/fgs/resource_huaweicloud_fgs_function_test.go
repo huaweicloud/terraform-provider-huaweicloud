@@ -93,7 +93,7 @@ func TestAccFgsV2Function_withEpsId(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id",
-						acceptance.HW_ENTERPRISE_PROJECT_ID),
+						acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 			{
@@ -260,7 +260,7 @@ resource "huaweicloud_fgs_function" "test" {
   enterprise_project_id = "%s"
   func_code             = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
 }
-`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccFgsV2Function_agency(rName string) string {

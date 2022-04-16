@@ -145,19 +145,22 @@ func TestAccVpcsDataSource_byAll(t *testing.T) {
 	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceVpcs_byAll(randName, randCidr, acceptance.HW_ENTERPRISE_PROJECT_ID),
+				Config: testAccDataSourceVpcs_byAll(randName, randCidr, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "name", randName),
 					resource.TestCheckResourceAttr(dataSourceName, "vpcs.0.cidr", randCidr),
 					resource.TestCheckResourceAttr(dataSourceName, "vpcs.0.name", randName),
 					resource.TestCheckResourceAttr(dataSourceName, "vpcs.0.enterprise_project_id",
-						acceptance.HW_ENTERPRISE_PROJECT_ID),
+						acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(dataSourceName, "vpcs.0.status", "OK"),
 					acceptance.TestCheckResourceAttrWithVariable(dataSourceName, "vpcs.0.id",
 						"${huaweicloud_vpc.test.id}"),

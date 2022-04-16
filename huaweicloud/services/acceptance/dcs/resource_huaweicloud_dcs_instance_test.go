@@ -104,7 +104,7 @@ func TestAccDcsInstances_withEpsId(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id",
-						acceptance.HW_ENTERPRISE_PROJECT_ID),
+						acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -316,7 +316,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
     save_days   = 1
   }
   enterprise_project_id = "%s"
-}`, instanceName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+}`, instanceName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccDcsV1Instance_tiny(instanceName string) string {

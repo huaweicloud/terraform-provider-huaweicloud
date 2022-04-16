@@ -46,7 +46,7 @@ func TestAccCciNamespace_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "type", "gpu-accelerated"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "auto_expend_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "warmup_pool_size", "0"),
 					resource.TestCheckResourceAttr(resourceName, "recycling_interval", "0"),
@@ -91,7 +91,7 @@ func TestAccCciNamespace_network(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "type", "gpu-accelerated"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "auto_expend_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "warmup_pool_size", "15"),
 					resource.TestCheckResourceAttr(resourceName, "recycling_interval", "30"),
@@ -130,7 +130,7 @@ resource "huaweicloud_cci_namespace" "test" {
   rbac_enabled              = true
   enterprise_project_id     = "%s"
 }
-`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 // The container network of namespace is only supported in cn-north-4.
@@ -146,5 +146,5 @@ resource "huaweicloud_cci_namespace" "test" {
   rbac_enabled              = true
   enterprise_project_id     = "%s"
 }
-`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

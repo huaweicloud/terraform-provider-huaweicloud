@@ -35,7 +35,7 @@ func TestAccBmsInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -164,5 +164,5 @@ resource "huaweicloud_bms_instance" "test" {
     key = "value"
   }
 }
-`, rName, rName, rName, acceptance.HW_USER_ID, acceptance.HW_ENTERPRISE_PROJECT_ID)
+`, rName, rName, rName, acceptance.HW_USER_ID, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

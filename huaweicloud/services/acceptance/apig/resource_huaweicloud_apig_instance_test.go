@@ -32,7 +32,7 @@ func TestAccApigInstanceV2_basic(t *testing.T) {
 					testAccCheckApigInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "edition", "BASIC"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "14:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "18:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
@@ -45,7 +45,7 @@ func TestAccApigInstanceV2_basic(t *testing.T) {
 					testAccCheckApigInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName+"-update"),
 					resource.TestCheckResourceAttr(resourceName, "edition", "BASIC"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "18:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "22:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "description", "updated by acc test"),
@@ -80,6 +80,7 @@ func TestAccApigInstanceV2_egress(t *testing.T) {
 					testAccCheckApigInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "edition", "BASIC"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "14:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
@@ -143,6 +144,7 @@ func TestAccApigInstanceV2_ingress(t *testing.T) {
 					testAccCheckApigInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "edition", "BASIC"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "14:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
@@ -270,7 +272,7 @@ resource "huaweicloud_apig_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0],
   ]
 }
-`, testAccApigInstance_base(rName), rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+`, testAccApigInstance_base(rName), rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccApigInstance_update(rName string) string {
@@ -295,7 +297,7 @@ resource "huaweicloud_apig_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0],
   ]
 }
-`, testAccApigInstance_base(rName), rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+`, testAccApigInstance_base(rName), rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccApigInstance_egress(rName string) string {
@@ -321,7 +323,7 @@ resource "huaweicloud_apig_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0],
   ]
 }
-`, testAccApigInstance_base(rName), rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+`, testAccApigInstance_base(rName), rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccApigInstance_egressUpdate(rName string) string {
@@ -347,7 +349,7 @@ resource "huaweicloud_apig_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0],
   ]
 }
-`, testAccApigInstance_base(rName), rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+`, testAccApigInstance_base(rName), rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccApigInstance_ingress(rName string) string {
@@ -385,7 +387,7 @@ resource "huaweicloud_apig_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0],
   ]
 }
-`, testAccApigInstance_base(rName), rName, rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+`, testAccApigInstance_base(rName), rName, rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccApigInstance_ingressUpdate(rName string) string {
@@ -423,5 +425,5 @@ resource "huaweicloud_apig_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0],
   ]
 }
-`, testAccApigInstance_base(rName), rName, rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+`, testAccApigInstance_base(rName), rName, rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
