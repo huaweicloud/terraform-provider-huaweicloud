@@ -1,11 +1,13 @@
-package huaweicloud
+package rds
 
 import (
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/rds/v3/instances"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -13,9 +15,7 @@ import (
 )
 
 func ResourceRdsReadReplicaInstance() *schema.Resource {
-
 	return &schema.Resource{
-
 		Create: resourceRdsReadReplicaInstanceCreate,
 		Read:   resourceRdsReadReplicaInstanceRead,
 		Update: resourceRdsReadReplicaInstanceUpdate,
@@ -160,14 +160,15 @@ func ResourceRdsReadReplicaInstance() *schema.Resource {
 				Computed: true,
 			},
 
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 		},
 	}
 }
 
 func resourceRdsReadReplicaInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.RdsV3Client(GetRegion(d, config))
+	region := config.GetRegion(d)
+	client, err := config.RdsV3Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating huaweicloud rds client: %s ", err)
 	}
@@ -176,11 +177,11 @@ func resourceRdsReadReplicaInstanceCreate(d *schema.ResourceData, meta interface
 		Name:                d.Get("name").(string),
 		ReplicaOfId:         d.Get("primary_instance_id").(string),
 		FlavorRef:           d.Get("flavor").(string),
-		Region:              GetRegion(d, config),
+		Region:              region,
 		AvailabilityZone:    d.Get("availability_zone").(string),
 		Volume:              buildRdsReplicaInstanceVolume(d),
 		DiskEncryptionId:    d.Get("volume.0.disk_encryption_id").(string),
-		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 	}
 	logp.Printf("[DEBUG] Create replica instance Options: %#v", createOpts)
 
@@ -210,13 +211,13 @@ func resourceRdsReadReplicaInstanceCreate(d *schema.ResourceData, meta interface
 
 func resourceRdsReadReplicaInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.RdsV3Client(GetRegion(d, config))
+	client, err := config.RdsV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating huaweicloud rds client: %s", err)
 	}
 
 	instanceID := d.Id()
-	instance, err := getRdsInstanceByID(client, instanceID)
+	instance, err := GetRdsInstanceByID(client, instanceID)
 	if err != nil {
 		return err
 	}
@@ -276,7 +277,7 @@ func resourceRdsReadReplicaInstanceRead(d *schema.ResourceData, meta interface{}
 
 func resourceRdsReadReplicaInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.RdsV3Client(GetRegion(d, config))
+	client, err := config.RdsV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating huaweicloud rds v3 client: %s ", err)
 	}

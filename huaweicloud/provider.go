@@ -697,9 +697,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_oms_task": resourceMaasTaskV1(),
 
 			"huaweicloud_rds_account":               rds.ResourceRdsAccount(),
-			"huaweicloud_rds_instance":              ResourceRdsInstanceV3(),
-			"huaweicloud_rds_parametergroup":        ResourceRdsConfigurationV3(),
-			"huaweicloud_rds_read_replica_instance": ResourceRdsReadReplicaInstance(),
+			"huaweicloud_rds_instance":              rds.ResourceRdsInstance(),
+			"huaweicloud_rds_parametergroup":        rds.ResourceRdsConfiguration(),
+			"huaweicloud_rds_read_replica_instance": rds.ResourceRdsReadReplicaInstance(),
 
 			"huaweicloud_servicestage_repo_token_authorization":    servicestage.ResourceRepoTokenAuth(),
 			"huaweicloud_servicestage_repo_password_authorization": servicestage.ResourceRepoPwdAuth(),
@@ -798,8 +798,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_smn_topic_v2":        ResourceTopic(),
 			"huaweicloud_smn_subscription_v2": ResourceSubscription(),
 
-			"huaweicloud_rds_instance_v3":       ResourceRdsInstanceV3(),
-			"huaweicloud_rds_parametergroup_v3": ResourceRdsConfigurationV3(),
+			"huaweicloud_rds_instance_v3":       rds.ResourceRdsInstance(),
+			"huaweicloud_rds_parametergroup_v3": rds.ResourceRdsConfiguration(),
 
 			"huaweicloud_nat_gateway_v2":   ResourceNatGatewayV2(),
 			"huaweicloud_nat_snat_rule_v2": ResourceNatSnatRuleV2(),

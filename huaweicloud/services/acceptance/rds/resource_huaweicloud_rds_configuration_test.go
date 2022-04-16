@@ -1,4 +1,4 @@
-package huaweicloud
+package rds
 
 import (
 	"fmt"
@@ -10,32 +10,33 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/rds/v3/configurations"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
-func TestAccRdsConfigurationV3_basic(t *testing.T) {
+func TestAccRdsConfiguration_basic(t *testing.T) {
 	var config configurations.Configuration
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	updateName := fmt.Sprintf("tf-acc-test-%s-update", acctest.RandString(5))
 	resourceName := "huaweicloud_rds_parametergroup.pg_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRdsConfigV3Destroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckRdsConfigDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRdsConfigV3_basic(rName),
+				Config: testAccRdsConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsConfigV3Exists(resourceName, &config),
+					testAccCheckRdsConfigExists(resourceName, &config),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "description_1"),
 				),
 			},
 			{
-				Config: testAccRdsConfigV3_update(updateName),
+				Config: testAccRdsConfig_update(updateName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsConfigV3Exists(resourceName, &config),
+					testAccCheckRdsConfigExists(resourceName, &config),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "description", "description_update"),
 				),
@@ -44,9 +45,9 @@ func TestAccRdsConfigurationV3_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckRdsConfigV3Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	rdsClient, err := config.RdsV3Client(HW_REGION_NAME)
+func testAccCheckRdsConfigDestroy(s *terraform.State) error {
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	rdsClient, err := config.RdsV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud RDS client: %s", err)
 	}
@@ -65,7 +66,7 @@ func testAccCheckRdsConfigV3Destroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckRdsConfigV3Exists(n string, configuration *configurations.Configuration) resource.TestCheckFunc {
+func testAccCheckRdsConfigExists(n string, configuration *configurations.Configuration) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -76,8 +77,8 @@ func testAccCheckRdsConfigV3Exists(n string, configuration *configurations.Confi
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		rdsClient, err := config.RdsV3Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		rdsClient, err := config.RdsV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud RDS client: %s", err)
 		}
@@ -97,7 +98,7 @@ func testAccCheckRdsConfigV3Exists(n string, configuration *configurations.Confi
 	}
 }
 
-func testAccRdsConfigV3_basic(rName string) string {
+func testAccRdsConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_rds_parametergroup" "pg_1" {
   name        = "%s"
@@ -115,7 +116,7 @@ resource "huaweicloud_rds_parametergroup" "pg_1" {
 `, rName)
 }
 
-func testAccRdsConfigV3_update(updateName string) string {
+func testAccRdsConfig_update(updateName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_rds_parametergroup" "pg_1" {
   name        = "%s"

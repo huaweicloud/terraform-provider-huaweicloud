@@ -1,28 +1,30 @@
-package huaweicloud
+package rds
 
 import (
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/rds/v3/backups"
 	"github.com/chnsz/golangsdk/openstack/rds/v3/instances"
 	"github.com/chnsz/golangsdk/openstack/rds/v3/securities"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func ResourceRdsInstanceV3() *schema.Resource {
+func ResourceRdsInstance() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceRdsInstanceV3Create,
-		Read:   resourceRdsInstanceV3Read,
-		Update: resourceRdsInstanceV3Update,
+		Create: resourceRdsInstanceCreate,
+		Read:   resourceRdsInstanceRead,
+		Update: resourceRdsInstanceUpdate,
 		Delete: resourceRdsInstanceDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -191,7 +193,7 @@ func ResourceRdsInstanceV3() *schema.Resource {
 				Optional: true,
 			},
 
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 
 			"time_zone": {
 				Type:     schema.TypeString,
@@ -256,15 +258,15 @@ func ResourceRdsInstanceV3() *schema.Resource {
 			},
 
 			// charge info: charging_mode, period_unit, period, auto_renew
-			"charging_mode": schemaChargingMode(nil),
-			"period_unit":   schemaPeriodUnit(nil),
-			"period":        schemaPeriod(nil),
-			"auto_renew":    schemaAutoRenew(nil),
+			"charging_mode": common.SchemaChargingMode(nil),
+			"period_unit":   common.SchemaPeriodUnit(nil),
+			"period":        common.SchemaPeriod(nil),
+			"auto_renew":    common.SchemaAutoRenew(nil),
 		},
 	}
 }
 
-func buildRdsInstanceV3DBPort(d *schema.ResourceData) string {
+func buildRdsInstanceDBPort(d *schema.ResourceData) string {
 	if v, ok := d.GetOk("db.0.port"); ok {
 		return strconv.Itoa(v.(int))
 	}
@@ -280,9 +282,9 @@ func isMySQLDatabase(d *schema.ResourceData) bool {
 	return false
 }
 
-func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error {
+func resourceRdsInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	region := GetRegion(d, config)
+	region := config.GetRegion(d)
 	client, err := config.RdsV3Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating huaweicloud RDS client: %s", err)
@@ -298,8 +300,8 @@ func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 		TimeZone:            d.Get("time_zone").(string),
 		FixedIp:             d.Get("fixed_ip").(string),
 		DiskEncryptionId:    d.Get("volume.0.disk_encryption_id").(string),
-		Port:                buildRdsInstanceV3DBPort(d),
-		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
+		Port:                buildRdsInstanceDBPort(d),
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 		Region:              region,
 		AvailabilityZone:    buildRdsInstanceAvailabilityZone(d),
 		Datastore:           buildRdsInstanceDatastore(d),
@@ -310,7 +312,7 @@ func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 
 	// PrePaid
 	if d.Get("charging_mode") == "prePaid" {
-		if err := validatePrePaidChargeInfo(d); err != nil {
+		if err := common.ValidatePrePaidChargeInfo(d); err != nil {
 			return err
 		}
 
@@ -373,18 +375,18 @@ func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	return resourceRdsInstanceV3Read(d, meta)
+	return resourceRdsInstanceRead(d, meta)
 }
 
-func resourceRdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
+func resourceRdsInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.RdsV3Client(GetRegion(d, config))
+	client, err := config.RdsV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating huaweicloud RDS client: %s", err)
 	}
 
 	instanceID := d.Id()
-	instance, err := getRdsInstanceByID(client, instanceID)
+	instance, err := GetRdsInstanceByID(client, instanceID)
 	if err != nil {
 		return fmtp.Errorf("Error getting huaweicloud RDS instance: %s", err)
 	}
@@ -492,9 +494,9 @@ func resourceRdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceRdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error {
+func resourceRdsInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.RdsV3Client(GetRegion(d, config))
+	client, err := config.RdsV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud RDS Client: %s", err)
 	}
@@ -549,12 +551,12 @@ func resourceRdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	return resourceRdsInstanceV3Read(d, meta)
+	return resourceRdsInstanceRead(d, meta)
 }
 
 func resourceRdsInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.RdsV3Client(GetRegion(d, config))
+	client, err := config.RdsV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating huaweicloud rds client: %s ", err)
 	}
@@ -562,7 +564,7 @@ func resourceRdsInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	logp.Printf("[DEBUG] Deleting Instance %s", id)
 	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
-		if err := UnsubscribePrePaidResource(d, config, []string{id}); err != nil {
+		if err := common.UnsubscribePrePaidResource(d, config, []string{id}); err != nil {
 			return fmtp.Errorf("Error unsubscribe HuaweiCloud RDS instance: %s", err)
 		}
 	} else {
@@ -592,7 +594,7 @@ func resourceRdsInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func getRdsInstanceByID(client *golangsdk.ServiceClient, instanceID string) (*instances.RdsInstanceResponse, error) {
+func GetRdsInstanceByID(client *golangsdk.ServiceClient, instanceID string) (*instances.RdsInstanceResponse, error) {
 	listOpts := instances.ListOpts{
 		Id: instanceID,
 	}
@@ -898,7 +900,7 @@ func rdsInstanceJobRefreshFunc(client *golangsdk.ServiceClient, jobID string) re
 
 func rdsInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		instance, err := getRdsInstanceByID(client, instanceID)
+		instance, err := GetRdsInstanceByID(client, instanceID)
 		if err != nil {
 			return nil, "FOUND ERROR", err
 		}

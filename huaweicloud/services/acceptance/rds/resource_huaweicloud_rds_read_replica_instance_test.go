@@ -1,29 +1,31 @@
-package huaweicloud
+package rds
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/rds/v3/instances"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/chnsz/golangsdk/openstack/rds/v3/instances"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccRdsReadReplicaInstance_basic(t *testing.T) {
+func TestAccReadReplicaInstance_basic(t *testing.T) {
 	var replica instances.RdsInstanceResponse
 	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceType := "huaweicloud_rds_read_replica_instance"
 	resourceName := "huaweicloud_rds_read_replica_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRdsInstanceV3Destroy(resourceType),
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccReadRdsReplicaInstance_basic(name),
+				Config: testAccReadReplicaInstance_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsInstanceV3Exists(resourceName, &replica),
+					testAccCheckRdsInstanceExists(resourceName, &replica),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.n1.large.2.rr"),
 					resource.TestCheckResourceAttr(resourceName, "type", "Replica"),
@@ -34,9 +36,9 @@ func TestAccRdsReadReplicaInstance_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccReadRdsReplicaInstance_update(name),
+				Config: testAccReadReplicaInstance_update(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsInstanceV3Exists(resourceName, &replica),
+					testAccCheckRdsInstanceExists(resourceName, &replica),
 					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.n1.xlarge.2.rr"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.type", "CLOUDSSD"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
@@ -56,29 +58,32 @@ func TestAccRdsReadReplicaInstance_basic(t *testing.T) {
 	})
 }
 
-func TestAccRdsReadReplicaInstance_withEpsId(t *testing.T) {
+func TestAccReadReplicaInstance_withEpsId(t *testing.T) {
 	var replica instances.RdsInstanceResponse
 	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceType := "huaweicloud_rds_read_replica_instance"
 	resourceName := "huaweicloud_rds_read_replica_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckEpsID(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRdsInstanceV3Destroy(resourceType),
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccReadRdsReplicaInstance_withEpsId(name),
+				Config: testAccReadReplicaInstance_withEpsId(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsInstanceV3Exists(resourceName, &replica),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					testAccCheckRdsInstanceExists(resourceName, &replica),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
 	})
 }
 
-func testAccReadRdsReplicaInstanceV3_base(name string) string {
+func testAccReadReplicaInstance_base(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -101,10 +106,10 @@ resource "huaweicloud_rds_instance" "test" {
     size = 50
   }
 }
-`, testAccRdsInstanceV3_base(name), name)
+`, testAccRdsInstance_base(name), name)
 }
 
-func testAccReadRdsReplicaInstance_basic(name string) string {
+func testAccReadReplicaInstance_basic(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -123,10 +128,10 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
     foo = "bar"
   }
 }
-`, testAccReadRdsReplicaInstanceV3_base(name), name)
+`, testAccReadReplicaInstance_base(name), name)
 }
 
-func testAccReadRdsReplicaInstance_update(name string) string {
+func testAccReadReplicaInstance_update(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -145,10 +150,10 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
     foo = "bar2"
   }
 }
-`, testAccReadRdsReplicaInstanceV3_base(name), name)
+`, testAccReadReplicaInstance_base(name), name)
 }
 
-func testAccReadRdsReplicaInstance_withEpsId(name string) string {
+func testAccReadReplicaInstance_withEpsId(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -163,5 +168,5 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
     type = "CLOUDSSD"
   }
 }
-`, testAccReadRdsReplicaInstanceV3_base(name), name, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccReadReplicaInstance_base(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
