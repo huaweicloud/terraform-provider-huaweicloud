@@ -25,9 +25,9 @@ import (
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/powers"
 	"github.com/chnsz/golangsdk/openstack/evs/v2/cloudvolumes"
 	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
+	groups "github.com/chnsz/golangsdk/openstack/networking/v1/security/securitygroups"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/subnets"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
-	"github.com/chnsz/golangsdk/openstack/networking/v3/security/groups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
@@ -476,17 +476,13 @@ func resourceComputeInstanceV2Create(ctx context.Context, d *schema.ResourceData
 		if err != nil {
 			return diag.Errorf("error creating networking V1 client: %s", err)
 		}
-		sgClient, err := config.NetworkingV3Client(GetRegion(d, config))
-		if err != nil {
-			return diag.Errorf("error creating networking V3 Client: %s", err)
-		}
 
 		vpcId, err := getVpcID(vpcClient, d)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
-		secGroups, err := resourceInstanceSecGroupIdsV1(sgClient, d)
+		secGroups, err := resourceInstanceSecGroupIdsV1(vpcClient, d)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1236,17 +1232,36 @@ func resourceInstanceSecGroupIdsV1(client *golangsdk.ServiceClient, d *schema.Re
 		return secgroups, nil
 	}
 	rawSecGroups := d.Get("security_groups").(*schema.Set).List()
-	secgroups := make([]cloudservers.SecurityGroup, len(rawSecGroups))
-	for i, raw := range rawSecGroups {
+	secgroups := make([]cloudservers.SecurityGroup, 0, len(rawSecGroups))
+
+	opt := groups.ListOpts{
+		EnterpriseProjectId: "all_granted_eps",
+	}
+	pages, err := groups.List(client, opt).AllPages()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := groups.ExtractSecurityGroups(pages)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, raw := range rawSecGroups {
 		secName := raw.(string)
-		secId, err := groups.IDFromName(client, secName)
-		if err != nil {
-			return secgroups, err
-		}
-		secgroups[i] = cloudservers.SecurityGroup{
-			ID: secId,
+		for _, secGroup := range resp {
+			if secName == secGroup.Name {
+				secgroups = append(secgroups, cloudservers.SecurityGroup{
+					ID: secGroup.ID,
+				})
+				break
+			}
 		}
 	}
+	if len(secgroups) != len(rawSecGroups) {
+		return nil, fmt.Errorf("The list contains invalid security groups (num: %d), please check your entry",
+			len(rawSecGroups)-len(secgroups))
+	}
+
 	return secgroups, nil
 }
 
