@@ -99,6 +99,11 @@
                 "max_items": 1
               }
             }
+          },
+          "product": {
+            "catalog": "Storage",
+            "name": "Cloud Backup and Recovery",
+            "short": "CBR"
           }
         }
       }

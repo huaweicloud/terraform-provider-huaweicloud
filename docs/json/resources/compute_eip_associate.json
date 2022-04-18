@@ -39,6 +39,11 @@
                 "computed": true
               }
             }
+          },
+          "product": {
+            "catalog": "Compute",
+            "name": "Elastic Cloud Server",
+            "short": "ECS"
           }
         }
       }

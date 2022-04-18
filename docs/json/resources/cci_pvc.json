@@ -60,6 +60,11 @@
                 "default": "sas"
               }
             }
+          },
+          "product": {
+            "catalog": "Container",
+            "name": "Cloud Container Instance",
+            "short": "CCI"
           }
         }
       }

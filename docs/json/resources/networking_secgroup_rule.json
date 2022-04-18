@@ -24,6 +24,18 @@
                 "type": "string",
                 "computed": true
               },
+              "port_range_max": {
+                "type": "number",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "port_range_min": {
+                "type": "number",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "ports": {
                 "type": "string",
                 "optional": true,

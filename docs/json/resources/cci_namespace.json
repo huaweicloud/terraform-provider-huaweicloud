@@ -68,6 +68,11 @@
                 "forcenew": true
               }
             }
+          },
+          "product": {
+            "catalog": "Container",
+            "name": "Cloud Container Instance",
+            "short": "CCI"
           }
         }
       }

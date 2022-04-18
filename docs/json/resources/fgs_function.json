@@ -58,6 +58,12 @@
                 "type": "string",
                 "optional": true
               },
+              "functiongraph_version": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "handler": {
                 "type": "string",
                 "required": true
@@ -158,6 +164,11 @@
                 "nesting_mode": "list"
               }
             }
+          },
+          "product": {
+            "catalog": "Compute",
+            "name": "FunctionGraph",
+            "short": "FunctionGraph"
           }
         }
       }

@@ -5,6 +5,11 @@
         "huaweicloud_gaussdb_mysql_instance": {
           "block": {
             "attributes": {
+              "audit_log_enabled": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
               "auto_renew": {
                 "type": "string",
                 "optional": true

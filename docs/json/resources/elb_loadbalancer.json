@@ -5,6 +5,11 @@
         "huaweicloud_elb_loadbalancer": {
           "block": {
             "attributes": {
+              "auto_renew": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "availability_zone": {
                 "type": [
                   "list",
@@ -21,6 +26,12 @@
               },
               "bandwidth_size": {
                 "type": "number",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "charging_mode": {
+                "type": "string",
                 "optional": true,
                 "computed": true,
                 "forcenew": true
@@ -102,6 +113,16 @@
               "name": {
                 "type": "string",
                 "required": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
               },
               "region": {
                 "type": "string",
