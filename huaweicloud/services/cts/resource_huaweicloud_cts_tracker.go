@@ -179,7 +179,7 @@ func resourceCTSTrackerRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	response, err := ctsClient.ListTrackers(listOpts)
 	if err != nil {
-		return common.CheckDeletedError(d, err, "error retrieving CTS tracker")
+		return common.CheckDeletedDiag(d, err, "error retrieving CTS tracker")
 	}
 
 	if response.Trackers == nil || len(*response.Trackers) == 0 {

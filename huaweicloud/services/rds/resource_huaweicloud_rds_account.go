@@ -104,7 +104,7 @@ func resourceRdsAccountRead(ctx context.Context, d *schema.ResourceData, meta in
 	for {
 		response, err := client.ListDbUsers(request)
 		if err != nil {
-			return common.CheckDeletedError(d, err, "error listing RDS db users")
+			return common.CheckDeletedDiag(d, err, "error listing RDS db users")
 		}
 		users := *response.Users
 		if len(users) == 0 {

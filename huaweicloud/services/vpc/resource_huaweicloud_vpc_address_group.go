@@ -114,7 +114,7 @@ func resourceVpcAddressGroupRead(ctx context.Context, d *schema.ResourceData, me
 
 	response, err := client.ShowAddressGroup(request)
 	if err != nil {
-		return common.CheckDeletedError(d, err, "Error fetching VPC address group")
+		return common.CheckDeletedDiag(d, err, "Error fetching VPC address group")
 	}
 
 	mErr := multierror.Append(nil,
