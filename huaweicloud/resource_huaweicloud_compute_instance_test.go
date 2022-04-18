@@ -65,10 +65,19 @@ func TestAccComputeV2Instance_disks(t *testing.T) {
 		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeV2Instance_disks(rName),
+				Config: testAccComputeV2Instance_disks(rName, 50),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2InstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "system_disk_size", "50"),
+				),
+			},
+			{
+				Config: testAccComputeV2Instance_disks(rName, 60),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeV2InstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "system_disk_size", "60"),
 				),
 			},
 		},
@@ -357,7 +366,7 @@ resource "huaweicloud_compute_instance" "test" {
 `, testAccCompute_data, rName)
 }
 
-func testAccComputeV2Instance_disks(rName string) string {
+func testAccComputeV2Instance_disks(rName string, systemDiskSize int) string {
 	return fmt.Sprintf(`
 %s
 
@@ -370,7 +379,7 @@ resource "huaweicloud_compute_instance" "test" {
   delete_disks_on_termination = true
 
   system_disk_type = "SAS"
-  system_disk_size = 50
+  system_disk_size = %d
 
   data_disks {
     type = "SAS"
@@ -381,7 +390,7 @@ resource "huaweicloud_compute_instance" "test" {
     uuid = data.huaweicloud_vpc_subnet.test.id
   }
 }
-`, testAccCompute_data, rName)
+`, testAccCompute_data, rName, systemDiskSize)
 }
 
 func testAccComputeV2Instance_prePaid(rName string) string {
