@@ -25,26 +25,31 @@
                   "attributes": {
                     "flavor": {
                       "type": "string",
-                      "required": true
+                      "optional": true,
+                      "forcenew": true
                     },
                     "image": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "forcenew": true
                     },
                     "instance_id": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "forcenew": true
                     },
                     "key_name": {
                       "type": "string",
-                      "required": true
+                      "required": true,
+                      "forcenew": true
                     },
                     "metadata": {
                       "type": [
                         "map",
                         "string"
                       ],
-                      "optional": true
+                      "optional": true,
+                      "forcenew": true
                     },
                     "user_data": {
                       "type": "string",
@@ -58,7 +63,8 @@
                         "attributes": {
                           "disk_type": {
                             "type": "string",
-                            "required": true
+                            "required": true,
+                            "forcenew": true
                           },
                           "kms_id": {
                             "type": "string",
@@ -67,30 +73,36 @@
                           },
                           "size": {
                             "type": "number",
-                            "required": true
+                            "required": true,
+                            "forcenew": true
                           },
                           "volume_type": {
                             "type": "string",
-                            "required": true
+                            "required": true,
+                            "forcenew": true
                           }
                         }
                       },
-                      "nesting_mode": "list"
+                      "nesting_mode": "list",
+                      "forcenew": true
                     },
                     "personality": {
                       "block": {
                         "attributes": {
                           "content": {
                             "type": "string",
-                            "required": true
+                            "required": true,
+                            "forcenew": true
                           },
                           "path": {
                             "type": "string",
-                            "required": true
+                            "required": true,
+                            "forcenew": true
                           }
                         }
                       },
                       "nesting_mode": "list",
+                      "forcenew": true,
                       "max_items": 5
                     },
                     "public_ip": {
@@ -101,7 +113,8 @@
                               "attributes": {
                                 "ip_type": {
                                   "type": "string",
-                                  "required": true
+                                  "required": true,
+                                  "forcenew": true
                                 }
                               },
                               "block_types": {
@@ -110,31 +123,37 @@
                                     "attributes": {
                                       "charging_mode": {
                                         "type": "string",
-                                        "required": true
+                                        "required": true,
+                                        "forcenew": true
                                       },
                                       "share_type": {
                                         "type": "string",
-                                        "required": true
+                                        "required": true,
+                                        "forcenew": true
                                       },
                                       "size": {
                                         "type": "number",
-                                        "required": true
+                                        "required": true,
+                                        "forcenew": true
                                       }
                                     }
                                   },
                                   "nesting_mode": "list",
+                                  "forcenew": true,
                                   "min_items": 1,
                                   "max_items": 1
                                 }
                               }
                             },
                             "nesting_mode": "list",
+                            "forcenew": true,
                             "min_items": 1,
                             "max_items": 1
                           }
                         }
                       },
                       "nesting_mode": "list",
+                      "forcenew": true,
                       "max_items": 1
                     }
                   }

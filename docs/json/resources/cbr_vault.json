@@ -108,6 +108,11 @@
                 "nesting_mode": "set"
               }
             }
+          },
+          "product": {
+            "catalog": "Storage",
+            "name": "Cloud Backup and Recovery",
+            "short": "CBR"
           }
         }
       }

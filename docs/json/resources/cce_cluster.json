@@ -239,6 +239,14 @@
                 "required": true,
                 "forcenew": true
               },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
               "vpc_id": {
                 "type": "string",
                 "required": true,

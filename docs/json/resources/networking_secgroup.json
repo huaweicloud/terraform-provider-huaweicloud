@@ -16,8 +16,7 @@
               },
               "description": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "enterprise_project_id": {
                 "type": "string",
