@@ -209,6 +209,9 @@ type UpdateOpts struct {
 
 	// Deletion Protection Enable.
 	DeletionProtectionEnable *bool `json:"deletion_protection_enable,omitempty"`
+
+	// Prepaid configuration
+	PrepaidOpts *PrepaidOpts `json:"prepaid_options,omitempty"`
 }
 
 // ToLoadBalancerUpdateMap builds a request body from UpdateOpts.
