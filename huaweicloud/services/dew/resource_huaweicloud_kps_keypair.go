@@ -177,7 +177,7 @@ func resourceKeypairRead(ctx context.Context, d *schema.ResourceData, meta inter
 		KeypairName: d.Id(),
 	})
 	if err != nil {
-		return common.CheckDeletedError(d, err, "Error fetching keypair")
+		return common.CheckDeletedDiag(d, err, "Error fetching keypair")
 	}
 
 	scope, err := parseEncodeValue(response.Keypair.Scope.MarshalJSON())

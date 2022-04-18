@@ -11,6 +11,7 @@ package common
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -90,31 +91,25 @@ func CheckDeleted(d *schema.ResourceData, err error, msg string) error {
 // CheckDeletedDiag checks the error to see if it's a 404 (Not Found) and, if so,
 // sets the resource ID to the empty string instead of throwing an error.
 func CheckDeletedDiag(d *schema.ResourceData, err error, msg string) diag.Diagnostics {
+	var statusCode int
+
+	// check if the error is raised by **golangsdk**
 	if _, ok := err.(golangsdk.ErrDefault404); ok {
+		statusCode = http.StatusNotFound
+	} else if responseErr, ok := err.(*sdkerr.ServiceResponseError); ok {
+		// check if the error is raised by **huaweicloud-sdk-go-v3**
+		statusCode = responseErr.StatusCode
+	}
+
+	if statusCode == http.StatusNotFound {
+		resourceID := d.Id()
 		d.SetId("")
 		return diag.Diagnostics{
 			diag.Diagnostic{
 				Severity: diag.Warning,
 				Summary:  "Resource not found",
+				Detail:   fmt.Sprintf("the resource %s is gone and will be removed in Terraform state.", resourceID),
 			},
-		}
-	}
-
-	return fmtp.DiagErrorf("%s: %s", msg, err)
-}
-
-// CheckDeletedError checks the error raised by **huaweicloud-sdk-go-v3** is 404 (Not Found),
-// if so, sets the resource ID to the empty string instead of throwing an error.
-func CheckDeletedError(d *schema.ResourceData, err error, msg string) diag.Diagnostics {
-	if responseErr, ok := err.(*sdkerr.ServiceResponseError); ok {
-		if responseErr.StatusCode == http.StatusNotFound {
-			d.SetId("")
-			return diag.Diagnostics{
-				diag.Diagnostic{
-					Severity: diag.Warning,
-					Summary:  "Resource not found",
-				},
-			}
 		}
 	}
 
