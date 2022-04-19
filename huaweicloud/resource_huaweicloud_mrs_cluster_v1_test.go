@@ -4,17 +4,22 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/mrs/v1/cluster"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccMRSV1Cluster_basic(t *testing.T) {
 	var clusterGet cluster.Cluster
+	resourceName := "huaweicloud_mrs_cluster.cluster1"
+	rName := fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
+	password := fmt.Sprintf("TF%s%s%d", acctest.RandString(10), acctest.RandStringFromCharSet(1, "-_"),
+		acctest.RandIntRange(0, 99))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckMrs(t) },
@@ -22,11 +27,11 @@ func TestAccMRSV1Cluster_basic(t *testing.T) {
 		CheckDestroy: testAccCheckMRSV1ClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: TestAccMRSV1ClusterConfig_basic,
+				Config: testAccMRSV1ClusterConfig_basic(rName, password),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMRSV1ClusterExists("huaweicloud_mrs_cluster_v1.cluster1", &clusterGet),
+					testAccCheckMRSV1ClusterExists(resourceName, &clusterGet),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_mrs_cluster_v1.cluster1", "cluster_state", "running"),
+						resourceName, "cluster_state", "running"),
 				),
 			},
 		},
@@ -92,32 +97,58 @@ func testAccCheckMRSV1ClusterExists(n string, clusterGet *cluster.Cluster) resou
 	}
 }
 
-var TestAccMRSV1ClusterConfig_basic = fmt.Sprintf(`
-resource "huaweicloud_mrs_cluster_v1" "cluster1" {
-  cluster_name = "mrs-cluster-acc"
-  region = "%s"
-  billing_type = 12
-  master_node_num = 2
-  core_node_num = 3
-  master_node_size = "c3.4xlarge.2.linux.bigdata"
-  core_node_size = "c3.xlarge.4.linux.bigdata"
-  available_zone_id = "ae04cf9d61544df3806a3feeb401b204"
-  vpc_id = "%s"
-  subnet_id = "%s"
-  cluster_version = "MRS 1.6.3"
-  volume_type = "SATA"
-  volume_size = 100
-  safe_mode = 0
-  cluster_type = 0
-  node_public_cert_name = "KeyPair-ci"
-  cluster_admin_secret = ""
+func testAccMrsClusterConfig_base(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc" "test" {
+  name = "%s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  name       = "%s"
+  cidr       = "192.168.0.0/20"
+  vpc_id     = huaweicloud_vpc.test.id
+  gateway_ip = "192.168.0.1"
+}
+`, rName, rName)
+}
+
+func testAccMRSV1ClusterConfig_basic(rName, password string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_mrs_cluster" "cluster1" {
+  cluster_name          = "%s"
+  billing_type          = 12
+  master_node_num       = 2
+  core_node_num         = 3
+  master_node_size      = "ac7.8xlarge.4.linux.bigdata"
+  core_node_size        = "ac7.8xlarge.4.linux.bigdata"
+  available_zone_id     = "effdcbc7d4d64a02aa1fa26b42f56533"
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  cluster_version       = "MRS 3.1.0"
+  volume_type           = "SAS"
+  volume_size           = 600
+  safe_mode             = 0
+  cluster_type          = 0
+  node_password         = "%s"
+  cluster_admin_secret  = "%s"
+
   component_list {
-      component_name = "Hadoop"
+    component_name = "Hadoop"
   }
   component_list {
-      component_name = "Spark"
+    component_name = "ZooKeeper"
   }
   component_list {
-      component_name = "Hive"
+    component_name = "Ranger"
   }
-}`, HW_REGION_NAME, HW_VPC_ID, HW_NETWORK_ID)
+  component_list {
+    component_name = "Spark2x"
+  }
+  component_list {
+    component_name = "Hive"
+  }
+}`, testAccMrsClusterConfig_base(rName), rName, password, password)
+}
