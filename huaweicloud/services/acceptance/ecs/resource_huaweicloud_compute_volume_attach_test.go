@@ -101,6 +101,38 @@ func TestAccComputeVolumeAttach_device(t *testing.T) {
 	})
 }
 
+func TestAccComputeVolumeAttach_multiple(t *testing.T) {
+	var va block_devices.VolumeAttachment
+	rName := acceptance.RandomAccResourceNameWithDash()
+	rc := acceptance.InitResourceCheck(
+		"huaweicloud_compute_volume_attach.test",
+		&va,
+		getVolumeAttachResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeVolumeAttach_multiple(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckMultiResourcesExists(2),
+					resource.TestCheckResourceAttrPair("huaweicloud_compute_volume_attach.test.0", "instance_id",
+						"huaweicloud_compute_instance.test.0", "id"),
+					resource.TestCheckResourceAttrPair("huaweicloud_compute_volume_attach.test.0", "volume_id",
+						"huaweicloud_evs_volume.test", "id"),
+					resource.TestCheckResourceAttrPair("huaweicloud_compute_volume_attach.test.1", "instance_id",
+						"huaweicloud_compute_instance.test.1", "id"),
+					resource.TestCheckResourceAttrPair("huaweicloud_compute_volume_attach.test.1", "volume_id",
+						"huaweicloud_evs_volume.test", "id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccComputeVolumeAttach_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
@@ -183,3 +215,39 @@ data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
 `
+
+func testAccComputeVolumeAttach_multiple(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_evs_volume" "test" {
+  name              = "%[2]s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  volume_type       = "SAS"
+  size              = 10
+  
+  multiattach = true
+}
+
+resource "huaweicloud_compute_instance" "test" {
+  count = 2
+
+  name               = "%[2]s-${count.index}"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+
+  network {
+    uuid = data.huaweicloud_vpc_subnet.test.id
+  }
+}
+
+resource "huaweicloud_compute_volume_attach" "test" {
+  count = 2
+
+  instance_id = huaweicloud_compute_instance.test[count.index].id
+  volume_id   = huaweicloud_evs_volume.test.id
+}
+`, testAccCompute_data, rName, rName)
+}

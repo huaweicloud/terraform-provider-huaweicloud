@@ -15,12 +15,18 @@ import (
 	"github.com/chnsz/golangsdk/openstack/obs"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/mutexkv"
 )
 
 const (
 	obsLogFile         string = "./.obs-sdk.log"
 	obsLogFileSize10MB int64  = 1024 * 1024 * 10
 )
+
+// MutexKV is a global lock on all resources, it can lock the specified shared string (such as resource ID, resource
+// Name, port, etc.) to prevent other resources from using it, for concurrency control.
+// Usage: MutexKV.Lock({resource ID}) and MutexKV.Unlock({resource ID})
+var MutexKV = mutexkv.NewMutexKV()
 
 type Config struct {
 	AccessKey           string
