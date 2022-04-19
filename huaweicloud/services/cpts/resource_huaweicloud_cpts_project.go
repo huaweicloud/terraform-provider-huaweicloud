@@ -61,7 +61,7 @@ func ResourceProject() *schema.Resource {
 func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	client, err := c.HcCptsV3Client(region)
+	client, err := c.HcCptsV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CPTS v1 client: %s", err)
 	}
@@ -88,7 +88,7 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta int
 func resourceProjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	client, err := c.HcCptsV3Client(region)
+	client, err := c.HcCptsV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CPTS v1 client: %s", err)
 	}
@@ -129,7 +129,7 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, meta inter
 func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	client, err := c.HcCptsV3Client(region)
+	client, err := c.HcCptsV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CPTS v1 client: %s", err)
 	}
@@ -158,7 +158,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta int
 func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	client, err := c.HcCptsV3Client(region)
+	client, err := c.HcCptsV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CPTS v1 client: %s", err)
 	}
