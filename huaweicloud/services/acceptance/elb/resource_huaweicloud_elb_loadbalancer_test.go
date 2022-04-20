@@ -158,6 +158,21 @@ func TestAccElbV3LoadBalancer_prePaid(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 				),
 			},
+			{
+				Config: testAccElbV3LoadBalancerConfig_prePaidUpdate(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "cross_vpc_backend", "false"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "description", "update flavors"),
+					resource.TestCheckResourceAttrPair(
+						resourceName, "l4_flavor_id", "data.huaweicloud_elb_flavors.l4flavors", "ids.0"),
+					resource.TestCheckResourceAttrPair(
+						resourceName, "l7_flavor_id", "data.huaweicloud_elb_flavors.l7flavors", "ids.0"),
+				),
+			},
 		},
 	})
 }
@@ -270,6 +285,51 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   name            = "%s"
   ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.subnet_id
   ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
+  charging_mode   = "prePaid"
+  period_unit     = "month"
+  period          = 1
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+}
+`, rName)
+}
+
+func testAccElbV3LoadBalancerConfig_prePaidUpdate(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_elb_flavors" "l4flavors" {
+  type            = "L4"
+  max_connections = 1000000
+  cps             = 20000
+  bandwidth       = 100
+}
+
+data "huaweicloud_elb_flavors" "l7flavors" {
+  type            = "L7"
+  max_connections = 400000
+  cps             = 4000
+  bandwidth       = 100
+}
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name            = "%s"
+  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.subnet_id
+  ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
+  description     = "update flavors"
+  l4_flavor_id    = data.huaweicloud_elb_flavors.l4flavors.ids[0]
+  l7_flavor_id    = data.huaweicloud_elb_flavors.l7flavors.ids[0]
   charging_mode   = "prePaid"
   period_unit     = "month"
   period          = 1
