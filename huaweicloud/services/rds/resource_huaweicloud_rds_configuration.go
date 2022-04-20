@@ -1,25 +1,27 @@
-package huaweicloud
+package rds
 
 import (
+	"context"
+	"log"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/rds/v3/configurations"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk/openstack/rds/v3/configurations"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func ResourceRdsConfigurationV3() *schema.Resource {
+// ResourceRdsConfiguration is the impl for huaweicloud_rds_parametergroup resource
+func ResourceRdsConfiguration() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceRdsConfigurationV3Create,
-		Read:   resourceRdsConfigurationV3Read,
-		Update: resourceRdsConfigurationV3Update,
-		Delete: resourceRdsConfigurationV3Delete,
+		CreateContext: resourceRdsConfigurationCreate,
+		ReadContext:   resourceRdsConfigurationRead,
+		UpdateContext: resourceRdsConfigurationUpdate,
+		DeleteContext: resourceRdsConfigurationDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -106,7 +108,7 @@ func ResourceRdsConfigurationV3() *schema.Resource {
 	}
 }
 
-func getValues(d *schema.ResourceData) map[string]string {
+func buildValues(d *schema.ResourceData) map[string]string {
 	m := make(map[string]string)
 	for key, val := range d.Get("values").(map[string]interface{}) {
 		m[key] = val.(string)
@@ -114,7 +116,7 @@ func getValues(d *schema.ResourceData) map[string]string {
 	return m
 }
 
-func getDatastore(d *schema.ResourceData) configurations.DataStore {
+func buildDatastore(d *schema.ResourceData) configurations.DataStore {
 	datastoreRaw := d.Get("datastore").([]interface{})
 	rawMap := datastoreRaw[0].(map[string]interface{})
 
@@ -123,53 +125,46 @@ func getDatastore(d *schema.ResourceData) configurations.DataStore {
 		Version: rawMap["version"].(string),
 	}
 
-	logp.Printf("[DEBUG] getDatastore: %#v", datastore)
+	log.Printf("[DEBUG] Datastore: %#v", datastore)
 	return datastore
 }
 
-func resourceRdsConfigurationV3Create(d *schema.ResourceData, meta interface{}) error {
+func resourceRdsConfigurationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-
-	rdsClient, err := config.RdsV3Client(GetRegion(d, config))
+	rdsClient, err := config.RdsV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud RDS Client: %s", err)
+		return diag.Errorf("error creating RDS Client: %s", err)
 	}
 
 	createOpts := configurations.CreateOpts{
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
-		Values:      getValues(d),
-		DataStore:   getDatastore(d),
+		Values:      buildValues(d),
+		DataStore:   buildDatastore(d),
 	}
-	logp.Printf("[DEBUG] CreateOpts: %#v", createOpts)
 
+	log.Printf("[DEBUG] CreateOpts: %#v", createOpts)
 	configuration, err := configurations.Create(rdsClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud RDS Configuration: %s", err)
+		return diag.Errorf("error creating RDS configuration: %s", err)
 	}
 
-	logp.Printf("[DEBUG] RDS configuration created: %#v", configuration)
+	log.Printf("[DEBUG] RDS configuration created: %#v", configuration)
 	d.SetId(configuration.Id)
 
-	return resourceRdsConfigurationV3Read(d, meta)
+	return resourceRdsConfigurationRead(ctx, d, meta)
 }
 
-func resourceRdsConfigurationV3Read(d *schema.ResourceData, meta interface{}) error {
-
+func resourceRdsConfigurationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	rdsClient, err := config.RdsV3Client(GetRegion(d, config))
+	rdsClient, err := config.RdsV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud RDS client: %s", err)
+		return diag.Errorf("error creating RDS client: %s", err)
 	}
+
 	n, err := configurations.Get(rdsClient, d.Id()).Extract()
-
 	if err != nil {
-		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			d.SetId("")
-			return nil
-		}
-
-		return fmtp.Errorf("Error retrieving HuaweiCloud RDS Configuration: %s", err)
+		return common.CheckDeletedDiag(d, err, "error retrieving RDS configuration")
 	}
 
 	d.SetId(n.Id)
@@ -199,14 +194,14 @@ func resourceRdsConfigurationV3Read(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func resourceRdsConfigurationV3Update(d *schema.ResourceData, meta interface{}) error {
+func resourceRdsConfigurationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	rdsClient, err := config.RdsV3Client(GetRegion(d, config))
+	rdsClient, err := config.RdsV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud RDS Client: %s", err)
+		return diag.Errorf("error creating RDS Client: %s", err)
 	}
-	var updateOpts configurations.UpdateOpts
 
+	var updateOpts configurations.UpdateOpts
 	if d.HasChange("name") {
 		updateOpts.Name = d.Get("name").(string)
 	}
@@ -214,27 +209,27 @@ func resourceRdsConfigurationV3Update(d *schema.ResourceData, meta interface{}) 
 		updateOpts.Description = d.Get("description").(string)
 	}
 	if d.HasChange("values") {
-		updateOpts.Values = getValues(d)
+		updateOpts.Values = buildValues(d)
 	}
-	logp.Printf("[DEBUG] updateOpts: %#v", updateOpts)
 
+	log.Printf("[DEBUG] updateOpts: %#v", updateOpts)
 	err = configurations.Update(rdsClient, d.Id(), updateOpts).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error updating HuaweiCloud RDS Configuration: %s", err)
+		return diag.Errorf("error updating RDS configuration: %s", err)
 	}
-	return resourceRdsConfigurationV3Read(d, meta)
+	return resourceRdsConfigurationRead(ctx, d, meta)
 }
 
-func resourceRdsConfigurationV3Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceRdsConfigurationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	rdsClient, err := config.RdsV3Client(GetRegion(d, config))
+	rdsClient, err := config.RdsV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud RDS client: %s", err)
+		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
 	err = configurations.Delete(rdsClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud RDS Configuration: %s", err)
+		return diag.Errorf("error deleting RDS configuration: %s", err)
 	}
 
 	d.SetId("")

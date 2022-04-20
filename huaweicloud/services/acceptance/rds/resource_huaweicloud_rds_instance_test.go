@@ -1,32 +1,34 @@
-package huaweicloud
+package rds
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/rds/v3/instances"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/rds/v3/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rds"
 )
 
-func TestAccRdsInstanceV3_basic(t *testing.T) {
+func TestAccRdsInstance_basic(t *testing.T) {
 	var instance instances.RdsInstanceResponse
-	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	name := acceptance.RandomAccResourceName()
 	resourceType := "huaweicloud_rds_instance"
 	resourceName := "huaweicloud_rds_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRdsInstanceV3Destroy(resourceType),
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRdsInstanceV3_basic(name),
+				Config: testAccRdsInstance_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsInstanceV3Exists(resourceName, &instance),
+					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "1"),
 					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.n1.large.2"),
@@ -40,9 +42,9 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccRdsInstanceV3_update(name),
+				Config: testAccRdsInstance_update(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsInstanceV3Exists(resourceName, &instance),
+					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", name)),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "2"),
 					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.n1.xlarge.2"),
@@ -66,43 +68,46 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 	})
 }
 
-func TestAccRdsInstanceV3_withEpsId(t *testing.T) {
+func TestAccRdsInstance_withEpsId(t *testing.T) {
 	var instance instances.RdsInstanceResponse
-	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	name := acceptance.RandomAccResourceName()
 	resourceType := "huaweicloud_rds_instance"
 	resourceName := "huaweicloud_rds_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckEpsID(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRdsInstanceV3Destroy(resourceType),
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRdsInstanceV3_epsId(name),
+				Config: testAccRdsInstance_epsId(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsInstanceV3Exists(resourceName, &instance),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
 	})
 }
 
-func TestAccRdsInstanceV3_ha(t *testing.T) {
+func TestAccRdsInstance_ha(t *testing.T) {
 	var instance instances.RdsInstanceResponse
-	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	name := acceptance.RandomAccResourceName()
 	resourceType := "huaweicloud_rds_instance"
 	resourceName := "huaweicloud_rds_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRdsInstanceV3Destroy(resourceType),
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRdsInstanceV3_ha(name),
+				Config: testAccRdsInstance_ha(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsInstanceV3Exists(resourceName, &instance),
+					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "1"),
 					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.n1.large.2.ha"),
@@ -118,23 +123,23 @@ func TestAccRdsInstanceV3_ha(t *testing.T) {
 	})
 }
 
-func TestAccRdsInstanceV3_mysql(t *testing.T) {
+func TestAccRdsInstance_mysql(t *testing.T) {
 	var instance instances.RdsInstanceResponse
-	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	name := acceptance.RandomAccResourceName()
 	resourceType := "huaweicloud_rds_instance"
 	resourceName := "huaweicloud_rds_instance.test"
 	pwd := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
 		acctest.RandIntRange(10, 99))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRdsInstanceV3Destroy(resourceType),
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRdsInstanceV3_mysql(name, pwd),
+				Config: testAccRdsInstance_mysql(name, pwd),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsInstanceV3Exists(resourceName, &instance),
+					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.mysql.sld4.large.ha"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
@@ -143,9 +148,9 @@ func TestAccRdsInstanceV3_mysql(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccRdsInstanceV3_mysqlUpdate(name, pwd),
+				Config: testAccRdsInstance_mysqlUpdate(name, pwd),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsInstanceV3Exists(resourceName, &instance),
+					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.mysql.sld4.large.ha"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
@@ -157,12 +162,12 @@ func TestAccRdsInstanceV3_mysql(t *testing.T) {
 	})
 }
 
-func testAccCheckRdsInstanceV3Destroy(rsType string) resource.TestCheckFunc {
+func testAccCheckRdsInstanceDestroy(rsType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*config.Config)
-		client, err := config.RdsV3Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		client, err := config.RdsV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating huaweicloud rds client: %s", err)
+			return fmt.Errorf("error creating rds client: %s", err)
 		}
 
 		for _, rs := range s.RootModule().Resources {
@@ -171,42 +176,42 @@ func testAccCheckRdsInstanceV3Destroy(rsType string) resource.TestCheckFunc {
 			}
 
 			id := rs.Primary.ID
-			instance, err := getRdsInstanceByID(client, id)
+			instance, err := rds.GetRdsInstanceByID(client, id)
 			if err != nil {
 				return err
 			}
 			if instance.Id != "" {
-				return fmtp.Errorf("%s (%s) still exists", rsType, id)
+				return fmt.Errorf("%s (%s) still exists", rsType, id)
 			}
 		}
 		return nil
 	}
 }
 
-func testAccCheckRdsInstanceV3Exists(name string, instance *instances.RdsInstanceResponse) resource.TestCheckFunc {
+func testAccCheckRdsInstanceExists(name string, instance *instances.RdsInstanceResponse) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", name)
+			return fmt.Errorf("Not found: %s", name)
 		}
 
 		id := rs.Primary.ID
 		if id == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		client, err := config.RdsV3Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		client, err := config.RdsV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating huaweicloud rds client: %s", err)
+			return fmt.Errorf("error creating rds client: %s", err)
 		}
 
-		found, err := getRdsInstanceByID(client, id)
+		found, err := rds.GetRdsInstanceByID(client, id)
 		if err != nil {
-			return fmtp.Errorf("Error checking %s exist, err=%s", name, err)
+			return fmt.Errorf("error checking %s exist, err=%s", name, err)
 		}
 		if found.Id == "" {
-			return fmtp.Errorf("resource %s does not exist", name)
+			return fmt.Errorf("resource %s does not exist", name)
 		}
 
 		instance = found
@@ -214,7 +219,7 @@ func testAccCheckRdsInstanceV3Exists(name string, instance *instances.RdsInstanc
 	}
 }
 
-func testAccRdsInstanceV3_base(name string) string {
+func testAccRdsInstance_base(name string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
@@ -238,7 +243,7 @@ resource "huaweicloud_networking_secgroup" "test" {
 `, name, name, name)
 }
 
-func testAccRdsInstanceV3_basic(name string) string {
+func testAccRdsInstance_basic(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -272,11 +277,11 @@ resource "huaweicloud_rds_instance" "test" {
     foo = "bar"
   }
 }
-`, testAccRdsInstanceV3_base(name), name)
+`, testAccRdsInstance_base(name), name)
 }
 
 // name, volume.size, backup_strategy, flavor and tags will be updated
-func testAccRdsInstanceV3_update(name string) string {
+func testAccRdsInstance_update(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -309,10 +314,10 @@ resource "huaweicloud_rds_instance" "test" {
     foo  = "bar_updated"
   }
 }
-`, testAccRdsInstanceV3_base(name), name)
+`, testAccRdsInstance_base(name), name)
 }
 
-func testAccRdsInstanceV3_epsId(name string) string {
+func testAccRdsInstance_epsId(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -340,10 +345,10 @@ resource "huaweicloud_rds_instance" "test" {
     keep_days  = 1
   }
 }
-`, testAccRdsInstanceV3_base(name), name, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccRdsInstance_base(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccRdsInstanceV3_ha(name string) string {
+func testAccRdsInstance_ha(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -381,10 +386,10 @@ resource "huaweicloud_rds_instance" "test" {
     foo = "bar"
   }
 }
-`, testAccRdsInstanceV3_base(name), name)
+`, testAccRdsInstance_base(name), name)
 }
 
-func testAccRdsInstanceV3_mysql(name, pwd string) string {
+func testAccRdsInstance_mysql(name, pwd string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -414,10 +419,10 @@ resource "huaweicloud_rds_instance" "test" {
     size = 40
   }
 }
-`, testAccRdsInstanceV3_base(name), name, pwd)
+`, testAccRdsInstance_base(name), name, pwd)
 }
 
-func testAccRdsInstanceV3_mysqlUpdate(name, pwd string) string {
+func testAccRdsInstance_mysqlUpdate(name, pwd string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -447,5 +452,5 @@ resource "huaweicloud_rds_instance" "test" {
     size = 40
   }
 }
-`, testAccRdsInstanceV3_base(name), name, pwd)
+`, testAccRdsInstance_base(name), name, pwd)
 }
