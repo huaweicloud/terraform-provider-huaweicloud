@@ -21,6 +21,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cdm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ces"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cloudtable"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cpts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/css"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dcs"
@@ -755,6 +756,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_instance_group":             waf.ResourceWafInstanceGroup(),
 			"huaweicloud_waf_instance_group_associate":   waf.ResourceWafInstGroupAssociate(),
 			"huaweicloud_waf_reference_table":            waf.ResourceWafReferenceTableV1(),
+
+			"huaweicloud_cpts_project": cpts.ResourceProject(),
 
 			// Legacy
 			"huaweicloud_networking_eip_associate": eip.ResourceEIPAssociate(),

@@ -551,4 +551,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "NAT",
 	},
+
+	"cpts": {
+		Name:    "cpts",
+		Version: "v1",
+		Product: "CPTS",
+	},
 }

@@ -15,6 +15,7 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/global"
 	hcconfig "github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/httphandler"
+	cptsv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1"
 	ctsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3"
 	gaussdbv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/gaussdb/v3"
 	iamv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3"
@@ -198,6 +199,15 @@ func (c *Config) HcRdsV3Client(region string) (*rdsv3.RdsClient, error) {
 		return nil, err
 	}
 	return rdsv3.NewRdsClient(hcClient), nil
+}
+
+// HcCptsV3Client is the CPTS service client using huaweicloud-sdk-go-v3 package
+func (c *Config) HcCptsV3Client(region string) (*cptsv1.CptsClient, error) {
+	hcClient, err := NewHcClient(c, region, "cpts", false)
+	if err != nil {
+		return nil, err
+	}
+	return cptsv1.NewCptsClient(hcClient), nil
 }
 
 // NewHcClient is the common client using huaweicloud-sdk-go-v3 package
