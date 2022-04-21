@@ -147,7 +147,7 @@ func ResourceMRSClusterV1() *schema.Resource {
 				ForceNew: true,
 			},
 			"component_list": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
@@ -173,7 +173,7 @@ func ResourceMRSClusterV1() *schema.Resource {
 				},
 			},
 			"add_jobs": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
@@ -357,8 +357,8 @@ func ResourceMRSClusterV1() *schema.Resource {
 func getAllClusterComponents(d *schema.ResourceData) []cluster.ComponentOpts {
 	var componentOpts []cluster.ComponentOpts
 
-	components := d.Get("component_list").([]interface{})
-	for _, v := range components {
+	components := d.Get("component_list").(*schema.Set)
+	for _, v := range components.List() {
 		component := v.(map[string]interface{})
 		component_name := component["component_name"].(string)
 
@@ -375,8 +375,8 @@ func getAllClusterComponents(d *schema.ResourceData) []cluster.ComponentOpts {
 func getAllClusterJobs(d *schema.ResourceData) []cluster.JobOpts {
 	var jobOpts []cluster.JobOpts
 
-	jobs := d.Get("add_jobs").([]interface{})
-	for _, v := range jobs {
+	jobs := d.Get("add_jobs").(*schema.Set)
+	for _, v := range jobs.List() {
 		job := v.(map[string]interface{})
 
 		v := cluster.JobOpts{
