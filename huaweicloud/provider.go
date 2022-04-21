@@ -542,6 +542,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cts_tracker":      cts.ResourceCTSTracker(),
 			"huaweicloud_cts_data_tracker": cts.ResourceCTSDataTracker(),
+			"huaweicloud_cts_notification": cts.ResourceCTSNotification(),
 			"huaweicloud_cci_namespace":    cci.ResourceCciNamespace(),
 			"huaweicloud_cci_network":      cci.ResourceCciNetworkV1(),
 			"huaweicloud_cci_pvc":          ResourceCCIPersistentVolumeClaimV1(),
