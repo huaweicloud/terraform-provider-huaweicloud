@@ -73,5 +73,5 @@ This resource provides the following timeouts configuration options:
 CTS data tracker can be imported using `name`, e.g.:
 
 ```
-$ terraform import huaweicloud_cts_data_tracker_v1.tracker your_tracker_name
+$ terraform import huaweicloud_cts_data_tracker.tracker your_tracker_name
 ```
