@@ -96,8 +96,8 @@ func resourceNetworkingRouterV2() *schema.Resource {
 }
 
 func resourceNetworkingRouterV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	conf := meta.(*config.Config)
+	networkingClient, err := conf.NetworkingV2Client(GetRegion(d, conf))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -174,8 +174,8 @@ func resourceNetworkingRouterV2Create(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceNetworkingRouterV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	conf := meta.(*config.Config)
+	networkingClient, err := conf.NetworkingV2Client(GetRegion(d, conf))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -196,7 +196,7 @@ func resourceNetworkingRouterV2Read(d *schema.ResourceData, meta interface{}) er
 	d.Set("admin_state_up", n.AdminStateUp)
 	d.Set("distributed", n.Distributed)
 	d.Set("tenant_id", n.TenantID)
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", GetRegion(d, conf))
 
 	// Gateway settings
 	d.Set("external_network_id", n.GatewayInfo.NetworkID)
@@ -219,11 +219,11 @@ func resourceNetworkingRouterV2Read(d *schema.ResourceData, meta interface{}) er
 
 func resourceNetworkingRouterV2Update(d *schema.ResourceData, meta interface{}) error {
 	routerId := d.Id()
-	osMutexKV.Lock(routerId)
-	defer osMutexKV.Unlock(routerId)
+	config.MutexKV.Lock(routerId)
+	defer config.MutexKV.Unlock(routerId)
 
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	conf := meta.(*config.Config)
+	networkingClient, err := conf.NetworkingV2Client(GetRegion(d, conf))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}

@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/mutexkv"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/as"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/bms"
@@ -56,9 +55,6 @@ import (
 )
 
 const defaultCloud string = "myhuaweicloud.com"
-
-// This is a global MutexKV for use within this plugin.
-var osMutexKV = mutexkv.NewMutexKV()
 
 // Provider returns a schema.Provider for HuaweiCloud.
 func Provider() *schema.Provider {

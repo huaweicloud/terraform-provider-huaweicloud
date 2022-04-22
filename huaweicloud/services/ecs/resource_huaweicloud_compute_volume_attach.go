@@ -70,15 +70,17 @@ func ResourceComputeVolumeAttach() *schema.Resource {
 }
 
 func resourceComputeVolumeAttachCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	computeClient, err := config.ComputeV1Client(region)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	computeClient, err := conf.ComputeV1Client(region)
 	if err != nil {
 		return diag.Errorf("Error creating compute v1 client: %s", err)
 	}
 
 	instanceId := d.Get("instance_id").(string)
 	volumeId := d.Get("volume_id").(string)
+	config.MutexKV.Lock(volumeId)
+	defer config.MutexKV.Unlock(volumeId)
 
 	var device string
 	if v, ok := d.GetOk("device"); ok {
@@ -118,9 +120,9 @@ func resourceComputeVolumeAttachCreate(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceComputeVolumeAttachRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	computeClient, err := config.ComputeV1Client(region)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	computeClient, err := conf.ComputeV1Client(region)
 	if err != nil {
 		return diag.Errorf("Error creating compute V1 client: %s", err)
 	}
@@ -149,15 +151,18 @@ func resourceComputeVolumeAttachRead(_ context.Context, d *schema.ResourceData, 
 }
 
 func resourceComputeVolumeAttachDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	computeClient, err := config.ComputeV1Client(region)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	computeClient, err := conf.ComputeV1Client(region)
 	if err != nil {
 		return diag.Errorf("Error creating compute V1 client: %s", err)
 	}
 
 	instanceId := d.Get("instance_id").(string)
 	volumeId := d.Get("volume_id").(string)
+	config.MutexKV.Lock(volumeId)
+	defer config.MutexKV.Unlock(volumeId)
+
 	opts := block_devices.DetachOpts{
 		ServerId: instanceId,
 	}

@@ -52,14 +52,14 @@ func resourceNetworkingRouterRouteV2() *schema.Resource {
 func resourceNetworkingRouterRouteV2Create(d *schema.ResourceData, meta interface{}) error {
 
 	routerId := d.Get("router_id").(string)
-	osMutexKV.Lock(routerId)
-	defer osMutexKV.Unlock(routerId)
+	config.MutexKV.Lock(routerId)
+	defer config.MutexKV.Unlock(routerId)
 
 	var destCidr string = d.Get("destination_cidr").(string)
 	var nextHop string = d.Get("next_hop").(string)
 
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	conf := meta.(*config.Config)
+	networkingClient, err := conf.NetworkingV2Client(GetRegion(d, conf))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -116,8 +116,8 @@ func resourceNetworkingRouterRouteV2Read(d *schema.ResourceData, meta interface{
 
 	routerId := d.Get("router_id").(string)
 
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	conf := meta.(*config.Config)
+	networkingClient, err := conf.NetworkingV2Client(GetRegion(d, conf))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -166,7 +166,7 @@ func resourceNetworkingRouterRouteV2Read(d *schema.ResourceData, meta interface{
 		}
 	}
 
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", GetRegion(d, conf))
 
 	return nil
 }
@@ -174,12 +174,12 @@ func resourceNetworkingRouterRouteV2Read(d *schema.ResourceData, meta interface{
 func resourceNetworkingRouterRouteV2Delete(d *schema.ResourceData, meta interface{}) error {
 
 	routerId := d.Get("router_id").(string)
-	osMutexKV.Lock(routerId)
-	defer osMutexKV.Unlock(routerId)
+	config.MutexKV.Lock(routerId)
+	defer config.MutexKV.Unlock(routerId)
 
-	config := meta.(*config.Config)
+	conf := meta.(*config.Config)
 
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := conf.NetworkingV2Client(GetRegion(d, conf))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
