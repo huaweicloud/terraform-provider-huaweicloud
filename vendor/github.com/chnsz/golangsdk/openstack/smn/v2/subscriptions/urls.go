@@ -11,9 +11,9 @@ func deleteURL(c *golangsdk.ServiceClient, subscriptionUrn string) string {
 }
 
 func listURL(c *golangsdk.ServiceClient) string {
-	return c.ServiceURL("subscriptions?offset=0&limit=100")
+	return c.ServiceURL("subscriptions")
 }
 
 func listFromTopicURL(c *golangsdk.ServiceClient, topicUrn string) string {
-	return c.ServiceURL("topics", topicUrn, "subscriptions?offset=0&limit=100")
+	return c.ServiceURL("topics", topicUrn, "subscriptions")
 }

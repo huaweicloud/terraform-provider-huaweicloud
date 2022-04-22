@@ -2,6 +2,7 @@ package topics
 
 import (
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/pagination"
 )
 
 var RequestOpts golangsdk.RequestOpts = golangsdk.RequestOpts{
@@ -96,8 +97,17 @@ func Get(client *golangsdk.ServiceClient, id string) (r GetResult) {
 
 //list all the topics
 func List(client *golangsdk.ServiceClient) (r ListResult) {
-	_, r.Err = client.Get(listURL(client), &r.Body, &golangsdk.RequestOpts{
-		MoreHeaders: RequestOpts.MoreHeaders,
-	})
+	pages, err := pagination.NewPager(client, listURL(client),
+		func(r pagination.PageResult) pagination.Page {
+			p := TopicPage{pagination.OffsetPageBase{PageResult: r}}
+			return p
+		}).AllPages()
+
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	r.Body = pages.GetBody()
 	return
 }

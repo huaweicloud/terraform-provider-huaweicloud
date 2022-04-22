@@ -10,7 +10,7 @@ import (
 // the API. Filtering is achieved by passing in struct field values that map to
 // the attributes you want to see returned.
 type ListOpts struct {
-	TrackerName    string `q:"tracker_name"`
+	TrackerName    string
 	BucketName     string
 	FilePrefixName string
 	Status         string
@@ -38,6 +38,9 @@ func FilterTracker(tracker []Tracker, opts ListOpts) ([]Tracker, error) {
 	var matched bool
 	m := map[string]interface{}{}
 
+	if opts.TrackerName != "" {
+		m["TrackerName"] = opts.TrackerName
+	}
 	if opts.BucketName != "" {
 		m["BucketName"] = opts.BucketName
 	}

@@ -2,6 +2,7 @@ package subscriptions
 
 import (
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/pagination"
 )
 
 type Subscription struct {
@@ -57,4 +58,21 @@ func (lr ListResult) Extract() ([]SubscriptionGet, error) {
 	}
 	err := lr.Result.ExtractInto(&a)
 	return a.Subscriptions, err
+}
+
+type SubscriptionPage struct {
+	pagination.OffsetPageBase
+}
+
+func (b SubscriptionPage) IsEmpty() (bool, error) {
+	arr, err := ExtractSubscriptions(b)
+	return len(arr) == 0, err
+}
+
+func ExtractSubscriptions(r pagination.Page) ([]SubscriptionGet, error) {
+	var s struct {
+		Subscriptions []SubscriptionGet `json:"subscriptions"`
+	}
+	err := (r.(SubscriptionPage)).ExtractInto(&s)
+	return s.Subscriptions, err
 }
