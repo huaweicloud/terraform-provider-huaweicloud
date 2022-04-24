@@ -23,11 +23,12 @@ import (
 	"fmt"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/cache"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/iam"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/internal"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/signer"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/impl"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/request"
 	"strings"
+	"time"
 )
 
 const (
@@ -49,6 +50,7 @@ type Credentials struct {
 
 	derivedAuthServiceName string
 	regionId               string
+	expiredAt              int64
 }
 
 func (s Credentials) ProcessAuthParams(client *impl.DefaultHttpClient, region string) auth.ICredential {
@@ -65,12 +67,12 @@ func (s Credentials) ProcessAuthParams(client *impl.DefaultHttpClient, region st
 	derivedPredicate := s.DerivedPredicate
 	s.DerivedPredicate = nil
 
-	req, err := s.ProcessAuthRequest(client, iam.GetKeystoneListAuthDomainsRequest(s.IamEndpoint))
+	req, err := s.ProcessAuthRequest(client, internal.GetKeystoneListAuthDomainsRequest(s.IamEndpoint))
 	if err != nil {
 		panic(fmt.Sprintf("failed to get domain id, %s", err.Error()))
 	}
 
-	id, err := iam.KeystoneListAuthDomains(client, req)
+	id, err := internal.KeystoneListAuthDomains(client, req)
 	if err != nil {
 		panic(fmt.Sprintf("failed to get domain id, %s", err.Error()))
 	}
@@ -85,6 +87,13 @@ func (s Credentials) ProcessAuthParams(client *impl.DefaultHttpClient, region st
 
 func (s Credentials) ProcessAuthRequest(client *impl.DefaultHttpClient, req *request.DefaultHttpRequest) (*request.DefaultHttpRequest, error) {
 	reqBuilder := req.Builder()
+
+	if s.NeedUpdate() {
+		err := s.UpdateCredential(client)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	if s.DomainId != "" {
 		reqBuilder = reqBuilder.
@@ -144,13 +153,43 @@ func (s Credentials) IsDerivedAuth(httpRequest *request.DefaultHttpRequest) bool
 	return s.DerivedPredicate(httpRequest)
 }
 
+func (s Credentials) NeedUpdate() bool {
+	if s.AK == "" || s.SK == "" {
+		return true
+	}
+
+	if s.expiredAt == 0 {
+		return false
+	}
+
+	return s.expiredAt-time.Now().Unix() < 60
+}
+
+func (s *Credentials) UpdateCredential(client *impl.DefaultHttpClient) error {
+	credential, err := internal.GetTemporaryCredential(client)
+	if err != nil {
+		return err
+	}
+
+	s.AK = credential.Access
+	s.SK = credential.Secret
+	s.SecurityToken = credential.Securitytoken
+	location, err := time.ParseInLocation(`2006-01-02T15:04:05Z`, credential.ExpiresAt, time.UTC)
+	if err != nil {
+		return err
+	}
+	s.expiredAt = location.Unix()
+
+	return nil
+}
+
 type CredentialsBuilder struct {
 	Credentials Credentials
 }
 
 func NewCredentialsBuilder() *CredentialsBuilder {
 	return &CredentialsBuilder{Credentials: Credentials{
-		IamEndpoint: iam.DefaultIamEndpoint,
+		IamEndpoint: internal.DefaultIamEndpoint,
 	}}
 }
 

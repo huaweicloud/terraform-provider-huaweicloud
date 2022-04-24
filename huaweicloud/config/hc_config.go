@@ -15,6 +15,7 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/global"
 	hcconfig "github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/httphandler"
+	aomv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2"
 	cptsv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1"
 	ctsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3"
 	gaussdbv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/gaussdb/v3"
@@ -208,6 +209,15 @@ func (c *Config) HcCptsV3Client(region string) (*cptsv1.CptsClient, error) {
 		return nil, err
 	}
 	return cptsv1.NewCptsClient(hcClient), nil
+}
+
+// HcAomV2Client is the AOM service client using huaweicloud-sdk-go-v3 package
+func (c *Config) HcAomV2Client(region string) (*aomv2.AomClient, error) {
+	hcClient, err := NewHcClient(c, region, "aom", false)
+	if err != nil {
+		return nil, err
+	}
+	return aomv2.NewAomClient(hcClient), nil
 }
 
 // NewHcClient is the common client using huaweicloud-sdk-go-v3 package
