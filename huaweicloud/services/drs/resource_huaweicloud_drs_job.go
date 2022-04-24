@@ -202,6 +202,11 @@ func ResourceDrsJob() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"private_ip": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -430,6 +435,7 @@ func resourceDrsJobRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("direction", detail.JobDirection),
 		d.Set("net_type", listResp.Jobs[0].NetType),
 		d.Set("public_ip", detail.InstInfo.PublicIp),
+		d.Set("private_ip", detail.InstInfo.Ip),
 		d.Set("destination_db_readnoly", detail.IsTargetReadonly),
 		d.Set("migration_type", detail.TaskType),
 		d.Set("description", detail.Description),

@@ -65,6 +65,9 @@ func TestAccResourceDrsJob_basic(t *testing.T) {
 						"huaweicloud_rds_instance.test2", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "destination_db.0.region",
 						"huaweicloud_rds_instance.test2", "region"),
+					resource.TestCheckResourceAttrSet(resourceName, "status"),
+					resource.TestCheckResourceAttrSet(resourceName, "public_ip"),
+					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
 				),
 			},
 			{
@@ -92,6 +95,9 @@ func TestAccResourceDrsJob_basic(t *testing.T) {
 						"huaweicloud_rds_instance.test2", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "destination_db.0.region",
 						"huaweicloud_rds_instance.test2", "region"),
+					resource.TestCheckResourceAttrSet(resourceName, "status"),
+					resource.TestCheckResourceAttrSet(resourceName, "public_ip"),
+					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
 				),
 			},
 			{
