@@ -153,7 +153,7 @@ func resourceComputeEIPAssociateRead(d *schema.ResourceData, meta interface{}) e
 	// get port id of compute instance
 	portID, privateIP, err := getComputeInstancePortIDbyFixedIP(d, config, instanceID, fixedIP)
 	if err != nil {
-		return fmtp.Errorf("Error getting port id of compute instance: %s", err)
+		return common.CheckDeleted(d, err, "eip associate")
 	}
 
 	if v, ok := d.GetOk("public_ip"); ok {
@@ -215,7 +215,7 @@ func resourceComputeEIPAssociateDelete(d *schema.ResourceData, meta interface{})
 	// get port id of compute instance
 	portID, _, err := getComputeInstancePortIDbyFixedIP(d, config, instanceID, fixedIP)
 	if err != nil {
-		return fmtp.Errorf("Error getting port id of compute instance: %s", err)
+		return common.CheckDeleted(d, err, "eip associate")
 	}
 
 	if v, ok := d.GetOk("public_ip"); ok {
@@ -261,6 +261,12 @@ func getComputeInstancePortIDbyFixedIP(d *schema.ResourceData, config *config.Co
 	instance, err := cloudservers.Get(computeClient, instanceId).Extract()
 	if err != nil {
 		return "", "", err
+	} else if instance.Status == "DELETED" || instance.Status == "SOFT_DELETED" {
+		return "", "", golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Body: []byte("the ECS instance has been deleted"),
+			},
+		}
 	}
 
 	var portID, privateIP string
