@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## 1.35.2 (April 24, 2022)
+
+* **New Resurce:**
+  + `huaweicloud_cpts_project` [GH-2090]
+  + `huaweicloud_cts_data_tracker` [GH-2093]
+  + `huaweicloud_rds_account` [GH-2095]
+  + `huaweicloud_servicestage_repo_password_authorization` [GH-2084]
+  + `huaweicloud_servicestage_repo_token_authorization` [GH-2084]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_as_group: support to forcibly delete an AS group [GH-2086]
+* resource/huaweicloud_vpc: support to add a secondary CIDR into a VPC [GH-2088]
+* resource/huaweicloud_elb_loadbalancer: support to update flavor_id in prePaid charging mode [GH-2102]
+
+BUG FIXES:
+
+* resource/huaweicloud_compute_volume_attach: add a mutex to make actions serial [GH-2106]
+* resource/huaweicloud_compute_eip_associate: ignore errors if the ECS instance was deleted [GH-2111]
+* resource/huaweicloud_compute_instance: fix a bug of changing source_dest_check when creating [GH-2116]
+* resource/huaweicloud_cce_node: fix a bug of unsubscribing a prepaid cce node [GH-2117]
+
 ## 1.35.1 (April 12, 2022)
 
 BUG FIXES:
