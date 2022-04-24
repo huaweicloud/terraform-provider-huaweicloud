@@ -2,6 +2,7 @@ package topics
 
 import (
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/pagination"
 )
 
 type Topic struct {
@@ -67,4 +68,21 @@ func (lr ListResult) Extract() ([]TopicGet, error) {
 	}
 	err := lr.Result.ExtractInto(&a)
 	return a.Topics, err
+}
+
+type TopicPage struct {
+	pagination.OffsetPageBase
+}
+
+func (b TopicPage) IsEmpty() (bool, error) {
+	arr, err := ExtractTopics(b)
+	return len(arr) == 0, err
+}
+
+func ExtractTopics(r pagination.Page) ([]TopicGet, error) {
+	var s struct {
+		Topics []TopicGet `json:"topics"`
+	}
+	err := (r.(TopicPage)).ExtractInto(&s)
+	return s.Topics, err
 }

@@ -19,5 +19,5 @@ func updateURL(c *golangsdk.ServiceClient, id string) string {
 }
 
 func listURL(c *golangsdk.ServiceClient) string {
-	return c.ServiceURL("topics?offset=0&limit=100")
+	return c.ServiceURL("topics")
 }

@@ -2,6 +2,7 @@ package subscriptions
 
 import (
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/pagination"
 )
 
 var RequestOpts golangsdk.RequestOpts = golangsdk.RequestOpts{
@@ -53,24 +54,35 @@ func Delete(client *golangsdk.ServiceClient, subscriptionUrn string) (r DeleteRe
 	return
 }
 
-//get a subscription with detailed information by subscription urn
-//func Get(client *golangsdk.ServiceClient, subscriptionUrn string) (r GetResult) {
-//	_, r.Err = client.Get(getURL(client, subscriptionUrn), &r.Body, &RequestOpts)
-//	return
-//}
-
 //list all the subscriptions
 func List(client *golangsdk.ServiceClient) (r ListResult) {
-	_, r.Err = client.Get(listURL(client), &r.Body, &golangsdk.RequestOpts{
-		MoreHeaders: RequestOpts.MoreHeaders,
-	})
+	pages, err := pagination.NewPager(client, listURL(client),
+		func(r pagination.PageResult) pagination.Page {
+			p := SubscriptionPage{pagination.OffsetPageBase{PageResult: r}}
+			return p
+		}).AllPages()
+
+	if err != nil {
+		r.Err = err
+		return
+	}
+	r.Body = pages.GetBody()
 	return
 }
 
-//list all the subscriptions
-func ListFromTopic(client *golangsdk.ServiceClient, subscriptionUrn string) (r ListResult) {
-	_, r.Err = client.Get(listFromTopicURL(client, subscriptionUrn), &r.Body, &golangsdk.RequestOpts{
-		MoreHeaders: RequestOpts.MoreHeaders,
-	})
+//list all the subscriptions of a topic
+func ListFromTopic(client *golangsdk.ServiceClient, topicUrn string) (r ListResult) {
+	pages, err := pagination.NewPager(client, listFromTopicURL(client, topicUrn),
+		func(r pagination.PageResult) pagination.Page {
+			p := SubscriptionPage{pagination.OffsetPageBase{PageResult: r}}
+			return p
+		}).AllPages()
+
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	r.Body = pages.GetBody()
 	return
 }
