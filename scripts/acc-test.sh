@@ -19,7 +19,7 @@ for f in $all_files; do
             S="${S:+${S}|}${case}"
         done
         echo -e "\nrun acceptance tests of file: ${test_file}"
-        make testacc TEST="./$path" TESTARGS="-run ${S}"
+        make testacc TEST="./$path" TESTARGS='-run "${S}"'
     else
         echo -e "\n[skipped] --- ./${test_file} does not exist"
     fi
