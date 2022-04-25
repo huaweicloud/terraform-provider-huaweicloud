@@ -7,11 +7,11 @@ import (
 )
 
 type ProjectResp struct {
+
 	// 状态码
-
 	Code *string `json:"code,omitempty"`
-	// 描述
 
+	// 描述
 	Message *string `json:"message,omitempty"`
 }
 

@@ -7,8 +7,8 @@ import (
 )
 
 type GenerateAuditlogDownloadLinkRequest struct {
-	// 审计日志ID列表，限制50条以内。
 
+	// 审计日志ID列表，限制50条以内。
 	Ids []string `json:"ids"`
 }
 

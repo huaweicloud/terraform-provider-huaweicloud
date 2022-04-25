@@ -7,8 +7,8 @@ import (
 )
 
 type NetworkInfo struct {
-	// network_type
 
+	// network_type
 	NetworkType string `json:"network_type"`
 }
 

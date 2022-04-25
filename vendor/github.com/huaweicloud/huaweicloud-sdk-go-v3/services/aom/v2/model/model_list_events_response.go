@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type ListEventsResponse struct {
-	// 事件或者告警详情。
 
+	// 事件或者告警详情。
 	Events         *[]EventModel `json:"events,omitempty"`
 	HttpStatusCode int           `json:"-"`
 }

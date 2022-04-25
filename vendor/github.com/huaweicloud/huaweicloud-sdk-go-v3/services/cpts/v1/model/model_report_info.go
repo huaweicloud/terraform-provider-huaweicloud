@@ -12,8 +12,8 @@ type ReportInfo struct {
 	Details *ReportdetailsInfo `json:"details,omitempty"`
 
 	Outline *ReportoutlineInfo `json:"outline,omitempty"`
-	// 响应时间分布
 
+	// 响应时间分布
 	Rtproportion *string `json:"rtproportion,omitempty"`
 
 	TaskInfo *ReportTaskInfo `json:"taskInfo,omitempty"`

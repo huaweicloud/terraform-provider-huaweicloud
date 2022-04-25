@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type KeystoneShowPermissionRequest struct {
-	// 权限ID，获取方式请参见：[获取权限名、权限ID](https://support.huaweicloud.com/api-iam/iam_10_0001.html)。
 
+	// 权限ID，获取方式请参见：[获取权限名、权限ID](https://support.huaweicloud.com/api-iam/iam_10_0001.html)。
 	RoleId string `json:"role_id"`
 }
 

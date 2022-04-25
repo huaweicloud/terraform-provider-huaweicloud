@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type ListRolesForUserOnEnterpriseProjectResponse struct {
-	// 角色列表。
 
+	// 角色列表。
 	Roles          *[]RolesItem `json:"roles,omitempty"`
 	HttpStatusCode int          `json:"-"`
 }

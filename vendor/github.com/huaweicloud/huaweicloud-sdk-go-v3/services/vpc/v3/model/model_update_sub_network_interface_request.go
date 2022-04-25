@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type UpdateSubNetworkInterfaceRequest struct {
-	// 辅助弹性网卡的唯一标识
 
+	// 辅助弹性网卡的唯一标识
 	SubNetworkInterfaceId string `json:"sub_network_interface_id"`
 
 	Body *UpdateSubNetworkInterfaceRequestBody `json:"body,omitempty"`

@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type ListUserLoginProtectsResponse struct {
-	// 登录状态保护信息列表。
 
+	// 登录状态保护信息列表。
 	LoginProtects  *[]LoginProtectResult `json:"login_protects,omitempty"`
 	HttpStatusCode int                   `json:"-"`
 }

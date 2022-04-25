@@ -8,11 +8,11 @@ import (
 
 // Response Object
 type ListStorageTypesResponse struct {
+
 	// 实例磁盘类型信息。
-
 	StorageType *[]Storage `json:"storage_type,omitempty"`
-	// 实例专属存储信息。
 
+	// 实例专属存储信息。
 	DsspoolInfo    *[]DssPoolInfo `json:"dsspool_info,omitempty"`
 	HttpStatusCode int            `json:"-"`
 }

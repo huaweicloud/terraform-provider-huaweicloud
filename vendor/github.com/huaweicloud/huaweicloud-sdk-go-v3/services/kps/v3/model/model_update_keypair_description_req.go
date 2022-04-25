@@ -8,8 +8,8 @@ import (
 
 // 更新SSH密钥对描述消息体
 type UpdateKeypairDescriptionReq struct {
-	// 描述信息
 
+	// 描述信息
 	Description string `json:"description"`
 }
 

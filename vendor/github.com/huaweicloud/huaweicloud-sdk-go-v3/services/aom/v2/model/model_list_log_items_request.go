@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type ListLogItemsRequest struct {
-	// 日志接口调用方式,当值为\"querylogs\"时接口功能为查询日志内容。
 
+	// 日志接口调用方式,当值为\"querylogs\"时接口功能为查询日志内容。
 	Type string `json:"type"`
 
 	Body *QueryBodyParam `json:"body,omitempty"`

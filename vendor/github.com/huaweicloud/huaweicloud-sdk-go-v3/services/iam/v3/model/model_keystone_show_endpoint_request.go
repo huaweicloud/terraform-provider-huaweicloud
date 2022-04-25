@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type KeystoneShowEndpointRequest struct {
-	// 待查询的终端节点ID。
 
+	// 待查询的终端节点ID。
 	EndpointId string `json:"endpoint_id"`
 }
 

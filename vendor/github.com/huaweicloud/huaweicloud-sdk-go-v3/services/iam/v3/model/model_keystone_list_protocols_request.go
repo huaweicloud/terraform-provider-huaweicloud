@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type KeystoneListProtocolsRequest struct {
-	// 身份提供商ID。
 
+	// 身份提供商ID。
 	IdpId string `json:"idp_id"`
 }
 

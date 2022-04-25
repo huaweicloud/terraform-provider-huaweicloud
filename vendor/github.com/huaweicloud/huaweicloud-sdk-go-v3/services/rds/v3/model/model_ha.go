@@ -11,11 +11,11 @@ import (
 
 // HA配置参数，创建HA实例时使用。
 type Ha struct {
+
 	// 实例主备模式，取值：Ha（主备），不区分大小写。
-
 	Mode HaMode `json:"mode"`
-	// 备机同步参数。实例主备模式为Ha时有效。 取值： - MySQL为“async”或“semisync”。 - PostgreSQL为“async”或“sync”。 - Microsoft SQL Server为“sync”。
 
+	// 备机同步参数。实例主备模式为Ha时有效。 取值： - MySQL为“async”或“semisync”。 - PostgreSQL为“async”或“sync”。 - Microsoft SQL Server为“sync”。
 	ReplicationMode HaReplicationMode `json:"replication_mode"`
 }
 

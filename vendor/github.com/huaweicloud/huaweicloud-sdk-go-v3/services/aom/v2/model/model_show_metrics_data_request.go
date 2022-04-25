@@ -11,8 +11,8 @@ import (
 
 // Request Object
 type ShowMetricsDataRequest struct {
-	// 用于对查询到的监控数据进行断点插值，默认值为-1。 -1：断点处使用-1进行表示。 0 ：断点处使用0进行表示。 null：断点处使用null进行表示。 average：断点处使用前后邻近的有效数据的平均值进行表示，如果不存在有效数据则使用null进行表示。
 
+	// 用于对查询到的监控数据进行断点插值，默认值为-1。 -1：断点处使用-1进行表示。 0 ：断点处使用0进行表示。 null：断点处使用null进行表示。 average：断点处使用前后邻近的有效数据的平均值进行表示，如果不存在有效数据则使用null进行表示。
 	FillValue *ShowMetricsDataRequestFillValue `json:"fillValue,omitempty"`
 
 	Body *QueryMetricDataParam `json:"body,omitempty"`

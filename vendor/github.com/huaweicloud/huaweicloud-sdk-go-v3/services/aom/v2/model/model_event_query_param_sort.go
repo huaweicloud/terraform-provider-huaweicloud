@@ -11,11 +11,11 @@ import (
 
 // 返回列表的排序方式，可以为空。
 type EventQueryParamSort struct {
+
 	// 排序字段列表。会根据列表中定义顺序对返回列表进行排序。
-
 	OrderBy *[]string `json:"order_by,omitempty"`
-	// 排序方式枚举值。asc代表正序，desc代表倒叙。
 
+	// 排序方式枚举值。asc代表正序，desc代表倒叙。
 	Order *EventQueryParamSortOrder `json:"order,omitempty"`
 }
 

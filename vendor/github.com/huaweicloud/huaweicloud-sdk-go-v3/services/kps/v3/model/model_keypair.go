@@ -11,26 +11,26 @@ import (
 
 // 密钥对信息
 type Keypair struct {
+
 	// SSH密钥对的名称
-
 	Name *string `json:"name,omitempty"`
+
 	// SSH密钥对的类型，值为“ssh”或“x509”
-
 	Type *KeypairType `json:"type,omitempty"`
+
 	// 租户级或者用户级
-
 	Scope *KeypairScope `json:"scope,omitempty"`
+
 	// SSH密钥对对应的publicKey信息
-
 	PublicKey *string `json:"public_key,omitempty"`
+
 	// SSH密钥对应指纹信息
-
 	Fingerprint *string `json:"fingerprint,omitempty"`
+
 	// 是否托管密钥
-
 	IsKeyProtection *bool `json:"is_key_protection,omitempty"`
-	// 冻结状态 - 0：正常状态 - 1：普通冻结 - 2：公安冻结 - 3：普通冻结及公安冻结 - 4：违规冻结 - 5：普通冻结及违规冻结 - 6：公安冻结及违规冻结 - 7：普通冻结、公安冻结及违规冻结 - 8：未实名认证冻结 - 9：普通冻结及未实名认证冻结 - 10：公安冻结及未实名认证冻结
 
+	// 冻结状态 - 0：正常状态 - 1：普通冻结 - 2：公安冻结 - 3：普通冻结及公安冻结 - 4：违规冻结 - 5：普通冻结及违规冻结 - 6：公安冻结及违规冻结 - 7：普通冻结、公安冻结及违规冻结 - 8：未实名认证冻结 - 9：普通冻结及未实名认证冻结 - 10：公安冻结及未实名认证冻结
 	FrozenState *string `json:"frozen_state,omitempty"`
 }
 

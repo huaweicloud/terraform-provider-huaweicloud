@@ -11,11 +11,11 @@ import (
 
 // Request Object
 type KeystoneListEndpointsRequest struct {
+
 	// 终端节点平面。可能取值为：public、internal或admin。public： 用户可在公共网络接口上看到。internal：用户可在内部网络接口上看到。admin：管理员可以在安全的网络接口上看到。
-
 	Interface *KeystoneListEndpointsRequestInterface `json:"interface,omitempty"`
-	// 服务ID。
 
+	// 服务ID。
 	ServiceId *string `json:"service_id,omitempty"`
 }
 

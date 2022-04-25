@@ -8,11 +8,11 @@ import (
 
 // Response Object
 type ShowTempResponse struct {
+
 	// code
-
 	Code *string `json:"code,omitempty"`
-	// message
 
+	// message
 	Message *string `json:"message,omitempty"`
 
 	TempInfo       *TempInfo `json:"temp_info,omitempty"`

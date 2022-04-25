@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type DeleteIpAddressGroupForceRequest struct {
-	// IP地址组的唯一标识，要删除的IP地址组ID
 
+	// IP地址组的唯一标识，要删除的IP地址组ID
 	AddressGroupId string `json:"address_group_id"`
 }
 

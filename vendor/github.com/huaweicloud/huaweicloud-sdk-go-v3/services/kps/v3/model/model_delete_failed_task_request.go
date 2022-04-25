@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type DeleteFailedTaskRequest struct {
-	// 任务ID
 
+	// 任务ID
 	TaskId string `json:"task_id"`
 }
 

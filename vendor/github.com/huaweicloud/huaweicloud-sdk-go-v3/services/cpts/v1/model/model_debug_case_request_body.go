@@ -8,17 +8,17 @@ import (
 
 // DebugCaseRequestBody
 type DebugCaseRequestBody struct {
+
 	// status
-
 	Status int32 `json:"status"`
+
 	// cluster_id
-
 	ClusterId int32 `json:"cluster_id"`
+
 	// cluster_type
-
 	ClusterType string `json:"cluster_type"`
-	// without_package
 
+	// without_package
 	WithoutPackage int32 `json:"without_package"`
 }
 

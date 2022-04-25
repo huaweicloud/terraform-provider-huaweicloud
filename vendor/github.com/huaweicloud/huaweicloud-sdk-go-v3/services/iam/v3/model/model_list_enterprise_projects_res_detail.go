@@ -7,8 +7,8 @@ import (
 )
 
 type ListEnterpriseProjectsResDetail struct {
-	// 项目Id。
 
+	// 项目Id。
 	ProjectId string `json:"projectId"`
 }
 

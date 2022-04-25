@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type UpdateSecurityGroupResponse struct {
-	// 请求ID
 
+	// 请求ID
 	RequestId *string `json:"request_id,omitempty"`
 
 	SecurityGroup  *SecurityGroupInfo `json:"security_group,omitempty"`

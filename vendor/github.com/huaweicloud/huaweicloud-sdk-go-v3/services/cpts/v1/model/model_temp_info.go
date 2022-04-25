@@ -7,34 +7,34 @@ import (
 )
 
 type TempInfo struct {
+
 	// id
-
 	Id *int32 `json:"id,omitempty"`
+
 	// project_id
-
 	ProjectId *int32 `json:"project_id,omitempty"`
+
 	// name
-
 	Name *string `json:"name,omitempty"`
+
 	// description
-
 	Description *string `json:"description,omitempty"`
+
 	// variables
-
 	Variables *string `json:"variables,omitempty"`
+
 	// contents
-
 	Contents *[]interface{} `json:"contents,omitempty"`
+
 	// temp_type
-
 	TempType *int32 `json:"temp_type,omitempty"`
-	// for_loop_params
 
+	// for_loop_params
 	ForLoopParams *[]interface{} `json:"for_loop_params,omitempty"`
 
 	LogicController *LogicController `json:"logic_controller,omitempty"`
-	// enable_pre
 
+	// enable_pre
 	EnablePre *bool `json:"enable_pre,omitempty"`
 }
 

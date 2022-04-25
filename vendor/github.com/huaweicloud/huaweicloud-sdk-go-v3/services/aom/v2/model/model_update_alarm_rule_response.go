@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type UpdateAlarmRuleResponse struct {
-	// 阈值规则id。
 
+	// 阈值规则id。
 	AlarmRuleId    *int64 `json:"alarm_rule_id,omitempty"`
 	HttpStatusCode int    `json:"-"`
 }

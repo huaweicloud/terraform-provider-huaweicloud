@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type ListPermanentAccessKeysRequest struct {
-	// 待查询的IAM用户ID。
 
+	// 待查询的IAM用户ID。
 	UserId *string `json:"user_id,omitempty"`
 }
 

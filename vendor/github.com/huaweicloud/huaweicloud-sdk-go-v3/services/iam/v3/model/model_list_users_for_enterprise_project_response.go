@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type ListUsersForEnterpriseProjectResponse struct {
-	// 用户信息。
 
+	// 用户信息。
 	Users          *[]ListUsersForEnterpriseProjectResUsers `json:"users,omitempty"`
 	HttpStatusCode int                                      `json:"-"`
 }

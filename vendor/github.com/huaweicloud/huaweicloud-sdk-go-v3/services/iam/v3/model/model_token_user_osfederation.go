@@ -8,8 +8,8 @@ import (
 
 //
 type TokenUserOsfederation struct {
-	// 用户组信息列表。
 
+	// 用户组信息列表。
 	Groups []OsfederationGroups `json:"groups"`
 
 	IdentityProvider *OsfederationIdentityprovider `json:"identity_provider"`

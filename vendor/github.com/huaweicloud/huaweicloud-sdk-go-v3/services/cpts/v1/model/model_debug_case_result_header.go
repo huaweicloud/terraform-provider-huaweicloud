@@ -7,14 +7,14 @@ import (
 )
 
 type DebugCaseResultHeader struct {
+
 	// Connection
-
 	Connection *string `json:"Connection,omitempty"`
+
 	// Content-Type
-
 	ContentType *string `json:"Content-Type,omitempty"`
-	// Host
 
+	// Host
 	Host *string `json:"Host,omitempty"`
 }
 

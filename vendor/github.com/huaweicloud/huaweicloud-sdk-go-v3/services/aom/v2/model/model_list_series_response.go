@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type ListSeriesResponse struct {
-	// 时间序列对象列表。
 
+	// 时间序列对象列表。
 	Series *[]SeriesQueryItemResult `json:"series,omitempty"`
 
 	MetaData       *MetaDataSeries `json:"meta_data,omitempty"`

@@ -8,11 +8,11 @@ import (
 
 // json
 type UploadProcessJson struct {
+
 	// details
-
 	Details *[]UploadProcessJsonDetail `json:"details,omitempty"`
-	// process_status
 
+	// process_status
 	ProcessStatus *int32 `json:"process_status,omitempty"`
 }
 

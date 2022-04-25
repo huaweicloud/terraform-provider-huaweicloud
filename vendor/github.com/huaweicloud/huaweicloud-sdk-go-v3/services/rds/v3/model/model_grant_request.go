@@ -7,11 +7,11 @@ import (
 )
 
 type GrantRequest struct {
+
 	// 数据库名称。
-
 	DbName string `json:"db_name"`
-	// 每个元素都是与数据库相关联的帐号。单次请求最多支持50个元素。
 
+	// 每个元素都是与数据库相关联的帐号。单次请求最多支持50个元素。
 	Users []UserWithPrivilege `json:"users"`
 }
 

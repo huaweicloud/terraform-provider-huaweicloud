@@ -8,17 +8,17 @@ import (
 
 // UpdateVariableRequestBody
 type UpdateVariableRequestBody struct {
+
 	// id
-
 	Id int32 `json:"id"`
+
 	// name
-
 	Name string `json:"name"`
+
 	// variable_type
-
 	VariableType int32 `json:"variable_type"`
-	// variable
 
+	// variable
 	Variable []interface{} `json:"variable"`
 }
 

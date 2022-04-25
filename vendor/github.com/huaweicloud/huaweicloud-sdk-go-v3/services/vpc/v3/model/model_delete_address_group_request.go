@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type DeleteAddressGroupRequest struct {
-	// 地址组的唯一标识
 
+	// 地址组的唯一标识
 	AddressGroupId string `json:"address_group_id"`
 }
 

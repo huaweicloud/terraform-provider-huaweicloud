@@ -11,11 +11,11 @@ import (
 
 // Request Object
 type DeleteTrackerRequest struct {
+
 	// 标识追踪器名称。 在不传入该字段的情况下，将删除当前租户所有的数据类追踪器。
-
 	TrackerName *string `json:"tracker_name,omitempty"`
-	// 标识追踪器类型。 目前仅支持数据类追踪器（data）的删除，默认值为\"data\"。
 
+	// 标识追踪器类型。 目前仅支持数据类追踪器（data）的删除，默认值为\"data\"。
 	TrackerType *DeleteTrackerRequestTrackerType `json:"tracker_type,omitempty"`
 }
 

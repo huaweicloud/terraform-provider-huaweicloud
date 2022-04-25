@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type UpdateDomainPasswordPolicyRequest struct {
-	// 账号ID，获取方式请参见：[获取账号ID](https://support.huaweicloud.com/api-iam/iam_17_0002.html)。
 
+	// 账号ID，获取方式请参见：[获取账号ID](https://support.huaweicloud.com/api-iam/iam_17_0002.html)。
 	DomainId string `json:"domain_id"`
 
 	Body *UpdateDomainPasswordPolicyRequestBody `json:"body,omitempty"`

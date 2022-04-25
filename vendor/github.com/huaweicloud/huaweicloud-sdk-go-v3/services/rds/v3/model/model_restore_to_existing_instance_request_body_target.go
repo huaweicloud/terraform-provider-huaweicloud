@@ -8,8 +8,8 @@ import (
 
 // 恢复目标对象。
 type RestoreToExistingInstanceRequestBodyTarget struct {
-	// 恢复目标实例ID。
 
+	// 恢复目标实例ID。
 	InstanceId string `json:"instance_id"`
 }
 

@@ -7,11 +7,11 @@ import (
 )
 
 type ContentHeader struct {
+
 	// key
-
 	Key *string `json:"key,omitempty"`
-	// value
 
+	// value
 	Value *string `json:"value,omitempty"`
 }
 

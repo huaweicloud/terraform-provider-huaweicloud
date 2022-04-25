@@ -8,14 +8,14 @@ import (
 
 // Response Object
 type CountEventsResponse struct {
+
 	// 统计步长。毫秒数，例如一分钟则填写为60000。
-
 	Step *int64 `json:"step,omitempty"`
+
 	// 统计结果对应的时间序列。
-
 	Timestamps *[]int64 `json:"timestamps,omitempty"`
-	// 事件或者告警不同级别相同时间序列对应的统计结果。
 
+	// 事件或者告警不同级别相同时间序列对应的统计结果。
 	Series         *[]EventSeries `json:"series,omitempty"`
 	HttpStatusCode int            `json:"-"`
 }

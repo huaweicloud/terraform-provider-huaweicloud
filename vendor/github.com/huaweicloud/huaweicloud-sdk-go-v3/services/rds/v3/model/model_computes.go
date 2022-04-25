@@ -7,11 +7,11 @@ import (
 )
 
 type Computes struct {
+
 	// 群组类型。  - X86：X86架构。 - ARM：ARM架构。
-
 	GroupType *string `json:"group_type,omitempty"`
-	// 计算规格信息。
 
+	// 计算规格信息。
 	ComputeFlavors *[]ScaleFlavors `json:"compute_flavors,omitempty"`
 }
 

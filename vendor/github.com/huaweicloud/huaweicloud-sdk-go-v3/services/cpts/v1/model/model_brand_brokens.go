@@ -7,11 +7,11 @@ import (
 )
 
 type BrandBrokens struct {
+
 	// 接收字节数
-
 	RecBytes *[]float64 `json:"recBytes,omitempty"`
-	// 发送字节数
 
+	// 发送字节数
 	SentBytes *[]float64 `json:"sentBytes,omitempty"`
 }
 

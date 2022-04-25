@@ -507,7 +507,8 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"huaweicloud_aom_alarm_rule": aom.ResourceAlarmRule(),
+			"huaweicloud_aom_alarm_rule":             aom.ResourceAlarmRule(),
+			"huaweicloud_aom_service_discovery_rule": aom.ResourceServiceDiscoveryRule(),
 
 			"huaweicloud_api_gateway_api":        ResourceAPIGatewayAPI(),
 			"huaweicloud_api_gateway_group":      ResourceAPIGatewayGroup(),

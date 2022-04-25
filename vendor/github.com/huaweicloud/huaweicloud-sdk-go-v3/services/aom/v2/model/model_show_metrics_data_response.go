@@ -8,14 +8,14 @@ import (
 
 // Response Object
 type ShowMetricsDataResponse struct {
+
 	// 响应码。
-
 	ErrorCode *string `json:"errorCode,omitempty"`
+
 	// 响应信息描述。
-
 	ErrorMessage *string `json:"errorMessage,omitempty"`
-	// 指标对象列表。
 
+	// 指标对象列表。
 	Metrics        *[]MetricDataValue `json:"metrics,omitempty"`
 	HttpStatusCode int                `json:"-"`
 }

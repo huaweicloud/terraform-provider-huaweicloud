@@ -8,17 +8,17 @@ import (
 
 // 配额
 type TagQuota struct {
+
 	// 配额键
-
 	QuotaKey string `json:"quota_key"`
+
 	// 配额值
-
 	QuotaLimit int32 `json:"quota_limit"`
+
 	// 已使用
-
 	Used int32 `json:"used"`
-	// 单位
 
+	// 单位
 	Unit string `json:"unit"`
 }
 

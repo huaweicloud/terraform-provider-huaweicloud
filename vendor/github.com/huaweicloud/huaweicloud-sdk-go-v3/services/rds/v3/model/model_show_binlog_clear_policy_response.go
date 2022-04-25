@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type ShowBinlogClearPolicyResponse struct {
-	// binlog保留时长
 
+	// binlog保留时长
 	BinlogRetentionHours *int32 `json:"binlog_retention_hours,omitempty"`
 	HttpStatusCode       int    `json:"-"`
 }

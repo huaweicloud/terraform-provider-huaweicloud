@@ -8,11 +8,11 @@ import (
 
 // Response Object
 type ListAddressGroupResponse struct {
+
 	// 请求ID
-
 	RequestId *string `json:"request_id,omitempty"`
-	// 地址组列表响应体
 
+	// 地址组列表响应体
 	AddressGroups *[]AddressGroup `json:"address_groups,omitempty"`
 
 	PageInfo       *PageInfo `json:"page_info,omitempty"`

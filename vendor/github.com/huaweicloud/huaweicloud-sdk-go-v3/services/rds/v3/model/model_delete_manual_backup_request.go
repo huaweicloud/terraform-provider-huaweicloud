@@ -8,11 +8,11 @@ import (
 
 // Request Object
 type DeleteManualBackupRequest struct {
+
 	// 语言
-
 	XLanguage *string `json:"X-Language,omitempty"`
-	// 备份ID。
 
+	// 备份ID。
 	BackupId string `json:"backup_id"`
 }
 

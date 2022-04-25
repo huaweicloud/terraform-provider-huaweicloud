@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type KeystoneListGroupsForUserResponse struct {
-	// 用户组信息列表。
 
+	// 用户组信息列表。
 	Groups *[]KeystoneGroupResult `json:"groups,omitempty"`
 
 	Links          *Links `json:"links,omitempty"`

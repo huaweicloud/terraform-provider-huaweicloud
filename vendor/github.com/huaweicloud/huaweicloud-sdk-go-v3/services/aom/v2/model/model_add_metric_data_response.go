@@ -8,11 +8,11 @@ import (
 
 // Response Object
 type AddMetricDataResponse struct {
+
 	// 响应码。
-
 	ErrorCode *string `json:"errorCode,omitempty"`
-	// 响应信息描述。
 
+	// 响应信息描述。
 	ErrorMessage   *string `json:"errorMessage,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }

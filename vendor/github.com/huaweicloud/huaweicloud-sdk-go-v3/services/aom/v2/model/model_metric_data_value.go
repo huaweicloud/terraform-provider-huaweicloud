@@ -8,8 +8,8 @@ import (
 
 // 查询结果详细。
 type MetricDataValue struct {
-	// 重点指标。
 
+	// 重点指标。
 	DataPoints *[]MetricDataPoints `json:"dataPoints,omitempty"`
 
 	Metric *MetricQueryMeritcParam `json:"metric,omitempty"`

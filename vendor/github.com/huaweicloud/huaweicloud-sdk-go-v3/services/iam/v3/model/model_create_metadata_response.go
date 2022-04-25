@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type CreateMetadataResponse struct {
-	// 导入结果信息。
 
+	// 导入结果信息。
 	Message        *string `json:"message,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }

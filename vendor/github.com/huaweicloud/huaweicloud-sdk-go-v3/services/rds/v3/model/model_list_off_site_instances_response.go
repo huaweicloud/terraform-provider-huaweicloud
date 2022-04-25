@@ -8,11 +8,11 @@ import (
 
 // Response Object
 type ListOffSiteInstancesResponse struct {
+
 	// 跨区域备份实例信息。
-
 	OffsiteBackupInstances *[]OffsiteBackupInstance `json:"offsite_backup_instances,omitempty"`
-	// 总记录数。
 
+	// 总记录数。
 	TotalCount     *int32 `json:"total_count,omitempty"`
 	HttpStatusCode int    `json:"-"`
 }
