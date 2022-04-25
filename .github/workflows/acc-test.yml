@@ -39,6 +39,7 @@ jobs:
 
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v2
+        if: 
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: ${{ steps.get-comment-body.outputs.body }}
