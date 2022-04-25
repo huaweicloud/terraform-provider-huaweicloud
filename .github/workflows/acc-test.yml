@@ -36,10 +36,11 @@ jobs:
           body="${body//$'\n'/'%0A'}"
           body="${body//$'\r'/'%0D'}" 
           echo "::set-output name=body::$body"
+          echo "::set-output name=commentLength::$commentLength"
 
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v2
-        if: 
+        if: ${{ steps.get-comment-body.outputs.commentLength > 0 }}
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: ${{ steps.get-comment-body.outputs.body }}
