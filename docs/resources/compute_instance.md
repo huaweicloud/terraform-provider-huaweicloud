@@ -4,7 +4,7 @@ subcategory: "Elastic Cloud Server (ECS)"
 
 # huaweicloud_compute_instance
 
-Manages a ECS VM instance resource within HuaweiCloud. This is an alternative to `huaweicloud_compute_instance_v2`
+Manages a ECS VM instance resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -255,14 +255,15 @@ The following arguments are supported:
 * `scheduler_hints` - (Optional, List) Specifies the scheduler with hints on how the instance should be launched. The
   available hints are described below.
 
-* `stop_before_destroy` - (Optional, Bool) Whether to try stop instance gracefully before destroying it, thus giving
+* `stop_before_destroy` - (Optional, Bool) Specifies whether to try stop instance gracefully before destroying it, thus giving
   chance for guest OS daemons to stop correctly. If instance doesn't stop within timeout, it will be destroyed anyway.
+
+* `delete_disks_on_termination` - (Optional, Bool) Specifies whether to delete the data disks when the instance is terminated.
+  Defaults to *false*. This parameter is valid if `charging_mode` is set to *postPaid*, and all data disks will be deleted
+  in *prePaid* charging mode.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies a unique id in UUID format of enterprise project .
   Changing this creates a new instance.
-
-* `delete_disks_on_termination` - (Optional, Bool) Delete the data disks upon termination of the instance. Defaults to
-  false.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance. Valid values are *prePaid*
   and *postPaid*, defaults to *postPaid*. Changing this creates a new instance.
