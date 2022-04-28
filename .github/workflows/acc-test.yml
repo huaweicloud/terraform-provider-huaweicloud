@@ -12,6 +12,7 @@ jobs:
       HW_SECRET_KEY: ${{ secrets.HW_SECRET_KEY }}
       HW_REGION_NAME: "cn-north-4"
       HW_ENTERPRISE_PROJECT_ID: "0"
+      HW_ENTERPRISE_PROJECT_ID_TEST: "0"
     steps:
       - run:  echo "${{github.event.pull_request.head.repo.full_name}}"
       - uses: actions/checkout@v3
@@ -33,7 +34,7 @@ jobs:
           body="${body//'%'/'%25'}"
           body="${body//$'\n'/'%0A'}"
           body="${body//$'\r'/'%0D'}" 
-          commentLength=1"${#body}"
+          commentLength="${#body}"
           echo "::set-output name=body::$body"
           echo "::set-output name=commentLength::$commentLength"
 
