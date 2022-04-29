@@ -12,7 +12,7 @@ github.com/apparentlymart/go-cidr/cidr
 github.com/apparentlymart/go-textseg/textseg
 # github.com/apparentlymart/go-textseg/v13 v13.0.0
 github.com/apparentlymart/go-textseg/v13/textseg
-# github.com/chnsz/golangsdk v0.0.0-20220424063248-cbdd37896c0f
+# github.com/chnsz/golangsdk v0.0.0-20220429084636-e5b1770584a3
 ## explicit
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/internal
@@ -404,10 +404,10 @@ github.com/huaweicloud/huaweicloud-sdk-go-v3/core/response
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdktime
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/utils
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2/model
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/gaussdb/v3
