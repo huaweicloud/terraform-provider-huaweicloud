@@ -38,6 +38,7 @@ var multiCatalogKeys = map[string][]string{
 	"apig":         {"apigv2"},
 	"modelarts":    {"modelartsv2"},
 	"servicestage": {"servicestagev2"},
+	"gaussdb":      {"gaussdb", "gaussdbV3"},
 }
 
 // GetServiceDerivedCatalogKeys returns the derived catalog keys of a service.
@@ -311,6 +312,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"gaussdb": {
 		Name:    "gaussdb",
 		Version: "mysql/v3",
+		Product: "GaussDB",
+	},
+	"gaussdbV3": {
+		Name:    "gaussdb",
+		Version: "v3",
 		Product: "GaussDB",
 	},
 	"opengauss": {
