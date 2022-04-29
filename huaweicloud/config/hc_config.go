@@ -18,7 +18,6 @@ import (
 	aomv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2"
 	cptsv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1"
 	ctsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3"
-	gaussdbv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/gaussdb/v3"
 	iamv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3"
 	kpsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3"
 	rdsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3"
@@ -173,15 +172,6 @@ func (c *Config) HcIamV3Client(region string) (*iamv3.IamClient, error) {
 		return nil, err
 	}
 	return iamv3.NewIamClient(hcClient), nil
-}
-
-// HcGaussdbV3Client is the Gaussdb service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcGaussdbV3Client(region string) (*gaussdbv3.GaussDBClient, error) {
-	hcClient, err := NewHcClient(c, region, "gaussdb", false)
-	if err != nil {
-		return nil, err
-	}
-	return gaussdbv3.NewGaussDBClient(hcClient), nil
 }
 
 // HcCtsV3Client is the CTS service client using huaweicloud-sdk-go-v3 package

@@ -9,14 +9,13 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/auditlog"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/backups"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/configurations"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	gaussdb "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/gaussdb/v3"
-	gaussdb_model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/gaussdb/v3/model"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -344,14 +343,6 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return fmtp.Errorf("error creating HuaweiCloud GaussDB client: %s ", err)
 	}
-	tagClient, err := config.GaussdbV3TagClient(GetRegion(d, config))
-	if err != nil {
-		return fmtp.Errorf("error creating GaussDB client: %s ", err)
-	}
-	newClient, err := config.HcGaussdbV3Client(GetRegion(d, config))
-	if err != nil {
-		return fmtp.Errorf("error creating GaussDB v3 SDK client: %s ", err)
-	}
 
 	// If force_import set, try to import it instead of creating
 	if hasFilledOpt(d, "force_import") {
@@ -523,7 +514,7 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 	//audit-log switch
 	if v, ok := d.GetOk("audit_log_enabled"); ok {
-		err = switchAuditLog(newClient, id, v.(bool))
+		err = switchAuditLog(client, id, v.(bool))
 		if err != nil {
 			return err
 		}
@@ -567,7 +558,7 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		taglist := utils.ExpandResourceTags(tagRaw)
-		if tagErr := tags.Create(tagClient, "instances", d.Id(), taglist).ExtractErr(); tagErr != nil {
+		if tagErr := tags.Create(client, "instances", d.Id(), taglist).ExtractErr(); tagErr != nil {
 			return fmtp.Errorf("error setting tags of Gaussdb mysql instance %s: %s", d.Id(), tagErr)
 		}
 	}
@@ -581,14 +572,6 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	client, err := config.GaussdbV3Client(region)
 	if err != nil {
 		return fmtp.Errorf("error creating HuaweiCloud GaussDB client: %s", err)
-	}
-	tagClient, err := config.GaussdbV3TagClient(GetRegion(d, config))
-	if err != nil {
-		return fmtp.Errorf("error creating GaussDB client: %s ", err)
-	}
-	HcGaussdbV3Client, err := config.HcGaussdbV3Client(GetRegion(d, config))
-	if err != nil {
-		return fmtp.Errorf("error creating GaussDB v3 SDK client: %s ", err)
 	}
 
 	instanceID := d.Id()
@@ -729,22 +712,19 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// set audit log status
-	opts := gaussdb_model.ShowAuditLogRequest{
-		InstanceId: instanceID,
-	}
-	resp, err := HcGaussdbV3Client.ShowAuditLog(&opts)
+	resp, err := auditlog.Get(client, instanceID)
 	if err != nil {
 		logp.Printf("[DEBUG] query Instance %s audit log status failed: %s", instanceID, err)
 	} else {
 		var status bool
-		if *resp.SwitchStatus == "ON" {
+		if resp.SwitchStatus == "ON" {
 			status = true
 		}
 		d.Set("audit_log_enabled", status)
 	}
 
 	// save tags
-	if resourceTags, err := tags.Get(tagClient, "instances", d.Id()).Extract(); err == nil {
+	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
 			return fmtp.Errorf("error saving tags to state for Gaussdb mysql instance (%s): %s", d.Id(), err)
@@ -762,17 +742,9 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return fmtp.Errorf("error creating HuaweiCloud GaussDB client: %s ", err)
 	}
-	tagClient, err := config.GaussdbV3TagClient(GetRegion(d, config))
-	if err != nil {
-		return fmtp.Errorf("error creating GaussDB client: %s ", err)
-	}
 	bssClient, err := config.BssV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("error creating HuaweiCloud bss V2 client: %s", err)
-	}
-	HcGaussdbV3Client, err := config.HcGaussdbV3Client(GetRegion(d, config))
-	if err != nil {
-		return fmtp.Errorf("error creating GaussDB v3 SDK client: %s ", err)
 	}
 
 	instanceId := d.Id()
@@ -1042,7 +1014,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if d.HasChange("audit_log_enabled") {
-		err = switchAuditLog(HcGaussdbV3Client, instanceId, d.Get("audit_log_enabled").(bool))
+		err = switchAuditLog(client, instanceId, d.Get("audit_log_enabled").(bool))
 		if err != nil {
 			return err
 		}
@@ -1050,7 +1022,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 	// update tags
 	if d.HasChange("tags") {
-		tagErr := utils.UpdateResourceTags(tagClient, d, "instances", d.Id())
+		tagErr := utils.UpdateResourceTags(client, d, "instances", d.Id())
 		if tagErr != nil {
 			return fmtp.Errorf("error updating tags of Gaussdb mysql instance %q: %s", d.Id(), tagErr)
 		}
@@ -1101,20 +1073,18 @@ func resourceGaussDBInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	return nil
 }
 
-func switchAuditLog(client *gaussdb.GaussDBClient, instanceId string, v bool) error {
+func switchAuditLog(client *golangsdk.ServiceClient, instanceId string, v bool) error {
 	var flag string
 	if v {
 		flag = "ON"
 	} else {
 		flag = "OFF"
 	}
-	opts := gaussdb_model.UpdateAuditLogRequest{
-		InstanceId: instanceId,
-		Body: &gaussdb_model.OperateAuditLogRequestV3Body{
-			SwitchStatus: flag,
-		},
+	opts := auditlog.UpdateAuditlogOpts{
+		SwitchStatus: flag,
 	}
-	_, err := client.UpdateAuditLog(&opts)
+
+	_, err := auditlog.Update(client, instanceId, opts)
 	if err != nil {
 		return fmtp.Errorf("switch audit log to %q failed: %s", flag, err)
 	}
