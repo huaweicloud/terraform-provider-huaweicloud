@@ -669,6 +669,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_mapreduce_job":     mrs.ResourceMRSJobV2(),
 
 			"huaweicloud_modelarts_dataset":                modelarts.ResourceDataset(),
+			"huaweicloud_modelarts_dataset_version":        modelarts.ResourceDatasetVersion(),
 			"huaweicloud_modelarts_notebook":               modelarts.ResourceNotebook(),
 			"huaweicloud_modelarts_notebook_mount_storage": modelarts.ResourceNotebookMountStorage(),
 
