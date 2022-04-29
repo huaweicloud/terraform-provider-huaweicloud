@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/aom"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/as"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/bms"
@@ -504,6 +505,8 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
+			"huaweicloud_aom_alarm_rule": aom.ResourceAlarmRule(),
+
 			"huaweicloud_api_gateway_api":        ResourceAPIGatewayAPI(),
 			"huaweicloud_api_gateway_group":      ResourceAPIGatewayGroup(),
 			"huaweicloud_apig_api":               apig.ResourceApigAPIV2(),

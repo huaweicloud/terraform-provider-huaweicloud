@@ -19,6 +19,17 @@ func RdsClientBuilder() *http_client.HcHttpClientBuilder {
 	return builder
 }
 
+//应用参数模板。
+func (c *RdsClient) ApplyConfigurationAsync(request *model.ApplyConfigurationAsyncRequest) (*model.ApplyConfigurationAsyncResponse, error) {
+	requestDef := GenReqDefForApplyConfigurationAsync()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ApplyConfigurationAsyncResponse), nil
+	}
+}
+
 //绑定和解绑弹性公网IP。
 func (c *RdsClient) AttachEip(request *model.AttachEipRequest) (*model.AttachEipResponse, error) {
 	requestDef := GenReqDefForAttachEip()
@@ -778,6 +789,17 @@ func (c *RdsClient) UpdateInstanceConfiguration(request *model.UpdateInstanceCon
 	}
 }
 
+//修改指定实例的参数。
+func (c *RdsClient) UpdateInstanceConfigurationAsync(request *model.UpdateInstanceConfigurationAsyncRequest) (*model.UpdateInstanceConfigurationAsyncResponse, error) {
+	requestDef := GenReqDefForUpdateInstanceConfigurationAsync()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateInstanceConfigurationAsyncResponse), nil
+	}
+}
+
 //修改实例名称。
 func (c *RdsClient) UpdateInstanceName(request *model.UpdateInstanceNameRequest) (*model.UpdateInstanceNameResponse, error) {
 	requestDef := GenReqDefForUpdateInstanceName()
@@ -1215,6 +1237,17 @@ func (c *RdsClient) DeleteSqlserverDatabase(request *model.DeleteSqlserverDataba
 		return nil, err
 	} else {
 		return resp.(*model.DeleteSqlserverDatabaseResponse), nil
+	}
+}
+
+//删除数据库。
+func (c *RdsClient) DeleteSqlserverDatabaseEx(request *model.DeleteSqlserverDatabaseExRequest) (*model.DeleteSqlserverDatabaseExResponse, error) {
+	requestDef := GenReqDefForDeleteSqlserverDatabaseEx()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteSqlserverDatabaseExResponse), nil
 	}
 }
 

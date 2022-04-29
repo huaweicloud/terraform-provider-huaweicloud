@@ -22,7 +22,7 @@ package core
 import (
 	"fmt"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/env"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/helper"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/impl"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/region"
@@ -81,9 +81,17 @@ func (builder *HcHttpClientBuilder) Build() *HcHttpClient {
 		builder.httpConfig = config.DefaultHttpConfig()
 	}
 
+	defaultHttpClient := impl.NewDefaultHttpClient(builder.httpConfig)
+
 	if builder.credentials == nil {
-		builder.credentials = env.LoadCredentialFromEnv(builder.CredentialsType[0])
+		builder.credentials = helper.LoadCredentialFromEnv(builder.CredentialsType[0])
 	}
+
+	cred, err := helper.ProcessCredential(defaultHttpClient, builder.CredentialsType[0], builder.credentials)
+	if err != nil {
+		panic(err)
+	}
+	builder.credentials = cred
 
 	match := false
 	givenCredentialsType := reflect.TypeOf(builder.credentials).String()
@@ -98,13 +106,11 @@ func (builder *HcHttpClientBuilder) Build() *HcHttpClient {
 		panic(fmt.Sprintf("Need credential type is %s, actually is %s", builder.CredentialsType, reflect.TypeOf(builder.credentials).String()))
 	}
 
-	defaultHttpClient := impl.NewDefaultHttpClient(builder.httpConfig)
-
 	if builder.region != nil {
 		builder.endpoint = builder.region.Endpoint
 		builder.credentials = builder.credentials.ProcessAuthParams(defaultHttpClient, builder.region.Id)
 
-		if credential, ok := builder.credentials.(auth.DerivedCredential); ok {
+		if credential, ok := builder.credentials.(auth.IDerivedCredential); ok {
 			builder.credentials = credential.ProcessDerivedAuthParams(builder.derivedAuthServiceName, builder.region.Id)
 		}
 	}

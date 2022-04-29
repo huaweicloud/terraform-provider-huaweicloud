@@ -17,7 +17,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package env
+package helper
 
 import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth"
@@ -44,6 +44,9 @@ const (
 func LoadCredentialFromEnv(defaultType string) auth.ICredential {
 	ak := os.Getenv(AkEnvName)
 	sk := os.Getenv(SkEnvName)
+	if ak == "" || sk == "" {
+		return nil
+	}
 
 	derivedAuthServiceName := os.Getenv(DerivedAuthServiceNameEnvName)
 	regionId := os.Getenv(RegionIdEnvName)
@@ -70,7 +73,7 @@ func LoadCredentialFromEnv(defaultType string) auth.ICredential {
 			WithDerivedPredicate(derivedPredicate).
 			Build()
 		return credential.ProcessDerivedAuthParams(derivedAuthServiceName, global.GlobalRegionId)
-	} else {
-		return nil
 	}
+
+	return nil
 }
