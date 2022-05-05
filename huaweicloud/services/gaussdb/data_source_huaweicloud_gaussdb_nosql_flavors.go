@@ -158,7 +158,5 @@ func dataSourceGaussDBFlavorsRead(_ context.Context, d *schema.ResourceData, met
 	}
 	d.SetId(hashcode.Strings(names))
 
-	d.Set("flavors", result)
-
-	return nil
+	return diag.FromErr(d.Set("flavors", result))
 }

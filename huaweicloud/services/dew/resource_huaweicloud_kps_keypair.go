@@ -314,12 +314,19 @@ func parseEncodeValue(b []byte, err error) (string, error) {
 	return *rst, nil
 }
 
-func writeToPemFile(path, privateKey string) error {
-	var err error
+func writeToPemFile(path, privateKey string) (err error) {
 	// If the private key exists, give it write permission for editing (-rw-------) for root user.
 	if _, err = ioutil.ReadFile(path); err == nil {
-		os.Chmod(path, 0600)
-		defer os.Chmod(path, 0400) // read-only permission (-r--------).
+		err = os.Chmod(path, 0600)
+		if err != nil {
+			return
+		}
+
+		defer func() {
+			// read-only permission (-r--------).
+			mErr := multierror.Append(err, os.Chmod(path, 0400))
+			err = mErr.ErrorOrNil()
+		}()
 	}
 	if err = ioutil.WriteFile(path, []byte(privateKey), 0600); err != nil {
 		return err

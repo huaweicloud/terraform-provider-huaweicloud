@@ -259,18 +259,10 @@ func resourceDisStreamRead(ctx context.Context, d *schema.ResourceData, meta int
 		d.Set("status", detail.Status),
 		d.Set("stream_id", detail.StreamId),
 		queryAndSetPartitionsToState(client, d, detail.StreamName),
+		d.Set("enterprise_project_id", parseEnterpriseProjectIdFromSysTags(detail.SysTags)),
 	)
 
-	enterpriseProjectId := parseEnterpriseProjectIdFromSysTags(detail.SysTags)
-	if enterpriseProjectId != "" && enterpriseProjectId != "0" {
-		multierror.Append(mErr, d.Set("enterprise_project_id", enterpriseProjectId))
-	}
-
-	if setSdErr := mErr.ErrorOrNil(); setSdErr != nil {
-		return fmtp.DiagErrorf("Error setting vault fields: %s", setSdErr)
-	}
-
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceDisStreamDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

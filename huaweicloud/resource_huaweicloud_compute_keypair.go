@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/keypairs"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -90,12 +91,19 @@ func getKeyFilePath(d *schema.ResourceData) string {
 	return fmt.Sprintf("%s.pem", keypairName)
 }
 
-func writeToPemFile(path, privateKey string) error {
-	var err error
+func writeToPemFile(path, privateKey string) (err error) {
 	// If the private key exists, give it write permission for editing (-rw-------) for root user.
 	if _, err = ioutil.ReadFile(path); err == nil {
-		os.Chmod(path, 0600)
-		defer os.Chmod(path, 0400) // read-only permission (-r--------).
+		err = os.Chmod(path, 0600)
+		if err != nil {
+			return
+		}
+
+		defer func() {
+			// read-only permission (-r--------).
+			mErr := multierror.Append(err, os.Chmod(path, 0400))
+			err = mErr.ErrorOrNil()
+		}()
 	}
 	if err = ioutil.WriteFile(path, []byte(privateKey), 0600); err != nil {
 		return err

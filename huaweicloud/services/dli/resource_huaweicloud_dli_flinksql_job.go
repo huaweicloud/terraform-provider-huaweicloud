@@ -335,7 +335,7 @@ func resourceFlinkSqlJobRead(ctx context.Context, d *schema.ResourceData, meta i
 		d.Set("tm_slot_num", detail.JobConfig.TmSlotNum),
 		d.Set("resume_checkpoint", detail.JobConfig.ResumeCheckpoint),
 		d.Set("resume_max_num", detail.JobConfig.ResumeMaxNum),
-		d.Set("runtime_config", utils.TagsToMap(parseConfig(detail.JobConfig.RuntimeConfig))),
+		setRuntimeConfigToState(d, detail.JobConfig.RuntimeConfig),
 		d.Set("status", detail.Status),
 	)
 	if setSdErr := mErr.ErrorOrNil(); setSdErr != nil {
@@ -591,8 +591,12 @@ func updateFlinkSqlJobWithStop(ctx context.Context, client *golangsdk.ServiceCli
 	return nil
 }
 
-func parseConfig(configStr string) []tags.ResourceTag {
+func setRuntimeConfigToState(d *schema.ResourceData, configStr string) error {
 	var rst []tags.ResourceTag
-	json.Unmarshal([]byte(configStr), &rst)
-	return rst
+	err := json.Unmarshal([]byte(configStr), &rst)
+	if err != nil {
+		return fmtp.Errorf("error parse runtime_config from API response: %s", err)
+	}
+
+	return d.Set("runtime_config", utils.TagsToMap(rst))
 }

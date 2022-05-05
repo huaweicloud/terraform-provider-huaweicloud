@@ -210,7 +210,7 @@ func buildAssociateResources(vType string, resources *schema.Set) ([]vaults.Reso
 	var err error
 	rType, ok := ResourceType[vType]
 	if !ok {
-		fmtp.Errorf("Invalid resource type: %s", vType)
+		return nil, fmtp.Errorf("Invalid resource type: %s", vType)
 	}
 	logp.Printf("[DEBUG] The resource type is %s", rType)
 	switch rType {

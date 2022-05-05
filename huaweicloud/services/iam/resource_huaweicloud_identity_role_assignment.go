@@ -118,7 +118,7 @@ func resourceIdentityRoleAssignmentV3Delete(_ context.Context, d *schema.Resourc
 		DomainID:  domainID,
 		ProjectID: projectID,
 	}
-	roles.Unassign(identityClient, roleID, opts).ExtractErr()
+	err = roles.Unassign(identityClient, roleID, opts).ExtractErr()
 	if err != nil {
 		return fmtp.DiagErrorf("Error unassigning role: %s", err)
 	}

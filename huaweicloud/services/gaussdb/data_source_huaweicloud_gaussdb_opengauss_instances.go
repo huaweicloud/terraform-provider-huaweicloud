@@ -348,7 +348,7 @@ func dataSourceOpenGaussInstancesRead(ctx context.Context, d *schema.ResourceDat
 	}
 
 	d.SetId(hashcode.Strings(instancesIds))
-	d.Set("instances", instancesToSet)
+	err = d.Set("instances", instancesToSet)
 
-	return nil
+	return diag.FromErr(err)
 }
