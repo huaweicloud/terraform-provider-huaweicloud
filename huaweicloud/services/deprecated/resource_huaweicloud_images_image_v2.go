@@ -498,7 +498,7 @@ func resourceImagesImageV2RefreshFunc(client *golangsdk.ServiceClient, id string
 				return img, fmt.Sprintf("%s", img.Status), fmtp.Errorf("Error wrong size %v or checksum %q", img.SizeBytes, img.Checksum)
 			}
 		*/
-		return img, fmt.Sprintf("%s", img.Status), nil
+		return img, string(img.Status), nil
 	}
 }
 

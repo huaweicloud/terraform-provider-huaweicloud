@@ -113,7 +113,7 @@ func dataSourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf("Unable to retrieve subnets: %s", err)
 	}
 
-	if refinedSubnets == nil || len(refinedSubnets) == 0 {
+	if len(refinedSubnets) == 0 {
 		return fmtp.Errorf("No matching subnet found. " +
 			"Please change your search criteria and try again.")
 	}

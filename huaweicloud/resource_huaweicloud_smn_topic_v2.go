@@ -130,10 +130,8 @@ func resourceTopicDelete(d *schema.ResourceData, meta interface{}) error {
 
 	for {
 		_, err = topics.Get(client, id).ExtractGet()
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				break
-			}
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
+			break
 		}
 	}
 

@@ -116,7 +116,7 @@ func testAccCheckCsRouteV1Exists() resource.TestCheckFunc {
 
 		_, err = fetchCsRouteV1ByListOnTest(rs, client)
 		if err != nil {
-			if strings.Index(err.Error(), "Error finding the resource by list api") != -1 {
+			if strings.Contains(err.Error(), "Error finding the resource by list api") {
 				return fmtp.Errorf("huaweicloud_cs_route_v1 is not exist")
 			}
 			return fmtp.Errorf("Error checking huaweicloud_cs_route_v1.route exist, err=%s", err)

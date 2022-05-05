@@ -279,10 +279,7 @@ func buildRdsInstanceDBPort(d *schema.ResourceData) string {
 func isMySQLDatabase(d *schema.ResourceData) bool {
 	dbType := d.Get("db.0.type").(string)
 	// Database type is not case sensitive.
-	if strings.ToLower(dbType) == "mysql" {
-		return true
-	}
-	return false
+	return strings.ToLower(dbType) == "mysql"
 }
 
 func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -359,7 +356,7 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
-	if d.Get("ssl_enable").(bool) == true {
+	if d.Get("ssl_enable").(bool) {
 		if isMySQLDatabase(d) {
 			err = configRdsInstanceSSL(d, client, d.Id())
 			if err != nil {

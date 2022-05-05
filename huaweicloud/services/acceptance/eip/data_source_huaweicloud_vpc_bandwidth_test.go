@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
@@ -36,6 +38,22 @@ func TestAccBandWidthDataSource_basic(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccBandWidthDataSource_basic2(t *testing.T) {
+	err := b(0)
+	if _, ok := err.(golangsdk.ErrDefault404); ok {
+		logp.Printf("[DEBUG] Successfully deleted HuaweiCloud CCI network")
+
+	} else {
+		logp.Printf("[DEBUG] Successfully deleted HuaweiCloud CCI network2222")
+	}
+}
+func b(i int) error {
+	if i == 1 {
+		return golangsdk.ErrDefault404{}
+	}
+	return nil
 }
 
 func testAccBandWidthDataSource_basic(rName string) string {

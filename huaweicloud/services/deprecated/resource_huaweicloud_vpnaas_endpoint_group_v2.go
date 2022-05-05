@@ -180,8 +180,7 @@ func resourceVpnEndpointGroupV2Update(d *schema.ResourceData, meta interface{}) 
 		hasChange = true
 	}
 
-	var updateOpts endpointgroups.UpdateOptsBuilder
-	updateOpts = opts
+	var updateOpts endpointgroups.UpdateOptsBuilder = opts
 
 	logp.Printf("[DEBUG] Updating endpoint group with id %s: %#v", d.Id(), updateOpts)
 

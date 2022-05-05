@@ -270,7 +270,7 @@ func (c *Config) newServiceClientByName(client *golangsdk.ProviderClient, catalo
 		if err != nil {
 			return nil, err
 		}
-		projectID, _ = c.RegionProjectIDMap[region]
+		projectID = c.RegionProjectIDMap[region]
 	}
 
 	// update ProjectID and region in ProviderClient

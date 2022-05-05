@@ -144,7 +144,7 @@ func isUserInput(d *schema.ResourceData, index []string, arrayIndex map[string]i
 			}
 		}
 	}
-	_, e := d.GetOkExists(strings.Join(r[:len(r)], "."))
+	_, e := d.GetOkExists(strings.Join(r[:], "."))
 	return e
 }
 
