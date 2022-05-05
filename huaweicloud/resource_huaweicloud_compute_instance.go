@@ -302,6 +302,11 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"agent_list": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"tags": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -532,6 +537,9 @@ func resourceComputeInstanceV2Create(ctx context.Context, d *schema.ResourceData
 		if hasFilledOpt(d, "agency_name") {
 			metadata.AgencyName = d.Get("agency_name").(string)
 		}
+		if hasFilledOpt(d, "agent_list") {
+			metadata.AgentList = d.Get("agent_list").(string)
+		}
 		if metadata != (cloudservers.MetaData{}) {
 			createOpts.MetaData = &metadata
 		}
@@ -755,6 +763,7 @@ func resourceComputeInstanceV2Read(_ context.Context, d *schema.ResourceData, me
 	d.Set("name", server.Name)
 	d.Set("status", server.Status)
 	d.Set("agency_name", server.Metadata.AgencyName)
+	d.Set("agent_list", server.Metadata.AgentList)
 
 	chageMode := server.Metadata.ChargingMode
 	if chageMode == "0" {
