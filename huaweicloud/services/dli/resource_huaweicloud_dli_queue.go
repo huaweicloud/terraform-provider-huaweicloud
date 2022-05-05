@@ -27,7 +27,6 @@ const QUEUE_FEATURE_BASIC, QUEUE_FEATURE_AI = "basic", "ai"
 const QUEUE_PLATFORM_X86, QUEUE_platform_AARCH64 = "x86_64", "aarch64"
 
 const (
-	actionRestart  = "restart"
 	actionScaleOut = "scale_out"
 	actionScaleIn  = "scale_in"
 )
