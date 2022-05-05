@@ -233,7 +233,7 @@ func resourceIecNetworkACLRuleUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	logp.Printf("[DEBUG] Updating IEC Network ACL rule %s: %#v", d.Id(), opts)
-	fwGroup, err = firewalls.UpdateRule(iecClient, aclID, opts).Extract()
+	_, err = firewalls.UpdateRule(iecClient, aclID, opts).Extract()
 
 	if err != nil {
 		return fmtp.Errorf("Error updating IEC Network ACL rule: %s", err)
@@ -270,7 +270,7 @@ func resourceIecNetworkACLRuleDelete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	logp.Printf("[DEBUG] Destroy IEC Network ACL rule: %s", d.Id())
-	fwGroup, err = firewalls.UpdateRule(iecClient, aclID, opts).Extract()
+	_, err = firewalls.UpdateRule(iecClient, aclID, opts).Extract()
 	if err != nil {
 		return fmtp.Errorf("Error deleting IEC Network ACL rule: %s", err)
 	}

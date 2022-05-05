@@ -30,7 +30,7 @@ func SuppressDiffAll(k, old, new string, d *schema.ResourceData) bool {
 
 // Suppress changes if we get a string with or without cases
 func SuppressCaseDiffs(k, old, new string, d *schema.ResourceData) bool {
-	return strings.ToLower(old) == strings.ToLower(new)
+	return strings.EqualFold(old, new)
 }
 
 // Suppress changes if we get a computed min_disk_gb if value is unspecified (default 0)
