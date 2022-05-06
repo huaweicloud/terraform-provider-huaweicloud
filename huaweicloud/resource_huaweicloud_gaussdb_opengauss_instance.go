@@ -35,7 +35,7 @@ func resourceOpenGaussInstance() *schema.Resource {
 		},
 		CustomizeDiff: func(_ context.Context, d *schema.ResourceDiff, v interface{}) error {
 			if d.HasChange("coordinator_num") {
-				d.SetNewComputed("private_ips")
+				return d.SetNewComputed("private_ips")
 			}
 			return nil
 		},

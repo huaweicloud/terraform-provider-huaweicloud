@@ -2,12 +2,11 @@ package huaweicloud
 
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
 
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/keypairs"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -73,7 +72,7 @@ func resourceComputeKeypairV2Create(d *schema.ResourceData, meta interface{}) er
 
 	if !isExist {
 		fp := getKeyFilePath(d)
-		if err = writeToPemFile(fp, kp.PrivateKey); err != nil {
+		if err = utils.WriteToPemFile(fp, kp.PrivateKey); err != nil {
 			return fmtp.Errorf("Unable to generate private key: %s", err)
 		}
 		d.Set("key_file", fp)
@@ -88,19 +87,6 @@ func getKeyFilePath(d *schema.ResourceData) string {
 	}
 	keypairName := d.Get("name").(string)
 	return fmt.Sprintf("%s.pem", keypairName)
-}
-
-func writeToPemFile(path, privateKey string) error {
-	var err error
-	// If the private key exists, give it write permission for editing (-rw-------) for root user.
-	if _, err = ioutil.ReadFile(path); err == nil {
-		os.Chmod(path, 0600)
-		defer os.Chmod(path, 0400) // read-only permission (-r--------).
-	}
-	if err = ioutil.WriteFile(path, []byte(privateKey), 0600); err != nil {
-		return err
-	}
-	return nil
 }
 
 func resourceComputeKeypairV2Read(d *schema.ResourceData, meta interface{}) error {

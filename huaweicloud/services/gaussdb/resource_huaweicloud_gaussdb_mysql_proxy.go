@@ -6,6 +6,7 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -98,13 +99,14 @@ func resourceGaussDBProxyRead(_ context.Context, d *schema.ResourceData, meta in
 	if err != nil {
 		return fmtp.DiagErrorf("Error fetchting gaussdb_mysql_proxy: %s", err)
 	}
-	d.Set("instance_id", d.Id())
-	d.Set("flavor", proxy.Flavor)
-	d.Set("node_num", proxy.NodeNum)
-	d.Set("address", proxy.Address)
-	d.Set("port", proxy.Port)
-
-	return nil
+	mErr := multierror.Append(nil,
+		d.Set("instance_id", d.Id()),
+		d.Set("flavor", proxy.Flavor),
+		d.Set("node_num", proxy.NodeNum),
+		d.Set("address", proxy.Address),
+		d.Set("port", proxy.Port),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceGaussDBProxyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

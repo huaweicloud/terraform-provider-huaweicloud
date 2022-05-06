@@ -72,7 +72,7 @@ func dataSourceELbCertificateV3Read(d *schema.ResourceData, meta interface{}) er
 	logp.Printf("[DEBUG] Get certificate list: %#v", certs)
 
 	if len(certs) > 0 {
-		setCertificateAttributes(d, certs[0])
+		err = setCertificateAttributes(d, certs[0])
 		if err != nil {
 			return err
 		}

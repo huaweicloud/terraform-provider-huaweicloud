@@ -5,12 +5,15 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"os"
 	"regexp"
 	"strings"
 	"time"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -251,4 +254,25 @@ func hasMapContain(rawMap map[string]string, filterKey, filterValue string) bool
 	} else {
 		return false
 	}
+}
+
+// WriteToPemFile is used to write the keypair to Pem file.
+func WriteToPemFile(path, privateKey string) (err error) {
+	// If the private key exists, give it write permission for editing (-rw-------) for root user.
+	if _, err = ioutil.ReadFile(path); err == nil {
+		err = os.Chmod(path, 0600)
+		if err != nil {
+			return
+		}
+
+		defer func() {
+			// read-only permission (-r--------).
+			mErr := multierror.Append(err, os.Chmod(path, 0400))
+			err = mErr.ErrorOrNil()
+		}()
+	}
+	if err = ioutil.WriteFile(path, []byte(privateKey), 0600); err != nil {
+		return err
+	}
+	return nil
 }
