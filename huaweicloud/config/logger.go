@@ -214,16 +214,15 @@ func FormatHeaders(headers http.Header, seperator string) string {
 
 func maskSecurityFields(data map[string]interface{}) bool {
 	for k, val := range data {
-		switch val.(type) {
+		switch val := val.(type) {
 		case string:
 			if isSecurityFields(k) {
 				data[k] = "***"
-			} else if len(val.(string)) > MAXFieldLength {
+			} else if len(val) > MAXFieldLength {
 				data[k] = "** large string **"
 			}
 		case map[string]interface{}:
-			subData := val.(map[string]interface{})
-			if masked := maskSecurityFields(subData); masked {
+			if masked := maskSecurityFields(val); masked {
 				return true
 			}
 		}

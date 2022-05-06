@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -28,7 +27,7 @@ func TestAccNetworkingV2PortDataSource_basic(t *testing.T) {
 }
 
 func testAccNetworkingV2PortDataSource_basic() string {
-	return fmt.Sprintf(`
+	return `
 data "huaweicloud_vpc_subnet" "mynet" {
   name = "subnet-default"
 }
@@ -37,5 +36,5 @@ data "huaweicloud_networking_port" "gw_port" {
   network_id = data.huaweicloud_vpc_subnet.mynet.id
   fixed_ip   = data.huaweicloud_vpc_subnet.mynet.gateway_ip
 }
-`)
+`
 }

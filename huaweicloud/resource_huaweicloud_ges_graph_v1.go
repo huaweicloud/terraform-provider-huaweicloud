@@ -670,7 +670,7 @@ func fillGesGraphV1ReadRespEdgesetPath(value interface{}) interface{} {
 	}
 
 	n := len(value1)
-	result := make([]interface{}, n, n)
+	result := make([]interface{}, n)
 	for i := 0; i < n; i++ {
 		val := make(map[string]interface{})
 		item := value1[i].(map[string]interface{})
@@ -710,7 +710,7 @@ func fillGesGraphV1ReadRespSchemaPath(value interface{}) interface{} {
 	}
 
 	n := len(value1)
-	result := make([]interface{}, n, n)
+	result := make([]interface{}, n)
 	for i := 0; i < n; i++ {
 		val := make(map[string]interface{})
 		item := value1[i].(map[string]interface{})
@@ -750,7 +750,7 @@ func fillGesGraphV1ReadRespVertexsetPath(value interface{}) interface{} {
 	}
 
 	n := len(value1)
-	result := make([]interface{}, n, n)
+	result := make([]interface{}, n)
 	for i := 0; i < n; i++ {
 		val := make(map[string]interface{})
 		item := value1[i].(map[string]interface{})
@@ -798,7 +798,7 @@ func setGesGraphV1Properties(d *schema.ResourceData, response map[string]interfa
 		return fmtp.Errorf("Error setting Graph:created, err: %s", err)
 	}
 
-	v, _ = opts["edgeset_path"]
+	v = opts["edgeset_path"]
 	v, err = flattenGesGraphV1EdgesetPath(response, nil, v)
 	if err != nil {
 		return fmtp.Errorf("Error reading Graph:edgeset_path, err: %s", err)
@@ -847,7 +847,7 @@ func setGesGraphV1Properties(d *schema.ResourceData, response map[string]interfa
 		return fmtp.Errorf("Error setting Graph:region, err: %s", err)
 	}
 
-	v, _ = opts["schema_path"]
+	v = opts["schema_path"]
 	v, err = flattenGesGraphV1SchemaPath(response, nil, v)
 	if err != nil {
 		return fmtp.Errorf("Error reading Graph:schema_path, err: %s", err)
@@ -880,7 +880,7 @@ func setGesGraphV1Properties(d *schema.ResourceData, response map[string]interfa
 		return fmtp.Errorf("Error setting Graph:version, err: %s", err)
 	}
 
-	v, _ = opts["vertexset_path"]
+	v = opts["vertexset_path"]
 	v, err = flattenGesGraphV1VertexsetPath(response, nil, v)
 	if err != nil {
 		return fmtp.Errorf("Error reading Graph:vertexset_path, err: %s", err)
@@ -921,10 +921,8 @@ func flattenGesGraphV1EdgesetPath(d interface{}, arrayIndex map[string]int, curr
 	}
 
 	newArrayIndex := make(map[string]int)
-	if arrayIndex != nil {
-		for k, v := range arrayIndex {
-			newArrayIndex[k] = v
-		}
+	for k, v := range arrayIndex {
+		newArrayIndex[k] = v
 	}
 
 	for i := 0; i < n; i++ {
@@ -990,10 +988,8 @@ func flattenGesGraphV1SchemaPath(d interface{}, arrayIndex map[string]int, curre
 	}
 
 	newArrayIndex := make(map[string]int)
-	if arrayIndex != nil {
-		for k, v := range arrayIndex {
-			newArrayIndex[k] = v
-		}
+	for k, v := range arrayIndex {
+		newArrayIndex[k] = v
 	}
 
 	for i := 0; i < n; i++ {
@@ -1059,10 +1055,8 @@ func flattenGesGraphV1VertexsetPath(d interface{}, arrayIndex map[string]int, cu
 	}
 
 	newArrayIndex := make(map[string]int)
-	if arrayIndex != nil {
-		for k, v := range arrayIndex {
-			newArrayIndex[k] = v
-		}
+	for k, v := range arrayIndex {
+		newArrayIndex[k] = v
 	}
 
 	for i := 0; i < n; i++ {
