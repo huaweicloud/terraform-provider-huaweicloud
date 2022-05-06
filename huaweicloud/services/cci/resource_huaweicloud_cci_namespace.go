@@ -311,7 +311,6 @@ func GetCciNamespaceInfoById(c *golangsdk.ServiceClient, id string) (*namespaces
 	}
 	for _, v := range responses {
 		if v.Metadata.UID == id {
-			response = new(namespaces.Namespace)
 			return &v, nil
 		}
 	}

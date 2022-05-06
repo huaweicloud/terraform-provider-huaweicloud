@@ -371,7 +371,12 @@ func getCbrPolicyByVaultId(client *golangsdk.ServiceClient, vaultId string) (str
 	if err != nil {
 		return "", fmtp.Errorf("Error getting policy by vault ID (%s): %s", vaultId, err)
 	}
+
 	policyList, err := policies.ExtractPolicies(allPages)
+	if err != nil {
+		return "", fmtp.Errorf("error getting policy by vault ID (%s): %s", vaultId, err)
+	}
+
 	if len(policyList) >= 1 {
 		return policyList[0].ID, nil
 	}
