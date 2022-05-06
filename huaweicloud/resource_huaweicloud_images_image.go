@@ -155,7 +155,7 @@ func resourceImsImageCreate(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
-	v := new(cloudimages.JobResponse)
+	var v *cloudimages.JobResponse
 	imageTags := resourceContainerImageTags(d)
 	if val, ok := d.GetOk("instance_id"); ok {
 		createOpts := &cloudimages.CreateByServerOpts{
