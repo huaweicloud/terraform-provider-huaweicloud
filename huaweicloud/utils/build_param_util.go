@@ -131,7 +131,7 @@ func (e *exchangeParam) buildStruct(optsValue *reflect.Value, optsType reflect.T
 		case reflect.Struct:
 			log.Printf("[DEBUG] buildStruct:: convert struct for opt:%s, value:%#v", optn, optv)
 			var p map[string]interface{}
-			ok := true
+			var ok bool
 
 			// If the type of parameter is Struct, then the corresponding type in Schema is TypeList
 			if v0, ok0 := optv.([]interface{}); ok0 {

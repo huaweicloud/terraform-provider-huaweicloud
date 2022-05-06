@@ -529,7 +529,6 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	compareURL(expectedURL, actualURL, "ecs", "v1", t)
 
 	// test for computeV11Client
-	serviceClient, err = nil, nil
 	serviceClient, err = config.ComputeV11Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud ecs v1.1 client: %s", err)
@@ -539,7 +538,6 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	compareURL(expectedURL, actualURL, "ecs", "v1.1", t)
 
 	// test for computeV2Client
-	serviceClient, err = nil, nil
 	serviceClient, err = config.ComputeV2Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud ecs v2.1 client: %s", err)
@@ -549,7 +547,6 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	compareURL(expectedURL, actualURL, "ecs", "v2.1", t)
 
 	// test for autoscalingV1Client
-	serviceClient, err = nil, nil
 	serviceClient, err = config.AutoscalingV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud autoscaling v1 client: %s", err)
@@ -559,7 +556,6 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	compareURL(expectedURL, actualURL, "autoscaling", "v1", t)
 
 	// test for imageV2Client
-	serviceClient, err = nil, nil
 	serviceClient, err = config.ImageV2Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud image v2 client: %s", err)
@@ -569,7 +565,6 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	compareURL(expectedURL, actualURL, "image", "v2", t)
 
 	// test for cceV3Client
-	serviceClient, err = nil, nil
 	serviceClient, err = config.CceV3Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud cce v3 client: %s", err)
@@ -579,7 +574,6 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	compareURL(expectedURL, actualURL, "cce", "v3", t)
 
 	// test for cceAddonV3Client
-	serviceClient, err = nil, nil
 	serviceClient, err = config.CceAddonV3Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud cceAddon v3 client: %s", err)
@@ -589,7 +583,6 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	compareURL(expectedURL, actualURL, "cceAddon", "v3", t)
 
 	// test for cciV1Client
-	serviceClient, err = nil, nil
 	serviceClient, err = config.CciV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud cci v1 client: %s", err)
@@ -599,7 +592,6 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	compareURL(expectedURL, actualURL, "cci", "v1", t)
 
 	// test for cciV1BetaClient
-	serviceClient, err = nil, nil
 	serviceClient, err = config.CciV1BetaClient(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud cci v1 beta client: %s", err)
@@ -609,7 +601,6 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	compareURL(expectedURL, actualURL, "cci", "v1 beta", t)
 
 	// test for FgsV2Client
-	serviceClient, err = nil, nil
 	serviceClient, err = config.FgsV2Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud fgs v2 client: %s", err)
@@ -619,7 +610,6 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	compareURL(expectedURL, actualURL, "fgs", "v2", t)
 
 	// test for swrV2Client
-	serviceClient, err = nil, nil
 	serviceClient, err = config.SwrV2Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud swr v2 client: %s", err)
@@ -629,7 +619,6 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	compareURL(expectedURL, actualURL, "swr", "v2", t)
 
 	// test for BmsV1Client
-	serviceClient, err = nil, nil
 	serviceClient, err = config.BmsV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud BMS v1 client: %s", err)
@@ -659,7 +648,6 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 	var err error
 
 	// test for blockStorageV2Client
-	serviceClient, err = nil, nil
 	serviceClient, err = config.BlockStorageV2Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud blockStorage v2 client: %s", err)
@@ -669,7 +657,6 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 	compareURL(expectedURL, actualURL, "blockStorage", "v2", t)
 
 	// test for blockStorageV21Client
-	serviceClient, err = nil, nil
 	serviceClient, err = config.BlockStorageV21Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud blockStorage v2.1 client: %s", err)
@@ -679,7 +666,6 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 	compareURL(expectedURL, actualURL, "blockStorage", "v2.1", t)
 
 	// test for cbrV3Client
-	serviceClient, err = nil, nil
 	serviceClient, err = config.CbrV3Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud cbr v3 client: %s", err)
@@ -689,7 +675,6 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 	compareURL(expectedURL, actualURL, "cbr", "v3", t)
 
 	// test for	sfsV2Client
-	serviceClient, err = nil, nil
 	serviceClient, err = config.SfsV2Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud sfs v2 client: %s", err)
@@ -699,7 +684,6 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 	compareURL(expectedURL, actualURL, "sfs", "v2", t)
 
 	// test for sfsV1Client
-	serviceClient, err = nil, nil
 	serviceClient, err = config.SfsV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud sfs v1 client: %s", err)
@@ -709,7 +693,6 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 	compareURL(expectedURL, actualURL, "sfs", "v1", t)
 
 	// test for csbsV1Client
-	serviceClient, err = nil, nil
 	serviceClient, err = config.CsbsV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud csbs v1 client: %s", err)
@@ -719,7 +702,6 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 	compareURL(expectedURL, actualURL, "csbs", "v1", t)
 
 	// test for vbsV2Client
-	serviceClient, err = nil, nil
 	serviceClient, err = config.VbsV2Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud vbs v2 client: %s", err)
@@ -756,7 +738,6 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	compareURL(expectedURL, actualURL, "vpc", "v1", t)
 
 	// test endpoint of vpc v3
-	serviceClient, err = nil, nil
 	serviceClient, err = config.NetworkingV3Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud vpc v3 client: %s", err)
@@ -766,7 +747,6 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	compareURL(expectedURL, actualURL, "vpc", "v3", t)
 
 	// test endpoint of network v2 service
-	serviceClient, err = nil, nil
 	serviceClient, err = config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud networking v2 client: %s", err)
@@ -776,7 +756,6 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	compareURL(expectedURL, actualURL, "networking", "v2.0", t)
 
 	// test endpoint of nat gateway
-	serviceClient, err = nil, nil
 	serviceClient, err = config.NatGatewayClient(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud nat gateway client: %s", err)
@@ -786,7 +765,6 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	compareURL(expectedURL, actualURL, "nat", "v2", t)
 
 	// test endpoint of nat gateway v2.0
-	serviceClient, err = nil, nil
 	serviceClient, err = config.NatV2Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud nat gateway v2.0 client: %s", err)
@@ -796,7 +774,6 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	compareURL(expectedURL, actualURL, "nat", "v2.0", t)
 
 	// test endpoint of elb v2.0
-	serviceClient, err = nil, nil
 	serviceClient, err = config.ElbV2Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud ELB v2.0 client: %s", err)
@@ -806,7 +783,6 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	compareURL(expectedURL, actualURL, "elb", "v2.0", t)
 
 	// test endpoint of elb v3
-	serviceClient, err = nil, nil
 	serviceClient, err = config.ElbV3Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud ELB v3 client: %s", err)
@@ -816,7 +792,6 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	compareURL(expectedURL, actualURL, "elb", "v3", t)
 
 	// test endpoint of loadbalancer(elb v2)
-	serviceClient, err = nil, nil
 	serviceClient, err = config.LoadBalancerClient(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud ELB v2 client: %s", err)

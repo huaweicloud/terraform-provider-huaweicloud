@@ -371,9 +371,7 @@ func parsePushCertificateToMap(pushCertificate []interface{}) (map[string]*schem
 	return serviceMapping, nil
 }
 
-func processErr(err error) string {
-	// errMsg: The error message to be printed.
-	errMsg := fmt.Sprintf("Push certificate service error: %s", err)
+func processErr(err error) (errMsg string) {
 	if err500, ok := err.(golangsdk.ErrDefault500); ok {
 		errBody := string(err500.Body)
 		// Maybe the text in the body is very long, only 200 characters printed。
