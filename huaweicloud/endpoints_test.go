@@ -257,7 +257,7 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud gaussdb client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://gaussdb.%s.%s/mysql/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmt.Sprintf("https://gaussdb.%s.%s/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("gaussdb endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))

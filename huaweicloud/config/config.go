@@ -777,9 +777,6 @@ func (c *Config) OpenGaussV3Client(region string) (*golangsdk.ServiceClient, err
 func (c *Config) GaussdbV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("gaussdb", region)
 }
-func (c *Config) GaussdbV3TagClient(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("gaussdbV3", region)
-}
 
 func (c *Config) DrsV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("drs", region)
