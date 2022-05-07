@@ -69,6 +69,10 @@ func DataSourceVpcSubnetV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"ipv6_subnet_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -128,6 +132,7 @@ func dataSourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(Subnets.ID)
 
 	d.Set("name", Subnets.Name)
+	d.Set("description", Subnets.Description)
 	d.Set("cidr", Subnets.CIDR)
 	d.Set("dns_list", Subnets.DnsList)
 	d.Set("status", Subnets.Status)

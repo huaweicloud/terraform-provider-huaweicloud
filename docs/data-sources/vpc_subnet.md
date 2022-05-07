@@ -58,6 +58,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `subnet_id` - The subnet (Native OpenStack API) ID.
 
+* `description` - The description of the subnet.
+
 * `ipv6_enable` - Whether the IPv6 is enabled.
 
 * `ipv6_subnet_id` - The ID of the IPv6 subnet (Native OpenStack API).

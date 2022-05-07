@@ -4,7 +4,7 @@ subcategory: "Virtual Private Cloud (VPC)"
 
 # huaweicloud_vpc_subnet
 
-Provides an VPC subnet resource. This is an alternative to `huaweicloud_vpc_subnet_v1`
+Provides a VPC subnet resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -54,6 +54,9 @@ The following arguments are supported:
 
 * `vpc_id` (Required, String, ForceNew) - Specifies the ID of the VPC to which the subnet belongs. Changing this creates
   a new Subnet.
+
+* `description` - (Optional, String) Specifies supplementary information about the subnet. The value is a string of
+  no more than 255 characters and cannot contain angle brackets (< or >).
 
 * `ipv6_enable` (Optional, Bool) - Specifies whether the IPv6 function is enabled for the subnet. Defaults to false.
 

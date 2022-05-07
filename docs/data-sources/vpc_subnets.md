@@ -69,6 +69,7 @@ The `subnets` block supports:
 
 * `id` - Indicates the ID of the subnet.
 * `name` - Indicates the name of the subnet.
+* `description` - Indicates the description of the subnet.
 * `cidr` - Indicates the cidr block of the subnet.
 * `status` - Indicates the current status of the subnet.
 * `vpc_id` - Indicates the Id of the VPC that the subnet belongs to.
