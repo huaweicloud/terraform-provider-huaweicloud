@@ -17,7 +17,7 @@ import (
 )
 
 // MAXFieldLength is the maximum string length of single field when logging
-const MAXFieldLength int = 256
+const MAXFieldLength int = 1024
 
 var maxTimeout = 10 * time.Minute
 
