@@ -122,3 +122,29 @@ This resource provides the following timeouts configuration options:
 
 * `create` - Default is 5 minute.
 * `delete` - Default is 3 minute.
+
+## Import
+
+CCE PVC can be imported using the cluster ID, namespace and name separated by a slash, e.g.
+
+```
+$ terraform import huaweicloud_cce_pvc.test 5c20fdad-7288-11eb-b817-0255ac10158b/default/pvc_name
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+API response, security or some other reason. The missing attributes include: `annotations`.
+It is generally recommended running `terraform plan` after importing a PVC.
+You can then decide if changes should be applied to the PVC, or the resource
+definition should be updated to align with the PVC. Also you can ignore changes as below.
+
+```
+resource "huaweicloud_cce_pvc" "test" {
+    ...
+
+  lifecycle {
+    ignore_changes = [
+      annotations,
+    ]
+  }
+}
+```
