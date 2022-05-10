@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func resourceLTSGroupV2() *schema.Resource {
+func ResourceLTSGroupV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGroupV2Create,
 		Read:   resourceGroupV2Read,

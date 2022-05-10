@@ -666,8 +666,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_lb_pool":         lb.ResourcePoolV2(),
 			"huaweicloud_lb_whitelist":    lb.ResourceWhitelistV2(),
 
-			"huaweicloud_lts_group":  resourceLTSGroupV2(),
-			"huaweicloud_lts_stream": resourceLTSStreamV2(),
+			"huaweicloud_lts_group":  ResourceLTSGroupV2(),
+			"huaweicloud_lts_stream": ResourceLTSStreamV2(),
 
 			"huaweicloud_mls_instance": resourceMlsInstance(),
 
