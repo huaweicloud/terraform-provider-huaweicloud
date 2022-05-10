@@ -66,6 +66,8 @@ var (
 	HW_GITHUB_REPO_HOST      = os.Getenv("HW_GITHUB_REPO_HOST")      // Repository host (Github, Gitlab, Gitee)
 	HW_GITHUB_PERSONAL_TOKEN = os.Getenv("HW_GITHUB_PERSONAL_TOKEN") // Personal access token (Github, Gitlab, Gitee)
 	HW_GITHUB_REPO_PWD       = os.Getenv("HW_GITHUB_REPO_PWD")       // Repository password (DevCloud, BitBucket)
+	HW_GITHUB_REPO_URL       = os.Getenv("HW_GITHUB_REPO_URL")       // Repository URL (Github, Gitlab, Gitee)
+	HW_OBS_STORAGE_URL       = os.Getenv("HW_OBS_STORAGE_URL")       // OBS storage URL where ZIP file is located
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -480,5 +482,12 @@ func TestAccPreCheckRepoTokenAuth(t *testing.T) {
 func TestAccPreCheckRepoPwdAuth(t *testing.T) {
 	if HW_DOMAIN_NAME == "" || HW_USER_NAME == "" || HW_GITHUB_REPO_PWD == "" {
 		t.Skip("Repository configuration are not completed for acceptance test of password authorization.")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckComponent(t *testing.T) {
+	if HW_DOMAIN_NAME == "" || HW_GITHUB_REPO_URL == "" || HW_OBS_STORAGE_URL == "" {
+		t.Skip("Repository (package) configuration are not completed for acceptance test of component.")
 	}
 }
