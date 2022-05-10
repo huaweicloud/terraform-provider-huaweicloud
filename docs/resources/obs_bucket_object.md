@@ -86,3 +86,29 @@ In addition to all arguments above, the following attributes are exported:
   server-side encryption.
 * `size` - the size of the object in bytes.
 * `version_id` - A unique version ID value for the object, if bucket versioning is enabled.
+
+## Import
+
+OBS bucket object can be imported using the bucket and key separated by a slash, e.g.
+
+```
+$ terraform import huaweicloud_obs_bucket_object.object bucket/key
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+API response, security or some other reason. The missing attributes include: `content_type`, `encryption`, `source`,
+`acl`, `sse_kms_key_id` and `version_id`. It is generally recommended running `terraform plan` after importing an object.
+You can then decide if changes should be applied to the object, or the resource
+definition should be updated to align with the object. Also you can ignore changes as below.
+
+```
+resource "huaweicloud_obs_bucket_object" "object" {
+    ...
+
+  lifecycle {
+    ignore_changes = [
+      content_type, encryption, source, acl, sse_kms_key_id, version_id,
+    ]
+  }
+}
+```

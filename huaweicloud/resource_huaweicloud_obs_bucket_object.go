@@ -19,6 +19,9 @@ func ResourceObsBucketObject() *schema.Resource {
 		Read:   resourceObsBucketObjectRead,
 		Update: resourceObsBucketObjectPut,
 		Delete: resourceObsBucketObjectDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceObsBucketObjectImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -293,4 +296,21 @@ func resourceObsBucketObjectDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	return nil
+}
+
+func resourceObsBucketObjectImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.SplitN(d.Id(), "/", 2)
+	if len(parts) != 2 {
+		err := fmtp.Errorf("Invalid format specified for OBS bucket object. Format must be <bucket>/<key>")
+		return nil, err
+	}
+
+	bucket := parts[0]
+	key := parts[1]
+
+	d.Set("bucket", bucket)
+	d.Set("key", key)
+	d.SetId(key)
+
+	return []*schema.ResourceData{d}, nil
 }
