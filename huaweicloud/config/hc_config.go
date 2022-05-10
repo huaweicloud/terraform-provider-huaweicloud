@@ -192,8 +192,8 @@ func (c *Config) HcRdsV3Client(region string) (*rdsv3.RdsClient, error) {
 	return rdsv3.NewRdsClient(hcClient), nil
 }
 
-// HcCptsV3Client is the CPTS service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcCptsV3Client(region string) (*cptsv1.CptsClient, error) {
+// HcCptsV1Client is the CPTS service client using huaweicloud-sdk-go-v3 package
+func (c *Config) HcCptsV1Client(region string) (*cptsv1.CptsClient, error) {
 	hcClient, err := NewHcClient(c, region, "cpts", false)
 	if err != nil {
 		return nil, err
