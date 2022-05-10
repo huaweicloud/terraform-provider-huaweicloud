@@ -53,6 +53,7 @@ type Metadata struct {
 	LockScene         string `json:"lock_scene"`
 	VirtualEnvType    string `json:"virtual_env_type"`
 	AgencyName        string `json:"agency_name"`
+	AgentList         string `json:"__support_agent_list"`
 }
 
 type Address struct {

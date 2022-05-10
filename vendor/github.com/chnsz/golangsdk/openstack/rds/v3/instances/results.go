@@ -106,7 +106,8 @@ func (r SingleToHaResult) Extract() (*SingleToHaResponse, error) {
 }
 
 type ResizeFlavor struct {
-	JobId string `json:"job_id"`
+	JobId   string `json:"job_id"`
+	OrderId string `json:"order_id"`
 }
 
 func (r ResizeFlavorResult) Extract() (*ResizeFlavor, error) {
