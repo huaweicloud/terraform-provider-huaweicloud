@@ -52,6 +52,11 @@ func TestAccLBV2Whitelist_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "enable_whitelist", "true"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

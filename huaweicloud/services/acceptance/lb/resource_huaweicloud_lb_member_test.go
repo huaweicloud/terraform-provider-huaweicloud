@@ -64,6 +64,12 @@ func TestAccLBV2Member_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("huaweicloud_lb_member.member_2", "weight", "15"),
 				),
 			},
+			{
+				ResourceName:      "huaweicloud_lb_member.member_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccLBMemberImportStateIdFunc(),
+			},
 		},
 	})
 }
@@ -88,6 +94,23 @@ func testAccCheckLBV2MemberDestroy(s *terraform.State) error {
 	}
 
 	return nil
+}
+
+func testAccLBMemberImportStateIdFunc() resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		pool, ok := s.RootModule().Resources["huaweicloud_lb_pool.pool_1"]
+		if !ok {
+			return "", fmt.Errorf("pool not found: %s", pool)
+		}
+		member, ok := s.RootModule().Resources["huaweicloud_lb_member.member_1"]
+		if !ok {
+			return "", fmt.Errorf("member not found: %s", member)
+		}
+		if pool.Primary.ID == "" || member.Primary.ID == "" {
+			return "", fmt.Errorf("resource not found: %s/%s", pool.Primary.ID, member.Primary.ID)
+		}
+		return fmt.Sprintf("%s/%s", pool.Primary.ID, member.Primary.ID), nil
+	}
 }
 
 func testAccLBV2MemberConfig_basic(rName string) string {

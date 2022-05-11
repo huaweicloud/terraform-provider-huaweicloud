@@ -23,6 +23,9 @@ func ResourceCertificateV2() *schema.Resource {
 		ReadContext:   resourceCertificateV2Read,
 		UpdateContext: resourceCertificateV2Update,
 		DeleteContext: resourceCertificateV2Delete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
