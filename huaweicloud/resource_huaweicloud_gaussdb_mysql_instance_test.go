@@ -30,6 +30,8 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 					testAccCheckGaussDBInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "audit_log_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
 			},
 			{
@@ -38,6 +40,8 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 					testAccCheckGaussDBInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "audit_log_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 				),
 			},
 		},
@@ -48,7 +52,7 @@ func testAccCheckGaussDBInstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	client, err := config.GaussdbV3Client(HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
+		return fmtp.Errorf("error creating HuaweiCloud GaussDB client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -79,7 +83,7 @@ func testAccCheckGaussDBInstanceExists(n string, instance *instances.TaurusDBIns
 		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.GaussdbV3Client(HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
+			return fmtp.Errorf("error creating HuaweiCloud GaussDB client: %s", err)
 		}
 
 		found, err := instances.Get(client, rs.Primary.ID).Extract()
@@ -87,7 +91,7 @@ func testAccCheckGaussDBInstanceExists(n string, instance *instances.TaurusDBIns
 			return err
 		}
 		if found.Id != rs.Primary.ID {
-			return fmtp.Errorf("Instance <%s> not found.", rs.Primary.ID)
+			return fmtp.Errorf("instance <%s> not found.", rs.Primary.ID)
 		}
 		instance = found
 
@@ -104,15 +108,18 @@ data "huaweicloud_networking_secgroup" "test" {
 }
 
 resource "huaweicloud_gaussdb_mysql_instance" "test" {
-  name      = "%s"
-  password  = "Test@123"
-  flavor    = "gaussdb.mysql.4xlarge.x86.4"
-  vpc_id    = huaweicloud_vpc.test.id
-  subnet_id = huaweicloud_vpc_subnet.test.id
-
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
-
+  name                  = "%s"
+  password              = "Test@123"
+  flavor                = "gaussdb.mysql.4xlarge.x86.4"
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = data.huaweicloud_networking_secgroup.test.id
   enterprise_project_id = "0"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 `, testAccVpcConfig_Base(rName), rName)
 }
@@ -126,17 +133,19 @@ data "huaweicloud_networking_secgroup" "test" {
 }
 
 resource "huaweicloud_gaussdb_mysql_instance" "test" {
-  name      = "%s"
-  password  = "Test@123"
-  flavor    = "gaussdb.mysql.4xlarge.x86.4"
-  vpc_id    = huaweicloud_vpc.test.id
-  subnet_id = huaweicloud_vpc_subnet.test.id
-
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
-
+  name                  = "%s"
+  password              = "Test@123"
+  flavor                = "gaussdb.mysql.4xlarge.x86.4"
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = data.huaweicloud_networking_secgroup.test.id
   enterprise_project_id = "0"
+  audit_log_enabled     = true
 
-  audit_log_enabled = true
+  tags = {
+    foo_update = "bar"
+    key        = "value_update"
+  }
 }
 `, testAccVpcConfig_Base(rName), rName)
 }

@@ -157,14 +157,15 @@ type CreateOptsBuilder interface {
 type CreateOpts struct {
 	Name             string         `json:"name" required:"true"`
 	CIDR             string         `json:"cidr" required:"true"`
-	DnsList          []string       `json:"dnsList,omitempty"`
+	VPC_ID           string         `json:"vpc_id" required:"true"`
 	GatewayIP        string         `json:"gateway_ip" required:"true"`
 	EnableIPv6       *bool          `json:"ipv6_enable,omitempty"`
 	EnableDHCP       bool           `json:"dhcp_enable" no_default:"y"`
 	PRIMARY_DNS      string         `json:"primary_dns,omitempty"`
 	SECONDARY_DNS    string         `json:"secondary_dns,omitempty"`
+	DnsList          []string       `json:"dnsList,omitempty"`
 	AvailabilityZone string         `json:"availability_zone,omitempty"`
-	VPC_ID           string         `json:"vpc_id" required:"true"`
+	Description      string         `json:"description,omitempty"`
 	ExtraDhcpOpts    []ExtraDhcpOpt `json:"extra_dhcp_opts,omitempty"`
 }
 
@@ -209,6 +210,7 @@ type UpdateOptsBuilder interface {
 // UpdateOpts contains the values used when updating a subnets.
 type UpdateOpts struct {
 	Name          string         `json:"name,omitempty"`
+	Description   *string        `json:"description,omitempty"`
 	EnableIPv6    *bool          `json:"ipv6_enable,omitempty"`
 	EnableDHCP    bool           `json:"dhcp_enable"`
 	PRIMARY_DNS   string         `json:"primary_dns,omitempty"`

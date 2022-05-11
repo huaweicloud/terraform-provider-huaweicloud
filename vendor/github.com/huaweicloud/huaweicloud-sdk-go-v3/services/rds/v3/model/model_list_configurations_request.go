@@ -11,8 +11,8 @@ import (
 
 // Request Object
 type ListConfigurationsRequest struct {
-	// 语言
 
+	// 语言
 	XLanguage *ListConfigurationsRequestXLanguage `json:"X-Language,omitempty"`
 }
 

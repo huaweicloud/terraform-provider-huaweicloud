@@ -7,20 +7,20 @@ import (
 )
 
 type ListGroupsForEnterpriseProjectResDetail struct {
+
 	// 用户组创建时间。
-
 	CreateTime int64 `json:"createTime"`
+
 	// 用户组描述。
-
 	Description string `json:"description"`
+
 	// 租户Id。
-
 	DomainId string `json:"domainId"`
+
 	// 用户组Id。
-
 	Id string `json:"id"`
-	// 用户组名称。
 
+	// 用户组名称。
 	Name string `json:"name"`
 }
 

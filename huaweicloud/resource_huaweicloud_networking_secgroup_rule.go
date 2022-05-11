@@ -17,6 +17,7 @@ import (
 	v3Rules "github.com/chnsz/golangsdk/openstack/networking/v3/security/rules"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -103,10 +104,11 @@ func ResourceNetworkingSecGroupRule() *schema.Resource {
 				Computed: true,
 			},
 			"remote_ip_prefix": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Computed:     true,
+				ValidateFunc: utils.ValidateCIDR,
 				StateFunc: func(v interface{}) string {
 					return strings.ToLower(v.(string))
 				},

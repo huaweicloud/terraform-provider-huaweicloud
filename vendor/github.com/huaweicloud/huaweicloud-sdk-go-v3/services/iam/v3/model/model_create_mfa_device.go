@@ -8,11 +8,11 @@ import (
 
 // {  \"virtual_mfa_device\": {   \"name\": \"{divice_name}\",   \"user_id\": \"{user_id}\"  } }
 type CreateMfaDevice struct {
+
 	// 设备名称。
-
 	Name string `json:"name"`
-	// 创建MFA设备的IAM用户ID。
 
+	// 创建MFA设备的IAM用户ID。
 	UserId string `json:"user_id"`
 }
 

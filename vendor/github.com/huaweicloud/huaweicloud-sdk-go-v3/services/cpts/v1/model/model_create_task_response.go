@@ -8,14 +8,14 @@ import (
 
 // Response Object
 type CreateTaskResponse struct {
+
 	// code
-
 	Code *string `json:"code,omitempty"`
+
 	// message
-
 	Message *string `json:"message,omitempty"`
-	// task_id
 
+	// task_id
 	TaskId         *int32 `json:"task_id,omitempty"`
 	HttpStatusCode int    `json:"-"`
 }

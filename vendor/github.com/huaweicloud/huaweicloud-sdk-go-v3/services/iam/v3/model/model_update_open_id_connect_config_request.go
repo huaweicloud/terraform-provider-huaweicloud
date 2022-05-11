@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type UpdateOpenIdConnectConfigRequest struct {
-	// 身份提供商ID
 
+	// 身份提供商ID
 	IdpId string `json:"idp_id"`
 
 	Body *UpdateOpenIdConnectConfigRequestBody `json:"body,omitempty"`

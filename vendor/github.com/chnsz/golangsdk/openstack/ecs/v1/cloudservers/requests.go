@@ -126,6 +126,8 @@ type RootVolume struct {
 	Size int `json:"size,omitempty"`
 
 	ExtendParam *VolumeExtendParam `json:"extendparam,omitempty"`
+
+	Metadata *VolumeMetadata `json:"metadata,omitempty"`
 }
 
 type DataVolume struct {
@@ -138,10 +140,17 @@ type DataVolume struct {
 	PassThrough *bool `json:"hw:passthrough,omitempty"`
 
 	Extendparam *VolumeExtendParam `json:"extendparam,omitempty"`
+
+	Metadata *VolumeMetadata `json:"metadata,omitempty"`
 }
 
 type VolumeExtendParam struct {
 	SnapshotId string `json:"snapshotId,omitempty"`
+}
+
+type VolumeMetadata struct {
+	SystemEncrypted string `json:"__system__encrypted,omitempty"`
+	SystemCmkid     string `json:"__system__cmkid,omitempty"`
 }
 
 type ServerExtendParam struct {
@@ -165,6 +174,7 @@ type ServerExtendParam struct {
 type MetaData struct {
 	OpSvcUserId string `json:"op_svc_userid,omitempty"`
 	AgencyName  string `json:"agency_name,omitempty"`
+	AgentList   string `json:"__support_agent_list,omitempty"`
 }
 
 type SecurityGroup struct {

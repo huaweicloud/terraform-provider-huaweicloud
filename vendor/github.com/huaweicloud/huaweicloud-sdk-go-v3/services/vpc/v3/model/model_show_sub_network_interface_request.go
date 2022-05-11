@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type ShowSubNetworkInterfaceRequest struct {
-	// 辅助弹性网卡的唯一标识
 
+	// 辅助弹性网卡的唯一标识
 	SubNetworkInterfaceId string `json:"sub_network_interface_id"`
 }
 

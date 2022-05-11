@@ -7,8 +7,8 @@ import (
 )
 
 type InstanceRestartRequsetBody struct {
-	// 在线调试时必填。
 
+	// 在线调试时必填。
 	Restart *interface{} `json:"restart,omitempty"`
 }
 

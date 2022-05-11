@@ -9,14 +9,17 @@ type Subnet struct {
 	// ID is the unique identifier for the subnet.
 	ID string `json:"id"`
 
-	// Name is the human readable name for the subnet. It does not have to be
-	// unique.
+	// Name is the human readable name for the subnet. It does not have to be unique.
 	Name string `json:"name"`
 
-	//Specifies the network segment on which the subnet resides.
+	// Description is supplementary information about the subnet.
+	// The value is a string of no more than 255 characters and cannot contain angle brackets (< or >).
+	Description string `json:"description"`
+
+	// Specifies the network segment on which the subnet resides.
 	CIDR string `json:"cidr"`
 
-	//Specifies the IP address list of DNS servers on the subnet.
+	// Specifies the IP address list of DNS servers on the subnet.
 	DnsList []string `json:"dnsList"`
 
 	// Status indicates whether or not a subnet is currently operational.

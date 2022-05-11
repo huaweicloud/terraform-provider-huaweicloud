@@ -8,14 +8,14 @@ import (
 
 // Response Object
 type ListVariablesResponse struct {
+
 	// code
-
 	Code *string `json:"code,omitempty"`
+
 	// message
-
 	Message *string `json:"message,omitempty"`
-	// variable_list
 
+	// variable_list
 	VariableList   *[]VariableDetail `json:"variable_list,omitempty"`
 	HttpStatusCode int               `json:"-"`
 }

@@ -7,11 +7,11 @@ import (
 )
 
 type RestoreTablesRequestBody struct {
+
 	// 恢复时间戳
-
 	RestoreTime int64 `json:"restoreTime"`
-	// 表信息
 
+	// 表信息
 	RestoreTables []RestoreDatabasesInfo `json:"restoreTables"`
 }
 

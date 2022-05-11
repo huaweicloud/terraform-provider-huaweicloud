@@ -56,6 +56,15 @@ func TestAccCcePersistentVolumeClaimsV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "storage_class_name", "csi-disk"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccCCEPVCImportStateIdFunc(),
+				ImportStateVerifyIgnore: []string{
+					"annotations",
+				},
+			},
 		},
 	})
 }
@@ -124,6 +133,23 @@ func TestAccCcePersistentVolumeClaimsV1_sfs(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccCCEPVCImportStateIdFunc() resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		cluster, ok := s.RootModule().Resources["huaweicloud_cce_cluster.test"]
+		if !ok {
+			return "", fmt.Errorf("Cluster not found: %s", cluster)
+		}
+		pvc, ok := s.RootModule().Resources["huaweicloud_cce_pvc.test"]
+		if !ok {
+			return "", fmt.Errorf("PVC not found: %s", pvc)
+		}
+		if cluster.Primary.ID == "" || pvc.Primary.ID == "" {
+			return "", fmt.Errorf("resource not found: %s/%s", cluster.Primary.ID, pvc.Primary.ID)
+		}
+		return fmt.Sprintf("%s/default/%s", cluster.Primary.ID, pvc.Primary.ID), nil
+	}
 }
 
 func testAccCceCluster_config(rName string) string {

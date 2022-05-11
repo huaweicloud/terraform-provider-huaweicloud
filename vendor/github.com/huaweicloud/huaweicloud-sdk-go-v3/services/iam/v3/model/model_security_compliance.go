@@ -8,11 +8,11 @@ import (
 
 //
 type SecurityCompliance struct {
+
 	// 密码强度策略的正则表达式。
-
 	PasswordRegex string `json:"password_regex"`
-	// 密码强度策略的描述。
 
+	// 密码强度策略的描述。
 	PasswordRegexDescription string `json:"password_regex_description"`
 }
 

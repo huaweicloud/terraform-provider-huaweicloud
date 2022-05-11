@@ -8,11 +8,11 @@ import (
 
 // Response Object
 type ListSqlserverDatabasesResponse struct {
+
 	// 数据库信息。
-
 	Databases *[]SqlserverDatabaseForDetail `json:"databases,omitempty"`
-	// 总数。
 
+	// 总数。
 	TotalCount     *int32 `json:"total_count,omitempty"`
 	HttpStatusCode int    `json:"-"`
 }

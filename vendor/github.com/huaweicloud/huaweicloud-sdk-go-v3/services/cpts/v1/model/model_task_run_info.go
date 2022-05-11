@@ -8,11 +8,11 @@ import (
 
 // TaskRunInfo
 type TaskRunInfo struct {
+
 	// id
-
 	Id *int32 `json:"id,omitempty"`
-	// run_type
 
+	// run_type
 	RunType *int32 `json:"run_type,omitempty"`
 }
 

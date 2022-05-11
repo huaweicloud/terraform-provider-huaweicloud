@@ -1,0 +1,47 @@
+name: acc-test
+on: 
+  pull_request_target:
+    types: [labeled]
+
+jobs:
+  pr-acc-test:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'safe to test') }}
+    runs-on: ubuntu-latest
+    env:
+      HW_ACCESS_KEY: ${{ secrets.HW_ACCESS_KEY }}
+      HW_SECRET_KEY: ${{ secrets.HW_SECRET_KEY }}
+      HW_REGION_NAME: "cn-north-4"
+      HW_ENTERPRISE_PROJECT_ID: "0"
+      HW_ENTERPRISE_PROJECT_ID_TEST: "0"
+    steps:
+      - run:  echo "${{github.event.pull_request.head.repo.full_name}}"
+      - uses: actions/checkout@v3
+        with:
+          ref: "refs/pull/${{ github.event.number }}/merge"
+          fetch-depth: 0
+      - run: /usr/bin/git diff "origin/${{github.base_ref}}" --name-only  
+
+      - uses: actions/setup-go@v3
+        with:
+          go-version: ">=1.16"
+
+       ## have checkout merge commit,so just diff base_ref with HEAD
+      - run: scripts/acc-test.sh "origin/${{github.base_ref}}" > pr-acc-test.log
+
+      - id: get-comment-body
+        run: |
+          body="$(cat pr-acc-test.log)"
+          body="${body//'%'/'%25'}"
+          body="${body//$'\n'/'%0A'}"
+          body="${body//$'\r'/'%0D'}" 
+          commentLength="${#body}"
+          echo "::set-output name=body::$body"
+          echo "::set-output name=commentLength::$commentLength"
+
+      - name: Create comment
+        uses: peter-evans/create-or-update-comment@v2
+        if: ${{ steps.get-comment-body.outputs.commentLength > 0 }}
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: ${{ steps.get-comment-body.outputs.body }}
+          reactions: "rocket"

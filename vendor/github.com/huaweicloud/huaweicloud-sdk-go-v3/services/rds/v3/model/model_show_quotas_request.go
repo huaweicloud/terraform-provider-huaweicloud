@@ -11,8 +11,8 @@ import (
 
 // Request Object
 type ShowQuotasRequest struct {
-	// 语言
 
+	// 语言
 	XLanguage *ShowQuotasRequestXLanguage `json:"X-Language,omitempty"`
 }
 

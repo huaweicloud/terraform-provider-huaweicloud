@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type RemoveVpcExtendCidrRequest struct {
-	// VPC资源ID
 
+	// VPC资源ID
 	VpcId string `json:"vpc_id"`
 
 	Body *RemoveVpcExtendCidrRequestBody `json:"body,omitempty"`

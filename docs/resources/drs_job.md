@@ -214,7 +214,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - Status.
 
-* `publid_ip` - Public IP.
+* `public_ip` - Public IP.
+
+* `private_ip` - Private IP.
 
 ## Timeouts
 

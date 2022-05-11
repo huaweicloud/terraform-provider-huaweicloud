@@ -11,11 +11,11 @@ import (
 
 // Request Object
 type ShowInformationAboutDatabaseProxyRequest struct {
+
 	// 语言
-
 	XLanguage *ShowInformationAboutDatabaseProxyRequestXLanguage `json:"X-Language,omitempty"`
-	// 实例ID。
 
+	// 实例ID。
 	InstanceId string `json:"instance_id"`
 }
 

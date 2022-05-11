@@ -14,7 +14,7 @@ import (
 )
 
 func getProjectResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcCptsV3Client(acceptance.HW_REGION_NAME)
+	client, err := conf.HcCptsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating CPTS v1 client: %s", err)
 	}

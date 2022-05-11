@@ -11,8 +11,8 @@ import (
 
 //
 type AgencyTokenIdentity struct {
-	// token的获取方式，该字段内容为[\"assume_role\"]。
 
+	// token的获取方式，该字段内容为[\"assume_role\"]。
 	Methods []AgencyTokenIdentityMethods `json:"methods"`
 
 	AssumeRole *AgencyTokenAssumerole `json:"assume_role"`

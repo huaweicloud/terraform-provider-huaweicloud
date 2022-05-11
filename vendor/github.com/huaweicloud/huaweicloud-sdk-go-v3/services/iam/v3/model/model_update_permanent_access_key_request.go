@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type UpdatePermanentAccessKeyRequest struct {
-	// 待修改的指定AK。
 
+	// 待修改的指定AK。
 	AccessKey string `json:"access_key"`
 
 	Body *UpdatePermanentAccessKeyRequestBody `json:"body,omitempty"`

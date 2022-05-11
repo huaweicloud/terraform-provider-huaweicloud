@@ -8,11 +8,11 @@ import (
 
 // Response Object
 type DeleteTempResponse struct {
+
 	// code
-
 	Code *string `json:"code,omitempty"`
-	// message
 
+	// message
 	Message        *string `json:"message,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }

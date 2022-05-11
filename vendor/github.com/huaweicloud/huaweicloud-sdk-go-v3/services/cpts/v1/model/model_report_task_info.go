@@ -8,8 +8,8 @@ import (
 
 // 报告任务信息
 type ReportTaskInfo struct {
-	// 分钟*并发数
 
+	// 分钟*并发数
 	Vum *float64 `json:"vum,omitempty"`
 }
 

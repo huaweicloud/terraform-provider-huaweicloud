@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type ShowVpcRequest struct {
-	// VPC资源ID
 
+	// VPC资源ID
 	VpcId string `json:"vpc_id"`
 }
 

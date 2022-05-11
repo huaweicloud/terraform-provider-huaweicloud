@@ -7,8 +7,8 @@ import (
 )
 
 type ApplyConfigurationRequest struct {
-	// 实例ID列表。
 
+	// 实例ID列表。
 	InstanceIds []string `json:"instance_ids"`
 }
 

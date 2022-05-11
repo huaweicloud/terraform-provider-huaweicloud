@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type ShowSecurityGroupRequest struct {
-	// 安全组资源ID
 
+	// 安全组资源ID
 	SecurityGroupId string `json:"security_group_id"`
 }
 

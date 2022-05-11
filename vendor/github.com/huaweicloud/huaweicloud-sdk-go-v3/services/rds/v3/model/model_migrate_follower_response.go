@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type MigrateFollowerResponse struct {
-	// 任务ID
 
+	// 任务ID
 	WorkflowId     *string `json:"workflowId,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }

@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type DisassociateKeypairResponse struct {
-	// 任务下发成功返回的ID
 
+	// 任务下发成功返回的ID
 	TaskId         *string `json:"task_id,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }

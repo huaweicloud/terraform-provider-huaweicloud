@@ -11,11 +11,11 @@ import (
 
 // Request Object
 type ChangeTheDelayThresholdRequest struct {
+
 	// 语言
-
 	XLanguage *ChangeTheDelayThresholdRequestXLanguage `json:"X-Language,omitempty"`
-	// 实例ID。
 
+	// 实例ID。
 	InstanceId string `json:"instance_id"`
 
 	Body *ChangingTheDelayThresholdRequestBody `json:"body,omitempty"`

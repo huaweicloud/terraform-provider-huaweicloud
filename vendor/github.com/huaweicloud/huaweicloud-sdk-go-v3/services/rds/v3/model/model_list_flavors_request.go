@@ -11,17 +11,17 @@ import (
 
 // Request Object
 type ListFlavorsRequest struct {
+
 	// 语言
-
 	XLanguage *string `json:"X-Language,omitempty"`
+
 	// 数据库引擎。支持的引擎如下，不区分大小写： MySQL PostgreSQL SQLServer
-
 	DatabaseName ListFlavorsRequestDatabaseName `json:"database_name"`
+
 	// 数据库版本号，获取方法请参见5.1查询数据库引擎的版本。（可输入小版本号）
-
 	VersionName *string `json:"version_name,omitempty"`
-	// 规格编码
 
+	// 规格编码
 	SpecCode *string `json:"spec_code,omitempty"`
 }
 

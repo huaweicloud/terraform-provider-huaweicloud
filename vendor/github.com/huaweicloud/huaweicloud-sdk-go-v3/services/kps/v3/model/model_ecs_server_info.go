@@ -8,13 +8,13 @@ import (
 
 // 需要绑定密钥对的虚拟机信息。
 type EcsServerInfo struct {
-	// 需要绑定(替换或重置)SSH密钥对的虚拟机id
 
+	// 需要绑定(替换或重置)SSH密钥对的虚拟机id
 	Id string `json:"id"`
 
 	Auth *Auth `json:"auth,omitempty"`
-	// - true：禁用虚拟机的ssh登陆。 - false：不禁用虚拟机的ssh登陆。
 
+	// - true：禁用虚拟机的ssh登陆。 - false：不禁用虚拟机的ssh登陆。
 	DisablePassword *bool `json:"disable_password,omitempty"`
 }
 

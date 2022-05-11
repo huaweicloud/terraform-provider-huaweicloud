@@ -137,6 +137,10 @@ func DataSourceVpcSubnets() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"description": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"tags": {
 							Type:     schema.TypeMap,
 							Computed: true,
@@ -188,6 +192,7 @@ func dataSourceVpcSubnetsRead(_ context.Context, d *schema.ResourceData, meta in
 		subnet := map[string]interface{}{
 			"id":                item.ID,
 			"name":              item.Name,
+			"description":       item.Description,
 			"cidr":              item.CIDR,
 			"status":            item.Status,
 			"gateway_ip":        item.GatewayIP,

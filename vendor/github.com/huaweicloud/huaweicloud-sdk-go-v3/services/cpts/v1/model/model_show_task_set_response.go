@@ -8,17 +8,17 @@ import (
 
 // Response Object
 type ShowTaskSetResponse struct {
+
 	// code
-
 	Code *string `json:"code,omitempty"`
+
 	// extend
-
 	Extend *[]string `json:"extend,omitempty"`
+
 	// message
-
 	Message *string `json:"message,omitempty"`
-	// 工程集详细信息
 
+	// 工程集详细信息
 	Tasks          *[]Task `json:"tasks,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }

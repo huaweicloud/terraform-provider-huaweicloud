@@ -8,7 +8,7 @@ import (
 
 const DefaultEndpointReg = "^[a-z][a-z0-9-]+(\\.[a-z]{2,}-[a-z]+-\\d{1,2})?\\.(my)?(huaweicloud|myhwclouds).(com|cn)"
 
-type DerivedCredential interface {
+type IDerivedCredential interface {
 	ProcessDerivedAuthParams(derivedAuthServiceName, regionId string) ICredential
 	IsDerivedAuth(httpRequest *request.DefaultHttpRequest) bool
 	ICredential

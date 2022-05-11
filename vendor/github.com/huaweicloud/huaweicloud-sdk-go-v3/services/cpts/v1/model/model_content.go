@@ -7,8 +7,8 @@ import (
 )
 
 type Content struct {
-	// content_type
 
+	// content_type
 	ContentType *int32 `json:"content_type,omitempty"`
 
 	Content *ContentInfo `json:"content,omitempty"`

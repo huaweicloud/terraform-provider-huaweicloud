@@ -7,11 +7,11 @@ import (
 )
 
 type ReportdetailItemInfo struct {
+
 	// 自定义事务数据
-
 	CustomTransactions *[]string `json:"customTransactions,omitempty"`
-	// aw数据
 
+	// aw数据
 	DetailDatas *[]DetailDataInfo `json:"detailDatas,omitempty"`
 
 	Performance *PerformanceInfo `json:"performance,omitempty"`

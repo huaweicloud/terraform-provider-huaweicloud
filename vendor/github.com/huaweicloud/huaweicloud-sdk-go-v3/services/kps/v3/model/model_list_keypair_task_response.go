@@ -11,14 +11,14 @@ import (
 
 // Response Object
 type ListKeypairTaskResponse struct {
+
 	// 租户虚拟机ID
-
 	ServerId *string `json:"server_id,omitempty"`
+
 	// 任务下发成功返回的ID
-
 	TaskId *string `json:"task_id,omitempty"`
-	// 密钥对正在处理的状态。 - READY_RESET 准备重置 - RUNNING_RESET 正在重置 - FAILED_RESET 重置失败 - SUCCESS_RESET 重置成功 - READY_REPLACE 准备替换 - RUNNING_REPLACE 正在替换 - FAILED_RESET 替换失败 - SUCCESS_RESET 替换成功 - READY_UNBIND 准备解绑 - RUNNING_UNBIND 正在解绑 - FAILED_UNBIND 解绑失败 - SUCCESS_UNBIND 解绑成功
 
+	// 密钥对正在处理的状态。 - READY_RESET 准备重置 - RUNNING_RESET 正在重置 - FAILED_RESET 重置失败 - SUCCESS_RESET 重置成功 - READY_REPLACE 准备替换 - RUNNING_REPLACE 正在替换 - FAILED_RESET 替换失败 - SUCCESS_RESET 替换成功 - READY_UNBIND 准备解绑 - RUNNING_UNBIND 正在解绑 - FAILED_UNBIND 解绑失败 - SUCCESS_UNBIND 解绑成功
 	TaskStatus     *ListKeypairTaskResponseTaskStatus `json:"task_status,omitempty"`
 	HttpStatusCode int                                `json:"-"`
 }

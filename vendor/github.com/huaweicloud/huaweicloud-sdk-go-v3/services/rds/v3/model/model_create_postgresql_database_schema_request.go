@@ -8,11 +8,11 @@ import (
 
 // Request Object
 type CreatePostgresqlDatabaseSchemaRequest struct {
+
 	// 语言
-
 	XLanguage *string `json:"X-Language,omitempty"`
-	// 实例ID。
 
+	// 实例ID。
 	InstanceId string `json:"instance_id"`
 
 	Body *PostgresqlDatabaseSchemaReq `json:"body,omitempty"`

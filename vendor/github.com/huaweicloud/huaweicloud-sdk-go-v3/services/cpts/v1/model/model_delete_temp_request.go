@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type DeleteTempRequest struct {
-	// 事务id
 
+	// 事务id
 	TemplateId int32 `json:"template_id"`
 }
 

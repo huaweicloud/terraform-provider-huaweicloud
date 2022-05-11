@@ -97,6 +97,10 @@ func ResourceVpcSubnetV1() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: utils.ValidateIP,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"ipv6_enable": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -169,6 +173,7 @@ func resourceVpcSubnetCreate(ctx context.Context, d *schema.ResourceData, meta i
 		CIDR:             d.Get("cidr").(string),
 		AvailabilityZone: d.Get("availability_zone").(string),
 		GatewayIP:        d.Get("gateway_ip").(string),
+		Description:      d.Get("description").(string),
 		EnableIPv6:       &enable,
 		EnableDHCP:       d.Get("dhcp_enable").(bool),
 		VPC_ID:           d.Get("vpc_id").(string),
@@ -231,14 +236,17 @@ func GetVpcSubnetById(config *config.Config, region, subentId string) (*subnets.
 
 func resourceVpcSubnetRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
+	region := config.GetRegion(d)
 
-	n, err := GetVpcSubnetById(config, config.GetRegion(d), d.Id())
+	n, err := GetVpcSubnetById(config, region, d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "Error obtain Subnet information")
 	}
 
 	mErr := multierror.Append(nil,
+		d.Set("region", region),
 		d.Set("name", n.Name),
+		d.Set("description", n.Description),
 		d.Set("cidr", n.CIDR),
 		d.Set("dns_list", n.DnsList),
 		d.Set("gateway_ip", n.GatewayIP),
@@ -252,11 +260,10 @@ func resourceVpcSubnetRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("ipv6_subnet_id", n.IPv6SubnetId),
 		d.Set("ipv6_cidr", n.IPv6CIDR),
 		d.Set("ipv6_gateway", n.IPv6Gateway),
-		d.Set("region", config.GetRegion(d)),
 	)
 
 	// save VpcSubnet tags
-	if vpcSubnetV2Client, err := config.NetworkingV2Client(config.GetRegion(d)); err == nil {
+	if vpcSubnetV2Client, err := config.NetworkingV2Client(region); err == nil {
 		if resourceTags, err := tags.Get(vpcSubnetV2Client, "subnets", d.Id()).Extract(); err == nil {
 			tagmap := utils.TagsToMap(resourceTags.Tags)
 			mErr = multierror.Append(mErr, d.Set("tags", tagmap))
@@ -281,7 +288,7 @@ func resourceVpcSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		return fmtp.DiagErrorf("Error creating Huaweicloud networking client: %s", err)
 	}
 
-	if d.HasChanges("name", "dhcp_enable", "primary_dns", "secondary_dns", "dns_list", "ipv6_enable") {
+	if d.HasChanges("name", "description", "dhcp_enable", "primary_dns", "secondary_dns", "dns_list", "ipv6_enable") {
 		var updateOpts subnets.UpdateOpts
 
 		// name is mandatory while updating subnet
@@ -297,6 +304,10 @@ func resourceVpcSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta i
 				return fmtp.DiagErrorf("Parameter cannot be disabled after IPv6 enable")
 			}
 		}
+		if d.HasChange("description") {
+			description := d.Get("description").(string)
+			updateOpts.Description = &description
+		}
 		if d.HasChange("primary_dns") {
 			updateOpts.PRIMARY_DNS = d.Get("primary_dns").(string)
 		}
@@ -308,6 +319,7 @@ func resourceVpcSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			updateOpts.DnsList = &dnsList
 		}
 
+		logp.Printf("[DEBUG] Update VPC subnet options: %#v", updateOpts)
 		vpcID := d.Get("vpc_id").(string)
 		_, err = subnets.Update(subnetClient, vpcID, d.Id(), updateOpts).Extract()
 		if err != nil {

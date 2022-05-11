@@ -7,23 +7,23 @@ import (
 )
 
 type Contents struct {
+
 	// content_id
-
 	ContentId *int32 `json:"content_id,omitempty"`
+
 	// content
-
 	Content *[]Content `json:"content,omitempty"`
+
 	// index
-
 	Index *int32 `json:"index,omitempty"`
+
 	// selected_temp_name
-
 	SelectedTempName *string `json:"selected_temp_name,omitempty"`
+
 	// data
-
 	Data *string `json:"data,omitempty"`
-	// data_type
 
+	// data_type
 	DataType *int32 `json:"data_type,omitempty"`
 }
 

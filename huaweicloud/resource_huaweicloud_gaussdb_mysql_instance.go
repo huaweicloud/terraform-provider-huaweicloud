@@ -8,15 +8,16 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/auditlog"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/backups"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/configurations"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	gaussdb "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/gaussdb/v3"
-	gaussdb_model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/gaussdb/v3/model"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -201,6 +202,9 @@ func resourceGaussDBInstance() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			// only supported in some regions, so it's not shown in the doc
+			"tags": tagsSchema(),
+
 			"proxy_address": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -337,12 +341,7 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*config.Config)
 	client, err := config.GaussdbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
-	}
-
-	newClient, err := config.HcGaussdbV3Client(GetRegion(d, config))
-	if err != nil {
-		return fmtp.Errorf("Error creating GaussDB v3 SDK client: %s ", err)
+		return fmtp.Errorf("error creating HuaweiCloud GaussDB client: %s ", err)
 	}
 
 	// If force_import set, try to import it instead of creating
@@ -469,7 +468,7 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 	instance, err := instances.Create(client, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating GaussDB instance : %s", err)
+		return fmtp.Errorf("error creating GaussDB instance : %s", err)
 	}
 
 	id := instance.Instance.Id
@@ -488,7 +487,7 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	_, err = stateConf.WaitForState()
 	if err != nil {
 		return fmtp.Errorf(
-			"Error waiting for instance (%s) to become ready: %s",
+			"error waiting for instance (%s) to become ready: %s",
 			id, err)
 	}
 
@@ -509,13 +508,13 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	_, err = stateConf.WaitForState()
 	if err != nil {
 		return fmtp.Errorf(
-			"Error waiting for instance (%s) to become ready: %s",
+			"error waiting for instance (%s) to become ready: %s",
 			id, err)
 	}
 
 	//audit-log switch
 	if v, ok := d.GetOk("audit_log_enabled"); ok {
-		err = switchAuditLog(newClient, id, v.(bool))
+		err = switchAuditLog(client, id, v.(bool))
 		if err != nil {
 			return err
 		}
@@ -534,7 +533,7 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 		err = backups.Update(client, id, updateOpts).ExtractErr()
 		if err != nil {
-			return fmtp.Errorf("Error updating backup_strategy: %s", err)
+			return fmtp.Errorf("error updating backup_strategy: %s", err)
 		}
 	}
 
@@ -547,11 +546,20 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 		n, err := instances.EnableProxy(client, id, proxyOpts).ExtractJobResponse()
 		if err != nil {
-			return fmtp.Errorf("Error enabling proxy: %s", err)
+			return fmtp.Errorf("error enabling proxy: %s", err)
 		}
 
 		if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
 			return err
+		}
+	}
+
+	// set tags
+	tagRaw := d.Get("tags").(map[string]interface{})
+	if len(tagRaw) > 0 {
+		taglist := utils.ExpandResourceTags(tagRaw)
+		if tagErr := tags.Create(client, "instances", d.Id(), taglist).ExtractErr(); tagErr != nil {
+			return fmtp.Errorf("error setting tags of Gaussdb mysql instance %s: %s", d.Id(), tagErr)
 		}
 	}
 
@@ -563,11 +571,7 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	region := GetRegion(d, config)
 	client, err := config.GaussdbV3Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
-	}
-	HcGaussdbV3Client, err := config.HcGaussdbV3Client(GetRegion(d, config))
-	if err != nil {
-		return fmtp.Errorf("Error creating GaussDB v3 SDK client: %s ", err)
+		return fmtp.Errorf("error creating HuaweiCloud GaussDB client: %s", err)
 	}
 
 	instanceID := d.Id()
@@ -708,18 +712,25 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// set audit log status
-	opts := gaussdb_model.ShowAuditLogRequest{
-		InstanceId: instanceID,
-	}
-	resp, err := HcGaussdbV3Client.ShowAuditLog(&opts)
+	resp, err := auditlog.Get(client, instanceID)
 	if err != nil {
 		logp.Printf("[DEBUG] query Instance %s audit log status failed: %s", instanceID, err)
 	} else {
 		var status bool
-		if *resp.SwitchStatus == "ON" {
+		if resp.SwitchStatus == "ON" {
 			status = true
 		}
 		d.Set("audit_log_enabled", status)
+	}
+
+	// save tags
+	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
+		tagmap := utils.TagsToMap(resourceTags.Tags)
+		if err := d.Set("tags", tagmap); err != nil {
+			return fmtp.Errorf("error saving tags to state for Gaussdb mysql instance (%s): %s", d.Id(), err)
+		}
+	} else {
+		logp.Printf("[WARN] error fetching tags of Gaussdb mysql instance (%s): %s", d.Id(), err)
 	}
 
 	return nil
@@ -729,15 +740,11 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*config.Config)
 	client, err := config.GaussdbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
+		return fmtp.Errorf("error creating HuaweiCloud GaussDB client: %s ", err)
 	}
 	bssClient, err := config.BssV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud bss V2 client: %s", err)
-	}
-	HcGaussdbV3Client, err := config.HcGaussdbV3Client(GetRegion(d, config))
-	if err != nil {
-		return fmtp.Errorf("Error creating GaussDB v3 SDK client: %s ", err)
+		return fmtp.Errorf("error creating HuaweiCloud bss V2 client: %s", err)
 	}
 
 	instanceId := d.Id()
@@ -751,7 +758,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 		n, err := instances.UpdateName(client, instanceId, updateNameOpts).ExtractJobResponse()
 		if err != nil {
-			return fmtp.Errorf("Error updating name for instance %s: %s ", instanceId, err)
+			return fmtp.Errorf("error updating name for instance %s: %s ", instanceId, err)
 		}
 
 		if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.JobID); err != nil {
@@ -768,7 +775,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 		_, err := instances.UpdatePass(client, instanceId, updatePassOpts).ExtractJobResponse()
 		if err != nil {
-			return fmtp.Errorf("Error updating password for instance %s: %s ", instanceId, err)
+			return fmtp.Errorf("error updating password for instance %s: %s ", instanceId, err)
 		}
 		logp.Printf("[DEBUG] Updated Password for instance %s", instanceId)
 	}
@@ -787,7 +794,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 		n, err := instances.Resize(client, instanceId, resizeOpts).ExtractJobResponse()
 		if err != nil {
-			return fmtp.Errorf("Error updating flavor for instance %s: %s ", instanceId, err)
+			return fmtp.Errorf("error updating flavor for instance %s: %s ", instanceId, err)
 		}
 
 		// wait for job success
@@ -814,7 +821,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				}
 			}
 			if currFlavor != newFlavor {
-				return fmtp.Errorf("Error updating flavor for instance %s: order failed", instanceId)
+				return fmtp.Errorf("error updating flavor for instance %s: order failed", instanceId)
 			}
 		}
 		logp.Printf("[DEBUG] Updated Flavor for instance %s", instanceId)
@@ -838,7 +845,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 			n, err := instances.CreateReplica(client, instanceId, createReplicaOpts).ExtractJobResponse()
 			if err != nil {
-				return fmtp.Errorf("Error creating read replicas for instance %s: %s ", instanceId, err)
+				return fmtp.Errorf("error creating read replicas for instance %s: %s ", instanceId, err)
 			}
 
 			// wait for job success
@@ -870,7 +877,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 					}
 				}
 				if newnum.(int) != slave_count {
-					return fmtp.Errorf("Error updating read_replicas for instance %s: order failed", instanceId)
+					return fmtp.Errorf("error updating read_replicas for instance %s: order failed", instanceId)
 				}
 			}
 		}
@@ -887,12 +894,12 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			}
 			logp.Printf("[DEBUG] Slave Nodes: %+v", slave_nodes)
 			if len(slave_nodes) <= shrink_size {
-				return fmtp.Errorf("Error deleting read replicas for instance %s: Shrink Size is bigger than active slave nodes", instanceId)
+				return fmtp.Errorf("error deleting read replicas for instance %s: Shrink Size is bigger than active slave nodes", instanceId)
 			}
 			for i := 0; i < shrink_size; i++ {
 				n, err := instances.DeleteReplica(client, instanceId, slave_nodes[i]).ExtractJobResponse()
 				if err != nil {
-					return fmtp.Errorf("Error creating read replica %s for instance %s: %s ", slave_nodes[i], instanceId, err)
+					return fmtp.Errorf("error creating read replica %s for instance %s: %s ", slave_nodes[i], instanceId, err)
 				}
 
 				if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.JobID); err != nil {
@@ -912,7 +919,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 		n, err := instances.ExtendVolume(client, d.Id(), extendOpts).ExtractJobResponse()
 		if err != nil {
-			return fmtp.Errorf("Error extending volume: %s", err)
+			return fmtp.Errorf("error extending volume: %s", err)
 		}
 
 		// wait for order success
@@ -933,7 +940,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				}
 			}
 			if volume_size != d.Get("volume_size").(int) {
-				return fmtp.Errorf("Error updating volume for instance %s: order failed", instanceId)
+				return fmtp.Errorf("error updating volume for instance %s: order failed", instanceId)
 			}
 		}
 	}
@@ -951,7 +958,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 		err = backups.Update(client, d.Id(), updateOpts).ExtractErr()
 		if err != nil {
-			return fmtp.Errorf("Error updating backup_strategy: %s", err)
+			return fmtp.Errorf("error updating backup_strategy: %s", err)
 		}
 	}
 
@@ -965,7 +972,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 			ep, err := instances.EnableProxy(client, d.Id(), proxyOpts).ExtractJobResponse()
 			if err != nil {
-				return fmtp.Errorf("Error enabling proxy: %s", err)
+				return fmtp.Errorf("error enabling proxy: %s", err)
 			}
 
 			if err = instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), ep.JobID); err != nil {
@@ -974,7 +981,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		} else {
 			dp, err := instances.DeleteProxy(client, d.Id()).ExtractJobResponse()
 			if err != nil {
-				return fmtp.Errorf("Error disabling proxy: %s", err)
+				return fmtp.Errorf("error disabling proxy: %s", err)
 			}
 
 			if err = instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), dp.JobID); err != nil {
@@ -994,7 +1001,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 			lp, err := instances.EnlargeProxy(client, d.Id(), enlargeProxyOpts).ExtractJobResponse()
 			if err != nil {
-				return fmtp.Errorf("Error enlarging proxy: %s", err)
+				return fmtp.Errorf("error enlarging proxy: %s", err)
 			}
 
 			if err = instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), lp.JobID); err != nil {
@@ -1002,14 +1009,22 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			}
 		}
 		if newnum.(int) < oldnum.(int) && !d.HasChange("proxy_flavor") {
-			return fmtp.Errorf("Error updating proxy_node_num for instance %s: new num should be greater than old num", d.Id())
+			return fmtp.Errorf("error updating proxy_node_num for instance %s: new num should be greater than old num", d.Id())
 		}
 	}
 
 	if d.HasChange("audit_log_enabled") {
-		err = switchAuditLog(HcGaussdbV3Client, instanceId, d.Get("audit_log_enabled").(bool))
+		err = switchAuditLog(client, instanceId, d.Get("audit_log_enabled").(bool))
 		if err != nil {
 			return err
+		}
+	}
+
+	// update tags
+	if d.HasChange("tags") {
+		tagErr := utils.UpdateResourceTags(client, d, "instances", d.Id())
+		if tagErr != nil {
+			return fmtp.Errorf("error updating tags of Gaussdb mysql instance %q: %s", d.Id(), tagErr)
 		}
 	}
 
@@ -1020,7 +1035,7 @@ func resourceGaussDBInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*config.Config)
 	client, err := config.GaussdbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
+		return fmtp.Errorf("error creating HuaweiCloud GaussDB client: %s ", err)
 	}
 
 	instanceId := d.Id()
@@ -1051,27 +1066,25 @@ func resourceGaussDBInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	_, err = stateConf.WaitForState()
 	if err != nil {
 		return fmtp.Errorf(
-			"Error waiting for instance (%s) to be deleted: %s ",
+			"error waiting for instance (%s) to be deleted: %s ",
 			instanceId, err)
 	}
 	logp.Printf("[DEBUG] Successfully deleted instance %s", instanceId)
 	return nil
 }
 
-func switchAuditLog(client *gaussdb.GaussDBClient, instanceId string, v bool) error {
+func switchAuditLog(client *golangsdk.ServiceClient, instanceId string, v bool) error {
 	var flag string
 	if v {
 		flag = "ON"
 	} else {
 		flag = "OFF"
 	}
-	opts := gaussdb_model.UpdateAuditLogRequest{
-		InstanceId: instanceId,
-		Body: &gaussdb_model.OperateAuditLogRequestV3Body{
-			SwitchStatus: flag,
-		},
+	opts := auditlog.UpdateAuditlogOpts{
+		SwitchStatus: flag,
 	}
-	_, err := client.UpdateAuditLog(&opts)
+
+	_, err := auditlog.Update(client, instanceId, opts)
 	if err != nil {
 		return fmtp.Errorf("switch audit log to %q failed: %s", flag, err)
 	}

@@ -8,8 +8,8 @@ import (
 
 //
 type ProtectPolicyOption struct {
-	// 是否开启操作保护，开启为\"true\"，未开启为\"false\"。
 
+	// 是否开启操作保护，开启为\"true\"，未开启为\"false\"。
 	OperationProtection bool `json:"operation_protection"`
 }
 

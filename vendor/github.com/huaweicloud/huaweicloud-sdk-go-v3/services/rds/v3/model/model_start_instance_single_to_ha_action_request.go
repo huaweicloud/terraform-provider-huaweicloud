@@ -11,11 +11,11 @@ import (
 
 // Request Object
 type StartInstanceSingleToHaActionRequest struct {
+
 	// 语言
-
 	XLanguage *StartInstanceSingleToHaActionRequestXLanguage `json:"X-Language,omitempty"`
-	// 实例ID。
 
+	// 实例ID。
 	InstanceId string `json:"instance_id"`
 
 	Body *Single2Ha `json:"body,omitempty"`

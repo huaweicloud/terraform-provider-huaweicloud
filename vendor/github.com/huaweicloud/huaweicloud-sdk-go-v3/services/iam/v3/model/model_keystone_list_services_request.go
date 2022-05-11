@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type KeystoneListServicesRequest struct {
-	// 服务类型。
 
+	// 服务类型。
 	Type *string `json:"type,omitempty"`
 }
 

@@ -8,11 +8,11 @@ import (
 
 // Request Object
 type ListJobInfoRequest struct {
+
 	// 语言
-
 	XLanguage *string `json:"X-Language,omitempty"`
-	// 任务ID。
 
+	// 任务ID。
 	Id string `json:"id"`
 }
 

@@ -8,14 +8,14 @@ import (
 
 // Response Object
 type ShowHistoryRunInfoResponse struct {
+
 	// code
-
 	Code *string `json:"code,omitempty"`
+
 	// message
-
 	Message *string `json:"message,omitempty"`
-	// log_list
 
+	// log_list
 	LogList        *[]HistoryRunInfo `json:"log_list,omitempty"`
 	HttpStatusCode int               `json:"-"`
 }

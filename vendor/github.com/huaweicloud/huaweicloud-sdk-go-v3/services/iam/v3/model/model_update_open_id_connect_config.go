@@ -11,29 +11,29 @@ import (
 
 // oidc详细信息
 type UpdateOpenIdConnectConfig struct {
+
 	// 访问方式: program_console: 支持编程访问和管理控制台访问方式; program: 支持编程访问方式
-
 	AccessMode *string `json:"access_mode,omitempty"`
+
 	// OpenID Connect身份提供商标识，对应ID token 中 iss
-
 	IdpUrl *string `json:"idp_url,omitempty"`
+
 	// 在OpenID Connect身份提供商注册的客户端ID
-
 	ClientId *string `json:"client_id,omitempty"`
+
 	// OpenID Connect身份提供商授权地址；编程访问和管理控制台访问方式值不可为空，编程访问方式值可为空
-
 	AuthorizationEndpoint *string `json:"authorization_endpoint,omitempty"`
+
 	// 授权请求信息范围，编程访问和管理控制台访问方式必选，编程访问方式不可选，可选值：openid 、email、profile，IDP自定义scope，字符集a-zA-Z_0-9 ，1-10个可选值组合空格分割，至少包括openid，顺序无关，总长度最长255字符，例如：\"openid\"、\"openid email\"、\"openid profile\" 、\"openid email profile\"
-
 	Scope *string `json:"scope,omitempty"`
+
 	// 授权请求返回的类型；值为id_token ；编程访问和管理控制台访问方式值不可为空，编程访问方式值可为空
-
 	ResponseType *UpdateOpenIdConnectConfigResponseType `json:"response_type,omitempty"`
+
 	// 授权请求返回方式，可选值 form_post 或 fragment ；编程访问和管理控制台访问方式值为可选值，编程访问方式值可为空
-
 	ResponseMode *UpdateOpenIdConnectConfigResponseMode `json:"response_mode,omitempty"`
-	// OpenID Connect身份提供商ID Token签名的公钥
 
+	// OpenID Connect身份提供商ID Token签名的公钥
 	SigningKey *string `json:"signing_key,omitempty"`
 }
 

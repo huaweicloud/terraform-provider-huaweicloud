@@ -8,11 +8,11 @@ import (
 
 // CreateProjectRequestBody
 type CreateProjectRequestBody struct {
+
 	// name
-
 	Name string `json:"name"`
-	// description
 
+	// description
 	Description *string `json:"description,omitempty"`
 }
 

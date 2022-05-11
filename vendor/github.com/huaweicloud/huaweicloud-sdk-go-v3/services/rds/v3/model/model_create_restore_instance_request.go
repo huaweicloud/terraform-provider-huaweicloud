@@ -11,8 +11,8 @@ import (
 
 // Request Object
 type CreateRestoreInstanceRequest struct {
-	// 语言
 
+	// 语言
 	XLanguage *CreateRestoreInstanceRequestXLanguage `json:"X-Language,omitempty"`
 
 	Body *InstanceRequest `json:"body,omitempty"`

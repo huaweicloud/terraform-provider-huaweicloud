@@ -12,6 +12,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/antiddos"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/aom"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/as"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/bms"
@@ -426,6 +427,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_engine_versions": rds.DataSourceRdsEngineVersionsV3(),
 			"huaweicloud_rds_instances":       rds.DataSourceRdsInstances(),
 
+			"huaweicloud_servicestage_component_runtimes": servicestage.DataSourceComponentRuntimes(),
+
 			"huaweicloud_sfs_file_system":   DataSourceSFSFileSystemV2(),
 			"huaweicloud_vbs_backup_policy": dataSourceVBSBackupPolicyV2(),
 			"huaweicloud_vbs_backup":        dataSourceVBSBackupV2(),
@@ -505,6 +508,9 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
+			"huaweicloud_aom_alarm_rule":             aom.ResourceAlarmRule(),
+			"huaweicloud_aom_service_discovery_rule": aom.ResourceServiceDiscoveryRule(),
+
 			"huaweicloud_api_gateway_api":        ResourceAPIGatewayAPI(),
 			"huaweicloud_api_gateway_group":      ResourceAPIGatewayGroup(),
 			"huaweicloud_apig_api":               apig.ResourceApigAPIV2(),
@@ -541,6 +547,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cts_tracker":      cts.ResourceCTSTracker(),
 			"huaweicloud_cts_data_tracker": cts.ResourceCTSDataTracker(),
+			"huaweicloud_cts_notification": cts.ResourceCTSNotification(),
 			"huaweicloud_cci_namespace":    cci.ResourceCciNamespace(),
 			"huaweicloud_cci_network":      cci.ResourceCciNetworkV1(),
 			"huaweicloud_cci_pvc":          ResourceCCIPersistentVolumeClaimV1(),
@@ -663,8 +670,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_lb_pool":         lb.ResourcePoolV2(),
 			"huaweicloud_lb_whitelist":    lb.ResourceWhitelistV2(),
 
-			"huaweicloud_lts_group":  resourceLTSGroupV2(),
-			"huaweicloud_lts_stream": resourceLTSStreamV2(),
+			"huaweicloud_lts_group":  ResourceLTSGroupV2(),
+			"huaweicloud_lts_stream": ResourceLTSStreamV2(),
 
 			"huaweicloud_mls_instance": resourceMlsInstance(),
 
@@ -672,6 +679,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_mapreduce_job":     mrs.ResourceMRSJobV2(),
 
 			"huaweicloud_modelarts_dataset":                modelarts.ResourceDataset(),
+			"huaweicloud_modelarts_dataset_version":        modelarts.ResourceDatasetVersion(),
 			"huaweicloud_modelarts_notebook":               modelarts.ResourceNotebook(),
 			"huaweicloud_modelarts_notebook_mount_storage": modelarts.ResourceNotebookMountStorage(),
 
@@ -701,6 +709,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_parametergroup":        rds.ResourceRdsConfiguration(),
 			"huaweicloud_rds_read_replica_instance": rds.ResourceRdsReadReplicaInstance(),
 
+			"huaweicloud_servicestage_application":                 servicestage.ResourceApplication(),
+			"huaweicloud_servicestage_component":                   servicestage.ResourceComponent(),
+			"huaweicloud_servicestage_environment":                 servicestage.ResourceEnvironment(),
 			"huaweicloud_servicestage_repo_token_authorization":    servicestage.ResourceRepoTokenAuth(),
 			"huaweicloud_servicestage_repo_password_authorization": servicestage.ResourceRepoPwdAuth(),
 
@@ -757,6 +768,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_reference_table":            waf.ResourceWafReferenceTableV1(),
 
 			"huaweicloud_cpts_project": cpts.ResourceProject(),
+			"huaweicloud_cpts_task":    cpts.ResourceTask(),
 
 			// Legacy
 			"huaweicloud_networking_eip_associate": eip.ResourceEIPAssociate(),

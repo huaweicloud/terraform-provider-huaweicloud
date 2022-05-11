@@ -8,11 +8,11 @@ import (
 
 // Request Object
 type DeleteMfaDeviceRequest struct {
+
 	// 绑定MFA设备的IAM 用户ID。
-
 	UserId string `json:"user_id"`
-	// MFA设备序列号。
 
+	// MFA设备序列号。
 	SerialNumber string `json:"serial_number"`
 }
 

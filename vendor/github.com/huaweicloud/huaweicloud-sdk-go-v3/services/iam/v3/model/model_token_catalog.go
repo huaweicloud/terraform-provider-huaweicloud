@@ -8,17 +8,17 @@ import (
 
 //
 type TokenCatalog struct {
+
 	// 该接口所属服务。
-
 	Type string `json:"type"`
+
 	// 服务ID。
-
 	Id string `json:"id"`
+
 	// 服务名称。
-
 	Name string `json:"name"`
-	// 终端节点。
 
+	// 终端节点。
 	Endpoints []TokenCatalogEndpoint `json:"endpoints"`
 }
 

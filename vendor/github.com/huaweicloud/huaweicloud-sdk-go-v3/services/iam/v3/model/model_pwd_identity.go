@@ -11,8 +11,8 @@ import (
 
 //
 type PwdIdentity struct {
-	// 认证方法，该字段内容为[\"password\"]。
 
+	// 认证方法，该字段内容为[\"password\"]。
 	Methods []PwdIdentityMethods `json:"methods"`
 
 	Password *PwdPassword `json:"password"`

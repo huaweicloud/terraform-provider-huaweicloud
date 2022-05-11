@@ -8,8 +8,8 @@ import (
 
 //
 type Versions struct {
-	// 版本的资源链接信息。
 
+	// 版本的资源链接信息。
 	Values []Version `json:"values"`
 }
 

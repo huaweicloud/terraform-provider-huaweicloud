@@ -8,11 +8,11 @@ import (
 
 // Request Object
 type CreateMetadataRequest struct {
+
 	// 身份提供商ID。
-
 	IdpId string `json:"idp_id"`
-	// 协议ID。
 
+	// 协议ID。
 	ProtocolId string `json:"protocol_id"`
 
 	Body *CreateMetadataRequestBody `json:"body,omitempty"`

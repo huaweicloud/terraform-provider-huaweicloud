@@ -11,11 +11,11 @@ type FederationUserBody struct {
 	OsFederation *OsFederationInfo `json:"OS-FEDERATION"`
 
 	Domain *DomainInfo `json:"domain"`
+
 	// user id。
-
 	Id *string `json:"id,omitempty"`
-	// user name。
 
+	// user name。
 	Name *string `json:"name,omitempty"`
 }
 

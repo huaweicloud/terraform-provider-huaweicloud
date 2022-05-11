@@ -5,10 +5,7 @@ name: CI
 # Controls when the action will run. 
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
-  # push:
-  #  branches: [ master ]
   pull_request:
-    branches: [ master ]
     paths-ignore:
     - 'docs/**'
     - 'examples/**'
@@ -24,10 +21,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v3
       with:
         go-version: ">=1.16"
 
@@ -51,49 +48,18 @@ jobs:
       - uses: bflad/tfproviderlint-github-action@master
         with:
           args: -V011=false -V012=false -V013=false -V014=false -R019=false ./...
-  
-  # This workflow contains a job called "acc-test"
-  acc-test:
-    env:
-      HW_ACCESS_KEY: ${{ secrets.HW_ACCESS_KEY }}
-      HW_SECRET_KEY: ${{ secrets.HW_SECRET_KEY }}
-      HW_REGION_NAME: cn-north-4
-      HW_ENTERPRISE_PROJECT_ID: "0"
 
-    # The type of runner that the job will run on
+  golangci:
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      # run acceptance test
-      - name: Run acceptance basic test
-        # run the step only when HW_ACCESS_KEY is setted
-        if: ${{ env.HW_ACCESS_KEY }}
-        run: |
-          git fetch --no-tags --prune --depth=1 origin +refs/heads/master:refs/remotes/origin/master
-          all_files=$(git diff origin/master HEAD --name-only huaweicloud | grep -v "_test.go")
-          echo -e "the following files have changed:\n$all_files\n"
-
-          for f in $all_files; do
-            path=${f%/*}
-            if [ "X$path" != "Xhuaweicloud" ]; then
-              # update path to "huaweicloud/services\acceptance/xxx"
-              path=${path/services/services\/acceptance}
-            fi
-
-            org_file=${f##*/}
-            test_file=$path/${org_file/%.go/_test.go}
-
-            if [ -f "./${test_file}" ]; then
-              basic_cases=$(grep "^func TestAcc" ./${test_file} | grep _basic | awk '{print $2}' | awk -F '(' '{print $1}')
-              if [ "X$basic_cases" != "X" ]; then
-                echo -e "\nrun acceptance basic tests: $basic_cases"
-                make testacc TEST="./$path" TESTARGS="-run ${basic_cases}"
-              fi
-            else
-              echo -e "\n[skipped] --- ./${test_file} does not exist"
-            fi
-          done
+      - uses: actions/setup-go@v3
+        with:
+          go-version: ">=1.16"
+      - uses: actions/checkout@v3
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
+          version: latest
+          # Optional: show only new issues if it's a pull request. The default value is `false`.
+          only-new-issues: true

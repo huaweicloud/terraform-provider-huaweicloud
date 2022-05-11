@@ -11,8 +11,8 @@ import (
 
 //
 type MfaIdentity struct {
-	// 认证方法，该字段内容为[\"password\", \"totp\"]。
 
+	// 认证方法，该字段内容为[\"password\", \"totp\"]。
 	Methods []MfaIdentityMethods `json:"methods"`
 
 	Password *PwdPassword `json:"password"`

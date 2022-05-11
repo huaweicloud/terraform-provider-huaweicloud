@@ -8,11 +8,11 @@ import (
 
 //
 type CreateCredentialOption struct {
+
 	// 待创建访问秘钥（AK/SK）的IAM用户ID，获取方式请参见：[获取账号、IAM用户、项目、用户组、委托的名称和ID](https://support.huaweicloud.com/api-iam/iam_17_0002.html)。
-
 	UserId string `json:"user_id"`
-	// 访问密钥描述信息。
 
+	// 访问密钥描述信息。
 	Description *string `json:"description,omitempty"`
 }
 

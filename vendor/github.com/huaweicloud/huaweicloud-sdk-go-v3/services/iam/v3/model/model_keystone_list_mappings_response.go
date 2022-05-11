@@ -9,8 +9,8 @@ import (
 // Response Object
 type KeystoneListMappingsResponse struct {
 	Links *Links `json:"links,omitempty"`
-	// 映射信息列表。
 
+	// 映射信息列表。
 	Mappings       *[]MappingResult `json:"mappings,omitempty"`
 	HttpStatusCode int              `json:"-"`
 }

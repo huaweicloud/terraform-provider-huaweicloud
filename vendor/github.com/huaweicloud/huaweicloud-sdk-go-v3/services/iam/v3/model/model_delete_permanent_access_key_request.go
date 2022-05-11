@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type DeletePermanentAccessKeyRequest struct {
-	// 待删除的指定AK。
 
+	// 待删除的指定AK。
 	AccessKey string `json:"access_key"`
 }
 

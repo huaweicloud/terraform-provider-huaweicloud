@@ -166,7 +166,7 @@ func ResourceComputeInstanceV2() *schema.Resource {
 						"source_dest_check": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							Computed: true,
+							Default:  true,
 						},
 						"fixed_ip_v6": {
 							Type:        schema.TypeString,
@@ -298,6 +298,11 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				ForceNew: true,
 			},
 			"agency_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"agent_list": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
@@ -532,6 +537,9 @@ func resourceComputeInstanceV2Create(ctx context.Context, d *schema.ResourceData
 		if hasFilledOpt(d, "agency_name") {
 			metadata.AgencyName = d.Get("agency_name").(string)
 		}
+		if hasFilledOpt(d, "agent_list") {
+			metadata.AgentList = d.Get("agent_list").(string)
+		}
 		if metadata != (cloudservers.MetaData{}) {
 			createOpts.MetaData = &metadata
 		}
@@ -681,27 +689,45 @@ func resourceComputeInstanceV2Create(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	if err := resourceComputeInstanceV2Read(ctx, d, meta); err != nil {
-		return err
+	// get the original value of source_dest_check in script
+	originalNetworks := d.Get("network").([]interface{})
+	sourceDestChecks := make([]bool, len(originalNetworks))
+	var flag bool
+
+	for i, v := range originalNetworks {
+		nic := v.(map[string]interface{})
+		sourceDestChecks[i] = nic["source_dest_check"].(bool)
+		if !flag && !sourceDestChecks[i] {
+			flag = true
+		}
 	}
 
-	// note: as "network.port" is optional, we shoud use it after resourceComputeInstanceV2Read
-	networks := d.Get("network").([]interface{})
-	for _, v := range networks {
-		nic := v.(map[string]interface{})
-		nicPort := nic["port"].(string)
-		if nicPort == "" {
-			continue
+	if flag {
+		// Get the instance network and address information
+		server, err := cloudservers.Get(ecsClient, d.Id()).Extract()
+		if err != nil {
+			return diag.Errorf("error retrieving compute instance: %s", d.Id())
+		}
+		networks, err := flattenInstanceNetworks(d, meta, server)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 
-		if sourceDestCheck := nic["source_dest_check"].(bool); !sourceDestCheck {
-			if err := disableSourceDestCheck(nicClient, nicPort); err != nil {
-				return diag.Errorf("error disable source dest check on port(%s) of instance(%s) failed: %s", nicPort, d.Id(), err)
+		for i, nic := range networks {
+			nicPort := nic["port"].(string)
+			if nicPort == "" {
+				continue
+			}
+
+			if !sourceDestChecks[i] {
+				if err := disableSourceDestCheck(nicClient, nicPort); err != nil {
+					return diag.Errorf("error disabling source dest check on port(%s) of instance(%s): %s", nicPort, d.Id(), err)
+				}
 			}
 		}
 	}
 
-	return nil
+	return resourceComputeInstanceV2Read(ctx, d, meta)
 }
 
 func resourceComputeInstanceV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -737,6 +763,7 @@ func resourceComputeInstanceV2Read(_ context.Context, d *schema.ResourceData, me
 	d.Set("name", server.Name)
 	d.Set("status", server.Status)
 	d.Set("agency_name", server.Metadata.AgencyName)
+	d.Set("agent_list", server.Metadata.AgentList)
 
 	chageMode := server.Metadata.ChargingMode
 	if chageMode == "0" {
