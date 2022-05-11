@@ -16,7 +16,7 @@
               },
               "consistent_level": {
                 "type": "string",
-                "required": true,
+                "optional": true,
                 "forcenew": true
               },
               "enterprise_project_id": {
