@@ -8,11 +8,11 @@ import (
 
 // Response Object
 type ListVpcsResponse struct {
+
 	// 请求ID
-
 	RequestId *string `json:"request_id,omitempty"`
-	// VPC列表响应体
 
+	// VPC列表响应体
 	Vpcs *[]Vpc `json:"vpcs,omitempty"`
 
 	PageInfo       *PageInfo `json:"page_info,omitempty"`

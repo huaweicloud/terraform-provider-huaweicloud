@@ -8,11 +8,11 @@ import (
 
 //
 type LoginTokenDomain struct {
+
 	// 被委托方用户所属账号名称。
-
 	Name *string `json:"name,omitempty"`
-	// 被委托方用户所属账号ID。
 
+	// 被委托方用户所属账号ID。
 	Id *string `json:"id,omitempty"`
 }
 

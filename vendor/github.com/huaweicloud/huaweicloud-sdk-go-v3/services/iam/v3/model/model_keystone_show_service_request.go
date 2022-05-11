@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type KeystoneShowServiceRequest struct {
-	// 待查询的服务ID。
 
+	// 待查询的服务ID。
 	ServiceId string `json:"service_id"`
 }
 

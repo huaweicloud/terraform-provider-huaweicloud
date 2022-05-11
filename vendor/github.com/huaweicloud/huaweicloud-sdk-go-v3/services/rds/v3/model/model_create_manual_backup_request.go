@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type CreateManualBackupRequest struct {
-	// 语言
 
+	// 语言
 	XLanguage *string `json:"X-Language,omitempty"`
 
 	Body *CreateManualBackupRequestBody `json:"body,omitempty"`

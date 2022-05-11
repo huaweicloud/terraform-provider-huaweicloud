@@ -8,11 +8,11 @@ import (
 
 // Request Object
 type KeystoneShowProtocolRequest struct {
+
 	// 身份提供商ID。
-
 	IdpId string `json:"idp_id"`
-	// 待查询的协议ID。
 
+	// 待查询的协议ID。
 	ProtocolId string `json:"protocol_id"`
 }
 

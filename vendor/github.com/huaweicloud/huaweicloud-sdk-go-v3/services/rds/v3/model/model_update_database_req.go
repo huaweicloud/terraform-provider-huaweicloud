@@ -7,11 +7,11 @@ import (
 )
 
 type UpdateDatabaseReq struct {
+
 	// 数据库名称。
-
 	Name string `json:"name"`
-	// 数据库备注。
 
+	// 数据库备注。
 	Comment string `json:"comment"`
 }
 

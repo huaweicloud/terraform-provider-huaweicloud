@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type RestoreTablesResponse struct {
-	// 任务ID。
 
+	// 任务ID。
 	JobId          *string `json:"jobId,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }

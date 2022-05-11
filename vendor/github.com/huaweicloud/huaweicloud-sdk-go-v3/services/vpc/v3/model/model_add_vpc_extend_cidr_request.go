@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type AddVpcExtendCidrRequest struct {
-	// VPC资源ID
 
+	// VPC资源ID
 	VpcId string `json:"vpc_id"`
 
 	Body *AddVpcExtendCidrRequestBody `json:"body,omitempty"`

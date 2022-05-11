@@ -11,8 +11,8 @@ import (
 
 // Request Object
 type CountEventsRequest struct {
-	// 查询类型。type=active_alert代表查询活动告警，type=history_alert代表查询历史告警。不传或者传其他值则返回指定查询条件的所有信息。
 
+	// 查询类型。type=active_alert代表查询活动告警，type=history_alert代表查询历史告警。不传或者传其他值则返回指定查询条件的所有信息。
 	Type *CountEventsRequestType `json:"type,omitempty"`
 
 	Body *EventQueryParam `json:"body,omitempty"`

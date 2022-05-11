@@ -8,8 +8,8 @@ import (
 
 // 事件告警上报实体。
 type EventList struct {
-	// 事件或者告警详情。
 
+	// 事件或者告警详情。
 	Events []EventModel `json:"events"`
 }
 

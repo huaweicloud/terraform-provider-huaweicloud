@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type ListGroupsForEnterpriseProjectRequest struct {
-	// 待查询的企业项目Id。
 
+	// 待查询的企业项目Id。
 	EnterpriseProjectId string `json:"enterprise_project_id"`
 }
 

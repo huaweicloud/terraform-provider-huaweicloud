@@ -8,11 +8,11 @@ import (
 
 // Response Object
 type ListPostgresqlDatabaseSchemasResponse struct {
+
 	// 列表中每个元素表示一个数据库schema。
-
 	DatabaseSchemas *[]PostgresqlDatabaseForListSchema `json:"database_schemas,omitempty"`
-	// 数据库schema总数。
 
+	// 数据库schema总数。
 	TotalCount     *int32 `json:"total_count,omitempty"`
 	HttpStatusCode int    `json:"-"`
 }

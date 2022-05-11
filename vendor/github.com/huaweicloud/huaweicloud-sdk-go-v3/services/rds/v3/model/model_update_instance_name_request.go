@@ -11,11 +11,11 @@ import (
 
 // Request Object
 type UpdateInstanceNameRequest struct {
+
 	// 语言
-
 	XLanguage *UpdateInstanceNameRequestXLanguage `json:"X-Language,omitempty"`
-	// 实例ID。
 
+	// 实例ID。
 	InstanceId string `json:"instance_id"`
 
 	Body *ModifiyInstanceNameRequest `json:"body,omitempty"`

@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type DeleteserviceDiscoveryRulesRequest struct {
-	// 发现规则ID,传多个时以逗号分隔。
 
+	// 发现规则ID,传多个时以逗号分隔。
 	AppRulesIds []string `json:"appRulesIds"`
 }
 

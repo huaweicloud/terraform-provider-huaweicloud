@@ -8,11 +8,11 @@ import (
 
 //
 type AgencyTokenDomain struct {
+
 	// 委托方A的账号名称。
-
 	Name string `json:"name"`
-	// 委托方A的账号ID。
 
+	// 委托方A的账号ID。
 	Id string `json:"id"`
 }
 

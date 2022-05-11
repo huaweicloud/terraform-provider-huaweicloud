@@ -8,14 +8,14 @@ import (
 
 // Request Object
 type DeleteSqlserverDbUserRequest struct {
+
 	// 语言
-
 	XLanguage *string `json:"X-Language,omitempty"`
+
 	// 实例ID。
-
 	InstanceId string `json:"instance_id"`
-	// 需要删除的帐号名。
 
+	// 需要删除的帐号名。
 	UserName string `json:"user_name"`
 }
 

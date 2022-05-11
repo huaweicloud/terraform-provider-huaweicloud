@@ -8,11 +8,11 @@ import (
 
 // domain信息。
 type DomainInfo struct {
+
 	// 租户id。
-
 	Id *string `json:"id,omitempty"`
-	// 租户name。
 
+	// 租户name。
 	Name string `json:"name"`
 }
 

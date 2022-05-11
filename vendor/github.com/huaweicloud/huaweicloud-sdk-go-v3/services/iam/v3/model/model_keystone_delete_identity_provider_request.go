@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type KeystoneDeleteIdentityProviderRequest struct {
-	// 待删除的身份提供商ID。
 
+	// 待删除的身份提供商ID。
 	Id string `json:"id"`
 }
 

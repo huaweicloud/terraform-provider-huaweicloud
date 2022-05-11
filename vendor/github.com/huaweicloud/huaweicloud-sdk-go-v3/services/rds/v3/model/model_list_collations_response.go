@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type ListCollationsResponse struct {
-	// 字符集信息列表
 
+	// 字符集信息列表
 	CharSets       *[]string `json:"charSets,omitempty"`
 	HttpStatusCode int       `json:"-"`
 }

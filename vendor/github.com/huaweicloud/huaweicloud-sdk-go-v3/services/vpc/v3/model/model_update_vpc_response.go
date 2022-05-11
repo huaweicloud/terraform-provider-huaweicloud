@@ -8,14 +8,14 @@ import (
 
 // Response Object
 type UpdateVpcResponse struct {
+
 	// 请求ID
-
 	RequestId *string `json:"request_id,omitempty"`
+
 	// 错误消息
-
 	ErrorMsg *string `json:"error_msg,omitempty"`
-	// 错误码
 
+	// 错误码
 	ErrorCode      *string `json:"error_code,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }

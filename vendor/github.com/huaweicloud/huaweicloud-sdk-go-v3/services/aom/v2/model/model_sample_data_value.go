@@ -9,8 +9,8 @@ import (
 // 查询结果详细。
 type SampleDataValue struct {
 	Sample *QuerySample `json:"sample,omitempty"`
-	// 时序数据。
 
+	// 时序数据。
 	DataPoints *[]MetricDataPoints `json:"data_points,omitempty"`
 }
 

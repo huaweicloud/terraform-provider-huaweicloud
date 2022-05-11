@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type KeystoneCreateMappingRequest struct {
-	// 待注册的映射ID。
 
+	// 待注册的映射ID。
 	Id string `json:"id"`
 
 	Body *KeystoneCreateMappingRequestBody `json:"body,omitempty"`

@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type KeystoneListIdentityProvidersResponse struct {
-	// 身份提供商信息列表。
 
+	// 身份提供商信息列表。
 	IdentityProviders *[]IdentityprovidersResult `json:"identity_providers,omitempty"`
 
 	Links          *Links `json:"links,omitempty"`

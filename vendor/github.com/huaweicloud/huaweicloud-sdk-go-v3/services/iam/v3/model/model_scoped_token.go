@@ -8,8 +8,8 @@ import (
 
 //
 type ScopedToken struct {
-	// 联邦unscoped token的ID。
 
+	// 联邦unscoped token的ID。
 	Id string `json:"id"`
 }
 

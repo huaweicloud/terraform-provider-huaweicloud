@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type KeystoneUpdateUserByAdminRequest struct {
-	// 待修改信息的IAM用户ID，获取方式请参见：[获取用户ID](https://support.huaweicloud.com/api-iam/iam_17_0002.html)。
 
+	// 待修改信息的IAM用户ID，获取方式请参见：[获取用户ID](https://support.huaweicloud.com/api-iam/iam_17_0002.html)。
 	UserId string `json:"user_id"`
 
 	Body *KeystoneUpdateUserByAdminRequestBody `json:"body,omitempty"`

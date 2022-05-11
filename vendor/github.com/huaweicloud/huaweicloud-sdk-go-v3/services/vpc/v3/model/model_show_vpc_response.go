@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type ShowVpcResponse struct {
-	// 请求ID
 
+	// 请求ID
 	RequestId *string `json:"request_id,omitempty"`
 
 	Vpc            *Vpc `json:"vpc,omitempty"`

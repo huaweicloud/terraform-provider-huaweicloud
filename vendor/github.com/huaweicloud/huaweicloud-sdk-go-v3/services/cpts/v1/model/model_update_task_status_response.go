@@ -8,14 +8,14 @@ import (
 
 // Response Object
 type UpdateTaskStatusResponse struct {
+
 	// code
-
 	Code *string `json:"code,omitempty"`
+
 	// message
-
 	Message *string `json:"message,omitempty"`
-	// extend
 
+	// extend
 	Extend *string `json:"extend,omitempty"`
 
 	Result         *UpdateTaskStatusResult `json:"result,omitempty"`

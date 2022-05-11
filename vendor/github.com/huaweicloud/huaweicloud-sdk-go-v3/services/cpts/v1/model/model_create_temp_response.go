@@ -8,14 +8,14 @@ import (
 
 // Response Object
 type CreateTempResponse struct {
+
 	// code
-
 	Code *string `json:"code,omitempty"`
+
 	// tempId
-
 	TempId *int32 `json:"tempId,omitempty"`
-	// message
 
+	// message
 	Message        *string `json:"message,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }

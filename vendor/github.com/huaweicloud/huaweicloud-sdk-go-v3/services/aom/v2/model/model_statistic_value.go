@@ -8,11 +8,11 @@ import (
 
 // 统计结果
 type StatisticValue struct {
+
 	// 统计方式。
-
 	Statistic *string `json:"statistic,omitempty"`
-	// 统计结果。
 
+	// 统计结果。
 	Value *float64 `json:"value,omitempty"`
 }
 

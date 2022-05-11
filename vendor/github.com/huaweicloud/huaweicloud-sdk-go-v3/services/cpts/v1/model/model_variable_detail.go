@@ -7,23 +7,23 @@ import (
 )
 
 type VariableDetail struct {
+
 	// file_size
-
 	FileSize *int32 `json:"file_size,omitempty"`
+
 	// id
-
 	Id *int32 `json:"id,omitempty"`
+
 	// 是否被引用
-
 	IsQuoted *bool `json:"is_quoted,omitempty"`
+
 	// name
-
 	Name *string `json:"name,omitempty"`
+
 	// variable
-
 	Variable *[]interface{} `json:"variable,omitempty"`
-	// variable_type
 
+	// variable_type
 	VariableType *int32 `json:"variable_type,omitempty"`
 }
 

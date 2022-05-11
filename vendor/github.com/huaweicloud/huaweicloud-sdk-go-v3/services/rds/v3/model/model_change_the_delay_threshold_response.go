@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type ChangeTheDelayThresholdResponse struct {
-	// 修改读写分离权重或延时阈值的结果。
 
+	// 修改读写分离权重或延时阈值的结果。
 	Result         *string `json:"result,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }

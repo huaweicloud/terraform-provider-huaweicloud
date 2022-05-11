@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type ListSampleResponse struct {
-	// 时间序列对象列表。
 
+	// 时间序列对象列表。
 	Samples        *[]SampleDataValue `json:"samples,omitempty"`
 	HttpStatusCode int                `json:"-"`
 }

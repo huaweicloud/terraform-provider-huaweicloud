@@ -11,8 +11,8 @@ type ShowInformationAboutDatabaseProxyResponse struct {
 	Proxy *Proxy `json:"proxy,omitempty"`
 
 	MasterInstance *MasterInstance `json:"master_instance,omitempty"`
-	// 只读实例信息。
 
+	// 只读实例信息。
 	ReadonlyInstances *[]ReadonlyInstances `json:"readonly_instances,omitempty"`
 	HttpStatusCode    int                  `json:"-"`
 }

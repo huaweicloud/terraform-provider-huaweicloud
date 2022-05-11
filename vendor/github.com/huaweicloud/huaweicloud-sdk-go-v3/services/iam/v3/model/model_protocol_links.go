@@ -8,11 +8,11 @@ import (
 
 //
 type ProtocolLinks struct {
+
 	// 身份提供商的资源链接地址。
-
 	IdentityProvider string `json:"identity_provider"`
-	// 资源链接地址。
 
+	// 资源链接地址。
 	Self string `json:"self"`
 }
 

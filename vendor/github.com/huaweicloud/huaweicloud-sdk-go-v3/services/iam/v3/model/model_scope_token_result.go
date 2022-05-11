@@ -8,26 +8,26 @@ import (
 
 //
 type ScopeTokenResult struct {
+
 	// 获取token的方式。
-
 	Methods []string `json:"methods"`
+
 	// token过期时间。
-
 	ExpiresAt string `json:"expires_at"`
-	// 服务目录信息。
 
+	// 服务目录信息。
 	Catalog *[]TokenCatalog `json:"catalog,omitempty"`
 
 	Domain *TokenDomainResult `json:"domain"`
 
 	Project *TokenProjectResult `json:"project"`
-	// token的权限信息。
 
+	// token的权限信息。
 	Roles []TokenRole `json:"roles"`
 
 	User *ScopedTokenUser `json:"user"`
-	// token下发时间。
 
+	// token下发时间。
 	IssuedAt string `json:"issued_at"`
 }
 

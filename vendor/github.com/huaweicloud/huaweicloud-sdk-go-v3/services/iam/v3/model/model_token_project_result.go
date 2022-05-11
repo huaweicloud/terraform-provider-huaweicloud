@@ -8,11 +8,11 @@ import (
 
 //
 type TokenProjectResult struct {
+
 	// 项目名。
-
 	Name string `json:"name"`
-	// 项目ID。
 
+	// 项目ID。
 	Id string `json:"id"`
 
 	Domain *TokenProjectDomainResult `json:"domain"`

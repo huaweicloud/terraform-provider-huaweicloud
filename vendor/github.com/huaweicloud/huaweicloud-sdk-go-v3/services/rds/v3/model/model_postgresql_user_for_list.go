@@ -8,14 +8,14 @@ import (
 
 // 数据库用户信息。
 type PostgresqlUserForList struct {
+
 	// 帐号名。
-
 	Name string `json:"name"`
+
 	// 用户的权限属性。
-
 	Attributes *interface{} `json:"attributes,omitempty"`
-	// 用户的默认权限。
 
+	// 用户的默认权限。
 	Memberof *[]string `json:"memberof,omitempty"`
 }
 

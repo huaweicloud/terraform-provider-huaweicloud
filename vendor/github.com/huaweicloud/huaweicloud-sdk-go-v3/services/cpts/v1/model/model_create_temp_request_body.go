@@ -8,20 +8,20 @@ import (
 
 // CreateTempRequestBody
 type CreateTempRequestBody struct {
+
 	// project_id
-
 	ProjectId int32 `json:"project_id"`
+
 	// temp_type
-
 	TempType int32 `json:"temp_type"`
+
 	// name
-
 	Name string `json:"name"`
+
 	// description
-
 	Description *string `json:"description,omitempty"`
-	// contents
 
+	// contents
 	Contents *[]interface{} `json:"contents,omitempty"`
 }
 

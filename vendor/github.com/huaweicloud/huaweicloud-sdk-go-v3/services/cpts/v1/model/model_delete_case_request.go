@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type DeleteCaseRequest struct {
-	// 用例id
 
+	// 用例id
 	CaseId int32 `json:"case_id"`
 }
 

@@ -7,11 +7,11 @@ import (
 )
 
 type TpsBrokens struct {
+
 	// 平均响应时间
-
 	Average *[]float64 `json:"average,omitempty"`
-	// tps
 
+	// tps
 	Tps *[]float64 `json:"tps,omitempty"`
 }
 

@@ -11,17 +11,17 @@ import (
 
 // Request Object
 type ListStorageTypesRequest struct {
+
 	// 语言
-
 	XLanguage *string `json:"X-Language,omitempty"`
+
 	// 数据库引擎。支持的引擎如下，不区分大小写： MySQL PostgreSQL SQLServer
-
 	DatabaseName ListStorageTypesRequestDatabaseName `json:"database_name"`
+
 	// 数据库版本号。
-
 	VersionName string `json:"version_name"`
-	// 主备模式： single：单机模式。 ha：主备模式。 replica：只读模式。
 
+	// 主备模式： single：单机模式。 ha：主备模式。 replica：只读模式。
 	HaMode *ListStorageTypesRequestHaMode `json:"ha_mode,omitempty"`
 }
 

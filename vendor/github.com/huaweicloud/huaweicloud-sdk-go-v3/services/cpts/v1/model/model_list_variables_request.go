@@ -8,11 +8,11 @@ import (
 
 // Request Object
 type ListVariablesRequest struct {
+
 	// 变量类型
-
 	VariableType int32 `json:"variable_type"`
-	// 测试工程id
 
+	// 测试工程id
 	TestSuiteId int32 `json:"test_suite_id"`
 }
 

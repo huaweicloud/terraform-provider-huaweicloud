@@ -7,8 +7,8 @@ import (
 )
 
 type DropDatabaseV3Req struct {
-	// 是否强制删除数据库，默认是false。
 
+	// 是否强制删除数据库，默认是false。
 	IsForceDelete *bool `json:"is_force_delete,omitempty"`
 }
 

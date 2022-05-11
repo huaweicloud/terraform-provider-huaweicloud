@@ -7,8 +7,8 @@ import (
 )
 
 type AppRulesBody struct {
-	// 服务参数。
 
+	// 服务参数。
 	AppRules *[]AppRules `json:"appRules,omitempty"`
 }
 

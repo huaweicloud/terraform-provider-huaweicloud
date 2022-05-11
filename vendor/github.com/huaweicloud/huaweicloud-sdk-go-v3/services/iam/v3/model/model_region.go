@@ -8,21 +8,21 @@ import (
 
 //
 type Region struct {
+
 	// 区域描述信息。
-
 	Description string `json:"description"`
-	// null.
 
+	// null.
 	ParentRegionId string `json:"parent_region_id"`
 
 	Links *LinksSelf `json:"links"`
 
 	Locales *RegionLocales `json:"locales"`
+
 	// 区域ID。
-
 	Id string `json:"id"`
-	// 区域类型。
 
+	// 区域类型。
 	Type string `json:"type"`
 }
 

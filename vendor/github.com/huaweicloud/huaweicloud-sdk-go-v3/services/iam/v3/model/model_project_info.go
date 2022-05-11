@@ -9,11 +9,11 @@ import (
 // project信息
 type ProjectInfo struct {
 	Domain *DomainInfo `json:"domain,omitempty"`
+
 	// project id
-
 	Id *string `json:"id,omitempty"`
-	// project name
 
+	// project name
 	Name string `json:"name"`
 }
 

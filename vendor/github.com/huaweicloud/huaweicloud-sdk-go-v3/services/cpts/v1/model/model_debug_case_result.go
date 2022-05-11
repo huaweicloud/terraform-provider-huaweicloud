@@ -7,33 +7,33 @@ import (
 )
 
 type DebugCaseResult struct {
+
 	// body
-
 	Body *string `json:"body,omitempty"`
-	// errorReason
 
+	// errorReason
 	ErrorReason *string `json:"errorReason,omitempty"`
 
 	Header *DebugCaseResultHeader `json:"header,omitempty"`
+
 	// name
-
 	Name *string `json:"name,omitempty"`
+
 	// responseTime
-
 	ResponseTime *int32 `json:"responseTime,omitempty"`
+
 	// result
-
 	Result *int32 `json:"result,omitempty"`
-	// returnBody
 
+	// returnBody
 	ReturnBody *string `json:"returnBody,omitempty"`
 
 	ReturnHeader *DebugCaseReturnHeader `json:"returnHeader,omitempty"`
+
 	// statusCode
-
 	StatusCode *string `json:"statusCode,omitempty"`
-	// url
 
+	// url
 	Url *string `json:"url,omitempty"`
 }
 

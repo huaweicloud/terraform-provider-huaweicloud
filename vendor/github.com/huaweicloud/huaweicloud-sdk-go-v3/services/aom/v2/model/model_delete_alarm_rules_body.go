@@ -7,8 +7,8 @@ import (
 )
 
 type DeleteAlarmRulesBody struct {
-	// 阈值规则列表
 
+	// 阈值规则列表
 	AlarmRules []string `json:"alarm_rules"`
 }
 

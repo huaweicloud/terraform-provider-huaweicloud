@@ -8,8 +8,8 @@ import (
 
 // 协议信息。
 type ProtocolIdInfo struct {
-	// 协议id。
 
+	// 协议id。
 	Id string `json:"id"`
 }
 

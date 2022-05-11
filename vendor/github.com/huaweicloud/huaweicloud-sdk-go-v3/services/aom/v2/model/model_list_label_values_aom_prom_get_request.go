@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type ListLabelValuesAomPromGetRequest struct {
-	// 查询所用标签。
 
+	// 查询所用标签。
 	LabelName string `json:"label_name"`
 }
 

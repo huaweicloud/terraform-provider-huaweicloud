@@ -7,11 +7,11 @@ import (
 )
 
 type OpsWindowRequest struct {
+
 	// - 开始时间， UTC时间
-
 	StartTime string `json:"start_time"`
-	// - 结束时间，UTC时间
 
+	// - 结束时间，UTC时间
 	EndTime string `json:"end_time"`
 }
 

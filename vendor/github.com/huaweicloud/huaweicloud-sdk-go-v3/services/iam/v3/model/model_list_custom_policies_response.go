@@ -9,11 +9,11 @@ import (
 // Response Object
 type ListCustomPoliciesResponse struct {
 	Links *Links `json:"links,omitempty"`
+
 	// 自定义策略信息列表。
-
 	Roles *[]PolicyRoleResult `json:"roles,omitempty"`
-	// 返回自定义策略的总条数
 
+	// 返回自定义策略的总条数
 	TotalNumber    *int32 `json:"total_number,omitempty"`
 	HttpStatusCode int    `json:"-"`
 }
