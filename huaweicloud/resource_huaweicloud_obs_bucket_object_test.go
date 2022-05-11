@@ -51,6 +51,15 @@ func TestAccObsBucketObject_source(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "encryption", "true"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccObsBucketObjecImportStateIdFunc(),
+				ImportStateVerifyIgnore: []string{
+					"content_type", "encryption", "source", "version_id",
+				},
+			},
 		},
 	})
 }
@@ -158,6 +167,23 @@ func testAccCheckObsBucketObjectExists(n string) resource.TestCheckFunc {
 		}
 
 		return nil
+	}
+}
+
+func testAccObsBucketObjecImportStateIdFunc() resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		bucket, ok := s.RootModule().Resources["huaweicloud_obs_bucket.object_bucket"]
+		if !ok {
+			return "", fmtp.Errorf("Bucket not found: %s", bucket)
+		}
+		object, ok := s.RootModule().Resources["huaweicloud_obs_bucket_object.object"]
+		if !ok {
+			return "", fmtp.Errorf("Object not found: %s", object)
+		}
+		if bucket.Primary.ID == "" || object.Primary.ID == "" {
+			return "", fmtp.Errorf("resource not found: %s/%s", bucket.Primary.ID, object.Primary.ID)
+		}
+		return fmt.Sprintf("%s/%s", bucket.Primary.ID, object.Primary.ID), nil
 	}
 }
 
