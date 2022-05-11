@@ -105,7 +105,7 @@ func resourceCloudNativeAntiDdosUpdate(ctx context.Context, d *schema.ResourceDa
 	eipID := d.Get("eip_id").(string)
 	thresholdID := getTrafficThresholdID(d.Get("traffic_threshold").(int))
 
-	if err := updateAntiDdosTrafficThreshold(d, client, eipID, thresholdID, true); err != nil {
+	if err := updateAntiDdosTrafficThreshold(ctx, d, client, eipID, thresholdID, true); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -139,15 +139,7 @@ func resourceCloudNativeAntiDdosRead(ctx context.Context, d *schema.ResourceData
 	}
 
 	if len(results) == 0 {
-		resourceID := d.Id()
-		d.SetId("")
-		return diag.Diagnostics{
-			diag.Diagnostic{
-				Severity: diag.Warning,
-				Summary:  "Resource not found",
-				Detail:   fmt.Sprintf("the resource %s is gone and will be removed in Terraform state.", resourceID),
-			},
-		}
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving cloud native AntiDdos")
 	}
 
 	ddosStatus := results[0]
@@ -167,7 +159,7 @@ func resourceCloudNativeAntiDdosRead(ctx context.Context, d *schema.ResourceData
 	return nil
 }
 
-func resourceCloudNativeAntiDdosDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCloudNativeAntiDdosDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.AntiDDosV1Client(region)
@@ -175,7 +167,7 @@ func resourceCloudNativeAntiDdosDelete(_ context.Context, d *schema.ResourceData
 		return diag.Errorf("error creating antiddos client: %s", err)
 	}
 
-	if err := updateAntiDdosTrafficThreshold(d, client, d.Id(), 99, false); err != nil {
+	if err := updateAntiDdosTrafficThreshold(ctx, d, client, d.Id(), 99, false); err != nil {
 		return diag.FromErr(err)
 	}
 	return nil
@@ -193,7 +185,7 @@ func getTrafficThresholdBandwidth(id int) int {
 	return bandwidth
 }
 
-func updateAntiDdosTrafficThreshold(d *schema.ResourceData, client *golangsdk.ServiceClient,
+func updateAntiDdosTrafficThreshold(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
 	antiddosID string, threshold int, check bool) error {
 	// calling antiddossdk.Get method to get other requied parameters
 	preProtection, err := antiddossdk.Get(client, antiddosID).Extract()
@@ -228,7 +220,7 @@ func updateAntiDdosTrafficThreshold(d *schema.ResourceData, client *golangsdk.Se
 			PollInterval: 5 * time.Second,
 		}
 
-		_, stateErr := stateConf.WaitForState()
+		_, stateErr := stateConf.WaitForStateContext(ctx)
 		if stateErr != nil {
 			return fmt.Errorf("error waiting for AntiDdos to become normal: %s", stateErr)
 		}
