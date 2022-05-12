@@ -1,10 +1,8 @@
-package huaweicloud
+package elb
 
 import (
 	"fmt"
 	"testing"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -12,6 +10,8 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/elb/v3/certificates"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccElbV3Certificate_basic(t *testing.T) {
@@ -20,9 +20,9 @@ func TestAccElbV3Certificate_basic(t *testing.T) {
 	resourceName := "huaweicloud_elb_certificate.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckElbV3CertificateDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckElbV3CertificateDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccElbV3CertificateConfig_basic(name),
@@ -48,9 +48,9 @@ func TestAccElbV3Certificate_client(t *testing.T) {
 	resourceName := "huaweicloud_elb_certificate.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckElbV3CertificateDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckElbV3CertificateDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccElbV3CertificateConfig_client(name),
@@ -70,9 +70,9 @@ func TestAccElbV3Certificate_withEpsId(t *testing.T) {
 	resourceName := "huaweicloud_elb_certificate.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckEpsID(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckElbV3CertificateDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckElbV3CertificateDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccElbV3CertificateConfig_withEpsId(name),
@@ -80,7 +80,7 @@ func TestAccElbV3Certificate_withEpsId(t *testing.T) {
 					testAccCheckElbV3CertificateExists(resourceName, &c),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "type", "client"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -88,8 +88,8 @@ func TestAccElbV3Certificate_withEpsId(t *testing.T) {
 }
 
 func testAccCheckElbV3CertificateDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	elbClient, err := config.ElbV3Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	elbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -120,8 +120,8 @@ func testAccCheckElbV3CertificateExists(
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		elbClient, err := config.ElbV3Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		elbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 		}
@@ -350,5 +350,5 @@ i1YhgnQbn5E0hz55OLu5jvOkKQjPCW+8Kg==
 -----END CERTIFICATE-----
 EOT
 }
-`, name, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

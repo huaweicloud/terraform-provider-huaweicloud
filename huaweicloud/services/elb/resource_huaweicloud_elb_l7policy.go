@@ -1,4 +1,4 @@
-package huaweicloud
+package elb
 
 import (
 	"time"
@@ -8,6 +8,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/elb/v3/l7policies"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -60,7 +61,7 @@ func ResourceL7PolicyV3() *schema.Resource {
 
 func resourceL7PolicyV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	lbClient, err := config.ElbV3Client(GetRegion(d, config))
+	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -93,14 +94,14 @@ func resourceL7PolicyV3Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceL7PolicyV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	lbClient, err := config.ElbV3Client(GetRegion(d, config))
+	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	l7Policy, err := l7policies.Get(lbClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "L7 Policy")
+		return common.CheckDeleted(d, err, "L7 Policy")
 	}
 
 	logp.Printf("[DEBUG] Retrieved L7 Policy %s: %#v", d.Id(), l7Policy)
@@ -109,14 +110,14 @@ func resourceL7PolicyV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", l7Policy.Name)
 	d.Set("listener_id", l7Policy.ListenerID)
 	d.Set("redirect_pool_id", l7Policy.RedirectPoolID)
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 
 	return nil
 }
 
 func resourceL7PolicyV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	lbClient, err := config.ElbV3Client(GetRegion(d, config))
+	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -153,7 +154,7 @@ func resourceL7PolicyV3Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceL7PolicyV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	lbClient, err := config.ElbV3Client(GetRegion(d, config))
+	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -161,7 +162,7 @@ func resourceL7PolicyV3Delete(d *schema.ResourceData, meta interface{}) error {
 	logp.Printf("[DEBUG] Attempting to delete L7 Policy %s", d.Id())
 	err = l7policies.Delete(lbClient, d.Id()).ExtractErr()
 	if err != nil {
-		return CheckDeleted(d, err, "Error deleting L7 Policy")
+		return common.CheckDeleted(d, err, "Error deleting L7 Policy")
 	}
 
 	timeout := d.Timeout(schema.TimeoutDelete)

@@ -1,4 +1,4 @@
-package huaweicloud
+package elb
 
 import (
 	"time"
@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v3/pools"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -80,7 +81,7 @@ func ResourceMemberV3() *schema.Resource {
 
 func resourceMemberV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(GetRegion(d, config))
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -111,14 +112,14 @@ func resourceMemberV3Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceMemberV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(GetRegion(d, config))
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	member, err := pools.GetMember(elbClient, d.Get("pool_id").(string), d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "member")
+		return common.CheckDeleted(d, err, "member")
 	}
 
 	logp.Printf("[DEBUG] Retrieved member %s: %#v", d.Id(), member)
@@ -128,14 +129,14 @@ func resourceMemberV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("subnet_id", member.SubnetID)
 	d.Set("address", member.Address)
 	d.Set("protocol_port", member.ProtocolPort)
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 
 	return nil
 }
 
 func resourceMemberV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(GetRegion(d, config))
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -160,7 +161,7 @@ func resourceMemberV3Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceMemberV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(GetRegion(d, config))
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}

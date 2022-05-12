@@ -1,10 +1,8 @@
-package huaweicloud
+package elb
 
 import (
 	"fmt"
 	"testing"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -12,6 +10,8 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/elb/v3/ipgroups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccElbV3IpGroup_basic(t *testing.T) {
@@ -20,9 +20,9 @@ func TestAccElbV3IpGroup_basic(t *testing.T) {
 	resourceName := "huaweicloud_elb_ipgroup.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckElbV3IpGroupDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckElbV3IpGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccElbV3IpGroupConfig_basic(name),
@@ -51,16 +51,16 @@ func TestAccElbV3IpGroup_withEpsId(t *testing.T) {
 	resourceName := "huaweicloud_elb_ipgroup.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckEpsID(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckElbV3IpGroupDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckElbV3IpGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccElbV3IpGroupConfig_withEpsId(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckElbV3IpGroupExists(resourceName, &c),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -68,8 +68,8 @@ func TestAccElbV3IpGroup_withEpsId(t *testing.T) {
 }
 
 func testAccCheckElbV3IpGroupDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	elbClient, err := config.ElbV3Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	elbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -100,8 +100,8 @@ func testAccCheckElbV3IpGroupExists(
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		elbClient, err := config.ElbV3Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		elbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 		}
@@ -167,5 +167,5 @@ resource "huaweicloud_elb_ipgroup" "test"{
 
   enterprise_project_id = "%s"
 }
-`, name, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

@@ -1,4 +1,4 @@
-package huaweicloud
+package elb
 
 import (
 	"time"
@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v3/ipgroups"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -87,7 +88,7 @@ func resourceIpGroupAddresses(d *schema.ResourceData) []ipgroups.IpListOpt {
 
 func resourceIpGroupV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(GetRegion(d, config))
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
 	}
@@ -98,7 +99,7 @@ func resourceIpGroupV3Create(d *schema.ResourceData, meta interface{}) error {
 		Name:                d.Get("name").(string),
 		Description:         &desc,
 		IpList:              &ipList,
-		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
 	}
 
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -113,21 +114,21 @@ func resourceIpGroupV3Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceIpGroupV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(GetRegion(d, config))
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
 	}
 
 	ig, err := ipgroups.Get(elbClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "ipgroup")
+		return common.CheckDeleted(d, err, "ipgroup")
 	}
 
 	logp.Printf("[DEBUG] Retrieved ip group %s: %#v", d.Id(), ig)
 
 	d.Set("name", ig.Name)
 	d.Set("description", ig.Description)
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 
 	ipList := make([]map[string]interface{}, len(ig.IpList))
 	for i, ip := range ig.IpList {
@@ -143,7 +144,7 @@ func resourceIpGroupV3Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceIpGroupV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(GetRegion(d, config))
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
 	}
@@ -172,7 +173,7 @@ func resourceIpGroupV3Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceIpGroupV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(GetRegion(d, config))
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
 	}

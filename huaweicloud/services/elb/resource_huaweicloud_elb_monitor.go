@@ -1,9 +1,10 @@
-package huaweicloud
+package elb
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v3/monitors"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -72,7 +73,7 @@ func ResourceMonitorV3() *schema.Resource {
 
 func resourceMonitorV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	lbClient, err := config.ElbV3Client(GetRegion(d, config))
+	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -101,14 +102,14 @@ func resourceMonitorV3Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceMonitorV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	lbClient, err := config.ElbV3Client(GetRegion(d, config))
+	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	monitor, err := monitors.Get(lbClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "monitor")
+		return common.CheckDeleted(d, err, "monitor")
 	}
 
 	logp.Printf("[DEBUG] Retrieved monitor %s: %#v", d.Id(), monitor)
@@ -119,7 +120,7 @@ func resourceMonitorV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("max_retries", monitor.MaxRetries)
 	d.Set("url_path", monitor.URLPath)
 	d.Set("domain_name", monitor.DomainName)
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 	if monitor.MonitorPort != 0 {
 		d.Set("port", monitor.MonitorPort)
 	}
@@ -129,7 +130,7 @@ func resourceMonitorV3Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceMonitorV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	lbClient, err := config.ElbV3Client(GetRegion(d, config))
+	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -165,7 +166,7 @@ func resourceMonitorV3Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceMonitorV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	lbClient, err := config.ElbV3Client(GetRegion(d, config))
+	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}

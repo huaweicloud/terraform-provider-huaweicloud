@@ -1,68 +1,71 @@
-package huaweicloud
+package elb
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/elb/v3/pools"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/elb/v3/pools"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
-func TestAccElbV3Member_basic(t *testing.T) {
-	var member_1 pools.Member
-	var member_2 pools.Member
+func TestAccElbV3Pool_basic(t *testing.T) {
+	var pool pools.Pool
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rNameUpdate := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_elb_pool.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckElbV3MemberDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckElbV3PoolDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccElbV3MemberConfig_basic(rName),
+				Config: testAccElbV3PoolConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckElbV3MemberExists("huaweicloud_elb_member.member_1", &member_1),
-					testAccCheckElbV3MemberExists("huaweicloud_elb_member.member_2", &member_2),
+					testAccCheckElbV3PoolExists(resourceName, &pool),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "lb_method", "ROUND_ROBIN"),
 				),
 			},
 			{
-				Config: testAccElbV3MemberConfig_update(rName),
+				Config: testAccElbV3PoolConfig_update(rName, rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("huaweicloud_elb_member.member_1", "weight", "10"),
-					resource.TestCheckResourceAttr("huaweicloud_elb_member.member_2", "weight", "15"),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "lb_method", "LEAST_CONNECTIONS"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckElbV3MemberDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	elbClient, err := config.ElbV3Client(HW_REGION_NAME)
+func testAccCheckElbV3PoolDestroy(s *terraform.State) error {
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	elbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_elb_member" {
+		if rs.Type != "huaweicloud_elb_pool" {
 			continue
 		}
 
-		poolId := rs.Primary.Attributes["pool_id"]
-		_, err := pools.GetMember(elbClient, poolId, rs.Primary.ID).Extract()
+		_, err := pools.Get(elbClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("Member still exists: %s", rs.Primary.ID)
+			return fmtp.Errorf("Pool still exists: %s", rs.Primary.ID)
 		}
 	}
 
 	return nil
 }
 
-func testAccCheckElbV3MemberExists(n string, member *pools.Member) resource.TestCheckFunc {
+func testAccCheckElbV3PoolExists(n string, pool *pools.Pool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -73,14 +76,13 @@ func testAccCheckElbV3MemberExists(n string, member *pools.Member) resource.Test
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		elbClient, err := config.ElbV3Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		elbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 		}
 
-		poolId := rs.Primary.Attributes["pool_id"]
-		found, err := pools.GetMember(elbClient, poolId, rs.Primary.ID).Extract()
+		found, err := pools.Get(elbClient, rs.Primary.ID).Extract()
 		if err != nil {
 			return err
 		}
@@ -89,13 +91,13 @@ func testAccCheckElbV3MemberExists(n string, member *pools.Member) resource.Test
 			return fmtp.Errorf("Member not found")
 		}
 
-		*member = *found
+		*pool = *found
 
 		return nil
 	}
 }
 
-func testAccElbV3MemberConfig_basic(rName string) string {
+func testAccElbV3PoolConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
@@ -132,26 +134,6 @@ resource "huaweicloud_elb_pool" "test" {
   protocol    = "HTTP"
   lb_method   = "ROUND_ROBIN"
   listener_id = huaweicloud_elb_listener.test.id
-}
-
-resource "huaweicloud_elb_member" "member_1" {
-  address       = "192.168.0.10"
-  protocol_port = 8080
-  pool_id       = huaweicloud_elb_pool.test.id
-  subnet_id     = data.huaweicloud_vpc_subnet.test.subnet_id
-
-  timeouts {
-    create = "5m"
-    update = "5m"
-    delete = "5m"
-  }
-}
-
-resource "huaweicloud_elb_member" "member_2" {
-  address       = "192.168.0.11"
-  protocol_port = 8080
-  pool_id       = huaweicloud_elb_pool.test.id
-  subnet_id     = data.huaweicloud_vpc_subnet.test.subnet_id
 
   timeouts {
     create = "5m"
@@ -162,7 +144,7 @@ resource "huaweicloud_elb_member" "member_2" {
 `, rName, rName, rName)
 }
 
-func testAccElbV3MemberConfig_update(rName string) string {
+func testAccElbV3PoolConfig_update(rName, rNameUpdate string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
@@ -195,18 +177,10 @@ resource "huaweicloud_elb_listener" "test" {
 }
 
 resource "huaweicloud_elb_pool" "test" {
-  name        = "%s"
-  protocol    = "HTTP"
-  lb_method   = "ROUND_ROBIN"
-  listener_id = huaweicloud_elb_listener.test.id
-}
-
-resource "huaweicloud_elb_member" "member_1" {
-  address        = "192.168.0.10"
-  protocol_port  = 8080
-  weight         = 10
-  pool_id        = huaweicloud_elb_pool.test.id
-  subnet_id      = data.huaweicloud_vpc_subnet.test.subnet_id
+  name           = "%s"
+  protocol       = "HTTP"
+  lb_method      = "LEAST_CONNECTIONS"
+  listener_id    = huaweicloud_elb_listener.test.id
 
   timeouts {
     create = "5m"
@@ -214,19 +188,5 @@ resource "huaweicloud_elb_member" "member_1" {
     delete = "5m"
   }
 }
-
-resource "huaweicloud_elb_member" "member_2" {
-  address        = "192.168.0.11"
-  protocol_port  = 8080
-  weight         = 15
-  pool_id        = huaweicloud_elb_pool.test.id
-  subnet_id      = data.huaweicloud_vpc_subnet.test.subnet_id
-
-  timeouts {
-    create = "5m"
-    update = "5m"
-    delete = "5m"
-  }
-}
-`, rName, rName, rName)
+`, rName, rName, rNameUpdate)
 }

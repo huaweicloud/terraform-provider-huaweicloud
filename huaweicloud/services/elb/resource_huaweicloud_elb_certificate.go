@@ -1,4 +1,4 @@
-package huaweicloud
+package elb
 
 import (
 	"time"
@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v3/certificates"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -98,7 +99,7 @@ func ResourceCertificateV3() *schema.Resource {
 
 func resourceCertificateV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(GetRegion(d, config))
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -110,7 +111,7 @@ func resourceCertificateV3Create(d *schema.ResourceData, meta interface{}) error
 		Domain:              d.Get("domain").(string),
 		PrivateKey:          d.Get("private_key").(string),
 		Certificate:         d.Get("certificate").(string),
-		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
 	}
 
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -127,14 +128,14 @@ func resourceCertificateV3Create(d *schema.ResourceData, meta interface{}) error
 
 func resourceCertificateV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(GetRegion(d, config))
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	c, err := certificates.Get(elbClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "certificate")
+		return common.CheckDeleted(d, err, "certificate")
 	}
 	logp.Printf("[DEBUG] Retrieved certificate %s: %#v", d.Id(), c)
 
@@ -148,14 +149,14 @@ func resourceCertificateV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("update_time", c.UpdateTime)
 	d.Set("expire_time", c.ExpireTime)
 
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 
 	return nil
 }
 
 func resourceCertificateV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(GetRegion(d, config))
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -190,7 +191,7 @@ func resourceCertificateV3Update(d *schema.ResourceData, meta interface{}) error
 
 func resourceCertificateV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(GetRegion(d, config))
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
