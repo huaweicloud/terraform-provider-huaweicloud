@@ -70,14 +70,6 @@ func ResourceCBRVaultV3() *schema.Resource {
 					VaultTypeServer, VaultTypeDisk, VaultTypeTurbo,
 				}, false),
 			},
-			"consistent_level": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"crash_consistent", "app_consistent",
-				}, false),
-			},
 			"protection_type": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -90,6 +82,15 @@ func ResourceCBRVaultV3() *schema.Resource {
 				Type:         schema.TypeInt,
 				Required:     true,
 				ValidateFunc: validation.IntBetween(1, 10485760),
+			},
+			"consistent_level": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  "crash_consistent",
+				ValidateFunc: validation.StringInSlice([]string{
+					"crash_consistent", "app_consistent",
+				}, false),
 			},
 			"auto_expand": {
 				Type:     schema.TypeBool,
@@ -407,10 +408,10 @@ func resourceCBRVaultV3Read(d *schema.ResourceData, meta interface{}) error {
 	mErr := multierror.Append(
 		// Required && Optional
 		d.Set("name", resp.Name),
-		d.Set("consistent_level", resp.Billing.ConsistentLevel),
 		d.Set("type", resp.Billing.ObjectType),
 		d.Set("protection_type", resp.Billing.ProtectType),
 		d.Set("size", resp.Billing.Size),
+		d.Set("consistent_level", resp.Billing.ConsistentLevel),
 		d.Set("auto_expand", resp.AutoExpand),
 		d.Set("enterprise_project_id", resp.EnterpriseProjectID),
 		d.Set("tags", utils.TagsToMap(resp.Tags)),

@@ -50,7 +50,6 @@ resource "huaweicloud_cbr_vault" "test" {
   name             = var.vault_name
   type             = "disk"
   protection_type  = "backup"
-  consistent_level = "crash_consistent"
   size             = 50
   auto_expand      = true
 
@@ -74,7 +73,6 @@ variable "sfs_turbo_id" {}
 
 resource "huaweicloud_cbr_vault" "test" {
   name             = var.vault_name
-  consistent_level = "crash_consistent"
   type             = "turbo"
   protection_type  = "backup"
   size             = 1000
@@ -98,7 +96,6 @@ variable "vault_name" {}
 
 resource "huaweicloud_cbr_vault" "test" {
   name             = var.vault_name
-  consistent_level = "crash_consistent"
   type             = "turbo"
   protection_type  = "replication"
   size             = 1000
@@ -121,21 +118,22 @@ The following arguments are supported:
   + **disk** (EVS Disks)
   + **turbo** (SFS Turbo file systems)
 
-* `consistent_level` - (Required, String, ForceNew) Specifies the backup specifications.
-  The valid values are as follows:
-  + **[crash_consistent](https://support.huaweicloud.com/intl/en-us/usermanual-cbr/cbr_03_0109.html)**
-  + **[app_consistent](https://support.huaweicloud.com/intl/en-us/usermanual-cbr/cbr_03_0109.html)**
-
-  Only server type vaults support application consistent. Changing this will create a new vault.
-
 * `protection_type` - (Required, String, ForceNew) Specifies the protection type of the CBR vault.
   The valid values are **backup** and **replication**. Vaults of type **disk** don't support **replication**.
   Changing this will create a new vault.
 
 * `size` - (Required, Int) Specifies the vault sapacity, in GB. The valid value range is `1` to `10,485,760`.
 
+* `consistent_level` - (Optional, String, ForceNew) Specifies the backup specifications.
+  The valid values are as follows:
+  + **[crash_consistent](https://support.huaweicloud.com/intl/en-us/usermanual-cbr/cbr_03_0109.html)**
+  + **[app_consistent](https://support.huaweicloud.com/intl/en-us/usermanual-cbr/cbr_03_0109.html)**
+
+  Only **server** type vaults support application consistent and defaults to **crash_consistent**.
+  Changing this will create a new vault.
+
 * `auto_expand` - (Optional, Bool) Specifies to enable auto capacity expansion for the backup protection type vault.
-  Default to **false**.
+  Defaults to **false**.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies a unique ID in UUID format of enterprise project.
   Changing this will create a new vault.

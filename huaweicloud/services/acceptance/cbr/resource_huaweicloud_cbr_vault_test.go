@@ -476,7 +476,6 @@ func testAccCBRV3Vault_volumeBasic(rName string) string {
 
 resource "huaweicloud_cbr_vault" "test" {
   name                  = "%s"
-  consistent_level      = "crash_consistent"
   type                  = "disk"
   protection_type       = "backup"
   size                  = 50
@@ -498,7 +497,6 @@ func testAccCBRV3Vault_volumeUpdate(rName string) string {
 
 resource "huaweicloud_cbr_vault" "test" {
   name                  = "%s-update"
-  consistent_level      = "crash_consistent"
   type                  = "disk"
   protection_type       = "backup"
   size                  = 100
@@ -552,7 +550,6 @@ func testAccCBRV3Vault_turboBasic(rName string) string {
 
 resource "huaweicloud_cbr_vault" "test" {
   name                  = "%s"
-  consistent_level      = "crash_consistent"
   type                  = "turbo"
   protection_type       = "backup"
   size                  = 800
@@ -585,7 +582,6 @@ resource "huaweicloud_sfs_turbo" "test2" {
 
 resource "huaweicloud_cbr_vault" "test" {
   name                  = "%s-update"
-  consistent_level      = "crash_consistent"
   type                  = "turbo"
   protection_type       = "backup"
   size                  = 1000
@@ -607,7 +603,6 @@ func testAccCBRV3Vault_turboReplication(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cbr_vault" "test" {
   name                  = "%s"
-  consistent_level      = "crash_consistent"
   type                  = "turbo"
   protection_type       = "replication"
   size                  = 1000
