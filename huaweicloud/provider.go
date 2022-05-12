@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/antiddos"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/aom"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/as"
@@ -522,6 +523,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_response":          apig.ResourceApigResponseV2(),
 			"huaweicloud_apig_throttling_policy": apig.ResourceApigThrottlingPolicyV2(),
 			"huaweicloud_apig_vpc_channel":       apig.ResourceApigVpcChannelV2(),
+
+			"huaweicloud_antiddos_basic": antiddos.ResourceCloudNativeAntiDdos(),
 
 			"huaweicloud_as_configuration":  as.ResourceASConfiguration(),
 			"huaweicloud_as_group":          as.ResourceASGroup(),
