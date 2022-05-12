@@ -46,6 +46,11 @@ func TestAccElbV3Monitor_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "domain_name", "www.bb.com"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -21,6 +22,9 @@ func ResourceMemberV3() *schema.Resource {
 		ReadContext:   resourceMemberV3Read,
 		UpdateContext: resourceMemberV3Update,
 		DeleteContext: resourceMemberV3Delete,
+		Importer: &schema.ResourceImporter{
+			StateContext: resourceELBMemberImport,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -180,4 +184,20 @@ func resourceMemberV3Delete(_ context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("unable to delete member %s: %s", d.Id(), err)
 	}
 	return nil
+}
+
+func resourceELBMemberImport(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.SplitN(d.Id(), "/", 2)
+	if len(parts) != 2 {
+		err := fmt.Errorf("invalid format specified for member. Format must be <pool_id>/<member_id>")
+		return nil, err
+	}
+
+	poolID := parts[0]
+	memberID := parts[1]
+
+	d.SetId(memberID)
+	d.Set("pool_id", poolID)
+
+	return []*schema.ResourceData{d}, nil
 }

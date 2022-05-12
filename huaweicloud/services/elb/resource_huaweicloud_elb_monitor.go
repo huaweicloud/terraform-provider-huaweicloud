@@ -19,6 +19,9 @@ func ResourceMonitorV3() *schema.Resource {
 		ReadContext:   resourceMonitorV3Read,
 		UpdateContext: resourceMonitorV3Update,
 		DeleteContext: resourceMonitorV3Delete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"region": {

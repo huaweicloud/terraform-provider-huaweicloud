@@ -56,3 +56,26 @@ This resource provides the following timeouts configuration options:
 * `create` - Default is 10 minute.
 * `update` - Default is 10 minute.
 * `delete` - Default is 5 minute.
+
+ELB IP group can be imported using the IP group ID, e.g.
+
+```
+$ terraform import huaweicloud_elb_ipgroup.group_1 5c20fdad-7288-11eb-b817-0255ac10158b
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+API response, security or some other reason. The missing attributes include: `enterprise_project_id`.
+It is generally recommended running `terraform plan` after importing a IP group.
+You can then decide if changes should be applied to the IP group, or the resource
+definition should be updated to align with the IP group. Also you can ignore changes as below.
+
+```
+resource "huaweicloud_elb_ipgroup" "group_1" {
+    ...
+  lifecycle {
+    ignore_changes = [
+      enterprise_project_id,
+    ]
+  }
+}
+```

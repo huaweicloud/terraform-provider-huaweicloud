@@ -16,7 +16,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/elb/v3/loadbalancers"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -28,6 +27,9 @@ func ResourceLoadBalancerV3() *schema.Resource {
 		ReadContext:   resourceLoadBalancerV3Read,
 		UpdateContext: resourceLoadBalancerV3Update,
 		DeleteContext: resourceLoadBalancerV3Delete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),

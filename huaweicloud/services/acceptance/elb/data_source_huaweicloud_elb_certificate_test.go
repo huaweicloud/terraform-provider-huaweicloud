@@ -55,6 +55,10 @@ func testAccELbCertDataSourceV3_conf(name string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_elb_certificate" "cert_1" {
   name = huaweicloud_elb_certificate.certificate_1.name
+
+  depends_on = [
+    huaweicloud_elb_certificate.certificate_1
+  ]
 }
 
 resource "huaweicloud_elb_certificate" "certificate_1" {

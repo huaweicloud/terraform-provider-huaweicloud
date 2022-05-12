@@ -24,6 +24,9 @@ func ResourcePoolV3() *schema.Resource {
 		ReadContext:   resourcePoolV3Read,
 		UpdateContext: resourcePoolV3Update,
 		DeleteContext: resourcePoolV3Delete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -63,6 +66,7 @@ func ResourcePoolV3() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
+				Computed:     true,
 				AtLeastOneOf: []string{"loadbalancer_id", "listener_id"},
 			},
 
@@ -71,6 +75,7 @@ func ResourcePoolV3() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
+				Computed:     true,
 				AtLeastOneOf: []string{"loadbalancer_id", "listener_id"},
 			},
 
@@ -197,6 +202,14 @@ func resourcePoolV3Read(_ context.Context, d *schema.ResourceData, meta interfac
 
 	if len(pool.Listeners) != 0 {
 		mErr = multierror.Append(mErr, d.Set("listener_id", pool.Listeners[0].ID))
+	}
+
+	if len(pool.Loadbalancers) != 0 {
+		d.Set("loadbalancer_id", pool.Loadbalancers[0].ID)
+	}
+
+	if len(pool.Listeners) != 0 {
+		d.Set("listener_id", pool.Listeners[0].ID)
 	}
 
 	if pool.Persistence.Type != "" {

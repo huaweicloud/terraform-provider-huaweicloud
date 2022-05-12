@@ -45,6 +45,12 @@ func TestAccElbV3L7Rule_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "value", "/images"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccELBL7RuleImportStateIdFunc(),
+			},
 		},
 	})
 }
@@ -123,6 +129,23 @@ func testAccCheckElbV3L7RuleExists(n string, l7rule *l7rules.Rule) resource.Test
 		*l7rule = *found
 
 		return nil
+	}
+}
+
+func testAccELBL7RuleImportStateIdFunc() resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		policy, ok := s.RootModule().Resources["huaweicloud_elb_l7policy.test"]
+		if !ok {
+			return "", fmt.Errorf("policy not found: %s", policy)
+		}
+		rule, ok := s.RootModule().Resources["huaweicloud_elb_l7rule.l7rule_1"]
+		if !ok {
+			return "", fmt.Errorf("rule not found: %s", rule)
+		}
+		if policy.Primary.ID == "" || rule.Primary.ID == "" {
+			return "", fmt.Errorf("resource not found: %s/%s", policy.Primary.ID, rule.Primary.ID)
+		}
+		return fmt.Sprintf("%s/%s", policy.Primary.ID, rule.Primary.ID), nil
 	}
 }
 

@@ -23,6 +23,9 @@ func ResourceL7PolicyV3() *schema.Resource {
 		ReadContext:   resourceL7PolicyV3Read,
 		UpdateContext: resourceL7PolicyV3Update,
 		DeleteContext: resourceL7PolicyV3Delete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),

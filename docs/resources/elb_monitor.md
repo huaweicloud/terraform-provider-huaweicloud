@@ -52,3 +52,11 @@ The following arguments are supported:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The unique ID for the monitor.
+
+## Import
+
+ELB monitor can be imported using the monitor ID, e.g.
+
+```
+$ terraform import huaweicloud_elb_monitor.monitor_1 5c20fdad-7288-11eb-b817-0255ac10158b
+```

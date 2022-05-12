@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -24,6 +25,9 @@ func ResourceL7RuleV3() *schema.Resource {
 		ReadContext:   resourceL7RuleV3Read,
 		UpdateContext: resourceL7RuleV3Update,
 		DeleteContext: resourceL7RuleV3Delete,
+		Importer: &schema.ResourceImporter{
+			StateContext: resourceELBL7RuleImport,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Update: schema.DefaultTimeout(10 * time.Minute),
@@ -236,4 +240,20 @@ func resourceElbV3RuleRefreshFunc(elbClient *golangsdk.ServiceClient,
 
 		return rule, rule.ProvisioningStatus, nil
 	}
+}
+
+func resourceELBL7RuleImport(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.SplitN(d.Id(), "/", 2)
+	if len(parts) != 2 {
+		err := fmt.Errorf("invalid format specified for L7 Rule. Format must be <policy_id>/<rule_id>")
+		return nil, err
+	}
+
+	l7policyID := parts[0]
+	l7ruleID := parts[1]
+
+	d.SetId(l7ruleID)
+	d.Set("l7policy_id", l7policyID)
+
+	return []*schema.ResourceData{d}, nil
 }

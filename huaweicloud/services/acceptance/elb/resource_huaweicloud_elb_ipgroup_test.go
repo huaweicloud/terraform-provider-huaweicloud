@@ -41,6 +41,11 @@ func TestAccElbV3IpGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ip_list.#", "2"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

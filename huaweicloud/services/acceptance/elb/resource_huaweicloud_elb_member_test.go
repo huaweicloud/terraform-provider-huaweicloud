@@ -38,6 +38,12 @@ func TestAccElbV3Member_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("huaweicloud_elb_member.member_2", "weight", "15"),
 				),
 			},
+			{
+				ResourceName:      "huaweicloud_elb_member.member_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccELBMemberImportStateIdFunc(),
+			},
 		},
 	})
 }
@@ -94,6 +100,23 @@ func testAccCheckElbV3MemberExists(n string, member *pools.Member) resource.Test
 		*member = *found
 
 		return nil
+	}
+}
+
+func testAccELBMemberImportStateIdFunc() resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		pool, ok := s.RootModule().Resources["huaweicloud_elb_pool.test"]
+		if !ok {
+			return "", fmt.Errorf("pool not found: %s", pool)
+		}
+		member, ok := s.RootModule().Resources["huaweicloud_elb_member.member_1"]
+		if !ok {
+			return "", fmt.Errorf("member not found: %s", member)
+		}
+		if pool.Primary.ID == "" || member.Primary.ID == "" {
+			return "", fmt.Errorf("resource not found: %s/%s", pool.Primary.ID, member.Primary.ID)
+		}
+		return fmt.Sprintf("%s/%s", pool.Primary.ID, member.Primary.ID), nil
 	}
 }
 

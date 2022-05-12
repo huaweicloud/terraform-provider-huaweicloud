@@ -40,6 +40,11 @@ func TestAccElbV3Pool_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "lb_method", "LEAST_CONNECTIONS"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

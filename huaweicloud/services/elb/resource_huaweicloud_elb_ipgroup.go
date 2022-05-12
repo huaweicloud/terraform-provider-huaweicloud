@@ -20,6 +20,9 @@ func ResourceIpGroupV3() *schema.Resource {
 		ReadContext:   resourceIpGroupV3Read,
 		UpdateContext: resourceIpGroupV3Update,
 		DeleteContext: resourceIpGroupV3Delete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
