@@ -54,7 +54,7 @@ func TestAccComputeServerGroup_scheduler(t *testing.T) {
 				Config: testAccComputeServerGroup_scheduler(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeServerGroupExists(resourceName, &sg),
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.instance_1", &instance),
+					testAccCheckComputeInstanceExists("huaweicloud_compute_instance.instance_1", &instance),
 					testAccCheckComputeInstanceInServerGroup(&instance, &sg),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 				),
@@ -78,7 +78,7 @@ func TestAccComputeServerGroup_members(t *testing.T) {
 				Config: testAccComputeServerGroup_members(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeServerGroupExists(resourceName, &sg),
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.instance_1", &instance),
+					testAccCheckComputeInstanceExists("huaweicloud_compute_instance.instance_1", &instance),
 					testAccCheckComputeInstanceInServerGroup(&instance, &sg),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 				),

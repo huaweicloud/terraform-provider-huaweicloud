@@ -20,12 +20,12 @@ func TestAccComputeInstanceDataSource_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceDataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.test", &instance),
+					testAccCheckComputeInstanceExists("huaweicloud_compute_instance.test", &instance),
 					testAccCheckComputeInstanceDataSourceID(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttrSet(resourceName, "status"),
