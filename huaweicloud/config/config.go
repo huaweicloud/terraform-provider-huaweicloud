@@ -629,6 +629,10 @@ func (c *Config) SmnV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("smn", region)
 }
 
+func (c *Config) SmnV2TagClient(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("smn-tag", region)
+}
+
 // ********** client for Security **********
 func (c *Config) AntiDDosV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("anti-ddos", region)

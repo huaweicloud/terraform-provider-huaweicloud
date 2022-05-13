@@ -38,6 +38,7 @@ var multiCatalogKeys = map[string][]string{
 	"apig":         {"apigv2"},
 	"modelarts":    {"modelartsv2"},
 	"servicestage": {"servicestagev2"},
+	"smn":          {"smn-tag"},
 }
 
 // GetServiceDerivedCatalogKeys returns the derived catalog keys of a service.
@@ -345,6 +346,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:      "v2",
 		ResourceBase: "notifications",
 		Product:      "SMN",
+	},
+	"smn-tag": {
+		Name:    "smn",
+		Version: "v2",
+		Product: "SMN",
 	},
 	"tms": {
 		Name:             "tms",
