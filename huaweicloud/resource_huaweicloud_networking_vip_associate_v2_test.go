@@ -80,5 +80,5 @@ resource "huaweicloud_networking_vip_associate" "vip_associate_1" {
   vip_id   = huaweicloud_networking_vip.vip_1.id
   port_ids = [huaweicloud_compute_instance.test.network[0].port]
 }
-`, testAccComputeV2Instance_basic(rName))
+`, testAccComputeInstance_basic(rName))
 }

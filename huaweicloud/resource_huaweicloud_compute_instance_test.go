@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
-func TestAccComputeV2Instance_basic(t *testing.T) {
+func TestAccComputeInstance_basic(t *testing.T) {
 	var instance cloudservers.CloudServer
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -23,12 +23,12 @@ func TestAccComputeV2Instance_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeV2Instance_basic(rName),
+				Config: testAccComputeInstance_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists(resourceName, &instance),
+					testAccCheckComputeInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 					resource.TestCheckResourceAttrSet(resourceName, "system_disk_id"),
@@ -54,7 +54,7 @@ func TestAccComputeV2Instance_basic(t *testing.T) {
 	})
 }
 
-func TestAccComputeV2Instance_disks(t *testing.T) {
+func TestAccComputeInstance_disks(t *testing.T) {
 	var instance cloudservers.CloudServer
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -63,20 +63,20 @@ func TestAccComputeV2Instance_disks(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeV2Instance_disks(rName, 50),
+				Config: testAccComputeInstance_disks(rName, 50),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists(resourceName, &instance),
+					testAccCheckComputeInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "system_disk_size", "50"),
 				),
 			},
 			{
-				Config: testAccComputeV2Instance_disks(rName, 60),
+				Config: testAccComputeInstance_disks(rName, 60),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists(resourceName, &instance),
+					testAccCheckComputeInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "system_disk_size", "60"),
 				),
@@ -85,7 +85,7 @@ func TestAccComputeV2Instance_disks(t *testing.T) {
 	})
 }
 
-func TestAccComputeV2Instance_prePaid(t *testing.T) {
+func TestAccComputeInstance_prePaid(t *testing.T) {
 	var instance cloudservers.CloudServer
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -94,12 +94,12 @@ func TestAccComputeV2Instance_prePaid(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeV2Instance_prePaid(rName),
+				Config: testAccComputeInstance_prePaid(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists(resourceName, &instance),
+					testAccCheckComputeInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 				),
 			},
@@ -107,7 +107,7 @@ func TestAccComputeV2Instance_prePaid(t *testing.T) {
 	})
 }
 
-func TestAccComputeV2Instance_tags(t *testing.T) {
+func TestAccComputeInstance_tags(t *testing.T) {
 	var instance cloudservers.CloudServer
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -116,44 +116,44 @@ func TestAccComputeV2Instance_tags(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeV2Instance_tags(rName),
+				Config: testAccComputeInstance_tags(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists(resourceName, &instance),
-					testAccCheckComputeV2InstanceTags(&instance, "foo", "bar"),
-					testAccCheckComputeV2InstanceTags(&instance, "key", "value"),
+					testAccCheckComputeInstanceExists(resourceName, &instance),
+					testAccCheckComputeInstanceTags(&instance, "foo", "bar"),
+					testAccCheckComputeInstanceTags(&instance, "key", "value"),
 				),
 			},
 			{
-				Config: testAccComputeV2Instance_tags2(rName),
+				Config: testAccComputeInstance_tags2(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists(resourceName, &instance),
-					testAccCheckComputeV2InstanceTags(&instance, "foo2", "bar2"),
-					testAccCheckComputeV2InstanceTags(&instance, "key", "value2"),
+					testAccCheckComputeInstanceExists(resourceName, &instance),
+					testAccCheckComputeInstanceTags(&instance, "foo2", "bar2"),
+					testAccCheckComputeInstanceTags(&instance, "key", "value2"),
 				),
 			},
 			{
-				Config: testAccComputeV2Instance_notags(rName),
+				Config: testAccComputeInstance_notags(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists(resourceName, &instance),
-					testAccCheckComputeV2InstanceNoTags(&instance),
+					testAccCheckComputeInstanceExists(resourceName, &instance),
+					testAccCheckComputeInstanceNoTags(&instance),
 				),
 			},
 			{
-				Config: testAccComputeV2Instance_tags(rName),
+				Config: testAccComputeInstance_tags(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists(resourceName, &instance),
-					testAccCheckComputeV2InstanceTags(&instance, "foo", "bar"),
-					testAccCheckComputeV2InstanceTags(&instance, "key", "value"),
+					testAccCheckComputeInstanceExists(resourceName, &instance),
+					testAccCheckComputeInstanceTags(&instance, "foo", "bar"),
+					testAccCheckComputeInstanceTags(&instance, "key", "value"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccComputeV2Instance_powerAction(t *testing.T) {
+func TestAccComputeInstance_powerAction(t *testing.T) {
 	var instance cloudservers.CloudServer
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -162,48 +162,48 @@ func TestAccComputeV2Instance_powerAction(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeV2Instance_powerAction(rName, "OFF"),
+				Config: testAccComputeInstance_powerAction(rName, "OFF"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists(resourceName, &instance),
+					testAccCheckComputeInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "power_action", "OFF"),
 					resource.TestCheckResourceAttr(resourceName, "status", "SHUTOFF"),
 				),
 			},
 			{
-				Config: testAccComputeV2Instance_powerAction(rName, "ON"),
+				Config: testAccComputeInstance_powerAction(rName, "ON"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists(resourceName, &instance),
+					testAccCheckComputeInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "power_action", "ON"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 				),
 			},
 			{
-				Config: testAccComputeV2Instance_powerAction(rName, "REBOOT"),
+				Config: testAccComputeInstance_powerAction(rName, "REBOOT"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists(resourceName, &instance),
+					testAccCheckComputeInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "power_action", "REBOOT"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 				),
 			},
 			{
-				Config: testAccComputeV2Instance_powerAction(rName, "FORCE-REBOOT"),
+				Config: testAccComputeInstance_powerAction(rName, "FORCE-REBOOT"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists(resourceName, &instance),
+					testAccCheckComputeInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "power_action", "FORCE-REBOOT"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 				),
 			},
 			{
-				Config: testAccComputeV2Instance_powerAction(rName, "FORCE-OFF"),
+				Config: testAccComputeInstance_powerAction(rName, "FORCE-OFF"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists(resourceName, &instance),
+					testAccCheckComputeInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "power_action", "FORCE-OFF"),
 					resource.TestCheckResourceAttr(resourceName, "status", "SHUTOFF"),
@@ -222,7 +222,7 @@ func TestAccComputeV2Instance_powerAction(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeV2InstanceDestroy(s *terraform.State) error {
+func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	computeClient, err := config.ComputeV1Client(HW_REGION_NAME)
 	if err != nil {
@@ -245,7 +245,7 @@ func testAccCheckComputeV2InstanceDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckComputeV2InstanceExists(n string, instance *cloudservers.CloudServer) resource.TestCheckFunc {
+func testAccCheckComputeInstanceExists(n string, instance *cloudservers.CloudServer) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -277,7 +277,7 @@ func testAccCheckComputeV2InstanceExists(n string, instance *cloudservers.CloudS
 	}
 }
 
-func testAccCheckComputeV2InstanceTags(
+func testAccCheckComputeInstanceTags(
 	instance *cloudservers.CloudServer, k, v string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*config.Config)
@@ -303,7 +303,7 @@ func testAccCheckComputeV2InstanceTags(
 	}
 }
 
-func testAccCheckComputeV2InstanceNoTags(
+func testAccCheckComputeInstanceNoTags(
 	instance *cloudservers.CloudServer) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*config.Config)
@@ -349,7 +349,7 @@ data "huaweicloud_networking_secgroup" "test" {
 }
 `
 
-func testAccComputeV2Instance_basic(rName string) string {
+func testAccComputeInstance_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -369,7 +369,7 @@ resource "huaweicloud_compute_instance" "test" {
 `, testAccCompute_data, rName)
 }
 
-func testAccComputeV2Instance_disks(rName string, systemDiskSize int) string {
+func testAccComputeInstance_disks(rName string, systemDiskSize int) string {
 	return fmt.Sprintf(`
 %s
 
@@ -396,7 +396,7 @@ resource "huaweicloud_compute_instance" "test" {
 `, testAccCompute_data, rName, systemDiskSize)
 }
 
-func testAccComputeV2Instance_prePaid(rName string) string {
+func testAccComputeInstance_prePaid(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -418,7 +418,7 @@ resource "huaweicloud_compute_instance" "test" {
 `, testAccCompute_data, rName)
 }
 
-func testAccComputeV2Instance_tags(rName string) string {
+func testAccComputeInstance_tags(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -441,7 +441,7 @@ resource "huaweicloud_compute_instance" "test" {
 `, testAccCompute_data, rName)
 }
 
-func testAccComputeV2Instance_tags2(rName string) string {
+func testAccComputeInstance_tags2(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -464,7 +464,7 @@ resource "huaweicloud_compute_instance" "test" {
 `, testAccCompute_data, rName)
 }
 
-func testAccComputeV2Instance_notags(rName string) string {
+func testAccComputeInstance_notags(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -482,7 +482,7 @@ resource "huaweicloud_compute_instance" "test" {
 `, testAccCompute_data, rName)
 }
 
-func testAccComputeV2Instance_powerAction(rName, powerAction string) string {
+func testAccComputeInstance_powerAction(rName, powerAction string) string {
 	return fmt.Sprintf(`
 %s
 

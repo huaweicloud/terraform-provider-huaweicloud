@@ -31,7 +31,7 @@ func TestAccComputeEIPAssociate_basic(t *testing.T) {
 			{
 				Config: testAccComputeEIPAssociate_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.test", &instance),
+					testAccCheckComputeInstanceExists("huaweicloud_compute_instance.test", &instance),
 					testAccCheckVpcV1EIPExists("huaweicloud_vpc_eip.test", &eip),
 					testAccCheckComputeEIPAssociateAssociated(&eip, &instance, 1),
 					resource.TestCheckResourceAttrSet(resourceName, "port_id"),
@@ -61,7 +61,7 @@ func TestAccComputeEIPAssociate_fixedIP(t *testing.T) {
 			{
 				Config: testAccComputeEIPAssociate_fixedIP(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.test", &instance),
+					testAccCheckComputeInstanceExists("huaweicloud_compute_instance.test", &instance),
 					testAccCheckVpcV1EIPExists("huaweicloud_vpc_eip.test", &eip),
 					testAccCheckComputeEIPAssociateAssociated(&eip, &instance, 1),
 					resource.TestCheckResourceAttrSet(resourceName, "port_id"),
