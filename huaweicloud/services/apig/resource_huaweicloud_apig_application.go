@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
@@ -197,6 +198,9 @@ func resourceApigApplicationV2Read(d *schema.ResourceData, meta interface{}) err
 	}
 	instanceId := d.Get("instance_id").(string)
 	resp, err := applications.Get(client, instanceId, d.Id()).Extract()
+	if err != nil {
+		return common.CheckDeleted(d, err, "error retrieving Apig applications")
+	}
 
 	return setApigApplicationParamters(d, config, resp)
 }

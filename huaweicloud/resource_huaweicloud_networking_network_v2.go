@@ -128,7 +128,7 @@ func resourceNetworkingNetworkV2Create(d *schema.ResourceData, meta interface{})
 
 	segments := resourceNetworkingNetworkV2Segments(d)
 
-	n := &networks.Network{}
+	var n *networks.Network
 	if len(segments) > 0 {
 		providerCreateOpts := provider.CreateOptsExt{
 			CreateOptsBuilder: createOpts,

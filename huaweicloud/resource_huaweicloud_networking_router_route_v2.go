@@ -125,9 +125,8 @@ func resourceNetworkingRouterRouteV2Read(d *schema.ResourceData, meta interface{
 	destCidr := d.Get("destination_cidr").(string)
 	nextHop := d.Get("next_hop").(string)
 
-	routeIDParts := []string{}
 	if d.Id() != "" && strings.Contains(d.Id(), "-route-") {
-		routeIDParts = strings.Split(d.Id(), "-route-")
+		routeIDParts := strings.Split(d.Id(), "-route-")
 		routeLastIDParts := strings.Split(routeIDParts[1], "-")
 
 		if routerId == "" {

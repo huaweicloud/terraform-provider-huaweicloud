@@ -225,6 +225,10 @@ func ApigInstanceV2StateRefreshFunc(client *golangsdk.ServiceClient, id string) 
 			return allPages, "", fmtp.Errorf("Error getting APIG v2 dedicated instance by ID (%s): %s", id, err)
 		}
 		instances, err := instances.ExtractInstances(allPages)
+		if err != nil {
+			return allPages, "", fmtp.Errorf("Error getting APIG v2 dedicated instance by ID (%s): %s", id, err)
+		}
+
 		if len(instances) == 0 {
 			return instances, "DELETED", nil
 		}

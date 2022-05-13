@@ -62,8 +62,11 @@ func dataSourceVpcRouteV2Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	pages, err := routes.List(vpcRouteClient, listOpts).AllPages()
-	refinedRoutes, err := routes.ExtractRoutes(pages)
+	if err != nil {
+		return fmtp.Errorf("Unable to retrieve vpc routes: %s", err)
+	}
 
+	refinedRoutes, err := routes.ExtractRoutes(pages)
 	if err != nil {
 		return fmtp.Errorf("Unable to retrieve vpc routes: %s", err)
 	}
