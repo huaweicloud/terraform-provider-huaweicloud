@@ -302,6 +302,11 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"agent_list": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"tags": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -495,9 +500,9 @@ func resourceComputeInstanceV2Create(ctx context.Context, d *schema.ResourceData
 			VpcId:            vpcId,
 			SecurityGroups:   secGroups,
 			AvailabilityZone: d.Get("availability_zone").(string),
-			Nics:             resourceInstanceNicsV2(d),
 			RootVolume:       resourceInstanceRootVolumeV1(d),
 			DataVolumes:      resourceInstanceDataVolumesV1(d),
+			Nics:             buildInstanceNicsRequest(d),
 			UserData:         []byte(d.Get("user_data").(string)),
 		}
 
@@ -531,6 +536,9 @@ func resourceComputeInstanceV2Create(ctx context.Context, d *schema.ResourceData
 
 		if hasFilledOpt(d, "agency_name") {
 			metadata.AgencyName = d.Get("agency_name").(string)
+		}
+		if hasFilledOpt(d, "agent_list") {
+			metadata.AgentList = d.Get("agent_list").(string)
 		}
 		if metadata != (cloudservers.MetaData{}) {
 			createOpts.MetaData = &metadata
@@ -755,6 +763,7 @@ func resourceComputeInstanceV2Read(_ context.Context, d *schema.ResourceData, me
 	d.Set("name", server.Name)
 	d.Set("status", server.Status)
 	d.Set("agency_name", server.Metadata.AgencyName)
+	d.Set("agent_list", server.Metadata.AgentList)
 
 	chageMode := server.Metadata.ChargingMode
 	if chageMode == "0" {
@@ -1302,6 +1311,23 @@ func validateComputeInstanceConfig(d *schema.ResourceData, config *config.Config
 	return nil
 }
 
+func buildInstanceNicsRequest(d *schema.ResourceData) []cloudservers.Nic {
+	var nicRequests []cloudservers.Nic
+
+	networks := d.Get("network").([]interface{})
+	for _, v := range networks {
+		network := v.(map[string]interface{})
+		nicRequest := cloudservers.Nic{
+			SubnetId:   network["uuid"].(string),
+			IpAddress:  network["fixed_ip_v4"].(string),
+			Ipv6Enable: network["ipv6_enable"].(bool),
+		}
+
+		nicRequests = append(nicRequests, nicRequest)
+	}
+	return nicRequests
+}
+
 func resourceInstanceSecGroupsV2(d *schema.ResourceData) []string {
 	rawSecGroups := d.Get("security_groups").(*schema.Set).List()
 	secgroups := make([]string, len(rawSecGroups))
@@ -1317,23 +1343,6 @@ func resourceInstanceMetadataV2(d *schema.ResourceData) map[string]string {
 		m[key] = val.(string)
 	}
 	return m
-}
-
-func resourceInstanceNicsV2(d *schema.ResourceData) []cloudservers.Nic {
-	var nicRequests []cloudservers.Nic
-
-	networks := d.Get("network").([]interface{})
-	for _, v := range networks {
-		network := v.(map[string]interface{})
-		nicRequest := cloudservers.Nic{
-			SubnetId:   network["uuid"].(string),
-			IpAddress:  network["fixed_ip_v4"].(string),
-			Ipv6Enable: network["ipv6_enable"].(bool),
-		}
-
-		nicRequests = append(nicRequests, nicRequest)
-	}
-	return nicRequests
 }
 
 func resourceInstanceBlockDevicesV2(d *schema.ResourceData, bds []interface{}) ([]bootfromvolume.BlockDevice, error) {

@@ -8,13 +8,13 @@ import (
 
 // Response Object
 type CreateCaseResponse struct {
-	// code
 
+	// code
 	Code *string `json:"code,omitempty"`
 
 	Json *CreateCaseResultJson `json:"json,omitempty"`
-	// message
 
+	// message
 	Message        *string `json:"message,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }

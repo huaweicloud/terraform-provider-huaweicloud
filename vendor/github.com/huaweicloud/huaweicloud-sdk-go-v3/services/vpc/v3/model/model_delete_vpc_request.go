@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type DeleteVpcRequest struct {
-	// VPC的资源ID
 
+	// VPC的资源ID
 	VpcId string `json:"vpc_id"`
 }
 

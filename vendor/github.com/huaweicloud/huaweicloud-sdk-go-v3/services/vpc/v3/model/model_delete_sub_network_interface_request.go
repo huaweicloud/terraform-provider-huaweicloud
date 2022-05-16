@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type DeleteSubNetworkInterfaceRequest struct {
-	// 弹性辅助网卡唯一标识
 
+	// 弹性辅助网卡唯一标识
 	SubNetworkInterfaceId string `json:"sub_network_interface_id"`
 }
 

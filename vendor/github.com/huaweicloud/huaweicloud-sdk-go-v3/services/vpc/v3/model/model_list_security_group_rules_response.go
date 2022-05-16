@@ -8,11 +8,11 @@ import (
 
 // Response Object
 type ListSecurityGroupRulesResponse struct {
+
 	// 请求ID
-
 	RequestId *string `json:"request_id,omitempty"`
-	// 安全组规则列表响应体
 
+	// 安全组规则列表响应体
 	SecurityGroupRules *[]SecurityGroupRule `json:"security_group_rules,omitempty"`
 
 	PageInfo       *PageInfo `json:"page_info,omitempty"`

@@ -8,11 +8,11 @@ import (
 
 //
 type UpdateLoginProject struct {
+
 	// IAM用户是否开启登录保护，开启为\"true\"，未开启为\"false\"。
-
 	Enabled bool `json:"enabled"`
-	// IAM用户登录验证方式。手机验证为“sms”,邮箱验证为“email”,MFA验证为“vmfa”。
 
+	// IAM用户登录验证方式。手机验证为“sms”,邮箱验证为“email”,MFA验证为“vmfa”。
 	VerificationMethod string `json:"verification_method"`
 }
 

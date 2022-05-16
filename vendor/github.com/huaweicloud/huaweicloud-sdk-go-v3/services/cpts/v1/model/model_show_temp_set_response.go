@@ -8,14 +8,14 @@ import (
 
 // Response Object
 type ShowTempSetResponse struct {
+
 	// code
-
 	Code *string `json:"code,omitempty"`
+
 	// message
-
 	Message *string `json:"message,omitempty"`
-	// temps
 
+	// temps
 	Temps          *[]TempDetailInfo `json:"temps,omitempty"`
 	HttpStatusCode int               `json:"-"`
 }

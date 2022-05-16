@@ -8,11 +8,11 @@ import (
 
 // 指标维度参数
 type Dimension2 struct {
+
 	// 维度名称。
-
 	Name string `json:"name"`
-	// 指标数据的值。
 
+	// 指标数据的值。
 	Value string `json:"value"`
 }
 

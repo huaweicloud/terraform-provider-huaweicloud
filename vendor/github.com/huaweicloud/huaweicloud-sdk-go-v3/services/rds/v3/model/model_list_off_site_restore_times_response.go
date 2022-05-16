@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type ListOffSiteRestoreTimesResponse struct {
-	// 可恢复时间段列表。
 
+	// 可恢复时间段列表。
 	RestoreTime    *[]GetRestoreTimeResponseRestoreTime `json:"restore_time,omitempty"`
 	HttpStatusCode int                                  `json:"-"`
 }

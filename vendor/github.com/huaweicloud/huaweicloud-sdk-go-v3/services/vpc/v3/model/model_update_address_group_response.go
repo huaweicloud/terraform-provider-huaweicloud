@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type UpdateAddressGroupResponse struct {
-	// 请求ID
 
+	// 请求ID
 	RequestId *string `json:"request_id,omitempty"`
 
 	AddressGroup   *AddressGroup `json:"address_group,omitempty"`

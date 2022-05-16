@@ -8,14 +8,14 @@ import (
 
 // Request Object
 type RevokeRoleFromUserOnEnterpriseProjectRequest struct {
+
 	// 企业项目ID。
-
 	EnterpriseProjectId string `json:"enterprise_project_id"`
+
 	// 用户ID。
-
 	UserId string `json:"user_id"`
-	// 权限ID。
 
+	// 权限ID。
 	RoleId string `json:"role_id"`
 }
 

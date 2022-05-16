@@ -8,14 +8,14 @@ import (
 
 // Request Object
 type ListRestoreTimesRequest struct {
+
 	// 语言
-
 	XLanguage *string `json:"X-Language,omitempty"`
+
 	// 实例ID。
-
 	InstanceId string `json:"instance_id"`
-	// 所需查询的日期，为yyyy-mm-dd字符串格式，时区为UTC。
 
+	// 所需查询的日期，为yyyy-mm-dd字符串格式，时区为UTC。
 	Date *string `json:"date,omitempty"`
 }
 

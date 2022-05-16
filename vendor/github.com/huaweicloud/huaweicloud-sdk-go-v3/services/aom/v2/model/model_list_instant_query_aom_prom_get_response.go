@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type ListInstantQueryAomPromGetResponse struct {
-	// 响应状态。
 
+	// 响应状态。
 	Status *string `json:"status,omitempty"`
 
 	Data           *Data `json:"data,omitempty"`

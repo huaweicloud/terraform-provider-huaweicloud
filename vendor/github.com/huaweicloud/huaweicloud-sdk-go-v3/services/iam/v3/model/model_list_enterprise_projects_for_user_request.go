@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type ListEnterpriseProjectsForUserRequest struct {
-	// 待查询用户ID。
 
+	// 待查询用户ID。
 	UserId string `json:"user_id"`
 }
 

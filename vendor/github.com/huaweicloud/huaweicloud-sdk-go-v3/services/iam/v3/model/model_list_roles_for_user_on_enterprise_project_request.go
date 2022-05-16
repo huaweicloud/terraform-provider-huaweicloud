@@ -8,11 +8,11 @@ import (
 
 // Request Object
 type ListRolesForUserOnEnterpriseProjectRequest struct {
+
 	// 企业项目ID。
-
 	EnterpriseProjectId string `json:"enterprise_project_id"`
-	// 用户ID。
 
+	// 用户ID。
 	UserId string `json:"user_id"`
 }
 

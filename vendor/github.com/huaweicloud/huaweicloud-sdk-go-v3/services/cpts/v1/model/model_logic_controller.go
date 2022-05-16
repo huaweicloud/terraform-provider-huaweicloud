@@ -7,11 +7,11 @@ import (
 )
 
 type LogicController struct {
+
 	// for_loop_params
-
 	ForLoopParams *string `json:"for_loop_params,omitempty"`
-	// condition
 
+	// condition
 	Condition *string `json:"condition,omitempty"`
 }
 

@@ -19,7 +19,12 @@ func KpsClientBuilder() *http_client.HcHttpClientBuilder {
 	return builder
 }
 
-//给指定的虚拟机绑定（替换或重置，替换需提供虚拟机已配置的SSH密钥对私钥；重置不需要提供虚拟机的SSH密钥对私钥）新的SSH密钥对。
+// 绑定SSH密钥对
+//
+// 给指定的虚拟机绑定（替换或重置，替换需提供虚拟机已配置的SSH密钥对私钥；重置不需要提供虚拟机的SSH密钥对私钥）新的SSH密钥对。
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
 func (c *KpsClient) AssociateKeypair(request *model.AssociateKeypairRequest) (*model.AssociateKeypairResponse, error) {
 	requestDef := GenReqDefForAssociateKeypair()
 
@@ -30,7 +35,12 @@ func (c *KpsClient) AssociateKeypair(request *model.AssociateKeypairRequest) (*m
 	}
 }
 
-//创建和导入SSH密钥对
+// 创建和导入SSH密钥对
+//
+// 创建和导入SSH密钥对
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
 func (c *KpsClient) CreateKeypair(request *model.CreateKeypairRequest) (*model.CreateKeypairResponse, error) {
 	requestDef := GenReqDefForCreateKeypair()
 
@@ -41,7 +51,12 @@ func (c *KpsClient) CreateKeypair(request *model.CreateKeypairRequest) (*model.C
 	}
 }
 
-//删除操作失败的任务信息。
+// 删除所有失败的任务
+//
+// 删除操作失败的任务信息。
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
 func (c *KpsClient) DeleteAllFailedTask(request *model.DeleteAllFailedTaskRequest) (*model.DeleteAllFailedTaskResponse, error) {
 	requestDef := GenReqDefForDeleteAllFailedTask()
 
@@ -52,7 +67,12 @@ func (c *KpsClient) DeleteAllFailedTask(request *model.DeleteAllFailedTaskReques
 	}
 }
 
-//删除失败的任务。
+// 删除失败的任务
+//
+// 删除失败的任务。
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
 func (c *KpsClient) DeleteFailedTask(request *model.DeleteFailedTaskRequest) (*model.DeleteFailedTaskResponse, error) {
 	requestDef := GenReqDefForDeleteFailedTask()
 
@@ -63,7 +83,12 @@ func (c *KpsClient) DeleteFailedTask(request *model.DeleteFailedTaskRequest) (*m
 	}
 }
 
-//删除SSH密钥对。
+// 删除SSH密钥对
+//
+// 删除SSH密钥对。
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
 func (c *KpsClient) DeleteKeypair(request *model.DeleteKeypairRequest) (*model.DeleteKeypairResponse, error) {
 	requestDef := GenReqDefForDeleteKeypair()
 
@@ -74,7 +99,12 @@ func (c *KpsClient) DeleteKeypair(request *model.DeleteKeypairRequest) (*model.D
 	}
 }
 
-//给指定的虚拟机解除绑定SSH密钥对并恢复SSH密码登录。
+// 解绑SSH密钥对
+//
+// 给指定的虚拟机解除绑定SSH密钥对并恢复SSH密码登录。
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
 func (c *KpsClient) DisassociateKeypair(request *model.DisassociateKeypairRequest) (*model.DisassociateKeypairResponse, error) {
 	requestDef := GenReqDefForDisassociateKeypair()
 
@@ -85,7 +115,12 @@ func (c *KpsClient) DisassociateKeypair(request *model.DisassociateKeypairReques
 	}
 }
 
-//查询绑定、解绑等操作失败的任务信息。
+// 查询失败的任务信息
+//
+// 查询绑定、解绑等操作失败的任务信息。
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
 func (c *KpsClient) ListFailedTask(request *model.ListFailedTaskRequest) (*model.ListFailedTaskResponse, error) {
 	requestDef := GenReqDefForListFailedTask()
 
@@ -96,7 +131,12 @@ func (c *KpsClient) ListFailedTask(request *model.ListFailedTaskRequest) (*model
 	}
 }
 
-//查询SSH密钥对详细信息
+// 查询SSH密钥对详细信息
+//
+// 查询SSH密钥对详细信息
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
 func (c *KpsClient) ListKeypairDetail(request *model.ListKeypairDetailRequest) (*model.ListKeypairDetailResponse, error) {
 	requestDef := GenReqDefForListKeypairDetail()
 
@@ -107,7 +147,12 @@ func (c *KpsClient) ListKeypairDetail(request *model.ListKeypairDetailRequest) (
 	}
 }
 
-//根据SSH密钥对接口返回的task_id，查询SSH密钥对当前任务的执行状态。
+// 查询任务信息
+//
+// 根据SSH密钥对接口返回的task_id，查询SSH密钥对当前任务的执行状态。
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
 func (c *KpsClient) ListKeypairTask(request *model.ListKeypairTaskRequest) (*model.ListKeypairTaskResponse, error) {
 	requestDef := GenReqDefForListKeypairTask()
 
@@ -118,7 +163,12 @@ func (c *KpsClient) ListKeypairTask(request *model.ListKeypairTaskRequest) (*mod
 	}
 }
 
-//查询SSH密钥对列表
+// 查询SSH密钥对列表
+//
+// 查询SSH密钥对列表
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
 func (c *KpsClient) ListKeypairs(request *model.ListKeypairsRequest) (*model.ListKeypairsResponse, error) {
 	requestDef := GenReqDefForListKeypairs()
 
@@ -129,7 +179,12 @@ func (c *KpsClient) ListKeypairs(request *model.ListKeypairsRequest) (*model.Lis
 	}
 }
 
-//查询正在处理的任务信息。
+// 查询正在处理的任务信息
+//
+// 查询正在处理的任务信息。
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
 func (c *KpsClient) ListRunningTask(request *model.ListRunningTaskRequest) (*model.ListRunningTaskResponse, error) {
 	requestDef := GenReqDefForListRunningTask()
 
@@ -140,7 +195,12 @@ func (c *KpsClient) ListRunningTask(request *model.ListRunningTaskRequest) (*mod
 	}
 }
 
-//更新SSH密钥对描述。
+// 更新SSH密钥对描述
+//
+// 更新SSH密钥对描述。
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
 func (c *KpsClient) UpdateKeypairDescription(request *model.UpdateKeypairDescriptionRequest) (*model.UpdateKeypairDescriptionResponse, error) {
 	requestDef := GenReqDefForUpdateKeypairDescription()
 

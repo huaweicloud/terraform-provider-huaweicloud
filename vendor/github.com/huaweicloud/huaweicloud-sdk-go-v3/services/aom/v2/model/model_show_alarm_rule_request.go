@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type ShowAlarmRuleRequest struct {
-	// 阈值规则ID。
 
+	// 阈值规则ID。
 	AlarmRuleId string `json:"alarm_rule_id"`
 }
 

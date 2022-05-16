@@ -8,14 +8,14 @@ import (
 
 // Response Object
 type ListProjectSetsResponse struct {
+
 	// 状态码
-
 	Code *string `json:"code,omitempty"`
+
 	// 描述
-
 	Message *string `json:"message,omitempty"`
-	// 工程集详细信息
 
+	// 工程集详细信息
 	Projects       *[]ProjectsSet `json:"projects,omitempty"`
 	HttpStatusCode int            `json:"-"`
 }

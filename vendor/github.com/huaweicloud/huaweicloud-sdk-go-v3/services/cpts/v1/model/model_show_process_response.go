@@ -8,16 +8,16 @@ import (
 
 // Response Object
 type ShowProcessResponse struct {
+
 	// code
-
 	Code *string `json:"code,omitempty"`
-	// message
 
+	// message
 	Message *string `json:"message,omitempty"`
 
 	Json *UploadProcessJson `json:"json,omitempty"`
-	// extend
 
+	// extend
 	Extend         *string `json:"extend,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }

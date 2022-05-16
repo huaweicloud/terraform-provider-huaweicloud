@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type KeystoneShowMappingRequest struct {
-	// 待查询的映射ID。
 
+	// 待查询的映射ID。
 	Id string `json:"id"`
 }
 

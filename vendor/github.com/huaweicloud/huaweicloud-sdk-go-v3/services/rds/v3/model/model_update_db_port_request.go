@@ -7,8 +7,8 @@ import (
 )
 
 type UpdateDbPortRequest struct {
-	// MySQL端口号范围：大于等于1024，小于等于65535，不包含12017和33071。
 
+	// MySQL端口号范围：大于等于1024，小于等于65535，不包含12017和33071。
 	Port int32 `json:"port"`
 }
 

@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type KeystoneUpdateIdentityProviderRequest struct {
-	// 待更新的身份提供商ID。
 
+	// 待更新的身份提供商ID。
 	Id string `json:"id"`
 
 	Body *KeystoneUpdateIdentityProviderRequestBody `json:"body,omitempty"`

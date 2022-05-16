@@ -8,28 +8,28 @@ import (
 
 //
 type AuthProjectResult struct {
+
 	// false.
-
 	IsDomain bool `json:"is_domain"`
-	// 项目描述信息。
 
+	// 项目描述信息。
 	Description string `json:"description"`
 
 	Links *LinksSelf `json:"links"`
+
 	// 项目是否可用。
-
 	Enabled bool `json:"enabled"`
+
 	// 项目ID。
-
 	Id string `json:"id"`
+
 	// 如果查询自己创建的项目，则此处返回所属区域的项目ID。  如果查询的是系统内置项目，如cn-north-4，则此处返回账号ID。
-
 	ParentId string `json:"parent_id"`
+
 	// 项目所属账号ID。
-
 	DomainId string `json:"domain_id"`
-	// 项目名称。
 
+	// 项目名称。
 	Name string `json:"name"`
 }
 

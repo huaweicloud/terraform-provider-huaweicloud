@@ -62,6 +62,13 @@ func ExpandToStringList(v []interface{}) []string {
 	return s
 }
 
+// ExpandToStringListPointer takes the result for an array of strings and returns a pointer of the array
+func ExpandToStringListPointer(v []interface{}) *[]string {
+	s := ExpandToStringList(v)
+
+	return &s
+}
+
 // ExpandToIntList takes the result for an array of intgers and returns a []int
 func ExpandToIntList(v []interface{}) []int {
 	s := make([]int, 0, len(v))

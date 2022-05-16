@@ -11,14 +11,14 @@ import (
 
 // 追踪桶信息。
 type DataBucketQuery struct {
+
 	// 标识OBS桶名称。由数字或字母开头，支持小写字母、数字、“-”、“.”，长度为3～63个字符。
-
 	DataBucketName *string `json:"data_bucket_name,omitempty"`
+
 	// 追踪桶日志是否支持搜索。
-
 	SearchEnabled *bool `json:"search_enabled,omitempty"`
-	// 数据类追踪器追踪对象的桶名。 - 当启用或者停用数据类追踪器时，该参数为必选。 - 管理类追踪器无此参数。 - 追踪器一旦创建追踪桶无法修改。
 
+	// 数据类追踪器追踪对象的桶名。 - 当启用或者停用数据类追踪器时，该参数为必选。 - 管理类追踪器无此参数。 - 追踪器一旦创建追踪桶无法修改。
 	DataEvent *[]DataBucketQueryDataEvent `json:"data_event,omitempty"`
 }
 

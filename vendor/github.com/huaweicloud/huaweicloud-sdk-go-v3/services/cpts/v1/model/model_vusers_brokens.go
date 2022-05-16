@@ -7,8 +7,8 @@ import (
 )
 
 type VusersBrokens struct {
-	// vusers
 
+	// vusers
 	Vusers *[]float64 `json:"vusers,omitempty"`
 }
 

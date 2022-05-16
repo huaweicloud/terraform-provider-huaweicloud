@@ -8,11 +8,11 @@ import (
 
 // Request Object
 type EnableConfigurationRequest struct {
+
 	// 语言
-
 	XLanguage *string `json:"X-Language,omitempty"`
-	// 参数模板ID。
 
+	// 参数模板ID。
 	ConfigId string `json:"config_id"`
 
 	Body *ApplyConfigurationRequest `json:"body,omitempty"`

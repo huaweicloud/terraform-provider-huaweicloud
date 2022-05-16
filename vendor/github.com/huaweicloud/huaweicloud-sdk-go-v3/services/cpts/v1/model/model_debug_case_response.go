@@ -8,17 +8,17 @@ import (
 
 // Response Object
 type DebugCaseResponse struct {
+
 	// code
-
 	Code *string `json:"code,omitempty"`
+
 	// message
-
 	Message *string `json:"message,omitempty"`
+
 	// extend
-
 	Extend *string `json:"extend,omitempty"`
-	// result
 
+	// result
 	Result         *[]DebugCaseResult `json:"result,omitempty"`
 	HttpStatusCode int                `json:"-"`
 }

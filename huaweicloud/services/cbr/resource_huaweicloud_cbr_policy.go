@@ -207,9 +207,7 @@ func resourceCBRPolicyV3Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("destination_project_id", operationDefinition.DestinationProjectID),
 		setCBRPolicyV3BackupCycle(d, cbrPolicy.Trigger.Properties.Pattern),
 	)
-	if mErr.ErrorOrNil() != nil {
-		return mErr
-	}
+
 	if operationDefinition.MaxBackups != -1 {
 		mErr = multierror.Append(mErr,
 			d.Set("backup_quantity", operationDefinition.MaxBackups),
@@ -221,7 +219,7 @@ func resourceCBRPolicyV3Read(d *schema.ResourceData, meta interface{}) error {
 		mErr = multierror.Append(mErr, d.Set("time_period", operationDefinition.RetentionDurationDays))
 	}
 
-	return nil
+	return mErr.ErrorOrNil()
 }
 
 func resourceCBRPolicyV3Update(d *schema.ResourceData, meta interface{}) error {

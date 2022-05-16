@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type KeystoneUpdateMappingRequest struct {
-	// 待更新的映射ID。
 
+	// 待更新的映射ID。
 	Id string `json:"id"`
 
 	Body *KeystoneUpdateMappingRequestBody `json:"body,omitempty"`

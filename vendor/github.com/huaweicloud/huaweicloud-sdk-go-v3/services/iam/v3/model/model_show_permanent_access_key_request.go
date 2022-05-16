@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type ShowPermanentAccessKeyRequest struct {
-	// 待查询的指定AK。
 
+	// 待查询的指定AK。
 	AccessKey string `json:"access_key"`
 }
 

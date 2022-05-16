@@ -11,11 +11,11 @@ import (
 
 // Request Object
 type ChangeFailoverModeRequest struct {
+
 	// 语言
-
 	XLanguage *ChangeFailoverModeRequestXLanguage `json:"X-Language,omitempty"`
-	// 实例ID。
 
+	// 实例ID。
 	InstanceId string `json:"instance_id"`
 
 	Body *FailoverModeRequest `json:"body,omitempty"`

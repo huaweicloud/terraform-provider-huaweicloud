@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type ListProjectTagsResponse struct {
-	// 标签列表，没有标签默认为空数组。
 
+	// 标签列表，没有标签默认为空数组。
 	Tags           *[]ProjectTagInfoResponse `json:"tags,omitempty"`
 	HttpStatusCode int                       `json:"-"`
 }

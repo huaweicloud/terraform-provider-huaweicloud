@@ -8,11 +8,11 @@ import (
 
 // Response Object
 type ShowProjectResponse struct {
+
 	// code
-
 	Code *string `json:"code,omitempty"`
-	// message
 
+	// message
 	Message *string `json:"message,omitempty"`
 
 	Project        *Project `json:"project,omitempty"`

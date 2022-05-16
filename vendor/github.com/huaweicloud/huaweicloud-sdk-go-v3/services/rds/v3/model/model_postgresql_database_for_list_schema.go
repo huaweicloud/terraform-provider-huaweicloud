@@ -8,11 +8,11 @@ import (
 
 // 数据库schema信息。
 type PostgresqlDatabaseForListSchema struct {
+
 	// schema名称。
-
 	SchemaName string `json:"schema_name"`
-	// schema所属用户。
 
+	// schema所属用户。
 	Owner string `json:"owner"`
 }
 

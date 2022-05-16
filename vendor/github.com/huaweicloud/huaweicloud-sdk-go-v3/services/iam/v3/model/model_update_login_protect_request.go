@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type UpdateLoginProtectRequest struct {
-	// 待修改登录保护状态信息的IAM用户ID。
 
+	// 待修改登录保护状态信息的IAM用户ID。
 	UserId string `json:"user_id"`
 
 	Body *UpdateLoginProjectReq `json:"body,omitempty"`

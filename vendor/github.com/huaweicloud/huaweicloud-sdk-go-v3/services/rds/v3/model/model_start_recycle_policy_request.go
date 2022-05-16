@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type StartRecyclePolicyRequest struct {
-	// 语言
 
+	// 语言
 	XLanguage *string `json:"X-Language,omitempty"`
 
 	Body *RecyclePolicyRequestBody `json:"body,omitempty"`

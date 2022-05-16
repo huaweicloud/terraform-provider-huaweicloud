@@ -8,11 +8,11 @@ import (
 
 // 时间序列维度列表。
 type DimensionSeries struct {
+
 	// 维度名称。
-
 	Name *string `json:"name,omitempty"`
-	// 维度取值。
 
+	// 维度取值。
 	Value *string `json:"value,omitempty"`
 }
 

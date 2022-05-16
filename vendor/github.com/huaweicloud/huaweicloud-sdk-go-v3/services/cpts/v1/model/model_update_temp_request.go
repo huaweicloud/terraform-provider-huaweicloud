@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type UpdateTempRequest struct {
-	// 事务id
 
+	// 事务id
 	TemplateId int32 `json:"template_id"`
 
 	Body *UpdateTempRequestBody `json:"body,omitempty"`

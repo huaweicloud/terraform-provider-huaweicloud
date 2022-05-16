@@ -7,11 +7,11 @@ import (
 )
 
 type RevokeRequestBody struct {
+
 	// 数据库名称。
-
 	DbName string `json:"db_name"`
-	// 解除授权的用户列表。
 
+	// 解除授权的用户列表。
 	Users []RevokeRequestBodyUsers `json:"users"`
 }
 

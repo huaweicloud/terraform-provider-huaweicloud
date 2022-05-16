@@ -8,11 +8,11 @@ import (
 
 // 通知用户列表。
 type NotificationUsers struct {
+
 	// IAM用户组。
-
 	UserGroup string `json:"user_group"`
-	// IAM用户。
 
+	// IAM用户。
 	UserList []string `json:"user_list"`
 }
 

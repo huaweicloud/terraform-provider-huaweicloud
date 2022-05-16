@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type DeleteKeypairRequest struct {
-	// 密钥对名称
 
+	// 密钥对名称
 	KeypairName string `json:"keypair_name"`
 }
 

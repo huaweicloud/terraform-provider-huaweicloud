@@ -10,11 +10,11 @@ import (
 )
 
 type BackupDatastore struct {
+
 	// 数据库引擎，不区分大小写：  - MySQL - PostgreSQL - SQLServer
-
 	Type BackupDatastoreType `json:"type"`
-	// 数据库版本。
 
+	// 数据库版本。
 	Version string `json:"version"`
 }
 

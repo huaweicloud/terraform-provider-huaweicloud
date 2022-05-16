@@ -8,11 +8,11 @@ import (
 
 // scope详细信息
 type GetIdTokenScopeDomainOrProjectBody struct {
+
 	// domain id 或者 project id，与name字段至少存在一个。
-
 	Id *string `json:"id,omitempty"`
-	// domain name 或者 project name，与id字段至少存在一个。
 
+	// domain name 或者 project name，与id字段至少存在一个。
 	Name *string `json:"name,omitempty"`
 }
 

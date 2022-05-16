@@ -8,13 +8,13 @@ import (
 
 // Response Object
 type CreateVariableResponse struct {
-	// code
 
+	// code
 	Code *string `json:"code,omitempty"`
 
 	Json *CreateVariableResultJson `json:"json,omitempty"`
-	// message
 
+	// message
 	Message        *string `json:"message,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }

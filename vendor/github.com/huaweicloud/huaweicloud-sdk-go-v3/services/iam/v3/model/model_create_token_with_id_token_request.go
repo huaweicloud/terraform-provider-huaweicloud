@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type CreateTokenWithIdTokenRequest struct {
-	// 身份提供商ID。
 
+	// 身份提供商ID。
 	XIdpId string `json:"X-Idp-Id"`
 
 	Body *GetIdTokenRequestBody `json:"body,omitempty"`

@@ -243,6 +243,10 @@ func resourceNetworkingVipDelete(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	err = ports.Delete(client, d.Id()).ExtractErr()
+	if err != nil {
+		return fmtp.DiagErrorf("Error deleting HuaweiCloud Network VIP: %s", err)
+	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"DOWN", "ACTIVE"},
 		Target:     []string{"DELETED"},

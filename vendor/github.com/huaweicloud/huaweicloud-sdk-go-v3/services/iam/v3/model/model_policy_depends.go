@@ -8,11 +8,11 @@ import (
 
 //
 type PolicyDepends struct {
+
 	// 权限所在目录。
-
 	Catalog string `json:"catalog"`
-	// 权限展示名。
 
+	// 权限展示名。
 	DisplayName string `json:"display_name"`
 }
 

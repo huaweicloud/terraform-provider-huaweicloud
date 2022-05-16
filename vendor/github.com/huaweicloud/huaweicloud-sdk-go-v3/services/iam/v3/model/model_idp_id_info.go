@@ -8,8 +8,8 @@ import (
 
 // 身份提供商信息。
 type IdpIdInfo struct {
-	// 身份提供商id。
 
+	// 身份提供商id。
 	Id string `json:"id"`
 }
 

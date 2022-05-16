@@ -1,5 +1,30 @@
 # CHANGELOG
 
+## 1.36.0 (May 13, 2022)
+
+* **New Resurce:**
+  + `huaweicloud_servicestage_environment` [GH-2064]
+  + `huaweicloud_servicestage_application` [GH-2099]
+  + `huaweicloud_servicestage_component` [GH-2133]
+  + `huaweicloud_cpts_task` [GH-2109]
+  + `huaweicloud_aom_alarm_rule` [GH-2113]
+  + `huaweicloud_aom_service_discovery_rule` [GH-2126]
+  + `huaweicloud_cts_notification` [GH-2114]
+  + `huaweicloud_antiddos_basic` [GH-2120]
+  + `huaweicloud_modelarts_dataset_version` [GH-2121]
+
+* **New Data Source:**
+  + `huaweicloud_servicestage_component_runtimes` [GH-2115]
+  + `huaweicloud_modelarts_dataset_versions` [GH-2129]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_gaussdb_mysql_instance: Add tags support in special regions [GH-2123]
+* resource/huaweicloud_vpc_subnet: Support description field [GH-2134]
+* resource/huaweicloud_compute_instance: Support agent_list field [GH-2135]
+* resource/huaweicloud_cce_pvc: Support import function [GH-2142]
+* resource/huaweicloud_obs_bucket_object: Support import function [GH-2145]
+
 ## 1.35.2 (April 24, 2022)
 
 * **New Resurce:**

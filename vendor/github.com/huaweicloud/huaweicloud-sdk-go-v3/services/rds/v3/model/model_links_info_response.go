@@ -7,11 +7,11 @@ import (
 )
 
 type LinksInfoResponse struct {
+
 	// 对应该API的URL
-
 	Href *string `json:"href,omitempty"`
-	// 取值为“self”，表示href为本地链接。
 
+	// 取值为“self”，表示href为本地链接。
 	Rel *string `json:"rel,omitempty"`
 }
 

@@ -7,11 +7,11 @@ import (
 )
 
 type AvailableZone struct {
+
 	// 可用区编码。
-
 	Code string `json:"code"`
-	// 可用区描述。
 
+	// 可用区描述。
 	Description string `json:"description"`
 }
 

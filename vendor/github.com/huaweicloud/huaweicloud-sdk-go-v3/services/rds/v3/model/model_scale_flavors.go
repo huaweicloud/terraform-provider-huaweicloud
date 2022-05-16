@@ -7,14 +7,14 @@ import (
 )
 
 type ScaleFlavors struct {
+
 	// 规格码。
-
 	Code *string `json:"code,omitempty"`
+
 	// CPU个数。
-
 	Cpu *string `json:"cpu,omitempty"`
-	// 内存大小（单位：GB）。
 
+	// 内存大小（单位：GB）。
 	Mem *string `json:"mem,omitempty"`
 }
 

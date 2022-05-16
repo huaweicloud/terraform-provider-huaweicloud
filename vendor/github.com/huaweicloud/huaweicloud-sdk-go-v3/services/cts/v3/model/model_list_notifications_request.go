@@ -11,11 +11,11 @@ import (
 
 // Request Object
 type ListNotificationsRequest struct {
+
 	// 通知类型。
-
 	NotificationType ListNotificationsRequestNotificationType `json:"notification_type"`
-	// 标识关键操作通知名称。 在不传入该字段的情况下，将查询当前租户所有的关键操作通知。
 
+	// 标识关键操作通知名称。 在不传入该字段的情况下，将查询当前租户所有的关键操作通知。
 	NotificationName *string `json:"notification_name,omitempty"`
 }
 

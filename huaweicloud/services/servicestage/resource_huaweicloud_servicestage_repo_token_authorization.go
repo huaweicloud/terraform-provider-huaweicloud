@@ -2,6 +2,7 @@ package servicestage
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 
 	"github.com/hashicorp/go-multierror"
@@ -9,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/servicestage/v1/repositories"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -88,6 +90,19 @@ func resourceRepoTokenAuthCreate(ctx context.Context, d *schema.ResourceData, me
 	return resourceRepoAuthRead(ctx, d, meta)
 }
 
+func getAuthorizationByName(c *golangsdk.ServiceClient, name string) (*repositories.Authorization, error) {
+	resp, err := repositories.List(c)
+	if err != nil {
+		return nil, err
+	}
+	for _, auth := range resp {
+		if auth.Name == name {
+			return &auth, nil
+		}
+	}
+	return nil, fmt.Errorf("unable to find the authorization (%s)", name)
+}
+
 func resourceRepoAuthRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
@@ -96,22 +111,17 @@ func resourceRepoAuthRead(_ context.Context, d *schema.ResourceData, meta interf
 		return fmtp.DiagErrorf("error creating ServiceStage v1 client: %s", err)
 	}
 
-	resp, err := repositories.List(client)
-	if err == nil {
-		for _, v := range resp {
-			if v.Name != d.Id() {
-				continue
-			}
-			mErr := multierror.Append(nil,
-				d.Set("region", region),
-				d.Set("name", v.Name),
-				d.Set("type", v.RepoType),
-			)
-			return diag.FromErr(mErr.ErrorOrNil())
-		}
+	auth, err := getAuthorizationByName(client, d.Id())
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving ServiceStage repository authorization")
 	}
 
-	return common.CheckDeletedDiag(d, err, "error retrieving ServiceStage repository authorizations list")
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("name", auth.Name),
+		d.Set("type", auth.RepoType),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceRepoAuthDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

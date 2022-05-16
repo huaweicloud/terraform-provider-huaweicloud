@@ -8,11 +8,11 @@ import (
 
 // Response Object
 type BatchCreateSubNetworkInterfaceResponse struct {
+
 	// 请求ID
-
 	RequestId *string `json:"request_id,omitempty"`
-	// 批量创建辅助弹性网卡的响应体
 
+	// 批量创建辅助弹性网卡的响应体
 	SubNetworkInterfaces *[]SubNetworkInterface `json:"sub_network_interfaces,omitempty"`
 	HttpStatusCode       int                    `json:"-"`
 }

@@ -8,23 +8,23 @@ import (
 
 // UpdateProjectRequestBody
 type UpdateProjectRequestBody struct {
+
 	// id
-
 	Id int32 `json:"id"`
+
 	// name
-
 	Name string `json:"name"`
+
 	// description
-
 	Description *string `json:"description,omitempty"`
+
 	// variables_no_file
-
 	VariablesNoFile *[]string `json:"variables_no_file,omitempty"`
+
 	// source
-
 	Source *int32 `json:"source,omitempty"`
-	// external_params
 
+	// external_params
 	ExternalParams *interface{} `json:"external_params,omitempty"`
 }
 

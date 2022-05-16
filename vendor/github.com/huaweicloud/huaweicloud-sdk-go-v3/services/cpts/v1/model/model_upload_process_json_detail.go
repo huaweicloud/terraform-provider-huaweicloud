@@ -7,17 +7,17 @@ import (
 )
 
 type UploadProcessJsonDetail struct {
+
 	// id
-
 	Id *int32 `json:"id,omitempty"`
+
 	// name
-
 	Name *string `json:"name,omitempty"`
+
 	// status
-
 	Status *int32 `json:"status,omitempty"`
-	// cause
 
+	// cause
 	Cause *string `json:"cause,omitempty"`
 }
 
