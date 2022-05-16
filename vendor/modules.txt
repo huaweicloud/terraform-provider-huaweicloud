@@ -242,6 +242,8 @@ github.com/chnsz/golangsdk/openstack/servicestage/v1/repositories
 github.com/chnsz/golangsdk/openstack/servicestage/v2/applications
 github.com/chnsz/golangsdk/openstack/servicestage/v2/components
 github.com/chnsz/golangsdk/openstack/servicestage/v2/environments
+github.com/chnsz/golangsdk/openstack/servicestage/v2/instances
+github.com/chnsz/golangsdk/openstack/servicestage/v2/jobs
 github.com/chnsz/golangsdk/openstack/servicestage/v2/metadata
 github.com/chnsz/golangsdk/openstack/sfs/v2/shares
 github.com/chnsz/golangsdk/openstack/sfs_turbo/v1/shares
