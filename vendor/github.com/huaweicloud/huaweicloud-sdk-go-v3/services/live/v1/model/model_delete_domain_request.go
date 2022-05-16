@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type DeleteDomainRequest struct {
-	// 直播域名
 
+	// 直播域名
 	Domain string `json:"domain"`
 }
 

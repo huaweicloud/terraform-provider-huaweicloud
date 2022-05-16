@@ -8,14 +8,14 @@ import (
 
 // Response Object
 type ListLiveSampleLogsResponse struct {
+
 	// 符合查询条件的总条目数
-
 	Total *int32 `json:"total,omitempty"`
+
 	// 播放域名
-
 	Domain *string `json:"domain,omitempty"`
-	// 日志信息列表
 
+	// 日志信息列表
 	Logs           *[]LogInfo `json:"logs,omitempty"`
 	HttpStatusCode int        `json:"-"`
 }

@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type DeleteRecordCallbackConfigRequest struct {
-	// 配置ID
 
+	// 配置ID
 	Id string `json:"id"`
 }
 

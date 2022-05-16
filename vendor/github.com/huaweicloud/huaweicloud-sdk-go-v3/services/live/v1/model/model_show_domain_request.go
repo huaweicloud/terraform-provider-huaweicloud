@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type ShowDomainRequest struct {
-	// 直播域名，如果不设置此字段，则返回租户所有的域名信息
 
+	// 直播域名，如果不设置此字段，则返回租户所有的域名信息
 	Domain *string `json:"domain,omitempty"`
 }
 

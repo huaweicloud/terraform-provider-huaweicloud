@@ -10,29 +10,29 @@ import (
 
 // Response Object
 type UpdateDomainResponse struct {
+
 	// 直播域名
-
 	Domain *string `json:"domain,omitempty"`
+
 	// 域名类型 - pull表示播放域名 - push表示推流域名
-
 	DomainType *UpdateDomainResponseDomainType `json:"domain_type,omitempty"`
+
 	// 直播域名的CNAME
-
 	DomainCname *string `json:"domain_cname,omitempty"`
+
 	// 直播所属直播中心
-
 	Region *string `json:"region,omitempty"`
+
 	// 直播域名的状态
-
 	Status *UpdateDomainResponseStatus `json:"status,omitempty"`
+
 	// 域名创建时间，格式：yyyy-mm-ddThh:mm:ssZ，UTC时间
-
 	CreateTime *sdktime.SdkTime `json:"create_time,omitempty"`
+
 	// 状态描述
-
 	StatusDescribe *string `json:"status_describe,omitempty"`
-	// 域名应用区域 - mainland_china表示中国大陆区域 - outside_mainland_china表示中国大陆以外区域 - global表示全球区域
 
+	// 域名应用区域 - mainland_china表示中国大陆区域 - outside_mainland_china表示中国大陆以外区域 - global表示全球区域
 	ServiceArea    *UpdateDomainResponseServiceArea `json:"service_area,omitempty"`
 	HttpStatusCode int                              `json:"-"`
 }

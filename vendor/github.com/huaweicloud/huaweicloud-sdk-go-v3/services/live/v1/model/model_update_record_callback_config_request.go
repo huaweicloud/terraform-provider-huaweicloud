@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type UpdateRecordCallbackConfigRequest struct {
-	// 配置ID，在创建配置成功后返回
 
+	// 配置ID，在创建配置成功后返回
 	Id string `json:"id"`
 
 	Body *RecordCallbackConfigRequest `json:"body,omitempty"`

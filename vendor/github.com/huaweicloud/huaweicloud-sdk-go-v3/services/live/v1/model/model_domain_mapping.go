@@ -7,11 +7,11 @@ import (
 )
 
 type DomainMapping struct {
+
 	// 直播播放域名
-
 	PullDomain string `json:"pull_domain"`
-	// 直播播放域名关联的推流域名
 
+	// 直播播放域名关联的推流域名
 	PushDomain string `json:"push_domain"`
 }
 

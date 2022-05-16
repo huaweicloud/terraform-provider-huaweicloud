@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type ShowRecordCallbackConfigRequest struct {
-	// 配置ID
 
+	// 配置ID
 	Id string `json:"id"`
 }
 
