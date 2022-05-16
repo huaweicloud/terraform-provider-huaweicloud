@@ -754,7 +754,7 @@ func updateRdsInstanceFlavor(d *schema.ResourceData, config *config.Config, clie
 		if err != nil {
 			return fmt.Errorf("error creating BSS V2 client: %s", err)
 		}
-		if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutCreate)/time.Second), res.OrderId); err != nil {
+		if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), res.OrderId); err != nil {
 			return fmt.Errorf("error waiting for RDS order %s succuss: %s", res.OrderId, err)
 		}
 	}
