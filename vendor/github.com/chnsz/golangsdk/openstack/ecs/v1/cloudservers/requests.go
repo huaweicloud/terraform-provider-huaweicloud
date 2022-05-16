@@ -96,6 +96,8 @@ type PublicIp struct {
 	Id string `json:"id,omitempty"`
 
 	Eip *Eip `json:"eip,omitempty"`
+
+	DeleteOnTermination bool `json:"delete_on_termination,omitempty"`
 }
 
 type Eip struct {
