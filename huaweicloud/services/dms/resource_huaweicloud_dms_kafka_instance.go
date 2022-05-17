@@ -2,6 +2,8 @@ package dms
 
 import (
 	"context"
+	"encoding/json"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -235,6 +237,30 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				Deprecated: "The bandwidth has been deprecated. " +
 					"If you need to change the bandwidth, please update the product_id.",
 			},
+			"cross_vpc_accesses": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"lisenter_ip": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"advertised_ip": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"port": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"port_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -415,7 +441,52 @@ func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
+	// After the kafka instance is created, wait for the access port to complete the binding.
+	stateConf = &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"BOUND"},
+		Refresh:      portsBindStatusRefreshFunc(dmsV2Client, d.Id()),
+		Timeout:      5 * time.Minute,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		log.Printf("[ERROR] Failed to bind cross-VPC ports: %v", err)
+	}
+
 	return resourceDmsKafkaInstanceRead(ctx, d, meta)
+}
+
+func flattenConnectPorts(strInfos string) ([]map[string]interface{}, error) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("[ERROR] Recover panic when flattening cross-VPC infos structure: %#v", r)
+		}
+	}()
+
+	if strInfos == "" {
+		return nil, nil
+	}
+
+	crossVpcInfos := make(map[string]interface{})
+	err := json.Unmarshal([]byte(strInfos), &crossVpcInfos)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]map[string]interface{}, 0, len(crossVpcInfos))
+	for key, val := range crossVpcInfos {
+		crossVpcInfo := val.(map[string]interface{})
+		result = append(result, map[string]interface{}{
+			"lisenter_ip":   key,
+			"advertised_ip": crossVpcInfo["advertised_ip"],
+			"port":          crossVpcInfo["port"],
+			"port_id":       crossVpcInfo["port_id"],
+		})
+	}
+
+	return result, nil
 }
 
 func resourceDmsKafkaInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -431,7 +502,11 @@ func resourceDmsKafkaInstanceRead(_ context.Context, d *schema.ResourceData, met
 		return common.CheckDeletedDiag(d, err, "DMS instance")
 	}
 	logp.Printf("[DEBUG] DMS kafka instance created success %s: %+v", d.Id(), v)
-	d.SetId(v.InstanceID)
+
+	crossVpcAccess, err := flattenConnectPorts(v.CrossVpcInfo)
+	if err != nil {
+		return diag.Errorf("[ERROR] error retriving details of the cross-VPC information: %v", err)
+	}
 
 	partitionNum, _ := strconv.ParseInt(v.PartitionNum, 10, 64)
 	// convert the ids of the availability zone into codes
@@ -476,6 +551,7 @@ func resourceDmsKafkaInstanceRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("manegement_connect_address", v.ManagementConnectAddress),
 		d.Set("type", v.Type),
 		d.Set("access_user", v.AccessUser),
+		d.Set("cross_vpc_accesses", crossVpcAccess),
 	)
 	// set tags
 	engine := "kafka"
@@ -629,6 +705,19 @@ func resourceDmsKafkaInstanceDelete(ctx context.Context, d *schema.ResourceData,
 	logp.Printf("[DEBUG] DMS instance %s deactivated", d.Id())
 	d.SetId("")
 	return nil
+}
+
+func portsBindStatusRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		resp, err := instances.Get(client, instanceID).Extract()
+		if err != nil {
+			return nil, "QUERY ERROR", err
+		}
+		if resp.CrossVpcInfo != "" {
+			return resp, "BOUND", nil
+		}
+		return resp, "PENDING", nil
+	}
 }
 
 func DmsKafkaInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
