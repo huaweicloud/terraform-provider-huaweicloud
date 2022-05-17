@@ -265,7 +265,10 @@ func ResourceMRSClusterV2() *schema.Resource {
 				changeKey := fmt.Sprintf("%s.0.host_ips", nodeGroupName)
 				if rd.HasChange(checkKey) {
 					logp.Printf("[DEBUG] nodeGroup=%s change,triger host_ips SetNewComputed", nodeGroupName)
-					rd.SetNewComputed(changeKey)
+					err := rd.SetNewComputed(changeKey)
+					if err != nil {
+						return err
+					}
 				}
 			}
 			return nil

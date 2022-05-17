@@ -124,7 +124,5 @@ func dataSourceCassandraFlavorsRead(_ context.Context, d *schema.ResourceData, m
 	}
 
 	d.SetId(hashcode.Strings(flavorsIds))
-	d.Set("flavors", flavorsToSet)
-
-	return nil
+	return diag.FromErr(d.Set("flavors", flavorsToSet))
 }

@@ -221,9 +221,17 @@ func writeToCSVFile(path string, cred *credentials.Credential) error {
 	data[0] = []string{"User ID", "Access Key ID", "Secret Access Key"}
 	data[1] = []string{cred.UserID, cred.AccessKey, cred.SecretKey}
 
-	csvFile.WriteString("\xEF\xBB\xBF")
+	_, err = csvFile.WriteString("\xEF\xBB\xBF")
+	if err != nil {
+		return err
+	}
+
 	writer := csv.NewWriter(csvFile)
-	writer.WriteAll(data)
+	err = writer.WriteAll(data)
+	if err != nil {
+		return err
+	}
+
 	writer.Flush()
 
 	return nil

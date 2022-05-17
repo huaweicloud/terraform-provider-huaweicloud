@@ -203,7 +203,10 @@ func (c *Config) ObjectStorageClient(region string) (*obs.ObsClient, error) {
 		timeNow := time.Now().Unix()
 		expairesAtInt := c.SecurityKeyExpiresAt.Unix()
 		if timeNow+keyExpiresDuration > expairesAtInt {
-			c.reloadSecurityKey()
+			err := c.reloadSecurityKey()
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -229,7 +232,10 @@ func (c *Config) NewServiceClient(srv, region string) (*golangsdk.ServiceClient,
 		timeNow := time.Now().Unix()
 		expairesAtInt := c.SecurityKeyExpiresAt.Unix()
 		if timeNow+keyExpiresDuration > expairesAtInt {
-			c.reloadSecurityKey()
+			err := c.reloadSecurityKey()
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
