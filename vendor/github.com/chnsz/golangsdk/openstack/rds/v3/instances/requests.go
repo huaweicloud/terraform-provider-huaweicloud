@@ -63,8 +63,8 @@ type ChargeInfo struct {
 	ChargeMode  string `json:"charge_mode" required:"true"`
 	PeriodType  string `json:"period_type,omitempty"`
 	PeriodNum   int    `json:"period_num,omitempty"`
-	IsAutoRenew string `json:"is_auto_renew,omitempty"`
-	IsAutoPay   string `json:"is_auto_pay,omitempty"`
+	IsAutoRenew bool   `json:"is_auto_renew,omitempty"`
+	IsAutoPay   bool   `json:"is_auto_pay,omitempty"`
 }
 
 type CreateRdsBuilder interface {
@@ -264,7 +264,8 @@ func SingleToHa(client *golangsdk.ServiceClient, opts ActionInstanceBuilder, ins
 }
 
 type SpecCode struct {
-	Speccode string `json:"spec_code" required:"true"`
+	Speccode  string `json:"spec_code" required:"true"`
+	IsAutoPay bool   `json:"is_auto_pay,omitempty"`
 }
 
 type ResizeFlavorOpts struct {
