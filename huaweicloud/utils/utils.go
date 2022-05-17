@@ -283,3 +283,21 @@ func WriteToPemFile(path, privateKey string) (err error) {
 	}
 	return nil
 }
+
+/*
+ MarshalValue is used to marshal the value of struct in huaweicloud-sdk-go-v3, like this:
+ type Xxxx struct { value string }
+*/
+func MarshalValue(i interface{}) string {
+	if i == nil {
+		return ""
+	}
+
+	jsonRaw, err := json.Marshal(i)
+	if err != nil {
+		log.Printf("[WARN] failed to marshal %#v: %s", i, err)
+		return ""
+	}
+
+	return strings.Trim(string(jsonRaw), `"`)
+}
