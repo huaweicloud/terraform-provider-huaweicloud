@@ -61,6 +61,11 @@ func TestAccLBV2Listener_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

@@ -40,10 +40,10 @@ The following arguments are supported:
       Changing this creates a new pool.
 
 * `loadbalancer_id` - (Optional, String, ForceNew) The load balancer on which to provision this pool. Changing this
-  creates a new pool. Note:  Exactly one of LoadbalancerID or ListenerID must be provided.
+  creates a new pool. Note:  At least one of LoadbalancerID or ListenerID must be provided.
 
 * `listener_id` - (Optional, String, ForceNew) The Listener on which the members of the pool will be associated with.
-  Changing this creates a new pool. Note:  Exactly one of LoadbalancerID or ListenerID must be provided.
+  Changing this creates a new pool. Note:  At least one of LoadbalancerID or ListenerID must be provided.
 
 * `lb_method` - (Required, String) The load balancing algorithm to distribute traffic to the pool's members. Must be one
   of ROUND_ROBIN, LEAST_CONNECTIONS, or SOURCE_IP.
@@ -74,3 +74,11 @@ This resource provides the following timeouts configuration options:
 * `create` - Default is 10 minute.
 * `update` - Default is 10 minute.
 * `delete` - Default is 10 minute.
+
+## Import
+
+ELB pool can be imported using the pool ID, e.g.
+
+```
+$ terraform import huaweicloud_lb_pool.pool_1 5c20fdad-7288-11eb-b817-0255ac10158b
+```
