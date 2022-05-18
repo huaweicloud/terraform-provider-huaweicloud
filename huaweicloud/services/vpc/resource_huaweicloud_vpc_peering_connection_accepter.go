@@ -5,7 +5,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/peerings"
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -95,7 +94,7 @@ func resourceVPCPeeringAccepterV2Create(d *schema.ResourceData, meta interface{}
 		_, err := peerings.Accept(peeringClient, id).ExtractResult()
 
 		if err != nil {
-			return errwrap.Wrapf("Unable to accept VPC Peering Connection: {{err}}", err)
+			return fmtp.Errorf("Unable to accept VPC Peering Connection: {{err}}", err)
 		}
 
 	} else {
@@ -104,7 +103,7 @@ func resourceVPCPeeringAccepterV2Create(d *schema.ResourceData, meta interface{}
 		_, err := peerings.Reject(peeringClient, id).ExtractResult()
 
 		if err != nil {
-			return errwrap.Wrapf("Unable to reject VPC Peering Connection: {{err}}", err)
+			return fmtp.Errorf("Unable to reject VPC Peering Connection: {{err}}", err)
 		}
 	}
 

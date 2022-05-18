@@ -55,8 +55,7 @@ func buildAuthCredentials(c *Config, region string) (*basic.Credentials, error) 
 		if err != nil {
 			return nil, err
 		}
-		// S1005
-		projectID, _ = c.RegionProjectIDMap[region]
+		projectID = c.RegionProjectIDMap[region]
 	}
 
 	credentials.ProjectId = projectID

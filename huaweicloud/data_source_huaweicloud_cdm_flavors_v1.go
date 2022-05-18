@@ -139,7 +139,7 @@ func getCdmFlavorV1(client *golangsdk.ServiceClient, dsid string) (string, inter
 			return "", nil, fmtp.Errorf("can not find flavor")
 		}
 		num := len(fs)
-		r := make([]interface{}, num, num)
+		r := make([]interface{}, num)
 		for i := 0; i < num; i++ {
 			item := fs[i]
 			name, err := navigateValue(item, []string{"name"}, nil)

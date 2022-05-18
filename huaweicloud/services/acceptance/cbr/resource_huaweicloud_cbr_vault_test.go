@@ -291,7 +291,7 @@ resource "huaweicloud_cbr_policy" "test" {
 }
 
 func testAccEvsVolumeConfiguration_basic() string {
-	return fmt.Sprintf(`
+	return `
 variable "volume_configuration" {
   type = list(object({
     volume_type = string
@@ -302,11 +302,11 @@ variable "volume_configuration" {
     {volume_type = "SSD", size = 100, device_type = "VBD"},
     {volume_type = "SSD", size = 100, device_type = "SCSI"},
   ]
-}`)
+}`
 }
 
 func testAccEvsVolumeConfiguration_update() string {
-	return fmt.Sprintf(`
+	return `
 variable "volume_configuration" {
   type = list(object({
     volume_type = string
@@ -317,7 +317,7 @@ variable "volume_configuration" {
     {volume_type = "GPSSD", size = 100, device_type = "VBD"},
     {volume_type = "SAS", size = 100, device_type = "SCSI"},
   ]
-}`)
+}`
 }
 
 func testAccCBRV3VaultBasicConfiguration(config, rName string) string {

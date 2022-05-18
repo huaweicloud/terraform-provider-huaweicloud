@@ -240,11 +240,9 @@ func waitForCciNetworkDelete(cciClient *golangsdk.ServiceClient, ns, name string
 		logp.Printf("[DEBUG] Attempting to delete HuaweiCloud CCI network %s.", name)
 
 		r, err := networks.Get(cciClient, ns, name).Extract()
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud CCI network %s", name)
-				return r, "Deleted", nil
-			}
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
+			logp.Printf("[DEBUG] Successfully deleted HuaweiCloud CCI network %s", name)
+			return r, "Deleted", nil
 		}
 		if r.Status.State == "Terminating" {
 			return r, "Terminating", nil

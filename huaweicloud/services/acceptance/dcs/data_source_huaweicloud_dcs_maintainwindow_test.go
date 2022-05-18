@@ -1,7 +1,6 @@
 package dcs
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -29,8 +28,8 @@ func TestAccDcsMaintainWindowDataSource_basic(t *testing.T) {
 	})
 }
 
-var testAccDcsMaintainWindowDataSource_basic = fmt.Sprintf(`
+var testAccDcsMaintainWindowDataSource_basic = `
 data "huaweicloud_dcs_maintainwindow" "maintainwindow1" {
   seq = 1
 }
-`)
+`
