@@ -244,8 +244,17 @@ The following arguments are supported:
 * `data_disks` - (Optional, String, ForceNew) Specifies an array of one or more data disks to attach to the instance.
   The data_disks object structure is documented below. Changing this creates a new instance.
 
+* `eip_type` - (Optional, String, ForceNew) Specifies the type of an EIP that will be automatically assigned to the instance.
+  Available values are *5_bgp* (dynamic BGP) and *5_sbgp* (static BGP). Changing this creates a new instance.
+
+* `bandwidth` - (Optional, List, ForceNew) Specifies the bandwidth of an EIP that will be automatically assigned to the instance.
+  The object structure is documented below. Changing this creates a new instance.
+
+* `eip_id` - (Optional, String, ForceNew) Specifies the ID of an *existing* EIP assigned to the instance.
+  This parameter and `eip_type`, `bandwidth` are alternative. Changing this creates a new instance.
+
 * `user_data` - (Optional, String, ForceNew) Specifies the user data to be injected during the instance creation. Text
-  and text files can be injected. Changing this creates a new server.
+  and text files can be injected. Changing this creates a new instance.
 
   -> **NOTE:** If the `user_data` field is specified for a Linux ECS that is created using an image with Cloud-Init
   installed, the `admin_pass` field becomes invalid.
@@ -261,6 +270,9 @@ The following arguments are supported:
 * `delete_disks_on_termination` - (Optional, Bool) Specifies whether to delete the data disks when the instance is terminated.
   Defaults to *false*. This parameter is valid if `charging_mode` is set to *postPaid*, and all data disks will be deleted
   in *prePaid* charging mode.
+
+* `delete_eip_on_termination` - (Optional, Bool) Specifies whether the EIP is released when the instance is terminated.
+  Defaults to *true*.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies a unique id in UUID format of enterprise project .
   Changing this creates a new instance.
@@ -329,6 +341,22 @@ The `data_disks` block supports:
 
 * `sanpshot_id` - (Optional, String, ForceNew) Specifies the snapshot id. Changing this creates a new instance.
 
+The `bandwidth` block supports:
+
+* `share_type` - (Required, String, ForceNew) Specifies the bandwidth sharing type. Changing this creates a new instance.
+  Possible values are as follows:
+  + **PER**: Dedicated bandwidth
+  + **WHOLE**: Shared bandwidth
+
+* `size` - (Optional, Int, ForceNew) Specifies the bandwidth size. The value ranges from 1 to 300 Mbit/s.
+  This parameter is mandatory when `share_type` is set to **PER**. Changing this creates a new instance.
+
+* `id` - (Optional, String, ForceNew) Specifies the **shared** bandwidth id. This parameter is mandatory when
+  `share_type` is set to **WHOLE**. Changing this creates a new instance.
+
+* `charge_mode` - (Optional, String, ForceNew) Specifies the bandwidth billing mode. The value can be *traffic* or *bandwidth*.
+  Changing this creates a new instance.
+
 The `scheduler_hints` block supports:
 
 * `group` - (Optional, String, ForceNew) Specifies a UUID of a Server Group.
@@ -371,7 +399,8 @@ terraform import huaweicloud_compute_instance.my_instance b11b407c-e604-4e8d-8bc
 Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
 API response, security or some other reason.
 The missing attributes include: `admin_pass`, `user_data`, `data_disks`, `scheduler_hints`, `stop_before_destroy`,
-`delete_disks_on_termination`, `network/access_network`, `power_action` and arguments for pre-paid.
+`delete_disks_on_termination`, `delete_eip_on_termination`, `network/access_network`, `bandwidth`, `eip_type`,
+`power_action` and arguments for pre-paid.
 It is generally recommended running `terraform plan` after importing an instance.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to
 align with the instance. Also you can ignore changes as below.

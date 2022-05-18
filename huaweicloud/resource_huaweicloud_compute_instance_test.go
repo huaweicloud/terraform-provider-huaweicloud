@@ -39,6 +39,7 @@ func TestAccComputeInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "availability_zone"),
 					resource.TestCheckResourceAttr(resourceName, "network.0.source_dest_check", "false"),
 					resource.TestCheckResourceAttr(resourceName, "stop_before_destroy", "true"),
+					resource.TestCheckResourceAttr(resourceName, "delete_eip_on_termination", "true"),
 					resource.TestCheckResourceAttr(resourceName, "agent_list", "hss"),
 				),
 			},
@@ -47,7 +48,7 @@ func TestAccComputeInstance_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"stop_before_destroy",
+					"stop_before_destroy", "delete_eip_on_termination",
 				},
 			},
 		},
@@ -101,6 +102,7 @@ func TestAccComputeInstance_prePaid(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "delete_eip_on_termination", "true"),
 				),
 			},
 		},
@@ -409,6 +411,13 @@ resource "huaweicloud_compute_instance" "test" {
 
   network {
     uuid = data.huaweicloud_vpc_subnet.test.id
+  }
+
+  eip_type = "5_bgp"
+  bandwidth {
+    share_type  = "PER"
+    size        = 5
+    charge_mode = "bandwidth"
   }
 
   charging_mode = "prePaid"
