@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"io/ioutil"
-	"os"
 	"regexp"
 	"time"
 
@@ -156,7 +154,7 @@ func resourceKeypairCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 	// write private key to local. only when it is not import public_key and the key_file is not empty
 	if fp, ok := d.GetOk("key_file"); ok {
-		if err = writeToPemFile(fp.(string), *response.Keypair.PrivateKey); err != nil {
+		if err = utils.WriteToPemFile(fp.(string), *response.Keypair.PrivateKey); err != nil {
 			return fmtp.DiagErrorf("Unable to generate private key: %s", err)
 		}
 		d.Set("key_file", fp)
@@ -312,19 +310,6 @@ func parseEncodeValue(b []byte, err error) (string, error) {
 	}
 
 	return *rst, nil
-}
-
-func writeToPemFile(path, privateKey string) error {
-	var err error
-	// If the private key exists, give it write permission for editing (-rw-------) for root user.
-	if _, err = ioutil.ReadFile(path); err == nil {
-		os.Chmod(path, 0600)
-		defer os.Chmod(path, 0400) // read-only permission (-r--------).
-	}
-	if err = ioutil.WriteFile(path, []byte(privateKey), 0600); err != nil {
-		return err
-	}
-	return nil
 }
 
 func updateDesc(client *kps.KpsClient, id, desc string) diag.Diagnostics {

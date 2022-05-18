@@ -22,6 +22,9 @@ func ResourceMonitorV2() *schema.Resource {
 		ReadContext:   resourceMonitorV2Read,
 		UpdateContext: resourceMonitorV2Update,
 		DeleteContext: resourceMonitorV2Delete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -182,6 +185,10 @@ func resourceMonitorV2Read(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("admin_state_up", monitor.AdminStateUp),
 		d.Set("name", monitor.Name),
 	)
+
+	if len(monitor.Pools) != 0 {
+		mErr = multierror.Append(mErr, d.Set("pool_id", monitor.Pools[0].ID))
+	}
 
 	if monitor.MonitorPort != 0 {
 		mErr = multierror.Append(mErr, d.Set("port", monitor.MonitorPort))

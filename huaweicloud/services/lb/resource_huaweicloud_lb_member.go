@@ -2,6 +2,7 @@ package lb
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -22,6 +23,9 @@ func ResourceMemberV2() *schema.Resource {
 		ReadContext:   resourceMemberV2Read,
 		UpdateContext: resourceMemberV2Update,
 		DeleteContext: resourceMemberV2Delete,
+		Importer: &schema.ResourceImporter{
+			StateContext: resourceMemberV2Import,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -257,4 +261,20 @@ func resourceMemberV2Delete(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	return nil
+}
+
+func resourceMemberV2Import(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.SplitN(d.Id(), "/", 2)
+	if len(parts) != 2 {
+		err := fmtp.Errorf("invalid format specified for member. Format must be <pool_id>/<member_id>")
+		return nil, err
+	}
+
+	poolID := parts[0]
+	memberID := parts[1]
+
+	d.SetId(memberID)
+	d.Set("pool_id", poolID)
+
+	return []*schema.ResourceData{d}, nil
 }

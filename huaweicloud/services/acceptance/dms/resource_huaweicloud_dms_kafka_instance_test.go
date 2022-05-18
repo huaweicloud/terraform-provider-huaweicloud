@@ -2,6 +2,7 @@ package dms
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/chnsz/golangsdk/openstack/dms/v2/kafka/instances"
@@ -45,6 +46,7 @@ func TestAccDmsKafkaInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "engine", "kafka"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestMatchResourceAttr(resourceName, "cross_vpc_accesses.#", regexp.MustCompile(`[1-9]\d*`)),
 				),
 			},
 			{
@@ -65,6 +67,7 @@ func TestAccDmsKafkaInstances_basic(t *testing.T) {
 					"password",
 					"manager_password",
 					"used_storage_space",
+					"cross_vpc_accesses",
 				},
 			},
 		},

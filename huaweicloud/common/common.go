@@ -179,9 +179,6 @@ func refreshOrderStatus(c *golangsdk.ServiceClient, orderNum string) resource.St
 
 func CaseInsensitiveFunc() schema.SchemaDiffSuppressFunc {
 	return func(k, old, new string, d *schema.ResourceData) bool {
-		if strings.ToLower(old) == strings.ToLower(new) {
-			return true
-		}
-		return false
+		return strings.EqualFold(old, new)
 	}
 }

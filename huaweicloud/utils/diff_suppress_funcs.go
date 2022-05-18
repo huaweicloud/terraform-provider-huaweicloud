@@ -112,7 +112,7 @@ func CompareJsonTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
 
 	canonicalJson2, _ := json.Marshal(obj2)
 
-	equal := bytes.Compare(canonicalJson1, canonicalJson2) == 0
+	equal := bytes.Equal(canonicalJson1, canonicalJson2)
 	if !equal {
 		log.Printf("[DEBUG] Canonical template are not equal.\nFirst: %s\nSecond: %s\n",
 			canonicalJson1, canonicalJson2)

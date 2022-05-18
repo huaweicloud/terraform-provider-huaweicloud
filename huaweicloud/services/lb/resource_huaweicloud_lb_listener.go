@@ -25,6 +25,9 @@ func ResourceListenerV2() *schema.Resource {
 		ReadContext:   resourceListenerV2Read,
 		UpdateContext: resourceListenerV2Update,
 		DeleteContext: resourceListenerV2Delete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -228,6 +231,10 @@ func resourceListenerV2Read(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("sni_container_refs", listener.SniContainerRefs),
 		d.Set("default_tls_container_ref", listener.DefaultTlsContainerRef),
 	)
+
+	if len(listener.Loadbalancers) != 0 {
+		mErr = multierror.Append(mErr, d.Set("loadbalancer_id", listener.Loadbalancers[0].ID))
+	}
 
 	// fetch tags
 	if resourceTags, err := tags.Get(lbv2Client, "listeners", d.Id()).Extract(); err == nil {

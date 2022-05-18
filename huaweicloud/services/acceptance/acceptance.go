@@ -215,7 +215,7 @@ func TestCheckResourceAttrWithVariable(resourceName, key, varStr string) resourc
 // CheckResourceDestroy check whether resources destroyed in HuaweiCloud.
 func (rc *resourceCheck) CheckResourceDestroy() resource.TestCheckFunc {
 	if strings.Compare(rc.resourceType, dataSourceTypeCode) == 0 {
-		fmtp.Errorf("Error, you built a resourceCheck with 'InitDataSourceCheck', " +
+		logp.Printf("Error, you built a resourceCheck with 'InitDataSourceCheck', " +
 			"it cannot run CheckResourceDestroy().")
 		return nil
 	}

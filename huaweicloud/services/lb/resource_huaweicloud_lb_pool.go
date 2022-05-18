@@ -23,6 +23,9 @@ func ResourcePoolV2() *schema.Resource {
 		ReadContext:   resourcePoolV2Read,
 		UpdateContext: resourcePoolV2Update,
 		DeleteContext: resourcePoolV2Delete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -70,6 +73,10 @@ func ResourcePoolV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
+				AtLeastOneOf: []string{
+					"listener_id",
+				},
 			},
 
 			// One of loadbalancer_id or listener_id must be provided
@@ -77,6 +84,7 @@ func ResourcePoolV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 
 			"lb_method": {
@@ -228,6 +236,14 @@ func resourcePoolV2Read(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("admin_state_up", pool.AdminStateUp),
 		d.Set("name", pool.Name),
 	)
+
+	if len(pool.Loadbalancers) != 0 {
+		mErr = multierror.Append(mErr, d.Set("loadbalancer_id", pool.Loadbalancers[0].ID))
+	}
+
+	if len(pool.Listeners) != 0 {
+		mErr = multierror.Append(mErr, d.Set("listener_id", pool.Listeners[0].ID))
+	}
 
 	if pool.Persistence.Type != "" {
 		var persistence []map[string]interface{} = make([]map[string]interface{}, 1)

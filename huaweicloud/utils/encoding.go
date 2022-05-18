@@ -10,9 +10,9 @@ import (
 // The function gets the hash of v then returns the hexadecimal encoding string.
 // If the type of v is not string, just returns an empty string.
 func HashAndHexEncode(v interface{}) string {
-	switch v.(type) {
+	switch v := v.(type) {
 	case string:
-		hash := sha1.Sum([]byte(v.(string)))
+		hash := sha1.Sum([]byte(v))
 		return hex.EncodeToString(hash[:])
 	default:
 		return ""
@@ -24,9 +24,9 @@ func HashAndHexEncode(v interface{}) string {
 // decode string and returns the hexadecimal encoding string.
 // If the type of v is not string, just returns an empty string.
 func DecodeHashAndHexEncode(v interface{}) string {
-	switch v.(type) {
+	switch v := v.(type) {
 	case string:
-		return installScriptHashSum(v.(string))
+		return installScriptHashSum(v)
 	default:
 		return ""
 	}

@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -101,7 +100,7 @@ func testAccCheckIecNetworkACLRuleExists(n, direction string, resource *firewall
 }
 
 func testAccIecNetworkACLRule_basic() string {
-	return fmt.Sprintf(`
+	return `
 resource "huaweicloud_iec_network_acl" "acl_test" {
   name = "iec-acl-basic"
 }
@@ -116,11 +115,11 @@ resource "huaweicloud_iec_network_acl_rule" "rule_test" {
   destination_port       = "445"
   enabled                = true
 }
-`)
+`
 }
 
 func testAccIecNetworkACLRule_basic_update() string {
-	return fmt.Sprintf(`
+	return `
 resource "huaweicloud_iec_network_acl" "acl_test" {
   name = "iec-acl-update"
 }
@@ -135,5 +134,5 @@ resource "huaweicloud_iec_network_acl_rule" "rule_test" {
   destination_port       = "23-30"
   enabled                = true
 }
-`)
+`
 }

@@ -203,7 +203,10 @@ func (c *Config) ObjectStorageClient(region string) (*obs.ObsClient, error) {
 		timeNow := time.Now().Unix()
 		expairesAtInt := c.SecurityKeyExpiresAt.Unix()
 		if timeNow+keyExpiresDuration > expairesAtInt {
-			c.reloadSecurityKey()
+			err := c.reloadSecurityKey()
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -229,7 +232,10 @@ func (c *Config) NewServiceClient(srv, region string) (*golangsdk.ServiceClient,
 		timeNow := time.Now().Unix()
 		expairesAtInt := c.SecurityKeyExpiresAt.Unix()
 		if timeNow+keyExpiresDuration > expairesAtInt {
-			c.reloadSecurityKey()
+			err := c.reloadSecurityKey()
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -264,7 +270,7 @@ func (c *Config) newServiceClientByName(client *golangsdk.ProviderClient, catalo
 		if err != nil {
 			return nil, err
 		}
-		projectID, _ = c.RegionProjectIDMap[region]
+		projectID = c.RegionProjectIDMap[region]
 	}
 
 	// update ProjectID and region in ProviderClient

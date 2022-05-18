@@ -62,6 +62,11 @@ func TestAccLBV2Monitor_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "port", "8888"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

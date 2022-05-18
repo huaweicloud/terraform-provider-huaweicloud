@@ -166,7 +166,7 @@ func flattenInstanceNetworks(
 			if instanceNetwork.Port != "" && instanceNetwork.Port == nic.PortID {
 				nic.Fetched = true
 				isExist = true
-			} else if instanceNetwork.UUID == nic.NetworkID && nic.Fetched == false {
+			} else if instanceNetwork.UUID == nic.NetworkID && !nic.Fetched {
 				// Only use one NIC since it's possible the user defined another NIC
 				// on this same network in another Terraform network block.
 				nic.Fetched = true

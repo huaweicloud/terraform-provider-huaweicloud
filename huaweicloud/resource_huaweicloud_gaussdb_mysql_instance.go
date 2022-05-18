@@ -13,6 +13,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/backups"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/configurations"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -34,8 +35,11 @@ func resourceGaussDBInstance() *schema.Resource {
 
 		CustomizeDiff: func(_ context.Context, d *schema.ResourceDiff, v interface{}) error {
 			if d.HasChange("proxy_node_num") {
-				d.SetNewComputed("proxy_address")
-				d.SetNewComputed("proxy_port")
+				mErr := multierror.Append(
+					d.SetNewComputed("proxy_address"),
+					d.SetNewComputed("proxy_port"),
+				)
+				return mErr.ErrorOrNil()
 			}
 			return nil
 		},

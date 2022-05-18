@@ -178,10 +178,7 @@ func resourceCciNamespaceCreate(ctx context.Context, d *schema.ResourceData, met
 }
 
 func isContainNetworkEnabled(network string) bool {
-	if network == "vpc-network-ready" {
-		return true
-	}
-	return false
+	return network == "vpc-network-ready"
 }
 
 func setCciNamespaceParams(d *schema.ResourceData, resp *namespaces.Namespace) error {
