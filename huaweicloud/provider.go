@@ -44,6 +44,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lb"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/live"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/modelarts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mrs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/obs"
@@ -671,6 +672,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_lb_monitor":      lb.ResourceMonitorV2(),
 			"huaweicloud_lb_pool":         lb.ResourcePoolV2(),
 			"huaweicloud_lb_whitelist":    lb.ResourceWhitelistV2(),
+
+			"huaweicloud_live_domain": live.ResourceDomain(),
 
 			"huaweicloud_lts_group":  ResourceLTSGroupV2(),
 			"huaweicloud_lts_stream": ResourceLTSStreamV2(),

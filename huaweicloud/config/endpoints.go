@@ -569,4 +569,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v1",
 		Product: "CPTS",
 	},
+
+	"live": {
+		Name:    "live",
+		Version: "v1",
+		Product: "Live",
+	},
 }

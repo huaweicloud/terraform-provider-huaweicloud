@@ -20,6 +20,7 @@ import (
 	ctsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3"
 	iamv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3"
 	kpsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3"
+	livev1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1"
 	rdsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3"
 	tmsv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1"
 	vpcv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3"
@@ -208,6 +209,15 @@ func (c *Config) HcAomV2Client(region string) (*aomv2.AomClient, error) {
 		return nil, err
 	}
 	return aomv2.NewAomClient(hcClient), nil
+}
+
+// HcLiveV1Client is the live service client using huaweicloud-sdk-go-v3 package
+func (c *Config) HcLiveV1Client(region string) (*livev1.LiveClient, error) {
+	hcClient, err := NewHcClient(c, region, "live", false)
+	if err != nil {
+		return nil, err
+	}
+	return livev1.NewLiveClient(hcClient), nil
 }
 
 // NewHcClient is the common client using huaweicloud-sdk-go-v3 package
