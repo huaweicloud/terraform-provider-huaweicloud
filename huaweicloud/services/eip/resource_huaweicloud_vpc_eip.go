@@ -232,11 +232,7 @@ func resourceVpcEIPV1Create(d *schema.ResourceData, meta interface{}) error {
 			PeriodType:  d.Get("period_unit").(string),
 			PeriodNum:   d.Get("period").(int),
 			IsAutoRenew: d.Get("auto_renew").(string),
-		}
-		if d.Get("auto_pay").(string) == "false" {
-			chargeInfo.IsAutoPay = "false"
-		} else {
-			chargeInfo.IsAutoPay = "true"
+			IsAutoPay:   common.GetAutoPay(d),
 		}
 		createOpts.ExtendParam = chargeInfo
 	}
@@ -398,10 +394,7 @@ func resourceVpcEIPV1Update(d *schema.ResourceData, meta interface{}) error {
 				Size: newMap["size"].(int),
 			}
 			extendParam := &bandwidthsv2.ExtendParam{
-				IsAutoPay: "true",
-			}
-			if d.Get("auto_pay").(string) == "false" {
-				extendParam.IsAutoPay = "false"
+				IsAutoPay: common.GetAutoPay(d),
 			}
 			updateOpts := bandwidthsv2.UpdateOpts{
 				Bandwidth:   bandwidth,

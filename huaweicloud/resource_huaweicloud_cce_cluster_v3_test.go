@@ -53,6 +53,31 @@ func TestAccCCEClusterV3_basic(t *testing.T) {
 	})
 }
 
+func TestAccCCEClusterV3_prePaid(t *testing.T) {
+	var cluster clusters.Clusters
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_cce_cluster.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCCEClusterV3Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCCEClusterV3_prePaid(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCCEClusterV3Exists(resourceName, &cluster),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttr(resourceName, "period_unit", "month"),
+					resource.TestCheckResourceAttr(resourceName, "period", "1"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccCCEClusterV3_withEip(t *testing.T) {
 	var cluster clusters.Clusters
 
@@ -237,6 +262,30 @@ resource "huaweicloud_vpc_subnet" "test" {
   vpc_id        = huaweicloud_vpc.test.id
 }
 `, rName, rName)
+}
+
+func testAccCCEClusterV3_prePaid(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_cce_cluster" "test" {
+  name                   = "%s"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  container_network_type = "overlay_l2"
+  service_network_cidr   = "10.248.0.0/16"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = "1"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, testAccCCEClusterV3_Base(rName), rName)
 }
 
 func testAccCCEClusterV3_basic(rName string) string {

@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -270,7 +271,7 @@ func resourceGaussDBInstance() *schema.Resource {
 				},
 			},
 
-			// charge info: charging_mode, period_unit, period, auto_renew
+			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
 			// make ForceNew false here but do nothing in update method!
 			"charging_mode": {
 				Type:     schema.TypeString,
@@ -294,6 +295,13 @@ func resourceGaussDBInstance() *schema.Resource {
 				ValidateFunc: validation.IntBetween(1, 9),
 			},
 			"auto_renew": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"true", "false",
+				}, false),
+			},
+			"auto_pay": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: validation.StringInSlice([]string{
@@ -460,8 +468,8 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			ChargingMode: d.Get("charging_mode").(string),
 			PeriodType:   d.Get("period_unit").(string),
 			PeriodNum:    d.Get("period").(int),
-			IsAutoPay:    "true",
 			IsAutoRenew:  d.Get("auto_renew").(string),
+			IsAutoPay:    common.GetAutoPay(d),
 		}
 		createOpts.ChargeInfo = chargeInfo
 	}
@@ -792,7 +800,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			},
 		}
 		if d.Get("charging_mode") == "prePaid" {
-			resizeOpts.IsAutoPay = "true"
+			resizeOpts.IsAutoPay = common.GetAutoPay(d)
 		}
 		logp.Printf("[DEBUG] Update Flavor Options: %+v", resizeOpts)
 
@@ -843,7 +851,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				Priorities: priorities,
 			}
 			if d.Get("charging_mode") == "prePaid" {
-				createReplicaOpts.IsAutoPay = "true"
+				createReplicaOpts.IsAutoPay = common.GetAutoPay(d)
 			}
 			logp.Printf("[DEBUG] Create Replica Options: %+v", createReplicaOpts)
 
@@ -917,7 +925,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	if d.HasChange("volume_size") {
 		extendOpts := instances.ExtendVolumeOpts{
 			Size:      d.Get("volume_size").(int),
-			IsAutoPay: "true",
+			IsAutoPay: common.GetAutoPay(d),
 		}
 		logp.Printf("[DEBUG] Extending Volume: %#v", extendOpts)
 

@@ -165,11 +165,12 @@ func ResourceLoadBalancerV3() *schema.Resource {
 
 			"tags": common.TagsSchema(),
 
-			// charge info: charging_mode, period_unit, period, auto_renew
+			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
 			"auto_renew":    common.SchemaAutoRenew(nil),
+			"auto_pay":      common.SchemaAutoPay(nil),
 
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -259,7 +260,9 @@ func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, m
 			PeriodType: d.Get("period_unit").(string),
 			PeriodNum:  d.Get("period").(int),
 			AutoRenew:  autoRenew,
-			AutoPay:    true,
+		}
+		if d.Get("auto_pay").(string) != "false" {
+			prepaidOpts.AutoPay = true
 		}
 		createOpts.PrepaidOpts = &prepaidOpts
 
@@ -434,7 +437,9 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 				PeriodType: d.Get("period_unit").(string),
 				PeriodNum:  d.Get("period").(int),
 				AutoRenew:  autoRenew,
-				AutoPay:    true,
+			}
+			if d.Get("auto_pay").(string) != "false" {
+				prepaidOpts.AutoPay = true
 			}
 			updateOpts.PrepaidOpts = &prepaidOpts
 

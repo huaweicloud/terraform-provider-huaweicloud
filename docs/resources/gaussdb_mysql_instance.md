@@ -111,6 +111,10 @@ The following arguments are supported:
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
   Valid values are "true" and "false". Changing this will do nothing.
 
+* `auto_pay` - (Optional, String) Specifies whether auto pay is enabled.
+  Valid values are *true* and *false*. Defaults to *true*. If you set this to *false*, you need to pay the order
+  yourself in time, be careful about the timeout of resource creation. Changing this will do nothing.
+
 * `datastore` - (Optional, List, ForceNew) Specifies the database information. Structure is documented below. Changing
   this parameter will create a new resource.
 

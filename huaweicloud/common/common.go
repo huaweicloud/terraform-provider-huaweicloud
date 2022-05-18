@@ -185,3 +185,10 @@ func CaseInsensitiveFunc() schema.SchemaDiffSuppressFunc {
 		return false
 	}
 }
+
+func GetAutoPay(d *schema.ResourceData) string {
+	if d.Get("auto_pay").(string) == "false" {
+		return "false"
+	}
+	return "true"
+}
