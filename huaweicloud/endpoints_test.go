@@ -428,6 +428,18 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 	}
 	t.Logf("BCS v2 endpoint:\t %s", actualURL)
 
+	// test the endpoint of CSE v2 service
+	serviceClient, err = config.CseV2Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud CSE v2 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://cse.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("CSE v2 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("CSE v2 endpoint:\t %s", actualURL)
+
 	// test the endpoint of DCS v1 service
 	serviceClient, err = config.DcsV1Client(HW_REGION_NAME)
 	if err != nil {
