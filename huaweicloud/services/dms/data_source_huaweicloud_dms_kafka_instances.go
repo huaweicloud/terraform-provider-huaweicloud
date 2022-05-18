@@ -199,6 +199,30 @@ func DataSourceDmsKafkaInstances() *schema.Resource {
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
+						"cross_vpc_accesses": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"lisenter_ip": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"advertised_ip": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"port": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"port_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -278,6 +302,12 @@ func flattenKafkaInstanceList(client *golangsdk.ServiceClient, conf *config.Conf
 			instance["enable_public_ip"] = val.EnablePublicIP
 			instance["public_conn_addresses"] = strings.TrimSpace(val.PublicConnectionAddress)
 		}
+
+		crossVpcAccess, err := flattenConnectPorts(val.CrossVpcInfo)
+		if err != nil {
+			return nil, nil, fmt.Errorf("error retriving details of the cross-VPC information: %v", err)
+		}
+		instance["cross_vpc_accesses"] = crossVpcAccess
 
 		result[i] = instance
 		ids[i] = val.InstanceID

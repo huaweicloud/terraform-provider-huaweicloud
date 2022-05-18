@@ -14,7 +14,8 @@ Use this data source to query the available instances within HuaweiCloud DMS ser
 variable "keyword" {}
 
 data "huaweicloud_dms_kafka_instances" "test" {
-  name = var.keyword
+  name        = var.keyword
+  fuzzy_match = true
 }
 ```
 
@@ -24,8 +25,7 @@ data "huaweicloud_dms_kafka_instances" "test" {
 variable "instance_name" {}
 
 data "huaweicloud_dms_kafka_instances" "test" {
-  name           = var.instance_name
-  is_exact_match = true
+  name = var.instance_name
 }
 ```
 
@@ -38,7 +38,7 @@ data "huaweicloud_dms_kafka_instances" "test" {
 
 * `name` - (Optional, String) Specifies the kafka instance name for data-source queries.
 
-* `is_exact_match` - (Optional, Bool) Specifies whether to match the instance name exactly, the default is a fuzzy
+* `fuzzy_match` - (Optional, Bool) Specifies whether to match the instance name fuzzily, the default is a exact
   match (`flase`).
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID to which all instances of the list
@@ -124,3 +124,15 @@ The `instances` block supports:
 * `manegement_connect_address` - The connection address of the Kafka manager of an instance.
 
 * `tags` - The key/value pairs to associate with the instance.
+
+* `cross_vpc_accesses` - Indicates the Access information of cross-VPC. The structure is documented below.
+
+The `cross_vpc_accesses` block supports:
+
+* `lisenter_ip` - The listener IP address.
+
+* `advertised_ip` - The advertised IP Address.
+
+* `port` - The port number.
+
+* `port_id` - The port ID associated with the address.
