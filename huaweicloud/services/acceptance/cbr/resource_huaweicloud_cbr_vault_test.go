@@ -15,12 +15,12 @@ import (
 func getVaultResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	c, err := conf.CbrV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HuaweiCloud CBR client: %s", err)
+		return nil, fmt.Errorf("error creating CBR v3 client: %s", err)
 	}
 	return vaults.Get(c, state.Primary.ID).Extract()
 }
 
-func TestAccCBRV3Vault_BasicServer(t *testing.T) {
+func TestAccVault_BasicServer(t *testing.T) {
 	var vault vaults.Vault
 	randName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_cbr_vault.test"
@@ -40,7 +40,7 @@ func TestAccCBRV3Vault_BasicServer(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCBRV3Vault_serverBasic(randName),
+				Config: testAccVault_serverBasic(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", randName),
@@ -56,7 +56,7 @@ func TestAccCBRV3Vault_BasicServer(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCBRV3Vault_serverUpdate(randName),
+				Config: testAccVault_serverUpdate(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", randName+"-update"),
@@ -82,7 +82,7 @@ func TestAccCBRV3Vault_BasicServer(t *testing.T) {
 	})
 }
 
-func TestAccCBRV3Vault_ReplicaServer(t *testing.T) {
+func TestAccVault_ReplicaServer(t *testing.T) {
 	var vault vaults.Vault
 	randName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_cbr_vault.test"
@@ -102,7 +102,7 @@ func TestAccCBRV3Vault_ReplicaServer(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCBRV3Vault_serverReplication(randName),
+				Config: testAccVault_serverReplication(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", randName),
@@ -121,7 +121,7 @@ func TestAccCBRV3Vault_ReplicaServer(t *testing.T) {
 	})
 }
 
-func TestAccCBRV3Vault_BasicVolume(t *testing.T) {
+func TestAccVault_BasicVolume(t *testing.T) {
 	var vault vaults.Vault
 	randName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_cbr_vault.test"
@@ -141,7 +141,7 @@ func TestAccCBRV3Vault_BasicVolume(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCBRV3Vault_volumeBasic(randName),
+				Config: testAccVault_volumeBasic(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", randName),
@@ -156,7 +156,7 @@ func TestAccCBRV3Vault_BasicVolume(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCBRV3Vault_volumeUpdate(randName),
+				Config: testAccVault_volumeUpdate(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", randName+"-update"),
@@ -180,7 +180,7 @@ func TestAccCBRV3Vault_BasicVolume(t *testing.T) {
 	})
 }
 
-func TestAccCBRV3Vault_BasicTurbo(t *testing.T) {
+func TestAccVault_BasicTurbo(t *testing.T) {
 	var vault vaults.Vault
 	randName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_cbr_vault.test"
@@ -200,7 +200,7 @@ func TestAccCBRV3Vault_BasicTurbo(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCBRV3Vault_turboBasic(randName),
+				Config: testAccVault_turboBasic(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", randName),
@@ -213,7 +213,7 @@ func TestAccCBRV3Vault_BasicTurbo(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCBRV3Vault_turboUpdate(randName),
+				Config: testAccVault_turboUpdate(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", randName+"-update"),
@@ -235,7 +235,7 @@ func TestAccCBRV3Vault_BasicTurbo(t *testing.T) {
 	})
 }
 
-func TestAccCBRV3Vault_ReplicaTurbo(t *testing.T) {
+func TestAccVault_ReplicaTurbo(t *testing.T) {
 	var vault vaults.Vault
 	randName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_cbr_vault.test"
@@ -255,7 +255,7 @@ func TestAccCBRV3Vault_ReplicaTurbo(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCBRV3Vault_turboReplication(randName),
+				Config: testAccVault_turboReplication(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", randName),
@@ -275,7 +275,7 @@ func TestAccCBRV3Vault_ReplicaTurbo(t *testing.T) {
 	})
 }
 
-func testAccCBRV3Vault_policy(rName string) string {
+func testAccVault_policy(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cbr_policy" "test" {
   name        = "%s"
@@ -320,7 +320,7 @@ variable "volume_configuration" {
 }`
 }
 
-func testAccCBRV3VaultBasicConfiguration(config, rName string) string {
+func testAccVaultBasicConfiguration(config, rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -401,7 +401,7 @@ resource "huaweicloud_compute_volume_attach" "test" {
 }`, config, rName, rName, rName, rName, rName, rName)
 }
 
-func testAccCBRV3Vault_serverBasic(rName string) string {
+func testAccVault_serverBasic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -423,11 +423,11 @@ resource "huaweicloud_cbr_vault" "test" {
     key = "value"
   }
 }
-`, testAccCBRV3VaultBasicConfiguration(testAccEvsVolumeConfiguration_basic(), rName),
+`, testAccVaultBasicConfiguration(testAccEvsVolumeConfiguration_basic(), rName),
 		rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccCBRV3Vault_serverUpdate(rName string) string {
+func testAccVault_serverUpdate(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -453,11 +453,11 @@ resource "huaweicloud_cbr_vault" "test" {
     key  = "value_update"
   }
 }
-`, testAccCBRV3VaultBasicConfiguration(testAccEvsVolumeConfiguration_update(), rName), testAccCBRV3Vault_policy(rName),
+`, testAccVaultBasicConfiguration(testAccEvsVolumeConfiguration_update(), rName), testAccVault_policy(rName),
 		rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccCBRV3Vault_serverReplication(rName string) string {
+func testAccVault_serverReplication(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cbr_vault" "test" {
   name                  = "%s"
@@ -470,7 +470,7 @@ resource "huaweicloud_cbr_vault" "test" {
 `, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccCBRV3Vault_volumeBasic(rName string) string {
+func testAccVault_volumeBasic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -485,11 +485,11 @@ resource "huaweicloud_cbr_vault" "test" {
     includes = huaweicloud_compute_volume_attach.test[*].volume_id
   }
 }
-`, testAccCBRV3VaultBasicConfiguration(testAccEvsVolumeConfiguration_basic(), rName),
+`, testAccVaultBasicConfiguration(testAccEvsVolumeConfiguration_basic(), rName),
 		rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccCBRV3Vault_volumeUpdate(rName string) string {
+func testAccVault_volumeUpdate(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -508,12 +508,12 @@ resource "huaweicloud_cbr_vault" "test" {
     includes = huaweicloud_compute_volume_attach.test[*].volume_id
   }
 }
-`, testAccCBRV3VaultBasicConfiguration(testAccEvsVolumeConfiguration_basic(), rName),
-		testAccCBRV3Vault_policy(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccVaultBasicConfiguration(testAccEvsVolumeConfiguration_basic(), rName),
+		testAccVault_policy(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 //Vaults of type 'turbo'
-func testAccCBRV3Vault_turboBase(rName string) string {
+func testAccVault_turboBase(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
@@ -544,7 +544,7 @@ resource "huaweicloud_sfs_turbo" "test1" {
 }`, rName, rName, rName, rName)
 }
 
-func testAccCBRV3Vault_turboBasic(rName string) string {
+func testAccVault_turboBasic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -561,10 +561,10 @@ resource "huaweicloud_cbr_vault" "test" {
     ]
   }
 }
-`, testAccCBRV3Vault_turboBase(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccVault_turboBase(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccCBRV3Vault_turboUpdate(rName string) string {
+func testAccVault_turboUpdate(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -595,11 +595,11 @@ resource "huaweicloud_cbr_vault" "test" {
     ]
   }
 }
-`, testAccCBRV3Vault_turboBase(rName), testAccCBRV3Vault_policy(rName), rName, rName,
+`, testAccVault_turboBase(rName), testAccVault_policy(rName), rName, rName,
 		acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccCBRV3Vault_turboReplication(rName string) string {
+func testAccVault_turboReplication(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cbr_vault" "test" {
   name                  = "%s"

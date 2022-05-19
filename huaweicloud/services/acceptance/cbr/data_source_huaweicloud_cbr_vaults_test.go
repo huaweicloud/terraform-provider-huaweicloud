@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbr"
 )
 
-func TestAccCbrVaultsV3_BasicServer(t *testing.T) {
+func TestAccVaults_BasicServer(t *testing.T) {
 	randName := acceptance.RandomAccResourceNameWithDash()
 	dataSourceName := "data.huaweicloud_cbr_vaults.test"
 
@@ -23,7 +23,7 @@ func TestAccCbrVaultsV3_BasicServer(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCbrVaultsV3_serverBasic(randName),
+				Config: testAccVaults_basic(testAccVault_serverBasic(randName)),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "name", randName),
@@ -43,7 +43,7 @@ func TestAccCbrVaultsV3_BasicServer(t *testing.T) {
 	})
 }
 
-func TestAccCbrVaultsV3_ReplicaServer(t *testing.T) {
+func TestAccVaults_ReplicaServer(t *testing.T) {
 	randName := acceptance.RandomAccResourceName()
 	dataSourceName := "data.huaweicloud_cbr_vaults.test"
 
@@ -57,7 +57,7 @@ func TestAccCbrVaultsV3_ReplicaServer(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCbrVaultsV3_serverReplication(randName),
+				Config: testAccVaults_basic(testAccVault_serverReplication(randName)),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "name", randName),
@@ -72,7 +72,7 @@ func TestAccCbrVaultsV3_ReplicaServer(t *testing.T) {
 	})
 }
 
-func TestAccCbrVaultsV3_BasicVolume(t *testing.T) {
+func TestAccVaults_BasicVolume(t *testing.T) {
 	randName := acceptance.RandomAccResourceName()
 	dataSourceName := "data.huaweicloud_cbr_vaults.test"
 
@@ -86,7 +86,7 @@ func TestAccCbrVaultsV3_BasicVolume(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCbrVaultsV3_volumeBasic(randName),
+				Config: testAccVaults_basic(testAccVault_volumeBasic(randName)),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "name", randName),
@@ -104,7 +104,7 @@ func TestAccCbrVaultsV3_BasicVolume(t *testing.T) {
 	})
 }
 
-func TestAccCbrVaultsV3_BasicTurbo(t *testing.T) {
+func TestAccVaults_BasicTurbo(t *testing.T) {
 	randName := acceptance.RandomAccResourceName()
 	dataSourceName := "data.huaweicloud_cbr_vaults.test"
 
@@ -118,7 +118,7 @@ func TestAccCbrVaultsV3_BasicTurbo(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCbrVaultsV3_turboBasic(randName),
+				Config: testAccVaults_basic(testAccVault_turboBasic(randName)),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "name", randName),
@@ -136,7 +136,7 @@ func TestAccCbrVaultsV3_BasicTurbo(t *testing.T) {
 	})
 }
 
-func TestAccCbrVaultsV3_ReplicaTurbo(t *testing.T) {
+func TestAccVaults_ReplicaTurbo(t *testing.T) {
 	randName := acceptance.RandomAccResourceName()
 	dataSourceName := "data.huaweicloud_cbr_vaults.test"
 
@@ -150,7 +150,7 @@ func TestAccCbrVaultsV3_ReplicaTurbo(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCbrVaultsV3_turboReplication(randName),
+				Config: testAccVaults_basic(testAccVault_turboReplication(randName)),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "name", randName),
@@ -167,52 +167,12 @@ func TestAccCbrVaultsV3_ReplicaTurbo(t *testing.T) {
 	})
 }
 
-func testAccCbrVaultsV3_serverBasic(rName string) string {
+func testAccVaults_basic(config string) string {
 	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_cbr_vaults" "test" {
   name = huaweicloud_cbr_vault.test.name
 }
-`, testAccCBRV3Vault_serverBasic(rName))
-}
-
-func testAccCbrVaultsV3_serverReplication(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_cbr_vaults" "test" {
-  name = huaweicloud_cbr_vault.test.name
-}
-`, testAccCBRV3Vault_serverReplication(rName))
-}
-
-func testAccCbrVaultsV3_volumeBasic(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_cbr_vaults" "test" {
-  name = huaweicloud_cbr_vault.test.name
-}
-`, testAccCBRV3Vault_volumeBasic(rName))
-}
-
-func testAccCbrVaultsV3_turboBasic(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_cbr_vaults" "test" {
-  name = huaweicloud_cbr_vault.test.name
-}
-`, testAccCBRV3Vault_turboBasic(rName))
-}
-
-func testAccCbrVaultsV3_turboReplication(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_cbr_vaults" "test" {
-  name = huaweicloud_cbr_vault.test.name
-}
-`, testAccCBRV3Vault_turboReplication(rName))
+`, config)
 }

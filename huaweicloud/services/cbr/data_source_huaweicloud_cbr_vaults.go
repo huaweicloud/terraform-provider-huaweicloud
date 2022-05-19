@@ -230,7 +230,7 @@ func setCbrAllVaultParameters(client *golangsdk.ServiceClient, d *schema.Resourc
 			"storage":               vault.Billing.StorageUnit,
 			"auto_expand_enabled":   vault.AutoExpand,
 			"tags":                  utils.TagsToMap(vault.Tags),
-			"resources":             makeCbrVaultResources(vault.Billing.ObjectType, vault.Resources),
+			"resources":             makeVaultResources(vault.Billing.ObjectType, vault.Resources),
 		}
 
 		// Query the CBR policy which bound to the vault by ID

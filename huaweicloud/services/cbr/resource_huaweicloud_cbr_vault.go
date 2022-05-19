@@ -1,19 +1,22 @@
 package cbr
 
 import (
+	"context"
+	"fmt"
+	"log"
 	"math"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cbr/v3/policies"
 	"github.com/chnsz/golangsdk/openstack/cbr/v3/vaults"
-	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 const (
@@ -38,15 +41,15 @@ var ResourceType map[string]string = map[string]string{
 	VaultTypeTurbo:  ResourceTypeTurbo,
 }
 
-func ResourceCBRVaultV3() *schema.Resource {
+func ResourceVault() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCBRVaultV3Create,
-		Read:   resourceCBRVaultV3Read,
-		Update: resourceCBRVaultV3Update,
-		Delete: resourceCBRVaultV3Delete,
+		CreateContext: resourceVaultCreate,
+		ReadContext:   resourceVaultRead,
+		UpdateContext: resourceVaultUpdate,
+		DeleteContext: resourceVaultDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -178,7 +181,7 @@ func buildAssociateResourcesForServer(rType string, resources []interface{}) ([]
 			result.ExtraInfo.ExcludeVolumes = volumes
 		}
 		if res["includes"].(*schema.Set).Len() > 0 {
-			return results, fmtp.Errorf("Server vault does not support includes.")
+			return results, fmt.Errorf("server vault does not support includes")
 		}
 		results[i] = result
 	}
@@ -188,7 +191,7 @@ func buildAssociateResourcesForServer(rType string, resources []interface{}) ([]
 func buildAssociateResourcesForDisk(rType string, resources []interface{}) ([]vaults.ResourceCreate, error) {
 	if len(resources) > 1 {
 		return []vaults.ResourceCreate{},
-			fmtp.Errorf("The size of resources cannot grant than one for disk and turbo vault.")
+			fmt.Errorf("the size of resources cannot grant than one for disk and turbo vault")
 	} else if len(resources) == 0 {
 		return []vaults.ResourceCreate{}, nil
 	}
@@ -203,7 +206,7 @@ func buildAssociateResourcesForDisk(rType string, resources []interface{}) ([]va
 		}
 		return result, nil
 	}
-	return []vaults.ResourceCreate{}, fmtp.Errorf("Only includes can be set for disk and turbo vault.")
+	return []vaults.ResourceCreate{}, fmt.Errorf("only includes can be set for disk and turbo vault")
 }
 
 func buildAssociateResources(vType string, resources *schema.Set) ([]vaults.ResourceCreate, error) {
@@ -211,16 +214,16 @@ func buildAssociateResources(vType string, resources *schema.Set) ([]vaults.Reso
 	var err error
 	rType, ok := ResourceType[vType]
 	if !ok {
-		return nil, fmtp.Errorf("Invalid resource type: %s", vType)
+		return nil, fmt.Errorf("invalid resource type: %s", vType)
 	}
-	logp.Printf("[DEBUG] The resource type is %s", rType)
+	log.Printf("[DEBUG] The resource type is %s", rType)
 	switch rType {
 	case ResourceTypeServer:
 		result, err = buildAssociateResourcesForServer(rType, resources.List())
 	case ResourceTypeDisk, ResourceTypeTurbo:
 		result, err = buildAssociateResourcesForDisk(rType, resources.List())
 	default:
-		err = fmtp.Errorf("The vault type only support server, disk and turbo.")
+		err = fmt.Errorf("the vault type only support server, disk and turbo")
 	}
 	return result, err
 }
@@ -245,20 +248,20 @@ func buildDissociateResourcesForDisk(rType string, resources []interface{}) []st
 func buildDissociateResources(vType string, resources *schema.Set) ([]string, error) {
 	rType, ok := ResourceType[vType]
 	if !ok {
-		return nil, fmtp.Errorf("Invalid resource type: %s", vType)
+		return nil, fmt.Errorf("invalid resource type: %s", vType)
 	}
-	logp.Printf("[DEBUG] The resource type is %s", rType)
+	log.Printf("[DEBUG] The resource type is %s", rType)
 	switch rType {
 	case ResourceTypeServer:
 		return buildDissociateResourcesForServer(rType, resources.List()), nil
 	case ResourceTypeDisk, ResourceTypeTurbo:
 		return buildDissociateResourcesForDisk(rType, resources.List()), nil
 	default:
-		return nil, fmtp.Errorf("The vault type only support server, disk and turbo.")
+		return nil, fmt.Errorf("the vault type only support server, disk and turbo")
 	}
 }
 
-func buildCBRVaultBilling(d *schema.ResourceData) *vaults.BillingCreate {
+func buildBillingStructure(d *schema.ResourceData) *vaults.BillingCreate {
 	billing := &vaults.BillingCreate{
 		ObjectType:      d.Get("type").(string),
 		ConsistentLevel: d.Get("consistent_level").(string),
@@ -269,16 +272,16 @@ func buildCBRVaultBilling(d *schema.ResourceData) *vaults.BillingCreate {
 	return billing
 }
 
-func resourceCBRVaultV3Create(d *schema.ResourceData, meta interface{}) error {
+func resourceVaultCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.CbrV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud CBR v3 client: %s", err)
+		return diag.Errorf("error creating CBR v3 client: %s", err)
 	}
 
 	resources, err := buildAssociateResources(d.Get("type").(string), d.Get("resources").(*schema.Set))
 	if err != nil {
-		return fmtp.Errorf("Error building vault resources: %s", err)
+		return diag.Errorf("error building vault resources: %s", err)
 	}
 	opts := vaults.CreateOpts{
 		Name:                d.Get("name").(string),
@@ -286,31 +289,31 @@ func resourceCBRVaultV3Create(d *schema.ResourceData, meta interface{}) error {
 		BackupPolicyID:      d.Get("policy_id").(string),
 		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
 		Resources:           resources,
-		Billing:             buildCBRVaultBilling(d),
+		Billing:             buildBillingStructure(d),
 	}
 
-	logp.Printf("[DEBUG] The createOpts is: %+v", opts)
+	log.Printf("[DEBUG] The createOpts is: %+v", opts)
 	vault, err := vaults.Create(client, opts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating vaults: %s", err)
+		return diag.Errorf("error creating vaults: %s", err)
 	}
 	d.SetId(vault.ID)
 
 	if policy, ok := d.GetOk("policy_id"); ok {
 		_, err := vaults.BindPolicy(client, d.Id(), vaults.BindPolicyOpts{PolicyID: policy.(string)}).Extract()
 		if err != nil {
-			return fmtp.Errorf("Error binding policy to vault: %s", err)
+			return diag.Errorf("error binding policy to vault: %s", err)
 		}
 	}
 
 	if err := utils.UpdateResourceTags(client, d, "vault", d.Id()); err != nil {
-		return fmtp.Errorf("Error setting tags of CBR vault: %s", err)
+		return diag.Errorf("error setting tags of CBR vault: %s", err)
 	}
 
-	return resourceCBRVaultV3Read(d, meta)
+	return resourceVaultRead(ctx, d, meta)
 }
 
-func makeCbrVaultResourcesForServer(resources []vaults.ResourceResp) []map[string]interface{} {
+func makeVaultResourcesForServer(resources []vaults.ResourceResp) []map[string]interface{} {
 	results := make([]map[string]interface{}, len(resources))
 	for i, res := range resources {
 		result := map[string]interface{}{
@@ -332,8 +335,8 @@ func makeCbrVaultResourcesForServer(resources []vaults.ResourceResp) []map[strin
 	return results
 }
 
-// MakeCbrVaultResourcesForDisk is a method for constructing a map list based on the resources response of the server.
-func MakeCbrVaultResourcesForDisk(resources []vaults.ResourceResp) []map[string]interface{} {
+// MakeVaultResourcesForDisk is a method for constructing a map list based on the resources response of the server.
+func MakeVaultResourcesForDisk(resources []vaults.ResourceResp) []map[string]interface{} {
 	includeVolumes := make([]string, len(resources))
 	for i, res := range resources {
 		includeVolumes[i] = res.ID
@@ -345,37 +348,37 @@ func MakeCbrVaultResourcesForDisk(resources []vaults.ResourceResp) []map[string]
 	}
 }
 
-func makeCbrVaultResources(vType string, resources []vaults.ResourceResp) []map[string]interface{} {
+func makeVaultResources(vType string, resources []vaults.ResourceResp) []map[string]interface{} {
 	var result []map[string]interface{}
 	switch vType {
 	case VaultTypeServer:
-		result = makeCbrVaultResourcesForServer(resources)
+		result = makeVaultResourcesForServer(resources)
 	case VaultTypeDisk, VaultTypeTurbo:
-		result = MakeCbrVaultResourcesForDisk(resources)
+		result = MakeVaultResourcesForDisk(resources)
 	}
 	return result
 }
 
-func setCbrResources(d *schema.ResourceData, vType string, resources []vaults.ResourceResp) error {
-	result := makeCbrVaultResources(vType, resources)
+func setResources(d *schema.ResourceData, vType string, resources []vaults.ResourceResp) error {
+	result := makeVaultResources(vType, resources)
 	if len(result) != 0 {
 		return d.Set("resources", result)
 	}
 	return nil
 }
 
-func getCbrPolicyByVaultId(client *golangsdk.ServiceClient, vaultId string) (string, error) {
+func getPolicyByVaultId(client *golangsdk.ServiceClient, vaultId string) (string, error) {
 	listOpts := policies.ListOpts{
 		VaultID: vaultId,
 	}
 	allPages, err := policies.List(client, listOpts).AllPages()
 	if err != nil {
-		return "", fmtp.Errorf("Error getting policy by vault ID (%s): %s", vaultId, err)
+		return "", fmt.Errorf("error getting policy by vault ID (%s): %s", vaultId, err)
 	}
 
 	policyList, err := policies.ExtractPolicies(allPages)
 	if err != nil {
-		return "", fmtp.Errorf("error getting policy by vault ID (%s): %s", vaultId, err)
+		return "", fmt.Errorf("error extracting vault list: %s", err)
 	}
 
 	if len(policyList) >= 1 {
@@ -390,24 +393,24 @@ func getNumberInGB(megaBytes float64) float64 {
 	return math.Trunc(float64(megaBytes) / denominator * 1e2 * 1e-2)
 }
 
-func setCbrPolicyId(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	policyId, err := getCbrPolicyByVaultId(client, d.Id())
+func setPolicyId(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	policyId, err := getPolicyByVaultId(client, d.Id())
 	if err != nil {
 		return err
 	}
 	return d.Set("policy_id", policyId)
 }
 
-func resourceCBRVaultV3Read(d *schema.ResourceData, meta interface{}) error {
+func resourceVaultRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.CbrV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud CBR v3 client: %s", err)
+		return diag.Errorf("error creating CBR v3 client: %s", err)
 	}
 
 	resp, err := vaults.Get(client, d.Id()).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error getting vault details: %s", err)
+		return diag.Errorf("error getting vault details: %s", err)
 	}
 
 	mErr := multierror.Append(
@@ -420,8 +423,8 @@ func resourceCBRVaultV3Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("auto_expand", resp.AutoExpand),
 		d.Set("enterprise_project_id", resp.EnterpriseProjectID),
 		d.Set("tags", utils.TagsToMap(resp.Tags)),
-		setCbrResources(d, resp.Billing.ObjectType, resp.Resources),
-		setCbrPolicyId(d, client),
+		setResources(d, resp.Billing.ObjectType, resp.Resources),
+		setPolicyId(d, client),
 		// Computed
 		// The result of 'allocated' and 'used' is in MB, and now we need to use GB as the unit.
 		d.Set("allocated", getNumberInGB(float64(resp.Billing.Allocated))),
@@ -431,7 +434,7 @@ func resourceCBRVaultV3Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("storage", resp.Billing.StorageUnit),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.Errorf("Error setting vault fields: %s", err)
+		return diag.Errorf("error setting vault fields: %s", err)
 	}
 
 	return nil
@@ -446,15 +449,15 @@ func updateResources(d *schema.ResourceData, client *golangsdk.ServiceClient) er
 	if delRaws.Len() > 0 {
 		resources, err := buildDissociateResources(d.Get("type").(string), delRaws)
 		if err != nil {
-			return fmtp.Errorf("Error building dissociate list of vault resources: %s", err)
+			return fmt.Errorf("error building dissociate list of vault resources: %s", err)
 		}
 		dissociateOpt := vaults.DissociateResourcesOpts{
 			ResourceIDs: resources,
 		}
-		logp.Printf("[DEBUG] The dissociate opt is: %+v", dissociateOpt)
+		log.Printf("[DEBUG] The dissociate opt is: %+v", dissociateOpt)
 		_, err = vaults.DissociateResources(client, d.Id(), dissociateOpt).Extract()
 		if err != nil {
-			return fmtp.Errorf("Error dissociating resources: %s", err)
+			return fmt.Errorf("error dissociating resources: %s", err)
 		}
 	}
 
@@ -462,15 +465,15 @@ func updateResources(d *schema.ResourceData, client *golangsdk.ServiceClient) er
 	if addRaws.Len() > 0 {
 		resources, err := buildAssociateResources(d.Get("type").(string), addRaws)
 		if err != nil {
-			return fmtp.Errorf("Error building associate list of vault resources: %s", err)
+			return fmt.Errorf("error building associate list of vault resources: %s", err)
 		}
 		associateOpt := vaults.AssociateResourcesOpts{
 			Resources: resources,
 		}
-		logp.Printf("[DEBUG] The associate opt is: %+v", associateOpt)
+		log.Printf("[DEBUG] The associate opt is: %+v", associateOpt)
 		_, err = vaults.AssociateResources(client, d.Id(), associateOpt).Extract()
 		if err != nil {
-			return fmtp.Errorf("Error binding resources: %s", err)
+			return fmt.Errorf("error binding resources: %s", err)
 		}
 	}
 
@@ -485,24 +488,24 @@ func updatePolicy(d *schema.ResourceData, client *golangsdk.ServiceClient) error
 			PolicyID: newP.(string),
 		}).Extract()
 		if err != nil {
-			return fmtp.Errorf("Error binding policy to vault: %s", err)
+			return fmt.Errorf("error binding policy to vault: %s", err)
 		}
 	} else {
 		_, err := vaults.UnbindPolicy(client, d.Id(), vaults.BindPolicyOpts{
 			PolicyID: oldP.(string),
 		}).Extract()
 		if err != nil {
-			return fmtp.Errorf("Error unbinding policy from vault: %s", err)
+			return fmt.Errorf("error unbinding policy from vault: %s", err)
 		}
 	}
 	return nil
 }
 
-func resourceCBRVaultV3Update(d *schema.ResourceData, meta interface{}) error {
+func resourceVaultUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.CbrV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud CBR v3 client: %s", err)
+		return diag.Errorf("error creating CBR v3 client: %s", err)
 	}
 
 	if d.HasChanges("name", "size", "auto_expand") {
@@ -516,39 +519,39 @@ func resourceCBRVaultV3Update(d *schema.ResourceData, meta interface{}) error {
 
 		_, err := vaults.Update(client, d.Id(), opts).Extract()
 		if err != nil {
-			return fmtp.Errorf("Error updating the vault: %s", err)
+			return diag.Errorf("error updating the vault: %s", err)
 		}
 	}
 
 	if d.HasChange("resources") {
 		if err := updateResources(d, client); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 	if d.HasChange("policy_id") {
 		if err := updatePolicy(d, client); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("tags") {
 		if err = utils.UpdateResourceTags(client, d, "vault", d.Id()); err != nil {
-			return fmtp.Errorf("Failed to update tags: %s", err)
+			return diag.Errorf("failed to update tags: %s", err)
 		}
 	}
 
-	return resourceCBRVaultV3Read(d, meta)
+	return resourceVaultRead(ctx, d, meta)
 }
 
-func resourceCBRVaultV3Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceVaultDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.CbrV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud CBR v3 client: %s", err)
+		return diag.Errorf("error creating CBR v3 client: %s", err)
 	}
 
 	if err := vaults.Delete(client, d.Id()).ExtractErr(); err != nil {
-		return fmtp.Errorf("Error deleting CBR v3 vault: %s", err)
+		return diag.Errorf("error deleting CBR v3 vault: %s", err)
 	}
 
 	d.SetId("")
