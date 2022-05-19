@@ -9,7 +9,7 @@ on:
 
 jobs:
   to_codehub:
-     if: ${{github.repository == 'huaweicloud/terraform-provider-huaweicloud'}}
+    if: ${{github.repository == 'huaweicloud/terraform-provider-huaweicloud'}}
     runs-on: ubuntu-latest
     steps:                                              # <-- must use actions/checkout before mirroring!
       - uses: actions/checkout@v2
