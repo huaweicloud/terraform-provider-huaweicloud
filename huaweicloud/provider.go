@@ -364,10 +364,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_maintainwindow": dcs.DataSourceDcsMaintainWindow(),
 			"huaweicloud_dcs_product":        deprecated.DataSourceDcsProductV1(),
 
-			"huaweicloud_dds_flavors":        dds.DataSourceDDSFlavorV3(),
-			"huaweicloud_dms_az":             deprecated.DataSourceDmsAZ(),
-			"huaweicloud_dms_product":        dms.DataSourceDmsProduct(),
-			"huaweicloud_dms_maintainwindow": dms.DataSourceDmsMaintainWindow(),
+			"huaweicloud_dds_flavors": dds.DataSourceDDSFlavorV3(),
+
+			"huaweicloud_dms_az":              deprecated.DataSourceDmsAZ(),
+			"huaweicloud_dms_kafka_instances": dms.DataSourceDmsKafkaInstances(),
+			"huaweicloud_dms_product":         dms.DataSourceDmsProduct(),
+			"huaweicloud_dms_maintainwindow":  dms.DataSourceDmsMaintainWindow(),
 
 			"huaweicloud_elb_flavors":        dataSourceElbFlavorsV3(),
 			"huaweicloud_enterprise_project": eps.DataSourceEnterpriseProject(),
