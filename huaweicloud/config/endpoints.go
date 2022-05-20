@@ -352,6 +352,13 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v2",
 		Product: "SMN",
 	},
+	"sms": {
+		Name:             "sms.ap-southeast-1",
+		Version:          "v3",
+		Scope:            "global",
+		WithOutProjectID: true,
+		Product:          "SMS",
+	},
 	"tms": {
 		Name:             "tms",
 		Version:          "v1.0",

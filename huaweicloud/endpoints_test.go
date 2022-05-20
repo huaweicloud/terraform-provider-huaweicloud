@@ -1108,6 +1108,18 @@ func TestAccServiceEndpoints_Others(t *testing.T) {
 	}
 	t.Logf("MAAS endpoint:\t %s", actualURL)
 
+	// test the endpoint of SMS service
+	serviceClient, err = config.SmsV3Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud SMS client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://sms.ap-southeast-1.%s/v3/", config.Cloud)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("SMS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("SMS endpoint:\t %s", actualURL)
+
 	// test the endpoint of AOM service
 	serviceClient, err = config.AomV1Client(HW_REGION_NAME)
 	if err != nil {
