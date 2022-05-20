@@ -35,8 +35,14 @@ jobs:
           body="${body//$'\n'/'%0A'}"
           body="${body//$'\r'/'%0D'}" 
           commentLength="${#body}"
+          failed="$(grep -P -o '###\s\[summary\]\s\d*' pr-acc-test.log| grep -P -o '\d*')"
+          reactions="laugh,rocket"
+          if [ $failed -gt 0 ]; then
+            reactions="confused,eyes"
+          fi
           echo "::set-output name=body::$body"
           echo "::set-output name=commentLength::$commentLength"
+          echo "::set-output name=reactions::$reactions"
 
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v2
@@ -44,4 +50,4 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: ${{ steps.get-comment-body.outputs.body }}
-          reactions: "rocket"
+          reactions: ${{ steps.get-comment-body.outputs.reactions }}
