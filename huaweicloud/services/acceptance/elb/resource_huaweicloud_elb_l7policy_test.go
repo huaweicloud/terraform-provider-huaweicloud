@@ -1,11 +1,9 @@
-package huaweicloud
+package elb
 
 import (
 	"fmt"
 	"regexp"
 	"testing"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -13,6 +11,8 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/elb/v3/l7policies"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccElbV3L7Policy_basic(t *testing.T) {
@@ -21,9 +21,9 @@ func TestAccElbV3L7Policy_basic(t *testing.T) {
 	resourceName := "huaweicloud_elb_l7policy.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckElbV3L7PolicyDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckElbV3L7PolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckElbV3L7PolicyConfig_basic(rName),
@@ -35,13 +35,18 @@ func TestAccElbV3L7Policy_basic(t *testing.T) {
 						regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
 
 func testAccCheckElbV3L7PolicyDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	lbClient, err := config.ElbV3Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	lbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud load balancing client: %s", err)
 	}
@@ -71,8 +76,8 @@ func testAccCheckElbV3L7PolicyExists(n string, l7Policy *l7policies.L7Policy) re
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		lbClient, err := config.ElbV3Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		lbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud load balancing client: %s", err)
 		}

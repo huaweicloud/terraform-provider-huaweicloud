@@ -23,6 +23,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ces"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cloudtable"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cpts"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cse"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/css"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dcs"
@@ -580,6 +581,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_csbs_backup":        resourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy": resourceCSBSBackupPolicyV1(),
 
+			"huaweicloud_cse_microservice_engine": cse.ResourceMicroserviceEngine(),
+
 			"huaweicloud_csms_secret": dew.ResourceCsmsSecret(),
 
 			"huaweicloud_css_cluster":   css.ResourceCssCluster(),
@@ -612,15 +615,15 @@ func Provider() *schema.Provider {
 			"huaweicloud_drs_job":     drs.ResourceDrsJob(),
 			"huaweicloud_dws_cluster": dws.ResourceDwsCluster(),
 
-			"huaweicloud_elb_certificate":  ResourceCertificateV3(),
-			"huaweicloud_elb_l7policy":     ResourceL7PolicyV3(),
-			"huaweicloud_elb_l7rule":       ResourceL7RuleV3(),
+			"huaweicloud_elb_certificate":  elb.ResourceCertificateV3(),
+			"huaweicloud_elb_l7policy":     elb.ResourceL7PolicyV3(),
+			"huaweicloud_elb_l7rule":       elb.ResourceL7RuleV3(),
 			"huaweicloud_elb_listener":     elb.ResourceListenerV3(),
 			"huaweicloud_elb_loadbalancer": elb.ResourceLoadBalancerV3(),
-			"huaweicloud_elb_monitor":      ResourceMonitorV3(),
-			"huaweicloud_elb_ipgroup":      ResourceIpGroupV3(),
-			"huaweicloud_elb_pool":         ResourcePoolV3(),
-			"huaweicloud_elb_member":       ResourceMemberV3(),
+			"huaweicloud_elb_monitor":      elb.ResourceMonitorV3(),
+			"huaweicloud_elb_ipgroup":      elb.ResourceIpGroupV3(),
+			"huaweicloud_elb_pool":         elb.ResourcePoolV3(),
+			"huaweicloud_elb_member":       elb.ResourceMemberV3(),
 
 			"huaweicloud_enterprise_project": eps.ResourceEnterpriseProject(),
 

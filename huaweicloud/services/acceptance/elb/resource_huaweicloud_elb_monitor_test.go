@@ -1,16 +1,17 @@
-package huaweicloud
+package elb
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/chnsz/golangsdk/openstack/elb/v3/monitors"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/elb/v3/monitors"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccElbV3Monitor_basic(t *testing.T) {
@@ -19,9 +20,9 @@ func TestAccElbV3Monitor_basic(t *testing.T) {
 	resourceName := "huaweicloud_elb_monitor.monitor_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckElbV3MonitorDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckElbV3MonitorDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccElbV3MonitorConfig_basic(rName),
@@ -45,13 +46,18 @@ func TestAccElbV3Monitor_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "domain_name", "www.bb.com"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
 
 func testAccCheckElbV3MonitorDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	elbClient, err := config.ElbV3Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	elbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -81,8 +87,8 @@ func testAccCheckElbV3MonitorExists(n string, monitor *monitors.Monitor) resourc
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		elbClient, err := config.ElbV3Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		elbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 		}
