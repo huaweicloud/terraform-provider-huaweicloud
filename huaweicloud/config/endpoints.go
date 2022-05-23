@@ -487,6 +487,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v2",
 		Product: "BCS",
 	},
+	"cse": {
+		Name:    "cse",
+		Version: "v2",
+		Product: "CSE",
+	},
 	"dcsv1": {
 		Name:             "dcs",
 		Version:          "v1.0",

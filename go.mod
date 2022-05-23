@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	github.com/GehirnInc/crypt v0.0.0-20200316065508-bb7000b8a962
-	github.com/chnsz/golangsdk v0.0.0-20220516115312-27bcd5c6a1d7
+	github.com/chnsz/golangsdk v0.0.0-20220520084815-ea06a7b5ab32
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2
 	github.com/hashicorp/go-multierror v1.1.1

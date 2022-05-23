@@ -1,0 +1,128 @@
+package cse
+
+import (
+	"fmt"
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/cse/dedicated/v2/engines"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+)
+
+func getEngineFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	c, err := conf.CseV2Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating CSE V2 client: %s", err)
+	}
+	return engines.Get(c, state.Primary.ID, state.Primary.Attributes["enterprise_project_id"])
+}
+
+func TestAccMicroserviceEngine_basic(t *testing.T) {
+	var (
+		engine       engines.Engine
+		randName     = acceptance.RandomAccResourceNameWithDash()
+		resourceName = "huaweicloud_cse_microservice_engine.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&engine,
+		getEngineFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMicroserviceEngine_basic(randName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform test"),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "cse.s1.small2"),
+					resource.TestCheckResourceAttrPair(resourceName, "network_id", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "auth_type", "RBAC"),
+					resource.TestCheckResourceAttrSet(resourceName, "admin_pass"),
+					resource.TestCheckResourceAttr(resourceName, "availability_zones.#", "3"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.1",
+						"data.huaweicloud_availability_zones.test", "names.1"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.2",
+						"data.huaweicloud_availability_zones.test", "names.2"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(resourceName, "service_limit", "200"),
+					resource.TestCheckResourceAttr(resourceName, "instance_limit", "100"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"admin_pass",
+					"extend_params",
+				},
+			},
+		},
+	})
+}
+
+func testAccMicroserviceEngine_base(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  name       = "%[1]s"
+  vpc_id     = huaweicloud_vpc.test.id
+  cidr       = "192.168.0.0/16"
+  gateway_ip = "192.168.0.1"
+}
+
+resource "huaweicloud_vpc_eip" "test" {
+  publicip {
+    type = "5_bgp"
+  }
+  
+  bandwidth {
+    share_type  = "PER"
+    size        = 5
+    name        = "%[1]s"
+    charge_mode = "traffic"
+  }
+}
+`, rName)
+}
+
+func testAccMicroserviceEngine_basic(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_cse_microservice_engine" "test" {
+  name                  = "%s"
+  description           = "Created by terraform test"
+  flavor                = "cse.s1.small2"
+  network_id            = huaweicloud_vpc_subnet.test.id
+  eip_id                = huaweicloud_vpc_eip.test.id
+  enterprise_project_id = "0"
+
+  auth_type  = "RBAC"
+  admin_pass = "AccTest!123"
+
+  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 3)
+
+}`, testAccMicroserviceEngine_base(rName), rName)
+}
