@@ -19,6 +19,7 @@ import (
 	cptsv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1"
 	ctsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3"
 	iamv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3"
+	iotdav5 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5"
 	kpsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3"
 	livev1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1"
 	mpcv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1"
@@ -227,6 +228,15 @@ func (c *Config) HcMpcV1Client(region string) (*mpcv1.MpcClient, error) {
 		return nil, err
 	}
 	return mpcv1.NewMpcClient(hcClient), nil
+}
+
+// HcIoTdaV5Client is the live service client using huaweicloud-sdk-go-v3 package
+func (c *Config) HcIoTdaV5Client(region string) (*iotdav5.IoTDAClient, error) {
+	hcClient, err := NewHcClient(c, region, "iotda", false)
+	if err != nil {
+		return nil, err
+	}
+	return iotdav5.NewIoTDAClient(hcClient), nil
 }
 
 // NewHcClient is the common client using huaweicloud-sdk-go-v3 package

@@ -416,15 +416,14 @@ github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/model
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3/model
-<<<<<<< HEAD
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1/model
-=======
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1/model
->>>>>>> feat(mpc): add mpc transcoding template and tempate group resource
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1
