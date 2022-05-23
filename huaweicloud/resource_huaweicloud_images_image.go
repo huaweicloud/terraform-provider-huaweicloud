@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"strings"
 	"time"
 
 	"github.com/chnsz/golangsdk"
@@ -84,7 +85,6 @@ func ResourceImsImage() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
-				Default:  false,
 			},
 			"cmk_id": {
 				Type:     schema.TypeString,
@@ -241,6 +241,15 @@ func getCloudimage(client *golangsdk.ServiceClient, id string) (*cloudimages.Ima
 	return &img, nil
 }
 
+func getInstanceID(data string) string {
+	results := strings.Split(data, ",")
+	if len(results) == 2 && results[0] == "instance" {
+		return results[1]
+	}
+
+	return ""
+}
+
 func resourceImsImageRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	imsClient, err := config.ImageV2Client(GetRegion(d, config))
@@ -255,15 +264,20 @@ func resourceImsImageRead(d *schema.ResourceData, meta interface{}) error {
 	logp.Printf("[DEBUG] Retrieved Image %s: %#v", d.Id(), img)
 
 	d.Set("name", img.Name)
+	d.Set("description", img.Description)
 	d.Set("visibility", img.Visibility)
-	d.Set("data_origin", img.DataOrigin)
 	d.Set("disk_format", img.DiskFormat)
 	d.Set("image_size", img.ImageSize)
 	d.Set("enterprise_project_id", img.EnterpriseProjectID)
 	d.Set("checksum", img.Checksum)
 	d.Set("status", img.Status)
+
 	if img.OsVersion != "" {
 		d.Set("os_version", img.OsVersion)
+	}
+	if img.DataOrigin != "" {
+		d.Set("instance_id", getInstanceID(img.DataOrigin))
+		d.Set("data_origin", img.DataOrigin)
 	}
 
 	// Set image tags
