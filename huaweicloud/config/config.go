@@ -816,6 +816,10 @@ func (c *Config) MaasV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("oms", region)
 }
 
+func (c *Config) SmsV3Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("sms", region)
+}
+
 func (c *Config) MlsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("mls", region)
 }

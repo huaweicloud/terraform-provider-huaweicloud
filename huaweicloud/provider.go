@@ -53,6 +53,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/scm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/servicestage"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/smn"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/sms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/swr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/tms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
@@ -731,6 +732,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_smn_topic":        smn.ResourceTopic(),
 			"huaweicloud_smn_subscription": smn.ResourceSubscription(),
+
+			"huaweicloud_sms_server_template": sms.ResourceServerTemplate(),
 
 			"huaweicloud_swr_organization":             swr.ResourceSWROrganization(),
 			"huaweicloud_swr_organization_permissions": swr.ResourceSWROrganizationPermissions(),
