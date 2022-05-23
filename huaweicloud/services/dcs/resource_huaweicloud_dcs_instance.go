@@ -236,6 +236,7 @@ func ResourceDcsInstance() *schema.Resource {
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
 			"auto_renew":    common.SchemaAutoRenew(nil),
+			"auto_pay":      common.SchemaAutoPay(nil),
 			"tags":          common.TagsSchema(),
 			"order_id": {
 				Type:     schema.TypeString,
@@ -420,9 +421,9 @@ func buildBssParamParams(d *schema.ResourceData) instances.DcsBssParam {
 	}
 	if strings.EqualFold(bp.ChargingMode, chargeModePrePaid) {
 		bp.IsAutoRenew = d.Get("auto_renew").(string)
-		bp.IsAutoPay = "true"
 		bp.PeriodType = d.Get("period_unit").(string)
 		bp.PeriodNum = d.Get("period").(int)
+		bp.IsAutoPay = common.GetAutoPay(d)
 	}
 	return bp
 }
@@ -888,7 +889,7 @@ func resizeDcsInstance(ctx context.Context, d *schema.ResourceData, meta interfa
 		}
 		if d.Get("charging_mode").(string) == chargeModePrePaid {
 			opts.BssParam = instances.DcsBssParamOpts{
-				IsAutoPay: "true",
+				IsAutoPay: common.GetAutoPay(d),
 			}
 		}
 		logp.Printf("[DEBUG] Resize DCS dcs instance options : %#v", opts)

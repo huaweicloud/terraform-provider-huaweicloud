@@ -129,6 +129,10 @@ The following arguments are supported:
   Valid values are **true** and **false**.
   Changing this creates a new disk.
 
+* `auto_pay` - (Optional, String, ForceNew) Specifies whether auto pay is enabled.
+  Valid values are *true* and *false*. Defaults to *true*. If you set this to *false*, you need to pay the order
+  yourself in time, be careful about the timeout of resource creation. Changing this creates a new disk.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:

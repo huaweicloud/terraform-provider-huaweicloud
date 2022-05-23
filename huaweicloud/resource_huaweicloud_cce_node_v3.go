@@ -397,11 +397,12 @@ func ResourceCCENodeV3() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
-			// charge info: charging_mode, period_unit, period, auto_renew
+			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
 			"charging_mode": schemaChargingMode(nil),
 			"period_unit":   schemaPeriodUnit(nil),
 			"period":        schemaPeriod(nil),
 			"auto_renew":    schemaAutoRenew(nil),
+			"auto_pay":      schemaAutoPay(nil),
 
 			"extend_param": {
 				Type:     schema.TypeMap,
@@ -585,8 +586,8 @@ func resourceCCEExtendParam(d *schema.ResourceData) map[string]interface{} {
 	}
 	if isPrePaid || billingMode == 2 {
 		extendParam["chargingMode"] = 2
-		extendParam["isAutoPay"] = "true"
 		extendParam["isAutoRenew"] = "false"
+		extendParam["isAutoPay"] = common.GetAutoPay(d)
 	}
 
 	if v, ok := d.GetOk("period_unit"); ok {

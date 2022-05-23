@@ -220,11 +220,12 @@ func ResourceCCEClusterV3() *schema.Resource {
 			},
 			"tags": tagsForceNewSchema(),
 
-			// charge info: charging_mode, period_unit, period, auto_renew
+			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
 			"charging_mode": schemaChargingMode(nil),
 			"period_unit":   schemaPeriodUnit(nil),
 			"period":        schemaPeriod(nil),
 			"auto_renew":    schemaAutoRenew(nil),
+			"auto_pay":      schemaAutoPay(nil),
 
 			"delete_efs": associateDeleteSchema,
 			"delete_eni": associateDeleteSchema,
@@ -343,8 +344,8 @@ func resourceClusterExtendParamV3(d *schema.ResourceData, config *config.Config)
 		billingMode = v.(int)
 	}
 	if isPrePaid || billingMode == 1 {
-		extendParam["isAutoPay"] = "true"
 		extendParam["isAutoRenew"] = "false"
+		extendParam["isAutoPay"] = common.GetAutoPay(d)
 	}
 
 	if v, ok := d.GetOk("period_unit"); ok {

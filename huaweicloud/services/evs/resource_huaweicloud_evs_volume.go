@@ -113,6 +113,7 @@ func ResourceEvsVolume() *schema.Resource {
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
 			"auto_renew":    common.SchemaAutoRenew(nil),
+			"auto_pay":      common.SchemaAutoPay(nil),
 			"tags":          common.TagsSchema(),
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -155,13 +156,14 @@ func ResourceEvsVolume() *schema.Resource {
 }
 
 func buildBssParamParams(d *schema.ResourceData) *cloudvolumes.BssParam {
-	return &cloudvolumes.BssParam{
+	bssParams := &cloudvolumes.BssParam{
 		ChargingMode: d.Get("charging_mode").(string),
 		PeriodType:   d.Get("period_unit").(string),
 		PeriodNum:    d.Get("period").(int),
 		IsAutoRenew:  d.Get("auto_renew").(string),
-		IsAutoPay:    "true",
+		IsAutoPay:    common.GetAutoPay(d),
 	}
+	return bssParams
 }
 
 func resourceVolumeAttachmentHash(v interface{}) int {
@@ -367,7 +369,7 @@ func resourceEvsVolumeUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		// If charging mode is PrePaid, the order is automatically paid to adjust the volume size.
 		if strings.EqualFold(d.Get("charging_mode").(string), "prePaid") {
 			extendOpts.ChargeInfo = &cloudvolumes.ExtendChargeOpts{
-				IsAutoPay: "true",
+				IsAutoPay: common.GetAutoPay(d),
 			}
 		}
 

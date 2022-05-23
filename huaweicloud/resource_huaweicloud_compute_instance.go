@@ -578,11 +578,7 @@ func resourceComputeInstanceV2Create(ctx context.Context, d *schema.ResourceData
 			extendParam.PeriodType = d.Get("period_unit").(string)
 			extendParam.PeriodNum = d.Get("period").(int)
 			extendParam.IsAutoRenew = d.Get("auto_renew").(string)
-			if d.Get("auto_pay").(string) == "false" {
-				extendParam.IsAutoPay = "false"
-			} else {
-				extendParam.IsAutoPay = "true"
-			}
+			extendParam.IsAutoPay = common.GetAutoPay(d)
 		}
 
 		epsID := GetEnterpriseProjectID(d, config)
@@ -1084,10 +1080,7 @@ func resourceComputeInstanceV2Update(ctx context.Context, d *schema.ResourceData
 		}
 
 		extendParam := &cloudservers.ResizeExtendParam{
-			AutoPay: "true",
-		}
-		if d.Get("auto_pay").(string) == "false" {
-			extendParam.AutoPay = "false"
+			AutoPay: common.GetAutoPay(d),
 		}
 		resizeOpts := &cloudservers.ResizeOpts{
 			FlavorRef:   newFlavorId,
@@ -1136,9 +1129,9 @@ func resourceComputeInstanceV2Update(ctx context.Context, d *schema.ResourceData
 			},
 		}
 
-		if strings.EqualFold(d.Get("charging_mode").(string), "prePaid") && d.Get("auto_pay").(string) == "true" {
+		if strings.EqualFold(d.Get("charging_mode").(string), "prePaid") {
 			extendOpts.ChargeInfo = &cloudvolumes.ExtendChargeOpts{
-				IsAutoPay: "true",
+				IsAutoPay: common.GetAutoPay(d),
 			}
 		}
 
