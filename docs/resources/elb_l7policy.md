@@ -49,3 +49,11 @@ This resource provides the following timeouts configuration options:
 * `create` - Default is 10 minute.
 * `update` - Default is 10 minute.
 * `delete` - Default is 10 minute.
+
+## Import
+
+ELB policy can be imported using the policy ID, e.g.
+
+```
+$ terraform import huaweicloud_elb_policy.policy_1 5c20fdad-7288-11eb-b817-0255ac10158b
+```

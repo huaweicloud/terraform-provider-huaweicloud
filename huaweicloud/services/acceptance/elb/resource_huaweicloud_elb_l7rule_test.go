@@ -1,11 +1,9 @@
-package huaweicloud
+package elb
 
 import (
 	"fmt"
 	"regexp"
 	"testing"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -13,6 +11,8 @@ import (
 
 	l7rules "github.com/chnsz/golangsdk/openstack/elb/v3/l7policies"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccElbV3L7Rule_basic(t *testing.T) {
@@ -21,9 +21,9 @@ func TestAccElbV3L7Rule_basic(t *testing.T) {
 	resourceName := "huaweicloud_elb_l7rule.l7rule_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckElbV3L7RuleDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckElbV3L7RuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckElbV3L7RuleConfig_basic(rName),
@@ -45,13 +45,19 @@ func TestAccElbV3L7Rule_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "value", "/images"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccELBL7RuleImportStateIdFunc(),
+			},
 		},
 	})
 }
 
 func testAccCheckElbV3L7RuleDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	lbClient, err := config.ElbV3Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	lbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud load balancing client: %s", err)
 	}
@@ -93,8 +99,8 @@ func testAccCheckElbV3L7RuleExists(n string, l7rule *l7rules.Rule) resource.Test
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		lbClient, err := config.ElbV3Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		lbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud load balancing client: %s", err)
 		}
@@ -123,6 +129,23 @@ func testAccCheckElbV3L7RuleExists(n string, l7rule *l7rules.Rule) resource.Test
 		*l7rule = *found
 
 		return nil
+	}
+}
+
+func testAccELBL7RuleImportStateIdFunc() resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		policy, ok := s.RootModule().Resources["huaweicloud_elb_l7policy.test"]
+		if !ok {
+			return "", fmt.Errorf("policy not found: %s", policy)
+		}
+		rule, ok := s.RootModule().Resources["huaweicloud_elb_l7rule.l7rule_1"]
+		if !ok {
+			return "", fmt.Errorf("rule not found: %s", rule)
+		}
+		if policy.Primary.ID == "" || rule.Primary.ID == "" {
+			return "", fmt.Errorf("resource not found: %s/%s", policy.Primary.ID, rule.Primary.ID)
+		}
+		return fmt.Sprintf("%s/%s", policy.Primary.ID, rule.Primary.ID), nil
 	}
 }
 

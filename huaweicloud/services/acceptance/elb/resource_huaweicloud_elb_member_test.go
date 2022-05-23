@@ -1,14 +1,16 @@
-package huaweicloud
+package elb
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/elb/v3/pools"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/elb/v3/pools"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
@@ -18,9 +20,9 @@ func TestAccElbV3Member_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckElbV3MemberDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckElbV3MemberDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccElbV3MemberConfig_basic(rName),
@@ -36,13 +38,19 @@ func TestAccElbV3Member_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("huaweicloud_elb_member.member_2", "weight", "15"),
 				),
 			},
+			{
+				ResourceName:      "huaweicloud_elb_member.member_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccELBMemberImportStateIdFunc(),
+			},
 		},
 	})
 }
 
 func testAccCheckElbV3MemberDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	elbClient, err := config.ElbV3Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	elbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -73,8 +81,8 @@ func testAccCheckElbV3MemberExists(n string, member *pools.Member) resource.Test
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		elbClient, err := config.ElbV3Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		elbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 		}
@@ -92,6 +100,23 @@ func testAccCheckElbV3MemberExists(n string, member *pools.Member) resource.Test
 		*member = *found
 
 		return nil
+	}
+}
+
+func testAccELBMemberImportStateIdFunc() resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		pool, ok := s.RootModule().Resources["huaweicloud_elb_pool.test"]
+		if !ok {
+			return "", fmt.Errorf("pool not found: %s", pool)
+		}
+		member, ok := s.RootModule().Resources["huaweicloud_elb_member.member_1"]
+		if !ok {
+			return "", fmt.Errorf("member not found: %s", member)
+		}
+		if pool.Primary.ID == "" || member.Primary.ID == "" {
+			return "", fmt.Errorf("resource not found: %s/%s", pool.Primary.ID, member.Primary.ID)
+		}
+		return fmt.Sprintf("%s/%s", pool.Primary.ID, member.Primary.ID), nil
 	}
 }
 

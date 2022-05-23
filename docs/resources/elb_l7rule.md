@@ -48,3 +48,11 @@ This resource provides the following timeouts configuration options:
 * `create` - Default is 10 minute.
 * `update` - Default is 10 minute.
 * `delete` - Default is 10 minute.
+
+## Import
+
+ELB L7 rule can be imported using the L7 policy ID and L7 rule ID separated by a slash, e.g.
+
+```
+$ terraform import huaweicloud_elb_rule.rule_1 e0bd694a-abbe-450e-b329-0931fd1cc5eb/4086b0c9-b18c-4d1c-b6b8-4c56c3ad2a9e
+```
