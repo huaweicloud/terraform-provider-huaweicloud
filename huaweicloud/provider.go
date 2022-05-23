@@ -586,6 +586,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_csbs_backup":        resourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy": resourceCSBSBackupPolicyV1(),
 
+			"huaweicloud_cse_microservice":        cse.ResourceMicroservice(),
 			"huaweicloud_cse_microservice_engine": cse.ResourceMicroserviceEngine(),
 
 			"huaweicloud_csms_secret": dew.ResourceCsmsSecret(),

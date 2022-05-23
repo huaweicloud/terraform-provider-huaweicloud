@@ -60,7 +60,7 @@ The following arguments are supported:
   Required if `auth_type` is **RBAC**. Changing this will create a new engine.
   The password format must meet the following conditions:
   + Must be `8` to `32` characters long.
-  + A password must containing at least one digit, one uppercase letter, one lowercase letter, and one special character
+  + A password must contain at least one digit, one uppercase letter, one lowercase letter, and one special character
     (-~!@#%^*_=+?$&()|<>{}[]).
   + Cannot be the account name or account name spelled backwards.
   + The password can only start with a letter.
