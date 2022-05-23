@@ -1,8 +1,13 @@
 package elb
 
 import (
+	"context"
+	"fmt"
+	"log"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -11,19 +16,16 @@ import (
 	"github.com/chnsz/golangsdk/openstack/elb/v3/l7policies"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceL7RuleV3() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceL7RuleV3Create,
-		Read:   resourceL7RuleV3Read,
-		Update: resourceL7RuleV3Update,
-		Delete: resourceL7RuleV3Delete,
+		CreateContext: resourceL7RuleV3Create,
+		ReadContext:   resourceL7RuleV3Read,
+		UpdateContext: resourceL7RuleV3Update,
+		DeleteContext: resourceL7RuleV3Delete,
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
 			Update: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
@@ -64,7 +66,7 @@ func ResourceL7RuleV3() *schema.Resource {
 				Required: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					if len(v.(string)) == 0 {
-						errors = append(errors, fmtp.Errorf("'value' field should not be empty"))
+						errors = append(errors, fmt.Errorf("'value' field should not be empty"))
 					}
 					return
 				},
@@ -73,11 +75,11 @@ func ResourceL7RuleV3() *schema.Resource {
 	}
 }
 
-func resourceL7RuleV3Create(d *schema.ResourceData, meta interface{}) error {
+func resourceL7RuleV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating elb client: %s", err)
 	}
 
 	l7policyID := d.Get("l7policy_id").(string)
@@ -90,53 +92,58 @@ func resourceL7RuleV3Create(d *schema.ResourceData, meta interface{}) error {
 		Value:       d.Get("value").(string),
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	l7Rule, err := l7policies.CreateRule(lbClient, l7policyID, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating L7 Rule: %s", err)
+		return diag.Errorf("error creating L7 Rule: %s", err)
 	}
 
 	timeout := d.Timeout(schema.TimeoutCreate)
 	// Wait for L7 Rule to become active before continuing
-	err = waitForElbV3Rule(lbClient, l7policyID, l7Rule.ID, "ACTIVE", nil, timeout)
+	err = waitForElbV3Rule(ctx, lbClient, l7policyID, l7Rule.ID, "ACTIVE", nil, timeout)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(l7Rule.ID)
 
-	return resourceL7RuleV3Read(d, meta)
+	return resourceL7RuleV3Read(ctx, d, meta)
 }
 
-func resourceL7RuleV3Read(d *schema.ResourceData, meta interface{}) error {
+func resourceL7RuleV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating elb client: %s", err)
 	}
 
 	l7policyID := d.Get("l7policy_id").(string)
 
 	l7Rule, err := l7policies.GetRule(lbClient, l7policyID, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "L7 Rule")
+		return common.CheckDeletedDiag(d, err, "L7 Rule")
 	}
 
-	logp.Printf("[DEBUG] Retrieved L7 Rule %s: %#v", d.Id(), l7Rule)
+	log.Printf("[DEBUG] Retrieved L7 Rule %s: %#v", d.Id(), l7Rule)
 
-	d.Set("l7policy_id", l7policyID)
-	d.Set("type", l7Rule.RuleType)
-	d.Set("compare_type", l7Rule.CompareType)
-	d.Set("value", l7Rule.Value)
+	mErr := multierror.Append(nil,
+		d.Set("l7policy_id", l7policyID),
+		d.Set("type", l7Rule.RuleType),
+		d.Set("compare_type", l7Rule.CompareType),
+		d.Set("value", l7Rule.Value),
+	)
+	if err := mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error setting Dedicated ELB l7rule fields: %s", err)
+	}
 
 	return nil
 }
 
-func resourceL7RuleV3Update(d *schema.ResourceData, meta interface{}) error {
+func resourceL7RuleV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating elb client: %s", err)
 	}
 
 	l7policyID := d.Get("l7policy_id").(string)
@@ -149,49 +156,49 @@ func resourceL7RuleV3Update(d *schema.ResourceData, meta interface{}) error {
 		updateOpts.Value = d.Get("value").(string)
 	}
 
-	logp.Printf("[DEBUG] Updating L7 Rule %s with options: %#v", d.Id(), updateOpts)
+	log.Printf("[DEBUG] Updating L7 Rule %s with options: %#v", d.Id(), updateOpts)
 	_, err = l7policies.UpdateRule(lbClient, l7policyID, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Unable to update L7 Rule %s: %s", d.Id(), err)
+		return diag.Errorf("unable to update L7 Rule %s: %s", d.Id(), err)
 	}
 
 	timeout := d.Timeout(schema.TimeoutUpdate)
 	// Wait for L7 Rule to become active before continuing
-	err = waitForElbV3Rule(lbClient, l7policyID, d.Id(), "ACTIVE", nil, timeout)
+	err = waitForElbV3Rule(ctx, lbClient, l7policyID, d.Id(), "ACTIVE", nil, timeout)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return resourceL7RuleV3Read(d, meta)
+	return resourceL7RuleV3Read(ctx, d, meta)
 }
 
-func resourceL7RuleV3Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceL7RuleV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating elb client: %s", err)
 	}
 
 	l7policyID := d.Get("l7policy_id").(string)
-	logp.Printf("[DEBUG] Attempting to delete L7 Rule %s", d.Id())
+	log.Printf("[DEBUG] Attempting to delete L7 Rule %s", d.Id())
 	err = l7policies.DeleteRule(lbClient, l7policyID, d.Id()).ExtractErr()
 	if err != nil {
-		return common.CheckDeleted(d, err, "Error deleting L7 Rule")
+		return common.CheckDeletedDiag(d, err, "error deleting L7 Rule")
 	}
 
 	timeout := d.Timeout(schema.TimeoutDelete)
-	err = waitForElbV3Rule(lbClient, l7policyID, d.Id(), "DELETED", nil, timeout)
+	err = waitForElbV3Rule(ctx, lbClient, l7policyID, d.Id(), "DELETED", nil, timeout)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil
 }
 
-func waitForElbV3Rule(elbClient *golangsdk.ServiceClient, l7policyID string,
+func waitForElbV3Rule(ctx context.Context, elbClient *golangsdk.ServiceClient, l7policyID string,
 	id string, target string, pending []string, timeout time.Duration) error {
 
-	logp.Printf("[DEBUG] Waiting for rule %s to become %s", id, target)
+	log.Printf("[DEBUG] Waiting for rule %s to become %s", id, target)
 
 	stateConf := &resource.StateChangeConf{
 		Target:       []string{target},
@@ -202,17 +209,17 @@ func waitForElbV3Rule(elbClient *golangsdk.ServiceClient, l7policyID string,
 		PollInterval: 3 * time.Second,
 	}
 
-	_, err := stateConf.WaitForState()
+	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
 			switch target {
 			case "DELETED":
 				return nil
 			default:
-				return fmtp.Errorf("Error: rule %s not found: %s", id, err)
+				return fmt.Errorf("error: rule %s not found: %s", id, err)
 			}
 		}
-		return fmtp.Errorf("Error waiting for rule %s to become %s: %s", id, target, err)
+		return fmt.Errorf("error waiting for rule %s to become %s: %s", id, target, err)
 	}
 
 	return nil

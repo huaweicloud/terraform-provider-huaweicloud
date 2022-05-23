@@ -1,23 +1,26 @@
 package elb
 
 import (
+	"context"
+	"fmt"
+	"log"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v3/pools"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceMemberV3() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceMemberV3Create,
-		Read:   resourceMemberV3Read,
-		Update: resourceMemberV3Update,
-		Delete: resourceMemberV3Delete,
+		CreateContext: resourceMemberV3Create,
+		ReadContext:   resourceMemberV3Read,
+		UpdateContext: resourceMemberV3Update,
+		DeleteContext: resourceMemberV3Delete,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -57,8 +60,8 @@ func ResourceMemberV3() *schema.Resource {
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					value := v.(int)
 					if value < 1 {
-						errors = append(errors, fmtp.Errorf(
-							"Only numbers greater than 0 are supported values for 'weight'"))
+						errors = append(errors, fmt.Errorf(
+							"only numbers greater than 0 are supported values for 'weight'"))
 					}
 					return
 				},
@@ -79,11 +82,11 @@ func ResourceMemberV3() *schema.Resource {
 	}
 }
 
-func resourceMemberV3Create(d *schema.ResourceData, meta interface{}) error {
+func resourceMemberV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating elb client: %s", err)
 	}
 
 	createOpts := pools.CreateMemberOpts{
@@ -98,47 +101,52 @@ func resourceMemberV3Create(d *schema.ResourceData, meta interface{}) error {
 		createOpts.SubnetID = v.(string)
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	poolID := d.Get("pool_id").(string)
 	member, err := pools.CreateMember(elbClient, poolID, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating member: %s", err)
+		return diag.Errorf("error creating member: %s", err)
 	}
 
 	d.SetId(member.ID)
 
-	return resourceMemberV3Read(d, meta)
+	return resourceMemberV3Read(ctx, d, meta)
 }
 
-func resourceMemberV3Read(d *schema.ResourceData, meta interface{}) error {
+func resourceMemberV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating elb client: %s", err)
 	}
 
 	member, err := pools.GetMember(elbClient, d.Get("pool_id").(string), d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "member")
+		return common.CheckDeletedDiag(d, err, "member")
 	}
 
-	logp.Printf("[DEBUG] Retrieved member %s: %#v", d.Id(), member)
+	log.Printf("[DEBUG] Retrieved member %s: %#v", d.Id(), member)
 
-	d.Set("name", member.Name)
-	d.Set("weight", member.Weight)
-	d.Set("subnet_id", member.SubnetID)
-	d.Set("address", member.Address)
-	d.Set("protocol_port", member.ProtocolPort)
-	d.Set("region", config.GetRegion(d))
+	mErr := multierror.Append(nil,
+		d.Set("name", member.Name),
+		d.Set("weight", member.Weight),
+		d.Set("subnet_id", member.SubnetID),
+		d.Set("address", member.Address),
+		d.Set("protocol_port", member.ProtocolPort),
+		d.Set("region", config.GetRegion(d)),
+	)
+	if err := mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error setting Dedicated ELB member fields: %s", err)
+	}
 
 	return nil
 }
 
-func resourceMemberV3Update(d *schema.ResourceData, meta interface{}) error {
+func resourceMemberV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating elb client: %s", err)
 	}
 
 	var updateOpts pools.UpdateMemberOpts
@@ -149,27 +157,27 @@ func resourceMemberV3Update(d *schema.ResourceData, meta interface{}) error {
 		updateOpts.Weight = d.Get("weight").(int)
 	}
 
-	logp.Printf("[DEBUG] Updating member %s with options: %#v", d.Id(), updateOpts)
+	log.Printf("[DEBUG] Updating member %s with options: %#v", d.Id(), updateOpts)
 	poolID := d.Get("pool_id").(string)
 	_, err = pools.UpdateMember(elbClient, poolID, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Unable to update member %s: %s", d.Id(), err)
+		return diag.Errorf("unable to update member %s: %s", d.Id(), err)
 	}
 
-	return resourceMemberV3Read(d, meta)
+	return resourceMemberV3Read(ctx, d, meta)
 }
 
-func resourceMemberV3Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceMemberV3Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating elb client: %s", err)
 	}
 
 	poolID := d.Get("pool_id").(string)
 	err = pools.DeleteMember(elbClient, poolID, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Unable to delete member %s: %s", d.Id(), err)
+		return diag.Errorf("unable to delete member %s: %s", d.Id(), err)
 	}
 	return nil
 }

@@ -1,8 +1,12 @@
 package elb
 
 import (
+	"context"
+	"log"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -10,16 +14,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceCertificateV3() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCertificateV3Create,
-		Read:   resourceCertificateV3Read,
-		Update: resourceCertificateV3Update,
-		Delete: resourceCertificateV3Delete,
+		CreateContext: resourceCertificateV3Create,
+		ReadContext:   resourceCertificateV3Read,
+		UpdateContext: resourceCertificateV3Update,
+		DeleteContext: resourceCertificateV3Delete,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -97,11 +99,11 @@ func ResourceCertificateV3() *schema.Resource {
 	}
 }
 
-func resourceCertificateV3Create(d *schema.ResourceData, meta interface{}) error {
+func resourceCertificateV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating elb client: %s", err)
 	}
 
 	createOpts := certificates.CreateOpts{
@@ -114,51 +116,55 @@ func resourceCertificateV3Create(d *schema.ResourceData, meta interface{}) error
 		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	c, err := certificates.Create(elbClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating Certificate: %s", err)
+		return diag.Errorf("error creating Certificate: %s", err)
 	}
 
 	// If all has been successful, set the ID on the resource
 	d.SetId(c.ID)
 
-	return resourceCertificateV3Read(d, meta)
+	return resourceCertificateV3Read(ctx, d, meta)
 }
 
-func resourceCertificateV3Read(d *schema.ResourceData, meta interface{}) error {
+func resourceCertificateV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating elb client: %s", err)
 	}
 
 	c, err := certificates.Get(elbClient, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "certificate")
+		return common.CheckDeletedDiag(d, err, "certificate")
 	}
-	logp.Printf("[DEBUG] Retrieved certificate %s: %#v", d.Id(), c)
+	log.Printf("[DEBUG] Retrieved certificate %s: %#v", d.Id(), c)
 
-	d.Set("name", c.Name)
-	d.Set("description", c.Description)
-	d.Set("type", c.Type)
-	d.Set("domain", c.Domain)
-	d.Set("certificate", c.Certificate)
-	d.Set("private_key", c.PrivateKey)
-	d.Set("create_time", c.CreateTime)
-	d.Set("update_time", c.UpdateTime)
-	d.Set("expire_time", c.ExpireTime)
-
-	d.Set("region", config.GetRegion(d))
+	mErr := multierror.Append(nil,
+		d.Set("name", c.Name),
+		d.Set("description", c.Description),
+		d.Set("type", c.Type),
+		d.Set("domain", c.Domain),
+		d.Set("certificate", c.Certificate),
+		d.Set("private_key", c.PrivateKey),
+		d.Set("create_time", c.CreateTime),
+		d.Set("update_time", c.UpdateTime),
+		d.Set("expire_time", c.ExpireTime),
+		d.Set("region", config.GetRegion(d)),
+	)
+	if err := mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error setting Dedicated ELB Certificate fields: %s", err)
+	}
 
 	return nil
 }
 
-func resourceCertificateV3Update(d *schema.ResourceData, meta interface{}) error {
+func resourceCertificateV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating elb client: %s", err)
 	}
 
 	var updateOpts certificates.UpdateOpts
@@ -179,31 +185,31 @@ func resourceCertificateV3Update(d *schema.ResourceData, meta interface{}) error
 		updateOpts.Certificate = d.Get("certificate").(string)
 	}
 
-	logp.Printf("[DEBUG] Updating certificate %s with options: %#v", d.Id(), updateOpts)
+	log.Printf("[DEBUG] Updating certificate %s with options: %#v", d.Id(), updateOpts)
 
 	_, err = certificates.Update(elbClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error updating certificate %s: %s", d.Id(), err)
+		return diag.Errorf("error updating certificate %s: %s", d.Id(), err)
 	}
 
-	return resourceCertificateV3Read(d, meta)
+	return resourceCertificateV3Read(ctx, d, meta)
 }
 
-func resourceCertificateV3Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceCertificateV3Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating elb client: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Deleting certificate %s", d.Id())
+	log.Printf("[DEBUG] Deleting certificate %s", d.Id())
 	err = certificates.Delete(elbClient, d.Id()).ExtractErr()
 	if err != nil {
 		if utils.IsResourceNotFound(err) {
-			logp.Printf("[INFO] deleting an unavailable certificate: %s", d.Id())
+			log.Printf("[INFO] deleting an unavailable certificate: %s", d.Id())
 			return nil
 		}
-		return fmtp.Errorf("Error deleting certificate %s: %s", d.Id(), err)
+		return diag.Errorf("error deleting certificate %s: %s", d.Id(), err)
 	}
 
 	return nil
