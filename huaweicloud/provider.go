@@ -680,6 +680,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_lb_whitelist":    lb.ResourceWhitelistV2(),
 
 			"huaweicloud_live_domain":          live.ResourceDomain(),
+			"huaweicloud_live_recording":       live.ResourceRecording(),
 			"huaweicloud_live_record_callback": live.ResourceRecordCallback(),
 			"huaweicloud_live_transcoding":     live.ResourceTranscoding(),
 
