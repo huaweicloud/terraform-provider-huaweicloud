@@ -73,8 +73,6 @@ github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d/go.mod h1:6QX/PXZ
 github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/cheggaaa/pb v1.0.27/go.mod h1:pQciLPpbU0oxA0h+VJYYLxO+XeDQb5pZijXscXHm81s=
-github.com/chnsz/golangsdk v0.0.0-20220518060535-eb80e58ab616 h1:PAK8XU0r8O898fSMwcKqJ+E+G/fJTbt071LxLA5IIxA=
-github.com/chnsz/golangsdk v0.0.0-20220518060535-eb80e58ab616/go.mod h1:j6UR2TfACtmWBEvYrQqTpk5wy3b2QsEdiLkjMoM47j8=
 github.com/chnsz/golangsdk v0.0.0-20220520084815-ea06a7b5ab32 h1:HuJIvzVnVPBKhzkFYlPy0f+KNUsQ7mSNk0mNGWenaYI=
 github.com/chnsz/golangsdk v0.0.0-20220520084815-ea06a7b5ab32/go.mod h1:j6UR2TfACtmWBEvYrQqTpk5wy3b2QsEdiLkjMoM47j8=
 github.com/chnsz/golangsdk v0.0.0-20220525074017-4bf2680686cb h1:DuFMtNfBDwuh/7w0xNMwwClguvckNBdBqTn1VovhrQ4=
@@ -229,8 +227,8 @@ github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb/go.mod h1:+NfK9FKe
 github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d h1:kJCB4vdITiW1eC1vq2e6IsrXKrZit1bv/TDYFGMp4BQ=
 github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
 github.com/huandu/xstrings v1.3.2/go.mod h1:y5/lhBue+AyNmUVz9RLU9xbLR0o4KIIExikq4ovT0aE=
-github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.0.88 h1:1AJ6flgI/Gl9VTD9xCR4AMfFWT5d9elYT8cQnroFkH4=
-github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.0.88/go.mod h1:IvF+Pe06JMUivVgN6B4wcsPEoFvVa40IYaOPZyUt5HE=
+github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.0.89 h1:r92FJ42lnnUzMbtWVYRn8FaAVdBcMjdjmSnaE8n9PZw=
+github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.0.89/go.mod h1:IvF+Pe06JMUivVgN6B4wcsPEoFvVa40IYaOPZyUt5HE=
 github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/imdario/mergo v0.3.11/go.mod h1:jmQim1M+e3UYxmgPu/WyfjB3N3VflVyUjjjwH0dnCYA=
 github.com/imdario/mergo v0.3.12 h1:b6R2BslTbIEToALKP7LxUvijTsNI9TAe80pLWN2g/HU=

@@ -593,4 +593,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v1",
 		Product: "MPC",
 	},
+
+	"vod": {
+		Name:    "vod",
+		Version: "v1",
+		Product: "VOD",
+	},
 }

@@ -24,6 +24,7 @@ import (
 	mpcv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1"
 	rdsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3"
 	tmsv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1"
+	vodv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vod/v1"
 	vpcv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
@@ -200,6 +201,15 @@ func (c *Config) HcCptsV1Client(region string) (*cptsv1.CptsClient, error) {
 		return nil, err
 	}
 	return cptsv1.NewCptsClient(hcClient), nil
+}
+
+// HcVodV1Client is the AOM service client using huaweicloud-sdk-go-v3 package
+func (c *Config) HcVodV1Client(region string) (*vodv1.VodClient, error) {
+	hcClient, err := NewHcClient(c, region, "vod", false)
+	if err != nil {
+		return nil, err
+	}
+	return vodv1.NewVodClient(hcClient), nil
 }
 
 // HcAomV2Client is the AOM service client using huaweicloud-sdk-go-v3 package
