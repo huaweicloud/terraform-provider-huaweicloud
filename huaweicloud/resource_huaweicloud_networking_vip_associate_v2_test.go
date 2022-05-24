@@ -2,10 +2,8 @@ package huaweicloud
 
 import (
 	"fmt"
+	"log"
 	"testing"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
@@ -32,6 +30,12 @@ func TestAccNetworkingV2VIPAssociate_basic(t *testing.T) {
 						"vip_id", "huaweicloud_networking_vip.vip_1", "id"),
 				),
 			},
+			{
+				ResourceName:      "huaweicloud_networking_vip_associate.vip_associate_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccNetworkingV2VIPAssociateImportStateIdFunc(),
+			},
 		},
 	})
 }
@@ -40,7 +44,7 @@ func testAccCheckNetworkingV2VIPAssociateDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -60,8 +64,26 @@ func testAccCheckNetworkingV2VIPAssociateDestroy(s *terraform.State) error {
 		}
 	}
 
-	logp.Printf("[DEBUG] Destroy NetworkingVIPAssociated success!")
+	log.Printf("[DEBUG] Destroy NetworkingVIPAssociated success!")
 	return nil
+}
+
+func testAccNetworkingV2VIPAssociateImportStateIdFunc() resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		vip, ok := s.RootModule().Resources["huaweicloud_networking_vip.vip_1"]
+		if !ok {
+			return "", fmt.Errorf("vip not found: %s", vip)
+		}
+		instance, ok := s.RootModule().Resources["huaweicloud_compute_instance.test"]
+		if !ok {
+			return "", fmt.Errorf("port not found: %s", instance)
+		}
+		if vip.Primary.ID == "" || instance.Primary.Attributes["network.0.port"] == "" {
+			return "", fmt.Errorf("resource not found: %s/%s", vip.Primary.ID,
+				instance.Primary.Attributes["network.0.port"])
+		}
+		return fmt.Sprintf("%s/%s", vip.Primary.ID, instance.Primary.Attributes["network.0.port"]), nil
+	}
 }
 
 func testAccNetworkingV2VIPAssociateConfig_basic(rName string) string {

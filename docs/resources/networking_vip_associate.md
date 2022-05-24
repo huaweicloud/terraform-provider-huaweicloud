@@ -45,3 +45,12 @@ In addition to all arguments above, the following attributes are exported:
 * `vip_subnet_id` - The ID of the subnet this vip connects to.
 * `vip_ip_address` - The IP address in the subnet for this vip.
 * `ip_addresses` - The IP addresses of ports to attach the vip to.
+
+## Import
+
+Vip associate can be imported using the `vip_id` and port IDs separated by slashes (no limit on the number of
+port IDs), e.g.
+
+```
+$ terraform import huaweicloud_networking_vip_associate.vip_associated vip_id/port1_id/port2_id
+```
