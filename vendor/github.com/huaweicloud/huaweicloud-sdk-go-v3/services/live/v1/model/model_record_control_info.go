@@ -7,14 +7,14 @@ import (
 )
 
 type RecordControlInfo struct {
+
 	// 直播推流域名
-
 	PublishDomain string `json:"publish_domain"`
+
 	// 应用名
-
 	App string `json:"app"`
-	// 待启动或停止录制的流名
 
+	// 待启动或停止录制的流名
 	Stream string `json:"stream"`
 }
 

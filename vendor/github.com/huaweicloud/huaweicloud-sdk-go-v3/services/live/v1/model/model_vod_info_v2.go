@@ -7,11 +7,11 @@ import (
 )
 
 type VodInfoV2 struct {
+
 	// VOD媒资id
-
 	AssetId string `json:"asset_id"`
-	// 点播播放地址
 
+	// 点播播放地址
 	PlayUrl *string `json:"play_url,omitempty"`
 }
 

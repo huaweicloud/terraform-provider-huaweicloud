@@ -8,11 +8,11 @@ import (
 
 // Response Object
 type CreateDomainMappingResponse struct {
+
 	// 直播播放域名
-
 	PullDomain *string `json:"pull_domain,omitempty"`
-	// 直播播放域名关联的推流域名
 
+	// 直播播放域名关联的推流域名
 	PushDomain     *string `json:"push_domain,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }

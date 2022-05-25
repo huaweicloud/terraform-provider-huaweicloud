@@ -7,8 +7,8 @@ import (
 )
 
 type DefaultRecordConfig struct {
-	// 录制格式，当前支持：FLV，HLS，MP4三种格式，设置格式时必须使用大写字母
 
+	// 录制格式，当前支持：FLV，HLS，MP4三种格式，设置格式时必须使用大写字母
 	RecordFormat []VideoFormatVar `json:"record_format"`
 
 	ObsAddr *RecordObsFileAddr `json:"obs_addr"`

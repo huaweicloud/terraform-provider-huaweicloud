@@ -8,11 +8,11 @@ import (
 
 // Response Object
 type ListRecordRulesResponse struct {
+
 	// 查询结果的总元素数量
-
 	Total *int32 `json:"total,omitempty"`
-	// 录制配置数组
 
+	// 录制配置数组
 	RecordConfig   *[]RecordRule `json:"record_config,omitempty"`
 	HttpStatusCode int           `json:"-"`
 }

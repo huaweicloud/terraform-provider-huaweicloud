@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type DeleteRecordRuleRequest struct {
-	// 规则ID
 
+	// 规则ID
 	Id string `json:"id"`
 }
 

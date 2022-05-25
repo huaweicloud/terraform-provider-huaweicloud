@@ -8,8 +8,8 @@ import (
 
 // Request Object
 type UpdateRecordRuleRequest struct {
-	// 规则ID，在创建成功规则后返回
 
+	// 规则ID，在创建成功规则后返回
 	Id string `json:"id"`
 
 	Body *RecordRuleRequest `json:"body,omitempty"`
