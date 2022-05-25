@@ -61,6 +61,8 @@ func TestAccMicroserviceEngine_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttr(resourceName, "service_limit", "200"),
 					resource.TestCheckResourceAttr(resourceName, "instance_limit", "100"),
+					resource.TestCheckResourceAttrSet(resourceName, "service_registry_addresses.0.private"),
+					resource.TestCheckResourceAttrSet(resourceName, "config_center_addresses.0.private"),
 				),
 			},
 			{

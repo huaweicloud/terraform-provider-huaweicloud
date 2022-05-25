@@ -130,8 +130,16 @@ type ExternalEntrypoint struct {
 	PublicServiceEndpoint ServiceEndpoint `json:"publicServiceEndpoint"`
 }
 
-// ExternalEntrypoint is an object that represent the details of the access addresses.
+// ServiceEndpoint is an object that represent the entrypoints of the service center and config center.
 type ServiceEndpoint struct {
+	// The entrypoint details of the service center.
+	ServiceCenter Detail `json:"serviceCenter"`
+	// The entrypoint details of the config center.
+	ConfigCenter Detail `json:"kie"`
+}
+
+// Detail is an object that represent the endpoint informations of the service center or config center.
+type Detail struct {
 	// The main ipv4 access address in the VPC of the Microservice Engine Exclusive Edition component.
 	MasterEntrypoint string `json:"masterEntrypoint"`
 	// The main ipv6 access address in the VPC of the Microservice Engine Exclusive Edition component.

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"reflect"
 	"regexp"
 	"strconv"
 	"time"
@@ -117,6 +118,38 @@ func ResourceMicroserviceEngine() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+			"service_registry_addresses": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"private": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"public": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+			"config_center_addresses": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"private": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"public": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -186,6 +219,40 @@ func resourceMicroserviceEngineCreate(ctx context.Context, d *schema.ResourceDat
 	return resourceMicroserviceEngineRead(ctx, d, meta)
 }
 
+func flattenServiceRegistryAddresses(entrypoint engines.ExternalEntrypoint) (result []map[string]interface{}) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("[ERROR] Recover panic when flattening service registry center structure: %#v", r)
+		}
+	}()
+
+	entrypoints := map[string]interface{}{
+		"private": entrypoint.ServiceEndpoint.ServiceCenter.MasterEntrypoint,
+	}
+	if !reflect.DeepEqual(entrypoint.PublicServiceEndpoint, engines.ServiceEndpoint{}) {
+		entrypoints["public"] = entrypoint.PublicServiceEndpoint.ServiceCenter.MasterEntrypoint
+	}
+
+	return append(result, entrypoints)
+}
+
+func flattenConfigAddresses(entrypoint engines.ExternalEntrypoint) (result []map[string]interface{}) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("[ERROR] Recover panic when flattening config center structure: %#v", r)
+		}
+	}()
+
+	entrypoints := map[string]interface{}{
+		"private": entrypoint.ServiceEndpoint.ConfigCenter.MasterEntrypoint,
+	}
+	if !reflect.DeepEqual(entrypoint.PublicServiceEndpoint, engines.ServiceEndpoint{}) {
+		entrypoints["public"] = entrypoint.PublicServiceEndpoint.ConfigCenter.MasterEntrypoint
+	}
+
+	return append(result, entrypoints)
+}
+
 func resourceMicroserviceEngineRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
@@ -210,6 +277,8 @@ func resourceMicroserviceEngineRead(_ context.Context, d *schema.ResourceData, m
 		d.Set("description", resp.Description),
 		d.Set("eip_id", resp.Reference.PublicIpId),
 		d.Set("extend_params", resp.Reference.Inputs),
+		d.Set("service_registry_addresses", flattenServiceRegistryAddresses(resp.ExternalEntrypoint)),
+		d.Set("config_center_addresses", flattenConfigAddresses(resp.ExternalEntrypoint)),
 	)
 
 	diagErr := make([]diag.Diagnostic, 0, 3)
