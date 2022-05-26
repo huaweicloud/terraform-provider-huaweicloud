@@ -90,6 +90,19 @@ In addition to all arguments above, the following attributes are exported:
 
 * `instance_limit` - The maximum number of the microservice instance resources.
 
+* `service_registry_addresses` - The connection address of service center.
+  The [object](#engine_center_addresses) structure is documented below.
+
+* `config_center_addresses` - The address of config center.
+  The [object](#engine_center_addresses) structure is documented below.
+
+<a name="engine_center_addresses"></a>
+The `service_registry_addresses` and `config_center_addresses` block supports:
+
+* `private` - The internal access address.
+
+* `public` - The public access address. This address is only set when EIP is bound.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
