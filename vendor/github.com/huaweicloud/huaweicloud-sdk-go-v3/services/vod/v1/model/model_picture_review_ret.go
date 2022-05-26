@@ -64,6 +64,10 @@ func GetPictureReviewRetSuggestionEnum() PictureReviewRetSuggestionEnum {
 	}
 }
 
+func (c PictureReviewRetSuggestion) Value() string {
+	return c.value
+}
+
 func (c PictureReviewRetSuggestion) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

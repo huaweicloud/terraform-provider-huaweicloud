@@ -74,6 +74,10 @@ func GetListRecordContentsRequestRecordTypeEnum() ListRecordContentsRequestRecor
 	}
 }
 
+func (c ListRecordContentsRequestRecordType) Value() string {
+	return c.value
+}
+
 func (c ListRecordContentsRequestRecordType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

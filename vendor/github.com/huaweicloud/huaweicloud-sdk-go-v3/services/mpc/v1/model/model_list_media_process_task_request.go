@@ -72,6 +72,10 @@ func GetListMediaProcessTaskRequestStatusEnum() ListMediaProcessTaskRequestStatu
 	}
 }
 
+func (c ListMediaProcessTaskRequestStatus) Value() string {
+	return c.value
+}
+
 func (c ListMediaProcessTaskRequestStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

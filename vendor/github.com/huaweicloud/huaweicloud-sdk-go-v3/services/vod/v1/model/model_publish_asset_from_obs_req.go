@@ -195,6 +195,10 @@ func GetPublishAssetFromObsReqVideoTypeEnum() PublishAssetFromObsReqVideoTypeEnu
 	}
 }
 
+func (c PublishAssetFromObsReqVideoType) Value() string {
+	return c.value
+}
+
 func (c PublishAssetFromObsReqVideoType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

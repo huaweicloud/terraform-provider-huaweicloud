@@ -64,6 +64,10 @@ func GetImageWatermarkSettingBaseEnum() ImageWatermarkSettingBaseEnum {
 	}
 }
 
+func (c ImageWatermarkSettingBase) Value() string {
+	return c.value
+}
+
 func (c ImageWatermarkSettingBase) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

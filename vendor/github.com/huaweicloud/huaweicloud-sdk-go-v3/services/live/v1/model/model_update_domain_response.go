@@ -66,6 +66,10 @@ func GetUpdateDomainResponseDomainTypeEnum() UpdateDomainResponseDomainTypeEnum 
 	}
 }
 
+func (c UpdateDomainResponseDomainType) Value() string {
+	return c.value
+}
+
 func (c UpdateDomainResponseDomainType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -112,6 +116,10 @@ func GetUpdateDomainResponseStatusEnum() UpdateDomainResponseStatusEnum {
 	}
 }
 
+func (c UpdateDomainResponseStatus) Value() string {
+	return c.value
+}
+
 func (c UpdateDomainResponseStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -152,6 +160,10 @@ func GetUpdateDomainResponseServiceAreaEnum() UpdateDomainResponseServiceAreaEnu
 			value: "global",
 		},
 	}
+}
+
+func (c UpdateDomainResponseServiceArea) Value() string {
+	return c.value
 }
 
 func (c UpdateDomainResponseServiceArea) MarshalJSON() ([]byte, error) {

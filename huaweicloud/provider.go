@@ -759,6 +759,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_vbs_backup":        resourceVBSBackupV2(),
 			"huaweicloud_vbs_backup_policy": resourceVBSBackupPolicyV2(),
 
+			"huaweicloud_vod_media_category":             vod.ResourceMediaCategory(),
+			"huaweicloud_vod_transcoding_template_group": vod.ResourceTranscodingTemplateGroup(),
+
 			"huaweicloud_vpc_bandwidth":                   eip.ResourceVpcBandWidthV2(),
 			"huaweicloud_vpc_eip":                         eip.ResourceVpcEIPV1(),
 			"huaweicloud_vpc_eip_associate":               eip.ResourceEIPAssociate(),
@@ -851,8 +854,6 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_iam_agency":    iam.ResourceIAMAgencyV3(),
 			"huaweicloud_iam_agency_v3": iam.ResourceIAMAgencyV3(),
-
-			"huaweicloud_vod_media_category": vod.ResourceMediaCategory(),
 
 			"huaweicloud_vpc_bandwidth_v2":                   eip.ResourceVpcBandWidthV2(),
 			"huaweicloud_vpc_eip_v1":                         eip.ResourceVpcEIPV1(),

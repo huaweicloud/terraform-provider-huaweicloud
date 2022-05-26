@@ -84,6 +84,10 @@ func GetVideoOutputPolicyEnum() VideoOutputPolicyEnum {
 	}
 }
 
+func (c VideoOutputPolicy) Value() string {
+	return c.value
+}
+
 func (c VideoOutputPolicy) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

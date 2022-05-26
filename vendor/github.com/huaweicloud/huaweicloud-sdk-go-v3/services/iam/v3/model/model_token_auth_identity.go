@@ -45,6 +45,10 @@ func GetTokenAuthIdentityMethodsEnum() TokenAuthIdentityMethodsEnum {
 	}
 }
 
+func (c TokenAuthIdentityMethods) Value() string {
+	return c.value
+}
+
 func (c TokenAuthIdentityMethods) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

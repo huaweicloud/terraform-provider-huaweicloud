@@ -68,6 +68,10 @@ func GetShowTakeOverAssetDetailsResponseAssetStatusEnum() ShowTakeOverAssetDetai
 	}
 }
 
+func (c ShowTakeOverAssetDetailsResponseAssetStatus) Value() string {
+	return c.value
+}
+
 func (c ShowTakeOverAssetDetailsResponseAssetStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -116,6 +120,10 @@ func GetShowTakeOverAssetDetailsResponseTranscodeStatusEnum() ShowTakeOverAssetD
 			value: "TRANSCODE_FAILED",
 		},
 	}
+}
+
+func (c ShowTakeOverAssetDetailsResponseTranscodeStatus) Value() string {
+	return c.value
 }
 
 func (c ShowTakeOverAssetDetailsResponseTranscodeStatus) MarshalJSON() ([]byte, error) {

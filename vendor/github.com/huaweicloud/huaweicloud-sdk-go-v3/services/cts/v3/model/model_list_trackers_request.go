@@ -48,6 +48,10 @@ func GetListTrackersRequestTrackerTypeEnum() ListTrackersRequestTrackerTypeEnum 
 	}
 }
 
+func (c ListTrackersRequestTrackerType) Value() string {
+	return c.value
+}
+
 func (c ListTrackersRequestTrackerType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

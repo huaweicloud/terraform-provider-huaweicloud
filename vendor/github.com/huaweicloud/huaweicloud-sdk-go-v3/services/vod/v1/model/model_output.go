@@ -68,6 +68,10 @@ func GetOutputPlayTypeEnum() OutputPlayTypeEnum {
 	}
 }
 
+func (c OutputPlayType) Value() string {
+	return c.value
+}
+
 func (c OutputPlayType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -112,6 +116,10 @@ func GetOutputQualityEnum() OutputQualityEnum {
 			value: "FULL_HD",
 		},
 	}
+}
+
+func (c OutputQuality) Value() string {
+	return c.value
 }
 
 func (c OutputQuality) MarshalJSON() ([]byte, error) {

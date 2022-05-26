@@ -72,6 +72,10 @@ func GetListEncryptTaskRequestStatusEnum() ListEncryptTaskRequestStatusEnum {
 	}
 }
 
+func (c ListEncryptTaskRequestStatus) Value() string {
+	return c.value
+}
+
 func (c ListEncryptTaskRequestStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

@@ -78,6 +78,10 @@ func GetVideoCommonOutputPolicyEnum() VideoCommonOutputPolicyEnum {
 	}
 }
 
+func (c VideoCommonOutputPolicy) Value() string {
+	return c.value
+}
+
 func (c VideoCommonOutputPolicy) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

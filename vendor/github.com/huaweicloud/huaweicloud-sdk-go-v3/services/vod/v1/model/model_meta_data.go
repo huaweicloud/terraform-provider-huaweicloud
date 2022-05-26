@@ -141,6 +141,10 @@ func GetMetaDataCodecEnum() MetaDataCodecEnum {
 	}
 }
 
+func (c MetaDataCodec) Value() string {
+	return c.value
+}
+
 func (c MetaDataCodec) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

@@ -50,6 +50,10 @@ func GetChangeProxyScaleRequestXLanguageEnum() ChangeProxyScaleRequestXLanguageE
 	}
 }
 
+func (c ChangeProxyScaleRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c ChangeProxyScaleRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

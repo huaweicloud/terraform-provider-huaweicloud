@@ -45,6 +45,10 @@ func GetUpdateProjectOptionStatusEnum() UpdateProjectOptionStatusEnum {
 	}
 }
 
+func (c UpdateProjectOptionStatus) Value() string {
+	return c.value
+}
+
 func (c UpdateProjectOptionStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

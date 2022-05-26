@@ -79,6 +79,10 @@ func GetListExtractTaskRequestStatusEnum() ListExtractTaskRequestStatusEnum {
 	}
 }
 
+func (c ListExtractTaskRequestStatus) Value() string {
+	return c.value
+}
+
 func (c ListExtractTaskRequestStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

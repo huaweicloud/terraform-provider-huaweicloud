@@ -84,6 +84,10 @@ func GetKeypairDetailTypeEnum() KeypairDetailTypeEnum {
 	}
 }
 
+func (c KeypairDetailType) Value() string {
+	return c.value
+}
+
 func (c KeypairDetailType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -120,6 +124,10 @@ func GetKeypairDetailScopeEnum() KeypairDetailScopeEnum {
 			value: "user",
 		},
 	}
+}
+
+func (c KeypairDetailScope) Value() string {
+	return c.value
 }
 
 func (c KeypairDetailScope) MarshalJSON() ([]byte, error) {

@@ -50,6 +50,10 @@ func GetUpdateDnsNameRequestXLanguageEnum() UpdateDnsNameRequestXLanguageEnum {
 	}
 }
 
+func (c UpdateDnsNameRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c UpdateDnsNameRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

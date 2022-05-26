@@ -90,6 +90,10 @@ func GetCreateAssetByFileUploadReqCoverTypeEnum() CreateAssetByFileUploadReqCove
 	}
 }
 
+func (c CreateAssetByFileUploadReqCoverType) Value() string {
+	return c.value
+}
+
 func (c CreateAssetByFileUploadReqCoverType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -125,6 +129,10 @@ func GetCreateAssetByFileUploadReqAutoPublishEnum() CreateAssetByFileUploadReqAu
 			value: 1,
 		},
 	}
+}
+
+func (c CreateAssetByFileUploadReqAutoPublish) Value() int32 {
+	return c.value
 }
 
 func (c CreateAssetByFileUploadReqAutoPublish) MarshalJSON() ([]byte, error) {

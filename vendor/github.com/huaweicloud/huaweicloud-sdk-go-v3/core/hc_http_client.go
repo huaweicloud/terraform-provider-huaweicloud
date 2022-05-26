@@ -27,6 +27,7 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/converter"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/def"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/exchange"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/impl"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/request"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/response"
@@ -38,9 +39,10 @@ import (
 )
 
 type HcHttpClient struct {
-	endpoint   string
-	credential auth.ICredential
-	httpClient *impl.DefaultHttpClient
+	endpoint    string
+	credential  auth.ICredential
+	extraHeader map[string]string
+	httpClient  *impl.DefaultHttpClient
 }
 
 func NewHcHttpClient(httpClient *impl.DefaultHttpClient) *HcHttpClient {
@@ -57,13 +59,35 @@ func (hc *HcHttpClient) WithCredential(credential auth.ICredential) *HcHttpClien
 	return hc
 }
 
+func (hc *HcHttpClient) GetCredential() auth.ICredential {
+	return hc.credential
+}
+
+func (hc *HcHttpClient) PreInvoke(headers map[string]string) *HcHttpClient {
+	hc.extraHeader = headers
+	return hc
+}
+
 func (hc *HcHttpClient) Sync(req interface{}, reqDef *def.HttpRequestDef) (interface{}, error) {
+	exg := &exchange.SdkExchange{
+		ApiReference: &exchange.ApiReference{},
+		Attributes:   make(map[string]interface{}),
+	}
+	return hc.SyncInvoke(req, reqDef, exg)
+}
+
+func (hc *HcHttpClient) SyncInvoke(req interface{}, reqDef *def.HttpRequestDef,
+	exchange *exchange.SdkExchange) (interface{}, error) {
 	httpRequest, err := hc.buildRequest(req, reqDef)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := hc.httpClient.SyncInvokeHttp(httpRequest)
+	for k, v := range hc.extraHeader {
+		httpRequest.AddHeaderParam(k, v)
+	}
+
+	resp, err := hc.httpClient.SyncInvokeHttpWithExchange(httpRequest, exchange)
 	if err != nil {
 		return nil, err
 	}
@@ -100,16 +124,17 @@ func (hc *HcHttpClient) buildRequest(req interface{}, reqDef *def.HttpRequestDef
 	return httpRequest, err
 }
 
-func (hc *HcHttpClient) fillParamsFromReq(req interface{}, reqDef *def.HttpRequestDef, builder *request.HttpRequestBuilder) (*request.HttpRequestBuilder, error) {
+func (hc *HcHttpClient) fillParamsFromReq(req interface{}, reqDef *def.HttpRequestDef,
+	builder *request.HttpRequestBuilder) (*request.HttpRequestBuilder, error) {
 	t := reflect.TypeOf(req)
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
 
-	attrMaps := hc.GetFieldJsonTags(t)
+	attrMaps := hc.getFieldJsonTags(t)
 
 	for _, fieldDef := range reqDef.RequestFields {
-		value, err := hc.GetFieldValueByName(fieldDef.Name, attrMaps, req)
+		value, err := hc.getFieldValueByName(fieldDef.Name, attrMaps, req)
 		if err != nil {
 			return nil, err
 		}
@@ -144,7 +169,7 @@ func (hc *HcHttpClient) fillParamsFromReq(req interface{}, reqDef *def.HttpReque
 	return builder, nil
 }
 
-func (hc *HcHttpClient) GetFieldJsonTags(t reflect.Type) map[string]string {
+func (hc *HcHttpClient) getFieldJsonTags(t reflect.Type) map[string]string {
 	attrMaps := make(map[string]string)
 
 	fieldNum := t.NumField()
@@ -157,7 +182,8 @@ func (hc *HcHttpClient) GetFieldJsonTags(t reflect.Type) map[string]string {
 	return attrMaps
 }
 
-func (hc *HcHttpClient) GetFieldValueByName(name string, jsonTag map[string]string, structName interface{}) (reflect.Value, error) {
+func (hc *HcHttpClient) getFieldValueByName(name string, jsonTag map[string]string,
+	structName interface{}) (reflect.Value, error) {
 	v := reflect.ValueOf(structName)
 	if v.Kind() == reflect.Ptr {
 		v = v.Elem()
@@ -192,7 +218,8 @@ func flattenEnumStruct(value reflect.Value) (reflect.Value, error) {
 	return value, nil
 }
 
-func (hc *HcHttpClient) extractResponse(resp *response.DefaultHttpResponse, reqDef *def.HttpRequestDef) (interface{}, error) {
+func (hc *HcHttpClient) extractResponse(resp *response.DefaultHttpResponse, reqDef *def.HttpRequestDef) (interface{},
+	error) {
 	if resp.GetStatusCode() >= 400 {
 		return nil, sdkerr.NewServiceResponseError(resp.Response)
 	}
@@ -324,8 +351,9 @@ func (hc *HcHttpClient) deserializeResponseBody(reqDef *def.HttpRequestDef, data
 	return nil
 }
 
-func (hc *HcHttpClient) deserializeResponseHeaders(resp *response.DefaultHttpResponse, reqDef *def.HttpRequestDef, item *def.FieldDef) error {
-	isPtr, fieldKind := GetFieldInfo(reqDef, item)
+func (hc *HcHttpClient) deserializeResponseHeaders(resp *response.DefaultHttpResponse, reqDef *def.HttpRequestDef,
+	item *def.FieldDef) error {
+	isPtr, fieldKind := hc.getFieldInfo(reqDef, item)
 	v := reflect.ValueOf(reqDef.Response)
 	if v.Kind() == reflect.Ptr {
 		v = v.Elem()
@@ -346,7 +374,7 @@ func (hc *HcHttpClient) deserializeResponseHeaders(resp *response.DefaultHttpRes
 	return nil
 }
 
-func GetFieldInfo(reqDef *def.HttpRequestDef, item *def.FieldDef) (bool, string) {
+func (hc *HcHttpClient) getFieldInfo(reqDef *def.HttpRequestDef, item *def.FieldDef) (bool, string) {
 	var fieldKind string
 	var isPtr = false
 	t := reflect.TypeOf(reqDef.Response)

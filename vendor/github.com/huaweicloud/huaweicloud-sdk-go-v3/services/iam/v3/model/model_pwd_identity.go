@@ -43,6 +43,10 @@ func GetPwdIdentityMethodsEnum() PwdIdentityMethodsEnum {
 	}
 }
 
+func (c PwdIdentityMethods) Value() string {
+	return c.value
+}
+
 func (c PwdIdentityMethods) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

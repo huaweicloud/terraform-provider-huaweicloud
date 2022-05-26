@@ -51,6 +51,10 @@ func GetPreheatingResultStatusEnum() PreheatingResultStatusEnum {
 	}
 }
 
+func (c PreheatingResultStatus) Value() string {
+	return c.value
+}
+
 func (c PreheatingResultStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

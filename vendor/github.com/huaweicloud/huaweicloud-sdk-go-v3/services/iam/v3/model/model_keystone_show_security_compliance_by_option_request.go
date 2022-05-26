@@ -48,6 +48,10 @@ func GetKeystoneShowSecurityComplianceByOptionRequestOptionEnum() KeystoneShowSe
 	}
 }
 
+func (c KeystoneShowSecurityComplianceByOptionRequestOption) Value() string {
+	return c.value
+}
+
 func (c KeystoneShowSecurityComplianceByOptionRequestOption) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

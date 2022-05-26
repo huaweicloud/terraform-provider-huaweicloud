@@ -49,6 +49,10 @@ func GetHaResponseReplicationModeEnum() HaResponseReplicationModeEnum {
 	}
 }
 
+func (c HaResponseReplicationMode) Value() string {
+	return c.value
+}
+
 func (c HaResponseReplicationMode) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

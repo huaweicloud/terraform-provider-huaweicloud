@@ -135,6 +135,10 @@ func GetListAssetListRequestStatusEnum() ListAssetListRequestStatusEnum {
 	}
 }
 
+func (c ListAssetListRequestStatus) Value() string {
+	return c.value
+}
+
 func (c ListAssetListRequestStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -171,6 +175,10 @@ func GetListAssetListRequestOrderEnum() ListAssetListRequestOrderEnum {
 			value: "desc",
 		},
 	}
+}
+
+func (c ListAssetListRequestOrder) Value() string {
+	return c.value
 }
 
 func (c ListAssetListRequestOrder) MarshalJSON() ([]byte, error) {

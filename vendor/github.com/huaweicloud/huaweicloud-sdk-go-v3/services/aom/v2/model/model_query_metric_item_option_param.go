@@ -63,6 +63,10 @@ func GetQueryMetricItemOptionParamNamespaceEnum() QueryMetricItemOptionParamName
 	}
 }
 
+func (c QueryMetricItemOptionParamNamespace) Value() string {
+	return c.value
+}
+
 func (c QueryMetricItemOptionParamNamespace) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

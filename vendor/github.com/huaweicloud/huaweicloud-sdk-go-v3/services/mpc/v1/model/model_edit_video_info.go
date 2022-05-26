@@ -67,6 +67,10 @@ func GetEditVideoInfoReferenceEnum() EditVideoInfoReferenceEnum {
 	}
 }
 
+func (c EditVideoInfoReference) Value() string {
+	return c.value
+}
+
 func (c EditVideoInfoReference) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -103,6 +107,10 @@ func GetEditVideoInfoCodecEnum() EditVideoInfoCodecEnum {
 			value: "H265",
 		},
 	}
+}
+
+func (c EditVideoInfoCodec) Value() string {
+	return c.value
 }
 
 func (c EditVideoInfoCodec) MarshalJSON() ([]byte, error) {

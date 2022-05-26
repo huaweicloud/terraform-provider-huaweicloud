@@ -84,6 +84,10 @@ func GetListKeypairTaskResponseTaskStatusEnum() ListKeypairTaskResponseTaskStatu
 	}
 }
 
+func (c ListKeypairTaskResponseTaskStatus) Value() string {
+	return c.value
+}
+
 func (c ListKeypairTaskResponseTaskStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

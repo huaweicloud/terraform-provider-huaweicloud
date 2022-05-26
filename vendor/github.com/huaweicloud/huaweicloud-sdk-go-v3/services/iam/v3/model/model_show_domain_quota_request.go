@@ -76,6 +76,10 @@ func GetShowDomainQuotaRequestTypeEnum() ShowDomainQuotaRequestTypeEnum {
 	}
 }
 
+func (c ShowDomainQuotaRequestType) Value() string {
+	return c.value
+}
+
 func (c ShowDomainQuotaRequestType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

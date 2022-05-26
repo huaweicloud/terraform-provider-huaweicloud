@@ -66,6 +66,10 @@ func GetAssetDetailsAssetStatusEnum() AssetDetailsAssetStatusEnum {
 	}
 }
 
+func (c AssetDetailsAssetStatus) Value() string {
+	return c.value
+}
+
 func (c AssetDetailsAssetStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -114,6 +118,10 @@ func GetAssetDetailsTranscodeStatusEnum() AssetDetailsTranscodeStatusEnum {
 			value: "TRANSCODE_FAILED",
 		},
 	}
+}
+
+func (c AssetDetailsTranscodeStatus) Value() string {
+	return c.value
 }
 
 func (c AssetDetailsTranscodeStatus) MarshalJSON() ([]byte, error) {

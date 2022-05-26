@@ -81,6 +81,10 @@ func GetVideoTemplateInfoQualityEnum() VideoTemplateInfoQualityEnum {
 	}
 }
 
+func (c VideoTemplateInfoQuality) Value() string {
+	return c.value
+}
+
 func (c VideoTemplateInfoQuality) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

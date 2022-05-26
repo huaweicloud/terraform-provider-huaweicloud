@@ -77,6 +77,10 @@ func GetQualityInfoPvcEnum() QualityInfoPvcEnum {
 	}
 }
 
+func (c QualityInfoPvc) Value() string {
+	return c.value
+}
+
 func (c QualityInfoPvc) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -115,6 +119,10 @@ func GetQualityInfoHdlbEnum() QualityInfoHdlbEnum {
 	}
 }
 
+func (c QualityInfoHdlb) Value() string {
+	return c.value
+}
+
 func (c QualityInfoHdlb) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -151,6 +159,10 @@ func GetQualityInfoCodecEnum() QualityInfoCodecEnum {
 			value: "H265",
 		},
 	}
+}
+
+func (c QualityInfoCodec) Value() string {
+	return c.value
 }
 
 func (c QualityInfoCodec) MarshalJSON() ([]byte, error) {
@@ -193,6 +205,10 @@ func GetQualityInfoProtocolEnum() QualityInfoProtocolEnum {
 			value: "DASH",
 		},
 	}
+}
+
+func (c QualityInfoProtocol) Value() string {
+	return c.value
 }
 
 func (c QualityInfoProtocol) MarshalJSON() ([]byte, error) {

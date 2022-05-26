@@ -67,6 +67,10 @@ func GetVolumeTypeEnum() VolumeTypeEnum {
 	}
 }
 
+func (c VolumeType) Value() string {
+	return c.value
+}
+
 func (c VolumeType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

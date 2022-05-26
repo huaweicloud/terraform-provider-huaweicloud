@@ -50,6 +50,10 @@ func GetUpdateInstanceNameRequestXLanguageEnum() UpdateInstanceNameRequestXLangu
 	}
 }
 
+func (c UpdateInstanceNameRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c UpdateInstanceNameRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

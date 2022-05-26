@@ -47,6 +47,10 @@ func GetCountEventsRequestTypeEnum() CountEventsRequestTypeEnum {
 	}
 }
 
+func (c CountEventsRequestType) Value() string {
+	return c.value
+}
+
 func (c CountEventsRequestType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

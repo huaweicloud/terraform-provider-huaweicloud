@@ -70,6 +70,10 @@ func GetConfigurationSummaryDatastoreNameEnum() ConfigurationSummaryDatastoreNam
 	}
 }
 
+func (c ConfigurationSummaryDatastoreName) Value() string {
+	return c.value
+}
+
 func (c ConfigurationSummaryDatastoreName) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

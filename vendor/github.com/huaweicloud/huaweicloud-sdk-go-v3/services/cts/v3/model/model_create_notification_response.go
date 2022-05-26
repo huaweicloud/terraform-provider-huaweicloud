@@ -73,6 +73,10 @@ func GetCreateNotificationResponseOperationTypeEnum() CreateNotificationResponse
 	}
 }
 
+func (c CreateNotificationResponseOperationType) Value() string {
+	return c.value
+}
+
 func (c CreateNotificationResponseOperationType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -111,6 +115,10 @@ func GetCreateNotificationResponseStatusEnum() CreateNotificationResponseStatusE
 	}
 }
 
+func (c CreateNotificationResponseStatus) Value() string {
+	return c.value
+}
+
 func (c CreateNotificationResponseStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -147,6 +155,10 @@ func GetCreateNotificationResponseNotificationTypeEnum() CreateNotificationRespo
 			value: "fun",
 		},
 	}
+}
+
+func (c CreateNotificationResponseNotificationType) Value() string {
+	return c.value
 }
 
 func (c CreateNotificationResponseNotificationType) MarshalJSON() ([]byte, error) {

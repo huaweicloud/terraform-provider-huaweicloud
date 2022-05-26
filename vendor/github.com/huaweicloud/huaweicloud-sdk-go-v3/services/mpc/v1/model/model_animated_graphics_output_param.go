@@ -55,6 +55,10 @@ func GetAnimatedGraphicsOutputParamFormatEnum() AnimatedGraphicsOutputParamForma
 	}
 }
 
+func (c AnimatedGraphicsOutputParamFormat) Value() string {
+	return c.value
+}
+
 func (c AnimatedGraphicsOutputParamFormat) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

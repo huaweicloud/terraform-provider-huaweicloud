@@ -50,6 +50,10 @@ func GetChangeTheDelayThresholdRequestXLanguageEnum() ChangeTheDelayThresholdReq
 	}
 }
 
+func (c ChangeTheDelayThresholdRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c ChangeTheDelayThresholdRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

@@ -50,6 +50,10 @@ func GetUpdatePortRequestXLanguageEnum() UpdatePortRequestXLanguageEnum {
 	}
 }
 
+func (c UpdatePortRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c UpdatePortRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

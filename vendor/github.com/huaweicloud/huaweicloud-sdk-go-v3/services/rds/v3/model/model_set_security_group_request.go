@@ -50,6 +50,10 @@ func GetSetSecurityGroupRequestXLanguageEnum() SetSecurityGroupRequestXLanguageE
 	}
 }
 
+func (c SetSecurityGroupRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c SetSecurityGroupRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

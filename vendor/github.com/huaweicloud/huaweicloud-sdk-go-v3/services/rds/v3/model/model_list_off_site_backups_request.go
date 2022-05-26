@@ -66,6 +66,10 @@ func GetListOffSiteBackupsRequestBackupTypeEnum() ListOffSiteBackupsRequestBacku
 	}
 }
 
+func (c ListOffSiteBackupsRequestBackupType) Value() string {
+	return c.value
+}
+
 func (c ListOffSiteBackupsRequestBackupType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

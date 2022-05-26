@@ -77,6 +77,10 @@ func GetWatermarkTemplateBaseEnum() WatermarkTemplateBaseEnum {
 	}
 }
 
+func (c WatermarkTemplateBase) Value() string {
+	return c.value
+}
+
 func (c WatermarkTemplateBase) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

@@ -47,6 +47,10 @@ func GetCreateConfigurationRequestXLanguageEnum() CreateConfigurationRequestXLan
 	}
 }
 
+func (c CreateConfigurationRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c CreateConfigurationRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

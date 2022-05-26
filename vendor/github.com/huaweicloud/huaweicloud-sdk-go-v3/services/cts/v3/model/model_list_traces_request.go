@@ -84,6 +84,10 @@ func GetListTracesRequestTraceTypeEnum() ListTracesRequestTraceTypeEnum {
 	}
 }
 
+func (c ListTracesRequestTraceType) Value() string {
+	return c.value
+}
+
 func (c ListTracesRequestTraceType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -124,6 +128,10 @@ func GetListTracesRequestTraceRatingEnum() ListTracesRequestTraceRatingEnum {
 			value: "incident",
 		},
 	}
+}
+
+func (c ListTracesRequestTraceRating) Value() string {
+	return c.value
 }
 
 func (c ListTracesRequestTraceRating) MarshalJSON() ([]byte, error) {

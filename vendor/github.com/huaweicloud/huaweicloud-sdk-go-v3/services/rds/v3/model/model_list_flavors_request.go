@@ -58,6 +58,10 @@ func GetListFlavorsRequestDatabaseNameEnum() ListFlavorsRequestDatabaseNameEnum 
 	}
 }
 
+func (c ListFlavorsRequestDatabaseName) Value() string {
+	return c.value
+}
+
 func (c ListFlavorsRequestDatabaseName) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

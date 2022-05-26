@@ -2,7 +2,7 @@ package v1
 
 import (
 	http_client "github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
-
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/invoker"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1/model"
 )
 
@@ -19,7 +19,7 @@ func MpcClientBuilder() *http_client.HcHttpClientBuilder {
 	return builder
 }
 
-// 新建转动图任务
+// CreateAnimatedGraphicsTask 新建转动图任务
 //
 // 创建动图任务，用于将完整的视频文件或视频文件中的一部分转换为动态图文件，暂只支持输出GIF文件。
 // 待转动图的视频文件需要存储在与媒体处理服务同区域的OBS桶中，且该OBS桶已授权。
@@ -36,7 +36,13 @@ func (c *MpcClient) CreateAnimatedGraphicsTask(request *model.CreateAnimatedGrap
 	}
 }
 
-// 取消转动图任务
+// CreateAnimatedGraphicsTaskInvoker 新建转动图任务
+func (c *MpcClient) CreateAnimatedGraphicsTaskInvoker(request *model.CreateAnimatedGraphicsTaskRequest) *CreateAnimatedGraphicsTaskInvoker {
+	requestDef := GenReqDefForCreateAnimatedGraphicsTask()
+	return &CreateAnimatedGraphicsTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteAnimatedGraphicsTask 取消转动图任务
 //
 // 取消已下发的生成动图任务，仅支持取消正在排队中的任务。
 //
@@ -52,7 +58,13 @@ func (c *MpcClient) DeleteAnimatedGraphicsTask(request *model.DeleteAnimatedGrap
 	}
 }
 
-// 查询转动图任务
+// DeleteAnimatedGraphicsTaskInvoker 取消转动图任务
+func (c *MpcClient) DeleteAnimatedGraphicsTaskInvoker(request *model.DeleteAnimatedGraphicsTaskRequest) *DeleteAnimatedGraphicsTaskInvoker {
+	requestDef := GenReqDefForDeleteAnimatedGraphicsTask()
+	return &DeleteAnimatedGraphicsTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListAnimatedGraphicsTask 查询转动图任务
 //
 // 查询动图任务的状态。
 //
@@ -68,7 +80,13 @@ func (c *MpcClient) ListAnimatedGraphicsTask(request *model.ListAnimatedGraphics
 	}
 }
 
-// 新建剪辑任务
+// ListAnimatedGraphicsTaskInvoker 查询转动图任务
+func (c *MpcClient) ListAnimatedGraphicsTaskInvoker(request *model.ListAnimatedGraphicsTaskRequest) *ListAnimatedGraphicsTaskInvoker {
+	requestDef := GenReqDefForListAnimatedGraphicsTask()
+	return &ListAnimatedGraphicsTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateEditingJob 新建剪辑任务
 //
 // 创建剪辑任务，用于将多个视频文件进行裁剪成多个视频分段，并且可以把这些视频分段合并成一个视频，剪切和拼接功能可以单独使用。
 // 待剪辑的视频文件需要存储在与媒体处理服务同区域的OBS桶中，且该OBS桶已授权。
@@ -85,7 +103,13 @@ func (c *MpcClient) CreateEditingJob(request *model.CreateEditingJobRequest) (*m
 	}
 }
 
-// 取消剪辑任务
+// CreateEditingJobInvoker 新建剪辑任务
+func (c *MpcClient) CreateEditingJobInvoker(request *model.CreateEditingJobRequest) *CreateEditingJobInvoker {
+	requestDef := GenReqDefForCreateEditingJob()
+	return &CreateEditingJobInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteEditingJob 取消剪辑任务
 //
 // 取消已下发的生成剪辑任务，仅支持取消正在排队中的任务。
 //
@@ -101,7 +125,13 @@ func (c *MpcClient) DeleteEditingJob(request *model.DeleteEditingJobRequest) (*m
 	}
 }
 
-// 查询剪辑任务
+// DeleteEditingJobInvoker 取消剪辑任务
+func (c *MpcClient) DeleteEditingJobInvoker(request *model.DeleteEditingJobRequest) *DeleteEditingJobInvoker {
+	requestDef := GenReqDefForDeleteEditingJob()
+	return &DeleteEditingJobInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListEditingJob 查询剪辑任务
 //
 // 查询剪辑任务的状态。
 //
@@ -117,7 +147,13 @@ func (c *MpcClient) ListEditingJob(request *model.ListEditingJobRequest) (*model
 	}
 }
 
-// 新建独立加密任务
+// ListEditingJobInvoker 查询剪辑任务
+func (c *MpcClient) ListEditingJobInvoker(request *model.ListEditingJobRequest) *ListEditingJobInvoker {
+	requestDef := GenReqDefForListEditingJob()
+	return &ListEditingJobInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateEncryptTask 新建独立加密任务
 //
 // 支持独立加密，包括创建、查询、删除独立加密任务。
 //
@@ -137,7 +173,13 @@ func (c *MpcClient) CreateEncryptTask(request *model.CreateEncryptTaskRequest) (
 	}
 }
 
-// 取消独立加密任务
+// CreateEncryptTaskInvoker 新建独立加密任务
+func (c *MpcClient) CreateEncryptTaskInvoker(request *model.CreateEncryptTaskRequest) *CreateEncryptTaskInvoker {
+	requestDef := GenReqDefForCreateEncryptTask()
+	return &CreateEncryptTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteEncryptTask 取消独立加密任务
 //
 // 取消独立加密任务。
 //
@@ -157,7 +199,13 @@ func (c *MpcClient) DeleteEncryptTask(request *model.DeleteEncryptTaskRequest) (
 	}
 }
 
-// 查询独立加密任务
+// DeleteEncryptTaskInvoker 取消独立加密任务
+func (c *MpcClient) DeleteEncryptTaskInvoker(request *model.DeleteEncryptTaskRequest) *DeleteEncryptTaskInvoker {
+	requestDef := GenReqDefForDeleteEncryptTask()
+	return &DeleteEncryptTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListEncryptTask 查询独立加密任务
 //
 // 查询独立加密任务状态。返回任务执行结果或当前状态。
 //
@@ -173,7 +221,13 @@ func (c *MpcClient) ListEncryptTask(request *model.ListEncryptTaskRequest) (*mod
 	}
 }
 
-// 新建视频解析任务
+// ListEncryptTaskInvoker 查询独立加密任务
+func (c *MpcClient) ListEncryptTaskInvoker(request *model.ListEncryptTaskRequest) *ListEncryptTaskInvoker {
+	requestDef := GenReqDefForListEncryptTask()
+	return &ListEncryptTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateExtractTask 新建视频解析任务
 //
 // 创建视频解析任务，解析视频元数据。
 //
@@ -189,7 +243,13 @@ func (c *MpcClient) CreateExtractTask(request *model.CreateExtractTaskRequest) (
 	}
 }
 
-// 取消视频解析任务
+// CreateExtractTaskInvoker 新建视频解析任务
+func (c *MpcClient) CreateExtractTaskInvoker(request *model.CreateExtractTaskRequest) *CreateExtractTaskInvoker {
+	requestDef := GenReqDefForCreateExtractTask()
+	return &CreateExtractTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteExtractTask 取消视频解析任务
 //
 // 取消已下发的视频解析任务，仅支持取消正在排队中的任务。
 //
@@ -205,7 +265,13 @@ func (c *MpcClient) DeleteExtractTask(request *model.DeleteExtractTaskRequest) (
 	}
 }
 
-// 查询视频解析任务
+// DeleteExtractTaskInvoker 取消视频解析任务
+func (c *MpcClient) DeleteExtractTaskInvoker(request *model.DeleteExtractTaskRequest) *DeleteExtractTaskInvoker {
+	requestDef := GenReqDefForDeleteExtractTask()
+	return &DeleteExtractTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListExtractTask 查询视频解析任务
 //
 // 查询解析任务的状态和结果。
 //
@@ -221,7 +287,13 @@ func (c *MpcClient) ListExtractTask(request *model.ListExtractTaskRequest) (*mod
 	}
 }
 
-// 合并多声道任务、重置声轨任务上报接口
+// ListExtractTaskInvoker 查询视频解析任务
+func (c *MpcClient) ListExtractTaskInvoker(request *model.ListExtractTaskRequest) *ListExtractTaskInvoker {
+	requestDef := GenReqDefForListExtractTask()
+	return &ListExtractTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateMbTasksReport 合并多声道任务、重置声轨任务上报接口
 //
 // ## 典型场景 ##
 //   合并音频多声道文件任务、重置音频文件声轨任务上报结果接口。
@@ -242,7 +314,13 @@ func (c *MpcClient) CreateMbTasksReport(request *model.CreateMbTasksReportReques
 	}
 }
 
-// 创建声道合并任务
+// CreateMbTasksReportInvoker 合并多声道任务、重置声轨任务上报接口
+func (c *MpcClient) CreateMbTasksReportInvoker(request *model.CreateMbTasksReportRequest) *CreateMbTasksReportInvoker {
+	requestDef := GenReqDefForCreateMbTasksReport()
+	return &CreateMbTasksReportInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateMergeChannelsTask 创建声道合并任务
 //
 // 创建声道合并任务，合并声道任务支持将每个声道各放一个文件中的片源，合并为单个音频文件。
 // 执行合并声道的源音频文件需要存储在与媒体处理服务同区域的OBS桶中，且该OBS桶已授权。
@@ -259,7 +337,13 @@ func (c *MpcClient) CreateMergeChannelsTask(request *model.CreateMergeChannelsTa
 	}
 }
 
-// 创建音轨重置任务
+// CreateMergeChannelsTaskInvoker 创建声道合并任务
+func (c *MpcClient) CreateMergeChannelsTaskInvoker(request *model.CreateMergeChannelsTaskRequest) *CreateMergeChannelsTaskInvoker {
+	requestDef := GenReqDefForCreateMergeChannelsTask()
+	return &CreateMergeChannelsTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateResetTracksTask 创建音轨重置任务
 //
 // 创建音轨重置任务，重置音轨任务支持按人工指定关系声道layout，语言标签，转封装片源，使其满足转码输入。
 // 执行音轨重置的源音频文件需要存储在与媒体处理服务同区域的OBS桶中，且该OBS桶已授权。
@@ -276,7 +360,13 @@ func (c *MpcClient) CreateResetTracksTask(request *model.CreateResetTracksTaskRe
 	}
 }
 
-// 取消声道合并任务
+// CreateResetTracksTaskInvoker 创建音轨重置任务
+func (c *MpcClient) CreateResetTracksTaskInvoker(request *model.CreateResetTracksTaskRequest) *CreateResetTracksTaskInvoker {
+	requestDef := GenReqDefForCreateResetTracksTask()
+	return &CreateResetTracksTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteMergeChannelsTask 取消声道合并任务
 //
 // 取消合并音频多声道文件。
 //
@@ -292,7 +382,13 @@ func (c *MpcClient) DeleteMergeChannelsTask(request *model.DeleteMergeChannelsTa
 	}
 }
 
-// 取消音轨重置任务
+// DeleteMergeChannelsTaskInvoker 取消声道合并任务
+func (c *MpcClient) DeleteMergeChannelsTaskInvoker(request *model.DeleteMergeChannelsTaskRequest) *DeleteMergeChannelsTaskInvoker {
+	requestDef := GenReqDefForDeleteMergeChannelsTask()
+	return &DeleteMergeChannelsTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteResetTracksTask 取消音轨重置任务
 //
 // 取消重置音频文件声轨任务。
 //
@@ -308,7 +404,13 @@ func (c *MpcClient) DeleteResetTracksTask(request *model.DeleteResetTracksTaskRe
 	}
 }
 
-// 查询声道合并任务
+// DeleteResetTracksTaskInvoker 取消音轨重置任务
+func (c *MpcClient) DeleteResetTracksTaskInvoker(request *model.DeleteResetTracksTaskRequest) *DeleteResetTracksTaskInvoker {
+	requestDef := GenReqDefForDeleteResetTracksTask()
+	return &DeleteResetTracksTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListMergeChannelsTask 查询声道合并任务
 //
 // 查询声道合并任务的状态。
 //
@@ -324,7 +426,13 @@ func (c *MpcClient) ListMergeChannelsTask(request *model.ListMergeChannelsTaskRe
 	}
 }
 
-// 查询音轨重置任务
+// ListMergeChannelsTaskInvoker 查询声道合并任务
+func (c *MpcClient) ListMergeChannelsTaskInvoker(request *model.ListMergeChannelsTaskRequest) *ListMergeChannelsTaskInvoker {
+	requestDef := GenReqDefForListMergeChannelsTask()
+	return &ListMergeChannelsTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListResetTracksTask 查询音轨重置任务
 //
 // 查询音轨重置任务的状态。
 //
@@ -340,7 +448,13 @@ func (c *MpcClient) ListResetTracksTask(request *model.ListResetTracksTaskReques
 	}
 }
 
-// 创建视频增强任务
+// ListResetTracksTaskInvoker 查询音轨重置任务
+func (c *MpcClient) ListResetTracksTaskInvoker(request *model.ListResetTracksTaskRequest) *ListResetTracksTaskInvoker {
+	requestDef := GenReqDefForListResetTracksTask()
+	return &ListResetTracksTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateMediaProcessTask 创建视频增强任务
 //
 // ## 典型场景 ##
 //   创建视频增强任务。
@@ -363,7 +477,13 @@ func (c *MpcClient) CreateMediaProcessTask(request *model.CreateMediaProcessTask
 	}
 }
 
-// 取消视频增强任务
+// CreateMediaProcessTaskInvoker 创建视频增强任务
+func (c *MpcClient) CreateMediaProcessTaskInvoker(request *model.CreateMediaProcessTaskRequest) *CreateMediaProcessTaskInvoker {
+	requestDef := GenReqDefForCreateMediaProcessTask()
+	return &CreateMediaProcessTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteMediaProcessTask 取消视频增强任务
 //
 // ## 典型场景 ##
 //   取消视频增强任务。
@@ -386,7 +506,13 @@ func (c *MpcClient) DeleteMediaProcessTask(request *model.DeleteMediaProcessTask
 	}
 }
 
-// 查询视频增强任务
+// DeleteMediaProcessTaskInvoker 取消视频增强任务
+func (c *MpcClient) DeleteMediaProcessTaskInvoker(request *model.DeleteMediaProcessTaskRequest) *DeleteMediaProcessTaskInvoker {
+	requestDef := GenReqDefForDeleteMediaProcessTask()
+	return &DeleteMediaProcessTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListMediaProcessTask 查询视频增强任务
 //
 // ## 典型场景 ##
 //   查询视频增强任务。
@@ -409,7 +535,13 @@ func (c *MpcClient) ListMediaProcessTask(request *model.ListMediaProcessTaskRequ
 	}
 }
 
-// mpe通知mpc
+// ListMediaProcessTaskInvoker 查询视频增强任务
+func (c *MpcClient) ListMediaProcessTaskInvoker(request *model.ListMediaProcessTaskRequest) *ListMediaProcessTaskInvoker {
+	requestDef := GenReqDefForListMediaProcessTask()
+	return &ListMediaProcessTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateMpeCallBack mpe通知mpc
 //
 // ## 典型场景 ##
 //   mpe通知mpc。
@@ -430,7 +562,13 @@ func (c *MpcClient) CreateMpeCallBack(request *model.CreateMpeCallBackRequest) (
 	}
 }
 
-// 创建视频增强模板
+// CreateMpeCallBackInvoker mpe通知mpc
+func (c *MpcClient) CreateMpeCallBackInvoker(request *model.CreateMpeCallBackRequest) *CreateMpeCallBackInvoker {
+	requestDef := GenReqDefForCreateMpeCallBack()
+	return &CreateMpeCallBackInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateQualityEnhanceTemplate 创建视频增强模板
 //
 // 创建视频增强模板
 //
@@ -446,7 +584,13 @@ func (c *MpcClient) CreateQualityEnhanceTemplate(request *model.CreateQualityEnh
 	}
 }
 
-// 删除用户视频增强模板
+// CreateQualityEnhanceTemplateInvoker 创建视频增强模板
+func (c *MpcClient) CreateQualityEnhanceTemplateInvoker(request *model.CreateQualityEnhanceTemplateRequest) *CreateQualityEnhanceTemplateInvoker {
+	requestDef := GenReqDefForCreateQualityEnhanceTemplate()
+	return &CreateQualityEnhanceTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteQualityEnhanceTemplate 删除用户视频增强模板
 //
 // 删除用户视频增强模板。
 //
@@ -462,7 +606,13 @@ func (c *MpcClient) DeleteQualityEnhanceTemplate(request *model.DeleteQualityEnh
 	}
 }
 
-// 查询视频增强预置模板
+// DeleteQualityEnhanceTemplateInvoker 删除用户视频增强模板
+func (c *MpcClient) DeleteQualityEnhanceTemplateInvoker(request *model.DeleteQualityEnhanceTemplateRequest) *DeleteQualityEnhanceTemplateInvoker {
+	requestDef := GenReqDefForDeleteQualityEnhanceTemplate()
+	return &DeleteQualityEnhanceTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListQualityEnhanceDefaultTemplate 查询视频增强预置模板
 //
 // 查询视频增强预置模板，返回所有结果。
 //
@@ -478,7 +628,13 @@ func (c *MpcClient) ListQualityEnhanceDefaultTemplate(request *model.ListQuality
 	}
 }
 
-// 更新视频增强模板
+// ListQualityEnhanceDefaultTemplateInvoker 查询视频增强预置模板
+func (c *MpcClient) ListQualityEnhanceDefaultTemplateInvoker(request *model.ListQualityEnhanceDefaultTemplateRequest) *ListQualityEnhanceDefaultTemplateInvoker {
+	requestDef := GenReqDefForListQualityEnhanceDefaultTemplate()
+	return &ListQualityEnhanceDefaultTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateQualityEnhanceTemplate 更新视频增强模板
 //
 // 更新视频增强模板。
 //
@@ -494,7 +650,13 @@ func (c *MpcClient) UpdateQualityEnhanceTemplate(request *model.UpdateQualityEnh
 	}
 }
 
-// 查询媒资转码详情
+// UpdateQualityEnhanceTemplateInvoker 更新视频增强模板
+func (c *MpcClient) UpdateQualityEnhanceTemplateInvoker(request *model.UpdateQualityEnhanceTemplateRequest) *UpdateQualityEnhanceTemplateInvoker {
+	requestDef := GenReqDefForUpdateQualityEnhanceTemplate()
+	return &UpdateQualityEnhanceTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListTranscodeDetail 查询媒资转码详情
 //
 // 查询媒资转码详情
 //
@@ -510,7 +672,13 @@ func (c *MpcClient) ListTranscodeDetail(request *model.ListTranscodeDetailReques
 	}
 }
 
-// 取消转封装任务
+// ListTranscodeDetailInvoker 查询媒资转码详情
+func (c *MpcClient) ListTranscodeDetailInvoker(request *model.ListTranscodeDetailRequest) *ListTranscodeDetailInvoker {
+	requestDef := GenReqDefForListTranscodeDetail()
+	return &ListTranscodeDetailInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CancelRemuxTask 取消转封装任务
 //
 // 取消已下发的转封装任务，仅支持取消正在排队中的任务。。
 //
@@ -526,7 +694,13 @@ func (c *MpcClient) CancelRemuxTask(request *model.CancelRemuxTaskRequest) (*mod
 	}
 }
 
-// 新建转封装任务
+// CancelRemuxTaskInvoker 取消转封装任务
+func (c *MpcClient) CancelRemuxTaskInvoker(request *model.CancelRemuxTaskRequest) *CancelRemuxTaskInvoker {
+	requestDef := GenReqDefForCancelRemuxTask()
+	return &CancelRemuxTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateRemuxTask 新建转封装任务
 //
 // 创建转封装任务，转换音视频文件的格式，但不改变其分辨率和码率。
 // 待转封装的媒资文件需要存储在与媒体处理服务同区域的OBS桶中，且该OBS桶已授权。
@@ -543,7 +717,13 @@ func (c *MpcClient) CreateRemuxTask(request *model.CreateRemuxTaskRequest) (*mod
 	}
 }
 
-// 重试转封装任务
+// CreateRemuxTaskInvoker 新建转封装任务
+func (c *MpcClient) CreateRemuxTaskInvoker(request *model.CreateRemuxTaskRequest) *CreateRemuxTaskInvoker {
+	requestDef := GenReqDefForCreateRemuxTask()
+	return &CreateRemuxTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateRetryRemuxTask 重试转封装任务
 //
 // 对失败的转封装任务进行重试。
 //
@@ -559,7 +739,13 @@ func (c *MpcClient) CreateRetryRemuxTask(request *model.CreateRetryRemuxTaskRequ
 	}
 }
 
-// 删除转封装任务(仅供Console调用)
+// CreateRetryRemuxTaskInvoker 重试转封装任务
+func (c *MpcClient) CreateRetryRemuxTaskInvoker(request *model.CreateRetryRemuxTaskRequest) *CreateRetryRemuxTaskInvoker {
+	requestDef := GenReqDefForCreateRetryRemuxTask()
+	return &CreateRetryRemuxTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteRemuxTask 删除转封装任务(仅供Console调用)
 //
 // 删除转封装任务
 //
@@ -575,7 +761,13 @@ func (c *MpcClient) DeleteRemuxTask(request *model.DeleteRemuxTaskRequest) (*mod
 	}
 }
 
-// 查询转封装任务
+// DeleteRemuxTaskInvoker 删除转封装任务(仅供Console调用)
+func (c *MpcClient) DeleteRemuxTaskInvoker(request *model.DeleteRemuxTaskRequest) *DeleteRemuxTaskInvoker {
+	requestDef := GenReqDefForDeleteRemuxTask()
+	return &DeleteRemuxTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListRemuxTask 查询转封装任务
 //
 // 查询转封装任务状态。
 //
@@ -591,7 +783,13 @@ func (c *MpcClient) ListRemuxTask(request *model.ListRemuxTaskRequest) (*model.L
 	}
 }
 
-// 新建转码模板组
+// ListRemuxTaskInvoker 查询转封装任务
+func (c *MpcClient) ListRemuxTaskInvoker(request *model.ListRemuxTaskRequest) *ListRemuxTaskInvoker {
+	requestDef := GenReqDefForListRemuxTask()
+	return &ListRemuxTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateTemplateGroup 新建转码模板组
 //
 // 新建转码模板组，最多支持一进六出。
 //
@@ -607,7 +805,13 @@ func (c *MpcClient) CreateTemplateGroup(request *model.CreateTemplateGroupReques
 	}
 }
 
-// 删除转码模板组
+// CreateTemplateGroupInvoker 新建转码模板组
+func (c *MpcClient) CreateTemplateGroupInvoker(request *model.CreateTemplateGroupRequest) *CreateTemplateGroupInvoker {
+	requestDef := GenReqDefForCreateTemplateGroup()
+	return &CreateTemplateGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteTemplateGroup 删除转码模板组
 //
 // 删除转码模板组。
 //
@@ -623,7 +827,13 @@ func (c *MpcClient) DeleteTemplateGroup(request *model.DeleteTemplateGroupReques
 	}
 }
 
-// 查询转码模板组
+// DeleteTemplateGroupInvoker 删除转码模板组
+func (c *MpcClient) DeleteTemplateGroupInvoker(request *model.DeleteTemplateGroupRequest) *DeleteTemplateGroupInvoker {
+	requestDef := GenReqDefForDeleteTemplateGroup()
+	return &DeleteTemplateGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListTemplateGroup 查询转码模板组
 //
 // 查询转码模板组列表。
 //
@@ -639,7 +849,13 @@ func (c *MpcClient) ListTemplateGroup(request *model.ListTemplateGroupRequest) (
 	}
 }
 
-// 更新转码模板组
+// ListTemplateGroupInvoker 查询转码模板组
+func (c *MpcClient) ListTemplateGroupInvoker(request *model.ListTemplateGroupRequest) *ListTemplateGroupInvoker {
+	requestDef := GenReqDefForListTemplateGroup()
+	return &ListTemplateGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateTemplateGroup 更新转码模板组
 //
 // 修改模板组接口。
 //
@@ -655,7 +871,13 @@ func (c *MpcClient) UpdateTemplateGroup(request *model.UpdateTemplateGroupReques
 	}
 }
 
-// 新建截图任务
+// UpdateTemplateGroupInvoker 更新转码模板组
+func (c *MpcClient) UpdateTemplateGroupInvoker(request *model.UpdateTemplateGroupRequest) *UpdateTemplateGroupInvoker {
+	requestDef := GenReqDefForUpdateTemplateGroup()
+	return &UpdateTemplateGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateThumbnailsTask 新建截图任务
 //
 // 新建截图任务，视频截图将从首帧开始，按设置的时间间隔截图，最后截取末帧。
 // 待截图的视频文件需要存储在与媒体处理服务同区域的OBS桶中，且该OBS桶已授权。
@@ -675,7 +897,13 @@ func (c *MpcClient) CreateThumbnailsTask(request *model.CreateThumbnailsTaskRequ
 	}
 }
 
-// 取消截图任务
+// CreateThumbnailsTaskInvoker 新建截图任务
+func (c *MpcClient) CreateThumbnailsTaskInvoker(request *model.CreateThumbnailsTaskRequest) *CreateThumbnailsTaskInvoker {
+	requestDef := GenReqDefForCreateThumbnailsTask()
+	return &CreateThumbnailsTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteThumbnailsTask 取消截图任务
 //
 // 取消已下发截图任务。
 // 只能取消已接受尚在队列中等待处理的任务，已完成或正在执行阶段的任务不能取消。
@@ -692,7 +920,13 @@ func (c *MpcClient) DeleteThumbnailsTask(request *model.DeleteThumbnailsTaskRequ
 	}
 }
 
-// 查询截图任务
+// DeleteThumbnailsTaskInvoker 取消截图任务
+func (c *MpcClient) DeleteThumbnailsTaskInvoker(request *model.DeleteThumbnailsTaskRequest) *DeleteThumbnailsTaskInvoker {
+	requestDef := GenReqDefForDeleteThumbnailsTask()
+	return &DeleteThumbnailsTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListThumbnailsTask 查询截图任务
 //
 // 查询截图任务状态。返回任务执行结果，包括状态、输入、输出等信息。
 //
@@ -708,7 +942,13 @@ func (c *MpcClient) ListThumbnailsTask(request *model.ListThumbnailsTaskRequest)
 	}
 }
 
-// 新建转码任务
+// ListThumbnailsTaskInvoker 查询截图任务
+func (c *MpcClient) ListThumbnailsTaskInvoker(request *model.ListThumbnailsTaskRequest) *ListThumbnailsTaskInvoker {
+	requestDef := GenReqDefForListThumbnailsTask()
+	return &ListThumbnailsTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateTranscodingTask 新建转码任务
 //
 // 新建转码任务可以将视频进行转码，并在转码过程中压制水印、视频截图等。视频转码前需要配置转码模板。
 // 待转码的音视频需要存储在与媒体处理服务同区域的OBS桶中，且该OBS桶已授权。
@@ -725,7 +965,13 @@ func (c *MpcClient) CreateTranscodingTask(request *model.CreateTranscodingTaskRe
 	}
 }
 
-// 取消转码任务
+// CreateTranscodingTaskInvoker 新建转码任务
+func (c *MpcClient) CreateTranscodingTaskInvoker(request *model.CreateTranscodingTaskRequest) *CreateTranscodingTaskInvoker {
+	requestDef := GenReqDefForCreateTranscodingTask()
+	return &CreateTranscodingTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteTranscodingTask 取消转码任务
 //
 // 取消已下发转码任务。
 // 只能取消正在转码任务队列中排队的转码任务。已开始转码或已完成的转码任务不能取消。
@@ -742,7 +988,13 @@ func (c *MpcClient) DeleteTranscodingTask(request *model.DeleteTranscodingTaskRe
 	}
 }
 
-// 查询转码任务
+// DeleteTranscodingTaskInvoker 取消转码任务
+func (c *MpcClient) DeleteTranscodingTaskInvoker(request *model.DeleteTranscodingTaskRequest) *DeleteTranscodingTaskInvoker {
+	requestDef := GenReqDefForDeleteTranscodingTask()
+	return &DeleteTranscodingTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListTranscodingTask 查询转码任务
 //
 // 查询转码任务状态。
 //
@@ -758,7 +1010,13 @@ func (c *MpcClient) ListTranscodingTask(request *model.ListTranscodingTaskReques
 	}
 }
 
-// 新建转码模板
+// ListTranscodingTaskInvoker 查询转码任务
+func (c *MpcClient) ListTranscodingTaskInvoker(request *model.ListTranscodingTaskRequest) *ListTranscodingTaskInvoker {
+	requestDef := GenReqDefForListTranscodingTask()
+	return &ListTranscodingTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateTransTemplate 新建转码模板
 //
 // 新建转码模板，采用自定义的模板转码。
 //
@@ -774,7 +1032,13 @@ func (c *MpcClient) CreateTransTemplate(request *model.CreateTransTemplateReques
 	}
 }
 
-// 删除转码模板
+// CreateTransTemplateInvoker 新建转码模板
+func (c *MpcClient) CreateTransTemplateInvoker(request *model.CreateTransTemplateRequest) *CreateTransTemplateInvoker {
+	requestDef := GenReqDefForCreateTransTemplate()
+	return &CreateTransTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteTemplate 删除转码模板
 //
 // 删除转码模板。
 //
@@ -790,7 +1054,13 @@ func (c *MpcClient) DeleteTemplate(request *model.DeleteTemplateRequest) (*model
 	}
 }
 
-// 查询转码模板
+// DeleteTemplateInvoker 删除转码模板
+func (c *MpcClient) DeleteTemplateInvoker(request *model.DeleteTemplateRequest) *DeleteTemplateInvoker {
+	requestDef := GenReqDefForDeleteTemplate()
+	return &DeleteTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListTemplate 查询转码模板
 //
 // 查询用户自定义转码配置模板。
 // 支持指定模板ID查询，或分页全量查询。转码配置模板ID，最多10个。
@@ -807,7 +1077,13 @@ func (c *MpcClient) ListTemplate(request *model.ListTemplateRequest) (*model.Lis
 	}
 }
 
-// 更新转码模板
+// ListTemplateInvoker 查询转码模板
+func (c *MpcClient) ListTemplateInvoker(request *model.ListTemplateRequest) *ListTemplateInvoker {
+	requestDef := GenReqDefForListTemplate()
+	return &ListTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateTransTemplate 更新转码模板
 //
 // 更新转码模板。
 //
@@ -823,7 +1099,13 @@ func (c *MpcClient) UpdateTransTemplate(request *model.UpdateTransTemplateReques
 	}
 }
 
-// 新建水印模板
+// UpdateTransTemplateInvoker 更新转码模板
+func (c *MpcClient) UpdateTransTemplateInvoker(request *model.UpdateTransTemplateRequest) *UpdateTransTemplateInvoker {
+	requestDef := GenReqDefForUpdateTransTemplate()
+	return &UpdateTransTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateWatermarkTemplate 新建水印模板
 //
 // 自定义水印模板。
 //
@@ -839,7 +1121,13 @@ func (c *MpcClient) CreateWatermarkTemplate(request *model.CreateWatermarkTempla
 	}
 }
 
-// 删除水印模板
+// CreateWatermarkTemplateInvoker 新建水印模板
+func (c *MpcClient) CreateWatermarkTemplateInvoker(request *model.CreateWatermarkTemplateRequest) *CreateWatermarkTemplateInvoker {
+	requestDef := GenReqDefForCreateWatermarkTemplate()
+	return &CreateWatermarkTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteWatermarkTemplate 删除水印模板
 //
 // 删除自定义水印模板。
 //
@@ -855,7 +1143,13 @@ func (c *MpcClient) DeleteWatermarkTemplate(request *model.DeleteWatermarkTempla
 	}
 }
 
-// 查询水印模板
+// DeleteWatermarkTemplateInvoker 删除水印模板
+func (c *MpcClient) DeleteWatermarkTemplateInvoker(request *model.DeleteWatermarkTemplateRequest) *DeleteWatermarkTemplateInvoker {
+	requestDef := GenReqDefForDeleteWatermarkTemplate()
+	return &DeleteWatermarkTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListWatermarkTemplate 查询水印模板
 //
 // 查询自定义水印模板。支持指定模板ID查询，或分页全量查询。
 //
@@ -871,7 +1165,13 @@ func (c *MpcClient) ListWatermarkTemplate(request *model.ListWatermarkTemplateRe
 	}
 }
 
-// 更新水印模板
+// ListWatermarkTemplateInvoker 查询水印模板
+func (c *MpcClient) ListWatermarkTemplateInvoker(request *model.ListWatermarkTemplateRequest) *ListWatermarkTemplateInvoker {
+	requestDef := GenReqDefForListWatermarkTemplate()
+	return &ListWatermarkTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateWatermarkTemplate 更新水印模板
 //
 // 更新自定义水印模板。
 //
@@ -885,4 +1185,10 @@ func (c *MpcClient) UpdateWatermarkTemplate(request *model.UpdateWatermarkTempla
 	} else {
 		return resp.(*model.UpdateWatermarkTemplateResponse), nil
 	}
+}
+
+// UpdateWatermarkTemplateInvoker 更新水印模板
+func (c *MpcClient) UpdateWatermarkTemplateInvoker(request *model.UpdateWatermarkTemplateRequest) *UpdateWatermarkTemplateInvoker {
+	requestDef := GenReqDefForUpdateWatermarkTemplate()
+	return &UpdateWatermarkTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }

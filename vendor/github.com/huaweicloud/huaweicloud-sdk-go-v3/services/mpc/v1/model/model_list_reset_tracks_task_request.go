@@ -72,6 +72,10 @@ func GetListResetTracksTaskRequestStatusEnum() ListResetTracksTaskRequestStatusE
 	}
 }
 
+func (c ListResetTracksTaskRequestStatus) Value() string {
+	return c.value
+}
+
 func (c ListResetTracksTaskRequestStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

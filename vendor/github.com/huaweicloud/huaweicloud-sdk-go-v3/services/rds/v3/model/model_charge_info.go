@@ -57,6 +57,10 @@ func GetChargeInfoChargeModeEnum() ChargeInfoChargeModeEnum {
 	}
 }
 
+func (c ChargeInfoChargeMode) Value() string {
+	return c.value
+}
+
 func (c ChargeInfoChargeMode) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -93,6 +97,10 @@ func GetChargeInfoPeriodTypeEnum() ChargeInfoPeriodTypeEnum {
 			value: "year",
 		},
 	}
+}
+
+func (c ChargeInfoPeriodType) Value() string {
+	return c.value
 }
 
 func (c ChargeInfoPeriodType) MarshalJSON() ([]byte, error) {

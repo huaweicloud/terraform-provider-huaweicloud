@@ -107,6 +107,10 @@ func GetTracesTraceRatingEnum() TracesTraceRatingEnum {
 	}
 }
 
+func (c TracesTraceRating) Value() string {
+	return c.value
+}
+
 func (c TracesTraceRating) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

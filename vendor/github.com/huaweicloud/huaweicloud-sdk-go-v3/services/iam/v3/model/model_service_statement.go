@@ -54,6 +54,10 @@ func GetServiceStatementEffectEnum() ServiceStatementEffectEnum {
 	}
 }
 
+func (c ServiceStatementEffect) Value() string {
+	return c.value
+}
+
 func (c ServiceStatementEffect) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

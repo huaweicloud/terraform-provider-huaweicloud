@@ -54,6 +54,10 @@ func GetDatastoreTypeEnum() DatastoreTypeEnum {
 	}
 }
 
+func (c DatastoreType) Value() string {
+	return c.value
+}
+
 func (c DatastoreType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

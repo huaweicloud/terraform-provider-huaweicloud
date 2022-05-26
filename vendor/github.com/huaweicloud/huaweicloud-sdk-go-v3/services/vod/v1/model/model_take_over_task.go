@@ -81,6 +81,10 @@ func GetTakeOverTaskStatusEnum() TakeOverTaskStatusEnum {
 	}
 }
 
+func (c TakeOverTaskStatus) Value() string {
+	return c.value
+}
+
 func (c TakeOverTaskStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

@@ -60,6 +60,10 @@ func GetRestoreExistingInstanceRequestBodySourceTypeEnum() RestoreExistingInstan
 	}
 }
 
+func (c RestoreExistingInstanceRequestBodySourceType) Value() string {
+	return c.value
+}
+
 func (c RestoreExistingInstanceRequestBodySourceType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

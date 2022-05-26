@@ -99,6 +99,10 @@ func GetAssetSummaryAssetStatusEnum() AssetSummaryAssetStatusEnum {
 	}
 }
 
+func (c AssetSummaryAssetStatus) Value() string {
+	return c.value
+}
+
 func (c AssetSummaryAssetStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -149,6 +153,10 @@ func GetAssetSummaryTranscodeStatusEnum() AssetSummaryTranscodeStatusEnum {
 	}
 }
 
+func (c AssetSummaryTranscodeStatus) Value() string {
+	return c.value
+}
+
 func (c AssetSummaryTranscodeStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -193,6 +201,10 @@ func GetAssetSummaryThumbnailStatusEnum() AssetSummaryThumbnailStatusEnum {
 			value: "THUMBNAIL_FAILED",
 		},
 	}
+}
+
+func (c AssetSummaryThumbnailStatus) Value() string {
+	return c.value
 }
 
 func (c AssetSummaryThumbnailStatus) MarshalJSON() ([]byte, error) {
@@ -247,6 +259,10 @@ func GetAssetSummaryReviewStatusEnum() AssetSummaryReviewStatusEnum {
 			value: "REVIEW_BLOCKED",
 		},
 	}
+}
+
+func (c AssetSummaryReviewStatus) Value() string {
+	return c.value
 }
 
 func (c AssetSummaryReviewStatus) MarshalJSON() ([]byte, error) {

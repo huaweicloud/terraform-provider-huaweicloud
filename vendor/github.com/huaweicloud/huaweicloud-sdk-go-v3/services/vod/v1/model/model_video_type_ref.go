@@ -183,6 +183,10 @@ func GetVideoTypeRefVideoTypeEnum() VideoTypeRefVideoTypeEnum {
 	}
 }
 
+func (c VideoTypeRefVideoType) Value() string {
+	return c.value
+}
+
 func (c VideoTypeRefVideoType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

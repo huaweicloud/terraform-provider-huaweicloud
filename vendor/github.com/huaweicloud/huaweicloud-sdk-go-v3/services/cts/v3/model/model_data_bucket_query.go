@@ -51,6 +51,10 @@ func GetDataBucketQueryDataEventEnum() DataBucketQueryDataEventEnum {
 	}
 }
 
+func (c DataBucketQueryDataEvent) Value() string {
+	return c.value
+}
+
 func (c DataBucketQueryDataEvent) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

@@ -50,6 +50,10 @@ func GetSwitchSslRequestXLanguageEnum() SwitchSslRequestXLanguageEnum {
 	}
 }
 
+func (c SwitchSslRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c SwitchSslRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

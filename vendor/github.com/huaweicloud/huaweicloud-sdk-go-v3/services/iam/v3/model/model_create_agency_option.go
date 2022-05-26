@@ -60,6 +60,10 @@ func GetCreateAgencyOptionDurationEnum() CreateAgencyOptionDurationEnum {
 	}
 }
 
+func (c CreateAgencyOptionDuration) Value() string {
+	return c.value
+}
+
 func (c CreateAgencyOptionDuration) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

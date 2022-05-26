@@ -62,6 +62,10 @@ func GetOpenIdConnectConfigResponseTypeEnum() OpenIdConnectConfigResponseTypeEnu
 	}
 }
 
+func (c OpenIdConnectConfigResponseType) Value() string {
+	return c.value
+}
+
 func (c OpenIdConnectConfigResponseType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -98,6 +102,10 @@ func GetOpenIdConnectConfigResponseModeEnum() OpenIdConnectConfigResponseModeEnu
 			value: "form_post",
 		},
 	}
+}
+
+func (c OpenIdConnectConfigResponseMode) Value() string {
+	return c.value
 }
 
 func (c OpenIdConnectConfigResponseMode) MarshalJSON() ([]byte, error) {

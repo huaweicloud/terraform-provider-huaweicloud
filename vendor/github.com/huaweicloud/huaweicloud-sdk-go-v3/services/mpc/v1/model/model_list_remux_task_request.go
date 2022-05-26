@@ -82,6 +82,10 @@ func GetListRemuxTaskRequestStatusEnum() ListRemuxTaskRequestStatusEnum {
 	}
 }
 
+func (c ListRemuxTaskRequestStatus) Value() string {
+	return c.value
+}
+
 func (c ListRemuxTaskRequestStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

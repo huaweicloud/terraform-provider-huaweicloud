@@ -50,6 +50,10 @@ func GetUpgradeDbVersionRequestXLanguageEnum() UpgradeDbVersionRequestXLanguageE
 	}
 }
 
+func (c UpgradeDbVersionRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c UpgradeDbVersionRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

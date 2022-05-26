@@ -63,6 +63,10 @@ func GetCreateTrackerRequestBodyTrackerTypeEnum() CreateTrackerRequestBodyTracke
 	}
 }
 
+func (c CreateTrackerRequestBodyTrackerType) Value() string {
+	return c.value
+}
+
 func (c CreateTrackerRequestBodyTrackerType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

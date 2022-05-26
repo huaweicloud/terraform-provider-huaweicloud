@@ -60,6 +60,10 @@ func GetVideoProcessAdaptationEnum() VideoProcessAdaptationEnum {
 	}
 }
 
+func (c VideoProcessAdaptation) Value() string {
+	return c.value
+}
+
 func (c VideoProcessAdaptation) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

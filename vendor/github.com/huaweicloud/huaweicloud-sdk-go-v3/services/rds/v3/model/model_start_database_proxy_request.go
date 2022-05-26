@@ -50,6 +50,10 @@ func GetStartDatabaseProxyRequestXLanguageEnum() StartDatabaseProxyRequestXLangu
 	}
 }
 
+func (c StartDatabaseProxyRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c StartDatabaseProxyRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

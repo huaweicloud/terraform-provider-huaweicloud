@@ -45,6 +45,10 @@ func GetChargeInfoResponseChargeModeEnum() ChargeInfoResponseChargeModeEnum {
 	}
 }
 
+func (c ChargeInfoResponseChargeMode) Value() string {
+	return c.value
+}
+
 func (c ChargeInfoResponseChargeMode) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

@@ -58,6 +58,10 @@ func GetTextReviewRetSuggestionEnum() TextReviewRetSuggestionEnum {
 	}
 }
 
+func (c TextReviewRetSuggestion) Value() string {
+	return c.value
+}
+
 func (c TextReviewRetSuggestion) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

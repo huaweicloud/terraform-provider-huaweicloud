@@ -48,6 +48,10 @@ func GetEncryptionTypeEnum() EncryptionTypeEnum {
 	}
 }
 
+func (c EncryptionType) Value() string {
+	return c.value
+}
+
 func (c EncryptionType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

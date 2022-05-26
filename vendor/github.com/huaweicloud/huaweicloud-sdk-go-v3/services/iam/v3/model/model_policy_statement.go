@@ -54,6 +54,10 @@ func GetPolicyStatementEffectEnum() PolicyStatementEffectEnum {
 	}
 }
 
+func (c PolicyStatementEffect) Value() string {
+	return c.value
+}
+
 func (c PolicyStatementEffect) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

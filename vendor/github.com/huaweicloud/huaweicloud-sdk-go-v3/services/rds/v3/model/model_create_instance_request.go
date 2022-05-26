@@ -47,6 +47,10 @@ func GetCreateInstanceRequestXLanguageEnum() CreateInstanceRequestXLanguageEnum 
 	}
 }
 
+func (c CreateInstanceRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c CreateInstanceRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

@@ -59,6 +59,10 @@ func GetCreateKeypairActionTypeEnum() CreateKeypairActionTypeEnum {
 	}
 }
 
+func (c CreateKeypairActionType) Value() string {
+	return c.value
+}
+
 func (c CreateKeypairActionType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -95,6 +99,10 @@ func GetCreateKeypairActionScopeEnum() CreateKeypairActionScopeEnum {
 			value: "user",
 		},
 	}
+}
+
+func (c CreateKeypairActionScope) Value() string {
+	return c.value
 }
 
 func (c CreateKeypairActionScope) MarshalJSON() ([]byte, error) {

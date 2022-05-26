@@ -44,6 +44,10 @@ func GetReqCreatePredefineTagActionEnum() ReqCreatePredefineTagActionEnum {
 	}
 }
 
+func (c ReqCreatePredefineTagAction) Value() string {
+	return c.value
+}
+
 func (c ReqCreatePredefineTagAction) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

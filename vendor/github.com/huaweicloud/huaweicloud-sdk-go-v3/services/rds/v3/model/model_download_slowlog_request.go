@@ -50,6 +50,10 @@ func GetDownloadSlowlogRequestXLanguageEnum() DownloadSlowlogRequestXLanguageEnu
 	}
 }
 
+func (c DownloadSlowlogRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c DownloadSlowlogRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

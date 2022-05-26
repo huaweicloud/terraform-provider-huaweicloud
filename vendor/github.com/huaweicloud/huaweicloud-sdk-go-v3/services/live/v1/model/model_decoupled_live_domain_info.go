@@ -70,6 +70,10 @@ func GetDecoupledLiveDomainInfoDomainTypeEnum() DecoupledLiveDomainInfoDomainTyp
 	}
 }
 
+func (c DecoupledLiveDomainInfoDomainType) Value() string {
+	return c.value
+}
+
 func (c DecoupledLiveDomainInfoDomainType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -136,6 +140,10 @@ func GetDecoupledLiveDomainInfoVendorEnum() DecoupledLiveDomainInfoVendorEnum {
 	}
 }
 
+func (c DecoupledLiveDomainInfoVendor) Value() string {
+	return c.value
+}
+
 func (c DecoupledLiveDomainInfoVendor) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -178,6 +186,10 @@ func GetDecoupledLiveDomainInfoStatusEnum() DecoupledLiveDomainInfoStatusEnum {
 	}
 }
 
+func (c DecoupledLiveDomainInfoStatus) Value() string {
+	return c.value
+}
+
 func (c DecoupledLiveDomainInfoStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -218,6 +230,10 @@ func GetDecoupledLiveDomainInfoServiceAreaEnum() DecoupledLiveDomainInfoServiceA
 			value: "global",
 		},
 	}
+}
+
+func (c DecoupledLiveDomainInfoServiceArea) Value() string {
+	return c.value
 }
 
 func (c DecoupledLiveDomainInfoServiceArea) MarshalJSON() ([]byte, error) {

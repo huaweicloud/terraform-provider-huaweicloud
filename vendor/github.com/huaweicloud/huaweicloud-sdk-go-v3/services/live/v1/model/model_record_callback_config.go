@@ -73,6 +73,10 @@ func GetRecordCallbackConfigNotifyEventSubscriptionEnum() RecordCallbackConfigNo
 	}
 }
 
+func (c RecordCallbackConfigNotifyEventSubscription) Value() string {
+	return c.value
+}
+
 func (c RecordCallbackConfigNotifyEventSubscription) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -109,6 +113,10 @@ func GetRecordCallbackConfigSignTypeEnum() RecordCallbackConfigSignTypeEnum {
 			value: "HMACSHA256",
 		},
 	}
+}
+
+func (c RecordCallbackConfigSignType) Value() string {
+	return c.value
 }
 
 func (c RecordCallbackConfigSignType) MarshalJSON() ([]byte, error) {

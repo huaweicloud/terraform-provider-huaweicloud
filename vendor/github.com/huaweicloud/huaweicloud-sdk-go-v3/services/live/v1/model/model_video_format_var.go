@@ -33,6 +33,10 @@ func GetVideoFormatVarEnum() VideoFormatVarEnum {
 	}
 }
 
+func (c VideoFormatVar) Value() string {
+	return c.value
+}
+
 func (c VideoFormatVar) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

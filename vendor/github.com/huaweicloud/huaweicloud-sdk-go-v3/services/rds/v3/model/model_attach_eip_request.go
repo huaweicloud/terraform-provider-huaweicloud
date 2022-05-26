@@ -50,6 +50,10 @@ func GetAttachEipRequestXLanguageEnum() AttachEipRequestXLanguageEnum {
 	}
 }
 
+func (c AttachEipRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c AttachEipRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

@@ -77,6 +77,10 @@ func GetOnlineInfoVideoCodecEnum() OnlineInfoVideoCodecEnum {
 	}
 }
 
+func (c OnlineInfoVideoCodec) Value() string {
+	return c.value
+}
+
 func (c OnlineInfoVideoCodec) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -109,6 +113,10 @@ func GetOnlineInfoAudioCodecEnum() OnlineInfoAudioCodecEnum {
 			value: "AAC",
 		},
 	}
+}
+
+func (c OnlineInfoAudioCodec) Value() string {
+	return c.value
 }
 
 func (c OnlineInfoAudioCodec) MarshalJSON() ([]byte, error) {

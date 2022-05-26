@@ -52,6 +52,10 @@ func GetSubtitleTypeEnum() SubtitleTypeEnum {
 	}
 }
 
+func (c SubtitleType) Value() string {
+	return c.value
+}
+
 func (c SubtitleType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -88,6 +92,10 @@ func GetSubtitleLanguageEnum() SubtitleLanguageEnum {
 			value: "EN",
 		},
 	}
+}
+
+func (c SubtitleLanguage) Value() string {
+	return c.value
 }
 
 func (c SubtitleLanguage) MarshalJSON() ([]byte, error) {

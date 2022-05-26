@@ -75,6 +75,10 @@ func GetGetTaskDetailListRspJobsStatusEnum() GetTaskDetailListRspJobsStatusEnum 
 	}
 }
 
+func (c GetTaskDetailListRspJobsStatus) Value() string {
+	return c.value
+}
+
 func (c GetTaskDetailListRspJobsStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

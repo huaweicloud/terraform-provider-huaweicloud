@@ -54,6 +54,10 @@ func GetValueDataTypeEnum() ValueDataTypeEnum {
 	}
 }
 
+func (c ValueDataType) Value() string {
+	return c.value
+}
+
 func (c ValueDataType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

@@ -58,6 +58,10 @@ func GetListStorageTypesRequestDatabaseNameEnum() ListStorageTypesRequestDatabas
 	}
 }
 
+func (c ListStorageTypesRequestDatabaseName) Value() string {
+	return c.value
+}
+
 func (c ListStorageTypesRequestDatabaseName) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -98,6 +102,10 @@ func GetListStorageTypesRequestHaModeEnum() ListStorageTypesRequestHaModeEnum {
 			value: "replica",
 		},
 	}
+}
+
+func (c ListStorageTypesRequestHaMode) Value() string {
+	return c.value
 }
 
 func (c ListStorageTypesRequestHaMode) MarshalJSON() ([]byte, error) {

@@ -51,6 +51,10 @@ func GetBackupDatastoreTypeEnum() BackupDatastoreTypeEnum {
 	}
 }
 
+func (c BackupDatastoreType) Value() string {
+	return c.value
+}
+
 func (c BackupDatastoreType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

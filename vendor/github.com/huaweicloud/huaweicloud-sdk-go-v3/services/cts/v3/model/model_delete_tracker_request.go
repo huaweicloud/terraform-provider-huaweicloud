@@ -44,6 +44,10 @@ func GetDeleteTrackerRequestTrackerTypeEnum() DeleteTrackerRequestTrackerTypeEnu
 	}
 }
 
+func (c DeleteTrackerRequestTrackerType) Value() string {
+	return c.value
+}
+
 func (c DeleteTrackerRequestTrackerType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

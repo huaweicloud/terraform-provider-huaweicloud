@@ -51,6 +51,10 @@ func GetParaGroupDatastoreTypeEnum() ParaGroupDatastoreTypeEnum {
 	}
 }
 
+func (c ParaGroupDatastoreType) Value() string {
+	return c.value
+}
+
 func (c ParaGroupDatastoreType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

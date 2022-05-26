@@ -48,6 +48,10 @@ func GetStartFailoverRequestXLanguageEnum() StartFailoverRequestXLanguageEnum {
 	}
 }
 
+func (c StartFailoverRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c StartFailoverRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

@@ -46,6 +46,10 @@ func GetPushEventsRequestActionEnum() PushEventsRequestActionEnum {
 	}
 }
 
+func (c PushEventsRequestAction) Value() string {
+	return c.value
+}
+
 func (c PushEventsRequestAction) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

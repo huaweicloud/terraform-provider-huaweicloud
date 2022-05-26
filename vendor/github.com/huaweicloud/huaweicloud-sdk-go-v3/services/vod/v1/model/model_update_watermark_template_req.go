@@ -83,6 +83,10 @@ func GetUpdateWatermarkTemplateReqPositionEnum() UpdateWatermarkTemplateReqPosit
 	}
 }
 
+func (c UpdateWatermarkTemplateReqPosition) Value() string {
+	return c.value
+}
+
 func (c UpdateWatermarkTemplateReqPosition) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -119,6 +123,10 @@ func GetUpdateWatermarkTemplateReqWatermarkTypeEnum() UpdateWatermarkTemplateReq
 			value: "TEXT",
 		},
 	}
+}
+
+func (c UpdateWatermarkTemplateReqWatermarkType) Value() string {
+	return c.value
 }
 
 func (c UpdateWatermarkTemplateReqWatermarkType) MarshalJSON() ([]byte, error) {
@@ -161,6 +169,10 @@ func GetUpdateWatermarkTemplateReqImageProcessEnum() UpdateWatermarkTemplateReqI
 			value: "GRAYED",
 		},
 	}
+}
+
+func (c UpdateWatermarkTemplateReqImageProcess) Value() string {
+	return c.value
 }
 
 func (c UpdateWatermarkTemplateReqImageProcess) MarshalJSON() ([]byte, error) {

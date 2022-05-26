@@ -48,6 +48,10 @@ func GetStartupInstanceRequestXLanguageEnum() StartupInstanceRequestXLanguageEnu
 	}
 }
 
+func (c StartupInstanceRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c StartupInstanceRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

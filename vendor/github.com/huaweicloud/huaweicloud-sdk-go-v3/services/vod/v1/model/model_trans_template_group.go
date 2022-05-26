@@ -64,6 +64,10 @@ func GetTransTemplateGroupStatusEnum() TransTemplateGroupStatusEnum {
 	}
 }
 
+func (c TransTemplateGroupStatus) Value() string {
+	return c.value
+}
+
 func (c TransTemplateGroupStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -96,6 +100,10 @@ func GetTransTemplateGroupTypeEnum() TransTemplateGroupTypeEnum {
 			value: "custom_template_group",
 		},
 	}
+}
+
+func (c TransTemplateGroupType) Value() string {
+	return c.value
 }
 
 func (c TransTemplateGroupType) MarshalJSON() ([]byte, error) {

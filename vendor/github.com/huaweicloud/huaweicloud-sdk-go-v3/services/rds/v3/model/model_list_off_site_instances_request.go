@@ -52,6 +52,10 @@ func GetListOffSiteInstancesRequestXLanguageEnum() ListOffSiteInstancesRequestXL
 	}
 }
 
+func (c ListOffSiteInstancesRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c ListOffSiteInstancesRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

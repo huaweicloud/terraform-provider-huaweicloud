@@ -48,6 +48,10 @@ func GetStopDatabaseProxyRequestXLanguageEnum() StopDatabaseProxyRequestXLanguag
 	}
 }
 
+func (c StopDatabaseProxyRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c StopDatabaseProxyRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

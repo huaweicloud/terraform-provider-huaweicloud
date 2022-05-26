@@ -79,6 +79,10 @@ func GetRecordContentInfoV2RecordFormatEnum() RecordContentInfoV2RecordFormatEnu
 	}
 }
 
+func (c RecordContentInfoV2RecordFormat) Value() string {
+	return c.value
+}
+
 func (c RecordContentInfoV2RecordFormat) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -123,6 +127,10 @@ func GetRecordContentInfoV2RecordTypeEnum() RecordContentInfoV2RecordTypeEnum {
 			value: "ON_DEMAND_RECORD",
 		},
 	}
+}
+
+func (c RecordContentInfoV2RecordType) Value() string {
+	return c.value
 }
 
 func (c RecordContentInfoV2RecordType) MarshalJSON() ([]byte, error) {

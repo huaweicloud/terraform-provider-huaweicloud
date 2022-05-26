@@ -48,6 +48,10 @@ func GetAuthTypeEnum() AuthTypeEnum {
 	}
 }
 
+func (c AuthType) Value() string {
+	return c.value
+}
+
 func (c AuthType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
