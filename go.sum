@@ -77,6 +77,8 @@ github.com/chnsz/golangsdk v0.0.0-20220518060535-eb80e58ab616 h1:PAK8XU0r8O898fS
 github.com/chnsz/golangsdk v0.0.0-20220518060535-eb80e58ab616/go.mod h1:j6UR2TfACtmWBEvYrQqTpk5wy3b2QsEdiLkjMoM47j8=
 github.com/chnsz/golangsdk v0.0.0-20220520084815-ea06a7b5ab32 h1:HuJIvzVnVPBKhzkFYlPy0f+KNUsQ7mSNk0mNGWenaYI=
 github.com/chnsz/golangsdk v0.0.0-20220520084815-ea06a7b5ab32/go.mod h1:j6UR2TfACtmWBEvYrQqTpk5wy3b2QsEdiLkjMoM47j8=
+github.com/chnsz/golangsdk v0.0.0-20220525074017-4bf2680686cb h1:DuFMtNfBDwuh/7w0xNMwwClguvckNBdBqTn1VovhrQ4=
+github.com/chnsz/golangsdk v0.0.0-20220525074017-4bf2680686cb/go.mod h1:j6UR2TfACtmWBEvYrQqTpk5wy3b2QsEdiLkjMoM47j8=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
 github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5PlCu98SY8svDHJxuZscDgtXS6KTTbou5AhLI=
 github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1/go.mod h1:Q3SI9o4m/ZMnBNeIyt5eFwwo7qiLfzFZmjNmxjkiQlU=
