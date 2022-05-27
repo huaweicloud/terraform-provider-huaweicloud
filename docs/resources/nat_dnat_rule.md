@@ -4,7 +4,7 @@ subcategory: "NAT Gateway (NAT)"
 
 # huaweicloud_nat_dnat_rule
 
-Manages a DNAT rule resource within HuaweiCloud Nat. This is an alternative to `huaweicloud_nat_dnat_rule_v2`
+Manages a DNAT rule resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -92,6 +92,10 @@ The following arguments are supported:
 
 * `private_ip` - (Optional, String, ForceNew) Specifies the private IP address of a user. This parameter is mandatory in
   Direct Connect scenario. Changing this creates a new dnat rule.
+
+* `description` - (Optional, String, ForceNew) Specifies the description of the dnat rule.
+  The value is a string of no more than 255 characters, and angle brackets (<>) are not allowed.
+  Changing this creates a new dnat rule.
 
 ## Attributes Reference
 
