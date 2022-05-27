@@ -387,7 +387,7 @@ github.com/hashicorp/terraform-registry-address
 github.com/hashicorp/terraform-svchost
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 github.com/hashicorp/yamux
-# github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.0.86
+# github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.0.88
 ## explicit
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth
@@ -418,8 +418,13 @@ github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3/model
+<<<<<<< HEAD
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1/model
+=======
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1/model
+>>>>>>> feat(mpc): add mpc transcoding template and tempate group resource
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1

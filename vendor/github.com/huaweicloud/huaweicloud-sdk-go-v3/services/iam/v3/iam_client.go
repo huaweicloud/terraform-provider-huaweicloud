@@ -1794,6 +1794,23 @@ func (c *IamClient) ShowDomainQuota(request *model.ShowDomainQuotaRequest) (*mod
 	}
 }
 
+// 查询指定账号中的授权记录
+//
+// 该接口用于查询指定账号中的授权记录。
+// 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *IamClient) ShowDomainRoleAssignments(request *model.ShowDomainRoleAssignmentsRequest) (*model.ShowDomainRoleAssignmentsResponse, error) {
+	requestDef := GenReqDefForShowDomainRoleAssignments()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowDomainRoleAssignmentsResponse), nil
+	}
+}
+
 // 查询Metadata文件
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询身份提供商导入到IAM中的Metadata文件。
