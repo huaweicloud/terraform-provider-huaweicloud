@@ -26,7 +26,21 @@ func TestAccNatSnatRule_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNatV2GatewayExists("huaweicloud_nat_gateway.nat_1"),
 					testAccCheckNatV2SnatRuleExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "description", "created by terraform acc test"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttrPair(resourceName, "nat_gateway_id",
+						"huaweicloud_nat_gateway.nat_1", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "floating_ip_address",
+						"huaweicloud_vpc_eip.eips.0", "address"),
+				),
+			},
+			{
+				Config: testAccNatV2SnatRule_update(randSuffix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "description", "updated by terraform acc test"),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttrPair(resourceName, "nat_gateway_id",
+						"huaweicloud_nat_gateway.nat_1", "id"),
 				),
 			},
 			{
@@ -89,11 +103,13 @@ func testAccCheckNatV2SnatRuleExists(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccNatV2SnatRule_basic(suffix string) string {
+func testAccNatV2SnatRule_base(suffix string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_vpc_eip" "eip_1" {
+resource "huaweicloud_vpc_eip" "eips" {
+  count = 2
+
   publicip {
     type = "5_bgp"
   }
@@ -107,16 +123,36 @@ resource "huaweicloud_vpc_eip" "eip_1" {
 
 resource "huaweicloud_nat_gateway" "nat_1" {
   name        = "nat-gateway-basic-%s"
-  description = "test for terraform"
+  description = "created by terraform acc test"
   spec        = "1"
   vpc_id      = huaweicloud_vpc.vpc_1.id
   subnet_id   = huaweicloud_vpc_subnet.subnet_1.id
 }
+`, testAccNatPreCondition(suffix), suffix)
+}
+
+func testAccNatV2SnatRule_basic(suffix string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_nat_snat_rule" "snat_1" {
   nat_gateway_id = huaweicloud_nat_gateway.nat_1.id
   subnet_id      = huaweicloud_vpc_subnet.subnet_1.id
-  floating_ip_id = huaweicloud_vpc_eip.eip_1.id
+  floating_ip_id = huaweicloud_vpc_eip.eips.0.id
+  description    = "created by terraform acc test"
 }
-	`, testAccNatPreCondition(suffix), suffix)
+`, testAccNatV2SnatRule_base(suffix))
+}
+
+func testAccNatV2SnatRule_update(suffix string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_nat_snat_rule" "snat_1" {
+  nat_gateway_id = huaweicloud_nat_gateway.nat_1.id
+  subnet_id      = huaweicloud_vpc_subnet.subnet_1.id
+  floating_ip_id = join(",", huaweicloud_vpc_eip.eips.*.id)
+  description    = "updated by terraform acc test"
+}
+`, testAccNatV2SnatRule_base(suffix))
 }

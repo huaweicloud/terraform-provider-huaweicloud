@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -8,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/hw_snatrules"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -19,6 +21,7 @@ func ResourceNatSnatRuleV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNatSnatRuleV2Create,
 		Read:   resourceNatSnatRuleV2Read,
+		Update: resourceNatSnatRuleV2Update,
 		Delete: resourceNatSnatRuleV2Delete,
 
 		Importer: &schema.ResourceImporter{
@@ -27,6 +30,7 @@ func ResourceNatSnatRuleV2() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
@@ -45,7 +49,6 @@ func ResourceNatSnatRuleV2() *schema.Resource {
 			"floating_ip_id": {
 				Type:             schema.TypeString,
 				Required:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: utils.SuppressSnatFiplistDiffs,
 			},
 			"source_type": {
@@ -66,6 +69,10 @@ func ResourceNatSnatRuleV2() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				ExactlyOneOf: []string{"subnet_id", "network_id"},
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"floating_ip_address": {
 				Type:     schema.TypeString,
@@ -110,6 +117,7 @@ func resourceNatSnatRuleV2Create(d *schema.ResourceData, meta interface{}) error
 		NatGatewayID: d.Get("nat_gateway_id").(string),
 		FloatingIPID: d.Get("floating_ip_id").(string),
 		Cidr:         d.Get("cidr").(string),
+		Description:  d.Get("description").(string),
 		NetworkID:    subnetID,
 		SourceType:   sourceType,
 	}
@@ -142,7 +150,8 @@ func resourceNatSnatRuleV2Create(d *schema.ResourceData, meta interface{}) error
 
 func resourceNatSnatRuleV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	natClient, err := config.NatGatewayClient(GetRegion(d, config))
+	region := GetRegion(d, config)
+	natClient, err := config.NatGatewayClient(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
@@ -152,6 +161,7 @@ func resourceNatSnatRuleV2Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "Snat Rule")
 	}
 
+	d.Set("region", region)
 	d.Set("nat_gateway_id", snatRule.NatGatewayID)
 	d.Set("floating_ip_id", snatRule.FloatingIPID)
 	d.Set("floating_ip_address", snatRule.FloatingIPAddress)
@@ -159,9 +169,70 @@ func resourceNatSnatRuleV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("subnet_id", snatRule.NetworkID)
 	d.Set("cidr", snatRule.Cidr)
 	d.Set("status", snatRule.Status)
-	d.Set("region", GetRegion(d, config))
+	d.Set("description", snatRule.Description)
 
 	return nil
+}
+
+func resourceNatSnatRuleV2Update(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*config.Config)
+	region := GetRegion(d, config)
+	natClient, err := config.NatGatewayClient(region)
+	if err != nil {
+		return fmtp.Errorf("error creating nat client: %s", err)
+	}
+
+	ruleID := d.Id()
+	updateOpts := &hw_snatrules.UpdateOpts{
+		NatGatewayID: d.Get("nat_gateway_id").(string),
+	}
+	if d.HasChange("description") {
+		desc := d.Get("description").(string)
+		updateOpts.Description = &desc
+	}
+	if d.HasChange("floating_ip_id") {
+		eipClient, err := config.NetworkingV1Client(region)
+		if err != nil {
+			return fmtp.Errorf("error creating networking client: %s", err)
+		}
+
+		eipIDs := d.Get("floating_ip_id").(string)
+		eipList := strings.Split(eipIDs, ",")
+		eipAddrs := make([]string, len(eipList))
+
+		// get EIP address from ID
+		for i, id := range eipList {
+			eIP, err := eips.Get(eipClient, id).Extract()
+			if err != nil {
+				return fmtp.Errorf("error fetching EIP %s: %s", id, err)
+			}
+			eipAddrs[i] = eIP.PublicAddress
+		}
+
+		updateOpts.FloatingIPAddress = strings.Join(eipAddrs, ",")
+	}
+
+	logp.Printf("[DEBUG] update Options: %#v", updateOpts)
+	_, err = hw_snatrules.Update(natClient, ruleID, updateOpts).Extract()
+	if err != nil {
+		return fmtp.Errorf("error updating SNAT rule: %s", err)
+	}
+
+	logp.Printf("[DEBUG] waiting for SNAT rule (%s) to become available", ruleID)
+	stateConf := &resource.StateChangeConf{
+		Target:       []string{"ACTIVE"},
+		Refresh:      waitForSnatRuleActive(natClient, ruleID),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        3 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+
+	_, err = stateConf.WaitForState()
+	if err != nil {
+		return fmtp.Errorf("error updating SNAT rule: %s", err)
+	}
+
+	return resourceNatSnatRuleV2Read(d, meta)
 }
 
 func resourceNatSnatRuleV2Delete(d *schema.ResourceData, meta interface{}) error {
@@ -198,7 +269,6 @@ func waitForSnatRuleActive(client *golangsdk.ServiceClient, nId string) resource
 			return nil, "", err
 		}
 
-		logp.Printf("[DEBUG] HuaweiCloud Snat Rule: %+v", n)
 		if n.Status == "ACTIVE" {
 			return n, "ACTIVE", nil
 		}
