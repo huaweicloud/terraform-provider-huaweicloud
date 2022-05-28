@@ -44,6 +44,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/gaussdb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iotda"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/live"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/modelarts"
@@ -667,6 +668,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_iec_vpc_subnet":          resourceIecSubnet(),
 
 			"huaweicloud_images_image": ResourceImsImage(),
+
+			"huaweicloud_iotda_space": iotda.ResourceSpace(),
 
 			"huaweicloud_kms_key":     ResourceKmsKeyV1(),
 			"huaweicloud_kps_keypair": dew.ResourceKeypair(),
