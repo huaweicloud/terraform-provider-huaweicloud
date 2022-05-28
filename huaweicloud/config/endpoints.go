@@ -599,4 +599,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v5",
 		Product: "IoTDA",
 	},
+
+	"vod": {
+		Name:    "vod",
+		Version: "v1",
+		Product: "VOD",
+	},
 }

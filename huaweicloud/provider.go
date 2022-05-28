@@ -58,6 +58,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/sms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/swr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/tms"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vod"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/waf"
 )
@@ -846,6 +847,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_iam_agency":    iam.ResourceIAMAgencyV3(),
 			"huaweicloud_iam_agency_v3": iam.ResourceIAMAgencyV3(),
+
+			"huaweicloud_vod_media_category": vod.ResourceMediaCategory(),
 
 			"huaweicloud_vpc_bandwidth_v2":                   eip.ResourceVpcBandWidthV2(),
 			"huaweicloud_vpc_eip_v1":                         eip.ResourceVpcEIPV1(),
