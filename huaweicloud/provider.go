@@ -731,6 +731,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_read_replica_instance": rds.ResourceRdsReadReplicaInstance(),
 
 			"huaweicloud_servicestage_application":                 servicestage.ResourceApplication(),
+			"huaweicloud_servicestage_component_instance":          servicestage.ResourceComponentInstance(),
 			"huaweicloud_servicestage_component":                   servicestage.ResourceComponent(),
 			"huaweicloud_servicestage_environment":                 servicestage.ResourceEnvironment(),
 			"huaweicloud_servicestage_repo_token_authorization":    servicestage.ResourceRepoTokenAuth(),

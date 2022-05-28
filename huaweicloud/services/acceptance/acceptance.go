@@ -68,6 +68,7 @@ var (
 	HW_GITHUB_REPO_PWD       = os.Getenv("HW_GITHUB_REPO_PWD")       // Repository password (DevCloud, BitBucket)
 	HW_GITHUB_REPO_URL       = os.Getenv("HW_GITHUB_REPO_URL")       // Repository URL (Github, Gitlab, Gitee)
 	HW_OBS_STORAGE_URL       = os.Getenv("HW_OBS_STORAGE_URL")       // OBS storage URL where ZIP file is located
+	HW_BUILD_IMAGE_URL       = os.Getenv("HW_BUILD_IMAGE_URL")       // SWR Image URL for component deployment
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -474,20 +475,27 @@ func TestAccPreCheckDliJarPath(t *testing.T) {
 //lintignore:AT003
 func TestAccPreCheckRepoTokenAuth(t *testing.T) {
 	if HW_GITHUB_REPO_HOST == "" || HW_GITHUB_PERSONAL_TOKEN == "" {
-		t.Skip("Repository configuration are not completed for acceptance test of personal access token authorization.")
+		t.Skip("Repository configurations are not completed for acceptance test of personal access token authorization.")
 	}
 }
 
 //lintignore:AT003
 func TestAccPreCheckRepoPwdAuth(t *testing.T) {
 	if HW_DOMAIN_NAME == "" || HW_USER_NAME == "" || HW_GITHUB_REPO_PWD == "" {
-		t.Skip("Repository configuration are not completed for acceptance test of password authorization.")
+		t.Skip("Repository configurations are not completed for acceptance test of password authorization.")
 	}
 }
 
 //lintignore:AT003
 func TestAccPreCheckComponent(t *testing.T) {
 	if HW_DOMAIN_NAME == "" || HW_GITHUB_REPO_URL == "" || HW_OBS_STORAGE_URL == "" {
-		t.Skip("Repository (package) configuration are not completed for acceptance test of component.")
+		t.Skip("Repository (package) configurations are not completed for acceptance test of component.")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckComponentDeployment(t *testing.T) {
+	if HW_BUILD_IMAGE_URL == "" {
+		t.Skip("SWR image URL configuration is not completed for acceptance test of component deployment.")
 	}
 }
