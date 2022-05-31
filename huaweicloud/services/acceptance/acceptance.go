@@ -70,6 +70,8 @@ var (
 	HW_GITHUB_REPO_URL       = os.Getenv("HW_GITHUB_REPO_URL")       // Repository URL (Github, Gitlab, Gitee)
 	HW_OBS_STORAGE_URL       = os.Getenv("HW_OBS_STORAGE_URL")       // OBS storage URL where ZIP file is located
 	HW_BUILD_IMAGE_URL       = os.Getenv("HW_BUILD_IMAGE_URL")       // SWR Image URL for component deployment
+
+	HW_VOD_WATERMARK_FILE = os.Getenv("HW_VOD_WATERMARK_FILE")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -505,5 +507,12 @@ func TestAccPreCheckComponent(t *testing.T) {
 func TestAccPreCheckComponentDeployment(t *testing.T) {
 	if HW_BUILD_IMAGE_URL == "" {
 		t.Skip("SWR image URL configuration is not completed for acceptance test of component deployment.")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckVODWatermark(t *testing.T) {
+	if HW_VOD_WATERMARK_FILE == "" {
+		t.Skip("HW_VOD_WATERMARK_FILE must be set for VOD watermark template acceptance tests.")
 	}
 }
