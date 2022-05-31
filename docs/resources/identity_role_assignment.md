@@ -28,6 +28,25 @@ resource "huaweicloud_identity_role_assignment" "role_assignment_1" {
 }
 ```
 
+## Example Usage: Assign Role On Project Level and assign with the project name
+
+```hcl
+data "huaweicloud_identity_role" "role_1" {
+  # Security Administrator
+  name = "secu_admin"
+}
+
+resource "huaweicloud_identity_group" "group_1" {
+  name = "group_1"
+}
+
+resource "huaweicloud_identity_role_assignment" "role_assignment_1" {
+  role_id      = data.huaweicloud_identity_role.role_1.id
+  group_id     = huaweicloud_identity_group.group_1.id
+  project_name = "MOS"
+}
+```
+
 ## Example Usage: Assign Role On Domain Level
 
 ```hcl
@@ -51,15 +70,16 @@ resource "huaweicloud_identity_role_assignment" "role_assignment_1" {
 
 The following arguments are supported:
 
-* `role_id` - (Required, String, ForceNew) Specifies the role to assign.
+* `role_id` - (Required, String, ForceNew) Specifies the role ID to assign.
 
-* `group_id` - (Required, String, ForceNew) Specifies the group to assign the role to.
+* `group_id` - (Required, String, ForceNew) Specifies the group ID to assign the role to.
 
-* `domain_id` - (Optional, String, ForceNew; Required if `project_id` is empty) Specifies the domain to assign the role
-  in.
+* `domain_id` - (Optional, String, ForceNew) Specifies the domain ID to assign the role in.
+  One of `domain_id`, `project_id` and `project_name` must be set.
 
-* `project_id` - (Optional, String, ForceNew; Required if `domain_id` is empty) Specifies the project to assign the role
-  in.
+* `project_id` - (Optional, String, ForceNew) Specifies the project ID to assign the role in.
+
+* `project_name` - (Optional, String, ForceNew) Specifies the project name to assign the role in.
 
 ## Attributes Reference
 

@@ -52,6 +52,33 @@ func TestAccIdentityV3RoleAssignment_basic(t *testing.T) {
 	})
 }
 
+func TestAccIdentityV3RoleAssignment_mos(t *testing.T) {
+	var role roles.Role
+	var group groups.Group
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_identity_role_assignment.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAdminOnly(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckIdentityV3RoleAssignmentDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccIdentityV3RoleAssignment_mos(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIdentityV3RoleAssignmentExists(resourceName, &role, &group),
+					resource.TestCheckResourceAttrPtr(resourceName, "group_id", &group.ID),
+					resource.TestCheckResourceAttrPtr(resourceName, "role_id", &role.ID),
+					resource.TestCheckResourceAttr(resourceName, "project_name", "MOS"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckIdentityV3RoleAssignmentDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	identityClient, err := config.IdentityV3Client(acceptance.HW_REGION_NAME)
@@ -90,7 +117,11 @@ func testAccCheckIdentityV3RoleAssignmentExists(n string, role *roles.Role, grou
 			return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 		}
 
-		domainID, projectID, groupID, roleID := iam.ExtractRoleAssignmentID(rs.Primary.ID)
+		domainID, projectInfo, groupID, roleID := iam.ExtractRoleAssignmentID(rs.Primary.ID)
+		projectID, err := iam.GetProjectId(identityClient, projectInfo)
+		if err != nil {
+			return err
+		}
 
 		opts := roles.ListAssignmentsOpts{
 			GroupID:        groupID,
@@ -169,4 +200,40 @@ resource "huaweicloud_identity_role_assignment" "role_assignment_1" {
   domain_id = "%s"
 }
 `, rName, acceptance.HW_DOMAIN_ID)
+}
+
+func testAccIdentityV3RoleAssignment_mos(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_identity_role" test {
+  name        = "%[1]s"
+  description = "Created by terraform test"
+  type        = "AX"
+  policy      = <<EOF
+{
+    "Version": "1.1",
+    "Statement": [
+        {
+            "Action": [
+                "obs:bucket:GetBucketAcl"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+              "obs:*:*:bucket:*"
+            ]
+        }
+    ]
+}
+EOF
+}
+
+resource "huaweicloud_identity_group" "test" {
+  name = "%[1]s"
+}
+
+resource "huaweicloud_identity_role_assignment" "test" {
+  role_id      = huaweicloud_identity_role.test.id
+  group_id     = huaweicloud_identity_group.test.id
+  project_name = "MOS"
+}
+`, rName)
 }
