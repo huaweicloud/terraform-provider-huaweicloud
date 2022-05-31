@@ -14,8 +14,9 @@ type CreateOptsBuilder interface {
 // resource.
 type CreateOpts struct {
 	NatGatewayID string `json:"nat_gateway_id" required:"true"`
-	NetworkID    string `json:"network_id,omitempty"`
 	FloatingIPID string `json:"floating_ip_id" required:"true"`
+	Description  string `json:"description,omitempty"`
+	NetworkID    string `json:"network_id,omitempty"`
 	Cidr         string `json:"cidr,omitempty"`
 	SourceType   int    `json:"source_type,omitempty"`
 }
@@ -33,9 +34,38 @@ func Create(c *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateResult)
 		r.Err = err
 		return
 	}
-	_, r.Err = c.Post(rootURL(c), b, &r.Body, &golangsdk.RequestOpts{
-		OkCodes: []int{201},
-	})
+	_, r.Err = c.Post(rootURL(c), b, &r.Body, nil)
+	return
+}
+
+// UpdateOptsBuilder is an interface must satisfy to be used as Update
+// options.
+type UpdateOptsBuilder interface {
+	ToSnatRuleUpdateMap() (map[string]interface{}, error)
+}
+
+// UpdateOpts contains all the values needed to update a snat rule
+// resource.
+type UpdateOpts struct {
+	NatGatewayID      string  `json:"nat_gateway_id" required:"true"`
+	FloatingIPAddress string  `json:"public_ip_address,omitempty"`
+	Description       *string `json:"description,omitempty"`
+}
+
+// ToSnatRuleUpdateMap allows UpdateOpts to satisfy the UpdateOptsBuilder
+// interface
+func (opts UpdateOpts) ToSnatRuleUpdateMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "snat_rule")
+}
+
+// Update is a method by which can update a snat rule
+func Update(c *golangsdk.ServiceClient, id string, opts UpdateOptsBuilder) (r UpdateResult) {
+	b, err := opts.ToSnatRuleUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = c.Put(resourceURL(c, id), b, &r.Body, nil)
 	return
 }
 

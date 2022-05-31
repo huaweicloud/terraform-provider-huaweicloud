@@ -4,7 +4,7 @@ subcategory: "NAT Gateway (NAT)"
 
 # huaweicloud_nat_snat_rule
 
-Manages a SNAT rule resource within HuaweiCloud Nat This is an alternative to `huaweicloud_nat_snat_rule_v2`
+Manages a SNAT rule resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -39,8 +39,8 @@ The following arguments are supported:
 * `nat_gateway_id` - (Required, String, ForceNew) ID of the nat gateway this snat rule belongs to. Changing this creates
   a new snat rule.
 
-* `floating_ip_id` - (Required, String, ForceNew) ID of the floating ip this snat rule connets to. Changing this creates
-  a new snat rule.
+* `floating_ip_id` - (Required, String) Specifies the EIP ID this snat rule connects to.
+  Multiple EIPs are separated using commas (,). The number of EIP IDs cannot exceed 20.
 
 * `subnet_id` - (Optional, String, ForceNew) ID of the subnet this snat rule connects to. This parameter and `cidr` are
   alternative. Changing this creates a new snat rule.
@@ -51,6 +51,9 @@ The following arguments are supported:
 * `source_type` - (Optional, Int, ForceNew) Specifies the scenario. The valid value is 0 (VPC scenario) and 1 (Direct
   Connect scenario). Defaults to 0, only `cidr` can be specified over a Direct Connect connection. Changing this creates
   a new snat rule.
+
+* `description` - (Optional, String) Specifies the description of the snat rule.
+  The value is a string of no more than 255 characters, and angle brackets (<>) are not allowed.
 
 ## Attributes Reference
 
@@ -65,6 +68,7 @@ In addition to all arguments above, the following attributes are exported:
 This resource provides the following timeouts configuration options:
 
 * `create` - Default is 10 minute.
+* `update` - Default is 10 minute.
 * `delete` - Default is 10 minute.
 
 ## Import
