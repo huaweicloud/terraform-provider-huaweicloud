@@ -587,4 +587,22 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v1",
 		Product: "Live",
 	},
+
+	"mpc": {
+		Name:    "mpc",
+		Version: "v1",
+		Product: "MPC",
+	},
+
+	"iotda": {
+		Name:    "iotda",
+		Version: "v5",
+		Product: "IoTDA",
+	},
+
+	"vod": {
+		Name:    "vod",
+		Version: "v1",
+		Product: "VOD",
+	},
 }

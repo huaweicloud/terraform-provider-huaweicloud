@@ -44,9 +44,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/gaussdb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iotda"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/live"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/modelarts"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mpc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mrs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rds"
@@ -56,6 +58,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/sms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/swr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/tms"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vod"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/waf"
 )
@@ -436,6 +439,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_servicestage_component_runtimes": servicestage.DataSourceComponentRuntimes(),
 
+			"huaweicloud_sms_source_servers": sms.DataSourceServers(),
+
 			"huaweicloud_sfs_file_system":   DataSourceSFSFileSystemV2(),
 			"huaweicloud_vbs_backup_policy": dataSourceVBSBackupPolicyV2(),
 			"huaweicloud_vbs_backup":        dataSourceVBSBackupV2(),
@@ -666,6 +671,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_images_image": ResourceImsImage(),
 
+			"huaweicloud_iotda_space": iotda.ResourceSpace(),
+
 			"huaweicloud_kms_key":     ResourceKmsKeyV1(),
 			"huaweicloud_kps_keypair": dew.ResourceKeypair(),
 
@@ -680,6 +687,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_lb_whitelist":    lb.ResourceWhitelistV2(),
 
 			"huaweicloud_live_domain":          live.ResourceDomain(),
+			"huaweicloud_live_recording":       live.ResourceRecording(),
 			"huaweicloud_live_record_callback": live.ResourceRecordCallback(),
 			"huaweicloud_live_transcoding":     live.ResourceTranscoding(),
 
@@ -695,6 +703,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_modelarts_dataset_version":        modelarts.ResourceDatasetVersion(),
 			"huaweicloud_modelarts_notebook":               modelarts.ResourceNotebook(),
 			"huaweicloud_modelarts_notebook_mount_storage": modelarts.ResourceNotebookMountStorage(),
+
+			"huaweicloud_mpc_transcoding_template":       mpc.ResourceTranscodingTemplate(),
+			"huaweicloud_mpc_transcoding_template_group": mpc.ResourceTranscodingTemplateGroup(),
 
 			"huaweicloud_mrs_cluster": ResourceMRSClusterV1(),
 			"huaweicloud_mrs_job":     ResourceMRSJobV1(),
@@ -723,6 +734,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_read_replica_instance": rds.ResourceRdsReadReplicaInstance(),
 
 			"huaweicloud_servicestage_application":                 servicestage.ResourceApplication(),
+			"huaweicloud_servicestage_component_instance":          servicestage.ResourceComponentInstance(),
 			"huaweicloud_servicestage_component":                   servicestage.ResourceComponent(),
 			"huaweicloud_servicestage_environment":                 servicestage.ResourceEnvironment(),
 			"huaweicloud_servicestage_repo_token_authorization":    servicestage.ResourceRepoTokenAuth(),
@@ -839,6 +851,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_iam_agency":    iam.ResourceIAMAgencyV3(),
 			"huaweicloud_iam_agency_v3": iam.ResourceIAMAgencyV3(),
+
+			"huaweicloud_vod_media_category": vod.ResourceMediaCategory(),
 
 			"huaweicloud_vpc_bandwidth_v2":                   eip.ResourceVpcBandWidthV2(),
 			"huaweicloud_vpc_eip_v1":                         eip.ResourceVpcEIPV1(),

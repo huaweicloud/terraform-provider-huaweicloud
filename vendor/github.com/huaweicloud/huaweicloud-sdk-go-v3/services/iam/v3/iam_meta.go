@@ -1929,6 +1929,74 @@ func GenReqDefForShowDomainQuota() *def.HttpRequestDef {
 	return requestDef
 }
 
+func GenReqDefForShowDomainRoleAssignments() *def.HttpRequestDef {
+	reqDefBuilder := def.NewHttpRequestDefBuilder().
+		WithMethod(http.MethodGet).
+		WithPath("/v3.0/OS-PERMISSION/role-assignments").
+		WithResponse(new(model.ShowDomainRoleAssignmentsResponse)).
+		WithContentType("application/json")
+
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("DomainId").
+		WithJsonTag("domain_id").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("RoleId").
+		WithJsonTag("role_id").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("Subject").
+		WithJsonTag("subject").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("SubjectUserId").
+		WithJsonTag("subject.user_id").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("SubjectGroupId").
+		WithJsonTag("subject.group_id").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("SubjectAgencyId").
+		WithJsonTag("subject.agency_id").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("Scope").
+		WithJsonTag("scope").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("ScopeProjectId").
+		WithJsonTag("scope.project_id").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("ScopeDomainId").
+		WithJsonTag("scope.domain_id").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("ScopeEnterpriseProjectsId").
+		WithJsonTag("scope.enterprise_projects_id").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("IsInherited").
+		WithJsonTag("is_inherited").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("IncludeGroup").
+		WithJsonTag("include_group").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("Page").
+		WithJsonTag("page").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("PerPage").
+		WithJsonTag("per_page").
+		WithLocationType(def.Query))
+
+	requestDef := reqDefBuilder.Build()
+	return requestDef
+}
+
 func GenReqDefForShowMetadata() *def.HttpRequestDef {
 	reqDefBuilder := def.NewHttpRequestDefBuilder().
 		WithMethod(http.MethodGet).

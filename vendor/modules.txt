@@ -242,11 +242,14 @@ github.com/chnsz/golangsdk/openstack/servicestage/v1/repositories
 github.com/chnsz/golangsdk/openstack/servicestage/v2/applications
 github.com/chnsz/golangsdk/openstack/servicestage/v2/components
 github.com/chnsz/golangsdk/openstack/servicestage/v2/environments
+github.com/chnsz/golangsdk/openstack/servicestage/v2/instances
+github.com/chnsz/golangsdk/openstack/servicestage/v2/jobs
 github.com/chnsz/golangsdk/openstack/servicestage/v2/metadata
 github.com/chnsz/golangsdk/openstack/sfs/v2/shares
 github.com/chnsz/golangsdk/openstack/sfs_turbo/v1/shares
 github.com/chnsz/golangsdk/openstack/smn/v2/subscriptions
 github.com/chnsz/golangsdk/openstack/smn/v2/topics
+github.com/chnsz/golangsdk/openstack/sms/v3/sources
 github.com/chnsz/golangsdk/openstack/sms/v3/templates
 github.com/chnsz/golangsdk/openstack/swr/v2/domains
 github.com/chnsz/golangsdk/openstack/swr/v2/namespaces
@@ -387,7 +390,7 @@ github.com/hashicorp/terraform-registry-address
 github.com/hashicorp/terraform-svchost
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 github.com/hashicorp/yamux
-# github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.0.86
+# github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.0.89
 ## explicit
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth
@@ -416,14 +419,20 @@ github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/model
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1/model
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1/model
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vod/v1
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vod/v1/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3/model
 # github.com/jen20/awspolicyequivalence v1.1.0

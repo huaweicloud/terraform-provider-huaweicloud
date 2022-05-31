@@ -21,7 +21,7 @@ type Contents struct {
 	SelectedTempName *string `json:"selected_temp_name,omitempty"`
 
 	// data
-	Data *string `json:"data,omitempty"`
+	Data *interface{} `json:"data,omitempty"`
 
 	// data_type
 	DataType *int32 `json:"data_type,omitempty"`

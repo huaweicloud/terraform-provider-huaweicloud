@@ -18,7 +18,7 @@ type TempContentInfo struct {
 	Index *int32 `json:"index,omitempty"`
 
 	// data
-	Data *string `json:"data,omitempty"`
+	Data *interface{} `json:"data,omitempty"`
 
 	// data_type
 	DataType *int32 `json:"data_type,omitempty"`

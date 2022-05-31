@@ -12,7 +12,7 @@ type ContentInfo struct {
 	BodyType *int32 `json:"body_type,omitempty"`
 
 	// bodys
-	Bodys *string `json:"bodys,omitempty"`
+	Bodys *[]interface{} `json:"bodys,omitempty"`
 
 	// check_end_length
 	CheckEndLength *string `json:"check_end_length,omitempty"`
