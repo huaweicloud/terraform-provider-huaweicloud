@@ -40,6 +40,7 @@ func TestAccNatDnat_basic(t *testing.T) {
 					testAccCheckNatDnatExists(),
 					resource.TestCheckResourceAttr(resourceName, "protocol", "tcp"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttr(resourceName, "description", "created by terraform acc test"),
 				),
 			},
 			{
@@ -66,6 +67,7 @@ func TestAccNatDnat_protocol(t *testing.T) {
 					testAccCheckNatDnatExists(),
 					resource.TestCheckResourceAttr(resourceName, "protocol", "any"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttr(resourceName, "description", "created by terraform acc test"),
 				),
 			},
 			{
@@ -199,6 +201,7 @@ resource "huaweicloud_nat_dnat_rule" "dnat" {
   floating_ip_id = huaweicloud_vpc_eip.eip_1.id
   private_ip     = huaweicloud_compute_instance.instance_1.network.0.fixed_ip_v4
   protocol       = "tcp"
+  description    = "created by terraform acc test"
   internal_service_port = 80
   external_service_port = 8080
 }
@@ -216,6 +219,7 @@ resource "huaweicloud_nat_dnat_rule" "dnat" {
   floating_ip_id = huaweicloud_vpc_eip.eip_1.id
   private_ip     = huaweicloud_compute_instance.instance_1.network.0.fixed_ip_v4
   protocol       = "any"
+  description    = "created by terraform acc test"
   internal_service_port = 0
   external_service_port = 0
 }
