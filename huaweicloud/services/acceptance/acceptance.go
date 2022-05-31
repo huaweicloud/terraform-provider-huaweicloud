@@ -60,6 +60,7 @@ var (
 	HW_CERTIFICATE_PROJECT          = os.Getenv("HW_CERTIFICATE_PROJECT")
 	HW_CERTIFICATE_PROJECT_UPDATED  = os.Getenv("HW_CERTIFICATE_PROJECT_UPDATED")
 	HW_DMS_ENVIRONMENT              = os.Getenv("HW_DMS_ENVIRONMENT")
+	HW_SMS_SOURCE_SERVER            = os.Getenv("HW_SMS_SOURCE_SERVER")
 
 	HW_DLI_FLINK_JAR_OBS_PATH = os.Getenv("HW_DLI_FLINK_JAR_OBS_PATH")
 
@@ -363,6 +364,13 @@ func TestAccPreCheckEpsID(t *testing.T) {
 func TestAccPreCheckBms(t *testing.T) {
 	if HW_USER_ID == "" {
 		t.Skip("HW_USER_ID must be set for BMS acceptance tests")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckSms(t *testing.T) {
+	if HW_SMS_SOURCE_SERVER == "" {
+		t.Skip("HW_SMS_SOURCE_SERVER must be set for SMS acceptance tests")
 	}
 }
 
