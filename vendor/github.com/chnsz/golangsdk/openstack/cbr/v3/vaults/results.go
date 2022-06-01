@@ -81,6 +81,27 @@ func (r commonResult) Extract() (*Vault, error) {
 	return s.Vault, err
 }
 
+type OrderResp struct {
+	ErrText string  `json:"errText"`
+	ErrCode string  `json:"error_code"`
+	RetCode int     `json:"retCode"`
+	Orders  []Order `json:"orders"`
+}
+
+type Order struct {
+	CloudServiceId     string   `json:"cloudServiceId"`
+	ID                 string   `json:"orderId"`
+	ReserveInstanceIds []string `json:"reserveInstanceIds"`
+	ResourceId         string   `json:"resourceId"`
+	SubscribeResult    string   `json:"subscribeResult"`
+}
+
+func (r CreateResult) ExtractOrder() (*OrderResp, error) {
+	var s OrderResp
+	err := r.ExtractInto(&s)
+	return &s, err
+}
+
 type AssociateResourcesResult struct {
 	golangsdk.Result
 }

@@ -121,6 +121,77 @@ func TestAccVault_ReplicaServer(t *testing.T) {
 	})
 }
 
+func TestAccVault_prePaidServer(t *testing.T) {
+	var vault vaults.Vault
+	randName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_cbr_vault.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&vault,
+		getVaultResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVault_serverPrePaid(randName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "consistent_level", "app_consistent"),
+					resource.TestCheckResourceAttr(resourceName, "type", cbr.VaultTypeServer),
+					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
+					resource.TestCheckResourceAttr(resourceName, "size", "200"),
+					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "resources.0.excludes.#", "2"),
+				),
+			},
+			{
+				Config: testAccVault_serverPrePaidUpdate(randName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttr(resourceName, "name", randName+"-update"),
+					resource.TestCheckResourceAttr(resourceName, "consistent_level", "app_consistent"),
+					resource.TestCheckResourceAttr(resourceName, "type", cbr.VaultTypeServer),
+					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
+					resource.TestCheckResourceAttr(resourceName, "size", "200"),
+					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo1", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
+					resource.TestCheckResourceAttr(resourceName, "resources.0.excludes.#", "2"),
+					acceptance.TestCheckResourceAttrWithVariable(resourceName, "policy_id",
+						"${huaweicloud_cbr_policy.test.id}"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"period_unit",
+					"period",
+					"auto_renew",
+					"auto_pay",
+				},
+			},
+		},
+	})
+}
+
 func TestAccVault_BasicVolume(t *testing.T) {
 	var vault vaults.Vault
 	randName := acceptance.RandomAccResourceName()
@@ -468,6 +539,73 @@ resource "huaweicloud_cbr_vault" "test" {
   enterprise_project_id = "%s"
 }
 `, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccVault_serverPrePaid(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_cbr_vault" "test" {
+  name                  = "%s"
+  type                  = "server"
+  consistent_level      = "app_consistent"
+  protection_type       = "backup"
+  size                  = 200
+  enterprise_project_id = "%s"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "true"
+
+  resources {
+    server_id = huaweicloud_compute_instance.test.id
+
+    excludes = huaweicloud_compute_volume_attach.test[*].volume_id
+  }
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, testAccVaultBasicConfiguration(testAccEvsVolumeConfiguration_update(), rName),
+		rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccVault_serverPrePaidUpdate(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+%s
+
+resource "huaweicloud_cbr_vault" "test" {
+  name                  = "%s-update"
+  type                  = "server"
+  consistent_level      = "app_consistent"
+  protection_type       = "backup"
+  size                  = 200
+  enterprise_project_id = "%s"
+  policy_id             = huaweicloud_cbr_policy.test.id
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "true"
+
+  resources {
+    server_id = huaweicloud_compute_instance.test.id
+
+    excludes = huaweicloud_compute_volume_attach.test[*].volume_id
+  }
+
+  tags = {
+    foo1 = "bar"
+    key  = "value_update"
+  }
+}
+`, testAccVaultBasicConfiguration(testAccEvsVolumeConfiguration_update(), rName), testAccVault_policy(rName),
+		rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccVault_volumeBasic(rName string) string {

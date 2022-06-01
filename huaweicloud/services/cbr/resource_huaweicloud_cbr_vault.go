@@ -5,9 +5,13 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"reflect"
+	"strconv"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -50,6 +54,11 @@ func ResourceVault() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -135,7 +144,12 @@ func ResourceVault() *schema.Resource {
 					},
 				},
 			},
-			"tags": common.TagsSchema(),
+			"tags":          common.TagsSchema(),
+			"charging_mode": common.SchemaChargingMode(nil),
+			"period_unit":   common.SchemaPeriodUnit(nil),
+			"period":        common.SchemaPeriod(nil),
+			"auto_renew":    common.SchemaAutoRenew(nil),
+			"auto_pay":      common.SchemaAutoPay(nil),
 			"allocated": {
 				Type:     schema.TypeFloat,
 				Computed: true,
@@ -261,6 +275,10 @@ func buildDissociateResources(vType string, resources *schema.Set) ([]string, er
 	}
 }
 
+func isPrePaid(d *schema.ResourceData) bool {
+	return d.Get("charging_mode").(string) == "prePaid"
+}
+
 func buildBillingStructure(d *schema.ResourceData) *vaults.BillingCreate {
 	billing := &vaults.BillingCreate{
 		ObjectType:      d.Get("type").(string),
@@ -269,12 +287,21 @@ func buildBillingStructure(d *schema.ResourceData) *vaults.BillingCreate {
 		Size:            d.Get("size").(int),
 	}
 
+	if isPrePaid(d) {
+		billing.ChargingMode = "pre_paid"
+		billing.PeriodType = d.Get("period_unit").(string)
+		billing.PeriodNum = d.Get("period").(int)
+		billing.IsAutoRenew, _ = strconv.ParseBool(d.Get("auto_renew").(string))
+		billing.IsAutoPay, _ = strconv.ParseBool(common.GetAutoPay(d))
+	}
+
 	return billing
 }
 
 func resourceVaultCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	client, err := config.CbrV3Client(config.GetRegion(d))
+	region := config.GetRegion(d)
+	client, err := config.CbrV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CBR v3 client: %s", err)
 	}
@@ -283,21 +310,56 @@ func resourceVaultCreate(ctx context.Context, d *schema.ResourceData, meta inter
 	if err != nil {
 		return diag.Errorf("error building vault resources: %s", err)
 	}
+
+	ae, ok := d.GetOk("auto_expand")
+	if ok && isPrePaid(d) {
+		return diag.Errorf("the prepaid vault do not support the auto_expand parameter")
+	}
 	opts := vaults.CreateOpts{
 		Name:                d.Get("name").(string),
-		AutoExpand:          d.Get("auto_expand").(bool),
 		BackupPolicyID:      d.Get("policy_id").(string),
 		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
 		Resources:           resources,
 		Billing:             buildBillingStructure(d),
+		AutoExpand:          ae.(bool),
 	}
 
 	log.Printf("[DEBUG] The createOpts is: %+v", opts)
-	vault, err := vaults.Create(client, opts).Extract()
-	if err != nil {
-		return diag.Errorf("error creating vaults: %s", err)
+	result := vaults.Create(client, opts)
+
+	if isPrePaid(d) {
+		resp, err := result.ExtractOrder()
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		if len(resp.Orders) < 1 {
+			return diag.Errorf("unable to find any order information after creating CBR vault")
+		}
+		if resp.Orders[0].ResourceId == "" {
+			return diag.Diagnostics{
+				{
+					Severity: diag.Warning,
+					Summary:  "Unsupported Region",
+					Detail: fmt.Sprintf("Currently, we does not support prepaid creation completely in this region "+
+						"(%s), because of the API response does not include vault ID. But the order has been created, "+
+						"if you don't want it, you can unsubscribe in the console. Also you can manage it by import "+
+						"operation using ID. You cannot create a new vault with the same configuration until you "+
+						"unsubscribe.", region),
+				},
+			}
+		}
+		d.SetId(resp.Orders[0].ResourceId)
+		err = common.WaitOrderComplete(ctx, d, config, resp.Orders[0].ID)
+		if err != nil {
+			return diag.Errorf("the order is not completed while creating CBR vault (%s): %v", d.Id(), err)
+		}
+	} else {
+		vault, err := result.Extract()
+		if err != nil {
+			return diag.Errorf("error creating vaults: %s", err)
+		}
+		d.SetId(vault.ID)
 	}
-	d.SetId(vault.ID)
 
 	if policy, ok := d.GetOk("policy_id"); ok {
 		_, err := vaults.BindPolicy(client, d.Id(), vaults.BindPolicyOpts{PolicyID: policy.(string)}).Extract()
@@ -401,6 +463,16 @@ func setPolicyId(d *schema.ResourceData, client *golangsdk.ServiceClient) error 
 	return d.Set("policy_id", policyId)
 }
 
+func setCbrVaultCharging(d *schema.ResourceData, billing vaults.Billing) error {
+	switch billing.ChargingMode {
+	case "pre_paid":
+		return d.Set("charging_mode", "prePaid")
+	case "post_paid":
+		return d.Set("charging_mode", "postPaid")
+	}
+	return nil
+}
+
 func resourceVaultRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.CbrV3Client(config.GetRegion(d))
@@ -425,6 +497,7 @@ func resourceVaultRead(ctx context.Context, d *schema.ResourceData, meta interfa
 		d.Set("tags", utils.TagsToMap(resp.Tags)),
 		setResources(d, resp.Billing.ObjectType, resp.Resources),
 		setPolicyId(d, client),
+		setCbrVaultCharging(d, resp.Billing),
 		// Computed
 		// The result of 'allocated' and 'used' is in MB, and now we need to use GB as the unit.
 		d.Set("allocated", getNumberInGB(float64(resp.Billing.Allocated))),
@@ -508,15 +581,23 @@ func resourceVaultUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating CBR v3 client: %s", err)
 	}
 
-	if d.HasChanges("name", "size", "auto_expand") {
-		opts := vaults.UpdateOpts{}
+	opts := vaults.UpdateOpts{}
+	if d.HasChange("name") {
 		opts.Name = d.Get("name").(string)
-		opts.Billing = &vaults.BillingUpdate{
-			Size: d.Get("size").(int),
+	}
+
+	if d.HasChanges("size", "auto_expand") {
+		if isPrePaid(d) {
+			return diag.Errorf("cannot update size or auto_expand if the vault is prepaid mode")
 		}
 		ae := d.Get("auto_expand").(bool)
 		opts.AutoExpand = &ae
+		opts.Billing = &vaults.BillingUpdate{
+			Size: d.Get("size").(int),
+		}
+	}
 
+	if !reflect.DeepEqual(opts, vaults.UpdateOpts{}) {
 		_, err := vaults.Update(client, d.Id(), opts).Extract()
 		if err != nil {
 			return diag.Errorf("error updating the vault: %s", err)
@@ -543,18 +624,50 @@ func resourceVaultUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 	return resourceVaultRead(ctx, d, meta)
 }
 
-func resourceVaultDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVaultDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.CbrV3Client(config.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating CBR v3 client: %s", err)
 	}
 
-	if err := vaults.Delete(client, d.Id()).ExtractErr(); err != nil {
-		return diag.Errorf("error deleting CBR v3 vault: %s", err)
+	if isPrePaid(d) {
+		err = common.UnsubscribePrePaidResource(d, config, []string{d.Id()})
+		if err != nil {
+			return diag.Errorf("error unsubscribing vault (%s): %s", d.Id(), err)
+		}
+	} else {
+		if err := vaults.Delete(client, d.Id()).ExtractErr(); err != nil {
+			return diag.Errorf("error deleting CBR v3 vault: %s", err)
+		}
 	}
 
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{"available", "deleting"},
+		Target:     []string{"deleted"},
+		Refresh:    vaultStateRefreshFunc(client, d.Id()),
+		Timeout:    d.Timeout(schema.TimeoutDelete),
+		Delay:      5 * time.Second,
+		MinTimeout: 3 * time.Second,
+	}
+
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		return diag.Errorf("timeout waiting for vault deletion to complete: %s", err)
+	}
 	d.SetId("")
 
 	return nil
+}
+
+func vaultStateRefreshFunc(client *golangsdk.ServiceClient, vaultId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		resp, err := vaults.Get(client, vaultId).Extract()
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return resp, "deleted", nil
+			}
+			return resp, "available", err
+		}
+		return resp, resp.Billing.Status, nil
+	}
 }
