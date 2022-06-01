@@ -49,3 +49,17 @@ func List(c *golangsdk.ServiceClient, opts ListOpts) ([]SourceServer, error) {
 	}
 	return ExtractSourceServers(pages)
 }
+
+// Get 查询指定ID的源端服务器
+func Get(c *golangsdk.ServiceClient, id string) (*SourceServer, error) {
+	var rst golangsdk.Result
+	_, rst.Err = c.Get(getURL(c, id), &rst.Body, nil)
+
+	var r SourceServer
+	err := rst.ExtractInto(&r)
+	if err != nil {
+		return nil, err
+	}
+
+	return &r, nil
+}

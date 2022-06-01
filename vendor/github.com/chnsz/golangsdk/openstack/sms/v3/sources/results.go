@@ -91,11 +91,11 @@ type Task struct {
 	// 开始时间
 	StartDate int64 `json:"start_date"`
 	// 限速
-	SpeedLimit int `json:"speed_limit"`
+	SpeedLimit float32 `json:"speed_limit"`
 	// 迁移速率
-	MigrateSpeed int `json:"migrate_speed"`
+	MigrateSpeed float32 `json:"migrate_speed"`
 	// 压缩率
-	CompressRate int `json:"compress_rate"`
+	CompressRate float32 `json:"compress_rate"`
 	// 是否启动虚拟机
 	StartTargetServer bool `json:"start_target_server"`
 	// 虚拟机模板id
@@ -172,4 +172,26 @@ type ServerDisk struct {
 	Size int64 `json:"size"`
 	// 磁盘的作用
 	DeviceUse string `json:"device_use"`
+	// 逻辑卷信息
+	PhysicalVolumes []PhysicalVolumes `json:"physical_volumes"`
+}
+
+// PhysicalVolumes 物理分区
+type PhysicalVolumes struct {
+	// 分区类型
+	DeviceType string `json:"device_use"`
+	// 文件系统
+	FileSystem string `json:"file_system"`
+	// 编号
+	Index int `json:"index"`
+	// 挂载点
+	MountPoint string `json:"mount_point"`
+	// 名称
+	Name string `json:"name"`
+	// 大小
+	Size int64 `json:"size"`
+	// 使用大小
+	UsedSize int64 `json:"used_size"`
+	// uuid
+	UUID string `json:"uuid"`
 }
