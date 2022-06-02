@@ -108,6 +108,10 @@ func GetQueryTranscodingsTaskResponseStatusEnum() QueryTranscodingsTaskResponseS
 	}
 }
 
+func (c QueryTranscodingsTaskResponseStatus) Value() string {
+	return c.value
+}
+
 func (c QueryTranscodingsTaskResponseStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

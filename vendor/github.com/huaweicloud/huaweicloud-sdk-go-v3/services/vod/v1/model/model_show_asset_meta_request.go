@@ -115,6 +115,10 @@ func GetShowAssetMetaRequestStatusEnum() ShowAssetMetaRequestStatusEnum {
 	}
 }
 
+func (c ShowAssetMetaRequestStatus) Value() string {
+	return c.value
+}
+
 func (c ShowAssetMetaRequestStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -165,6 +169,10 @@ func GetShowAssetMetaRequestTranscodeStatusEnum() ShowAssetMetaRequestTranscodeS
 	}
 }
 
+func (c ShowAssetMetaRequestTranscodeStatus) Value() string {
+	return c.value
+}
+
 func (c ShowAssetMetaRequestTranscodeStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -201,6 +209,10 @@ func GetShowAssetMetaRequestAssetStatusEnum() ShowAssetMetaRequestAssetStatusEnu
 			value: "CREATED",
 		},
 	}
+}
+
+func (c ShowAssetMetaRequestAssetStatus) Value() string {
+	return c.value
 }
 
 func (c ShowAssetMetaRequestAssetStatus) MarshalJSON() ([]byte, error) {

@@ -47,6 +47,10 @@ func GetRunRecordRequestActionEnum() RunRecordRequestActionEnum {
 	}
 }
 
+func (c RunRecordRequestAction) Value() string {
+	return c.value
+}
+
 func (c RunRecordRequestAction) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

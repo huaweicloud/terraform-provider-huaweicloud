@@ -62,6 +62,10 @@ func GetShowInstanceConfigurationResponseDatastoreNameEnum() ShowInstanceConfigu
 	}
 }
 
+func (c ShowInstanceConfigurationResponseDatastoreName) Value() string {
+	return c.value
+}
+
 func (c ShowInstanceConfigurationResponseDatastoreName) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

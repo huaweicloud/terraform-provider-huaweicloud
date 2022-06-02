@@ -57,6 +57,10 @@ func GetRestoreToExistingInstanceRequestBodySourceTypeEnum() RestoreToExistingIn
 	}
 }
 
+func (c RestoreToExistingInstanceRequestBodySourceType) Value() string {
+	return c.value
+}
+
 func (c RestoreToExistingInstanceRequestBodySourceType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

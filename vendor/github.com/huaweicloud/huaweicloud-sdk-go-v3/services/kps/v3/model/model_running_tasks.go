@@ -64,6 +64,10 @@ func GetRunningTasksOperateTypeEnum() RunningTasksOperateTypeEnum {
 	}
 }
 
+func (c RunningTasksOperateType) Value() string {
+	return c.value
+}
+
 func (c RunningTasksOperateType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

@@ -47,6 +47,10 @@ func GetLiveDomainModifyReqStatusEnum() LiveDomainModifyReqStatusEnum {
 	}
 }
 
+func (c LiveDomainModifyReqStatus) Value() string {
+	return c.value
+}
+
 func (c LiveDomainModifyReqStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

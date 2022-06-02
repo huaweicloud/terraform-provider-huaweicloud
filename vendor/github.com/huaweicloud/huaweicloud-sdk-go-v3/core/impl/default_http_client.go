@@ -23,6 +23,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/exchange"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/httphandler"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/request"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/response"
@@ -72,43 +73,80 @@ func NewDefaultHttpClient(httpConfig *config.HttpConfig) *DefaultHttpClient {
 	return client
 }
 
-func (client *DefaultHttpClient) SyncInvokeHttp(request *request.DefaultHttpRequest) (*response.DefaultHttpResponse, error) {
+func (client *DefaultHttpClient) SyncInvokeHttp(request *request.DefaultHttpRequest) (*response.DefaultHttpResponse,
+	error) {
+	exch := &exchange.SdkExchange{
+		ApiReference: &exchange.ApiReference{},
+		Attributes:   make(map[string]interface{}),
+	}
+	return client.SyncInvokeHttpWithExchange(request, exch)
+}
+
+func (client *DefaultHttpClient) SyncInvokeHttpWithExchange(request *request.DefaultHttpRequest,
+	exch *exchange.SdkExchange) (*response.DefaultHttpResponse, error) {
 	req, err := request.ConvertRequest()
 	if err != nil {
 		return nil, err
 	}
 
+	if lnErr := client.listenRequest(req); lnErr != nil {
+		return nil, lnErr
+	}
+
+	client.recordRequestInfo(exch, req)
+	resp, err := client.goHttpClient.Do(req)
+	client.recordResponseInfo(exch, resp)
+
+	if lnErr := client.listenResponse(resp); lnErr != nil {
+		return nil, lnErr
+	}
+	client.monitorHttp(exch, resp)
+
+	if err != nil {
+		return nil, err
+	}
+	return response.NewDefaultHttpResponse(resp), nil
+}
+
+func (client *DefaultHttpClient) recordRequestInfo(exch *exchange.SdkExchange, req *http.Request) {
+	exch.ApiReference.Host = req.URL.Host
+	exch.ApiReference.Method = req.Method
+	exch.ApiReference.Path = req.URL.Path
+	exch.ApiReference.Raw = req.URL.RawQuery
+	exch.ApiReference.UserAgent = req.UserAgent()
+	exch.ApiReference.StartedTime = time.Now()
+}
+
+func (client *DefaultHttpClient) recordResponseInfo(exch *exchange.SdkExchange, resp *http.Response) {
+	exch.ApiReference.RequestId = resp.Header.Get("X-Request-Id")
+	exch.ApiReference.StatusCode = resp.StatusCode
+	exch.ApiReference.ContentLength = resp.ContentLength
+	exch.ApiReference.DurationMs = time.Since(exch.ApiReference.StartedTime)
+}
+
+func (client *DefaultHttpClient) listenRequest(req *http.Request) error {
 	if client.httpHandler != nil && client.httpHandler.RequestHandlers != nil && req != nil {
 		bodyBytes, err := httputil.DumpRequest(req, true)
 		if err != nil {
-			return nil, err
+			return err
 		}
+
 		reqClone := req.Clone(req.Context())
 		reqClone.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 		defer reqClone.Body.Close()
+
 		client.httpHandler.RequestHandlers(*reqClone)
 	}
+	return nil
+}
 
-	startTime := time.Now()
-
-	var resp *http.Response
-	tried := 0
-	for {
-		resp, err = client.goHttpClient.Do(req)
-		tried++
-		if client.httpConfig.Retries <= 1 || tried >= client.httpConfig.Retries ||
-			err == nil || (resp != nil && resp.StatusCode < 300) {
-			break
-		}
-	}
-
-	endTime := time.Now()
-
+func (client *DefaultHttpClient) listenResponse(resp *http.Response) error {
 	if client.httpHandler != nil && client.httpHandler.ResponseHandlers != nil && resp != nil {
 		bodyBytes, err := httputil.DumpResponse(resp, true)
 		if err != nil {
-			return nil, err
+			return err
 		}
+
 		respClone := http.Response{
 			Body:             ioutil.NopCloser(bytes.NewBuffer(bodyBytes)),
 			Status:           resp.Status,
@@ -124,31 +162,26 @@ func (client *DefaultHttpClient) SyncInvokeHttp(request *request.DefaultHttpRequ
 			Trailer:          resp.Trailer,
 		}
 		defer respClone.Body.Close()
+
 		client.httpHandler.ResponseHandlers(respClone)
 	}
+	return nil
+}
 
+func (client *DefaultHttpClient) monitorHttp(exch *exchange.SdkExchange, resp *http.Response) {
 	if client.httpHandler != nil && client.httpHandler.MonitorHandlers != nil {
 		metric := &httphandler.MonitorMetric{
-			Host:      req.URL.Host,
-			Method:    req.Method,
-			Path:      req.URL.Path,
-			Raw:       req.URL.RawQuery,
-			UserAgent: req.UserAgent(),
-			Latency:   endTime.Sub(startTime),
-		}
-
-		if resp != nil {
-			metric.RequestId = resp.Header.Get("X-Request-Id")
-			metric.StatusCode = resp.StatusCode
-			metric.ContentLength = resp.ContentLength
+			Host:          exch.ApiReference.Host,
+			Method:        exch.ApiReference.Method,
+			Path:          exch.ApiReference.Path,
+			Raw:           exch.ApiReference.Raw,
+			UserAgent:     exch.ApiReference.UserAgent,
+			Latency:       exch.ApiReference.DurationMs,
+			RequestId:     exch.ApiReference.RequestId,
+			StatusCode:    exch.ApiReference.StatusCode,
+			ContentLength: exch.ApiReference.ContentLength,
 		}
 
 		client.httpHandler.MonitorHandlers(metric)
 	}
-
-	if err != nil {
-		return nil, err
-	}
-
-	return response.NewDefaultHttpResponse(resp), nil
 }

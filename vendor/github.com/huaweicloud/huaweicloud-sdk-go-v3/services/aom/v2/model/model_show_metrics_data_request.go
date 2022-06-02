@@ -55,6 +55,10 @@ func GetShowMetricsDataRequestFillValueEnum() ShowMetricsDataRequestFillValueEnu
 	}
 }
 
+func (c ShowMetricsDataRequestFillValue) Value() string {
+	return c.value
+}
+
 func (c ShowMetricsDataRequestFillValue) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

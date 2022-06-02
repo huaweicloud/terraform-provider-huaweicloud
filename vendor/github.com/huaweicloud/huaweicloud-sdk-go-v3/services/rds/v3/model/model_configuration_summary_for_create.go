@@ -67,6 +67,10 @@ func GetConfigurationSummaryForCreateDatastoreNameEnum() ConfigurationSummaryFor
 	}
 }
 
+func (c ConfigurationSummaryForCreateDatastoreName) Value() string {
+	return c.value
+}
+
 func (c ConfigurationSummaryForCreateDatastoreName) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

@@ -66,6 +66,10 @@ func GetListSlowlogStatisticsRequestXLanguageEnum() ListSlowlogStatisticsRequest
 	}
 }
 
+func (c ListSlowlogStatisticsRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c ListSlowlogStatisticsRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -118,6 +122,10 @@ func GetListSlowlogStatisticsRequestTypeEnum() ListSlowlogStatisticsRequestTypeE
 			value: "ALL",
 		},
 	}
+}
+
+func (c ListSlowlogStatisticsRequestType) Value() string {
+	return c.value
 }
 
 func (c ListSlowlogStatisticsRequestType) MarshalJSON() ([]byte, error) {

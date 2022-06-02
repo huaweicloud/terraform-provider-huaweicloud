@@ -49,6 +49,10 @@ func GetMfaIdentityMethodsEnum() MfaIdentityMethodsEnum {
 	}
 }
 
+func (c MfaIdentityMethods) Value() string {
+	return c.value
+}
+
 func (c MfaIdentityMethods) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

@@ -56,6 +56,10 @@ func GetEventSeriesEventSeverityEnum() EventSeriesEventSeverityEnum {
 	}
 }
 
+func (c EventSeriesEventSeverity) Value() string {
+	return c.value
+}
+
 func (c EventSeriesEventSeverity) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

@@ -50,6 +50,10 @@ func GetMigrateFollowerRequestXLanguageEnum() MigrateFollowerRequestXLanguageEnu
 	}
 }
 
+func (c MigrateFollowerRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c MigrateFollowerRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

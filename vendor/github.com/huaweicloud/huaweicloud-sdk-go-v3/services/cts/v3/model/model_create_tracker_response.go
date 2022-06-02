@@ -82,6 +82,10 @@ func GetCreateTrackerResponseTrackerTypeEnum() CreateTrackerResponseTrackerTypeE
 	}
 }
 
+func (c CreateTrackerResponseTrackerType) Value() string {
+	return c.value
+}
+
 func (c CreateTrackerResponseTrackerType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -118,6 +122,10 @@ func GetCreateTrackerResponseStatusEnum() CreateTrackerResponseStatusEnum {
 			value: "disabled",
 		},
 	}
+}
+
+func (c CreateTrackerResponseStatus) Value() string {
+	return c.value
 }
 
 func (c CreateTrackerResponseStatus) MarshalJSON() ([]byte, error) {

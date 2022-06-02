@@ -79,6 +79,10 @@ func GetListEditingJobRequestStatusEnum() ListEditingJobRequestStatusEnum {
 	}
 }
 
+func (c ListEditingJobRequestStatus) Value() string {
+	return c.value
+}
+
 func (c ListEditingJobRequestStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

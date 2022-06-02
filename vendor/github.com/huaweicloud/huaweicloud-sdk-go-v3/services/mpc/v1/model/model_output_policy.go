@@ -48,6 +48,10 @@ func GetOutputPolicyOutputPolicyEnum() OutputPolicyOutputPolicyEnum {
 	}
 }
 
+func (c OutputPolicyOutputPolicy) Value() string {
+	return c.value
+}
+
 func (c OutputPolicyOutputPolicy) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

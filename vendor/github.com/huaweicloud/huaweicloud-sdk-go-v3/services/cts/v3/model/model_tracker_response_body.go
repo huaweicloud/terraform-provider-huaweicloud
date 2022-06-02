@@ -80,6 +80,10 @@ func GetTrackerResponseBodyTrackerTypeEnum() TrackerResponseBodyTrackerTypeEnum 
 	}
 }
 
+func (c TrackerResponseBodyTrackerType) Value() string {
+	return c.value
+}
+
 func (c TrackerResponseBodyTrackerType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -116,6 +120,10 @@ func GetTrackerResponseBodyStatusEnum() TrackerResponseBodyStatusEnum {
 			value: "disabled",
 		},
 	}
+}
+
+func (c TrackerResponseBodyStatus) Value() string {
+	return c.value
 }
 
 func (c TrackerResponseBodyStatus) MarshalJSON() ([]byte, error) {

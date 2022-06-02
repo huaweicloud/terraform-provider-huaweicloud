@@ -47,6 +47,10 @@ func GetListEventsRequestTypeEnum() ListEventsRequestTypeEnum {
 	}
 }
 
+func (c ListEventsRequestType) Value() string {
+	return c.value
+}
+
 func (c ListEventsRequestType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

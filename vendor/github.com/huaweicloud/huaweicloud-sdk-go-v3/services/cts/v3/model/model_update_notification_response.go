@@ -73,6 +73,10 @@ func GetUpdateNotificationResponseOperationTypeEnum() UpdateNotificationResponse
 	}
 }
 
+func (c UpdateNotificationResponseOperationType) Value() string {
+	return c.value
+}
+
 func (c UpdateNotificationResponseOperationType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -111,6 +115,10 @@ func GetUpdateNotificationResponseStatusEnum() UpdateNotificationResponseStatusE
 	}
 }
 
+func (c UpdateNotificationResponseStatus) Value() string {
+	return c.value
+}
+
 func (c UpdateNotificationResponseStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -147,6 +155,10 @@ func GetUpdateNotificationResponseNotificationTypeEnum() UpdateNotificationRespo
 			value: "fun",
 		},
 	}
+}
+
+func (c UpdateNotificationResponseNotificationType) Value() string {
+	return c.value
 }
 
 func (c UpdateNotificationResponseNotificationType) MarshalJSON() ([]byte, error) {

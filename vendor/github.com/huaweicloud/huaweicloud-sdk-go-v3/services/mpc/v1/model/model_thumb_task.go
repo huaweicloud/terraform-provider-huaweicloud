@@ -85,6 +85,10 @@ func GetThumbTaskStatusEnum() ThumbTaskStatusEnum {
 	}
 }
 
+func (c ThumbTaskStatus) Value() string {
+	return c.value
+}
+
 func (c ThumbTaskStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

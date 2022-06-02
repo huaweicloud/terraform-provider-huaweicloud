@@ -48,6 +48,10 @@ func GetEventQueryParam2SortOrderEnum() EventQueryParam2SortOrderEnum {
 	}
 }
 
+func (c EventQueryParam2SortOrder) Value() string {
+	return c.value
+}
+
 func (c EventQueryParam2SortOrder) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

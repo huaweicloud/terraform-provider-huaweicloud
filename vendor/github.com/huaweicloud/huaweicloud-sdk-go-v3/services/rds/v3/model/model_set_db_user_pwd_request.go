@@ -50,6 +50,10 @@ func GetSetDbUserPwdRequestXLanguageEnum() SetDbUserPwdRequestXLanguageEnum {
 	}
 }
 
+func (c SetDbUserPwdRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c SetDbUserPwdRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

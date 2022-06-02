@@ -2,7 +2,7 @@ package v1
 
 import (
 	http_client "github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
-
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/invoker"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1/model"
 )
 
@@ -19,7 +19,7 @@ func LiveClientBuilder() *http_client.HcHttpClientBuilder {
 	return builder
 }
 
-// 创建直播域名
+// CreateDomain 创建直播域名
 //
 // 可单独创建直播播放域名或推流域名，每个租户最多可配置64条域名记录。
 //
@@ -35,7 +35,13 @@ func (c *LiveClient) CreateDomain(request *model.CreateDomainRequest) (*model.Cr
 	}
 }
 
-// 域名映射
+// CreateDomainInvoker 创建直播域名
+func (c *LiveClient) CreateDomainInvoker(request *model.CreateDomainRequest) *CreateDomainInvoker {
+	requestDef := GenReqDefForCreateDomain()
+	return &CreateDomainInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateDomainMapping 域名映射
 //
 // 将用户已创建的播放域名和推流域名建立域名映射关系
 //
@@ -51,7 +57,13 @@ func (c *LiveClient) CreateDomainMapping(request *model.CreateDomainMappingReque
 	}
 }
 
-// 创建录制回调配置
+// CreateDomainMappingInvoker 域名映射
+func (c *LiveClient) CreateDomainMappingInvoker(request *model.CreateDomainMappingRequest) *CreateDomainMappingInvoker {
+	requestDef := GenReqDefForCreateDomainMapping()
+	return &CreateDomainMappingInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateRecordCallbackConfig 创建录制回调配置
 //
 // 创建录制回调配置接口
 //
@@ -67,7 +79,13 @@ func (c *LiveClient) CreateRecordCallbackConfig(request *model.CreateRecordCallb
 	}
 }
 
-// 创建录制规则
+// CreateRecordCallbackConfigInvoker 创建录制回调配置
+func (c *LiveClient) CreateRecordCallbackConfigInvoker(request *model.CreateRecordCallbackConfigRequest) *CreateRecordCallbackConfigInvoker {
+	requestDef := GenReqDefForCreateRecordCallbackConfig()
+	return &CreateRecordCallbackConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateRecordRule 创建录制规则
 //
 // 创建录制规则接口，录制规则对新推送的流生效，对已经推送中的流不生效
 //
@@ -83,7 +101,13 @@ func (c *LiveClient) CreateRecordRule(request *model.CreateRecordRuleRequest) (*
 	}
 }
 
-// 禁止直播推流
+// CreateRecordRuleInvoker 创建录制规则
+func (c *LiveClient) CreateRecordRuleInvoker(request *model.CreateRecordRuleRequest) *CreateRecordRuleInvoker {
+	requestDef := GenReqDefForCreateRecordRule()
+	return &CreateRecordRuleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateStreamForbidden 禁止直播推流
 //
 // 禁止直播推流
 //
@@ -99,7 +123,13 @@ func (c *LiveClient) CreateStreamForbidden(request *model.CreateStreamForbiddenR
 	}
 }
 
-// 创建直播转码模板
+// CreateStreamForbiddenInvoker 禁止直播推流
+func (c *LiveClient) CreateStreamForbiddenInvoker(request *model.CreateStreamForbiddenRequest) *CreateStreamForbiddenInvoker {
+	requestDef := GenReqDefForCreateStreamForbidden()
+	return &CreateStreamForbiddenInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateTranscodingsTemplate 创建直播转码模板
 //
 // 创建直播转码模板
 //
@@ -115,7 +145,13 @@ func (c *LiveClient) CreateTranscodingsTemplate(request *model.CreateTranscoding
 	}
 }
 
-// 删除直播域名
+// CreateTranscodingsTemplateInvoker 创建直播转码模板
+func (c *LiveClient) CreateTranscodingsTemplateInvoker(request *model.CreateTranscodingsTemplateRequest) *CreateTranscodingsTemplateInvoker {
+	requestDef := GenReqDefForCreateTranscodingsTemplate()
+	return &CreateTranscodingsTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteDomain 删除直播域名
 //
 // 删除域名。只有在域名停用（off）状态时才能删除。
 //
@@ -131,7 +167,13 @@ func (c *LiveClient) DeleteDomain(request *model.DeleteDomainRequest) (*model.De
 	}
 }
 
-// 删除直播域名映射关系
+// DeleteDomainInvoker 删除直播域名
+func (c *LiveClient) DeleteDomainInvoker(request *model.DeleteDomainRequest) *DeleteDomainInvoker {
+	requestDef := GenReqDefForDeleteDomain()
+	return &DeleteDomainInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteDomainMapping 删除直播域名映射关系
 //
 // 将播放域名和推流域名的域名映射关系删除
 //
@@ -147,7 +189,13 @@ func (c *LiveClient) DeleteDomainMapping(request *model.DeleteDomainMappingReque
 	}
 }
 
-// 删除录制回调配置
+// DeleteDomainMappingInvoker 删除直播域名映射关系
+func (c *LiveClient) DeleteDomainMappingInvoker(request *model.DeleteDomainMappingRequest) *DeleteDomainMappingInvoker {
+	requestDef := GenReqDefForDeleteDomainMapping()
+	return &DeleteDomainMappingInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteRecordCallbackConfig 删除录制回调配置
 //
 // 删除录制回调配置接口
 //
@@ -163,7 +211,13 @@ func (c *LiveClient) DeleteRecordCallbackConfig(request *model.DeleteRecordCallb
 	}
 }
 
-// 删除录制规则
+// DeleteRecordCallbackConfigInvoker 删除录制回调配置
+func (c *LiveClient) DeleteRecordCallbackConfigInvoker(request *model.DeleteRecordCallbackConfigRequest) *DeleteRecordCallbackConfigInvoker {
+	requestDef := GenReqDefForDeleteRecordCallbackConfig()
+	return &DeleteRecordCallbackConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteRecordRule 删除录制规则
 //
 // 删除录制规则接口
 //
@@ -179,7 +233,13 @@ func (c *LiveClient) DeleteRecordRule(request *model.DeleteRecordRuleRequest) (*
 	}
 }
 
-// 禁推恢复
+// DeleteRecordRuleInvoker 删除录制规则
+func (c *LiveClient) DeleteRecordRuleInvoker(request *model.DeleteRecordRuleRequest) *DeleteRecordRuleInvoker {
+	requestDef := GenReqDefForDeleteRecordRule()
+	return &DeleteRecordRuleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteStreamForbidden 禁推恢复
 //
 // 恢复直播推流接口
 //
@@ -195,7 +255,13 @@ func (c *LiveClient) DeleteStreamForbidden(request *model.DeleteStreamForbiddenR
 	}
 }
 
-// 删除直播转码模板
+// DeleteStreamForbiddenInvoker 禁推恢复
+func (c *LiveClient) DeleteStreamForbiddenInvoker(request *model.DeleteStreamForbiddenRequest) *DeleteStreamForbiddenInvoker {
+	requestDef := GenReqDefForDeleteStreamForbidden()
+	return &DeleteStreamForbiddenInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteTranscodingsTemplate 删除直播转码模板
 //
 // 删除直播转码模板
 //
@@ -211,7 +277,13 @@ func (c *LiveClient) DeleteTranscodingsTemplate(request *model.DeleteTranscoding
 	}
 }
 
-// 获取直播播放日志
+// DeleteTranscodingsTemplateInvoker 删除直播转码模板
+func (c *LiveClient) DeleteTranscodingsTemplateInvoker(request *model.DeleteTranscodingsTemplateRequest) *DeleteTranscodingsTemplateInvoker {
+	requestDef := GenReqDefForDeleteTranscodingsTemplate()
+	return &DeleteTranscodingsTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListLiveSampleLogs 获取直播播放日志
 //
 // 获取直播播放日志，基于域名以5分钟粒度进行打包，日志内容以 \&quot;|\&quot; 进行分隔。
 //
@@ -227,7 +299,13 @@ func (c *LiveClient) ListLiveSampleLogs(request *model.ListLiveSampleLogsRequest
 	}
 }
 
-// 查询直播中的流信息
+// ListLiveSampleLogsInvoker 获取直播播放日志
+func (c *LiveClient) ListLiveSampleLogsInvoker(request *model.ListLiveSampleLogsRequest) *ListLiveSampleLogsInvoker {
+	requestDef := GenReqDefForListLiveSampleLogs()
+	return &ListLiveSampleLogsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListLiveStreamsOnline 查询直播中的流信息
 //
 // 查询直播中的流信息
 //
@@ -243,7 +321,13 @@ func (c *LiveClient) ListLiveStreamsOnline(request *model.ListLiveStreamsOnlineR
 	}
 }
 
-// 查询录制回调配置列表
+// ListLiveStreamsOnlineInvoker 查询直播中的流信息
+func (c *LiveClient) ListLiveStreamsOnlineInvoker(request *model.ListLiveStreamsOnlineRequest) *ListLiveStreamsOnlineInvoker {
+	requestDef := GenReqDefForListLiveStreamsOnline()
+	return &ListLiveStreamsOnlineInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListRecordCallbackConfigs 查询录制回调配置列表
 //
 // 查询录制回调配置列表接口。通过指定条件，查询满足条件的配置列表。
 //
@@ -259,7 +343,13 @@ func (c *LiveClient) ListRecordCallbackConfigs(request *model.ListRecordCallback
 	}
 }
 
-// 录制完成内容的查询
+// ListRecordCallbackConfigsInvoker 查询录制回调配置列表
+func (c *LiveClient) ListRecordCallbackConfigsInvoker(request *model.ListRecordCallbackConfigsRequest) *ListRecordCallbackConfigsInvoker {
+	requestDef := GenReqDefForListRecordCallbackConfigs()
+	return &ListRecordCallbackConfigsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListRecordContents 录制完成内容的查询
 //
 // 录制完成的内容查询
 //
@@ -275,7 +365,13 @@ func (c *LiveClient) ListRecordContents(request *model.ListRecordContentsRequest
 	}
 }
 
-// 查询录制规则列表
+// ListRecordContentsInvoker 录制完成内容的查询
+func (c *LiveClient) ListRecordContentsInvoker(request *model.ListRecordContentsRequest) *ListRecordContentsInvoker {
+	requestDef := GenReqDefForListRecordContents()
+	return &ListRecordContentsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListRecordRules 查询录制规则列表
 //
 // 查询录制规则列表接口，通过指定条件，查询满足条件的录制规则列表。
 //
@@ -291,7 +387,13 @@ func (c *LiveClient) ListRecordRules(request *model.ListRecordRulesRequest) (*mo
 	}
 }
 
-// 查询禁止直播推流列表
+// ListRecordRulesInvoker 查询录制规则列表
+func (c *LiveClient) ListRecordRulesInvoker(request *model.ListRecordRulesRequest) *ListRecordRulesInvoker {
+	requestDef := GenReqDefForListRecordRules()
+	return &ListRecordRulesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListStreamForbidden 查询禁止直播推流列表
 //
 // 查询禁播黑名单列表
 //
@@ -307,7 +409,13 @@ func (c *LiveClient) ListStreamForbidden(request *model.ListStreamForbiddenReque
 	}
 }
 
-// 提交录制控制命令
+// ListStreamForbiddenInvoker 查询禁止直播推流列表
+func (c *LiveClient) ListStreamForbiddenInvoker(request *model.ListStreamForbiddenRequest) *ListStreamForbiddenInvoker {
+	requestDef := GenReqDefForListStreamForbidden()
+	return &ListStreamForbiddenInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// RunRecord 提交录制控制命令
 //
 // 对单条流的实时录制控制接口。
 //
@@ -323,7 +431,13 @@ func (c *LiveClient) RunRecord(request *model.RunRecordRequest) (*model.RunRecor
 	}
 }
 
-// 查询直播域名
+// RunRecordInvoker 提交录制控制命令
+func (c *LiveClient) RunRecordInvoker(request *model.RunRecordRequest) *RunRecordInvoker {
+	requestDef := GenReqDefForRunRecord()
+	return &RunRecordInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowDomain 查询直播域名
 //
 // 查询直播域名
 //
@@ -339,7 +453,13 @@ func (c *LiveClient) ShowDomain(request *model.ShowDomainRequest) (*model.ShowDo
 	}
 }
 
-// 查询录制回调配置
+// ShowDomainInvoker 查询直播域名
+func (c *LiveClient) ShowDomainInvoker(request *model.ShowDomainRequest) *ShowDomainInvoker {
+	requestDef := GenReqDefForShowDomain()
+	return &ShowDomainInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowRecordCallbackConfig 查询录制回调配置
 //
 // 查询录制回调配置接口
 //
@@ -355,7 +475,13 @@ func (c *LiveClient) ShowRecordCallbackConfig(request *model.ShowRecordCallbackC
 	}
 }
 
-// 查询录制规则配置
+// ShowRecordCallbackConfigInvoker 查询录制回调配置
+func (c *LiveClient) ShowRecordCallbackConfigInvoker(request *model.ShowRecordCallbackConfigRequest) *ShowRecordCallbackConfigInvoker {
+	requestDef := GenReqDefForShowRecordCallbackConfig()
+	return &ShowRecordCallbackConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowRecordRule 查询录制规则配置
 //
 // 查询录制规则接口
 //
@@ -371,7 +497,13 @@ func (c *LiveClient) ShowRecordRule(request *model.ShowRecordRuleRequest) (*mode
 	}
 }
 
-// 查询直播转码模板
+// ShowRecordRuleInvoker 查询录制规则配置
+func (c *LiveClient) ShowRecordRuleInvoker(request *model.ShowRecordRuleRequest) *ShowRecordRuleInvoker {
+	requestDef := GenReqDefForShowRecordRule()
+	return &ShowRecordRuleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowTranscodingsTemplate 查询直播转码模板
 //
 // 查询直播转码模板
 //
@@ -387,7 +519,13 @@ func (c *LiveClient) ShowTranscodingsTemplate(request *model.ShowTranscodingsTem
 	}
 }
 
-// 修改直播域名
+// ShowTranscodingsTemplateInvoker 查询直播转码模板
+func (c *LiveClient) ShowTranscodingsTemplateInvoker(request *model.ShowTranscodingsTemplateRequest) *ShowTranscodingsTemplateInvoker {
+	requestDef := GenReqDefForShowTranscodingsTemplate()
+	return &ShowTranscodingsTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateDomain 修改直播域名
 //
 // 修改直播播放、RTMP推流加速域名相关信息
 //
@@ -403,7 +541,13 @@ func (c *LiveClient) UpdateDomain(request *model.UpdateDomainRequest) (*model.Up
 	}
 }
 
-// 修改录制回调配置
+// UpdateDomainInvoker 修改直播域名
+func (c *LiveClient) UpdateDomainInvoker(request *model.UpdateDomainRequest) *UpdateDomainInvoker {
+	requestDef := GenReqDefForUpdateDomain()
+	return &UpdateDomainInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateRecordCallbackConfig 修改录制回调配置
 //
 // 修改录制回调配置接口
 //
@@ -419,7 +563,13 @@ func (c *LiveClient) UpdateRecordCallbackConfig(request *model.UpdateRecordCallb
 	}
 }
 
-// 修改录制规则
+// UpdateRecordCallbackConfigInvoker 修改录制回调配置
+func (c *LiveClient) UpdateRecordCallbackConfigInvoker(request *model.UpdateRecordCallbackConfigRequest) *UpdateRecordCallbackConfigInvoker {
+	requestDef := GenReqDefForUpdateRecordCallbackConfig()
+	return &UpdateRecordCallbackConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateRecordRule 修改录制规则
 //
 // 修改录制规则接口，如果规则修改后，修改后的规则对正在录制的流无效，对新的流有效。
 //
@@ -435,7 +585,13 @@ func (c *LiveClient) UpdateRecordRule(request *model.UpdateRecordRuleRequest) (*
 	}
 }
 
-// 修改禁推属性
+// UpdateRecordRuleInvoker 修改录制规则
+func (c *LiveClient) UpdateRecordRuleInvoker(request *model.UpdateRecordRuleRequest) *UpdateRecordRuleInvoker {
+	requestDef := GenReqDefForUpdateRecordRule()
+	return &UpdateRecordRuleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateStreamForbidden 修改禁推属性
 //
 // 修改禁推属性
 //
@@ -451,7 +607,13 @@ func (c *LiveClient) UpdateStreamForbidden(request *model.UpdateStreamForbiddenR
 	}
 }
 
-// 配置直播转码模板
+// UpdateStreamForbiddenInvoker 修改禁推属性
+func (c *LiveClient) UpdateStreamForbiddenInvoker(request *model.UpdateStreamForbiddenRequest) *UpdateStreamForbiddenInvoker {
+	requestDef := GenReqDefForUpdateStreamForbidden()
+	return &UpdateStreamForbiddenInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateTranscodingsTemplate 配置直播转码模板
 //
 // 修改直播转码模板
 //
@@ -465,4 +627,10 @@ func (c *LiveClient) UpdateTranscodingsTemplate(request *model.UpdateTranscoding
 	} else {
 		return resp.(*model.UpdateTranscodingsTemplateResponse), nil
 	}
+}
+
+// UpdateTranscodingsTemplateInvoker 配置直播转码模板
+func (c *LiveClient) UpdateTranscodingsTemplateInvoker(request *model.UpdateTranscodingsTemplateRequest) *UpdateTranscodingsTemplateInvoker {
+	requestDef := GenReqDefForUpdateTranscodingsTemplate()
+	return &UpdateTranscodingsTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }

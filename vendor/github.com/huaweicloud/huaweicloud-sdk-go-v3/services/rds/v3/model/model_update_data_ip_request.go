@@ -50,6 +50,10 @@ func GetUpdateDataIpRequestXLanguageEnum() UpdateDataIpRequestXLanguageEnum {
 	}
 }
 
+func (c UpdateDataIpRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c UpdateDataIpRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

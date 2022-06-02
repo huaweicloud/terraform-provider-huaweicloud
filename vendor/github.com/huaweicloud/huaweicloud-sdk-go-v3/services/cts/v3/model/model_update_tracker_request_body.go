@@ -66,6 +66,10 @@ func GetUpdateTrackerRequestBodyTrackerTypeEnum() UpdateTrackerRequestBodyTracke
 	}
 }
 
+func (c UpdateTrackerRequestBodyTrackerType) Value() string {
+	return c.value
+}
+
 func (c UpdateTrackerRequestBodyTrackerType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -102,6 +106,10 @@ func GetUpdateTrackerRequestBodyStatusEnum() UpdateTrackerRequestBodyStatusEnum 
 			value: "disabled",
 		},
 	}
+}
+
+func (c UpdateTrackerRequestBodyStatus) Value() string {
+	return c.value
 }
 
 func (c UpdateTrackerRequestBodyStatus) MarshalJSON() ([]byte, error) {

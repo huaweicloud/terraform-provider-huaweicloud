@@ -55,6 +55,10 @@ func GetRelationModelRelationEnum() RelationModelRelationEnum {
 	}
 }
 
+func (c RelationModelRelation) Value() string {
+	return c.value
+}
+
 func (c RelationModelRelation) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

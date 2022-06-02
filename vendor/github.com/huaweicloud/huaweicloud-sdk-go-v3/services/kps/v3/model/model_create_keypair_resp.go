@@ -60,6 +60,10 @@ func GetCreateKeypairRespTypeEnum() CreateKeypairRespTypeEnum {
 	}
 }
 
+func (c CreateKeypairRespType) Value() string {
+	return c.value
+}
+
 func (c CreateKeypairRespType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

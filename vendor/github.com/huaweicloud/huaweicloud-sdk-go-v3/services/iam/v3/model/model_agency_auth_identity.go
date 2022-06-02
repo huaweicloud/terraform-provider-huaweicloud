@@ -45,6 +45,10 @@ func GetAgencyAuthIdentityMethodsEnum() AgencyAuthIdentityMethodsEnum {
 	}
 }
 
+func (c AgencyAuthIdentityMethods) Value() string {
+	return c.value
+}
+
 func (c AgencyAuthIdentityMethods) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

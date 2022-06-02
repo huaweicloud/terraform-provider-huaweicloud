@@ -48,6 +48,10 @@ func GetInputSettingAudioPolicyEnum() InputSettingAudioPolicyEnum {
 	}
 }
 
+func (c InputSettingAudioPolicy) Value() string {
+	return c.value
+}
+
 func (c InputSettingAudioPolicy) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

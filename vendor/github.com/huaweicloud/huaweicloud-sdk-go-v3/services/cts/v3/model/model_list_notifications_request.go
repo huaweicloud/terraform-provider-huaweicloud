@@ -48,6 +48,10 @@ func GetListNotificationsRequestNotificationTypeEnum() ListNotificationsRequestN
 	}
 }
 
+func (c ListNotificationsRequestNotificationType) Value() string {
+	return c.value
+}
+
 func (c ListNotificationsRequestNotificationType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

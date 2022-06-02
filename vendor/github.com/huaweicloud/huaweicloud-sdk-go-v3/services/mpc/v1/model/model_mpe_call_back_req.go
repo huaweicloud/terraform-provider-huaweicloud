@@ -82,6 +82,10 @@ func GetMpeCallBackReqTaskTypeEnum() MpeCallBackReqTaskTypeEnum {
 	}
 }
 
+func (c MpeCallBackReqTaskType) Value() string {
+	return c.value
+}
+
 func (c MpeCallBackReqTaskType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

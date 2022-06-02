@@ -101,6 +101,10 @@ func GetUpdateAlarmRuleParamAlarmLevelEnum() UpdateAlarmRuleParamAlarmLevelEnum 
 	}
 }
 
+func (c UpdateAlarmRuleParamAlarmLevel) Value() int32 {
+	return c.value
+}
+
 func (c UpdateAlarmRuleParamAlarmLevel) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -149,6 +153,10 @@ func GetUpdateAlarmRuleParamStatisticEnum() UpdateAlarmRuleParamStatisticEnum {
 			value: "sampleCount",
 		},
 	}
+}
+
+func (c UpdateAlarmRuleParamStatistic) Value() string {
+	return c.value
 }
 
 func (c UpdateAlarmRuleParamStatistic) MarshalJSON() ([]byte, error) {

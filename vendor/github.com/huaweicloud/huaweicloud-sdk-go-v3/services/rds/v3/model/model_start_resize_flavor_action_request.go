@@ -50,6 +50,10 @@ func GetStartResizeFlavorActionRequestXLanguageEnum() StartResizeFlavorActionReq
 	}
 }
 
+func (c StartResizeFlavorActionRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c StartResizeFlavorActionRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

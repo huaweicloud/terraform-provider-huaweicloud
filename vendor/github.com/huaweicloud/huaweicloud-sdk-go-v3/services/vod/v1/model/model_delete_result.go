@@ -51,6 +51,10 @@ func GetDeleteResultStatusEnum() DeleteResultStatusEnum {
 	}
 }
 
+func (c DeleteResultStatus) Value() string {
+	return c.value
+}
+
 func (c DeleteResultStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

@@ -70,6 +70,10 @@ func GetFailedTasksOperateTypeEnum() FailedTasksOperateTypeEnum {
 	}
 }
 
+func (c FailedTasksOperateType) Value() string {
+	return c.value
+}
+
 func (c FailedTasksOperateType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

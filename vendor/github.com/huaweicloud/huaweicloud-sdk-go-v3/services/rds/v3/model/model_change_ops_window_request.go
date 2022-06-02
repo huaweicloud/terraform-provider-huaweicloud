@@ -50,6 +50,10 @@ func GetChangeOpsWindowRequestXLanguageEnum() ChangeOpsWindowRequestXLanguageEnu
 	}
 }
 
+func (c ChangeOpsWindowRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c ChangeOpsWindowRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

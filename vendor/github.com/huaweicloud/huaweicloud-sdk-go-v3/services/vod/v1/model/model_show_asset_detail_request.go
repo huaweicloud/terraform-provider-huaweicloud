@@ -56,6 +56,10 @@ func GetShowAssetDetailRequestCategoriesEnum() ShowAssetDetailRequestCategoriesE
 	}
 }
 
+func (c ShowAssetDetailRequestCategories) Value() string {
+	return c.value
+}
+
 func (c ShowAssetDetailRequestCategories) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

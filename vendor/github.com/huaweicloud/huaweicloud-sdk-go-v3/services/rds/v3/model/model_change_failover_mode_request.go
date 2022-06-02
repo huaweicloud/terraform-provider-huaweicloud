@@ -50,6 +50,10 @@ func GetChangeFailoverModeRequestXLanguageEnum() ChangeFailoverModeRequestXLangu
 	}
 }
 
+func (c ChangeFailoverModeRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c ChangeFailoverModeRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

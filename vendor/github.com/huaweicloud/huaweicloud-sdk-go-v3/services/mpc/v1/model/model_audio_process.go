@@ -51,6 +51,10 @@ func GetAudioProcessVolumeEnum() AudioProcessVolumeEnum {
 	}
 }
 
+func (c AudioProcessVolume) Value() string {
+	return c.value
+}
+
 func (c AudioProcessVolume) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

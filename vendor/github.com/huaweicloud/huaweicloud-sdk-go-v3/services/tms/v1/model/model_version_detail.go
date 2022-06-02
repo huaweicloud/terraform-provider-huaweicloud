@@ -63,6 +63,10 @@ func GetVersionDetailStatusEnum() VersionDetailStatusEnum {
 	}
 }
 
+func (c VersionDetailStatus) Value() string {
+	return c.value
+}
+
 func (c VersionDetailStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

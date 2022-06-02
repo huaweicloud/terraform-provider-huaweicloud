@@ -75,6 +75,10 @@ func GetShowRecordCallbackConfigResponseNotifyEventSubscriptionEnum() ShowRecord
 	}
 }
 
+func (c ShowRecordCallbackConfigResponseNotifyEventSubscription) Value() string {
+	return c.value
+}
+
 func (c ShowRecordCallbackConfigResponseNotifyEventSubscription) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -111,6 +115,10 @@ func GetShowRecordCallbackConfigResponseSignTypeEnum() ShowRecordCallbackConfigR
 			value: "HMACSHA256",
 		},
 	}
+}
+
+func (c ShowRecordCallbackConfigResponseSignType) Value() string {
+	return c.value
 }
 
 func (c ShowRecordCallbackConfigResponseSignType) MarshalJSON() ([]byte, error) {

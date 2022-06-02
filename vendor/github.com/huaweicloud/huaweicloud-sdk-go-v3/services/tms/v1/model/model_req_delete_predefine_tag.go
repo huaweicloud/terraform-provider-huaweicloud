@@ -44,6 +44,10 @@ func GetReqDeletePredefineTagActionEnum() ReqDeletePredefineTagActionEnum {
 	}
 }
 
+func (c ReqDeletePredefineTagAction) Value() string {
+	return c.value
+}
+
 func (c ReqDeletePredefineTagAction) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

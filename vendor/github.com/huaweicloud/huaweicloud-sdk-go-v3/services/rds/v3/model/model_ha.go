@@ -48,6 +48,10 @@ func GetHaModeEnum() HaModeEnum {
 	}
 }
 
+func (c HaMode) Value() string {
+	return c.value
+}
+
 func (c HaMode) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -88,6 +92,10 @@ func GetHaReplicationModeEnum() HaReplicationModeEnum {
 			value: "sync",
 		},
 	}
+}
+
+func (c HaReplicationMode) Value() string {
+	return c.value
 }
 
 func (c HaReplicationMode) MarshalJSON() ([]byte, error) {

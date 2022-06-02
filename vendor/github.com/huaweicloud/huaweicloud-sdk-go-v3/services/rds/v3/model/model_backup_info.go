@@ -74,6 +74,10 @@ func GetBackupInfoStatusEnum() BackupInfoStatusEnum {
 	}
 }
 
+func (c BackupInfoStatus) Value() string {
+	return c.value
+}
+
 func (c BackupInfoStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -118,6 +122,10 @@ func GetBackupInfoTypeEnum() BackupInfoTypeEnum {
 			value: "incremental",
 		},
 	}
+}
+
+func (c BackupInfoType) Value() string {
+	return c.value
 }
 
 func (c BackupInfoType) MarshalJSON() ([]byte, error) {

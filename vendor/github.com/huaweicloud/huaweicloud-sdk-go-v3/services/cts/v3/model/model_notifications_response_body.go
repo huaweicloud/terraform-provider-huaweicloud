@@ -71,6 +71,10 @@ func GetNotificationsResponseBodyOperationTypeEnum() NotificationsResponseBodyOp
 	}
 }
 
+func (c NotificationsResponseBodyOperationType) Value() string {
+	return c.value
+}
+
 func (c NotificationsResponseBodyOperationType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -109,6 +113,10 @@ func GetNotificationsResponseBodyStatusEnum() NotificationsResponseBodyStatusEnu
 	}
 }
 
+func (c NotificationsResponseBodyStatus) Value() string {
+	return c.value
+}
+
 func (c NotificationsResponseBodyStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -145,6 +153,10 @@ func GetNotificationsResponseBodyNotificationTypeEnum() NotificationsResponseBod
 			value: "fun",
 		},
 	}
+}
+
+func (c NotificationsResponseBodyNotificationType) Value() string {
+	return c.value
 }
 
 func (c NotificationsResponseBodyNotificationType) MarshalJSON() ([]byte, error) {

@@ -48,6 +48,10 @@ func GetShowInformationAboutDatabaseProxyRequestXLanguageEnum() ShowInformationA
 	}
 }
 
+func (c ShowInformationAboutDatabaseProxyRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c ShowInformationAboutDatabaseProxyRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

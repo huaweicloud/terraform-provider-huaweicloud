@@ -47,6 +47,10 @@ func GetCreateRestoreInstanceRequestXLanguageEnum() CreateRestoreInstanceRequest
 	}
 }
 
+func (c CreateRestoreInstanceRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c CreateRestoreInstanceRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

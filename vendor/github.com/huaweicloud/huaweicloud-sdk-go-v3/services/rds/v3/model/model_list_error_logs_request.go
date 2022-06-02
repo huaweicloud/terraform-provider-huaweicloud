@@ -87,6 +87,10 @@ func GetListErrorLogsRequestLevelEnum() ListErrorLogsRequestLevelEnum {
 	}
 }
 
+func (c ListErrorLogsRequestLevel) Value() string {
+	return c.value
+}
+
 func (c ListErrorLogsRequestLevel) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

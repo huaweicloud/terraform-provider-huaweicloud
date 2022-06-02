@@ -65,6 +65,10 @@ func GetModifyTransTemplateGroupStatusEnum() ModifyTransTemplateGroupStatusEnum 
 	}
 }
 
+func (c ModifyTransTemplateGroupStatus) Value() string {
+	return c.value
+}
+
 func (c ModifyTransTemplateGroupStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

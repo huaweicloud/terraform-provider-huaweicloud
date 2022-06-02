@@ -2,7 +2,7 @@ package v3
 
 import (
 	http_client "github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
-
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/invoker"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3/model"
 )
 
@@ -19,7 +19,7 @@ func RdsClientBuilder() *http_client.HcHttpClientBuilder {
 	return builder
 }
 
-// 应用参数模板
+// ApplyConfigurationAsync 应用参数模板
 //
 // 应用参数模板。
 //
@@ -35,7 +35,13 @@ func (c *RdsClient) ApplyConfigurationAsync(request *model.ApplyConfigurationAsy
 	}
 }
 
-// 绑定和解绑弹性公网IP
+// ApplyConfigurationAsyncInvoker 应用参数模板
+func (c *RdsClient) ApplyConfigurationAsyncInvoker(request *model.ApplyConfigurationAsyncRequest) *ApplyConfigurationAsyncInvoker {
+	requestDef := GenReqDefForApplyConfigurationAsync()
+	return &ApplyConfigurationAsyncInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// AttachEip 绑定和解绑弹性公网IP
 //
 // 绑定和解绑弹性公网IP。
 //
@@ -51,7 +57,13 @@ func (c *RdsClient) AttachEip(request *model.AttachEipRequest) (*model.AttachEip
 	}
 }
 
-// 批量添加标签
+// AttachEipInvoker 绑定和解绑弹性公网IP
+func (c *RdsClient) AttachEipInvoker(request *model.AttachEipRequest) *AttachEipInvoker {
+	requestDef := GenReqDefForAttachEip()
+	return &AttachEipInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// BatchTagAddAction 批量添加标签
 //
 // 批量添加标签。
 //
@@ -67,7 +79,13 @@ func (c *RdsClient) BatchTagAddAction(request *model.BatchTagAddActionRequest) (
 	}
 }
 
-// 批量删除标签
+// BatchTagAddActionInvoker 批量添加标签
+func (c *RdsClient) BatchTagAddActionInvoker(request *model.BatchTagAddActionRequest) *BatchTagAddActionInvoker {
+	requestDef := GenReqDefForBatchTagAddAction()
+	return &BatchTagAddActionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// BatchTagDelAction 批量删除标签
 //
 // 批量删除标签。
 //
@@ -83,7 +101,13 @@ func (c *RdsClient) BatchTagDelAction(request *model.BatchTagDelActionRequest) (
 	}
 }
 
-// 更改主备实例的数据同步方式
+// BatchTagDelActionInvoker 批量删除标签
+func (c *RdsClient) BatchTagDelActionInvoker(request *model.BatchTagDelActionRequest) *BatchTagDelActionInvoker {
+	requestDef := GenReqDefForBatchTagDelAction()
+	return &BatchTagDelActionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ChangeFailoverMode 更改主备实例的数据同步方式
 //
 // 更改主备实例的数据同步方式。
 //
@@ -99,7 +123,13 @@ func (c *RdsClient) ChangeFailoverMode(request *model.ChangeFailoverModeRequest)
 	}
 }
 
-// 切换主备实例的倒换策略
+// ChangeFailoverModeInvoker 更改主备实例的数据同步方式
+func (c *RdsClient) ChangeFailoverModeInvoker(request *model.ChangeFailoverModeRequest) *ChangeFailoverModeInvoker {
+	requestDef := GenReqDefForChangeFailoverMode()
+	return &ChangeFailoverModeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ChangeFailoverStrategy 切换主备实例的倒换策略
 //
 // 切换主备实例的倒换策略.
 //
@@ -115,7 +145,13 @@ func (c *RdsClient) ChangeFailoverStrategy(request *model.ChangeFailoverStrategy
 	}
 }
 
-// 设置可维护时间段
+// ChangeFailoverStrategyInvoker 切换主备实例的倒换策略
+func (c *RdsClient) ChangeFailoverStrategyInvoker(request *model.ChangeFailoverStrategyRequest) *ChangeFailoverStrategyInvoker {
+	requestDef := GenReqDefForChangeFailoverStrategy()
+	return &ChangeFailoverStrategyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ChangeOpsWindow 设置可维护时间段
 //
 // 设置可维护时间段
 //
@@ -131,7 +167,13 @@ func (c *RdsClient) ChangeOpsWindow(request *model.ChangeOpsWindowRequest) (*mod
 	}
 }
 
-// 创建参数模板
+// ChangeOpsWindowInvoker 设置可维护时间段
+func (c *RdsClient) ChangeOpsWindowInvoker(request *model.ChangeOpsWindowRequest) *ChangeOpsWindowInvoker {
+	requestDef := GenReqDefForChangeOpsWindow()
+	return &ChangeOpsWindowInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateConfiguration 创建参数模板
 //
 // 创建参数模板。
 //
@@ -147,7 +189,13 @@ func (c *RdsClient) CreateConfiguration(request *model.CreateConfigurationReques
 	}
 }
 
-// 申请域名
+// CreateConfigurationInvoker 创建参数模板
+func (c *RdsClient) CreateConfigurationInvoker(request *model.CreateConfigurationRequest) *CreateConfigurationInvoker {
+	requestDef := GenReqDefForCreateConfiguration()
+	return &CreateConfigurationInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateDnsName 申请域名
 //
 // 申请域名
 //
@@ -163,7 +211,13 @@ func (c *RdsClient) CreateDnsName(request *model.CreateDnsNameRequest) (*model.C
 	}
 }
 
-// 创建数据库实例
+// CreateDnsNameInvoker 申请域名
+func (c *RdsClient) CreateDnsNameInvoker(request *model.CreateDnsNameRequest) *CreateDnsNameInvoker {
+	requestDef := GenReqDefForCreateDnsName()
+	return &CreateDnsNameInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateInstance 创建数据库实例
 //
 // 创建数据库实例。
 //
@@ -179,7 +233,13 @@ func (c *RdsClient) CreateInstance(request *model.CreateInstanceRequest) (*model
 	}
 }
 
-// 创建手动备份
+// CreateInstanceInvoker 创建数据库实例
+func (c *RdsClient) CreateInstanceInvoker(request *model.CreateInstanceRequest) *CreateInstanceInvoker {
+	requestDef := GenReqDefForCreateInstance()
+	return &CreateInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateManualBackup 创建手动备份
 //
 // 创建手动备份。
 //
@@ -195,7 +255,13 @@ func (c *RdsClient) CreateManualBackup(request *model.CreateManualBackupRequest)
 	}
 }
 
-// 恢复到新实例
+// CreateManualBackupInvoker 创建手动备份
+func (c *RdsClient) CreateManualBackupInvoker(request *model.CreateManualBackupRequest) *CreateManualBackupInvoker {
+	requestDef := GenReqDefForCreateManualBackup()
+	return &CreateManualBackupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateRestoreInstance 恢复到新实例
 //
 // 恢复到新实例。
 //
@@ -211,7 +277,13 @@ func (c *RdsClient) CreateRestoreInstance(request *model.CreateRestoreInstanceRe
 	}
 }
 
-// 删除参数模板
+// CreateRestoreInstanceInvoker 恢复到新实例
+func (c *RdsClient) CreateRestoreInstanceInvoker(request *model.CreateRestoreInstanceRequest) *CreateRestoreInstanceInvoker {
+	requestDef := GenReqDefForCreateRestoreInstance()
+	return &CreateRestoreInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteConfiguration 删除参数模板
 //
 // 删除参数模板。
 //
@@ -227,7 +299,13 @@ func (c *RdsClient) DeleteConfiguration(request *model.DeleteConfigurationReques
 	}
 }
 
-// 删除数据库实例
+// DeleteConfigurationInvoker 删除参数模板
+func (c *RdsClient) DeleteConfigurationInvoker(request *model.DeleteConfigurationRequest) *DeleteConfigurationInvoker {
+	requestDef := GenReqDefForDeleteConfiguration()
+	return &DeleteConfigurationInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteInstance 删除数据库实例
 //
 // 删除数据库实例。
 //
@@ -243,7 +321,13 @@ func (c *RdsClient) DeleteInstance(request *model.DeleteInstanceRequest) (*model
 	}
 }
 
-// 删除手动备份
+// DeleteInstanceInvoker 删除数据库实例
+func (c *RdsClient) DeleteInstanceInvoker(request *model.DeleteInstanceRequest) *DeleteInstanceInvoker {
+	requestDef := GenReqDefForDeleteInstance()
+	return &DeleteInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteManualBackup 删除手动备份
 //
 // 删除手动备份。
 //
@@ -259,7 +343,13 @@ func (c *RdsClient) DeleteManualBackup(request *model.DeleteManualBackupRequest)
 	}
 }
 
-// 获取慢日志下载链接
+// DeleteManualBackupInvoker 删除手动备份
+func (c *RdsClient) DeleteManualBackupInvoker(request *model.DeleteManualBackupRequest) *DeleteManualBackupInvoker {
+	requestDef := GenReqDefForDeleteManualBackup()
+	return &DeleteManualBackupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DownloadSlowlog 获取慢日志下载链接
 //
 // 获取慢日志下载链接。
 //
@@ -275,7 +365,13 @@ func (c *RdsClient) DownloadSlowlog(request *model.DownloadSlowlogRequest) (*mod
 	}
 }
 
-// 应用参数模板
+// DownloadSlowlogInvoker 获取慢日志下载链接
+func (c *RdsClient) DownloadSlowlogInvoker(request *model.DownloadSlowlogRequest) *DownloadSlowlogInvoker {
+	requestDef := GenReqDefForDownloadSlowlog()
+	return &DownloadSlowlogInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// EnableConfiguration 应用参数模板
 //
 // 应用参数模板。
 //
@@ -291,7 +387,13 @@ func (c *RdsClient) EnableConfiguration(request *model.EnableConfigurationReques
 	}
 }
 
-// 获取审计日志列表
+// EnableConfigurationInvoker 应用参数模板
+func (c *RdsClient) EnableConfigurationInvoker(request *model.EnableConfigurationRequest) *EnableConfigurationInvoker {
+	requestDef := GenReqDefForEnableConfiguration()
+	return &EnableConfigurationInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListAuditlogs 获取审计日志列表
 //
 // 获取审计日志列表。
 //
@@ -307,7 +409,13 @@ func (c *RdsClient) ListAuditlogs(request *model.ListAuditlogsRequest) (*model.L
 	}
 }
 
-// 获取备份列表
+// ListAuditlogsInvoker 获取审计日志列表
+func (c *RdsClient) ListAuditlogsInvoker(request *model.ListAuditlogsRequest) *ListAuditlogsInvoker {
+	requestDef := GenReqDefForListAuditlogs()
+	return &ListAuditlogsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListBackups 获取备份列表
 //
 // 获取备份列表。
 //
@@ -323,7 +431,13 @@ func (c *RdsClient) ListBackups(request *model.ListBackupsRequest) (*model.ListB
 	}
 }
 
-// 查询SQLServer可用字符集
+// ListBackupsInvoker 获取备份列表
+func (c *RdsClient) ListBackupsInvoker(request *model.ListBackupsRequest) *ListBackupsInvoker {
+	requestDef := GenReqDefForListBackups()
+	return &ListBackupsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListCollations 查询SQLServer可用字符集
 //
 // 查询SQLServer可用字符集
 //
@@ -339,7 +453,13 @@ func (c *RdsClient) ListCollations(request *model.ListCollationsRequest) (*model
 	}
 }
 
-// 获取参数模板列表
+// ListCollationsInvoker 查询SQLServer可用字符集
+func (c *RdsClient) ListCollationsInvoker(request *model.ListCollationsRequest) *ListCollationsInvoker {
+	requestDef := GenReqDefForListCollations()
+	return &ListCollationsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListConfigurations 获取参数模板列表
 //
 // 获取参数模板列表，包括所有数据库的默认参数模板和用户创建的参数模板。
 //
@@ -355,7 +475,13 @@ func (c *RdsClient) ListConfigurations(request *model.ListConfigurationsRequest)
 	}
 }
 
-// 查询数据库引擎的版本
+// ListConfigurationsInvoker 获取参数模板列表
+func (c *RdsClient) ListConfigurationsInvoker(request *model.ListConfigurationsRequest) *ListConfigurationsInvoker {
+	requestDef := GenReqDefForListConfigurations()
+	return &ListConfigurationsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListDatastores 查询数据库引擎的版本
 //
 // 查询数据库引擎的版本。
 //
@@ -371,7 +497,13 @@ func (c *RdsClient) ListDatastores(request *model.ListDatastoresRequest) (*model
 	}
 }
 
-// 查询数据库错误日志
+// ListDatastoresInvoker 查询数据库引擎的版本
+func (c *RdsClient) ListDatastoresInvoker(request *model.ListDatastoresRequest) *ListDatastoresInvoker {
+	requestDef := GenReqDefForListDatastores()
+	return &ListDatastoresInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListErrorLogs 查询数据库错误日志
 //
 // 查询数据库错误日志。
 //
@@ -387,7 +519,13 @@ func (c *RdsClient) ListErrorLogs(request *model.ListErrorLogsRequest) (*model.L
 	}
 }
 
-// 查询数据库错误日志
+// ListErrorLogsInvoker 查询数据库错误日志
+func (c *RdsClient) ListErrorLogsInvoker(request *model.ListErrorLogsRequest) *ListErrorLogsInvoker {
+	requestDef := GenReqDefForListErrorLogs()
+	return &ListErrorLogsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListErrorLogsNew 查询数据库错误日志
 //
 // 查询数据库错误日志。(与原v3接口相比修改offset,符合华为云服务开放 API遵从性规范3.0)
 //
@@ -403,7 +541,13 @@ func (c *RdsClient) ListErrorLogsNew(request *model.ListErrorLogsNewRequest) (*m
 	}
 }
 
-// 查询数据库规格
+// ListErrorLogsNewInvoker 查询数据库错误日志
+func (c *RdsClient) ListErrorLogsNewInvoker(request *model.ListErrorLogsNewRequest) *ListErrorLogsNewInvoker {
+	requestDef := GenReqDefForListErrorLogsNew()
+	return &ListErrorLogsNewInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListFlavors 查询数据库规格
 //
 // 查询数据库规格。
 //
@@ -419,7 +563,13 @@ func (c *RdsClient) ListFlavors(request *model.ListFlavorsRequest) (*model.ListF
 	}
 }
 
-// 查询数据库实例列表
+// ListFlavorsInvoker 查询数据库规格
+func (c *RdsClient) ListFlavorsInvoker(request *model.ListFlavorsRequest) *ListFlavorsInvoker {
+	requestDef := GenReqDefForListFlavors()
+	return &ListFlavorsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListInstances 查询数据库实例列表
 //
 // 查询数据库实例列表。
 //
@@ -435,7 +585,13 @@ func (c *RdsClient) ListInstances(request *model.ListInstancesRequest) (*model.L
 	}
 }
 
-// 获取指定ID的任务信息
+// ListInstancesInvoker 查询数据库实例列表
+func (c *RdsClient) ListInstancesInvoker(request *model.ListInstancesRequest) *ListInstancesInvoker {
+	requestDef := GenReqDefForListInstances()
+	return &ListInstancesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListJobInfo 获取指定ID的任务信息
 //
 // 获取指定ID的任务信息。
 //
@@ -451,7 +607,13 @@ func (c *RdsClient) ListJobInfo(request *model.ListJobInfoRequest) (*model.ListJ
 	}
 }
 
-// 获取指定实例和时间范围的任务信息（SQL Server）
+// ListJobInfoInvoker 获取指定ID的任务信息
+func (c *RdsClient) ListJobInfoInvoker(request *model.ListJobInfoRequest) *ListJobInfoInvoker {
+	requestDef := GenReqDefForListJobInfo()
+	return &ListJobInfoInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListJobInfoDetail 获取指定实例和时间范围的任务信息（SQL Server）
 //
 // 获取指定实例和时间范围的任务信息（SQL Server）。
 //
@@ -467,7 +629,13 @@ func (c *RdsClient) ListJobInfoDetail(request *model.ListJobInfoDetailRequest) (
 	}
 }
 
-// 查询跨区域备份列表
+// ListJobInfoDetailInvoker 获取指定实例和时间范围的任务信息（SQL Server）
+func (c *RdsClient) ListJobInfoDetailInvoker(request *model.ListJobInfoDetailRequest) *ListJobInfoDetailInvoker {
+	requestDef := GenReqDefForListJobInfoDetail()
+	return &ListJobInfoDetailInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListOffSiteBackups 查询跨区域备份列表
 //
 // 查询跨区域备份列表。
 //
@@ -483,7 +651,13 @@ func (c *RdsClient) ListOffSiteBackups(request *model.ListOffSiteBackupsRequest)
 	}
 }
 
-// 查询跨区域备份实例列表
+// ListOffSiteBackupsInvoker 查询跨区域备份列表
+func (c *RdsClient) ListOffSiteBackupsInvoker(request *model.ListOffSiteBackupsRequest) *ListOffSiteBackupsInvoker {
+	requestDef := GenReqDefForListOffSiteBackups()
+	return &ListOffSiteBackupsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListOffSiteInstances 查询跨区域备份实例列表
 //
 // 查询跨区域备份实例列表。
 //
@@ -499,7 +673,13 @@ func (c *RdsClient) ListOffSiteInstances(request *model.ListOffSiteInstancesRequ
 	}
 }
 
-// 查询跨区域备份可恢复时间段
+// ListOffSiteInstancesInvoker 查询跨区域备份实例列表
+func (c *RdsClient) ListOffSiteInstancesInvoker(request *model.ListOffSiteInstancesRequest) *ListOffSiteInstancesInvoker {
+	requestDef := GenReqDefForListOffSiteInstances()
+	return &ListOffSiteInstancesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListOffSiteRestoreTimes 查询跨区域备份可恢复时间段
 //
 // 查询跨区域备份可恢复时间段。
 // 如果您备份策略中的保存天数设置较长，建议您传入查询日期“date”。
@@ -516,7 +696,13 @@ func (c *RdsClient) ListOffSiteRestoreTimes(request *model.ListOffSiteRestoreTim
 	}
 }
 
-// 查询项目标签
+// ListOffSiteRestoreTimesInvoker 查询跨区域备份可恢复时间段
+func (c *RdsClient) ListOffSiteRestoreTimesInvoker(request *model.ListOffSiteRestoreTimesRequest) *ListOffSiteRestoreTimesInvoker {
+	requestDef := GenReqDefForListOffSiteRestoreTimes()
+	return &ListOffSiteRestoreTimesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListProjectTags 查询项目标签
 //
 // 查询项目标签。
 //
@@ -532,7 +718,13 @@ func (c *RdsClient) ListProjectTags(request *model.ListProjectTagsRequest) (*mod
 	}
 }
 
-// 查询可恢复时间段
+// ListProjectTagsInvoker 查询项目标签
+func (c *RdsClient) ListProjectTagsInvoker(request *model.ListProjectTagsRequest) *ListProjectTagsInvoker {
+	requestDef := GenReqDefForListProjectTags()
+	return &ListProjectTagsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListRestoreTimes 查询可恢复时间段
 //
 // 查询可恢复时间段。
 // 如果您备份策略中的保存天数设置较长，建议您传入查询日期“date”。
@@ -549,7 +741,13 @@ func (c *RdsClient) ListRestoreTimes(request *model.ListRestoreTimesRequest) (*m
 	}
 }
 
-// 查询慢日志文件列表
+// ListRestoreTimesInvoker 查询可恢复时间段
+func (c *RdsClient) ListRestoreTimesInvoker(request *model.ListRestoreTimesRequest) *ListRestoreTimesInvoker {
+	requestDef := GenReqDefForListRestoreTimes()
+	return &ListRestoreTimesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListSlowLogFile 查询慢日志文件列表
 //
 // 查询慢日志文件列表。
 // 调用该接口取到慢日志文件名后，可以调用接口/v3/{project_id}/instances/{instance_id}/slowlog-download 获取慢日志文件下载链接
@@ -566,7 +764,13 @@ func (c *RdsClient) ListSlowLogFile(request *model.ListSlowLogFileRequest) (*mod
 	}
 }
 
-// 查询数据库慢日志
+// ListSlowLogFileInvoker 查询慢日志文件列表
+func (c *RdsClient) ListSlowLogFileInvoker(request *model.ListSlowLogFileRequest) *ListSlowLogFileInvoker {
+	requestDef := GenReqDefForListSlowLogFile()
+	return &ListSlowLogFileInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListSlowLogs 查询数据库慢日志
 //
 // 查询数据库慢日志。
 //
@@ -582,7 +786,13 @@ func (c *RdsClient) ListSlowLogs(request *model.ListSlowLogsRequest) (*model.Lis
 	}
 }
 
-// 查询数据库慢日志
+// ListSlowLogsInvoker 查询数据库慢日志
+func (c *RdsClient) ListSlowLogsInvoker(request *model.ListSlowLogsRequest) *ListSlowLogsInvoker {
+	requestDef := GenReqDefForListSlowLogs()
+	return &ListSlowLogsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListSlowLogsNew 查询数据库慢日志
 //
 // 查询数据库慢日志。(与原v3接口相比修改offset,符合华为云服务开放 API遵从性规范3.0)
 //
@@ -598,7 +808,13 @@ func (c *RdsClient) ListSlowLogsNew(request *model.ListSlowLogsNewRequest) (*mod
 	}
 }
 
-// 获取慢日志统计信息
+// ListSlowLogsNewInvoker 查询数据库慢日志
+func (c *RdsClient) ListSlowLogsNewInvoker(request *model.ListSlowLogsNewRequest) *ListSlowLogsNewInvoker {
+	requestDef := GenReqDefForListSlowLogsNew()
+	return &ListSlowLogsNewInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListSlowlogStatistics 获取慢日志统计信息
 //
 // 获取慢日志统计信息
 //
@@ -614,7 +830,13 @@ func (c *RdsClient) ListSlowlogStatistics(request *model.ListSlowlogStatisticsRe
 	}
 }
 
-// 查询数据库磁盘类型
+// ListSlowlogStatisticsInvoker 获取慢日志统计信息
+func (c *RdsClient) ListSlowlogStatisticsInvoker(request *model.ListSlowlogStatisticsRequest) *ListSlowlogStatisticsInvoker {
+	requestDef := GenReqDefForListSlowlogStatistics()
+	return &ListSlowlogStatisticsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListStorageTypes 查询数据库磁盘类型
 //
 // 查询数据库磁盘类型。
 //
@@ -630,7 +852,13 @@ func (c *RdsClient) ListStorageTypes(request *model.ListStorageTypesRequest) (*m
 	}
 }
 
-// 迁移主备实例的备机
+// ListStorageTypesInvoker 查询数据库磁盘类型
+func (c *RdsClient) ListStorageTypesInvoker(request *model.ListStorageTypesRequest) *ListStorageTypesInvoker {
+	requestDef := GenReqDefForListStorageTypes()
+	return &ListStorageTypesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// MigrateFollower 迁移主备实例的备机
 //
 // 迁移主备实例的备机
 //
@@ -646,7 +874,13 @@ func (c *RdsClient) MigrateFollower(request *model.MigrateFollowerRequest) (*mod
 	}
 }
 
-// 恢复到已有实例
+// MigrateFollowerInvoker 迁移主备实例的备机
+func (c *RdsClient) MigrateFollowerInvoker(request *model.MigrateFollowerRequest) *MigrateFollowerInvoker {
+	requestDef := GenReqDefForMigrateFollower()
+	return &MigrateFollowerInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// RestoreExistInstance 恢复到已有实例
 //
 // 恢复到已有实例。
 //
@@ -662,7 +896,13 @@ func (c *RdsClient) RestoreExistInstance(request *model.RestoreExistInstanceRequ
 	}
 }
 
-// 表级时间点恢复(MySQL)
+// RestoreExistInstanceInvoker 恢复到已有实例
+func (c *RdsClient) RestoreExistInstanceInvoker(request *model.RestoreExistInstanceRequest) *RestoreExistInstanceInvoker {
+	requestDef := GenReqDefForRestoreExistInstance()
+	return &RestoreExistInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// RestoreTables 表级时间点恢复(MySQL)
 //
 // 表级时间点恢复(MySQL)。
 //
@@ -678,7 +918,13 @@ func (c *RdsClient) RestoreTables(request *model.RestoreTablesRequest) (*model.R
 	}
 }
 
-// 恢复到已有实例
+// RestoreTablesInvoker 表级时间点恢复(MySQL)
+func (c *RdsClient) RestoreTablesInvoker(request *model.RestoreTablesRequest) *RestoreTablesInvoker {
+	requestDef := GenReqDefForRestoreTables()
+	return &RestoreTablesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// RestoreToExistingInstance 恢复到已有实例
 //
 // 恢复到已有实例。
 //
@@ -694,7 +940,13 @@ func (c *RdsClient) RestoreToExistingInstance(request *model.RestoreToExistingIn
 	}
 }
 
-// 设置审计日志策略
+// RestoreToExistingInstanceInvoker 恢复到已有实例
+func (c *RdsClient) RestoreToExistingInstanceInvoker(request *model.RestoreToExistingInstanceRequest) *RestoreToExistingInstanceInvoker {
+	requestDef := GenReqDefForRestoreToExistingInstance()
+	return &RestoreToExistingInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// SetAuditlogPolicy 设置审计日志策略
 //
 // 设置审计日志策略。
 //
@@ -710,7 +962,13 @@ func (c *RdsClient) SetAuditlogPolicy(request *model.SetAuditlogPolicyRequest) (
 	}
 }
 
-// 设置自动备份策略
+// SetAuditlogPolicyInvoker 设置审计日志策略
+func (c *RdsClient) SetAuditlogPolicyInvoker(request *model.SetAuditlogPolicyRequest) *SetAuditlogPolicyInvoker {
+	requestDef := GenReqDefForSetAuditlogPolicy()
+	return &SetAuditlogPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// SetBackupPolicy 设置自动备份策略
 //
 // 设置自动备份策略。
 //
@@ -726,7 +984,13 @@ func (c *RdsClient) SetBackupPolicy(request *model.SetBackupPolicyRequest) (*mod
 	}
 }
 
-// 设置binlog本地保留时长
+// SetBackupPolicyInvoker 设置自动备份策略
+func (c *RdsClient) SetBackupPolicyInvoker(request *model.SetBackupPolicyRequest) *SetBackupPolicyInvoker {
+	requestDef := GenReqDefForSetBackupPolicy()
+	return &SetBackupPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// SetBinlogClearPolicy 设置binlog本地保留时长
 //
 // 修改指定实例的binlog本地保留时长。
 //
@@ -742,7 +1006,13 @@ func (c *RdsClient) SetBinlogClearPolicy(request *model.SetBinlogClearPolicyRequ
 	}
 }
 
-// 设置跨区域备份策略
+// SetBinlogClearPolicyInvoker 设置binlog本地保留时长
+func (c *RdsClient) SetBinlogClearPolicyInvoker(request *model.SetBinlogClearPolicyRequest) *SetBinlogClearPolicyInvoker {
+	requestDef := GenReqDefForSetBinlogClearPolicy()
+	return &SetBinlogClearPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// SetOffSiteBackupPolicy 设置跨区域备份策略
 //
 // 设置跨区域备份策略。
 //
@@ -758,7 +1028,13 @@ func (c *RdsClient) SetOffSiteBackupPolicy(request *model.SetOffSiteBackupPolicy
 	}
 }
 
-// 修改安全组
+// SetOffSiteBackupPolicyInvoker 设置跨区域备份策略
+func (c *RdsClient) SetOffSiteBackupPolicyInvoker(request *model.SetOffSiteBackupPolicyRequest) *SetOffSiteBackupPolicyInvoker {
+	requestDef := GenReqDefForSetOffSiteBackupPolicy()
+	return &SetOffSiteBackupPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// SetSecurityGroup 修改安全组
 //
 // 修改安全组
 //
@@ -774,7 +1050,13 @@ func (c *RdsClient) SetSecurityGroup(request *model.SetSecurityGroupRequest) (*m
 	}
 }
 
-// 生成审计日志下载链接
+// SetSecurityGroupInvoker 修改安全组
+func (c *RdsClient) SetSecurityGroupInvoker(request *model.SetSecurityGroupRequest) *SetSecurityGroupInvoker {
+	requestDef := GenReqDefForSetSecurityGroup()
+	return &SetSecurityGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowAuditlogDownloadLink 生成审计日志下载链接
 //
 // 生成审计日志下载链接。
 //
@@ -790,7 +1072,13 @@ func (c *RdsClient) ShowAuditlogDownloadLink(request *model.ShowAuditlogDownload
 	}
 }
 
-// 查询审计日志策略
+// ShowAuditlogDownloadLinkInvoker 生成审计日志下载链接
+func (c *RdsClient) ShowAuditlogDownloadLinkInvoker(request *model.ShowAuditlogDownloadLinkRequest) *ShowAuditlogDownloadLinkInvoker {
+	requestDef := GenReqDefForShowAuditlogDownloadLink()
+	return &ShowAuditlogDownloadLinkInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowAuditlogPolicy 查询审计日志策略
 //
 // 查询审计日志策略。
 //
@@ -806,7 +1094,13 @@ func (c *RdsClient) ShowAuditlogPolicy(request *model.ShowAuditlogPolicyRequest)
 	}
 }
 
-// 获取备份下载链接
+// ShowAuditlogPolicyInvoker 查询审计日志策略
+func (c *RdsClient) ShowAuditlogPolicyInvoker(request *model.ShowAuditlogPolicyRequest) *ShowAuditlogPolicyInvoker {
+	requestDef := GenReqDefForShowAuditlogPolicy()
+	return &ShowAuditlogPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowBackupDownloadLink 获取备份下载链接
 //
 // 获取备份下载链接。
 //
@@ -822,7 +1116,13 @@ func (c *RdsClient) ShowBackupDownloadLink(request *model.ShowBackupDownloadLink
 	}
 }
 
-// 查询自动备份策略
+// ShowBackupDownloadLinkInvoker 获取备份下载链接
+func (c *RdsClient) ShowBackupDownloadLinkInvoker(request *model.ShowBackupDownloadLinkRequest) *ShowBackupDownloadLinkInvoker {
+	requestDef := GenReqDefForShowBackupDownloadLink()
+	return &ShowBackupDownloadLinkInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowBackupPolicy 查询自动备份策略
 //
 // 查询自动备份策略。
 //
@@ -838,7 +1138,13 @@ func (c *RdsClient) ShowBackupPolicy(request *model.ShowBackupPolicyRequest) (*m
 	}
 }
 
-// 获取binlog本地保留时长
+// ShowBackupPolicyInvoker 查询自动备份策略
+func (c *RdsClient) ShowBackupPolicyInvoker(request *model.ShowBackupPolicyRequest) *ShowBackupPolicyInvoker {
+	requestDef := GenReqDefForShowBackupPolicy()
+	return &ShowBackupPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowBinlogClearPolicy 获取binlog本地保留时长
 //
 // 查寻指定实例的binlog本地保留时长。
 //
@@ -854,7 +1160,13 @@ func (c *RdsClient) ShowBinlogClearPolicy(request *model.ShowBinlogClearPolicyRe
 	}
 }
 
-// 获取指定参数模板的参数
+// ShowBinlogClearPolicyInvoker 获取binlog本地保留时长
+func (c *RdsClient) ShowBinlogClearPolicyInvoker(request *model.ShowBinlogClearPolicyRequest) *ShowBinlogClearPolicyInvoker {
+	requestDef := GenReqDefForShowBinlogClearPolicy()
+	return &ShowBinlogClearPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowConfiguration 获取指定参数模板的参数
 //
 // 获取指定参数模板的参数。
 //
@@ -870,7 +1182,13 @@ func (c *RdsClient) ShowConfiguration(request *model.ShowConfigurationRequest) (
 	}
 }
 
-// 查询跨云容灾复制状态
+// ShowConfigurationInvoker 获取指定参数模板的参数
+func (c *RdsClient) ShowConfigurationInvoker(request *model.ShowConfigurationRequest) *ShowConfigurationInvoker {
+	requestDef := GenReqDefForShowConfiguration()
+	return &ShowConfigurationInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowDrReplicaStatus 查询跨云容灾复制状态
 //
 // 建立跨云容灾关系后，查询主实例和灾备实例间的复制状态及延迟。
 //
@@ -886,7 +1204,13 @@ func (c *RdsClient) ShowDrReplicaStatus(request *model.ShowDrReplicaStatusReques
 	}
 }
 
-// 获取指定实例的参数模板
+// ShowDrReplicaStatusInvoker 查询跨云容灾复制状态
+func (c *RdsClient) ShowDrReplicaStatusInvoker(request *model.ShowDrReplicaStatusRequest) *ShowDrReplicaStatusInvoker {
+	requestDef := GenReqDefForShowDrReplicaStatus()
+	return &ShowDrReplicaStatusInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowInstanceConfiguration 获取指定实例的参数模板
 //
 // 获取指定实例的参数模板。
 //
@@ -902,7 +1226,13 @@ func (c *RdsClient) ShowInstanceConfiguration(request *model.ShowInstanceConfigu
 	}
 }
 
-// 查询跨区域备份策略
+// ShowInstanceConfigurationInvoker 获取指定实例的参数模板
+func (c *RdsClient) ShowInstanceConfigurationInvoker(request *model.ShowInstanceConfigurationRequest) *ShowInstanceConfigurationInvoker {
+	requestDef := GenReqDefForShowInstanceConfiguration()
+	return &ShowInstanceConfigurationInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowOffSiteBackupPolicy 查询跨区域备份策略
 //
 // 查询跨区域备份策略。
 //
@@ -918,7 +1248,13 @@ func (c *RdsClient) ShowOffSiteBackupPolicy(request *model.ShowOffSiteBackupPoli
 	}
 }
 
-// 查询配额
+// ShowOffSiteBackupPolicyInvoker 查询跨区域备份策略
+func (c *RdsClient) ShowOffSiteBackupPolicyInvoker(request *model.ShowOffSiteBackupPolicyRequest) *ShowOffSiteBackupPolicyInvoker {
+	requestDef := GenReqDefForShowOffSiteBackupPolicy()
+	return &ShowOffSiteBackupPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowQuotas 查询配额
 //
 // 查询当前项目下资源配额情况。
 //
@@ -934,7 +1270,13 @@ func (c *RdsClient) ShowQuotas(request *model.ShowQuotasRequest) (*model.ShowQuo
 	}
 }
 
-// 手动倒换主备
+// ShowQuotasInvoker 查询配额
+func (c *RdsClient) ShowQuotasInvoker(request *model.ShowQuotasRequest) *ShowQuotasInvoker {
+	requestDef := GenReqDefForShowQuotas()
+	return &ShowQuotasInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// StartFailover 手动倒换主备
 //
 // 手动倒换主备.
 //
@@ -950,7 +1292,13 @@ func (c *RdsClient) StartFailover(request *model.StartFailoverRequest) (*model.S
 	}
 }
 
-// 扩容数据库实例的磁盘空间
+// StartFailoverInvoker 手动倒换主备
+func (c *RdsClient) StartFailoverInvoker(request *model.StartFailoverRequest) *StartFailoverInvoker {
+	requestDef := GenReqDefForStartFailover()
+	return &StartFailoverInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// StartInstanceEnlargeVolumeAction 扩容数据库实例的磁盘空间
 //
 // 扩容数据库实例的磁盘空间。
 //
@@ -966,7 +1314,13 @@ func (c *RdsClient) StartInstanceEnlargeVolumeAction(request *model.StartInstanc
 	}
 }
 
-// 重启数据库实例
+// StartInstanceEnlargeVolumeActionInvoker 扩容数据库实例的磁盘空间
+func (c *RdsClient) StartInstanceEnlargeVolumeActionInvoker(request *model.StartInstanceEnlargeVolumeActionRequest) *StartInstanceEnlargeVolumeActionInvoker {
+	requestDef := GenReqDefForStartInstanceEnlargeVolumeAction()
+	return &StartInstanceEnlargeVolumeActionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// StartInstanceRestartAction 重启数据库实例
 //
 // 重启数据库实例。
 //
@@ -982,7 +1336,13 @@ func (c *RdsClient) StartInstanceRestartAction(request *model.StartInstanceResta
 	}
 }
 
-// 单机转主备实例
+// StartInstanceRestartActionInvoker 重启数据库实例
+func (c *RdsClient) StartInstanceRestartActionInvoker(request *model.StartInstanceRestartActionRequest) *StartInstanceRestartActionInvoker {
+	requestDef := GenReqDefForStartInstanceRestartAction()
+	return &StartInstanceRestartActionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// StartInstanceSingleToHaAction 单机转主备实例
 //
 // 单机转主备实例。
 //
@@ -998,7 +1358,13 @@ func (c *RdsClient) StartInstanceSingleToHaAction(request *model.StartInstanceSi
 	}
 }
 
-// 设置回收站策略
+// StartInstanceSingleToHaActionInvoker 单机转主备实例
+func (c *RdsClient) StartInstanceSingleToHaActionInvoker(request *model.StartInstanceSingleToHaActionRequest) *StartInstanceSingleToHaActionInvoker {
+	requestDef := GenReqDefForStartInstanceSingleToHaAction()
+	return &StartInstanceSingleToHaActionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// StartRecyclePolicy 设置回收站策略
 //
 // 设置回收站策略。
 //
@@ -1014,7 +1380,13 @@ func (c *RdsClient) StartRecyclePolicy(request *model.StartRecyclePolicyRequest)
 	}
 }
 
-// 变更数据库实例的规格
+// StartRecyclePolicyInvoker 设置回收站策略
+func (c *RdsClient) StartRecyclePolicyInvoker(request *model.StartRecyclePolicyRequest) *StartRecyclePolicyInvoker {
+	requestDef := GenReqDefForStartRecyclePolicy()
+	return &StartRecyclePolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// StartResizeFlavorAction 变更数据库实例的规格
 //
 // 变更数据库实例的规格。
 //
@@ -1030,7 +1402,13 @@ func (c *RdsClient) StartResizeFlavorAction(request *model.StartResizeFlavorActi
 	}
 }
 
-// 开启实例
+// StartResizeFlavorActionInvoker 变更数据库实例的规格
+func (c *RdsClient) StartResizeFlavorActionInvoker(request *model.StartResizeFlavorActionRequest) *StartResizeFlavorActionInvoker {
+	requestDef := GenReqDefForStartResizeFlavorAction()
+	return &StartResizeFlavorActionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// StartupInstance 开启实例
 //
 // 停止实例以节省费用，在停止数据库实例后，支持手动重新开启实例。
 //
@@ -1046,7 +1424,13 @@ func (c *RdsClient) StartupInstance(request *model.StartupInstanceRequest) (*mod
 	}
 }
 
-// 停止实例
+// StartupInstanceInvoker 开启实例
+func (c *RdsClient) StartupInstanceInvoker(request *model.StartupInstanceRequest) *StartupInstanceInvoker {
+	requestDef := GenReqDefForStartupInstance()
+	return &StartupInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// StopInstance 停止实例
 //
 // 实例进行关机，通过暂时停止按需实例以节省费用，实例默认停止七天。
 //
@@ -1062,7 +1446,13 @@ func (c *RdsClient) StopInstance(request *model.StopInstanceRequest) (*model.Sto
 	}
 }
 
-// 设置SSL数据加密
+// StopInstanceInvoker 停止实例
+func (c *RdsClient) StopInstanceInvoker(request *model.StopInstanceRequest) *StopInstanceInvoker {
+	requestDef := GenReqDefForStopInstance()
+	return &StopInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// SwitchSsl 设置SSL数据加密
 //
 // 设置SSL数据加密。
 //
@@ -1078,7 +1468,13 @@ func (c *RdsClient) SwitchSsl(request *model.SwitchSslRequest) (*model.SwitchSsl
 	}
 }
 
-// 修改参数模板参数
+// SwitchSslInvoker 设置SSL数据加密
+func (c *RdsClient) SwitchSslInvoker(request *model.SwitchSslRequest) *SwitchSslInvoker {
+	requestDef := GenReqDefForSwitchSsl()
+	return &SwitchSslInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateConfiguration 修改参数模板参数
 //
 // 修改参数模板参数。
 //
@@ -1094,7 +1490,13 @@ func (c *RdsClient) UpdateConfiguration(request *model.UpdateConfigurationReques
 	}
 }
 
-// 修改内网地址
+// UpdateConfigurationInvoker 修改参数模板参数
+func (c *RdsClient) UpdateConfigurationInvoker(request *model.UpdateConfigurationRequest) *UpdateConfigurationInvoker {
+	requestDef := GenReqDefForUpdateConfiguration()
+	return &UpdateConfigurationInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateDataIp 修改内网地址
 //
 // 修改内网地址
 //
@@ -1110,7 +1512,13 @@ func (c *RdsClient) UpdateDataIp(request *model.UpdateDataIpRequest) (*model.Upd
 	}
 }
 
-// 修改域名
+// UpdateDataIpInvoker 修改内网地址
+func (c *RdsClient) UpdateDataIpInvoker(request *model.UpdateDataIpRequest) *UpdateDataIpInvoker {
+	requestDef := GenReqDefForUpdateDataIp()
+	return &UpdateDataIpInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateDnsName 修改域名
 //
 // 修改域名
 //
@@ -1126,7 +1534,13 @@ func (c *RdsClient) UpdateDnsName(request *model.UpdateDnsNameRequest) (*model.U
 	}
 }
 
-// 修改指定实例的参数
+// UpdateDnsNameInvoker 修改域名
+func (c *RdsClient) UpdateDnsNameInvoker(request *model.UpdateDnsNameRequest) *UpdateDnsNameInvoker {
+	requestDef := GenReqDefForUpdateDnsName()
+	return &UpdateDnsNameInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateInstanceConfiguration 修改指定实例的参数
 //
 // 修改指定实例的参数。
 //
@@ -1142,7 +1556,13 @@ func (c *RdsClient) UpdateInstanceConfiguration(request *model.UpdateInstanceCon
 	}
 }
 
-// 修改指定实例的参数
+// UpdateInstanceConfigurationInvoker 修改指定实例的参数
+func (c *RdsClient) UpdateInstanceConfigurationInvoker(request *model.UpdateInstanceConfigurationRequest) *UpdateInstanceConfigurationInvoker {
+	requestDef := GenReqDefForUpdateInstanceConfiguration()
+	return &UpdateInstanceConfigurationInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateInstanceConfigurationAsync 修改指定实例的参数
 //
 // 修改指定实例的参数。
 //
@@ -1158,7 +1578,13 @@ func (c *RdsClient) UpdateInstanceConfigurationAsync(request *model.UpdateInstan
 	}
 }
 
-// 修改实例名称
+// UpdateInstanceConfigurationAsyncInvoker 修改指定实例的参数
+func (c *RdsClient) UpdateInstanceConfigurationAsyncInvoker(request *model.UpdateInstanceConfigurationAsyncRequest) *UpdateInstanceConfigurationAsyncInvoker {
+	requestDef := GenReqDefForUpdateInstanceConfigurationAsync()
+	return &UpdateInstanceConfigurationAsyncInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateInstanceName 修改实例名称
 //
 // 修改实例名称。
 //
@@ -1174,7 +1600,13 @@ func (c *RdsClient) UpdateInstanceName(request *model.UpdateInstanceNameRequest)
 	}
 }
 
-// 修改数据库端口
+// UpdateInstanceNameInvoker 修改实例名称
+func (c *RdsClient) UpdateInstanceNameInvoker(request *model.UpdateInstanceNameRequest) *UpdateInstanceNameInvoker {
+	requestDef := GenReqDefForUpdateInstanceName()
+	return &UpdateInstanceNameInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdatePort 修改数据库端口
 //
 // 修改数据库端口
 //
@@ -1190,7 +1622,13 @@ func (c *RdsClient) UpdatePort(request *model.UpdatePortRequest) (*model.UpdateP
 	}
 }
 
-// 修改实例备注信息
+// UpdatePortInvoker 修改数据库端口
+func (c *RdsClient) UpdatePortInvoker(request *model.UpdatePortRequest) *UpdatePortInvoker {
+	requestDef := GenReqDefForUpdatePort()
+	return &UpdatePortInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdatePostgresqlInstanceAlias 修改实例备注信息
 //
 // 修改指定数据库实例的备注信息。
 //
@@ -1206,7 +1644,13 @@ func (c *RdsClient) UpdatePostgresqlInstanceAlias(request *model.UpdatePostgresq
 	}
 }
 
-// 升级内核小版本
+// UpdatePostgresqlInstanceAliasInvoker 修改实例备注信息
+func (c *RdsClient) UpdatePostgresqlInstanceAliasInvoker(request *model.UpdatePostgresqlInstanceAliasRequest) *UpdatePostgresqlInstanceAliasInvoker {
+	requestDef := GenReqDefForUpdatePostgresqlInstanceAlias()
+	return &UpdatePostgresqlInstanceAliasInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpgradeDbVersion 升级内核小版本
 //
 // 对实例进行小版本升级。
 //
@@ -1222,7 +1666,13 @@ func (c *RdsClient) UpgradeDbVersion(request *model.UpgradeDbVersionRequest) (*m
 	}
 }
 
-// 查询API版本列表
+// UpgradeDbVersionInvoker 升级内核小版本
+func (c *RdsClient) UpgradeDbVersionInvoker(request *model.UpgradeDbVersionRequest) *UpgradeDbVersionInvoker {
+	requestDef := GenReqDefForUpgradeDbVersion()
+	return &UpgradeDbVersionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListApiVersion 查询API版本列表
 //
 // 查询API版本列表。
 //
@@ -1238,7 +1688,13 @@ func (c *RdsClient) ListApiVersion(request *model.ListApiVersionRequest) (*model
 	}
 }
 
-// 查询API版本列表
+// ListApiVersionInvoker 查询API版本列表
+func (c *RdsClient) ListApiVersionInvoker(request *model.ListApiVersionRequest) *ListApiVersionInvoker {
+	requestDef := GenReqDefForListApiVersion()
+	return &ListApiVersionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListApiVersionNew 查询API版本列表
 //
 // 查询API版本列表。
 //
@@ -1254,7 +1710,13 @@ func (c *RdsClient) ListApiVersionNew(request *model.ListApiVersionNewRequest) (
 	}
 }
 
-// 查询指定的API版本信息
+// ListApiVersionNewInvoker 查询API版本列表
+func (c *RdsClient) ListApiVersionNewInvoker(request *model.ListApiVersionNewRequest) *ListApiVersionNewInvoker {
+	requestDef := GenReqDefForListApiVersionNew()
+	return &ListApiVersionNewInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowApiVersion 查询指定的API版本信息
 //
 // 查询指定的API版本信息。
 //
@@ -1270,7 +1732,13 @@ func (c *RdsClient) ShowApiVersion(request *model.ShowApiVersionRequest) (*model
 	}
 }
 
-// 授权数据库帐号
+// ShowApiVersionInvoker 查询指定的API版本信息
+func (c *RdsClient) ShowApiVersionInvoker(request *model.ShowApiVersionRequest) *ShowApiVersionInvoker {
+	requestDef := GenReqDefForShowApiVersion()
+	return &ShowApiVersionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// AllowDbUserPrivilege 授权数据库帐号
 //
 // 授权数据库帐号。
 //
@@ -1286,7 +1754,13 @@ func (c *RdsClient) AllowDbUserPrivilege(request *model.AllowDbUserPrivilegeRequ
 	}
 }
 
-// 创建数据库
+// AllowDbUserPrivilegeInvoker 授权数据库帐号
+func (c *RdsClient) AllowDbUserPrivilegeInvoker(request *model.AllowDbUserPrivilegeRequest) *AllowDbUserPrivilegeInvoker {
+	requestDef := GenReqDefForAllowDbUserPrivilege()
+	return &AllowDbUserPrivilegeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateDatabase 创建数据库
 //
 // 创建数据库。
 //
@@ -1302,7 +1776,13 @@ func (c *RdsClient) CreateDatabase(request *model.CreateDatabaseRequest) (*model
 	}
 }
 
-// 创建数据库用户
+// CreateDatabaseInvoker 创建数据库
+func (c *RdsClient) CreateDatabaseInvoker(request *model.CreateDatabaseRequest) *CreateDatabaseInvoker {
+	requestDef := GenReqDefForCreateDatabase()
+	return &CreateDatabaseInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateDbUser 创建数据库用户
 //
 // 创建数据库用户。
 //
@@ -1318,7 +1798,13 @@ func (c *RdsClient) CreateDbUser(request *model.CreateDbUserRequest) (*model.Cre
 	}
 }
 
-// 删除数据库
+// CreateDbUserInvoker 创建数据库用户
+func (c *RdsClient) CreateDbUserInvoker(request *model.CreateDbUserRequest) *CreateDbUserInvoker {
+	requestDef := GenReqDefForCreateDbUser()
+	return &CreateDbUserInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteDatabase 删除数据库
 //
 // 删除数据库。
 //
@@ -1334,7 +1820,13 @@ func (c *RdsClient) DeleteDatabase(request *model.DeleteDatabaseRequest) (*model
 	}
 }
 
-// 删除数据库用户
+// DeleteDatabaseInvoker 删除数据库
+func (c *RdsClient) DeleteDatabaseInvoker(request *model.DeleteDatabaseRequest) *DeleteDatabaseInvoker {
+	requestDef := GenReqDefForDeleteDatabase()
+	return &DeleteDatabaseInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteDbUser 删除数据库用户
 //
 // 删除数据库用户。
 //
@@ -1350,7 +1842,13 @@ func (c *RdsClient) DeleteDbUser(request *model.DeleteDbUserRequest) (*model.Del
 	}
 }
 
-// 查询指定用户的已授权数据库
+// DeleteDbUserInvoker 删除数据库用户
+func (c *RdsClient) DeleteDbUserInvoker(request *model.DeleteDbUserRequest) *DeleteDbUserInvoker {
+	requestDef := GenReqDefForDeleteDbUser()
+	return &DeleteDbUserInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListAuthorizedDatabases 查询指定用户的已授权数据库
 //
 // 查询指定用户的已授权数据库。
 //
@@ -1366,7 +1864,13 @@ func (c *RdsClient) ListAuthorizedDatabases(request *model.ListAuthorizedDatabas
 	}
 }
 
-// 查询指定数据库的已授权用户
+// ListAuthorizedDatabasesInvoker 查询指定用户的已授权数据库
+func (c *RdsClient) ListAuthorizedDatabasesInvoker(request *model.ListAuthorizedDatabasesRequest) *ListAuthorizedDatabasesInvoker {
+	requestDef := GenReqDefForListAuthorizedDatabases()
+	return &ListAuthorizedDatabasesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListAuthorizedDbUsers 查询指定数据库的已授权用户
 //
 // 查询指定数据库的已授权用户。
 //
@@ -1382,7 +1886,13 @@ func (c *RdsClient) ListAuthorizedDbUsers(request *model.ListAuthorizedDbUsersRe
 	}
 }
 
-// 查询数据库列表
+// ListAuthorizedDbUsersInvoker 查询指定数据库的已授权用户
+func (c *RdsClient) ListAuthorizedDbUsersInvoker(request *model.ListAuthorizedDbUsersRequest) *ListAuthorizedDbUsersInvoker {
+	requestDef := GenReqDefForListAuthorizedDbUsers()
+	return &ListAuthorizedDbUsersInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListDatabases 查询数据库列表
 //
 // 查询数据库列表。
 //
@@ -1398,7 +1908,13 @@ func (c *RdsClient) ListDatabases(request *model.ListDatabasesRequest) (*model.L
 	}
 }
 
-// 查询数据库用户列表
+// ListDatabasesInvoker 查询数据库列表
+func (c *RdsClient) ListDatabasesInvoker(request *model.ListDatabasesRequest) *ListDatabasesInvoker {
+	requestDef := GenReqDefForListDatabases()
+	return &ListDatabasesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListDbUsers 查询数据库用户列表
 //
 // 查询数据库用户列表。
 //
@@ -1414,7 +1930,13 @@ func (c *RdsClient) ListDbUsers(request *model.ListDbUsersRequest) (*model.ListD
 	}
 }
 
-// 重置数据库密码
+// ListDbUsersInvoker 查询数据库用户列表
+func (c *RdsClient) ListDbUsersInvoker(request *model.ListDbUsersRequest) *ListDbUsersInvoker {
+	requestDef := GenReqDefForListDbUsers()
+	return &ListDbUsersInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ResetPwd 重置数据库密码
 //
 // 重置数据库密码.
 //
@@ -1430,7 +1952,13 @@ func (c *RdsClient) ResetPwd(request *model.ResetPwdRequest) (*model.ResetPwdRes
 	}
 }
 
-// 解除数据库帐号权限
+// ResetPwdInvoker 重置数据库密码
+func (c *RdsClient) ResetPwdInvoker(request *model.ResetPwdRequest) *ResetPwdInvoker {
+	requestDef := GenReqDefForResetPwd()
+	return &ResetPwdInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// Revoke 解除数据库帐号权限
 //
 // 解除数据库帐号权限。
 //
@@ -1446,7 +1974,13 @@ func (c *RdsClient) Revoke(request *model.RevokeRequest) (*model.RevokeResponse,
 	}
 }
 
-// 设置数据库账号密码
+// RevokeInvoker 解除数据库帐号权限
+func (c *RdsClient) RevokeInvoker(request *model.RevokeRequest) *RevokeInvoker {
+	requestDef := GenReqDefForRevoke()
+	return &RevokeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// SetDbUserPwd 设置数据库账号密码
 //
 // 设置数据库账号密码
 //
@@ -1462,7 +1996,13 @@ func (c *RdsClient) SetDbUserPwd(request *model.SetDbUserPwdRequest) (*model.Set
 	}
 }
 
-// 修改指定实例的数据库备注
+// SetDbUserPwdInvoker 设置数据库账号密码
+func (c *RdsClient) SetDbUserPwdInvoker(request *model.SetDbUserPwdRequest) *SetDbUserPwdInvoker {
+	requestDef := GenReqDefForSetDbUserPwd()
+	return &SetDbUserPwdInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateDatabase 修改指定实例的数据库备注
 //
 // 修改指定实例中的数据库备注。
 //
@@ -1478,7 +2018,13 @@ func (c *RdsClient) UpdateDatabase(request *model.UpdateDatabaseRequest) (*model
 	}
 }
 
-// 授权数据库帐号
+// UpdateDatabaseInvoker 修改指定实例的数据库备注
+func (c *RdsClient) UpdateDatabaseInvoker(request *model.UpdateDatabaseRequest) *UpdateDatabaseInvoker {
+	requestDef := GenReqDefForUpdateDatabase()
+	return &UpdateDatabaseInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// AllowDbPrivilege 授权数据库帐号
 //
 // 在指定实例的数据库中, 设置帐号的权限。
 //
@@ -1494,7 +2040,13 @@ func (c *RdsClient) AllowDbPrivilege(request *model.AllowDbPrivilegeRequest) (*m
 	}
 }
 
-// 数据库代理规格变更
+// AllowDbPrivilegeInvoker 授权数据库帐号
+func (c *RdsClient) AllowDbPrivilegeInvoker(request *model.AllowDbPrivilegeRequest) *AllowDbPrivilegeInvoker {
+	requestDef := GenReqDefForAllowDbPrivilege()
+	return &AllowDbPrivilegeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ChangeProxyScale 数据库代理规格变更
 //
 // 数据库代理实例进行规格变更。
 //
@@ -1512,7 +2064,13 @@ func (c *RdsClient) ChangeProxyScale(request *model.ChangeProxyScaleRequest) (*m
 	}
 }
 
-// 修改读写分离阈值
+// ChangeProxyScaleInvoker 数据库代理规格变更
+func (c *RdsClient) ChangeProxyScaleInvoker(request *model.ChangeProxyScaleRequest) *ChangeProxyScaleInvoker {
+	requestDef := GenReqDefForChangeProxyScale()
+	return &ChangeProxyScaleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ChangeTheDelayThreshold 修改读写分离阈值
 //
 // 修改指定实例的读写分离延时阈值。
 //
@@ -1528,7 +2086,13 @@ func (c *RdsClient) ChangeTheDelayThreshold(request *model.ChangeTheDelayThresho
 	}
 }
 
-// 创建数据库
+// ChangeTheDelayThresholdInvoker 修改读写分离阈值
+func (c *RdsClient) ChangeTheDelayThresholdInvoker(request *model.ChangeTheDelayThresholdRequest) *ChangeTheDelayThresholdInvoker {
+	requestDef := GenReqDefForChangeTheDelayThreshold()
+	return &ChangeTheDelayThresholdInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreatePostgresqlDatabase 创建数据库
 //
 // 在指定实例中创建数据库。
 //
@@ -1544,7 +2108,13 @@ func (c *RdsClient) CreatePostgresqlDatabase(request *model.CreatePostgresqlData
 	}
 }
 
-// 创建数据库SCHEMA
+// CreatePostgresqlDatabaseInvoker 创建数据库
+func (c *RdsClient) CreatePostgresqlDatabaseInvoker(request *model.CreatePostgresqlDatabaseRequest) *CreatePostgresqlDatabaseInvoker {
+	requestDef := GenReqDefForCreatePostgresqlDatabase()
+	return &CreatePostgresqlDatabaseInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreatePostgresqlDatabaseSchema 创建数据库SCHEMA
 //
 // 在指定实例的数据库中, 创建数据库schema。
 //
@@ -1560,7 +2130,13 @@ func (c *RdsClient) CreatePostgresqlDatabaseSchema(request *model.CreatePostgres
 	}
 }
 
-// 创建数据库用户
+// CreatePostgresqlDatabaseSchemaInvoker 创建数据库SCHEMA
+func (c *RdsClient) CreatePostgresqlDatabaseSchemaInvoker(request *model.CreatePostgresqlDatabaseSchemaRequest) *CreatePostgresqlDatabaseSchemaInvoker {
+	requestDef := GenReqDefForCreatePostgresqlDatabaseSchema()
+	return &CreatePostgresqlDatabaseSchemaInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreatePostgresqlDbUser 创建数据库用户
 //
 // 在指定实例中创建数据库用户。
 //
@@ -1576,7 +2152,13 @@ func (c *RdsClient) CreatePostgresqlDbUser(request *model.CreatePostgresqlDbUser
 	}
 }
 
-// 查询数据库SCHEMA列表
+// CreatePostgresqlDbUserInvoker 创建数据库用户
+func (c *RdsClient) CreatePostgresqlDbUserInvoker(request *model.CreatePostgresqlDbUserRequest) *CreatePostgresqlDbUserInvoker {
+	requestDef := GenReqDefForCreatePostgresqlDbUser()
+	return &CreatePostgresqlDbUserInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListPostgresqlDatabaseSchemas 查询数据库SCHEMA列表
 //
 // 查询指定实例的数据库SCHEMA列表。
 //
@@ -1592,7 +2174,13 @@ func (c *RdsClient) ListPostgresqlDatabaseSchemas(request *model.ListPostgresqlD
 	}
 }
 
-// 查询数据库列表
+// ListPostgresqlDatabaseSchemasInvoker 查询数据库SCHEMA列表
+func (c *RdsClient) ListPostgresqlDatabaseSchemasInvoker(request *model.ListPostgresqlDatabaseSchemasRequest) *ListPostgresqlDatabaseSchemasInvoker {
+	requestDef := GenReqDefForListPostgresqlDatabaseSchemas()
+	return &ListPostgresqlDatabaseSchemasInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListPostgresqlDatabases 查询数据库列表
 //
 // 查询指定实例中的数据库列表。
 //
@@ -1608,7 +2196,13 @@ func (c *RdsClient) ListPostgresqlDatabases(request *model.ListPostgresqlDatabas
 	}
 }
 
-// 查询数据库用户列表
+// ListPostgresqlDatabasesInvoker 查询数据库列表
+func (c *RdsClient) ListPostgresqlDatabasesInvoker(request *model.ListPostgresqlDatabasesRequest) *ListPostgresqlDatabasesInvoker {
+	requestDef := GenReqDefForListPostgresqlDatabases()
+	return &ListPostgresqlDatabasesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListPostgresqlDbUserPaginated 查询数据库用户列表
 //
 // 在指定实例中查询数据库用户列表。
 //
@@ -1624,7 +2218,13 @@ func (c *RdsClient) ListPostgresqlDbUserPaginated(request *model.ListPostgresqlD
 	}
 }
 
-// 查询数据库代理可变更的规格
+// ListPostgresqlDbUserPaginatedInvoker 查询数据库用户列表
+func (c *RdsClient) ListPostgresqlDbUserPaginatedInvoker(request *model.ListPostgresqlDbUserPaginatedRequest) *ListPostgresqlDbUserPaginatedInvoker {
+	requestDef := GenReqDefForListPostgresqlDbUserPaginated()
+	return &ListPostgresqlDbUserPaginatedInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// SearchQueryScaleComputeFlavors 查询数据库代理可变更的规格
 //
 // 查询数据库代理可变更的规格信息。
 //
@@ -1642,7 +2242,13 @@ func (c *RdsClient) SearchQueryScaleComputeFlavors(request *model.SearchQuerySca
 	}
 }
 
-// 查询数据库代理可变更的规格
+// SearchQueryScaleComputeFlavorsInvoker 查询数据库代理可变更的规格
+func (c *RdsClient) SearchQueryScaleComputeFlavorsInvoker(request *model.SearchQueryScaleComputeFlavorsRequest) *SearchQueryScaleComputeFlavorsInvoker {
+	requestDef := GenReqDefForSearchQueryScaleComputeFlavors()
+	return &SearchQueryScaleComputeFlavorsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// SearchQueryScaleFlavors 查询数据库代理可变更的规格
 //
 // 查询数据库代理可变更的规格信息。
 //
@@ -1660,7 +2266,13 @@ func (c *RdsClient) SearchQueryScaleFlavors(request *model.SearchQueryScaleFlavo
 	}
 }
 
-// 重置数据库帐号密码
+// SearchQueryScaleFlavorsInvoker 查询数据库代理可变更的规格
+func (c *RdsClient) SearchQueryScaleFlavorsInvoker(request *model.SearchQueryScaleFlavorsRequest) *SearchQueryScaleFlavorsInvoker {
+	requestDef := GenReqDefForSearchQueryScaleFlavors()
+	return &SearchQueryScaleFlavorsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// SetPostgresqlDbUserPwd 重置数据库帐号密码
 //
 // 重置指定数据库帐号的密码。
 //
@@ -1676,7 +2288,13 @@ func (c *RdsClient) SetPostgresqlDbUserPwd(request *model.SetPostgresqlDbUserPwd
 	}
 }
 
-// 查询数据库代理信息
+// SetPostgresqlDbUserPwdInvoker 重置数据库帐号密码
+func (c *RdsClient) SetPostgresqlDbUserPwdInvoker(request *model.SetPostgresqlDbUserPwdRequest) *SetPostgresqlDbUserPwdInvoker {
+	requestDef := GenReqDefForSetPostgresqlDbUserPwd()
+	return &SetPostgresqlDbUserPwdInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowInformationAboutDatabaseProxy 查询数据库代理信息
 //
 // 查询指定实例的数据库代理详细信息。
 //
@@ -1692,7 +2310,13 @@ func (c *RdsClient) ShowInformationAboutDatabaseProxy(request *model.ShowInforma
 	}
 }
 
-// 开启数据库代理
+// ShowInformationAboutDatabaseProxyInvoker 查询数据库代理信息
+func (c *RdsClient) ShowInformationAboutDatabaseProxyInvoker(request *model.ShowInformationAboutDatabaseProxyRequest) *ShowInformationAboutDatabaseProxyInvoker {
+	requestDef := GenReqDefForShowInformationAboutDatabaseProxy()
+	return &ShowInformationAboutDatabaseProxyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// StartDatabaseProxy 开启数据库代理
 //
 // 为指定实例开启数据库代理。
 //
@@ -1708,7 +2332,13 @@ func (c *RdsClient) StartDatabaseProxy(request *model.StartDatabaseProxyRequest)
 	}
 }
 
-// 关闭数据库代理
+// StartDatabaseProxyInvoker 开启数据库代理
+func (c *RdsClient) StartDatabaseProxyInvoker(request *model.StartDatabaseProxyRequest) *StartDatabaseProxyInvoker {
+	requestDef := GenReqDefForStartDatabaseProxy()
+	return &StartDatabaseProxyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// StopDatabaseProxy 关闭数据库代理
 //
 // 为指定实例关闭数据库代理。
 //
@@ -1724,7 +2354,13 @@ func (c *RdsClient) StopDatabaseProxy(request *model.StopDatabaseProxyRequest) (
 	}
 }
 
-// 修改读写分离权重
+// StopDatabaseProxyInvoker 关闭数据库代理
+func (c *RdsClient) StopDatabaseProxyInvoker(request *model.StopDatabaseProxyRequest) *StopDatabaseProxyInvoker {
+	requestDef := GenReqDefForStopDatabaseProxy()
+	return &StopDatabaseProxyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateReadWeight 修改读写分离权重
 //
 // 修改指定实例的读写分离权重。
 //
@@ -1740,7 +2376,13 @@ func (c *RdsClient) UpdateReadWeight(request *model.UpdateReadWeightRequest) (*m
 	}
 }
 
-// 授权数据库帐号
+// UpdateReadWeightInvoker 修改读写分离权重
+func (c *RdsClient) UpdateReadWeightInvoker(request *model.UpdateReadWeightRequest) *UpdateReadWeightInvoker {
+	requestDef := GenReqDefForUpdateReadWeight()
+	return &UpdateReadWeightInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// AllowSqlserverDbUserPrivilege 授权数据库帐号
 //
 // 授权数据库帐号。
 //
@@ -1756,7 +2398,13 @@ func (c *RdsClient) AllowSqlserverDbUserPrivilege(request *model.AllowSqlserverD
 	}
 }
 
-// 创建数据库
+// AllowSqlserverDbUserPrivilegeInvoker 授权数据库帐号
+func (c *RdsClient) AllowSqlserverDbUserPrivilegeInvoker(request *model.AllowSqlserverDbUserPrivilegeRequest) *AllowSqlserverDbUserPrivilegeInvoker {
+	requestDef := GenReqDefForAllowSqlserverDbUserPrivilege()
+	return &AllowSqlserverDbUserPrivilegeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateSqlserverDatabase 创建数据库
 //
 // 创建数据库。
 //
@@ -1772,7 +2420,13 @@ func (c *RdsClient) CreateSqlserverDatabase(request *model.CreateSqlserverDataba
 	}
 }
 
-// 创建数据库用户
+// CreateSqlserverDatabaseInvoker 创建数据库
+func (c *RdsClient) CreateSqlserverDatabaseInvoker(request *model.CreateSqlserverDatabaseRequest) *CreateSqlserverDatabaseInvoker {
+	requestDef := GenReqDefForCreateSqlserverDatabase()
+	return &CreateSqlserverDatabaseInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateSqlserverDbUser 创建数据库用户
 //
 // 创建数据库用户。
 //
@@ -1788,7 +2442,13 @@ func (c *RdsClient) CreateSqlserverDbUser(request *model.CreateSqlserverDbUserRe
 	}
 }
 
-// 删除数据库
+// CreateSqlserverDbUserInvoker 创建数据库用户
+func (c *RdsClient) CreateSqlserverDbUserInvoker(request *model.CreateSqlserverDbUserRequest) *CreateSqlserverDbUserInvoker {
+	requestDef := GenReqDefForCreateSqlserverDbUser()
+	return &CreateSqlserverDbUserInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteSqlserverDatabase 删除数据库
 //
 // 删除数据库。
 //
@@ -1804,7 +2464,13 @@ func (c *RdsClient) DeleteSqlserverDatabase(request *model.DeleteSqlserverDataba
 	}
 }
 
-// 删除数据库
+// DeleteSqlserverDatabaseInvoker 删除数据库
+func (c *RdsClient) DeleteSqlserverDatabaseInvoker(request *model.DeleteSqlserverDatabaseRequest) *DeleteSqlserverDatabaseInvoker {
+	requestDef := GenReqDefForDeleteSqlserverDatabase()
+	return &DeleteSqlserverDatabaseInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteSqlserverDatabaseEx 删除数据库
 //
 // 删除数据库。
 //
@@ -1820,7 +2486,13 @@ func (c *RdsClient) DeleteSqlserverDatabaseEx(request *model.DeleteSqlserverData
 	}
 }
 
-// 删除数据库用户
+// DeleteSqlserverDatabaseExInvoker 删除数据库
+func (c *RdsClient) DeleteSqlserverDatabaseExInvoker(request *model.DeleteSqlserverDatabaseExRequest) *DeleteSqlserverDatabaseExInvoker {
+	requestDef := GenReqDefForDeleteSqlserverDatabaseEx()
+	return &DeleteSqlserverDatabaseExInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteSqlserverDbUser 删除数据库用户
 //
 // 删除数据库用户。
 //
@@ -1836,7 +2508,13 @@ func (c *RdsClient) DeleteSqlserverDbUser(request *model.DeleteSqlserverDbUserRe
 	}
 }
 
-// 查询指定数据库的已授权用户
+// DeleteSqlserverDbUserInvoker 删除数据库用户
+func (c *RdsClient) DeleteSqlserverDbUserInvoker(request *model.DeleteSqlserverDbUserRequest) *DeleteSqlserverDbUserInvoker {
+	requestDef := GenReqDefForDeleteSqlserverDbUser()
+	return &DeleteSqlserverDbUserInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListAuthorizedSqlserverDbUsers 查询指定数据库的已授权用户
 //
 // 查询指定数据库的已授权用户。
 //
@@ -1852,7 +2530,13 @@ func (c *RdsClient) ListAuthorizedSqlserverDbUsers(request *model.ListAuthorized
 	}
 }
 
-// 查询数据库列表
+// ListAuthorizedSqlserverDbUsersInvoker 查询指定数据库的已授权用户
+func (c *RdsClient) ListAuthorizedSqlserverDbUsersInvoker(request *model.ListAuthorizedSqlserverDbUsersRequest) *ListAuthorizedSqlserverDbUsersInvoker {
+	requestDef := GenReqDefForListAuthorizedSqlserverDbUsers()
+	return &ListAuthorizedSqlserverDbUsersInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListSqlserverDatabases 查询数据库列表
 //
 // 查询数据库列表。
 //
@@ -1868,7 +2552,13 @@ func (c *RdsClient) ListSqlserverDatabases(request *model.ListSqlserverDatabases
 	}
 }
 
-// 查询数据库用户列表
+// ListSqlserverDatabasesInvoker 查询数据库列表
+func (c *RdsClient) ListSqlserverDatabasesInvoker(request *model.ListSqlserverDatabasesRequest) *ListSqlserverDatabasesInvoker {
+	requestDef := GenReqDefForListSqlserverDatabases()
+	return &ListSqlserverDatabasesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListSqlserverDbUsers 查询数据库用户列表
 //
 // 查询数据库用户列表。
 //
@@ -1884,7 +2574,13 @@ func (c *RdsClient) ListSqlserverDbUsers(request *model.ListSqlserverDbUsersRequ
 	}
 }
 
-// 解除数据库帐号权限
+// ListSqlserverDbUsersInvoker 查询数据库用户列表
+func (c *RdsClient) ListSqlserverDbUsersInvoker(request *model.ListSqlserverDbUsersRequest) *ListSqlserverDbUsersInvoker {
+	requestDef := GenReqDefForListSqlserverDbUsers()
+	return &ListSqlserverDbUsersInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// RevokeSqlserverDbUserPrivilege 解除数据库帐号权限
 //
 // 解除数据库帐号权限。
 //
@@ -1898,4 +2594,10 @@ func (c *RdsClient) RevokeSqlserverDbUserPrivilege(request *model.RevokeSqlserve
 	} else {
 		return resp.(*model.RevokeSqlserverDbUserPrivilegeResponse), nil
 	}
+}
+
+// RevokeSqlserverDbUserPrivilegeInvoker 解除数据库帐号权限
+func (c *RdsClient) RevokeSqlserverDbUserPrivilegeInvoker(request *model.RevokeSqlserverDbUserPrivilegeRequest) *RevokeSqlserverDbUserPrivilegeInvoker {
+	requestDef := GenReqDefForRevokeSqlserverDbUserPrivilege()
+	return &RevokeSqlserverDbUserPrivilegeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }

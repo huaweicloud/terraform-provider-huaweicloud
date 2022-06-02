@@ -50,6 +50,10 @@ func GetResetPwdRequestXLanguageEnum() ResetPwdRequestXLanguageEnum {
 	}
 }
 
+func (c ResetPwdRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c ResetPwdRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

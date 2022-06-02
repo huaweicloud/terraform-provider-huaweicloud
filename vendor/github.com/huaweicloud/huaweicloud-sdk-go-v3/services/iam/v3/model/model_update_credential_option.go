@@ -48,6 +48,10 @@ func GetUpdateCredentialOptionStatusEnum() UpdateCredentialOptionStatusEnum {
 	}
 }
 
+func (c UpdateCredentialOptionStatus) Value() string {
+	return c.value
+}
+
 func (c UpdateCredentialOptionStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

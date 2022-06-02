@@ -53,6 +53,10 @@ func GetLiveDomainCreateReqDomainTypeEnum() LiveDomainCreateReqDomainTypeEnum {
 	}
 }
 
+func (c LiveDomainCreateReqDomainType) Value() string {
+	return c.value
+}
+
 func (c LiveDomainCreateReqDomainType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -93,6 +97,10 @@ func GetLiveDomainCreateReqServiceAreaEnum() LiveDomainCreateReqServiceAreaEnum 
 			value: "global",
 		},
 	}
+}
+
+func (c LiveDomainCreateReqServiceArea) Value() string {
+	return c.value
 }
 
 func (c LiveDomainCreateReqServiceArea) MarshalJSON() ([]byte, error) {

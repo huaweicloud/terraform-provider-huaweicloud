@@ -65,6 +65,10 @@ func GetCommonPvcEnum() CommonPvcEnum {
 	}
 }
 
+func (c CommonPvc) Value() string {
+	return c.value
+}
+
 func (c CommonPvc) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -105,6 +109,10 @@ func GetCommonVideoCodecEnum() CommonVideoCodecEnum {
 			value: "UNKNOW",
 		},
 	}
+}
+
+func (c CommonVideoCodec) Value() string {
+	return c.value
 }
 
 func (c CommonVideoCodec) MarshalJSON() ([]byte, error) {
@@ -151,6 +159,10 @@ func GetCommonAudioCodecEnum() CommonAudioCodecEnum {
 			value: "MP3",
 		},
 	}
+}
+
+func (c CommonAudioCodec) Value() string {
+	return c.value
 }
 
 func (c CommonAudioCodec) MarshalJSON() ([]byte, error) {

@@ -63,6 +63,10 @@ func GetReviewInfoSuggestionEnum() ReviewInfoSuggestionEnum {
 	}
 }
 
+func (c ReviewInfoSuggestion) Value() string {
+	return c.value
+}
+
 func (c ReviewInfoSuggestion) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

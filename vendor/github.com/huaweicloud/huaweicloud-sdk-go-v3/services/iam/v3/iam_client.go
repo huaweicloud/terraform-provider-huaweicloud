@@ -2,7 +2,7 @@ package v3
 
 import (
 	http_client "github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
-
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/invoker"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/model"
 )
 
@@ -19,7 +19,7 @@ func IamClientBuilder() *http_client.HcHttpClientBuilder {
 	return builder
 }
 
-// 为委托授予所有项目服务权限
+// AssociateAgencyWithAllProjectsPermission 为委托授予所有项目服务权限
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)为委托授予所有项目服务权限。
 //
@@ -37,7 +37,13 @@ func (c *IamClient) AssociateAgencyWithAllProjectsPermission(request *model.Asso
 	}
 }
 
-// 为委托授予全局服务权限
+// AssociateAgencyWithAllProjectsPermissionInvoker 为委托授予所有项目服务权限
+func (c *IamClient) AssociateAgencyWithAllProjectsPermissionInvoker(request *model.AssociateAgencyWithAllProjectsPermissionRequest) *AssociateAgencyWithAllProjectsPermissionInvoker {
+	requestDef := GenReqDefForAssociateAgencyWithAllProjectsPermission()
+	return &AssociateAgencyWithAllProjectsPermissionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// AssociateAgencyWithDomainPermission 为委托授予全局服务权限
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)为委托授予全局服务权限。
 //
@@ -55,7 +61,13 @@ func (c *IamClient) AssociateAgencyWithDomainPermission(request *model.Associate
 	}
 }
 
-// 为委托授予项目服务权限
+// AssociateAgencyWithDomainPermissionInvoker 为委托授予全局服务权限
+func (c *IamClient) AssociateAgencyWithDomainPermissionInvoker(request *model.AssociateAgencyWithDomainPermissionRequest) *AssociateAgencyWithDomainPermissionInvoker {
+	requestDef := GenReqDefForAssociateAgencyWithDomainPermission()
+	return &AssociateAgencyWithDomainPermissionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// AssociateAgencyWithProjectPermission 为委托授予项目服务权限
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)为委托授予项目服务权限。
 //
@@ -73,7 +85,13 @@ func (c *IamClient) AssociateAgencyWithProjectPermission(request *model.Associat
 	}
 }
 
-// 基于用户组为企业项目授权
+// AssociateAgencyWithProjectPermissionInvoker 为委托授予项目服务权限
+func (c *IamClient) AssociateAgencyWithProjectPermissionInvoker(request *model.AssociateAgencyWithProjectPermissionRequest) *AssociateAgencyWithProjectPermissionInvoker {
+	requestDef := GenReqDefForAssociateAgencyWithProjectPermission()
+	return &AssociateAgencyWithProjectPermissionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// AssociateRoleToGroupOnEnterpriseProject 基于用户组为企业项目授权
 //
 // 该接口用于基于用户组为企业项目授权。
 //
@@ -91,7 +109,13 @@ func (c *IamClient) AssociateRoleToGroupOnEnterpriseProject(request *model.Assoc
 	}
 }
 
-// 基于用户为企业项目授权
+// AssociateRoleToGroupOnEnterpriseProjectInvoker 基于用户组为企业项目授权
+func (c *IamClient) AssociateRoleToGroupOnEnterpriseProjectInvoker(request *model.AssociateRoleToGroupOnEnterpriseProjectRequest) *AssociateRoleToGroupOnEnterpriseProjectInvoker {
+	requestDef := GenReqDefForAssociateRoleToGroupOnEnterpriseProject()
+	return &AssociateRoleToGroupOnEnterpriseProjectInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// AssociateRoleToUserOnEnterpriseProject 基于用户为企业项目授权
 //
 // 基于用户为企业项目授权。
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
@@ -108,7 +132,13 @@ func (c *IamClient) AssociateRoleToUserOnEnterpriseProject(request *model.Associ
 	}
 }
 
-// 检查委托下是否具有所有项目服务权限
+// AssociateRoleToUserOnEnterpriseProjectInvoker 基于用户为企业项目授权
+func (c *IamClient) AssociateRoleToUserOnEnterpriseProjectInvoker(request *model.AssociateRoleToUserOnEnterpriseProjectRequest) *AssociateRoleToUserOnEnterpriseProjectInvoker {
+	requestDef := GenReqDefForAssociateRoleToUserOnEnterpriseProject()
+	return &AssociateRoleToUserOnEnterpriseProjectInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CheckAllProjectsPermissionForAgency 检查委托下是否具有所有项目服务权限
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)检查委托是否具有所有项目服务权限。
 //
@@ -126,7 +156,13 @@ func (c *IamClient) CheckAllProjectsPermissionForAgency(request *model.CheckAllP
 	}
 }
 
-// 查询委托是否拥有全局服务权限
+// CheckAllProjectsPermissionForAgencyInvoker 检查委托下是否具有所有项目服务权限
+func (c *IamClient) CheckAllProjectsPermissionForAgencyInvoker(request *model.CheckAllProjectsPermissionForAgencyRequest) *CheckAllProjectsPermissionForAgencyInvoker {
+	requestDef := GenReqDefForCheckAllProjectsPermissionForAgency()
+	return &CheckAllProjectsPermissionForAgencyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CheckDomainPermissionForAgency 查询委托是否拥有全局服务权限
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询委托是否拥有全局服务权限。
 //
@@ -144,7 +180,13 @@ func (c *IamClient) CheckDomainPermissionForAgency(request *model.CheckDomainPer
 	}
 }
 
-// 查询委托是否拥有项目服务权限
+// CheckDomainPermissionForAgencyInvoker 查询委托是否拥有全局服务权限
+func (c *IamClient) CheckDomainPermissionForAgencyInvoker(request *model.CheckDomainPermissionForAgencyRequest) *CheckDomainPermissionForAgencyInvoker {
+	requestDef := GenReqDefForCheckDomainPermissionForAgency()
+	return &CheckDomainPermissionForAgencyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CheckProjectPermissionForAgency 查询委托是否拥有项目服务权限
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询委托是否拥有项目服务权限。
 //
@@ -162,7 +204,13 @@ func (c *IamClient) CheckProjectPermissionForAgency(request *model.CheckProjectP
 	}
 }
 
-// 创建委托
+// CheckProjectPermissionForAgencyInvoker 查询委托是否拥有项目服务权限
+func (c *IamClient) CheckProjectPermissionForAgencyInvoker(request *model.CheckProjectPermissionForAgencyRequest) *CheckProjectPermissionForAgencyInvoker {
+	requestDef := GenReqDefForCheckProjectPermissionForAgency()
+	return &CheckProjectPermissionForAgencyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateAgency 创建委托
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)创建委托。
 //
@@ -180,7 +228,13 @@ func (c *IamClient) CreateAgency(request *model.CreateAgencyRequest) (*model.Cre
 	}
 }
 
-// 创建委托自定义策略
+// CreateAgencyInvoker 创建委托
+func (c *IamClient) CreateAgencyInvoker(request *model.CreateAgencyRequest) *CreateAgencyInvoker {
+	requestDef := GenReqDefForCreateAgency()
+	return &CreateAgencyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateAgencyCustomPolicy 创建委托自定义策略
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)创建委托自定义策略。
 //
@@ -198,7 +252,13 @@ func (c *IamClient) CreateAgencyCustomPolicy(request *model.CreateAgencyCustomPo
 	}
 }
 
-// 创建云服务自定义策略
+// CreateAgencyCustomPolicyInvoker 创建委托自定义策略
+func (c *IamClient) CreateAgencyCustomPolicyInvoker(request *model.CreateAgencyCustomPolicyRequest) *CreateAgencyCustomPolicyInvoker {
+	requestDef := GenReqDefForCreateAgencyCustomPolicy()
+	return &CreateAgencyCustomPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateCloudServiceCustomPolicy 创建云服务自定义策略
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)创建云服务自定义策略。
 //
@@ -216,7 +276,13 @@ func (c *IamClient) CreateCloudServiceCustomPolicy(request *model.CreateCloudSer
 	}
 }
 
-// 获取自定义代理登录票据
+// CreateCloudServiceCustomPolicyInvoker 创建云服务自定义策略
+func (c *IamClient) CreateCloudServiceCustomPolicyInvoker(request *model.CreateCloudServiceCustomPolicyRequest) *CreateCloudServiceCustomPolicyInvoker {
+	requestDef := GenReqDefForCreateCloudServiceCustomPolicy()
+	return &CreateCloudServiceCustomPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateLoginToken 获取自定义代理登录票据
 //
 // 该接口用于用于获取自定义代理登录票据logintoken。logintoken是系统颁发给自定义代理用户的登录票据，承载用户的身份、session等信息。调用自定义代理URL登录云服务控制台时，可以使用本接口获取的logintoken进行认证。
 //
@@ -236,7 +302,13 @@ func (c *IamClient) CreateLoginToken(request *model.CreateLoginTokenRequest) (*m
 	}
 }
 
-// 导入Metadata文件
+// CreateLoginTokenInvoker 获取自定义代理登录票据
+func (c *IamClient) CreateLoginTokenInvoker(request *model.CreateLoginTokenRequest) *CreateLoginTokenInvoker {
+	requestDef := GenReqDefForCreateLoginToken()
+	return &CreateLoginTokenInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateMetadata 导入Metadata文件
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)导入Metadata文件。
 //
@@ -256,7 +328,13 @@ func (c *IamClient) CreateMetadata(request *model.CreateMetadataRequest) (*model
 	}
 }
 
-// 创建OpenId Connect身份提供商配置
+// CreateMetadataInvoker 导入Metadata文件
+func (c *IamClient) CreateMetadataInvoker(request *model.CreateMetadataRequest) *CreateMetadataInvoker {
+	requestDef := GenReqDefForCreateMetadata()
+	return &CreateMetadataInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateOpenIdConnectConfig 创建OpenId Connect身份提供商配置
 //
 // 创建OpenId Connect身份提供商配置
 //
@@ -272,7 +350,13 @@ func (c *IamClient) CreateOpenIdConnectConfig(request *model.CreateOpenIdConnect
 	}
 }
 
-// 获取联邦认证token(OpenId Connect Id token方式)
+// CreateOpenIdConnectConfigInvoker 创建OpenId Connect身份提供商配置
+func (c *IamClient) CreateOpenIdConnectConfigInvoker(request *model.CreateOpenIdConnectConfigRequest) *CreateOpenIdConnectConfigInvoker {
+	requestDef := GenReqDefForCreateOpenIdConnectConfig()
+	return &CreateOpenIdConnectConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateTokenWithIdToken 获取联邦认证token(OpenId Connect Id token方式)
 //
 // 获取联邦认证token(OpenId Connect Id token方式)
 //
@@ -288,7 +372,13 @@ func (c *IamClient) CreateTokenWithIdToken(request *model.CreateTokenWithIdToken
 	}
 }
 
-// 获取联邦认证unscoped token(OpenId Connect Id token方式)
+// CreateTokenWithIdTokenInvoker 获取联邦认证token(OpenId Connect Id token方式)
+func (c *IamClient) CreateTokenWithIdTokenInvoker(request *model.CreateTokenWithIdTokenRequest) *CreateTokenWithIdTokenInvoker {
+	requestDef := GenReqDefForCreateTokenWithIdToken()
+	return &CreateTokenWithIdTokenInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateUnscopedTokenWithIdToken 获取联邦认证unscoped token(OpenId Connect Id token方式)
 //
 // 获取联邦认证token(OpenId Connect Id token方式)。
 //
@@ -304,7 +394,13 @@ func (c *IamClient) CreateUnscopedTokenWithIdToken(request *model.CreateUnscoped
 	}
 }
 
-// 删除委托
+// CreateUnscopedTokenWithIdTokenInvoker 获取联邦认证unscoped token(OpenId Connect Id token方式)
+func (c *IamClient) CreateUnscopedTokenWithIdTokenInvoker(request *model.CreateUnscopedTokenWithIdTokenRequest) *CreateUnscopedTokenWithIdTokenInvoker {
+	requestDef := GenReqDefForCreateUnscopedTokenWithIdToken()
+	return &CreateUnscopedTokenWithIdTokenInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteAgency 删除委托
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)删除委托。
 //
@@ -322,7 +418,13 @@ func (c *IamClient) DeleteAgency(request *model.DeleteAgencyRequest) (*model.Del
 	}
 }
 
-// 删除自定义策略
+// DeleteAgencyInvoker 删除委托
+func (c *IamClient) DeleteAgencyInvoker(request *model.DeleteAgencyRequest) *DeleteAgencyInvoker {
+	requestDef := GenReqDefForDeleteAgency()
+	return &DeleteAgencyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteCustomPolicy 删除自定义策略
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)删除自定义策略。
 //
@@ -340,7 +442,13 @@ func (c *IamClient) DeleteCustomPolicy(request *model.DeleteCustomPolicyRequest)
 	}
 }
 
-// 移除用户组的所有项目服务权限
+// DeleteCustomPolicyInvoker 删除自定义策略
+func (c *IamClient) DeleteCustomPolicyInvoker(request *model.DeleteCustomPolicyRequest) *DeleteCustomPolicyInvoker {
+	requestDef := GenReqDefForDeleteCustomPolicy()
+	return &DeleteCustomPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteDomainGroupInheritedRole 移除用户组的所有项目服务权限
 //
 // 该接口可以用于移除用户组的所有项目服务权限。
 //
@@ -358,7 +466,13 @@ func (c *IamClient) DeleteDomainGroupInheritedRole(request *model.DeleteDomainGr
 	}
 }
 
-// 添加IAM用户到用户组
+// DeleteDomainGroupInheritedRoleInvoker 移除用户组的所有项目服务权限
+func (c *IamClient) DeleteDomainGroupInheritedRoleInvoker(request *model.DeleteDomainGroupInheritedRoleRequest) *DeleteDomainGroupInheritedRoleInvoker {
+	requestDef := GenReqDefForDeleteDomainGroupInheritedRole()
+	return &DeleteDomainGroupInheritedRoleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneAddUserToGroup 添加IAM用户到用户组
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)添加IAM用户到用户组。
 //
@@ -376,7 +490,13 @@ func (c *IamClient) KeystoneAddUserToGroup(request *model.KeystoneAddUserToGroup
 	}
 }
 
-// 为用户组授予全局服务权限
+// KeystoneAddUserToGroupInvoker 添加IAM用户到用户组
+func (c *IamClient) KeystoneAddUserToGroupInvoker(request *model.KeystoneAddUserToGroupRequest) *KeystoneAddUserToGroupInvoker {
+	requestDef := GenReqDefForKeystoneAddUserToGroup()
+	return &KeystoneAddUserToGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneAssociateGroupWithDomainPermission 为用户组授予全局服务权限
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)为用户组授予全局服务权限。
 //
@@ -394,7 +514,13 @@ func (c *IamClient) KeystoneAssociateGroupWithDomainPermission(request *model.Ke
 	}
 }
 
-// 为用户组授予项目服务权限
+// KeystoneAssociateGroupWithDomainPermissionInvoker 为用户组授予全局服务权限
+func (c *IamClient) KeystoneAssociateGroupWithDomainPermissionInvoker(request *model.KeystoneAssociateGroupWithDomainPermissionRequest) *KeystoneAssociateGroupWithDomainPermissionInvoker {
+	requestDef := GenReqDefForKeystoneAssociateGroupWithDomainPermission()
+	return &KeystoneAssociateGroupWithDomainPermissionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneAssociateGroupWithProjectPermission 为用户组授予项目服务权限
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)为用户组授予项目服务权限。
 //
@@ -412,7 +538,13 @@ func (c *IamClient) KeystoneAssociateGroupWithProjectPermission(request *model.K
 	}
 }
 
-// 查询用户组是否拥有全局服务权限
+// KeystoneAssociateGroupWithProjectPermissionInvoker 为用户组授予项目服务权限
+func (c *IamClient) KeystoneAssociateGroupWithProjectPermissionInvoker(request *model.KeystoneAssociateGroupWithProjectPermissionRequest) *KeystoneAssociateGroupWithProjectPermissionInvoker {
+	requestDef := GenReqDefForKeystoneAssociateGroupWithProjectPermission()
+	return &KeystoneAssociateGroupWithProjectPermissionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneCheckDomainPermissionForGroup 查询用户组是否拥有全局服务权限
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询用户组是否拥有全局服务权限。
 //
@@ -430,7 +562,13 @@ func (c *IamClient) KeystoneCheckDomainPermissionForGroup(request *model.Keyston
 	}
 }
 
-// 查询用户组是否拥有项目服务权限
+// KeystoneCheckDomainPermissionForGroupInvoker 查询用户组是否拥有全局服务权限
+func (c *IamClient) KeystoneCheckDomainPermissionForGroupInvoker(request *model.KeystoneCheckDomainPermissionForGroupRequest) *KeystoneCheckDomainPermissionForGroupInvoker {
+	requestDef := GenReqDefForKeystoneCheckDomainPermissionForGroup()
+	return &KeystoneCheckDomainPermissionForGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneCheckProjectPermissionForGroup 查询用户组是否拥有项目服务权限
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询用户组是否拥有项目服务权限。
 //
@@ -448,7 +586,13 @@ func (c *IamClient) KeystoneCheckProjectPermissionForGroup(request *model.Keysto
 	}
 }
 
-// 查询IAM用户是否在用户组中
+// KeystoneCheckProjectPermissionForGroupInvoker 查询用户组是否拥有项目服务权限
+func (c *IamClient) KeystoneCheckProjectPermissionForGroupInvoker(request *model.KeystoneCheckProjectPermissionForGroupRequest) *KeystoneCheckProjectPermissionForGroupInvoker {
+	requestDef := GenReqDefForKeystoneCheckProjectPermissionForGroup()
+	return &KeystoneCheckProjectPermissionForGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneCheckUserInGroup 查询IAM用户是否在用户组中
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询IAM用户是否在用户组中。
 //
@@ -466,7 +610,13 @@ func (c *IamClient) KeystoneCheckUserInGroup(request *model.KeystoneCheckUserInG
 	}
 }
 
-// 查询用户组是否拥有所有项目指定权限
+// KeystoneCheckUserInGroupInvoker 查询IAM用户是否在用户组中
+func (c *IamClient) KeystoneCheckUserInGroupInvoker(request *model.KeystoneCheckUserInGroupRequest) *KeystoneCheckUserInGroupInvoker {
+	requestDef := GenReqDefForKeystoneCheckUserInGroup()
+	return &KeystoneCheckUserInGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneCheckroleForGroup 查询用户组是否拥有所有项目指定权限
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询用户组是否拥有所有项目指定权限。
 //
@@ -484,7 +634,13 @@ func (c *IamClient) KeystoneCheckroleForGroup(request *model.KeystoneCheckroleFo
 	}
 }
 
-// 创建用户组
+// KeystoneCheckroleForGroupInvoker 查询用户组是否拥有所有项目指定权限
+func (c *IamClient) KeystoneCheckroleForGroupInvoker(request *model.KeystoneCheckroleForGroupRequest) *KeystoneCheckroleForGroupInvoker {
+	requestDef := GenReqDefForKeystoneCheckroleForGroup()
+	return &KeystoneCheckroleForGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneCreateGroup 创建用户组
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)创建用户组。
 //
@@ -502,7 +658,13 @@ func (c *IamClient) KeystoneCreateGroup(request *model.KeystoneCreateGroupReques
 	}
 }
 
-// 注册身份提供商
+// KeystoneCreateGroupInvoker 创建用户组
+func (c *IamClient) KeystoneCreateGroupInvoker(request *model.KeystoneCreateGroupRequest) *KeystoneCreateGroupInvoker {
+	requestDef := GenReqDefForKeystoneCreateGroup()
+	return &KeystoneCreateGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneCreateIdentityProvider 注册身份提供商
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)注册身份提供商。
 //
@@ -520,7 +682,13 @@ func (c *IamClient) KeystoneCreateIdentityProvider(request *model.KeystoneCreate
 	}
 }
 
-// 注册映射
+// KeystoneCreateIdentityProviderInvoker 注册身份提供商
+func (c *IamClient) KeystoneCreateIdentityProviderInvoker(request *model.KeystoneCreateIdentityProviderRequest) *KeystoneCreateIdentityProviderInvoker {
+	requestDef := GenReqDefForKeystoneCreateIdentityProvider()
+	return &KeystoneCreateIdentityProviderInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneCreateMapping 注册映射
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)注册映射。
 //
@@ -538,7 +706,13 @@ func (c *IamClient) KeystoneCreateMapping(request *model.KeystoneCreateMappingRe
 	}
 }
 
-// 创建项目
+// KeystoneCreateMappingInvoker 注册映射
+func (c *IamClient) KeystoneCreateMappingInvoker(request *model.KeystoneCreateMappingRequest) *KeystoneCreateMappingInvoker {
+	requestDef := GenReqDefForKeystoneCreateMapping()
+	return &KeystoneCreateMappingInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneCreateProject 创建项目
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)创建项目。
 //
@@ -556,7 +730,13 @@ func (c *IamClient) KeystoneCreateProject(request *model.KeystoneCreateProjectRe
 	}
 }
 
-// 注册协议
+// KeystoneCreateProjectInvoker 创建项目
+func (c *IamClient) KeystoneCreateProjectInvoker(request *model.KeystoneCreateProjectRequest) *KeystoneCreateProjectInvoker {
+	requestDef := GenReqDefForKeystoneCreateProject()
+	return &KeystoneCreateProjectInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneCreateProtocol 注册协议
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)注册协议（将协议关联到某一身份提供商）。
 //
@@ -574,7 +754,13 @@ func (c *IamClient) KeystoneCreateProtocol(request *model.KeystoneCreateProtocol
 	}
 }
 
-// 获取联邦认证scoped token
+// KeystoneCreateProtocolInvoker 注册协议
+func (c *IamClient) KeystoneCreateProtocolInvoker(request *model.KeystoneCreateProtocolRequest) *KeystoneCreateProtocolInvoker {
+	requestDef := GenReqDefForKeystoneCreateProtocol()
+	return &KeystoneCreateProtocolInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneCreateScopedToken 获取联邦认证scoped token
 //
 // 该接口可以用于通过联邦认证方式获取scoped token。
 //
@@ -592,7 +778,13 @@ func (c *IamClient) KeystoneCreateScopedToken(request *model.KeystoneCreateScope
 	}
 }
 
-// 删除用户组
+// KeystoneCreateScopedTokenInvoker 获取联邦认证scoped token
+func (c *IamClient) KeystoneCreateScopedTokenInvoker(request *model.KeystoneCreateScopedTokenRequest) *KeystoneCreateScopedTokenInvoker {
+	requestDef := GenReqDefForKeystoneCreateScopedToken()
+	return &KeystoneCreateScopedTokenInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneDeleteGroup 删除用户组
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)删除用户组。
 //
@@ -610,7 +802,13 @@ func (c *IamClient) KeystoneDeleteGroup(request *model.KeystoneDeleteGroupReques
 	}
 }
 
-// 删除身份提供商
+// KeystoneDeleteGroupInvoker 删除用户组
+func (c *IamClient) KeystoneDeleteGroupInvoker(request *model.KeystoneDeleteGroupRequest) *KeystoneDeleteGroupInvoker {
+	requestDef := GenReqDefForKeystoneDeleteGroup()
+	return &KeystoneDeleteGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneDeleteIdentityProvider 删除身份提供商
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html) 删除身份提供商。
 //
@@ -628,7 +826,13 @@ func (c *IamClient) KeystoneDeleteIdentityProvider(request *model.KeystoneDelete
 	}
 }
 
-// 删除映射
+// KeystoneDeleteIdentityProviderInvoker 删除身份提供商
+func (c *IamClient) KeystoneDeleteIdentityProviderInvoker(request *model.KeystoneDeleteIdentityProviderRequest) *KeystoneDeleteIdentityProviderInvoker {
+	requestDef := GenReqDefForKeystoneDeleteIdentityProvider()
+	return &KeystoneDeleteIdentityProviderInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneDeleteMapping 删除映射
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)删除映射。
 //
@@ -646,7 +850,13 @@ func (c *IamClient) KeystoneDeleteMapping(request *model.KeystoneDeleteMappingRe
 	}
 }
 
-// 删除协议
+// KeystoneDeleteMappingInvoker 删除映射
+func (c *IamClient) KeystoneDeleteMappingInvoker(request *model.KeystoneDeleteMappingRequest) *KeystoneDeleteMappingInvoker {
+	requestDef := GenReqDefForKeystoneDeleteMapping()
+	return &KeystoneDeleteMappingInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneDeleteProtocol 删除协议
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)删除协议。
 //
@@ -664,7 +874,13 @@ func (c *IamClient) KeystoneDeleteProtocol(request *model.KeystoneDeleteProtocol
 	}
 }
 
-// 查询用户组的所有项目权限列表
+// KeystoneDeleteProtocolInvoker 删除协议
+func (c *IamClient) KeystoneDeleteProtocolInvoker(request *model.KeystoneDeleteProtocolRequest) *KeystoneDeleteProtocolInvoker {
+	requestDef := GenReqDefForKeystoneDeleteProtocol()
+	return &KeystoneDeleteProtocolInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneListAllProjectPermissionsForGroup 查询用户组的所有项目权限列表
 //
 // 该接口可以用于管理员查询用户组所有项目服务权限列表。 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
@@ -680,7 +896,13 @@ func (c *IamClient) KeystoneListAllProjectPermissionsForGroup(request *model.Key
 	}
 }
 
-// 查询IAM用户可以访问的账号详情
+// KeystoneListAllProjectPermissionsForGroupInvoker 查询用户组的所有项目权限列表
+func (c *IamClient) KeystoneListAllProjectPermissionsForGroupInvoker(request *model.KeystoneListAllProjectPermissionsForGroupRequest) *KeystoneListAllProjectPermissionsForGroupInvoker {
+	requestDef := GenReqDefForKeystoneListAllProjectPermissionsForGroup()
+	return &KeystoneListAllProjectPermissionsForGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneListAuthDomains 查询IAM用户可以访问的账号详情
 //
 // 该接口可以用于查询IAM用户可以用访问的账号详情。
 //
@@ -698,7 +920,13 @@ func (c *IamClient) KeystoneListAuthDomains(request *model.KeystoneListAuthDomai
 	}
 }
 
-// 查询IAM用户可以访问的项目列表
+// KeystoneListAuthDomainsInvoker 查询IAM用户可以访问的账号详情
+func (c *IamClient) KeystoneListAuthDomainsInvoker(request *model.KeystoneListAuthDomainsRequest) *KeystoneListAuthDomainsInvoker {
+	requestDef := GenReqDefForKeystoneListAuthDomains()
+	return &KeystoneListAuthDomainsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneListAuthProjects 查询IAM用户可以访问的项目列表
 //
 // 该接口可以用于查询IAM用户可以访问的项目列表。
 //
@@ -716,7 +944,13 @@ func (c *IamClient) KeystoneListAuthProjects(request *model.KeystoneListAuthProj
 	}
 }
 
-// 查询全局服务中的用户组权限
+// KeystoneListAuthProjectsInvoker 查询IAM用户可以访问的项目列表
+func (c *IamClient) KeystoneListAuthProjectsInvoker(request *model.KeystoneListAuthProjectsRequest) *KeystoneListAuthProjectsInvoker {
+	requestDef := GenReqDefForKeystoneListAuthProjects()
+	return &KeystoneListAuthProjectsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneListDomainPermissionsForGroup 查询全局服务中的用户组权限
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询全局服务中的用户组权限。
 //
@@ -734,7 +968,13 @@ func (c *IamClient) KeystoneListDomainPermissionsForGroup(request *model.Keyston
 	}
 }
 
-// 查询终端节点列表
+// KeystoneListDomainPermissionsForGroupInvoker 查询全局服务中的用户组权限
+func (c *IamClient) KeystoneListDomainPermissionsForGroupInvoker(request *model.KeystoneListDomainPermissionsForGroupRequest) *KeystoneListDomainPermissionsForGroupInvoker {
+	requestDef := GenReqDefForKeystoneListDomainPermissionsForGroup()
+	return &KeystoneListDomainPermissionsForGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneListEndpoints 查询终端节点列表
 //
 // 该接口可以用于查询终端节点列表。终端节点用来提供服务访问入口。
 //
@@ -752,7 +992,13 @@ func (c *IamClient) KeystoneListEndpoints(request *model.KeystoneListEndpointsRe
 	}
 }
 
-// 查询联邦用户可以访问的账号列表
+// KeystoneListEndpointsInvoker 查询终端节点列表
+func (c *IamClient) KeystoneListEndpointsInvoker(request *model.KeystoneListEndpointsRequest) *KeystoneListEndpointsInvoker {
+	requestDef := GenReqDefForKeystoneListEndpoints()
+	return &KeystoneListEndpointsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneListFederationDomains 查询联邦用户可以访问的账号列表
 //
 // 该接口用于查询联邦用户可以访问的账号列表。
 //
@@ -771,7 +1017,13 @@ func (c *IamClient) KeystoneListFederationDomains(request *model.KeystoneListFed
 	}
 }
 
-// 查询用户组列表
+// KeystoneListFederationDomainsInvoker 查询联邦用户可以访问的账号列表
+func (c *IamClient) KeystoneListFederationDomainsInvoker(request *model.KeystoneListFederationDomainsRequest) *KeystoneListFederationDomainsInvoker {
+	requestDef := GenReqDefForKeystoneListFederationDomains()
+	return &KeystoneListFederationDomainsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneListGroups 查询用户组列表
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询用户组列表。
 //
@@ -789,7 +1041,13 @@ func (c *IamClient) KeystoneListGroups(request *model.KeystoneListGroupsRequest)
 	}
 }
 
-// 查询身份提供商列表
+// KeystoneListGroupsInvoker 查询用户组列表
+func (c *IamClient) KeystoneListGroupsInvoker(request *model.KeystoneListGroupsRequest) *KeystoneListGroupsInvoker {
+	requestDef := GenReqDefForKeystoneListGroups()
+	return &KeystoneListGroupsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneListIdentityProviders 查询身份提供商列表
 //
 // 该接口可以用于查询身份提供商列表。
 //
@@ -807,7 +1065,13 @@ func (c *IamClient) KeystoneListIdentityProviders(request *model.KeystoneListIde
 	}
 }
 
-// 查询映射列表
+// KeystoneListIdentityProvidersInvoker 查询身份提供商列表
+func (c *IamClient) KeystoneListIdentityProvidersInvoker(request *model.KeystoneListIdentityProvidersRequest) *KeystoneListIdentityProvidersInvoker {
+	requestDef := GenReqDefForKeystoneListIdentityProviders()
+	return &KeystoneListIdentityProvidersInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneListMappings 查询映射列表
 //
 // 该接口可以用于查询映射列表。
 //
@@ -825,7 +1089,13 @@ func (c *IamClient) KeystoneListMappings(request *model.KeystoneListMappingsRequ
 	}
 }
 
-// 查询权限列表
+// KeystoneListMappingsInvoker 查询映射列表
+func (c *IamClient) KeystoneListMappingsInvoker(request *model.KeystoneListMappingsRequest) *KeystoneListMappingsInvoker {
+	requestDef := GenReqDefForKeystoneListMappings()
+	return &KeystoneListMappingsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneListPermissions 查询权限列表
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询权限列表。
 //
@@ -843,7 +1113,13 @@ func (c *IamClient) KeystoneListPermissions(request *model.KeystoneListPermissio
 	}
 }
 
-// 查询项目服务中的用户组权限
+// KeystoneListPermissionsInvoker 查询权限列表
+func (c *IamClient) KeystoneListPermissionsInvoker(request *model.KeystoneListPermissionsRequest) *KeystoneListPermissionsInvoker {
+	requestDef := GenReqDefForKeystoneListPermissions()
+	return &KeystoneListPermissionsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneListProjectPermissionsForGroup 查询项目服务中的用户组权限
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询项目服务中的用户组权限。
 //
@@ -861,7 +1137,13 @@ func (c *IamClient) KeystoneListProjectPermissionsForGroup(request *model.Keysto
 	}
 }
 
-// 查询指定条件下的项目列表
+// KeystoneListProjectPermissionsForGroupInvoker 查询项目服务中的用户组权限
+func (c *IamClient) KeystoneListProjectPermissionsForGroupInvoker(request *model.KeystoneListProjectPermissionsForGroupRequest) *KeystoneListProjectPermissionsForGroupInvoker {
+	requestDef := GenReqDefForKeystoneListProjectPermissionsForGroup()
+	return &KeystoneListProjectPermissionsForGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneListProjects 查询指定条件下的项目列表
 //
 // 该接口可以用于查询指定条件下的项目列表。
 //
@@ -879,7 +1161,13 @@ func (c *IamClient) KeystoneListProjects(request *model.KeystoneListProjectsRequ
 	}
 }
 
-// 查询指定IAM用户的项目列表
+// KeystoneListProjectsInvoker 查询指定条件下的项目列表
+func (c *IamClient) KeystoneListProjectsInvoker(request *model.KeystoneListProjectsRequest) *KeystoneListProjectsInvoker {
+	requestDef := GenReqDefForKeystoneListProjects()
+	return &KeystoneListProjectsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneListProjectsForUser 查询指定IAM用户的项目列表
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询指定IAM用户的项目列表，或IAM用户查询自己的项目列表。
 //
@@ -897,7 +1185,13 @@ func (c *IamClient) KeystoneListProjectsForUser(request *model.KeystoneListProje
 	}
 }
 
-// 查询协议列表
+// KeystoneListProjectsForUserInvoker 查询指定IAM用户的项目列表
+func (c *IamClient) KeystoneListProjectsForUserInvoker(request *model.KeystoneListProjectsForUserRequest) *KeystoneListProjectsForUserInvoker {
+	requestDef := GenReqDefForKeystoneListProjectsForUser()
+	return &KeystoneListProjectsForUserInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneListProtocols 查询协议列表
 //
 // 该接口可以用于查询协议列表。
 //
@@ -915,7 +1209,13 @@ func (c *IamClient) KeystoneListProtocols(request *model.KeystoneListProtocolsRe
 	}
 }
 
-// 查询区域列表
+// KeystoneListProtocolsInvoker 查询协议列表
+func (c *IamClient) KeystoneListProtocolsInvoker(request *model.KeystoneListProtocolsRequest) *KeystoneListProtocolsInvoker {
+	requestDef := GenReqDefForKeystoneListProtocols()
+	return &KeystoneListProtocolsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneListRegions 查询区域列表
 //
 // 该接口可以用于查询区域列表。
 //
@@ -933,7 +1233,13 @@ func (c *IamClient) KeystoneListRegions(request *model.KeystoneListRegionsReques
 	}
 }
 
-// 查询服务列表
+// KeystoneListRegionsInvoker 查询区域列表
+func (c *IamClient) KeystoneListRegionsInvoker(request *model.KeystoneListRegionsRequest) *KeystoneListRegionsInvoker {
+	requestDef := GenReqDefForKeystoneListRegions()
+	return &KeystoneListRegionsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneListServices 查询服务列表
 //
 // 该接口可以用于查询服务列表。
 //
@@ -951,7 +1257,13 @@ func (c *IamClient) KeystoneListServices(request *model.KeystoneListServicesRequ
 	}
 }
 
-// 管理员查询用户组所包含的IAM用户
+// KeystoneListServicesInvoker 查询服务列表
+func (c *IamClient) KeystoneListServicesInvoker(request *model.KeystoneListServicesRequest) *KeystoneListServicesInvoker {
+	requestDef := GenReqDefForKeystoneListServices()
+	return &KeystoneListServicesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneListUsersForGroupByAdmin 管理员查询用户组所包含的IAM用户
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询用户组中所包含的IAM用户。
 //
@@ -969,7 +1281,13 @@ func (c *IamClient) KeystoneListUsersForGroupByAdmin(request *model.KeystoneList
 	}
 }
 
-// 查询版本信息列表
+// KeystoneListUsersForGroupByAdminInvoker 管理员查询用户组所包含的IAM用户
+func (c *IamClient) KeystoneListUsersForGroupByAdminInvoker(request *model.KeystoneListUsersForGroupByAdminRequest) *KeystoneListUsersForGroupByAdminInvoker {
+	requestDef := GenReqDefForKeystoneListUsersForGroupByAdmin()
+	return &KeystoneListUsersForGroupByAdminInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneListVersions 查询版本信息列表
 //
 // 该接口用于查询Keystone API的版本信息。
 //
@@ -987,7 +1305,13 @@ func (c *IamClient) KeystoneListVersions(request *model.KeystoneListVersionsRequ
 	}
 }
 
-// 移除用户组的全局服务权限
+// KeystoneListVersionsInvoker 查询版本信息列表
+func (c *IamClient) KeystoneListVersionsInvoker(request *model.KeystoneListVersionsRequest) *KeystoneListVersionsInvoker {
+	requestDef := GenReqDefForKeystoneListVersions()
+	return &KeystoneListVersionsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneRemoveDomainPermissionFromGroup 移除用户组的全局服务权限
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)移除用户组的全局服务权限。
 //
@@ -1005,7 +1329,13 @@ func (c *IamClient) KeystoneRemoveDomainPermissionFromGroup(request *model.Keyst
 	}
 }
 
-// 移除用户组的项目服务权限
+// KeystoneRemoveDomainPermissionFromGroupInvoker 移除用户组的全局服务权限
+func (c *IamClient) KeystoneRemoveDomainPermissionFromGroupInvoker(request *model.KeystoneRemoveDomainPermissionFromGroupRequest) *KeystoneRemoveDomainPermissionFromGroupInvoker {
+	requestDef := GenReqDefForKeystoneRemoveDomainPermissionFromGroup()
+	return &KeystoneRemoveDomainPermissionFromGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneRemoveProjectPermissionFromGroup 移除用户组的项目服务权限
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)移除用户组的项目服务权限。
 //
@@ -1023,7 +1353,13 @@ func (c *IamClient) KeystoneRemoveProjectPermissionFromGroup(request *model.Keys
 	}
 }
 
-// 移除用户组中的IAM用户
+// KeystoneRemoveProjectPermissionFromGroupInvoker 移除用户组的项目服务权限
+func (c *IamClient) KeystoneRemoveProjectPermissionFromGroupInvoker(request *model.KeystoneRemoveProjectPermissionFromGroupRequest) *KeystoneRemoveProjectPermissionFromGroupInvoker {
+	requestDef := GenReqDefForKeystoneRemoveProjectPermissionFromGroup()
+	return &KeystoneRemoveProjectPermissionFromGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneRemoveUserFromGroup 移除用户组中的IAM用户
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)移除用户组中的IAM用户。
 //
@@ -1041,7 +1377,13 @@ func (c *IamClient) KeystoneRemoveUserFromGroup(request *model.KeystoneRemoveUse
 	}
 }
 
-// 查询服务目录
+// KeystoneRemoveUserFromGroupInvoker 移除用户组中的IAM用户
+func (c *IamClient) KeystoneRemoveUserFromGroupInvoker(request *model.KeystoneRemoveUserFromGroupRequest) *KeystoneRemoveUserFromGroupInvoker {
+	requestDef := GenReqDefForKeystoneRemoveUserFromGroup()
+	return &KeystoneRemoveUserFromGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneShowCatalog 查询服务目录
 //
 // 该接口可以用于查询请求头中X-Auth-Token对应的服务目录。
 //
@@ -1059,7 +1401,13 @@ func (c *IamClient) KeystoneShowCatalog(request *model.KeystoneShowCatalogReques
 	}
 }
 
-// 查询终端节点详情
+// KeystoneShowCatalogInvoker 查询服务目录
+func (c *IamClient) KeystoneShowCatalogInvoker(request *model.KeystoneShowCatalogRequest) *KeystoneShowCatalogInvoker {
+	requestDef := GenReqDefForKeystoneShowCatalog()
+	return &KeystoneShowCatalogInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneShowEndpoint 查询终端节点详情
 //
 // 该接口可以用于查询终端节点详情。终端节点用来提供服务访问入口。
 //
@@ -1077,7 +1425,13 @@ func (c *IamClient) KeystoneShowEndpoint(request *model.KeystoneShowEndpointRequ
 	}
 }
 
-// 查询用户组详情
+// KeystoneShowEndpointInvoker 查询终端节点详情
+func (c *IamClient) KeystoneShowEndpointInvoker(request *model.KeystoneShowEndpointRequest) *KeystoneShowEndpointInvoker {
+	requestDef := GenReqDefForKeystoneShowEndpoint()
+	return &KeystoneShowEndpointInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneShowGroup 查询用户组详情
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询用户组详情。
 //
@@ -1095,7 +1449,13 @@ func (c *IamClient) KeystoneShowGroup(request *model.KeystoneShowGroupRequest) (
 	}
 }
 
-// 查询身份提供商详情
+// KeystoneShowGroupInvoker 查询用户组详情
+func (c *IamClient) KeystoneShowGroupInvoker(request *model.KeystoneShowGroupRequest) *KeystoneShowGroupInvoker {
+	requestDef := GenReqDefForKeystoneShowGroup()
+	return &KeystoneShowGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneShowIdentityProvider 查询身份提供商详情
 //
 // 该接口可以用于查询身份提供商详情。
 //
@@ -1113,7 +1473,13 @@ func (c *IamClient) KeystoneShowIdentityProvider(request *model.KeystoneShowIden
 	}
 }
 
-// 查询映射详情
+// KeystoneShowIdentityProviderInvoker 查询身份提供商详情
+func (c *IamClient) KeystoneShowIdentityProviderInvoker(request *model.KeystoneShowIdentityProviderRequest) *KeystoneShowIdentityProviderInvoker {
+	requestDef := GenReqDefForKeystoneShowIdentityProvider()
+	return &KeystoneShowIdentityProviderInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneShowMapping 查询映射详情
 //
 // 该接口可以用于查询映射详情。
 //
@@ -1131,7 +1497,13 @@ func (c *IamClient) KeystoneShowMapping(request *model.KeystoneShowMappingReques
 	}
 }
 
-// 查询权限详情
+// KeystoneShowMappingInvoker 查询映射详情
+func (c *IamClient) KeystoneShowMappingInvoker(request *model.KeystoneShowMappingRequest) *KeystoneShowMappingInvoker {
+	requestDef := GenReqDefForKeystoneShowMapping()
+	return &KeystoneShowMappingInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneShowPermission 查询权限详情
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询权限详情。
 //
@@ -1149,7 +1521,13 @@ func (c *IamClient) KeystoneShowPermission(request *model.KeystoneShowPermission
 	}
 }
 
-// 查询项目详情
+// KeystoneShowPermissionInvoker 查询权限详情
+func (c *IamClient) KeystoneShowPermissionInvoker(request *model.KeystoneShowPermissionRequest) *KeystoneShowPermissionInvoker {
+	requestDef := GenReqDefForKeystoneShowPermission()
+	return &KeystoneShowPermissionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneShowProject 查询项目详情
 //
 // 该接口可以用于查询项目详情。
 //
@@ -1167,7 +1545,13 @@ func (c *IamClient) KeystoneShowProject(request *model.KeystoneShowProjectReques
 	}
 }
 
-// 查询协议详情
+// KeystoneShowProjectInvoker 查询项目详情
+func (c *IamClient) KeystoneShowProjectInvoker(request *model.KeystoneShowProjectRequest) *KeystoneShowProjectInvoker {
+	requestDef := GenReqDefForKeystoneShowProject()
+	return &KeystoneShowProjectInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneShowProtocol 查询协议详情
 //
 // 该接口可以用于查询协议详情。
 //
@@ -1185,7 +1569,13 @@ func (c *IamClient) KeystoneShowProtocol(request *model.KeystoneShowProtocolRequ
 	}
 }
 
-// 查询区域详情
+// KeystoneShowProtocolInvoker 查询协议详情
+func (c *IamClient) KeystoneShowProtocolInvoker(request *model.KeystoneShowProtocolRequest) *KeystoneShowProtocolInvoker {
+	requestDef := GenReqDefForKeystoneShowProtocol()
+	return &KeystoneShowProtocolInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneShowRegion 查询区域详情
 //
 // 该接口可以用于查询区域详情。
 //
@@ -1203,7 +1593,13 @@ func (c *IamClient) KeystoneShowRegion(request *model.KeystoneShowRegionRequest)
 	}
 }
 
-// 查询账号密码强度策略
+// KeystoneShowRegionInvoker 查询区域详情
+func (c *IamClient) KeystoneShowRegionInvoker(request *model.KeystoneShowRegionRequest) *KeystoneShowRegionInvoker {
+	requestDef := GenReqDefForKeystoneShowRegion()
+	return &KeystoneShowRegionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneShowSecurityCompliance 查询账号密码强度策略
 //
 // 该接口可以用于查询账号密码强度策略，查询结果包括密码强度策略的正则表达式及其描述。
 //
@@ -1221,7 +1617,13 @@ func (c *IamClient) KeystoneShowSecurityCompliance(request *model.KeystoneShowSe
 	}
 }
 
-// 按条件查询账号密码强度策略
+// KeystoneShowSecurityComplianceInvoker 查询账号密码强度策略
+func (c *IamClient) KeystoneShowSecurityComplianceInvoker(request *model.KeystoneShowSecurityComplianceRequest) *KeystoneShowSecurityComplianceInvoker {
+	requestDef := GenReqDefForKeystoneShowSecurityCompliance()
+	return &KeystoneShowSecurityComplianceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneShowSecurityComplianceByOption 按条件查询账号密码强度策略
 //
 // 该接口可以用于按条件查询账号密码强度策略，查询结果包括密码强度策略的正则表达式及其描述。
 //
@@ -1239,7 +1641,13 @@ func (c *IamClient) KeystoneShowSecurityComplianceByOption(request *model.Keysto
 	}
 }
 
-// 查询服务详情
+// KeystoneShowSecurityComplianceByOptionInvoker 按条件查询账号密码强度策略
+func (c *IamClient) KeystoneShowSecurityComplianceByOptionInvoker(request *model.KeystoneShowSecurityComplianceByOptionRequest) *KeystoneShowSecurityComplianceByOptionInvoker {
+	requestDef := GenReqDefForKeystoneShowSecurityComplianceByOption()
+	return &KeystoneShowSecurityComplianceByOptionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneShowService 查询服务详情
 //
 // 该接口可以用于查询服务详情。
 //
@@ -1257,7 +1665,13 @@ func (c *IamClient) KeystoneShowService(request *model.KeystoneShowServiceReques
 	}
 }
 
-// 查询版本信息
+// KeystoneShowServiceInvoker 查询服务详情
+func (c *IamClient) KeystoneShowServiceInvoker(request *model.KeystoneShowServiceRequest) *KeystoneShowServiceInvoker {
+	requestDef := GenReqDefForKeystoneShowService()
+	return &KeystoneShowServiceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneShowVersion 查询版本信息
 //
 // 该接口用于查询Keystone API的3.0版本的信息。
 //
@@ -1275,7 +1689,13 @@ func (c *IamClient) KeystoneShowVersion(request *model.KeystoneShowVersionReques
 	}
 }
 
-// 更新用户组
+// KeystoneShowVersionInvoker 查询版本信息
+func (c *IamClient) KeystoneShowVersionInvoker(request *model.KeystoneShowVersionRequest) *KeystoneShowVersionInvoker {
+	requestDef := GenReqDefForKeystoneShowVersion()
+	return &KeystoneShowVersionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneUpdateGroup 更新用户组
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)更新用户组信息。
 //
@@ -1293,7 +1713,13 @@ func (c *IamClient) KeystoneUpdateGroup(request *model.KeystoneUpdateGroupReques
 	}
 }
 
-// 更新身份提供商
+// KeystoneUpdateGroupInvoker 更新用户组
+func (c *IamClient) KeystoneUpdateGroupInvoker(request *model.KeystoneUpdateGroupRequest) *KeystoneUpdateGroupInvoker {
+	requestDef := GenReqDefForKeystoneUpdateGroup()
+	return &KeystoneUpdateGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneUpdateIdentityProvider 更新身份提供商
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)更新身份提供商。
 //
@@ -1311,7 +1737,13 @@ func (c *IamClient) KeystoneUpdateIdentityProvider(request *model.KeystoneUpdate
 	}
 }
 
-// 更新映射
+// KeystoneUpdateIdentityProviderInvoker 更新身份提供商
+func (c *IamClient) KeystoneUpdateIdentityProviderInvoker(request *model.KeystoneUpdateIdentityProviderRequest) *KeystoneUpdateIdentityProviderInvoker {
+	requestDef := GenReqDefForKeystoneUpdateIdentityProvider()
+	return &KeystoneUpdateIdentityProviderInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneUpdateMapping 更新映射
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)更新映射。
 //
@@ -1329,7 +1761,13 @@ func (c *IamClient) KeystoneUpdateMapping(request *model.KeystoneUpdateMappingRe
 	}
 }
 
-// 修改项目信息
+// KeystoneUpdateMappingInvoker 更新映射
+func (c *IamClient) KeystoneUpdateMappingInvoker(request *model.KeystoneUpdateMappingRequest) *KeystoneUpdateMappingInvoker {
+	requestDef := GenReqDefForKeystoneUpdateMapping()
+	return &KeystoneUpdateMappingInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneUpdateProject 修改项目信息
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)修改项目信息。
 //
@@ -1347,7 +1785,13 @@ func (c *IamClient) KeystoneUpdateProject(request *model.KeystoneUpdateProjectRe
 	}
 }
 
-// 更新协议
+// KeystoneUpdateProjectInvoker 修改项目信息
+func (c *IamClient) KeystoneUpdateProjectInvoker(request *model.KeystoneUpdateProjectRequest) *KeystoneUpdateProjectInvoker {
+	requestDef := GenReqDefForKeystoneUpdateProject()
+	return &KeystoneUpdateProjectInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneUpdateProtocol 更新协议
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)更新协议。
 //
@@ -1365,7 +1809,13 @@ func (c *IamClient) KeystoneUpdateProtocol(request *model.KeystoneUpdateProtocol
 	}
 }
 
-// 查询指定条件下的委托列表
+// KeystoneUpdateProtocolInvoker 更新协议
+func (c *IamClient) KeystoneUpdateProtocolInvoker(request *model.KeystoneUpdateProtocolRequest) *KeystoneUpdateProtocolInvoker {
+	requestDef := GenReqDefForKeystoneUpdateProtocol()
+	return &KeystoneUpdateProtocolInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListAgencies 查询指定条件下的委托列表
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询指定条件下的委托列表。
 //
@@ -1383,7 +1833,13 @@ func (c *IamClient) ListAgencies(request *model.ListAgenciesRequest) (*model.Lis
 	}
 }
 
-// 查询委托下的所有项目服务权限列表
+// ListAgenciesInvoker 查询指定条件下的委托列表
+func (c *IamClient) ListAgenciesInvoker(request *model.ListAgenciesRequest) *ListAgenciesInvoker {
+	requestDef := GenReqDefForListAgencies()
+	return &ListAgenciesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListAllProjectsPermissionsForAgency 查询委托下的所有项目服务权限列表
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询委托所有项目服务权限列表。
 //
@@ -1401,7 +1857,13 @@ func (c *IamClient) ListAllProjectsPermissionsForAgency(request *model.ListAllPr
 	}
 }
 
-// 查询自定义策略列表
+// ListAllProjectsPermissionsForAgencyInvoker 查询委托下的所有项目服务权限列表
+func (c *IamClient) ListAllProjectsPermissionsForAgencyInvoker(request *model.ListAllProjectsPermissionsForAgencyRequest) *ListAllProjectsPermissionsForAgencyInvoker {
+	requestDef := GenReqDefForListAllProjectsPermissionsForAgency()
+	return &ListAllProjectsPermissionsForAgencyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListCustomPolicies 查询自定义策略列表
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询自定义策略列表。
 //
@@ -1419,7 +1881,13 @@ func (c *IamClient) ListCustomPolicies(request *model.ListCustomPoliciesRequest)
 	}
 }
 
-// 查询全局服务中的委托权限
+// ListCustomPoliciesInvoker 查询自定义策略列表
+func (c *IamClient) ListCustomPoliciesInvoker(request *model.ListCustomPoliciesRequest) *ListCustomPoliciesInvoker {
+	requestDef := GenReqDefForListCustomPolicies()
+	return &ListCustomPoliciesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListDomainPermissionsForAgency 查询全局服务中的委托权限
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询全局服务中的委托权限。
 //
@@ -1437,7 +1905,13 @@ func (c *IamClient) ListDomainPermissionsForAgency(request *model.ListDomainPerm
 	}
 }
 
-// 查询用户组关联的企业项目
+// ListDomainPermissionsForAgencyInvoker 查询全局服务中的委托权限
+func (c *IamClient) ListDomainPermissionsForAgencyInvoker(request *model.ListDomainPermissionsForAgencyRequest) *ListDomainPermissionsForAgencyInvoker {
+	requestDef := GenReqDefForListDomainPermissionsForAgency()
+	return &ListDomainPermissionsForAgencyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListEnterpriseProjectsForGroup 查询用户组关联的企业项目
 //
 // 该接口可用于查询用户组所关联的企业项目。
 //
@@ -1455,7 +1929,13 @@ func (c *IamClient) ListEnterpriseProjectsForGroup(request *model.ListEnterprise
 	}
 }
 
-// 查询用户关联的企业项目
+// ListEnterpriseProjectsForGroupInvoker 查询用户组关联的企业项目
+func (c *IamClient) ListEnterpriseProjectsForGroupInvoker(request *model.ListEnterpriseProjectsForGroupRequest) *ListEnterpriseProjectsForGroupInvoker {
+	requestDef := GenReqDefForListEnterpriseProjectsForGroup()
+	return &ListEnterpriseProjectsForGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListEnterpriseProjectsForUser 查询用户关联的企业项目
 //
 // 该接口可用于查询用户所关联的企业项目。
 //
@@ -1473,7 +1953,13 @@ func (c *IamClient) ListEnterpriseProjectsForUser(request *model.ListEnterpriseP
 	}
 }
 
-// 查询企业项目关联的用户组
+// ListEnterpriseProjectsForUserInvoker 查询用户关联的企业项目
+func (c *IamClient) ListEnterpriseProjectsForUserInvoker(request *model.ListEnterpriseProjectsForUserRequest) *ListEnterpriseProjectsForUserInvoker {
+	requestDef := GenReqDefForListEnterpriseProjectsForUser()
+	return &ListEnterpriseProjectsForUserInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListGroupsForEnterpriseProject 查询企业项目关联的用户组
 //
 // 该接口可用于查询企业项目关联的用户组。
 //
@@ -1491,7 +1977,13 @@ func (c *IamClient) ListGroupsForEnterpriseProject(request *model.ListGroupsForE
 	}
 }
 
-// 查询项目服务中的委托权限
+// ListGroupsForEnterpriseProjectInvoker 查询企业项目关联的用户组
+func (c *IamClient) ListGroupsForEnterpriseProjectInvoker(request *model.ListGroupsForEnterpriseProjectRequest) *ListGroupsForEnterpriseProjectInvoker {
+	requestDef := GenReqDefForListGroupsForEnterpriseProject()
+	return &ListGroupsForEnterpriseProjectInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListProjectPermissionsForAgency 查询项目服务中的委托权限
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询项目服务中的委托权限。
 //
@@ -1509,7 +2001,13 @@ func (c *IamClient) ListProjectPermissionsForAgency(request *model.ListProjectPe
 	}
 }
 
-// 查询企业项目已关联用户组的权限
+// ListProjectPermissionsForAgencyInvoker 查询项目服务中的委托权限
+func (c *IamClient) ListProjectPermissionsForAgencyInvoker(request *model.ListProjectPermissionsForAgencyRequest) *ListProjectPermissionsForAgencyInvoker {
+	requestDef := GenReqDefForListProjectPermissionsForAgency()
+	return &ListProjectPermissionsForAgencyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListRolesForGroupOnEnterpriseProject 查询企业项目已关联用户组的权限
 //
 // 该接口可用于查询企业项目已关联用户组的权限。
 //
@@ -1527,7 +2025,13 @@ func (c *IamClient) ListRolesForGroupOnEnterpriseProject(request *model.ListRole
 	}
 }
 
-// 查询企业项目直接关联用户的权限
+// ListRolesForGroupOnEnterpriseProjectInvoker 查询企业项目已关联用户组的权限
+func (c *IamClient) ListRolesForGroupOnEnterpriseProjectInvoker(request *model.ListRolesForGroupOnEnterpriseProjectRequest) *ListRolesForGroupOnEnterpriseProjectInvoker {
+	requestDef := GenReqDefForListRolesForGroupOnEnterpriseProject()
+	return &ListRolesForGroupOnEnterpriseProjectInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListRolesForUserOnEnterpriseProject 查询企业项目直接关联用户的权限
 //
 // 该接口可用于查询企业项目直接关联用户的权限。
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
@@ -1544,7 +2048,13 @@ func (c *IamClient) ListRolesForUserOnEnterpriseProject(request *model.ListRoles
 	}
 }
 
-// 查询企业项目直接关联用户
+// ListRolesForUserOnEnterpriseProjectInvoker 查询企业项目直接关联用户的权限
+func (c *IamClient) ListRolesForUserOnEnterpriseProjectInvoker(request *model.ListRolesForUserOnEnterpriseProjectRequest) *ListRolesForUserOnEnterpriseProjectInvoker {
+	requestDef := GenReqDefForListRolesForUserOnEnterpriseProject()
+	return &ListRolesForUserOnEnterpriseProjectInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListUsersForEnterpriseProject 查询企业项目直接关联用户
 //
 // 该接口可用于查询企业项目直接关联的用户。
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
@@ -1561,7 +2071,13 @@ func (c *IamClient) ListUsersForEnterpriseProject(request *model.ListUsersForEnt
 	}
 }
 
-// 移除委托下的所有项目服务权限
+// ListUsersForEnterpriseProjectInvoker 查询企业项目直接关联用户
+func (c *IamClient) ListUsersForEnterpriseProjectInvoker(request *model.ListUsersForEnterpriseProjectRequest) *ListUsersForEnterpriseProjectInvoker {
+	requestDef := GenReqDefForListUsersForEnterpriseProject()
+	return &ListUsersForEnterpriseProjectInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// RemoveAllProjectsPermissionFromAgency 移除委托下的所有项目服务权限
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)移除委托的所有项目服务权限。
 //
@@ -1579,7 +2095,13 @@ func (c *IamClient) RemoveAllProjectsPermissionFromAgency(request *model.RemoveA
 	}
 }
 
-// 移除委托的全局服务权限
+// RemoveAllProjectsPermissionFromAgencyInvoker 移除委托下的所有项目服务权限
+func (c *IamClient) RemoveAllProjectsPermissionFromAgencyInvoker(request *model.RemoveAllProjectsPermissionFromAgencyRequest) *RemoveAllProjectsPermissionFromAgencyInvoker {
+	requestDef := GenReqDefForRemoveAllProjectsPermissionFromAgency()
+	return &RemoveAllProjectsPermissionFromAgencyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// RemoveDomainPermissionFromAgency 移除委托的全局服务权限
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)移除委托的全局服务权限。
 //
@@ -1597,7 +2119,13 @@ func (c *IamClient) RemoveDomainPermissionFromAgency(request *model.RemoveDomain
 	}
 }
 
-// 移除委托的项目服务权限
+// RemoveDomainPermissionFromAgencyInvoker 移除委托的全局服务权限
+func (c *IamClient) RemoveDomainPermissionFromAgencyInvoker(request *model.RemoveDomainPermissionFromAgencyRequest) *RemoveDomainPermissionFromAgencyInvoker {
+	requestDef := GenReqDefForRemoveDomainPermissionFromAgency()
+	return &RemoveDomainPermissionFromAgencyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// RemoveProjectPermissionFromAgency 移除委托的项目服务权限
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)移除委托的项目服务权限。
 //
@@ -1615,7 +2143,13 @@ func (c *IamClient) RemoveProjectPermissionFromAgency(request *model.RemoveProje
 	}
 }
 
-// 删除企业项目关联用户组的权限
+// RemoveProjectPermissionFromAgencyInvoker 移除委托的项目服务权限
+func (c *IamClient) RemoveProjectPermissionFromAgencyInvoker(request *model.RemoveProjectPermissionFromAgencyRequest) *RemoveProjectPermissionFromAgencyInvoker {
+	requestDef := GenReqDefForRemoveProjectPermissionFromAgency()
+	return &RemoveProjectPermissionFromAgencyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// RevokeRoleFromGroupOnEnterpriseProject 删除企业项目关联用户组的权限
 //
 // 该接口用于删除企业项目关联用户组的权限。
 //
@@ -1633,7 +2167,13 @@ func (c *IamClient) RevokeRoleFromGroupOnEnterpriseProject(request *model.Revoke
 	}
 }
 
-// 删除企业项目直接关联用户的权限
+// RevokeRoleFromGroupOnEnterpriseProjectInvoker 删除企业项目关联用户组的权限
+func (c *IamClient) RevokeRoleFromGroupOnEnterpriseProjectInvoker(request *model.RevokeRoleFromGroupOnEnterpriseProjectRequest) *RevokeRoleFromGroupOnEnterpriseProjectInvoker {
+	requestDef := GenReqDefForRevokeRoleFromGroupOnEnterpriseProject()
+	return &RevokeRoleFromGroupOnEnterpriseProjectInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// RevokeRoleFromUserOnEnterpriseProject 删除企业项目直接关联用户的权限
 //
 // 删除企业项目直接关联用户的权限。
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
@@ -1650,7 +2190,13 @@ func (c *IamClient) RevokeRoleFromUserOnEnterpriseProject(request *model.RevokeR
 	}
 }
 
-// 查询委托详情
+// RevokeRoleFromUserOnEnterpriseProjectInvoker 删除企业项目直接关联用户的权限
+func (c *IamClient) RevokeRoleFromUserOnEnterpriseProjectInvoker(request *model.RevokeRoleFromUserOnEnterpriseProjectRequest) *RevokeRoleFromUserOnEnterpriseProjectInvoker {
+	requestDef := GenReqDefForRevokeRoleFromUserOnEnterpriseProject()
+	return &RevokeRoleFromUserOnEnterpriseProjectInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowAgency 查询委托详情
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询委托详情。
 //
@@ -1668,7 +2214,13 @@ func (c *IamClient) ShowAgency(request *model.ShowAgencyRequest) (*model.ShowAge
 	}
 }
 
-// 查询自定义策略详情
+// ShowAgencyInvoker 查询委托详情
+func (c *IamClient) ShowAgencyInvoker(request *model.ShowAgencyRequest) *ShowAgencyInvoker {
+	requestDef := GenReqDefForShowAgency()
+	return &ShowAgencyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowCustomPolicy 查询自定义策略详情
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询自定义策略详情。
 //
@@ -1686,7 +2238,13 @@ func (c *IamClient) ShowCustomPolicy(request *model.ShowCustomPolicyRequest) (*m
 	}
 }
 
-// 查询账号接口访问策略
+// ShowCustomPolicyInvoker 查询自定义策略详情
+func (c *IamClient) ShowCustomPolicyInvoker(request *model.ShowCustomPolicyRequest) *ShowCustomPolicyInvoker {
+	requestDef := GenReqDefForShowCustomPolicy()
+	return &ShowCustomPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowDomainApiAclPolicy 查询账号接口访问策略
 //
 // 该接口可以用于查询账号接口访问控制策略。
 //
@@ -1704,7 +2262,13 @@ func (c *IamClient) ShowDomainApiAclPolicy(request *model.ShowDomainApiAclPolicy
 	}
 }
 
-// 查询账号控制台访问策略
+// ShowDomainApiAclPolicyInvoker 查询账号接口访问策略
+func (c *IamClient) ShowDomainApiAclPolicyInvoker(request *model.ShowDomainApiAclPolicyRequest) *ShowDomainApiAclPolicyInvoker {
+	requestDef := GenReqDefForShowDomainApiAclPolicy()
+	return &ShowDomainApiAclPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowDomainConsoleAclPolicy 查询账号控制台访问策略
 //
 // 该接口可以用于查询账号控制台访问控制策略。
 //
@@ -1722,7 +2286,13 @@ func (c *IamClient) ShowDomainConsoleAclPolicy(request *model.ShowDomainConsoleA
 	}
 }
 
-// 查询账号登录策略
+// ShowDomainConsoleAclPolicyInvoker 查询账号控制台访问策略
+func (c *IamClient) ShowDomainConsoleAclPolicyInvoker(request *model.ShowDomainConsoleAclPolicyRequest) *ShowDomainConsoleAclPolicyInvoker {
+	requestDef := GenReqDefForShowDomainConsoleAclPolicy()
+	return &ShowDomainConsoleAclPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowDomainLoginPolicy 查询账号登录策略
 //
 // 该接口可以用于查询账号登录策略。
 //
@@ -1740,7 +2310,13 @@ func (c *IamClient) ShowDomainLoginPolicy(request *model.ShowDomainLoginPolicyRe
 	}
 }
 
-// 查询账号密码策略
+// ShowDomainLoginPolicyInvoker 查询账号登录策略
+func (c *IamClient) ShowDomainLoginPolicyInvoker(request *model.ShowDomainLoginPolicyRequest) *ShowDomainLoginPolicyInvoker {
+	requestDef := GenReqDefForShowDomainLoginPolicy()
+	return &ShowDomainLoginPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowDomainPasswordPolicy 查询账号密码策略
 //
 // 该接口可以用于查询账号密码策略。
 //
@@ -1758,7 +2334,13 @@ func (c *IamClient) ShowDomainPasswordPolicy(request *model.ShowDomainPasswordPo
 	}
 }
 
-// 查询账号操作保护策略
+// ShowDomainPasswordPolicyInvoker 查询账号密码策略
+func (c *IamClient) ShowDomainPasswordPolicyInvoker(request *model.ShowDomainPasswordPolicyRequest) *ShowDomainPasswordPolicyInvoker {
+	requestDef := GenReqDefForShowDomainPasswordPolicy()
+	return &ShowDomainPasswordPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowDomainProtectPolicy 查询账号操作保护策略
 //
 // 该接口可以用于查询账号操作保护策略。
 //
@@ -1776,7 +2358,13 @@ func (c *IamClient) ShowDomainProtectPolicy(request *model.ShowDomainProtectPoli
 	}
 }
 
-// 查询账号配额
+// ShowDomainProtectPolicyInvoker 查询账号操作保护策略
+func (c *IamClient) ShowDomainProtectPolicyInvoker(request *model.ShowDomainProtectPolicyRequest) *ShowDomainProtectPolicyInvoker {
+	requestDef := GenReqDefForShowDomainProtectPolicy()
+	return &ShowDomainProtectPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowDomainQuota 查询账号配额
 //
 // 该接口可以用于查询账号配额。
 //
@@ -1794,7 +2382,13 @@ func (c *IamClient) ShowDomainQuota(request *model.ShowDomainQuotaRequest) (*mod
 	}
 }
 
-// 查询指定账号中的授权记录
+// ShowDomainQuotaInvoker 查询账号配额
+func (c *IamClient) ShowDomainQuotaInvoker(request *model.ShowDomainQuotaRequest) *ShowDomainQuotaInvoker {
+	requestDef := GenReqDefForShowDomainQuota()
+	return &ShowDomainQuotaInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowDomainRoleAssignments 查询指定账号中的授权记录
 //
 // 该接口用于查询指定账号中的授权记录。
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
@@ -1811,7 +2405,13 @@ func (c *IamClient) ShowDomainRoleAssignments(request *model.ShowDomainRoleAssig
 	}
 }
 
-// 查询Metadata文件
+// ShowDomainRoleAssignmentsInvoker 查询指定账号中的授权记录
+func (c *IamClient) ShowDomainRoleAssignmentsInvoker(request *model.ShowDomainRoleAssignmentsRequest) *ShowDomainRoleAssignmentsInvoker {
+	requestDef := GenReqDefForShowDomainRoleAssignments()
+	return &ShowDomainRoleAssignmentsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowMetadata 查询Metadata文件
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询身份提供商导入到IAM中的Metadata文件。
 //
@@ -1829,7 +2429,13 @@ func (c *IamClient) ShowMetadata(request *model.ShowMetadataRequest) (*model.Sho
 	}
 }
 
-// 查询OpenId Connect身份提供商配置
+// ShowMetadataInvoker 查询Metadata文件
+func (c *IamClient) ShowMetadataInvoker(request *model.ShowMetadataRequest) *ShowMetadataInvoker {
+	requestDef := GenReqDefForShowMetadata()
+	return &ShowMetadataInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowOpenIdConnectConfig 查询OpenId Connect身份提供商配置
 //
 // 查询OpenId Connect身份提供商配置
 //
@@ -1845,7 +2451,13 @@ func (c *IamClient) ShowOpenIdConnectConfig(request *model.ShowOpenIdConnectConf
 	}
 }
 
-// 查询项目详情与状态
+// ShowOpenIdConnectConfigInvoker 查询OpenId Connect身份提供商配置
+func (c *IamClient) ShowOpenIdConnectConfigInvoker(request *model.ShowOpenIdConnectConfigRequest) *ShowOpenIdConnectConfigInvoker {
+	requestDef := GenReqDefForShowOpenIdConnectConfig()
+	return &ShowOpenIdConnectConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowProjectDetailsAndStatus 查询项目详情与状态
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询项目详情与状态。
 //
@@ -1863,7 +2475,13 @@ func (c *IamClient) ShowProjectDetailsAndStatus(request *model.ShowProjectDetail
 	}
 }
 
-// 查询项目配额
+// ShowProjectDetailsAndStatusInvoker 查询项目详情与状态
+func (c *IamClient) ShowProjectDetailsAndStatusInvoker(request *model.ShowProjectDetailsAndStatusRequest) *ShowProjectDetailsAndStatusInvoker {
+	requestDef := GenReqDefForShowProjectDetailsAndStatus()
+	return &ShowProjectDetailsAndStatusInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowProjectQuota 查询项目配额
 //
 // 该接口可以用于查询项目配额。
 //
@@ -1881,7 +2499,13 @@ func (c *IamClient) ShowProjectQuota(request *model.ShowProjectQuotaRequest) (*m
 	}
 }
 
-// 修改委托
+// ShowProjectQuotaInvoker 查询项目配额
+func (c *IamClient) ShowProjectQuotaInvoker(request *model.ShowProjectQuotaRequest) *ShowProjectQuotaInvoker {
+	requestDef := GenReqDefForShowProjectQuota()
+	return &ShowProjectQuotaInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateAgency 修改委托
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)修改委托。
 //
@@ -1899,7 +2523,13 @@ func (c *IamClient) UpdateAgency(request *model.UpdateAgencyRequest) (*model.Upd
 	}
 }
 
-// 修改委托自定义策略
+// UpdateAgencyInvoker 修改委托
+func (c *IamClient) UpdateAgencyInvoker(request *model.UpdateAgencyRequest) *UpdateAgencyInvoker {
+	requestDef := GenReqDefForUpdateAgency()
+	return &UpdateAgencyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateAgencyCustomPolicy 修改委托自定义策略
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)修改委托自定义策略。
 //
@@ -1917,7 +2547,13 @@ func (c *IamClient) UpdateAgencyCustomPolicy(request *model.UpdateAgencyCustomPo
 	}
 }
 
-// 修改云服务自定义策略
+// UpdateAgencyCustomPolicyInvoker 修改委托自定义策略
+func (c *IamClient) UpdateAgencyCustomPolicyInvoker(request *model.UpdateAgencyCustomPolicyRequest) *UpdateAgencyCustomPolicyInvoker {
+	requestDef := GenReqDefForUpdateAgencyCustomPolicy()
+	return &UpdateAgencyCustomPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateCloudServiceCustomPolicy 修改云服务自定义策略
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)修改云服务自定义策略。
 //
@@ -1935,7 +2571,13 @@ func (c *IamClient) UpdateCloudServiceCustomPolicy(request *model.UpdateCloudSer
 	}
 }
 
-// 修改账号接口访问策略
+// UpdateCloudServiceCustomPolicyInvoker 修改云服务自定义策略
+func (c *IamClient) UpdateCloudServiceCustomPolicyInvoker(request *model.UpdateCloudServiceCustomPolicyRequest) *UpdateCloudServiceCustomPolicyInvoker {
+	requestDef := GenReqDefForUpdateCloudServiceCustomPolicy()
+	return &UpdateCloudServiceCustomPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateDomainApiAclPolicy 修改账号接口访问策略
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)修改账号接口访问策略。
 //
@@ -1953,7 +2595,13 @@ func (c *IamClient) UpdateDomainApiAclPolicy(request *model.UpdateDomainApiAclPo
 	}
 }
 
-// 修改账号控制台访问策略
+// UpdateDomainApiAclPolicyInvoker 修改账号接口访问策略
+func (c *IamClient) UpdateDomainApiAclPolicyInvoker(request *model.UpdateDomainApiAclPolicyRequest) *UpdateDomainApiAclPolicyInvoker {
+	requestDef := GenReqDefForUpdateDomainApiAclPolicy()
+	return &UpdateDomainApiAclPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateDomainConsoleAclPolicy 修改账号控制台访问策略
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)修改账号控制台访问策略。
 //
@@ -1971,7 +2619,13 @@ func (c *IamClient) UpdateDomainConsoleAclPolicy(request *model.UpdateDomainCons
 	}
 }
 
-// 为用户组授予所有项目服务权限
+// UpdateDomainConsoleAclPolicyInvoker 修改账号控制台访问策略
+func (c *IamClient) UpdateDomainConsoleAclPolicyInvoker(request *model.UpdateDomainConsoleAclPolicyRequest) *UpdateDomainConsoleAclPolicyInvoker {
+	requestDef := GenReqDefForUpdateDomainConsoleAclPolicy()
+	return &UpdateDomainConsoleAclPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateDomainGroupInheritRole 为用户组授予所有项目服务权限
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/zh-cn_topic_0079496985.html)为用户组授予所有项目服务权限。
 //
@@ -1989,7 +2643,13 @@ func (c *IamClient) UpdateDomainGroupInheritRole(request *model.UpdateDomainGrou
 	}
 }
 
-// 修改账号登录策略
+// UpdateDomainGroupInheritRoleInvoker 为用户组授予所有项目服务权限
+func (c *IamClient) UpdateDomainGroupInheritRoleInvoker(request *model.UpdateDomainGroupInheritRoleRequest) *UpdateDomainGroupInheritRoleInvoker {
+	requestDef := GenReqDefForUpdateDomainGroupInheritRole()
+	return &UpdateDomainGroupInheritRoleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateDomainLoginPolicy 修改账号登录策略
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)修改账号登录策略。
 //
@@ -2007,7 +2667,13 @@ func (c *IamClient) UpdateDomainLoginPolicy(request *model.UpdateDomainLoginPoli
 	}
 }
 
-// 修改账号密码策略
+// UpdateDomainLoginPolicyInvoker 修改账号登录策略
+func (c *IamClient) UpdateDomainLoginPolicyInvoker(request *model.UpdateDomainLoginPolicyRequest) *UpdateDomainLoginPolicyInvoker {
+	requestDef := GenReqDefForUpdateDomainLoginPolicy()
+	return &UpdateDomainLoginPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateDomainPasswordPolicy 修改账号密码策略
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)修改账号密码策略。
 //
@@ -2025,7 +2691,13 @@ func (c *IamClient) UpdateDomainPasswordPolicy(request *model.UpdateDomainPasswo
 	}
 }
 
-// 修改账号操作保护策略
+// UpdateDomainPasswordPolicyInvoker 修改账号密码策略
+func (c *IamClient) UpdateDomainPasswordPolicyInvoker(request *model.UpdateDomainPasswordPolicyRequest) *UpdateDomainPasswordPolicyInvoker {
+	requestDef := GenReqDefForUpdateDomainPasswordPolicy()
+	return &UpdateDomainPasswordPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateDomainProtectPolicy 修改账号操作保护策略
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)修改账号操作保护策略。
 //
@@ -2043,7 +2715,13 @@ func (c *IamClient) UpdateDomainProtectPolicy(request *model.UpdateDomainProtect
 	}
 }
 
-// 修改OpenId Connect身份提供商配置
+// UpdateDomainProtectPolicyInvoker 修改账号操作保护策略
+func (c *IamClient) UpdateDomainProtectPolicyInvoker(request *model.UpdateDomainProtectPolicyRequest) *UpdateDomainProtectPolicyInvoker {
+	requestDef := GenReqDefForUpdateDomainProtectPolicy()
+	return &UpdateDomainProtectPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateOpenIdConnectConfig 修改OpenId Connect身份提供商配置
 //
 // 修改OpenId Connect身份提供商配置
 //
@@ -2059,7 +2737,13 @@ func (c *IamClient) UpdateOpenIdConnectConfig(request *model.UpdateOpenIdConnect
 	}
 }
 
-// 设置项目状态
+// UpdateOpenIdConnectConfigInvoker 修改OpenId Connect身份提供商配置
+func (c *IamClient) UpdateOpenIdConnectConfigInvoker(request *model.UpdateOpenIdConnectConfigRequest) *UpdateOpenIdConnectConfigInvoker {
+	requestDef := GenReqDefForUpdateOpenIdConnectConfig()
+	return &UpdateOpenIdConnectConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateProjectStatus 设置项目状态
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)设置项目状态。项目状态包括：正常、冻结。
 //
@@ -2077,7 +2761,13 @@ func (c *IamClient) UpdateProjectStatus(request *model.UpdateProjectStatusReques
 	}
 }
 
-// 创建永久访问密钥
+// UpdateProjectStatusInvoker 设置项目状态
+func (c *IamClient) UpdateProjectStatusInvoker(request *model.UpdateProjectStatusRequest) *UpdateProjectStatusInvoker {
+	requestDef := GenReqDefForUpdateProjectStatus()
+	return &UpdateProjectStatusInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreatePermanentAccessKey 创建永久访问密钥
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)给IAM用户创建永久访问密钥，或IAM用户给自己创建永久访问密钥。
 //
@@ -2097,7 +2787,13 @@ func (c *IamClient) CreatePermanentAccessKey(request *model.CreatePermanentAcces
 	}
 }
 
-// 通过委托获取临时访问密钥
+// CreatePermanentAccessKeyInvoker 创建永久访问密钥
+func (c *IamClient) CreatePermanentAccessKeyInvoker(request *model.CreatePermanentAccessKeyRequest) *CreatePermanentAccessKeyInvoker {
+	requestDef := GenReqDefForCreatePermanentAccessKey()
+	return &CreatePermanentAccessKeyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateTemporaryAccessKeyByAgency 通过委托获取临时访问密钥
 //
 // 该接口可以用于通过委托来获取临时访问密钥（临时AK/SK）和securitytoken。
 //
@@ -2117,7 +2813,13 @@ func (c *IamClient) CreateTemporaryAccessKeyByAgency(request *model.CreateTempor
 	}
 }
 
-// 通过token获取临时访问密钥
+// CreateTemporaryAccessKeyByAgencyInvoker 通过委托获取临时访问密钥
+func (c *IamClient) CreateTemporaryAccessKeyByAgencyInvoker(request *model.CreateTemporaryAccessKeyByAgencyRequest) *CreateTemporaryAccessKeyByAgencyInvoker {
+	requestDef := GenReqDefForCreateTemporaryAccessKeyByAgency()
+	return &CreateTemporaryAccessKeyByAgencyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateTemporaryAccessKeyByToken 通过token获取临时访问密钥
 //
 // 该接口可以用于通过token来获取临时AK/SK和securitytoken。
 //
@@ -2137,7 +2839,13 @@ func (c *IamClient) CreateTemporaryAccessKeyByToken(request *model.CreateTempora
 	}
 }
 
-// 删除指定永久访问密钥
+// CreateTemporaryAccessKeyByTokenInvoker 通过token获取临时访问密钥
+func (c *IamClient) CreateTemporaryAccessKeyByTokenInvoker(request *model.CreateTemporaryAccessKeyByTokenRequest) *CreateTemporaryAccessKeyByTokenInvoker {
+	requestDef := GenReqDefForCreateTemporaryAccessKeyByToken()
+	return &CreateTemporaryAccessKeyByTokenInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeletePermanentAccessKey 删除指定永久访问密钥
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)删除IAM用户的指定永久访问密钥，或IAM用户删除自己的指定永久访问密钥。
 //
@@ -2155,7 +2863,13 @@ func (c *IamClient) DeletePermanentAccessKey(request *model.DeletePermanentAcces
 	}
 }
 
-// 查询所有永久访问密钥
+// DeletePermanentAccessKeyInvoker 删除指定永久访问密钥
+func (c *IamClient) DeletePermanentAccessKeyInvoker(request *model.DeletePermanentAccessKeyRequest) *DeletePermanentAccessKeyInvoker {
+	requestDef := GenReqDefForDeletePermanentAccessKey()
+	return &DeletePermanentAccessKeyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListPermanentAccessKeys 查询所有永久访问密钥
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询IAM用户的所有永久访问密钥，或IAM用户查询自己的所有永久访问密钥。
 //
@@ -2173,7 +2887,13 @@ func (c *IamClient) ListPermanentAccessKeys(request *model.ListPermanentAccessKe
 	}
 }
 
-// 查询指定永久访问密钥
+// ListPermanentAccessKeysInvoker 查询所有永久访问密钥
+func (c *IamClient) ListPermanentAccessKeysInvoker(request *model.ListPermanentAccessKeysRequest) *ListPermanentAccessKeysInvoker {
+	requestDef := GenReqDefForListPermanentAccessKeys()
+	return &ListPermanentAccessKeysInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowPermanentAccessKey 查询指定永久访问密钥
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询IAM用户的指定永久访问密钥，或IAM用户查询自己的指定永久访问密钥。
 //
@@ -2191,7 +2911,13 @@ func (c *IamClient) ShowPermanentAccessKey(request *model.ShowPermanentAccessKey
 	}
 }
 
-// 修改指定永久访问密钥
+// ShowPermanentAccessKeyInvoker 查询指定永久访问密钥
+func (c *IamClient) ShowPermanentAccessKeyInvoker(request *model.ShowPermanentAccessKeyRequest) *ShowPermanentAccessKeyInvoker {
+	requestDef := GenReqDefForShowPermanentAccessKey()
+	return &ShowPermanentAccessKeyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdatePermanentAccessKey 修改指定永久访问密钥
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)修改IAM用户的指定永久访问密钥，或IAM用户修改自己的指定永久访问密钥。
 //
@@ -2209,7 +2935,13 @@ func (c *IamClient) UpdatePermanentAccessKey(request *model.UpdatePermanentAcces
 	}
 }
 
-// 绑定MFA设备
+// UpdatePermanentAccessKeyInvoker 修改指定永久访问密钥
+func (c *IamClient) UpdatePermanentAccessKeyInvoker(request *model.UpdatePermanentAccessKeyRequest) *UpdatePermanentAccessKeyInvoker {
+	requestDef := GenReqDefForUpdatePermanentAccessKey()
+	return &UpdatePermanentAccessKeyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateBindingDevice 绑定MFA设备
 //
 // 该接口可以用于绑定MFA设备。
 //
@@ -2227,7 +2959,13 @@ func (c *IamClient) CreateBindingDevice(request *model.CreateBindingDeviceReques
 	}
 }
 
-// 创建MFA设备
+// CreateBindingDeviceInvoker 绑定MFA设备
+func (c *IamClient) CreateBindingDeviceInvoker(request *model.CreateBindingDeviceRequest) *CreateBindingDeviceInvoker {
+	requestDef := GenReqDefForCreateBindingDevice()
+	return &CreateBindingDeviceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateMfaDevice 创建MFA设备
 //
 // 该接口可以用于创建MFA设备。
 //
@@ -2245,7 +2983,13 @@ func (c *IamClient) CreateMfaDevice(request *model.CreateMfaDeviceRequest) (*mod
 	}
 }
 
-// 管理员创建IAM用户（推荐）
+// CreateMfaDeviceInvoker 创建MFA设备
+func (c *IamClient) CreateMfaDeviceInvoker(request *model.CreateMfaDeviceRequest) *CreateMfaDeviceInvoker {
+	requestDef := GenReqDefForCreateMfaDevice()
+	return &CreateMfaDeviceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateUser 管理员创建IAM用户（推荐）
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)创建IAM用户。
 //
@@ -2263,7 +3007,13 @@ func (c *IamClient) CreateUser(request *model.CreateUserRequest) (*model.CreateU
 	}
 }
 
-// 解绑MFA设备
+// CreateUserInvoker 管理员创建IAM用户（推荐）
+func (c *IamClient) CreateUserInvoker(request *model.CreateUserRequest) *CreateUserInvoker {
+	requestDef := GenReqDefForCreateUser()
+	return &CreateUserInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteBindingDevice 解绑MFA设备
 //
 // 该接口可以用于解绑MFA设备
 //
@@ -2281,7 +3031,13 @@ func (c *IamClient) DeleteBindingDevice(request *model.DeleteBindingDeviceReques
 	}
 }
 
-// 删除MFA设备
+// DeleteBindingDeviceInvoker 解绑MFA设备
+func (c *IamClient) DeleteBindingDeviceInvoker(request *model.DeleteBindingDeviceRequest) *DeleteBindingDeviceInvoker {
+	requestDef := GenReqDefForDeleteBindingDevice()
+	return &DeleteBindingDeviceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteMfaDevice 删除MFA设备
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)删除MFA设备。
 //
@@ -2299,7 +3055,13 @@ func (c *IamClient) DeleteMfaDevice(request *model.DeleteMfaDeviceRequest) (*mod
 	}
 }
 
-// 管理员创建IAM用户
+// DeleteMfaDeviceInvoker 删除MFA设备
+func (c *IamClient) DeleteMfaDeviceInvoker(request *model.DeleteMfaDeviceRequest) *DeleteMfaDeviceInvoker {
+	requestDef := GenReqDefForDeleteMfaDevice()
+	return &DeleteMfaDeviceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneCreateUser 管理员创建IAM用户
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)创建IAM用户。IAM用户首次登录时需要修改密码。
 //
@@ -2317,7 +3079,13 @@ func (c *IamClient) KeystoneCreateUser(request *model.KeystoneCreateUserRequest)
 	}
 }
 
-// 管理员删除IAM用户
+// KeystoneCreateUserInvoker 管理员创建IAM用户
+func (c *IamClient) KeystoneCreateUserInvoker(request *model.KeystoneCreateUserRequest) *KeystoneCreateUserInvoker {
+	requestDef := GenReqDefForKeystoneCreateUser()
+	return &KeystoneCreateUserInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneDeleteUser 管理员删除IAM用户
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)删除指定IAM用户。
 //
@@ -2335,7 +3103,13 @@ func (c *IamClient) KeystoneDeleteUser(request *model.KeystoneDeleteUserRequest)
 	}
 }
 
-// 查询IAM用户所属用户组
+// KeystoneDeleteUserInvoker 管理员删除IAM用户
+func (c *IamClient) KeystoneDeleteUserInvoker(request *model.KeystoneDeleteUserRequest) *KeystoneDeleteUserInvoker {
+	requestDef := GenReqDefForKeystoneDeleteUser()
+	return &KeystoneDeleteUserInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneListGroupsForUser 查询IAM用户所属用户组
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询IAM用户所属用户组，或IAM用户查询自己所属用户组。
 //
@@ -2353,7 +3127,13 @@ func (c *IamClient) KeystoneListGroupsForUser(request *model.KeystoneListGroupsF
 	}
 }
 
-// 管理员查询IAM用户列表
+// KeystoneListGroupsForUserInvoker 查询IAM用户所属用户组
+func (c *IamClient) KeystoneListGroupsForUserInvoker(request *model.KeystoneListGroupsForUserRequest) *KeystoneListGroupsForUserInvoker {
+	requestDef := GenReqDefForKeystoneListGroupsForUser()
+	return &KeystoneListGroupsForUserInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneListUsers 管理员查询IAM用户列表
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询IAM用户列表。
 //
@@ -2371,7 +3151,13 @@ func (c *IamClient) KeystoneListUsers(request *model.KeystoneListUsersRequest) (
 	}
 }
 
-// 查询IAM用户详情
+// KeystoneListUsersInvoker 管理员查询IAM用户列表
+func (c *IamClient) KeystoneListUsersInvoker(request *model.KeystoneListUsersRequest) *KeystoneListUsersInvoker {
+	requestDef := GenReqDefForKeystoneListUsers()
+	return &KeystoneListUsersInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneShowUser 查询IAM用户详情
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询IAM用户详情，或IAM用户查询自己的用户详情。
 //
@@ -2389,7 +3175,13 @@ func (c *IamClient) KeystoneShowUser(request *model.KeystoneShowUserRequest) (*m
 	}
 }
 
-// 管理员修改IAM用户信息
+// KeystoneShowUserInvoker 查询IAM用户详情
+func (c *IamClient) KeystoneShowUserInvoker(request *model.KeystoneShowUserRequest) *KeystoneShowUserInvoker {
+	requestDef := GenReqDefForKeystoneShowUser()
+	return &KeystoneShowUserInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneUpdateUserByAdmin 管理员修改IAM用户信息
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)修改IAM用户信息。
 //
@@ -2407,7 +3199,13 @@ func (c *IamClient) KeystoneUpdateUserByAdmin(request *model.KeystoneUpdateUserB
 	}
 }
 
-// 修改IAM用户密码
+// KeystoneUpdateUserByAdminInvoker 管理员修改IAM用户信息
+func (c *IamClient) KeystoneUpdateUserByAdminInvoker(request *model.KeystoneUpdateUserByAdminRequest) *KeystoneUpdateUserByAdminInvoker {
+	requestDef := GenReqDefForKeystoneUpdateUserByAdmin()
+	return &KeystoneUpdateUserByAdminInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneUpdateUserPassword 修改IAM用户密码
 //
 // 该接口可以用于IAM用户修改自己的密码。
 //
@@ -2425,7 +3223,13 @@ func (c *IamClient) KeystoneUpdateUserPassword(request *model.KeystoneUpdateUser
 	}
 }
 
-// 查询IAM用户的登录保护状态信息列表
+// KeystoneUpdateUserPasswordInvoker 修改IAM用户密码
+func (c *IamClient) KeystoneUpdateUserPasswordInvoker(request *model.KeystoneUpdateUserPasswordRequest) *KeystoneUpdateUserPasswordInvoker {
+	requestDef := GenReqDefForKeystoneUpdateUserPassword()
+	return &KeystoneUpdateUserPasswordInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListUserLoginProtects 查询IAM用户的登录保护状态信息列表
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询IAM用户的登录保护状态列表。
 //
@@ -2443,7 +3247,13 @@ func (c *IamClient) ListUserLoginProtects(request *model.ListUserLoginProtectsRe
 	}
 }
 
-// 该接口可以用于获取MFA设备。
+// ListUserLoginProtectsInvoker 查询IAM用户的登录保护状态信息列表
+func (c *IamClient) ListUserLoginProtectsInvoker(request *model.ListUserLoginProtectsRequest) *ListUserLoginProtectsInvoker {
+	requestDef := GenReqDefForListUserLoginProtects()
+	return &ListUserLoginProtectsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListUserMfaDevices 该接口可以用于获取MFA设备。
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询IAM用户的MFA绑定信息列表。
 //
@@ -2461,7 +3271,13 @@ func (c *IamClient) ListUserMfaDevices(request *model.ListUserMfaDevicesRequest)
 	}
 }
 
-// 查询IAM用户详情（推荐）
+// ListUserMfaDevicesInvoker 该接口可以用于获取MFA设备。
+func (c *IamClient) ListUserMfaDevicesInvoker(request *model.ListUserMfaDevicesRequest) *ListUserMfaDevicesInvoker {
+	requestDef := GenReqDefForListUserMfaDevices()
+	return &ListUserMfaDevicesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowUser 查询IAM用户详情（推荐）
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询IAM用户详情，或IAM用户查询自己的详情。
 //
@@ -2479,7 +3295,13 @@ func (c *IamClient) ShowUser(request *model.ShowUserRequest) (*model.ShowUserRes
 	}
 }
 
-// 查询指定IAM用户的登录保护状态信息
+// ShowUserInvoker 查询IAM用户详情（推荐）
+func (c *IamClient) ShowUserInvoker(request *model.ShowUserRequest) *ShowUserInvoker {
+	requestDef := GenReqDefForShowUser()
+	return &ShowUserInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowUserLoginProtect 查询指定IAM用户的登录保护状态信息
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询指定IAM用户的登录保护状态信息，或IAM用户查询自己的登录保护状态信息。
 //
@@ -2497,7 +3319,13 @@ func (c *IamClient) ShowUserLoginProtect(request *model.ShowUserLoginProtectRequ
 	}
 }
 
-// 查询指定IAM用户的MFA绑定信息
+// ShowUserLoginProtectInvoker 查询指定IAM用户的登录保护状态信息
+func (c *IamClient) ShowUserLoginProtectInvoker(request *model.ShowUserLoginProtectRequest) *ShowUserLoginProtectInvoker {
+	requestDef := GenReqDefForShowUserLoginProtect()
+	return &ShowUserLoginProtectInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowUserMfaDevice 查询指定IAM用户的MFA绑定信息
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询指定IAM用户的MFA绑定信息，或IAM用户查询自己的MFA绑定信息。
 //
@@ -2515,7 +3343,13 @@ func (c *IamClient) ShowUserMfaDevice(request *model.ShowUserMfaDeviceRequest) (
 	}
 }
 
-// 修改IAM用户登录保护状态信息
+// ShowUserMfaDeviceInvoker 查询指定IAM用户的MFA绑定信息
+func (c *IamClient) ShowUserMfaDeviceInvoker(request *model.ShowUserMfaDeviceRequest) *ShowUserMfaDeviceInvoker {
+	requestDef := GenReqDefForShowUserMfaDevice()
+	return &ShowUserMfaDeviceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateLoginProtect 修改IAM用户登录保护状态信息
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)修改账号操作保护。
 //
@@ -2533,7 +3367,13 @@ func (c *IamClient) UpdateLoginProtect(request *model.UpdateLoginProtectRequest)
 	}
 }
 
-// 管理员修改IAM用户信息（推荐）
+// UpdateLoginProtectInvoker 修改IAM用户登录保护状态信息
+func (c *IamClient) UpdateLoginProtectInvoker(request *model.UpdateLoginProtectRequest) *UpdateLoginProtectInvoker {
+	requestDef := GenReqDefForUpdateLoginProtect()
+	return &UpdateLoginProtectInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateUser 管理员修改IAM用户信息（推荐）
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)修改IAM用户信息 。
 //
@@ -2551,7 +3391,13 @@ func (c *IamClient) UpdateUser(request *model.UpdateUserRequest) (*model.UpdateU
 	}
 }
 
-// 修改IAM用户信息（推荐）
+// UpdateUserInvoker 管理员修改IAM用户信息（推荐）
+func (c *IamClient) UpdateUserInvoker(request *model.UpdateUserRequest) *UpdateUserInvoker {
+	requestDef := GenReqDefForUpdateUser()
+	return &UpdateUserInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateUserInformation 修改IAM用户信息（推荐）
 //
 // 该接口可以用于IAM用户修改自己的用户信息。
 //
@@ -2569,7 +3415,13 @@ func (c *IamClient) UpdateUserInformation(request *model.UpdateUserInformationRe
 	}
 }
 
-// 获取委托Token
+// UpdateUserInformationInvoker 修改IAM用户信息（推荐）
+func (c *IamClient) UpdateUserInformationInvoker(request *model.UpdateUserInformationRequest) *UpdateUserInformationInvoker {
+	requestDef := GenReqDefForUpdateUserInformation()
+	return &UpdateUserInformationInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneCreateAgencyToken 获取委托Token
 //
 // 该接口可以用于获取委托方的token。
 //
@@ -2593,7 +3445,13 @@ func (c *IamClient) KeystoneCreateAgencyToken(request *model.KeystoneCreateAgenc
 	}
 }
 
-// 获取IAM用户Token（使用密码）
+// KeystoneCreateAgencyTokenInvoker 获取委托Token
+func (c *IamClient) KeystoneCreateAgencyTokenInvoker(request *model.KeystoneCreateAgencyTokenRequest) *KeystoneCreateAgencyTokenInvoker {
+	requestDef := GenReqDefForKeystoneCreateAgencyToken()
+	return &KeystoneCreateAgencyTokenInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneCreateUserTokenByPassword 获取IAM用户Token（使用密码）
 //
 // 该接口可以用于通过用户名/密码的方式进行认证来获取IAM用户token。
 //
@@ -2616,7 +3474,13 @@ func (c *IamClient) KeystoneCreateUserTokenByPassword(request *model.KeystoneCre
 	}
 }
 
-// 获取IAM用户Token（使用密码+虚拟MFA）
+// KeystoneCreateUserTokenByPasswordInvoker 获取IAM用户Token（使用密码）
+func (c *IamClient) KeystoneCreateUserTokenByPasswordInvoker(request *model.KeystoneCreateUserTokenByPasswordRequest) *KeystoneCreateUserTokenByPasswordInvoker {
+	requestDef := GenReqDefForKeystoneCreateUserTokenByPassword()
+	return &KeystoneCreateUserTokenByPasswordInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneCreateUserTokenByPasswordAndMfa 获取IAM用户Token（使用密码+虚拟MFA）
 //
 // 该接口可以用于通过用户名/密码+虚拟MFA的方式进行认证，在IAM用户开启了的登录保护功能，并选择通过虚拟MFA验证时获取IAM用户token。
 //
@@ -2639,7 +3503,13 @@ func (c *IamClient) KeystoneCreateUserTokenByPasswordAndMfa(request *model.Keyst
 	}
 }
 
-// 校验Token的有效性
+// KeystoneCreateUserTokenByPasswordAndMfaInvoker 获取IAM用户Token（使用密码+虚拟MFA）
+func (c *IamClient) KeystoneCreateUserTokenByPasswordAndMfaInvoker(request *model.KeystoneCreateUserTokenByPasswordAndMfaRequest) *KeystoneCreateUserTokenByPasswordAndMfaInvoker {
+	requestDef := GenReqDefForKeystoneCreateUserTokenByPasswordAndMfa()
+	return &KeystoneCreateUserTokenByPasswordAndMfaInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// KeystoneValidateToken 校验Token的有效性
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)校验本账号中IAM用户token的有效性，或IAM用户校验自己token的有效性。管理员仅能校验本账号中IAM用户token的有效性，不能校验其他账号中IAM用户token的有效性。如果被校验的token有效，则返回该token的详细信息。
 //
@@ -2655,4 +3525,10 @@ func (c *IamClient) KeystoneValidateToken(request *model.KeystoneValidateTokenRe
 	} else {
 		return resp.(*model.KeystoneValidateTokenResponse), nil
 	}
+}
+
+// KeystoneValidateTokenInvoker 校验Token的有效性
+func (c *IamClient) KeystoneValidateTokenInvoker(request *model.KeystoneValidateTokenRequest) *KeystoneValidateTokenInvoker {
+	requestDef := GenReqDefForKeystoneValidateToken()
+	return &KeystoneValidateTokenInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }

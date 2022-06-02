@@ -75,6 +75,10 @@ func GetListThumbnailsTaskRequestStatusEnum() ListThumbnailsTaskRequestStatusEnu
 	}
 }
 
+func (c ListThumbnailsTaskRequestStatus) Value() string {
+	return c.value
+}
+
 func (c ListThumbnailsTaskRequestStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

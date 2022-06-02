@@ -48,6 +48,10 @@ func GetDeleteInstanceRequestXLanguageEnum() DeleteInstanceRequestXLanguageEnum 
 	}
 }
 
+func (c DeleteInstanceRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c DeleteInstanceRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

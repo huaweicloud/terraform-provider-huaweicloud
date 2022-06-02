@@ -50,6 +50,10 @@ func GetStartInstanceRestartActionRequestXLanguageEnum() StartInstanceRestartAct
 	}
 }
 
+func (c StartInstanceRestartActionRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c StartInstanceRestartActionRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

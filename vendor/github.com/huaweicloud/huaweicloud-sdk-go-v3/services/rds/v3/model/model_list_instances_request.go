@@ -73,6 +73,10 @@ func GetListInstancesRequestXLanguageEnum() ListInstancesRequestXLanguageEnum {
 	}
 }
 
+func (c ListInstancesRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c ListInstancesRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -115,6 +119,10 @@ func GetListInstancesRequestTypeEnum() ListInstancesRequestTypeEnum {
 	}
 }
 
+func (c ListInstancesRequestType) Value() string {
+	return c.value
+}
+
 func (c ListInstancesRequestType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -155,6 +163,10 @@ func GetListInstancesRequestDatastoreTypeEnum() ListInstancesRequestDatastoreTyp
 			value: "SQLServer",
 		},
 	}
+}
+
+func (c ListInstancesRequestDatastoreType) Value() string {
+	return c.value
 }
 
 func (c ListInstancesRequestDatastoreType) MarshalJSON() ([]byte, error) {

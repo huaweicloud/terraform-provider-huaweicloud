@@ -50,6 +50,10 @@ func GetSetPostgresqlDbUserPwdRequestXLanguageEnum() SetPostgresqlDbUserPwdReque
 	}
 }
 
+func (c SetPostgresqlDbUserPwdRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c SetPostgresqlDbUserPwdRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

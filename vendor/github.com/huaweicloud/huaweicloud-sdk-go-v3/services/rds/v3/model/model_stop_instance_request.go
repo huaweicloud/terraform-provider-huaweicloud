@@ -48,6 +48,10 @@ func GetStopInstanceRequestXLanguageEnum() StopInstanceRequestXLanguageEnum {
 	}
 }
 
+func (c StopInstanceRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c StopInstanceRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

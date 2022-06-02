@@ -186,6 +186,10 @@ func GetUploadMetaDataByUrlVideoTypeEnum() UploadMetaDataByUrlVideoTypeEnum {
 	}
 }
 
+func (c UploadMetaDataByUrlVideoType) Value() string {
+	return c.value
+}
+
 func (c UploadMetaDataByUrlVideoType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

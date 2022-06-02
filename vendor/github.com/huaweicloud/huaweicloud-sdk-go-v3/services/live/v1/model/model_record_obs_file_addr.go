@@ -54,6 +54,10 @@ func GetRecordObsFileAddrLocationEnum() RecordObsFileAddrLocationEnum {
 	}
 }
 
+func (c RecordObsFileAddrLocation) Value() string {
+	return c.value
+}
+
 func (c RecordObsFileAddrLocation) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

@@ -165,6 +165,10 @@ func GetUploadAssetReqVideoTypeEnum() UploadAssetReqVideoTypeEnum {
 	}
 }
 
+func (c UploadAssetReqVideoType) Value() string {
+	return c.value
+}
+
 func (c UploadAssetReqVideoType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -201,6 +205,10 @@ func GetUploadAssetReqCoverTypeEnum() UploadAssetReqCoverTypeEnum {
 			value: "PNG",
 		},
 	}
+}
+
+func (c UploadAssetReqCoverType) Value() string {
+	return c.value
 }
 
 func (c UploadAssetReqCoverType) MarshalJSON() ([]byte, error) {

@@ -82,6 +82,10 @@ func GetOffSiteBackupForListStatusEnum() OffSiteBackupForListStatusEnum {
 	}
 }
 
+func (c OffSiteBackupForListStatus) Value() string {
+	return c.value
+}
+
 func (c OffSiteBackupForListStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -118,6 +122,10 @@ func GetOffSiteBackupForListTypeEnum() OffSiteBackupForListTypeEnum {
 			value: "incremental",
 		},
 	}
+}
+
+func (c OffSiteBackupForListType) Value() string {
+	return c.value
 }
 
 func (c OffSiteBackupForListType) MarshalJSON() ([]byte, error) {

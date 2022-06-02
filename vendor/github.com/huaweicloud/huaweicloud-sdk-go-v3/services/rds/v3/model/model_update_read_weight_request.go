@@ -50,6 +50,10 @@ func GetUpdateReadWeightRequestXLanguageEnum() UpdateReadWeightRequestXLanguageE
 	}
 }
 
+func (c UpdateReadWeightRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c UpdateReadWeightRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

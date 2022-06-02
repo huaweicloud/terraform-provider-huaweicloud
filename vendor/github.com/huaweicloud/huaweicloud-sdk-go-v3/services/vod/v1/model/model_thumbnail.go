@@ -63,6 +63,10 @@ func GetThumbnailTypeEnum() ThumbnailTypeEnum {
 	}
 }
 
+func (c ThumbnailType) Value() string {
+	return c.value
+}
+
 func (c ThumbnailType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

@@ -48,6 +48,10 @@ func GetConfirmImageUploadReqStatusEnum() ConfirmImageUploadReqStatusEnum {
 	}
 }
 
+func (c ConfirmImageUploadReqStatus) Value() string {
+	return c.value
+}
+
 func (c ConfirmImageUploadReqStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

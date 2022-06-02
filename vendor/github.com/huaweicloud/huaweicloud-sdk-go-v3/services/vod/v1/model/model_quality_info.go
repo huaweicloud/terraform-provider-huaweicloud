@@ -68,6 +68,10 @@ func GetQualityInfoFormatEnum() QualityInfoFormatEnum {
 	}
 }
 
+func (c QualityInfoFormat) Value() string {
+	return c.value
+}
+
 func (c QualityInfoFormat) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

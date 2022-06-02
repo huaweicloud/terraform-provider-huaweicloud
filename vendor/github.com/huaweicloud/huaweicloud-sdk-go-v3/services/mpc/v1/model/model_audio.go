@@ -60,6 +60,10 @@ func GetAudioOutputPolicyEnum() AudioOutputPolicyEnum {
 	}
 }
 
+func (c AudioOutputPolicy) Value() string {
+	return c.value
+}
+
 func (c AudioOutputPolicy) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

@@ -46,6 +46,10 @@ func GetAgencyPolicyStatementActionEnum() AgencyPolicyStatementActionEnum {
 	}
 }
 
+func (c AgencyPolicyStatementAction) Value() string {
+	return c.value
+}
+
 func (c AgencyPolicyStatementAction) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -82,6 +86,10 @@ func GetAgencyPolicyStatementEffectEnum() AgencyPolicyStatementEffectEnum {
 			value: "Deny",
 		},
 	}
+}
+
+func (c AgencyPolicyStatementEffect) Value() string {
+	return c.value
 }
 
 func (c AgencyPolicyStatementEffect) MarshalJSON() ([]byte, error) {

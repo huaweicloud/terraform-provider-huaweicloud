@@ -72,6 +72,10 @@ func GetListMergeChannelsTaskRequestStatusEnum() ListMergeChannelsTaskRequestSta
 	}
 }
 
+func (c ListMergeChannelsTaskRequestStatus) Value() string {
+	return c.value
+}
+
 func (c ListMergeChannelsTaskRequestStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

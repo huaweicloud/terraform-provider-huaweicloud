@@ -79,6 +79,10 @@ func GetListAnimatedGraphicsTaskRequestStatusEnum() ListAnimatedGraphicsTaskRequ
 	}
 }
 
+func (c ListAnimatedGraphicsTaskRequestStatus) Value() string {
+	return c.value
+}
+
 func (c ListAnimatedGraphicsTaskRequestStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

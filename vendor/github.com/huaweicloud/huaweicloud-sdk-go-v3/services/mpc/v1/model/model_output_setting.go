@@ -60,6 +60,10 @@ func GetOutputSettingFormatEnum() OutputSettingFormatEnum {
 	}
 }
 
+func (c OutputSettingFormat) Value() string {
+	return c.value
+}
+
 func (c OutputSettingFormat) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

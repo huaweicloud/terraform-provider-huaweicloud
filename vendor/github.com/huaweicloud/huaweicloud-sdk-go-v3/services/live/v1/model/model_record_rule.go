@@ -72,6 +72,10 @@ func GetRecordRuleRecordTypeEnum() RecordRuleRecordTypeEnum {
 	}
 }
 
+func (c RecordRuleRecordType) Value() string {
+	return c.value
+}
+
 func (c RecordRuleRecordType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

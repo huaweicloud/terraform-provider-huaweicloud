@@ -63,6 +63,10 @@ func GetUpdateNotificationRequestBodyOperationTypeEnum() UpdateNotificationReque
 	}
 }
 
+func (c UpdateNotificationRequestBodyOperationType) Value() string {
+	return c.value
+}
+
 func (c UpdateNotificationRequestBodyOperationType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -99,6 +103,10 @@ func GetUpdateNotificationRequestBodyStatusEnum() UpdateNotificationRequestBodyS
 			value: "disabled",
 		},
 	}
+}
+
+func (c UpdateNotificationRequestBodyStatus) Value() string {
+	return c.value
 }
 
 func (c UpdateNotificationRequestBodyStatus) MarshalJSON() ([]byte, error) {

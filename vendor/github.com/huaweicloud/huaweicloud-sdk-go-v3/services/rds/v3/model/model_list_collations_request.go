@@ -45,6 +45,10 @@ func GetListCollationsRequestXLanguageEnum() ListCollationsRequestXLanguageEnum 
 	}
 }
 
+func (c ListCollationsRequestXLanguage) Value() string {
+	return c.value
+}
+
 func (c ListCollationsRequestXLanguage) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }

@@ -77,6 +77,10 @@ func GetCreateWatermarkTemplateReqWatermarkTypeEnum() CreateWatermarkTemplateReq
 	}
 }
 
+func (c CreateWatermarkTemplateReqWatermarkType) Value() string {
+	return c.value
+}
+
 func (c CreateWatermarkTemplateReqWatermarkType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -117,6 +121,10 @@ func GetCreateWatermarkTemplateReqImageProcessEnum() CreateWatermarkTemplateReqI
 			value: "GRAYED",
 		},
 	}
+}
+
+func (c CreateWatermarkTemplateReqImageProcess) Value() string {
+	return c.value
 }
 
 func (c CreateWatermarkTemplateReqImageProcess) MarshalJSON() ([]byte, error) {
@@ -163,6 +171,10 @@ func GetCreateWatermarkTemplateReqPositionEnum() CreateWatermarkTemplateReqPosit
 			value: "BOTTOMLEFT",
 		},
 	}
+}
+
+func (c CreateWatermarkTemplateReqPosition) Value() string {
+	return c.value
 }
 
 func (c CreateWatermarkTemplateReqPosition) MarshalJSON() ([]byte, error) {

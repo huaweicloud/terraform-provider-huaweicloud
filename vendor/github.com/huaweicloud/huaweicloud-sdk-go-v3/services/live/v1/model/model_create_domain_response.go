@@ -66,6 +66,10 @@ func GetCreateDomainResponseDomainTypeEnum() CreateDomainResponseDomainTypeEnum 
 	}
 }
 
+func (c CreateDomainResponseDomainType) Value() string {
+	return c.value
+}
+
 func (c CreateDomainResponseDomainType) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -112,6 +116,10 @@ func GetCreateDomainResponseStatusEnum() CreateDomainResponseStatusEnum {
 	}
 }
 
+func (c CreateDomainResponseStatus) Value() string {
+	return c.value
+}
+
 func (c CreateDomainResponseStatus) MarshalJSON() ([]byte, error) {
 	return utils.Marshal(c.value)
 }
@@ -152,6 +160,10 @@ func GetCreateDomainResponseServiceAreaEnum() CreateDomainResponseServiceAreaEnu
 			value: "global",
 		},
 	}
+}
+
+func (c CreateDomainResponseServiceArea) Value() string {
+	return c.value
 }
 
 func (c CreateDomainResponseServiceArea) MarshalJSON() ([]byte, error) {
