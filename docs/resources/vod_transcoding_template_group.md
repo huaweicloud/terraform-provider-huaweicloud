@@ -10,15 +10,12 @@ Manages a VOD transcoding template group resource within HuaweiCloud.
 
 ```hcl
 resource "huaweicloud_vod_transcoding_template_group" "test" {
-  name        = "test"
-  description = "test group"
-
-  common {
-    audio_codec          = "AAC"
-    hls_segment_duration = 5
-    low_bitrate_hd       = false
-    video_codec          = "H264"
-  }
+  name                 = "test"
+  description          = "test group"
+  audio_codec          = "AAC"
+  hls_segment_duration = 5
+  low_bitrate_hd       = false
+  video_codec          = "H264"
 
   quality_info {
     output_format = "HLS"
@@ -50,24 +47,8 @@ The following arguments are supported:
 * `name` - (Required, String) Specifies the name of the template group. The value can be a string of 1 to 128
   characters that can consist of letters, digits and underscores (_).
 
-* `common` - (Required, List) Specifies the common configurations of the template group.
-  The [object](#common_object) structure is documented below.
-
 * `quality_info`- (Required, List) Specifies the quality info list of the template group.
   The [object](#quality_info_object) structure is documented below.
-
-* `description` - (Optional, String) Specifies the description of the template group.
-
-* `auto_encrypt` - (Optional, Bool) Specifies whether to automatically encrypt. Before enabling, you need to configure
-  the HLS encryption key URL. When `auto_encrypt` is **true**, the `output_format` must be **HLS**.
-  Defaults to: **false**.
-
-* `is_default` - (Optional, Bool) Specifies whether to use this group as default group. Defaults to: **false**.
-
-* `watermark_template_ids` - (Optional, List) Specifies the list of the watermark template IDs.
-
-<a name="common_object"></a>
-The `common` block supports:
 
 * `low_bitrate_hd` - (Optional, Bool) Specifies whether to enable low bitrate HD. Defaults to: **false**.
 
@@ -79,6 +60,16 @@ The `common` block supports:
 
 * `hls_segment_duration` - (Optional, Int) Specifies the HLS segment duration. The value can be: **2**, **3**, **5**
   and **10**. Defaults to: **5**. This parameter is used only when `output_format` is set to **HLS** or **DASH_HLS**.
+
+* `description` - (Optional, String) Specifies the description of the template group.
+
+* `auto_encrypt` - (Optional, Bool) Specifies whether to automatically encrypt. Before enabling, you need to configure
+  the HLS encryption key URL. When `auto_encrypt` is **true**, the `output_format` must be **HLS**.
+  Defaults to: **false**.
+
+* `is_default` - (Optional, Bool) Specifies whether to use this group as default group. Defaults to: **false**.
+
+* `watermark_template_ids` - (Optional, List) Specifies the list of the watermark template IDs.
 
 <a name="quality_info_object"></a>
 The `quality_info` block supports:

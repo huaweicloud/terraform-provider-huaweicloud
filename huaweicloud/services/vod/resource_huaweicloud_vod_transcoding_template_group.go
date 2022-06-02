@@ -61,40 +61,31 @@ func ResourceTranscodingTemplateGroup() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"common": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"low_bitrate_hd": {
-							Type:     schema.TypeBool,
-							Optional: true,
-						},
-						"audio_codec": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"AAC", "HEAAC1",
-							}, false),
-						},
-						"video_codec": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"H264", "H265",
-							}, false),
-						},
-						"hls_segment_duration": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Computed:     true,
-							ValidateFunc: validation.IntInSlice([]int{2, 3, 5, 10}),
-						},
-					},
-				},
+			"low_bitrate_hd": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"audio_codec": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"AAC", "HEAAC1",
+				}, false),
+			},
+			"video_codec": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"H264", "H265",
+				}, false),
+			},
+			"hls_segment_duration": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntInSlice([]int{2, 3, 5, 10}),
 			},
 			"quality_info": {
 				Type:     schema.TypeList,
@@ -191,23 +182,18 @@ func ResourceTranscodingTemplateGroup() *schema.Resource {
 	}
 }
 
-func buildCommonOpts(rawCommon []interface{}) *vod.Common {
-	if len(rawCommon) != 1 {
-		return nil
-	}
-
-	common := rawCommon[0].(map[string]interface{})
+func buildCommonOpts(d *schema.ResourceData) *vod.Common {
 	commonOpts := vod.Common{
-		HlsInterval: utils.Int32(int32(common["hls_segment_duration"].(int))),
+		HlsInterval: utils.Int32(int32(d.Get("hls_segment_duration").(int))),
 	}
 
-	if common["low_bitrate_hd"].(bool) {
+	if d.Get("low_bitrate_hd").(bool) {
 		commonOpts.Pvc = vod.GetCommonPvcEnum().E_1
 	} else {
 		commonOpts.Pvc = vod.GetCommonPvcEnum().E_0
 	}
 
-	switch common["video_codec"].(string) {
+	switch d.Get("video_codec").(string) {
 	case "H265":
 		videoCodec := vod.GetCommonVideoCodecEnum().H265
 		commonOpts.VideoCodec = &videoCodec
@@ -218,7 +204,7 @@ func buildCommonOpts(rawCommon []interface{}) *vod.Common {
 		commonOpts.VideoCodec = nil
 	}
 
-	switch common["audio_codec"].(string) {
+	switch d.Get("audio_codec").(string) {
 	case "HEAAC1":
 		audioCodec := vod.GetCommonAudioCodecEnum().HEAAC1
 		commonOpts.AudioCodec = &audioCodec
@@ -331,7 +317,7 @@ func resourceTranscodingTemplateGroupCreate(ctx context.Context, d *schema.Resou
 		Type:                 vod.GetTransTemplateGroupTypeEnum().CUSTOM_TEMPLATE_GROUP,
 		Description:          utils.String(d.Get("description").(string)),
 		WatermarkTemplateIds: utils.ExpandToStringListPointer(d.Get("watermark_template_ids").([]interface{})),
-		Common:               buildCommonOpts(d.Get("common").(([]interface{}))),
+		Common:               buildCommonOpts(d),
 		QualityInfoList:      buildQualityInfoListOpts(d.Get("quality_info").(([]interface{}))),
 	}
 
@@ -402,8 +388,8 @@ func resourceTranscodingTemplateGroupRead(_ context.Context, d *schema.ResourceD
 		d.Set("description", templateGroup.Description),
 		d.Set("type", templateGroup.Type),
 		d.Set("watermark_template_ids", templateGroup.WatermarkTemplateIds),
-		d.Set("common", flattenCommon(templateGroup.Common)),
 		d.Set("quality_info", flattenQualityInfoList(templateGroup.QualityInfoList)),
+		setCommonAttrs(d, templateGroup.Common),
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
@@ -425,7 +411,7 @@ func resourceTranscodingTemplateGroupUpdate(ctx context.Context, d *schema.Resou
 		Name:                 d.Get("name").(string),
 		Description:          utils.String(d.Get("description").(string)),
 		WatermarkTemplateIds: utils.ExpandToStringListPointer(d.Get("watermark_template_ids").([]interface{})),
-		Common:               buildCommonOpts(d.Get("common").(([]interface{}))),
+		Common:               buildCommonOpts(d),
 		QualityInfoList:      buildQualityInfoListOpts(d.Get("quality_info").(([]interface{}))),
 	}
 
@@ -469,7 +455,7 @@ func resourceTranscodingTemplateGroupDelete(_ context.Context, d *schema.Resourc
 	return nil
 }
 
-func flattenCommon(common *vod.Common) []map[string]interface{} {
+func setCommonAttrs(d *schema.ResourceData, common *vod.Common) error {
 	if common == nil {
 		return nil
 	}
@@ -505,14 +491,14 @@ func flattenCommon(common *vod.Common) []map[string]interface{} {
 		}
 	}
 
-	commonResult := map[string]interface{}{
-		"low_bitrate_hd":       lowBitrateHd,
-		"video_codec":          videoCodec,
-		"audio_codec":          audioCodec,
-		"hls_segment_duration": common.HlsInterval,
-	}
+	mErr := multierror.Append(nil,
+		d.Set("low_bitrate_hd", lowBitrateHd),
+		d.Set("video_codec", videoCodec),
+		d.Set("audio_codec", audioCodec),
+		d.Set("hls_segment_duration", common.HlsInterval),
+	)
 
-	return []map[string]interface{}{commonResult}
+	return mErr
 }
 
 func flattenAudio(audio *vod.AudioTemplateInfo) []map[string]interface{} {
