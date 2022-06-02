@@ -55,9 +55,9 @@ func TestAccTranscodingTemplateGroup_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "test group"),
-					resource.TestCheckResourceAttr(resourceName, "common.0.low_bitrate_hd", "false"),
-					resource.TestCheckResourceAttr(resourceName, "common.0.audio_codec", "HEAAC1"),
-					resource.TestCheckResourceAttr(resourceName, "common.0.video_codec", "H265"),
+					resource.TestCheckResourceAttr(resourceName, "low_bitrate_hd", "false"),
+					resource.TestCheckResourceAttr(resourceName, "audio_codec", "HEAAC1"),
+					resource.TestCheckResourceAttr(resourceName, "video_codec", "H265"),
 					resource.TestCheckResourceAttr(resourceName, "quality_info.0.output_format", "MP4"),
 					resource.TestCheckResourceAttr(resourceName, "quality_info.0.audio.0.channels", "1"),
 					resource.TestCheckResourceAttr(resourceName, "quality_info.0.audio.0.sample_rate", "2"),
@@ -77,9 +77,9 @@ func TestAccTranscodingTemplateGroup_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "description", "test group update"),
-					resource.TestCheckResourceAttr(resourceName, "common.0.low_bitrate_hd", "true"),
-					resource.TestCheckResourceAttr(resourceName, "common.0.audio_codec", "AAC"),
-					resource.TestCheckResourceAttr(resourceName, "common.0.video_codec", "H264"),
+					resource.TestCheckResourceAttr(resourceName, "low_bitrate_hd", "true"),
+					resource.TestCheckResourceAttr(resourceName, "audio_codec", "AAC"),
+					resource.TestCheckResourceAttr(resourceName, "video_codec", "H264"),
 					resource.TestCheckResourceAttr(resourceName, "quality_info.0.output_format", "HLS"),
 					resource.TestCheckResourceAttr(resourceName, "quality_info.0.audio.0.channels", "2"),
 					resource.TestCheckResourceAttr(resourceName, "quality_info.0.audio.0.bitrate", "8"),
@@ -100,11 +100,8 @@ func testTranscodingTemplateGroup_basic(rName string) string {
 resource "huaweicloud_vod_transcoding_template_group" "test" {
   name        = "%s"
   description = "test group"
-
-  common {
-    audio_codec = "HEAAC1"
-    video_codec = "H265"
-  }
+  audio_codec = "HEAAC1"
+  video_codec = "H265"
 
   quality_info {
     output_format = "MP4"
@@ -129,15 +126,12 @@ resource "huaweicloud_vod_transcoding_template_group" "test" {
 func testTranscodingTemplateGroup_update(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vod_transcoding_template_group" "test" {
-  name        = "%s"
-  description = "test group update"
-
-  common {
-    audio_codec          = "AAC"
-    hls_segment_duration = 5
-    low_bitrate_hd       = true
-    video_codec          = "H264"
-  }
+  name                 = "%s"
+  description          = "test group update"
+  audio_codec          = "AAC"
+  hls_segment_duration = 5
+  low_bitrate_hd       = true
+  video_codec          = "H264"
 
   quality_info {
     output_format = "HLS"

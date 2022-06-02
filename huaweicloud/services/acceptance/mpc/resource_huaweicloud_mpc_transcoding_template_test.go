@@ -60,8 +60,8 @@ func TestAccTranscodingTemplate_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "common.0.low_bitrate_hd", "true"),
-					resource.TestCheckResourceAttr(resourceName, "common.0.output_format", "1"),
+					resource.TestCheckResourceAttr(resourceName, "low_bitrate_hd", "true"),
+					resource.TestCheckResourceAttr(resourceName, "output_format", "1"),
 					resource.TestCheckResourceAttr(resourceName, "audio.0.codec", "2"),
 					resource.TestCheckResourceAttr(resourceName, "audio.0.output_policy", "transcode"),
 					resource.TestCheckResourceAttr(resourceName, "video.0.codec", "2"),
@@ -78,8 +78,8 @@ func TestAccTranscodingTemplate_basic(t *testing.T) {
 				Config: testTranscodingTemplate_update(rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
-					resource.TestCheckResourceAttr(resourceName, "common.0.low_bitrate_hd", "false"),
-					resource.TestCheckResourceAttr(resourceName, "common.0.output_format", "2"),
+					resource.TestCheckResourceAttr(resourceName, "low_bitrate_hd", "false"),
+					resource.TestCheckResourceAttr(resourceName, "output_format", "2"),
 					resource.TestCheckResourceAttr(resourceName, "audio.0.codec", "1"),
 					resource.TestCheckResourceAttr(resourceName, "video.0.codec", "1"),
 					resource.TestCheckResourceAttr(resourceName, "video.0.profile", "3"),
@@ -92,14 +92,11 @@ func TestAccTranscodingTemplate_basic(t *testing.T) {
 func testTranscodingTemplate_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_mpc_transcoding_template" "test" {
-  name = "%s"
-
-  common {
-    low_bitrate_hd        = true
-    dash_segment_duration = 5
-    hls_segment_duration  = 5
-    output_format         = 1
-  }
+  name                  = "%s"
+  low_bitrate_hd        = true
+  dash_segment_duration = 5
+  hls_segment_duration  = 5
+  output_format         = 1
 
   audio {
     bitrate       = 0
@@ -131,14 +128,11 @@ resource "huaweicloud_mpc_transcoding_template" "test" {
 func testTranscodingTemplate_update(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_mpc_transcoding_template" "test" {
-  name = "%s"
-
-  common {
-    low_bitrate_hd        = false
-    dash_segment_duration = 5
-    hls_segment_duration  = 5
-    output_format         = 2
-  }
+  name                  = "%s"
+  low_bitrate_hd        = false
+  dash_segment_duration = 5
+  hls_segment_duration  = 5
+  output_format         = 2
 
   audio {
     bitrate       = 0

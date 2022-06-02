@@ -37,35 +37,26 @@ func ResourceTranscodingTemplateGroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"common": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"output_format": {
-							Type:         schema.TypeInt,
-							Required:     true,
-							ValidateFunc: validation.IntBetween(1, 6),
-						},
-						"hls_segment_duration": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(2, 10),
-							Default:      5,
-						},
-						"dash_segment_duration": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(2, 10),
-							Default:      5,
-						},
-						"low_bitrate_hd": {
-							Type:     schema.TypeBool,
-							Optional: true,
-						},
-					},
-				},
+			"output_format": {
+				Type:         schema.TypeInt,
+				Required:     true,
+				ValidateFunc: validation.IntBetween(1, 6),
+			},
+			"hls_segment_duration": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validation.IntBetween(2, 10),
+				Default:      5,
+			},
+			"dash_segment_duration": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validation.IntBetween(2, 10),
+				Default:      5,
+			},
+			"low_bitrate_hd": {
+				Type:     schema.TypeBool,
+				Optional: true,
 			},
 			"audio": {
 				Type:     schema.TypeList,
@@ -292,7 +283,7 @@ func resourceTranscodingTemplateGroupCreate(ctx context.Context, d *schema.Resou
 		Videos:      buildVideosOpts(d.Get("videos").([]interface{})),
 		VideoCommon: buildVideoCommonOpts(d.Get("video_common").([]interface{})),
 		Audio:       buildAudioOpts(d.Get("audio").([]interface{})),
-		Common:      buildCommonOpts(d.Get("common").([]interface{})),
+		Common:      buildCommonOpts(d),
 	}
 
 	createReq := mpc.CreateTemplateGroupRequest{
@@ -338,11 +329,11 @@ func resourceTranscodingTemplateGroupRead(_ context.Context, d *schema.ResourceD
 	mErr := multierror.Append(nil,
 		d.Set("region", config.GetRegion(d)),
 		d.Set("name", templateGroup.Name),
-		d.Set("common", flattenCommon(templateGroup.Common)),
 		d.Set("audio", flattenAudio(templateGroup.Audio)),
 		d.Set("video_common", flattenVideoCommon(templateGroup.VideoCommon)),
 		d.Set("videos", flattenVideos(templateGroup.Videos)),
 		d.Set("template_ids", templateIds),
+		setCommonAttrs(d, templateGroup.Common),
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
@@ -365,7 +356,7 @@ func resourceTranscodingTemplateGroupUpdate(ctx context.Context, d *schema.Resou
 		Videos:      buildVideosOpts(d.Get("videos").([]interface{})),
 		VideoCommon: buildVideoCommonOpts(d.Get("video_common").([]interface{})),
 		Audio:       buildAudioOpts(d.Get("audio").([]interface{})),
-		Common:      buildCommonOpts(d.Get("common").([]interface{})),
+		Common:      buildCommonOpts(d),
 	}
 
 	updateReq := mpc.UpdateTemplateGroupRequest{

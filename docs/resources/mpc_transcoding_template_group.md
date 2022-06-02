@@ -10,14 +10,11 @@ Manages an MPC transcoding template group resource within HuaweiCloud.
 
 ```hcl
 resource "huaweicloud_mpc_transcoding_template_group" "test" {
-  name = "test"
-
-  common {
-    low_bitrate_hd        = true
-    dash_segment_duration = 5
-    hls_segment_duration  = 5
-    output_format         = 1
-  }
+  name                  = "test"
+  low_bitrate_hd        = true
+  dash_segment_duration = 5
+  hls_segment_duration  = 5
+  output_format         = 1
 
   audio {
     bitrate       = 0
@@ -57,19 +54,6 @@ The following arguments are supported:
 
 * `name` - (Required, String) Specifies the name of a transcoding template group.
 
-* `common` - (Required, List) Specifies the common parameters. The [object](#common_object) structure is documented below.
-
-* `audio` - (Optional, List) Specifies the audio parameters. The [object](#audio_object) structure is documented below.
-
-* `video_common` - (Optional, List) Specifies the video parameters.
-  The [object](#video_common_object) structure is documented below.
-
-* `videos` - (Optional, List) Specifies the list of output video configurations.
-  The [object](#videos_object) structure is documented below.
-
-<a name="common_object"></a>
-The `common` block supports:
-
 * `output_format` - (Required, Int) Specifies the packaging type. Possible values are:
   + **1**: HLS
   + **2**: DASH
@@ -87,6 +71,14 @@ The `common` block supports:
 
 * `dash_segment_duration` - (Optional, Int) Specifies the dash segment duration. This parameter is used only when `output_format`
   is set to 2 or 3. The value ranges from 2 to 10. The default value is 5. The unit is second.
+
+* `audio` - (Optional, List) Specifies the audio parameters. The [object](#audio_object) structure is documented below.
+
+* `video_common` - (Optional, List) Specifies the video parameters.
+  The [object](#video_common_object) structure is documented below.
+
+* `videos` - (Optional, List) Specifies the list of output video configurations.
+  The [object](#videos_object) structure is documented below.
 
 <a name="audio_object"></a>
 The `audio` block supports:

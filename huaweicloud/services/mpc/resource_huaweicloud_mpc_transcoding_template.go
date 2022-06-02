@@ -37,35 +37,26 @@ func ResourceTranscodingTemplate() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"common": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"output_format": {
-							Type:         schema.TypeInt,
-							Required:     true,
-							ValidateFunc: validation.IntBetween(1, 6),
-						},
-						"hls_segment_duration": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(2, 10),
-							Default:      5,
-						},
-						"dash_segment_duration": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(2, 10),
-							Default:      5,
-						},
-						"low_bitrate_hd": {
-							Type:     schema.TypeBool,
-							Optional: true,
-						},
-					},
-				},
+			"output_format": {
+				Type:         schema.TypeInt,
+				Required:     true,
+				ValidateFunc: validation.IntBetween(1, 6),
+			},
+			"hls_segment_duration": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validation.IntBetween(2, 10),
+				Default:      5,
+			},
+			"dash_segment_duration": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validation.IntBetween(2, 10),
+				Default:      5,
+			},
+			"low_bitrate_hd": {
+				Type:     schema.TypeBool,
+				Optional: true,
 			},
 			"audio": {
 				Type:     schema.TypeList,
@@ -207,17 +198,12 @@ func ResourceTranscodingTemplate() *schema.Resource {
 	}
 }
 
-func buildCommonOpts(rawCommon []interface{}) *mpc.Common {
-	if len(rawCommon) != 1 {
-		return nil
-	}
-
-	common := rawCommon[0].(map[string]interface{})
+func buildCommonOpts(d *schema.ResourceData) *mpc.Common {
 	commonOpts := mpc.Common{
-		Pvc:          common["low_bitrate_hd"].(bool),
-		HlsInterval:  int32(common["hls_segment_duration"].(int)),
-		DashInterval: int32(common["dash_segment_duration"].(int)),
-		PackType:     int32(common["output_format"].(int)),
+		Pvc:          d.Get("low_bitrate_hd").(bool),
+		HlsInterval:  int32(d.Get("hls_segment_duration").(int)),
+		DashInterval: int32(d.Get("dash_segment_duration").(int)),
+		PackType:     int32(d.Get("output_format").(int)),
 	}
 
 	return &commonOpts
@@ -314,7 +300,7 @@ func resourceTranscodingTemplateCreate(ctx context.Context, d *schema.ResourceDa
 		TemplateName: d.Get("name").(string),
 		Video:        buildVideoOpts(d.Get("video").([]interface{})),
 		Audio:        buildAudioOpts(d.Get("audio").([]interface{})),
-		Common:       buildCommonOpts(d.Get("common").([]interface{})),
+		Common:       buildCommonOpts(d),
 	}
 
 	createReq := mpc.CreateTransTemplateRequest{
@@ -360,9 +346,9 @@ func resourceTranscodingTemplateRead(_ context.Context, d *schema.ResourceData, 
 	mErr := multierror.Append(nil,
 		d.Set("region", config.GetRegion(d)),
 		d.Set("name", template.TemplateName),
-		d.Set("common", flattenCommon(template.Common)),
 		d.Set("audio", flattenAudio(template.Audio)),
 		d.Set("video", flattenVideo(template.Video)),
+		setCommonAttrs(d, template.Common),
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
@@ -389,7 +375,7 @@ func resourceTranscodingTemplateUpdate(ctx context.Context, d *schema.ResourceDa
 		TemplateName: d.Get("name").(string),
 		Video:        buildVideoOpts(d.Get("video").([]interface{})),
 		Audio:        buildAudioOpts(d.Get("audio").([]interface{})),
-		Common:       buildCommonOpts(d.Get("common").([]interface{})),
+		Common:       buildCommonOpts(d),
 	}
 
 	updateReq := mpc.UpdateTransTemplateRequest{
@@ -424,18 +410,18 @@ func resourceTranscodingTemplateDelete(_ context.Context, d *schema.ResourceData
 	return nil
 }
 
-func flattenCommon(common *mpc.Common) []map[string]interface{} {
+func setCommonAttrs(d *schema.ResourceData, common *mpc.Common) error {
 	if common == nil {
 		return nil
 	}
-	commonResult := map[string]interface{}{
-		"low_bitrate_hd":        common.Pvc,
-		"hls_segment_duration":  common.HlsInterval,
-		"dash_segment_duration": common.DashInterval,
-		"output_format":         common.PackType,
-	}
+	mErr := multierror.Append(nil,
+		d.Set("low_bitrate_hd", common.Pvc),
+		d.Set("hls_segment_duration", common.HlsInterval),
+		d.Set("dash_segment_duration", common.DashInterval),
+		d.Set("output_format", common.PackType),
+	)
 
-	return []map[string]interface{}{commonResult}
+	return mErr
 }
 
 func flattenAudio(audio *mpc.Audio) []map[string]interface{} {
