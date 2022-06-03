@@ -65,7 +65,10 @@ The following arguments are supported:
 
 * `flavor` - (Optional, String) Specifies the flavor ID for the target server.
 
-* `target_server_name` - (Optional, String) Specifies the name of the target server.
+* `target_server_name` - (Optional, String) Specifies the name of the target server. Defaults to the template name.
+
+* `bandwidth_size` - (Optional, Int) Specifies the bandwidth size in Mbit/s about the public IP address
+  that will be used for migration.
 
 ## Attributes Reference
 
