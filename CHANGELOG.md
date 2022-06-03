@@ -1,5 +1,42 @@
 # CHANGELOG
 
+## 1.37.0 (June 4, 2022)
+
+* **New Resurce:**
+  + `huaweicloud_live_domain` [GH-2151]
+  + `huaweicloud_live_record_callback` [GH-2155]
+  + `huaweicloud_live_transcoding` [GH-2158]
+  + `huaweicloud_live_recording` [GH-2166]
+  + `huaweicloud_vod_media_category` [GH-2164]
+  + `huaweicloud_vod_transcoding_template_group` [GH-2173]
+  + `huaweicloud_vod_watermark_template` [GH-2176]
+  + `huaweicloud_mpc_transcoding_template` [GH-2159]
+  + `huaweicloud_mpc_transcoding_template_group` [GH-2159]
+  + `huaweicloud_servicestage_component_instance` [GH-2154]
+  + `huaweicloud_cse_microservice_engine` [GH-2161]
+  + `huaweicloud_cse_microservice` [GH-2169]
+  + `huaweicloud_cse_microservice_instance` [GH-2169]
+  + `huaweicloud_sms_server_template` [GH-2162]
+  + `huaweicloud_sms_task` [GH-2177]
+  + `huaweicloud_iotda_space` [GH-2170]
+  + `huaweicloud_iotda_product` [GH-2174]
+
+* **New Data Source:**
+  + `huaweicloud_dms_kafka_instances` [GH-2144]
+  + `huaweicloud_sms_source_servers` [GH-2168]
+  + `huaweicloud_identity_projects` [GH-2180]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_dms_kafka_instance: Add `cross_vpc_accesses` attribute [GH-2141]
+* resource/huaweicloud_compute_instance: Support to bind EIP when creating [GH-2153]
+* resource/huaweicloud_cse_microservice_engine: Add entrypoint attributes [GH-2167]
+* resource/huaweicloud_nat_snat_rule: Add `description` field and make `floating_ip_id` updatable [GH-2171]
+* resource/huaweicloud_nat_dnat_rule: Add `description` field [GH-2172]
+* resource/huaweicloud_networking_vip_associate: Support import function [GH-2165]
+* Support import function for all of ELB resources [GH-2146]
+* Support import function for all of dedicated ELB resources [GH-2148]
+
 ## 1.36.0 (May 13, 2022)
 
 * **New Resurce:**
