@@ -43,6 +43,7 @@ func TestAccServerTemplate_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "target_server_name", name),
 					resource.TestCheckResourceAttr(resourceName, "volume_type", "SAS"),
 					resource.TestCheckResourceAttr(resourceName, "vpc_name", "autoCreate"),
 					resource.TestCheckResourceAttr(resourceName, "subnet_ids.0", "autoCreate"),
@@ -54,6 +55,7 @@ func TestAccServerTemplate_basic(t *testing.T) {
 				Config: testAccServerTemplate_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", name)),
+					resource.TestCheckResourceAttr(resourceName, "target_server_name", name),
 					resource.TestCheckResourceAttr(resourceName, "volume_type", "GPSSD"),
 					resource.TestCheckResourceAttrPair(resourceName, "availability_zone", azDataName, "names.1"),
 				),
@@ -88,6 +90,7 @@ func TestAccServerTemplate_existing(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "target_server_name", name),
 					resource.TestCheckResourceAttr(resourceName, "volume_type", "SAS"),
 					resource.TestCheckResourceAttr(resourceName, "vpc_name", name),
 					resource.TestCheckResourceAttr(resourceName, "security_group_ids.0", "autoCreate"),
@@ -129,11 +132,12 @@ func testAccServerTemplate_update(name string) string {
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_sms_server_template" "test" {
-  name              = "%s-update"
-  availability_zone = data.huaweicloud_availability_zones.test.names[1]
-  volume_type       = "GPSSD"
+  name               = "%s-update"
+  target_server_name = "%s"
+  availability_zone  = data.huaweicloud_availability_zones.test.names[1]
+  volume_type        = "GPSSD"
 }
-`, name)
+`, name, name)
 }
 
 func testAccServerTemplate_network(name string) string {

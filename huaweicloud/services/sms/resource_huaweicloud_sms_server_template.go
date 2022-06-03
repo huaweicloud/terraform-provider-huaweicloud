@@ -91,6 +91,11 @@ func ResourceServerTemplate() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"bandwidth_size": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validation.IntBetween(1, 2000),
+			},
 			"target_server_name": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -221,18 +226,33 @@ func buildServerTemplateParameters(d *schema.ResourceData, cfg *config.Config) (
 		return nil, err
 	}
 
+	name := d.Get("name").(string)
+	var targetName string
+	if v, ok := d.GetOk("target_server_name"); ok {
+		targetName = v.(string)
+	} else {
+		targetName = name
+	}
+
 	createOpts := templates.TemplateOpts{
 		IsTemplate:       utils.Bool(true),
 		Region:           region,
 		ProjectID:        projectID,
-		Name:             d.Get("name").(string),
+		Name:             name,
+		TargetServerName: targetName,
 		AvailabilityZone: d.Get("availability_zone").(string),
 		VolumeType:       d.Get("volume_type").(string),
 		Flavor:           d.Get("flavor").(string),
-		TargetServerName: d.Get("target_server_name").(string),
 		Vpc:              vpcOpts,
 		Nics:             nicsOpts,
 		SecurityGroups:   secGroupOpts,
+	}
+
+	if v, ok := d.GetOk("bandwidth_size"); ok {
+		createOpts.PublicIP = &templates.EipRequest{
+			Type:          "5_bgp",
+			BandwidthSize: v.(int),
+		}
 	}
 
 	return &createOpts, nil
@@ -297,6 +317,7 @@ func resourceServerTemplateRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("target_server_name", temp.TargetServerName),
 		d.Set("flavor", temp.Flavor),
 		d.Set("volume_type", temp.Volumetype),
+		d.Set("bandwidth_size", temp.PublicIP.BandwidthSize),
 		d.Set("vpc_id", temp.Vpc.Id),
 		d.Set("vpc_name", temp.Vpc.Name),
 		d.Set("subnet_ids", flattenSubnetIDs(temp.Nics)),
@@ -339,9 +360,8 @@ func resourceServerTemplateDelete(ctx context.Context, d *schema.ResourceData, m
 
 	err = templates.Delete(smsClient, d.Id()).ExtractErr()
 	if err != nil {
-		return diag.Errorf("error deleting SMS server template: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting SMS server template")
 	}
 
-	d.SetId("")
 	return nil
 }
