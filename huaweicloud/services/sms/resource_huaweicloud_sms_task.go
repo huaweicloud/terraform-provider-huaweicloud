@@ -284,13 +284,13 @@ func buildTargetServerPVRequest(raw []interface{}) []tasks.PVRequest {
 		idx := item["index"].(int)
 		pvs[i] = tasks.PVRequest{
 			Name:       item["name"].(string),
-			Size:       item["size"].(int64),
+			Size:       convertMBtoBytes(item["size"].(int64)),
 			DeviceType: item["device_type"].(string),
 			FileSystem: item["file_system"].(string),
 			MountPoint: item["mount_point"].(string),
 			Index:      &idx,
 			UUID:       item["uuid"].(string),
-			UsedSize:   item["used_size"].(int64),
+			UsedSize:   convertMBtoBytes(item["used_size"].(int64)),
 		}
 	}
 
@@ -309,9 +309,9 @@ func buildTargetServerDiskRequest(d *schema.ResourceData, cfg *config.Config, si
 		item := d.(map[string]interface{})
 		disks[i] = tasks.DiskRequest{
 			Name:            item["name"].(string),
-			Size:            item["size"].(int64),
 			DeviceType:      item["device_type"].(string),
-			UsedSize:        item["used_size"].(int64),
+			Size:            convertMBtoBytes(item["size"].(int64)),
+			UsedSize:        convertMBtoBytes(item["used_size"].(int64)),
 			DiskId:          item["disk_id"].(string),
 			PhysicalVolumes: buildTargetServerPVRequest(item["physical_volumes"].([]interface{})),
 		}
@@ -551,8 +551,8 @@ func flattenTargetServerDisks(disks []tasks.TargetDisk) []map[string]interface{}
 		results[i] = map[string]interface{}{
 			"device_type":      item.DeviceType,
 			"name":             item.Name,
-			"size":             item.Size,
-			"used_size":        item.UsedSize,
+			"size":             convertBytestoMB(item.Size),
+			"used_size":        convertBytestoMB(item.UsedSize),
 			"disk_id":          item.DiskId,
 			"physical_volumes": flattenTargetServerPVs(item.PhysicalVolumes),
 		}
@@ -566,8 +566,8 @@ func flattenTargetServerPVs(pvs []tasks.TargetPhysicalVolumes) []map[string]inte
 		results[i] = map[string]interface{}{
 			"device_type": item.DeviceType,
 			"name":        item.Name,
-			"size":        item.Size,
-			"used_size":   item.UsedSize,
+			"size":        convertBytestoMB(item.Size),
+			"used_size":   convertBytestoMB(item.UsedSize),
 			"file_system": item.FileSystem,
 			"mount_point": item.MountPoint,
 			"index":       item.Index,
@@ -575,4 +575,12 @@ func flattenTargetServerPVs(pvs []tasks.TargetPhysicalVolumes) []map[string]inte
 		}
 	}
 	return results
+}
+
+func convertBytestoMB(bytes int64) int64 {
+	return bytes / 1024 / 1024
+}
+
+func convertMBtoBytes(mb int64) int64 {
+	return mb * 1024 * 1024
 }

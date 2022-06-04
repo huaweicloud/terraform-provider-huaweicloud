@@ -160,7 +160,7 @@ func flattenSourceServer(server sources.SourceServer) map[string]interface{} {
 		disks[i] = map[string]interface{}{
 			"device_type": d.DeviceUse,
 			"name":        d.Name,
-			"size":        convertBytestoGB(d.Size),
+			"size":        convertBytestoMB(d.Size),
 		}
 	}
 
@@ -178,12 +178,4 @@ func flattenSourceServer(server sources.SourceServer) map[string]interface{} {
 		"disks":           disks,
 		"registered_time": utils.FormatTimeStampUTC(server.AddDate / 1000),
 	}
-}
-
-func convertBytestoMB(bytes int64) int64 {
-	return bytes / 1024 / 1024
-}
-
-func convertBytestoGB(bytes int64) int64 {
-	return bytes / 1024 / 1024 / 1024
 }
