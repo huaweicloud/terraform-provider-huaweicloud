@@ -752,6 +752,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_smn_subscription": smn.ResourceSubscription(),
 
 			"huaweicloud_sms_server_template": sms.ResourceServerTemplate(),
+			"huaweicloud_sms_task":            sms.ResourceMigrateTask(),
 
 			"huaweicloud_swr_organization":             swr.ResourceSWROrganization(),
 			"huaweicloud_swr_organization_permissions": swr.ResourceSWROrganizationPermissions(),

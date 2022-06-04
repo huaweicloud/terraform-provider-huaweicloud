@@ -66,6 +66,6 @@ The `disks` blocks support:
 
 * `name` - The disk name, for example, /dev/vda.
 
-* `size` - The disk size in GB.
+* `size` - The disk size in MB.
 
 * `device_type` - The disk type. The value can be **BOOT**, **OS** and **NORMAL**.
