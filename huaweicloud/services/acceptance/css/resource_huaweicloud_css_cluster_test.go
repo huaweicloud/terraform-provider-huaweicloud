@@ -4,30 +4,44 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/css/v1/cluster"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
+
+func getCssClusterFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := conf.CssV1Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating CSS v1 client: %s", err)
+	}
+
+	return cluster.Get(client, state.Primary.ID)
+}
 
 func TestAccCssCluster_basic(t *testing.T) {
 	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_css_cluster.test"
 
+	var obj cluster.ClusterDetailResponse
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getCssClusterFunc,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCssClusterDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCssCluster_basic(rName, 1, 7, "bar"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCssClusterExists(resourceName),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "expect_node_num", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.instance_number", "1"),
 					resource.TestCheckResourceAttr(resourceName, "engine_type", "elasticsearch"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "7"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
@@ -37,8 +51,8 @@ func TestAccCssCluster_basic(t *testing.T) {
 			{
 				Config: testAccCssCluster_basic(rName, 2, 8, "bar_update"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCssClusterExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "expect_node_num", "2"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.instance_number", "2"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "8"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
@@ -52,26 +66,40 @@ func TestAccCssCluster_security(t *testing.T) {
 	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_css_cluster.test"
 
+	var obj cluster.ClusterDetailResponse
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getCssClusterFunc,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCssClusterDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCssCluster_security(rName, 1, "bar"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCssClusterExists(resourceName),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "expect_node_num", "1"),
 					resource.TestCheckResourceAttr(resourceName, "engine_type", "elasticsearch"),
 					resource.TestCheckResourceAttr(resourceName, "security_mode", "true"),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.instance_number", "1"),
+					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.instance_number", "3"),
+					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.instance_number", "1"),
+					resource.TestCheckResourceAttr(resourceName, "cold_node_config.0.instance_number", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpcep_endpoint.0.endpoint_with_dns_name", "true"),
+					resource.TestCheckResourceAttrSet(resourceName, "vpcep_endpoint_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "vpcep_ip"),
 				),
 			},
 		},
 	})
 }
 
-func testAccVpc(rName string) string {
+func testAccCssBase(rName string) string {
+	bucketName := acceptance.RandomAccResourceNameWithDash()
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
@@ -91,7 +119,13 @@ resource "huaweicloud_networking_secgroup" "test" {
 }
 
 data "huaweicloud_availability_zones" "test" {}
-`, rName, rName, rName)
+
+resource "huaweicloud_obs_bucket" "cssObs" {
+  bucket        = "%s"
+  acl           = "private"
+  force_destroy = true
+}
+`, rName, rName, rName, bucketName)
 }
 
 func testAccCssCluster_basic(rName string, nodeNum int, keepDays int, tag string) string {
@@ -100,29 +134,29 @@ func testAccCssCluster_basic(rName string, nodeNum int, keepDays int, tag string
 
 resource "huaweicloud_css_cluster" "test" {
   name            = "%s"
-  engine_version  = "7.9.3"
-  expect_node_num = %d
+  engine_version  = "7.10.2"
 
-  node_config {
-    flavor            = "ess.spec-4u16g"
-    availability_zone = data.huaweicloud_availability_zones.test.names[0]
-
-    network_info {
-      security_group_id = huaweicloud_networking_secgroup.test.id
-      subnet_id         = huaweicloud_vpc_subnet.test.id
-      vpc_id            = huaweicloud_vpc.test.id
-    }
-
+  ess_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = %d
     volume {
       volume_type = "HIGH"
       size        = 40
     }
   }
 
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+
   backup_strategy {
     keep_days  = %d
     start_time = "00:00 GMT+08:00"
     prefix     = "snapshot"
+    bucket      = huaweicloud_obs_bucket.cssObs.bucket
+    agency      = "css_obs_agency"
+    backup_path = "css_repository/acctest"
   }
 
   tags = {
@@ -130,8 +164,7 @@ resource "huaweicloud_css_cluster" "test" {
     key = "value"
   }
 }
-
-`, testAccVpc(rName), rName, nodeNum, keepDays, tag)
+`, testAccCssBase(rName), rName, nodeNum, keepDays, tag)
 }
 
 func testAccCssCluster_security(rName string, nodeNum int, tag string) string {
@@ -139,26 +172,59 @@ func testAccCssCluster_security(rName string, nodeNum int, tag string) string {
 %s
 
 resource "huaweicloud_css_cluster" "test" {
-  name            = "%s"
-  engine_version  = "7.9.3"
-  expect_node_num = %d
-  security_mode   = true
-  password        = "Test@passw0rd"
+  name           = "%s"
+  engine_version = "7.10.2"
+  security_mode  = true
+  password       = "Test@passw0rd"
 
-  node_config {
-    flavor            = "ess.spec-4u16g"
-    availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
 
-    network_info {
-      security_group_id = huaweicloud_networking_secgroup.test.id
-      subnet_id         = huaweicloud_vpc_subnet.test.id
-      vpc_id            = huaweicloud_vpc.test.id
-    }
 
+  period_unit = "month"
+  period      = %d
+  auto_renew  = "true"
+
+  ess_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 1
     volume {
       volume_type = "HIGH"
       size        = 40
-    }  
+    }
+  }
+
+  master_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 3
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  client_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 1
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  cold_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 1
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  vpcep_endpoint {
+    endpoint_with_dns_name = true
   }
 
   tags = {
@@ -166,51 +232,5 @@ resource "huaweicloud_css_cluster" "test" {
     key = "value"
   }
 }
-
-`, testAccVpc(rName), rName, nodeNum, tag)
-}
-
-func testAccCheckCssClusterDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	client, err := config.CssV1Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("error creating CSS client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_css_cluster" {
-			continue
-		}
-
-		_, err := cluster.Get(client, rs.Primary.ID)
-		if err == nil {
-			return fmtp.Errorf("css cluster still exists, cluster_id:%s", rs.Primary.ID)
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckCssClusterExists(resourceName string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		client, err := config.CssV1Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("error creating CSS client: %s", err)
-		}
-
-		rs, ok := s.RootModule().Resources[resourceName]
-		if !ok {
-			return fmtp.Errorf("Error checking huaweicloud_css_cluster exist, err=not found this resource")
-		}
-
-		_, errQueryDetail := cluster.Get(client, rs.Primary.ID)
-		if errQueryDetail != nil {
-			if _, ok := errQueryDetail.(golangsdk.ErrDefault404); ok {
-				return fmtp.Errorf("huaweicloud_css_cluster is not exist")
-			}
-			return fmtp.Errorf("checking huaweicloud_css_cluster exist,err=send request failed:%s", errQueryDetail)
-		}
-		return nil
-	}
+`, testAccCssBase(rName), rName, nodeNum, tag)
 }
