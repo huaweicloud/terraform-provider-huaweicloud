@@ -72,7 +72,7 @@ resource "huaweicloud_lb_loadbalancer" "elb_1" {
 }
 
 # associate eip with loadbalancer
-resource "huaweicloud_networking_eip_associate" "associate_1" {
+resource "huaweicloud_vpc_eip_associate" "associate_1" {
   public_ip = huaweicloud_vpc_eip.eip_1.address
   port_id   = huaweicloud_lb_loadbalancer.elb_1.vip_port_id
 }
