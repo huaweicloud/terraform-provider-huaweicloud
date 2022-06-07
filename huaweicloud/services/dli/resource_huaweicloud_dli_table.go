@@ -87,41 +87,49 @@ func ResourceDliTable() *schema.Resource {
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{"parquet", "orc", "csv", "json", "carbon", "avro"},
 					true),
+				Computed: true,
 			},
 			"bucket_location": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"with_column_header": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"delimiter": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"quote_char": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"escape_char": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"date_format": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"timestamp_format": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 		},
 
@@ -264,7 +272,7 @@ func setStoragePropertiesToState(d *schema.ResourceData, storageProperties []map
 		case "timestampformat":
 			mErr = multierror.Append(d.Set("timestamp_format", properties["value"]))
 		case "header":
-			mErr = multierror.Append(d.Set("with_column_header", properties["value"]))
+			mErr = multierror.Append(d.Set("with_column_header", properties["value"].(string) == "true"))
 		}
 	}
 	if setSdErr := mErr.ErrorOrNil(); setSdErr != nil {

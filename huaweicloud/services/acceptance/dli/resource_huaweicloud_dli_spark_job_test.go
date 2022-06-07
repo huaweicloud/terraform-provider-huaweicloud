@@ -88,6 +88,11 @@ resource "huaweicloud_dli_spark_job" "test" {
   queue_name = huaweicloud_dli_queue.test.name
   name       = "%s"
   app_name   = "${huaweicloud_dli_package.test.group_name}/${huaweicloud_dli_package.test.object_name}"
+  
+ depends_on = [
+    huaweicloud_obs_bucket.test,
+    huaweicloud_obs_bucket_object.test,
+  ]
 }
 `, name, testAccDliPackage_basic(dashName), name)
 }

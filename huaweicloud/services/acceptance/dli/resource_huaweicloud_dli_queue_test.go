@@ -52,26 +52,6 @@ func TestAccDliQueue_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
 				),
 			},
-			//test scale_out
-			{
-				Config: testAccDliQueue_basic(rName, 2*dli.CU_16),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QUEUE_TYPE_SQL),
-					resource.TestCheckResourceAttr(resourceName, "cu_count", fmt.Sprintf("%d", 2*dli.CU_16)),
-				),
-			},
-			//test scale_in
-			{
-				Config: testAccDliQueue_basic(rName, dli.CU_16),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QUEUE_TYPE_SQL),
-					resource.TestCheckResourceAttr(resourceName, "cu_count", fmt.Sprintf("%d", dli.CU_16)),
-				),
-			},
 			{
 				ResourceName:      resourceName,
 				ImportState:       true,
@@ -114,26 +94,27 @@ func TestAccDliQueue_cidr(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDliQueue_cidr(rName, "172.16.0.0/14"),
+				Config: testAccDliQueue_cidr(rName, "172.16.0.0/21"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QUEUE_TYPE_SQL),
 					resource.TestCheckResourceAttr(resourceName, "cu_count", "16"),
 					resource.TestCheckResourceAttr(resourceName, "resource_mode", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpc_cidr", "172.16.0.0/14"),
+					resource.TestCheckResourceAttr(resourceName, "vpc_cidr", "172.16.0.0/21"),
 					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
 				),
 			},
 			{
-				Config: testAccDliQueue_cidr(rName, "172.16.0.0/15"),
+
+				Config: testAccDliQueue_cidr(rName, "172.16.0.0/18"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QUEUE_TYPE_SQL),
 					resource.TestCheckResourceAttr(resourceName, "cu_count", "16"),
 					resource.TestCheckResourceAttr(resourceName, "resource_mode", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpc_cidr", "172.16.0.0/15"),
+					resource.TestCheckResourceAttr(resourceName, "vpc_cidr", "172.16.0.0/18"),
 				),
 			},
 			{
