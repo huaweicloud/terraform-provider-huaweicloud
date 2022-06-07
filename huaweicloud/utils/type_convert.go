@@ -45,3 +45,11 @@ func StringToInt(i *string) *int {
 	}
 	return &r
 }
+
+// StringValue returns the string value
+func StringValue(v *string) string {
+	if v == nil {
+		return ""
+	}
+	return *v
+}
