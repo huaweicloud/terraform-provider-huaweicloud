@@ -18,7 +18,6 @@ func TestAccVpcPeeringConnectionDataSource_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVpcPeeringConnectionDataSource_basic(randName),
@@ -41,7 +40,6 @@ func TestAccVpcPeeringConnectionDataSource_byVpcId(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVpcPeeringConnectionDataSource_byVpcId(randName),
@@ -64,7 +62,6 @@ func TestAccVpcPeeringConnectionDataSource_byPeerVpcId(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVpcPeeringConnectionDataSource_byPeerVpcId(randName),
@@ -87,7 +84,6 @@ func TestAccVpcPeeringConnectionDataSource_byVpcIds(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVpcPeeringConnectionDataSource_byVpcIds(randName),
