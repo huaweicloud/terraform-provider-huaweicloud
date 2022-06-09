@@ -1,7 +1,6 @@
 package mrs
 
 import (
-	"context"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -254,24 +253,6 @@ func ResourceMRSClusterV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-		},
-
-		CustomizeDiff: func(c context.Context, rd *schema.ResourceDiff, i interface{}) error {
-			nodeGroupNameArray := [6]string{"master_nodes", "analysis_core_nodes", "analysis_task_nodes",
-				"streaming_core_nodes", "streaming_task_nodes", "custom_nodes"}
-
-			for _, nodeGroupName := range nodeGroupNameArray {
-				checkKey := fmt.Sprintf("%s.0.node_number", nodeGroupName)
-				changeKey := fmt.Sprintf("%s.0.host_ips", nodeGroupName)
-				if rd.HasChange(checkKey) {
-					logp.Printf("[DEBUG] nodeGroup=%s change,triger host_ips SetNewComputed", nodeGroupName)
-					err := rd.SetNewComputed(changeKey)
-					if err != nil {
-						return err
-					}
-				}
-			}
-			return nil
 		},
 	}
 }
