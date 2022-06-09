@@ -170,7 +170,7 @@ func resourceSFSFileSystemV2Create(d *schema.ResourceData, meta interface{}) err
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"creating"},
 		Target:     []string{"available"},
-		Refresh:    waitForSFSFileActive(sfsClient, create.ID),
+		Refresh:    waitForSFSFileRefresh(sfsClient, create.ID),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
@@ -409,10 +409,14 @@ func resourceSFSFileSystemV2Delete(d *schema.ResourceData, meta interface{}) err
 		return fmtp.Errorf("Error creating Huaweicloud Shared File Client: %s", err)
 	}
 
+	err = shares.Delete(sfsClient, d.Id()).ExtractErr()
+	if err != nil {
+		return fmtp.Errorf("Error deleting Huaweicloud Share File: %s", err)
+	}
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"available", "deleting"},
 		Target:     []string{"deleted"},
-		Refresh:    waitForSFSFileDelete(sfsClient, d.Id()),
+		Refresh:    waitForSFSFileRefresh(sfsClient, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
@@ -420,56 +424,24 @@ func resourceSFSFileSystemV2Delete(d *schema.ResourceData, meta interface{}) err
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf("Error deleting Huaweicloud Share File: %s", err)
+		return fmtp.Errorf("Timeout waiting for share file deletion to complete %s", err)
 	}
 
 	d.SetId("")
 	return nil
 }
 
-func waitForSFSFileActive(sfsClient *golangsdk.ServiceClient, shareID string) resource.StateRefreshFunc {
+func waitForSFSFileRefresh(sfsClient *golangsdk.ServiceClient, shareID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		n, err := shares.Get(sfsClient, shareID).Extract()
 		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return n, "deleted", nil
+			}
 			return nil, "", err
 		}
 
-		if n.Status == "error" {
-			return n, n.Status, nil
-		}
-
 		return n, n.Status, nil
-	}
-}
-
-func waitForSFSFileDelete(sfsClient *golangsdk.ServiceClient, shareId string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-
-		r, err := shares.Get(sfsClient, shareId).Extract()
-
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[INFO] Successfully deleted Huaweicloud shared File %s", shareId)
-				return r, "deleted", nil
-			}
-			return r, "available", err
-		}
-		err = shares.Delete(sfsClient, shareId).ExtractErr()
-
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[INFO] Successfully deleted Huaweicloud shared File %s", shareId)
-				return r, "deleted", nil
-			}
-			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
-				if errCode.Actual == 409 {
-					return r, "available", nil
-				}
-			}
-			return r, "available", err
-		}
-
-		return r, r.Status, nil
 	}
 }
 
