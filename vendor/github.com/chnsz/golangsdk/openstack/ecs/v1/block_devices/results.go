@@ -64,3 +64,15 @@ func (r GetResult) Extract() (*VolumeAttachment, error) {
 func (r GetResult) ExtractInto(v interface{}) error {
 	return r.Result.ExtractIntoStructPtr(v, "volumeAttachment")
 }
+
+type ErrorResponse struct {
+	// Response error.
+	Error Error `json:"error"`
+}
+
+type Error struct {
+	// Error code.
+	Code string `json:"code"`
+	// Error message.
+	Message string `json:"message"`
+}
