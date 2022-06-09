@@ -157,7 +157,12 @@ func isNamespaceParamMatch(d *schema.ResourceData, ns namespaces.Namespace) bool
 	return true
 }
 
-func flattenVpcNetwork(network networks.Network) []map[string]interface{} {
+func flattenVpcNetwork(networkList []networks.Network) []map[string]interface{} {
+	if len(networkList) < 1 {
+		return nil
+	}
+
+	network := networkList[0]
 	return []map[string]interface{}{
 		{
 			"name":              network.Metadata.Name,
@@ -196,7 +201,7 @@ func filterDataCciNamespaces(d *schema.ResourceData, client *golangsdk.ServiceCl
 				"rbac_enabled":              ns.Metadata.Labels.RbacEnable,
 				"created_at":                ns.Metadata.CreationTimestamp,
 				"status":                    ns.Status.Phase,
-				"network":                   flattenVpcNetwork(netList[0]),
+				"network":                   flattenVpcNetwork(netList),
 			}
 
 			result = append(result, nsParams)

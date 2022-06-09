@@ -46,6 +46,26 @@ func TestAccDataCciNamespaces_basic(t *testing.T) {
 	})
 }
 
+func TestAccDataCciNamespaces_noNetwork(t *testing.T) {
+	dataSourceName := "data.huaweicloud_cci_namespaces.test"
+	rName := acceptance.RandomAccResourceNameWithDash()
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataCciNamespaces_noNetwork(rName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(dataSourceName, "namespaces.#", "1"),
+					resource.TestCheckResourceAttr(dataSourceName, "namespaces.0.name", rName),
+					resource.TestCheckResourceAttr(dataSourceName, "namespaces.0.type", "general-computing"),
+				),
+			},
+		},
+	})
+}
+
 func testAccDataCciNamespaces_base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
@@ -92,4 +112,17 @@ data "huaweicloud_cci_namespaces" "test" {
   type = "general-computing"
 }
 `, testAccDataCciNamespaces_base(rName), rName)
+}
+
+func testAccDataCciNamespaces_noNetwork(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_cci_namespace" "test" {
+  name = "%[1]s"
+  type = "general-computing"
+}
+
+data "huaweicloud_cci_namespaces" "test" {
+  name = huaweicloud_cci_namespace.test.name
+}
+`, rName)
 }
