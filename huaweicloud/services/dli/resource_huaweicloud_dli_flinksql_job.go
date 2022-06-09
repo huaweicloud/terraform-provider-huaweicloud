@@ -592,6 +592,9 @@ func updateFlinkSqlJobWithStop(ctx context.Context, client *golangsdk.ServiceCli
 }
 
 func setRuntimeConfigToState(d *schema.ResourceData, configStr string) error {
+	if len(configStr) == 0 {
+		return nil
+	}
 	var rst []tags.ResourceTag
 	err := json.Unmarshal([]byte(configStr), &rst)
 	if err != nil {
