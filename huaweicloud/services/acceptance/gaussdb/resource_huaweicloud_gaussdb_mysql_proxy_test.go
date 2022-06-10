@@ -70,6 +70,10 @@ resource "huaweicloud_vpc_subnet" "test" {
   vpc_id     = huaweicloud_vpc.test.id
   gateway_ip = "192.168.0.1"
   cidr       = "192.168.0.0/24"
+
+  timeouts {
+    delete = "20m"
+  }
 }
 
 resource "huaweicloud_gaussdb_mysql_instance" "test" {
@@ -86,8 +90,8 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
 
 resource "huaweicloud_gaussdb_mysql_proxy" "test" {
   instance_id = huaweicloud_gaussdb_mysql_instance.test.id
-  flavor = "gaussdb.proxy.xlarge.arm.2"
-  node_num = 3
+  flavor      = "gaussdb.proxy.xlarge.arm.2"
+  node_num    = 3
 }
 `, rName, rName, rName)
 }
