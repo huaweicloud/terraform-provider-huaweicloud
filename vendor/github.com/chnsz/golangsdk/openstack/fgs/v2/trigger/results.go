@@ -58,3 +58,10 @@ func ExtractList(r pagination.Page) ([]Trigger, error) {
 	err := (r.(TriggerPage)).ExtractInto(&s)
 	return s, err
 }
+
+type Error struct {
+	// Error code, e.g. "FSS.0500"
+	Code string `json:"error_code"`
+	// Error message, e.g. "Error getting associated function"
+	Message string `json:"error_msg"`
+}

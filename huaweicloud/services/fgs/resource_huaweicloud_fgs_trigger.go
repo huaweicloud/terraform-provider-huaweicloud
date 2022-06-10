@@ -1,6 +1,7 @@
 package fgs
 
 import (
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -16,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -733,7 +735,7 @@ func resourceFunctionGraphTriggerRead(d *schema.ResourceData, meta interface{}) 
 	urn := d.Get("function_urn").(string)
 	pages, err := trigger.List(client, urn).AllPages()
 	if err != nil {
-		return fmtp.Errorf("Error retrieving FunctionGraph trigger: %s", err)
+		return common.CheckDeleted(d, parseRequestError(err), "error retrieving FunctionGraph trigger")
 	}
 	triggerList, err := trigger.ExtractList(pages)
 	if len(triggerList) > 0 {
@@ -751,7 +753,12 @@ func resourceFunctionGraphTriggerRead(d *schema.ResourceData, meta interface{}) 
 			return nil
 		}
 	}
-	return fmtp.Errorf("Unable to find the FunctionGraph trigger (%s) form function (%s): %s", d.Id(), urn, err)
+	return common.CheckDeleted(d, golangsdk.ErrDefault404{
+		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+			Body: []byte(fmt.Sprintf("unable to find the FunctionGraph trigger (%s) from function (%s), the trigger "+
+				"has been deleted", d.Id(), urn)),
+		},
+	}, "error retrieving FunctionGraph trigger")
 }
 
 func resourceFunctionGraphTriggerUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -829,4 +836,19 @@ func resourceFunctionGraphTriggerDelete(d *schema.ResourceData, meta interface{}
 	}
 	d.SetId("")
 	return nil
+}
+
+func parseRequestError(respErr error) error {
+	var apiErr trigger.Error
+	if errCode, ok := respErr.(golangsdk.ErrDefault500); ok && errCode.Body != nil {
+		pErr := json.Unmarshal(errCode.Body, &apiErr)
+		if pErr == nil && apiErr.Code == "FSS.0500" && apiErr.Message == "Error getting associated function" {
+			return golangsdk.ErrDefault404{
+				ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+					Body: []byte("the related function and this trigger has been deleted"),
+				},
+			}
+		}
+	}
+	return respErr
 }
