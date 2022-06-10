@@ -105,8 +105,8 @@ func init() {
 // ServiceFunc the HuaweiCloud resource query functions.
 type ServiceFunc func(*config.Config, *terraform.ResourceState) (interface{}, error)
 
-// resourceCheck resource check object, only used in the package.
-type resourceCheck struct {
+// ResourceCheck resource check object
+type ResourceCheck struct {
 	resourceName    string
 	resourceObject  interface{}
 	getResourceFunc ServiceFunc
@@ -121,30 +121,30 @@ const (
 )
 
 /*
-InitDataSourceCheck build a 'resourceCheck' object. Only used to check datasource attributes.
+InitDataSourceCheck build a 'ResourceCheck' object. Only used to check datasource attributes.
   Parameters:
     resourceName:    The resource name is used to check in the terraform.State.e.g. : huaweicloud_waf_domain.domain_1.
   Return:
-    *resourceCheck: resourceCheck object
+    *ResourceCheck: ResourceCheck object
 */
-func InitDataSourceCheck(sourceName string) *resourceCheck {
-	return &resourceCheck{
+func InitDataSourceCheck(sourceName string) *ResourceCheck {
+	return &ResourceCheck{
 		resourceName: sourceName,
 		resourceType: dataSourceTypeCode,
 	}
 }
 
 /*
-InitResourceCheck build a 'resourceCheck' object. The common test methods are provided in 'resourceCheck'.
+InitResourceCheck build a 'ResourceCheck' object. The common test methods are provided in 'ResourceCheck'.
   Parameters:
     resourceName:    The resource name is used to check in the terraform.State.e.g. : huaweicloud_waf_domain.domain_1.
     resourceObject:  Resource object, used to check whether the resource exists in HuaweiCloud.
     getResourceFunc: The function used to get the resource object.
   Return:
-    *resourceCheck: resourceCheck object
+    *ResourceCheck: ResourceCheck object
 */
-func InitResourceCheck(resourceName string, resourceObject interface{}, getResourceFunc ServiceFunc) *resourceCheck {
-	return &resourceCheck{
+func InitResourceCheck(resourceName string, resourceObject interface{}, getResourceFunc ServiceFunc) *ResourceCheck {
+	return &ResourceCheck{
 		resourceName:    resourceName,
 		resourceObject:  resourceObject,
 		getResourceFunc: getResourceFunc,
@@ -217,9 +217,9 @@ func TestCheckResourceAttrWithVariable(resourceName, key, varStr string) resourc
 }
 
 // CheckResourceDestroy check whether resources destroyed in HuaweiCloud.
-func (rc *resourceCheck) CheckResourceDestroy() resource.TestCheckFunc {
+func (rc *ResourceCheck) CheckResourceDestroy() resource.TestCheckFunc {
 	if strings.Compare(rc.resourceType, dataSourceTypeCode) == 0 {
-		logp.Printf("Error, you built a resourceCheck with 'InitDataSourceCheck', " +
+		logp.Printf("Error, you built a ResourceCheck with 'InitDataSourceCheck', " +
 			"it cannot run CheckResourceDestroy().")
 		return nil
 	}
@@ -256,7 +256,7 @@ func (rc *resourceCheck) CheckResourceDestroy() resource.TestCheckFunc {
 	}
 }
 
-func (rc *resourceCheck) checkResourceExists(s *terraform.State) error {
+func (rc *ResourceCheck) checkResourceExists(s *terraform.State) error {
 	rs, ok := s.RootModule().Resources[rc.resourceName]
 	if !ok {
 		return fmtp.Errorf("Can not found the resource or data source in state: %s", rc.resourceName)
@@ -293,7 +293,7 @@ func (rc *resourceCheck) checkResourceExists(s *terraform.State) error {
 }
 
 // CheckResourceExists check whether resources exist in HuaweiCloud.
-func (rc *resourceCheck) CheckResourceExists() resource.TestCheckFunc {
+func (rc *ResourceCheck) CheckResourceExists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		return rc.checkResourceExists(s)
 	}
@@ -304,7 +304,7 @@ CheckMultiResourcesExists checks whether multiple resources created by count in 
   Parameters:
     expCount: the expected number of resources that will be created.
 */
-func (rc *resourceCheck) CheckMultiResourcesExists(expCount int) resource.TestCheckFunc {
+func (rc *ResourceCheck) CheckMultiResourcesExists(expCount int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		var err error
 		for i := 0; i < expCount; i++ {
