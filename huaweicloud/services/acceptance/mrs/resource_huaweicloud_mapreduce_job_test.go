@@ -23,9 +23,9 @@ func TestAccMrsMapReduceJob_basic(t *testing.T) {
 		acctest.RandIntRange(0, 99))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckMRSV2JobDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckMRSV2JobDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMrsMapReduceJobConfig_basic(rName, pwd),

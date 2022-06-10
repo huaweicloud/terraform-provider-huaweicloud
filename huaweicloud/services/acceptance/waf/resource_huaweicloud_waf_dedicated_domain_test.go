@@ -22,8 +22,8 @@ func TestAccWafDedicateDomainV1_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckWafDedicatedDomainV1Destroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckWafDedicatedDomainV1Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWafDedicatedDomainV1_basic(randName),

@@ -13,8 +13,8 @@ func TestAccFunctionGraphDependencies_basic(t *testing.T) {
 	dataSourceName := "data.huaweicloud_fgs_dependencies.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { acceptance.TestAccPreCheck(t) },
-		Providers: acceptance.TestAccProviders,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFunctionGraphDependencies_basic(),
@@ -30,8 +30,8 @@ func TestAccFunctionGraphDependencies_name(t *testing.T) {
 	dataSourceName := "data.huaweicloud_fgs_dependencies.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { acceptance.TestAccPreCheck(t) },
-		Providers: acceptance.TestAccProviders,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFunctionGraphDependencies_name(),
@@ -49,8 +49,8 @@ func TestAccFunctionGraphDependencies_runtime(t *testing.T) {
 	dataSourceName := "data.huaweicloud_fgs_dependencies.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { acceptance.TestAccPreCheck(t) },
-		Providers: acceptance.TestAccProviders,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFunctionGraphDependencies_runtime(),

@@ -20,8 +20,8 @@ func TestAccDataSourceELbCertificateV3_basic(t *testing.T) {
 	dataSourceName := "data.huaweicloud_elb_certificate.cert_1"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { acceptance.TestAccPreCheck(t) },
-		Providers: acceptance.TestAccProviders,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccELbCertDataSourceV3_conf(name),

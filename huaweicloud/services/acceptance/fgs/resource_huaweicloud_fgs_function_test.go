@@ -33,9 +33,9 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: dc.CheckResourceDestroy(),
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFgsV2Function_basic(randName),
@@ -85,8 +85,8 @@ func TestAccFgsV2Function_withEpsId(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: dc.CheckResourceDestroy(),
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFgsV2Function_withEpsId(randName),
@@ -122,9 +122,9 @@ func TestAccFgsV2Function_text(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: dc.CheckResourceDestroy(),
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFgsV2Function_text(randName),
@@ -158,9 +158,9 @@ func TestAccFgsV2Function_agency(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: dc.CheckResourceDestroy(),
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFgsV2Function_agency(randName),

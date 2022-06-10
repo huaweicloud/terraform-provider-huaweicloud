@@ -19,7 +19,7 @@ func TestAccDataSourceWafPoliciesV1_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
 		},
-		Providers: acceptance.TestAccProviders,
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWafPoliciesV1_conf(name),

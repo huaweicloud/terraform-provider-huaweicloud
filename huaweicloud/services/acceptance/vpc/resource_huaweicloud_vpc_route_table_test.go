@@ -33,9 +33,9 @@ func TestAccVpcRouteTable_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: rc.CheckResourceDestroy(),
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVpcRouteTable_basic(rName),
@@ -88,9 +88,9 @@ func TestAccVpcRouteTable_multiRoutes(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: rc.CheckResourceDestroy(),
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVpcRouteTable_multiRoutes(rName),

@@ -27,8 +27,8 @@ func TestAccApigThrottlingPolicyV2_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t) // The creation of APIG instance needs the enterprise project ID.
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckApigThrottlingPolicyDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckApigThrottlingPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigThrottlingPolicy_basic(rName),
@@ -83,8 +83,8 @@ func TestAccApigThrottlingPolicyV2_spec(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t) // The creation of APIG instance needs the enterprise project ID.
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckApigThrottlingPolicyDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckApigThrottlingPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigThrottlingPolicy_basic(rName),

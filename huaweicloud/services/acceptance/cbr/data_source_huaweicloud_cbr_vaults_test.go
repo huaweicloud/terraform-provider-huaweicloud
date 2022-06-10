@@ -20,8 +20,8 @@ func TestAccCbrVaultsV3_BasicServer(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: dc.CheckResourceDestroy(),
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCbrVaultsV3_serverBasic(randName),
@@ -55,8 +55,8 @@ func TestAccCbrVaultsV3_ReplicaServer(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: dc.CheckResourceDestroy(),
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCbrVaultsV3_serverReplication(randName),
@@ -85,8 +85,8 @@ func TestAccCbrVaultsV3_BasicVolume(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: dc.CheckResourceDestroy(),
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCbrVaultsV3_volumeBasic(randName),
@@ -118,8 +118,8 @@ func TestAccCbrVaultsV3_BasicTurbo(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: dc.CheckResourceDestroy(),
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCbrVaultsV3_turboBasic(randName),
@@ -151,8 +151,8 @@ func TestAccCbrVaultsV3_ReplicaTurbo(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: dc.CheckResourceDestroy(),
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCbrVaultsV3_turboReplication(randName),

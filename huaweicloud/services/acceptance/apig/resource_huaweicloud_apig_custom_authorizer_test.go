@@ -26,8 +26,8 @@ func TestAccApigCustomAuthorizerV2_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t) // The creation of APIG instance needs the enterprise project ID.
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckApigCustomAuthorizerDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckApigCustomAuthorizerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigCustomAuthorizer_front(rName),
@@ -74,8 +74,8 @@ func TestAccApigCustomAuthorizerV2_backend(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t) // The creation of APIG instance needs the enterprise project ID.
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckApigCustomAuthorizerDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckApigCustomAuthorizerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigCustomAuthorizer_backend(rName),

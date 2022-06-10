@@ -35,9 +35,9 @@ func TestAccFunctionGraphTrigger_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: rc.CheckResourceDestroy(),
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFunctionGraphTimingTrigger_basic(randName),
@@ -83,9 +83,9 @@ func TestAccFunctionGraphTrigger_cronTimer(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: rc.CheckResourceDestroy(),
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFunctionGraphTimingTrigger_cron(randName),
@@ -133,9 +133,9 @@ func TestAccFunctionGraphTrigger_obs(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: rc.CheckResourceDestroy(),
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFunctionGraphObsTrigger_basic(randName),
@@ -169,9 +169,9 @@ func TestAccFunctionGraphTrigger_dis(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: rc.CheckResourceDestroy(),
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFunctionGraphDisTrigger_basic(randName),
@@ -221,9 +221,9 @@ func TestAccFunctionGraphTrigger_smn(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: rc.CheckResourceDestroy(),
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFunctionGraphSmnTrigger_basic(randName),
@@ -255,9 +255,9 @@ func TestAccFunctionGraphTrigger_kafka(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: rc.CheckResourceDestroy(),
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFunctionGraphKafkaTrigger_basic(randName, adminPass),
