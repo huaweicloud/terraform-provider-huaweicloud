@@ -537,7 +537,7 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	if err := updateRdsInstanceFlavor(d, config, client, instanceID); err != nil {
+	if err := updateRdsInstanceFlavor(d, config, client, instanceID, true); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -726,7 +726,8 @@ func updateRdsInstanceName(d *schema.ResourceData, client *golangsdk.ServiceClie
 	return nil
 }
 
-func updateRdsInstanceFlavor(d *schema.ResourceData, config *config.Config, client *golangsdk.ServiceClient, instanceID string) error {
+func updateRdsInstanceFlavor(d *schema.ResourceData, config *config.Config, client *golangsdk.ServiceClient,
+	instanceID string, isSupportAutoPay bool) error {
 	if !d.HasChange("flavor") {
 		return nil
 	}
@@ -734,7 +735,7 @@ func updateRdsInstanceFlavor(d *schema.ResourceData, config *config.Config, clie
 	resizeFlavor := instances.SpecCode{
 		Speccode: d.Get("flavor").(string),
 	}
-	if d.Get("auto_pay").(string) != "false" {
+	if isSupportAutoPay && d.Get("auto_pay").(string) != "false" {
 		resizeFlavor.IsAutoPay = true
 	}
 	var resizeFlavorOpts instances.ResizeFlavorOpts
