@@ -53,11 +53,15 @@ resource "huaweicloud_vpc" "test" {
 }
 
 resource "huaweicloud_vpc_subnet" "test" {
-  name          = "%s"
-  cidr          = "192.168.0.0/16"
-  gateway_ip    = "192.168.0.1"
+  name       = "%s"
+  cidr       = "192.168.0.0/16"
+  gateway_ip = "192.168.0.1"
 
-  vpc_id        = huaweicloud_vpc.test.id
+  vpc_id = huaweicloud_vpc.test.id
+
+  timeouts {
+    delete = "20m"
+  }
 }
 `, rName, rName)
 }
@@ -66,19 +70,28 @@ func testAccOpenGaussInstancesDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
+resource "huaweicloud_networking_secgroup" "test" {
+  name        = "%s"
+  description = "terraform security group rule acceptance test"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "test" {
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  remote_ip_prefix  = "0.0.0.0/0"
 }
 
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {
-  name        = "%s"
-  password    = "Test@123"
-  flavor      = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
-  vpc_id      = huaweicloud_vpc.test.id
-  subnet_id   = huaweicloud_vpc_subnet.test.id
+  name      = "%s"
+  password  = "Test@123"
+  flavor    = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
+  vpc_id    = huaweicloud_vpc.test.id
+  subnet_id = huaweicloud_vpc_subnet.test.id
 
   availability_zone = "cn-north-4a,cn-north-4a,cn-north-4a"
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
 
   ha {
     mode             = "enterprise"
@@ -90,7 +103,7 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
     size = 40
   }
 
-  sharding_num = 1
+  sharding_num    = 1
   coordinator_num = 2
 }
 
@@ -100,5 +113,5 @@ data "huaweicloud_gaussdb_opengauss_instances" "test" {
     huaweicloud_gaussdb_opengauss_instance.test,
   ]
 }
-`, testAccVpcConfig_Base(rName), rName)
+`, testAccVpcConfig_Base(rName), rName, rName)
 }

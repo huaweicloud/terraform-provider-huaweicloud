@@ -40,7 +40,7 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 					testAccCheckOpenGaussInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", rName)),
 					resource.TestCheckResourceAttr(resourceName, "password", newPassword),
-					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "08:30-09:30"),
+					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "08:00-09:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "8"),
 				),
 			},
@@ -105,10 +105,19 @@ func testAccOpenGaussInstanceConfig_base(rName string) string {
 
 data "huaweicloud_availability_zones" "myaz" {}
 
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
+resource "huaweicloud_networking_secgroup" "test" {
+  name        = "%s"
+  description = "terraform security group rule acceptance test"
 }
-`, testAccVpcConfig_Base(rName))
+
+resource "huaweicloud_networking_secgroup_rule" "test" {
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  remote_ip_prefix  = "0.0.0.0/0"
+}
+`, testAccVpcConfig_Base(rName), rName)
 }
 
 func testAccOpenGaussInstanceConfig_basic(rName, password string) string {
@@ -123,7 +132,7 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   subnet_id   = huaweicloud_vpc_subnet.test.id
 
   availability_zone = "${data.huaweicloud_availability_zones.myaz.names[0]},${data.huaweicloud_availability_zones.myaz.names[0]},${data.huaweicloud_availability_zones.myaz.names[0]}"
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
 
   ha {
     mode             = "enterprise"
@@ -153,7 +162,7 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   subnet_id   = huaweicloud_vpc_subnet.test.id
 
   availability_zone = "${data.huaweicloud_availability_zones.myaz.names[0]},${data.huaweicloud_availability_zones.myaz.names[0]},${data.huaweicloud_availability_zones.myaz.names[0]}"
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
 
   ha {
     mode             = "enterprise"
@@ -165,7 +174,7 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
     size = 40
   }
   backup_strategy {
-    start_time = "08:30-09:30"
+    start_time = "08:00-09:00"
     keep_days  = 8
   }
 
