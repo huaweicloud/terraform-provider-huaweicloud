@@ -2,6 +2,7 @@ package ecs
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
@@ -134,7 +135,7 @@ func resourceComputeVolumeAttachRead(_ context.Context, d *schema.ResourceData, 
 
 	attachment, err := block_devices.Get(computeClient, instanceId, volumeId).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error fetching compute_volume_attach")
+		return common.CheckDeletedDiag(d, parseRequestError(err), "error fetching compute_volume_attach")
 	}
 
 	log.Printf("[DEBUG] Retrieved volume attachment: %#v", attachment)
@@ -198,6 +199,21 @@ func AttachmentJobRefreshFunc(c *golangsdk.ServiceClient, jobId string) resource
 
 		return resp, resp.Status, nil
 	}
+}
+
+func parseRequestError(respErr error) error {
+	var apiErr block_devices.ErrorResponse
+	if errCode, ok := respErr.(golangsdk.ErrDefault400); ok && errCode.Body != nil {
+		pErr := json.Unmarshal(errCode.Body, &apiErr)
+		if pErr == nil && apiErr.Error.Code == "Ecs.1000" && strings.Contains(apiErr.Error.Message, "itemNotFound") {
+			return golangsdk.ErrDefault404{
+				ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+					Body: []byte("the volume has been deleted"),
+				},
+			}
+		}
+	}
+	return respErr
 }
 
 func ParseComputeVolumeAttachmentId(id string) (string, string, error) {
