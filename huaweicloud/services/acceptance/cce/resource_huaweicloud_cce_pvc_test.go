@@ -42,8 +42,8 @@ func TestAccCcePersistentVolumeClaimsV1_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: rc.CheckResourceDestroy(),
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCcePersistentVolumeClaimsV1_basic(randName),
@@ -84,8 +84,8 @@ func TestAccCcePersistentVolumeClaimsV1_obs(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: rc.CheckResourceDestroy(),
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCcePersistentVolumeClaimsV1_obs(randName),
@@ -117,8 +117,8 @@ func TestAccCcePersistentVolumeClaimsV1_sfs(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: rc.CheckResourceDestroy(),
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCcePersistentVolumeClaimsV1_sfs(randName),

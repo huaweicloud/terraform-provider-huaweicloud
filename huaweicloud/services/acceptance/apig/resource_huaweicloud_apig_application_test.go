@@ -26,8 +26,8 @@ func TestAccApigApplicationV2_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t) // The creation of APIG instance needs the enterprise project ID.
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckApigApplicationDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckApigApplicationDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigApplication_basic(rName, acctest.RandString(64)),

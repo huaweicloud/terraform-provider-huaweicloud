@@ -24,8 +24,8 @@ func TestAccWafPolicyV1_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckWafPolicyV1Destroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckWafPolicyV1Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWafPolicyV1_basic(randName),

@@ -53,9 +53,9 @@ func TestAccCssCluster_security(t *testing.T) {
 	resourceName := "huaweicloud_css_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckCssClusterDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckCssClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCssCluster_security(rName, 1, "bar"),

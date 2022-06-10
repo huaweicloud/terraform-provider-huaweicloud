@@ -26,8 +26,8 @@ func TestAccApigEnvironmentV2_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t) // The creation of APIG instance needs the enterprise project ID.
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckApigEnvironmentDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckApigEnvironmentDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigEnvironment_basic(rName),

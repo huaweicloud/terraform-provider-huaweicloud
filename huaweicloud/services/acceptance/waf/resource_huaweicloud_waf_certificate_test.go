@@ -36,8 +36,8 @@ func TestAccWafCertificateV1_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: rc.CheckResourceDestroy(),
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWafCertificateV1_conf(name),

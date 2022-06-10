@@ -27,8 +27,8 @@ func TestAccWafRuleWebTamperProtection_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckWafWafRuleWebTamperProtectionDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckWafWafRuleWebTamperProtectionDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWafRuleWebTamperProtection_basic(randName),

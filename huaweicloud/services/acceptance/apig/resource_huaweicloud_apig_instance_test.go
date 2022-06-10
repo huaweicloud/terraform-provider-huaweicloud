@@ -23,8 +23,8 @@ func TestAccApigInstanceV2_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckApigInstanceDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckApigInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigInstance_basic(rName),
@@ -71,8 +71,8 @@ func TestAccApigInstanceV2_egress(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckApigInstanceDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckApigInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigInstance_basic(rName),
@@ -135,8 +135,8 @@ func TestAccApigInstanceV2_ingress(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckApigInstanceDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckApigInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigInstance_basic(rName),

@@ -30,8 +30,8 @@ func TestAccWafRuleDataMasking_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckWafRuleDataMaskingDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckWafRuleDataMaskingDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWafRuleDataMasking_basic(policyName),

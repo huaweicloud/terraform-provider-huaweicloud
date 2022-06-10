@@ -22,8 +22,8 @@ func TestAccWafReferenceTableV1_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckWafReferenceTableV1Destroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckWafReferenceTableV1Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWafReferenceTableV1_conf(name),

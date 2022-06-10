@@ -25,8 +25,8 @@ func TestAccApigResponseV2_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t) // The creation of APIG instance needs the enterprise project ID.
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckApigResponseDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckApigResponseDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigResponse_basic(rName),
@@ -65,8 +65,8 @@ func TestAccApigResponseV2_customRules(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t) // The creation of APIG instance needs the enterprise project ID.
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckApigResponseDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckApigResponseDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigResponse_basic(rName),

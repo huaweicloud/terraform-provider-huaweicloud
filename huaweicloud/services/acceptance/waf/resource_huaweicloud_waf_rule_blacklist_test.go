@@ -24,8 +24,8 @@ func TestAccWafRuleBlackList_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckWafRuleBlackListDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckWafRuleBlackListDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWafRuleBlackList_basic(randName),
