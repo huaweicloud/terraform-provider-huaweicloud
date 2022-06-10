@@ -8,13 +8,6 @@ variable "password" {
   default = "12345"
 }
 
-variable "password1" {
-  type    = string
-  default = "12344"
-}
-
-data "huaweicloud_availability_zones" "myaz" {}
-
 data "huaweicloud_vpc" "vpc" {
   id = "VPCID"
 }
@@ -87,11 +80,5 @@ resource "huaweicloud_drs_job" "test" {
     password    = var.password
     instance_id = huaweicloud_rds_instance.mysql[each.value.name].id
     subnet_id   = data.huaweicloud_vpc_subnet.subnet.id
-  }
-
-  lifecycle {
-    ignore_changes = [
-      source_db.0.password, destination_db.0.password,
-    ]
   }
 }
