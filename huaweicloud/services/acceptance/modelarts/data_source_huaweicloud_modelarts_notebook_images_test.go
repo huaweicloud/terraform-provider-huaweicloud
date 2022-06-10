@@ -17,7 +17,6 @@ func TestAccNotebookImages_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceImages_basic("BUILD_IN", "x86_64"),

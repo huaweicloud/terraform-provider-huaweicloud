@@ -19,7 +19,6 @@ func TestAccVpcSubnetDataSource_ipv4Basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVpcSubnetDataSource_ipv4Basic(randName, randCidr, randGatewayIp),
@@ -50,7 +49,6 @@ func TestAccVpcSubnetDataSource_ipv4ByCidr(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVpcSubnetDataSource_ipv4ByCidr(randName, randCidr, randGatewayIp),
@@ -81,7 +79,6 @@ func TestAccVpcSubnetDataSource_ipv4ByName(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVpcSubnetDataSource_ipv4ByName(randName, randCidr, randGatewayIp),
@@ -112,7 +109,6 @@ func TestAccVpcSubnetDataSource_ipv4ByVpcId(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVpcSubnetDataSource_ipv4ByVpcId(randName, randCidr, randGatewayIp),
@@ -143,7 +139,6 @@ func TestAccVpcSubnetDataSource_ipv6Basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVpcSubnetDataSource_ipv6Basic(randName, randCidr, randGatewayIp),

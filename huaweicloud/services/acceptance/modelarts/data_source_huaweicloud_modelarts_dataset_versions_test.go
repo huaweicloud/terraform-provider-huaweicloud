@@ -22,7 +22,6 @@ func TestAccDataSourceDatasetVersions_basic(t *testing.T) {
 			acceptance.TestAccPreCheckOBS(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceDatasetVersions_basic(name, obsName),

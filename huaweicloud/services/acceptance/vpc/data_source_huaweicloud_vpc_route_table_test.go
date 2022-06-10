@@ -16,7 +16,6 @@ func TestAccVpcRouteTableDataSource_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceRouteTable_base(rName),
@@ -24,6 +23,7 @@ func TestAccVpcRouteTableDataSource_basic(t *testing.T) {
 			{
 				Config: testAccDataSourceRouteTable_default(rName),
 				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "default", "true"),
 					resource.TestCheckResourceAttr(dataSourceName, "subnets.#", "1"),
 				),
@@ -31,6 +31,7 @@ func TestAccVpcRouteTableDataSource_basic(t *testing.T) {
 			{
 				Config: testAccDataSourceRouteTable_custom(rName),
 				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "default", "false"),
 					resource.TestCheckResourceAttr(dataSourceName, "subnets.#", "0"),
 				),

@@ -26,7 +26,7 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 	randName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_fgs_function.test"
 
-	dc := acceptance.InitResourceCheck(
+	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&f,
 		getResourceObj,
@@ -35,12 +35,12 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      dc.CheckResourceDestroy(),
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFgsV2Function_basic(randName),
 				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "functiongraph_version", "v1"),
 					resource.TestCheckResourceAttrSet(resourceName, "urn"),
 					resource.TestCheckResourceAttrSet(resourceName, "version"),
@@ -49,7 +49,7 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 			{
 				Config: testAccFgsV2Function_update(randName),
 				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "description", "fuction test update"),
 					resource.TestCheckResourceAttrSet(resourceName, "urn"),
 					resource.TestCheckResourceAttrSet(resourceName, "version"),
@@ -74,7 +74,7 @@ func TestAccFgsV2Function_withEpsId(t *testing.T) {
 	randName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_fgs_function.test"
 
-	dc := acceptance.InitResourceCheck(
+	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&f,
 		getResourceObj,
@@ -86,12 +86,12 @@ func TestAccFgsV2Function_withEpsId(t *testing.T) {
 			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      dc.CheckResourceDestroy(),
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFgsV2Function_withEpsId(randName),
 				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id",
 						acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
@@ -115,7 +115,7 @@ func TestAccFgsV2Function_text(t *testing.T) {
 	randName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_fgs_function.test"
 
-	dc := acceptance.InitResourceCheck(
+	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&f,
 		getResourceObj,
@@ -124,12 +124,12 @@ func TestAccFgsV2Function_text(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      dc.CheckResourceDestroy(),
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFgsV2Function_text(randName),
 				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
+					rc.CheckResourceExists(),
 				),
 			},
 			{
@@ -151,7 +151,7 @@ func TestAccFgsV2Function_agency(t *testing.T) {
 	randName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_fgs_function.test"
 
-	dc := acceptance.InitResourceCheck(
+	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&f,
 		getResourceObj,
@@ -160,12 +160,12 @@ func TestAccFgsV2Function_agency(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      dc.CheckResourceDestroy(),
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFgsV2Function_agency(randName),
 				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "agency", randName),
 					resource.TestCheckResourceAttr(resourceName, "func_mounts.0.mount_type", "sfs"),
 					resource.TestCheckResourceAttr(resourceName, "func_mounts.0.status", "active"),

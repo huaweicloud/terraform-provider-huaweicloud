@@ -20,7 +20,6 @@ func TestAccVpcRouteIdsDataSource_basic(t *testing.T) {
 			acceptance.TestAccPreCheckDeprecated(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRouteIdsDataSource_basic(randName),
