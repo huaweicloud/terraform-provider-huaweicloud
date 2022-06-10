@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 1.37.1 (June 10, 2022)
+
+BUG FIXES:
+
+* resource/huaweicloud_mapreduce_cluster: fix misusing SetNewComputed issue [GH-2186]
+* resource/huaweicloud_sfs_file_system: does not delete multiple times during terraform destroy [GH-2189]
+* resource/huaweicloud_rds_read_replica_instance: fix "auto_pay" conversion issue [GH-2191]
+* resource/huaweicloud_compute_volume_attach: try to delete when status code is 400 [GH-2195]
+
 ## 1.37.0 (June 4, 2022)
 
 * **New Resurce:**
