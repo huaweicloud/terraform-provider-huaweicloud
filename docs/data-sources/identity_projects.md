@@ -6,6 +6,8 @@ subcategory: "Identity and Access Management (IAM)"
 
 Use this data source to query the project list within HuaweiCloud.
 
+~> You *must* have IAM read privileges to use this data source.
+
 ## Example Usage
 
 ### Obtain project information by name

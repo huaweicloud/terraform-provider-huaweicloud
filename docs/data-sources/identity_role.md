@@ -6,6 +6,8 @@ subcategory: "Identity and Access Management (IAM)"
 
 Use this data source to get the ID of an IAM **system-defined** role or policy.
 
+~> You *must* have IAM read privileges to use this data source.
+
 The Role in Terraform is the same as Policy. We can get all **System-Defined Policies** form
 [HuaweiCloud](https://support.huaweicloud.com/intl/en-us/usermanual-permissions/iam_01_0001.html).
 Please refer to the following table to configuration:
