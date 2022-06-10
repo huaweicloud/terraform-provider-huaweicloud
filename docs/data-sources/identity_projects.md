@@ -6,22 +6,20 @@ subcategory: "Identity and Access Management (IAM)"
 
 Use this data source to query the project list within HuaweiCloud.
 
-Note: You *must* have admin privileges in your HuaweiCloud cloud to use this data source.
-
 ## Example Usage
 
 ### Obtain project information by name
 
 ```hcl
-resource "huaweicloud_identity_projects" "test" {
-  name = "cn-north-4"
+data "huaweicloud_identity_projects" "test" {
+  name = "cn-north-4_demo"
 }
 ```
 
 ### Obtain special project information by name
 
 ```hcl
-resource "huaweicloud_identity_projects" "test" {
+data "huaweicloud_identity_projects" "test" {
   name = "MOS" // The project for OBS Billing
 }
 ```
