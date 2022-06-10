@@ -75,7 +75,7 @@ data "huaweicloud_networking_port" "rds_port" {
   fixed_ip   = huaweicloud_rds_instance.myinstance.private_ips[0]
 }
 
-resource "huaweicloud_networking_eip_associate" "associated" {
+resource "huaweicloud_vpc_eip_associate" "associated" {
   public_ip = huaweicloud_vpc_eip.myeip.address
   port_id   = data.huaweicloud_networking_port.rds_port.id
 }
