@@ -6,6 +6,8 @@ subcategory: "Identity and Access Management (IAM)"
 
 Use this data source to get details of the specified IAM user group.
 
+~> You *must* have IAM read privileges to use this data source.
+
 ## Example Usage
 
 ```hcl

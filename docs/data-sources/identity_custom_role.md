@@ -6,6 +6,8 @@ subcategory: "Identity and Access Management (IAM)"
 
 Use this data source to get the ID of an IAM **custom policy**.
 
+~> You *must* have IAM read privileges to use this data source.
+
 ## Example Usage
 
 ```hcl
