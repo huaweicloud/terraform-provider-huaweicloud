@@ -764,6 +764,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vbs_backup":        resourceVBSBackupV2(),
 			"huaweicloud_vbs_backup_policy": resourceVBSBackupPolicyV2(),
 
+			"huaweicloud_vod_media_asset":                vod.ResourceMediaAsset(),
 			"huaweicloud_vod_media_category":             vod.ResourceMediaCategory(),
 			"huaweicloud_vod_transcoding_template_group": vod.ResourceTranscodingTemplateGroup(),
 			"huaweicloud_vod_watermark_template":         vod.ResourceWatermarkTemplate(),

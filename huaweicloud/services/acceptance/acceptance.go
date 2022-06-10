@@ -71,7 +71,8 @@ var (
 	HW_OBS_STORAGE_URL       = os.Getenv("HW_OBS_STORAGE_URL")       // OBS storage URL where ZIP file is located
 	HW_BUILD_IMAGE_URL       = os.Getenv("HW_BUILD_IMAGE_URL")       // SWR Image URL for component deployment
 
-	HW_VOD_WATERMARK_FILE = os.Getenv("HW_VOD_WATERMARK_FILE")
+	HW_VOD_WATERMARK_FILE   = os.Getenv("HW_VOD_WATERMARK_FILE")
+	HW_VOD_MEDIA_ASSET_FILE = os.Getenv("HW_VOD_MEDIA_ASSET_FILE")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -514,5 +515,12 @@ func TestAccPreCheckComponentDeployment(t *testing.T) {
 func TestAccPreCheckVODWatermark(t *testing.T) {
 	if HW_VOD_WATERMARK_FILE == "" {
 		t.Skip("HW_VOD_WATERMARK_FILE must be set for VOD watermark template acceptance tests.")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckVODMediaAsset(t *testing.T) {
+	if HW_VOD_MEDIA_ASSET_FILE == "" {
+		t.Skip("HW_VOD_MEDIA_ASSET_FILE must be set for VOD media asset acceptance tests.")
 	}
 }
