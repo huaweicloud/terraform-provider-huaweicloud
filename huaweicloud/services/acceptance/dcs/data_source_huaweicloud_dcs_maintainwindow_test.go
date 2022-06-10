@@ -1,6 +1,7 @@
 package dcs
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -21,7 +22,7 @@ func TestAccDcsMaintainWindowDataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(sourceName, "seq", "1"),
-					resource.TestCheckResourceAttr(sourceName, "begin", "22"),
+					resource.TestMatchResourceAttr(sourceName, "begin", regexp.MustCompile(`^\d{2}$`)),
 				),
 			},
 		},
