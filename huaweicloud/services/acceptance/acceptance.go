@@ -158,7 +158,7 @@ func parseVariableToName(varStr string) (string, string, error) {
 	match, _ := regexp.MatchString(checkAttrRegexpStr, varStr)
 	if !match {
 		return resName, keyName, fmtp.Errorf("The type of 'variable' is error, "+
-			"expected ${resourceType.name.field} got %s", varStr)
+			"expected ${resourcetype.name.field} got %s", varStr)
 	}
 
 	reg, err := regexp.Compile(checkAttrRegexpStr)
@@ -168,18 +168,24 @@ func parseVariableToName(varStr string) (string, string, error) {
 	mArr := reg.FindStringSubmatch(varStr)
 	if len(mArr) != 2 {
 		return resName, keyName, fmtp.Errorf("The type of 'variable' is error, "+
-			"expected ${resourceType.name.field} got %s", varStr)
+			"expected ${resourcetype.name.field} got %s", varStr)
 	}
 
 	// Get resName and keyName from variable.
 	strs := strings.Split(mArr[1], ".")
-	for i, s := range strs {
-		if strings.Contains(s, "huaweicloud_") {
-			resName = strings.Join(strs[0:i+2], ".")
-			keyName = strings.Join(strs[i+2:], ".")
-			break
-		}
+	keyIndex := 2
+	if strs[0] == "data" {
+		keyIndex = 3
 	}
+
+	if len(strs) <= keyIndex {
+		return resName, keyName, fmtp.Errorf("attribute field is missing: "+
+			"expected ${resourcetype.name.field} got %s", varStr)
+	}
+
+	resName = strings.Join(strs[0:keyIndex], ".")
+	keyName = strings.Join(strs[keyIndex:], ".")
+
 	return resName, keyName, nil
 }
 
@@ -225,15 +231,9 @@ func (rc *ResourceCheck) CheckResourceDestroy() resource.TestCheckFunc {
 	}
 	return func(s *terraform.State) error {
 		strs := strings.Split(rc.resourceName, ".")
-		var resourceType string
-		for _, str := range strs {
-			if strings.Contains(str, "huaweicloud_") {
-				resourceType = strings.Trim(str, " ")
-				break
-			}
-		}
+		resourceType := strs[0]
 
-		if resourceType == "" {
+		if resourceType == "" || resourceType == "data" {
 			return fmtp.Errorf("The format of the resource name is invalid, please check your configuration.")
 		}
 
