@@ -153,7 +153,8 @@ func TestAccGaussDBNoSQLFlavors_az(t *testing.T) {
 				Config: testAccGaussDBNoSQLFlavors_az(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "flavors.0.availability_zones.0", acceptance.HW_AVAILABILITY_ZONE),
+					resource.TestCheckResourceAttrPair(dataSourceName, "flavors.0.availability_zones.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
 				),
 			},
 		},
@@ -216,8 +217,10 @@ data "huaweicloud_gaussdb_nosql_flavors" "test" {
 
 func testAccGaussDBNoSQLFlavors_az() string {
 	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
 data "huaweicloud_gaussdb_nosql_flavors" "test" {
-  availability_zone = "%s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
 }
-`, acceptance.HW_AVAILABILITY_ZONE)
+`)
 }

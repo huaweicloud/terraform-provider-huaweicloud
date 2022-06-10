@@ -41,20 +41,21 @@ func TestAccCciNetwork_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "availability_zone", acceptance.HW_AVAILABILITY_ZONE),
 					resource.TestCheckResourceAttr(resourceName, "status", "Active"),
-					acceptance.TestCheckResourceAttrWithVariable(resourceName, "namespace",
-						"${huaweicloud_cci_namespace.test.name}"),
-					acceptance.TestCheckResourceAttrWithVariable(resourceName, "network_id",
-						"${huaweicloud_vpc_subnet.test.id}"),
-					acceptance.TestCheckResourceAttrWithVariable(resourceName, "subnet_id",
-						"${huaweicloud_vpc_subnet.test.subnet_id}"),
-					acceptance.TestCheckResourceAttrWithVariable(resourceName, "security_group_id",
-						"${huaweicloud_networking_secgroup.test.id}"),
-					acceptance.TestCheckResourceAttrWithVariable(resourceName, "vpc_id",
-						"${huaweicloud_vpc.test.id}"),
 					resource.TestCheckResourceAttrSet(resourceName, "status"),
 					resource.TestCheckResourceAttrSet(resourceName, "cidr"),
+					resource.TestCheckResourceAttrPair(resourceName, "namespace",
+						"huaweicloud_cci_namespace.test", "name"),
+					resource.TestCheckResourceAttrPair(resourceName, "network_id",
+						"huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "subnet_id",
+						"huaweicloud_vpc_subnet.test", "subnet_id"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
+						"huaweicloud_networking_secgroup.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "vpc_id",
+						"huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zone",
+						"data.huaweicloud_availability_zones.test", "names.0"),
 				),
 			},
 			{
@@ -74,7 +75,7 @@ func testAccCciNetworkImportStateFunc(name string) resource.ImportStateIdFunc {
 			return "", fmt.Errorf("Resource (%s) not found: %s", name, rs)
 		}
 		if rs.Primary.ID == "" || rs.Primary.Attributes["namespace"] == "" {
-			return "", fmt.Errorf("The namespace name (%s) or network ID (%s) is nil.",
+			return "", fmt.Errorf("the namespace name (%s) or network ID (%s) is nil",
 				rs.Primary.Attributes["namespace"], rs.Primary.ID)
 		}
 		return fmt.Sprintf("%s/%s", rs.Primary.Attributes["namespace"], rs.Primary.ID), nil
@@ -112,12 +113,14 @@ func testAccCciNetwork_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
+data "huaweicloud_availability_zones" "test" {}
+
 resource "huaweicloud_cci_network" "test" {
   name              = "%s"
-  availability_zone = "%s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
   namespace         = huaweicloud_cci_namespace.test.name
   network_id        = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
 }
-`, testAccCciNetwork_base(rName), rName, acceptance.HW_AVAILABILITY_ZONE)
+`, testAccCciNetwork_base(rName), rName)
 }
