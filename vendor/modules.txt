@@ -193,6 +193,9 @@ github.com/chnsz/golangsdk/openstack/kms/v1/rotation
 github.com/chnsz/golangsdk/openstack/lts/huawei/loggroups
 github.com/chnsz/golangsdk/openstack/lts/huawei/logstreams
 github.com/chnsz/golangsdk/openstack/maas/v1/task
+github.com/chnsz/golangsdk/openstack/meeting/v1/auth
+github.com/chnsz/golangsdk/openstack/meeting/v1/conferences
+github.com/chnsz/golangsdk/openstack/meeting/v2/auth
 github.com/chnsz/golangsdk/openstack/modelarts/v1/notebook
 github.com/chnsz/golangsdk/openstack/modelarts/v2/dataset
 github.com/chnsz/golangsdk/openstack/modelarts/v2/version

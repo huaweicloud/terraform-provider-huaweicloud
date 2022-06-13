@@ -47,6 +47,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iotda"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/live"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/meeting"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/modelarts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mpc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mrs"
@@ -714,6 +715,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_mapreduce_cluster": mrs.ResourceMRSClusterV2(),
 			"huaweicloud_mapreduce_job":     mrs.ResourceMRSJobV2(),
+
+			"huaweicloud_meeting_conference": meeting.ResourceConference(),
 
 			"huaweicloud_modelarts_dataset":                modelarts.ResourceDataset(),
 			"huaweicloud_modelarts_dataset_version":        modelarts.ResourceDatasetVersion(),

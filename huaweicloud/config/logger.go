@@ -187,7 +187,7 @@ func formatJSON(raw []byte, maskBody bool) string {
 // REDACT_HEADERS is a list of headers that need to be redacted
 var REDACT_HEADERS = []string{
 	"x-auth-token", "x-security-token", "x-service-token",
-	"x-subject-token", "x-storage-token", "authorization",
+	"x-subject-token", "x-storage-token", "authorization", "x-access-token",
 }
 
 // RedactHeaders processes a headers object, returning a redacted list
