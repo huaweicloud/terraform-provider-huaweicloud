@@ -175,7 +175,7 @@ func resourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	v, err := keys.Get(kmsKeyV1Client, d.Id()).ExtractKeyInfo()
 	if err != nil {
-		return err
+		return CheckDeleted(d, err, "failed to retrieve key")
 	}
 
 	logp.Printf("[DEBUG] Kms key %s: %+v", d.Id(), v)
@@ -287,7 +287,7 @@ func resourceKmsKeyV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 	v, err := keys.Get(kmsKeyV1Client, d.Id()).ExtractKeyInfo()
 	if err != nil {
-		return CheckDeleted(d, err, "key")
+		return CheckDeleted(d, err, "failed to retrieve key")
 	}
 
 	deleteOpts := &keys.DeleteOpts{
