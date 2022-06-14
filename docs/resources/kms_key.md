@@ -4,7 +4,7 @@ subcategory: "Data Encryption Workshop (DEW)"
 
 # huaweicloud_kms_key
 
-Manages a KMS key resource. This is an alernative to `huaweicloud_kms_key_v1`
+Manages a KMS key resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -63,4 +63,20 @@ KMS Keys can be imported using the `id`, e.g.
 
 ```
 $ terraform import huaweicloud_kms_key.key_1 7056d636-ac60-4663-8a6c-82d3c32c1c64
+```
+
+Note that the imported state may not be identical to your resource definition,
+due to `pending_days` is missing from the API response.
+It is generally recommended running `terraform plan` after importing a KMS Key.
+You can then decide if changes should be applied to the KMS Key, or the resource
+definition should be updated to align with the KMS Key. Also you can ignore changes as below.
+
+```
+resource "huaweicloud_kms_key" "key_1" {
+    ...
+
+  lifecycle {
+    ignore_changes = [ pending_days ]
+  }
+}
 ```
