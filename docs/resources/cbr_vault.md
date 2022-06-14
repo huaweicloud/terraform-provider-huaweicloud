@@ -124,6 +124,8 @@ The following arguments are supported:
 
 * `size` - (Required, Int) Specifies the vault sapacity, in GB. The valid value range is `1` to `10,485,760`.
 
+  -> You cannot update `size` if the vault is **prePaid** mode.
+
 * `consistent_level` - (Optional, String, ForceNew) Specifies the backup specifications.
   The valid values are as follows:
   + **[crash_consistent](https://support.huaweicloud.com/intl/en-us/usermanual-cbr/cbr_03_0109.html)**
@@ -135,6 +137,8 @@ The following arguments are supported:
 * `auto_expand` - (Optional, Bool) Specifies to enable auto capacity expansion for the backup protection type vault.
   Defaults to **false**.
 
+  -> You cannot configure `auto_expand` if the vault is **prePaid** mode.
+
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies a unique ID in UUID format of enterprise project.
   Changing this will create a new vault.
 
@@ -145,6 +149,30 @@ The following arguments are supported:
   The [object](#cbr_vault_resources) structure is documented below.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the CBR vault.
+
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the vault.
+  The valid values are as follows:
+  + **prePaid**: the yearly/monthly billing mode.
+  + **postPaid**: the pay-per-use billing mode.
+
+  Changing this will create a new vault.
+
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the vault.
+  Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.
+  Changing this will create a new vault.
+
+* `period` - (Optional, Int, ForceNew) Specifies the charging period of the vault.
+  If `period_unit` is set to **month**, the value ranges from 1 to 9.
+  If `period_unit` is set to **year**, the value ranges from 1 to 5.
+  This parameter is mandatory if `charging_mode` is set to **prePaid**.
+  Changing this will create a new vault.
+
+* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
+  Valid values are **true** and **false**. Defaults to **false**. Changing this will create a new vault.
+
+* `auto_pay` - (Optional, String, ForceNew) Specifies whether auto pay is enabled.
+  Valid values are **true** and **false**. Defaults to **true**. If you set this to **false**, you need to pay the order
+  yourself in time. Be careful about the timeout of resource creation. Changing this will create a new vault.
 
 <a name="cbr_vault_resources"></a>
 The `resources` block supports:
@@ -173,10 +201,35 @@ In addition to all arguments above, the following attributes are exported:
 
 * `storage` - The name of the bucket for the vault.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 10 minute.
+* `delete` - Default is 5 minute.
+
 ## Import
 
 Vaults can be imported by their `id`. For example,
 
 ```
 $ terraform import huaweicloud_cbr_vault.test 01c33779-7c83-4182-8b6b-24a671fcedf8
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+API response, security or some other reason. The missing attributes include: `period_unit`, `period`, `auto_renew`,
+`auto_pay`. It is generally recommended running `terraform plan` after importing a vault.
+You can then decide if changes should be applied to the vault, or the resource definition should be updated to align
+with the vault. Also you can ignore changes as below.
+
+```
+resource "huaweicloud_cbr_vault" "test" {
+    ...
+
+  lifecycle {
+    ignore_changes = [
+      period_unit, period, auto_renew, auto_pay,
+    ]
+  }
+}
 ```
