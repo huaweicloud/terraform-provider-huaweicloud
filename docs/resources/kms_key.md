@@ -39,6 +39,11 @@ The following arguments are supported:
 * `is_enabled` - (Optional, Bool) Specifies whether the key is enabled. Defaults to true. Changing this updates the
   state of existing key.
 
+* `rotation_enabled` - (Optional, Bool) Specifies whether the key rotation is enabled. Defaults to false.
+
+* `rotation_interval` - (Optional, Int) Specifies the key rotation interval. The valid value is range from 30 to 365,
+  defaults to 365.
+
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the kms key. Changing this creates
   a new key.
 
@@ -56,6 +61,7 @@ In addition to all arguments above, the following attributes are exported:
 * `domain_id` - ID of a user domain for the key.
 * `expiration_time` - Expiration time.
 * `creation_date` - Creation time (time stamp) of a key.
+* `rotation_number` - The total number of key rotations.
 
 ## Import
 

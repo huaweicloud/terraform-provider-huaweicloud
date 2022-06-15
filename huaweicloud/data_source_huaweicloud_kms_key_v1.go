@@ -8,6 +8,7 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/kms/v1/keys"
+	"github.com/chnsz/golangsdk/openstack/kms/v1/rotation"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -59,6 +60,7 @@ func DataSourceKmsKeyV1() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+
 			"creation_date": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -75,6 +77,18 @@ func DataSourceKmsKeyV1() *schema.Resource {
 				Type:     schema.TypeMap,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"rotation_enabled": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"rotation_interval": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"rotation_number": {
+				Type:     schema.TypeInt,
+				Computed: true,
 			},
 		},
 	}
@@ -187,6 +201,21 @@ func dataSourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 		}
 	} else {
 		logp.Printf("[WARN] Error fetching tags of kms key(%s): %s", key.KeyID, err)
+	}
+
+	// Set KMS rotation
+	rotationOpts := &rotation.RotationOpts{
+		KeyID: key.KeyID,
+	}
+	r, err := rotation.Get(kmsKeyV1Client, rotationOpts).Extract()
+	if err == nil {
+		d.Set("rotation_enabled", r.Enabled)
+		if r.Enabled {
+			d.Set("rotation_interval", r.Interval)
+			d.Set("rotation_number", r.NumberOfRotations)
+		}
+	} else {
+		logp.Printf("[WARN] Error fetching details about key rotation: %s", err)
 	}
 
 	return nil
