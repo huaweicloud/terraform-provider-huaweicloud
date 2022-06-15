@@ -4,14 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/chnsz/golangsdk/openstack/kms/v1/keys"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/chnsz/golangsdk/openstack/kms/v1/keys"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccKmsKey_Basic(t *testing.T) {
@@ -38,7 +36,6 @@ func TestAccKmsKey_Basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"key_usage",
 					"pending_days",
 				},
 			},
@@ -145,7 +142,7 @@ func testAccCheckKmsKeyDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	kmsClient, err := config.KmsKeyV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud kms client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud kms client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -157,7 +154,7 @@ func testAccCheckKmsKeyDestroy(s *terraform.State) error {
 			return err
 		}
 		if v.KeyState != "4" {
-			return fmtp.Errorf("key still exists")
+			return fmt.Errorf("key still exists")
 		}
 	}
 	return nil
@@ -167,24 +164,24 @@ func testAccCheckKmsKeyExists(n string, key *keys.Key) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		kmsClient, err := config.KmsKeyV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud kms client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud kms client: %s", err)
 		}
 		found, err := keys.Get(kmsClient, rs.Primary.ID).ExtractKeyInfo()
 		if err != nil {
 			return err
 		}
 		if found.KeyID != rs.Primary.ID {
-			return fmtp.Errorf("key not found")
+			return fmt.Errorf("key not found")
 		}
 
 		*key = *found
@@ -195,7 +192,7 @@ func testAccCheckKmsKeyExists(n string, key *keys.Key) resource.TestCheckFunc {
 func testAccCheckKmsKeyIsEnabled(key *keys.Key, isEnabled bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if (key.KeyState == EnabledState) != isEnabled {
-			return fmtp.Errorf("Expected key %s to have is_enabled=%t, given %s",
+			return fmt.Errorf("Expected key %s to have is_enabled=%t, given %s",
 				key.KeyID, isEnabled, key.KeyState)
 		}
 

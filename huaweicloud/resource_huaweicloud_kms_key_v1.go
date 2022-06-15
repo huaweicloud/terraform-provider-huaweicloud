@@ -14,10 +14,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-const WaitingForEnableState = "1"
-const EnabledState = "2"
-const DisabledState = "3"
-const PendingDeletionState = "4"
+const (
+	WaitingForEnableState = "1"
+	EnabledState          = "2"
+	DisabledState         = "3"
+	PendingDeletionState  = "4"
+)
 
 func ResourceKmsKeyV1() *schema.Resource {
 	return &schema.Resource{
@@ -118,15 +120,16 @@ func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud key: %s", err)
 	}
-	logp.Printf("[INFO] Key ID: %s", v.KeyID)
+
+	// Store the key ID
+	d.SetId(v.KeyID)
 
 	// Wait for the key to become enabled.
 	logp.Printf("[DEBUG] Waiting for key (%s) to become enabled", v.KeyID)
-
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{WaitingForEnableState, DisabledState},
 		Target:     []string{EnabledState},
-		Refresh:    KeyV1StateRefreshFunc(kmsKeyV1Client, v.KeyID),
+		Refresh:    keyV1StateRefreshFunc(kmsKeyV1Client, v.KeyID),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      10 * time.Second,
 		MinTimeout: 3 * time.Second,
@@ -159,24 +162,20 @@ func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	// Store the key ID now
-	d.SetId(v.KeyID)
-	d.Set("key_id", v.KeyID)
-
 	return resourceKmsKeyV1Read(d, meta)
 }
 
 func resourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-
 	kmsRegion := GetRegion(d, config)
 	kmsKeyV1Client, err := config.KmsKeyV1Client(kmsRegion)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud kms key client: %s", err)
 	}
+
 	v, err := keys.Get(kmsKeyV1Client, d.Id()).ExtractKeyInfo()
 	if err != nil {
-		return err
+		return CheckDeleted(d, err, "failed to retrieve key")
 	}
 
 	logp.Printf("[DEBUG] Kms key %s: %+v", d.Id(), v)
@@ -288,7 +287,7 @@ func resourceKmsKeyV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 	v, err := keys.Get(kmsKeyV1Client, d.Id()).ExtractKeyInfo()
 	if err != nil {
-		return CheckDeleted(d, err, "key")
+		return CheckDeleted(d, err, "failed to retrieve key")
 	}
 
 	deleteOpts := &keys.DeleteOpts{
@@ -317,7 +316,7 @@ func resourceKmsKeyV1Delete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func KeyV1StateRefreshFunc(client *golangsdk.ServiceClient, keyID string) resource.StateRefreshFunc {
+func keyV1StateRefreshFunc(client *golangsdk.ServiceClient, keyID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		v, err := keys.Get(client, keyID).ExtractKeyInfo()
 		if err != nil {
