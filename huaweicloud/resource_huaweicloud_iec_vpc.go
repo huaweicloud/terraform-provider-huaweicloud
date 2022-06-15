@@ -129,6 +129,9 @@ func resourceIecVpcV1Delete(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
+	//lintignore:R018
+	time.Sleep(3 * time.Second) // Prevent delete failure
+
 	err = vpcs.Delete(iecV1Client, d.Id()).ExtractErr()
 	if err != nil {
 		return CheckDeleted(d, err, "Error retrieving Huaweicloud IEC VPC")
