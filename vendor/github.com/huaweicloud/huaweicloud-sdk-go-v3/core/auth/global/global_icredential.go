@@ -189,7 +189,7 @@ type CredentialsBuilder struct {
 
 func NewCredentialsBuilder() *CredentialsBuilder {
 	return &CredentialsBuilder{Credentials: Credentials{
-		IamEndpoint: internal.DefaultIamEndpoint,
+		IamEndpoint: internal.GetIamEndpoint(),
 	}}
 }
 

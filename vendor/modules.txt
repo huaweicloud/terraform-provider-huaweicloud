@@ -395,7 +395,7 @@ github.com/hashicorp/terraform-registry-address
 github.com/hashicorp/terraform-svchost
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 github.com/hashicorp/yamux
-# github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.0.90
+# github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.0.92
 ## explicit
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth
@@ -435,6 +435,8 @@ github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1/model
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/oms/v2
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/oms/v2/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1
@@ -636,5 +638,7 @@ google.golang.org/protobuf/types/known/anypb
 google.golang.org/protobuf/types/known/durationpb
 google.golang.org/protobuf/types/known/emptypb
 google.golang.org/protobuf/types/known/timestamppb
+# gopkg.in/yaml.v2 v2.4.0
+gopkg.in/yaml.v2
 # gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 gopkg.in/yaml.v3

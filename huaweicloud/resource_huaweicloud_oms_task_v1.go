@@ -16,9 +16,10 @@ import (
 
 func resourceMaasTaskV1() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceMaasTaskV1Create,
-		Read:   resourceMaasTaskV1Read,
-		Delete: resourceMaasTaskV1Delete,
+		Create:             resourceMaasTaskV1Create,
+		Read:               resourceMaasTaskV1Read,
+		Delete:             resourceMaasTaskV1Delete,
+		DeprecationMessage: "Deprecated, please use huaweicloud_oms_migration_task instead.",
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),

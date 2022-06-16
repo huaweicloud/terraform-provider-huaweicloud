@@ -23,6 +23,7 @@ import (
 	kpsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3"
 	livev1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1"
 	mpcv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1"
+	omsv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/oms/v2"
 	rdsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3"
 	tmsv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1"
 	vodv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vod/v1"
@@ -247,6 +248,15 @@ func (c *Config) HcIoTdaV5Client(region string) (*iotdav5.IoTDAClient, error) {
 		return nil, err
 	}
 	return iotdav5.NewIoTDAClient(hcClient), nil
+}
+
+// HcMpcV1Client is the MPC service client using huaweicloud-sdk-go-v3 package
+func (c *Config) HcOmsV2Client(region string) (*omsv2.OmsClient, error) {
+	hcClient, err := NewHcClient(c, region, "oms", false)
+	if err != nil {
+		return nil, err
+	}
+	return omsv2.NewOmsClient(hcClient), nil
 }
 
 // NewHcClient is the common client using huaweicloud-sdk-go-v3 package
