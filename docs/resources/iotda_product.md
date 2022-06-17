@@ -19,7 +19,7 @@ resource "huaweicloud_iotda_product" "test" {
   name              = var.productName
   device_type       = "WaterMeter"
   protocol          = "MQTT"
-  space             = huaweicloud_iotda_space.test.id
+  space_id          = huaweicloud_iotda_space.test.id
   data_type         = "json"
   manufacturer_name = "demo_manufacturer_name"
   industry          = "demo_industry"
@@ -122,7 +122,7 @@ are allowed: `?'#().,&%@!`.
 characters. Only letters, digits, hyphens (-) and underscores (_) are allowed. If omitted, the platform will
 automatically allocate a product ID. Changing this parameter will create a new resource.
 
-* `space` - (Optional, String, ForceNew) Specifies the resource space ID which the product belongs to. If omitted,
+* `space_id` - (Optional, String, ForceNew) Specifies the resource space ID which the product belongs to. If omitted,
 the product will belong to the default resource space. Changing this parameter will create a new resource.
 
 <a name="IoTDA_service"></a>

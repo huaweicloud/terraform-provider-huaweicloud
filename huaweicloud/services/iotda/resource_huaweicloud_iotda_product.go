@@ -180,7 +180,7 @@ func ResourceProduct() *schema.Resource {
 				),
 			},
 
-			"space": {
+			"space_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
@@ -330,7 +330,7 @@ func ResourceProductRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("manufacturer_name", response.ManufacturerName),
 		d.Set("industry", response.Industry),
 		d.Set("description", response.Description),
-		d.Set("space", response.AppId),
+		d.Set("space_id", response.AppId),
 		d.Set("services", flattenServices(response.ServiceCapabilities)),
 	)
 
@@ -383,7 +383,7 @@ func buildProductCreateParams(d *schema.ResourceData) *model.CreateProductReques
 			ManufacturerName:    utils.StringIgnoreEmpty(d.Get("manufacturer_name").(string)),
 			Industry:            utils.StringIgnoreEmpty(d.Get("industry").(string)),
 			Description:         utils.StringIgnoreEmpty(d.Get("description").(string)),
-			AppId:               utils.StringIgnoreEmpty(d.Get("space").(string)),
+			AppId:               utils.StringIgnoreEmpty(d.Get("space_id").(string)),
 			ServiceCapabilities: *buildServices(d.Get("services").([]interface{})),
 		},
 	}
@@ -401,7 +401,7 @@ func buildProductUpdateParams(d *schema.ResourceData) *model.UpdateProductReques
 			ManufacturerName:    utils.StringIgnoreEmpty(d.Get("manufacturer_name").(string)),
 			Industry:            utils.StringIgnoreEmpty(d.Get("industry").(string)),
 			Description:         utils.StringIgnoreEmpty(d.Get("description").(string)),
-			AppId:               utils.StringIgnoreEmpty(d.Get("space").(string)),
+			AppId:               utils.StringIgnoreEmpty(d.Get("space_id").(string)),
 			ServiceCapabilities: buildServices(d.Get("services").([]interface{})),
 		},
 	}

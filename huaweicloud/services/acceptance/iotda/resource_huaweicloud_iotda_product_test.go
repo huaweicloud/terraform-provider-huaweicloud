@@ -45,7 +45,7 @@ func TestAccProduct_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "device_type", "test"),
 					resource.TestCheckResourceAttr(rName, "protocol", "MQTT"),
-					resource.TestCheckResourceAttrPair(rName, "space", "huaweicloud_iotda_space.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "space_id", "huaweicloud_iotda_space.test", "id"),
 					resource.TestCheckResourceAttr(rName, "data_type", "json"),
 					resource.TestCheckResourceAttr(rName, "manufacturer_name", "demo_manufacturer_name"),
 					resource.TestCheckResourceAttr(rName, "industry", "demo_industry"),
@@ -129,7 +129,7 @@ resource "huaweicloud_iotda_product" "test" {
   name              = "%s"
   device_type       = "test"
   protocol          = "MQTT"
-  space             = huaweicloud_iotda_space.test.id
+  space_id          = huaweicloud_iotda_space.test.id
   data_type         = "json"
   manufacturer_name = "demo_manufacturer_name"
   industry          = "demo_industry"
@@ -203,7 +203,7 @@ resource "huaweicloud_iotda_product" "test" {
   name              = "%s"
   device_type       = "test"
   protocol          = "MQTT"
-  space             = huaweicloud_iotda_space.test.id
+  space_id          = huaweicloud_iotda_space.test.id
   data_type         = "json"
   manufacturer_name = "demo_manufacturer_name"
   industry          = "demo_industry"
