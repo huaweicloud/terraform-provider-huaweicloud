@@ -59,7 +59,7 @@ func ResourceDevice() *schema.Resource {
 				),
 			},
 
-			"space": {
+			"space_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -216,7 +216,7 @@ func ResourceDeviceRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("product_id", response.ProductId),
 		d.Set("gateway_id", response.GatewayId),
 		d.Set("description", response.Description),
-		d.Set("space", response.AppId),
+		d.Set("space_id", response.AppId),
 		d.Set("status", response.Status),
 		d.Set("node_type", response.NodeType),
 		d.Set("tags", flattenTags(response.Tags)),
@@ -381,7 +381,7 @@ func buildDeviceCreateParams(d *schema.ResourceData) *model.AddDeviceRequest {
 			ProductId:   d.Get("product_id").(string),
 			GatewayId:   utils.StringIgnoreEmpty(d.Get("gateway_id").(string)),
 			Description: utils.StringIgnoreEmpty(d.Get("description").(string)),
-			AppId:       utils.StringIgnoreEmpty(d.Get("space").(string)),
+			AppId:       utils.StringIgnoreEmpty(d.Get("space_id").(string)),
 			AuthInfo:    buildAuthInfo(d.Get("secret").(string), d.Get("fingerprint").(string)),
 		},
 	}

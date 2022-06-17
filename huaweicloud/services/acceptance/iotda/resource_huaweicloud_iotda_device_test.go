@@ -96,7 +96,7 @@ func testDevice_basic(name, nodeId string) string {
 resource "huaweicloud_iotda_device" "test" {
   node_id     = "%[3]s"
   name        = "%[2]s"
-  space       = huaweicloud_iotda_space.test.id
+  space_id    = huaweicloud_iotda_space.test.id
   product_id  = huaweicloud_iotda_product.test.id
   secret      = "1234567890"
   description = "demo"
@@ -110,7 +110,7 @@ resource "huaweicloud_iotda_device" "test" {
 resource "huaweicloud_iotda_device" "test2" {
   node_id    = "%[3]s_2"
   name       = "%[2]s_2"
-  space      = huaweicloud_iotda_space.test.id
+  space_id   = huaweicloud_iotda_space.test.id
   product_id = huaweicloud_iotda_product.test.id
   gateway_id = huaweicloud_iotda_device.test.id
 }
@@ -125,7 +125,7 @@ func testDevice_basic_update(name, nodeId string) string {
 resource "huaweicloud_iotda_device" "test" {
   node_id     = "%[3]s"
   name        = "%[2]s"
-  space       = huaweicloud_iotda_space.test.id
+  space_id    = huaweicloud_iotda_space.test.id
   product_id  = huaweicloud_iotda_product.test.id
   fingerprint = "1234567890123456789012345678901234567890"
   description = "demo_update"
@@ -140,7 +140,7 @@ resource "huaweicloud_iotda_device" "test" {
 resource "huaweicloud_iotda_device" "test2" {
   node_id    = "%[3]s_2"
   name       = "%[2]s_2"
-  space      = huaweicloud_iotda_space.test.id
+  space_id   = huaweicloud_iotda_space.test.id
   product_id = huaweicloud_iotda_product.test.id
   gateway_id = huaweicloud_iotda_device.test.id
 }

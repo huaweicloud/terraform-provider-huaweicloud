@@ -18,7 +18,7 @@ variable "secret" {}
 resource "huaweicloud_iotda_device" "device" {
   node_id    = "device_SN_1"
   name       = "device_name"
-  space      = var.spaceId
+  space_id   = var.spaceId
   product_id = var.productId
   secret     = var.secret
 
@@ -31,7 +31,7 @@ resource "huaweicloud_iotda_device" "device" {
 resource "huaweicloud_iotda_device" "sub_device" {
   node_id    = "device_SN_2"
   name       = "device_name_2"
-  space      = var.spaceId
+  space_id   = var.spaceId
   product_id = var.productId
   gateway_id = huaweicloud_iotda_device.device.id
 }
@@ -50,7 +50,7 @@ Chinese characters, digits, hyphens (-), underscore (_) and the following specai
 * `node_id` - (Required, String, ForceNew) Specifies the node ID, which contains 4 to 256 characters.
 The node ID can be IMEI, MAC address, or serial number. Changing this parameter will create a new resource.
 
-* `space` - (Required, String, ForceNew) Specifies the resource space ID which the device belongs to.
+* `space_id` - (Required, String, ForceNew) Specifies the resource space ID which the device belongs to.
 Changing this parameter will create a new resource.
 
 * `product_id` - (Required, String, ForceNew) Specifies the product ID which the device belongs to.
