@@ -25,6 +25,7 @@ func TestAccKmsKeyDataSource_Basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKmsKeyDataSourceID(datasourceName),
 					resource.TestCheckResourceAttr(datasourceName, "key_alias", keyAlias),
+					resource.TestCheckResourceAttr(datasourceName, "rotation_enabled", "false"),
 					resource.TestCheckResourceAttr(datasourceName, "region", HW_REGION_NAME),
 				),
 			},

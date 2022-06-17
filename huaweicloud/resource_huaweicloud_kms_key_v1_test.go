@@ -28,6 +28,7 @@ func TestAccKmsKey_Basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKmsKeyExists(resourceName, &key),
 					resource.TestCheckResourceAttr(resourceName, "key_alias", keyAlias),
+					resource.TestCheckResourceAttr(resourceName, "rotation_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "region", HW_REGION_NAME),
 				),
 			},
@@ -133,6 +134,52 @@ func TestAccKmsKey_WithEpsId(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "key_alias", keyAlias),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
+			},
+		},
+	})
+}
+
+func TestAccKmsKey_rotation(t *testing.T) {
+	var key keys.Key
+	var keyAlias = fmt.Sprintf("kms_%s", acctest.RandString(5))
+	var resourceName = "huaweicloud_kms_key.key_1"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckKms(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKmsKeyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKmsKey_Basic(keyAlias),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKmsKeyExists(resourceName, &key),
+					resource.TestCheckResourceAttr(resourceName, "key_alias", keyAlias),
+					resource.TestCheckResourceAttr(resourceName, "rotation_enabled", "false"),
+				),
+			},
+			{
+				Config: testAccKmsKey_rotation(keyAlias),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "key_alias", keyAlias),
+					resource.TestCheckResourceAttr(resourceName, "rotation_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "rotation_interval", "365"),
+				),
+			},
+			{
+				Config: testAccKmsKey_rotation_interval(keyAlias),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "key_alias", keyAlias),
+					resource.TestCheckResourceAttr(resourceName, "rotation_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "rotation_interval", "200"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"pending_days",
+				},
 			},
 		},
 	})
@@ -260,4 +307,23 @@ resource "huaweicloud_kms_key" "key_1" {
   key_alias       = "tf-acc-test-kms-key-%s"
   is_enabled      = false
 }`, rName, rName)
+}
+
+func testAccKmsKey_rotation(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_kms_key" "key_1" {
+  key_alias        = "%s"
+  pending_days     = "7"
+  rotation_enabled = true
+}`, rName)
+}
+
+func testAccKmsKey_rotation_interval(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_kms_key" "key_1" {
+  key_alias         = "%s"
+  pending_days      = "7"
+  rotation_enabled  = true
+  rotation_interval = 200
+}`, rName)
 }

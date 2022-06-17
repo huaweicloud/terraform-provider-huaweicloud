@@ -4,8 +4,7 @@ subcategory: "Data Encryption Workshop (DEW)"
 
 # huaweicloud_kms_key
 
-Use this data source to get the ID of an available HuaweiCloud KMS key. This is an alternative
-to `huaweicloud_kms_key_v1`
+Use this data source to get the ID of an available HuaweiCloud KMS key.
 
 ## Example Usage
 
@@ -53,3 +52,6 @@ In addition to all arguments above, the following attributes are exported:
 * `expiration_time` - Expiration time.
 * `creation_date` - Creation time (time stamp) of a key.
 * `tags` - The key/value pairs to associate with the kms key.
+* `rotation_enabled` - Indicates whether the key rotation is enabled or not.
+* `rotation_interval` - The key rotation interval. It's valid when rotation is enabled.
+* `rotation_number` - The total number of key rotations. It's valid when rotation is enabled.
