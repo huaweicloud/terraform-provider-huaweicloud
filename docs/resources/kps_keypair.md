@@ -116,7 +116,7 @@ Keypairs can be imported using the `name`, e.g.
 $ terraform import huaweicloud_kps_keypair.my-keypair test-keypair
 ```
 
-Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `encryption_type`,
 and `kms_key_name`. It is generally recommended running `terraform plan` after importing a key pair.
 You can then decide if changes should be applied to the key pair, or the resource definition

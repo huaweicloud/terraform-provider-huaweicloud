@@ -93,7 +93,7 @@ The template can be imported using the `id`, e.g.
 $ terraform import huaweicloud_vod_watermark_template.test 81ac58796e25842ee2e90a904aa8a719
 ```
 
-Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `image_file`.
 It is generally recommended running `terraform plan` after importing a watermark template.
 You can then decide if changes should be applied to the watermark template, or the resource

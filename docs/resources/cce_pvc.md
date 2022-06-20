@@ -131,7 +131,7 @@ CCE PVC can be imported using the cluster ID, namespace and name separated by a 
 $ terraform import huaweicloud_cce_pvc.test 5c20fdad-7288-11eb-b817-0255ac10158b/default/pvc_name
 ```
 
-Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `annotations`.
 It is generally recommended running `terraform plan` after importing a PVC.
 You can then decide if changes should be applied to the PVC, or the resource

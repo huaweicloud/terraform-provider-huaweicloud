@@ -43,7 +43,7 @@ The category can be imported using the `id`, e.g.
 $ terraform import huaweicloud_vod_media_category.test 132945
 ```
 
-Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `parent_id`.
 It is generally recommended running `terraform plan` after importing a media category.
 You can then decide if changes should be applied to the media category, or the resource

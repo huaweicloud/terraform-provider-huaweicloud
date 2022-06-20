@@ -294,7 +294,7 @@ RDS instance can be imported using the `id`, e.g.
 $ terraform import huaweicloud_rds_instance.instance_1 7117d38e-4c8f-4624-a505-bd96b97d024c
 ```
 
-But due to some attrubutes missing from the API response, it's required to ignore changes as below.
+But due to some attributes missing from the API response, it's required to ignore changes as below.
 
 ```
 resource "huaweicloud_rds_instance" "instance_1" {

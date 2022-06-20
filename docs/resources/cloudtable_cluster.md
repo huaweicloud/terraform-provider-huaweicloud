@@ -100,7 +100,7 @@ Clusters can be imported by their `id`. e.g.:
 terraform import huaweicloud_cloudtable_cluster.test 4c2d38b6-6fb0-480c-8813-5f536b5ba6a4
 ```
 
-Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason.
 The missing attributes include: `availability_zone`, `network_id`.
 It is generally recommended running `terraform plan` after importing a cluster.
