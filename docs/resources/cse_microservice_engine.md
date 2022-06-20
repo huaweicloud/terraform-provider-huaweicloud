@@ -118,7 +118,7 @@ Engines can be imported using their `id`, e.g.
 $ terraform import huaweicloud_cse_microservice_engine.test eddc5d42-f9d5-4f8e-984b-d6f3e088561c
 ```
 
-Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes are `admin_pass` and `extend_params`.
 It is generally recommended running `terraform plan` after importing an instance.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to

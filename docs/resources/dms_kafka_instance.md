@@ -202,7 +202,7 @@ DMS kafka instance can be imported using the instance id, e.g.
  $ terraform import huaweicloud_dms_kafka_instance.instance_1 8d3c7938-dc47-4937-a30f-c80de381c5e3
 ```
 
-Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
 `password`, `manager_password` and `public_ip_ids`. It is generally recommended running `terraform plan` after importing
 a DMS kafka instance. You can then decide if changes should be applied to the instance, or the resource definition

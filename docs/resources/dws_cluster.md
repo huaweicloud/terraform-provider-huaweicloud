@@ -156,7 +156,7 @@ Cluster can be imported using the following format:
 $ terraform import huaweicloud_dws_cluster.test 47ad727e-9dcc-4833-bde0-bb298607c719
 ```
 
-Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `user_pwd`, `number_of_cn`.
 It is generally recommended running `terraform plan` after importing a cluster.
 You can then decide if changes should be applied to the cluster, or the resource definition

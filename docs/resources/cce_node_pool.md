@@ -184,7 +184,7 @@ CCE node pool can be imported using the cluster ID and node pool ID separated by
 $ terraform import huaweicloud_cce_node_pool.my_node_pool 5c20fdad-7288-11eb-b817-0255ac10158b/e9287dff-7288-11eb-b817-0255ac10158b
 ```
 
-Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
 `password`, `subnet_id`, `preinstall`, `posteinstall`, `taints` and `initial_node_count`.
 It is generally recommended running `terraform plan` after importing a node pool.

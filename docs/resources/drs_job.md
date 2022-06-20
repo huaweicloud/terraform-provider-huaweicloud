@@ -234,7 +234,7 @@ The DRS job can be imported by `id`. For example,
 terraform import huaweicloud_drs_job.test b11b407c-e604-4e8d-8bc4-92398320b847
 ```
 
-Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `enterprise_project_id`, `tags`,
 `force_destroy`, `source_db.0.password` and `destination_db.0.password`.It is generally recommended running
 `terraform plan` after importing a job. You can then decide if changes should be applied to the job, or the resource

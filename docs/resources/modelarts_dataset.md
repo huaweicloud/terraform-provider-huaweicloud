@@ -182,7 +182,7 @@ The datasets can be imported by `id`.
 terraform import huaweicloud_modelarts_dataset.test yiROKoTTjtwjvP71yLG
 ```
 
-Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `data_source.0.path`,
 `data_source.0.queue_name`, `data_source.0.database_name`, `data_source.0.table_name`, `data_source.0.cluster_id`,
 `data_source.0.user_name` and `data_source.0.password`. It is generally recommended running `terraform plan` after

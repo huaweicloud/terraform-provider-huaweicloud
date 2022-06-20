@@ -216,7 +216,7 @@ Vaults can be imported by their `id`. For example,
 $ terraform import huaweicloud_cbr_vault.test 01c33779-7c83-4182-8b6b-24a671fcedf8
 ```
 
-Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `period_unit`, `period`, `auto_renew`,
 `auto_pay`. It is generally recommended running `terraform plan` after importing a vault.
 You can then decide if changes should be applied to the vault, or the resource definition should be updated to align

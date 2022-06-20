@@ -127,7 +127,7 @@ Clusters can be imported by `id`. For example,
 terraform import huaweicloud_cdm_cluster.test b11b407c-e604-4e8d-8bc4-92398320b847
 ```
 
-Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `email` and `phone_num`.
  It is generally recommended running `terraform plan` after importing a cluster.
  You can then decide if changes should be applied to the cluster, or the resource definition

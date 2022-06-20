@@ -142,7 +142,7 @@ SMS migration tasks can be imported by `id`, e.g.
 terraform import huaweicloud_sms_task.demo 6402c49b-7d9a-413e-8b5f-a7307f7d5679
 ```
 
-Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response. The missing attributes include: `use_public_ip`, `syncing` and `action`.
 It is generally recommended running `terraform plan` after importing a migration task.
 You can then decide if changes should be applied to the task, or the resource definition should be
