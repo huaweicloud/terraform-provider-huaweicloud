@@ -1,6 +1,8 @@
 package throttles
 
 import (
+	"fmt"
+
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
 )
@@ -250,4 +252,104 @@ func ListSpecThrottles(client *golangsdk.ServiceClient, instanceId, policyId str
 func DeleteSpecThrottle(client *golangsdk.ServiceClient, instanceId, policyId, strategyId string) (r DeleteResult) {
 	_, r.Err = client.Delete(specResourceURL(client, instanceId, policyId, strategyId), nil)
 	return
+}
+
+type BindOpts struct {
+	// Throttle policy ID. The valid length is range from 1 to 65.
+	ThrottleId string `json:"strategy_id" required:"true"`
+	// The IDs of the API publish record.
+	PublishIds []string `json:"publish_ids" required:"true"`
+	// Instnace ID to which the API belongs.
+	InstanceId string `json:"-" required:"true"`
+}
+
+// Bind is a method to bind the policy to one or more APIs.
+func Bind(c *golangsdk.ServiceClient, opts BindOpts) ([]BindResp, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r struct {
+		BindList []BindResp `json:"throttle_applys"`
+	}
+	_, err = c.Post(bindURL(c, opts.InstanceId), b, &r, nil)
+	return r.BindList, err
+}
+
+// Unbind is a method to cancel the relationship between API and throttling policy.
+func Unbind(c *golangsdk.ServiceClient, instanceId, bindId string) error {
+	_, err := c.Delete(unbindURL(c, instanceId, bindId), nil)
+	return err
+}
+
+type BatchUnbindActionOpts struct {
+	// List of API and throttling policy binding relationship IDs that need to be unbound.
+	Action string `q:"action"`
+}
+
+type BatchUnbindOpts struct {
+	// List of API and throttling policy binding relationship IDs that need to be unbound.
+	ThrottleBindings string `json:"throttle_bindings,omitempty"`
+	// Instance ID.
+	InstanceId string `json:"-" required:"true"`
+}
+
+// BatchUnbind is an API to unbind all throttling policies associated with the list.
+func BatchUnbind(c *golangsdk.ServiceClient, unbindOpt BatchUnbindOpts,
+	queryOpt BatchUnbindActionOpts) (*BatchResp, error) {
+	b, err := golangsdk.BuildRequestBody(unbindOpt, "")
+	if err != nil {
+		return nil, err
+	}
+
+	url := batchUnbindURL(c, unbindOpt.InstanceId)
+	query, err := golangsdk.BuildQueryString(queryOpt)
+	if err != nil {
+		return nil, err
+	}
+	url += query.String()
+
+	var r BatchResp
+	_, err = c.Put(url, b, &r, nil)
+	return &r, err
+}
+
+type ListBindOpts struct {
+	// Offset from which the query starts.
+	// If the offset is less than 0, the value is automatically converted to 0. Default to 0.
+	Offset int `q:"offset"`
+	// Number of items displayed on each page. The valid values are range form 1 to 500, default to 20.
+	Limit int `q:"limit"`
+	// throttling policy ID.
+	ThrottleId string `q:"throttle_id"`
+	// Environment ID.
+	EnvId string `q:"env_id"`
+	// API group ID.
+	GroupId string `q:"group_id"`
+	// API ID.
+	ApiId string `q:"api_id"`
+	// API name.
+	ApiName string `q:"api_name"`
+	// Instnace ID to which the API belongs.
+	InstanceId string `json:"-"`
+}
+
+// ListBind is a method to obtain all API to which the throttling policy bound.
+func ListBind(c *golangsdk.ServiceClient, opts ListBindOpts) ([]ApiForThrottle, error) {
+	if opts.InstanceId == "" {
+		return nil, fmt.Errorf("The instance ID is required.")
+	}
+	url := listBindURL(c, opts.InstanceId)
+	query, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return nil, err
+	}
+	url += query.String()
+
+	var r struct {
+		ApiDetails []ApiForThrottle `json:"apis"`
+	}
+	_, err = c.Get(url, &r, nil)
+	return r.ApiDetails, err
 }
