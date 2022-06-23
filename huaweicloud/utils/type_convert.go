@@ -28,6 +28,14 @@ func Int32(v int32) *int32 {
 	return &v
 }
 
+// Int32 returns a pointer to the int32 value. if v is empty, return nil
+func Int32IgnoreEmpty(v int32) *int32 {
+	if v == 0 {
+		return nil
+	}
+	return &v
+}
+
 // Float64 returns a pointer to the float64 value
 func Float64(v float64) *float64 {
 	return &v

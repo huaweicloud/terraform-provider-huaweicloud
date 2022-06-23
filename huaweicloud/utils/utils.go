@@ -83,6 +83,24 @@ func ExpandToIntList(v []interface{}) []int {
 	return s
 }
 
+// ExpandToInt32List takes the result for an array of intgers and returns a []int32
+func ExpandToInt32List(v []interface{}) []int32 {
+	s := make([]int32, 0, len(v))
+	for _, val := range v {
+		if intVal, ok := val.(int); ok {
+			s = append(s, int32(intVal))
+		}
+	}
+	return s
+}
+
+// ExpandToInt32ListPointer takes the result for an array of in32 and returns a pointer of the array
+func ExpandToInt32ListPointer(v []interface{}) *[]int32 {
+	s := ExpandToInt32List(v)
+
+	return &s
+}
+
 // ExpandToStringListBySet takes the result for a set of strings and returns a []string
 func ExpandToStringListBySet(v *schema.Set) []string {
 	s := make([]string, 0, v.Len())
