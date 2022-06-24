@@ -272,7 +272,7 @@ func (hc *HcHttpClient) deserializeResponse(resp *response.DefaultHttpResponse, 
 		if item.LocationType == def.Header {
 			headerErr := hc.deserializeResponseHeaders(resp, reqDef, item)
 			if headerErr != nil {
-				return sdkerr.ServiceResponseError{
+				return &sdkerr.ServiceResponseError{
 					StatusCode:   resp.GetStatusCode(),
 					RequestId:    resp.GetHeader("X-Request-Id"),
 					ErrorMessage: headerErr.Error(),
@@ -285,7 +285,7 @@ func (hc *HcHttpClient) deserializeResponse(resp *response.DefaultHttpResponse, 
 
 			bodyErr := hc.deserializeResponseBody(reqDef, data)
 			if bodyErr != nil {
-				return sdkerr.ServiceResponseError{
+				return &sdkerr.ServiceResponseError{
 					StatusCode:   resp.GetStatusCode(),
 					RequestId:    resp.GetHeader("X-Request-Id"),
 					ErrorMessage: bodyErr.Error(),
@@ -297,7 +297,7 @@ func (hc *HcHttpClient) deserializeResponse(resp *response.DefaultHttpResponse, 
 	if len(data) != 0 && !hasBody {
 		err = jsoniter.Unmarshal(data, &reqDef.Response)
 		if err != nil {
-			return sdkerr.ServiceResponseError{
+			return &sdkerr.ServiceResponseError{
 				StatusCode:   resp.GetStatusCode(),
 				RequestId:    resp.GetHeader("X-Request-Id"),
 				ErrorMessage: err.Error(),

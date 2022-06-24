@@ -9,13 +9,16 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
 	jsoniter "github.com/json-iterator/go"
 	"io/ioutil"
+	"os"
 	"reflect"
+	"strings"
 )
 
 const (
 	DefaultIamEndpoint         = "https://iam.myhuaweicloud.com"
 	KeystoneListProjectsUri    = "/v3/projects"
 	KeystoneListAuthDomainsUri = "/v3/auth/domains"
+	IamEndpointEnv             = "HUAWEICLOUD_SDK_IAM_ENDPOINT"
 )
 
 type KeystoneListProjectsResponse struct {
@@ -25,6 +28,17 @@ type KeystoneListProjectsResponse struct {
 type ProjectResult struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`
+}
+
+func GetIamEndpoint() string {
+	if endpoint := os.Getenv(IamEndpointEnv); endpoint != "" {
+		https := "https://"
+		if !strings.HasPrefix(endpoint, https) {
+			endpoint = https + endpoint
+		}
+		return endpoint
+	}
+	return DefaultIamEndpoint
 }
 
 func GetKeystoneListProjectsRequest(iamEndpoint string, regionId string) *request.DefaultHttpRequest {

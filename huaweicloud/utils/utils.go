@@ -226,6 +226,15 @@ func FormatTimeStampUTC(timestamp int64) string {
 	return time.Unix(timestamp, 0).UTC().Format("2006-01-02 15:04:05")
 }
 
+// FormatTimeStampUTC is used to unify the unix second time to UTC time string, format: YYYY-MM-DD HH:MM:SS.
+func FormatUTCTimeStamp(utcTime string) (int64, error) {
+	timestamp, err := time.Parse("2006-01-02 15:04:05", utcTime)
+	if err != nil {
+		return 0, fmt.Errorf("unable to prase the time: %s", utcTime)
+	}
+	return timestamp.Unix(), nil
+}
+
 // EncodeBase64String is used to encode a string by base64.
 func EncodeBase64String(str string) string {
 	strByte := []byte(str)

@@ -51,6 +51,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mpc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mrs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/obs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/oms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rds"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/scm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/servicestage"
@@ -733,7 +734,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_obs_bucket_object": ResourceObsBucketObject(),
 			"huaweicloud_obs_bucket_policy": ResourceObsBucketPolicy(),
 
-			"huaweicloud_oms_task": resourceMaasTaskV1(),
+			"huaweicloud_oms_migration_task": oms.ResourceMigrationTask(),
 
 			"huaweicloud_rds_account":               rds.ResourceRdsAccount(),
 			"huaweicloud_rds_instance":              rds.ResourceRdsInstance(),
@@ -934,6 +935,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_group":                       deprecated.ResourceDmsGroups(),
 			"huaweicloud_dms_queue":                       deprecated.ResourceDmsQueues(),
 			"huaweicloud_dms_queue_v1":                    deprecated.ResourceDmsQueues(),
+			"huaweicloud_oms_task":                        resourceMaasTaskV1(),
 		},
 	}
 
