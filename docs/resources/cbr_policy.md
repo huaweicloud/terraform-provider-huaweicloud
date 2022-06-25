@@ -89,7 +89,7 @@ The following arguments are supported:
   deletes the earliest backups. By default, the system automatically clears data every other day.
 
 * `time_zone` - (Optional, String) Specifies the UTC time zone, e.g.: `UTC+08:00`.
-  Required if `long_term_retention` is set.
+  Only avaiable if `long_term_retention` is set.
 
 <a name="cbr_policy_backup_cycle"></a>
 The `backup_cycle` block supports:
