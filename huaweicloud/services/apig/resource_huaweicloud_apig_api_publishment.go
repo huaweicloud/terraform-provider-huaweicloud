@@ -3,6 +3,7 @@ package apig
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/chnsz/golangsdk"
@@ -60,6 +61,10 @@ func ResourceApigApiPublishment() *schema.Resource {
 				Computed: true,
 			},
 			"publish_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"publish_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -190,9 +195,9 @@ func GetVersionHistories(c *golangsdk.ServiceClient, instanceId, envId, apiId st
 	return histories, nil
 }
 
-func getCertainPublishInfo(resp []apis.ApiVersionInfo) (*apis.ApiVersionInfo, diag.Diagnostics) {
+func getCertainPublishInfo(resp []apis.ApiVersionInfo) (*apis.ApiVersionInfo, error) {
 	if len(resp) == 0 {
-		return nil, fmtp.DiagErrorf("The API does not have any published information.")
+		return nil, fmtp.Errorf("The API does not have any published information.")
 	}
 	for _, ver := range resp {
 		// Status 1 means that this version is a effective version.
@@ -200,7 +205,7 @@ func getCertainPublishInfo(resp []apis.ApiVersionInfo) (*apis.ApiVersionInfo, di
 			return &ver, nil
 		}
 	}
-	return nil, fmtp.DiagErrorf("Unable to find any publish information for the API.")
+	return nil, fmtp.Errorf("Unable to find any publish information for the API.")
 }
 
 func setApiPublishHistories(d *schema.ResourceData, resp []apis.ApiVersionInfo) error {
@@ -214,25 +219,6 @@ func setApiPublishHistories(d *schema.ResourceData, resp []apis.ApiVersionInfo) 
 	return d.Set("histories", result)
 }
 
-func setApigApiPublishParameters(d *schema.ResourceData, resp []apis.ApiVersionInfo) diag.Diagnostics {
-	publishInfo, err := getCertainPublishInfo(resp)
-	if err != nil {
-		return err
-	}
-	mErr := multierror.Append(nil,
-		d.Set("env_id", publishInfo.EnvId),
-		d.Set("api_id", publishInfo.ApiId),
-		d.Set("description", publishInfo.Description),
-		d.Set("publish_time", publishInfo.PublishTime),
-		d.Set("env_name", publishInfo.EnvName),
-		setApiPublishHistories(d, resp),
-	)
-	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf(mErr.Error())
-	}
-	return nil
-}
-
 func getApigIdsFromPublishmentId(id string) (instanceId, envId, apiId string, err error) {
 	ids := strings.Split(id, "/")
 	if len(ids) != 3 {
@@ -243,6 +229,38 @@ func getApigIdsFromPublishmentId(id string) (instanceId, envId, apiId string, er
 	envId = ids[1]
 	apiId = ids[2]
 	return
+}
+
+// The publishIdsStr string representing one or more API publication IDs, in descending order from left to right by
+// publication time. The publish ID corresponds to the environment one by one.
+// If the first matching environment ID is found, it means the publish ID under the current index we need.
+func analysisPublishIds(publishIdsStr, envIdsStr, envId string) (string, error) {
+	publishIds := strings.Split(publishIdsStr, "|")
+	envIds := strings.Split(envIdsStr, "|")
+	for i, val := range envIds {
+		if val == envId {
+			if len(publishIds) < i {
+				log.Printf("[ERROR] The length of publish ID list is not right, the envIds is '%s', but the "+
+					"publishIds is '%s'.", publishIdsStr, envIdsStr)
+				return "", fmtp.Errorf("The publish ID is lost, please contact customer service")
+			} else {
+				return publishIds[i], nil
+			}
+		}
+	}
+	return "", fmtp.Errorf("the API is not published in this environment (%s)", envId)
+}
+
+func getPublishIdByApi(client *golangsdk.ServiceClient, instanceId, envId, apiId string) (string, error) {
+	resp, err := apis.Get(client, instanceId, apiId).Extract()
+	if err != nil {
+		return "", err
+	}
+	publishId, err := analysisPublishIds(resp.PublishId, resp.RunEnvId, envId)
+	if err != nil {
+		return "", err
+	}
+	return publishId, nil
 }
 
 // ResourceApigApiPublishmentRead is a method to obtain informations of API publishment and save to the local storage.
@@ -263,7 +281,26 @@ func ResourceApigApiPublishmentRead(_ context.Context, d *schema.ResourceData, m
 			apiId, envId, err)
 	}
 
-	return setApigApiPublishParameters(d, resp)
+	publishInfo, err := getCertainPublishInfo(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	mErr := multierror.Append(nil,
+		d.Set("env_id", publishInfo.EnvId),
+		d.Set("api_id", publishInfo.ApiId),
+		d.Set("description", publishInfo.Description),
+		d.Set("publish_time", publishInfo.PublishTime),
+		d.Set("env_name", publishInfo.EnvName),
+		setApiPublishHistories(d, resp),
+	)
+
+	if publishId, err := getPublishIdByApi(c, instanceId, publishInfo.EnvId, publishInfo.ApiId); err != nil {
+		mErr = multierror.Append(mErr, err)
+	} else {
+		mErr = multierror.Append(mErr, d.Set("publish_id", publishId))
+	}
+
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func ResourceApigApiPublishmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

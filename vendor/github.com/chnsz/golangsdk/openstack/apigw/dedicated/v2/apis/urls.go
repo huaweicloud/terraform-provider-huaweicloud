@@ -27,5 +27,5 @@ func publishVersionURL(c *golangsdk.ServiceClient, instanceId, apiId string) str
 }
 
 func showHistoryDetailURL(c *golangsdk.ServiceClient, instanceId, versionId string) string {
-	return c.ServiceURL(rootPath, instanceId, "apis", "version", versionId)
+	return c.ServiceURL(rootPath, instanceId, "apis", "versions", versionId)
 }

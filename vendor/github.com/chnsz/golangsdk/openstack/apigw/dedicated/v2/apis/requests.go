@@ -584,3 +584,10 @@ func ListPublishHistories(client *golangsdk.ServiceClient, instanceId, apiId str
 		return PublishHistoriesPage{pagination.SinglePageBase(r)}
 	})
 }
+
+// GetVersionDetail is a method to obtains a publish detail of the API for special version.
+func GetVersionDetail(client *golangsdk.ServiceClient, instanceId, versionId string) (*APIResp, error) {
+	var r APIResp
+	_, err := client.Get(showHistoryDetailURL(client, instanceId, versionId), &r, nil)
+	return &r, err
+}
