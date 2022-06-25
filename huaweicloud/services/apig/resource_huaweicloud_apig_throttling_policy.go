@@ -62,8 +62,8 @@ func ResourceApigThrottlingPolicyV2() *schema.Resource {
 				Required: true,
 				ValidateFunc: validation.StringMatch(
 					regexp.MustCompile("^([\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5A-Za-z_0-9]{2,63})$"),
-					"The name contains of 3 to 64 characters, starting with a letter. Only letters, digits "+
-						"and underscore (_) are allowed."),
+					"The name consists of 3 to 64 characters and only letters, digits, underscore (_) and chinese "+
+						"characters are allowed. The name must start with a letter or chinese character."),
 			},
 			"period": {
 				Type:     schema.TypeInt,
