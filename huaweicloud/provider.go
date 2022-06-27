@@ -340,7 +340,10 @@ func Provider() *schema.Provider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"huaweicloud_antiddos":           dataSourceAntiDdosV1(),
+			"huaweicloud_antiddos": dataSourceAntiDdosV1(),
+
+			"huaweicloud_apig_environments": apig.DataSourceEnvironments(),
+
 			"huaweicloud_availability_zones": DataSourceAvailabilityZones(),
 
 			"huaweicloud_bms_flavors": bms.DataSourceBmsFlavors(),
