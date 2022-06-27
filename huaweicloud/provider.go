@@ -680,6 +680,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_iotda_device":              iotda.ResourceDevice(),
 			"huaweicloud_iotda_device_group":        iotda.ResourceDeviceGroup(),
 			"huaweicloud_iotda_dataforwarding_rule": iotda.ResourceDataForwardingRule(),
+			"huaweicloud_iotda_amqp":                iotda.ResourceAmqp(),
 
 			"huaweicloud_kms_key":     ResourceKmsKeyV1(),
 			"huaweicloud_kps_keypair": dew.ResourceKeypair(),
