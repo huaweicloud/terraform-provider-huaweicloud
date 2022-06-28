@@ -21,7 +21,7 @@ func getMicroserviceInstanceFunc(conf *config.Config, state *terraform.ResourceS
 		return nil, err
 	}
 
-	client := common.NewCustomClient(state.Primary.Attributes["connect_address"], "v4", "default")
+	client := common.NewCustomClient(true, state.Primary.Attributes["connect_address"], "v4", "default")
 	return instances.Get(client, state.Primary.Attributes["microservice_id"], state.Primary.ID, token)
 }
 

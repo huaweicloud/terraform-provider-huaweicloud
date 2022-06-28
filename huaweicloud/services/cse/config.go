@@ -29,6 +29,6 @@ func GetAuthorizationToken(connAddr, username, password string) (string, error) 
 	if username == "" {
 		return "", nil
 	}
-	client := common.NewCustomClient(connAddr, "v4")
+	client := common.NewCustomClient(true, connAddr, "v4")
 	return getAuthorizationToken(client, username, password)
 }
