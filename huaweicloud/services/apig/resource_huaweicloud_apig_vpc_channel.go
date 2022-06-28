@@ -65,8 +65,8 @@ func ResourceApigVpcChannelV2() *schema.Resource {
 				Required: true,
 				ValidateFunc: validation.StringMatch(
 					regexp.MustCompile("^([\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5A-Za-z-_0-9]{2,63})$"),
-					"The name contains of 3 to 64 characters, starting with a letter. Only letters, digits, "+
-						"hyphens (-) and underscore (_) are allowed."),
+					"The name consists of 3 to 64 characters and only letters, digits, underscore (_), hyphens (-) "+
+						"and chinese characters are allowed. The name must start with a letter or chinese character."),
 			},
 			"port": {
 				Type:         schema.TypeInt,
