@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 )
 
 func ResourceMicroservice() *schema.Resource {
@@ -114,7 +115,7 @@ func resourceMicroserviceCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 
-	client := NewCustomClient(d.Get("connect_address").(string), "v4", "default")
+	client := common.NewCustomClient(true, d.Get("connect_address").(string), "v4", "default")
 	createOpts := buildMicroserviceCreateOpts(d)
 	log.Printf("[DEBUG] The createOpts of the Microservice is: %v", createOpts)
 	resp, err := services.Create(client, createOpts, token)
@@ -133,7 +134,7 @@ func resourceMicroserviceRead(_ context.Context, d *schema.ResourceData, _ inter
 		return diag.FromErr(err)
 	}
 
-	client := NewCustomClient(d.Get("connect_address").(string), "v4", "default")
+	client := common.NewCustomClient(true, d.Get("connect_address").(string), "v4", "default")
 	resp, err := services.Get(client, d.Id(), token)
 	if err != nil {
 		return diag.Errorf("error getting dedicated microservice (%s): %s", d.Id(), err)
@@ -164,7 +165,7 @@ func resourceMicroserviceDelete(_ context.Context, d *schema.ResourceData, _ int
 	deleteOpts := services.DeleteOpts{
 		Force: true,
 	}
-	client := NewCustomClient(d.Get("connect_address").(string), "v4", "default")
+	client := common.NewCustomClient(true, d.Get("connect_address").(string), "v4", "default")
 	err = services.Delete(client, deleteOpts, d.Id(), token)
 	if err != nil {
 		return diag.Errorf("error deleting dedicated microservice (%s): %s", d.Id(), err)

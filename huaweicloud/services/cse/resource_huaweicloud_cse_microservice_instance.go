@@ -189,7 +189,7 @@ func resourceMicroserviceInstanceCreate(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(err)
 	}
 
-	client := NewCustomClient(d.Get("connect_address").(string), "v4", "default")
+	client := common.NewCustomClient(true, d.Get("connect_address").(string), "v4", "default")
 	createOpts := buildInstanceCreateOpts(d)
 	log.Printf("[DEBUG] The createOpts of the Microservice instance is: %v", createOpts)
 	resp, err := instances.Create(client, createOpts, d.Get("microservice_id").(string), token)
@@ -239,7 +239,7 @@ func resourceMicroserviceInstanceRead(_ context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
-	client := NewCustomClient(d.Get("connect_address").(string), "v4", "default")
+	client := common.NewCustomClient(true, d.Get("connect_address").(string), "v4", "default")
 	resp, err := instances.Get(client, d.Get("microservice_id").(string), d.Id(), token)
 	if err != nil {
 		return common.CheckDeletedDiag(d, parseMicroserviceInstanceError(err), "error retrieving Microservice instance")
@@ -265,7 +265,7 @@ func resourceMicroserviceInstanceDelete(_ context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 
-	client := NewCustomClient(d.Get("connect_address").(string), "v4", "default")
+	client := common.NewCustomClient(true, d.Get("connect_address").(string), "v4", "default")
 	err = instances.Delete(client, d.Get("microservice_id").(string), d.Id(), token)
 	if err != nil {
 		return diag.Errorf("error deleting dedicated microservice instance (%s): %s", d.Id(), err)
