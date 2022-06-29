@@ -36,7 +36,7 @@ type CreateOpts struct {
 	Artifacts map[string]Artifact `json:"artifacts,omitempty"`
 	// Configuration parameters, such as environment variables, deployment configurations, and O&M monitoring.
 	// By default, this parameter is left blank.
-	Configuration *Configuration `json:"configuration,omitempty"`
+	Configuration Configuration `json:"configuration,omitempty"`
 	// Description. The value can contain up to 128 characters.
 	Description string `json:"description,omitempty"`
 	// External network access.
@@ -354,7 +354,7 @@ type UpdateOpts struct {
 	Artifacts map[string]Artifact `json:"artifacts,omitempty"`
 	// Configuration parameters, such as environment variables, deployment configurations, and O&M monitoring.
 	// By default, this parameter is left blank.
-	Configuration *Configuration `json:"configuration,omitempty"`
+	Configuration Configuration `json:"configuration,omitempty"`
 	// Description. The value can contain up to 128 characters.
 	Description *string `json:"description,omitempty"`
 	// External network access.
