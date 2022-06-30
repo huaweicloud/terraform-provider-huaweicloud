@@ -34,7 +34,7 @@ func TestAccDataForwardingRule_basic(t *testing.T) {
 		getDataForwardingRuleResourceFunc,
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -53,7 +53,7 @@ func TestAccDataForwardingRule_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testDataForwardingRule_dis(updateName, acceptance.HW_REGION_NAME, acceptance.HW_PROJECT_ID),
+				Config: testDataForwardingRule_dis(updateName, acceptance.HW_REGION_NAME),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(rName, "name", updateName),
 					resource.TestCheckResourceAttr(rName, "trigger", "product:delete"),
@@ -93,7 +93,7 @@ resource "huaweicloud_iotda_dataforwarding_rule" "test" {
 `, name)
 }
 
-func testDataForwardingRule_dis(name, region, projectId string) string {
+func testDataForwardingRule_dis(name, region string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dis_stream" "test" {
   stream_name     = "%s"
@@ -108,13 +108,10 @@ resource "huaweicloud_iotda_dataforwarding_rule" "test" {
   targets {
     type = "DIS_FORWARDING"
     dis_forwarding {
-      region     = "%s"
-      project_id = "%s"
-      stream_id  = huaweicloud_dis_stream.test.id
+      region    = "%s"
+      stream_id = huaweicloud_dis_stream.test.id
     }
   }
-
-
 }
-`, name, name, region, projectId)
+`, name, name, region)
 }
