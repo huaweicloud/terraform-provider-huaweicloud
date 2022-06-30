@@ -6,6 +6,9 @@ subcategory: "API Gateway (Dedicated APIG)"
 
 API publish Management within HuaweiCloud.
 
+~> If you republish on the same environment or switch versions through other ways (such as console) after the API is
+published through terraform, the current resource attributes will be affected, resulting in data inconsistency.
+
 ## Example Usage
 
 ### Publish a new version of the API
@@ -69,6 +72,8 @@ In addition to all arguments above, the following attributes are exported:
 * `publish_time` - Time when the current version was published.
 
 * `histories` - All publish informations of the API. The structure is documented below.
+
+* `publish_id` - The publish ID of the API in current environment.
 
 The `histories` block supports:
 

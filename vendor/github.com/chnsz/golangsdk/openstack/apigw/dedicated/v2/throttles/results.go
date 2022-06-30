@@ -142,3 +142,71 @@ func ExtractSpecThrottles(r pagination.Page) ([]SpecThrottle, error) {
 	err := r.(SpecThrottlePage).Result.ExtractIntoSlicePtr(&s, "throttle_specials")
 	return s, err
 }
+
+type BindResp struct {
+	// The ID of the binding relationship.
+	ID string `json:"id"`
+	// The publish ID.
+	PublishId string `json:"publish_id"`
+	// Policy scope, the values are as follows:
+	// 1: The entire API
+	// 2: single user
+	// 3: Single APP
+	// Currently only 1 is supported.
+	Scope int `json:"scope"`
+	// Throttling policy ID
+	StrategyId string `json:"strategy_id"`
+	// Apply time.
+	ApplyTime string `json:"apply_time"`
+}
+
+type ApiForThrottle struct {
+	// API authentication method.
+	AuthType string `json:"auth_type"`
+	// Group name to which the API belongs.
+	GroupName string `json:"group_name"`
+	// API publish record ID.
+	PublishId string `json:"publish_id"`
+	// The number of the binding relationship with the throttling policy.
+	ThrottleApplyId string `json:"throttle_apply_id"`
+	// Binding time of the bound throttling policy.
+	ApplyTime string `json:"apply_time"`
+	// API description.
+	Remark string `json:"remark"`
+	// The ID of the environment published by the API.
+	RunEnvId string `json:"run_env_id"`
+	// API type
+	Type int `json:"type"`
+	// Binding throttling policy name.
+	ThrottleName string `json:"throttle_name"`
+	// Request URI of the API.
+	ReqUri string `json:"req_uri"`
+	// The name of the environment published by the API.
+	RunEnvName string `json:"run_env_name"`
+	// Group ID to which the API belogns.
+	GroupId string `json:"group_id"`
+	// API Name.
+	Name string `json:"name"`
+	// API ID.
+	ID string `json:"id"`
+}
+
+type BatchResp struct {
+	// Number of API and throttling policy bindings that have been successfully unbound.
+	SuccessCount int `json:"success_count"`
+	// Unbinding failed API and throttling policy binding relationship and error information.
+	Failure []UnbindResult `json:"failure"`
+}
+
+type UnbindResult struct {
+	// API and throttling policy binding relationship ID that failed to unbind.
+	BindId string `json:"bind_id"`
+	// Unbind failed error code
+	ErrorCode string `json:"error_code"`
+	// Unbind failed error message
+	ErrorMsg string `json:"error_msg"`
+	// ID of the API that failed to unbind
+	ApiId string `json:"api_id"`
+	// The name of the API that failed to unbind
+	ApiName string `json:"api_name"`
+}

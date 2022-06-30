@@ -54,6 +54,7 @@ func TestAccApigApiPublishmentV2_basic(t *testing.T) {
 						"${huaweicloud_apig_api.test.id}"),
 					resource.TestCheckResourceAttrSet(resourceName, "env_name"),
 					resource.TestCheckResourceAttrSet(resourceName, "publish_time"),
+					resource.TestCheckResourceAttrSet(resourceName, "publish_id"),
 				),
 			},
 			{
