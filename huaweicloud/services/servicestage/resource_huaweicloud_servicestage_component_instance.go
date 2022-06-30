@@ -622,16 +622,15 @@ func buildReferResourcesList(resources *schema.Set) ([]instances.ReferResource, 
 		}
 		pResult := make(map[string]interface{})
 		if param, ok := res["parameters"]; ok {
+			log.Printf("[DEBUG] The parameters is %#v", param)
 			p := param.(map[string]interface{})
 			for k, v := range p {
 				if k == "hosts" {
 					var r []string
 					err := json.Unmarshal([]byte(v.(string)), &r)
 					if err != nil {
-						return nil, fmt.Errorf("The format of the host value is not right: %#v", v)
+						return nil, fmt.Errorf("the format of the host value is not right: %#v", v)
 					}
-					log.Printf("The host value is %v", r)
-					log.Printf("The length of host is %#v", len(r))
 					pResult[k] = &r
 					continue
 				}
@@ -641,7 +640,7 @@ func buildReferResourcesList(resources *schema.Set) ([]instances.ReferResource, 
 			refer.Parameters = pResult
 		}
 
-		log.Printf("The parameter map is %v", pResult)
+		log.Printf("[DEBUG] The parameter map is %v", pResult)
 		result[i] = refer
 	}
 
@@ -1040,36 +1039,15 @@ func flattenReferResources(resources []instances.ReferResource) (result []map[st
 	return
 }
 
-// After the instance is created, the system will automatically add a series of environment variables to it.
-// In order to ensure that users do not produce unexpected changes when executing the "terraform apply" command, system
-// variables need to be filtered.
-func isSystemVariable(varName string) bool {
-	prefixes := []string{"PAAS_", "AOM_", "CAS_"}
-	words := []string{"servicecomb_engine_name"}
-
-	// Check whether specified prefix is included.
-	for _, prefix := range prefixes {
-		if strings.Index(varName, prefix) == 0 {
-			return true
-		}
-	}
-
-	// Check whether the name is a specific word.
-	for _, word := range words {
-		if varName == word {
-			return true
-		}
-	}
-	return false
-}
-
-func flattenEnvVariables(variables []instances.Variable) (result []map[string]interface{}) {
+func flattenEnvVariables(variables []instances.VariableResp) (result []map[string]interface{}) {
 	if len(variables) < 1 {
 		return nil
 	}
 
 	for _, val := range variables {
-		if isSystemVariable(val.Name) {
+		// After the instance is created, the system will automatically add a series of environment variables to it.
+		// These variables will mark as internal.
+		if val.Internal {
 			continue
 		}
 		result = append(result, map[string]interface{}{

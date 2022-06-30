@@ -47,17 +47,30 @@ type Instance struct {
 // ConfigurationResp is an object represents the configuration details of the deployment.
 type ConfigurationResp struct {
 	// Environment variable.
-	EnvVariables []Variable `json:"env,omitempty"`
+	EnvVariables []VariableResp `json:"env"`
 	// Data storage configuration.
-	Storages []StorageResp `json:"storage,omitempty"`
+	Storages []StorageResp `json:"storage"`
 	// Upgrade policy.
-	Strategy StrategyResp `json:"strategy,omitempty"`
+	Strategy StrategyResp `json:"strategy"`
 	// Lifecycle.
-	Lifecycle LifecycleResp `json:"lifecycle,omitempty"`
+	Lifecycle LifecycleResp `json:"lifecycle"`
 	// Scheduling policy.
-	Scheduler SchedulerResp `json:"scheduler,omitempty"`
+	Scheduler SchedulerResp `json:"scheduler"`
 	// Health check.
-	Probe ProbeResp `json:"probes,omitempty"`
+	Probe ProbeResp `json:"probes"`
+}
+
+// VariableResp is an object represents the detail of the environment variable.
+
+type VariableResp struct {
+	// Whether variable is internal variable.
+	Internal bool `json:"internal"`
+	// Environment variable name.
+	// The value contains 1 to 64 characters, including letters, digits, underscores (_), hyphens (-), and dots (.),
+	// and cannot start with a digit.
+	Name string `json:"name"`
+	// Environment variable value.
+	Value string `json:"value"`
 }
 
 // StorageResp is an object represents the storage configuration of the deployment.

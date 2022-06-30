@@ -75,6 +75,10 @@ github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA
 github.com/cheggaaa/pb v1.0.27/go.mod h1:pQciLPpbU0oxA0h+VJYYLxO+XeDQb5pZijXscXHm81s=
 github.com/chnsz/golangsdk v0.0.0-20220630062244-9f47bb8d5e41 h1:2rUmKwJAmpFwDb52tmWjur21MOLRwPE7mQKFQQHiH5o=
 github.com/chnsz/golangsdk v0.0.0-20220630062244-9f47bb8d5e41/go.mod h1:j6UR2TfACtmWBEvYrQqTpk5wy3b2QsEdiLkjMoM47j8=
+github.com/chnsz/golangsdk v0.0.0-20220630062755-85a1fa99168c h1:czWH29Ei2iwmBIzBaK3l5oAFTWMvkLcTajxlbqGO2NI=
+github.com/chnsz/golangsdk v0.0.0-20220630062755-85a1fa99168c/go.mod h1:j6UR2TfACtmWBEvYrQqTpk5wy3b2QsEdiLkjMoM47j8=
+github.com/chnsz/golangsdk v0.0.0-20220701061130-f5ff51d74f49 h1:sOEiD9DiwqfFOgb0udZzgETtEPTSKzw0cx7sjW1LKJE=
+github.com/chnsz/golangsdk v0.0.0-20220701061130-f5ff51d74f49/go.mod h1:j6UR2TfACtmWBEvYrQqTpk5wy3b2QsEdiLkjMoM47j8=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
 github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5PlCu98SY8svDHJxuZscDgtXS6KTTbou5AhLI=
 github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1/go.mod h1:Q3SI9o4m/ZMnBNeIyt5eFwwo7qiLfzFZmjNmxjkiQlU=

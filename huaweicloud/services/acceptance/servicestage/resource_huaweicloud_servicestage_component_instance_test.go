@@ -63,8 +63,6 @@ func TestAccComponentInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "artifact.0.url", acceptance.HW_BUILD_IMAGE_URL),
 					resource.TestCheckResourceAttr(resourceName, "artifact.0.auth_type", "iam"),
 					resource.TestCheckResourceAttr(resourceName, "refer_resource.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "configuration.0.env_variable.0.name", "TZ"),
-					resource.TestCheckResourceAttr(resourceName, "configuration.0.env_variable.0.value", "Asia/Shanghai"),
 					resource.TestCheckResourceAttr(resourceName, "status", "RUNNING"),
 				),
 			},
@@ -75,6 +73,8 @@ func TestAccComponentInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "version", "1.0.2"),
 					resource.TestCheckResourceAttr(resourceName, "flavor_id", "CUSTOM-15G:500m-500m:1Gi-1Gi"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "configuration.0.env_variable.0.name", "TZ"),
+					resource.TestCheckResourceAttr(resourceName, "configuration.0.env_variable.0.value", "Asia/Shanghai"),
 					resource.TestCheckResourceAttr(resourceName, "status", "RUNNING"),
 				),
 			},
@@ -259,19 +259,6 @@ resource "huaweicloud_servicestage_component_instance" "test" {
     type = "cse"
     id   = "default"
   }
-
-  configuration {
-    env_variable {
-      name  = "TZ"
-      value = "Asia/Shanghai"
-    }
-  }
-
-  lifecycle {
-    ignore_changes = [
-      configuration[0].env_variable,
-    ]
-  }
 }
 `, testAccComponentInstance_base(rName), rName, acceptance.HW_BUILD_IMAGE_URL)
 }
@@ -318,12 +305,6 @@ resource "huaweicloud_servicestage_component_instance" "test" {
       name  = "TZ"
       value = "Asia/Shanghai"
     }
-  }
-
-  lifecycle {
-    ignore_changes = [
-      configuration[0].env_variable,
-    ]
   }
 }
 `, testAccComponentInstance_base(rName), rName, acceptance.HW_BUILD_IMAGE_URL)

@@ -267,11 +267,7 @@ The `env_variable` block supports:
   The name can contain `1` to `64` characters, only letters, digits, hyphens (-), underscores (_) and dots (.) are
   allowed. The name cannot start with a digit.
 
-* `value` - (Required, String) Specifies the variable value. After the instance is created, the system will
-  automatically add a series of environment variables to it. We have filtered the system parameters, please be careful
-  not to set the parameters of the following styles:
-  + Starting with the feature keyword: **PAAS_**, **CAS_**, and **AOM_**.
-  + Specific variable name: **servicecomb_engine_name**.
+* `value` - (Required, String) Specifies the variable value.
 
 <a name="servicestage_storages"></a>
 The `storage` block supports:
