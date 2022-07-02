@@ -2,11 +2,13 @@ package utils
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/big"
 	"os"
 	"regexp"
 	"strings"
@@ -158,8 +160,23 @@ func NormalizeJsonString(jsonString interface{}) (string, error) {
 // StrSliceContains checks if a given string is contained in a slice
 // When anybody asks why Go needs generics, here you go.
 func StrSliceContains(haystack []string, needle string) bool {
-	for _, s := range haystack {
-		if s == needle {
+	return IsStrContainsSliceElement(needle, haystack, false, true)
+}
+
+// IsStrContainsSliceElement returns true if the string exists in given slice or contains in one of slice elements when
+// open exact flag. Also you can ignore case for this check.
+func IsStrContainsSliceElement(str string, sl []string, ignoreCase, isExcat bool) bool {
+	if ignoreCase {
+		str = strings.ToLower(str)
+	}
+	for _, s := range sl {
+		if ignoreCase {
+			s = strings.ToLower(s)
+		}
+		if isExcat && s == str {
+			return true
+		}
+		if !isExcat && strings.Contains(str, s) {
 			return true
 		}
 	}
@@ -327,4 +344,31 @@ func MarshalValue(i interface{}) string {
 	}
 
 	return strings.Trim(string(jsonRaw), `"`)
+}
+
+// RandomString returns a random string with a fixed length. You can also define a custom random character set.
+// Note: make sure the number is not a negative integer or a big integer.
+func RandomString(n int, allowedChars ...[]rune) (result string) {
+	var letters []rune
+
+	if len(allowedChars) == 0 {
+		// Using default seed.
+		letters = []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
+	} else {
+		letters = allowedChars[0]
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("[ERROR] The number (input n) cannot be a negative integer or a large integer: %#v", r)
+		}
+	}()
+	b := make([]rune, n)
+	for i := range b {
+		n, _ := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
+		b[i] = letters[n.Int64()]
+	}
+
+	result = string(b)
+	return
 }

@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/unknwon/com"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // MAXFieldLength is the maximum string length of single field when logging
@@ -184,17 +184,14 @@ func formatJSON(raw []byte, maskBody bool) string {
 	return string(pretty)
 }
 
-// REDACT_HEADERS is a list of headers that need to be redacted
-var REDACT_HEADERS = []string{
-	"x-auth-token", "x-security-token", "x-service-token",
-	"x-subject-token", "x-storage-token", "authorization",
-}
-
-// RedactHeaders processes a headers object, returning a redacted list
+// RedactHeaders processes a headers object, returning a redacted list.
 func RedactHeaders(headers http.Header) (processedHeaders []string) {
+	// sensitiveWords is a list of headers that need to be redacted.
+	var sensitiveWords = []string{"token", "authorization"}
+
 	for name, header := range headers {
 		for _, v := range header {
-			if com.IsSliceContainsStr(REDACT_HEADERS, name) {
+			if utils.IsStrContainsSliceElement(name, sensitiveWords, true, false) {
 				processedHeaders = append(processedHeaders, fmt.Sprintf("%v: %v", name, "***"))
 			} else {
 				processedHeaders = append(processedHeaders, fmt.Sprintf("%v: %v", name, v))
@@ -231,22 +228,18 @@ func maskSecurityFields(data map[string]interface{}) bool {
 }
 
 func isSecurityFields(field string) bool {
-	// "password" is apply to the most request JSON body
-	// "secret" is apply to the AK/SK response JSON body
-	// "securitytoken" is apply to the AK/SK response JSON body
-	if strings.Contains(field, "password") || strings.Contains(field, "secret") || strings.Contains(field, "securitytoken") {
+	checkField := strings.ToLower(field)
+	// 'password' is apply to the most request JSON body.
+	// 'secret' is apply to the AK/SK response JSON body.
+	// 'pwd' and 'token' is the high frequency sensitive keywords in the request and response bodies.
+	if strings.Contains(checkField, "password") || strings.Contains(checkField, "secret") ||
+		strings.HasSuffix(field, "pwd") || strings.HasSuffix(checkField, "token") {
 		return true
 	}
 
-	// "adminPass" is apply to the ecs/bms instance request JSON body
-	// "adminPwd" is apply to the css cluster request JSON body
+	// 'adminpass' is apply to the ecs/bms instance request JSON body
 	// 'encrypted_user_data' is apply to the function request JSON body of FunctionGraph
-	securityFields := []string{"adminPass", "adminPwd", "encrypted_user_data", "token"}
-	for _, key := range securityFields {
-		if key == field {
-			return true
-		}
-	}
-
-	return false
+	// 'nonce' is apply to the random string for authorization methods.
+	securityFields := []string{"adminpass", "encrypted_user_data", "nonce"}
+	return utils.StrSliceContains(securityFields, checkField)
 }

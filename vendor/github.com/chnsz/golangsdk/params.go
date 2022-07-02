@@ -116,7 +116,7 @@ func BuildRequestBody(opts interface{}, parent string) (map[string]interface{}, 
 			}
 
 			jsonTag := f.Tag.Get("json")
-			if jsonTag == "-" {
+			if jsonTag == "-" || jsonTag == "" {
 				continue
 			}
 

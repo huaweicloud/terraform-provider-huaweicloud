@@ -23,6 +23,11 @@ func StringIgnoreEmpty(v string) *string {
 	return &v
 }
 
+// Int returns a pointer to the int value
+func Int(v int) *int {
+	return &v
+}
+
 // Int32 returns a pointer to the int32 value
 func Int32(v int32) *int32 {
 	return &v

@@ -65,6 +65,15 @@ var (
 
 	HW_VOD_WATERMARK_FILE   = os.Getenv("HW_VOD_WATERMARK_FILE")
 	HW_VOD_MEDIA_ASSET_FILE = os.Getenv("HW_VOD_MEDIA_ASSET_FILE")
+
+	HW_CHAIR_EMAIL              = os.Getenv("HW_CHAIR_EMAIL")
+	HW_GUEST_EMAIL              = os.Getenv("HW_GUEST_EMAIL")
+	HW_MEETING_ACCOUNT_NAME     = os.Getenv("HW_MEETING_ACCOUNT_NAME")
+	HW_MEETING_ACCOUNT_PASSWORD = os.Getenv("HW_MEETING_ACCOUNT_PASSWORD")
+	HW_MEETING_APP_ID           = os.Getenv("HW_MEETING_APP_ID")
+	HW_MEETING_APP_KEY          = os.Getenv("HW_MEETING_APP_KEY")
+	HW_MEETING_USER_ID          = os.Getenv("HW_MEETING_USER_ID")
+	HW_MEETING_ROOM_ID          = os.Getenv("HW_MEETING_ROOM_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -296,5 +305,36 @@ func TestAccPreCheckVODWatermark(t *testing.T) {
 func TestAccPreCheckVODMediaAsset(t *testing.T) {
 	if HW_VOD_MEDIA_ASSET_FILE == "" {
 		t.Skip("HW_VOD_MEDIA_ASSET_FILE must be set for VOD media asset acceptance tests.")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckPwdAuth(t *testing.T) {
+	if HW_MEETING_ACCOUNT_NAME == "" || HW_MEETING_ACCOUNT_PASSWORD == "" {
+		t.Skip("The account name (HW_MEETING_ACCOUNT_NAME) or password (HW_MEETING_ACCOUNT_PASSWORD) is not " +
+			"completed for acceptance test of conference.")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckAppAuth(t *testing.T) {
+	if HW_MEETING_APP_ID == "" || HW_MEETING_APP_KEY == "" || HW_MEETING_USER_ID == "" {
+		t.Skip("The app ID (HW_MEETING_APP_ID), app KEY (HW_MEETING_APP_KEY) or user ID (HW_MEETING_USER_ID) is not " +
+			"completed for acceptance test of conference.")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckMeetingRoom(t *testing.T) {
+	if HW_MEETING_ROOM_ID == "" {
+		t.Skip("The vmr ID (HW_MEETING_ROOM_ID) is not completed for acceptance test of conference.")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckParticipants(t *testing.T) {
+	if HW_CHAIR_EMAIL == "" || HW_GUEST_EMAIL == "" {
+		t.Skip("The chair (HW_CHAIR_EMAIL) or guest (HW_GUEST_EMAIL) mailbox is not completed for acceptance test of " +
+			"conference.")
 	}
 }
