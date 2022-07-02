@@ -1,5 +1,28 @@
 # CHANGELOG
 
+## 1.38.0 (July 2, 2022)
+
+* **New Resurce:**
+  + `huaweicloud_iotda_amqp` [GH-2216]
+  + `huaweicloud_iotda_device` [GH-2182]
+  + `huaweicloud_iotda_device_group` [GH-2206]
+  + `huaweicloud_iotda_dataforwarding_rule` [GH-2211]
+  + `huaweicloud_iotda_device_linkage_rule` [GH-2225]
+  + `huaweicloud_iotda_device_certificate` [GH-2219]
+  + `huaweicloud_vod_media_asset` [GH-2201]
+  + `huaweicloud_oms_migration_task` [GH-2214]
+  + `huaweicloud_meeting_conference` [GH-2218]
+  + `huaweicloud_rds_database` [GH-2220]
+  + `huaweicloud_apig_throttling_policy_associate` [GGH-2221]
+
+* **New Data Source:**
+  + `huaweicloud_apig_environments` [GH-2222]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cbr_vault: Add prepaid support [GH-2183]
+* resource/huaweicloud_kms_key: Support key rotation [GH-2210]
+
 ## 1.37.1 (June 10, 2022)
 
 BUG FIXES:
