@@ -10,10 +10,8 @@ Manages an IoTDA data forwarding rule within HuaweiCloud.
 
 ```hcl
 variable "disRegion" {}
-variable "disProjectId" {}
 variable "disStreamId" {}
 variable "obsRegion" {}
-variable "obsProjectId" {}
 variable "obsbucket" {}
 
 resource "huaweicloud_iotda_dataforwarding_rule" "test" {
@@ -24,9 +22,8 @@ resource "huaweicloud_iotda_dataforwarding_rule" "test" {
   targets {
     type = "DIS_FORWARDING"
     dis_forwarding {
-      region     = var.disRegion
-      project_id = var.disProjectId
-      stream_id  = var.disStreamId
+      region    = var.disRegion
+      stream_id = var.disStreamId
     }
   }
 
@@ -40,9 +37,8 @@ resource "huaweicloud_iotda_dataforwarding_rule" "test" {
   targets {
     type = "OBS_FORWARDING"
     obs_forwarding {
-      region     = var.obsRegion
-      project_id = var.obsProjectId
-      bucket     = var.obsbucket
+      region = var.obsRegion
+      bucket = var.obsbucket
     }
   }
 }
@@ -53,10 +49,10 @@ resource "huaweicloud_iotda_dataforwarding_rule" "test" {
 The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the IoTDA data forwarding rule
-resource. If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
+  resource. If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Specifies the name of data forwarding rule. The name contains a maximum of 256 characters.
- Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following specail characters are
+  Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following specail characters are
   allowed: `?'#().,&%@!`.
 
 * `trigger` - (Required, String, ForceNew) Specifies the trigger event. The options are as follows:
@@ -73,27 +69,27 @@ resource. If omitted, the provider-level region will be used. Changing this para
   + **product:update**: Product updated.
   + **device.command.status:update**: Update of the device asynchronous command status.
 
-Changing this parameter will create a new resource.
+  Changing this parameter will create a new resource.
 
 * `description` - (Optional, String) Specifies the description of data forwarding rule. The description contains
-a maximum of 256 characters.
+  a maximum of 256 characters.
 
 * `space_id` - (Optional, String, ForceNew) Specifies the resource space ID which uses the data forwarding rule.
-If omitted, all resource space will use the data forwarding rule. Changing this parameter will create a new resource.
+  If omitted, all resource space will use the data forwarding rule. Changing this parameter will create a new resource.
 
 * `select` - (Optional, String) Specifies the SQL SELECT statement which contains a maximum of 500 characters.
 
 * `where` - (Optional, String) Specifies the SQL WHERE statement which contains a maximum of 500 characters.
 
 * `targets` - (Optional, List) Specifies the list of the targets (HUAWEI CLOUD services or private servers) to which you
-want to forward the data. The [targets](#IoTDA_targets) structure is documented below.
+  want to forward the data. The [targets](#IoTDA_targets) structure is documented below.
 
 -> The IoTDA supports connection with other cloud services of HUAWEI CLOUD. When creating a rule for connecting to
-DIS, OBS, Kafka, ROMA Connect service, and SMN for the first time, you need to create a agency which can access the
-target cloud services. The default agency is `iotda_admin_trust`.
+  DIS, OBS, Kafka, ROMA Connect service, and SMN for the first time, you need to create a agency which can access the
+  target cloud services. The default agency is `iotda_admin_trust`.
 
 * `enabled` - (Optional, Bool) Specifies whether to enable the data forwarding rule. Defaults to `false`.
-Can not enable without `targets`.
+  Can not enable without `targets`.
 
 <a name="IoTDA_targets"></a>
 The `targets` block supports:
@@ -113,19 +109,19 @@ The `targets` block supports:
    and traffic balancing.
 
 * `http_forwarding` - (Optional, List) Specifies the detail of the HTTP forwards. It is required when type
-is `HTTP_FORWARDING`. The [http_forwarding](#IoTDA_http_forwarding) structure is documented below.
+  is `HTTP_FORWARDING`. The [http_forwarding](#IoTDA_http_forwarding) structure is documented below.
 
 * `dis_forwarding` - (Optional, List) Specifies the detail of the DIS forwards. It is required when type
-is `DIS_FORWARDING`. The [dis_forwarding](#IoTDA_dis_forwarding) structure is documented below.
+  is `DIS_FORWARDING`. The [dis_forwarding](#IoTDA_dis_forwarding) structure is documented below.
 
 * `obs_forwarding` - (Optional, List) Specifies the detail of the OBS forwards. It is required when type
-is `OBS_FORWARDING`. The [obs_forwarding](#IoTDA_obs_forwarding) structure is documented below.
+  is `OBS_FORWARDING`. The [obs_forwarding](#IoTDA_obs_forwarding) structure is documented below.
 
 * `amqp_forwarding` - (Optional, List) Specifies the detail of AMQP forwards. It is required when type
-is `AMQP_FORWARDING`. The [amqp_forwarding](#IoTDA_amqp_forwarding) structure is documented below.
+  is `AMQP_FORWARDING`. The [amqp_forwarding](#IoTDA_amqp_forwarding) structure is documented below.
 
 * `kafka_forwarding` - (Optional, List) Specifies the detail of the KAFKA forwards. It is required when type
-is `DMS_KAFKA_FORWARDING`. The [properties](#IoTDA_kafka_forwarding) structure is documented below.
+  is `DMS_KAFKA_FORWARDING`. The [properties](#IoTDA_kafka_forwarding) structure is documented below.
 
 <a name="IoTDA_http_forwarding"></a>
 The `http_forwarding` block supports:
@@ -137,18 +133,20 @@ The `dis_forwarding` block supports:
 
 * `region` - (Required, String) Specifies the region to which the DIS stream belongs.
 
-* `project_id` - (Required, String) Specifies the project ID to which the DIS stream belongs.
-
 * `stream_id` - (Required, String) Specifies the DIS stream ID.
+
+* `project_id` - (Optional, String) Specifies the project ID to which the DIS stream belongs.
+If omitted, the default project in the region will be used.
 
 <a name="IoTDA_obs_forwarding"></a>
 The `obs_forwarding` block supports:
 
 * `region` - (Required, String) Specifies the region to which the OBS belongs.
 
-* `project_id` - (Required, String) Specifies the project ID to which the OBS belongs.
-
 * `bucket` - (Required, String) Specifies the OBS Bucket.
+
+* `project_id` - (Optional, String) Specifies the project ID to which the OBS belongs.
+  If omitted, the default project in the region will be used.
 
 * `custom_directory` - (Optional, String) Specifies the custom directory for storing channel files. The ID contains a
  maximum of 256 characters. Multi-level directories can be separated by (/), and cannot start or end with a slash (/),
@@ -167,12 +165,13 @@ The `kafka_forwarding` block supports:
 
 * `region` - (Required, String) Specifies the region to which the KAFKA belongs.
 
-* `project_id` - (Required, String) Specifies the project ID to which the KAFKA belongs.
-
 * `topic` - (Required, String) Specifies the topic.
 
 * `addresses` - (Required, List) Specifies the list of the connected service addresses.
 The [addresses](#IoTDA_forwarding_addresses) structure is documented below.
+
+* `project_id` - (Optional, String) Specifies the project ID to which the KAFKA belongs.
+If omitted, the default project in the region will be used.
 
 * `user_name` - (Optional, String) Specifies the SASL user name.
 
