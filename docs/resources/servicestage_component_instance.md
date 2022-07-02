@@ -8,7 +8,7 @@ This resource is used to deploy a component under specified application within H
 
 ## Example Usage
 
-### Deploy a component with specified SWR image
+### Deploy a component in the container with specified SWR image
 
 ```hcl
 variable "app_id" {}
@@ -58,6 +58,55 @@ resource "huaweicloud_servicestage_component_instance" "default" {
     env_variable {
       name  = "TZ"
       value = "Asia/Shanghai"
+    }
+  }
+}
+```
+
+### Deploy a component in the ECS instance with specified jar package
+
+```hcl
+variable "app_id" {}
+variable "component_id" {}
+variable "env_id" {}
+variable "instance_name" {}
+variable "flavor_id" {}
+variable "component_name" {}
+variable "jar_url" {}
+variable "obs_bucket_name" {}
+variable "obs_bucket_endpoint" {}
+variable "obs_object_key" {}
+variable "ecs_instance_id" {}
+
+resource "huaweicloud_servicestage_component_instance" "test" {
+  application_id = var.app_id
+  component_id   = var.component_id
+  environment_id = var.env_id
+
+  name      = var.instance_name
+  version   = "1.0.0"
+  replica   = 1
+  flavor_id = var.flavor_id
+
+  artifact {
+    name      = var.component_name
+    auth_type = "iam"
+    type      = "package"
+    storage   = "obs"
+    url       = var.jar_url
+
+    properties {
+      bucket   = var.obs_bucket_name
+      endpoint = var.obs_bucket_endpoint
+      key      = var.obs_object_key
+    }
+  }
+
+  refer_resource {
+    type = "ecs"
+    id   = "Default"
+    parameters = {
+      hosts = "[\"${var.ecs_instance_id}\"]"
     }
   }
 }
@@ -146,11 +195,11 @@ The `refer_resource` block supports:
   The valid values are: **distributed_session**, **distributed_cache** and **distributed_session, distributed_cache**.
   Defaults to **distributed_session, distributed_cache**.
 
-* `parameters` - (Optional, String) Specifies the reference resource parameter.
+* `parameters` - (Optional, Map) Specifies the reference resource parameter.
   + When `type` is set to **cce**, this parameter is mandatory, and need to specify the namespace of the cluster where
   the component is to be deployed, such as **{"namespace": "default"}**.
   + When `type` is set to **ecs**, this parameter is mandatory, and need to specify the hosts where the component is to
-  be deployed, such as **{"hosts":["04d9f887-9860-4029-91d1-7d3102903a69", "04d9f887-9860-4029-91d1-7d3102903a70"]}}**.
+  be deployed, such as **{"hosts":"[\"04d9f887-9860-4029-91d1-7d3102903a69\", \"04d9f887-9860-4029-91d1-7d3102903a70\"]"}**.
 
 <a name="servicestage_artifact"></a>
 The `artifact` block supports:
@@ -173,6 +222,19 @@ The `artifact` block supports:
   The valid values are **iam** and **none**. Defaults to **iam**.
 
 * `version` - (Optional, String) Specifies the version number.
+
+* `properties` - (Optional, List) Specifies the properties of the OBS object.
+  This parameter is available only `storage` is **obs**.
+  The [object](#servicestage_properties) structure is documented below.
+
+<a name="servicestage_properties"></a>
+The `properties` block supports:
+
+* `bucket` - (Optional, String) Specifies the OBS bucket name.
+
+* `endpoint` - (Optional, String) Specifies the OBS bucket endpoint.
+
+* `key` - (Optional, String) Specifies the key name of the OBS object.
 
 <a name="servicestage_configuration"></a>
 The `configuration` block supports:
@@ -205,11 +267,7 @@ The `env_variable` block supports:
   The name can contain `1` to `64` characters, only letters, digits, hyphens (-), underscores (_) and dots (.) are
   allowed. The name cannot start with a digit.
 
-* `value` - (Required, String) Specifies the variable value. After the instance is created, the system will
-  automatically add a series of environment variables to it. We have filtered the system parameters, please be careful
-  not to set the parameters of the following styles:
-  + Starting with the feature keyword: **PAAS_**, **CAS_**, and **AOM_**.
-  + Specific variable name: **servicecomb_engine_name**.
+* `value` - (Required, String) Specifies the variable value.
 
 <a name="servicestage_storages"></a>
 The `storage` block supports:

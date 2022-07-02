@@ -2,6 +2,7 @@ package servicestage
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"reflect"
@@ -304,7 +305,31 @@ func ResourceComponentInstance() *schema.Resource {
 							Optional: true,
 							Computed: true,
 						},
-						// Currently, we don't know how to configure the properties.
+						"properties": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"bucket": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"endpoint": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"key": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -560,21 +585,31 @@ func buildArtifactStructure(artifacts *schema.Set) map[string]instances.Artifact
 	result := make(map[string]instances.Artifact)
 	for _, val := range artifacts.List() {
 		artifact := val.(map[string]interface{})
-		result[artifact["name"].(string)] = instances.Artifact{
+		s := instances.Artifact{
 			Type:    artifact["type"].(string),
 			Storage: artifact["storage"].(string),
 			URL:     artifact["url"].(string),
 			Auth:    artifact["auth_type"].(string),
 			Version: artifact["version"].(string),
 		}
+		properties := artifact["properties"].([]interface{})
+		if len(properties) > 0 {
+			property := properties[0].(map[string]interface{})
+			s.Properties = map[string]interface{}{
+				"bucket":   property["bucket"].(string),
+				"endpoint": property["endpoint"].(string),
+				"key":      property["key"].(string),
+			}
+		}
+		result[artifact["name"].(string)] = s
 	}
 
 	return result
 }
 
-func buildReferResourcesList(resources *schema.Set) []instances.ReferResource {
+func buildReferResourcesList(resources *schema.Set) ([]instances.ReferResource, error) {
 	if resources.Len() < 1 {
-		return nil
+		return nil, nil
 	}
 
 	result := make([]instances.ReferResource, resources.Len())
@@ -585,13 +620,31 @@ func buildReferResourcesList(resources *schema.Set) []instances.ReferResource {
 			ID:         res["id"].(string),
 			ReferAlias: res["alias"].(string),
 		}
+		pResult := make(map[string]interface{})
 		if param, ok := res["parameters"]; ok {
-			refer.Parameters = param.(map[string]interface{})
+			log.Printf("[DEBUG] The parameters is %#v", param)
+			p := param.(map[string]interface{})
+			for k, v := range p {
+				if k == "hosts" {
+					var r []string
+					err := json.Unmarshal([]byte(v.(string)), &r)
+					if err != nil {
+						return nil, fmt.Errorf("the format of the host value is not right: %#v", v)
+					}
+					pResult[k] = &r
+					continue
+				}
+				pResult[k] = v
+			}
+
+			refer.Parameters = pResult
 		}
+
+		log.Printf("[DEBUG] The parameter map is %v", pResult)
 		result[i] = refer
 	}
 
-	return result
+	return result, nil
 }
 
 func buildEnvVariables(variables *schema.Set) []instances.Variable {
@@ -808,18 +861,18 @@ func buildProbeStructure(probes []interface{}) (*instances.Probe, error) {
 	}, nil
 }
 
-func buildConfigurationStructure(configs []interface{}) (*instances.Configuration, error) {
+func buildConfigurationStructure(configs []interface{}) (instances.Configuration, error) {
 	if len(configs) < 1 {
-		return nil, nil
+		return instances.Configuration{}, nil
 	}
 
 	config := configs[0].(map[string]interface{})
 	probe, err := buildProbeStructure(config["probe"].([]interface{}))
 	if err != nil {
-		return nil, err
+		return instances.Configuration{}, err
 	}
 
-	return &instances.Configuration{
+	return instances.Configuration{
 		EnvVariables: buildEnvVariables(config["env_variable"].(*schema.Set)),
 		Storages:     buildStoragesList(config["storage"].(*schema.Set)),
 		Strategy:     buildStrategyStructure(config["strategy"].([]interface{})),
@@ -849,16 +902,21 @@ func buildExternalAccessList(accesses *schema.Set) []instances.ExternalAccess {
 
 func buildInstanceCreateOpts(d *schema.ResourceData) (instances.CreateOpts, error) {
 	result := instances.CreateOpts{
-		EnvId:            d.Get("environment_id").(string),
-		Name:             d.Get("name").(string),
-		Version:          d.Get("version").(string),
-		Replica:          d.Get("replica").(int),
-		FlavorId:         d.Get("flavor_id").(string),
-		Description:      d.Get("description").(string),
-		Artifacts:        buildArtifactStructure(d.Get("artifact").(*schema.Set)),
-		ReferResources:   buildReferResourcesList(d.Get("refer_resource").(*schema.Set)),
+		EnvId:       d.Get("environment_id").(string),
+		Name:        d.Get("name").(string),
+		Version:     d.Get("version").(string),
+		Replica:     d.Get("replica").(int),
+		FlavorId:    d.Get("flavor_id").(string),
+		Description: d.Get("description").(string),
+		Artifacts:   buildArtifactStructure(d.Get("artifact").(*schema.Set)),
+
 		ExternalAccesses: buildExternalAccessList(d.Get("external_access").(*schema.Set)),
 	}
+	referRes, err := buildReferResourcesList(d.Get("refer_resource").(*schema.Set))
+	if err != nil {
+		return result, err
+	}
+	result.ReferResources = referRes
 
 	conf, err := buildConfigurationStructure(d.Get("configuration").([]interface{}))
 	if err != nil {
@@ -909,20 +967,42 @@ func resourceComponentInstanceCreate(ctx context.Context, d *schema.ResourceData
 	return resourceComponentInstanceRead(ctx, d, meta)
 }
 
-func flattenArtifact(artifacts map[string]instances.Artifact) (result []map[string]interface{}) {
+func flattenProperties(properties map[string]interface{}) []map[string]interface{} {
+	result := make(map[string]interface{})
+	if bucket, ok := properties["bucket"]; ok {
+		result["bucket"] = bucket
+	}
+	if endpoint, ok := properties["endpoint"]; ok {
+		result["endpoint"] = endpoint
+	}
+	if key, ok := properties["key"]; ok {
+		result["key"] = key
+	}
+	if len(result) < 1 {
+		return nil
+	}
+	return []map[string]interface{}{result}
+}
+
+func flattenArtifact(artifacts map[string]instances.Artifact) []map[string]interface{} {
 	if len(artifacts) < 1 {
 		return nil
 	}
 
+	result := make([]map[string]interface{}, 0, len(artifacts))
 	for key, val := range artifacts {
-		result = append(result, map[string]interface{}{
+		s := map[string]interface{}{
 			"name":      key,
 			"type":      val.Type,
 			"storage":   val.Storage,
 			"url":       val.URL,
 			"auth_type": val.Auth,
 			"version":   val.Version,
-		})
+		}
+		if p := flattenProperties(val.Properties); p != nil {
+			s["properties"] = p
+		}
+		result = append(result, s)
 	}
 
 	log.Printf("[DEBUG] The artifacts result is %#v", result)
@@ -935,48 +1015,39 @@ func flattenReferResources(resources []instances.ReferResource) (result []map[st
 	}
 
 	for _, val := range resources {
-		result = append(result, map[string]interface{}{
-			"type":       val.Type,
-			"id":         val.ID,
-			"parameters": val.Parameters,
-			"alias":      val.ReferAlias,
-		})
+		s := map[string]interface{}{
+			"type":  val.Type,
+			"id":    val.ID,
+			"alias": val.ReferAlias,
+		}
+		params := make(map[string]interface{})
+		for k, v := range val.Parameters {
+			if _, ok := v.([]interface{}); ok {
+				jsonByte, _ := json.Marshal(v.([]interface{}))
+				params[k] = string(jsonByte)
+				continue
+			}
+			params[k] = v
+		}
+		if len(params) > 0 {
+			s["parameters"] = params
+		}
+		result = append(result, s)
 	}
 
 	log.Printf("[DEBUG] The resources result is %#v", result)
 	return
 }
 
-// After the instance is created, the system will automatically add a series of environment variables to it.
-// In order to ensure that users do not produce unexpected changes when executing the "terraform apply" command, system
-// variables need to be filtered.
-func isSystemVariable(varName string) bool {
-	prefixes := []string{"PAAS_", "AOM_", "CAS_"}
-	words := []string{"servicecomb_engine_name"}
-
-	// Check whether specified prefix is included.
-	for _, prefix := range prefixes {
-		if strings.Index(varName, prefix) == 0 {
-			return true
-		}
-	}
-
-	// Check whether the name is a specific word.
-	for _, word := range words {
-		if varName == word {
-			return true
-		}
-	}
-	return false
-}
-
-func flattenEnvVariables(variables []instances.Variable) (result []map[string]interface{}) {
+func flattenEnvVariables(variables []instances.VariableResp) (result []map[string]interface{}) {
 	if len(variables) < 1 {
 		return nil
 	}
 
 	for _, val := range variables {
-		if isSystemVariable(val.Name) {
+		// After the instance is created, the system will automatically add a series of environment variables to it.
+		// These variables will mark as internal.
+		if val.Internal {
 			continue
 		}
 		result = append(result, map[string]interface{}{
@@ -1285,9 +1356,14 @@ func buildInstanceUpdateOpts(d *schema.ResourceData) (instances.UpdateOpts, erro
 		FlavorId:         d.Get("flavor_id").(string),
 		Description:      &desc,
 		Artifacts:        buildArtifactStructure(d.Get("artifact").(*schema.Set)),
-		ReferResources:   buildReferResourcesList(d.Get("refer_resource").(*schema.Set)),
 		ExternalAccesses: buildExternalAccessList(d.Get("external_access").(*schema.Set)),
 	}
+
+	referRes, err := buildReferResourcesList(d.Get("refer_resource").(*schema.Set))
+	if err != nil {
+		return result, err
+	}
+	result.ReferResources = referRes
 
 	conf, err := buildConfigurationStructure(d.Get("configuration").([]interface{}))
 	if err != nil {
