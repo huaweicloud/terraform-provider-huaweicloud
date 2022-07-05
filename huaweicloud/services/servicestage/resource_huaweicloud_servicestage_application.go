@@ -195,7 +195,7 @@ func resourceApplicationRead(_ context.Context, d *schema.ResourceData, meta int
 
 	application, err := applications.Get(client, d.Id())
 	if err != nil {
-		common.CheckDeletedDiag(d, err, "error retrieving ServiceStage application")
+		return common.CheckDeletedDiag(d, err, "error retrieving ServiceStage application")
 	}
 
 	componentList, err := components.List(client, d.Id(), components.ListOpts{})
