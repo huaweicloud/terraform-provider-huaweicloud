@@ -1327,7 +1327,7 @@ func resourceComponentInstanceRead(_ context.Context, d *schema.ResourceData, me
 	componentId := d.Get("component_id").(string)
 	resp, err := instances.Get(client, appId, componentId, d.Id())
 	if err != nil {
-		common.CheckDeletedDiag(d, err, "error retrieving ServiceStage component instance")
+		return common.CheckDeletedDiag(d, err, "error retrieving ServiceStage component instance")
 	}
 
 	mErr := multierror.Append(nil,

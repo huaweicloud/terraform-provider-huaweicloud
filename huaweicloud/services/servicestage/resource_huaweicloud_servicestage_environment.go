@@ -168,7 +168,7 @@ func resourceEnvironmentRead(_ context.Context, d *schema.ResourceData, meta int
 
 	resp, err := environments.Get(client, d.Id())
 	if err != nil {
-		common.CheckDeletedDiag(d, err, "error retrieving ServiceStage environment")
+		return common.CheckDeletedDiag(d, err, "error retrieving ServiceStage environment")
 	}
 
 	mErr := multierror.Append(nil,
