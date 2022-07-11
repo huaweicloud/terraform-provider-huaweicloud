@@ -79,5 +79,5 @@ data "huaweicloud_dms_kafka_instances" "query_4" {
 
   status = "RUNNING"
 }
-`, testAccDmsKafkaInstance_basic(rName))
+`, testAccKafkaInstance_basic(rName))
 }

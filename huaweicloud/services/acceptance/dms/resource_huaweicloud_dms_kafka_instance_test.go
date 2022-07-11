@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func getDmsKafkaInstanceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getKafkaInstanceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.DmsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating HuaweiCloud DMS client(V2): %s", err)
@@ -21,7 +21,7 @@ func getDmsKafkaInstanceFunc(c *config.Config, state *terraform.ResourceState) (
 	return instances.Get(client, state.Primary.ID).Extract()
 }
 
-func TestAccDmsKafkaInstances_basic(t *testing.T) {
+func TestAccKafkaInstance_basic(t *testing.T) {
 	var instance instances.Instance
 	rName := acceptance.RandomAccResourceNameWithDash()
 	updateName := rName + "update"
@@ -30,7 +30,7 @@ func TestAccDmsKafkaInstances_basic(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&instance,
-		getDmsKafkaInstanceFunc,
+		getKafkaInstanceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -39,7 +39,7 @@ func TestAccDmsKafkaInstances_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDmsKafkaInstance_basic(rName),
+				Config: testAccKafkaInstance_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -50,7 +50,7 @@ func TestAccDmsKafkaInstances_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDmsKafkaInstance_update(rName, updateName),
+				Config: testAccKafkaInstance_update(rName, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
@@ -74,14 +74,14 @@ func TestAccDmsKafkaInstances_basic(t *testing.T) {
 	})
 }
 
-func TestAccDmsKafkaInstances_withEpsId(t *testing.T) {
+func TestAccKafkaInstance_withEpsId(t *testing.T) {
 	var instance instances.Instance
 	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_dms_kafka_instance.test"
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&instance,
-		getDmsKafkaInstanceFunc,
+		getKafkaInstanceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -90,7 +90,7 @@ func TestAccDmsKafkaInstances_withEpsId(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDmsKafkaInstance_withEpsId(rName),
+				Config: testAccKafkaInstance_withEpsId(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -104,14 +104,14 @@ func TestAccDmsKafkaInstances_withEpsId(t *testing.T) {
 	})
 }
 
-func TestAccDmsKafkaInstances_compatible(t *testing.T) {
+func TestAccKafkaInstance_compatible(t *testing.T) {
 	var instance instances.Instance
 	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_dms_kafka_instance.test"
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&instance,
-		getDmsKafkaInstanceFunc,
+		getKafkaInstanceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -120,21 +120,21 @@ func TestAccDmsKafkaInstances_compatible(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDmsKafkaInstance_compatible(rName),
+				Config: testAccKafkaInstance_compatible(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "engine", "kafka"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
-					acceptance.TestCheckResourceAttrWithVariable(resourceName, "storage_space", "${data.huaweicloud_dms_product.test1.storage}"),
+					resource.TestCheckResourceAttrPair(resourceName, "storage_space", "data.huaweicloud_dms_product.test", "storage"),
 				),
 			},
 		},
 	})
 }
 
-func testAccDmsKafkaInstance_Base(rName string) string {
+func testAccKafkaInstance_base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
@@ -151,22 +151,6 @@ resource "huaweicloud_vpc_subnet" "test" {
   vpc_id     = huaweicloud_vpc.test.id
 }
 
-data "huaweicloud_dms_product" "test1" {
-  engine            = "kafka"
-  instance_type     = "cluster"
-  version           = "2.3.0"
-  bandwidth         = "100MB"
-  storage_spec_code = "dms.physical.storage.ultra"
-}
-
-data "huaweicloud_dms_product" "test2" {
-  engine            = "kafka"
-  instance_type     = "cluster"
-  version           = "2.3.0"
-  bandwidth         = "300MB"
-  storage_spec_code = "dms.physical.storage.ultra"
-}
-
 resource "huaweicloud_networking_secgroup" "test" {
   name        = "%s"
   description = "secgroup for kafka"
@@ -174,9 +158,17 @@ resource "huaweicloud_networking_secgroup" "test" {
 `, rName, rName, rName)
 }
 
-func testAccDmsKafkaInstance_basic(rName string) string {
+func testAccKafkaInstance_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_dms_product" "test" {
+  engine            = "kafka"
+  instance_type     = "cluster"
+  version           = "2.3.0"
+  bandwidth         = "100MB"
+  storage_spec_code = "dms.physical.storage.ultra"
+}
 
 resource "huaweicloud_dms_kafka_instance" "test" {
   name               = "%s"
@@ -189,9 +181,9 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   availability_zones = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
-  product_id        = data.huaweicloud_dms_product.test1.id
-  engine_version    = data.huaweicloud_dms_product.test1.version
-  storage_spec_code = data.huaweicloud_dms_product.test1.storage_spec_code
+  product_id        = data.huaweicloud_dms_product.test.id
+  engine_version    = data.huaweicloud_dms_product.test.version
+  storage_spec_code = data.huaweicloud_dms_product.test.storage_spec_code
 
   manager_user      = "kafka-user"
   manager_password  = "Kafkatest@123"
@@ -201,12 +193,20 @@ resource "huaweicloud_dms_kafka_instance" "test" {
     owner = "terraform"
   }
 }
-`, testAccDmsKafkaInstance_Base(rName), rName)
+`, testAccKafkaInstance_base(rName), rName)
 }
 
-func testAccDmsKafkaInstance_update(rName, updateName string) string {
+func testAccKafkaInstance_update(rName, updateName string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_dms_product" "test" {
+  engine            = "kafka"
+  instance_type     = "cluster"
+  version           = "2.3.0"
+  bandwidth         = "300MB"
+  storage_spec_code = "dms.physical.storage.ultra"
+}
 
 resource "huaweicloud_dms_kafka_instance" "test" {
   name               = "%s"
@@ -219,9 +219,9 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   availability_zones = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
-  product_id        = data.huaweicloud_dms_product.test2.id
-  engine_version    = data.huaweicloud_dms_product.test2.version
-  storage_spec_code = data.huaweicloud_dms_product.test2.storage_spec_code
+  product_id        = data.huaweicloud_dms_product.test.id
+  engine_version    = data.huaweicloud_dms_product.test.version
+  storage_spec_code = data.huaweicloud_dms_product.test.storage_spec_code
 
   manager_user      = "kafka-user"
   manager_password  = "Kafkatest@123"
@@ -231,12 +231,20 @@ resource "huaweicloud_dms_kafka_instance" "test" {
     owner = "terraform_update"
   }
 }
-`, testAccDmsKafkaInstance_Base(rName), updateName)
+`, testAccKafkaInstance_base(rName), updateName)
 }
 
-func testAccDmsKafkaInstance_withEpsId(rName string) string {
+func testAccKafkaInstance_withEpsId(rName string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_dms_product" "test" {
+  engine            = "kafka"
+  instance_type     = "cluster"
+  version           = "2.3.0"
+  bandwidth         = "300MB"
+  storage_spec_code = "dms.physical.storage.ultra"
+}
 
 resource "huaweicloud_dms_kafka_instance" "test" {
   name                  = "%s"
@@ -249,9 +257,9 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   availability_zones    = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
-  product_id            = data.huaweicloud_dms_product.test1.id
-  engine_version        = data.huaweicloud_dms_product.test1.version
-  storage_spec_code     = data.huaweicloud_dms_product.test1.storage_spec_code
+  product_id            = data.huaweicloud_dms_product.test.id
+  engine_version        = data.huaweicloud_dms_product.test.version
+  storage_spec_code     = data.huaweicloud_dms_product.test.storage_spec_code
 
   manager_user          = "kafka-user"
   manager_password      = "Kafkatest@123"
@@ -262,13 +270,23 @@ resource "huaweicloud_dms_kafka_instance" "test" {
     owner = "terraform"
   }
 }
-`, testAccDmsKafkaInstance_Base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccKafkaInstance_base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccDmsKafkaInstance_compatible(rName string) string {
+func testAccKafkaInstance_compatible(rName string) string {
 	return fmt.Sprintf(`
 %s
+
 data "huaweicloud_dms_az" "test" {}
+
+data "huaweicloud_dms_product" "test" {
+  engine            = "kafka"
+  instance_type     = "cluster"
+  version           = "2.3.0"
+  bandwidth         = "300MB"
+  storage_spec_code = "dms.physical.storage.ultra"
+}
+
 resource "huaweicloud_dms_kafka_instance" "test" {
   name        = "%s"
   description = "kafka test"
@@ -279,12 +297,12 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   network_id        = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
 
-  product_id        = data.huaweicloud_dms_product.test1.id
-  engine_version    = data.huaweicloud_dms_product.test1.version
-  storage_spec_code = data.huaweicloud_dms_product.test1.storage_spec_code
-  storage_space     = data.huaweicloud_dms_product.test1.storage
+  product_id        = data.huaweicloud_dms_product.test.id
+  engine_version    = data.huaweicloud_dms_product.test.version
+  storage_spec_code = data.huaweicloud_dms_product.test.storage_spec_code
+  storage_space     = data.huaweicloud_dms_product.test.storage
   # use deprecated argument "bandwidth"
-  bandwidth         = data.huaweicloud_dms_product.test1.bandwidth
+  bandwidth         = data.huaweicloud_dms_product.test.bandwidth
 
   access_user      = "user"
   password         = "Kafkatest@123"
@@ -295,5 +313,5 @@ resource "huaweicloud_dms_kafka_instance" "test" {
     key   = "value"
     owner = "terraform"
   }
-}`, testAccDmsKafkaInstance_Base(rName), rName)
+}`, testAccKafkaInstance_base(rName), rName)
 }
