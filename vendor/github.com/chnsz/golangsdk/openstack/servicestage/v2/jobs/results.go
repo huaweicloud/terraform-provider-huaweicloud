@@ -1,5 +1,7 @@
 package jobs
 
+import "github.com/chnsz/golangsdk/pagination"
+
 // JobResp is the structure that represents the detail of the deployment job and task list.
 type JobResp struct {
 	// Number of tasks.
@@ -52,4 +54,22 @@ type Task struct {
 	Status string `json:"task_status"`
 	// Task type.
 	Type string `json:"task_type"`
+}
+
+// TaskPage is a single page maximum result representing a query by offset page.
+type TaskPage struct {
+	pagination.OffsetPageBase
+}
+
+// IsEmpty checks whether a TaskPage is empty.
+func (b TaskPage) IsEmpty() (bool, error) {
+	arr, err := ExtractTasks(b)
+	return len(arr) == 0, err
+}
+
+// ExtractTasks is a method to extract the list of task details for ServiceStage component.
+func ExtractTasks(r pagination.Page) ([]Task, error) {
+	var s []Task
+	err := r.(TaskPage).Result.ExtractIntoSlicePtr(&s, "tasks")
+	return s, err
 }

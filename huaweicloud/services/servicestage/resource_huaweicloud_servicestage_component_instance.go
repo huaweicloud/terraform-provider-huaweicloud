@@ -1446,16 +1446,20 @@ func resourceComponentInstanceDelete(ctx context.Context, d *schema.ResourceData
 	return nil
 }
 
-func componentInstanceRefreshFunc(c *golangsdk.ServiceClient, instance string) resource.StateRefreshFunc {
+func componentInstanceRefreshFunc(c *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		resp, err := jobs.Get(c, instance)
+		opt := jobs.ListOpts{
+			Limit: 50,
+		}
+		resp, err := jobs.List(c, jobId, opt)
 		if err != nil {
 			return resp, "ERROR", err
 		}
-		if resp.TaskCount < 1 {
+		rl := len(resp)
+		if rl < 1 {
 			return resp, "NO TASK", nil
 		}
-		return resp, resp.Tasks[resp.TaskCount-1].Status, nil
+		return resp, resp[rl-1].Status, nil
 	}
 }
 
