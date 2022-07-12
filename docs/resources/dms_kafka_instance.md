@@ -8,13 +8,53 @@ Manage DMS Kafka instance resources within HuaweiCloud.
 
 ## Example Usage
 
-```hcl
-variable vpc_id {}
-variable subnet_id {}
-variable security_group_id {}
+### Create a kafka instance using flavor ID
 
-data "huaweicloud_availability_zones" "zones" {}
-data "huaweicloud_dms_product" "product_1" {
+```hcl
+variable "vpc_id" {}
+variable "subnet_id" {}
+variable "security_group_id" {}
+variable "instance_name" {}
+
+data "huaweicloud_dms_kafka_flavors" "test" {
+  type = "cluster"
+}
+
+locals {
+  query_results = data.huaweicloud_dms_kafka_flavors.test
+}
+
+resource "huaweicloud_dms_kafka_instance" "test" {
+  name              = var.instance_name
+  vpc_id            = var.vpc_id
+  network_id        = var.subnet_id
+  security_group_id = var.security_group_id
+
+  flavor_id          = local.query_results.flavors[0].id
+  storage_spec_code  = local.query_results.flavors[0].ios[0].storage_spec_code
+  availability_zones = local.query_results.flavors[0].ios[0].availability_zones
+  engine_version     = element(local.query_results.versions, length(local.query_results.versions)-1)
+  storage_space      = local.query_results.flavors[0].properties[0].min_broker * local.query_results.flavors[0].properties[0].min_storage_per_node
+  broker_num         = local.query_results.flavors[0].properties[0].min_broker
+
+  access_user = "user"
+  password    = "Kafkatest@123"
+
+  manager_user     = "kafka-user"
+  manager_password = "Kafkatest@123"
+}
+```
+
+### Create a kafka instance using product ID
+
+```hcl
+variable "vpc_id" {}
+variable "subnet_id" {}
+variable "security_group_id" {}
+variable "instance_name" {}
+
+data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_dms_product" "test" {
   engine            = "kafka"
   instance_type     = "cluster"
   version           = "2.3.0"
@@ -55,21 +95,31 @@ The following arguments are supported:
 * `name` - (Required, String) Specifies the name of the DMS kafka instance. An instance name starts with a letter,
   consists of 4 to 64 characters, and supports only letters, digits, hyphens (-) and underscores (_).
 
-* `product_id` - (Required, String) Specifies a product ID, which includes bandwidth, partition, broker and default
+* `flavor_id` - (Optional, String) Specifies the kafka [flavor ID](https://support.huaweicloud.com/intl/en-us/productdesc-kafka/Kafka-specification.html),
+  e.g. **c6.2u4g.cluster**. This parameter and `product_id` are alternative.
+
+  -> The flavor IDs are not supported in some regions.
+
+* `product_id` - (Optional, String) Specifies a product ID, which includes bandwidth, partition, broker and default
   storage capacity.
 
   -> **NOTE:** Change this to change the bandwidth, partition and broker of the Kafka instances. Please note that the
   broker changes may cause storage capacity changes. So, if you specify the value of `storage_space`, you need to
   manually modify the value of `storage_space` after changing the `product_id`.
 
-* `engine_version` - (Required, String, ForceNew) Specifies the version of the kafka engine. Valid values are "1.1.0"
-  and "2.3.0". Changing this creates a new instance resource.
+* `engine_version` - (Required, String, ForceNew) Specifies the version of the kafka engine. Valid values are **1.1.0**
+  and **2.3.0**. Changing this creates a new instance resource.
 
-* `storage_spec_code` - (Required, String, ForceNew) Specifies the storage I/O specification. Value range:
-  + When bandwidth is 100MB: dms.physical.storage.high or dms.physical.storage.ultra
-  + When bandwidth is 300MB: dms.physical.storage.high or dms.physical.storage.ultra
-  + When bandwidth is 600MB: dms.physical.storage.ultra
-  + When bandwidth is 1,200MB: dms.physical.storage.ultra
+* `storage_spec_code` - (Required, String, ForceNew) Specifies the storage I/O specification.
+  If the instance is created with `flavor_id`, the valid values are as follows:
+  + **dms.physical.storage.high.v2**: Type of the disk that uses high I/O.
+  + **dms.physical.storage.ultra.v2**: Type of the disk that uses ultra-high I/O.
+
+  If the instance is created with `product_id`, the valid values are as follows:
+  + **dms.physical.storage.high**: Type of the disk that uses high I/O.
+    The corresponding bandwidths are **100MB** and **300MB**.
+  + **dms.physical.storage.ultra**: Type of the disk that uses ultra-high I/O.
+    The corresponding bandwidths are **100MB**, **300MB**, **600MB** and **1,200MB**.
 
   Changing this creates a new instance resource.
 
@@ -85,7 +135,7 @@ The following arguments are supported:
 
   -> **NOTE:** Deploy one availability zone or at least three availability zones. Do not select two availability zones.
   Deploy to more availability zones, the better the reliability and SLA coverage.
-  [Learn more](https://support.huaweicloud.com/en-us/kafka_faq/kafka-faq-200426002.html)
+  [Learn more](https://support.huaweicloud.com/intl/en-us/kafka_faq/kafka-faq-200426002.html)
 
   ~> The parameter behavior of `availability_zones` has been changed from `list` to `set`.
 
@@ -98,13 +148,20 @@ The following arguments are supported:
   the following character types: lowercase letters, uppercase letters, digits, and special characters (`~!@#$%^&*()-_
   =+\\|[{}]:'",<.>/?). Changing this creates a new instance resource.
 
-* `storage_space` - (Optional, Int) Specifies the message storage capacity, the unit is GB. Value range:
-  + When bandwidth is 100MB: 600–90,000 GB
-  + When bandwidth is 300MB: 1,200–90,000 GB
-  + When bandwidth is 600MB: 2,400–90,000 GB
-  + When bandwidth is 1,200MB: 4,800–90,000 GB
+* `storage_space` - (Optional, Int) Specifies the message storage capacity, the unit is GB.
+  The storage spaces corresponding to the product IDs are as follows:
+  + **c6.2u4g.cluster** (100MB bandwidth): `600` to `90,000` GB
+  + **c6.4u8g.cluster** (300MB bandwidth): `1,200` to `90,000` GB
+  + **c6.8u16g.cluster** (600MB bandwidth): `2,400` to `90,000` GB
+  + **c6.12u12g.cluster**: `3,600` to `90,000` GB
+  + **c6.16u32g.cluster** (1,200MB bandwidth): `4,800` to `90,000` GB
 
-  The storage capacity of the product used by default.
+  If the instance is created with `flavor_id`, this parameter is required.
+  If the instance is created with `product_id` and the `storage_space` is omitted, the storage capacity of the product
+  is used by default.
+
+* `broker_num` - (Optional, Int, ForceNew) Specifies the broker numbers. Changing this creates a new instance resource.
+  If the instance is created with `flavor_id`, this parameter is required.
 
 * `access_user` - (Optional, String, ForceNew) Specifies a username. A username consists of 4 to 64 characters and
   supports only letters, digits, and hyphens (-). Changing this creates a new instance resource.
@@ -133,18 +190,21 @@ The following arguments are supported:
   `maintain_begin` is also blank. In this case, the system automatically allocates the default end time 06:00.
 
 * `public_ip_ids` - (Optional, List, ForceNew) Specifies the IDs of the elastic IP address (EIP)
-  bound to the DMS kafka instance. The num of IDs needed ranges:
-  + When bandwidth is 100MB: 3
-  + When bandwidth is 300MB: 3
-  + When bandwidth is 600MB: 4
-  + When bandwidth is 1,200MB: 8
+  bound to the DMS kafka instance. Changing this creates a new instance resource.
+  + If the instance is created with `flavor_id`, the total number of public IPs is equal to `broker_num`.
+  + If the instance is created with `product_id`, the total number of public IPs must provide as follows:
 
-  Changing this creates a new instance resource.
+  | Bandwidth | Total number of public IPs |
+  | ---- | ---- |
+  | 100MB | 3 |
+  | 300MB | 3 |
+  | 600MB | 4 |
+  | 1,200MB | 8 |
 
 * `retention_policy` - (Optional, String) Specifies the action to be taken when the memory usage reaches the disk
-  capacity threshold. Value range:
-  + `time_base`: Automatically delete the earliest messages.
-  + `produce_reject`: Stop producing new messages.
+  capacity threshold. The valid values are as follows:
+  + **time_base**: Automatically delete the earliest messages.
+  + **produce_reject**: Stop producing new messages.
 
 * `dumping` - (Optional, Bool, ForceNew) Specifies whether to enable dumping. Changing this creates a new instance
   resource.

@@ -34,15 +34,18 @@ type CreateOps struct {
 	// Indicates the version of a message engine.
 	EngineVersion string `json:"engine_version" required:"true"`
 
-	//Indicates the baseline bandwidth of a Kafka instance, that is,
-	//the maximum amount of data transferred per unit time. Unit: byte/s.
-	Specification string `json:"specification" required:"true"`
-
 	// Indicates the message storage space.
 	StorageSpace int `json:"storage_space" required:"true"`
 
-	//Indicates the maximum number of topics in a Kafka instance.
-	PartitionNum int `json:"partition_num" required:"true"`
+	// Indicates the baseline bandwidth of a Kafka instance, that is,
+	// the maximum amount of data transferred per unit time. Unit: byte/s.
+	Specification string `json:"specification,omitempty"`
+
+	// Indicates the maximum number of brokers in a Kafka instance.
+	BrokerNum int `json:"broker_num,omitempty"`
+
+	// Indicates the maximum number of topics in a Kafka instance.
+	PartitionNum int `json:"partition_num,omitempty"`
 
 	// Indicates a username.
 	// A username consists of 1 to 64 characters

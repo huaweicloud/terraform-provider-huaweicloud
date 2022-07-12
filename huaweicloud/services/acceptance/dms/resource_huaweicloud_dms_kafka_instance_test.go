@@ -134,6 +134,53 @@ func TestAccKafkaInstance_compatible(t *testing.T) {
 	})
 }
 
+func TestAccKafkaInstance_newFormat(t *testing.T) {
+	var instance instances.Instance
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_dms_kafka_instance.test"
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getKafkaInstanceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKafkaInstance_newFormat(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "kafka"),
+					resource.TestCheckResourceAttrPair(resourceName, "broker_num",
+						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.properties.0.min_broker"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor_id",
+						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.id"),
+					resource.TestCheckResourceAttrPair(resourceName, "storage_spec_code",
+						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.ios.0.storage_spec_code"),
+				),
+			},
+			{
+				Config: testAccKafkaInstance_newFormatUpdate(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "kafka"),
+					resource.TestCheckResourceAttrPair(resourceName, "broker_num",
+						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.properties.0.min_broker"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor_id",
+						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.id"),
+					resource.TestCheckResourceAttrPair(resourceName, "storage_spec_code",
+						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.ios.1.storage_spec_code"),
+				),
+			},
+		},
+	})
+}
+
 func testAccKafkaInstance_base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
@@ -313,5 +360,69 @@ resource "huaweicloud_dms_kafka_instance" "test" {
     key   = "value"
     owner = "terraform"
   }
+}`, testAccKafkaInstance_base(rName), rName)
+}
+
+func testAccKafkaInstance_newFormat(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_dms_kafka_flavors" "test" {
+  type = "cluster"
+}
+
+locals {
+  query_results = data.huaweicloud_dms_kafka_flavors.test
+}
+
+resource "huaweicloud_dms_kafka_instance" "test" {
+  name              = "%s"
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  flavor_id          = local.query_results.flavors[0].id
+  storage_spec_code  = local.query_results.flavors[0].ios[0].storage_spec_code
+  availability_zones = local.query_results.flavors[0].ios[0].availability_zones
+  engine_version     = element(local.query_results.versions, length(local.query_results.versions)-1)
+  storage_space      = local.query_results.flavors[0].properties[0].min_broker * local.query_results.flavors[0].properties[0].min_storage_per_node
+  broker_num         = local.query_results.flavors[0].properties[0].min_broker
+
+  access_user      = "user"
+  password         = "Kafkatest@123"
+  manager_user     = "kafka-user"
+  manager_password = "Kafkatest@123"
+}`, testAccKafkaInstance_base(rName), rName)
+}
+
+func testAccKafkaInstance_newFormatUpdate(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_dms_kafka_flavors" "test" {
+  type = "cluster"
+}
+
+locals {
+  query_results = data.huaweicloud_dms_kafka_flavors.test
+}
+
+resource "huaweicloud_dms_kafka_instance" "test" {
+  name              = "%s"
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  flavor_id          = local.query_results.flavors[0].id
+  storage_spec_code  = local.query_results.flavors[0].ios[1].storage_spec_code
+  availability_zones = local.query_results.flavors[0].ios[0].availability_zones
+  engine_version     = element(local.query_results.versions, length(local.query_results.versions)-1)
+  storage_space      = local.query_results.flavors[0].properties[0].min_broker * local.query_results.flavors[0].properties[0].max_storage_per_node
+  broker_num         = local.query_results.flavors[0].properties[0].min_broker
+
+  access_user      = "user"
+  password         = "Kafkatest@123"
+  manager_user     = "kafka-user"
+  manager_password = "Kafkatest@123"
 }`, testAccKafkaInstance_base(rName), rName)
 }
