@@ -1031,7 +1031,7 @@ func init() {
 
 func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersion string) (interface{},
 	diag.Diagnostics) {
-	var tenantName, tenantID, delegated_project, identityEndpoint string
+	var tenantName, tenantID, delegatedProject, identityEndpoint string
 	region := d.Get("region").(string)
 	cloud := d.Get("cloud").(string)
 
@@ -1054,9 +1054,9 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 
 	// Use region as delegated_project if it's not set
 	if v, ok := d.GetOk("delegated_project"); ok && v.(string) != "" {
-		delegated_project = v.(string)
+		delegatedProject = v.(string)
 	} else {
-		delegated_project = region
+		delegatedProject = region
 	}
 
 	// use auth_url as identityEndpoint if provided
@@ -1091,7 +1091,7 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		UserID:              d.Get("user_id").(string),
 		AgencyName:          d.Get("agency_name").(string),
 		AgencyDomainName:    d.Get("agency_domain_name").(string),
-		DelegatedProject:    delegated_project,
+		DelegatedProject:    delegatedProject,
 		Cloud:               cloud,
 		MaxRetries:          d.Get("max_retries").(int),
 		EnterpriseProjectID: d.Get("enterprise_project_id").(string),
