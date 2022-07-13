@@ -152,7 +152,8 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `user_id` - (Optional, String, ForceNew) Specifies the user ID of the meeting initiator.
-  Only availabe if `app_id` is set. Changing this parameter will create a new resource.
+  Only availabe if `app_id` is set. If omitted, the user ID of default administrator will be used.
+  Changing this parameter will create a new resource.
 
 -> Exactly one of account authorization and application authorization you must select.
 

@@ -240,6 +240,8 @@ func isSecurityFields(field string) bool {
 	// 'adminpass' is apply to the ecs/bms instance request JSON body
 	// 'encrypted_user_data' is apply to the function request JSON body of FunctionGraph
 	// 'nonce' is apply to the random string for authorization methods.
-	securityFields := []string{"adminpass", "encrypted_user_data", "nonce"}
+	// 'email', 'phone' and 'sip_number' can uniquely identify a person.
+	// 'signature' are used for encryption.
+	securityFields := []string{"adminpass", "encrypted_user_data", "nonce", "email", "phone", "sip_number", "signature"}
 	return utils.StrSliceContains(securityFields, checkField)
 }
