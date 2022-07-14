@@ -65,7 +65,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/waf"
 )
 
-const defaultCloud string = "myhuaweicloud.com"
+const (
+	defaultCloud       string = "myhuaweicloud.com"
+	defaultEuropeCloud string = "myhuaweicloud.eu"
+)
 
 // Provider returns a schema.Provider for HuaweiCloud.
 func Provider() *schema.Provider {
@@ -1033,7 +1036,7 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 	diag.Diagnostics) {
 	var tenantName, tenantID, delegatedProject, identityEndpoint string
 	region := d.Get("region").(string)
-	cloud := d.Get("cloud").(string)
+	cloud := getCloudDomain(d.Get("cloud").(string), region)
 
 	// project_name is prior to tenant_name
 	// if neither of them was set, use region as the default project
@@ -1064,7 +1067,7 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		identityEndpoint = v.(string)
 	} else {
 		// use cloud as basis for identityEndpoint
-		if cloud == defaultCloud {
+		if isDefaultHWCloudDomain(cloud) {
 			identityEndpoint = fmt.Sprintf("https://iam.%s:443/v3", cloud)
 		} else {
 			identityEndpoint = fmt.Sprintf("https://iam.%s.%s:443/v3", region, cloud)
@@ -1161,4 +1164,20 @@ func flattenProviderEndpoints(d *schema.ResourceData) (map[string]string, error)
 
 	log.Printf("[DEBUG] customer endpoints: %+v", epMap)
 	return epMap, nil
+}
+
+func getCloudDomain(cloud, region string) string {
+	// the regions are named as eu-west-1xx in Europe
+	if cloud == defaultCloud && strings.HasPrefix(region, "eu-west-1") {
+		return defaultEuropeCloud
+	}
+	return cloud
+}
+
+func isDefaultHWCloudDomain(domain string) bool {
+	if domain == defaultCloud || domain == defaultEuropeCloud {
+		return true
+	}
+
+	return false
 }
