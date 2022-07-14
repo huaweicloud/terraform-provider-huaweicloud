@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dns_recordset": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "ttl": {
+                "type": "number",
+                "optional": true,
+                "default": 300
+              },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "value_specs": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "zone_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Network",
+            "name": "Domain Name Service",
+            "short": "DNS"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dns_zone": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "email": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "masters": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "ttl": {
+                "type": "number",
+                "optional": true,
+                "default": 300
+              },
+              "value_specs": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "zone_type": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "default": "public"
+              }
+            },
+            "block_types": {
+              "router": {
+                "block": {
+                  "attributes": {
+                    "router_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "router_region": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              }
+            }
+          },
+          "product": {
+            "catalog": "Network",
+            "name": "Domain Name Service",
+            "short": "DNS"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_mapreduce_job": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "finish_time": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "parameters": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "program_parameters": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "program_path": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "service_parameters": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "sql": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "start_time": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "submit_time": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Analytics",
+            "name": "MapReduce Service",
+            "short": "MRS"
+          }
+        }
+      }
+    }
+  }
+}

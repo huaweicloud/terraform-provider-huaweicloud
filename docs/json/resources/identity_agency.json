@@ -1,0 +1,81 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identity_agency": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "string",
+                "computed": true
+              },
+              "delegated_domain_name": {
+                "type": "string",
+                "optional": true
+              },
+              "delegated_service_name": {
+                "type": "string",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "domain_roles": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true
+              },
+              "duration": {
+                "type": "string",
+                "optional": true,
+                "default": "FOREVER"
+              },
+              "expire_time": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "project_role": {
+                "block": {
+                  "attributes": {
+                    "project": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "roles": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              }
+            }
+          },
+          "product": {
+            "catalog": "Management \u0026 Governance",
+            "name": "Identity and Access Management",
+            "short": "IAM"
+          }
+        }
+      }
+    }
+  }
+}

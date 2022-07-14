@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_smn_topic": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "string",
+                "computed": true
+              },
+              "display_name": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "push_policy": {
+                "type": "number",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "topic_urn": {
+                "type": "string",
+                "computed": true
+              },
+              "update_time": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Application",
+            "name": "Simple Message Notification",
+            "short": "SMN"
+          }
+        }
+      }
+    }
+  }
+}

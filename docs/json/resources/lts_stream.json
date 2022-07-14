@@ -1,0 +1,41 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_lts_stream": {
+          "block": {
+            "attributes": {
+              "filter_count": {
+                "type": "number",
+                "computed": true
+              },
+              "group_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "stream_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Management \u0026 Governance",
+            "name": "Log Tank Service",
+            "short": "LTS"
+          }
+        }
+      }
+    }
+  }
+}
