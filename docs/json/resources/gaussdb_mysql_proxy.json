@@ -36,6 +36,11 @@
                 "computed": true
               }
             }
+          },
+          "product": {
+            "catalog": "Database",
+            "name": "GaussDB",
+            "short": "GaussDB"
           }
         }
       }

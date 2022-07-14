@@ -12,7 +12,7 @@
               },
               "availability_zones": {
                 "type": [
-                  "list",
+                  "set",
                   "string"
                 ],
                 "optional": true,

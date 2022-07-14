@@ -45,6 +45,10 @@
                 "required": true,
                 "forcenew": true
               },
+              "publish_id": {
+                "type": "string",
+                "computed": true
+              },
               "publish_time": {
                 "type": "string",
                 "computed": true
@@ -58,6 +62,11 @@
                 "optional": true
               }
             }
+          },
+          "product": {
+            "catalog": "Application",
+            "name": "API GateWay",
+            "short": "APIG"
           }
         }
       }

@@ -12,7 +12,7 @@
               },
               "availability_zones": {
                 "type": [
-                  "list",
+                  "set",
                   "string"
                 ],
                 "optional": true,
@@ -21,6 +21,21 @@
               },
               "connect_address": {
                 "type": "string",
+                "computed": true
+              },
+              "cross_vpc_accesses": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "advertised_ip": "string",
+                      "lisenter_ip": "string",
+                      "port": "number",
+                      "port_id": "string"
+                    }
+                  ]
+                ],
                 "computed": true
               },
               "description": {

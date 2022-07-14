@@ -9,6 +9,12 @@
                 "type": "string",
                 "computed": true
               },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "external_service_port": {
                 "type": "number",
                 "required": true,

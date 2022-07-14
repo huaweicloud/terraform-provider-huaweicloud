@@ -20,11 +20,13 @@
               "listener_id": {
                 "type": "string",
                 "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "loadbalancer_id": {
                 "type": "string",
                 "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "name": {

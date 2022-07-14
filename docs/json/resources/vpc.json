@@ -31,6 +31,10 @@
                 "type": "string",
                 "computed": true
               },
+              "secondary_cidr": {
+                "type": "string",
+                "optional": true
+              },
               "status": {
                 "type": "string",
                 "computed": true

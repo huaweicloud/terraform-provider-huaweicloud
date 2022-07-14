@@ -14,10 +14,22 @@
                 "optional": true,
                 "computed": true
               },
-              "consistent_level": {
+              "auto_renew": {
                 "type": "string",
                 "optional": true,
                 "forcenew": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "consistent_level": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "default": "crash_consistent"
               },
               "enterprise_project_id": {
                 "type": "string",
@@ -32,6 +44,16 @@
               "name": {
                 "type": "string",
                 "required": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
               },
               "policy_id": {
                 "type": "string",
