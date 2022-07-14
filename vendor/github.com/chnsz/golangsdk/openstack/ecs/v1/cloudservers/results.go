@@ -30,8 +30,10 @@ type SysTags struct {
 }
 
 type OsSchedulerHints struct {
-	Group       []string `json:"group"`
-	FaultDomain string   `json:"fault_domain,omitempty"`
+	Group           []string `json:"group"`
+	Tenancy         []string `json:"tenancy"`
+	DedicatedHostID []string `json:"dedicated_host_id"`
+	FaultDomain     string   `json:"fault_domain,omitempty"`
 }
 
 // Metadata is only used for method that requests details on a single server, by ID.
