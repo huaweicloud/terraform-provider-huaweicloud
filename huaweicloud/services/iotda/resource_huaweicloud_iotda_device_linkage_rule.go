@@ -356,8 +356,7 @@ func ResourceDeviceLinkageRuleCreate(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
 	}
 
-	projectId := c.RegionProjectIDMap[region]
-	rule, err := buildDeviceLinkageRuleParams(d, projectId)
+	rule, err := buildDeviceLinkageRuleParams(d, c)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -412,11 +411,10 @@ func ResourceDeviceLinkageRuleUpdate(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
 	}
 
-	projectId := c.RegionProjectIDMap[region]
 	status := buildLinkageStatus(d.Get("enabled").(bool))
 	if d.HasChangeExcept("enabled") {
 		// not only change enabled, use update API
-		rule, err := buildDeviceLinkageRuleParams(d, projectId)
+		rule, err := buildDeviceLinkageRuleParams(d, c)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -462,13 +460,13 @@ func ResourceDeviceLinkageRuleDelete(_ context.Context, d *schema.ResourceData, 
 	return nil
 }
 
-func buildDeviceLinkageRuleParams(d *schema.ResourceData, projectId string) (*model.Rule, error) {
+func buildDeviceLinkageRuleParams(d *schema.ResourceData, cfg *config.Config) (*model.Rule, error) {
 	conditions, err := buildLinkageTriggers(d.Get("triggers").(*schema.Set).List())
 	if err != nil {
 		return nil, err
 	}
 
-	actions, err := buildLinkageActions(d.Get("actions").(*schema.Set).List(), projectId)
+	actions, err := buildLinkageActions(d.Get("actions").(*schema.Set).List(), cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -582,11 +580,11 @@ func buildlinkageTrigger(raw map[string]interface{}, triggerType string) (*model
 	}
 }
 
-func buildLinkageActions(raw []interface{}, projectId string) ([]model.RuleAction, error) {
+func buildLinkageActions(raw []interface{}, cfg *config.Config) ([]model.RuleAction, error) {
 	rst := make([]model.RuleAction, len(raw))
 	for i, v := range raw {
 		target := v.(map[string]interface{})
-		action, err := buildlinkageAction(target, projectId)
+		action, err := buildlinkageAction(target, cfg)
 		if err != nil {
 			return nil, err
 		}
@@ -596,7 +594,7 @@ func buildLinkageActions(raw []interface{}, projectId string) ([]model.RuleActio
 	return rst, nil
 }
 
-func buildlinkageAction(raw map[string]interface{}, projectId string) (*model.RuleAction, error) {
+func buildlinkageAction(raw map[string]interface{}, cfg *config.Config) (*model.RuleAction, error) {
 	actionType := raw["type"].(string)
 	switch actionType {
 	case "DEVICE_CMD":
@@ -627,15 +625,11 @@ func buildlinkageAction(raw map[string]interface{}, projectId string) (*model.Ru
 		}
 		f := trigger[0].(map[string]interface{})
 
-		projectIdStr := f["project_id"].(string)
-		if projectIdStr == "" {
-			projectIdStr = projectId
-		}
 		d := model.RuleAction{
 			Type: actionType,
 			SmnForwarding: &model.ActionSmnForwarding{
 				RegionName:     f["region"].(string),
-				ProjectId:      projectIdStr,
+				ProjectId:      cfg.RegionProjectIDMap[f["region"].(string)],
 				ThemeName:      f["topic_name"].(string),
 				TopicUrn:       f["topic_urn"].(string),
 				MessageTitle:   f["message_title"].(string),

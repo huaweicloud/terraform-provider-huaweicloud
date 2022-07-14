@@ -304,7 +304,6 @@ func ResourceDataForwardingRuleCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
 	}
 
-	projectId := c.RegionProjectIDMap[region]
 	createOpts := buildDataForwardingRuleCreateParams(d)
 	log.Printf("[DEBUG] Create IoTDA data forwarding rule params: %#v", createOpts)
 
@@ -320,7 +319,7 @@ func ResourceDataForwardingRuleCreate(ctx context.Context, d *schema.ResourceDat
 	d.SetId(*resp.RuleId)
 	m := d.Get("targets").(*schema.Set)
 	// create action rule
-	targets, err := buildActionTargets(m.List(), d.Id(), projectId)
+	targets, err := buildActionTargets(m.List(), d.Id(), c)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -383,8 +382,6 @@ func ResourceDataForwardingRuleUpdate(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
 	}
 
-	projectId := c.RegionProjectIDMap[region]
-
 	if d.HasChange("targets") {
 		o, n := d.GetChange("targets")
 		oldTargetSet := o.(*schema.Set)
@@ -403,7 +400,7 @@ func ResourceDataForwardingRuleUpdate(ctx context.Context, d *schema.ResourceDat
 		for _, v := range newTargetSet.List() {
 			target := v.(map[string]interface{})
 			channel := target["type"].(string)
-			channelDetail, err := buildChannelDetail(target, channel, projectId)
+			channelDetail, err := buildChannelDetail(target, channel, c)
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -502,12 +499,12 @@ func buildDataForwardingRuleCreateParams(d *schema.ResourceData) *model.CreateRo
 	return &req
 }
 
-func buildActionTargets(raw []interface{}, ruleId, projectId string) ([]model.CreateRuleActionRequest, error) {
+func buildActionTargets(raw []interface{}, ruleId string, cfg *config.Config) ([]model.CreateRuleActionRequest, error) {
 	rst := make([]model.CreateRuleActionRequest, len(raw))
 	for i, v := range raw {
 		target := v.(map[string]interface{})
 		channel := target["type"].(string)
-		channelDetail, err := buildChannelDetail(target, channel, projectId)
+		channelDetail, err := buildChannelDetail(target, channel, cfg)
 		if err != nil {
 			return nil, err
 		}
@@ -523,7 +520,7 @@ func buildActionTargets(raw []interface{}, ruleId, projectId string) ([]model.Cr
 	return rst, nil
 }
 
-func buildChannelDetail(target map[string]interface{}, channel, projectId string) (*model.ChannelDetail, error) {
+func buildChannelDetail(target map[string]interface{}, channel string, cfg *config.Config) (*model.ChannelDetail, error) {
 	switch channel {
 	case "HTTP_FORWARDING":
 		forward := target["http_forwarding"].([]interface{})
@@ -544,14 +541,10 @@ func buildChannelDetail(target map[string]interface{}, channel, projectId string
 			return nil, fmt.Errorf("dis_forwarding is Required when the target type is DIS_FORWARDING")
 		}
 		f := forward[0].(map[string]interface{})
-		projectIdStr := f["project_id"].(string)
-		if projectIdStr == "" {
-			projectIdStr = projectId
-		}
 		d := model.ChannelDetail{
 			DisForwarding: &model.DisForwarding{
 				RegionName: f["region"].(string),
-				ProjectId:  projectIdStr,
+				ProjectId:  cfg.RegionProjectIDMap[f["region"].(string)],
 				StreamId:   utils.String(f["stream_id"].(string)),
 			},
 		}
@@ -563,14 +556,10 @@ func buildChannelDetail(target map[string]interface{}, channel, projectId string
 			return nil, fmt.Errorf("obs_forwarding is Required when the target type is OBS_FORWARDING")
 		}
 		f := forward[0].(map[string]interface{})
-		projectIdStr := f["project_id"].(string)
-		if projectIdStr == "" {
-			projectIdStr = projectId
-		}
 		d := model.ChannelDetail{
 			ObsForwarding: &model.ObsForwarding{
 				RegionName: f["region"].(string),
-				ProjectId:  projectIdStr,
+				ProjectId:  cfg.RegionProjectIDMap[f["region"].(string)],
 				BucketName: f["bucket"].(string),
 				FilePath:   utils.StringIgnoreEmpty(f["custom_directory"].(string)),
 			},
@@ -607,14 +596,10 @@ func buildChannelDetail(target map[string]interface{}, channel, projectId string
 			}
 		}
 
-		projectIdStr := f["project_id"].(string)
-		if projectIdStr == "" {
-			projectIdStr = projectId
-		}
 		d := model.ChannelDetail{
 			DmsKafkaForwarding: &model.DmsKafkaForwarding{
 				RegionName: f["region"].(string),
-				ProjectId:  projectIdStr,
+				ProjectId:  cfg.RegionProjectIDMap[f["region"].(string)],
 				Topic:      f["topic"].(string),
 				Username:   utils.String(f["user_name"].(string)),
 				Password:   utils.String(f["password"].(string)),
