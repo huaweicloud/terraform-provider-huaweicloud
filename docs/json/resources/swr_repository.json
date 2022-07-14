@@ -56,6 +56,11 @@
                 "computed": true
               }
             }
+          },
+          "product": {
+            "catalog": "Container",
+            "name": "SoftWare Repository for Container",
+            "short": "SWR"
           }
         }
       }

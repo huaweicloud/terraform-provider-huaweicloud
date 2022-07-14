@@ -166,6 +166,13 @@
                 "type": "bool",
                 "optional": true
               },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
               "time_zone": {
                 "type": "string",
                 "optional": true,
@@ -220,6 +227,11 @@
                 "max_items": 1
               }
             }
+          },
+          "product": {
+            "catalog": "Database",
+            "name": "GaussDB",
+            "short": "GaussDB"
           }
         }
       }

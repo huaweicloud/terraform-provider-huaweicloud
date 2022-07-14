@@ -111,6 +111,11 @@
                 "max_items": 30
               }
             }
+          },
+          "product": {
+            "catalog": "Application",
+            "name": "API GateWay",
+            "short": "APIG"
           }
         }
       }

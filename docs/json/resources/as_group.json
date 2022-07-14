@@ -35,7 +35,8 @@
               },
               "desire_instance_number": {
                 "type": "number",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "enable": {
                 "type": "bool",
@@ -46,6 +47,10 @@
                 "type": "string",
                 "optional": true,
                 "computed": true
+              },
+              "force_delete": {
+                "type": "bool",
+                "optional": true
               },
               "health_periodic_audit_method": {
                 "type": "string",
@@ -98,8 +103,8 @@
               },
               "scaling_configuration_id": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "description": "schema: Required",
+                "required": true
               },
               "scaling_group_name": {
                 "type": "string",

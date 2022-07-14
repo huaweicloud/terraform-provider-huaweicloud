@@ -60,6 +60,11 @@
                 "min_items": 1
               }
             }
+          },
+          "product": {
+            "catalog": "Container",
+            "name": "SoftWare Repository for Container",
+            "short": "SWR"
           }
         }
       }

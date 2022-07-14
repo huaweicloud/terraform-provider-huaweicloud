@@ -191,6 +191,11 @@
                 "max_items": 1
               }
             }
+          },
+          "product": {
+            "catalog": "Database",
+            "name": "GaussDB NoSQL",
+            "short": "GaussDBforNoSQL"
           }
         }
       }

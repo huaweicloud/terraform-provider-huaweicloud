@@ -63,6 +63,19 @@
                 "type": "string",
                 "computed": true
               },
+              "rotation_enabled": {
+                "type": "bool",
+                "optional": true
+              },
+              "rotation_interval": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "rotation_number": {
+                "type": "number",
+                "computed": true
+              },
               "scheduled_deletion_date": {
                 "type": "string",
                 "computed": true

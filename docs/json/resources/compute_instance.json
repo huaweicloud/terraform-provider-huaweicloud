@@ -23,6 +23,16 @@
                 "optional": true,
                 "forcenew": true
               },
+              "agent_list": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "auto_pay": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "auto_renew": {
                 "type": "string",
                 "optional": true,
@@ -43,6 +53,21 @@
               "delete_disks_on_termination": {
                 "type": "bool",
                 "optional": true
+              },
+              "delete_eip_on_termination": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "eip_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "eip_type": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
               },
               "enterprise_project_id": {
                 "type": "string",
@@ -183,6 +208,35 @@
               }
             },
             "block_types": {
+              "bandwidth": {
+                "block": {
+                  "attributes": {
+                    "charge_mode": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "share_type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "size": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
               "data_disks": {
                 "block": {
                   "attributes": {
@@ -243,7 +297,7 @@
                     "source_dest_check": {
                       "type": "bool",
                       "optional": true,
-                      "computed": true
+                      "default": true
                     },
                     "uuid": {
                       "type": "string",

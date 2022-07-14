@@ -16,6 +16,10 @@
                 "required": true,
                 "forcenew": true
               },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
               "dhcp_enable": {
                 "type": "bool",
                 "optional": true,
