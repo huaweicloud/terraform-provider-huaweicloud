@@ -47,8 +47,8 @@ func ResourceRdsDatabase() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[\$\w-]+$`),
-						"the name can only consist of letters, digits, hyphens (-), underscores (_) and dollar signs ($)"),
+					validation.StringMatch(regexp.MustCompile(`^[\$a-z0-9-_]+$`),
+						"the name can only consist of lowercase letters, digits, hyphens (-), underscores (_) and dollar signs ($)"),
 					func(v interface{}, k string) (ws []string, errors []error) {
 						re := regexp.MustCompile(`-|\$`)
 						if len(re.FindAllString(v.(string), -1)) > 10 {
