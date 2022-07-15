@@ -65,7 +65,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/waf"
 )
 
-const defaultCloud string = "myhuaweicloud.com"
+const (
+	defaultCloud       string = "myhuaweicloud.com"
+	defaultEuropeCloud string = "myhuaweicloud.eu"
+)
 
 // Provider returns a schema.Provider for HuaweiCloud.
 func Provider() *schema.Provider {
@@ -1034,9 +1037,9 @@ func init() {
 
 func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersion string) (interface{},
 	diag.Diagnostics) {
-	var tenantName, tenantID, delegated_project, identityEndpoint string
+	var tenantName, tenantID, delegatedProject, identityEndpoint string
 	region := d.Get("region").(string)
-	cloud := d.Get("cloud").(string)
+	cloud := getCloudDomain(d.Get("cloud").(string), region)
 
 	// project_name is prior to tenant_name
 	// if neither of them was set, use region as the default project
@@ -1057,9 +1060,9 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 
 	// Use region as delegated_project if it's not set
 	if v, ok := d.GetOk("delegated_project"); ok && v.(string) != "" {
-		delegated_project = v.(string)
+		delegatedProject = v.(string)
 	} else {
-		delegated_project = region
+		delegatedProject = region
 	}
 
 	// use auth_url as identityEndpoint if provided
@@ -1067,7 +1070,7 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		identityEndpoint = v.(string)
 	} else {
 		// use cloud as basis for identityEndpoint
-		if cloud == defaultCloud {
+		if isDefaultHWCloudDomain(cloud) {
 			identityEndpoint = fmt.Sprintf("https://iam.%s:443/v3", cloud)
 		} else {
 			identityEndpoint = fmt.Sprintf("https://iam.%s.%s:443/v3", region, cloud)
@@ -1094,7 +1097,7 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		UserID:              d.Get("user_id").(string),
 		AgencyName:          d.Get("agency_name").(string),
 		AgencyDomainName:    d.Get("agency_domain_name").(string),
-		DelegatedProject:    delegated_project,
+		DelegatedProject:    delegatedProject,
 		Cloud:               cloud,
 		MaxRetries:          d.Get("max_retries").(int),
 		EnterpriseProjectID: d.Get("enterprise_project_id").(string),
@@ -1164,4 +1167,20 @@ func flattenProviderEndpoints(d *schema.ResourceData) (map[string]string, error)
 
 	log.Printf("[DEBUG] customer endpoints: %+v", epMap)
 	return epMap, nil
+}
+
+func getCloudDomain(cloud, region string) string {
+	// the regions are named as eu-west-1xx in Europe
+	if cloud == defaultCloud && strings.HasPrefix(region, "eu-west-1") {
+		return defaultEuropeCloud
+	}
+	return cloud
+}
+
+func isDefaultHWCloudDomain(domain string) bool {
+	if domain == defaultCloud || domain == defaultEuropeCloud {
+		return true
+	}
+
+	return false
 }
