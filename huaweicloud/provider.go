@@ -445,6 +445,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_servicestage_component_runtimes": servicestage.DataSourceComponentRuntimes(),
 
+			"huaweicloud_smn_topics": smn.DataSourceTopics(),
+
 			"huaweicloud_sms_source_servers": sms.DataSourceServers(),
 
 			"huaweicloud_sfs_file_system":   DataSourceSFSFileSystemV2(),
