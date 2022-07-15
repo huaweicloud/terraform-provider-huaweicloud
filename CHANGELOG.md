@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 1.38.1 (July 15, 2022)
+
+* **New Data Source:**
+  + `huaweicloud_smn_topics` [GH-2237]
+  + `huaweicloud_dms_kafka_flavors` [GH-2238]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_dms_kafka_instance: Add `product_id` and `broker_num` support [GH-2238]
+
+BUG FIXES:
+
+* resource/huaweicloud_servicestage_component_instance: Fix index out of bound error [GH-2234]
+
 ## 1.38.0 (July 2, 2022)
 
 * **New Resurce:**
