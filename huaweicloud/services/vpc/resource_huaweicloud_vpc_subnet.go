@@ -28,12 +28,13 @@ var defaultDNSList = map[string][]string{
 	"cn-south-1":     {"100.125.1.250", "100.125.136.29"},  // Guangzhou
 	"cn-southwest-2": {"100.125.1.250", "100.125.129.250"}, // Guiyang-1
 	"ap-southeast-1": {"100.125.1.250", "100.125.3.250"},   // Hong Kong
-	"ap-southeast-2": {"100.125.1.250", "182.50.80.4"},     // Bangkok
+	"ap-southeast-2": {"100.125.1.250", "100.125.1.251"},   // Bangkok
 	"ap-southeast-3": {"100.125.1.250", "100.125.128.250"}, // Singapore
-	"af-south-1":     {"100.125.1.250", "8.8.8.8"},         // Johannesburg
-	"sa-brazil-1":    {"100.125.1.22", "8.8.8.8"},          // Sao Paulo-1
-	"na-mexico-1":    {"100.125.1.22", "8.8.8.8"},          // Mexico City-1
-	"la-south-2":     {"100.125.1.250", "8.8.8.8"},         // Santiago
+	"af-south-1":     {"100.125.1.250", "100.125.1.14"},    // Johannesburg
+	"sa-brazil-1":    {"100.125.1.22", "100.125.1.90"},     // LA-Sao Paulo-1
+	"na-mexico-1":    {"100.125.1.22", "100.125.1.90"},     // LA-Mexico City-1
+	"la-north-2":     {"100.125.1.250", "100.125.1.242"},   // LA-Mexico City-2
+	"la-south-2":     {"100.125.1.250", "100.125.0.250"},   // LA-Santiago
 	"sa-chile-1":     {"100.125.1.250", "100.125.0.250"},   // LA-Santiago2
 }
 
