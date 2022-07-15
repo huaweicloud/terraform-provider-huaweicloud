@@ -1,0 +1,519 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_mapreduce_cluster": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "charging_start_time": {
+                "type": "string",
+                "computed": true
+              },
+              "component_list": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "required": true,
+                "forcenew": true
+              },
+              "create_time": {
+                "type": "string",
+                "computed": true
+              },
+              "eip_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "log_collection": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true,
+                "default": true
+              },
+              "manager_admin_pass": {
+                "type": "string",
+                "required": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "master_node_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "node_admin_pass": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "node_key_pair": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "private_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "public_ip": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "safe_mode": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true,
+                "default": true
+              },
+              "security_group_ids": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "template_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "total_node_number": {
+                "type": "number",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "default": "ANALYSIS"
+              },
+              "update_time": {
+                "type": "string",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "analysis_core_nodes": {
+                "block": {
+                  "attributes": {
+                    "assigned_roles": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "data_volume_count": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "data_volume_size": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "data_volume_type": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "flavor": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "host_ips": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "computed": true
+                    },
+                    "node_number": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "root_volume_size": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "root_volume_type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "analysis_task_nodes": {
+                "block": {
+                  "attributes": {
+                    "assigned_roles": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "data_volume_count": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "data_volume_size": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "data_volume_type": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "flavor": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "host_ips": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "computed": true
+                    },
+                    "node_number": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "root_volume_size": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "root_volume_type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "custom_nodes": {
+                "block": {
+                  "attributes": {
+                    "assigned_roles": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "data_volume_count": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "data_volume_size": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "data_volume_type": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "flavor": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "group_name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "host_ips": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "computed": true
+                    },
+                    "node_number": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "root_volume_size": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "root_volume_type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              },
+              "master_nodes": {
+                "block": {
+                  "attributes": {
+                    "assigned_roles": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "data_volume_count": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "data_volume_size": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "data_volume_type": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "flavor": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "host_ips": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "computed": true
+                    },
+                    "node_number": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "root_volume_size": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "root_volume_type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 1
+              },
+              "streaming_core_nodes": {
+                "block": {
+                  "attributes": {
+                    "assigned_roles": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "data_volume_count": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "data_volume_size": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "data_volume_type": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "flavor": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "host_ips": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "computed": true
+                    },
+                    "node_number": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "root_volume_size": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "root_volume_type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "streaming_task_nodes": {
+                "block": {
+                  "attributes": {
+                    "assigned_roles": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "data_volume_count": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "data_volume_size": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "data_volume_type": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "flavor": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "host_ips": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "computed": true
+                    },
+                    "node_number": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "root_volume_size": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "root_volume_type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "catalog": "Analytics",
+            "name": "MapReduce Service",
+            "short": "MRS"
+          }
+        }
+      }
+    }
+  }
+}

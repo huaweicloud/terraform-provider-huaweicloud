@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identity_access_key": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "encrypted_secret": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key_fingerprint": {
+                "type": "string",
+                "computed": true
+              },
+              "pgp_key": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "secret": {
+                "type": "string",
+                "computed": true,
+                "sensitive": true
+              },
+              "secret_file": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "user_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "user_name": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Management \u0026 Governance",
+            "name": "Identity and Access Management",
+            "short": "IAM"
+          }
+        }
+      }
+    }
+  }
+}

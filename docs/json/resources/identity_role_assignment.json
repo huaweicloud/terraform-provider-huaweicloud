@@ -1,0 +1,43 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identity_role_assignment": {
+          "block": {
+            "attributes": {
+              "domain_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "group_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "role_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Management \u0026 Governance",
+            "name": "Identity and Access Management",
+            "short": "IAM"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,192 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ces_alarmrule": {
+          "block": {
+            "attributes": {
+              "alarm_action_enabled": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "alarm_description": {
+                "type": "string",
+                "optional": true
+              },
+              "alarm_enabled": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "alarm_level": {
+                "type": "number",
+                "optional": true,
+                "default": 2
+              },
+              "alarm_name": {
+                "type": "string",
+                "required": true
+              },
+              "alarm_state": {
+                "type": "string",
+                "computed": true
+              },
+              "alarm_type": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "update_time": {
+                "type": "number",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "alarm_actions": {
+                "block": {
+                  "attributes": {
+                    "notification_list": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              },
+              "condition": {
+                "block": {
+                  "attributes": {
+                    "comparison_operator": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "count": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "filter": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "period": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "suppress_duration": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "unit": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "value": {
+                      "type": "number",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "metric": {
+                "block": {
+                  "attributes": {
+                    "metric_name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "namespace": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "block_types": {
+                    "dimensions": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 1
+              },
+              "ok_actions": {
+                "block": {
+                  "attributes": {
+                    "notification_list": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Management \u0026 Governance",
+            "name": "Cloud Eye",
+            "short": "CES"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cdn_domain": {
+          "block": {
+            "attributes": {
+              "cname": {
+                "type": "string",
+                "computed": true
+              },
+              "domain_status": {
+                "type": "string",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "service_area": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "sources": {
+                "block": {
+                  "attributes": {
+                    "active": {
+                      "type": "number",
+                      "optional": true,
+                      "default": 1
+                    },
+                    "origin": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "origin_type": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "catalog": "Storage",
+            "name": "Content Delivery Network",
+            "short": "CDN"
+          }
+        }
+      }
+    }
+  }
+}
