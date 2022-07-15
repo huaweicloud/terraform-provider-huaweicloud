@@ -163,6 +163,20 @@ func StrSliceContains(haystack []string, needle string) bool {
 	return IsStrContainsSliceElement(needle, haystack, false, true)
 }
 
+// StrSliceContainsAnother checks whether a string slice (b) contains another string slice (s).
+func StrSliceContainsAnother(b []string, s []string) bool {
+	// The empty set is the subset of any set.
+	if len(s) < 1 {
+		return true
+	}
+	for _, v := range s {
+		if !StrSliceContains(b, v) {
+			return false
+		}
+	}
+	return true
+}
+
 // IsStrContainsSliceElement returns true if the string exists in given slice or contains in one of slice elements when
 // open exact flag. Also you can ignore case for this check.
 func IsStrContainsSliceElement(str string, sl []string, ignoreCase, isExcat bool) bool {

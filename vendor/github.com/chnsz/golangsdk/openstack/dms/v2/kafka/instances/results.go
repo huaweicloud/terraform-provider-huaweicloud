@@ -42,6 +42,7 @@ type Instance struct {
 	Specification              string             `json:"specification"`
 	StorageSpace               int                `json:"storage_space"`
 	PartitionNum               string             `json:"partition_num"`
+	BrokerNum                  int                `json:"broker_num"`
 	UsedStorageSpace           int                `json:"used_storage_space"`
 	ConnectAddress             string             `json:"connect_address"`
 	Port                       int                `json:"port"`

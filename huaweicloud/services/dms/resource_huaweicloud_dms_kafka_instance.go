@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -61,11 +62,6 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"storage_space": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-			},
 			"storage_spec_code": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -85,19 +81,6 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"availability_zones": {
-				// There is a problem with order of elements in Availability Zone list returned by Kafka API.
-				Type:     schema.TypeSet,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-			},
-			"product_id": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
 			"manager_user": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -108,6 +91,36 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				Required:  true,
 				Sensitive: true,
 				ForceNew:  true,
+			},
+			"availability_zones": {
+				// There is a problem with order of elements in Availability Zone list returned by Kafka API.
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+			"flavor_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ExactlyOneOf: []string{"product_id"},
+				RequiredWith: []string{"broker_num", "storage_space"},
+			},
+			"broker_num": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"product_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"storage_space": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
 			},
 			"access_user": {
 				Type:     schema.TypeString,
@@ -284,8 +297,8 @@ func resourceDmsKafkaPublicIpIDs(d *schema.ResourceData, bandwidth string) (stri
 	return strings.Join(publicIpIDs, ","), nil
 }
 
-func getProductDetail(config *config.Config, d *schema.ResourceData, instanceType string) (*products.Detail, error) {
-	productRsp, err := getProducts(config, config.GetRegion(d), instanceType)
+func getProductDetail(config *config.Config, d *schema.ResourceData, engineType string) (*products.Detail, error) {
+	productRsp, err := getProducts(config, config.GetRegion(d), engineType)
 	if err != nil {
 		return nil, fmtp.Errorf("error querying product detail, please check product_id, error: %s", err)
 	}
@@ -299,11 +312,11 @@ func getProductDetail(config *config.Config, d *schema.ResourceData, instanceTyp
 		}
 		for _, v := range ps.Values {
 			for _, p := range v.Details {
-				if instanceType == "kafka" {
+				if engineType == "kafka" {
 					if p.ProductID == productID {
 						return &p, nil
 					}
-				} else if instanceType == "rabbitmq" {
+				} else if engineType == "rabbitmq" {
 					for _, pi := range p.ProductInfos {
 						if pi.ProductID == productID {
 							p.ProductInfos = []products.ProductInfo{pi}
@@ -319,6 +332,119 @@ func getProductDetail(config *config.Config, d *schema.ResourceData, instanceTyp
 }
 
 func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	if _, ok := d.GetOk("flavor_id"); ok {
+		return newKafkaInstanceCreate(ctx, d, meta)
+	}
+	return oldKafkaInstanceCreate(ctx, d, meta)
+}
+
+func newKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	client, err := conf.DmsV2Client(region)
+	if err != nil {
+		return fmtp.DiagErrorf("error creating HuaweiCloud DMS instance client: %s", err)
+	}
+
+	createOpts := &instances.CreateOps{
+		Name:                d.Get("name").(string),
+		Description:         d.Get("description").(string),
+		Engine:              "kafka",
+		EngineVersion:       d.Get("engine_version").(string),
+		AccessUser:          d.Get("access_user").(string),
+		VPCID:               d.Get("vpc_id").(string),
+		SecurityGroupID:     d.Get("security_group_id").(string),
+		SubnetID:            d.Get("network_id").(string),
+		ProductID:           d.Get("flavor_id").(string),
+		KafkaManagerUser:    d.Get("manager_user").(string),
+		MaintainBegin:       d.Get("maintain_begin").(string),
+		MaintainEnd:         d.Get("maintain_end").(string),
+		RetentionPolicy:     d.Get("retention_policy").(string),
+		ConnectorEnalbe:     d.Get("dumping").(bool),
+		EnableAutoTopic:     d.Get("enable_auto_topic").(bool),
+		StorageSpecCode:     d.Get("storage_spec_code").(string),
+		StorageSpace:        d.Get("storage_space").(int),
+		BrokerNum:           d.Get("broker_num").(int),
+		EnterpriseProjectID: common.GetEnterpriseProjectID(d, conf),
+	}
+
+	if ids, ok := d.GetOk("public_ip_ids"); ok {
+		createOpts.EnablePublicIP = true
+		createOpts.PublicIpID = strings.Join(utils.ExpandToStringList(ids.([]interface{})), ",")
+	}
+
+	sslEnable := false
+	if d.Get("access_user").(string) != "" && d.Get("password").(string) != "" {
+		sslEnable = true
+	}
+	createOpts.SslEnable = sslEnable
+
+	var availableZones []string
+	zoneIDs, ok := d.GetOk("available_zones")
+	if ok {
+		availableZones = utils.ExpandToStringList(zoneIDs.([]interface{}))
+	} else {
+		// convert the codes of the availability zone into ids
+		azCodes := d.Get("availability_zones").(*schema.Set)
+		availableZones, err = getAvailableZoneIDByCode(conf, region, azCodes.List())
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+	createOpts.AvailableZones = availableZones
+
+	//set tags
+	tagRaw := d.Get("tags").(map[string]interface{})
+	if len(tagRaw) > 0 {
+		taglist := utils.ExpandResourceTags(tagRaw)
+		createOpts.Tags = taglist
+	}
+
+	logp.Printf("[DEBUG] Create DMS Kafka instance options: %#v", createOpts)
+	// Add password here so it wouldn't go in the above log entry
+	createOpts.Password = d.Get("password").(string)
+	createOpts.KafkaManagerPassword = d.Get("manager_password").(string)
+
+	v, err := instances.Create(client, createOpts).Extract()
+	if err != nil {
+		return fmtp.DiagErrorf("error creating HuaweiCloud DMS kafka instance: %s", err)
+	}
+	logp.Printf("[INFO] instance ID: %s", v.InstanceID)
+
+	// Store the instance ID now
+	d.SetId(v.InstanceID)
+
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"CREATING"},
+		Target:       []string{"RUNNING"},
+		Refresh:      DmsKafkaInstanceStateRefreshFunc(client, v.InstanceID),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        300 * time.Second,
+		PollInterval: 15 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmtp.DiagErrorf("error waiting for instance (%s) to become ready: %s", v.InstanceID, err)
+	}
+
+	// After the kafka instance is created, wait for the access port to complete the binding.
+	stateConf = &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"BOUND"},
+		Refresh:      portsBindStatusRefreshFunc(client, d.Id()),
+		Timeout:      5 * time.Minute,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		log.Printf("[ERROR] Failed to bind cross-VPC ports: %v", err)
+	}
+
+	return resourceDmsKafkaInstanceRead(ctx, d, meta)
+}
+
+func oldKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
 	dmsV2Client, err := config.DmsV2Client(region)
@@ -489,6 +615,14 @@ func flattenConnectPorts(strInfos string) ([]map[string]interface{}, error) {
 	return result, nil
 }
 
+func setKafkaFlavorId(d *schema.ResourceData, flavorId string) error {
+	re := regexp.MustCompile(`^[a-z0-9]+\.\d+u\d+g\.cluster|single$`)
+	if re.MatchString(flavorId) {
+		return d.Set("flavor_id", flavorId)
+	}
+	return d.Set("product_id", flavorId)
+}
+
 func resourceDmsKafkaInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
@@ -516,6 +650,7 @@ func resourceDmsKafkaInstanceRead(_ context.Context, d *schema.ResourceData, met
 
 	mErr = multierror.Append(mErr,
 		d.Set("region", config.GetRegion(d)),
+		setKafkaFlavorId(d, v.ProductID),
 		d.Set("name", v.Name),
 		d.Set("description", v.Description),
 		d.Set("engine", v.Engine),
@@ -530,7 +665,7 @@ func resourceDmsKafkaInstanceRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("network_id", v.SubnetID),
 		d.Set("available_zones", availableZoneIDs),
 		d.Set("availability_zones", availableZoneCodes),
-		d.Set("product_id", v.ProductID),
+		d.Set("broker_num", v.BrokerNum),
 		d.Set("manager_user", v.KafkaManagerUser),
 		d.Set("maintain_begin", v.MaintainBegin),
 		d.Set("maintain_end", v.MaintainEnd),
@@ -603,7 +738,7 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
-	if d.HasChanges("storage_space", "product_id") {
+	if d.HasChanges("storage_space", "product_id", "flavor_id") {
 		err = resizeInstance(ctx, d, meta, "kafka")
 		if err != nil {
 			e := fmtp.Errorf("error resizing HuaweiCloud DMS kafka Instance: %s", err)
@@ -626,28 +761,31 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 	return resourceDmsKafkaInstanceRead(ctx, d, meta)
 }
 
-func resizeInstance(ctx context.Context, d *schema.ResourceData, meta interface{}, instanceType string) error {
+func resizeInstance(ctx context.Context, d *schema.ResourceData, meta interface{}, engineType string) error {
 	config := meta.(*config.Config)
 	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("error creating HuaweiCloud DMS instance client: %s", err)
 	}
 
-	product, err := getProductDetail(config, d, instanceType)
-	if err != nil || product == nil {
-		return fmtp.Errorf("change storage_space failed, error querying product detail: %s", err)
-	}
-	logp.Printf("[DEBUG] Get DMS product detail: %#v", product)
+	opts := instances.ResizeInstanceOpts{}
+	if _, ok := d.GetOk("product_id"); ok {
+		product, err := getProductDetail(config, d, engineType)
+		if err != nil || product == nil {
+			return fmtp.Errorf("change storage_space failed, error querying product detail: %s", err)
+		}
+		logp.Printf("[DEBUG] Get DMS product detail: %#v", product)
 
-	storage := d.Get("storage_space").(int)
-	specCode := product.SpecCode
-	if instanceType == "rabbitmq" {
-		specCode = product.ProductInfos[0].SpecCode
+		opts.NewStorageSpace = d.Get("storage_space").(int)
+		opts.NewSpecCode = product.SpecCode
+		if engineType == "rabbitmq" {
+			opts.NewSpecCode = product.ProductInfos[0].SpecCode
+		}
+	} else {
+		opts.NewSpecCode = d.Get("storage_spec_code").(string)
+		opts.NewStorageSpace = d.Get("storage_space").(int)
 	}
-	opts := instances.ResizeInstanceOpts{
-		NewSpecCode:     specCode,
-		NewStorageSpace: storage,
-	}
+
 	logp.Printf("[DEBUG] Resize DMS storage capacity option : %#v", opts)
 
 	_, err = instances.Resize(dmsV2Client, d.Id(), opts)
@@ -655,11 +793,16 @@ func resizeInstance(ctx context.Context, d *schema.ResourceData, meta interface{
 		return fmtp.Errorf("resize failed, error: %s", err)
 	}
 
-	productID := d.Get("product_id").(string)
+	var flavorId string
+	if productId, ok := d.GetOk("product_id"); ok {
+		flavorId = productId.(string)
+	} else {
+		flavorId = d.Get("flavor_id").(string)
+	}
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"EXTENDING", "REFRESHING"},
 		Target:       []string{"RUNNING"},
-		Refresh:      refreshResizeProductIDFunc(dmsV2Client, d.Id(), productID),
+		Refresh:      refreshResizeProductIDFunc(dmsV2Client, d.Id(), flavorId),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		Delay:        300 * time.Second,
 		PollInterval: 15 * time.Second,
