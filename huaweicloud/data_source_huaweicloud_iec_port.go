@@ -25,6 +25,7 @@ func DataSourceIECPort() *schema.Resource {
 			"id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"fixed_ip": {
 				Type:         schema.TypeString,

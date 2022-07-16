@@ -31,6 +31,7 @@ func DataSourceCCEClusterV3() *schema.Resource {
 			"id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"flavor_id": {
 				Type:     schema.TypeString,

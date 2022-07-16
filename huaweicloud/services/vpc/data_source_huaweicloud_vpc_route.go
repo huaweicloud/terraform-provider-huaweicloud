@@ -41,6 +41,7 @@ func DataSourceVpcRouteV2() *schema.Resource {
 			"id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 		},
 	}

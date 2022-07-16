@@ -30,6 +30,7 @@ func DataSourceELBV2Loadbalancer() *schema.Resource {
 			"id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"status": {
 				Type:     schema.TypeString,
