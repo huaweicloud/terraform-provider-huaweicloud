@@ -1,4 +1,4 @@
-package cse
+package meeting
 
 import (
 	"fmt"
