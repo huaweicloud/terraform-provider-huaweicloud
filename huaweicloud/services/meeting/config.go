@@ -45,35 +45,51 @@ const (
 )
 
 func buildTokenEnvKey(d *schema.ResourceData) string {
+	var corpId, userId string
+	if val, ok := d.GetOk("corp_id"); ok {
+		corpId = val.(string)
+	}
+	if val, ok := d.GetOk("user_id"); ok {
+		userId = val.(string)
+	}
 	elements := []byte(d.Get("account_name").(string) + ":" + d.Get("account_password").(string) + ":" +
-		d.Get("app_id").(string) + ":" + d.Get("app_key").(string) + ":" + d.Get("corp_id").(string) + ":" +
-		d.Get("user_id").(string))
+		d.Get("app_id").(string) + ":" + d.Get("app_key").(string) + ":" + corpId + ":" + userId)
 	return base64.StdEncoding.EncodeToString(elements)
 }
 
 func buildAuthOpts(d *schema.ResourceData) AuthOpts {
-	return AuthOpts{
+	result := AuthOpts{
 		AccountName:        d.Get("account_name").(string),
 		Password:           d.Get("account_password").(string),
 		AppId:              d.Get("app_id").(string),
 		AppKey:             d.Get("app_key").(string),
-		CorpId:             d.Get("corp_id").(string),
-		UserId:             d.Get("user_id").(string),
 		TokenEffectiveTime: 12,
 		CurrentToken:       GetTokenFromEnv(buildTokenEnvKey(d)),
 	}
+	if val, ok := d.GetOk("corp_id"); ok {
+		result.CorpId = val.(string)
+	}
+	if val, ok := d.GetOk("user_id"); ok {
+		result.UserId = val.(string)
+	}
+	return result
 }
 
 func buildAuthOptsByState(state *terraform.ResourceState) AuthOpts {
-	return AuthOpts{
+	result := AuthOpts{
 		AccountName:        state.Primary.Attributes["account_name"],
 		Password:           state.Primary.Attributes["account_password"],
 		AppId:              state.Primary.Attributes["app_id"],
 		AppKey:             state.Primary.Attributes["app_key"],
-		CorpId:             state.Primary.Attributes["corp_id"],
-		UserId:             state.Primary.Attributes["user_id"],
 		TokenEffectiveTime: 12,
 	}
+	if val, ok := state.Primary.Attributes["corp_id"]; ok {
+		result.CorpId = val
+	}
+	if val, ok := state.Primary.Attributes["user_id"]; ok {
+		result.UserId = val
+	}
+	return result
 }
 
 // GetTokenFromEnv is a method to obtain token from global map using given key.

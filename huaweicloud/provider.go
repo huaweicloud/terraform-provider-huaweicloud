@@ -722,8 +722,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_mapreduce_cluster": mrs.ResourceMRSClusterV2(),
 			"huaweicloud_mapreduce_job":     mrs.ResourceMRSJobV2(),
 
-			"huaweicloud_meeting_conference": meeting.ResourceConference(),
-			"huaweicloud_meeting_user":       meeting.ResourceUser(),
+			"huaweicloud_meeting_admin_assignment": meeting.ResourceAdminAssignment(),
+			"huaweicloud_meeting_conference":       meeting.ResourceConference(),
+			"huaweicloud_meeting_user":             meeting.ResourceUser(),
 
 			"huaweicloud_modelarts_dataset":                modelarts.ResourceDataset(),
 			"huaweicloud_modelarts_dataset_version":        modelarts.ResourceDatasetVersion(),
