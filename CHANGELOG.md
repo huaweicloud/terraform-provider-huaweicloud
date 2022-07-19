@@ -789,7 +789,7 @@ BUG FIXES:
 
 DEPRECATE:
 
-* the `tenant_id` is marked as deprecated in resources ([#952][#954])
+* the `tenant_id` is marked as deprecated in resources ([#952](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/952)[#954](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/954))
 
 ## 1.22.0 (February 27, 2021)
 

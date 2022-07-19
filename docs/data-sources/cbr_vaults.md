@@ -96,6 +96,7 @@ The `vaults` block supports:
 * `resources` - An array of one or more resources to attach to the CBR vault.
   The [object](#cbr_vault_resources) structure is documented below.
 
+<a name="cbr_vault_resources"></a>
 The `resources` block supports:
 
 * `server_id` - The ID of the ECS instance to be backed up.
