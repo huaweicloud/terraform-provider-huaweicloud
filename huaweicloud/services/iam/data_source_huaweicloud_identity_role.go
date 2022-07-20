@@ -22,11 +22,13 @@ func DataSourceIdentityRoleV3() *schema.Resource {
 			"name": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
 				AtLeastOneOf: []string{"name", "display_name"},
 			},
 			"display_name": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
 				AtLeastOneOf: []string{"name", "display_name"},
 			},
 			"description": {

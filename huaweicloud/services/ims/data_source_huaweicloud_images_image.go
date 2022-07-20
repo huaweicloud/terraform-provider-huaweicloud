@@ -40,6 +40,7 @@ func DataSourceImagesImageV2() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 
 			"name_regex": {
@@ -52,12 +53,14 @@ func DataSourceImagesImageV2() *schema.Resource {
 			"visibility": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.StringInSlice(imageValidVisibilities, false),
 			},
 
 			"owner": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 
 			"sort_key": {
@@ -97,18 +100,22 @@ func DataSourceImagesImageV2() *schema.Resource {
 			"os": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"os_version": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"image_type": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 
 			// Deprecated values

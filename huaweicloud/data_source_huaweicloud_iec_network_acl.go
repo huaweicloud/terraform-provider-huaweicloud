@@ -22,6 +22,7 @@ func dataSourceIECNetworkACL() *schema.Resource {
 			"name": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
 				AtLeastOneOf: []string{"id"},
 			},
 

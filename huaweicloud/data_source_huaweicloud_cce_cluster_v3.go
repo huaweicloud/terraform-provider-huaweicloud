@@ -27,6 +27,7 @@ func DataSourceCCEClusterV3() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"id": {
 				Type:     schema.TypeString,
@@ -48,6 +49,7 @@ func DataSourceCCEClusterV3() *schema.Resource {
 			"cluster_type": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"billing_mode": {
 				Type:     schema.TypeInt,
@@ -56,6 +58,7 @@ func DataSourceCCEClusterV3() *schema.Resource {
 			"vpc_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"subnet_id": {
 				Type:     schema.TypeString,
@@ -112,6 +115,7 @@ func DataSourceCCEClusterV3() *schema.Resource {
 			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"endpoints": {
 				Type:     schema.TypeSet,

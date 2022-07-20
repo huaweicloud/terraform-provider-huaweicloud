@@ -23,6 +23,7 @@ func dataSourceGaussDBMysqlDehResource() *schema.Resource {
 			"resource_name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"availability_zone": {
 				Type:     schema.TypeList,

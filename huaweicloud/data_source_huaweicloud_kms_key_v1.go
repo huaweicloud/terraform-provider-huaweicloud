@@ -28,14 +28,17 @@ func DataSourceKmsKeyV1() *schema.Resource {
 			"key_alias": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"key_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"key_description": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"domain_id": {
 				Type:     schema.TypeString,

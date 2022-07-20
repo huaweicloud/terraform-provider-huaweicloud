@@ -27,6 +27,7 @@ func DataSourceIECVpc() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 
 			"cidr": {

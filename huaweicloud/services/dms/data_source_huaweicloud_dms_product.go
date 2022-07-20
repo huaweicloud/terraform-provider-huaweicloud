@@ -74,6 +74,7 @@ func DataSourceDmsProduct() *schema.Resource {
 			"bandwidth": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"partition_num": {
 				Type:     schema.TypeString,

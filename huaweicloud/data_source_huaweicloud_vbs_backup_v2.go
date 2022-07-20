@@ -26,6 +26,7 @@ func dataSourceVBSBackupV2() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -38,6 +39,7 @@ func dataSourceVBSBackupV2() *schema.Resource {
 			"volume_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"size": {
 				Type:     schema.TypeInt,
@@ -54,10 +56,12 @@ func dataSourceVBSBackupV2() *schema.Resource {
 			"snapshot_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 		},
 	}
