@@ -139,6 +139,10 @@ The following arguments are supported:
 
   -> You cannot configure `auto_expand` if the vault is **prePaid** mode.
 
+* `auto_bind` - (Optional, Bool) Specifies whether automatic association is enabled. Defaults to **false**.
+
+* `bind_rules` - (Optional, Map) Specifies the tags to filter resources for automatic association with **auto_bind**.
+
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies a unique ID in UUID format of enterprise project.
   Changing this will create a new vault.
 

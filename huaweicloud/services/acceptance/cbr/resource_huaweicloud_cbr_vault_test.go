@@ -346,6 +346,59 @@ func TestAccVault_ReplicaTurbo(t *testing.T) {
 	})
 }
 
+func TestAccVault_AutoBind(t *testing.T) {
+	var vault vaults.Vault
+	randName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_cbr_vault.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&vault,
+		getVaultResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVault_autoBind(randName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "consistent_level", "crash_consistent"),
+					resource.TestCheckResourceAttr(resourceName, "type", cbr.VaultTypeServer),
+					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
+					resource.TestCheckResourceAttr(resourceName, "size", "800"),
+					resource.TestCheckResourceAttr(resourceName, "auto_bind", "true"),
+					resource.TestCheckResourceAttr(resourceName, "bind_rules.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "bind_rules.key", "value"),
+				),
+			},
+			{
+				Config: testAccVault_autoBindUpdate(randName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "consistent_level", "crash_consistent"),
+					resource.TestCheckResourceAttr(resourceName, "type", cbr.VaultTypeServer),
+					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
+					resource.TestCheckResourceAttr(resourceName, "size", "800"),
+					resource.TestCheckResourceAttr(resourceName, "auto_bind", "false"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccVault_policy(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cbr_policy" "test" {
@@ -747,4 +800,32 @@ resource "huaweicloud_cbr_vault" "test" {
   enterprise_project_id = "%s"
 }
 `, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccVault_autoBind(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_cbr_vault" "test" {
+  name            = "%s"
+  type            = "server"
+  protection_type = "backup"
+  size            = 800
+  auto_bind       = true
+  bind_rules      = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, rName)
+}
+
+func testAccVault_autoBindUpdate(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_cbr_vault" "test" {
+  name            = "%s"
+  type            = "server"
+  protection_type = "backup"
+  size            = 800
+  auto_bind       = false
+}
+`, rName)
 }

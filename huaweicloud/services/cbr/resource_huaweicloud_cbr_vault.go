@@ -109,6 +109,16 @@ func ResourceVault() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"auto_bind": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"bind_rules": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -315,6 +325,7 @@ func resourceVaultCreate(ctx context.Context, d *schema.ResourceData, meta inter
 	if ok && isPrePaid(d) {
 		return diag.Errorf("the prepaid vault do not support the auto_expand parameter")
 	}
+
 	opts := vaults.CreateOpts{
 		Name:                d.Get("name").(string),
 		BackupPolicyID:      d.Get("policy_id").(string),
@@ -322,6 +333,16 @@ func resourceVaultCreate(ctx context.Context, d *schema.ResourceData, meta inter
 		Resources:           resources,
 		Billing:             buildBillingStructure(d),
 		AutoExpand:          ae.(bool),
+		AutoBind:            d.Get("auto_bind").(bool),
+	}
+
+	bindRulesRaw := d.Get("bind_rules").(map[string]interface{})
+	binRulesList := utils.ExpandResourceTags(bindRulesRaw)
+	if len(binRulesList) > 0 {
+		bindRules := &vaults.VaultBindRules{
+			Tags: binRulesList,
+		}
+		opts.BindRules = bindRules
 	}
 
 	log.Printf("[DEBUG] The createOpts is: %+v", opts)
@@ -493,8 +514,10 @@ func resourceVaultRead(ctx context.Context, d *schema.ResourceData, meta interfa
 		d.Set("size", resp.Billing.Size),
 		d.Set("consistent_level", resp.Billing.ConsistentLevel),
 		d.Set("auto_expand", resp.AutoExpand),
+		d.Set("auto_bind", resp.AutoBind),
 		d.Set("enterprise_project_id", resp.EnterpriseProjectID),
 		d.Set("tags", utils.TagsToMap(resp.Tags)),
+		d.Set("bind_rules", utils.TagsToMap(resp.BindRules.Tags)),
 		setResources(d, resp.Billing.ObjectType, resp.Resources),
 		setPolicyId(d, client),
 		setCbrVaultCharging(d, resp.Billing),
@@ -586,15 +609,26 @@ func resourceVaultUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 		opts.Name = d.Get("name").(string)
 	}
 
-	if d.HasChanges("size", "auto_expand") {
+	if d.HasChanges("size", "auto_expand", "auto_bind") {
 		if isPrePaid(d) {
 			return diag.Errorf("cannot update size or auto_expand if the vault is prepaid mode")
 		}
 		ae := d.Get("auto_expand").(bool)
+		ab := d.Get("auto_bind").(bool)
 		opts.AutoExpand = &ae
+		opts.AutoBind = &ab
 		opts.Billing = &vaults.BillingUpdate{
 			Size: d.Get("size").(int),
 		}
+	}
+
+	if d.HasChanges("bind_rules") {
+		bindRulesRaw := d.Get("bind_rules").(map[string]interface{})
+		binRulesList := utils.ExpandResourceTags(bindRulesRaw)
+		bindRules := &vaults.VaultBindRules{
+			Tags: binRulesList,
+		}
+		opts.BindRules = bindRules
 	}
 
 	if !reflect.DeepEqual(opts, vaults.UpdateOpts{}) {
