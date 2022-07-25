@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -82,6 +83,41 @@ func ResourceEIPAssociate() *schema.Resource {
 	}
 }
 
+func eipAssociateRefreshFunc(client *golangsdk.ServiceClient, id string, portId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		resp, err := eips.Get(client, id).Extract()
+		if err != nil {
+			return nil, "ERROR", err
+		}
+		if resp.PortID == "" {
+			return resp, "STARTING", nil
+		}
+		if resp.PortID == portId {
+			return resp, "COMPLETED", nil
+		}
+		return nil, "ERROR", fmt.Errorf("the EIP is already bound to the port %s", resp.PortID)
+	}
+}
+
+// waitForStateCompleted is a method that continuously queries the resource state and judges whether the resource has
+// reached the expected state.
+// Parameters:
+//   context.Context: Context detail.
+//   resource.StateRefreshFunc: Function method to get the validation object.
+//   time.Duration: Maximum waiting time.
+func waitForStateCompleted(ctx context.Context, f resource.StateRefreshFunc, t time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"STARTING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      f,
+		Timeout:      t,
+		Delay:        5 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
 func resourceEIPAssociateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
@@ -107,12 +143,19 @@ func resourceEIPAssociateCreate(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
-	err = bindPort(vpcClient, publicID, portID, d.Timeout(schema.TimeoutCreate))
+	// The maximum timeout of excution methods for associate EIP.
+	t := d.Timeout(schema.TimeoutCreate)
+	err = bindPort(vpcClient, publicID, portID, t)
 	if err != nil {
 		return fmtp.DiagErrorf("Error associating EIP %s to port %s: %s", publicID, portID, err)
 	}
 
 	d.SetId(publicID)
+	err = waitForStateCompleted(ctx, eipAssociateRefreshFunc(vpcClient, publicID, portID), t)
+	if err != nil {
+		return diag.Errorf("error waiting for EIP association to complete: %s", err)
+	}
+
 	return resourceEIPAssociateRead(ctx, d, meta)
 }
 

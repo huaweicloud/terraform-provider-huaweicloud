@@ -2,6 +2,7 @@ package huaweicloud
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -22,6 +23,7 @@ func TestAccComputeEIPAssociate_basic(t *testing.T) {
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_compute_eip_associate.test"
+	partten := `^((25[0-5]|2[0-4]\d|(1\d{2}|[1-9]?\d))\.){3}(25[0-5]|2[0-4]\d|(1\d{2}|[1-9]?\d))$`
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -35,6 +37,7 @@ func TestAccComputeEIPAssociate_basic(t *testing.T) {
 					testAccCheckVpcV1EIPExists("huaweicloud_vpc_eip.test", &eip),
 					testAccCheckComputeEIPAssociateAssociated(&eip, &instance, 1),
 					resource.TestCheckResourceAttrSet(resourceName, "port_id"),
+					resource.TestMatchOutput("public_ip_address", regexp.MustCompile(partten)),
 				),
 			},
 			{
@@ -213,6 +216,16 @@ func testAccComputeEIPAssociate_basic(rName string) string {
 resource "huaweicloud_compute_eip_associate" "test" {
   public_ip   = huaweicloud_vpc_eip.test.address
   instance_id = huaweicloud_compute_instance.test.id
+}
+
+data "huaweicloud_compute_instance" "default" {
+  depends_on = [huaweicloud_compute_eip_associate.test]
+
+  name = huaweicloud_compute_instance.test.name
+}
+
+output "public_ip_address" {
+  value = data.huaweicloud_compute_instance.default.public_ip
 }
 `, testAccComputeEIPAssociate_Base(rName))
 }
