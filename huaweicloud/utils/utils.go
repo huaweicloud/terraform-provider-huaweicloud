@@ -6,9 +6,11 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"math/big"
+	"net/http"
 	"os"
 	"regexp"
 	"strings"
@@ -385,4 +387,20 @@ func RandomString(n int, allowedChars ...[]rune) (result string) {
 
 	result = string(b)
 	return
+}
+
+// FlattenResponse returns the api response body if it's not empty
+func FlattenResponse(resp *http.Response) (interface{}, error) {
+	var respBody interface{}
+	defer resp.Body.Close()
+	// Don't decode JSON when there is no content
+	if resp.StatusCode == http.StatusNoContent {
+		_, err := io.Copy(ioutil.Discard, resp.Body)
+		return resp, err
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&respBody); err != nil {
+		return nil, err
+	}
+	return respBody, nil
 }

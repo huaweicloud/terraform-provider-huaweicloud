@@ -834,3 +834,8 @@ func (c *Config) ScmV3Client(region string) (*golangsdk.ServiceClient, error) {
 func (c *Config) NatV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("natv2", region)
 }
+
+// Client is a common client for auto generated resources
+func (c *Config) Client(serviceName, region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient(serviceName, region)
+}

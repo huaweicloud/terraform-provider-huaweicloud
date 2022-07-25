@@ -2,14 +2,15 @@ package vod
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strconv"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	vod "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vod/v1/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -55,7 +56,8 @@ func ResourceMediaCategory() *schema.Resource {
 
 func resourceMediaCategoryCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	client, err := config.HcVodV1Client(config.GetRegion(d))
+	region := config.GetRegion(d)
+	client, err := config.Client("vod", region)
 	if err != nil {
 		return diag.Errorf("error creating VOD client: %s", err)
 	}
@@ -65,58 +67,67 @@ func resourceMediaCategoryCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 
-	createOpts := vod.CreateCategoryReq{
-		Name:     d.Get("name").(string),
-		ParentId: utils.Int32(int32(parentId)),
+	url := client.ServiceURL("asset/category")
+
+	reqBody := map[string]interface{}{
+		"name":      d.Get("name").(string),
+		"parent_id": utils.Int32(int32(parentId)),
 	}
 
-	createReq := vod.CreateAssetCategoryRequest{
-		Body: &createOpts,
+	reqOpt := golangsdk.RequestOpts{
+		JSONBody:         reqBody,
+		KeepResponseBody: true,
 	}
 
-	resp, err := client.CreateAssetCategory(&createReq)
+	resp, err := client.Request("POST", url, &reqOpt)
 	if err != nil {
 		return diag.Errorf("error creating VOD media category: %s", err)
 	}
 
-	d.SetId(strconv.FormatInt(int64(*resp.Id), 10))
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	d.SetId(strconv.FormatInt(int64(respBody.(map[string]interface{})["id"].(float64)), 10))
 
 	return resourceMediaCategoryRead(ctx, d, meta)
 }
 
 func resourceMediaCategoryRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	client, err := config.HcVodV1Client(config.GetRegion(d))
+	client, err := config.Client("vod", config.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating VOD client: %s", err)
 	}
 
-	id, err := strconv.ParseInt(d.Id(), 10, 32)
-	if err != nil {
-		return diag.FromErr(err)
-	}
+	url := client.ServiceURL(fmt.Sprintf("asset/category?id=%s", d.Id()))
 
-	resp, err := client.ListAssetCategory(&vod.ListAssetCategoryRequest{Id: int32(id)})
+	resp, err := client.Request("GET", url, &golangsdk.RequestOpts{KeepResponseBody: true})
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving VOD media category")
 	}
 
-	categoryList := *resp.Body
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	categoryList := respBody.([]interface{})
 	if len(categoryList) == 0 {
-		log.Printf("unable to retrieve VOD media category: %d", id)
+		log.Printf("unable to retrieve VOD media category: %s", d.Id())
 		d.SetId("")
 		return nil
 	}
-	category := categoryList[0]
+	category := categoryList[0].(map[string]interface{})
 
-	children, err := utils.JsonMarshal(category.Children)
+	children, err := utils.JsonMarshal(category["children"])
 	if err != nil {
 		log.Printf("error marshaling children: %s", err)
 	}
 
 	mErr := multierror.Append(nil,
 		d.Set("region", config.GetRegion(d)),
-		d.Set("name", category.Name),
+		d.Set("name", category["name"]),
 		d.Set("children", string(children)),
 	)
 
@@ -129,26 +140,24 @@ func resourceMediaCategoryRead(_ context.Context, d *schema.ResourceData, meta i
 
 func resourceMediaCategoryUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	client, err := config.HcVodV1Client(config.GetRegion(d))
+	client, err := config.Client("vod", config.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating VOD client: %s", err)
 	}
 
-	id, err := strconv.ParseInt(d.Id(), 10, 32)
-	if err != nil {
-		return diag.FromErr(err)
+	url := client.ServiceURL("asset/category")
+
+	reqBody := map[string]interface{}{
+		"name": d.Get("name").(string),
+		"id":   d.Id(),
 	}
 
-	updateOpts := vod.UpdateCategoryReq{
-		Name: d.Get("name").(string),
-		Id:   int32(id),
+	reqOpt := golangsdk.RequestOpts{
+		JSONBody:         reqBody,
+		KeepResponseBody: true,
 	}
 
-	updateReq := vod.UpdateAssetCategoryRequest{
-		Body: &updateOpts,
-	}
-
-	_, err = client.UpdateAssetCategory(&updateReq)
+	_, err = client.Request("PUT", url, &reqOpt)
 	if err != nil {
 		return diag.Errorf("error updating VOD media category: %s", err)
 	}
@@ -158,17 +167,14 @@ func resourceMediaCategoryUpdate(ctx context.Context, d *schema.ResourceData, me
 
 func resourceMediaCategoryDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	client, err := config.HcVodV1Client(config.GetRegion(d))
+	client, err := config.Client("vod", config.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating VOD client: %s", err)
 	}
 
-	id, err := strconv.ParseInt(d.Id(), 10, 32)
-	if err != nil {
-		return diag.FromErr(err)
-	}
+	url := client.ServiceURL(fmt.Sprintf("asset/category?id=%s", d.Id()))
 
-	_, err = client.DeleteAssetCategory(&vod.DeleteAssetCategoryRequest{Id: int32(id)})
+	_, err = client.Request("DELETE", url, &golangsdk.RequestOpts{})
 	if err != nil {
 		return diag.Errorf("error deleting VOD media category: %s", err)
 	}

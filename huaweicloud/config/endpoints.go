@@ -602,7 +602,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 
 	"vod": {
 		Name:    "vod",
-		Version: "v1",
+		Version: "v1.0",
 		Product: "VOD",
 	},
 }
