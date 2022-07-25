@@ -297,8 +297,8 @@ func resourceDmsKafkaPublicIpIDs(d *schema.ResourceData, bandwidth string) (stri
 	return strings.Join(publicIpIDs, ","), nil
 }
 
-func getProductDetail(config *config.Config, d *schema.ResourceData, engineType string) (*products.Detail, error) {
-	productRsp, err := getProducts(config, config.GetRegion(d), engineType)
+func getKafkaProductDetail(config *config.Config, d *schema.ResourceData) (*products.Detail, error) {
+	productRsp, err := getProducts(config, config.GetRegion(d), "kafka")
 	if err != nil {
 		return nil, fmtp.Errorf("error querying product detail, please check product_id, error: %s", err)
 	}
@@ -312,19 +312,9 @@ func getProductDetail(config *config.Config, d *schema.ResourceData, engineType 
 		}
 		for _, v := range ps.Values {
 			for _, p := range v.Details {
-				if engineType == "kafka" {
-					if p.ProductID == productID {
-						return &p, nil
-					}
-				} else if engineType == "rabbitmq" {
-					for _, pi := range p.ProductInfos {
-						if pi.ProductID == productID {
-							p.ProductInfos = []products.ProductInfo{pi}
-							return &p, nil
-						}
-					}
+				if p.ProductID == productID {
+					return &p, nil
 				}
-
 			}
 		}
 	}
@@ -452,7 +442,7 @@ func oldKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 		return fmtp.DiagErrorf("error creating HuaweiCloud DMS instance client: %s", err)
 	}
 
-	product, err := getProductDetail(config, d, "kafka")
+	product, err := getKafkaProductDetail(config, d)
 	if err != nil {
 		return fmtp.DiagErrorf("Error querying product detail: %s", err)
 	}
@@ -770,7 +760,12 @@ func resizeInstance(ctx context.Context, d *schema.ResourceData, meta interface{
 
 	opts := instances.ResizeInstanceOpts{}
 	if _, ok := d.GetOk("product_id"); ok {
-		product, err := getProductDetail(config, d, engineType)
+		var product *products.Detail
+		if engineType == "kafka" {
+			product, err = getKafkaProductDetail(config, d)
+		} else {
+			product, err = getRabbitMQProductDetail(config, d)
+		}
 		if err != nil || product == nil {
 			return fmtp.Errorf("change storage_space failed, error querying product detail: %s", err)
 		}
