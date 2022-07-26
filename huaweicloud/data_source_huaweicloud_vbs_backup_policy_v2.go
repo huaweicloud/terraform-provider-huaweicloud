@@ -22,10 +22,12 @@ func dataSourceVBSBackupPolicyV2() *schema.Resource {
 			"id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"frequency": {
 				Type:     schema.TypeInt,
@@ -34,6 +36,7 @@ func dataSourceVBSBackupPolicyV2() *schema.Resource {
 			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"remain_first_backup": {
 				Type:     schema.TypeString,
@@ -46,6 +49,7 @@ func dataSourceVBSBackupPolicyV2() *schema.Resource {
 			"policy_resource_count": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Computed: true,
 			},
 			"start_time": {
 				Type:     schema.TypeString,

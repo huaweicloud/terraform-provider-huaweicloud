@@ -32,14 +32,17 @@ func DataSourceCCENodePoolV3() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"node_pool_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"initial_node_count": {
 				Type:     schema.TypeInt,

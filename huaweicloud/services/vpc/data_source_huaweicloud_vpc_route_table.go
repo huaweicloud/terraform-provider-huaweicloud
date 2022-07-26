@@ -30,10 +30,12 @@ func DataSourceVPCRouteTable() *schema.Resource {
 			"id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"description": {
 				Type:     schema.TypeString,

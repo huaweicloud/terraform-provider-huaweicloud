@@ -18,14 +18,17 @@ func DataSourceIdentityGroup() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"domain_id": {
 				Type:     schema.TypeString,

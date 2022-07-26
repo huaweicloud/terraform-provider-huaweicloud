@@ -32,6 +32,7 @@ func dataSourceNetworkingNetworkV2() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"status": {
 				Type:     schema.TypeString,

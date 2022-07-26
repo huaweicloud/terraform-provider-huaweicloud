@@ -20,15 +20,18 @@ func DataSourceNetworkingPortV2() *schema.Resource {
 			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 
 			"port_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"network_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"fixed_ip": {
 				Type:         schema.TypeString,
@@ -38,20 +41,24 @@ func DataSourceNetworkingPortV2() *schema.Resource {
 			"mac_address": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 
 			// will be deprecated or change to computed
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"admin_state_up": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				Computed: true,
 			},
 			"tenant_id": {
 				Type:     schema.TypeString,
@@ -64,10 +71,12 @@ func DataSourceNetworkingPortV2() *schema.Resource {
 			"device_owner": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"device_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"security_group_ids": {
 				Type:     schema.TypeSet,

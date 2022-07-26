@@ -26,22 +26,27 @@ func DataSourceVpcV1() *schema.Resource {
 			"id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"cidr": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"description": {
 				Type:     schema.TypeString,

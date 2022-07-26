@@ -44,6 +44,7 @@ func DataSourceComputeInstance() *schema.Resource {
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"availability_zone": {
 				Type:     schema.TypeString,
@@ -146,6 +147,7 @@ func DataSourceComputeInstance() *schema.Resource {
 			"scheduler_hints": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"group": {

@@ -22,28 +22,34 @@ func DataSourceIdentityCustomRole() *schema.Resource {
 			"name": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
 				AtLeastOneOf: []string{"name", "id"},
 			},
 			"id": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
 				AtLeastOneOf: []string{"name", "id"},
 			},
 			"domain_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"references": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Computed: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"type": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"catalog": {
 				Type:     schema.TypeString,

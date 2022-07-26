@@ -32,11 +32,13 @@ func DataSourceBandWidth() *schema.Resource {
 			"size": {
 				Type:         schema.TypeInt,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.IntBetween(5, 2000),
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"share_type": {
 				Type:     schema.TypeString,

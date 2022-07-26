@@ -24,14 +24,17 @@ func DataSourceVpcEip() *schema.Resource {
 			"public_ip": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"port_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 
 			"status": {
