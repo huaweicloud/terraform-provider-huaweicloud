@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/meeting/v1/assignments"
 	"github.com/chnsz/golangsdk/openstack/meeting/v1/users"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -169,6 +170,11 @@ func ResourceUser() *schema.Resource {
 				Computed:     true,
 				ValidateFunc: validation.IntBetween(1, 10000),
 			},
+			"is_admin": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 			"sip_number": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -226,6 +232,7 @@ func resourceUserCreate(ctx context.Context, d *schema.ResourceData, meta interf
 	if err != nil {
 		return diag.FromErr(err)
 	}
+	client := NewMeetingV1Client(conf)
 
 	resp, err := users.Create(NewMeetingV1Client(conf), buildUserCreateOpts(d, token))
 	if err != nil {
@@ -233,6 +240,17 @@ func resourceUserCreate(ctx context.Context, d *schema.ResourceData, meta interf
 	}
 
 	d.SetId(resp.UserAccount)
+	if d.Get("is_admin").(bool) {
+		opt := assignments.CreateOpts{
+			Account: d.Id(),
+			// Authorization token.
+			Token: token,
+		}
+		err = assignments.Create(client, opt)
+		if err != nil {
+			return diag.Errorf("error creating cloud meeting user: %s", err)
+		}
+	}
 	return resourceUserRead(ctx, d, meta)
 }
 
@@ -319,11 +337,24 @@ func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, meta interf
 	if err != nil {
 		return diag.FromErr(err)
 	}
+	client := NewMeetingV1Client(conf)
 
-	opt := buildUserUpdateOpts(d, token)
-	_, err = users.Update(NewMeetingV1Client(conf), opt)
-	if err != nil {
-		return diag.Errorf("error updating cloud meeting user: %s", err)
+	if d.HasChangeExcept("is_admin") {
+		opt := buildUserUpdateOpts(d, token)
+		_, err = users.Update(client, opt)
+		if err != nil {
+			return diag.Errorf("error updating cloud meeting user: %s", err)
+		}
+	}
+	if d.HasChange("is_admin") {
+		opt := assignments.DeleteOpts{
+			Token:    token,
+			Accounts: []string{d.Id()},
+		}
+		err = assignments.BatchDelete(client, opt)
+		if err != nil {
+			return diag.Errorf("error deleting cloud meeting user: %s", err)
+		}
 	}
 
 	return resourceUserRead(ctx, d, meta)

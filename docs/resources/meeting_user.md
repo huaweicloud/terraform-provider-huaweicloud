@@ -169,6 +169,11 @@ The following arguments are supported:
   The lower the serial number, the higher the priority.
   The valid value is range from **1** to **10000**. Defaults to **10000**.
 
+* `is_admin` - (Optional, Bool) Specifies whether to send email and SMS notifications for account opening.
+  Defaults to **true**.
+
+  -> Assign administrator role need to use the default administrator for authorization.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -203,7 +208,7 @@ $ terraform import huaweicloud_meeting_user.test &ltid&gt/&ltapp_id&gt/&ltapp_ke
 The slashes cannot be missing even corporation ID and user ID are empty.
 
 Note that some parameters do not support import due to missing API responses or privacy, such as `password`,
-`is_send_notify`. You can ignore this change as below.
+`is_send_notify` and `is_admin`. You can ignore this change as below.
 
 ```
 resource "huaweicloud_meeting_user" "test" {

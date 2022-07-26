@@ -226,6 +226,53 @@ func TestAccUser_withoutAccount(t *testing.T) {
 	})
 }
 
+func TestAccUser_admin(t *testing.T) {
+	var (
+		user         users.User
+		resourceName = "huaweicloud_meeting_user.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&user,
+		getUserFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAppAuth(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccUser_admin(),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "app_id", acceptance.HW_MEETING_APP_ID),
+					resource.TestCheckResourceAttr(resourceName, "app_key", acceptance.HW_MEETING_APP_KEY),
+					resource.TestCheckResourceAttr(resourceName, "name", "Test Name"),
+					resource.TestCheckResourceAttr(resourceName, "is_admin", "true"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccUserManagementImportStateIdFunc(),
+				ImportStateVerifyIgnore: []string{
+					"corp_id",
+					"user_id",
+					"password",
+					"is_send_notify",
+					"is_admin",
+				},
+			},
+		},
+	})
+}
+
 func testAccUserManagementImportStateIdFunc() resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		var (
@@ -352,4 +399,17 @@ resource "huaweicloud_meeting_user" "test" {
   status         = "0"
 }
 `, acceptance.HW_MEETING_APP_ID, acceptance.HW_MEETING_APP_KEY, acceptance.HW_MEETING_USER_ID)
+}
+
+func testAccUser_admin() string {
+	return fmt.Sprintf(`
+resource "huaweicloud_meeting_user" "test" {
+  app_id  = "%[1]s"
+  app_key = "%[2]s"
+
+  name     = "Test Name"
+  password = "HuaweiTest@123"
+  is_admin = true
+}
+`, acceptance.HW_MEETING_APP_ID, acceptance.HW_MEETING_APP_KEY)
 }
