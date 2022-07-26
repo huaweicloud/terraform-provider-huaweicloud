@@ -482,7 +482,7 @@ func resourceVaultRead(ctx context.Context, d *schema.ResourceData, meta interfa
 
 	resp, err := vaults.Get(client, d.Id()).Extract()
 	if err != nil {
-		return diag.Errorf("error getting vault details: %s", err)
+		return common.CheckDeletedDiag(d, err, "error getting vault details")
 	}
 
 	mErr := multierror.Append(
