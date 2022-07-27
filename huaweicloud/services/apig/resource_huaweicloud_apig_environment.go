@@ -1,6 +1,7 @@
 package apig
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -124,7 +125,7 @@ func resourceApigEnvironmentV2Read(d *schema.ResourceData, meta interface{}) err
 	instanceId := d.Get("instance_id").(string)
 	env, err := GetEnvironmentFormServer(client, instanceId, d.Id())
 	if err != nil {
-		return fmtp.Errorf("Unable to get the environment (%s) form server: %s", d.Id(), err)
+		return common.CheckDeleted(d, err, fmt.Sprintf("Unable to get the environment (%s) form server", d.Id()))
 	}
 	return setApigEnvironmentParamters(d, config, env)
 }

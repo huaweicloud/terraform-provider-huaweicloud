@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -242,7 +243,7 @@ func resourceApigGroupV2Read(d *schema.ResourceData, meta interface{}) error {
 	instanceId := d.Get("instance_id").(string)
 	resp, err := apigroups.Get(client, instanceId, d.Id()).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error getting APIG v2 group: %s", err)
+		return common.CheckDeleted(d, err, "error getting APIG group")
 	}
 	if err = setApigGroupParamters(d, config, resp); err != nil {
 		return fmtp.Errorf("Error saving group to state: %s", err)

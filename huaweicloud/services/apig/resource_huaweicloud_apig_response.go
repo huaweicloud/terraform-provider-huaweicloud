@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
@@ -165,7 +166,7 @@ func resourceApigResponseV2Read(d *schema.ResourceData, meta interface{}) error 
 	groupId := d.Get("group_id").(string)
 	resp, err := responses.Get(client, instanceId, groupId, d.Id()).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error getting custom response from server: %s", err)
+		return common.CheckDeleted(d, err, "error getting custom response from server")
 	}
 	if err = setApigResponseParamters(d, config, resp); err != nil {
 		return fmtp.Errorf("Error saving custom response to state: %s", err)

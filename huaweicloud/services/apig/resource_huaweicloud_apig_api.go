@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -1294,7 +1295,7 @@ func resourceApigAPIV2Read(d *schema.ResourceData, meta interface{}) error {
 	instanceId := d.Get("instance_id").(string)
 	resp, err := apis.Get(client, instanceId, d.Id()).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error getting api information from server: %s", err)
+		return common.CheckDeleted(d, err, "error getting API information from server")
 	}
 
 	return setApigAPIParameters(d, config, resp)

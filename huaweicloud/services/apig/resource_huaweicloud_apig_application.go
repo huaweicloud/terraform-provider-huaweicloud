@@ -199,7 +199,7 @@ func resourceApigApplicationV2Read(d *schema.ResourceData, meta interface{}) err
 	instanceId := d.Get("instance_id").(string)
 	resp, err := applications.Get(client, instanceId, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "error retrieving Apig applications")
+		return common.CheckDeleted(d, err, "error retrieving APIG application")
 	}
 
 	return setApigApplicationParamters(d, config, resp)

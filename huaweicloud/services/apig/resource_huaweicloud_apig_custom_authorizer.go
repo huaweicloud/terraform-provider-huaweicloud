@@ -203,7 +203,7 @@ func resourceApigCustomAuthorizerV2Read(d *schema.ResourceData, meta interface{}
 	instanceId := d.Get("instance_id").(string)
 	resp, err := authorizers.Get(client, instanceId, d.Id()).Extract()
 	if err != nil {
-		return fmtp.Errorf("Unable to get the custom authorizer (%s) form server: %s", d.Id(), err)
+		return common.CheckDeleted(d, err, fmt.Sprintf("Unable to get the custom authorizer (%s) form server", d.Id()))
 	}
 	return setApigCustomAuthorizerParamters(d, config, resp)
 }

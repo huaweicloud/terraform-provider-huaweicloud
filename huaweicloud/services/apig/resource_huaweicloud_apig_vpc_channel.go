@@ -1,6 +1,7 @@
 package apig
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -360,7 +361,7 @@ func resourceApigVpcChannelV2Read(d *schema.ResourceData, meta interface{}) erro
 	instanceId := d.Get("instance_id").(string)
 	resp, err := channels.Get(client, instanceId, d.Id()).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error getting vpc channel (%s) form server: %s", d.Id(), err)
+		return common.CheckDeleted(d, err, fmt.Sprintf("error getting vpc channel (%s) form server", d.Id()))
 	}
 	return setApigVpcChannelParameters(d, config, *resp)
 }
