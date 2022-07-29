@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
@@ -185,11 +186,11 @@ func GetVersionHistories(c *golangsdk.ServiceClient, instanceId, envId, apiId st
 		EnvId: envId,
 	}).AllPages()
 	if err != nil {
-		return nil, fmtp.Errorf("Error retrieving publish histories: %s", err)
+		return nil, err
 	}
 	histories, err := apis.ExtractHistories(pages)
 	if err != nil {
-		return nil, fmtp.Errorf("Error extracting publish histories: %s", err)
+		return nil, err
 	}
 
 	return histories, nil
@@ -277,8 +278,8 @@ func ResourceApigApiPublishmentRead(_ context.Context, d *schema.ResourceData, m
 	}
 	resp, err := GetVersionHistories(c, instanceId, envId, apiId)
 	if err != nil {
-		return fmtp.DiagErrorf("Error getting the publish versions of the API (%s) in the environment (%s): %s",
-			apiId, envId, err)
+		return common.CheckDeletedDiag(d, err,
+			fmt.Sprintf("error getting the publish versions of the API (%s) in the environment (%s)", apiId, envId))
 	}
 
 	publishInfo, err := getCertainPublishInfo(resp)

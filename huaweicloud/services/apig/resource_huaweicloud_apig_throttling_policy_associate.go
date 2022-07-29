@@ -113,7 +113,7 @@ func resourceThrottlingPolicyAssociateRead(_ context.Context, d *schema.Resource
 	opt := buildListOpts(d.Get("instance_id").(string), d.Get("policy_id").(string))
 	resp, err := throttles.ListBind(client, opt)
 	if err != nil {
-		return diag.Errorf("error getting api information from server: %s", err)
+		return common.CheckDeletedDiag(d, err, "error getting api information from server")
 	}
 	if len(resp) < 1 {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")

@@ -1,6 +1,7 @@
 package apig
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -330,7 +331,7 @@ func resourceApigThrottlingPolicyV2Read(d *schema.ResourceData, meta interface{}
 	instanceId := d.Get("instance_id").(string)
 	resp, err := throttles.Get(client, instanceId, d.Id()).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error getting throttles form server: %s", d.Id(), err)
+		return common.CheckDeleted(d, err, fmt.Sprintf("error getting throttle (%s) form server", d.Id()))
 	}
 	err = setApigThrottlingPolicyParameters(d, config, *resp)
 	if err != nil {

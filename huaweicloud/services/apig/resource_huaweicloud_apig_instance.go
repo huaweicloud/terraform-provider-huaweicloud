@@ -362,7 +362,7 @@ func resourceApigInstanceV2Read(d *schema.ResourceData, meta interface{}) error 
 	}
 	resp, err := getApigInstanceFromServer(d, client)
 	if err != nil {
-		return fmtp.Errorf("Error getting APIG v2 dedicated instance (%s) form server: %s", d.Id(), err)
+		return common.CheckDeleted(d, err, fmt.Sprintf("error getting APIG dedicated instance (%s) form server", d.Id()))
 	}
 	return setApigInstanceParamters(d, config, *resp)
 }
