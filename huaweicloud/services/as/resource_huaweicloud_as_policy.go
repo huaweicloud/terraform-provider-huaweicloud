@@ -64,6 +64,7 @@ func ResourceASPolicy() *schema.Resource {
 			"scheduled_policy": {
 				Type:     schema.TypeList,
 				Optional: true,
+				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -74,11 +75,13 @@ func ResourceASPolicy() *schema.Resource {
 						"recurrence_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
+							Computed:     true,
 							ValidateFunc: validation.StringInSlice(RecurrencePeriods, false),
 						},
 						"recurrence_value": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 						},
 						"start_time": {
 							Type:             schema.TypeString,
@@ -89,12 +92,14 @@ func ResourceASPolicy() *schema.Resource {
 						"end_time": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 						},
 					},
 				},
 			},
 			"scaling_policy_action": {
 				Optional: true,
+				Computed: true,
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -102,6 +107,7 @@ func ResourceASPolicy() *schema.Resource {
 						"operation": {
 							Type:         schema.TypeString,
 							Optional:     true,
+							Computed:     true,
 							ValidateFunc: validation.StringInSlice(PolicyActions, false),
 						},
 						"instance_number": {
