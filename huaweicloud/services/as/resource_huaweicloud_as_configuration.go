@@ -59,6 +59,7 @@ func ResourceASConfiguration() *schema.Resource {
 						"instance_id": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 							AtLeastOneOf: []string{
 								"instance_config.0.instance_id", "instance_config.0.flavor",
@@ -68,12 +69,14 @@ func ResourceASConfiguration() *schema.Resource {
 						"flavor": {
 							Type:         schema.TypeString,
 							Optional:     true,
+							Computed:     true,
 							ForceNew:     true,
 							RequiredWith: []string{"instance_config.0.image", "instance_config.0.disk"},
 						},
 						"image": {
 							Type:         schema.TypeString,
 							Optional:     true,
+							Computed:     true,
 							ForceNew:     true,
 							RequiredWith: []string{"instance_config.0.flavor", "instance_config.0.disk"},
 						},
@@ -85,6 +88,7 @@ func ResourceASConfiguration() *schema.Resource {
 						"disk": {
 							Type:         schema.TypeList,
 							Optional:     true,
+							Computed:     true,
 							ForceNew:     true,
 							RequiredWith: []string{"instance_config.0.flavor", "instance_config.0.image"},
 							Elem: &schema.Resource{
@@ -109,6 +113,7 @@ func ResourceASConfiguration() *schema.Resource {
 									"kms_id": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Computed: true,
 										ForceNew: true,
 									},
 								},
@@ -117,6 +122,7 @@ func ResourceASConfiguration() *schema.Resource {
 						"personality": {
 							Type:     schema.TypeList,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 							MaxItems: 5,
 							Elem: &schema.Resource{
@@ -137,6 +143,7 @@ func ResourceASConfiguration() *schema.Resource {
 						"public_ip": {
 							Type:     schema.TypeList,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{

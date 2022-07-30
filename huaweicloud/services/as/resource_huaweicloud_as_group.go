@@ -89,6 +89,7 @@ func ResourceASGroup() *schema.Resource {
 			"lbaas_listeners": {
 				Type:          schema.TypeList,
 				Optional:      true,
+				Computed:      true,
 				MaxItems:      6,
 				ConflictsWith: []string{"lb_listener_id"},
 				Elem: &schema.Resource{

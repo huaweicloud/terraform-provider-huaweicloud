@@ -208,7 +208,10 @@ The `lbaas_listeners` block supports:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The AS group ID.
+
 * `status` - Indicates the status of the AS group.
+
 * `current_instance_number` - Indicates the number of current instances in the AS group.
 
 * `instances` - The instances IDs of the AS group.
