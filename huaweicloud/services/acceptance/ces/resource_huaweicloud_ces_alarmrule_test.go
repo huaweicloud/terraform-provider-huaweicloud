@@ -149,12 +149,16 @@ data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
 
+resource "huaweicloud_networking_secgroup" "test" {
+  name = "%[1]s"
+}
+
 resource "huaweicloud_compute_instance" "vm_1" {
-  name              = "ecs-%s"
-  image_id          = data.huaweicloud_images_image.test.id
-  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
-  security_groups   = ["default"]
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  name               = "ecs-%[1]s"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
 
   network {
     uuid = data.huaweicloud_vpc_subnet.test.id
@@ -162,10 +166,10 @@ resource "huaweicloud_compute_instance" "vm_1" {
 }
 
 resource "huaweicloud_smn_topic" "topic_1" {
-  name         = "smn-%s"
+  name         = "smn-%[1]s"
   display_name = "The display name of smn topic"
 }
-`, rName, rName)
+`, rName)
 }
 
 func testCESAlarmRule_basic(rName string) string {

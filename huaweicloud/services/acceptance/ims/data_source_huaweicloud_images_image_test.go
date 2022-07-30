@@ -130,12 +130,16 @@ data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
 
+resource "huaweicloud_networking_secgroup" "test" {
+  name = "%[1]s"
+}
+
 resource "huaweicloud_compute_instance" "test" {
-  name              = "%s"
-  image_name        = "Ubuntu 18.04 server 64bit"
-  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
-  security_groups   = ["default"]
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  name               = "%[1]s"
+  image_name         = "Ubuntu 18.04 server 64bit"
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
 
   network {
     uuid = data.huaweicloud_vpc_subnet.test.id
@@ -143,7 +147,7 @@ resource "huaweicloud_compute_instance" "test" {
 }
 
 resource "huaweicloud_images_image" "test" {
-  name        = "%s"
+  name        = "%[1]s"
   instance_id = huaweicloud_compute_instance.test.id
   description = "created by Terraform AccTest"
 
@@ -152,7 +156,7 @@ resource "huaweicloud_images_image" "test" {
     key = "value"
   }
 }
-`, rName, rName)
+`, rName)
 }
 
 func testAccImsImageDataSource_queryName(rName string) string {

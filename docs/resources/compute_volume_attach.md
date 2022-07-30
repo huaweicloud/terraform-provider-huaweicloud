@@ -11,6 +11,8 @@ Attaches a volume to an ECS Instance.
 ### Basic attachment of a single volume to a single instance
 
 ```hcl
+variable "security_group_id" {}
+
 resource "huaweicloud_evs_volume" "myvol" {
   name              = "volume"
   availability_zone = "cn-north-4a"
@@ -19,12 +21,12 @@ resource "huaweicloud_evs_volume" "myvol" {
 }
 
 resource "huaweicloud_compute_instance" "myinstance" {
-  name              = "instance"
-  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id         = "s6.small.1"
-  key_pair          = "my_key_pair_name"
-  security_groups   = ["default"]
-  availability_zone = "cn-north-4a"
+  name               = "instance"
+  image_id           = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id          = "s6.small.1"
+  key_pair           = "my_key_pair_name"
+  security_group_ids = [var.security_group_id]
+  availability_zone  = "cn-north-4a"
 
   network {
     uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
@@ -40,6 +42,8 @@ resource "huaweicloud_compute_volume_attach" "attached" {
 ### Attaching multiple volumes to a single instance
 
 ```hcl
+variable "security_group_id" {}
+
 resource "huaweicloud_evs_volume" "myvol" {
   count             = 2
   name              = "volume_1"
@@ -49,12 +53,12 @@ resource "huaweicloud_evs_volume" "myvol" {
 }
 
 resource "huaweicloud_compute_instance" "myinstance" {
-  name              = "instance"
-  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id         = "s6.small.1"
-  key_pair          = "my_key_pair_name"
-  security_groups   = ["default"]
-  availability_zone = "cn-north-4a"
+  name               = "instance"
+  image_id           = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id          = "s6.small.1"
+  key_pair           = "my_key_pair_name"
+  security_group_ids = [var.security_group_id]
+  availability_zone  = "cn-north-4a"
 }
 
 resource "huaweicloud_compute_volume_attach" "attachments" {

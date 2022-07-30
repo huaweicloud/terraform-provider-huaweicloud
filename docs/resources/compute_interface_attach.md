@@ -11,16 +11,18 @@ Attaches a Network Interface to an Instance. This is an alternative to `huaweicl
 ### Basic Attachment
 
 ```hcl
+variable "security_group_id" {}
+
 data "huaweicloud_vpc_subnet" "mynet" {
   name = "subnet-default"
 }
 
 resource "huaweicloud_compute_instance" "myinstance" {
-  name              = "instance"
-  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id         = "s6.small.1"
-  key_pair          = "my_key_pair_name"
-  security_groups   = ["default"]
+  name               = "instance"
+  image_id           = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id          = "s6.small.1"
+  key_pair           = "my_key_pair_name"
+  security_group_ids = [var.security_group_id]
   availability_zone = "cn-north-4a"
 
   network {
@@ -37,17 +39,19 @@ resource "huaweicloud_compute_interface_attach" "attached" {
 ### Attachment Specifying a Fixed IP
 
 ```hcl
+variable "security_group_id" {}
+
 data "huaweicloud_vpc_subnet" "mynet" {
   name = "subnet-default"
 }
 
 resource "huaweicloud_compute_instance" "myinstance" {
-  name              = "instance"
-  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id         = "s6.small.1"
-  key_pair          = "my_key_pair_name"
-  security_groups   = ["default"]
-  availability_zone = "cn-north-4a"
+  name               = "instance"
+  image_id           = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id          = "s6.small.1"
+  key_pair           = "my_key_pair_name"
+  security_group_ids = [var.security_group_id]
+  availability_zone  = "cn-north-4a"
 
   network {
     uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
@@ -64,6 +68,8 @@ resource "huaweicloud_compute_interface_attach" "attached" {
 ### Attachment Using an Existing Port
 
 ```hcl
+variable "security_group_id" {}
+
 data "huaweicloud_vpc_subnet" "mynet" {
   name = "subnet-default"
 }
@@ -74,12 +80,12 @@ data "huaweicloud_networking_port" "myport" {
 }
 
 resource "huaweicloud_compute_instance" "myinstance" {
-  name              = "instance"
-  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id         = "s6.small.1"
-  key_pair          = "my_key_pair_name"
-  security_groups   = ["default"]
-  availability_zone = "cn-north-4a"
+  name               = "instance"
+  image_id           = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id          = "s6.small.1"
+  key_pair           = "my_key_pair_name"
+  security_group_ids = [var.security_group_id]
+  availability_zone  = "cn-north-4a"
 
   network {
     uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
