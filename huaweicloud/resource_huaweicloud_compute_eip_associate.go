@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -77,9 +78,31 @@ func ResourceComputeFloatingIPAssociateV2() *schema.Resource {
 	}
 }
 
+func eipAssociateRefreshFunc(client *golangsdk.ServiceClient, serverId, publicIP string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		resp, err := cloudservers.Get(client, serverId).Extract()
+		if err != nil {
+			return nil, "ERROR", err
+		}
+		for _, addresses := range resp.Addresses {
+			for _, address := range addresses {
+				if address.Type == "floating" && address.Addr == publicIP {
+					return resp, "COMPLETED", nil
+				}
+			}
+		}
+		return resp, "STARTING", nil
+	}
+}
+
 func resourceComputeEIPAssociateCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
+
+	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
+	if err != nil {
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+	}
 
 	var publicID string
 	instanceID := d.Get("instance_id").(string)
@@ -93,11 +116,10 @@ func resourceComputeEIPAssociateCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// get port id
-	portID, privateIP, err := getComputeInstancePortIDbyFixedIP(d, config, instanceID, fixedIP)
+	portID, privateIP, err := getComputeInstancePortIDbyFixedIP(ecsClient, config, instanceID, fixedIP)
 	if err != nil {
 		return fmtp.Errorf("Error getting port id of compute instance: %s", err)
 	}
-
 	if v, ok := d.GetOk("public_ip"); ok {
 		vpcClient, err := config.NetworkingV1Client(region)
 		if err != nil {
@@ -133,6 +155,19 @@ func resourceComputeEIPAssociateCreate(d *schema.ResourceData, meta interface{})
 
 	id := fmt.Sprintf("%s/%s/%s", publicID, instanceID, privateIP)
 	d.SetId(id)
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"STARTING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      eipAssociateRefreshFunc(ecsClient, instanceID, publicID),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        5 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	//nolint
+	_, err = stateConf.WaitForState()
+	if err != nil {
+		return fmt.Errorf("error waiting for EIP association to complete: %s", err)
+	}
 
 	return resourceComputeEIPAssociateRead(d, meta)
 }
@@ -140,9 +175,15 @@ func resourceComputeEIPAssociateCreate(d *schema.ResourceData, meta interface{})
 func resourceComputeEIPAssociateRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
+
 	vpcClient, err := config.NetworkingV1Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating VPC client: %s", err)
+	}
+
+	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
+	if err != nil {
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	var associated bool
@@ -151,7 +192,7 @@ func resourceComputeEIPAssociateRead(d *schema.ResourceData, meta interface{}) e
 	fixedIP := d.Get("fixed_ip").(string)
 
 	// get port id of compute instance
-	portID, privateIP, err := getComputeInstancePortIDbyFixedIP(d, config, instanceID, fixedIP)
+	portID, privateIP, err := getComputeInstancePortIDbyFixedIP(ecsClient, config, instanceID, fixedIP)
 	if err != nil {
 		return common.CheckDeleted(d, err, "eip associate")
 	}
@@ -209,11 +250,16 @@ func resourceComputeEIPAssociateDelete(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
 
+	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
+	if err != nil {
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+	}
+
 	instanceID := d.Get("instance_id").(string)
 	fixedIP := d.Get("fixed_ip").(string)
 
 	// get port id of compute instance
-	portID, _, err := getComputeInstancePortIDbyFixedIP(d, config, instanceID, fixedIP)
+	portID, _, err := getComputeInstancePortIDbyFixedIP(ecsClient, config, instanceID, fixedIP)
 	if err != nil {
 		return common.CheckDeleted(d, err, "eip associate")
 	}
@@ -250,45 +296,35 @@ func resourceComputeEIPAssociateDelete(d *schema.ResourceData, meta interface{})
 	return nil
 }
 
-func getComputeInstancePortIDbyFixedIP(d *schema.ResourceData, config *config.Config,
-	instanceId, fixedIP string) (string, string, error) {
-
-	computeClient, err := config.ComputeV1Client(GetRegion(d, config))
+func getComputeInstancePortIDbyFixedIP(client *golangsdk.ServiceClient, config *config.Config, instanceId,
+	fixedIP string) (portId, privateIp string, err error) {
+	var instance *cloudservers.CloudServer
+	instance, err = cloudservers.Get(client, instanceId).Extract()
 	if err != nil {
-		return "", "", fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
-	}
-
-	instance, err := cloudservers.Get(computeClient, instanceId).Extract()
-	if err != nil {
-		return "", "", err
+		return
 	} else if instance.Status == "DELETED" || instance.Status == "SOFT_DELETED" {
-		return "", "", golangsdk.ErrDefault404{
+		err = golangsdk.ErrDefault404{
 			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
 				Body: []byte("the ECS instance has been deleted"),
 			},
 		}
+		return
 	}
 
-	var portID, privateIP string
 	for _, networkAddresses := range instance.Addresses {
 		for _, address := range networkAddresses {
 			if address.Type == "fixed" {
 				if fixedIP == "" || address.Addr == fixedIP {
-					portID = address.PortID
-					privateIP = address.Addr
-					break
+					portId = address.PortID
+					privateIp = address.Addr
+					return
 				}
 			}
 		}
-		if portID != "" {
-			break
-		}
 	}
 
-	if portID == "" {
-		return "", "", fmt.Errorf("the port ID does not exist")
-	}
-	return portID, privateIP, nil
+	err = fmt.Errorf("the port ID does not exist")
+	return
 }
 
 func getFloatingIPbyAddress(client *golangsdk.ServiceClient, floatingIP string) (*eips.PublicIp, error) {
