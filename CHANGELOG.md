@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 1.38.2 (July 30, 2022)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cbr_vault: Add `auto_bind` support [GH-2252]
+
+BUG FIXES:
+
+* schema: fix the problem that may cause the plan error [GH-2248]
+* resource/huaweicloud_compute_eip_associate: Waiting for the EIP is associated [GH-2256]
+* resource/huaweicloud_dms_rabbitmq_instance: fix the problem that single instance query is empty [GH-2259]
+
 ## 1.38.1 (July 15, 2022)
 
 * **New Data Source:**
