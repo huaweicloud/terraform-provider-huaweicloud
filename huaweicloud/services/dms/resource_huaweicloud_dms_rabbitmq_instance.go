@@ -7,6 +7,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/openstack/dms/v2/products"
 	"github.com/chnsz/golangsdk/openstack/dms/v2/rabbitmq/instances"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -192,6 +193,42 @@ func ResourceDmsRabbitmqInstance() *schema.Resource {
 	}
 }
 
+func getRabbitMQProductDetail(config *config.Config, d *schema.ResourceData) (*products.Detail, error) {
+	productRsp, err := getProducts(config, config.GetRegion(d), "rabbitmq")
+	if err != nil {
+		return nil, fmtp.Errorf("error querying product detail, please check product_id, error: %s", err)
+	}
+
+	productID := d.Get("product_id").(string)
+	engineVersion := d.Get("engine_version").(string)
+
+	for _, ps := range productRsp.Hourly {
+		if ps.Version != engineVersion {
+			continue
+		}
+		for _, v := range ps.Values {
+			for _, p := range v.Details {
+				// All informations of product for single instance type and the kafka engine type are stored in the
+				// detail structure.
+				if v.Name == "single" {
+					if p.ProductID == productID {
+						return &p, nil
+					}
+				} else {
+					for _, pi := range p.ProductInfos {
+						if pi.ProductID == productID {
+							p.ProductInfos = []products.ProductInfo{pi}
+							return &p, nil
+						}
+					}
+				}
+
+			}
+		}
+	}
+	return nil, fmtp.Errorf("can not found product detail base on product_id: %s", productID)
+}
+
 func resourceDmsRabbitmqInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
@@ -215,7 +252,7 @@ func resourceDmsRabbitmqInstanceCreate(ctx context.Context, d *schema.ResourceDa
 
 	storageSpace := d.Get("storage_space").(int)
 	if storageSpace == 0 {
-		product, err := getProductDetail(config, d, "rabbitmq")
+		product, err := getRabbitMQProductDetail(config, d)
 		if err != nil || product == nil {
 			return fmtp.DiagErrorf("query DMS RabbimtMQ product failed: %s", err)
 		}

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/chnsz/golangsdk/openstack/dms/v2/rabbitmq/instances"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -132,6 +133,31 @@ func TestAccDmsRabbitmqInstances_compatible(t *testing.T) {
 				ImportStateVerifyIgnore: []string{
 					"password",
 				},
+			},
+		},
+	})
+}
+
+func TestAccDmsRabbitmqInstances_single(t *testing.T) {
+	var instance instances.Instance
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_dms_rabbitmq_instance.test"
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDmsRabitMqInstanceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDmsRabbitmqInstance_single(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+				),
 			},
 		},
 	})
@@ -293,4 +319,59 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
   }
 }
 `, testAccDmsRabbitmqInstance_Base(rName), rName)
+}
+
+func testAccDmsRabbitmqInstance_single(rName string) string {
+	randPwd := fmt.Sprintf("%s!#%d", acctest.RandString(5), acctest.RandIntRange(0, 999))
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dms_product" "test" {
+  engine           = "rabbitmq"
+  instance_type    = "single"
+  version          = "3.7.17"
+  node_num         = 1
+}
+
+resource "huaweicloud_vpc" "test" {
+  name        = "%[1]s"
+  cidr        = "192.168.0.0/16"
+  description = "Test for DMS RabbitMQ"
+}
+
+locals {
+  subnet_cidr = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1)
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  name       = "%[1]s"
+  cidr       = local.subnet_cidr
+  gateway_ip = cidrhost(local.subnet_cidr, 1)
+  vpc_id     = huaweicloud_vpc.test.id
+}
+
+resource "huaweicloud_networking_secgroup" "test" {
+  name        = "%[1]s"
+  description = "The security group for DMS Kafka"
+}
+
+resource "huaweicloud_dms_rabbitmq_instance" "test" {
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0],
+  ]
+
+  name              = "%[1]s"
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  product_id        = data.huaweicloud_dms_product.test.id
+  engine_version    = data.huaweicloud_dms_product.test.version
+  storage_spec_code = data.huaweicloud_dms_product.test.storage_spec_code
+  storage_space     = data.huaweicloud_dms_product.test.storage
+
+  access_user = "root"
+  password    = "%[2]s"
+}
+`, rName, randPwd)
 }
