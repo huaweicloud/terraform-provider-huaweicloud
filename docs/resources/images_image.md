@@ -11,6 +11,7 @@ Manages an Image resource within HuaweiCloud IMS.
 ### Creating an image from ECS
 
 ```hcl
+variable "security_group_id" {}
 variable "instance_name" {}
 variable "image_name" {}
 
@@ -21,10 +22,10 @@ data "huaweicloud_vpc_subnet" "test" {
 }
 
 resource "huaweicloud_compute_instance" "test" {
-  name              = var.instance_name
-  image_name        = "Ubuntu 18.04 server 64bit"
-  security_groups   = ["default"]
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  name               = var.instance_name
+  image_name         = "Ubuntu 18.04 server 64bit"
+  security_group_ids = [var.security_group_id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
 
   network {
     uuid = data.huaweicloud_vpc_subnet.test.id

@@ -350,7 +350,7 @@ data "huaweicloud_images_image" "image_1" {
 }
 
 resource "huaweicloud_vpc" "vpc_1" {
-  name = "%s"
+  name = "%[1]s"
   cidr = "172.16.0.0/16"
 }
 
@@ -362,12 +362,16 @@ resource "huaweicloud_vpc_subnet" "subnet_1" {
   ipv6_enable = true
 }
 
+resource "huaweicloud_networking_secgroup" "test" {
+  name = "%[1]s"
+}
+
 resource "huaweicloud_compute_instance" "test" {
-  name              = "%s"
-  image_id          = data.huaweicloud_images_image.image_1.id
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  flavor_id         = "c6.large.2"
-  security_groups   = ["default"]
+  name               = "%[1]s"
+  image_id           = data.huaweicloud_images_image.image_1.id
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+  flavor_id          = "c6.large.2"
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
 
   network {
     uuid        = huaweicloud_vpc_subnet.subnet_1.id
@@ -376,7 +380,7 @@ resource "huaweicloud_compute_instance" "test" {
 }
 
 resource "huaweicloud_vpc_bandwidth" "bandwidth_1" {
-  name = "%s"
+  name = "%[1]s"
   size = 5
 }
 
@@ -385,5 +389,5 @@ resource "huaweicloud_compute_eip_associate" "test" {
   instance_id  = huaweicloud_compute_instance.test.id
   fixed_ip     = huaweicloud_compute_instance.test.access_ip_v6
 }
-`, rName, rName, rName)
+`, rName)
 }

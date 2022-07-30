@@ -13,6 +13,8 @@ Manages a ECS instance resource within HuaweiCloud.
 ### Basic Instance
 
 ```hcl
+variable "security_group_name" {}
+
 resource "huaweicloud_ecs_instance_v1" "basic" {
   name     = "server_1"
   image_id = "ad091b52-742f-469e-8f3c-fd81cadf0743"
@@ -25,13 +27,15 @@ resource "huaweicloud_ecs_instance_v1" "basic" {
 
   availability_zone = "cn-north-1a"
   key_name          = "KeyPair-test"
-  security_groups   = ["default"]
+  security_groups   = [var.security_group_name]
 }
 ```
 
 ### Instance with Data Disks
 
 ```hcl
+variable "security_group_name" {}
+
 resource "huaweicloud_ecs_instance_v1" "basic" {
   name     = "server_1"
   image_id = "ad091b52-742f-469e-8f3c-fd81cadf0743"
@@ -57,13 +61,15 @@ resource "huaweicloud_ecs_instance_v1" "basic" {
   delete_disks_on_termination = true
   availability_zone           = "cn-north-1a"
   key_name                    = "KeyPair-test"
-  security_groups             = ["default"]
+  security_groups             = [var.security_group_name]
 }
 ```
 
 ### Instance With Attached Volume
 
 ```hcl
+variable "security_group_name" {}
+
 resource "huaweicloud_blockstorage_volume_v2" "myvol" {
   name = "myvol"
   size = 1
@@ -81,7 +87,7 @@ resource "huaweicloud_ecs_instance_v1" "basic" {
 
   availability_zone = "cn-north-1a"
   key_name          = "KeyPair-test"
-  security_groups   = ["default"]
+  security_groups   = [var.security_group_name]
 }
 
 resource "huaweicloud_compute_volume_attach" "attached" {
@@ -93,6 +99,8 @@ resource "huaweicloud_compute_volume_attach" "attached" {
 ### Instance With Multiple Networks
 
 ```hcl
+variable "security_group_name" {}
+
 resource "huaweicloud_networking_floatingip_v2" "myip" {
 }
 
@@ -112,7 +120,7 @@ resource "huaweicloud_ecs_instance_v1" "multi-net" {
 
   availability_zone = "cn-north-1a"
   key_name          = "KeyPair-test"
-  security_groups   = ["default"]
+  security_groups   = [var.security_group_name]
 }
 
 resource "huaweicloud_compute_eip_associate" "myip" {
@@ -125,6 +133,8 @@ resource "huaweicloud_compute_eip_associate" "myip" {
 ### Instance with User Data (cloud-init)
 
 ```hcl
+variable "security_group_name" {}
+
 resource "huaweicloud_ecs_instance_v1" "basic" {
   name     = "server_1"
   image_id = "ad091b52-742f-469e-8f3c-fd81cadf0743"
@@ -137,7 +147,7 @@ resource "huaweicloud_ecs_instance_v1" "basic" {
 
   user_data       = "#cloud-config\nhostname: server_1.example.com\nfqdn: server_1.example.com"
   key_name        = "KeyPair-test"
-  security_groups = ["default"]
+  security_groups = [var.security_group_name]
 }
 ```
 
