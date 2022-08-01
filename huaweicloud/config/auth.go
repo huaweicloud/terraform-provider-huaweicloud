@@ -13,7 +13,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	huaweisdk "github.com/chnsz/golangsdk/openstack"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	iam_model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/model"
 	"github.com/jmespath/go-jmespath"
 	"github.com/mitchellh/go-homedir"
@@ -121,7 +120,6 @@ func genClient(c *Config, ao golangsdk.AuthOptionsProvider) (*golangsdk.Provider
 	client.HTTPClient = http.Client{
 		Transport: &LogRoundTripper{
 			Rt:         transport,
-			OsDebug:    logging.IsDebugOrHigher(),
 			MaxRetries: c.MaxRetries,
 		},
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
