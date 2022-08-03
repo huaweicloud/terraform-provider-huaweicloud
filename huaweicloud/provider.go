@@ -612,8 +612,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_thesaurus": css.ResourceCssthesaurus(),
 
 			"huaweicloud_dcs_instance": dcs.ResourceDcsInstance(),
-			"huaweicloud_dds_instance": dds.ResourceDdsInstanceV3(),
-			"huaweicloud_dis_stream":   dis.ResourceDisStream(),
+
+			"huaweicloud_dds_instance":      dds.ResourceDdsInstanceV3(),
+			"huaweicloud_dds_database_role": dds.ResourceDatabaseRole(),
+
+			"huaweicloud_dis_stream": dis.ResourceDisStream(),
 
 			"huaweicloud_dli_database":     dli.ResourceDliSqlDatabaseV1(),
 			"huaweicloud_dli_package":      dli.ResourceDliPackageV2(),
