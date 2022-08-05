@@ -10,11 +10,11 @@ import (
 
 // User represents a User in the OpenStack Identity Service.
 type User struct {
-	// DefaultProjectID is the ID of the default project of the user.
-	DefaultProjectID string `json:"default_project_id"`
+	// ID is the unique ID of the user.
+	ID string `json:"id"`
 
-	// Description is a description of the user.
-	Description string `json:"description"`
+	// Name is the name of the user.
+	Name string `json:"name"`
 
 	// DomainID is the domain ID the user belongs to.
 	DomainID string `json:"domain_id"`
@@ -22,17 +22,20 @@ type User struct {
 	// Enabled is whether or not the user is enabled.
 	Enabled bool `json:"enabled"`
 
-	// ID is the unique ID of the user.
-	ID string `json:"id"`
+	// Description is a description of the user.
+	Description string `json:"description"`
 
-	// Links contains referencing links to the user.
-	Links map[string]interface{} `json:"links"`
-
-	// Name is the name of the user.
-	Name string `json:"name"`
+	PasswordStatus   bool   `json:"pwd_status"`
+	PasswordStrength string `json:"pwd_strength"`
 
 	// PasswordExpiresAt is the timestamp when the user's password expires.
 	PasswordExpiresAt time.Time `json:"-"`
+
+	LastProjectID    string `json:"last_project_id"`
+	DefaultProjectID string `json:"default_project_id"`
+
+	// Links contains referencing links to the user.
+	Links map[string]interface{} `json:"links"`
 }
 
 func (r *User) UnmarshalJSON(b []byte) error {

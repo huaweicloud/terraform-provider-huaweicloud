@@ -408,6 +408,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_identity_custom_role": iam.DataSourceIdentityCustomRole(),
 			"huaweicloud_identity_group":       iam.DataSourceIdentityGroup(),
 			"huaweicloud_identity_projects":    iam.DataSourceIdentityProjects(),
+			"huaweicloud_identity_users":       iam.DataSourceIdentityUsers(),
 
 			"huaweicloud_iec_bandwidths":     dataSourceIECBandWidths(),
 			"huaweicloud_iec_eips":           dataSourceIECNetworkEips(),
