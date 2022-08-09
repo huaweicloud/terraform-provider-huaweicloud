@@ -40,6 +40,8 @@ type NotificationsResponseBody struct {
 
 	// 关键操作通知创建时间戳。
 	CreateTime *int64 `json:"create_time,omitempty"`
+
+	Filter *Filter `json:"filter,omitempty"`
 }
 
 func (o NotificationsResponseBody) String() string {

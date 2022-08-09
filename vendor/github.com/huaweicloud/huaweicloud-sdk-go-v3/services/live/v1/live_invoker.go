@@ -41,6 +41,18 @@ func (i *CreateRecordCallbackConfigInvoker) Invoke() (*model.CreateRecordCallbac
 	}
 }
 
+type CreateRecordIndexInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateRecordIndexInvoker) Invoke() (*model.CreateRecordIndexResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateRecordIndexResponse), nil
+	}
+}
+
 type CreateRecordRuleInvoker struct {
 	*invoker.BaseInvoker
 }

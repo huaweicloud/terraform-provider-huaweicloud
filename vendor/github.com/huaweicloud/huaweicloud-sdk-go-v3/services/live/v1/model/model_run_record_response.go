@@ -8,7 +8,8 @@ import (
 
 // Response Object
 type RunRecordResponse struct {
-	HttpStatusCode int `json:"-"`
+	XRequestId     *string `json:"X-Request-Id,omitempty"`
+	HttpStatusCode int     `json:"-"`
 }
 
 func (o RunRecordResponse) String() string {

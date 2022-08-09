@@ -15,7 +15,7 @@ type ListRecordContentsResponse struct {
 	// 录制内容数组
 	RecordContents *[]RecordContentInfoV2 `json:"record_contents,omitempty"`
 
-	XRequestId     *string `json:"X-request-id,omitempty"`
+	XRequestId     *string `json:"X-Request-Id,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }
 

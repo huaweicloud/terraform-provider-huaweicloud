@@ -85,6 +85,28 @@ func (c *LiveClient) CreateRecordCallbackConfigInvoker(request *model.CreateReco
 	return &CreateRecordCallbackConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// CreateRecordIndex 创建录制视频索引文件
+//
+// Create Record Index
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *LiveClient) CreateRecordIndex(request *model.CreateRecordIndexRequest) (*model.CreateRecordIndexResponse, error) {
+	requestDef := GenReqDefForCreateRecordIndex()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateRecordIndexResponse), nil
+	}
+}
+
+// CreateRecordIndexInvoker 创建录制视频索引文件
+func (c *LiveClient) CreateRecordIndexInvoker(request *model.CreateRecordIndexRequest) *CreateRecordIndexInvoker {
+	requestDef := GenReqDefForCreateRecordIndex()
+	return &CreateRecordIndexInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // CreateRecordRule 创建录制规则
 //
 // 创建录制规则接口，录制规则对新推送的流生效，对已经推送中的流不生效

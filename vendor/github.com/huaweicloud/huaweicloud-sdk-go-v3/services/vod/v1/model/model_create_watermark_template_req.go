@@ -35,10 +35,10 @@ type CreateWatermarkTemplateReq struct {
 	// 水印图片高。
 	Height *string `json:"height,omitempty"`
 
-	// 水印开始时间。
+	// 水印开始时间，与\"timeline_duration\"配合使用。 取值范围:[0, END)。\"END\"表示视频结束时间。 单位:秒。
 	TimelineStart *string `json:"timeline_start,omitempty"`
 
-	// 水印持续时间。
+	// 水印持续时间，与\"timeline_start\"配合使用。 取值范围:(0,END-开始时间]。\"END\"表示视频结束时间。 单位:秒。 默认:END。
 	TimelineDuration *string `json:"timeline_duration,omitempty"`
 
 	// 水印图片格式类型。

@@ -47,10 +47,10 @@ type WatermarkTemplate struct {
 	// type设置为Image时有效。  目前包括： - Original：只做简单缩放，不做其他处理 - Transparent：图片底色透明 - Grayed：彩色图片变灰
 	ImageProcess *string `json:"image_process,omitempty"`
 
-	// 水印开始时间。
+	// 水印开始时间，与\"timeline_duration\"配合使用。 取值范围:[0, END)。\"END\"表示视频结束时间。 单位:秒。
 	TimelineStart *string `json:"timeline_start,omitempty"`
 
-	// 水印持续时间。
+	// 水印持续时间，与\"timeline_start\"配合使用。 取值范围:(0,END-开始时间]。\"END\"表示视频结束时间。 单位:秒。 默认:END。
 	TimelineDuration *string `json:"timeline_duration,omitempty"`
 }
 
