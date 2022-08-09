@@ -122,7 +122,7 @@ The following arguments are supported:
   The valid values are **backup** and **replication**. Vaults of type **disk** don't support **replication**.
   Changing this will create a new vault.
 
-* `size` - (Required, Int) Specifies the vault sapacity, in GB. The valid value range is `1` to `10,485,760`.
+* `size` - (Required, Int) Specifies the vault capacity, in GB. The valid value range is `1` to `10,485,760`.
 
   -> You cannot update `size` if the vault is **prePaid** mode.
 

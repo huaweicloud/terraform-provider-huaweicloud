@@ -44,6 +44,7 @@ NAT | huaweicloud_nat_gateway | huaweicloud_nat_snat_rule<br>huaweicloud_nat_dna
 OBS | huaweicloud_obs_bucket | huaweicloud_obs_bucket_object<br>huaweicloud_obs_bucket_policy
 RDS | huaweicloud_rds_instance<br>huaweicloud_rds_read_replica_instance |
 SFS | huaweicloud_sfs_file_system<br>huaweicloud_sfs_turbo | huaweicloud_sfs_access_rule
+SMN | huaweicloud_smn_topic |
 VPC | huaweicloud_vpc<br>huaweicloud_networking_secgroup | huaweicloud_vpc_subnet<br>huaweicloud_vpc_route<br>huaweicloud_networking_secgroup_rule
 <!-- markdownlint-enable MD033 -->
 
