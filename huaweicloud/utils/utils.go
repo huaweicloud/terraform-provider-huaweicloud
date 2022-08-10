@@ -289,10 +289,12 @@ func IsIPv4Address(addr string) bool {
 
 // This function compares whether there is a containment relationship between two maps, that is,
 // whether map A (rawMap) contains map B (filterMap).
-//   Map A is {'foo': 'bar'} and filter map B is {'foo': 'bar'} or {'foo': 'bar,dor'} will return true.
-//   Map A is {'foo': 'bar'} and filter map B is {'foo': 'dor'} or {'foo1': 'bar'} will return false.
-//   Map A is {'foo': 'bar'} and filter map B is {'foo': ''} will return true.
-//   Map A is {'foo': 'bar'} and filter map B is {'': 'bar'} or {'': ''} will return false.
+//
+//	Map A is {'foo': 'bar'} and filter map B is {'foo': 'bar'} or {'foo': 'bar,dor'} will return true.
+//	Map A is {'foo': 'bar'} and filter map B is {'foo': 'dor'} or {'foo1': 'bar'} will return false.
+//	Map A is {'foo': 'bar'} and filter map B is {'foo': ''} will return true.
+//	Map A is {'foo': 'bar'} and filter map B is {'': 'bar'} or {'': ''} will return false.
+//
 // The value of filter map 'bar,for' means that the object value can be either 'bar' or 'dor'.
 // Note: There is no spaces before and after the delimiter (,).
 func HasMapContains(rawMap map[string]string, filterMap map[string]interface{}) bool {
@@ -343,8 +345,8 @@ func WriteToPemFile(path, privateKey string) (err error) {
 }
 
 /*
- MarshalValue is used to marshal the value of struct in huaweicloud-sdk-go-v3, like this:
- type Xxxx struct { value string }
+MarshalValue is used to marshal the value of struct in huaweicloud-sdk-go-v3, like this:
+type Xxxx struct { value string }
 */
 func MarshalValue(i interface{}) string {
 	if i == nil {

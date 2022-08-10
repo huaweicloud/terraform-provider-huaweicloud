@@ -102,9 +102,10 @@ func eipAssociateRefreshFunc(client *golangsdk.ServiceClient, id string, portId 
 // waitForStateCompleted is a method that continuously queries the resource state and judges whether the resource has
 // reached the expected state.
 // Parameters:
-//   context.Context: Context detail.
-//   resource.StateRefreshFunc: Function method to get the validation object.
-//   time.Duration: Maximum waiting time.
+//
+//	context.Context: Context detail.
+//	resource.StateRefreshFunc: Function method to get the validation object.
+//	time.Duration: Maximum waiting time.
 func waitForStateCompleted(ctx context.Context, f resource.StateRefreshFunc, t time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"STARTING"},

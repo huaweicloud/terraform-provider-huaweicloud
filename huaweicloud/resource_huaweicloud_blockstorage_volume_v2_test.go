@@ -236,7 +236,7 @@ resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
 }
 `
 
-//NOTE: Volume size cannot be smaller than the image minDisk size.
+// NOTE: Volume size cannot be smaller than the image minDisk size.
 var testAccBlockStorageV2Volume_image = fmt.Sprintf(`
 resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
   name = "volume_1"
