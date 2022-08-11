@@ -10,7 +10,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/basic"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/global"
 	hcconfig "github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config"
@@ -300,10 +299,6 @@ func getProxyFromEnv() string {
 }
 
 func logRequestHandler(request http.Request) {
-	if !logging.IsDebugOrHigher() {
-		return
-	}
-
 	log.Printf("[DEBUG] API Request URL: %s %s", request.Method, request.URL)
 	log.Printf("[DEBUG] API Request Headers:\n%s", FormatHeaders(request.Header, "\n"))
 	if request.Body != nil {
@@ -314,10 +309,6 @@ func logRequestHandler(request http.Request) {
 }
 
 func logResponseHandler(response http.Response) {
-	if !logging.IsDebugOrHigher() {
-		return
-	}
-
 	log.Printf("[DEBUG] API Response Code: %d", response.StatusCode)
 	log.Printf("[DEBUG] API Response Headers:\n%s", FormatHeaders(response.Header, "\n"))
 

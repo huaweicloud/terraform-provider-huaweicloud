@@ -13,9 +13,10 @@ import (
 	"github.com/chnsz/golangsdk/openstack/identity/v3/projects"
 	"github.com/chnsz/golangsdk/openstack/identity/v3/users"
 	"github.com/chnsz/golangsdk/openstack/obs"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/mutexkv"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 const (
@@ -171,7 +172,7 @@ func (c *Config) ObjectStorageClientWithSignature(region string) (*obs.ObsClient
 	}
 
 	// init log
-	if logging.IsDebugOrHigher() {
+	if utils.IsDebugOrHigher() {
 		if err := obs.InitLog(obsLogFile, obsLogFileSize10MB, 10, obs.LEVEL_DEBUG, false); err != nil {
 			log.Printf("[WARN] initial obs sdk log failed: %s", err)
 		}
@@ -191,7 +192,7 @@ func (c *Config) ObjectStorageClient(region string) (*obs.ObsClient, error) {
 	}
 
 	// init log
-	if logging.IsDebugOrHigher() {
+	if utils.IsDebugOrHigher() {
 		if err := obs.InitLog(obsLogFile, obsLogFileSize10MB, 10, obs.LEVEL_DEBUG, false); err != nil {
 			log.Printf("[WARN] initial obs sdk log failed: %s", err)
 		}

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -28,7 +27,6 @@ func NewCustomClient(insecure bool, endpoints ...string) *golangsdk.ServiceClien
 					InsecureSkipVerify: insecure, // Pay attention to the security risks after skip verify.
 				},
 			},
-			OsDebug: logging.IsDebugOrHigher(),
 		},
 		Timeout: 30 * time.Minute,
 	}

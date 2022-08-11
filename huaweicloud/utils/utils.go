@@ -388,3 +388,33 @@ func RandomString(n int, allowedChars ...[]rune) (result string) {
 	result = string(b)
 	return
 }
+
+// IsDebugOrHigher returns a bool type parameter, which specifies whether to print log
+var validLevels = []string{"TRACE", "DEBUG", "INFO", "WARN", "ERROR"}
+
+func IsDebugOrHigher() bool {
+	logLevel := os.Getenv("TF_LOG_PROVIDER")
+	if logLevel == "" {
+		logLevel = os.Getenv("TF_LOG")
+	}
+
+	if logLevel != "" {
+		if isValidLogLevel(logLevel) {
+			logLevel = strings.ToUpper(logLevel)
+			return logLevel == "DEBUG" || logLevel == "TRACE"
+		} else {
+			log.Printf("[WARN] Invalid log level: %q. Valid levels are: %+v", logLevel, validLevels)
+		}
+	}
+	return false
+}
+
+func isValidLogLevel(level string) bool {
+	for _, l := range validLevels {
+		if strings.ToUpper(level) == string(l) {
+			return true
+		}
+	}
+
+	return false
+}
