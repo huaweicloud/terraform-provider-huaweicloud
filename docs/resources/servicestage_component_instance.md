@@ -59,6 +59,16 @@ resource "huaweicloud_servicestage_component_instance" "default" {
       name  = "TZ"
       value = "Asia/Shanghai"
     }
+
+    log_collection_policy {
+      host_path = "/tmp"
+
+      container_mounting {
+        path             = "/attached/01"
+        host_extend_path = "None"
+        aging_period     = "Hourly"
+      }
+    }
   }
 }
 ```
@@ -251,6 +261,9 @@ The `configuration` block supports:
 * `lifecycle` - (Optional, List) Specifies the lifecycle.
   The [object](#servicestage_lifecycle) structure is documented below.
 
+* `log_collection_policy` - (Optional, List) Specifies the policies of the log collection.
+  The [object](#servicestage_log_collection_policies) structure is documented below.
+
 * `scheduler` - (Optional, List) Specifies the scheduling policy.
   The key indicates the component name. In the Docker container scenario, key indicates the container name.
   If the source parameters of a component specify the software package source, this parameter is optional, and the
@@ -325,6 +338,31 @@ The `lifecycle` block supports:
 
 * `pre_stop` - (Required, List) Specifies the pre-stop processing.
   The [object](#servicestage_lifecycle_process) structure is documented below.
+
+<a name="servicestage_log_collection_policies"></a>
+The `log_collection_policy` block supports:
+
+* `container_mounting` - (Required, List) Specifies the configurations of the container mounting.
+  The [object](#servicestage_container_mounting) structure is documented below.
+
+* `host_path` - (Optional, String) Specifies the The host path that will be mounted to the specified container path.
+
+<a name="servicestage_container_mounting"></a>
+The `container_mounting` block supports:
+
+* `path` - (Required, String) Specifies the path of the container mounting.
+
+* `host_extend_path` - (Optional, String) Specifies the extended host path.
+  This parameter can be configured only when `host_path` is configured.
+  The valid values are as follows:
+  + **None**
+  + **PodUID**
+  + **PodName**
+  + **PodUID/ContainerName**
+  + **PodName/ContainerName**
+
+* `aging_period` - (Optional, String) Specifies the aging period.
+  The valid values are **Hourly**, **Daily** and **Weekly**. The default value is **Hourly**.
 
 <a name="servicestage_entrypoint"></a>
 The `entrypoint` block supports:

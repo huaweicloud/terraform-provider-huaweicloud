@@ -491,6 +491,43 @@ func ResourceComponentInstance() *schema.Resource {
 								},
 							},
 						},
+						"log_collection_policy": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"container_mounting": {
+										Type:     schema.TypeList,
+										Required: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"path": {
+													Type:     schema.TypeString,
+													Required: true,
+												},
+												"host_extend_path": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"aging_period": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Default:  "Hourly",
+													ValidateFunc: validation.StringInSlice([]string{
+														"Hourly", "Daily", "Weekly",
+													}, false),
+												},
+											},
+										},
+									},
+									"host_path": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
+						},
 						"scheduler": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -760,6 +797,30 @@ func buildLifecycleStructure(lifecycles []interface{}) *instances.Lifecycle {
 	return &result
 }
 
+func buildLogCollectionPoliciesStructure(policies []interface{}) []instances.LogCollectionPolicy {
+	if len(policies) < 1 {
+		return nil
+	}
+
+	result := make([]instances.LogCollectionPolicy, 0, len(policies))
+	for _, val := range policies {
+		policy := val.(map[string]interface{})
+		hostPath := policy["host_path"].(string)
+		cmList := policy["container_mounting"].([]interface{})
+		for _, val := range cmList {
+			cm := val.(map[string]interface{})
+			result = append(result, instances.LogCollectionPolicy{
+				LogPath:        cm["path"].(string),
+				HostExtendPath: cm["host_extend_path"].(string),
+				AgingPeriod:    cm["aging_period"].(string),
+				HostPath:       hostPath,
+			})
+		}
+	}
+
+	return result
+}
+
 func buildAffinityStructure(affinities []interface{}) *instances.Affinity {
 	if len(affinities) < 1 {
 		return nil
@@ -873,12 +934,13 @@ func buildConfigurationStructure(configs []interface{}) (instances.Configuration
 	}
 
 	return instances.Configuration{
-		EnvVariables: buildEnvVariables(config["env_variable"].(*schema.Set)),
-		Storages:     buildStoragesList(config["storage"].(*schema.Set)),
-		Strategy:     buildStrategyStructure(config["strategy"].([]interface{})),
-		Lifecycle:    buildLifecycleStructure(config["lifecycle"].([]interface{})),
-		Scheduler:    buildSchedulerStructure(config["lifecycle"].([]interface{})),
-		Probe:        probe,
+		EnvVariables:          buildEnvVariables(config["env_variable"].(*schema.Set)),
+		Storages:              buildStoragesList(config["storage"].(*schema.Set)),
+		Strategy:              buildStrategyStructure(config["strategy"].([]interface{})),
+		Lifecycle:             buildLifecycleStructure(config["lifecycle"].([]interface{})),
+		LogCollectionPolicies: buildLogCollectionPoliciesStructure(config["log_collection_policy"].([]interface{})),
+		Scheduler:             buildSchedulerStructure(config["lifecycle"].([]interface{})),
+		Probe:                 probe,
 	}, nil
 }
 
@@ -1172,6 +1234,37 @@ func flattenLifecycle(lifecycle instances.LifecycleResp) (result []map[string]in
 	return
 }
 
+func flattenLogCollectionPolicies(policies []instances.LogCollectionPolicyResp) (result []map[string]interface{}) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("[ERROR] Recover panic when flattening policies structure: %#v", r)
+		}
+	}()
+
+	if len(policies) < 1 {
+		return nil
+	}
+
+	policiesMap := make(map[string][]interface{})
+	for _, val := range policies {
+		policiesMap[val.HostPath] = append(policiesMap[val.HostPath], map[string]interface{}{
+			"path":             val.LogPath,
+			"host_extend_path": val.HostExtendPath,
+			"aging_period":     val.AgingPeriod,
+		})
+	}
+
+	for k, v := range policiesMap {
+		result = append(result, map[string]interface{}{
+			"host_path":          k,
+			"container_mounting": v,
+		})
+	}
+
+	log.Printf("[DEBUG] The collection policies result is %#v", result)
+	return
+}
+
 func flattenScheduler(scheduler instances.SchedulerResp) (result []map[string]interface{}) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1285,12 +1378,13 @@ func flattenConfiguration(configuration instances.ConfigurationResp) (result []m
 
 	result = []map[string]interface{}{
 		{
-			"env_variable": flattenEnvVariables(configuration.EnvVariables),
-			"storage":      flattenStorages(configuration.Storages),
-			"strategy":     flattenStrategy(configuration.Strategy),
-			"lifecycle":    flattenLifecycle(configuration.Lifecycle),
-			"scheduler":    flattenScheduler(configuration.Scheduler),
-			"probe":        flattenProbe(configuration.Probe),
+			"env_variable":          flattenEnvVariables(configuration.EnvVariables),
+			"storage":               flattenStorages(configuration.Storages),
+			"strategy":              flattenStrategy(configuration.Strategy),
+			"lifecycle":             flattenLifecycle(configuration.Lifecycle),
+			"log_collection_policy": flattenLogCollectionPolicies(configuration.LogCollectionPolicy),
+			"scheduler":             flattenScheduler(configuration.Scheduler),
+			"probe":                 flattenProbe(configuration.Probe),
 		},
 	}
 	log.Printf("[DEBUG] The configuration result is %#v", result)
