@@ -26,16 +26,19 @@
                     "flavor": {
                       "type": "string",
                       "optional": true,
+                      "computed": true,
                       "forcenew": true
                     },
                     "image": {
                       "type": "string",
                       "optional": true,
+                      "computed": true,
                       "forcenew": true
                     },
                     "instance_id": {
                       "type": "string",
                       "optional": true,
+                      "computed": true,
                       "forcenew": true
                     },
                     "key_name": {
@@ -69,6 +72,7 @@
                           "kms_id": {
                             "type": "string",
                             "optional": true,
+                            "computed": true,
                             "forcenew": true
                           },
                           "size": {

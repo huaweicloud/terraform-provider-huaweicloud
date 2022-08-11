@@ -47,7 +47,8 @@
                     },
                     "operation": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     }
                   }
                 },
@@ -59,7 +60,8 @@
                   "attributes": {
                     "end_time": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "launch_time": {
                       "type": "string",
@@ -67,11 +69,13 @@
                     },
                     "recurrence_type": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "recurrence_value": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "start_time": {
                       "type": "string",
