@@ -1,0 +1,44 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_antiddos_basic": {
+          "block": {
+            "attributes": {
+              "eip_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "public_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "traffic_threshold": {
+                "type": "number",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Security \u0026 Compliance",
+            "name": "Anti-DDoS",
+            "short": "Anti-DDoS"
+          }
+        }
+      }
+    }
+  }
+}
