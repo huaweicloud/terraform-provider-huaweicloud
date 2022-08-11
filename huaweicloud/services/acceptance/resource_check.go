@@ -31,10 +31,11 @@ const (
 
 /*
 InitDataSourceCheck build a 'ResourceCheck' object. Only used to check datasource attributes.
-  Parameters:
-    dName: The data source name is used to check in the terraform.State. e.g. data.huaweicloud_css_flavors.test
-  Return:
-    *ResourceCheck: ResourceCheck object
+
+	Parameters:
+	  dName: The data source name is used to check in the terraform.State. e.g. data.huaweicloud_css_flavors.test
+	Return:
+	  *ResourceCheck: ResourceCheck object
 */
 func InitDataSourceCheck(dName string) *ResourceCheck {
 	return &ResourceCheck{
@@ -45,12 +46,13 @@ func InitDataSourceCheck(dName string) *ResourceCheck {
 
 /*
 InitResourceCheck build a 'ResourceCheck' object. The common test methods are provided in 'ResourceCheck'.
-  Parameters:
-    rName:           The resource name is used to check in the terraform.State. e.g. huaweicloud_waf_domain.domain_1
-    rObject:         Resource object pointer, used to check whether the resource exists
-    getResourceFunc: The function used to get the resource object.
-  Return:
-    *ResourceCheck: ResourceCheck object
+
+	Parameters:
+	  rName:           The resource name is used to check in the terraform.State. e.g. huaweicloud_waf_domain.domain_1
+	  rObject:         Resource object pointer, used to check whether the resource exists
+	  getResourceFunc: The function used to get the resource object.
+	Return:
+	  *ResourceCheck: ResourceCheck object
 */
 func InitResourceCheck(rName string, rObject interface{}, getResourceFunc ServiceFunc) *ResourceCheck {
 	return &ResourceCheck{
@@ -95,13 +97,14 @@ func parseVariableToName(variable string) (string, string, error) {
 
 /*
 TestCheckResourceAttrWithVariable validates the pair variable in state for the given name/key combination.
-  Parameters:
-    name: The resource or data source name is used to check in the terraform.State.
-    key:  The field name of the resource.
-    pair: The pair name of the value to be checked.
 
-    pair such like ${huaweicloud_waf_certificate.certificate_1.id}
-    or ${data.huaweicloud_waf_policies.policies_2.policies.0.id}
+	Parameters:
+	  name: The resource or data source name is used to check in the terraform.State.
+	  key:  The field name of the resource.
+	  pair: The pair name of the value to be checked.
+
+	  pair such like ${huaweicloud_waf_certificate.certificate_1.id}
+	  or ${data.huaweicloud_waf_policies.policies_2.policies.0.id}
 */
 func TestCheckResourceAttrWithVariable(name, key, pair string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
@@ -206,8 +209,9 @@ func (rc *ResourceCheck) CheckResourceExists() resource.TestCheckFunc {
 
 /*
 CheckMultiResourcesExists checks whether multiple resources created by count are both existed.
-  Parameters:
-    count: the expected number of resources that will be created.
+
+	Parameters:
+	  count: the expected number of resources that will be created.
 */
 func (rc *ResourceCheck) CheckMultiResourcesExists(count int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {

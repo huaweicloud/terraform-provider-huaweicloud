@@ -31,7 +31,7 @@ func ValidateJsonString(v interface{}, k string) (ws []string, errors []error) {
 	return
 }
 
-//lintignore:V001
+// lintignore:V001
 func ValidateName(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if len(value) > 64 {
@@ -49,7 +49,7 @@ func ValidateName(v interface{}, k string) (ws []string, errors []error) {
 	return
 }
 
-//lintignore:V001
+// lintignore:V001
 func ValidateString64WithChinese(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if len(value) > 64 {
@@ -133,7 +133,7 @@ func ValidateIP(v interface{}, k string) (ws []string, errors []error) {
 	return
 }
 
-//lintignore:V001
+// lintignore:V001
 func ValidateVBSPolicyName(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if strings.HasPrefix(strings.ToLower(value), "default") {
@@ -154,7 +154,7 @@ func ValidateVBSPolicyName(v interface{}, k string) (ws []string, errors []error
 	return
 }
 
-//lintignore:V001
+// lintignore:V001
 func ValidateVBSTagKey(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 
@@ -171,7 +171,7 @@ func ValidateVBSTagKey(v interface{}, k string) (ws []string, errors []error) {
 	return
 }
 
-//lintignore:V001
+// lintignore:V001
 func ValidateVBSTagValue(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 
@@ -188,7 +188,7 @@ func ValidateVBSTagValue(v interface{}, k string) (ws []string, errors []error) 
 	return
 }
 
-//lintignore:V001
+// lintignore:V001
 func ValidateVBSBackupName(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if strings.HasPrefix(strings.ToLower(value), "autobk") {
@@ -209,7 +209,7 @@ func ValidateVBSBackupName(v interface{}, k string) (ws []string, errors []error
 	return
 }
 
-//lintignore:V001
+// lintignore:V001
 func ValidateVBSBackupDescription(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if len(value) > 64 {

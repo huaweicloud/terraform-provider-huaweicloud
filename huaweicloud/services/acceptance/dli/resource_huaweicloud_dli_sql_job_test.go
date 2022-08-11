@@ -21,7 +21,7 @@ func getDliSqlJobResourceFunc(config *config.Config, state *terraform.ResourceSt
 	return sqljob.Status(client, state.Primary.ID)
 }
 
-//check the DDL sql
+// check the DDL sql
 func TestAccResourceDliSqlJob_basic(t *testing.T) {
 	var sqlJobObj sqljob.SqlJobOpts
 	resourceName := "huaweicloud_dli_sql_job.test"

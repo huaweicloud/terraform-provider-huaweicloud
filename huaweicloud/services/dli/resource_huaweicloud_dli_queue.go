@@ -286,7 +286,7 @@ func resourceDliQueueDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 /*
-  support cu_count scaling
+support cu_count scaling
 */
 func resourceDliQueueUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)

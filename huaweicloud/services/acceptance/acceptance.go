@@ -110,7 +110,7 @@ func preCheckRequiredEnvVars(t *testing.T) {
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheck(t *testing.T) {
 	// Do not run the test if this is a deprecated testing environment.
 	if HW_DEPRECATED_ENVIRONMENT != "" {
@@ -120,14 +120,14 @@ func TestAccPreCheck(t *testing.T) {
 	preCheckRequiredEnvVars(t)
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPrecheckCustomRegion(t *testing.T) {
 	if HW_CUSTOM_REGION_NAME == "" {
 		t.Skip("HW_CUSTOM_REGION_NAME must be set for acceptance tests")
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckDeprecated(t *testing.T) {
 	if HW_DEPRECATED_ENVIRONMENT == "" {
 		t.Skip("This environment does not support deprecated tests")
@@ -136,7 +136,7 @@ func TestAccPreCheckDeprecated(t *testing.T) {
 	preCheckRequiredEnvVars(t)
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckEpsID(t *testing.T) {
 	// The environment variables in tests take HW_ENTERPRISE_PROJECT_ID_TEST instead of HW_ENTERPRISE_PROJECT_ID to
 	// ensure that other data-resources that support enterprise projects query the default project without being
@@ -146,21 +146,21 @@ func TestAccPreCheckEpsID(t *testing.T) {
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckBms(t *testing.T) {
 	if HW_USER_ID == "" {
 		t.Skip("HW_USER_ID must be set for BMS acceptance tests")
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckSms(t *testing.T) {
 	if HW_SMS_SOURCE_SERVER == "" {
 		t.Skip("HW_SMS_SOURCE_SERVER must be set for SMS acceptance tests")
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckMrsCustom(t *testing.T) {
 	if HW_MAPREDUCE_CUSTOM == "" {
 		t.Skip("HW_MAPREDUCE_CUSTOM must be set for acceptance tests:custom type cluster of map reduce")
@@ -184,56 +184,56 @@ func RandomCidrAndGatewayIp() (string, string) {
 	return fmt.Sprintf("172.16.%d.0/24", seed), fmt.Sprintf("172.16.%d.1", seed)
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPrecheckWafInstance(t *testing.T) {
 	if HW_WAF_ENABLE_FLAG == "" {
 		t.Skip("Jump the WAF acceptance tests.")
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckAdminOnly(t *testing.T) {
 	if HW_ADMIN == "" {
 		t.Skip("Skipping test because it requires the admin privileges")
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckReplication(t *testing.T) {
 	if HW_DEST_REGION == "" || HW_DEST_PROJECT_ID == "" {
 		t.Skip("Jump the replication policy acceptance tests.")
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckProject(t *testing.T) {
 	if HW_ENTERPRISE_PROJECT_ID_TEST != "" {
 		t.Skip("This environment does not support project tests")
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckOBS(t *testing.T) {
 	if HW_ACCESS_KEY == "" || HW_SECRET_KEY == "" {
 		t.Skip("HW_ACCESS_KEY and HW_SECRET_KEY must be set for OBS acceptance tests")
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckOBSBucket(t *testing.T) {
 	if HW_OBS_BUCKET_NAME == "" {
 		t.Skip("HW_OBS_BUCKET_NAME must be set for OBS object acceptance tests")
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckChargingMode(t *testing.T) {
 	if HW_CHARGING_MODE != "prePaid" {
 		t.Skip("This environment does not support prepaid tests")
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckScm(t *testing.T) {
 	if HW_CERTIFICATE_KEY_PATH == "" || HW_CERTIFICATE_CHAIN_PATH == "" ||
 		HW_CERTIFICATE_PRIVATE_KEY_PATH == "" || HW_CERTIFICATE_SERVICE == "" ||
@@ -244,7 +244,7 @@ func TestAccPreCheckScm(t *testing.T) {
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckSWRDomian(t *testing.T) {
 	if HW_SWR_SHARING_ACCOUNT == "" {
 		t.Skip("HW_SWR_SHARING_ACCOUNT must be set for swr domian tests, " +
@@ -252,63 +252,63 @@ func TestAccPreCheckSWRDomian(t *testing.T) {
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckDms(t *testing.T) {
 	if HW_DMS_ENVIRONMENT == "" {
 		t.Skip("This environment does not support DMS tests")
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckDliJarPath(t *testing.T) {
 	if HW_DLI_FLINK_JAR_OBS_PATH == "" {
 		t.Skip("HW_DLI_FLINK_JAR_OBS_PATH must be set for DLI Flink Jar job acceptance tests.")
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckRepoTokenAuth(t *testing.T) {
 	if HW_GITHUB_REPO_HOST == "" || HW_GITHUB_PERSONAL_TOKEN == "" {
 		t.Skip("Repository configurations are not completed for acceptance test of personal access token authorization.")
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckRepoPwdAuth(t *testing.T) {
 	if HW_DOMAIN_NAME == "" || HW_USER_NAME == "" || HW_GITHUB_REPO_PWD == "" {
 		t.Skip("Repository configurations are not completed for acceptance test of password authorization.")
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckComponent(t *testing.T) {
 	if HW_DOMAIN_NAME == "" || HW_GITHUB_REPO_URL == "" || HW_OBS_STORAGE_URL == "" {
 		t.Skip("Repository (package) configurations are not completed for acceptance test of component.")
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckComponentDeployment(t *testing.T) {
 	if HW_BUILD_IMAGE_URL == "" {
 		t.Skip("SWR image URL configuration is not completed for acceptance test of component deployment.")
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckVODWatermark(t *testing.T) {
 	if HW_VOD_WATERMARK_FILE == "" {
 		t.Skip("HW_VOD_WATERMARK_FILE must be set for VOD watermark template acceptance tests.")
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckVODMediaAsset(t *testing.T) {
 	if HW_VOD_MEDIA_ASSET_FILE == "" {
 		t.Skip("HW_VOD_MEDIA_ASSET_FILE must be set for VOD media asset acceptance tests.")
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckPwdAuth(t *testing.T) {
 	if HW_MEETING_ACCOUNT_NAME == "" || HW_MEETING_ACCOUNT_PASSWORD == "" {
 		t.Skip("The account name (HW_MEETING_ACCOUNT_NAME) or password (HW_MEETING_ACCOUNT_PASSWORD) is not " +
@@ -316,7 +316,7 @@ func TestAccPreCheckPwdAuth(t *testing.T) {
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckAppAuth(t *testing.T) {
 	if HW_MEETING_APP_ID == "" || HW_MEETING_APP_KEY == "" || HW_MEETING_USER_ID == "" {
 		t.Skip("The app ID (HW_MEETING_APP_ID), app KEY (HW_MEETING_APP_KEY) or user ID (HW_MEETING_USER_ID) is not " +
@@ -324,14 +324,14 @@ func TestAccPreCheckAppAuth(t *testing.T) {
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckMeetingRoom(t *testing.T) {
 	if HW_MEETING_ROOM_ID == "" {
 		t.Skip("The vmr ID (HW_MEETING_ROOM_ID) is not completed for acceptance test of conference.")
 	}
 }
 
-//lintignore:AT003
+// lintignore:AT003
 func TestAccPreCheckParticipants(t *testing.T) {
 	if HW_CHAIR_EMAIL == "" || HW_GUEST_EMAIL == "" {
 		t.Skip("The chair (HW_CHAIR_EMAIL) or guest (HW_GUEST_EMAIL) mailbox is not completed for acceptance test of " +
