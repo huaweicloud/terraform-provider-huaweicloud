@@ -1,0 +1,59 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_css_thesaurus": {
+          "block": {
+            "attributes": {
+              "bucket_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "main_object": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "stop_object": {
+                "type": "string",
+                "optional": true
+              },
+              "synonym_object": {
+                "type": "string",
+                "optional": true
+              },
+              "update_time": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSS",
+            "name": "Cloud Search Service",
+            "catalog": "Enterprise Intelligence",
+            "name_cn": "云搜索服务",
+            "catalog_cn": "EI 企业智能"
+          }
+        }
+      }
+    }
+  }
+}

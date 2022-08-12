@@ -1,0 +1,165 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dli_flinksql_job": {
+          "block": {
+            "attributes": {
+              "checkpoint_enabled": {
+                "type": "bool",
+                "optional": true,
+                "default": false
+              },
+              "checkpoint_interval": {
+                "type": "number",
+                "optional": true,
+                "default": 10
+              },
+              "checkpoint_mode": {
+                "type": "string",
+                "optional": true,
+                "default": "exactly_once"
+              },
+              "cu_number": {
+                "type": "number",
+                "optional": true,
+                "default": 2
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "dirty_data_strategy": {
+                "type": "string",
+                "optional": true,
+                "default": "0"
+              },
+              "edge_group_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "idle_state_retention": {
+                "type": "number",
+                "optional": true,
+                "default": 1
+              },
+              "log_enabled": {
+                "type": "bool",
+                "optional": true,
+                "default": false
+              },
+              "manager_cu_number": {
+                "type": "number",
+                "optional": true,
+                "default": 1
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "obs_bucket": {
+                "type": "string",
+                "optional": true
+              },
+              "parallel_number": {
+                "type": "number",
+                "optional": true,
+                "default": 1
+              },
+              "queue_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "restart_when_exception": {
+                "type": "bool",
+                "optional": true,
+                "default": false
+              },
+              "resume_checkpoint": {
+                "type": "bool",
+                "optional": true
+              },
+              "resume_max_num": {
+                "type": "number",
+                "optional": true,
+                "default": -1
+              },
+              "run_mode": {
+                "type": "string",
+                "optional": true,
+                "default": "shared_cluster"
+              },
+              "runtime_config": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "smn_topic": {
+                "type": "string",
+                "optional": true
+              },
+              "sql": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "tm_cus": {
+                "type": "number",
+                "optional": true,
+                "default": 1
+              },
+              "tm_slot_num": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "default": "flink_sql_job"
+              },
+              "udf_jar_url": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Enterprise Intelligence",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "EI 企业智能"
+          }
+        }
+      }
+    }
+  }
+}

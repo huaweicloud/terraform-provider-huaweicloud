@@ -1,0 +1,205 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_css_cluster": {
+          "block": {
+            "attributes": {
+              "created": {
+                "type": "string",
+                "computed": true
+              },
+              "endpoint": {
+                "type": "string",
+                "computed": true
+              },
+              "engine_type": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "default": "elasticsearch"
+              },
+              "engine_version": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "expect_node_num": {
+                "type": "number",
+                "optional": true,
+                "default": 1
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "nodes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "name": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "password": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_mode": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              }
+            },
+            "block_types": {
+              "backup_strategy": {
+                "block": {
+                  "attributes": {
+                    "agency": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "backup_path": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "bucket": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "keep_days": {
+                      "type": "number",
+                      "optional": true,
+                      "default": 7
+                    },
+                    "prefix": {
+                      "type": "string",
+                      "optional": true,
+                      "default": "snapshot"
+                    },
+                    "start_time": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "node_config": {
+                "block": {
+                  "attributes": {
+                    "availability_zone": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "flavor": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "block_types": {
+                    "network_info": {
+                      "block": {
+                        "attributes": {
+                          "security_group_id": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "subnet_id": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "vpc_id": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true,
+                      "min_items": 1,
+                      "max_items": 1
+                    },
+                    "volume": {
+                      "block": {
+                        "attributes": {
+                          "size": {
+                            "type": "number",
+                            "required": true
+                          },
+                          "volume_type": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true,
+                      "min_items": 1,
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CSS",
+            "name": "Cloud Search Service",
+            "catalog": "Enterprise Intelligence",
+            "name_cn": "云搜索服务",
+            "catalog_cn": "EI 企业智能"
+          }
+        }
+      }
+    }
+  }
+}

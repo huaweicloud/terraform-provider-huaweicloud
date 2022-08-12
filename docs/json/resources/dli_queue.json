@@ -1,0 +1,89 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dli_queue": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "number",
+                "computed": true
+              },
+              "cu_count": {
+                "type": "number",
+                "required": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "feature": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "platform": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "default": "x86_64"
+              },
+              "queue_type": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "default": "sql"
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_mode": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "vpc_cidr": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Enterprise Intelligence",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "EI 企业智能"
+          }
+        }
+      }
+    }
+  }
+}

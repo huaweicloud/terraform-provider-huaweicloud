@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cts_data_tracker": {
+          "block": {
+            "attributes": {
+              "bucket_name": {
+                "type": "string",
+                "optional": true
+              },
+              "data_bucket": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "data_operation": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "enabled": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "file_prefix": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "lts_enabled": {
+                "type": "bool",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "obs_retention_period": {
+                "type": "number",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "transfer_enabled": {
+                "type": "bool",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "computed": true
+              },
+              "validate_file": {
+                "type": "bool",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CTS",
+            "name": "Cloud Trace Service",
+            "catalog": "Management \u0026 Governance",
+            "name_cn": "云审计服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

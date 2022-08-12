@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_live_transcoding": {
+          "block": {
+            "attributes": {
+              "app_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "domain_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "low_bitrate_hd": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "video_encoding": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "templates": {
+                "block": {
+                  "attributes": {
+                    "bitrate": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "frame_rate": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "height": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "width": {
+                      "type": "number",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 4
+              }
+            }
+          },
+          "product": {
+            "short": "Live",
+            "name": "Live",
+            "catalog": "Media Services",
+            "name_cn": "视频直播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

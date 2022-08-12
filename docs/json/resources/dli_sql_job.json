@@ -1,0 +1,144 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dli_sql_job": {
+          "block": {
+            "attributes": {
+              "database_name": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "duration": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_type": {
+                "type": "string",
+                "computed": true
+              },
+              "owner": {
+                "type": "string",
+                "computed": true
+              },
+              "queue_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "rows": {
+                "type": [
+                  "list",
+                  [
+                    "list",
+                    "string"
+                  ]
+                ],
+                "computed": true
+              },
+              "schema": {
+                "type": [
+                  "list",
+                  [
+                    "map",
+                    "string"
+                  ]
+                ],
+                "computed": true
+              },
+              "sql": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "start_time": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "conf": {
+                "block": {
+                  "attributes": {
+                    "dli_sql_job_timeout": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "dli_sql_sqlasync_enabled": {
+                      "type": "bool",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "spark_sql_auto_broadcast_join_threshold": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "spark_sql_bad_records_path": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "spark_sql_dynamic_partition_overwrite_enabled": {
+                      "type": "bool",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "spark_sql_files_max_partition_bytes": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "spark_sql_max_records_per_file": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "spark_sql_shuffle_partitions": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Enterprise Intelligence",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "EI 企业智能"
+          }
+        }
+      }
+    }
+  }
+}
