@@ -58,9 +58,11 @@
             }
           },
           "product": {
-            "catalog": "Containers",
+            "short": "SWR",
             "name": "Software Repository for Container",
-            "short": "SWR"
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
           }
         }
       }

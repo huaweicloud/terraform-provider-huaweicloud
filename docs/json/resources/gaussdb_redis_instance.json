@@ -171,9 +171,11 @@
             }
           },
           "product": {
-            "catalog": "Databases",
+            "short": "GaussDBforNoSQL",
             "name": "GaussDB NoSQL",
-            "short": "GaussDBforNoSQL"
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB NoSQL",
+            "catalog_cn": "数据库"
           }
         }
       }

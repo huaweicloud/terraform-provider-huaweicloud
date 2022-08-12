@@ -508,9 +508,11 @@
             }
           },
           "product": {
-            "catalog": "Enterprise Intelligence",
+            "short": "MRS",
             "name": "MapReduce Service",
-            "short": "MRS"
+            "catalog": "Enterprise Intelligence",
+            "name_cn": "MapReduce服务",
+            "catalog_cn": "EI 企业智能"
           }
         }
       }

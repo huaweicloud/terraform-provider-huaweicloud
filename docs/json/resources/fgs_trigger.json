@@ -222,9 +222,11 @@
             }
           },
           "product": {
-            "catalog": "Compute",
+            "short": "FunctionGraph",
             "name": "FunctionGraph",
-            "short": "FunctionGraph"
+            "catalog": "Compute",
+            "name_cn": "函数工作流",
+            "catalog_cn": "计算"
           }
         }
       }

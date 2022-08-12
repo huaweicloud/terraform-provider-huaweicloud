@@ -64,9 +64,11 @@
             }
           },
           "product": {
-            "catalog": "Storage",
+            "short": "CDN",
             "name": "Content Delivery Network",
-            "short": "CDN"
+            "catalog": "Storage",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "存储"
           }
         }
       }

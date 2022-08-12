@@ -30,9 +30,11 @@
             }
           },
           "product": {
-            "catalog": "Storage",
+            "short": "OBS",
             "name": "Object Storage Service",
-            "short": "OBS"
+            "catalog": "Storage",
+            "name_cn": "对象存储服务",
+            "catalog_cn": "存储"
           }
         }
       }

@@ -181,9 +181,11 @@
             }
           },
           "product": {
-            "catalog": "Management \u0026 Governance",
+            "short": "CES",
             "name": "Cloud Eye",
-            "short": "CES"
+            "catalog": "Management \u0026 Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
           }
         }
       }

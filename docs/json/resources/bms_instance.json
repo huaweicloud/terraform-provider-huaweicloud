@@ -226,9 +226,11 @@
             }
           },
           "product": {
-            "catalog": "Compute",
+            "short": "BMS",
             "name": "Bare Metal Server",
-            "short": "BMS"
+            "catalog": "Compute",
+            "name_cn": "裸金属服务器",
+            "catalog_cn": "计算"
           }
         }
       }

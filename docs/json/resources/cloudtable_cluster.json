@@ -101,9 +101,11 @@
             }
           },
           "product": {
-            "catalog": "Enterprise Intelligence",
+            "short": "CloudTable",
             "name": "CloudTable Service",
-            "short": "CloudTable"
+            "catalog": "Enterprise Intelligence",
+            "name_cn": "表格存储服务",
+            "catalog_cn": "EI 企业智能"
           }
         }
       }
