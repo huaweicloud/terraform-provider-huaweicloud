@@ -1,0 +1,165 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_mpc_transcoding_template_group": {
+          "block": {
+            "attributes": {
+              "dash_segment_duration": {
+                "type": "number",
+                "optional": true,
+                "default": 5
+              },
+              "hls_segment_duration": {
+                "type": "number",
+                "optional": true,
+                "default": 5
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "low_bitrate_hd": {
+                "type": "bool",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "output_format": {
+                "type": "number",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "template_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              }
+            },
+            "block_types": {
+              "audio": {
+                "block": {
+                  "attributes": {
+                    "bitrate": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "channels": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "codec": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "output_policy": {
+                      "type": "string",
+                      "optional": true,
+                      "default": "transcode"
+                    },
+                    "sample_rate": {
+                      "type": "number",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "video_common": {
+                "block": {
+                  "attributes": {
+                    "black_bar_removal": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "codec": {
+                      "type": "number",
+                      "optional": true,
+                      "default": 1
+                    },
+                    "fps": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "level": {
+                      "type": "number",
+                      "optional": true,
+                      "default": 15
+                    },
+                    "max_consecutive_bframes": {
+                      "type": "number",
+                      "optional": true,
+                      "default": 4
+                    },
+                    "max_iframes_interval": {
+                      "type": "number",
+                      "optional": true,
+                      "default": 5
+                    },
+                    "max_reference_frames": {
+                      "type": "number",
+                      "optional": true,
+                      "default": 4
+                    },
+                    "output_policy": {
+                      "type": "string",
+                      "optional": true,
+                      "default": "transcode"
+                    },
+                    "profile": {
+                      "type": "number",
+                      "optional": true,
+                      "default": 3
+                    },
+                    "quality": {
+                      "type": "number",
+                      "optional": true,
+                      "default": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "videos": {
+                "block": {
+                  "attributes": {
+                    "bitrate": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "height": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "width": {
+                      "type": "number",
+                      "optional": true,
+                      "default": 0
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "MPC",
+            "name": "Media Processing Center",
+            "catalog": "Media Services",
+            "name_cn": "媒体转码",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

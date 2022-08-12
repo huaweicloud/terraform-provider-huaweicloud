@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dli_package": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "group_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_async": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "object_name": {
+                "type": "string",
+                "computed": true
+              },
+              "object_path": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "owner": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Enterprise Intelligence",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "EI 企业智能"
+          }
+        }
+      }
+    }
+  }
+}

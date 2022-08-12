@@ -1,0 +1,173 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dli_spark_job": {
+          "block": {
+            "attributes": {
+              "app_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "app_parameters": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "configurations": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "driver_cores": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "driver_memory": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "executor_cores": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "executor_memory": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "executors": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "files": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "jars": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "main_class": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "max_retries": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "modules": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "owner": {
+                "type": "string",
+                "computed": true
+              },
+              "python_files": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "queue_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "specification": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "dependent_packages": {
+                "block": {
+                  "attributes": {
+                    "group_name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "block_types": {
+                    "packages": {
+                      "block": {
+                        "attributes": {
+                          "package_name": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true,
+                      "min_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Enterprise Intelligence",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "EI 企业智能"
+          }
+        }
+      }
+    }
+  }
+}

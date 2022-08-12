@@ -1,0 +1,142 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_live_recording": {
+          "block": {
+            "attributes": {
+              "app_name": {
+                "type": "string",
+                "required": true
+              },
+              "domain_name": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "stream_name": {
+                "type": "string",
+                "required": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "flv": {
+                "block": {
+                  "attributes": {
+                    "file_naming": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "max_stream_pause_length": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "recording_length": {
+                      "type": "number",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "hls": {
+                "block": {
+                  "attributes": {
+                    "file_naming": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "max_stream_pause_length": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "recording_length": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "ts_file_naming": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "mp4": {
+                "block": {
+                  "attributes": {
+                    "file_naming": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "max_stream_pause_length": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "recording_length": {
+                      "type": "number",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "obs": {
+                "block": {
+                  "attributes": {
+                    "bucket": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "object": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "region": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Live",
+            "name": "Live",
+            "catalog": "Media Services",
+            "name_cn": "视频直播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

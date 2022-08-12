@@ -1,0 +1,96 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cts_notification": {
+          "block": {
+            "attributes": {
+              "enabled": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "notification_id": {
+                "type": "string",
+                "computed": true
+              },
+              "operation_type": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "smn_topic": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "operation_users": {
+                "block": {
+                  "attributes": {
+                    "group": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "users": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "operations": {
+                "block": {
+                  "attributes": {
+                    "resource": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "service": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "trace_names": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "CTS",
+            "name": "Cloud Trace Service",
+            "catalog": "Management \u0026 Governance",
+            "name_cn": "云审计服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}
