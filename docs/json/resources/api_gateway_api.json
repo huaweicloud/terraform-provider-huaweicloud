@@ -223,7 +223,7 @@
           },
           "product": {
             "catalog": "Application",
-            "name": "API GateWay",
+            "name": "API Gateway",
             "short": "APIG"
           }
         }

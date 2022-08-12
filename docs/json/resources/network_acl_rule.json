@@ -58,7 +58,7 @@
             }
           },
           "product": {
-            "catalog": "Network",
+            "catalog": "Networking",
             "name": "Virtual Private Cloud",
             "short": "VPC"
           }

@@ -138,7 +138,7 @@
             }
           },
           "product": {
-            "catalog": "Network",
+            "catalog": "Networking",
             "name": "Elastic IP",
             "short": "EIP"
           }

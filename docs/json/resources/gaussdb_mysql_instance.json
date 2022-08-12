@@ -229,8 +229,8 @@
             }
           },
           "product": {
-            "catalog": "Database",
-            "name": "GaussDB",
+            "catalog": "Databases",
+            "name": "GaussDB(for MySQL)",
             "short": "GaussDB"
           }
         }

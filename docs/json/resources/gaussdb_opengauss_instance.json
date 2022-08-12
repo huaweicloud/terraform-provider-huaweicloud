@@ -223,7 +223,7 @@
             }
           },
           "product": {
-            "catalog": "Database",
+            "catalog": "Databases",
             "name": "GaussDB(for openGauss)",
             "short": "GaussDBforopenGauss"
           }
