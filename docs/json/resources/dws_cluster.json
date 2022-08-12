@@ -1,0 +1,183 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dws_cluster": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "created": {
+                "type": "string",
+                "computed": true
+              },
+              "endpoints": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "connect_info": "string",
+                      "jdbc_url": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "network_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "node_type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "number_of_cn": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "number_of_node": {
+                "type": "number",
+                "required": true
+              },
+              "port": {
+                "type": "number",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "private_ip": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "public_endpoints": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "jdbc_url": "string",
+                      "public_connect_info": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "recent_event": {
+                "type": "number",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "sub_status": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "task_status": {
+                "type": "string",
+                "computed": true
+              },
+              "updated": {
+                "type": "string",
+                "computed": true
+              },
+              "user_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "user_pwd": {
+                "type": "string",
+                "required": true,
+                "sensitive": true
+              },
+              "version": {
+                "type": "string",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "public_ip": {
+                "block": {
+                  "attributes": {
+                    "eip_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "public_bind_type": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DWS",
+            "name": "Data Warehouse Service",
+            "catalog": "Enterprise Intelligence",
+            "name_cn": "数据仓库服务",
+            "catalog_cn": "EI 企业智能"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identity_provider_conversion": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "provider_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "conversion_rules": {
+                "block": {
+                  "block_types": {
+                    "local": {
+                      "block": {
+                        "attributes": {
+                          "group": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "username": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    },
+                    "remote": {
+                      "block": {
+                        "attributes": {
+                          "attribute": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "condition": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "value": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 10
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 10
+              }
+            }
+          },
+          "product": {
+            "short": "IAM",
+            "name": "Identity and Access Management",
+            "catalog": "Management \u0026 Governance",
+            "name_cn": "统一身份认证服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

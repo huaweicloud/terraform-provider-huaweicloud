@@ -1,0 +1,262 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_oms_migration_task": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "enable_failed_object_recording": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true,
+                "default": true
+              },
+              "enable_kms": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              },
+              "enable_restore": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "migrate_since": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "start_task": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true,
+                "default": true
+              },
+              "status": {
+                "type": "number",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "bandwidth_policy": {
+                "block": {
+                  "attributes": {
+                    "end": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "max_bandwidth": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "start": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 5
+              },
+              "destination_object": {
+                "block": {
+                  "attributes": {
+                    "access_key": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "bucket": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "region": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "save_prefix": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "secret_key": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true,
+                      "sensitive": true
+                    },
+                    "security_token": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true,
+                      "sensitive": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 1
+              },
+              "smn_config": {
+                "block": {
+                  "attributes": {
+                    "language": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "topic_urn": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "trigger_conditions": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "source_cdn": {
+                "block": {
+                  "attributes": {
+                    "authentication_key": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "authentication_type": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true,
+                      "default": "NONE"
+                    },
+                    "domain": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "protocol": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "source_object": {
+                "block": {
+                  "attributes": {
+                    "access_key": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "app_id": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "bucket": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "data_source": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true,
+                      "default": "Aliyun"
+                    },
+                    "list_file_bucket": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "list_file_key": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "object": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "region": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "secret_key": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true,
+                      "sensitive": true
+                    },
+                    "security_token": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true,
+                      "sensitive": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "OMS",
+            "name": "Object Storage Migration Service",
+            "catalog": "Migration",
+            "name_cn": "对象存储迁移服务",
+            "catalog_cn": "迁移"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_sms_server_template": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "required": true
+              },
+              "bandwidth_size": {
+                "type": "number",
+                "optional": true
+              },
+              "flavor": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_group_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "subnet_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "target_server_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "volume_type": {
+                "type": "string",
+                "optional": true,
+                "default": "SAS"
+              },
+              "vpc_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "vpc_name": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SMS",
+            "name": "Server Migration Service",
+            "catalog": "Migration",
+            "name_cn": "主机迁移服务",
+            "catalog_cn": "迁移"
+          }
+        }
+      }
+    }
+  }
+}

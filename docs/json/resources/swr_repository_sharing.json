@@ -1,0 +1,61 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_swr_repository_sharing": {
+          "block": {
+            "attributes": {
+              "deadline": {
+                "type": "string",
+                "required": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "organization": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "permission": {
+                "type": "string",
+                "optional": true,
+                "default": "pull"
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "repository": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "sharing_account": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "bool",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

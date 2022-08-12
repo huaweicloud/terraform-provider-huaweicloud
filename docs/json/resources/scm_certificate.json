@@ -1,0 +1,108 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_scm_certificate": {
+          "block": {
+            "attributes": {
+              "authentifications": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "domain": "string",
+                      "record_name": "string",
+                      "record_type": "string",
+                      "record_value": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "certificate": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "certificate_chain": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "domain": {
+                "type": "string",
+                "computed": true
+              },
+              "domain_count": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "not_after": {
+                "type": "string",
+                "computed": true
+              },
+              "not_before": {
+                "type": "string",
+                "computed": true
+              },
+              "private_key": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "push_support": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "target": {
+                "block": {
+                  "attributes": {
+                    "project": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    },
+                    "service": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "SCM",
+            "name": "SSL Certificate Manager",
+            "catalog": "Security \u0026 Compliance",
+            "name_cn": "SSL证书管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}
