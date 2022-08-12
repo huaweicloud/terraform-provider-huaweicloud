@@ -6,9 +6,11 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"math/big"
+	"net/http"
 	"os"
 	"regexp"
 	"strings"
@@ -17,6 +19,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/jmespath/go-jmespath"
 )
 
 // ConvertStructToMap converts an instance of struct to a map object, and
@@ -417,4 +420,30 @@ func isValidLogLevel(level string) bool {
 	}
 
 	return false
+}
+
+// PathSearch evaluates a JMESPath expression against input data and returns the result.
+func PathSearch(expression string, obj interface{}, defaultValue interface{}) interface{} {
+	v, err := jmespath.Search(expression, obj)
+	if err != nil {
+		log.Printf("Error fetching metadata access: %s", err.Error())
+		return defaultValue
+	}
+	return v
+}
+
+// FlattenResponse returns the api response body if it's not empty
+func FlattenResponse(resp *http.Response) (interface{}, error) {
+	var respBody interface{}
+	defer resp.Body.Close()
+	// Don't decode JSON when there is no content
+	if resp.StatusCode == http.StatusNoContent {
+		_, err := io.Copy(ioutil.Discard, resp.Body)
+		return resp, err
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&respBody); err != nil {
+		return nil, err
+	}
+	return respBody, nil
 }
