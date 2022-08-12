@@ -1,0 +1,39 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_api_gateway_group": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Application",
+            "name": "API GateWay",
+            "short": "APIG"
+          }
+        }
+      }
+    }
+  }
+}

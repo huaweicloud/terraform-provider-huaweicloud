@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cpts_task": {
+          "block": {
+            "attributes": {
+              "benchmark_concurrency": {
+                "type": "number",
+                "optional": true,
+                "default": 100
+              },
+              "cluster_id": {
+                "type": "number",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "operation": {
+                "type": "string",
+                "optional": true
+              },
+              "project_id": {
+                "type": "number",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Application",
+            "name": "Cloud Performance Test Service",
+            "short": "CPTS"
+          }
+        }
+      }
+    }
+  }
+}

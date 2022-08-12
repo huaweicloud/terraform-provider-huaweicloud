@@ -2,65 +2,63 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_cce_namespace": {
+        "huaweicloud_cdm_link": {
           "block": {
             "attributes": {
-              "annotations": {
-                "type": [
-                  "map",
-                  "string"
-                ],
-                "optional": true,
-                "computed": true,
-                "forcenew": true
+              "access_key": {
+                "type": "string",
+                "optional": true
               },
               "cluster_id": {
                 "type": "string",
                 "required": true,
                 "forcenew": true
               },
-              "creation_timestamp": {
+              "config": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "required": true
+              },
+              "connector": {
                 "type": "string",
-                "computed": true
+                "required": true,
+                "forcenew": true
+              },
+              "enabled": {
+                "type": "bool",
+                "optional": true,
+                "default": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "labels": {
-                "type": [
-                  "map",
-                  "string"
-                ],
-                "optional": true,
-                "computed": true,
-                "forcenew": true
-              },
               "name": {
                 "type": "string",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
+                "required": true
               },
-              "prefix": {
+              "password": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true
+                "sensitive": true
               },
               "region": {
                 "type": "string",
                 "computed": true
               },
-              "status": {
+              "secret_key": {
                 "type": "string",
-                "computed": true
+                "optional": true,
+                "sensitive": true
               }
             }
           },
           "product": {
-            "catalog": "Container",
-            "name": "Cloud Container Engine",
-            "short": "CCE"
+            "catalog": "Migration",
+            "name": "Cloud Data Migration",
+            "short": "CDM"
           }
         }
       }
