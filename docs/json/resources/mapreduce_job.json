@@ -78,7 +78,7 @@
             }
           },
           "product": {
-            "catalog": "Analytics",
+            "catalog": "Enterprise Intelligence",
             "name": "MapReduce Service",
             "short": "MRS"
           }

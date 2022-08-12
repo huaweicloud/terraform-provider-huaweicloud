@@ -160,7 +160,7 @@
           "product": {
             "catalog": "Application",
             "name": "Distributed Message Service for RabbitMQ",
-            "short": "DMS"
+            "short": "RabbitMQ"
           }
         }
       }

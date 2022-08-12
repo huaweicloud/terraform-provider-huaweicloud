@@ -62,8 +62,8 @@
             }
           },
           "product": {
-            "catalog": "Container",
-            "name": "SoftWare Repository for Container",
+            "catalog": "Containers",
+            "name": "Software Repository for Container",
             "short": "SWR"
           }
         }

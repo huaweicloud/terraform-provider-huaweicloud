@@ -236,7 +236,7 @@
             }
           },
           "product": {
-            "catalog": "Container",
+            "catalog": "Containers",
             "name": "Cloud Container Engine",
             "short": "CCE"
           }

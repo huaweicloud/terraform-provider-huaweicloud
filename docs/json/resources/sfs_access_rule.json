@@ -43,7 +43,7 @@
           },
           "product": {
             "catalog": "Storage",
-            "name": "Scalable File Service",
+            "name": "Scalable File Service(SFS)",
             "short": "SFS"
           }
         }

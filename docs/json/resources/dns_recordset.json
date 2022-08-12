@@ -62,7 +62,7 @@
             }
           },
           "product": {
-            "catalog": "Network",
+            "catalog": "Networking",
             "name": "Domain Name Service",
             "short": "DNS"
           }

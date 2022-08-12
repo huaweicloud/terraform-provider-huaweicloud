@@ -214,7 +214,7 @@
           "product": {
             "catalog": "Application",
             "name": "Distributed Message Service for Kafka",
-            "short": "DMS"
+            "short": "Kafka"
           }
         }
       }

@@ -45,7 +45,7 @@
             }
           },
           "product": {
-            "catalog": "Network",
+            "catalog": "Networking",
             "name": "Elastic Load Balance",
             "short": "ELB"
           }

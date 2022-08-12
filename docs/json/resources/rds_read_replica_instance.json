@@ -124,7 +124,7 @@
             }
           },
           "product": {
-            "catalog": "Database",
+            "catalog": "Databases",
             "name": "Relational Database Service",
             "short": "RDS"
           }

@@ -193,7 +193,7 @@
             }
           },
           "product": {
-            "catalog": "Database",
+            "catalog": "Databases",
             "name": "GaussDB NoSQL",
             "short": "GaussDBforNoSQL"
           }

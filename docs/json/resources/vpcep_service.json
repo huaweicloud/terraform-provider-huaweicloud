@@ -104,7 +104,7 @@
             }
           },
           "product": {
-            "catalog": "Network",
+            "catalog": "Networking",
             "name": "VPC Endpoint",
             "short": "VPCEP"
           }

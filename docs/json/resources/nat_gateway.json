@@ -51,7 +51,7 @@
             }
           },
           "product": {
-            "catalog": "Network",
+            "catalog": "Networking",
             "name": "NAT Gateway",
             "short": "NAT"
           }
