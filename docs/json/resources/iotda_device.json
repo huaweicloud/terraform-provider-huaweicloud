@@ -1,0 +1,98 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_iotda_device": {
+          "block": {
+            "attributes": {
+              "auth_type": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "device_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "fingerprint": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "frozen": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "gateway_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "node_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "node_type": {
+                "type": "string",
+                "computed": true
+              },
+              "product_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "secret": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "sensitive": true
+              },
+              "space_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "IoTDA",
+            "name": "IoT Device Access",
+            "catalog": "Internet of Things",
+            "name_cn": "设备接入",
+            "catalog_cn": "物联网"
+          }
+        }
+      }
+    }
+  }
+}

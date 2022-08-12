@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_iec_network_acl_rule": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "optional": true,
+                "default": "allow"
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "destination_ip_address": {
+                "type": "string",
+                "optional": true,
+                "default": "0.0.0.0/0"
+              },
+              "destination_port": {
+                "type": "string",
+                "optional": true
+              },
+              "direction": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "enabled": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_version": {
+                "type": "number",
+                "optional": true,
+                "default": 4
+              },
+              "network_acl_id": {
+                "type": "string",
+                "required": true
+              },
+              "policy_id": {
+                "type": "string",
+                "computed": true
+              },
+              "protocol": {
+                "type": "string",
+                "optional": true,
+                "default": "any"
+              },
+              "source_ip_address": {
+                "type": "string",
+                "optional": true,
+                "default": "0.0.0.0/0"
+              },
+              "source_port": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "IEC",
+            "name": "Intelligent EdgeCloud",
+            "catalog": "Edge Cloud Services",
+            "name_cn": "智能边缘云",
+            "catalog_cn": "边缘云服务"
+          }
+        }
+      }
+    }
+  }
+}

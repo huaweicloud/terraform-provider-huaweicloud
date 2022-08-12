@@ -1,0 +1,203 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_iotda_dataforwarding_rule": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "enabled": {
+                "type": "bool",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "select": {
+                "type": "string",
+                "optional": true
+              },
+              "space_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "trigger": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "where": {
+                "type": "string",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "targets": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "amqp_forwarding": {
+                      "block": {
+                        "attributes": {
+                          "queue_name": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "dis_forwarding": {
+                      "block": {
+                        "attributes": {
+                          "project_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "region": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "stream_id": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "http_forwarding": {
+                      "block": {
+                        "attributes": {
+                          "url": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "kafka_forwarding": {
+                      "block": {
+                        "attributes": {
+                          "password": {
+                            "type": "string",
+                            "optional": true,
+                            "sensitive": true
+                          },
+                          "project_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "region": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "topic": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "user_name": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        },
+                        "block_types": {
+                          "addresses": {
+                            "block": {
+                              "attributes": {
+                                "domain": {
+                                  "type": "string",
+                                  "optional": true
+                                },
+                                "ip": {
+                                  "type": "string",
+                                  "optional": true
+                                },
+                                "port": {
+                                  "type": "number",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "obs_forwarding": {
+                      "block": {
+                        "attributes": {
+                          "bucket": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "custom_directory": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "project_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "region": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "max_items": 10
+              }
+            }
+          },
+          "product": {
+            "short": "IoTDA",
+            "name": "IoT Device Access",
+            "catalog": "Internet of Things",
+            "name_cn": "设备接入",
+            "catalog_cn": "物联网"
+          }
+        }
+      }
+    }
+  }
+}

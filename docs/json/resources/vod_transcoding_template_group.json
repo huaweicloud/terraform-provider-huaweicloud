@@ -1,0 +1,139 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_vod_transcoding_template_group": {
+          "block": {
+            "attributes": {
+              "audio_codec": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "auto_encrypt": {
+                "type": "bool",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "hls_segment_duration": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_default": {
+                "type": "bool",
+                "optional": true
+              },
+              "low_bitrate_hd": {
+                "type": "bool",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "computed": true
+              },
+              "video_codec": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "watermark_template_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              }
+            },
+            "block_types": {
+              "quality_info": {
+                "block": {
+                  "attributes": {
+                    "output_format": {
+                      "type": "string",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "audio": {
+                      "block": {
+                        "attributes": {
+                          "bitrate": {
+                            "type": "number",
+                            "optional": true
+                          },
+                          "channels": {
+                            "type": "number",
+                            "required": true
+                          },
+                          "sample_rate": {
+                            "type": "number",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "video": {
+                      "block": {
+                        "attributes": {
+                          "bitrate": {
+                            "type": "number",
+                            "optional": true
+                          },
+                          "frame_rate": {
+                            "type": "number",
+                            "optional": true
+                          },
+                          "height": {
+                            "type": "number",
+                            "optional": true
+                          },
+                          "quality": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "width": {
+                            "type": "number",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "VOD",
+            "name": "Video on Demand",
+            "catalog": "Media Services",
+            "name_cn": "视频点播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

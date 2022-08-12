@@ -1,0 +1,89 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_vod_watermark_template": {
+          "block": {
+            "attributes": {
+              "height": {
+                "type": "string",
+                "optional": true,
+                "default": "0.01"
+              },
+              "horizontal_offset": {
+                "type": "string",
+                "optional": true,
+                "default": "0"
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_file": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "image_process": {
+                "type": "string",
+                "optional": true,
+                "default": "TRANSPARENT"
+              },
+              "image_type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "image_url": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "position": {
+                "type": "string",
+                "optional": true,
+                "default": "TOPRIGHT"
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "timeline_duration": {
+                "type": "string",
+                "optional": true
+              },
+              "timeline_start": {
+                "type": "string",
+                "optional": true
+              },
+              "vertical_offset": {
+                "type": "string",
+                "optional": true,
+                "default": "0"
+              },
+              "watermark_type": {
+                "type": "string",
+                "computed": true
+              },
+              "width": {
+                "type": "string",
+                "optional": true,
+                "default": "0.01"
+              }
+            }
+          },
+          "product": {
+            "short": "VOD",
+            "name": "Video on Demand",
+            "catalog": "Media Services",
+            "name_cn": "视频点播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

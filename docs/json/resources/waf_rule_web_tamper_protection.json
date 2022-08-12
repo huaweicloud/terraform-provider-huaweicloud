@@ -1,0 +1,44 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_waf_rule_web_tamper_protection": {
+          "block": {
+            "attributes": {
+              "domain": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "path": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "policy_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security \u0026 Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}
