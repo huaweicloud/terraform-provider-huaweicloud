@@ -1,0 +1,192 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_sms_task": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "migrate_speed": {
+                "type": "number",
+                "computed": true
+              },
+              "migration_ip": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "os_type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source_server_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "start_target_server": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true,
+                "default": true
+              },
+              "state": {
+                "type": "string",
+                "computed": true
+              },
+              "syncing": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              },
+              "target_server_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "target_server_name": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "use_public_ip": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true,
+                "default": true
+              },
+              "vm_template_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "target_server_disks": {
+                "block": {
+                  "attributes": {
+                    "device_type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "disk_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "size": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "used_size": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  },
+                  "block_types": {
+                    "physical_volumes": {
+                      "block": {
+                        "attributes": {
+                          "device_type": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "file_system": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "index": {
+                            "type": "number",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "mount_point": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "size": {
+                            "type": "number",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "used_size": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
+                          },
+                          "uuid": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "SMS",
+            "name": "Server Migration Service",
+            "catalog": "Migration",
+            "name_cn": "主机迁移服务",
+            "catalog_cn": "迁移"
+          }
+        }
+      }
+    }
+  }
+}

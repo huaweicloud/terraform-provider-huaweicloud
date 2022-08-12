@@ -1,0 +1,319 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_drs_job": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "destination_db_readnoly": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true,
+                "default": true
+              },
+              "direction": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "engine_type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "expired_days": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true,
+                "default": 14
+              },
+              "force_destroy": {
+                "type": "bool",
+                "optional": true,
+                "default": false
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "migrate_definer": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true,
+                "default": true
+              },
+              "migration_type": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "default": "FULL_INCR_TRANS"
+              },
+              "multi_write": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true,
+                "default": false
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "net_type": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "default": "eip"
+              },
+              "private_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "public_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "destination_db": {
+                "block": {
+                  "attributes": {
+                    "engine_type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "instance_id": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "ip": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "password": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true,
+                      "sensitive": true
+                    },
+                    "port": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "region": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "ssl_cert_check_sum": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "ssl_cert_key": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "ssl_cert_name": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "ssl_cert_password": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "ssl_enabled": {
+                      "type": "bool",
+                      "optional": true,
+                      "forcenew": true,
+                      "default": false
+                    },
+                    "subnet_id": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "user": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "limit_speed": {
+                "block": {
+                  "attributes": {
+                    "end_time": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "speed": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "start_time": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 3
+              },
+              "source_db": {
+                "block": {
+                  "attributes": {
+                    "engine_type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "instance_id": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "ip": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "password": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true,
+                      "sensitive": true
+                    },
+                    "port": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "region": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "ssl_cert_check_sum": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "ssl_cert_key": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "ssl_cert_name": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "ssl_cert_password": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "ssl_enabled": {
+                      "type": "bool",
+                      "optional": true,
+                      "forcenew": true,
+                      "default": false
+                    },
+                    "subnet_id": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "user": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

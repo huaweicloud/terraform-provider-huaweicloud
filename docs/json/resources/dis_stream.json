@@ -1,0 +1,134 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dis_stream": {
+          "block": {
+            "attributes": {
+              "auto_scale_max_partition_count": {
+                "type": "number",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "auto_scale_min_partition_count": {
+                "type": "number",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "compression_format": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "created": {
+                "type": "number",
+                "computed": true
+              },
+              "csv_delimiter": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "data_schema": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "data_type": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "partition_count": {
+                "type": "number",
+                "required": true
+              },
+              "partitions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "hash_range": "string",
+                      "id": "string",
+                      "sequence_number_range": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "readable_partition_count": {
+                "type": "number",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "retention_period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true,
+                "default": 24
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "stream_id": {
+                "type": "string",
+                "computed": true
+              },
+              "stream_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "stream_type": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "writable_partition_count": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DIS",
+            "name": "Data Ingestion Service",
+            "catalog": "Enterprise Intelligence",
+            "name_cn": "数据接入服务",
+            "catalog_cn": "EI 企业智能"
+          }
+        }
+      }
+    }
+  }
+}

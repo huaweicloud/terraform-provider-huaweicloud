@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_kps_keypair": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "encryption_type": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "fingerprint": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_managed": {
+                "type": "bool",
+                "computed": true
+              },
+              "key_file": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "kms_key_name": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "public_key": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "scope": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "KPS",
+            "name": "Data Encryption Workshop KPS",
+            "catalog": "Security \u0026 Compliance",
+            "name_cn": "数据加密服务-密钥对管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

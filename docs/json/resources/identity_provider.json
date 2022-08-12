@@ -1,0 +1,140 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identity_provider": {
+          "block": {
+            "attributes": {
+              "conversion_rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "local": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "group": "string",
+                            "username": "string"
+                          }
+                        ]
+                      ],
+                      "remote": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "attribute": "string",
+                            "condition": "string",
+                            "value": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "login_link": {
+                "type": "string",
+                "computed": true
+              },
+              "metadata": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "protocol": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "sso_type": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              }
+            },
+            "block_types": {
+              "access_config": {
+                "block": {
+                  "attributes": {
+                    "access_type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "authorization_endpoint": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "client_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "provider_url": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "response_mode": {
+                      "type": "string",
+                      "optional": true,
+                      "default": "form_post"
+                    },
+                    "response_type": {
+                      "type": "string",
+                      "optional": true,
+                      "default": "id_token"
+                    },
+                    "scopes": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    },
+                    "signing_key": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "IAM",
+            "name": "Identity and Access Management",
+            "catalog": "Management \u0026 Governance",
+            "name_cn": "统一身份认证服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}
