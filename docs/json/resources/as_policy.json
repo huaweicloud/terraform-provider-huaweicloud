@@ -89,9 +89,11 @@
             }
           },
           "product": {
-            "catalog": "Compute",
+            "short": "AS",
             "name": "Auto Scaling",
-            "short": "AS"
+            "catalog": "Compute",
+            "name_cn": "弹性伸缩",
+            "catalog_cn": "计算"
           }
         }
       }

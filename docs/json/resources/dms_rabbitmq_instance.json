@@ -158,9 +158,11 @@
             }
           },
           "product": {
-            "catalog": "Application",
+            "short": "RabbitMQ",
             "name": "Distributed Message Service for RabbitMQ",
-            "short": "RabbitMQ"
+            "catalog": "Application",
+            "name_cn": "分布式消息服务 RabbitMQ",
+            "catalog_cn": "应用服务"
           }
         }
       }

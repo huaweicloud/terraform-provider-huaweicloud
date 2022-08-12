@@ -33,9 +33,11 @@
             }
           },
           "product": {
-            "catalog": "Security \u0026 Compliance",
+            "short": "Anti-DDoS",
             "name": "Anti-DDoS",
-            "short": "Anti-DDoS"
+            "catalog": "Security \u0026 Compliance",
+            "name_cn": "Anti-DDoS流量清洗",
+            "catalog_cn": "安全与合规"
           }
         }
       }

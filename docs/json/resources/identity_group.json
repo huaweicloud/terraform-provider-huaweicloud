@@ -20,9 +20,11 @@
             }
           },
           "product": {
-            "catalog": "Management \u0026 Governance",
+            "short": "IAM",
             "name": "Identity and Access Management",
-            "short": "IAM"
+            "catalog": "Management \u0026 Governance",
+            "name_cn": "统一身份认证服务",
+            "catalog_cn": "管理与监管"
           }
         }
       }

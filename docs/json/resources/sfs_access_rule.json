@@ -42,9 +42,11 @@
             }
           },
           "product": {
-            "catalog": "Storage",
+            "short": "SFS",
             "name": "Scalable File Service(SFS)",
-            "short": "SFS"
+            "catalog": "Storage",
+            "name_cn": "弹性文件服务(SFS)",
+            "catalog_cn": "存储"
           }
         }
       }

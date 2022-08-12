@@ -51,9 +51,11 @@
             }
           },
           "product": {
-            "catalog": "Application",
+            "short": "Kafka",
             "name": "Distributed Message Service for Kafka",
-            "short": "Kafka"
+            "catalog": "Application",
+            "name_cn": "分布式消息服务 Kafka",
+            "catalog_cn": "应用服务"
           }
         }
       }

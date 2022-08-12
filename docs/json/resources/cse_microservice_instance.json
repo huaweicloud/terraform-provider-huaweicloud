@@ -121,9 +121,11 @@
             }
           },
           "product": {
-            "catalog": "Application",
+            "short": "CSE",
             "name": "Cloud Service Engine",
-            "short": "CSE"
+            "catalog": "Application",
+            "name_cn": "微服务引擎",
+            "catalog_cn": "应用服务"
           }
         }
       }

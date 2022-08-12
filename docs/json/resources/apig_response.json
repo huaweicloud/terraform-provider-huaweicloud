@@ -59,9 +59,11 @@
             }
           },
           "product": {
-            "catalog": "Application",
+            "short": "APIG",
             "name": "API Gateway",
-            "short": "APIG"
+            "catalog": "Application",
+            "name_cn": "API网关",
+            "catalog_cn": "应用服务"
           }
         }
       }

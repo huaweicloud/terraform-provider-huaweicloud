@@ -42,9 +42,11 @@
             }
           },
           "product": {
-            "catalog": "Storage",
+            "short": "EVS",
             "name": "Elastic Volume Service",
-            "short": "EVS"
+            "catalog": "Storage",
+            "name_cn": "云硬盘",
+            "catalog_cn": "存储"
           }
         }
       }

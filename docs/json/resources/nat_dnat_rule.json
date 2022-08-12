@@ -69,9 +69,11 @@
             }
           },
           "product": {
-            "catalog": "Networking",
+            "short": "NAT",
             "name": "NAT Gateway",
-            "short": "NAT"
+            "catalog": "Networking",
+            "name_cn": "NAT网关",
+            "catalog_cn": "网络"
           }
         }
       }

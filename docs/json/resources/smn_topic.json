@@ -54,9 +54,11 @@
             }
           },
           "product": {
-            "catalog": "Application",
+            "short": "SMN",
             "name": "Simple Message Notification",
-            "short": "SMN"
+            "catalog": "Application",
+            "name_cn": "消息通知服务",
+            "catalog_cn": "应用服务"
           }
         }
       }

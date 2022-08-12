@@ -232,9 +232,11 @@
             }
           },
           "product": {
-            "catalog": "Application",
+            "short": "DCS",
             "name": "Distributed Cache Service",
-            "short": "DCS"
+            "catalog": "Application",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用服务"
           }
         }
       }
