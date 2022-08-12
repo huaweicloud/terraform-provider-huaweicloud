@@ -82,9 +82,10 @@ func ResourceRdsInstance() *schema.Resource {
 							ForceNew:  true,
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Type:             schema.TypeString,
+							Required:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: utils.SuppressCaseDiffs,
 						},
 						"version": {
 							Type:     schema.TypeString,
