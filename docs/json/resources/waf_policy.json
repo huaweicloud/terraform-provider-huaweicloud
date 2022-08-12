@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_waf_policy": {
+          "block": {
+            "attributes": {
+              "full_detection": {
+                "type": "bool",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "level": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "options": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "basic_web_protection": "bool",
+                      "blacklist": "bool",
+                      "cc_attack_protection": "bool",
+                      "crawler": "bool",
+                      "crawler_engine": "bool",
+                      "crawler_other": "bool",
+                      "crawler_scanner": "bool",
+                      "crawler_script": "bool",
+                      "data_masking": "bool",
+                      "false_alarm_masking": "bool",
+                      "general_check": "bool",
+                      "precise_protection": "bool",
+                      "web_tamper_protection": "bool",
+                      "webshell": "bool"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "protection_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security \u0026 Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

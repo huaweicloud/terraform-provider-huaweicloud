@@ -1,0 +1,43 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_vod_media_category": {
+          "block": {
+            "attributes": {
+              "children": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "parent_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "default": "0"
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "VOD",
+            "name": "Video on Demand",
+            "catalog": "Media Services",
+            "name_cn": "视频点播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

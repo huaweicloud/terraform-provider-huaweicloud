@@ -1,0 +1,205 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_iec_server": {
+          "block": {
+            "attributes": {
+              "admin_pass": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "bind_eip": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              },
+              "coverage_level": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "default": "SITE"
+              },
+              "coverage_policy": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "default": "centralize"
+              },
+              "edgecloud_id": {
+                "type": "string",
+                "computed": true
+              },
+              "edgecloud_name": {
+                "type": "string",
+                "computed": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "flavor_name": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "image_name": {
+                "type": "string",
+                "computed": true
+              },
+              "key_pair": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "nics": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "address": "string",
+                      "mac": "string",
+                      "port": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "origin_server_id": {
+                "type": "string",
+                "computed": true
+              },
+              "public_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "security_groups": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true,
+                "forcenew": true
+              },
+              "system_disk_id": {
+                "type": "string",
+                "computed": true
+              },
+              "system_disk_size": {
+                "type": "number",
+                "required": true,
+                "forcenew": true
+              },
+              "system_disk_type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "user_data": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "volume_attached": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "boot_index": "string",
+                      "device": "string",
+                      "size": "number",
+                      "type": "string",
+                      "volume_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "coverage_sites": {
+                "block": {
+                  "attributes": {
+                    "operator": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "site_id": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1
+              },
+              "data_disks": {
+                "block": {
+                  "attributes": {
+                    "size": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 2
+              }
+            }
+          },
+          "product": {
+            "short": "IEC",
+            "name": "Intelligent EdgeCloud",
+            "catalog": "Edge Cloud Services",
+            "name_cn": "智能边缘云",
+            "catalog_cn": "边缘云服务"
+          }
+        }
+      }
+    }
+  }
+}

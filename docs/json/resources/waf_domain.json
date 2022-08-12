@@ -1,0 +1,96 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_waf_domain": {
+          "block": {
+            "attributes": {
+              "access_status": {
+                "type": "number",
+                "computed": true
+              },
+              "certificate_id": {
+                "type": "string",
+                "optional": true
+              },
+              "certificate_name": {
+                "type": "string",
+                "optional": true
+              },
+              "domain": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "keep_policy": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "policy_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "protect_status": {
+                "type": "number",
+                "computed": true
+              },
+              "protocol": {
+                "type": "string",
+                "computed": true
+              },
+              "proxy": {
+                "type": "bool",
+                "optional": true,
+                "default": false
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "server": {
+                "block": {
+                  "attributes": {
+                    "address": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "client_protocol": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "port": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "server_protocol": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security \u0026 Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}
