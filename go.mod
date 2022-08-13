@@ -10,6 +10,7 @@ require (
 	github.com/hashicorp/go-getter v1.6.2 // indirect
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/go-uuid v1.0.2
+	github.com/hashicorp/terraform-plugin-log v0.2.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.10.0
 	github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.0.92
 	github.com/jen20/awspolicyequivalence v1.1.0
