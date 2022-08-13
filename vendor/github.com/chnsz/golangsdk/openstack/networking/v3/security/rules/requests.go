@@ -42,7 +42,7 @@ type CreateOpts struct {
 	Action string `json:"action,omitempty"`
 	// Specifies the ID of the peer security group.
 	// The value is exclusive with parameter remote_ip_prefix.
-	Priority string `json:"priority,omitempty"`
+	Priority int `json:"priority,omitempty"`
 }
 
 // Create is a method to create a new security group rule.
@@ -56,8 +56,8 @@ func Create(c *golangsdk.ServiceClient, opts CreateOpts) (*SecurityGroupRule, er
 	_, err = c.Post(rootURL(c), b, &rst.Body, nil)
 	if err == nil {
 		var r SecurityGroupRule
-		rst.ExtractIntoStructPtr(&r, "security_group_rule")
-		return &r, nil
+		err = rst.ExtractIntoStructPtr(&r, "security_group_rule")
+		return &r, err
 	}
 	return nil, err
 }
@@ -68,8 +68,8 @@ func Get(c *golangsdk.ServiceClient, ruleId string) (*SecurityGroupRule, error) 
 	_, err := c.Get(resourceURL(c, ruleId), &rst.Body, nil)
 	if err == nil {
 		var r SecurityGroupRule
-		rst.ExtractIntoStructPtr(&r, "security_group_rule")
-		return &r, nil
+		err = rst.ExtractIntoStructPtr(&r, "security_group_rule")
+		return &r, err
 	}
 	return nil, err
 }

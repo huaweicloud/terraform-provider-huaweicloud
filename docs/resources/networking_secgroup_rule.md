@@ -19,6 +19,7 @@ resource "huaweicloud_networking_secgroup_rule" "secgroup_rule" {
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
+  action            = "allow"
   port_range_min    = 8080
   port_range_max    = 8080
   remote_ip_prefix  = "0.0.0.0/0"
@@ -32,7 +33,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the security group rule resource. If
   omitted, the provider-level region will be used. Changing this creates a new security group rule.
 
-* `security_group_id` - (Required, String, ForceNew) Specifies the security group id the rule should belong to. Changing
+* `security_group_id` - (Required, String, ForceNew) Specifies the security group ID the rule should belong to. Changing
   this creates a new security group rule.
 
 * `direction` - (Required, String, ForceNew) Specifies the direction of the rule, valid values are **ingress** or
@@ -64,8 +65,18 @@ The following arguments are supported:
 * `remote_ip_prefix` - (Optional, String, ForceNew) Specifies the remote CIDR, the value needs to be a valid CIDR (i.e.
   192.168.0.0/16). Changing this creates a new security group rule.
 
-* `remote_group_id` - (Optional, String, ForceNew) Specifies the remote group id. Changing this creates a new security
+* `remote_group_id` - (Optional, String, ForceNew) Specifies the remote group ID. Changing this creates a new security
   group rule.
+
+* `remote_address_group_id` - (Optional, String, ForceNew) Specifies the remote address group ID.
+  Changing this creates a new security group rule.
+
+* `action` - (Optional, String, ForceNew) Specifies the effective policy. The valid values are **allow** and **deny**.
+  Changing this creates a new security group rule.
+
+* `priority` - (Optional, String, ForceNew) Specifies the priority number.
+  The valid value is range from **1** to **100**. The default value is **1**.
+  Changing this creates a new security group rule.
 
 ## Attributes Reference
 

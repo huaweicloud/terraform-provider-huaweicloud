@@ -28,8 +28,8 @@ func Create(c *golangsdk.ServiceClient, opts CreateOpts) (*SecurityGroup, error)
 	_, err = c.Post(rootURL(c), b, &rst.Body, nil)
 	if err == nil {
 		var r SecurityGroup
-		rst.ExtractIntoStructPtr(&r, "security_group")
-		return &r, nil
+		err := rst.ExtractIntoStructPtr(&r, "security_group")
+		return &r, err
 	}
 	return nil, err
 }
@@ -40,8 +40,8 @@ func Get(c *golangsdk.ServiceClient, securityGroupId string) (*SecurityGroup, er
 	_, err := c.Get(resourceURL(c, securityGroupId), &rst.Body, nil)
 	if err == nil {
 		var r SecurityGroup
-		rst.ExtractIntoStructPtr(&r, "security_group")
-		return &r, nil
+		err = rst.ExtractIntoStructPtr(&r, "security_group")
+		return &r, err
 	}
 	return nil, err
 }
@@ -117,8 +117,8 @@ func Update(c *golangsdk.ServiceClient, securityGroupId string, opts UpdateOpts)
 	_, err = c.Put(resourceURL(c, securityGroupId), b, &rst.Body, nil)
 	if err == nil {
 		var r SecurityGroup
-		rst.ExtractIntoStructPtr(&r, "security_group")
-		return &r, nil
+		err = rst.ExtractIntoStructPtr(&r, "security_group")
+		return &r, err
 	}
 	return nil, err
 }

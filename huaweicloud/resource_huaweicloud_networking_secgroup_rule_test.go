@@ -33,6 +33,7 @@ func TestAccNetworkingSecGroupRule_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceRuleName, "ethertype", "IPv4"),
 					resource.TestCheckResourceAttr(resourceRuleName, "protocol", "tcp"),
 					resource.TestCheckResourceAttr(resourceRuleName, "remote_ip_prefix", "0.0.0.0/0"),
+					resource.TestCheckResourceAttr(resourceRuleName, "priority", "1"),
 				),
 			},
 			{
@@ -148,6 +149,96 @@ func TestAccNetworkingSecGroupRule_noPorts(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceRuleName, "ethertype", "IPv4"),
 					resource.TestCheckResourceAttr(resourceRuleName, "protocol", "icmp"),
 					resource.TestCheckResourceAttr(resourceRuleName, "remote_ip_prefix", "0.0.0.0/0"),
+				),
+			},
+			{
+				ResourceName:      resourceRuleName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccNetworkingSecGroupRule_remoteAddressGroup(t *testing.T) {
+	var secgroupRule rules.SecurityGroupRule
+	var resourceRuleName string = "huaweicloud_networking_secgroup_rule.test"
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNetworkingSecGroupRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkingSecGroupRule_remoteAddressGroup(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckNetworkingSecGroupRuleExists(resourceRuleName, &secgroupRule),
+					resource.TestCheckResourceAttrPair(resourceRuleName, "remote_address_group_id",
+						"huaweicloud_vpc_address_group.test", "id"),
+				),
+			},
+			{
+				ResourceName:      resourceRuleName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccNetworkingSecGroupRule_action(t *testing.T) {
+	var (
+		secgroupRule rules.SecurityGroupRule
+		allowResName string = "huaweicloud_networking_secgroup_rule.allow"
+		denyResName  string = "huaweicloud_networking_secgroup_rule.deny"
+	)
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNetworkingSecGroupRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkingSecGroupRule_action(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckNetworkingSecGroupRuleExists(allowResName, &secgroupRule),
+					resource.TestCheckResourceAttr(allowResName, "action", "allow"),
+					testAccCheckNetworkingSecGroupRuleExists(denyResName, &secgroupRule),
+					resource.TestCheckResourceAttr(denyResName, "action", "deny"),
+				),
+			},
+			{
+				ResourceName:      allowResName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      denyResName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccNetworkingSecGroupRule_priority(t *testing.T) {
+	var secgroupRule rules.SecurityGroupRule
+	var resourceRuleName string = "huaweicloud_networking_secgroup_rule.test"
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNetworkingSecGroupRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkingSecGroupRule_priority(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckNetworkingSecGroupRuleExists(resourceRuleName, &secgroupRule),
+					resource.TestCheckResourceAttr(resourceRuleName, "priority", "50"),
 				),
 			},
 			{
@@ -293,6 +384,72 @@ resource "huaweicloud_networking_secgroup_rule" "test" {
   ethertype         = "IPv4"
   protocol          = "icmp"
   remote_ip_prefix  = "0.0.0.0/0"
+}
+`, testAccNetworkingSecGroupRule_base(rName))
+}
+
+func testAccNetworkingSecGroupRule_remoteAddressGroup(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_vpc_address_group" "test" {
+  name = "%[2]s"
+
+  addresses = [
+    "192.168.10.12",
+    "192.168.11.0-192.168.11.240",
+  ]
+}
+
+resource "huaweicloud_networking_secgroup_rule" "test" {
+  security_group_id       = huaweicloud_networking_secgroup.secgroup_test.id
+  direction               = "ingress"
+  ethertype               = "IPv4"
+  ports                   = 80
+  protocol                = "tcp"
+  remote_address_group_id = huaweicloud_vpc_address_group.test.id
+}
+`, testAccNetworkingSecGroupRule_base(rName), rName)
+}
+
+func testAccNetworkingSecGroupRule_action(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_networking_secgroup_rule" "allow" {
+  security_group_id = huaweicloud_networking_secgroup.secgroup_test.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  ports             = 80
+  protocol          = "tcp"
+  action            = "allow"
+  remote_ip_prefix  = "0.0.0.0/0"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "deny" {
+  security_group_id = huaweicloud_networking_secgroup.secgroup_test.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  ports             = 8080
+  protocol          = "tcp"
+  action            = "deny"
+  remote_ip_prefix  = "0.0.0.0/0"
+}
+`, testAccNetworkingSecGroupRule_base(rName))
+}
+
+func testAccNetworkingSecGroupRule_priority(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_networking_secgroup_rule" "test" {
+  security_group_id = huaweicloud_networking_secgroup.secgroup_test.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  ports             = 80
+  protocol          = "tcp"
+  remote_ip_prefix  = "0.0.0.0/0"
+  priority          = 50
 }
 `, testAccNetworkingSecGroupRule_base(rName))
 }
