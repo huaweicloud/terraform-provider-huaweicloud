@@ -6,20 +6,24 @@ subcategory: "Document Database Service (DDS)"
 
 Manages a database role resource within HuaweiCloud.
 
-## Creating a role under the admin database of DDS instance
+## Example Usage
 
 ```hcl
 variable "instance_id" {}
 variable "role_name" {}
+variable "db_name" {}
 variable "owned_role_name" {}
+variable "owned_role_db_name" {}
 
 resource "huaweicloud_dds_database_role" "test" {
   instance_id = var.instance_id
 
-  name = var.role_name
+  name    = var.role_name
+  db_name = var.db_name
 
   roles {
-    name = var.owned_role_name
+    name    = var.owned_role_name
+    db_name = var.owned_role_db_name
   }
 }
 ```
@@ -38,9 +42,11 @@ The following arguments are supported:
   The name can contain `1` to `64` characters, only letters, digits, underscores (_), hyphens (-) and dots (.) are
   allowed. Changing this parameter will create a new role.
 
-* `db_name` - (Optional, String, ForceNew) Specifies the database name to which the role belongs. Defaults to **admin**.
+* `db_name` - (Required, String, ForceNew) Specifies the database name to which the role belongs.
   The name can contain `1` to `64` characters, only letters, digits and underscores (_) are allowed.
   Changing this parameter will create a new role.
+
+  -> After a DDS instances is created, the default database is **admin**.
 
 * `roles` - (Optional, List, ForceNew) Specifies the list of roles owned by the current role.
   The [object](#dds_database_owned_roles) structure is documented below.
@@ -53,8 +59,8 @@ The `roles` block supports:
   The name can contain `1` to `64` characters, only letters, digits, underscores (_), hyphens (-) and dots (.) are
   allowed. Changing this parameter will create a new role.
 
-* `db_name` - (Optional, String, ForceNew) Specifies the database name to which this owned role belongs.
-  Defaults to **admin**. Changing this parameter will create a new role.
+* `db_name` - (Required, String, ForceNew) Specifies the database name to which this owned role belongs.
+  Changing this parameter will create a new role.
 
 ## Attributes Reference
 
@@ -82,6 +88,13 @@ The `resources` block supports:
 * `collection` - The database collection type.
 
 * `db_name` - The database name.
+
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 2 minute.
+* `delete` - Default is 2 minute.
 
 ## Import
 

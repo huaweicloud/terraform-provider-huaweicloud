@@ -12,7 +12,7 @@ github.com/apparentlymart/go-cidr/cidr
 github.com/apparentlymart/go-textseg/textseg
 # github.com/apparentlymart/go-textseg/v13 v13.0.0
 github.com/apparentlymart/go-textseg/v13/textseg
-# github.com/chnsz/golangsdk v0.0.0-20220810060653-beb83c7f6d74
+# github.com/chnsz/golangsdk v0.0.0-20220812084135-197bb981194c
 ## explicit
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/internal
@@ -95,6 +95,7 @@ github.com/chnsz/golangsdk/openstack/dcs/v2/whitelists
 github.com/chnsz/golangsdk/openstack/dds/v3/flavors
 github.com/chnsz/golangsdk/openstack/dds/v3/instances
 github.com/chnsz/golangsdk/openstack/dds/v3/roles
+github.com/chnsz/golangsdk/openstack/dds/v3/users
 github.com/chnsz/golangsdk/openstack/dis/v2/streams
 github.com/chnsz/golangsdk/openstack/dli/v1/auth
 github.com/chnsz/golangsdk/openstack/dli/v1/databases
@@ -374,6 +375,7 @@ github.com/hashicorp/terraform-plugin-go/tfprotov6/internal/toproto
 github.com/hashicorp/terraform-plugin-go/tfprotov6/tf6server
 github.com/hashicorp/terraform-plugin-go/tftypes
 # github.com/hashicorp/terraform-plugin-log v0.2.0
+## explicit
 github.com/hashicorp/terraform-plugin-log/internal/logging
 github.com/hashicorp/terraform-plugin-log/tflog
 github.com/hashicorp/terraform-plugin-log/tfsdklog

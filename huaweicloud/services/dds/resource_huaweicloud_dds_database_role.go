@@ -55,7 +55,8 @@ func ResourceDatabaseRole() *schema.Resource {
 		DeleteContext: resourceDatabaseRoleDelete,
 
 		Timeouts: &schema.ResourceTimeout{
-			Default: schema.DefaultTimeout(2 * time.Minute),
+			Create: schema.DefaultTimeout(2 * time.Minute),
+			Delete: schema.DefaultTimeout(2 * time.Minute),
 		},
 
 		Importer: &schema.ResourceImporter{
@@ -86,14 +87,13 @@ func ResourceDatabaseRole() *schema.Resource {
 			},
 			"db_name": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 				ForceNew: true,
 				ValidateFunc: validation.All(
 					validation.StringMatch(regexp.MustCompile(`^\w*$`),
 						"The name can only contain letters, digits and underscores (_)."),
 					validation.StringLenBetween(1, 64),
 				),
-				Default: "admin",
 			},
 			"roles": {
 				Type:     schema.TypeList,
@@ -109,14 +109,13 @@ func ResourceDatabaseRole() *schema.Resource {
 						},
 						"db_name": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 							ForceNew: true,
 							ValidateFunc: validation.All(
 								validation.StringMatch(regexp.MustCompile(`^\w*$`),
 									"The name can only contain letters, digits and underscores (_)."),
 								validation.StringLenBetween(1, 64),
 							),
-							Default: "admin",
 						},
 					},
 				},
@@ -186,7 +185,7 @@ func resourceDatabaseRoleCreate(ctx context.Context, d *schema.ResourceData, met
 		Pending:      []string{"PENDING"},
 		Target:       []string{"ACTIVE"},
 		Refresh:      instanceActionsRefreshFunc(client, instanceId),
-		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        1 * time.Second,
 		PollInterval: 5 * time.Second,
 	}

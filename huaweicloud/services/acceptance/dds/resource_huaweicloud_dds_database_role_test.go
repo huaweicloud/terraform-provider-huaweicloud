@@ -157,16 +157,19 @@ func testAccDatabaseRole_basic(rName string) string {
 resource "huaweicloud_dds_database_role" "base" {
   instance_id = huaweicloud_dds_instance.test.id
 
-  name = "%[2]s-base"
+  name    = "%[2]s-base"
+  db_name = "admin"
 }
 
 resource "huaweicloud_dds_database_role" "test" {
   instance_id = huaweicloud_dds_instance.test.id
 
-  name = "%[2]s"
+  name    = "%[2]s"
+  db_name = "admin"
 
   roles {
-    name = huaweicloud_dds_database_role.base.name
+    name    = huaweicloud_dds_database_role.base.name
+    db_name = "admin"
   }
 }
 `, testAccDatabaseRole_base(rName), rName)
