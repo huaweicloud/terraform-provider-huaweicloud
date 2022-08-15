@@ -159,6 +159,7 @@ func ResourceCCENodeV3() *schema.Resource {
 						"kms_key_id": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 						},
 					}},
