@@ -91,6 +91,9 @@ The `rules` block supports:
 * `ports` - The port value range.
 * `remote_ip_prefix` - The remote IP address. The value can be in the CIDR format or IP addresses.
 * `remote_group_id` - The ID of the peer security group.
+* `remote_address_group_id` - The ID of the remote address group.
+* `action` - The effective policy.
+* `priority` - The priority number.
 
 ## Timeouts
 

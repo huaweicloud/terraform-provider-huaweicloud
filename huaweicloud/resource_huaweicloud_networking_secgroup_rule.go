@@ -22,6 +22,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// Some parameters are only support creation in ver.3 API.
+var advancedParams = []string{"ports", "remote_address_group_id", "action", "priority"}
+
 func ResourceNetworkingSecGroupRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNetworkingSecGroupRuleCreate,
@@ -63,6 +66,7 @@ func ResourceNetworkingSecGroupRule() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			// The port range parameters conflict with advanced parameters.
 			"port_range_min": {
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -98,10 +102,18 @@ func ResourceNetworkingSecGroupRule() *schema.Resource {
 				),
 			},
 			"remote_group_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Computed:     true,
+				ExactlyOneOf: []string{"remote_address_group_id", "remote_ip_prefix"},
+			},
+			"remote_address_group_id": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				Computed:      true,
+				ConflictsWith: []string{"port_range_min", "port_range_max"},
 			},
 			"remote_ip_prefix": {
 				Type:         schema.TypeString,
@@ -113,6 +125,24 @@ func ResourceNetworkingSecGroupRule() *schema.Resource {
 					return strings.ToLower(v.(string))
 				},
 			},
+			"action": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"allow", "deny",
+				}, false),
+				ConflictsWith: []string{"port_range_min", "port_range_max"},
+			},
+			"priority": {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				Computed:      true,
+				ForceNew:      true,
+				ValidateFunc:  validation.IntBetween(1, 100),
+				ConflictsWith: []string{"port_range_min", "port_range_max"},
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -120,6 +150,15 @@ func ResourceNetworkingSecGroupRule() *schema.Resource {
 			},
 		},
 	}
+}
+
+func doesAdvanceddParamUsed(d *schema.ResourceData, params []string) bool {
+	for _, pk := range params {
+		if _, ok := d.GetOk(pk); ok {
+			return true
+		}
+	}
+	return false
 }
 
 func resourceNetworkingSecGroupRuleCreateV1(ctx context.Context, d *schema.ResourceData,
@@ -161,22 +200,25 @@ func resourceNetworkingSecGroupRuleCreateV3(ctx context.Context, d *schema.Resou
 	}
 
 	opt := v3Rules.CreateOpts{
-		Description:     d.Get("description").(string),
-		SecurityGroupId: d.Get("security_group_id").(string),
-		RemoteGroupId:   d.Get("remote_group_id").(string),
-		RemoteIpPrefix:  d.Get("remote_ip_prefix").(string),
-		Protocol:        d.Get("protocol").(string),
-		Ethertype:       d.Get("ethertype").(string),
-		Direction:       d.Get("direction").(string),
-		MultiPort:       d.Get("ports").(string),
+		Description:          d.Get("description").(string),
+		SecurityGroupId:      d.Get("security_group_id").(string),
+		RemoteGroupId:        d.Get("remote_group_id").(string),
+		RemoteAddressGroupId: d.Get("remote_address_group_id").(string),
+		RemoteIpPrefix:       d.Get("remote_ip_prefix").(string),
+		Protocol:             d.Get("protocol").(string),
+		Ethertype:            d.Get("ethertype").(string),
+		Direction:            d.Get("direction").(string),
+		MultiPort:            d.Get("ports").(string),
+		Action:               d.Get("action").(string),
+		Priority:             d.Get("priority").(int),
 	}
 
 	logp.Printf("[DEBUG] The createOpts of the Security Group rule is: %#v", opt)
 	resp, err := v3Rules.Create(v3Client, opt)
 	if err != nil {
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			return fmtp.DiagErrorf("The ports parameter is not supported for this region, please use port_range_min " +
-				"and port_range_max instead.")
+			return fmtp.DiagErrorf("The current region does not support creating security group rules through the "+
+				"ver.3 API: %#v", err)
 		}
 		return fmtp.DiagErrorf("Error creating Security Group rule: %s", err)
 	}
@@ -187,7 +229,7 @@ func resourceNetworkingSecGroupRuleCreateV3(ctx context.Context, d *schema.Resou
 
 func resourceNetworkingSecGroupRuleCreate(ctx context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
-	if _, ok := d.GetOk("ports"); ok {
+	if doesAdvanceddParamUsed(d, advancedParams) {
 		return resourceNetworkingSecGroupRuleCreateV3(ctx, d, meta)
 	}
 	return resourceNetworkingSecGroupRuleCreateV1(ctx, d, meta)
@@ -232,6 +274,9 @@ func resourceNetworkingSecGroupRuleRead(_ context.Context, d *schema.ResourceDat
 		logp.Printf("[DEBUG] Retrieved Security Group rule (%s): %+v", d.Id(), rule)
 		mErr = multierror.Append(mErr,
 			d.Set("ports", rule.MultiPort),
+			d.Set("action", rule.Action),
+			d.Set("priority", rule.Priority),
+			d.Set("remote_address_group_id", rule.RemoteAddressGroupId),
 		)
 	}
 

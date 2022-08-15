@@ -65,8 +65,20 @@ var securityGroupRuleSchema = &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"remote_address_group_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"description": {
 				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"action": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"priority": {
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
 		},
@@ -286,13 +298,16 @@ func flattenSecurityGroupRulesV3(rules []v3rules.SecurityGroupRule) ([]map[strin
 	sgRules := make([]map[string]interface{}, len(rules))
 	for i, rule := range rules {
 		ruleInfo := map[string]interface{}{
-			"id":               rule.ID,
-			"direction":        rule.Direction,
-			"protocol":         rule.Protocol,
-			"ethertype":        rule.Ethertype,
-			"remote_ip_prefix": rule.RemoteIpPrefix,
-			"remote_group_id":  rule.RemoteGroupId,
-			"description":      rule.Description,
+			"id":                      rule.ID,
+			"direction":               rule.Direction,
+			"protocol":                rule.Protocol,
+			"ethertype":               rule.Ethertype,
+			"remote_ip_prefix":        rule.RemoteIpPrefix,
+			"remote_group_id":         rule.RemoteGroupId,
+			"remote_address_group_id": rule.RemoteAddressGroupId,
+			"description":             rule.Description,
+			"action":                  rule.Action,
+			"priority":                rule.Priority,
 		}
 		if rule.MultiPort != "" {
 			ruleInfo["ports"] = rule.MultiPort
