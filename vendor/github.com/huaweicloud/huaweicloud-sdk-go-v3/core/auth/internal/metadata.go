@@ -1,28 +1,31 @@
+// Copyright 2022 Huawei Technologies Co.,Ltd.
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 package internal
 
 import (
 	"encoding/json"
-	"errors"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/impl"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/request"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/response"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
+	"io/ioutil"
+	"net/http"
 	"time"
 )
-
-const (
-	timeOut = 3
-	host    = "169.254.169.254"
-	errMsg  = "unable to get temporary credential"
-	method  = "GET"
-	path    = "/openstack/latest/securitykey"
-)
-
-var getTemporaryCredentialFromMetadataRequest = request.NewHttpRequestBuilder().
-	WithEndpoint("http://" + host).
-	WithMethod(method).
-	WithPath(path).
-	Build()
 
 type GetTemporaryCredentialFromMetadataResponse struct {
 	Credential *Credential `json:"credential,omitempty"`
@@ -38,49 +41,33 @@ type Credential struct {
 	Securitytoken string `json:"securitytoken"`
 }
 
-func GetTemporaryCredential(client *impl.DefaultHttpClient) (*Credential, error) {
+func GetCredentialFromMetadata() (*Credential, error) {
+	client := &http.Client{
+		Timeout: 3 * time.Second,
+	}
+	resp, err := client.Get("http://169.254.169.254/openstack/latest/securitykey")
 
-	type TempResp struct {
-		value *response.DefaultHttpResponse
-		err   error
+	if err != nil {
+		return nil, err
 	}
 
-	respChan := make(chan TempResp, 1)
-
-	go func() {
-		defer close(respChan)
-
-		resp, err := client.SyncInvokeHttp(getTemporaryCredentialFromMetadataRequest)
-		respChan <- TempResp{
-			value: resp,
-			err:   err,
-		}
-	}()
-
-	select {
-	case tempResp := <-respChan:
-		if tempResp.err != nil {
-			return nil, tempResp.err
-		}
-
-		if tempResp.value.GetStatusCode() != 200 {
-			return nil, sdkerr.NewServiceResponseError(tempResp.value.Response)
-		}
-
-		concreteResp := new(GetTemporaryCredentialFromMetadataResponse)
-		err := json.Unmarshal([]byte(tempResp.value.GetBody()), concreteResp)
-
-		if err != nil {
-			return nil, err
-		}
-
-		if concreteResp.Credential == nil {
-			return nil, errors.New(errMsg)
-		}
-
-		return concreteResp.Credential, nil
-	case <-time.After(time.Second * timeOut):
-		return nil, errors.New(errMsg)
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
 	}
 
+	if resp.StatusCode >= 400 {
+		return nil, &sdkerr.ServiceResponseError{
+			StatusCode:   resp.StatusCode,
+			ErrorMessage: string(body),
+		}
+	}
+
+	respModel := &GetTemporaryCredentialFromMetadataResponse{}
+	err = json.Unmarshal(body, respModel)
+	if err != nil {
+		return nil, err
+	}
+	return respModel.Credential, nil
 }

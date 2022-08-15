@@ -405,15 +405,15 @@ github.com/hashicorp/terraform-registry-address
 github.com/hashicorp/terraform-svchost
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 github.com/hashicorp/yamux
-# github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.0.92
+# github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.0.102
 ## explicit
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/basic
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/cache
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/global
-github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/helper
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/internal
+github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/provider
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/signer
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/converter
@@ -431,6 +431,8 @@ github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdktime
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/utils
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2/model
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v1
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v1/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3
@@ -643,6 +645,8 @@ google.golang.org/protobuf/types/known/anypb
 google.golang.org/protobuf/types/known/durationpb
 google.golang.org/protobuf/types/known/emptypb
 google.golang.org/protobuf/types/known/timestamppb
+# gopkg.in/ini.v1 v1.66.6
+gopkg.in/ini.v1
 # gopkg.in/yaml.v2 v2.4.0
 gopkg.in/yaml.v2
 # gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c

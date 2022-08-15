@@ -1,16 +1,3 @@
-package signer
-
-import (
-	"crypto/sha256"
-	"encoding/hex"
-	"fmt"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/request"
-	"golang.org/x/crypto/hkdf"
-	"io"
-	"strings"
-	"time"
-)
-
 // Copyright 2020 Huawei Technologies Co.,Ltd.
 //
 // Licensed to the Apache Software Foundation (ASF) under one
@@ -29,6 +16,19 @@ import (
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
+package signer
+
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/request"
+	"golang.org/x/crypto/hkdf"
+	"io"
+	"strings"
+	"time"
+)
 
 const (
 	DerivationAlgorithm = "V11-HMAC-SHA256"

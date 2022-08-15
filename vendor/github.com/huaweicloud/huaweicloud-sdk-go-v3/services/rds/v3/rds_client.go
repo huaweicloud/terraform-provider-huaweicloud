@@ -1056,6 +1056,28 @@ func (c *RdsClient) SetSecurityGroupInvoker(request *model.SetSecurityGroupReque
 	return &SetSecurityGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// SetSensitiveSlowLog 慢日志敏感信息的开关
+//
+// V3慢日志敏感信息的开关
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *RdsClient) SetSensitiveSlowLog(request *model.SetSensitiveSlowLogRequest) (*model.SetSensitiveSlowLogResponse, error) {
+	requestDef := GenReqDefForSetSensitiveSlowLog()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.SetSensitiveSlowLogResponse), nil
+	}
+}
+
+// SetSensitiveSlowLogInvoker 慢日志敏感信息的开关
+func (c *RdsClient) SetSensitiveSlowLogInvoker(request *model.SetSensitiveSlowLogRequest) *SetSensitiveSlowLogInvoker {
+	requestDef := GenReqDefForSetSensitiveSlowLog()
+	return &SetSensitiveSlowLogInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ShowAuditlogDownloadLink 生成审计日志下载链接
 //
 // 生成审计日志下载链接。

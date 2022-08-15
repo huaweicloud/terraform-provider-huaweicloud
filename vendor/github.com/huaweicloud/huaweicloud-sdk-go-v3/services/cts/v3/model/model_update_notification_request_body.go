@@ -30,8 +30,10 @@ type UpdateNotificationRequestBody struct {
 	// 消息通知服务的topic_urn或者函数工作流的func_urn，当“status”字段为enabled时，该字段必填。 - 消息通知服务的topic_urn可以通过消息通知服务的查询主题列表API获取，示例：urn:smn:regionId:f96188c7ccaf4ffba0c9aa149ab2bd57:test_topic_v2。 - 函数工作流的func_urn可以通过函数工作流的获取函数列表API获取，示例：urn:fss:xxxxxxxxx:7aad83af3e8d42e99ac194e8419e2c9b:function:default:test。
 	TopicId *string `json:"topic_id,omitempty"`
 
-	// 关键操作通知id
+	// 关键操作通知id。
 	NotificationId string `json:"notification_id"`
+
+	Filter *Filter `json:"filter,omitempty"`
 }
 
 func (o UpdateNotificationRequestBody) String() string {

@@ -28,7 +28,7 @@ type Flavor struct {
 	AzStatus map[string]string `json:"az_status"`
 
 	// 规格所在az的描述。
-	AzDesc map[string]string `json:"az_desc,omitempty"`
+	AzDesc map[string]string `json:"az_desc"`
 
 	// 数组形式版本号
 	VersionName []string `json:"version_name"`

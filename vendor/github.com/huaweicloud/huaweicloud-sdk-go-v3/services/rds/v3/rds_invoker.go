@@ -569,6 +569,18 @@ func (i *SetSecurityGroupInvoker) Invoke() (*model.SetSecurityGroupResponse, err
 	}
 }
 
+type SetSensitiveSlowLogInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *SetSensitiveSlowLogInvoker) Invoke() (*model.SetSensitiveSlowLogResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.SetSensitiveSlowLogResponse), nil
+	}
+}
+
 type ShowAuditlogDownloadLinkInvoker struct {
 	*invoker.BaseInvoker
 }

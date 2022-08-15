@@ -1,4 +1,4 @@
-// Copyright 2020 Huawei Technologies Co.,Ltd.
+// Copyright 2022 Huawei Technologies Co.,Ltd.
 //
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
@@ -61,7 +61,7 @@ func (p *EnvProvider) GetRegion(regionId string) *Region {
 		return reg
 	}
 
-	envName := fmt.Sprintf("%s_%s_%s", regionEnvPrefix, p.serviceName, regionId)
+	envName := fmt.Sprintf("%s_%s_%s", regionEnvPrefix, p.serviceName, strings.ToUpper(strings.Replace(regionId, "-", "_", -1)))
 	endpoint := os.Getenv(envName)
 	if endpoint == "" {
 		return nil

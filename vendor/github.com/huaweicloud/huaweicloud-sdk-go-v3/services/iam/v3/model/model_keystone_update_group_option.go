@@ -15,7 +15,7 @@ type KeystoneUpdateGroupOption struct {
 	// 用户组所属账号ID，获取方式请参见：[获取账号ID](https://support.huaweicloud.com/api-iam/iam_17_0002.html)。
 	DomainId *string `json:"domain_id,omitempty"`
 
-	// 用户组名，长度小于等于64字节。name与description至少填写一个。
+	// 用户组名，长度小于等于128字符。name与description至少填写一个。
 	Name *string `json:"name,omitempty"`
 }
 
