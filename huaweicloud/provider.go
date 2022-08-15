@@ -433,7 +433,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_elb_certificate": elb.DataSourceELBCertificateV3(),
 
 			"huaweicloud_nat_gateway":          DataSourceNatGatewayV2(),
-			"huaweicloud_networking_port":      DataSourceNetworkingPortV2(),
+			"huaweicloud_networking_port":      vpc.DataSourceNetworkingPortV2(),
 			"huaweicloud_networking_secgroup":  DataSourceNetworkingSecGroup(),
 			"huaweicloud_networking_secgroups": vpc.DataSourceNetworkingSecGroups(),
 
@@ -480,7 +480,7 @@ func Provider() *schema.Provider {
 
 			// Legacy
 			"huaweicloud_images_image_v2":        ims.DataSourceImagesImageV2(),
-			"huaweicloud_networking_port_v2":     DataSourceNetworkingPortV2(),
+			"huaweicloud_networking_port_v2":     vpc.DataSourceNetworkingPortV2(),
 			"huaweicloud_networking_secgroup_v2": DataSourceNetworkingSecGroup(),
 
 			"huaweicloud_kms_key_v1":      DataSourceKmsKeyV1(),

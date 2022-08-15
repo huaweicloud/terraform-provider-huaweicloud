@@ -1,4 +1,4 @@
-package huaweicloud
+package vpc
 
 import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -102,7 +102,7 @@ func DataSourceNetworkingPortV2() *schema.Resource {
 
 func dataSourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -212,7 +212,7 @@ func dataSourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) er
 	d.Set("mac_address", port.MACAddress)
 	d.Set("device_owner", port.DeviceOwner)
 	d.Set("device_id", port.DeviceID)
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 	d.Set("all_security_group_ids", port.SecurityGroups)
 	d.Set("all_fixed_ips", expandNetworkingPortFixedIPToStringSlice(port.FixedIPs))
 
