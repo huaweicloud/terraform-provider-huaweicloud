@@ -54,6 +54,8 @@ type ConfigurationResp struct {
 	Strategy StrategyResp `json:"strategy"`
 	// Lifecycle.
 	Lifecycle LifecycleResp `json:"lifecycle"`
+	// Policy list of log collection.
+	LogCollectionPolicy []LogCollectionPolicyResp `json:"log"`
 	// Scheduling policy.
 	Scheduler SchedulerResp `json:"scheduler"`
 	// Health check.
@@ -121,6 +123,24 @@ type ProcessResp struct {
 	Type string `json:"type" required:"true"`
 	// Start post-processing or stop pre-processing parameters.
 	Parameters ProcessParams `json:"parameters" required:"true"`
+}
+
+// LogCollectionPolicyResp is an object represents the details of the log collection policy.
+type LogCollectionPolicyResp struct {
+	// Container mounting path.
+	LogPath string `json:"logPath"`
+	// The extend host path, the valid values are as follows:
+	//	None
+	//	PodUID
+	//	PodName
+	//	PodUID/ContainerName
+	//	PodName/ContainerName
+	// If omited, means container mounting.
+	HostExtendPath string `json:"hostExtendPath"`
+	// Aging period.
+	AgingPeriod string `json:"rotate"`
+	// Host mounting path.
+	HostPath string `json:"hostPath"`
 }
 
 // SchedulerResp is an object represents the scheduling policy.

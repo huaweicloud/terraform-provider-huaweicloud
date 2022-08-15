@@ -95,6 +95,8 @@ type Configuration struct {
 	Strategy *Strategy `json:"strategy,omitempty"`
 	// Lifecycle.
 	Lifecycle *Lifecycle `json:"lifecycle,omitempty"`
+	// Policy list of log collection.
+	LogCollectionPolicies []LogCollectionPolicy `json:"log,omitempty"`
 	// Scheduling policy.
 	Scheduler *Scheduler `json:"scheduler,omitempty"`
 	// Health check.
@@ -190,6 +192,24 @@ type ProcessParams struct {
 	Path string `json:"path,omitempty"`
 	// Defaults to the IP address of the POD instance. You can also specify it yourself. Applies to http type.
 	Host string `json:"host,omitempty"`
+}
+
+// LogCollectionPolicy is an object that specifies the policy of the log collection.
+type LogCollectionPolicy struct {
+	// Container mounting path.
+	LogPath string `json:"logPath" required:"ture"`
+	// Aging period.
+	AgingPeriod string `json:"rotate" required:"ture"`
+	// The extended host path, the valid values are as follows:
+	//	None
+	//	PodUID
+	//	PodName
+	//	PodUID/ContainerName
+	//	PodName/ContainerName
+	// If omited, means container mounting.
+	HostExtendPath string `json:"hostExtendPath,omitempty"`
+	// Host mounting path.
+	HostPath string `json:"hostPath,omitempty"`
 }
 
 // Scheduler is an object that specifies the scheduling policy.
