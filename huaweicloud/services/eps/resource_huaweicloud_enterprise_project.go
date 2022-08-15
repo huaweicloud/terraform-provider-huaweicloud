@@ -37,7 +37,7 @@ func ResourceEnterpriseProject() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile("^[a-zA-Z0-9_-]{1,64}$"),
+					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa5a-zA-Z0-9_-]{1,64}$"),
 						"The name consists of 1 to 64 characters, and only contains letters, digits, "+
 							"underscores (_), and hyphens (-)."),
 					validation.StringDoesNotMatch(regexp.MustCompile("(?i)default"),
