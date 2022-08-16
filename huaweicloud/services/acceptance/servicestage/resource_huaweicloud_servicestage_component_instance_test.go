@@ -37,8 +37,6 @@ func TestAccComponentInstance_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckRepoTokenAuth(t)
-			acceptance.TestAccPreCheckComponent(t)
 			acceptance.TestAccPreCheckComponentDeployment(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -205,14 +203,9 @@ resource "huaweicloud_servicestage_application" "test" {
   name = "%[1]s"
 }
 
-resource "huaweicloud_servicestage_repo_token_authorization" "test" {
-  type  = "github"
-  name  = "%[1]s"
-  host  = "%[2]s"
-  token = "%[3]s"
-}
-
 resource "huaweicloud_servicestage_component" "test" {
+  depends_on = [huaweicloud_cce_node.test]
+
   application_id = huaweicloud_servicestage_application.test.id
 
   name      = "%[1]s"
@@ -220,8 +213,7 @@ resource "huaweicloud_servicestage_component" "test" {
   runtime   = "Docker"
   framework = "Java Classis"
 }
-`, rName, acceptance.HW_GITHUB_REPO_HOST, acceptance.HW_GITHUB_PERSONAL_TOKEN, acceptance.HW_GITHUB_REPO_URL,
-		acceptance.HW_DOMAIN_NAME)
+`, rName)
 }
 
 func testAccComponentInstance_basic(rName string) string {
@@ -267,19 +259,16 @@ resource "huaweicloud_servicestage_component_instance" "test" {
       host_path = "/tmp"
 
       container_mounting {
-        path             = "/tmp/01"
-        host_extend_path = "None"
-        aging_period     = "Hourly"
+        path         = "/tmp/01"
+        aging_period = "Hourly"
       }
       container_mounting {
-        path             = "/tmp/02"
-        host_extend_path = "None"
-        aging_period     = "Daily"
+        path         = "/tmp/02"
+        aging_period = "Daily"
       }
       container_mounting {
-        path             = "/tmp/03"
-        host_extend_path = "None"
-        aging_period     = "Weekly"
+        path         = "/tmp/03"
+        aging_period = "Weekly"
       }
       container_mounting {
         path             = "/tmp/04"
@@ -301,9 +290,22 @@ resource "huaweicloud_servicestage_component_instance" "test" {
       host_path = "/mytest"
 
       container_mounting {
-        path             = "/mytest/01"
-        host_extend_path = "None"
-        aging_period     = "Hourly"
+        path         = "/mytest/01"
+        aging_period = "Hourly"
+      }
+    }
+
+    storage {
+      type = "HostPath"
+
+      parameter {
+        path = "/tmp"
+      }
+
+      mount {
+        path     = "/local/01"
+        readonly = false
+        subpath  = "./store/01"
       }
     }
   }

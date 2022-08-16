@@ -281,6 +281,8 @@ resource "huaweicloud_servicestage_application" "test" {
 }
 
 resource "huaweicloud_servicestage_component" "test" {
+  depends_on = [huaweicloud_cce_node.test]
+
   application_id = huaweicloud_servicestage_application.test.id
   type           = "Webapp"
   runtime        = "Nodejs14"
@@ -315,6 +317,8 @@ resource "huaweicloud_servicestage_application" "test" {
 }
 
 resource "huaweicloud_servicestage_component" "test" {
+  depends_on = [huaweicloud_cce_node.test]
+
   application_id = huaweicloud_servicestage_application.test.id
   type           = "Webapp"
   runtime        = "Nodejs14"

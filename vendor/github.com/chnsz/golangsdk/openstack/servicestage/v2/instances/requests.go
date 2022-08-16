@@ -96,7 +96,7 @@ type Configuration struct {
 	// Lifecycle.
 	Lifecycle *Lifecycle `json:"lifecycle,omitempty"`
 	// Policy list of log collection.
-	LogCollectionPolicies []LogCollectionPolicy `json:"log,omitempty"`
+	LogCollectionPolicies []LogCollectionPolicy `json:"logs,omitempty"`
 	// Scheduling policy.
 	Scheduler *Scheduler `json:"scheduler,omitempty"`
 	// Health check.
@@ -143,9 +143,9 @@ type Mount struct {
 	// Specifies the mounted disk path.
 	Path string `json:"path" required:"true"`
 	// Specifies the mounted disk permission is read-only or read-write.
-	ReadOnly bool `json:"readOnly" required:"true"`
+	ReadOnly *bool `json:"readOnly" required:"true"`
 	// Specifies the subpath of the mounted disk.
-	SubPath string `json:"subpath,omitempty"`
+	SubPath string `json:"subPath,omitempty"`
 }
 
 // Strategy is an object that specifies the upgrade type, including in-place upgrade and rolling upgrade.
