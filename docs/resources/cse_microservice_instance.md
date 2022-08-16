@@ -105,6 +105,8 @@ The following arguments are supported:
 * `properties` - (Optional, String, ForceNew) Specifies the extended attributes.
   Changing this will create a new microservice instance.
 
+  -> The internal key-value pair cannot be configured or overwritten, such as **engineID** and **engineName**.
+
 * `health_check` - (Optional, List, ForceNew) Specifies the health check configuration.
   The [object](#microservice_instance_health_check) structure is documented below.
   Changing this will create a new microservice instance.
