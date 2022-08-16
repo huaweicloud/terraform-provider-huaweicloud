@@ -290,7 +290,8 @@ func setApigIngressAccess(d *schema.ResourceData, config *config.Config, resp in
 			return fmtp.Errorf("Error creating VPC client: %s", err)
 		}
 		opt := eips.ListOpts{
-			PublicIp: []string{publicAddress},
+			PublicIp:            []string{publicAddress},
+			EnterpriseProjectId: "all_granted_eps",
 		}
 		allPages, err := eips.List(client, opt).AllPages()
 		if err != nil {

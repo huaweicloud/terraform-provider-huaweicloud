@@ -472,7 +472,8 @@ func resourceBmsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 			return fmtp.DiagErrorf("Error creating networking client: %s", err)
 		}
 
-		if eipID, err := common.GetEipIDbyAddress(eipClient, publicIP); err == nil {
+		epsID := "all_granted_eps"
+		if eipID, err := common.GetEipIDbyAddress(eipClient, publicIP, epsID); err == nil {
 			resourceIDs = append(resourceIDs, eipID)
 		} else {
 			return fmtp.DiagErrorf("Error fetching EIP ID of BMS server (%s): %s", d.Id(), err)

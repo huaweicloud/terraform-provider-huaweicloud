@@ -53,9 +53,10 @@ func GetEnterpriseProjectID(d *schema.ResourceData, config *config.Config) strin
 }
 
 // GetEipIDbyAddress returns the EIP ID of address when success.
-func GetEipIDbyAddress(client *golangsdk.ServiceClient, address string) (string, error) {
+func GetEipIDbyAddress(client *golangsdk.ServiceClient, address, epsID string) (string, error) {
 	listOpts := &eips.ListOpts{
-		PublicIp: []string{address},
+		PublicIp:            []string{address},
+		EnterpriseProjectId: epsID,
 	}
 	pages, err := eips.List(client, listOpts).AllPages()
 	if err != nil {

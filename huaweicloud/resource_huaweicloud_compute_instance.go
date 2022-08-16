@@ -1807,7 +1807,8 @@ func calcUnsubscribeResources(d *schema.ResourceData, cfg *config.Config) ([]str
 		}
 
 		eipAddr := d.Get("public_ip").(string)
-		if eipID, err := common.GetEipIDbyAddress(eipClient, eipAddr); err == nil {
+		epsID := "all_granted_eps"
+		if eipID, err := common.GetEipIDbyAddress(eipClient, eipAddr, epsID); err == nil {
 			mainResources = append(mainResources, eipID)
 		} else {
 			return nil, fmt.Errorf("error fetching EIP ID of ECS (%s): %s", d.Id(), err)

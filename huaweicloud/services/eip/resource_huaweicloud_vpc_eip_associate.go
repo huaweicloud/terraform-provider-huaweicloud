@@ -127,7 +127,8 @@ func resourceEIPAssociateCreate(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	publicIP := d.Get("public_ip").(string)
-	publicID, err := getEIPByAddress(vpcClient, publicIP)
+	epsID := "all_granted_eps"
+	publicID, err := common.GetEipIDbyAddress(vpcClient, publicIP, epsID)
 	if err != nil {
 		return fmtp.DiagErrorf("Unable to get ID of public IP %s: %s", publicIP, err)
 	}
@@ -222,27 +223,6 @@ func resourceEIPAssociateDelete(_ context.Context, d *schema.ResourceData, meta 
 	}
 
 	return nil
-}
-
-func getEIPByAddress(client *golangsdk.ServiceClient, address string) (string, error) {
-	listOpts := eips.ListOpts{
-		PublicIp: []string{address},
-	}
-
-	pages, err := eips.List(client, listOpts).AllPages()
-	if err != nil {
-		return "", err
-	}
-	allEips, err := eips.ExtractPublicIPs(pages)
-	if err != nil {
-		return "", fmtp.Errorf("Unable to retrieve EIPs: %s ", err)
-	}
-
-	if len(allEips) != 1 {
-		return "", fmtp.Errorf("unable to determine the ID of %s", address)
-	}
-
-	return allEips[0].ID, nil
 }
 
 func bindPort(client *golangsdk.ServiceClient, eipID, portID string, timeout time.Duration) error {
