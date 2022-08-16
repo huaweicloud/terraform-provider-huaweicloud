@@ -7,6 +7,10 @@ import (
 	"github.com/chnsz/golangsdk/pagination"
 )
 
+var requestOpts = golangsdk.RequestOpts{
+	MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+}
+
 // CreateOptsBuilder allows extensions to add additional parameters to the
 // Create request.
 type CreateOptsBuilder interface {
@@ -312,4 +316,30 @@ func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) pagination.Page
 		p := VolumePage{pagination.OffsetPageBase{PageResult: r}}
 		return p
 	})
+}
+
+func ListPage(client *golangsdk.ServiceClient, opts ListOptsBuilder) ([]Volume, error) {
+	url := listURL(client)
+	if opts != nil {
+		query, err := opts.ToVolumeListQuery()
+		if err != nil {
+			return nil, err
+		}
+		url += query
+	}
+
+	var rst golangsdk.Result
+	_, err := client.Get(url, &rst.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	var r struct {
+		Volumes []Volume
+	}
+	err = rst.ExtractInto(&r)
+	return r.Volumes, err
 }

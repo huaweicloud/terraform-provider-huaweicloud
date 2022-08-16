@@ -48,6 +48,9 @@ type CreateOps struct {
 	// and supports only letters, digits, and hyphens (-).
 	AccessUser string `json:"access_user,omitempty"`
 
+	KafkaManagerUser     string `json:"kafka_manager_user,omitempty"`
+	KafkaManagerPassword string `json:"kafka_manager_password,omitempty"`
+
 	// Indicates the ID of a VPC.
 	VPCID string `json:"vpc_id" required:"true"`
 

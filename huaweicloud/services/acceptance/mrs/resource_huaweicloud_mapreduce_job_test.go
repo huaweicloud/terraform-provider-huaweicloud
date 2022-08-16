@@ -119,6 +119,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
   name               = "%s"
   type               = "ANALYSIS"
   version            = "MRS 1.9.2"
+  safe_mode          = false
   manager_admin_pass = "%s"
   node_admin_pass    = "%s"
   subnet_id          = huaweicloud_vpc_subnet.test.id
@@ -127,7 +128,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
 
   master_nodes {
     flavor            = "c6.2xlarge.4.linux.bigdata"
-    node_number       = 1
+    node_number       = 2
     root_volume_type  = "SSD"
     root_volume_size  = 300
     data_volume_type  = "SSD"
@@ -136,7 +137,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
   }
   analysis_core_nodes {
     flavor            = "c6.2xlarge.4.linux.bigdata"
-    node_number       = 1
+    node_number       = 2
     root_volume_type  = "SSD"
     root_volume_size  = 300
     data_volume_type  = "SSD"

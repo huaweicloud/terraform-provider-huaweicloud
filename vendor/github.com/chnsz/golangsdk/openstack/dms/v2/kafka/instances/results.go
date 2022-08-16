@@ -43,6 +43,7 @@ type Instance struct {
 	StorageSpace               int                `json:"storage_space"`
 	PartitionNum               string             `json:"partition_num"`
 	BrokerNum                  int                `json:"broker_num"`
+	NodeNum                    int                `json:"node_num"`
 	UsedStorageSpace           int                `json:"used_storage_space"`
 	ConnectAddress             string             `json:"connect_address"`
 	Port                       int                `json:"port"`
@@ -70,6 +71,7 @@ type Instance struct {
 	SecurityGroupID            string             `json:"security_group_id"`
 	SecurityGroupName          string             `json:"security_group_name"`
 	SubnetID                   string             `json:"subnet_id"`
+	SubnetName                 string             `json:"subnet_name"`
 	AvailableZones             []string           `json:"available_zones"`
 	TotalStorageSpace          int                `json:"total_storage_space"`
 	PublicConnectionAddress    string             `json:"public_connect_address"`
@@ -80,7 +82,7 @@ type Instance struct {
 	RetentionPolicy            string             `json:"retention_policy"`
 	KafkaPublicStatus          string             `json:"kafka_public_status"`
 	PublicBandWidth            int                `json:"public_bandwidth"`
-	KafkaManagerUser           string             `json:"kafka_manager_user" required:"true"`
+	KafkaManagerUser           string             `json:"kafka_manager_user"`
 	EnableLogCollect           bool               `json:"enable_log_collection"`
 	CrossVpcInfo               string             `json:"cross_vpc_info"`
 	Ipv6Enable                 bool               `json:"ipv6_enable"`
