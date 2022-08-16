@@ -56,6 +56,9 @@ The following arguments are supported:
     After security authentication is disabled, all users who use the engine can use the engine without using the account
     and password, and have the same operation permissions on all services.
 
+* `version` - (Optional, String, ForceNew) Specifies the version of the dedicated microservice engine. The value can be:
+  **CSE2**. Defaults to: **CSE2**. Changing this will create a new engine.
+
 * `admin_pass` - (Optional, String, ForceNew) Specifies the account password. The corresponding account name is **root**.
   Required if `auth_type` is **RBAC**. Changing this will create a new engine.
   The password format must meet the following conditions:
