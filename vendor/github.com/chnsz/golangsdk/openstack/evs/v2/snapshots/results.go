@@ -109,3 +109,14 @@ func (r commonResult) Extract() (*Snapshot, error) {
 	err := r.ExtractInto(&s)
 	return s.Snapshot, err
 }
+
+type Link struct {
+	Href string `json:"href"`
+	Rel  string `json:"rel"`
+}
+
+type PagedList struct {
+	Count     int        `json:"count"`
+	Snapshots []Snapshot `json:"snapshots"`
+	Links     Link       `json:"snapshots_links"`
+}
