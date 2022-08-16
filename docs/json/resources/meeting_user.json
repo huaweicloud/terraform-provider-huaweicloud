@@ -1,0 +1,161 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_meeting_user": {
+          "block": {
+            "attributes": {
+              "account": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "account_name": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "account_password": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "app_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "app_key": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "corp_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "country": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "department_code": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "department_name": {
+                "type": "string",
+                "computed": true
+              },
+              "department_name_path": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "email": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "sensitive": true
+              },
+              "english_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "hide_phone": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_admin": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "is_send_notify": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "password": {
+                "type": "string",
+                "required": true,
+                "sensitive": true
+              },
+              "phone": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "sensitive": true
+              },
+              "signature": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "sip_number": {
+                "type": "string",
+                "computed": true
+              },
+              "sort_level": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "status": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "third_account": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "title": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "type": {
+                "type": "number",
+                "computed": true
+              },
+              "user_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "Meeting",
+            "name": "Meeting",
+            "catalog": "Enterprise Collaboration",
+            "name_cn": "华为云会议",
+            "catalog_cn": "企业协同"
+          }
+        }
+      }
+    }
+  }
+}

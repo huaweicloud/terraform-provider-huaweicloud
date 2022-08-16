@@ -1,0 +1,52 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_meeting_admin_assignment": {
+          "block": {
+            "attributes": {
+              "account": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "account_name": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "account_password": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "app_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "app_key": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Meeting",
+            "name": "Meeting",
+            "catalog": "Enterprise Collaboration",
+            "name_cn": "华为云会议",
+            "catalog_cn": "企业协同"
+          }
+        }
+      }
+    }
+  }
+}
