@@ -64,9 +64,8 @@ resource "huaweicloud_servicestage_component_instance" "default" {
       host_path = "/tmp"
 
       container_mounting {
-        path             = "/attached/01"
-        host_extend_path = "None"
-        aging_period     = "Hourly"
+        path         = "/attached/01"
+        aging_period = "Hourly"
       }
     }
   }
@@ -115,6 +114,7 @@ resource "huaweicloud_servicestage_component_instance" "test" {
   refer_resource {
     type = "ecs"
     id   = "Default"
+
     parameters = {
       hosts = "[\"${var.ecs_instance_id}\"]"
     }
@@ -355,7 +355,6 @@ The `container_mounting` block supports:
 * `host_extend_path` - (Optional, String) Specifies the extended host path.
   This parameter can be configured only when `host_path` is configured.
   The valid values are as follows:
-  + **None**
   + **PodUID**
   + **PodName**
   + **PodUID/ContainerName**

@@ -55,7 +55,7 @@ type ConfigurationResp struct {
 	// Lifecycle.
 	Lifecycle LifecycleResp `json:"lifecycle"`
 	// Policy list of log collection.
-	LogCollectionPolicy []LogCollectionPolicyResp `json:"log"`
+	LogCollectionPolicy []LogCollectionPolicyResp `json:"logs"`
 	// Scheduling policy.
 	Scheduler SchedulerResp `json:"scheduler"`
 	// Health check.

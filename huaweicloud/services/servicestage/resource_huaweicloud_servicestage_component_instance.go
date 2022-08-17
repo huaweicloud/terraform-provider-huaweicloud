@@ -492,13 +492,13 @@ func ResourceComponentInstance() *schema.Resource {
 							},
 						},
 						"log_collection_policy": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Optional: true,
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"container_mounting": {
-										Type:     schema.TypeList,
+										Type:     schema.TypeSet,
 										Required: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -706,13 +706,13 @@ func buildMountsList(mounts *schema.Set) []instances.Mount {
 		return nil
 	}
 
-	result := make([]instances.Mount, 0, mounts.Len())
+	result := make([]instances.Mount, mounts.Len())
 	for i, val := range mounts.List() {
 		mount := val.(map[string]interface{})
 		result[i] = instances.Mount{
 			Path:     mount["path"].(string),
 			SubPath:  mount["subpath"].(string),
-			ReadOnly: mount["readonly"].(bool),
+			ReadOnly: utils.Bool(mount["readonly"].(bool)),
 		}
 	}
 
@@ -738,7 +738,7 @@ func buildStoragesList(storages *schema.Set) []instances.Storage {
 		result[i] = instances.Storage{
 			Type:       storage["type"].(string),
 			Parameters: &parameters,
-			Mounts:     buildMountsList(storage["mounts"].(*schema.Set)),
+			Mounts:     buildMountsList(storage["mount"].(*schema.Set)),
 		}
 	}
 
@@ -797,17 +797,17 @@ func buildLifecycleStructure(lifecycles []interface{}) *instances.Lifecycle {
 	return &result
 }
 
-func buildLogCollectionPoliciesStructure(policies []interface{}) []instances.LogCollectionPolicy {
-	if len(policies) < 1 {
+func buildLogCollectionPoliciesStructure(policies *schema.Set) []instances.LogCollectionPolicy {
+	if policies.Len() < 1 {
 		return nil
 	}
 
-	result := make([]instances.LogCollectionPolicy, 0, len(policies))
-	for _, val := range policies {
+	result := make([]instances.LogCollectionPolicy, 0, policies.Len())
+	for _, val := range policies.List() {
 		policy := val.(map[string]interface{})
 		hostPath := policy["host_path"].(string)
-		cmList := policy["container_mounting"].([]interface{})
-		for _, val := range cmList {
+		cmSet := policy["container_mounting"].(*schema.Set)
+		for _, val := range cmSet.List() {
 			cm := val.(map[string]interface{})
 			result = append(result, instances.LogCollectionPolicy{
 				LogPath:        cm["path"].(string),
@@ -938,7 +938,7 @@ func buildConfigurationStructure(configs []interface{}) (instances.Configuration
 		Storages:              buildStoragesList(config["storage"].(*schema.Set)),
 		Strategy:              buildStrategyStructure(config["strategy"].([]interface{})),
 		Lifecycle:             buildLifecycleStructure(config["lifecycle"].([]interface{})),
-		LogCollectionPolicies: buildLogCollectionPoliciesStructure(config["log_collection_policy"].([]interface{})),
+		LogCollectionPolicies: buildLogCollectionPoliciesStructure(config["log_collection_policy"].(*schema.Set)),
 		Scheduler:             buildSchedulerStructure(config["lifecycle"].([]interface{})),
 		Probe:                 probe,
 	}, nil
@@ -1160,7 +1160,7 @@ func flattenStorages(storages []instances.StorageResp) (result []map[string]inte
 					"claim_name": val.Parameters.ClaimName,
 				},
 			},
-			"mounts": flattenMounts(val.Mounts),
+			"mount": flattenMounts(val.Mounts),
 		})
 	}
 
