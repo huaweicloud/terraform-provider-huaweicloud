@@ -120,27 +120,6 @@ func buildHTTPConfig(c *Config) *hcconfig.HttpConfig {
 	return httpConfig
 }
 
-// try to get the endpoint from customizing map
-func getServiceEndpoint(c *Config, srv, region string) string {
-	if endpoint, ok := c.Endpoints[srv]; ok {
-		return endpoint
-	}
-
-	// get the endpoint from build-in catalog
-	catalog, ok := allServiceCatalog[srv]
-	if !ok {
-		return ""
-	}
-
-	var ep string
-	if catalog.Scope == "global" && !c.RegionClient {
-		ep = fmt.Sprintf("https://%s.%s/", catalog.Name, c.Cloud)
-	} else {
-		ep = fmt.Sprintf("https://%s.%s.%s/", catalog.Name, region, c.Cloud)
-	}
-	return ep
-}
-
 // HcVpcV3Client is the VPC service client using huaweicloud-sdk-go-v3 package
 func (c *Config) HcVpcV3Client(region string) (*vpcv3.VpcClient, error) {
 	hcClient, err := NewHcClient(c, region, "vpc", false)
@@ -270,7 +249,7 @@ func (c *Config) HcCdnV1Client(region string) (*cdnv1.CdnClient, error) {
 
 // NewHcClient is the common client using huaweicloud-sdk-go-v3 package
 func NewHcClient(c *Config, region, product string, globalFlag bool) (*core.HcHttpClient, error) {
-	endpoint := getServiceEndpoint(c, product, region)
+	endpoint := GetServiceEndpoint(c, product, region)
 	if endpoint == "" {
 		return nil, fmt.Errorf("failed to get the endpoint of %q service in region %s", product, region)
 	}

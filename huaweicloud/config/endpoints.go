@@ -1,5 +1,7 @@
 package config
 
+import "fmt"
+
 // ServiceCatalog defines a struct which was used to generate a service client for huaweicloud.
 // the endpoint likes https://{Name}.{Region}.myhuaweicloud.com/{Version}/{project_id}/{ResourceBase}
 // For more information, please refer to Config.NewServiceClient
@@ -605,4 +607,25 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v1",
 		Product: "VOD",
 	},
+}
+
+// GetServiceEndpoint try to get the endpoint from customizing map
+func GetServiceEndpoint(c *Config, srv, region string) string {
+	if endpoint, ok := c.Endpoints[srv]; ok {
+		return endpoint
+	}
+
+	// get the endpoint from build-in catalog
+	catalog, ok := allServiceCatalog[srv]
+	if !ok {
+		return ""
+	}
+
+	var ep string
+	if catalog.Scope == "global" && !c.RegionClient {
+		ep = fmt.Sprintf("https://%s.%s/", catalog.Name, c.Cloud)
+	} else {
+		ep = fmt.Sprintf("https://%s.%s.%s/", catalog.Name, region, c.Cloud)
+	}
+	return ep
 }
