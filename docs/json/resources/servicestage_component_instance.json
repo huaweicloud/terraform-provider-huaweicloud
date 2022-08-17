@@ -248,6 +248,40 @@
                       "nesting_mode": "list",
                       "max_items": 1
                     },
+                    "log_collection_policy": {
+                      "block": {
+                        "attributes": {
+                          "host_path": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        },
+                        "block_types": {
+                          "container_mounting": {
+                            "block": {
+                              "attributes": {
+                                "aging_period": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "default": "Hourly"
+                                },
+                                "host_extend_path": {
+                                  "type": "string",
+                                  "optional": true
+                                },
+                                "path": {
+                                  "type": "string",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    },
                     "probe": {
                       "block": {
                         "block_types": {
