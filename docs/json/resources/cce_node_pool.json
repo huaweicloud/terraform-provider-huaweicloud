@@ -163,6 +163,7 @@
                     "kms_key_id": {
                       "type": "string",
                       "optional": true,
+                      "computed": true,
                       "forcenew": true
                     },
                     "size": {

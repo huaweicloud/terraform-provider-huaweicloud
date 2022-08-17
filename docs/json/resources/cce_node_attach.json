@@ -26,6 +26,7 @@
                         "string"
                       ],
                       "hw_passthrough": "bool",
+                      "kms_key_id": "string",
                       "size": "number",
                       "volumetype": "string"
                     }
