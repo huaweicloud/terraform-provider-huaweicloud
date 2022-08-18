@@ -3,7 +3,6 @@ package huaweicloud
 import (
 	"context"
 	"fmt"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cmdb"
 	"log"
 	"strings"
 	"sync"
@@ -534,9 +533,9 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"huaweicloud_aom_application": cmdb.ResourceAomApplication(),
-			"huaweicloud_aom_component":   cmdb.ResourceAomComponent(),
-			"huaweicloud_aom_environment": cmdb.ResourceAomEnvironment(),
+			"huaweicloud_aom_application": aom.ResourceAomApplication(),
+			"huaweicloud_aom_component":   aom.ResourceAomComponent(),
+			"huaweicloud_aom_environment": aom.ResourceAomEnvironment(),
 
 			"huaweicloud_aom_alarm_rule":             aom.ResourceAlarmRule(),
 			"huaweicloud_aom_service_discovery_rule": aom.ResourceServiceDiscoveryRule(),

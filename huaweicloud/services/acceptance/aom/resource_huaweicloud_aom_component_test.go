@@ -1,4 +1,4 @@
-package cmdb
+package aom
 
 import (
 	"encoding/json"

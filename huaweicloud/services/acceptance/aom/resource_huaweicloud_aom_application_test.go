@@ -1,4 +1,4 @@
-package cmdb
+package aom
 
 import (
 	"encoding/json"
@@ -100,5 +100,5 @@ resource "huaweicloud_aom_application" "app_1" {
   name                        = "%s"
   enterprise_project_id       = "0"
   register_type               = "CONSOLE"
-}`, instanceName, instanceNameUpdate)
+}`, instanceNameUpdate, instanceName)
 }
