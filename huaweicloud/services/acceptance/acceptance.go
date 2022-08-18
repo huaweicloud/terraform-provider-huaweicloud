@@ -37,6 +37,7 @@ var (
 	HW_OBS_BUCKET_NAME       = os.Getenv("HW_OBS_BUCKET_NAME")
 
 	HW_DEPRECATED_ENVIRONMENT = os.Getenv("HW_DEPRECATED_ENVIRONMENT")
+	HW_INTERNAL_USED          = os.Getenv("HW_INTERNAL_USED")
 
 	HW_WAF_ENABLE_FLAG = os.Getenv("HW_WAF_ENABLE_FLAG")
 
@@ -134,6 +135,13 @@ func TestAccPreCheckDeprecated(t *testing.T) {
 	}
 
 	preCheckRequiredEnvVars(t)
+}
+
+// lintignore:AT003
+func TestAccPreCheckInternal(t *testing.T) {
+	if HW_INTERNAL_USED == "" {
+		t.Skip("HW_INTERNAL_USED must be set for internal acceptance tests")
+	}
 }
 
 // lintignore:AT003
