@@ -1,15 +1,16 @@
-package cmdb
+package aom
 
 import (
 	"encoding/json"
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
-	"testing"
 )
 
 func getAppResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -46,7 +47,10 @@ func TestAccAomApp_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckInternal(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -96,5 +100,5 @@ resource "huaweicloud_aom_application" "app_1" {
   name                        = "%s"
   enterprise_project_id       = "0"
   register_type               = "CONSOLE"
-}`, instanceName, instanceNameUpdate)
+}`, instanceNameUpdate, instanceName)
 }
