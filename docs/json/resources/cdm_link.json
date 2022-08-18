@@ -1,0 +1,69 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cdm_link": {
+          "block": {
+            "attributes": {
+              "access_key": {
+                "type": "string",
+                "optional": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "config": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "required": true
+              },
+              "connector": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "enabled": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "password": {
+                "type": "string",
+                "optional": true,
+                "sensitive": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "secret_key": {
+                "type": "string",
+                "optional": true,
+                "sensitive": true
+              }
+            }
+          },
+          "product": {
+            "short": "CDM",
+            "name": "Cloud Data Migration",
+            "catalog": "Migration",
+            "name_cn": "云数据迁移",
+            "catalog_cn": "迁移"
+          }
+        }
+      }
+    }
+  }
+}

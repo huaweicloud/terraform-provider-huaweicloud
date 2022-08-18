@@ -1,0 +1,208 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cce_node_attach": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "computed": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "data_volumes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "extend_param": "string",
+                      "extend_params": [
+                        "map",
+                        "string"
+                      ],
+                      "hw_passthrough": "bool",
+                      "kms_key_id": "string",
+                      "size": "number",
+                      "volumetype": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "docker_base_size": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "ecs_group_id": {
+                "type": "string",
+                "computed": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "key_pair": {
+                "type": "string",
+                "optional": true
+              },
+              "labels": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "lvm_config": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "max_pods": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "nic_multi_queue": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "nic_threshold": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "os": {
+                "type": "string",
+                "required": true
+              },
+              "password": {
+                "type": "string",
+                "optional": true,
+                "sensitive": true
+              },
+              "postinstall": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "preinstall": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "private_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "public_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "root_volume": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "extend_param": "string",
+                      "extend_params": [
+                        "map",
+                        "string"
+                      ],
+                      "hw_passthrough": "bool",
+                      "size": "number",
+                      "volumetype": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "runtime": {
+                "type": "string",
+                "computed": true
+              },
+              "server_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              }
+            },
+            "block_types": {
+              "taints": {
+                "block": {
+                  "attributes": {
+                    "effect": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "key": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCE",
+            "name": "Cloud Container Engine",
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

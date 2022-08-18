@@ -51,6 +51,7 @@ func flattenProjectList(projectList []projects.Project) ([]map[string]interface{
 	result := make([]map[string]interface{}, len(projectList))
 	ids := make([]string, len(projectList))
 	for i, val := range projectList {
+		ids[i] = val.ID
 		result[i] = map[string]interface{}{
 			"id":      val.ID,
 			"name":    val.Name,

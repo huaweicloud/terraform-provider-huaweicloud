@@ -9,6 +9,11 @@
                 "type": "number",
                 "computed": true
               },
+              "auto_bind": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
               "auto_expand": {
                 "type": "bool",
                 "optional": true,
@@ -18,6 +23,13 @@
                 "type": "string",
                 "optional": true,
                 "forcenew": true
+              },
+              "bind_rules": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
               },
               "charging_mode": {
                 "type": "string",
@@ -132,9 +144,11 @@
             }
           },
           "product": {
-            "catalog": "Storage",
+            "short": "CBR",
             "name": "Cloud Backup and Recovery",
-            "short": "CBR"
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
           }
         }
       }

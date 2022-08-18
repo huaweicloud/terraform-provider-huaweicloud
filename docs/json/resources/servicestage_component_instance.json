@@ -1,0 +1,657 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_servicestage_component_instance": {
+          "block": {
+            "attributes": {
+              "application_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "component_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "environment_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "replica": {
+                "type": "number",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "artifact": {
+                "block": {
+                  "attributes": {
+                    "auth_type": {
+                      "type": "string",
+                      "optional": true,
+                      "default": "iam"
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "storage": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "url": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "version": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "properties": {
+                      "block": {
+                        "attributes": {
+                          "bucket": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "endpoint": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "key": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              },
+              "configuration": {
+                "block": {
+                  "block_types": {
+                    "env_variable": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
+                    },
+                    "lifecycle": {
+                      "block": {
+                        "block_types": {
+                          "entrypoint": {
+                            "block": {
+                              "attributes": {
+                                "args": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "required": true
+                                },
+                                "commands": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "post_start": {
+                            "block": {
+                              "attributes": {
+                                "type": {
+                                  "type": "string",
+                                  "required": true
+                                }
+                              },
+                              "block_types": {
+                                "parameters": {
+                                  "block": {
+                                    "attributes": {
+                                      "commands": {
+                                        "type": [
+                                          "list",
+                                          "string"
+                                        ],
+                                        "required": true
+                                      },
+                                      "host": {
+                                        "type": "string",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "path": {
+                                        "type": "string",
+                                        "required": true
+                                      },
+                                      "port": {
+                                        "type": "number",
+                                        "required": true
+                                      }
+                                    }
+                                  },
+                                  "nesting_mode": "list",
+                                  "min_items": 1,
+                                  "max_items": 1
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "pre_stop": {
+                            "block": {
+                              "attributes": {
+                                "type": {
+                                  "type": "string",
+                                  "required": true
+                                }
+                              },
+                              "block_types": {
+                                "parameters": {
+                                  "block": {
+                                    "attributes": {
+                                      "commands": {
+                                        "type": [
+                                          "list",
+                                          "string"
+                                        ],
+                                        "required": true
+                                      },
+                                      "host": {
+                                        "type": "string",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "path": {
+                                        "type": "string",
+                                        "required": true
+                                      },
+                                      "port": {
+                                        "type": "number",
+                                        "required": true
+                                      }
+                                    }
+                                  },
+                                  "nesting_mode": "list",
+                                  "min_items": 1,
+                                  "max_items": 1
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "log_collection_policy": {
+                      "block": {
+                        "attributes": {
+                          "host_path": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        },
+                        "block_types": {
+                          "container_mounting": {
+                            "block": {
+                              "attributes": {
+                                "aging_period": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "default": "Hourly"
+                                },
+                                "host_extend_path": {
+                                  "type": "string",
+                                  "optional": true
+                                },
+                                "path": {
+                                  "type": "string",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "probe": {
+                      "block": {
+                        "block_types": {
+                          "liveness": {
+                            "block": {
+                              "attributes": {
+                                "delay": {
+                                  "type": "number",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "timeout": {
+                                  "type": "number",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "required": true
+                                }
+                              },
+                              "block_types": {
+                                "command_param": {
+                                  "block": {
+                                    "attributes": {
+                                      "commands": {
+                                        "type": [
+                                          "list",
+                                          "string"
+                                        ],
+                                        "required": true
+                                      }
+                                    }
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "http_param": {
+                                  "block": {
+                                    "attributes": {
+                                      "host": {
+                                        "type": "string",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "path": {
+                                        "type": "string",
+                                        "required": true
+                                      },
+                                      "port": {
+                                        "type": "number",
+                                        "required": true
+                                      },
+                                      "protocol": {
+                                        "type": "string",
+                                        "required": true
+                                      }
+                                    }
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "tcp_param": {
+                                  "block": {
+                                    "attributes": {
+                                      "port": {
+                                        "type": "number",
+                                        "required": true
+                                      }
+                                    }
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "readiness": {
+                            "block": {
+                              "attributes": {
+                                "delay": {
+                                  "type": "number",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "timeout": {
+                                  "type": "number",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "required": true
+                                }
+                              },
+                              "block_types": {
+                                "command_param": {
+                                  "block": {
+                                    "attributes": {
+                                      "commands": {
+                                        "type": [
+                                          "list",
+                                          "string"
+                                        ],
+                                        "required": true
+                                      }
+                                    }
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "http_param": {
+                                  "block": {
+                                    "attributes": {
+                                      "host": {
+                                        "type": "string",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "path": {
+                                        "type": "string",
+                                        "required": true
+                                      },
+                                      "port": {
+                                        "type": "number",
+                                        "required": true
+                                      },
+                                      "protocol": {
+                                        "type": "string",
+                                        "required": true
+                                      }
+                                    }
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "tcp_param": {
+                                  "block": {
+                                    "attributes": {
+                                      "port": {
+                                        "type": "number",
+                                        "required": true
+                                      }
+                                    }
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "scheduler": {
+                      "block": {
+                        "block_types": {
+                          "affinity": {
+                            "block": {
+                              "attributes": {
+                                "availability_zones": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "instance_names": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "private_ips": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "anti_affinity": {
+                            "block": {
+                              "attributes": {
+                                "availability_zones": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "instance_names": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "private_ips": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "storage": {
+                      "block": {
+                        "attributes": {
+                          "type": {
+                            "type": "string",
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "mount": {
+                            "block": {
+                              "attributes": {
+                                "path": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "readonly": {
+                                  "type": "bool",
+                                  "required": true
+                                },
+                                "subpath": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "set",
+                            "min_items": 1
+                          },
+                          "parameter": {
+                            "block": {
+                              "attributes": {
+                                "claim_name": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "path": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1,
+                            "max_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
+                    },
+                    "strategy": {
+                      "block": {
+                        "attributes": {
+                          "upgrade": {
+                            "type": "string",
+                            "optional": true,
+                            "default": "RollingUpdate"
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "external_access": {
+                "block": {
+                  "attributes": {
+                    "address": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "port": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "protocol": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              },
+              "refer_resource": {
+                "block": {
+                  "attributes": {
+                    "alias": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "parameters": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "ServiceStage",
+            "name": "ServiceStage",
+            "catalog": "Application",
+            "name_cn": "应用管理与运维平台",
+            "catalog_cn": "应用服务"
+          }
+        }
+      }
+    }
+  }
+}

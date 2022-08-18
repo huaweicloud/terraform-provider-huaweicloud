@@ -1,0 +1,278 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_iotda_product": {
+          "block": {
+            "attributes": {
+              "data_type": {
+                "type": "string",
+                "required": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "device_type": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "industry": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "manufacturer_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "product_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "protocol": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "space_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "services": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "commands": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "paras": {
+                            "block": {
+                              "attributes": {
+                                "description": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "enum_list": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "max": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "default": "65535"
+                                },
+                                "max_length": {
+                                  "type": "number",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "min": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "default": "0"
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "step": {
+                                  "type": "number",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "unit": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 500
+                          },
+                          "responses": {
+                            "block": {
+                              "attributes": {
+                                "description": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "enum_list": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "max": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "default": "65535"
+                                },
+                                "max_length": {
+                                  "type": "number",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "min": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "default": "0"
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "step": {
+                                  "type": "number",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "unit": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 500
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 500
+                    },
+                    "properties": {
+                      "block": {
+                        "attributes": {
+                          "description": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "enum_list": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "optional": true,
+                            "computed": true
+                          },
+                          "max": {
+                            "type": "string",
+                            "optional": true,
+                            "default": "65535"
+                          },
+                          "max_length": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "method": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "min": {
+                            "type": "string",
+                            "optional": true,
+                            "default": "0"
+                          },
+                          "name": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "step": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "unit": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 500
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 500
+              }
+            }
+          },
+          "product": {
+            "short": "IoTDA",
+            "name": "IoT Device Access",
+            "catalog": "Internet of Things",
+            "name_cn": "设备接入",
+            "catalog_cn": "物联网"
+          }
+        }
+      }
+    }
+  }
+}

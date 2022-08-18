@@ -100,9 +100,11 @@
             }
           },
           "product": {
+            "short": "APIG",
+            "name": "API Gateway",
             "catalog": "Application",
-            "name": "API GateWay",
-            "short": "APIG"
+            "name_cn": "API网关",
+            "catalog_cn": "应用服务"
           }
         }
       }

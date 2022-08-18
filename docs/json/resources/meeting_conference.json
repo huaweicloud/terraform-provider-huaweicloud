@@ -1,0 +1,376 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_meeting_conference": {
+          "block": {
+            "attributes": {
+              "access_number": {
+                "type": "string",
+                "computed": true
+              },
+              "account_name": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "account_password": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "app_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "app_key": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "audience_join_uri": {
+                "type": "string",
+                "computed": true
+              },
+              "aux_address": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "chair_join_uri": {
+                "type": "string",
+                "computed": true
+              },
+              "conference_type": {
+                "type": "string",
+                "computed": true
+              },
+              "conference_uuid": {
+                "type": "string",
+                "computed": true
+              },
+              "corp_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "duration": {
+                "type": "number",
+                "required": true
+              },
+              "encrypt_mode": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "guest_join_uri": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_auto_record": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "is_record_aux_stream": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "join_password": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "guest": "string",
+                      "host": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "language": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "live_address": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "media_types": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "meeting_room_id": {
+                "type": "string",
+                "required": true
+              },
+              "participant_number": {
+                "type": "number",
+                "optional": true
+              },
+              "record_auth_type": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "record_type": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subconferences": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "end_time": "string",
+                      "id": "string",
+                      "is_auto_record": "number",
+                      "media_types": [
+                        "list",
+                        "string"
+                      ],
+                      "record_auth_type": "number",
+                      "start_time": "string",
+                      "subconfiguration": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "allow_guest_start": "bool",
+                            "audience_callin_restriction": "number",
+                            "callin_restriction": "number",
+                            "show_audience_policies": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "base_audience_count": "number",
+                                  "mode": "number",
+                                  "multiple": "number"
+                                }
+                              ]
+                            ],
+                            "waiting_room_enabled": "bool"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "timezone_id": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "topic": {
+                "type": "string",
+                "required": true
+              },
+              "user_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "configuration": {
+                "block": {
+                  "attributes": {
+                    "allow_guest_start": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "callin_restriction": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "guest_password": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "sensitive": true
+                    },
+                    "is_auto_mute": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "is_guest_free_password": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "is_hard_terminal_auto_mute": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "is_send_calendar": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "is_send_notify": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "is_send_sms": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "prolong_time": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "waiting_room_enabled": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "cycle_params": {
+                "block": {
+                  "attributes": {
+                    "cycle": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "end_date": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "interval": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "points": {
+                      "type": [
+                        "list",
+                        "number"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    },
+                    "pre_remind": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "start_date": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "participant": {
+                "block": {
+                  "attributes": {
+                    "account_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "email": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "is_auto_invite": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "is_mute": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "phone": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "role": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "sms": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "user_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "Meeting",
+            "name": "Meeting",
+            "catalog": "Enterprise Collaboration",
+            "name_cn": "华为云会议",
+            "catalog_cn": "企业协同"
+          }
+        }
+      }
+    }
+  }
+}

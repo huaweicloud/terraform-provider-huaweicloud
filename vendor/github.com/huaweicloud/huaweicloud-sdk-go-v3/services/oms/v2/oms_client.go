@@ -21,7 +21,7 @@ func OmsClientBuilder() *http_client.HcHttpClientBuilder {
 
 // CreateSyncEvents 创建同步事件
 //
-// 源端有对象需要进行同步时，调用该接口创建一个同步事件，系统将根据同步事件中包含的对象名称进行同步
+// 源端有对象需要进行同步时，调用该接口创建一个同步事件，系统将根据同步事件中包含的对象名称进行同步（目前只支持华北-北京四、华东-上海一地区）
 //
 // 详细说明请参考华为云API Explorer。
 // Please refer to Huawei cloud API Explorer for details.

@@ -201,6 +201,10 @@ func ResourceCCENodeAttachV3() *schema.Resource {
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
+						"kms_key_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					}},
 			},
 			"runtime": {

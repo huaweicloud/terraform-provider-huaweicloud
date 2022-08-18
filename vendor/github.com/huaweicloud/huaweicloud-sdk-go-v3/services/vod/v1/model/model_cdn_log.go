@@ -23,7 +23,7 @@ type CdnLog struct {
 	// 日志大小。  单位：byte。
 	Size *int64 `json:"size,omitempty"`
 
-	// 日志下载链接。
+	// 日志下载链接,日志文件[参数说明](https://support.huaweicloud.com/usermanual-cdn/zh-cn_topic_0073337424.html)。
 	Link *string `json:"link,omitempty"`
 }
 

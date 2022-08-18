@@ -6,9 +6,11 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"math/big"
+	"net/http"
 	"os"
 	"regexp"
 	"strings"
@@ -17,6 +19,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/jmespath/go-jmespath"
 )
 
 // ConvertStructToMap converts an instance of struct to a map object, and
@@ -289,10 +292,12 @@ func IsIPv4Address(addr string) bool {
 
 // This function compares whether there is a containment relationship between two maps, that is,
 // whether map A (rawMap) contains map B (filterMap).
-//   Map A is {'foo': 'bar'} and filter map B is {'foo': 'bar'} or {'foo': 'bar,dor'} will return true.
-//   Map A is {'foo': 'bar'} and filter map B is {'foo': 'dor'} or {'foo1': 'bar'} will return false.
-//   Map A is {'foo': 'bar'} and filter map B is {'foo': ''} will return true.
-//   Map A is {'foo': 'bar'} and filter map B is {'': 'bar'} or {'': ''} will return false.
+//
+//	Map A is {'foo': 'bar'} and filter map B is {'foo': 'bar'} or {'foo': 'bar,dor'} will return true.
+//	Map A is {'foo': 'bar'} and filter map B is {'foo': 'dor'} or {'foo1': 'bar'} will return false.
+//	Map A is {'foo': 'bar'} and filter map B is {'foo': ''} will return true.
+//	Map A is {'foo': 'bar'} and filter map B is {'': 'bar'} or {'': ''} will return false.
+//
 // The value of filter map 'bar,for' means that the object value can be either 'bar' or 'dor'.
 // Note: There is no spaces before and after the delimiter (,).
 func HasMapContains(rawMap map[string]string, filterMap map[string]interface{}) bool {
@@ -343,8 +348,8 @@ func WriteToPemFile(path, privateKey string) (err error) {
 }
 
 /*
- MarshalValue is used to marshal the value of struct in huaweicloud-sdk-go-v3, like this:
- type Xxxx struct { value string }
+MarshalValue is used to marshal the value of struct in huaweicloud-sdk-go-v3, like this:
+type Xxxx struct { value string }
 */
 func MarshalValue(i interface{}) string {
 	if i == nil {
@@ -385,4 +390,60 @@ func RandomString(n int, allowedChars ...[]rune) (result string) {
 
 	result = string(b)
 	return
+}
+
+// IsDebugOrHigher returns a bool type parameter, which specifies whether to print log
+var validLevels = []string{"TRACE", "DEBUG", "INFO", "WARN", "ERROR"}
+
+func IsDebugOrHigher() bool {
+	logLevel := os.Getenv("TF_LOG_PROVIDER")
+	if logLevel == "" {
+		logLevel = os.Getenv("TF_LOG")
+	}
+
+	if logLevel != "" {
+		if isValidLogLevel(logLevel) {
+			logLevel = strings.ToUpper(logLevel)
+			return logLevel == "DEBUG" || logLevel == "TRACE"
+		} else {
+			log.Printf("[WARN] Invalid log level: %q. Valid levels are: %+v", logLevel, validLevels)
+		}
+	}
+	return false
+}
+
+func isValidLogLevel(level string) bool {
+	for _, l := range validLevels {
+		if strings.ToUpper(level) == string(l) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// PathSearch evaluates a JMESPath expression against input data and returns the result.
+func PathSearch(expression string, obj interface{}, defaultValue interface{}) interface{} {
+	v, err := jmespath.Search(expression, obj)
+	if err != nil {
+		log.Printf("Error fetching metadata access: %s", err.Error())
+		return defaultValue
+	}
+	return v
+}
+
+// FlattenResponse returns the api response body if it's not empty
+func FlattenResponse(resp *http.Response) (interface{}, error) {
+	var respBody interface{}
+	defer resp.Body.Close()
+	// Don't decode JSON when there is no content
+	if resp.StatusCode == http.StatusNoContent {
+		_, err := io.Copy(ioutil.Discard, resp.Body)
+		return resp, err
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&respBody); err != nil {
+		return nil, err
+	}
+	return respBody, nil
 }

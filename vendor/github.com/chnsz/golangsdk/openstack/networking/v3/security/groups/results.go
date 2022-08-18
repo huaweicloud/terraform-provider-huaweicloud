@@ -54,6 +54,6 @@ func (p SecurityGroupPage) IsEmpty() (bool, error) {
 // ExtractSecurityGroups is a method to extract the list of security group details.
 func ExtractSecurityGroups(r pagination.Page) ([]SecurityGroup, error) {
 	var s []SecurityGroup
-	r.(SecurityGroupPage).Result.ExtractIntoSlicePtr(&s, "security_groups")
-	return s, nil
+	err := r.(SecurityGroupPage).Result.ExtractIntoSlicePtr(&s, "security_groups")
+	return s, err
 }

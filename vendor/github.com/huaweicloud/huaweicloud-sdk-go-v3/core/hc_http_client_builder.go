@@ -22,7 +22,7 @@ package core
 import (
 	"fmt"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/helper"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/provider"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/impl"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/region"
@@ -84,17 +84,20 @@ func (builder *HcHttpClientBuilder) Build() *HcHttpClient {
 	defaultHttpClient := impl.NewDefaultHttpClient(builder.httpConfig)
 
 	if builder.credentials == nil {
-		builder.credentials = helper.LoadCredentialFromEnv(builder.CredentialsType[0])
+		p := provider.DefaultCredentialProviderChain(builder.CredentialsType[0])
+		credentials, err := p.GetCredentials()
+		if err != nil {
+			panic(err)
+		}
+		builder.credentials = credentials
 	}
 
-	cred, err := helper.ProcessCredential(defaultHttpClient, builder.CredentialsType[0], builder.credentials)
-	if err != nil {
-		panic(err)
+	t := reflect.TypeOf(builder.credentials)
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
 	}
-	builder.credentials = cred
-
+	givenCredentialsType := t.String()
 	match := false
-	givenCredentialsType := reflect.TypeOf(builder.credentials).String()
 	for _, credentialsType := range builder.CredentialsType {
 		if credentialsType == givenCredentialsType {
 			match = true
@@ -103,15 +106,15 @@ func (builder *HcHttpClientBuilder) Build() *HcHttpClient {
 	}
 
 	if !match {
-		panic(fmt.Sprintf("Need credential type is %s, actually is %s", builder.CredentialsType, reflect.TypeOf(builder.credentials).String()))
+		panic(fmt.Sprintf("Need credential type is %s, actually is %s", builder.CredentialsType, givenCredentialsType))
 	}
 
 	if builder.region != nil {
 		builder.endpoint = builder.region.Endpoint
-		builder.credentials = builder.credentials.ProcessAuthParams(defaultHttpClient, builder.region.Id)
+		builder.credentials.ProcessAuthParams(defaultHttpClient, builder.region.Id)
 
 		if credential, ok := builder.credentials.(auth.IDerivedCredential); ok {
-			builder.credentials = credential.ProcessDerivedAuthParams(builder.derivedAuthServiceName, builder.region.Id)
+			credential.ProcessDerivedAuthParams(builder.derivedAuthServiceName, builder.region.Id)
 		}
 	}
 

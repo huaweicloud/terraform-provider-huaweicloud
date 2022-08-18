@@ -23,7 +23,7 @@ func getDliTableResourceFunc(config *config.Config, state *terraform.ResourceSta
 	return tables.Get(client, databaseName, tableName)
 }
 
-//check the dli table
+// check the dli table
 func TestAccResourceDliTable_basic(t *testing.T) {
 	var TableObj tables.CreateTableOpts
 	resourceName := "huaweicloud_dli_table.test"

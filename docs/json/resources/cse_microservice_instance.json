@@ -1,0 +1,134 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cse_microservice_instance": {
+          "block": {
+            "attributes": {
+              "admin_pass": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "admin_user": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "connect_address": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "endpoints": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true,
+                "forcenew": true
+              },
+              "host_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "microservice_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "properties": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "data_center": {
+                "block": {
+                  "attributes": {
+                    "availability_zone": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "region": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "health_check": {
+                "block": {
+                  "attributes": {
+                    "interval": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "max_retries": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "mode": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "port": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CSE",
+            "name": "Cloud Service Engine",
+            "catalog": "Application",
+            "name_cn": "微服务引擎",
+            "catalog_cn": "应用服务"
+          }
+        }
+      }
+    }
+  }
+}

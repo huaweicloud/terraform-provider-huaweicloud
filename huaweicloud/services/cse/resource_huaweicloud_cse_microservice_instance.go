@@ -18,6 +18,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var internalPropertyKeys = []string{"engineID", "engineName"}
+
 func ResourceMicroserviceInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMicroserviceInstanceCreate,
@@ -170,13 +172,28 @@ func buildDataCenterStructure(dataCenters []interface{}) *instances.DataCenter {
 	}
 }
 
+func buildCustomProperties(properties map[string]interface{}) map[string]interface{} {
+	if len(properties) < 1 {
+		return nil
+	}
+
+	result := make(map[string]interface{})
+	for k, v := range properties {
+		if !utils.StrSliceContains(internalPropertyKeys, k) {
+			result[k] = v
+		}
+	}
+
+	return result
+}
+
 func buildInstanceCreateOpts(d *schema.ResourceData) instances.CreateOpts {
 	return instances.CreateOpts{
 		HostName:       d.Get("host_name").(string),
 		Endpoints:      utils.ExpandToStringList(d.Get("endpoints").([]interface{})),
 		Version:        d.Get("version").(string),
 		Status:         d.Get("status").(string),
-		Properties:     d.Get("properties").(map[string]interface{}),
+		Properties:     buildCustomProperties(d.Get("properties").(map[string]interface{})),
 		HealthCheck:    buildHealthCheckStructure(d.Get("health_check").([]interface{})),
 		DataCenterInfo: buildDataCenterStructure(d.Get("data_center").([]interface{})),
 	}
@@ -249,7 +266,7 @@ func resourceMicroserviceInstanceRead(_ context.Context, d *schema.ResourceData,
 		d.Set("host_name", resp.HostName),
 		d.Set("endpoints", resp.Endpoints),
 		d.Set("version", resp.Version),
-		d.Set("properties", resp.Properties),
+		d.Set("properties", buildCustomProperties(resp.Properties)),
 		d.Set("health_check", flattenHealthCheck(resp.HealthCheck)),
 		d.Set("data_center", flattenDataCenter(resp.DataCenterInfo)),
 		d.Set("status", resp.Status),

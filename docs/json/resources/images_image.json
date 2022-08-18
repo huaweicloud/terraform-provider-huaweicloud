@@ -104,9 +104,11 @@
             }
           },
           "product": {
-            "catalog": "Compute",
+            "short": "IMS",
             "name": "Image Management Service",
-            "short": "IMS"
+            "catalog": "Compute",
+            "name_cn": "镜像服务",
+            "catalog_cn": "计算"
           }
         }
       }

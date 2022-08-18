@@ -1,0 +1,335 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_mrs_cluster": {
+          "block": {
+            "attributes": {
+              "available_zone_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "available_zone_name": {
+                "type": "string",
+                "computed": true
+              },
+              "billing_type": {
+                "type": "number",
+                "required": true,
+                "forcenew": true
+              },
+              "charging_start_time": {
+                "type": "string",
+                "computed": true
+              },
+              "cluster_admin_secret": {
+                "type": "string",
+                "required": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "cluster_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "cluster_state": {
+                "type": "string",
+                "computed": true
+              },
+              "cluster_type": {
+                "type": "number",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "cluster_version": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "core_node_num": {
+                "type": "number",
+                "required": true,
+                "forcenew": true
+              },
+              "core_node_product_id": {
+                "type": "string",
+                "computed": true
+              },
+              "core_node_size": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "core_node_spec_id": {
+                "type": "string",
+                "computed": true
+              },
+              "create_at": {
+                "type": "string",
+                "computed": true
+              },
+              "deployment_id": {
+                "type": "string",
+                "computed": true
+              },
+              "duration": {
+                "type": "string",
+                "computed": true
+              },
+              "error_info": {
+                "type": "string",
+                "computed": true
+              },
+              "external_alternate_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "external_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "fee": {
+                "type": "string",
+                "computed": true
+              },
+              "hadoop_version": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "computed": true
+              },
+              "internal_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "log_collection": {
+                "type": "number",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "master_node_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "master_node_num": {
+                "type": "number",
+                "required": true,
+                "forcenew": true
+              },
+              "master_node_product_id": {
+                "type": "string",
+                "computed": true
+              },
+              "master_node_size": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "master_node_spec_id": {
+                "type": "string",
+                "computed": true
+              },
+              "node_password": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "node_public_cert_name": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "order_id": {
+                "type": "string",
+                "computed": true
+              },
+              "private_ip_first": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "remark": {
+                "type": "string",
+                "computed": true
+              },
+              "safe_mode": {
+                "type": "number",
+                "required": true,
+                "forcenew": true
+              },
+              "security_groups_id": {
+                "type": "string",
+                "computed": true
+              },
+              "slave_security_groups_id": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "update_at": {
+                "type": "string",
+                "computed": true
+              },
+              "vnc": {
+                "type": "string",
+                "computed": true
+              },
+              "volume_size": {
+                "type": "number",
+                "required": true,
+                "forcenew": true
+              },
+              "volume_type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "add_jobs": {
+                "block": {
+                  "attributes": {
+                    "arguments": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "file_action": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "hive_script_path": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "hql": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "input": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "jar_path": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "job_log": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "job_name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "job_type": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "output": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "shutdown_cluster": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "submit_job_once_cluster_run": {
+                      "type": "bool",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "forcenew": true
+              },
+              "component_list": {
+                "block": {
+                  "attributes": {
+                    "component_desc": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "component_id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "component_name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "component_version": {
+                      "type": "string",
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "forcenew": true,
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "MRS",
+            "name": "MapReduce Service",
+            "catalog": "Enterprise Intelligence",
+            "name_cn": "MapReduce服务",
+            "catalog_cn": "EI 企业智能"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_mrs_job": {
+          "block": {
+            "attributes": {
+              "arguments": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "hive_script_path": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "input": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "is_protected": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "is_public": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "jar_path": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "job_log": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "job_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "job_state": {
+                "type": "string",
+                "computed": true
+              },
+              "job_type": {
+                "type": "number",
+                "required": true,
+                "forcenew": true
+              },
+              "output": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "MRS",
+            "name": "MapReduce Service",
+            "catalog": "Enterprise Intelligence",
+            "name_cn": "MapReduce服务",
+            "catalog_cn": "EI 企业智能"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cse_microservice": {
+          "block": {
+            "attributes": {
+              "admin_pass": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "admin_user": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "app_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "connect_address": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "environment": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "level": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSE",
+            "name": "Cloud Service Engine",
+            "catalog": "Application",
+            "name_cn": "微服务引擎",
+            "catalog_cn": "应用服务"
+          }
+        }
+      }
+    }
+  }
+}

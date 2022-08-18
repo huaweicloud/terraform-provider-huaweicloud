@@ -223,9 +223,11 @@
             }
           },
           "product": {
-            "catalog": "Database",
+            "short": "GaussDBforopenGauss",
             "name": "GaussDB(for openGauss)",
-            "short": "GaussDBforopenGauss"
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for openGauss)",
+            "catalog_cn": "数据库"
           }
         }
       }

@@ -1,0 +1,159 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cdm_job": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "destination_connector": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "destination_job_config": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "required": true
+              },
+              "destination_link_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source_connector": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "source_job_config": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "required": true
+              },
+              "source_link_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "config": {
+                "block": {
+                  "attributes": {
+                    "group_name": {
+                      "type": "string",
+                      "optional": true,
+                      "default": "DEFAULT"
+                    },
+                    "retry_type": {
+                      "type": "string",
+                      "optional": true,
+                      "default": "NONE"
+                    },
+                    "scheduler_cycle": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "scheduler_cycle_type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "scheduler_disposable_type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "scheduler_enabled": {
+                      "type": "bool",
+                      "optional": true,
+                      "default": false
+                    },
+                    "scheduler_run_at": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "scheduler_start_date": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "scheduler_stop_date": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "throttling_dirty_write_to_bucket": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "throttling_dirty_write_to_directory": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "throttling_dirty_write_to_link": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "throttling_extractors_number": {
+                      "type": "number",
+                      "optional": true,
+                      "default": 1
+                    },
+                    "throttling_loader_number": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "throttling_max_error_records": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "throttling_record_dirty_data": {
+                      "type": "bool",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CDM",
+            "name": "Cloud Data Migration",
+            "catalog": "Migration",
+            "name_cn": "云数据迁移",
+            "catalog_cn": "迁移"
+          }
+        }
+      }
+    }
+  }
+}

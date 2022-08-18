@@ -10,12 +10,12 @@ import (
 	"os"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/basic"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/global"
 	hcconfig "github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/httphandler"
 	aomv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2"
+	cdnv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v1"
 	cptsv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1"
 	ctsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3"
 	iamv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3"
@@ -118,27 +118,6 @@ func buildHTTPConfig(c *Config) *hcconfig.HttpConfig {
 	}
 
 	return httpConfig
-}
-
-// try to get the endpoint from customizing map
-func getServiceEndpoint(c *Config, srv, region string) string {
-	if endpoint, ok := c.Endpoints[srv]; ok {
-		return endpoint
-	}
-
-	// get the endpoint from build-in catalog
-	catalog, ok := allServiceCatalog[srv]
-	if !ok {
-		return ""
-	}
-
-	var ep string
-	if catalog.Scope == "global" && !c.RegionClient {
-		ep = fmt.Sprintf("https://%s.%s/", catalog.Name, c.Cloud)
-	} else {
-		ep = fmt.Sprintf("https://%s.%s.%s/", catalog.Name, region, c.Cloud)
-	}
-	return ep
 }
 
 // HcVpcV3Client is the VPC service client using huaweicloud-sdk-go-v3 package
@@ -259,9 +238,18 @@ func (c *Config) HcOmsV2Client(region string) (*omsv2.OmsClient, error) {
 	return omsv2.NewOmsClient(hcClient), nil
 }
 
+// HcCdnV1Client is the CDN service client using huaweicloud-sdk-go-v3 package
+func (c *Config) HcCdnV1Client(region string) (*cdnv1.CdnClient, error) {
+	hcClient, err := NewHcClient(c, region, "cdn", false)
+	if err != nil {
+		return nil, err
+	}
+	return cdnv1.NewCdnClient(hcClient), nil
+}
+
 // NewHcClient is the common client using huaweicloud-sdk-go-v3 package
 func NewHcClient(c *Config, region, product string, globalFlag bool) (*core.HcHttpClient, error) {
-	endpoint := getServiceEndpoint(c, product, region)
+	endpoint := GetServiceEndpoint(c, product, region)
 	if endpoint == "" {
 		return nil, fmt.Errorf("failed to get the endpoint of %q service in region %s", product, region)
 	}
@@ -273,13 +261,13 @@ func NewHcClient(c *Config, region, product string, globalFlag bool) (*core.HcHt
 		if err != nil {
 			return nil, err
 		}
-		builder.WithCredentialsType("global.Credentials").WithCredential(*credentials)
+		builder.WithCredentialsType("global.Credentials").WithCredential(credentials)
 	} else {
 		credentials, err := buildAuthCredentials(c, region)
 		if err != nil {
 			return nil, err
 		}
-		builder.WithCredential(*credentials)
+		builder.WithCredential(credentials)
 	}
 
 	return builder.Build(), nil
@@ -300,10 +288,6 @@ func getProxyFromEnv() string {
 }
 
 func logRequestHandler(request http.Request) {
-	if !logging.IsDebugOrHigher() {
-		return
-	}
-
 	log.Printf("[DEBUG] API Request URL: %s %s", request.Method, request.URL)
 	log.Printf("[DEBUG] API Request Headers:\n%s", FormatHeaders(request.Header, "\n"))
 	if request.Body != nil {
@@ -314,10 +298,6 @@ func logRequestHandler(request http.Request) {
 }
 
 func logResponseHandler(response http.Response) {
-	if !logging.IsDebugOrHigher() {
-		return
-	}
-
 	log.Printf("[DEBUG] API Response Code: %d", response.StatusCode)
 	log.Printf("[DEBUG] API Response Headers:\n%s", FormatHeaders(response.Header, "\n"))
 

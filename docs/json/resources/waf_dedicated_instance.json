@@ -1,0 +1,97 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_waf_dedicated_instance": {
+          "block": {
+            "attributes": {
+              "access_status": {
+                "type": "number",
+                "computed": true
+              },
+              "available_zone": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "cpu_architecture": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "default": "x86"
+              },
+              "ecs_flavor": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "group_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "run_status": {
+                "type": "number",
+                "computed": true
+              },
+              "security_group": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true,
+                "forcenew": true
+              },
+              "server_id": {
+                "type": "string",
+                "computed": true
+              },
+              "service_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "specification_code": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "upgradable": {
+                "type": "number",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security \u0026 Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

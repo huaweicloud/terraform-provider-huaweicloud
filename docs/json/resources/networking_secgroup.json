@@ -42,6 +42,7 @@
                   [
                     "object",
                     {
+                      "action": "string",
                       "description": "string",
                       "direction": "string",
                       "ethertype": "string",
@@ -49,7 +50,9 @@
                       "port_range_max": "number",
                       "port_range_min": "number",
                       "ports": "string",
+                      "priority": "number",
                       "protocol": "string",
+                      "remote_address_group_id": "string",
                       "remote_group_id": "string",
                       "remote_ip_prefix": "string"
                     }
@@ -64,9 +67,11 @@
             }
           },
           "product": {
-            "catalog": "Network",
+            "short": "VPC",
             "name": "Virtual Private Cloud",
-            "short": "VPC"
+            "catalog": "Networking",
+            "name_cn": "虚拟私有云",
+            "catalog_cn": "网络"
           }
         }
       }

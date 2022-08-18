@@ -1,0 +1,114 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cloudtable_cluster": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "hbase_public_endpoint": {
+                "type": "string",
+                "computed": true
+              },
+              "hbase_version": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "iam_auth_enabled": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "network_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "open_tsdb_link": {
+                "type": "string",
+                "computed": true
+              },
+              "opentsdb_num": {
+                "type": "number",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "opentsdb_public_endpoint": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "rs_num": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true,
+                "default": 2
+              },
+              "security_group_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "storage_size": {
+                "type": "number",
+                "computed": true
+              },
+              "storage_size_used": {
+                "type": "number",
+                "computed": true
+              },
+              "storage_type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "zookeeper_link": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CloudTable",
+            "name": "CloudTable Service",
+            "catalog": "Enterprise Intelligence",
+            "name_cn": "表格存储服务",
+            "catalog_cn": "EI 企业智能"
+          }
+        }
+      }
+    }
+  }
+}

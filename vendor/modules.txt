@@ -12,7 +12,7 @@ github.com/apparentlymart/go-cidr/cidr
 github.com/apparentlymart/go-textseg/textseg
 # github.com/apparentlymart/go-textseg/v13 v13.0.0
 github.com/apparentlymart/go-textseg/v13/textseg
-# github.com/chnsz/golangsdk v0.0.0-20220726083100-cebcc3a0547c
+# github.com/chnsz/golangsdk v0.0.0-20220816121712-c2c3003e9e4d
 ## explicit
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/internal
@@ -94,6 +94,8 @@ github.com/chnsz/golangsdk/openstack/dcs/v2/tags
 github.com/chnsz/golangsdk/openstack/dcs/v2/whitelists
 github.com/chnsz/golangsdk/openstack/dds/v3/flavors
 github.com/chnsz/golangsdk/openstack/dds/v3/instances
+github.com/chnsz/golangsdk/openstack/dds/v3/roles
+github.com/chnsz/golangsdk/openstack/dds/v3/users
 github.com/chnsz/golangsdk/openstack/dis/v2/streams
 github.com/chnsz/golangsdk/openstack/dli/v1/auth
 github.com/chnsz/golangsdk/openstack/dli/v1/databases
@@ -373,6 +375,7 @@ github.com/hashicorp/terraform-plugin-go/tfprotov6/internal/toproto
 github.com/hashicorp/terraform-plugin-go/tfprotov6/tf6server
 github.com/hashicorp/terraform-plugin-go/tftypes
 # github.com/hashicorp/terraform-plugin-log v0.2.0
+## explicit
 github.com/hashicorp/terraform-plugin-log/internal/logging
 github.com/hashicorp/terraform-plugin-log/tflog
 github.com/hashicorp/terraform-plugin-log/tfsdklog
@@ -402,15 +405,15 @@ github.com/hashicorp/terraform-registry-address
 github.com/hashicorp/terraform-svchost
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 github.com/hashicorp/yamux
-# github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.0.92
+# github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.0.102
 ## explicit
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/basic
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/cache
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/global
-github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/helper
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/internal
+github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/provider
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/signer
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/converter
@@ -428,6 +431,8 @@ github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdktime
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/utils
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2/model
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v1
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v1/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3
@@ -640,6 +645,8 @@ google.golang.org/protobuf/types/known/anypb
 google.golang.org/protobuf/types/known/durationpb
 google.golang.org/protobuf/types/known/emptypb
 google.golang.org/protobuf/types/known/timestamppb
+# gopkg.in/ini.v1 v1.66.6
+gopkg.in/ini.v1
 # gopkg.in/yaml.v2 v2.4.0
 gopkg.in/yaml.v2
 # gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c

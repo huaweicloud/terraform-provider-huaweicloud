@@ -12,17 +12,11 @@ import (
 	"testing"
 )
 
-var c *httpclient_go.HttpClientGo
-
-func init() {
-	config := &config.Config{AccessKey: acceptance.HW_ACCESS_KEY, SecretKey: acceptance.HW_SECRET_KEY}
-	c, _ = httpclient_go.NewHttpClientGo(config)
-}
-
 func getAppResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	url := "https://aom.cn-north-7.myhuaweicloud.com/v1/applications/" + state.Primary.Attributes["id"]
+	c, _ := httpclient_go.NewHttpClientGo(conf)
 
-	c.WithMethod(httpclient_go.MethodGet).WithUrl(url)
+	c.WithMethod(httpclient_go.MethodGet).
+		WithUrlWithoutEndpoint(conf, "aom", conf.Region, "v1/applications/"+state.Primary.Attributes["id"])
 	response, err := c.Do()
 	body, _ := c.CheckDeletedDiag(nil, err, response, "")
 	if body == nil {
@@ -63,7 +57,7 @@ func TestAccAomApp_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
 					resource.TestCheckResourceAttr(resourceName, "description", "application description"),
 					resource.TestCheckResourceAttr(resourceName, "display_name", instanceName),
-					resource.TestCheckResourceAttr(resourceName, "eps_id", "0"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttr(resourceName, "register_type", "CONSOLE"),
 				),
 			},
@@ -86,21 +80,21 @@ func TestAccAomApp_basic(t *testing.T) {
 func tesAomApp_basic(instanceName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_aom_application" "app_1" {
-  description        = "application description"
-  display_name       = "%s"
-  name               = "%s"
-  eps_id             = "0"
-  register_type      = "CONSOLE"
+  description              = "application description"
+  display_name             = "%s"
+  name                     = "%s"
+  enterprise_project_id    = "0"
+  register_type            = "CONSOLE"
 }`, instanceName, instanceName)
 }
 
 func tesAomApp_updated(instanceName, instanceNameUpdate string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_aom_application" "app_1" {
-  description        = "application description"
-  display_name       = "%s"
-  name               = "%s"
-  eps_id             = "0"
-  register_type      = "CONSOLE"
+  description                 = "application description"
+  display_name                = "%s"
+  name                        = "%s"
+  enterprise_project_id       = "0"
+  register_type               = "CONSOLE"
 }`, instanceName, instanceNameUpdate)
 }

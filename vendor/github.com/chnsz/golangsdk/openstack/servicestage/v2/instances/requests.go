@@ -95,6 +95,8 @@ type Configuration struct {
 	Strategy *Strategy `json:"strategy,omitempty"`
 	// Lifecycle.
 	Lifecycle *Lifecycle `json:"lifecycle,omitempty"`
+	// Policy list of log collection.
+	LogCollectionPolicies []LogCollectionPolicy `json:"logs,omitempty"`
 	// Scheduling policy.
 	Scheduler *Scheduler `json:"scheduler,omitempty"`
 	// Health check.
@@ -141,9 +143,9 @@ type Mount struct {
 	// Specifies the mounted disk path.
 	Path string `json:"path" required:"true"`
 	// Specifies the mounted disk permission is read-only or read-write.
-	ReadOnly bool `json:"readOnly" required:"true"`
+	ReadOnly *bool `json:"readOnly" required:"true"`
 	// Specifies the subpath of the mounted disk.
-	SubPath string `json:"subpath,omitempty"`
+	SubPath string `json:"subPath,omitempty"`
 }
 
 // Strategy is an object that specifies the upgrade type, including in-place upgrade and rolling upgrade.
@@ -190,6 +192,24 @@ type ProcessParams struct {
 	Path string `json:"path,omitempty"`
 	// Defaults to the IP address of the POD instance. You can also specify it yourself. Applies to http type.
 	Host string `json:"host,omitempty"`
+}
+
+// LogCollectionPolicy is an object that specifies the policy of the log collection.
+type LogCollectionPolicy struct {
+	// Container mounting path.
+	LogPath string `json:"logPath" required:"ture"`
+	// Aging period.
+	AgingPeriod string `json:"rotate" required:"ture"`
+	// The extended host path, the valid values are as follows:
+	//	None
+	//	PodUID
+	//	PodName
+	//	PodUID/ContainerName
+	//	PodName/ContainerName
+	// If omited, means container mounting.
+	HostExtendPath string `json:"hostExtendPath,omitempty"`
+	// Host mounting path.
+	HostPath string `json:"hostPath,omitempty"`
 }
 
 // Scheduler is an object that specifies the scheduling policy.

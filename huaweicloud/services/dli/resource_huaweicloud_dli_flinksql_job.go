@@ -407,7 +407,7 @@ func resourceFlinkSqlJobUpdate(ctx context.Context, d *schema.ResourceData, meta
 	return resourceFlinkSqlJobRead(ctx, d, meta)
 }
 
-//updated in "job_running": smn_topic,restart_when_exception,resume_checkpoint,resume_max_num,checkpoint_path,obs_bucket
+// updated in "job_running": smn_topic,restart_when_exception,resume_checkpoint,resume_max_num,checkpoint_path,obs_bucket
 func updateFlinkSqlJobInRunning(client *golangsdk.ServiceClient, jobId int, d *schema.ResourceData) diag.Diagnostics {
 	if d.HasChanges("smn_topic", "restart_when_exception", "resume_checkpoint", "resume_max_num", "obs_bucket") {
 		opts := flinkjob.UpdateSqlJobOpts{

@@ -221,6 +221,7 @@
                     "kms_key_id": {
                       "type": "string",
                       "optional": true,
+                      "computed": true,
                       "forcenew": true
                     },
                     "size": {
@@ -416,9 +417,11 @@
             }
           },
           "product": {
-            "catalog": "Container",
+            "short": "CCE",
             "name": "Cloud Container Engine",
-            "short": "CCE"
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
           }
         }
       }

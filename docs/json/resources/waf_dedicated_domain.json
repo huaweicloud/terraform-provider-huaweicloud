@@ -1,0 +1,141 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_waf_dedicated_domain": {
+          "block": {
+            "attributes": {
+              "access_status": {
+                "type": "number",
+                "computed": true
+              },
+              "alarm_page": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
+              "certificate_id": {
+                "type": "string",
+                "optional": true
+              },
+              "certificate_name": {
+                "type": "string",
+                "computed": true
+              },
+              "cipher": {
+                "type": "string",
+                "computed": true
+              },
+              "compliance_certification": {
+                "type": [
+                  "map",
+                  "bool"
+                ],
+                "computed": true
+              },
+              "domain": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "keep_policy": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "policy_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "protect_status": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "protocol": {
+                "type": "string",
+                "computed": true
+              },
+              "proxy": {
+                "type": "bool",
+                "optional": true,
+                "default": false
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "tls": {
+                "type": "string",
+                "computed": true
+              },
+              "traffic_identifier": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              }
+            },
+            "block_types": {
+              "server": {
+                "block": {
+                  "attributes": {
+                    "address": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "client_protocol": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "port": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "server_protocol": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "vpc_id": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 80
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security \u0026 Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

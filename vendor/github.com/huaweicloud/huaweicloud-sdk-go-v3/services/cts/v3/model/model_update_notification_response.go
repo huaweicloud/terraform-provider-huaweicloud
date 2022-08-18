@@ -40,8 +40,10 @@ type UpdateNotificationResponse struct {
 	ProjectId *string `json:"project_id,omitempty"`
 
 	// 关键操作通知创建时间戳。
-	CreateTime     *int64 `json:"create_time,omitempty"`
-	HttpStatusCode int    `json:"-"`
+	CreateTime *int64 `json:"create_time,omitempty"`
+
+	Filter         *Filter `json:"filter,omitempty"`
+	HttpStatusCode int     `json:"-"`
 }
 
 func (o UpdateNotificationResponse) String() string {

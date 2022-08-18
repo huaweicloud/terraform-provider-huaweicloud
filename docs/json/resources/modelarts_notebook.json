@@ -1,0 +1,161 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelarts_notebook": {
+          "block": {
+            "attributes": {
+              "allowed_access_ips": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "auto_stop_enabled": {
+                "type": "bool",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_id": {
+                "type": "string",
+                "required": true
+              },
+              "image_name": {
+                "type": "string",
+                "computed": true
+              },
+              "image_swr_path": {
+                "type": "string",
+                "computed": true
+              },
+              "image_type": {
+                "type": "string",
+                "computed": true
+              },
+              "key_pair": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "mount_storages": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "mount_path": "string",
+                      "path": "string",
+                      "status": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "pool_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "pool_name": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "ssh_uri": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              },
+              "url": {
+                "type": "string",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "volume": {
+                "block": {
+                  "attributes": {
+                    "mount_path": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "ownership": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true,
+                      "default": "MANAGED"
+                    },
+                    "size": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "uri": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "Enterprise Intelligence",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "EI 企业智能"
+          }
+        }
+      }
+    }
+  }
+}

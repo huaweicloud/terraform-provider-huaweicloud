@@ -25,7 +25,6 @@ var maxTimeout = 10 * time.Minute
 // customize the default http client RoundTripper to allow for logging.
 type LogRoundTripper struct {
 	Rt         http.RoundTripper
-	OsDebug    bool
 	MaxRetries int
 }
 
@@ -51,15 +50,13 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 
 	var err error
 
-	if lrt.OsDebug {
-		log.Printf("[DEBUG] API Request URL: %s %s", request.Method, request.URL)
-		log.Printf("[DEBUG] API Request Headers:\n%s", FormatHeaders(request.Header, "\n"))
+	log.Printf("[DEBUG] API Request URL: %s %s", request.Method, request.URL)
+	log.Printf("[DEBUG] API Request Headers:\n%s", FormatHeaders(request.Header, "\n"))
 
-		if request.Body != nil {
-			request.Body, err = lrt.logRequest(request.Body, request.Header.Get("Content-Type"))
-			if err != nil {
-				return nil, err
-			}
+	if request.Body != nil {
+		request.Body, err = lrt.logRequest(request.Body, request.Header.Get("Content-Type"))
+		if err != nil {
+			return nil, err
 		}
 	}
 
@@ -76,28 +73,23 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 	for response == nil {
 
 		if retry > lrt.MaxRetries {
-			if lrt.OsDebug {
-				log.Printf("[DEBUG] connection error, retries exhausted. Aborting")
-			}
+			log.Printf("[DEBUG] connection error, retries exhausted. Aborting")
 			err = fmt.Errorf("connection error, retries exhausted. Aborting. Last error was: %s", err)
 			return nil, err
 		}
 
-		if lrt.OsDebug {
-			log.Printf("[DEBUG] connection error, retry number %d: %s", retry, err)
-		}
+		log.Printf("[DEBUG] connection error, retry number %d: %s", retry, err)
+
 		//lintignore:R018
 		time.Sleep(retryTimeout(retry))
 		response, err = lrt.Rt.RoundTrip(request)
 		retry++
 	}
 
-	if lrt.OsDebug {
-		log.Printf("[DEBUG] API Response Code: %d", response.StatusCode)
-		log.Printf("[DEBUG] API Response Headers:\n%s", FormatHeaders(response.Header, "\n"))
+	log.Printf("[DEBUG] API Response Code: %d", response.StatusCode)
+	log.Printf("[DEBUG] API Response Headers:\n%s", FormatHeaders(response.Header, "\n"))
 
-		response.Body, err = lrt.logResponse(response.Body, response.Header.Get("Content-Type"))
-	}
+	response.Body, err = lrt.logResponse(response.Body, response.Header.Get("Content-Type"))
 
 	return response, err
 }

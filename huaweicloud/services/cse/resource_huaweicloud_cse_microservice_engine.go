@@ -24,6 +24,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var DefaultVersion = "CSE2"
+
 func ResourceMicroserviceEngine() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMicroserviceEngineCreate,
@@ -80,6 +82,12 @@ func ResourceMicroserviceEngine() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"RBAC", "NONE",
 				}, false),
+			},
+			"version": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  DefaultVersion,
 			},
 			"admin_pass": {
 				Type:      schema.TypeString,
@@ -175,7 +183,7 @@ func resourceMicroserviceEngineCreate(ctx context.Context, d *schema.ResourceDat
 	authType := d.Get("auth_type").(string)
 	createOpts := engines.CreateOpts{
 		Payment:             "1",
-		SpecType:            "CSE2",
+		SpecType:            d.Get("version").(string),
 		Name:                d.Get("name").(string),
 		Description:         d.Get("description").(string),
 		Flavor:              d.Get("flavor").(string),
@@ -272,6 +280,7 @@ func resourceMicroserviceEngineRead(_ context.Context, d *schema.ResourceData, m
 		d.Set("flavor", resp.Flavor),
 		d.Set("availability_zones", resp.Reference.AzList),
 		d.Set("auth_type", resp.AuthType),
+		d.Set("version", resp.SpecType),
 		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
 		d.Set("network_id", resp.Reference.NetworkId),
 		d.Set("description", resp.Description),

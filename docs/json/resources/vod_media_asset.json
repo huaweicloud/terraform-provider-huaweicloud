@@ -1,0 +1,171 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_vod_media_asset": {
+          "block": {
+            "attributes": {
+              "auto_encrypt": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              },
+              "auto_preload": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              },
+              "category_id": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "category_name": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "input_bucket": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "input_path": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "labels": {
+                "type": "string",
+                "optional": true
+              },
+              "media_name": {
+                "type": "string",
+                "computed": true
+              },
+              "media_type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "media_url": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "output_bucket": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "output_path": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "publish": {
+                "type": "bool",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "review_template_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "storage_mode": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "template_group_name": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "url": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "workflow_name": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "thumbnail": {
+                "block": {
+                  "attributes": {
+                    "aspect_ratio": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "cover_position": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "dots": {
+                      "type": [
+                        "list",
+                        "number"
+                      ],
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "format": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "max_length": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "time": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "VOD",
+            "name": "Video on Demand",
+            "catalog": "Media Services",
+            "name_cn": "视频点播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

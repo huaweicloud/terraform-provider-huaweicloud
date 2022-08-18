@@ -1,0 +1,67 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_iotda_device_certificate": {
+          "block": {
+            "attributes": {
+              "cn": {
+                "type": "string",
+                "computed": true
+              },
+              "content": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "effective_date": {
+                "type": "string",
+                "computed": true
+              },
+              "expiry_date": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "owner": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "space_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "verify_code": {
+                "type": "string",
+                "computed": true
+              },
+              "verify_content": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "IoTDA",
+            "name": "IoT Device Access",
+            "catalog": "Internet of Things",
+            "name_cn": "设备接入",
+            "catalog_cn": "物联网"
+          }
+        }
+      }
+    }
+  }
+}

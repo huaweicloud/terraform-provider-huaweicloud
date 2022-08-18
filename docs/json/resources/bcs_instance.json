@@ -1,0 +1,330 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_bcs_instance": {
+          "block": {
+            "attributes": {
+              "agent_portal_address": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "blockchain_type": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "cce_cluster_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "cluster_type": {
+                "type": "string",
+                "computed": true
+              },
+              "consensus": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "cross_region_support": {
+                "type": "bool",
+                "computed": true
+              },
+              "database_type": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "delete_obs": {
+                "type": "bool",
+                "optional": true
+              },
+              "delete_storage": {
+                "type": "bool",
+                "optional": true
+              },
+              "edition": {
+                "type": "number",
+                "required": true,
+                "forcenew": true
+              },
+              "eip_enable": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true,
+                "default": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "fabric_version": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "old_service_version": {
+                "type": "string",
+                "computed": true
+              },
+              "orderer_node_num": {
+                "type": "number",
+                "required": true,
+                "forcenew": true
+              },
+              "org_disk_size": {
+                "type": "number",
+                "required": true,
+                "forcenew": true
+              },
+              "password": {
+                "type": "string",
+                "required": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "purchase_type": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "restful_api_support": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "rollback_support": {
+                "type": "bool",
+                "computed": true
+              },
+              "security_mechanism": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "tc3_need": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "version": {
+                "type": "string",
+                "computed": true
+              },
+              "volume_type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "block_info": {
+                "block": {
+                  "attributes": {
+                    "block_size": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "generation_interval": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "transaction_quantity": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "channels": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "org_names": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "forcenew": true
+              },
+              "couchdb": {
+                "block": {
+                  "attributes": {
+                    "password": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true,
+                      "sensitive": true
+                    },
+                    "user_name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "kafka": {
+                "block": {
+                  "attributes": {
+                    "availability_zone": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "flavor": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "storage_size": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "peer_orgs": {
+                "block": {
+                  "attributes": {
+                    "address": {
+                      "type": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "domain_port": "string",
+                            "ip_port": "string"
+                          }
+                        ]
+                      ],
+                      "computed": true
+                    },
+                    "count": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "org_name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "pvc_name": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "status_detail": {
+                      "type": "string",
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "forcenew": true
+              },
+              "sfs_turbo": {
+                "block": {
+                  "attributes": {
+                    "availability_zone": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "flavor": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "share_type": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "BCS",
+            "name": "Blockchain Service",
+            "catalog": "Application",
+            "name_cn": "区块链服务",
+            "catalog_cn": "应用服务"
+          }
+        }
+      }
+    }
+  }
+}

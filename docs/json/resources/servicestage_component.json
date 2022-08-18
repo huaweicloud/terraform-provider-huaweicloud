@@ -1,0 +1,109 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_servicestage_component": {
+          "block": {
+            "attributes": {
+              "application_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "framework": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "runtime": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "builder": {
+                "block": {
+                  "attributes": {
+                    "cluster_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "cmd": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "node_label": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "optional": true
+                    },
+                    "organization": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "source": {
+                "block": {
+                  "attributes": {
+                    "authorization": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "storage_type": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "url": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "ServiceStage",
+            "name": "ServiceStage",
+            "catalog": "Application",
+            "name_cn": "应用管理与运维平台",
+            "catalog_cn": "应用服务"
+          }
+        }
+      }
+    }
+  }
+}

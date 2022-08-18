@@ -90,9 +90,11 @@
             }
           },
           "product": {
-            "catalog": "Security",
+            "short": "KMS",
             "name": "Data Encryption Workshop KMS",
-            "short": "KMS"
+            "catalog": "Security \u0026 Compliance",
+            "name_cn": "数据加密服务-密钥管理",
+            "catalog_cn": "安全与合规"
           }
         }
       }

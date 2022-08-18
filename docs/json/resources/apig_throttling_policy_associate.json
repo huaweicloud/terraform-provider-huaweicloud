@@ -1,0 +1,46 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_throttling_policy_associate": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "policy_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "publish_ids": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Application",
+            "name_cn": "API网关",
+            "catalog_cn": "应用服务"
+          }
+        }
+      }
+    }
+  }
+}

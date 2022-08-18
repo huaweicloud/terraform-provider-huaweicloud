@@ -491,6 +491,43 @@ func ResourceComponentInstance() *schema.Resource {
 								},
 							},
 						},
+						"log_collection_policy": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"container_mounting": {
+										Type:     schema.TypeSet,
+										Required: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"path": {
+													Type:     schema.TypeString,
+													Required: true,
+												},
+												"host_extend_path": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"aging_period": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Default:  "Hourly",
+													ValidateFunc: validation.StringInSlice([]string{
+														"Hourly", "Daily", "Weekly",
+													}, false),
+												},
+											},
+										},
+									},
+									"host_path": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
+						},
 						"scheduler": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -669,13 +706,13 @@ func buildMountsList(mounts *schema.Set) []instances.Mount {
 		return nil
 	}
 
-	result := make([]instances.Mount, 0, mounts.Len())
+	result := make([]instances.Mount, mounts.Len())
 	for i, val := range mounts.List() {
 		mount := val.(map[string]interface{})
 		result[i] = instances.Mount{
 			Path:     mount["path"].(string),
 			SubPath:  mount["subpath"].(string),
-			ReadOnly: mount["readonly"].(bool),
+			ReadOnly: utils.Bool(mount["readonly"].(bool)),
 		}
 	}
 
@@ -701,7 +738,7 @@ func buildStoragesList(storages *schema.Set) []instances.Storage {
 		result[i] = instances.Storage{
 			Type:       storage["type"].(string),
 			Parameters: &parameters,
-			Mounts:     buildMountsList(storage["mounts"].(*schema.Set)),
+			Mounts:     buildMountsList(storage["mount"].(*schema.Set)),
 		}
 	}
 
@@ -758,6 +795,30 @@ func buildLifecycleStructure(lifecycles []interface{}) *instances.Lifecycle {
 	}
 
 	return &result
+}
+
+func buildLogCollectionPoliciesStructure(policies *schema.Set) []instances.LogCollectionPolicy {
+	if policies.Len() < 1 {
+		return nil
+	}
+
+	result := make([]instances.LogCollectionPolicy, 0, policies.Len())
+	for _, val := range policies.List() {
+		policy := val.(map[string]interface{})
+		hostPath := policy["host_path"].(string)
+		cmSet := policy["container_mounting"].(*schema.Set)
+		for _, val := range cmSet.List() {
+			cm := val.(map[string]interface{})
+			result = append(result, instances.LogCollectionPolicy{
+				LogPath:        cm["path"].(string),
+				HostExtendPath: cm["host_extend_path"].(string),
+				AgingPeriod:    cm["aging_period"].(string),
+				HostPath:       hostPath,
+			})
+		}
+	}
+
+	return result
 }
 
 func buildAffinityStructure(affinities []interface{}) *instances.Affinity {
@@ -873,12 +934,13 @@ func buildConfigurationStructure(configs []interface{}) (instances.Configuration
 	}
 
 	return instances.Configuration{
-		EnvVariables: buildEnvVariables(config["env_variable"].(*schema.Set)),
-		Storages:     buildStoragesList(config["storage"].(*schema.Set)),
-		Strategy:     buildStrategyStructure(config["strategy"].([]interface{})),
-		Lifecycle:    buildLifecycleStructure(config["lifecycle"].([]interface{})),
-		Scheduler:    buildSchedulerStructure(config["lifecycle"].([]interface{})),
-		Probe:        probe,
+		EnvVariables:          buildEnvVariables(config["env_variable"].(*schema.Set)),
+		Storages:              buildStoragesList(config["storage"].(*schema.Set)),
+		Strategy:              buildStrategyStructure(config["strategy"].([]interface{})),
+		Lifecycle:             buildLifecycleStructure(config["lifecycle"].([]interface{})),
+		LogCollectionPolicies: buildLogCollectionPoliciesStructure(config["log_collection_policy"].(*schema.Set)),
+		Scheduler:             buildSchedulerStructure(config["lifecycle"].([]interface{})),
+		Probe:                 probe,
 	}, nil
 }
 
@@ -1098,7 +1160,7 @@ func flattenStorages(storages []instances.StorageResp) (result []map[string]inte
 					"claim_name": val.Parameters.ClaimName,
 				},
 			},
-			"mounts": flattenMounts(val.Mounts),
+			"mount": flattenMounts(val.Mounts),
 		})
 	}
 
@@ -1169,6 +1231,37 @@ func flattenLifecycle(lifecycle instances.LifecycleResp) (result []map[string]in
 	})
 
 	log.Printf("[DEBUG] The lifecycle result is %#v", result)
+	return
+}
+
+func flattenLogCollectionPolicies(policies []instances.LogCollectionPolicyResp) (result []map[string]interface{}) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("[ERROR] Recover panic when flattening policies structure: %#v", r)
+		}
+	}()
+
+	if len(policies) < 1 {
+		return nil
+	}
+
+	policiesMap := make(map[string][]interface{})
+	for _, val := range policies {
+		policiesMap[val.HostPath] = append(policiesMap[val.HostPath], map[string]interface{}{
+			"path":             val.LogPath,
+			"host_extend_path": val.HostExtendPath,
+			"aging_period":     val.AgingPeriod,
+		})
+	}
+
+	for k, v := range policiesMap {
+		result = append(result, map[string]interface{}{
+			"host_path":          k,
+			"container_mounting": v,
+		})
+	}
+
+	log.Printf("[DEBUG] The collection policies result is %#v", result)
 	return
 }
 
@@ -1285,12 +1378,13 @@ func flattenConfiguration(configuration instances.ConfigurationResp) (result []m
 
 	result = []map[string]interface{}{
 		{
-			"env_variable": flattenEnvVariables(configuration.EnvVariables),
-			"storage":      flattenStorages(configuration.Storages),
-			"strategy":     flattenStrategy(configuration.Strategy),
-			"lifecycle":    flattenLifecycle(configuration.Lifecycle),
-			"scheduler":    flattenScheduler(configuration.Scheduler),
-			"probe":        flattenProbe(configuration.Probe),
+			"env_variable":          flattenEnvVariables(configuration.EnvVariables),
+			"storage":               flattenStorages(configuration.Storages),
+			"strategy":              flattenStrategy(configuration.Strategy),
+			"lifecycle":             flattenLifecycle(configuration.Lifecycle),
+			"log_collection_policy": flattenLogCollectionPolicies(configuration.LogCollectionPolicy),
+			"scheduler":             flattenScheduler(configuration.Scheduler),
+			"probe":                 flattenProbe(configuration.Probe),
 		},
 	}
 	log.Printf("[DEBUG] The configuration result is %#v", result)

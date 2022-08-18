@@ -5,6 +5,10 @@ import (
 	"github.com/chnsz/golangsdk/pagination"
 )
 
+var requestOpts = golangsdk.RequestOpts{
+	MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+}
+
 // CreateOptsBuilder allows extensions to add additional parameters to the
 // Create request.
 type CreateOptsBuilder interface {
@@ -109,6 +113,9 @@ type ListOpts struct {
 
 	// ID will filter by a specific snapshot ID.
 	ID string `q:"id"`
+
+	Limit  int `q:"limit"`
+	Offset int `q:"offset"`
 }
 
 // ToSnapshotListQuery formats a ListOpts into a query string.
@@ -131,4 +138,28 @@ func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) pagination.Page
 	return pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
 		return SnapshotPage{pagination.SinglePageBase(r)}
 	})
+}
+
+func ListPage(client *golangsdk.ServiceClient, opts ListOptsBuilder) (*PagedList, error) {
+	url := listURL(client)
+	if opts != nil {
+		query, err := opts.ToSnapshotListQuery()
+		if err != nil {
+			return nil, err
+		}
+		url += query
+	}
+
+	var rst golangsdk.Result
+	_, err := client.Get(url, &rst.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	var r PagedList
+	err = rst.ExtractInto(&r)
+	return &r, err
 }

@@ -48,9 +48,11 @@
             }
           },
           "product": {
-            "catalog": "Network",
+            "short": "VPC",
             "name": "Virtual Private Cloud",
-            "short": "VPC"
+            "catalog": "Networking",
+            "name_cn": "虚拟私有云",
+            "catalog_cn": "网络"
           }
         }
       }

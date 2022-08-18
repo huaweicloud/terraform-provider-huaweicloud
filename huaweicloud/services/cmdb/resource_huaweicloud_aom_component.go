@@ -10,7 +10,6 @@ import (
 	entity2 "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
 	"io/ioutil"
-	"strings"
 	"time"
 )
 
@@ -43,6 +42,11 @@ func ResourceAomComponent() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -60,22 +64,18 @@ func ResourceAomComponent() *schema.Resource {
 			},
 			"create_time": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 			"creator": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 			"modified_time": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 			"modifier": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 			"register_type": {
@@ -93,20 +93,19 @@ func ResourceAomComponent() *schema.Resource {
 }
 
 func ResourceAomComponentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(config)
+	cfg := meta.(*config.Config)
+	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
 	if diaErr != nil {
 		return diaErr
 	}
-	url := strings.Replace(config.Endpoints["aom"], "https//", "https://", -1) + "v1/components"
 	opts := entity2.ComponentParam{
 		Description: d.Get("description").(string),
 		ModelType:   d.Get("model_type").(string),
 		ModelId:     d.Get("model_id").(string),
 		Name:        d.Get("name").(string),
 	}
-
-	client.WithMethod(httpclient_go.MethodPost).WithUrl(url).WithBody(opts)
+	client.WithMethod(httpclient_go.MethodPost).
+		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/components").WithBody(opts)
 	response, err := client.Do()
 	if err != nil {
 		return diag.Errorf("error create Component fields %s: %s", opts, err)
@@ -129,14 +128,14 @@ func ResourceAomComponentCreate(ctx context.Context, d *schema.ResourceData, met
 }
 
 func ResourceAomComponentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(config)
+	cfg := meta.(*config.Config)
+	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
 	if diaErr != nil {
 		return diaErr
 	}
-	url := strings.Replace(config.Endpoints["aom"], "https//", "https://", -1) + "v1/components/" + d.Id()
 
-	client.WithMethod(httpclient_go.MethodGet).WithUrl(url)
+	client.WithMethod(httpclient_go.MethodGet).
+		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/components/"+d.Id())
 	response, err := client.Do()
 
 	body, diags := client.CheckDeletedDiag(d, err, response, "error retrieving Component")
@@ -170,12 +169,11 @@ func ResourceAomComponentRead(ctx context.Context, d *schema.ResourceData, meta 
 }
 
 func ResourceAomComponentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(config)
+	cfg := meta.(*config.Config)
+	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
 	if diaErr != nil {
 		return diaErr
 	}
-	url := strings.Replace(config.Endpoints["aom"], "https//", "https://", -1) + "v1/components/" + d.Id()
 	opts := entity2.ComponentParam{
 		Description: d.Get("description").(string),
 		ModelType:   d.Get("model_type").(string),
@@ -183,7 +181,8 @@ func ResourceAomComponentUpdate(ctx context.Context, d *schema.ResourceData, met
 		Name:        d.Get("name").(string),
 	}
 
-	client.WithMethod(httpclient_go.MethodPut).WithUrl(url).WithBody(opts)
+	client.WithMethod(httpclient_go.MethodPut).
+		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/components/"+d.Id()).WithBody(opts)
 	response, err := client.Do()
 	if err != nil {
 		return diag.Errorf("error update Component fields %s: %s", opts, err)
@@ -202,14 +201,15 @@ func ResourceAomComponentUpdate(ctx context.Context, d *schema.ResourceData, met
 }
 
 func ResourceAomComponentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(config)
+	cfg := meta.(*config.Config)
+	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
 	if diaErr != nil {
 		return diaErr
 	}
-	url := strings.Replace(config.Endpoints["aom"], "https//", "https://", -1) + "v1/components/" + d.Id()
 
-	client.WithMethod(httpclient_go.MethodDelete).WithUrl(url)
+	client.WithMethod(httpclient_go.MethodDelete).
+		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/components/"+d.Id())
+
 	response, err := client.Do()
 	if err != nil {
 		return diag.Errorf("error delete Component %s: %s", d.Id(), err)

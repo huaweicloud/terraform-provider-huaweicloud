@@ -82,9 +82,10 @@ func ResourceRdsInstance() *schema.Resource {
 							ForceNew:  true,
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Type:             schema.TypeString,
+							Required:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: utils.SuppressCaseDiffs,
 						},
 						"version": {
 							Type:     schema.TypeString,
@@ -367,6 +368,8 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 			Timeout:      d.Timeout(schema.TimeoutCreate),
 			Delay:        20 * time.Second,
 			PollInterval: 10 * time.Second,
+			// Ensure that the instance is 'ACTIVE', not going to enter 'BACKING UP'.
+			ContinuousTargetOccurence: 2,
 		}
 		if _, err = stateConf.WaitForState(); err != nil {
 			return diag.Errorf("error waiting for RDS instance (%s) creation completed: %s", instanceID, err)

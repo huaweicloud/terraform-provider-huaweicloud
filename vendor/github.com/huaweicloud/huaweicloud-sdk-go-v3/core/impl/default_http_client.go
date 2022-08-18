@@ -95,6 +95,9 @@ func (client *DefaultHttpClient) SyncInvokeHttpWithExchange(request *request.Def
 
 	client.recordRequestInfo(exch, req)
 	resp, err := client.goHttpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
 	client.recordResponseInfo(exch, resp)
 
 	if lnErr := client.listenResponse(resp); lnErr != nil {
@@ -102,9 +105,6 @@ func (client *DefaultHttpClient) SyncInvokeHttpWithExchange(request *request.Def
 	}
 	client.monitorHttp(exch, resp)
 
-	if err != nil {
-		return nil, err
-	}
 	return response.NewDefaultHttpResponse(resp), nil
 }
 

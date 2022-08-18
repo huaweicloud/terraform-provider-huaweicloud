@@ -1,5 +1,29 @@
 # CHANGELOG
 
+## 1.39.0 (August 15, 2022)
+
+* **New Resurce:**
+  + `huaweicloud_meeting_user` [GH-2249]
+  + `huaweicloud_meeting_admin_assignment` [GH-2251]
+  + `huaweicloud_dds_database_role` [GH-2270]
+  + `huaweicloud_dds_database_user` [GH-2286]
+
+* **New Data Source:**
+  + `huaweicloud_identity_users` [GH-2267]
+
+ENHANCEMENTS:
+
+* log: Support setting log level by TF_LOG_PROVIDER environment variable  [GH-2269]
+* resource/huaweicloud_cdn_domain: Support configs and cache_settings in cdn domain [GH-2274]
+* resource/huaweicloud_servicestage_component_instance: Support log collection policy for host mounting
+  and container mounting [GH-2276]
+* resource/huaweicloud_networking_secgroup_rule: Support `action` and `priority` parameters [GH-2289]
+
+BUG FIXES:
+
+* resource/huaweicloud_rds_instance: Avoid BACKING_UP state issue [GH-2272]
+* resource/huaweicloud_cce_node_pool: Convert the value of subfield in `extend_param` to string [GH-2288]
+
 ## 1.38.2 (July 30, 2022)
 
 ENHANCEMENTS:

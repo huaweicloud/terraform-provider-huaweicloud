@@ -1,0 +1,142 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_aom_alarm_rule": {
+          "block": {
+            "attributes": {
+              "alarm_action_enabled": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true,
+                "default": true
+              },
+              "alarm_actions": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "alarm_enabled": {
+                "type": "bool",
+                "computed": true
+              },
+              "alarm_level": {
+                "type": "number",
+                "optional": true,
+                "default": 2
+              },
+              "comparison_operator": {
+                "type": "string",
+                "required": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "evaluation_periods": {
+                "type": "number",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "insufficient_data_actions": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "metric_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "namespace": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "ok_actions": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "period": {
+                "type": "number",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "state_reason": {
+                "type": "string",
+                "computed": true
+              },
+              "state_value": {
+                "type": "string",
+                "computed": true
+              },
+              "statistic": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "threshold": {
+                "type": "string",
+                "required": true
+              },
+              "unit": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "dimensions": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "AOM",
+            "name": "Application Operations Management",
+            "catalog": "Application",
+            "name_cn": "应用运维管理",
+            "catalog_cn": "应用服务"
+          }
+        }
+      }
+    }
+  }
+}

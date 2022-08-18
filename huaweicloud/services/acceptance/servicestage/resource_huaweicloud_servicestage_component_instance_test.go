@@ -37,8 +37,6 @@ func TestAccComponentInstance_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckRepoTokenAuth(t)
-			acceptance.TestAccPreCheckComponent(t)
 			acceptance.TestAccPreCheckComponentDeployment(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -64,6 +62,7 @@ func TestAccComponentInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "artifact.0.auth_type", "iam"),
 					resource.TestCheckResourceAttr(resourceName, "refer_resource.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "status", "RUNNING"),
+					resource.TestCheckResourceAttr(resourceName, "configuration.0.log_collection_policy.#", "2"),
 				),
 			},
 			{
@@ -76,6 +75,7 @@ func TestAccComponentInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configuration.0.env_variable.0.name", "TZ"),
 					resource.TestCheckResourceAttr(resourceName, "configuration.0.env_variable.0.value", "Asia/Shanghai"),
 					resource.TestCheckResourceAttr(resourceName, "status", "RUNNING"),
+					resource.TestCheckResourceAttr(resourceName, "configuration.0.log_collection_policy.#", "1"),
 				),
 			},
 			{
@@ -203,14 +203,9 @@ resource "huaweicloud_servicestage_application" "test" {
   name = "%[1]s"
 }
 
-resource "huaweicloud_servicestage_repo_token_authorization" "test" {
-  type  = "github"
-  name  = "%[1]s"
-  host  = "%[2]s"
-  token = "%[3]s"
-}
-
 resource "huaweicloud_servicestage_component" "test" {
+  depends_on = [huaweicloud_cce_node.test]
+
   application_id = huaweicloud_servicestage_application.test.id
 
   name      = "%[1]s"
@@ -218,8 +213,7 @@ resource "huaweicloud_servicestage_component" "test" {
   runtime   = "Docker"
   framework = "Java Classis"
 }
-`, rName, acceptance.HW_GITHUB_REPO_HOST, acceptance.HW_GITHUB_PERSONAL_TOKEN, acceptance.HW_GITHUB_REPO_URL,
-		acceptance.HW_DOMAIN_NAME)
+`, rName)
 }
 
 func testAccComponentInstance_basic(rName string) string {
@@ -258,6 +252,62 @@ resource "huaweicloud_servicestage_component_instance" "test" {
   refer_resource {
     type = "cse"
     id   = "default"
+  }
+
+  configuration {
+    log_collection_policy {
+      host_path = "/tmp"
+
+      container_mounting {
+        path         = "/tmp/01"
+        aging_period = "Hourly"
+      }
+      container_mounting {
+        path         = "/tmp/02"
+        aging_period = "Daily"
+      }
+      container_mounting {
+        path         = "/tmp/03"
+        aging_period = "Weekly"
+      }
+      container_mounting {
+        path             = "/tmp/04"
+        host_extend_path = "PodUID"
+        aging_period     = "Weekly"
+      }
+      container_mounting {
+        path             = "/tmp/05"
+        host_extend_path = "PodName"
+        aging_period     = "Weekly"
+      }
+      container_mounting {
+        path             = "/tmp/06"
+        host_extend_path = "PodUID/ContainerName"
+        aging_period     = "Weekly"
+      }
+    }
+    log_collection_policy {
+      host_path = "/mytest"
+
+      container_mounting {
+        path         = "/mytest/01"
+        aging_period = "Hourly"
+      }
+    }
+
+    storage {
+      type = "HostPath"
+
+      parameter {
+        path = "/tmp"
+      }
+
+      mount {
+        path     = "/local/01"
+        readonly = false
+        subpath  = "./store/01"
+      }
+    }
   }
 }
 `, testAccComponentInstance_base(rName), rName, acceptance.HW_BUILD_IMAGE_URL)
@@ -304,6 +354,13 @@ resource "huaweicloud_servicestage_component_instance" "test" {
     env_variable {
       name  = "TZ"
       value = "Asia/Shanghai"
+    }
+
+    log_collection_policy {
+      container_mounting {
+        path         = "/tmp"
+        aging_period = "Hourly"
+      }
     }
   }
 }

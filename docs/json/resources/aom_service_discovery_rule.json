@@ -1,0 +1,179 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_aom_service_discovery_rule": {
+          "block": {
+            "attributes": {
+              "detect_log_enabled": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "discovery_rule_enabled": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_default_rule": {
+                "type": "bool",
+                "optional": true,
+                "default": false
+              },
+              "log_file_suffix": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "priority": {
+                "type": "number",
+                "optional": true,
+                "default": 9999
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "rule_id": {
+                "type": "string",
+                "computed": true
+              },
+              "service_type": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "discovery_rules": {
+                "block": {
+                  "attributes": {
+                    "check_content": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    },
+                    "check_mode": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "check_type": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "log_path_rules": {
+                "block": {
+                  "attributes": {
+                    "args": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    },
+                    "name_type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "value": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "name_rules": {
+                "block": {
+                  "block_types": {
+                    "application_name_rule": {
+                      "block": {
+                        "attributes": {
+                          "args": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "required": true
+                          },
+                          "name_type": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "value": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    },
+                    "service_name_rule": {
+                      "block": {
+                        "attributes": {
+                          "args": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "required": true
+                          },
+                          "name_type": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "value": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "AOM",
+            "name": "Application Operations Management",
+            "catalog": "Application",
+            "name_cn": "应用运维管理",
+            "catalog_cn": "应用服务"
+          }
+        }
+      }
+    }
+  }
+}

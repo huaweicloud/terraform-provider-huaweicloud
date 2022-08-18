@@ -12,8 +12,8 @@ type ListInstantQueryAomPromGetResponse struct {
 	// 响应状态。
 	Status *string `json:"status,omitempty"`
 
-	Data           *Data `json:"data,omitempty"`
-	HttpStatusCode int   `json:"-"`
+	Data           *interface{} `json:"data,omitempty"`
+	HttpStatusCode int          `json:"-"`
 }
 
 func (o ListInstantQueryAomPromGetResponse) String() string {

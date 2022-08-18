@@ -409,6 +409,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_identity_custom_role": iam.DataSourceIdentityCustomRole(),
 			"huaweicloud_identity_group":       iam.DataSourceIdentityGroup(),
 			"huaweicloud_identity_projects":    iam.DataSourceIdentityProjects(),
+			"huaweicloud_identity_users":       iam.DataSourceIdentityUsers(),
 
 			"huaweicloud_iec_bandwidths":     dataSourceIECBandWidths(),
 			"huaweicloud_iec_eips":           dataSourceIECNetworkEips(),
@@ -433,7 +434,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_elb_certificate": elb.DataSourceELBCertificateV3(),
 
 			"huaweicloud_nat_gateway":          DataSourceNatGatewayV2(),
-			"huaweicloud_networking_port":      DataSourceNetworkingPortV2(),
+			"huaweicloud_networking_port":      vpc.DataSourceNetworkingPortV2(),
 			"huaweicloud_networking_secgroup":  DataSourceNetworkingSecGroup(),
 			"huaweicloud_networking_secgroups": vpc.DataSourceNetworkingSecGroups(),
 
@@ -480,7 +481,7 @@ func Provider() *schema.Provider {
 
 			// Legacy
 			"huaweicloud_images_image_v2":        ims.DataSourceImagesImageV2(),
-			"huaweicloud_networking_port_v2":     DataSourceNetworkingPortV2(),
+			"huaweicloud_networking_port_v2":     vpc.DataSourceNetworkingPortV2(),
 			"huaweicloud_networking_secgroup_v2": DataSourceNetworkingSecGroup(),
 
 			"huaweicloud_kms_key_v1":      DataSourceKmsKeyV1(),
@@ -616,8 +617,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_thesaurus": css.ResourceCssthesaurus(),
 
 			"huaweicloud_dcs_instance": dcs.ResourceDcsInstance(),
-			"huaweicloud_dds_instance": dds.ResourceDdsInstanceV3(),
-			"huaweicloud_dis_stream":   dis.ResourceDisStream(),
+
+			"huaweicloud_dds_database_role": dds.ResourceDatabaseRole(),
+			"huaweicloud_dds_database_user": dds.ResourceDatabaseUser(),
+			"huaweicloud_dds_instance":      dds.ResourceDdsInstanceV3(),
+
+			"huaweicloud_dis_stream": dis.ResourceDisStream(),
 
 			"huaweicloud_dli_database":     dli.ResourceDliSqlDatabaseV1(),
 			"huaweicloud_dli_package":      dli.ResourceDliPackageV2(),

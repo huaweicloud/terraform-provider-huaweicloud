@@ -19,6 +19,12 @@
                 "computed": true,
                 "forcenew": true
               },
+              "broker_num": {
+                "type": "number",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "connect_address": {
                 "type": "string",
                 "computed": true
@@ -71,6 +77,10 @@
                 "type": "string",
                 "optional": true,
                 "computed": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "optional": true
               },
               "id": {
                 "type": "string",
@@ -126,7 +136,7 @@
               },
               "product_id": {
                 "type": "string",
-                "required": true
+                "optional": true
               },
               "public_ip_ids": {
                 "type": [
@@ -202,9 +212,11 @@
             }
           },
           "product": {
-            "catalog": "Application",
+            "short": "Kafka",
             "name": "Distributed Message Service for Kafka",
-            "short": "DMS"
+            "catalog": "Application",
+            "name_cn": "分布式消息服务 Kafka",
+            "catalog_cn": "应用服务"
           }
         }
       }

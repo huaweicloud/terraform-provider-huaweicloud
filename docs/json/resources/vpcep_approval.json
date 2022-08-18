@@ -43,9 +43,11 @@
             }
           },
           "product": {
-            "catalog": "Network",
+            "short": "VPCEP",
             "name": "VPC Endpoint",
-            "short": "VPCEP"
+            "catalog": "Networking",
+            "name_cn": "VPC终端节点",
+            "catalog_cn": "网络"
           }
         }
       }

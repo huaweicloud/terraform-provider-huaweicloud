@@ -56,6 +56,13 @@ func (client *HttpClientGo) WithUrl(url string) *HttpClientGo {
 	return client
 }
 
+func (client *HttpClientGo) WithUrlWithoutEndpoint(cfg *config.Config, srv, region, path string) *HttpClientGo {
+	endpoint := config.GetServiceEndpoint(cfg, srv, region)
+
+	client.Url = endpoint + path
+	return client
+}
+
 func (client *HttpClientGo) WithBody(body interface{}) *HttpClientGo {
 	client.Body = body
 	return client

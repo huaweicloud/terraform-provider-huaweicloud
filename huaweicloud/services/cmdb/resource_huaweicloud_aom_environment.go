@@ -10,7 +10,6 @@ import (
 	entity2 "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
 	"io/ioutil"
-	"strings"
 	"time"
 )
 
@@ -33,7 +32,8 @@ func ResourceAomEnvironment() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 			"env_name": {
@@ -71,12 +71,10 @@ func ResourceAomEnvironment() *schema.Resource {
 			},
 			"create_time": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 			"creator": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 			"env_id": {
@@ -103,19 +101,17 @@ func ResourceAomEnvironment() *schema.Resource {
 					},
 				},
 			},
-			"eps_id": {
+			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 			"modified_time": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 			"modifier": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 		},
@@ -123,23 +119,23 @@ func ResourceAomEnvironment() *schema.Resource {
 }
 
 func ResourceAomEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(config)
+	cfg := meta.(*config.Config)
+	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
 	if diaErr != nil {
 		return diaErr
 	}
-	url := strings.Replace(config.Endpoints["aom"], "https//", "https://", -1) + "v1/environments"
+
 	opts := entity2.EnvParam{
 		ComponentId:  d.Get("component_id").(string),
 		Description:  d.Get("description").(string),
 		EnvName:      d.Get("env_name").(string),
 		EnvType:      d.Get("env_type").(string),
 		OsType:       d.Get("os_type").(string),
-		Region:       d.Get("region").(string),
+		Region:       cfg.GetRegion(d),
 		RegisterType: d.Get("register_type").(string),
 	}
-
-	client.WithMethod(httpclient_go.MethodPost).WithUrl(url).WithBody(opts)
+	client.WithMethod(httpclient_go.MethodPost).
+		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/environments").WithBody(opts)
 	response, err := client.Do()
 	if err != nil {
 		return diag.Errorf("error create Environment fields %s: %s", opts, err)
@@ -162,14 +158,14 @@ func ResourceAomEnvironmentCreate(ctx context.Context, d *schema.ResourceData, m
 }
 
 func ResourceAomEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(config)
+	cfg := meta.(*config.Config)
+	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
 	if diaErr != nil {
 		return diaErr
 	}
-	url := strings.Replace(config.Endpoints["aom"], "https//", "https://", -1) + "v1/environments/" + d.Id()
 
-	client.WithMethod(httpclient_go.MethodGet).WithUrl(url)
+	client.WithMethod(httpclient_go.MethodGet).
+		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/environments/"+d.Id())
 	response, err := client.Do()
 
 	body, diags := client.CheckDeletedDiag(d, err, response, "error retrieving Environment")
@@ -192,7 +188,7 @@ func ResourceAomEnvironmentRead(ctx context.Context, d *schema.ResourceData, met
 		d.Set("env_id", rlt.EnvId),
 		d.Set("env_name", rlt.EnvName),
 		d.Set("env_type", rlt.EnvType),
-		d.Set("eps_id", rlt.EpsId),
+		d.Set("enterprise_project_id", rlt.EpsId),
 		d.Set("modified_time", rlt.ModifiedTime),
 		d.Set("modifier", rlt.Modifier),
 		d.Set("os_type", rlt.OsType),
@@ -215,23 +211,23 @@ func ResourceAomEnvironmentRead(ctx context.Context, d *schema.ResourceData, met
 }
 
 func ResourceAomEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(config)
+	cfg := meta.(*config.Config)
+	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
 	if diaErr != nil {
 		return diaErr
 	}
-	url := strings.Replace(config.Endpoints["aom"], "https//", "https://", -1) + "v1/environments/" + d.Id()
 	opts := entity2.EnvParam{
 		ComponentId:  d.Get("component_id").(string),
 		Description:  d.Get("description").(string),
 		EnvName:      d.Get("env_name").(string),
 		EnvType:      d.Get("env_type").(string),
 		OsType:       d.Get("os_type").(string),
-		Region:       d.Get("region").(string),
+		Region:       cfg.GetRegion(d),
 		RegisterType: d.Get("register_type").(string),
 	}
 
-	client.WithMethod(httpclient_go.MethodPut).WithUrl(url).WithBody(opts)
+	client.WithMethod(httpclient_go.MethodPut).
+		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/environments/"+d.Id()).WithBody(opts)
 	response, err := client.Do()
 	if err != nil {
 		return diag.Errorf("error update Environment fields %s: %s", opts, err)
@@ -250,14 +246,14 @@ func ResourceAomEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, m
 }
 
 func ResourceAomEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(config)
+	cfg := meta.(*config.Config)
+	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
 	if diaErr != nil {
 		return diaErr
 	}
-	url := strings.Replace(config.Endpoints["aom"], "https//", "https://", -1) + "v1/environments/" + d.Id()
 
-	client.WithMethod(httpclient_go.MethodDelete).WithUrl(url)
+	client.WithMethod(httpclient_go.MethodDelete).
+		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/environments/"+d.Id())
 	response, err := client.Do()
 	if err != nil {
 		return diag.Errorf("error delete Environment %s: %s", d.Id(), err)

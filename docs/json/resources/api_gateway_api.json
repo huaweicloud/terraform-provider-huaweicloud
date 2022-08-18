@@ -1,0 +1,235 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_api_gateway_api": {
+          "block": {
+            "attributes": {
+              "auth_type": {
+                "type": "string",
+                "required": true
+              },
+              "backend_type": {
+                "type": "string",
+                "required": true
+              },
+              "cors": {
+                "type": "bool",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "example_failure_response": {
+                "type": "string",
+                "optional": true
+              },
+              "example_success_response": {
+                "type": "string",
+                "required": true
+              },
+              "group_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "group_name": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "request_method": {
+                "type": "string",
+                "required": true
+              },
+              "request_protocol": {
+                "type": "string",
+                "optional": true,
+                "default": "HTTPS"
+              },
+              "request_uri": {
+                "type": "string",
+                "required": true
+              },
+              "tags": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true
+              },
+              "version": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "visibility": {
+                "type": "number",
+                "optional": true,
+                "default": 2
+              }
+            },
+            "block_types": {
+              "backend_parameter": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "location": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "optional": true,
+                      "default": "REQUEST"
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "function_backend": {
+                "block": {
+                  "attributes": {
+                    "function_urn": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "invocation_type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "timeout": {
+                      "type": "number",
+                      "optional": true,
+                      "default": 50000
+                    },
+                    "version": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "http_backend": {
+                "block": {
+                  "attributes": {
+                    "method": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "protocol": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "timeout": {
+                      "type": "number",
+                      "optional": true,
+                      "default": 50000
+                    },
+                    "uri": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "url_domain": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "vpc_channel": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "mock_backend": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "result_content": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "version": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "request_parameter": {
+                "block": {
+                  "attributes": {
+                    "default": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "location": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "required": {
+                      "type": "bool",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Application",
+            "name_cn": "API网关",
+            "catalog_cn": "应用服务"
+          }
+        }
+      }
+    }
+  }
+}

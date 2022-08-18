@@ -29,9 +29,11 @@
             }
           },
           "product": {
-            "catalog": "Network",
+            "short": "ELB",
             "name": "Elastic Load Balance",
-            "short": "ELB"
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
           }
         }
       }

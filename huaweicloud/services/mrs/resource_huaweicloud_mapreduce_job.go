@@ -188,7 +188,8 @@ func buildMRSMapReduceJobRequestArguments(d *schema.ResourceData) []string {
 }
 
 // The request arguments of the SparkSubmit job is:
-//   <program parameters> --master yarn-cluster <jar path (/python path)> <parameters>.
+//
+//	<program parameters> --master yarn-cluster <jar path (/python path)> <parameters>.
 func buildMRSSparkSubmitJobRequestArguments(d *schema.ResourceData) []string {
 	programsMap := d.Get("program_parameters").(map[string]interface{})
 	programs := buildMRSJobProgramParameters(programsMap)
@@ -350,7 +351,8 @@ func makeMRSMapReduceJobParameters(job *jobs.Job) (string, string, error) {
 }
 
 // The string arguments of the flink job is:
-//   '<program parameters> --master yarn-cluster <jar path (/python path)> <parameters>'.
+//
+//	'<program parameters> --master yarn-cluster <jar path (/python path)> <parameters>'.
 func makeMRSSparkSubmitJobParameters(job *jobs.Job) (string, string, map[string]interface{}, error) {
 	programs := make(map[string]interface{})
 	arguments := makeMRSArgumentsByString(job.Arguments)

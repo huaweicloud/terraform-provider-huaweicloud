@@ -703,7 +703,7 @@ resource "huaweicloud_cbr_vault" "test" {
 		testAccVault_policy(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-//Vaults of type 'turbo'
+// Vaults of type 'turbo'
 func testAccVault_turboBase(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}

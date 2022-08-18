@@ -13,9 +13,10 @@ import (
 )
 
 func getCompResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	url := "https://aom.cn-north-7.myhuaweicloud.com/v1/components/" + state.Primary.Attributes["id"]
+	c, _ := httpclient_go.NewHttpClientGo(conf)
 
-	c.WithMethod(httpclient_go.MethodGet).WithUrl(url)
+	c.WithMethod(httpclient_go.MethodGet).
+		WithUrlWithoutEndpoint(conf, "aom", conf.Region, "v1/components/"+state.Primary.Attributes["id"])
 	response, err := c.Do()
 	body, _ := c.CheckDeletedDiag(nil, err, response, "")
 	if body == nil {

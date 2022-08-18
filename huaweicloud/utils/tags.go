@@ -41,7 +41,7 @@ func UpdateResourceTags(conn *golangsdk.ServiceClient, d *schema.ResourceData, r
 	return nil
 }
 
-//This is a help to query tags of resource, then set to state. The schema argument name must be: tags
+// This is a help to query tags of resource, then set to state. The schema argument name must be: tags
 func SetResourceTagsToState(d *schema.ResourceData, client *golangsdk.ServiceClient, resourceType string) error {
 	// set tags
 	if resourceTags, err := tags.Get(client, resourceType, d.Id()).Extract(); err == nil {

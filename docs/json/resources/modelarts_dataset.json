@@ -1,0 +1,193 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelarts_dataset": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "data_format": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "import_labeled_enabled": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true,
+                "default": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "output_path": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "number",
+                "computed": true
+              },
+              "type": {
+                "type": "number",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "data_source": {
+                "block": {
+                  "attributes": {
+                    "cluster_id": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "data_type": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true,
+                      "default": 0
+                    },
+                    "database_name": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "password": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true,
+                      "sensitive": true
+                    },
+                    "path": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "queue_name": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "table_name": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "user_name": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "with_column_header": {
+                      "type": "bool",
+                      "optional": true,
+                      "forcenew": true,
+                      "default": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 1
+              },
+              "label_format": {
+                "block": {
+                  "attributes": {
+                    "label_separator": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "text_label_separator": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true,
+                      "default": "1"
+                    }
+                  },
+                  "description": "It is required only the dataType=100"
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "labels": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "property_color": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "property_shape": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "property_shortcut": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "schemas": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "Enterprise Intelligence",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "EI 企业智能"
+          }
+        }
+      }
+    }
+  }
+}
