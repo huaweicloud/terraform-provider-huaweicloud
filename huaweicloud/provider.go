@@ -543,6 +543,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_api_gateway_api":   ResourceAPIGatewayAPI(),
 			"huaweicloud_api_gateway_group": ResourceAPIGatewayGroup(),
 
+			"huaweicloud_apm_aksk": apm.ResourceApmAkSk(),
+
 			"huaweicloud_apig_api":                         apig.ResourceApigAPIV2(),
 			"huaweicloud_apig_api_publishment":             apig.ResourceApigApiPublishment(),
 			"huaweicloud_apig_instance":                    apig.ResourceApigInstanceV2(),
