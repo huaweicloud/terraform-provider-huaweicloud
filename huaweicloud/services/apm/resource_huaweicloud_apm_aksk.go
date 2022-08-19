@@ -39,12 +39,12 @@ func ResourceApmAkSk() *schema.Resource {
 			"ak": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
+				Computed: true,
 			},
 			"sk": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
+				Computed: true,
 			},
 		},
 	}
