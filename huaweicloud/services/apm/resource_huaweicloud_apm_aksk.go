@@ -31,17 +31,17 @@ func ResourceApmAkSk() *schema.Resource {
 			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 		Schema: map[string]*schema.Schema{
-			"descp": {
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-			"ak": {
+			"access_key": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"sk": {
+			"secret_key": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -58,7 +58,7 @@ func ResourceApmAkSkCreate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	opts := entity.CreateAkSkParam{
-		Descp: d.Get("descp").(string),
+		Descp: d.Get("description").(string),
 	}
 
 	client.WithMethod(httpclient_go.MethodPost).
@@ -80,8 +80,8 @@ func ResourceApmAkSkCreate(ctx context.Context, d *schema.ResourceData, meta int
 		err = json.Unmarshal(body, rlt)
 
 		d.SetId("success")
-		d.Set("ak", rlt.Ak)
-		d.Set("sk", rlt.Sk)
+		d.Set("access_key", rlt.Ak)
+		d.Set("secret_key", rlt.Sk)
 		return nil
 	}
 	return diag.Errorf("error creating aksk fields %s: %s", opts, string(body))
@@ -111,15 +111,15 @@ func ResourceApmAkSkRead(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error convert data %s: %s", string(body), err)
 	}
 	for _, item := range rlt.AccessAkSkModels {
-		if item.Ak == d.Get("ak").(string) {
+		if item.Ak == d.Get("access_key").(string) {
 			return nil
 		}
 	}
 
 	resourceID := d.Id()
 	d.SetId("")
-	d.Set("ak", "")
-	d.Set("sk", "")
+	d.Set("access_key", "")
+	d.Set("secret_key", "")
 	return diag.Diagnostics{
 		diag.Diagnostic{
 			Severity: diag.Warning,
