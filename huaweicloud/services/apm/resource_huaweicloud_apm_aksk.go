@@ -1,4 +1,4 @@
-package aom
+package apm
 
 import (
 	"context"
@@ -38,12 +38,12 @@ func ResourceApmAkSk() *schema.Resource {
 			},
 			"ak": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 			"sk": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 		},
@@ -52,9 +52,9 @@ func ResourceApmAkSk() *schema.Resource {
 
 func ResourceApmAkSkCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diagErr := httpclient_go.NewHttpClientGo(cfg)
-	if diagErr != nil {
-		return diagErr
+	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
+	if diaErr != nil {
+		return diaErr
 	}
 
 	opts := entity.CreateAkSkParam{
@@ -66,7 +66,7 @@ func ResourceApmAkSkCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 	response, err := client.Do()
 	if err != nil {
-		diag.Errorf("error creating aksk fields %s: client do error: %s", opts, err)
+		return diag.Errorf("error creating aksk fields %s: client do error: %s", opts, err)
 	}
 
 	defer response.Body.Close()
@@ -89,9 +89,9 @@ func ResourceApmAkSkCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 func ResourceApmAkSkRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diagErr := httpclient_go.NewHttpClientGo(cfg)
-	if diagErr != nil {
-		return diagErr
+	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
+	if diaErr != nil {
+		return diaErr
 	}
 
 	client.WithMethod(httpclient_go.MethodGet).
@@ -108,7 +108,7 @@ func ResourceApmAkSkRead(ctx context.Context, d *schema.ResourceData, meta inter
 	rlt := &entity.GetAkSkListVO{}
 	err = json.Unmarshal(body, &rlt)
 	if err != nil {
-		return diag.Errorf("error covert data %s: %s", string(body), err)
+		return diag.Errorf("error convert data %s: %s", string(body), err)
 	}
 	for _, item := range rlt.AccessAkSkModels {
 		if item.Ak == d.Get("ak").(string) {
@@ -135,9 +135,9 @@ func ResourceApmAkSkUpdate(ctx context.Context, d *schema.ResourceData, meta int
 
 func ResourceApmAkSkDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diagErr := httpclient_go.NewHttpClientGo(cfg)
-	if diagErr != nil {
-		return diagErr
+	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
+	if diaErr != nil {
+		return diaErr
 	}
 
 	client.WithMethod(httpclient_go.MethodDelete).

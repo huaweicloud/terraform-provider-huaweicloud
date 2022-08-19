@@ -3,6 +3,7 @@ package huaweicloud
 import (
 	"context"
 	"fmt"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apm"
 	"log"
 	"strings"
 	"sync"
