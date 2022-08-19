@@ -10,6 +10,7 @@ import (
 	entity2 "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
 	"io/ioutil"
+	"strings"
 	"time"
 )
 
@@ -151,10 +152,13 @@ func ResourceAomEnvironmentCreate(ctx context.Context, d *schema.ResourceData, m
 		if err != nil {
 			return diag.Errorf("error convert data %s, %s", string(body), err)
 		}
+		if rlt.Id == "" {
+			return diag.Errorf("error create Component %v. error: %s", opts.EnvName, string(body))
+		}
 		d.SetId(rlt.Id)
 		return ResourceAomEnvironmentRead(ctx, d, meta)
 	}
-	return diag.Errorf("error create Environment %v. error: %s", opts, string(body))
+	return diag.Errorf("error create Environment %v. error: %s", opts.EnvName, string(body))
 }
 
 func ResourceAomEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -230,11 +234,7 @@ func ResourceAomEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, m
 		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/environments/"+d.Id()).WithBody(opts)
 	response, err := client.Do()
 	if err != nil {
-		return diag.Errorf("error update Environment fields %s: %s", opts, err)
-	}
-
-	if response.StatusCode == 200 {
-		return nil
+		return diag.Errorf("error update Environment %s: %s", opts.EnvName, err)
 	}
 
 	defer response.Body.Close()
@@ -242,7 +242,12 @@ func ResourceAomEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, m
 	if err != nil {
 		return diag.Errorf("error update Environment %s: %s", string(body), err)
 	}
-	return diag.Errorf("error update Environment %s:  %s", opts, string(body))
+
+	if response.StatusCode == 200 && !strings.Contains(string(body), "error_msg") {
+		return nil
+	}
+
+	return diag.Errorf("error update Environment %s:  %s", opts.EnvName, string(body))
 }
 
 func ResourceAomEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -259,14 +264,15 @@ func ResourceAomEnvironmentDelete(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error delete Environment %s: %s", d.Id(), err)
 	}
 
-	if response.StatusCode == 200 {
-		return nil
-	}
-
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error delete Environment %s: %s", d.Id(), err)
 	}
+
+	if response.StatusCode == 200 && !strings.Contains(string(body), "error_msg") {
+		return nil
+	}
+
 	return diag.Errorf("error delete Environment %s:  %s", d.Id(), string(body))
 }

@@ -37,7 +37,7 @@ func NewHttpClientGo(c *config.Config) (*HttpClientGo, diag.Diagnostics) {
 
 	return &HttpClientGo{
 		signer: &Signer{
-			key:    c.AccessKey,
+			Key:    c.AccessKey,
 			Secret: c.SecretKey,
 		},
 		Header: map[string]string{
