@@ -139,7 +139,7 @@ func ResourceApmAkSkDelete(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	client.WithMethod(httpclient_go.MethodDelete).
-		WithUrlWithoutEndpoint(cfg, "apm", cfg.GetRegion(d), "v1/apm2/access-keys/"+d.Get("ak").(string))
+		WithUrlWithoutEndpoint(cfg, "apm", cfg.GetRegion(d), "v1/apm2/access-keys/"+d.Get("access_key").(string))
 
 	response, err := client.Do()
 	if err != nil {
