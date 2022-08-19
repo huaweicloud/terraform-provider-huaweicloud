@@ -17,6 +17,8 @@ type StartFailoverRequest struct {
 
 	// 实例ID。
 	InstanceId string `json:"instance_id"`
+
+	Body *FailoverRequest `json:"body,omitempty"`
 }
 
 func (o StartFailoverRequest) String() string {

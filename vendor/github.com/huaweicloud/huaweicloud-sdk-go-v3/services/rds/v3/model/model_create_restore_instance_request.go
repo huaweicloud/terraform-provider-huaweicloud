@@ -15,7 +15,7 @@ type CreateRestoreInstanceRequest struct {
 	// 语言
 	XLanguage *CreateRestoreInstanceRequestXLanguage `json:"X-Language,omitempty"`
 
-	Body *InstanceRequest `json:"body,omitempty"`
+	Body *CreateRestoreInstanceRequestBody `json:"body,omitempty"`
 }
 
 func (o CreateRestoreInstanceRequest) String() string {
