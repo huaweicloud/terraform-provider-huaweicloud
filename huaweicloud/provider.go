@@ -3,8 +3,6 @@ package huaweicloud
 import (
 	"context"
 	"fmt"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apm"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lts"
 	"log"
 	"strings"
 	"sync"
@@ -13,9 +11,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/aad"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/antiddos"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/aom"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/as"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/bms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbr"
@@ -49,6 +49,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iotda"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/live"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/meeting"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/modelarts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mpc"
@@ -535,15 +536,18 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
+			"huaweicloud_aad_forward_rule": aad.ResourceForwardRule(),
+
+			"huaweicloud_antiddos_basic": antiddos.ResourceCloudNativeAntiDdos(),
+
+			"huaweicloud_aom_alarm_rule":                  aom.ResourceAlarmRule(),
+			"huaweicloud_aom_alarm_policy":                aom.ResourceAlarmPolicy(),
 			"huaweicloud_aom_application":                 aom.ResourceAomApplication(),
 			"huaweicloud_aom_component":                   aom.ResourceAomComponent(),
-			"huaweicloud_aom_environment":                 aom.ResourceAomEnvironment(),
 			"huaweicloud_aom_cmdb_resource_relationships": aom.ResourceCiRelationships(),
-
-			"huaweicloud_aom_alarm_rule":             aom.ResourceAlarmRule(),
-			"huaweicloud_aom_alarm_policy":           aom.ResourceAlarmPolicy(),
-			"huaweicloud_aom_prometheus_instance":    aom.ResourcePrometheusInstance(),
-			"huaweicloud_aom_service_discovery_rule": aom.ResourceServiceDiscoveryRule(),
+			"huaweicloud_aom_environment":                 aom.ResourceAomEnvironment(),
+			"huaweicloud_aom_prometheus_instance":         aom.ResourcePrometheusInstance(),
+			"huaweicloud_aom_service_discovery_rule":      aom.ResourceServiceDiscoveryRule(),
 
 			"huaweicloud_api_gateway_api":   ResourceAPIGatewayAPI(),
 			"huaweicloud_api_gateway_group": ResourceAPIGatewayGroup(),
@@ -561,8 +565,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_throttling_policy_associate": apig.ResourceThrottlingPolicyAssociate(),
 			"huaweicloud_apig_throttling_policy":           apig.ResourceApigThrottlingPolicyV2(),
 			"huaweicloud_apig_vpc_channel":                 apig.ResourceApigVpcChannelV2(),
-
-			"huaweicloud_antiddos_basic": antiddos.ResourceCloudNativeAntiDdos(),
 
 			"huaweicloud_as_configuration":  as.ResourceASConfiguration(),
 			"huaweicloud_as_group":          as.ResourceASGroup(),
