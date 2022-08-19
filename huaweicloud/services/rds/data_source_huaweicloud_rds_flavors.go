@@ -51,6 +51,10 @@ func DataSourceRdsFlavor() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"group_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"availability_zone": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -74,6 +78,10 @@ func DataSourceRdsFlavor() *schema.Resource {
 						},
 						"memory": {
 							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"group_type": {
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"mode": {
@@ -125,6 +133,7 @@ func dataSourceRdsFlavorRead(_ context.Context, d *schema.ResourceData, meta int
 	mode := d.Get("instance_mode").(string)
 	az := d.Get("availability_zone").(string)
 	version := d.Get("db_version").(string)
+	groupType := d.Get("group_type").(string)
 
 	var vcpus string
 	if v, ok := d.GetOk("vcpus"); ok {
@@ -134,6 +143,7 @@ func dataSourceRdsFlavorRead(_ context.Context, d *schema.ResourceData, meta int
 	filter := map[string]interface{}{
 		"Vcpus":        vcpus,
 		"Instancemode": mode,
+		"GroupType":    groupType,
 	}
 	if mem, ok := d.GetOk("memory"); ok {
 		filter["Ram"] = mem.(int)
@@ -195,6 +205,7 @@ func flattenRdsFlavor(flavor flavors.Flavors, azList, versionList []string) map[
 		"name":               flavor.Speccode,
 		"vcpus":              vcpus,
 		"memory":             flavor.Ram,
+		"group_type":         flavor.GroupType,
 		"instance_mode":      flavor.Instancemode,
 		"mode":               flavor.Instancemode,
 		"availability_zones": azList,
