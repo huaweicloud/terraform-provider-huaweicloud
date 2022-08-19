@@ -11,7 +11,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 	"io/ioutil"
 	"time"
 )
@@ -98,7 +97,6 @@ func ResourceApmAkSkRead(ctx context.Context, d *schema.ResourceData, meta inter
 		WithUrlWithoutEndpoint(cfg, "apm", cfg.GetRegion(d), "v1/apm2/access-keys")
 
 	response, err := client.Do()
-	logp.Printf("[TEST]", err, response)
 
 	body, diags := client.CheckDeletedDiag(d, err, response, "error to query akSks")
 	if diags != nil {
