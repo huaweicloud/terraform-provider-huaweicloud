@@ -12,14 +12,8 @@ import (
 	"testing"
 )
 
-var c *httpclient_go.HttpClientGo
-
-func init() {
-	conf := &config.Config{AccessKey: acceptance.HW_ACCESS_KEY, SecretKey: acceptance.HW_ACCESS_KEY, Region: acceptance.HW_CUSTOM_REGION_NAME}
-	c, _ = httpclient_go.NewHttpClientGo(conf)
-}
-
 func getAppResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	c, _ := httpclient_go.NewHttpClientGo(conf)
 	c.WithMethod(httpclient_go.MethodGet).
 		WithUrlWithoutEndpoint(conf, "apm", conf.Region, "v1/apm2/access-keys")
 	response, err := c.Do()
@@ -73,26 +67,6 @@ func TestAccApmAkSk_basic(t *testing.T) {
 
 func testApmAkSk_basic() string {
 	return fmt.Sprintf(`
-provider "huaweicloud"{
-  region     ="cn-north-7"
-  access_key ="DADYWPU8JMUV3UGPEI9"
-  secret_key ="jUtvcc0oIIcGZGoAUvtlSi80Z6sZDFI2ZqFKBGUZ"
-  auth_url   ="https://iam.cn-north-7.myhuaweicloud.com"
-  endpoint = {
-     aom : "aom.cn-north-7.myhuaweicloud.com"
-     cce : "cce.cn-north-7.myhuaweicloud.com"
-     rds : "rds.cn-north-7.myhuaweicloud.com"
-     iam : "iam.cn-north-7.myhuaweicloud.com:31943"
-     dcsv2 : "dcs.cn-north-7.myhuaweicloud.com"
-     obs : "obs.cn-north-7.myhuaweicloud.com"
-     vpc : "vpc.cn-north-7.myhuaweicloud.com"
-     elb : "elb.cn-north-7.myhuaweicloud.com"
-     apm : "apm2.cn-north-7.myhuaweicloud.com"
-  }
-  insecure = true
-  domain_id = "40de487942a74a70b4666fa32d11ffa8"
-}
-
 resource "huaweicloud_apm_aksk" "aksk_basic" {
   description = "create aksk by terraform"
 }`)
