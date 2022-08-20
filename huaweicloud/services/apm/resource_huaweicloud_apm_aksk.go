@@ -77,7 +77,9 @@ func ResourceApmAkSkCreate(ctx context.Context, d *schema.ResourceData, meta int
 		rlt := &entity.AkSkResultVO{}
 
 		err = json.Unmarshal(body, rlt)
-
+		if err != nil {
+			return diag.Errorf("error convert data %s to %v : %s", string(body), opts, err)
+		}
 		d.SetId("success")
 		d.Set("access_key", rlt.Ak)
 		d.Set("secret_key", rlt.Sk)
