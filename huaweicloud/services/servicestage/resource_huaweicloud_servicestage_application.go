@@ -54,6 +54,7 @@ func ResourceApplication() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+				ForceNew: true,
 			},
 			"environment": {
 				Type:     schema.TypeSet,

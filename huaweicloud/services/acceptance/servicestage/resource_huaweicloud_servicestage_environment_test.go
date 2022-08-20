@@ -76,6 +76,44 @@ func TestAccEnvironment_basic(t *testing.T) {
 	})
 }
 
+func TestAccEnvironment_withEpsId(t *testing.T) {
+	var (
+		env          environments.Environment
+		randName     = acceptance.RandomAccResourceNameWithDash()
+		resourceName = "huaweicloud_servicestage_environment.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&env,
+		getEnvResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccEnvironment_withEpsId(randName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccEnvironment_base(rName string) string {
 	return fmt.Sprintf(`
 variable "subnet_config" {
@@ -579,4 +617,24 @@ resource "huaweicloud_servicestage_environment" "test" {
   }
 }
 `, testAccEnvironment_base(rName), rName)
+}
+
+func testAccEnvironment_withEpsId(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_servicestage_environment" "test" {
+  name                  = "%s"
+  vpc_id                = huaweicloud_vpc.test.id
+  enterprise_project_id = "%s"
+
+  dynamic "basic_resources" {
+    for_each = huaweicloud_cce_cluster.test[*].id
+    content {
+      type = "cce"
+      id   = basic_resources.value
+    }
+  }
+}
+`, testAccEnvironment_base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
