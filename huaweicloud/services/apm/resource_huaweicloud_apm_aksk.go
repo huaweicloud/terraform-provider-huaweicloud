@@ -31,7 +31,7 @@ func ResourceApmAkSk() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
+				Computed: true,
 			},
 			"access_key": {
 				Type:     schema.TypeString,
