@@ -19,7 +19,7 @@ type MetricAlarmSpec struct {
 	MetricKind		string			`json:"metric_kind"`
 	AlarmRuletemplateBindEnable	bool			`json:"alarm_rule_template_bind_enable"`
 	AlarmRuletemplateId	string			`json:"alarm_rule_template_id"`
-	NoDataConditions		[]NodataCondition		`json:"no_data_conditions"`
+	NoDataConditions		[]NoDataCondition		`json:"no_data_conditions"`
 	AlarmTags		[]AlarmTag		`json:"alarm_tags"`
 	TriggerConditions		[]TriggerCondition		`json:"trigger_conditions"`
 	MonitorObjects		[]map[string]interface{}	`json:"monitor_objects"`
@@ -31,7 +31,7 @@ type EventAlarmSpec struct {
 	EventSource		string			`json:"event_source"`
 	MonitorObjects		[]map[string]interface{}	`json:"monitor_objects"`
 	TriggerConditions		[]TriggerCondition		`json:"trigger_conditions"`
-	NoDataConditions		[]NodataCondition		`json:"no_data_conditions"`
+	NoDataConditions		[]NoDataCondition		`json:"no_data_conditions"`
 	AlarmTags		[]AlarmTag		`json:"alarm_tags"`
 }		
 

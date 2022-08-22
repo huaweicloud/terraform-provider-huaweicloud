@@ -448,7 +448,7 @@ func resourceAlarmPolicyDelete(ctx context.Context, d *schema.ResourceData, meta
 		return dErr	
 	}
 	client.WithMethod(httpclient_go.MethodDelete).WithUrlWithoutEndpoint(config, "aom", config.GetRegion(d),
-		"v4/"+d.Get("project_id").(string)+"/alarm-rules").WithBody(d.Get("alarm_delete_list").([]string))
+		"v4/"+d.Get("project_id").(string)+"/alarm-rules").WithBody(d.Get("alarm_delete_list").([]interface{}))
 	resp, err := client.Do()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving AOM alarm rule")
