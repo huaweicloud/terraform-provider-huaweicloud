@@ -1059,7 +1059,7 @@ func resourceComputeInstanceV2Update(ctx context.Context, d *schema.ResourceData
 
 	if d.HasChange("admin_pass") {
 		if newPwd, ok := d.Get("admin_pass").(string); ok {
-			err := servers.ChangeAdminPassword(computeClient, d.Id(), newPwd).ExtractErr()
+			err := cloudservers.ChangeAdminPassword(ecsClient, d.Id(), newPwd).ExtractErr()
 			if err != nil {
 				return diag.Errorf("error changing admin password of server (%s): %s", d.Id(), err)
 			}
