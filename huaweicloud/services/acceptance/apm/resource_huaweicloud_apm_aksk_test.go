@@ -28,7 +28,13 @@ func getAppResourceFunc(conf *config.Config, state *terraform.ResourceState) (in
 	if err != nil {
 		return nil, fmt.Errorf("Unable to find the persistent volume claim (%s)", state.Primary.ID)
 	}
-	return rlt, nil
+
+	for _, v := range rlt.AccessAkSkModels {
+		if v.Ak == state.Primary.ID {
+			return v, nil
+		}
+	}
+	return nil, fmt.Errorf("Unable to find the persistent volume claim (%s)", state.Primary.ID)
 }
 
 func TestAccApmAkSk_basic(t *testing.T) {
@@ -44,7 +50,7 @@ func TestAccApmAkSk_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			//acceptance.TestAccPreCheckInternal(t)
+			acceptance.TestAccPreCheckInternal(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),

@@ -10,7 +10,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"io/ioutil"
 	"time"
 )
@@ -19,7 +18,6 @@ func ResourceApmAkSk() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: ResourceApmAkSkCreate,
 		ReadContext:   ResourceApmAkSkRead,
-		UpdateContext: ResourceApmAkSkUpdate,
 		DeleteContext: ResourceApmAkSkDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -80,7 +78,7 @@ func ResourceApmAkSkCreate(ctx context.Context, d *schema.ResourceData, meta int
 		if err != nil {
 			return diag.Errorf("error convert data %s to %v : %s", string(body), opts, err)
 		}
-		d.SetId("success")
+		d.SetId(rlt.Ak)
 		d.Set("access_key", rlt.Ak)
 		d.Set("secret_key", rlt.Sk)
 		return nil
@@ -111,7 +109,7 @@ func ResourceApmAkSkRead(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error convert data %s: %s", string(body), err)
 	}
 	for _, item := range rlt.AccessAkSkModels {
-		if item.Ak == d.Get("access_key").(string) {
+		if item.Ak == d.Id() {
 			return nil
 		}
 	}
@@ -127,10 +125,6 @@ func ResourceApmAkSkRead(ctx context.Context, d *schema.ResourceData, meta inter
 			Detail:   fmt.Sprintf("the resource %s is goneand will be removed in Teraform state.", resourceID),
 		},
 	}
-}
-
-func ResourceApmAkSkUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	return nil
 }
 
 func ResourceApmAkSkDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -166,7 +160,7 @@ func ResourceApmAkSkDelete(ctx context.Context, d *schema.ResourceData, meta int
 		mErr = multierror.Append(mErr, err)
 	}
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("error create A fields: %w", err)
+		return diag.Errorf("error delete aksk  %s", err)
 	}
 
 	return nil
