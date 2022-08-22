@@ -35,12 +35,10 @@ func ResourceApmAkSk() *schema.Resource {
 			},
 			"access_key": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 			"secret_key": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 		},
@@ -110,14 +108,20 @@ func ResourceApmAkSkRead(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 	for _, item := range rlt.AccessAkSkModels {
 		if item.Ak == d.Id() {
+			mErr := multierror.Append(nil,
+				d.Set("access_key", item.Ak),
+				d.Set("secret_key", item.Sk),
+				d.Set("description", item.Descp),
+			)
+			if err := mErr.ErrorOrNil(); err != nil {
+				return diag.Errorf("error setting aksk fields: %s", err)
+			}
 			return nil
 		}
 	}
 
 	resourceID := d.Id()
 	d.SetId("")
-	d.Set("access_key", "")
-	d.Set("secret_key", "")
 	return diag.Diagnostics{
 		diag.Diagnostic{
 			Severity: diag.Warning,
@@ -135,7 +139,7 @@ func ResourceApmAkSkDelete(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	client.WithMethod(httpclient_go.MethodDelete).
-		WithUrlWithoutEndpoint(cfg, "apm", cfg.GetRegion(d), "v1/apm2/access-keys/"+d.Get("access_key").(string))
+		WithUrlWithoutEndpoint(cfg, "apm", cfg.GetRegion(d), "v1/apm2/access-keys/"+d.Id())
 
 	response, err := client.Do()
 	if err != nil {

@@ -38,7 +38,7 @@ func getAppResourceFunc(conf *config.Config, state *terraform.ResourceState) (in
 }
 
 func TestAccApmAkSk_basic(t *testing.T) {
-	var instance entity.GetAkSkListVO
+	var instance entity.AccessAkSkVO
 	resourceName := "huaweicloud_apm_aksk.aksk_basic"
 
 	rc := acceptance.InitResourceCheck(
@@ -63,18 +63,16 @@ func TestAccApmAkSk_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"description", "access_key", "secret_key"},
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
 }
 
 func testApmAkSk_basic() string {
-	return fmt.Sprintf(`
-resource "huaweicloud_apm_aksk" "aksk_basic" {
+	return `resource "huaweicloud_apm_aksk" "aksk_basic" {
   description = "create aksk by terraform"
-}`)
+}`
 }
