@@ -756,7 +756,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_networking_secgroup":      ResourceNetworkingSecGroup(),
 			"huaweicloud_networking_secgroup_rule": ResourceNetworkingSecGroupRule(),
 			"huaweicloud_networking_vip":           vpc.ResourceNetworkingVip(),
-			"huaweicloud_networking_vip_associate": resourceNetworkingVIPAssociateV2(),
+			"huaweicloud_networking_vip_associate": vpc.ResourceNetworkingVIPAssociateV2(),
 
 			"huaweicloud_obs_bucket":        ResourceObsBucket(),
 			"huaweicloud_obs_bucket_object": ResourceObsBucketObject(),
@@ -942,7 +942,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dli_queue_v1":                dli.ResourceDliQueue(),
 			"huaweicloud_cs_route_v1":                 deprecated.ResourceCsRouteV1(),
 			"huaweicloud_networking_vip_v2":           vpc.ResourceNetworkingVip(),
-			"huaweicloud_networking_vip_associate_v2": resourceNetworkingVIPAssociateV2(),
+			"huaweicloud_networking_vip_associate_v2": vpc.ResourceNetworkingVIPAssociateV2(),
 			"huaweicloud_fgs_function_v2":             fgs.ResourceFgsFunctionV2(),
 			"huaweicloud_cdn_domain_v1":               resourceCdnDomainV1(),
 

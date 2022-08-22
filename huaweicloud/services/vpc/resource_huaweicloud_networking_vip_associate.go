@@ -1,4 +1,4 @@
-package huaweicloud
+package vpc
 
 import (
 	"fmt"
@@ -8,11 +8,12 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
-func resourceNetworkingVIPAssociateV2() *schema.Resource {
+func ResourceNetworkingVIPAssociateV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetworkingVIPAssociateV2Create,
 		Update: resourceNetworkingVIPAssociateV2Update,
@@ -122,7 +123,7 @@ func updateNetworkingVIPAssociate(client *golangsdk.ServiceClient, vipID string,
 
 func resourceNetworkingVIPAssociateV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -146,7 +147,7 @@ func resourceNetworkingVIPAssociateV2Create(d *schema.ResourceData, meta interfa
 
 func resourceNetworkingVIPAssociateV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -168,7 +169,7 @@ func resourceNetworkingVIPAssociateV2Update(d *schema.ResourceData, meta interfa
 
 func resourceNetworkingVIPAssociateV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -177,7 +178,7 @@ func resourceNetworkingVIPAssociateV2Read(d *schema.ResourceData, meta interface
 	vipID := d.Get("vip_id").(string)
 	vip, err := ports.Get(networkingClient, vipID).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "vip")
+		return common.CheckDeleted(d, err, "vip")
 	}
 
 	var allPorts []string
@@ -221,7 +222,7 @@ func resourceNetworkingVIPAssociateV2Read(d *schema.ResourceData, meta interface
 
 func resourceNetworkingVIPAssociateV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -230,7 +231,7 @@ func resourceNetworkingVIPAssociateV2Delete(d *schema.ResourceData, meta interfa
 	vipID := d.Get("vip_id").(string)
 	_, err = ports.Get(networkingClient, vipID).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "vip")
+		return common.CheckDeleted(d, err, "vip")
 	}
 
 	// disassociate all allowed address pairs
