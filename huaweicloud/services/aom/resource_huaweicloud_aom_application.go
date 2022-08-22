@@ -10,6 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
 	"io/ioutil"
+	"strings"
 	"time"
 )
 
@@ -107,7 +108,7 @@ func ResourceAomApplicationCreate(ctx context.Context, d *schema.ResourceData, m
 		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/applications").WithBody(opts)
 	response, err := client.Do()
 	if err != nil {
-		return diag.Errorf("error create Application fields %s: %s", opts, err)
+		return diag.Errorf("error create Application %s: %s", opts.Name, err)
 	}
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
@@ -120,10 +121,14 @@ func ResourceAomApplicationCreate(ctx context.Context, d *schema.ResourceData, m
 		if err != nil {
 			return diag.Errorf("error convert data %s, %s", string(body), err)
 		}
+		if rlt.Id == "" {
+			return diag.Errorf("error create Application %v. error: %s", opts.Name, string(body))
+		}
+
 		d.SetId(rlt.Id)
 		return ResourceAomApplicationRead(ctx, d, meta)
 	}
-	return diag.Errorf("error create Application %v. error: %s", opts, string(body))
+	return diag.Errorf("error create Application %v. error: %s", opts.Name, string(body))
 }
 
 func ResourceAomApplicationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -132,6 +137,7 @@ func ResourceAomApplicationRead(ctx context.Context, d *schema.ResourceData, met
 	if diaErr != nil {
 		return diaErr
 	}
+
 	client.WithMethod(httpclient_go.MethodGet).
 		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/applications/"+d.Id())
 	response, err := client.Do()
@@ -173,6 +179,7 @@ func ResourceAomApplicationUpdate(ctx context.Context, d *schema.ResourceData, m
 	if diaErr != nil {
 		return diaErr
 	}
+
 	opts := entity.BizAppParam{
 		Description:  d.Get("description").(string),
 		DisplayName:  d.Get("display_name").(string),
@@ -184,11 +191,7 @@ func ResourceAomApplicationUpdate(ctx context.Context, d *schema.ResourceData, m
 		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/applications/"+d.Id()).WithBody(opts)
 	response, err := client.Do()
 	if err != nil {
-		return diag.Errorf("error update Application fields %s: %s", opts, err)
-	}
-
-	if response.StatusCode == 200 {
-		return nil
+		return diag.Errorf("error update Application %s: %s", opts.Name, err)
 	}
 
 	defer response.Body.Close()
@@ -196,7 +199,12 @@ func ResourceAomApplicationUpdate(ctx context.Context, d *schema.ResourceData, m
 	if err != nil {
 		return diag.Errorf("error update Application %s: %s", string(body), err)
 	}
-	return diag.Errorf("error update Application %s:  %s", opts, string(body))
+
+	if response.StatusCode == 200 && !strings.Contains(string(body), "error_msg") {
+		return nil
+	}
+
+	return diag.Errorf("error update Application %s:  %s", opts.Name, string(body))
 }
 
 func ResourceAomApplicationDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -214,14 +222,15 @@ func ResourceAomApplicationDelete(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error delete Application %s: %s", d.Id(), err)
 	}
 
-	if response.StatusCode == 200 {
-		return nil
-	}
-
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error delete Application %s: %s", d.Id(), err)
 	}
+
+	if response.StatusCode == 200 && !strings.Contains(string(body), "error_msg") {
+		return nil
+	}
+
 	return diag.Errorf("error delete Application %s:  %s", d.Id(), string(body))
 }
