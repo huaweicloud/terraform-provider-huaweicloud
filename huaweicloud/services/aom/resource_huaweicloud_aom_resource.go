@@ -33,7 +33,7 @@ func ResourceCiRelationships() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 			"rf_resource_type": {
@@ -81,29 +81,8 @@ func ResourceCiRelationships() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"maker": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-			"limit": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
-			},
-			"keywords": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
 			"ci_relationships": {
 				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-			},
-			"ci_region": {
-				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
@@ -122,7 +101,7 @@ func buildResourceOpts(d *schema.ResourceData) []entity.ResourceImportDetailPara
 		{
 			ResourceId:     d.Get("resource_id").(string),
 			ResourceName:   d.Get("resource_name").(string),
-			ResourceRegion: d.Get("resource_rgion").(string),
+			ResourceRegion: d.Get("resource_region").(string),
 			ProjectId:      d.Get("project_id").(string),
 			EpsId:          d.Get("enterprise_project_id").(string),
 			EpsName:        d.Get("enterprise_project_name").(string),
@@ -164,6 +143,9 @@ func ResourceResourceCiRelationshipsCreate(ctx context.Context, d *schema.Resour
 	if response.StatusCode == 200 {
 		rlt := &entity.CreateResourceResponse{}
 		err = json.Unmarshal(body, rlt)
+		if err != nil {
+			return diag.Errorf("error convert data %s, %s", string(body), err)
+		}
 		if len(rlt.ResourceDetail) == 0 {
 			return nil
 		}
@@ -181,9 +163,10 @@ func ResourceResourceCiRelationshipsRead(ctx context.Context, d *schema.Resource
 	}
 
 	opts := entity.PageResourceListParam{
-		CiId:     d.Get("env_id").(string),
-		CiType:   "environment",
-		Keywords: map[string]string{"RESOURCE_ID": d.Get("resource_id").(string)},
+		CiId:            d.Get("env_id").(string),
+		CiType:          "environment",
+		CiRelationships: d.Get("ci_relationships").(bool),
+		Keywords:        map[string]string{"RESOURCE_ID": d.Get("resource_id").(string)},
 	}
 
 	client.WithMethod(httpclient_go.MethodPost).
@@ -201,6 +184,9 @@ func ResourceResourceCiRelationshipsRead(ctx context.Context, d *schema.Resource
 	if response.StatusCode == 200 {
 		rlt := &entity.ReadResourceResponse{}
 		err = json.Unmarshal(body, rlt)
+		if err != nil {
+			return diag.Errorf("error convert data %s, %s", string(body), err)
+		}
 		if len(rlt.ResourceDetail) == 0 {
 			d.SetId("")
 		} else {
