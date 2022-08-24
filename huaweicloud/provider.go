@@ -534,9 +534,10 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"huaweicloud_aom_application": aom.ResourceAomApplication(),
-			"huaweicloud_aom_component":   aom.ResourceAomComponent(),
-			"huaweicloud_aom_environment": aom.ResourceAomEnvironment(),
+			"huaweicloud_aom_application":                 aom.ResourceAomApplication(),
+			"huaweicloud_aom_component":                   aom.ResourceAomComponent(),
+			"huaweicloud_aom_environment":                 aom.ResourceAomEnvironment(),
+			"huaweicloud_aom_cmdb_resource_relationships": aom.ResourceCiRelationships(),
 
 			"huaweicloud_aom_alarm_rule":             aom.ResourceAlarmRule(),
 			"huaweicloud_aom_service_discovery_rule": aom.ResourceServiceDiscoveryRule(),
