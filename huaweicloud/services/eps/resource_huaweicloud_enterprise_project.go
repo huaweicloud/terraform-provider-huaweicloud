@@ -2,6 +2,7 @@ package eps
 
 import (
 	"context"
+	"log"
 	"regexp"
 	"time"
 
@@ -58,6 +59,10 @@ func ResourceEnterpriseProject() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
+			},
+			"skip_disable_on_destroy": {
+				Type:     schema.TypeBool,
+				Optional: true,
 			},
 			"status": {
 				Type:     schema.TypeInt,
@@ -181,6 +186,11 @@ func resourceEnterpriseProjectDelete(_ context.Context, d *schema.ResourceData, 
 
 	if err != nil {
 		return fmtp.DiagErrorf("Unable to create HuaweiCloud EPS client : %s", err)
+	}
+
+	if d.Get("skip_disable_on_destroy").(bool) {
+		log.Printf("[DEBUG] Skip disable on destroy for %s", d.Id())
+		return nil
 	}
 
 	actionOpts := enterpriseprojects.ActionOpts{
