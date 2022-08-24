@@ -71,22 +71,7 @@ func TestAccAOMPrometheusInstance_basic(t *testing.T) {
 }
 
 func testAOMPrometheusInstance_basic() string {
-	return fmt.Sprintf(`
-provider "huaweicloud" {
-  region     = "cn-north-7"
-  access_key = "KKILFTQC8DJYDINQQZXI"
-  secret_key = "yM9DG7GaISH9Ob2n6zrq89IvdiZC68keqOad9oVu"
-  auth_url = "https://iam.cn-north-7.myhuaweicloud.com"
-  endpoints = {
-    aom : "aom.cn-north-7.myhuaweicloud.com"
-  }
-
-  insecure = true
-  domain_id = "40de487942a74a70b4666fa32d11ffa8"
-  project_id = "2a473356cca5487f8373be891bffc1cf"
-}
-
-
+	return `
 resource "huaweicloud_aom_prometheus_instance" "test" {
   project_id = "2a473356cca5487f8373be891bffc1cf"
   action         = "prom_for_cloud_service"
@@ -94,5 +79,5 @@ resource "huaweicloud_aom_prometheus_instance" "test" {
   ces_metric_namespaces =	["SYS.ELB","SYS.VPC","SYS.DMS","SYS.RDS"]
  }
 }
-`)
+`
 }

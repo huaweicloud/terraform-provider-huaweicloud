@@ -317,6 +317,7 @@ func schemeTriggerConditions() *schema.Schema {
 					Optional: true,
 					ForceNew: true,
 					Computed: true,
+					Elem:     &schema.Schema{Type: schema.TypeString},
 				},
 			},
 		},
@@ -328,7 +329,9 @@ func schemeMonitorObjects() *schema.Schema {
 		Type:     schema.TypeList,
 		Optional: true,
 		Computed: true,
-		Elem:     &schema.Schema{Type: schema.TypeMap},
+		Elem: &schema.Schema{
+			Type: schema.TypeMap,
+			Elem: &schema.Schema{Type: schema.TypeString}},
 	}
 }
 
@@ -427,7 +430,7 @@ func resourceAlarmPolicyCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if err = mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error getting AOM prometheus instance fields: %w", err)
+		return diag.Errorf("error getting AOM prometheus instance fields: %s", err)
 	}
 	d.SetId(createOpts.AlarmRuleName)
 	return resourceAlarmPolicyRead(context.TODO(), d, meta)
@@ -464,7 +467,7 @@ func resourceAlarmPolicyRead(ctx context.Context, d *schema.ResourceData, meta i
 	for _, params := range rlt {
 		if params.AlarmRuleName == d.Id() {
 			d.SetId(params.AlarmRuleName)
-			mErr := multierror.Append(nil,
+			mErr = multierror.Append(mErr,
 				d.Set("action_id", "add-alarm-action"),
 				d.Set("alarm_rule_status", params.AlarmRuleStatus),
 				d.Set("region", config.GetRegion(d)),
@@ -477,14 +480,14 @@ func resourceAlarmPolicyRead(ctx context.Context, d *schema.ResourceData, meta i
 				d.Set("metric_alarm_spec", buildMetricAlarmSpecMap(params.MetricAlarmSpec)),
 				d.Set("project_id", config.TenantID),
 			)
-			if err := mErr.ErrorOrNil(); err != nil {
+			if err = mErr.ErrorOrNil(); err != nil {
 				return diag.Errorf("error getting AOM alarm policy fields: %s", err)
 			}
 			return nil
 		}
 	}
-	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error getting AOM alarm policy fields: %w", err)
+	if err = mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error getting AOM alarm policy fields: %s", err)
 	}
 	return nil
 }
@@ -569,8 +572,8 @@ func resourceAlarmPolicyDelete(ctx context.Context, d *schema.ResourceData, meta
 		mErr = multierror.Append(mErr, fmt.Errorf("delete alarm policy failed error code: %d", resp.StatusCode))
 	}
 
-	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error delete AOM alarm policy fields: %w", err)
+	if err = mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error delete AOM alarm policy fields: %s", err)
 	}
 
 	return nil

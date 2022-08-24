@@ -105,8 +105,8 @@ func resourcePrometheusInstanceRead(_ context.Context, d *schema.ResourceData, m
 	d.Set("prom_for_cloud_service", buildPrometheusInstanceMap(rlt))
 	d.Set("action", "prom_for_cloud_service")
 	d.Set("project_id", config.TenantID)
-	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error getting AOM prometheus instance fields: %w", err)
+	if err = mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error getting AOM prometheus instance fields: %s", err)
 	}
 
 	return nil
@@ -144,6 +144,6 @@ func resourcePrometheusInstancePatch(_ context.Context, d *schema.ResourceData, 
 	return resourcePrometheusInstanceRead(context.TODO(), d, meta)
 }
 
-func resourcePrometheusInstanceDelete(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func resourcePrometheusInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	return nil
 }

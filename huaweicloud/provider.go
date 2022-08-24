@@ -538,8 +538,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_aom_environment": aom.ResourceAomEnvironment(),
 
 			"huaweicloud_aom_alarm_rule":             aom.ResourceAlarmRule(),
-			"huaweicloud_aom_alarm_policy":             aom.ResourceAlarmPolicy(),
-			"huaweicloud_aom_prometheus_instance":             aom.ResourcePrometheusInstance(),
+			"huaweicloud_aom_alarm_policy":           aom.ResourceAlarmPolicy(),
+			"huaweicloud_aom_prometheus_instance":    aom.ResourcePrometheusInstance(),
 			"huaweicloud_aom_service_discovery_rule": aom.ResourceServiceDiscoveryRule(),
 
 			"huaweicloud_api_gateway_api":   ResourceAPIGatewayAPI(),
