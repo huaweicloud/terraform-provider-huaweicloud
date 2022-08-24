@@ -2,6 +2,7 @@ package httpclient_go
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -20,13 +21,14 @@ const (
 )
 
 type HttpClientGo struct {
-	signer  *Signer
-	Method  string
-	Url     string
-	Body    interface{}
-	Header  map[string]string
-	request *http.Request
-	Error   error
+	signer    *Signer
+	Method    string
+	Url       string
+	Body      interface{}
+	Header    map[string]string
+	request   *http.Request
+	Error     error
+	Transport *http.Transport
 }
 
 func NewHttpClientGo(c *config.Config) (*HttpClientGo, diag.Diagnostics) {
@@ -77,16 +79,24 @@ func (client *HttpClientGo) WithHeader(header map[string]string) *HttpClientGo {
 }
 
 func (client *HttpClientGo) ToRequest() {
-	b, err := json.Marshal(client.Body)
-	if err != nil {
-		client.Error = err
-		return
-	}
-
-	client.request, err = http.NewRequest(client.Method, client.Url, ioutil.NopCloser(bytes.NewBuffer(b)))
-	if err != nil {
-		client.Error = err
-		return
+	var err error
+	if client.Body == nil {
+		client.request, err = http.NewRequest(client.Method, client.Url, nil)
+		if err != nil {
+			client.Error = err
+			return
+		}
+	} else {
+		b, err := json.Marshal(client.Body)
+		if err != nil {
+			client.Error = err
+			return
+		}
+		client.request, err = http.NewRequest(client.Method, client.Url, ioutil.NopCloser(bytes.NewBuffer(b)))
+		if err != nil {
+			client.Error = err
+			return
+		}
 	}
 	for k, v := range client.Header {
 		client.request.Header.Add(k, v)
@@ -102,7 +112,20 @@ func (client *HttpClientGo) Do() (*http.Response, error) {
 		return nil, err
 	}
 	c := http.DefaultClient
+	if client.Transport != nil {
+		c.Transport = client.Transport
+	}
 	return c.Do(client.request)
+}
+
+func (client *HttpClientGo) WithTransport() *HttpClientGo {
+	client.Transport = &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+			MinVersion:         tls.VersionTLS12,
+		},
+	}
+	return client
 }
 
 func (client HttpClientGo) CheckDeletedDiag(d *schema.ResourceData, err error, response *http.Response, msg string) ([]byte, diag.Diagnostics) {
