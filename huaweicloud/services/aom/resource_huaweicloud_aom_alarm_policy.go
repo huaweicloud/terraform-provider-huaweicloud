@@ -483,7 +483,6 @@ func resourceAlarmPolicyRead(ctx context.Context, d *schema.ResourceData, meta i
 			return nil
 		}
 	}
-	d.Set("listAlarmRuleResponseBody", &rlt)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error getting AOM alarm policy fields: %w", err)
 	}
@@ -518,8 +517,9 @@ func buildTriggerConditionsMap(conditions []entity.TriggerCondition) interface{}
 		m["trigger_times"] = condition.TriggerTimes
 		m["trigger_interval"] = condition.TriggerInterval
 		m["trigger_type"] = condition.TriggerType
-		m["aggregation_type"] = condition.AggregationType
 		m["aggregation_window"] = condition.AggregationWindow
+		m["aggregation_type"] = condition.AggregationType
+
 		m["operator"] = condition.Operator
 		m["thresholds"] = condition.Thresholds
 		ret = append(ret, m)
@@ -541,14 +541,13 @@ func buildNoDataConditionsMap(conditions []entity.NoDataCondition) []map[string]
 
 func buildAlarmNotificationsMap(notifications entity.AlarmNotifications) []map[string]interface{} {
 	var m = make(map[string]interface{})
-	m["notification_type"] = notifications
-	m["route_group_enable"] = notifications
-	m["route_group_rule"] = notifications
-	m["inhibit_enable"] = notifications
-	m["inhibit_rule"] = notifications
-	m["notification_enable"] = notifications
-	m["bind_notification_rule_id"] = notifications
-	m["notify_resolved"] = notifications
+	m["notification_type"] = notifications.NotificationType
+	m["route_group_enable"] = notifications.RouteGroupEnable
+	m["route_group_rule"] = notifications.RouteGroupRule
+	m["inhibit_enable"] = notifications.InhibitEnable
+	m["inhibit_rule"] = notifications.InhibitRule
+	m["notification_type"] = notifications.NotificationType
+	m["notify_resolved"] = notifications.NotiFyResolved
 	return []map[string]interface{}{m}
 }
 
@@ -567,7 +566,7 @@ func resourceAlarmPolicyDelete(ctx context.Context, d *schema.ResourceData, meta
 
 	mErr := &multierror.Error{}
 	if resp.StatusCode != 200 {
-		mErr = multierror.Append(mErr, fmt.Errorf("delete alarm policy failed error code: %s", resp.StatusCode))
+		mErr = multierror.Append(mErr, fmt.Errorf("delete alarm policy failed error code: %d", resp.StatusCode))
 	}
 
 	if err := mErr.ErrorOrNil(); err != nil {

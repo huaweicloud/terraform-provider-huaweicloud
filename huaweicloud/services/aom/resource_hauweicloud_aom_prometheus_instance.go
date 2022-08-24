@@ -74,10 +74,6 @@ func ResourcePrometheusInstance() *schema.Resource {
 	}
 }
 
-func resourcePrometheusInstanceDelete(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
-	return nil
-}
-
 func resourcePrometheusInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, dErr := httpclient_go.NewHttpClientGo(config)
@@ -118,7 +114,7 @@ func resourcePrometheusInstanceRead(_ context.Context, d *schema.ResourceData, m
 
 func buildPrometheusInstanceMap(rlt *entity.PrometheusInstanceParams) []map[string]interface{} {
 	var m = make(map[string]interface{})
-	m["ces_metric_namespace"] = rlt.PromForCloudService.CesMetricNamespaces
+	m["ces_metric_namespaces"] = rlt.PromForCloudService.CesMetricNamespaces
 	return []map[string]interface{}{m}
 }
 
@@ -146,4 +142,8 @@ func resourcePrometheusInstancePatch(_ context.Context, d *schema.ResourceData, 
 	}
 	d.SetId(strings.Join(namespace, ","))
 	return resourcePrometheusInstanceRead(context.TODO(), d, meta)
+}
+
+func resourcePrometheusInstanceDelete(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+	return nil
 }
