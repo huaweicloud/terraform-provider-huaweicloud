@@ -3,7 +3,6 @@ package aom
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/go-multierror"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
 	"io"
@@ -22,19 +21,20 @@ func getPrometheusInstanceResourceFunc(config *config.Config, state *terraform.R
 		config.Region, "v1/"+state.Primary.Attributes["project_id"]+"/prometheus-instances?action=prom_for_cloud_service")
 
 	resp, err := client.Do()
-
-	mErr := &multierror.Error{}
+	if err != nil {
+		return nil, err
+	}
 
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		mErr = multierror.Append(mErr, err)
+		return nil, err
 	}
 	rlt := &entity.PrometheusInstanceParams{}
 
 	err = json.Unmarshal(body, rlt)
 	if err != nil {
-		mErr = multierror.Append(mErr, err)
+		return nil, err
 	}
 	return nil, fmt.Errorf("error getting HuaweiCloud Resource")
 }
