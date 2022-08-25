@@ -39,13 +39,11 @@ func ResourcePrometheusInstance() *schema.Resource {
 			},
 			"prom_for_cloud_service": {
 				Type:     schema.TypeList,
-				Optional: true,
 				Required: true,
 				ForceNew: true,
 				Elem: &schema.Resource{Schema: map[string]*schema.Schema{
 					"ces_metric_namespaces": {
 						Type:     schema.TypeList,
-						Optional: true,
 						Required: true,
 						Elem:     &schema.Schema{Type: schema.TypeString},
 					},
@@ -84,8 +82,6 @@ func resourcePrometheusInstanceRead(_ context.Context, d *schema.ResourceData, m
 		mErr = multierror.Append(mErr, err)
 	}
 	d.Set("prom_for_cloud_service", buildPrometheusInstanceMap(rlt))
-	d.Set("action", "prom_for_cloud_service")
-	d.Set("project_id", config.TenantID)
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error getting AOM prometheus instance fields: %s", err)
 	}
@@ -126,7 +122,10 @@ func resourcePrometheusInstancePatch(_ context.Context, d *schema.ResourceData, 
 }
 
 func resourcePrometheusInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	d.Set("prom_for_cloud_service",
-		entity.PrometheusInstanceParams{PromForCloudService: &entity.PromForCloudService{CesMetricNamespaces: []string{}}})
+	m := make(map[string]interface{})
+	m1 := make(map[string]interface{})
+	m1["ces_metric_namespaces"] = []string{}
+	m["ces_metric_namespaces"] = m1
+	d.Set("prom_for_cloud_service", []interface{}{m})
 	return resourcePrometheusInstancePatch(ctx, d, meta)
 }

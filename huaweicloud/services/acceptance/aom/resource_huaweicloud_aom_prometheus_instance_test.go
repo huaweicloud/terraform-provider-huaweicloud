@@ -73,8 +73,6 @@ func TestAccAOMPrometheusInstance_basic(t *testing.T) {
 func testAOMPrometheusInstance_basic() string {
 	return `
 resource "huaweicloud_aom_prometheus_instance" "test" {
-  project_id = "2a473356cca5487f8373be891bffc1cf"
-  action         = "prom_for_cloud_service"
   prom_for_cloud_service  {
   ces_metric_namespaces =	["SYS.ELB","SYS.VPC","SYS.DMS","SYS.RDS"]
  }
