@@ -16,9 +16,8 @@ import (
 
 func getPrometheusInstanceResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, _ := httpclient_go.NewHttpClientGo(config)
-
 	client.WithMethod(httpclient_go.MethodGet).WithUrlWithoutEndpoint(config, "aom",
-		config.Region, "v1/"+GetProjectID(region)+"/prometheus-instances?action=prom_for_cloud_service")
+		config.Region, "v1/"+config.GetProjectID(config.Region)+"/prometheus-instances?action=prom_for_cloud_service")
 
 	resp, err := client.Do()
 	if err != nil {

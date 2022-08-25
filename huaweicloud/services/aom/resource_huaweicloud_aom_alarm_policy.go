@@ -393,7 +393,8 @@ func resourceAlarmPolicyCreate(ctx context.Context, d *schema.ResourceData, meta
 		EventAlarmSpec:       buildEventAlarmSpec(d.Get("event_alarm_spec").([]interface{})),
 		AlarmNotifications:   buildAlarmNotifications(d.Get("alarm_notifications").([]interface{})),
 	}
-	client.WithMethod(httpclient_go.MethodPost).WithUrlWithoutEndpoint(config, "aom", config.GetRegion(d),
+	region := config.GetRegion(d)
+	client.WithMethod(httpclient_go.MethodPost).WithUrlWithoutEndpoint(config, "aom", region,
 		"v4/"+config.GetProjectID(region)+"/alarm-rules?action_id=add-alarm-action").WithBody(createOpts)
 	response, err := client.Do()
 
@@ -422,7 +423,8 @@ func resourceAlarmPolicyRead(ctx context.Context, d *schema.ResourceData, meta i
 	if dErr != nil {
 		return dErr
 	}
-	client.WithMethod(httpclient_go.MethodGet).WithUrlWithoutEndpoint(config, "aom", config.GetRegion(d),
+	region := config.GetRegion(d)
+	client.WithMethod(httpclient_go.MethodGet).WithUrlWithoutEndpoint(config, "aom", region,
 		"v4/"+config.GetProjectID(region)+"/alarm-rules")
 
 	resp, err := client.Do()
@@ -538,7 +540,8 @@ func resourceAlarmPolicyDelete(ctx context.Context, d *schema.ResourceData, meta
 	if dErr != nil {
 		return dErr
 	}
-	client.WithMethod(httpclient_go.MethodDelete).WithUrlWithoutEndpoint(config, "aom", config.GetRegion(d),
+	region := config.GetRegion(d)
+	client.WithMethod(httpclient_go.MethodDelete).WithUrlWithoutEndpoint(config, "aom", region,
 		"v4/"+config.GetProjectID(region)+"/alarm-rules").WithBody([]string{d.Id()})
 	resp, err := client.Do()
 	if err != nil {

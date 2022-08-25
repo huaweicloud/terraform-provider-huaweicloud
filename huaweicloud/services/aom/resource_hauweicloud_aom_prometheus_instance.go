@@ -59,8 +59,9 @@ func resourcePrometheusInstanceRead(_ context.Context, d *schema.ResourceData, m
 	if dErr != nil {
 		return dErr
 	}
+	region := config.GetRegion(d)
 	client.WithMethod(httpclient_go.MethodGet).WithUrlWithoutEndpoint(config, "aom",
-		config.GetRegion(d), "v1/"+config.GetProjectID(region)+"/prometheus-instances?action=prom_for_cloud_service")
+		region, "v1/"+config.GetProjectID(region)+"/prometheus-instances?action=prom_for_cloud_service")
 
 	resp, err := client.Do()
 	if err != nil {
@@ -110,8 +111,9 @@ func resourcePrometheusInstancePatch(_ context.Context, d *schema.ResourceData, 
 	patchOpts := &entity.PrometheusInstanceParams{
 		PromForCloudService: &entity.PromForCloudService{CesMetricNamespaces: namespace},
 	}
+	region := config.GetRegion(d)
 	client.WithMethod(httpclient_go.MethodPost).WithUrlWithoutEndpoint(config, "aom",
-		config.GetRegion(d), "v1/"+config.GetProjectID(region)+"/prometheus-instances?action=prom_for_cloud_service").WithBody(patchOpts)
+		region, "v1/"+config.GetProjectID(region)+"/prometheus-instances?action=prom_for_cloud_service").WithBody(patchOpts)
 	r, err := client.Do()
 
 	if r.StatusCode != 204 || err != nil {
