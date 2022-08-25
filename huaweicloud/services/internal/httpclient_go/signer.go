@@ -114,7 +114,7 @@ func RequestPayload(r *http.Request) ([]byte, error) {
 }
 
 type Signer struct {
-	key    string
+	Key    string
 	Secret string
 }
 
@@ -142,7 +142,7 @@ func (s *Signer) Sign(r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	authValue := AuthHeaderValue(signature, s.key, signedHeaders)
+	authValue := AuthHeaderValue(signature, s.Key, signedHeaders)
 	r.Header.Set(HeaderAuthorization, authValue)
 	return nil
 }

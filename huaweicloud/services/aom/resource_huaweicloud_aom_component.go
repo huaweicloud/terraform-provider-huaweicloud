@@ -10,6 +10,7 @@ import (
 	entity2 "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
 	"io/ioutil"
+	"strings"
 	"time"
 )
 
@@ -108,7 +109,7 @@ func ResourceAomComponentCreate(ctx context.Context, d *schema.ResourceData, met
 		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/components").WithBody(opts)
 	response, err := client.Do()
 	if err != nil {
-		return diag.Errorf("error create Component fields %s: %s", opts, err)
+		return diag.Errorf("error create Component %s: %s", opts.Name, err)
 	}
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
@@ -121,10 +122,14 @@ func ResourceAomComponentCreate(ctx context.Context, d *schema.ResourceData, met
 		if err != nil {
 			return diag.Errorf("error convert data %s, %s", string(body), err)
 		}
+		if rlt.Id == "" {
+			return diag.Errorf("error create Component %v. error: %s", opts.Name, string(body))
+		}
+
 		d.SetId(rlt.Id)
 		return ResourceAomComponentRead(ctx, d, meta)
 	}
-	return diag.Errorf("error create Component %v. error: %s", opts, string(body))
+	return diag.Errorf("error create Component %v. error: %s", opts.Name, string(body))
 }
 
 func ResourceAomComponentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -174,6 +179,7 @@ func ResourceAomComponentUpdate(ctx context.Context, d *schema.ResourceData, met
 	if diaErr != nil {
 		return diaErr
 	}
+
 	opts := entity2.ComponentParam{
 		Description: d.Get("description").(string),
 		ModelType:   d.Get("model_type").(string),
@@ -183,13 +189,10 @@ func ResourceAomComponentUpdate(ctx context.Context, d *schema.ResourceData, met
 
 	client.WithMethod(httpclient_go.MethodPut).
 		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/components/"+d.Id()).WithBody(opts)
+
 	response, err := client.Do()
 	if err != nil {
-		return diag.Errorf("error update Component fields %s: %s", opts, err)
-	}
-
-	if response.StatusCode == 200 {
-		return nil
+		return diag.Errorf("error update Component %s: %s", opts.Name, err)
 	}
 
 	defer response.Body.Close()
@@ -197,7 +200,12 @@ func ResourceAomComponentUpdate(ctx context.Context, d *schema.ResourceData, met
 	if err != nil {
 		return diag.Errorf("error update Component %s: %s", string(body), err)
 	}
-	return diag.Errorf("error update Component %s:  %s", opts, string(body))
+
+	if response.StatusCode == 200 && !strings.Contains(string(body), "error_msg") {
+		return nil
+	}
+
+	return diag.Errorf("error update Component %s:  %s", opts.Name, string(body))
 }
 
 func ResourceAomComponentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -215,14 +223,15 @@ func ResourceAomComponentDelete(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error delete Component %s: %s", d.Id(), err)
 	}
 
-	if response.StatusCode == 200 {
-		return nil
-	}
-
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error delete Component %s: %s", d.Id(), err)
 	}
+
+	if response.StatusCode == 200 && !strings.Contains(string(body), "error_msg") {
+		return nil
+	}
+
 	return diag.Errorf("error delete Component %s:  %s", d.Id(), string(body))
 }

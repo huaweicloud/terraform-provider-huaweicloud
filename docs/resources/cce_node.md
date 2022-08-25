@@ -4,7 +4,7 @@ subcategory: "Cloud Container Engine (CCE)"
 
 # huaweicloud_cce_node
 
-Add a node to a CCE cluster. This is an alternative to `huaweicloud_cce_node_v3`
+Add a node to a CCE cluster.
 
 ## Basic Usage
 
@@ -232,6 +232,9 @@ The following arguments are supported:
     Changing this parameter will create a new resource.
   + `kms_key_id` - (Optional, String, ForceNew) Specifies the ID of a KMS key. This is used to encrypt the volume.
     Changing this parameter will create a new resource.
+
+    -> You need to create an agency (EVSAccessKMS) when disk encryption is used in the current project for the first time
+    ever. The account and permission of the created agency are `op_svc_evs` and **KMS Administrator**, respectively.
 
 * `storage` - (Optional, List, ForceNew) Specifies the disk initialization management parameter.
   If omitted, disks are managed based on the DockerLVMConfigOverride parameter in extendParam.

@@ -13,7 +13,7 @@ package huaweicloud
 import (
 	"github.com/chnsz/golangsdk/openstack/compute/v2/servers"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
-	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
+	"github.com/chnsz/golangsdk/openstack/networking/v1/ports"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -91,12 +91,13 @@ func getInstanceAddresses(d *schema.ResourceData, meta interface{}, server *clou
 			}
 
 			lastPort = addr.PortID
-			p, err := ports.Get(networkingClient, addr.PortID).Extract()
+			p, err := ports.Get(networkingClient, addr.PortID)
 			if err != nil {
 				networkID = ""
 				logp.Printf("[DEBUG] getInstanceAddresses: failed to fetch port %s", addr.PortID)
+				continue
 			} else {
-				networkID = p.NetworkID
+				networkID = p.NetworkId
 			}
 
 			instanceNIC := InstanceNIC{
@@ -106,15 +107,15 @@ func getInstanceAddresses(d *schema.ResourceData, meta interface{}, server *clou
 				SourceDestCheck: len(p.AllowedAddressPairs) == 0,
 			}
 
-			for _, portIP := range p.FixedIPs {
-				if portIP.IPAddress == "" {
+			for _, portIP := range p.FixedIps {
+				if portIP.IpAddress == "" {
 					continue
 				}
 
-				if utils.IsIPv4Address(portIP.IPAddress) {
-					instanceNIC.FixedIPv4 = portIP.IPAddress
+				if utils.IsIPv4Address(portIP.IpAddress) {
+					instanceNIC.FixedIPv4 = portIP.IpAddress
 				} else {
-					instanceNIC.FixedIPv6 = portIP.IPAddress
+					instanceNIC.FixedIPv6 = portIP.IpAddress
 				}
 			}
 
