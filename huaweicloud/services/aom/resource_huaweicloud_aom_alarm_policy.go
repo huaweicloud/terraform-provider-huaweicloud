@@ -394,7 +394,7 @@ func resourceAlarmPolicyCreate(ctx context.Context, d *schema.ResourceData, meta
 		AlarmNotifications:   buildAlarmNotifications(d.Get("alarm_notifications").([]interface{})),
 	}
 	client.WithMethod(httpclient_go.MethodPost).WithUrlWithoutEndpoint(config, "aom", config.GetRegion(d),
-		"v4/"+config.TenantID+"/alarm-rules?action_id=add-alarm-action").WithBody(createOpts)
+		"v4/"+config.GetProjectID(region)+"/alarm-rules?action_id=add-alarm-action").WithBody(createOpts)
 	response, err := client.Do()
 
 	if err != nil {
@@ -423,7 +423,7 @@ func resourceAlarmPolicyRead(ctx context.Context, d *schema.ResourceData, meta i
 		return dErr
 	}
 	client.WithMethod(httpclient_go.MethodGet).WithUrlWithoutEndpoint(config, "aom", config.GetRegion(d),
-		"v4/"+config.TenantID+"/alarm-rules")
+		"v4/"+config.GetProjectID(region)+"/alarm-rules")
 
 	resp, err := client.Do()
 	if err != nil {
@@ -539,7 +539,7 @@ func resourceAlarmPolicyDelete(ctx context.Context, d *schema.ResourceData, meta
 		return dErr
 	}
 	client.WithMethod(httpclient_go.MethodDelete).WithUrlWithoutEndpoint(config, "aom", config.GetRegion(d),
-		"v4/"+config.TenantID+"/alarm-rules").WithBody([]string{d.Id()})
+		"v4/"+config.GetProjectID(region)+"/alarm-rules").WithBody([]string{d.Id()})
 	resp, err := client.Do()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving AOM alarm rule")
