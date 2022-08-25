@@ -300,10 +300,11 @@ func setApigIngressAccess(d *schema.ResourceData, config *config.Config, resp in
 		if err != nil {
 			return err
 		}
-		if len(publicIps) == 0 {
-			return fmtp.Errorf("Error getting eip id from server by ip address (%s): %s", publicAddress, err)
+		if len(publicIps) > 0 {
+			return d.Set("eip_id", publicIps[0].ID)
 		}
-		return d.Set("eip_id", publicIps[0].ID)
+		logp.Printf("[WARN] The instance does not synchronize EIP information, got (%s), but not found on the server",
+			publicAddress)
 	}
 	return d.Set("eip_id", nil)
 }
