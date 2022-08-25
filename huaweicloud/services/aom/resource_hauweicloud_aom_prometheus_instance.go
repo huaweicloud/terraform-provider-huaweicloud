@@ -6,13 +6,11 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
 	"io"
-	"regexp"
 	"strings"
 	"time"
 )
@@ -39,36 +37,19 @@ func ResourcePrometheusInstance() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"project_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 100),
-					validation.StringMatch(regexp.MustCompile(
-						"^[\u4e00-\u9fa5A-Za-z0-9]([\u4e00-\u9fa5-_A-Za-z0-9]*[\u4e00-\u9fa5A-Za-z0-9])?$"),
-						"The name can only consist of letters, digits, underscores (_),"+
-							" hyphens (-) and chinese characters, and it must start and end with letters,"+
-							" digits or chinese characters."),
-				),
-			},
 			"prom_for_cloud_service": {
 				Type:     schema.TypeList,
 				Optional: true,
+				Required: true,
 				ForceNew: true,
 				Elem: &schema.Resource{Schema: map[string]*schema.Schema{
 					"ces_metric_namespaces": {
 						Type:     schema.TypeList,
 						Optional: true,
+						Required: true,
 						Elem:     &schema.Schema{Type: schema.TypeString},
 					},
 				}},
-			},
-
-			"action": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
 			},
 		},
 	}
@@ -145,5 +126,7 @@ func resourcePrometheusInstancePatch(_ context.Context, d *schema.ResourceData, 
 }
 
 func resourcePrometheusInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	return nil
+	d.Set("prom_for_cloud_service",
+		entity.PrometheusInstanceParams{PromForCloudService: &entity.PromForCloudService{CesMetricNamespaces: []string{}}})
+	return resourcePrometheusInstancePatch(ctx, d, meta)
 }

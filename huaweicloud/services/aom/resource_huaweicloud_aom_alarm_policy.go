@@ -7,13 +7,11 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
 	"io"
-	"regexp"
 	"time"
 )
 
@@ -37,30 +35,12 @@ func ResourceAlarmPolicy() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"project_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 100),
-					validation.StringMatch(regexp.MustCompile(
-						"^[\u4e00-\u9fa5A-Za-z0-9]([\u4e00-\u9fa5-_A-Za-z0-9]*[\u4e00-\u9fa5A-Za-z0-9])?$"),
-						"The name can only consist of letters, digits, underscores (_),"+
-							" hyphens (-) and chinese characters, and it must start and end with letters,"+
-							" digits or chinese characters."),
-				),
-			},
 			"action_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 			"alarm_rule_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -404,7 +384,7 @@ func resourceAlarmPolicyCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 	createOpts := entity.AddAlarmRuleParams{
 		AlarmRuleName:        d.Get("alarm_rule_name").(string),
-		EnterpriseProjectId:  d.Get("enterprise_project_id").(string),
+		EnterpriseProjectId:  config.EnterpriseProjectID,
 		AlarmRuleDescription: d.Get("alarm_rule_description").(string),
 		AlarmRuleEnable:      d.Get("alarm_rule_enable").(bool),
 		AlarmRuleStatus:      d.Get("alarm_rule_status").(string),
