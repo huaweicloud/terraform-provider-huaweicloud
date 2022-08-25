@@ -424,6 +424,24 @@ func (c *Config) loadUserProjects(client *golangsdk.ProviderClient, region strin
 	return nil
 }
 
+// GetProjectID is used to get the project ID for services
+func (c *Config) GetProjectID(region string) string {
+	c.RPLock.Lock()
+	defer c.RPLock.Unlock()
+
+	projectID, ok := c.RegionProjectIDMap[region]
+	if !ok {
+		// Not find in the map, then try to query and store.
+		if err := c.loadUserProjects(c.DomainClient, region); err != nil {
+			log.Printf("[WARN] can not find the project ID of %s: %s", region, err)
+			return ""
+		}
+		projectID = c.RegionProjectIDMap[region]
+	}
+
+	return projectID
+}
+
 // GetRegion returns the region that was specified in the resource. If a
 // region was not set, the provider-level region is checked. The provider-level
 // region can either be set by the region argument or by HW_REGION_NAME.
