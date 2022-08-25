@@ -35,11 +35,6 @@ func ResourceAlarmPolicy() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"action_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
 			"alarm_rule_name": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -450,7 +445,6 @@ func resourceAlarmPolicyRead(ctx context.Context, d *schema.ResourceData, meta i
 		if params.AlarmRuleName == d.Id() {
 			d.SetId(params.AlarmRuleName)
 			mErr = multierror.Append(mErr,
-				d.Set("action_id", "add-alarm-action"),
 				d.Set("alarm_rule_status", params.AlarmRuleStatus),
 				d.Set("region", config.GetRegion(d)),
 				d.Set("alarm_rule_description", params.AlarmRuleDescription),

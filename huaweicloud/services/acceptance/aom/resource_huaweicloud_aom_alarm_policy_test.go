@@ -63,7 +63,6 @@ func TestAccAOMAlarmPolicy_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "alarm_rule_name", rName),
-					resource.TestCheckResourceAttr(resourceName, "action_id", "add-alarm-action"),
 					resource.TestCheckResourceAttr(resourceName, "alarm_rule_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "alarm_rule_type", "metric"),
 				),
@@ -80,7 +79,6 @@ func TestAccAOMAlarmPolicy_basic(t *testing.T) {
 func testAOMAlarmPolicy_basic(rName string) string {
 	return fmt.Sprintf(`
   resource "huaweicloud_aom_alarm_policy" "test" {
-         action_id	= "add-alarm-action"
          alarm_rule_description = "d"
          alarm_rule_enable        = true
          alarm_rule_name          = "%s"
