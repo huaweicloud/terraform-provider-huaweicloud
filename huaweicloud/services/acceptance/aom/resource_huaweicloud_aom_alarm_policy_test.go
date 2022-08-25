@@ -16,7 +16,7 @@ import (
 func getAlarmPolicyResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, _ := httpclient_go.NewHttpClientGo(config)
 	client.WithMethod(httpclient_go.MethodGet).WithUrlWithoutEndpoint(config, "aom", config.Region,
-		"v4/"+state.Primary.Attributes["project_id"]+"/alarm-rules")
+		"v4/"+config.TenantID+"/alarm-rules")
 
 	response, err := client.Do()
 	body, _ := client.CheckDeletedDiag(nil, err, response, "")
