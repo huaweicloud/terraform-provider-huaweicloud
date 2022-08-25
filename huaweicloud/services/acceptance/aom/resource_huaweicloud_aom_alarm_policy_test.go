@@ -66,8 +66,6 @@ func TestAccAOMAlarmPolicy_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "action_id", "add-alarm-action"),
 					resource.TestCheckResourceAttr(resourceName, "alarm_rule_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "alarm_rule_type", "metric"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
-					resource.TestCheckResourceAttr(resourceName, "project_id", "2a473356cca5487f8373be891bffc1cf"),
 				),
 			},
 			{
@@ -87,9 +85,6 @@ func testAOMAlarmPolicy_basic(rName string) string {
          alarm_rule_enable        = true
          alarm_rule_name          = "%s"
          alarm_rule_type          = "metric"
-         enterprise_project_id    = "0"
-         project_id                 = "2a473356cca5487f8373be891bffc1cf"
-
          alarm_notifications {
 	inhibit_enable          = false
 	notification_enable   = false

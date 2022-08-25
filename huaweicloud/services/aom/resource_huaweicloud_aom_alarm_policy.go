@@ -455,10 +455,8 @@ func resourceAlarmPolicyRead(ctx context.Context, d *schema.ResourceData, meta i
 				d.Set("alarm_rule_enable", params.AlarmRuleEnable),
 				d.Set("alarm_rule_name", params.AlarmRuleName),
 				d.Set("alarm_rule_type", params.AlarmRuleType),
-				d.Set("enterprise_project_id", params.EnterpriseProjectId),
 				d.Set("alarm_notifications", buildAlarmNotificationsMap(params.AlarmNotifications)),
 				d.Set("metric_alarm_spec", buildMetricAlarmSpecMap(params.MetricAlarmSpec)),
-				d.Set("project_id", config.TenantID),
 			)
 			if err = mErr.ErrorOrNil(); err != nil {
 				return diag.Errorf("error getting AOM alarm policy fields: %s", err)

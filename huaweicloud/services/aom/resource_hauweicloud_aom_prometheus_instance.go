@@ -125,7 +125,7 @@ func resourcePrometheusInstanceDelete(ctx context.Context, d *schema.ResourceDat
 	m := make(map[string]interface{})
 	m1 := make(map[string]interface{})
 	m1["ces_metric_namespaces"] = []string{}
-	m["ces_metric_namespaces"] = m1
+	m["prom_for_cloud_service"] = m1
 	d.Set("prom_for_cloud_service", []interface{}{m})
 	return resourcePrometheusInstancePatch(ctx, d, meta)
 }
