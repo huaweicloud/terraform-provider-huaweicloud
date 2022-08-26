@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apm"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lts"
 	"log"
 	"strings"
 	"sync"
@@ -729,8 +730,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_live_record_callback": live.ResourceRecordCallback(),
 			"huaweicloud_live_transcoding":     live.ResourceTranscoding(),
 
-			"huaweicloud_lts_group":  ResourceLTSGroupV2(),
-			"huaweicloud_lts_stream": ResourceLTSStreamV2(),
+			"huaweicloud_lts_group":           ResourceLTSGroupV2(),
+			"huaweicloud_lts_stream":          ResourceLTSStreamV2(),
+			"huaweicloud_lts_access_rule":     lts.ResourceAomMappingRule(),
+			"huaweicloud_lts_dashboard":       lts.ResourceLtsDashboard(),
+			"huaweicloud_elb_log":             lts.ResourceLtsElb(),
+			"huaweicloud_lts_struct_template": lts.ResourceLtsStruct(),
 
 			"huaweicloud_mls_instance": resourceMlsInstance(),
 
