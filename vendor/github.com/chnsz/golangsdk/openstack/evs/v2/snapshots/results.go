@@ -118,5 +118,5 @@ type Link struct {
 type PagedList struct {
 	Count     int        `json:"count"`
 	Snapshots []Snapshot `json:"snapshots"`
-	Links     Link       `json:"snapshots_links"`
+	Links     []Link     `json:"snapshots_links"`
 }
