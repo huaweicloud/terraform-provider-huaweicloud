@@ -217,6 +217,7 @@ func TestAccComputeInstance_powerAction(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
 					"stop_before_destroy",
+					"delete_eip_on_termination",
 					"power_action",
 				},
 			},
