@@ -59,6 +59,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rds"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/scm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/servicestage"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/sfs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/smn"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/sms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/swr"
@@ -457,7 +458,9 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_sms_source_servers": sms.DataSourceServers(),
 
-			"huaweicloud_sfs_file_system":   DataSourceSFSFileSystemV2(),
+			"huaweicloud_sfs_file_system": DataSourceSFSFileSystemV2(),
+			"huaweicloud_sfs_turbos":      sfs.DataSourceTurbos(),
+
 			"huaweicloud_vbs_backup_policy": dataSourceVBSBackupPolicyV2(),
 			"huaweicloud_vbs_backup":        dataSourceVBSBackupV2(),
 
