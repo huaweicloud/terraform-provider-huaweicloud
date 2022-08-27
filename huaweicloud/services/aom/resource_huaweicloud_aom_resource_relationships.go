@@ -4,15 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"strings"
+	"time"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
-	"io/ioutil"
-	"strings"
-	"time"
 )
 
 func ResourceCiRelationships() *schema.Resource {
@@ -212,7 +213,7 @@ func ResourceResourceCiRelationshipsDelete(ctx context.Context, d *schema.Resour
 		Data: buildDeleteResourceOpts(d),
 	}
 
-	client.WithMethod(httpclient_go.MethodPost).
+	client.WithMethod(httpclient_go.MethodDelete).
 		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/resource/"+d.Get("rf_resource_type").(string)+
 			"/type/"+d.Get("type").(string)+"/ci-relationships").WithBody(opts)
 
