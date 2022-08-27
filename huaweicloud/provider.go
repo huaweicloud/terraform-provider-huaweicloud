@@ -431,6 +431,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_kms_key":      DataSourceKmsKeyV1(),
 			"huaweicloud_kms_data_key": DataSourceKmsDataKeyV1(),
+			"huaweicloud_kps_keypairs": dew.DataSourceKeypairs(),
 
 			"huaweicloud_lb_loadbalancer": lb.DataSourceELBV2Loadbalancer(),
 			"huaweicloud_lb_certificate":  lb.DataSourceLBCertificateV2(),

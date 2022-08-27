@@ -61,8 +61,13 @@ func filterSliceWithFieldRaw(all interface{}, filter map[string]interface{}, ign
 				return nil, fmt.Errorf("get slice field %s failed: %s", key, err)
 			}
 
-			if actual != val {
-				log.Printf("[DEBUG] can not match slice[%d] field %s: expect %v, but got %v", i, key, val, actual)
+			actualVal := reflect.ValueOf(actual)
+			if actualVal.Kind() == reflect.Ptr {
+				actualVal = actualVal.Elem()
+			}
+
+			if actualVal.Interface() != val {
+				log.Printf("[DEBUG] can not match slice[%d] field %s: expect %v, but got %v", i, key, val, actualVal)
 				matched = false
 				break
 			}
