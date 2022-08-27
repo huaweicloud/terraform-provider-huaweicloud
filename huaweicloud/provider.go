@@ -435,6 +435,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_lb_loadbalancer": lb.DataSourceELBV2Loadbalancer(),
 			"huaweicloud_lb_certificate":  lb.DataSourceLBCertificateV2(),
+			"huaweicloud_lb_pools":        lb.DataSourcePools(),
 			"huaweicloud_elb_certificate": elb.DataSourceELBCertificateV3(),
 
 			"huaweicloud_nat_gateway":          DataSourceNatGatewayV2(),

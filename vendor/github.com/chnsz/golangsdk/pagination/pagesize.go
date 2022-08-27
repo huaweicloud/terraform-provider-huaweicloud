@@ -2,8 +2,8 @@ package pagination
 
 import (
 	"fmt"
-	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/chnsz/golangsdk"
 )
@@ -43,12 +43,25 @@ func (current PageSizeBase) NextPageURL() (string, error) {
 
 // IsEmpty satisifies the IsEmpty method of the Page interface
 func (current PageSizeBase) IsEmpty() (bool, error) {
-	if b, ok := current.Body.([]interface{}); ok {
-		return len(b) == 0, nil
+	if pb, ok := current.Body.(map[string]interface{}); ok {
+		for k, v := range pb {
+			// ignore xxx_links
+			if !strings.HasSuffix(k, "links") {
+				// check the field's type. we only want []interface{} (which is really []map[string]interface{})
+				switch vt := v.(type) {
+				case []interface{}:
+					return len(vt) == 0, nil
+				}
+			}
+		}
 	}
+	if pb, ok := current.Body.([]interface{}); ok {
+		return len(pb) == 0, nil
+	}
+
 	err := golangsdk.ErrUnexpectedType{}
-	err.Expected = "[]interface{}"
-	err.Actual = fmt.Sprintf("%v", reflect.TypeOf(current.Body))
+	err.Expected = "map[string]interface{}/[]interface{}"
+	err.Actual = fmt.Sprintf("%T", current.Body)
 	return true, err
 }
 
