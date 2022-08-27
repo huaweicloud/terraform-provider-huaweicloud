@@ -212,7 +212,7 @@ func ResourceResourceCiRelationshipsDelete(ctx context.Context, d *schema.Resour
 		Data: buildDeleteResourceOpts(d),
 	}
 
-	client.WithMethod(httpclient_go.MethodPost).
+	client.WithMethod(httpclient_go.MethodDelete).
 		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/resource/"+d.Get("rf_resource_type").(string)+
 			"/type/"+d.Get("type").(string)+"/ci-relationships").WithBody(opts)
 
