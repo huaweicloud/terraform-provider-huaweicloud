@@ -42,6 +42,22 @@ SQLServer| 2008_R2_EE <br>2008_R2_WEB <br>2012_SE <br>2014_SE <br>2016_SE <br>20
 
 * `memory` - (Optional, Int) Specifies the memory size(GB) in the RDS flavor.
 
+* `group_type` - (Optional, String) Specifies the performance specification, the valid values are as follows:
+  + **normal**: General enhanced.
+  + **normal2**: General enhanced type II.
+  + **armFlavors**: KunPeng general enhancement.
+  + **dedicatedNormal**: (dedicatedNormalLocalssd): Dedicated for x86.
+  + **armLocalssd**: KunPeng general type.
+  + **normalLocalssd**: x86 general type.
+  + **general**: General type.
+  + **dedicated**:  
+    For MySQL engine: Dedicated type.  
+    For PostgreSQL and SQL Server engines: Dedicated type, only supported by cloud disk SSD.
+  + **rapid**:  
+    For MySQL engine: Dedicated (discontinued).  
+    For PostgreSQL and SQL Server engines: Dedicated, only supported by ultra-fast SSDs.
+  + **bigmem**: Large memory type.
+
 * `availability_zone` - (Optional, String) Specifies the availability zone which the RDS flavor belongs to.
 
 ## Attributes Reference
@@ -58,6 +74,7 @@ The `flavors` block contains:
 * `name` - The name of the rds flavor.
 * `vcpus` - The CPU size.
 * `memory` - The memory size in GB.
+* `group_type` - The performance specification.
 * `instance_mode` - The mode of instance.
 * `availability_zones` - The availability zones which the RDS flavor belongs to.
 * `db_versions` - The Available versions of the database.
