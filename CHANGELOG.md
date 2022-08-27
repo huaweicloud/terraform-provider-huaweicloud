@@ -1,5 +1,28 @@
 # CHANGELOG
 
+## 1.40.0 (August 27, 2022)
+
+* **New Resurce:**
+  + `huaweicloud_aad_forward_rule` [GH-2312]
+
+* **New Data Source:**
+  + `huaweicloud_kps_keypairs` [GH-2311]
+  + `huaweicloud_sfs_turbos` [GH-2326]
+  + `huaweicloud_lb_pools` [GH-2334]
+  + `huaweicloud_lb_listener` [GH-2337]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_servicestage_environment: Support `enterprise_project_id` field [GH-2306]
+* resource/huaweicloud_lb_pool: Support `persistence.timeout` field [GH-2324]
+* data/huaweicloud_rds_flavors: Support query flavors by `group_type` option [GH-2318]
+
+BUG FIXES:
+
+* resource/huaweicloud_servicestage_component_instance: Fix wrong param name and logic [GH-2303]
+* resource/huaweicloud_compute_instance: Upgrade the API to reset password [GH-2317]
+* resource/huaweicloud_apig_instance: Ignore the error if ingress address was not found [GH-2332]
+
 ## 1.39.0 (August 15, 2022)
 
 * **New Resurce:**
