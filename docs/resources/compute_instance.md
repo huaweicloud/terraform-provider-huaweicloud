@@ -289,8 +289,8 @@ The following arguments are supported:
   ranges from 1 to 3. This parameter is mandatory if `charging_mode` is set to *prePaid*. Changing this creates a
   new resource.
 
-* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
-  Valid values are *true* and *false*. Defaults to *false*. Changing this creates a new resource.
+* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
+  Valid values are *true* and *false*. Defaults to *false*.
 
 * `auto_pay` - (Optional, String, ForceNew) Specifies whether auto pay is enabled.
   Valid values are *true* and *false*. Defaults to *true*. If you set this to *false*, you need to pay the order
@@ -400,7 +400,7 @@ Note that the imported state may not be identical to your resource definition, d
 API response, security or some other reason.
 The missing attributes include: `admin_pass`, `user_data`, `data_disks`, `scheduler_hints`, `stop_before_destroy`,
 `delete_disks_on_termination`, `delete_eip_on_termination`, `network/access_network`, `bandwidth`, `eip_type`,
-`power_action` and arguments for pre-paid.
+`power_action` and arguments for pre-paid (expect for `auto_renew`).
 It is generally recommended running `terraform plan` after importing an instance.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to
 align with the instance. Also you can ignore changes as below.

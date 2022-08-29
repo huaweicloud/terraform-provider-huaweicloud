@@ -82,6 +82,19 @@ func SchemaAutoRenew(conflicts []string) *schema.Schema {
 	return &resourceSchema
 }
 
+func SchemaNewAutoRenew(conflicts []string) *schema.Schema {
+	resourceSchema := schema.Schema{
+		Type:     schema.TypeString,
+		Optional: true,
+		ValidateFunc: validation.StringInSlice([]string{
+			"true", "false",
+		}, false),
+		ConflictsWith: conflicts,
+	}
+
+	return &resourceSchema
+}
+
 func SchemaAutoPay(conflicts []string) *schema.Schema {
 	resourceSchema := schema.Schema{
 		Type:     schema.TypeString,
