@@ -626,6 +626,13 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v1",
 		Product: "AOM",
 	},
+
+	// catalog for DevCloud
+	"projectman": {
+		Name:    "projectman-ext",
+		Version: "v4",
+		Product: "ProjectMan",
+	},
 }
 
 // GetServiceEndpoint try to get the endpoint from customizing map
