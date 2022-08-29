@@ -2,6 +2,7 @@ package utils
 
 import (
 	"log"
+	"reflect"
 	"strconv"
 )
 
@@ -81,4 +82,14 @@ func StringValue(v *string) string {
 		return ""
 	}
 	return *v
+}
+
+// ValueIngoreEmpty returns to the string value. if v is empty, return nil
+func ValueIngoreEmpty(v interface{}) interface{} {
+	vl := reflect.ValueOf(v)
+	if (vl.Kind() != reflect.Bool) && vl.IsZero() {
+		return nil
+	}
+
+	return v
 }
