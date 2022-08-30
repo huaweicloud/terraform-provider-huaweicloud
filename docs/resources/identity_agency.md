@@ -24,22 +24,6 @@ resource "huaweicloud_identity_agency" "agency" {
 }
 ```
 
-### Delegate a cloud service to access your resources in other cloud services
-
-```hcl
-resource "huaweicloud_identity_agency" "agency" {
-  name                   = "test_agency"
-  description            = "test agency"
-  delegated_service_name = "op_svc_evs"
-
-  project_role {
-    project = "cn-north-1"
-    roles   = ["SFS FullAccess"]
-  }
-  domain_roles = ["KMS Administrator"]
-}
-```
-
 ## Argument Reference
 
 The following arguments are supported:
@@ -52,9 +36,6 @@ The following arguments are supported:
 
 * `delegated_domain_name` - (Optional, String) Specifies the name of delegated user domain. This parameter
   and `delegated_service_name` are alternative.
-
-* `delegated_service_name` - (Optional, String) Specifies the name of delegated cloud service. The value must start
-  with *op_svc_*, for example, *op_svc_obs*. This parameter and `delegated_domain_name` are alternative.
 
 * `duration` - (Optional, String) Specifies the validity period of an agency. The valid value are *ONEDAY* and *FOREVER*
   , defaults to *FOREVER*.
