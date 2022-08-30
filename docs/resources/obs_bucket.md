@@ -203,7 +203,10 @@ The following arguments are supported:
 
 * `encryption` - (Optional, Bool) Whether enable default server-side encryption of the bucket in SSE-KMS mode.
 
-* `kms_key_id` - (Optional, String) Specifies the ID of a kms key. If omitted, the default master key will be used.
+* `kms_key_id` - (Optional, String) Specifies the ID of a KMS key. If omitted, the default master key will be used.
+
+* `kms_key_project_id` - (Optional, String) Specifies the project ID to which the KMS key belongs. If omitted, the ID
+  of the provider-level project will be used.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the OBS bucket. Changing
   this will create a new bucket.

@@ -285,6 +285,11 @@ func ResourceObsBucket() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"kms_key_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -384,8 +389,8 @@ func resourceObsBucketUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	if d.HasChanges("encryption", "kms_key_id") {
-		if err := resourceObsBucketEncryptionUpdate(obsClient, d); err != nil {
+	if d.HasChanges("encryption", "kms_key_id", "kms_key_project_id") {
+		if err := resourceObsBucketEncryptionUpdate(config, obsClient, d); err != nil {
 			return err
 		}
 	}
@@ -651,7 +656,7 @@ func resourceObsBucketVersioningUpdate(obsClient *obs.ObsClient, d *schema.Resou
 	return nil
 }
 
-func resourceObsBucketEncryptionUpdate(obsClient *obs.ObsClient, d *schema.ResourceData) error {
+func resourceObsBucketEncryptionUpdate(config *config.Config, obsClient *obs.ObsClient, d *schema.ResourceData) error {
 	bucket := d.Get("bucket").(string)
 
 	if d.Get("encryption").(bool) {
@@ -659,6 +664,12 @@ func resourceObsBucketEncryptionUpdate(obsClient *obs.ObsClient, d *schema.Resou
 		input.Bucket = bucket
 		input.SSEAlgorithm = obs.DEFAULT_SSE_KMS_ENCRYPTION
 		input.KMSMasterKeyID = d.Get("kms_key_id").(string)
+
+		if v, ok := d.GetOk("kms_key_project_id"); ok {
+			input.ProjectID = v.(string)
+		} else {
+			input.ProjectID = config.GetProjectID(config.GetRegion(d))
+		}
 
 		logp.Printf("[DEBUG] enable default encryption of OBS bucket %s: %#v", bucket, input)
 		_, err := obsClient.SetBucketEncryption(input)
@@ -1060,6 +1071,7 @@ func setObsBucketEncryption(obsClient *obs.ObsClient, d *schema.ResourceData) er
 			if obsError.Code == "NoSuchEncryptionConfiguration" || obsError.Code == "FsNotSupport" {
 				d.Set("encryption", false)
 				d.Set("kms_key_id", nil)
+				d.Set("kms_key_project_id", nil)
 				return nil
 			}
 			return fmtp.Errorf("Error getting encryption configuration of OBS bucket %s: %s,\n Reason: %s",
@@ -1072,9 +1084,11 @@ func setObsBucketEncryption(obsClient *obs.ObsClient, d *schema.ResourceData) er
 	if output.SSEAlgorithm != "" {
 		d.Set("encryption", true)
 		d.Set("kms_key_id", output.KMSMasterKeyID)
+		d.Set("kms_key_project_id", output.ProjectID)
 	} else {
 		d.Set("encryption", false)
 		d.Set("kms_key_id", nil)
+		d.Set("kms_key_project_id", nil)
 	}
 
 	return nil
