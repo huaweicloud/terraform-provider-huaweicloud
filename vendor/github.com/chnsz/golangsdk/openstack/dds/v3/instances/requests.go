@@ -16,6 +16,7 @@ type CreateOpts struct {
 	SubnetId            string         `json:"subnet_id" required:"true"`
 	SecurityGroupId     string         `json:"security_group_id" required:"true"`
 	Password            string         `json:"password" required:"true"`
+	Port                string         `json:"port,omitempty"`
 	DiskEncryptionId    string         `json:"disk_encryption_id,omitempty"`
 	Ssl                 string         `json:"ssl_option,omitempty"`
 	Mode                string         `json:"mode" required:"true"`
@@ -191,4 +192,30 @@ func Update(client *golangsdk.ServiceClient, instanceId string, opts []UpdateOpt
 		}
 	}
 	return
+}
+
+var requestOpts golangsdk.RequestOpts = golangsdk.RequestOpts{
+	MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+}
+
+// PortOpts is the structure required by the UpdatePort method to modify the database access port.
+type PortOpts struct {
+	Port int `json:"port"`
+}
+
+// UpdatePort is a method to update the database access port using given parameters.
+func UpdatePort(c *golangsdk.ServiceClient, instanceId string, port int) (*PortUpdateResp, error) {
+	opts := PortOpts{
+		Port: port,
+	}
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r PortUpdateResp
+	_, err = c.Post(portModifiedURL(c, instanceId), b, &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return &r, err
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/dds/v3/instances"
+	"github.com/chnsz/golangsdk/openstack/dds/v3/jobs"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -101,6 +102,15 @@ func ResourceDdsInstanceV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"port": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.Any(
+					validation.IntBetween(2100, 9500),
+					validation.IntBetween(27017, 27019),
+				),
+			},
 			"password": {
 				Type:      schema.TypeString,
 				Sensitive: true,
@@ -192,10 +202,6 @@ func ResourceDdsInstanceV3() *schema.Resource {
 			},
 			"status": {
 				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"port": {
-				Type:     schema.TypeInt,
 				Computed: true,
 			},
 			"nodes": {
@@ -345,6 +351,10 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.Password = d.Get("password").(string)
 
+	if val, ok := d.GetOk("port"); ok {
+		createOpts.Port = strconv.Itoa(val.(int))
+	}
+
 	instance, err := instances.Create(client, createOpts).Extract()
 	if err != nil {
 		return fmtp.DiagErrorf("Error getting instance from result: %s ", err)
@@ -467,6 +477,17 @@ func resourceDdsInstanceV3Read(_ context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
+func JobStateRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		resp, err := jobs.Get(client, jobId)
+		if err != nil {
+			return nil, "", err
+		}
+
+		return resp, resp.Status, nil
+	}
+}
+
 func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.DdsV3Client(config.GetRegion(d))
@@ -529,6 +550,25 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 			Method: "put",
 		}
 		opts = append(opts, opt)
+	}
+
+	if d.HasChange("port") {
+		resp, err := instances.UpdatePort(client, d.Id(), d.Get("port").(int))
+		if err != nil {
+			return diag.Errorf("error updating database access port: %s", err)
+		}
+		stateConf := &resource.StateChangeConf{
+			Pending:      []string{"Running"},
+			Target:       []string{"Completed"},
+			Refresh:      JobStateRefreshFunc(client, resp.JobId),
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			PollInterval: 10 * time.Second,
+		}
+
+		_, err = stateConf.WaitForStateContext(ctx)
+		if err != nil {
+			return fmtp.DiagErrorf("error waiting for the job (%s) completed: %s ", resp.JobId, err)
+		}
 	}
 
 	if len(opts) > 0 {
