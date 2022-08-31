@@ -27,6 +27,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ces"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cloudtable"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cmdb"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/codehub"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cpts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cse"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/css"
@@ -615,6 +616,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdn_domain":         resourceCdnDomainV1(),
 			"huaweicloud_ces_alarmrule":      ces.ResourceAlarmRule(),
 			"huaweicloud_cloudtable_cluster": cloudtable.ResourceCloudTableCluster(),
+
+			"huaweicloud_codehub_repository": codehub.ResourceRepository(),
 
 			"huaweicloud_compute_instance":         ResourceComputeInstanceV2(),
 			"huaweicloud_compute_interface_attach": ResourceComputeInterfaceAttachV2(),

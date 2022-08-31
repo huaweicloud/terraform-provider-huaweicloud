@@ -635,7 +635,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Product: "AOM",
 	},
 
-	// catalog for DevCloud
+	// catalog for Developer Services
+	"codehub": {
+		Name:    "codehub-ext",
+		Product: "CodeHub",
+	},
+
 	"projectman": {
 		Name:    "projectman-ext",
 		Version: "v4",
