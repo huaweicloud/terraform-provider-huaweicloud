@@ -14,7 +14,7 @@ import (
 )
 
 func getElbResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	c, _ := httpclient_go.NewHttpClientGo(conf)
+	c, _ := httpclient_go.NewHttpClientGo(conf, "elb", acceptance.HW_REGION_NAME)
 	c.WithMethod(httpclient_go.MethodGet).
 		WithUrlWithoutEndpoint(conf, "elb", conf.Region, "v3/"+conf.GetProjectID(conf.Region)+
 			"/elb/logtanks/"+state.Primary.ID)

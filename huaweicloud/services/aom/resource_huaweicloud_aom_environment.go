@@ -120,10 +120,10 @@ func ResourceAomEnvironment() *schema.Resource {
 }
 
 func ResourceAomEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	conf := meta.(*config.Config)
+	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 
 	opts := entity2.EnvParam{
@@ -132,11 +132,10 @@ func ResourceAomEnvironmentCreate(ctx context.Context, d *schema.ResourceData, m
 		EnvName:      d.Get("env_name").(string),
 		EnvType:      d.Get("env_type").(string),
 		OsType:       d.Get("os_type").(string),
-		Region:       cfg.GetRegion(d),
+		Region:       conf.GetRegion(d),
 		RegisterType: d.Get("register_type").(string),
 	}
-	client.WithMethod(httpclient_go.MethodPost).
-		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/environments").WithBody(opts)
+	client.WithMethod(httpclient_go.MethodPost).WithUrl("v1/environments").WithBody(opts)
 	response, err := client.Do()
 	if err != nil {
 		return diag.Errorf("error create Environment fields %s: %s", opts, err)
@@ -162,14 +161,13 @@ func ResourceAomEnvironmentCreate(ctx context.Context, d *schema.ResourceData, m
 }
 
 func ResourceAomEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	conf := meta.(*config.Config)
+	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 
-	client.WithMethod(httpclient_go.MethodGet).
-		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/environments/"+d.Id())
+	client.WithMethod(httpclient_go.MethodGet).WithUrl("v1/environments/" + d.Id())
 	response, err := client.Do()
 
 	body, diags := client.CheckDeletedDiag(d, err, response, "error retrieving Environment")
@@ -215,10 +213,10 @@ func ResourceAomEnvironmentRead(ctx context.Context, d *schema.ResourceData, met
 }
 
 func ResourceAomEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	conf := meta.(*config.Config)
+	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 	opts := entity2.EnvParam{
 		ComponentId:  d.Get("component_id").(string),
@@ -226,12 +224,11 @@ func ResourceAomEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, m
 		EnvName:      d.Get("env_name").(string),
 		EnvType:      d.Get("env_type").(string),
 		OsType:       d.Get("os_type").(string),
-		Region:       cfg.GetRegion(d),
+		Region:       conf.GetRegion(d),
 		RegisterType: d.Get("register_type").(string),
 	}
 
-	client.WithMethod(httpclient_go.MethodPut).
-		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/environments/"+d.Id()).WithBody(opts)
+	client.WithMethod(httpclient_go.MethodPut).WithUrl("v1/environments/" + d.Id()).WithBody(opts)
 	response, err := client.Do()
 	if err != nil {
 		return diag.Errorf("error update Environment %s: %s", opts.EnvName, err)
@@ -251,14 +248,13 @@ func ResourceAomEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, m
 }
 
 func ResourceAomEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	conf := meta.(*config.Config)
+	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 
-	client.WithMethod(httpclient_go.MethodDelete).
-		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/environments/"+d.Id())
+	client.WithMethod(httpclient_go.MethodDelete).WithUrl("v1/environments/" + d.Id())
 	response, err := client.Do()
 	if err != nil {
 		return diag.Errorf("error delete Environment %s: %s", d.Id(), err)

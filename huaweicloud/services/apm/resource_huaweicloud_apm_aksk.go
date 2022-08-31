@@ -47,17 +47,16 @@ func ResourceApmAkSk() *schema.Resource {
 
 func ResourceApmAkSkCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	client, err := httpclient_go.NewHttpClientGo(cfg, "apm", cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 
 	opts := entity.CreateAkSkParam{
 		Descp: d.Get("description").(string),
 	}
 
-	client.WithMethod(httpclient_go.MethodPost).
-		WithUrlWithoutEndpoint(cfg, "apm", cfg.GetRegion(d), "v1/apm2/access-keys").WithBody(opts)
+	client.WithMethod(httpclient_go.MethodPost).WithUrl("v1/apm2/access-keys").WithBody(opts)
 
 	response, err := client.Do()
 	if err != nil {
@@ -86,13 +85,12 @@ func ResourceApmAkSkCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 func ResourceApmAkSkRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	client, err := httpclient_go.NewHttpClientGo(cfg, "apm", cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 
-	client.WithMethod(httpclient_go.MethodGet).
-		WithUrlWithoutEndpoint(cfg, "apm", cfg.GetRegion(d), "v1/apm2/access-keys")
+	client.WithMethod(httpclient_go.MethodGet).WithUrl("v1/apm2/access-keys")
 
 	response, err := client.Do()
 
@@ -133,13 +131,12 @@ func ResourceApmAkSkRead(ctx context.Context, d *schema.ResourceData, meta inter
 
 func ResourceApmAkSkDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	client, err := httpclient_go.NewHttpClientGo(cfg, "apm", cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 
-	client.WithMethod(httpclient_go.MethodDelete).
-		WithUrlWithoutEndpoint(cfg, "apm", cfg.GetRegion(d), "v1/apm2/access-keys/"+d.Id())
+	client.WithMethod(httpclient_go.MethodDelete).WithUrl("v1/apm2/access-keys/" + d.Id())
 
 	response, err := client.Do()
 	if err != nil {

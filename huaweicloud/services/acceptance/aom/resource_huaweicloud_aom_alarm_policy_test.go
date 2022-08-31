@@ -13,10 +13,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func getAlarmPolicyResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, _ := httpclient_go.NewHttpClientGo(config)
-	client.WithMethod(httpclient_go.MethodGet).WithUrlWithoutEndpoint(config, "aom", config.Region,
-		"v4/"+config.GetProjectID(config.Region)+"/alarm-rules")
+func getAlarmPolicyResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+
+	client, _ := httpclient_go.NewHttpClientGo(conf, "aom", acceptance.HW_REGION_NAME)
+
+	client.WithMethod(httpclient_go.MethodGet).WithUrlWithoutEndpoint(conf, "aom", conf.Region,
+		"v4/"+conf.GetProjectID(conf.Region)+"/alarm-rules")
 
 	response, err := client.Do()
 	body, _ := client.CheckDeletedDiag(nil, err, response, "")

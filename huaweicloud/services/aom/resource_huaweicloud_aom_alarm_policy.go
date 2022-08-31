@@ -372,14 +372,14 @@ func schemeAlarmNotifications() *schema.Schema {
 }
 
 func resourceAlarmPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, dErr := httpclient_go.NewHttpClientGo(config)
-	if dErr != nil {
-		return dErr
+	conf := meta.(*config.Config)
+	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 	createOpts := entity.AddAlarmRuleParams{
 		AlarmRuleName:        d.Get("alarm_rule_name").(string),
-		EnterpriseProjectId:  config.EnterpriseProjectID,
+		EnterpriseProjectId:  conf.EnterpriseProjectID,
 		AlarmRuleDescription: d.Get("alarm_rule_description").(string),
 		AlarmRuleEnable:      d.Get("alarm_rule_enable").(bool),
 		AlarmRuleStatus:      d.Get("alarm_rule_status").(string),
@@ -388,9 +388,8 @@ func resourceAlarmPolicyCreate(ctx context.Context, d *schema.ResourceData, meta
 		EventAlarmSpec:       buildEventAlarmSpec(d.Get("event_alarm_spec").([]interface{})),
 		AlarmNotifications:   buildAlarmNotifications(d.Get("alarm_notifications").([]interface{})),
 	}
-	region := config.GetRegion(d)
-	client.WithMethod(httpclient_go.MethodPost).WithUrlWithoutEndpoint(config, "aom", region,
-		"v4/"+config.GetProjectID(region)+"/alarm-rules?action_id=add-alarm-action").WithBody(createOpts)
+	region := conf.GetRegion(d)
+	client.WithMethod(httpclient_go.MethodPost).WithUrl("v4/" + conf.GetProjectID(region) + "/alarm-rules?action_id=add-alarm-action").WithBody(createOpts)
 	response, err := client.Do()
 
 	if err != nil {
@@ -413,14 +412,13 @@ func resourceAlarmPolicyCreate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceAlarmPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, dErr := httpclient_go.NewHttpClientGo(config)
-	if dErr != nil {
-		return dErr
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	client, err := httpclient_go.NewHttpClientGo(conf, "aom", region)
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
-	region := config.GetRegion(d)
-	client.WithMethod(httpclient_go.MethodGet).WithUrlWithoutEndpoint(config, "aom", region,
-		"v4/"+config.GetProjectID(region)+"/alarm-rules")
+	client.WithMethod(httpclient_go.MethodGet).WithUrl("v4/" + conf.GetProjectID(region) + "/alarm-rules")
 
 	resp, err := client.Do()
 	if err != nil {
@@ -446,7 +444,7 @@ func resourceAlarmPolicyRead(ctx context.Context, d *schema.ResourceData, meta i
 			d.SetId(params.AlarmRuleName)
 			mErr = multierror.Append(mErr,
 				d.Set("alarm_rule_status", params.AlarmRuleStatus),
-				d.Set("region", config.GetRegion(d)),
+				d.Set("region", conf.GetRegion(d)),
 				d.Set("alarm_rule_description", params.AlarmRuleDescription),
 				d.Set("alarm_rule_enable", params.AlarmRuleEnable),
 				d.Set("alarm_rule_name", params.AlarmRuleName),
@@ -529,14 +527,13 @@ func buildAlarmNotificationsMap(notifications entity.AlarmNotifications) []map[s
 }
 
 func resourceAlarmPolicyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, dErr := httpclient_go.NewHttpClientGo(config)
-	if dErr != nil {
-		return dErr
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	client, err := httpclient_go.NewHttpClientGo(conf, "aom", region)
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
-	region := config.GetRegion(d)
-	client.WithMethod(httpclient_go.MethodDelete).WithUrlWithoutEndpoint(config, "aom", region,
-		"v4/"+config.GetProjectID(region)+"/alarm-rules").WithBody([]string{d.Id()})
+	client.WithMethod(httpclient_go.MethodDelete).WithUrl("v4/" + conf.GetProjectID(region) + "/alarm-rules").WithBody([]string{d.Id()})
 	resp, err := client.Do()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving AOM alarm rule")

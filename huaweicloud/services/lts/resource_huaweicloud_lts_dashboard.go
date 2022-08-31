@@ -86,13 +86,13 @@ func ResourceLtsDashboard() *schema.Resource {
 
 func resourceLtsDashBoardCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	region := cfg.GetRegion(d)
+	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", region)
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
-	region := cfg.GetRegion(d)
 	dashBoardRequest := entity.DashBoardRequest{
 		LogGroupId:    d.Get("log_group_id").(string),
 		LogGroupName:  d.Get("log_group_name").(string),
@@ -102,8 +102,8 @@ func resourceLtsDashBoardCreate(ctx context.Context, d *schema.ResourceData, met
 		TemplateType:  utils.ExpandToStringList(d.Get("template_type").([]interface{})),
 		GroupName:     d.Get("group_name").(string),
 	}
-	client.WithMethod(httpclient_go.MethodPost).WithUrlWithoutEndpoint(cfg, "lts", region, "v2/"+
-		cfg.GetProjectID(region)+"/lts/template-dashboard").WithHeader(header).WithBody(dashBoardRequest)
+	client.WithMethod(httpclient_go.MethodPost).WithUrl("v2/" + cfg.GetProjectID(region) + "/lts/template-dashboard").
+		WithHeader(header).WithBody(dashBoardRequest)
 	response, err := client.Do()
 	if err != nil {
 		return diag.Errorf("error creating LtsDashBoard fields %s: %s", dashBoardRequest.LogGroupId, err)
@@ -130,15 +130,14 @@ func resourceLtsDashBoardCreate(ctx context.Context, d *schema.ResourceData, met
 
 func resourceLtsDashBoardRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	region := cfg.GetRegion(d)
+	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", region)
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
-	region := cfg.GetRegion(d)
-	client.WithMethod(httpclient_go.MethodGet).WithUrlWithoutEndpoint(cfg, "lts", region, "v2/"+
-		cfg.GetProjectID(region)+"/dashboards?id="+d.Id()).WithHeader(header)
+	client.WithMethod(httpclient_go.MethodGet).WithUrl("v2/" + cfg.GetProjectID(region) + "/dashboards?id=" + d.Id()).WithHeader(header)
 	response, err := client.Do()
 	body, diags := client.CheckDeletedDiag(d, err, response, "error retrieving LtsDashBoard")
 	if body == nil {
@@ -161,15 +160,15 @@ func resourceLtsDashBoardRead(_ context.Context, d *schema.ResourceData, meta in
 
 func resourceLtsDashBoardDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	region := cfg.GetRegion(d)
+	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", region)
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
-	region := cfg.GetRegion(d)
-	client.WithMethod(httpclient_go.MethodDelete).WithUrlWithoutEndpoint(cfg, "lts", region, "v2/"+
-		cfg.GetProjectID(region)+"/dashboard?is_delete_charts="+d.Get("is_delete_charts").(string)+"&id="+d.Id()).WithHeader(header)
+	client.WithMethod(httpclient_go.MethodDelete).WithUrl("v2/" + cfg.GetProjectID(region) + "/dashboard?is_delete_charts=" +
+		d.Get("is_delete_charts").(string) + "&id=" + d.Id()).WithHeader(header)
 	response, err := client.Do()
 	if err != nil {
 		return diag.Errorf("error delete LtsDashBoard %s: %s", d.Id(), err)
@@ -187,13 +186,13 @@ func resourceLtsDashBoardDelete(_ context.Context, d *schema.ResourceData, meta 
 
 func resourceDashBoardUpdate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	region := cfg.GetRegion(d)
+	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", region)
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
-	region := cfg.GetRegion(d)
 	dashBoardRequest := entity.DashBoardRequest{
 		LogGroupId:    d.Get("log_group_id").(string),
 		LogGroupName:  d.Get("log_group_name").(string),
@@ -203,8 +202,8 @@ func resourceDashBoardUpdate(_ context.Context, d *schema.ResourceData, meta int
 		TemplateType:  utils.ExpandToStringList(d.Get("template_type").([]interface{})),
 		GroupName:     d.Get("group_name").(string),
 	}
-	client.WithMethod(httpclient_go.MethodPost).WithUrlWithoutEndpoint(cfg, "lts", region, "v2/"+
-		cfg.GetProjectID(region)+"/lts/template-dashboard").WithHeader(header).WithBody(dashBoardRequest)
+	client.WithMethod(httpclient_go.MethodPost).WithUrl("v2/" + cfg.GetProjectID(region) + "/lts/template-dashboard").
+		WithHeader(header).WithBody(dashBoardRequest)
 	response, err := client.Do()
 	if err != nil {
 		return diag.Errorf("error update LtsDashBoard fields %s: %s", dashBoardRequest.LogGroupId, err)

@@ -14,10 +14,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func getPrometheusInstanceResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, _ := httpclient_go.NewHttpClientGo(config)
-	client.WithMethod(httpclient_go.MethodGet).WithUrlWithoutEndpoint(config, "aom",
-		config.Region, "v1/"+config.GetProjectID(config.Region)+"/prometheus-instances?action=prom_for_cloud_service")
+func getPrometheusInstanceResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, _ := httpclient_go.NewHttpClientGo(conf, "aom", acceptance.HW_REGION_NAME)
+	client.WithMethod(httpclient_go.MethodGet).WithUrlWithoutEndpoint(conf, "aom",
+		conf.Region, "v1/"+conf.GetProjectID(conf.Region)+"/prometheus-instances?action=prom_for_cloud_service")
 
 	resp, err := client.Do()
 	if err != nil {

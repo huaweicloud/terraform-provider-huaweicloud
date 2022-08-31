@@ -47,13 +47,13 @@ func ResourceLtsElb() *schema.Resource {
 
 func resourceLtsElbCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	region := cfg.GetRegion(d)
+	client, err := httpclient_go.NewHttpClientGo(cfg, "elb", region)
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
-	region := cfg.GetRegion(d)
 	LogTank := entity.CreateLogTankOption{
 		LogGroupId:     d.Get("log_group_id").(string),
 		LoadBalancerId: d.Get("loadbalancer_id").(string),
@@ -62,8 +62,8 @@ func resourceLtsElbCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	LogTankRequest := entity.CreateLogtankRequestBody{
 		Logtank: &LogTank,
 	}
-	client.WithMethod(httpclient_go.MethodPost).WithUrlWithoutEndpoint(cfg, "elb", region, "v3/"+
-		cfg.GetProjectID(region)+"/elb/logtanks").WithHeader(header).WithBody(LogTankRequest).WithTransport()
+	client.WithMethod(httpclient_go.MethodPost).WithUrl("v3/" + cfg.GetProjectID(region) + "/elb/logtanks").WithHeader(header).
+		WithBody(LogTankRequest).WithTransport()
 	response, err := client.Do()
 	if err != nil {
 		return diag.Errorf("error creating LogTank fields %s: %s", LogTankRequest.Logtank.LogGroupId, err)
@@ -87,15 +87,15 @@ func resourceLtsElbCreate(ctx context.Context, d *schema.ResourceData, meta inte
 
 func resourceLtsElbRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	region := cfg.GetRegion(d)
+	client, err := httpclient_go.NewHttpClientGo(cfg, "elb", region)
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
-	region := cfg.GetRegion(d)
-	client.WithMethod(httpclient_go.MethodGet).WithUrlWithoutEndpoint(cfg, "elb", region, "v3/"+cfg.GetProjectID(region)+
-		"/elb/logtanks/"+d.Id()).WithHeader(header).WithTransport()
+	client.WithMethod(httpclient_go.MethodGet).WithUrl("v3/" + cfg.GetProjectID(region) +
+		"/elb/logtanks/" + d.Id()).WithHeader(header).WithTransport()
 	response, err := client.Do()
 	body, diags := client.CheckDeletedDiag(d, err, response, "error Elb LogTank read instance")
 	if body == nil {
@@ -119,15 +119,15 @@ func resourceLtsElbRead(_ context.Context, d *schema.ResourceData, meta interfac
 
 func resourceLtsElbDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	region := cfg.GetRegion(d)
+	client, err := httpclient_go.NewHttpClientGo(cfg, "elb", region)
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
-	region := cfg.GetRegion(d)
-	client.WithMethod(httpclient_go.MethodDelete).WithUrlWithoutEndpoint(cfg, "elb", region, "v3/"+cfg.GetProjectID(region)+
-		"/elb/logtanks/"+d.Id()).WithHeader(header).WithTransport()
+	client.WithMethod(httpclient_go.MethodDelete).WithUrl("v3/" + cfg.GetProjectID(region) +
+		"/elb/logtanks/" + d.Id()).WithHeader(header).WithTransport()
 	resp, err := client.Do()
 	if err != nil {
 		return diag.Errorf("error delete LogTank %s: %s", d.Id(), err)
@@ -145,19 +145,18 @@ func resourceLtsElbDelete(_ context.Context, d *schema.ResourceData, meta interf
 
 func resourceLtsElbUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	region := cfg.GetRegion(d)
+	client, err := httpclient_go.NewHttpClientGo(cfg, "elb", region)
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
-	region := cfg.GetRegion(d)
 	LogTankRequest := entity.CreateLogTankOption{
 		LogGroupId: d.Get("log_group_id").(string),
 		LogTopicId: d.Get("log_topic_id").(string),
 	}
-	client.WithMethod(httpclient_go.MethodPut).WithUrlWithoutEndpoint(cfg, "elb", region, "v3/"+cfg.GetProjectID(region)+
-		"/elb/logtanks/"+d.Id()).
+	client.WithMethod(httpclient_go.MethodPut).WithUrl("v3/" + cfg.GetProjectID(region) + "/elb/logtanks/" + d.Id()).
 		WithHeader(header).WithBody(LogTankRequest).WithTransport()
 	response, err := client.Do()
 	if err != nil {

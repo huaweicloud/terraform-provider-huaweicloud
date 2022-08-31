@@ -15,7 +15,7 @@ import (
 )
 
 func getLtsStructTemplateFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	c, _ := httpclient_go.NewHttpClientGo(conf)
+	c, _ := httpclient_go.NewHttpClientGo(conf, "lts", acceptance.HW_REGION_NAME)
 	c.WithMethod(httpclient_go.MethodGet).
 		WithUrlWithoutEndpoint(conf, "lts", conf.Region, "v2/"+conf.GetProjectID(conf.Region)+
 			"/lts/struct/template?logGroupId="+state.Primary.Attributes["log_group_id"]+"&logStreamId="+state.Primary.Attributes["log_stream_id"])
