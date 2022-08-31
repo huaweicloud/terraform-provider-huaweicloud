@@ -103,6 +103,14 @@ func TestAccComputeInstance_prePaid(t *testing.T) {
 					testAccCheckComputeInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "delete_eip_on_termination", "true"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
+				),
+			},
+			{
+				Config: testAccComputeInstance_prePaidUpdate(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
 				),
 			},
 		},
@@ -424,6 +432,37 @@ resource "huaweicloud_compute_instance" "test" {
   charging_mode = "prePaid"
   period_unit   = "month"
   period        = 1
+  auto_renew    = "true"
+}
+`, testAccCompute_data, rName)
+}
+
+func testAccComputeInstance_prePaidUpdate(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_compute_instance" "test" {
+  name               = "%s"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+
+  network {
+    uuid = data.huaweicloud_vpc_subnet.test.id
+  }
+
+  eip_type = "5_bgp"
+  bandwidth {
+    share_type  = "PER"
+    size        = 5
+    charge_mode = "bandwidth"
+  }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "false"
 }
 `, testAccCompute_data, rName)
 }

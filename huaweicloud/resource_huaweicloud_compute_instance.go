@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/bss/v2/resources"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/bootfromvolume"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/keypairs"
@@ -350,7 +352,7 @@ func ResourceComputeInstanceV2() *schema.Resource {
 			"charging_mode": schemaChargingMode(novaConflicts),
 			"period_unit":   schemaPeriodUnit(novaConflicts),
 			"period":        schemaPeriod(novaConflicts),
-			"auto_renew":    schemaAutoRenew(novaConflicts),
+			"auto_renew":    common.SchemaNewAutoRenew(novaConflicts),
 			"auto_pay":      schemaAutoPay(novaConflicts),
 
 			"user_id": { // required if in prePaid charging mode with key_pair.
@@ -802,6 +804,10 @@ func resourceComputeInstanceV2Read(_ context.Context, d *schema.ResourceData, me
 	if err != nil {
 		return diag.Errorf("error creating image client: %s", err)
 	}
+	bssClient, err := config.BssV2Client(GetRegion(d, config))
+	if err != nil {
+		return diag.Errorf("error creating BSS V2 client: %s", err)
+	}
 
 	server, err := cloudservers.Get(ecsClient, d.Id()).Extract()
 	if err != nil {
@@ -951,6 +957,15 @@ func resourceComputeInstanceV2Read(_ context.Context, d *schema.ResourceData, me
 		}
 	} else {
 		logp.Printf("[WARN] Error fetching tags of compute instance (%s): %s", d.Id(), err)
+	}
+
+	resp, err := resources.Get(bssClient, d.Id(), true)
+	if err != nil {
+		return diag.Errorf("error getting the auto_renew value: %s", err)
+	}
+	err = d.Set("auto_renew", strconv.FormatBool(resp.ExpirePolicy == 3))
+	if err != nil {
+		return diag.Errorf("error setting auto_renew field: %s", err)
 	}
 
 	return nil
@@ -1180,6 +1195,16 @@ func resourceComputeInstanceV2Update(ctx context.Context, d *schema.ResourceData
 		action := d.Get("power_action").(string)
 		if err = doPowerAction(ecsClient, d, action); err != nil {
 			return diag.Errorf("Doing power action (%s) for instance (%s) failed: %s", action, d.Id(), err)
+		}
+	}
+
+	if d.HasChange("auto_renew") {
+		bssClient, err := config.BssV2Client(GetRegion(d, config))
+		if err != nil {
+			return diag.Errorf("error creating BSS V2 client: %s", err)
+		}
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
 		}
 	}
 
