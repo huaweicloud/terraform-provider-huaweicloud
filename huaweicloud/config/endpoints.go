@@ -370,6 +370,13 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	},
 
 	// catalog for Security service
+	"aad": {
+		Name:             "aad",
+		Version:          "v1",
+		Scope:            "global",
+		WithOutProjectID: true,
+		Product:          "Advanced Anti-DDoS",
+	},
 	"anti-ddos": {
 		Name:    "antiddos",
 		Version: "v1",

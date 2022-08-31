@@ -35,3 +35,7 @@ variable "trigger_name" {
   description = "The trigger name of the Huaweicloud FunctionGraph"
   default     = "tf_trigger_demo"
 }
+
+variable "agency_name" {
+  description = "The agency name of the Huaweicloud FunctionGraph"
+}

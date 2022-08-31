@@ -146,6 +146,8 @@ The `data_volumes` block supports:
 * `kms_key_id` - (Optional, String, ForceNew) Specifies the KMS key ID. This is used to encrypt the volume.
   Changing this parameter will create a new resource.
 
+  -> You need to create an agency (EVSAccessKMS) when disk encryption is used in the current project for the first time ever.
+
 The `taints` block supports:
 
 * `key` - (Required, String) A key must contain 1 to 63 characters starting with a letter or digit. Only letters,

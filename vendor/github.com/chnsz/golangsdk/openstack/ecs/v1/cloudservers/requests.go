@@ -374,3 +374,15 @@ func Resize(client *golangsdk.ServiceClient, opts ResizeOptsBuilder, serverId st
 	_, r.Err = client.Post(resizeURL(client, serverId), reqBody, &r.Body, &golangsdk.RequestOpts{OkCodes: []int{200}})
 	return
 }
+
+// ChangeAdminPassword alters the administrator or root password for a specified
+// server.
+func ChangeAdminPassword(client *golangsdk.ServiceClient, id, newPassword string) (r PasswordResult) {
+	b := map[string]interface{}{
+		"reset-password": map[string]string{
+			"new_password": newPassword,
+		},
+	}
+	_, r.Err = client.Put(passwordURL(client, id), b, nil, &golangsdk.RequestOpts{OkCodes: []int{204}})
+	return
+}

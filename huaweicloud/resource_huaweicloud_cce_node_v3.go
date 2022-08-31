@@ -11,7 +11,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
-	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -1023,7 +1022,8 @@ func resourceCCENodeV3Delete(ctx context.Context, d *schema.ResourceData, meta i
 					return fmtp.DiagErrorf("Error creating networking client: %s", err)
 				}
 
-				if eipID, err := getEipIDbyAddress(eipClient, publicIP); err == nil {
+				epsID := "all_granted_eps"
+				if eipID, err := common.GetEipIDbyAddress(eipClient, publicIP, epsID); err == nil {
 					resourceIDs = append(resourceIDs, eipID)
 				} else {
 					logp.Printf("[WARN] Error fetching EIP ID of CCE Node (%s): %s", d.Id(), err)
@@ -1179,26 +1179,6 @@ func waitForJobStatus(cceClient *golangsdk.ServiceClient, jobID string) resource
 
 		return job, job.Status.Phase, nil
 	}
-}
-
-func getEipIDbyAddress(client *golangsdk.ServiceClient, address string) (string, error) {
-	listOpts := &eips.ListOpts{
-		PublicIp: []string{address},
-	}
-	pages, err := eips.List(client, listOpts).AllPages()
-	if err != nil {
-		return "", err
-	}
-
-	allEips, err := eips.ExtractPublicIPs(pages)
-	if err != nil {
-		return "", fmtp.Errorf("Unable to retrieve eips: %s ", err)
-	}
-	if len(allEips) != 1 {
-		return "", fmtp.Errorf("queried none or more results")
-	}
-
-	return allEips[0].ID, nil
 }
 
 func resourceCCENodeV3Import(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {

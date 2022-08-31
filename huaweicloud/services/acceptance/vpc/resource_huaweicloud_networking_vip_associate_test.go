@@ -1,4 +1,4 @@
-package huaweicloud
+package vpc
 
 import (
 	"fmt"
@@ -11,15 +11,16 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccNetworkingV2VIPAssociate_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2VIPAssociateDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkingV2VIPAssociateDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2VIPAssociateConfig_basic(rName),
@@ -41,8 +42,8 @@ func TestAccNetworkingV2VIPAssociate_basic(t *testing.T) {
 }
 
 func testAccCheckNetworkingV2VIPAssociateDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -84,6 +85,49 @@ func testAccNetworkingV2VIPAssociateImportStateIdFunc() resource.ImportStateIdFu
 		}
 		return fmt.Sprintf("%s/%s", vip.Primary.ID, instance.Primary.Attributes["network.0.port"]), nil
 	}
+}
+
+const testAccCompute_data = `
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_images_image" "test" {
+  name        = "Ubuntu 18.04 server 64bit"
+  most_recent = true
+}
+
+data "huaweicloud_networking_secgroup" "test" {
+  name = "default"
+}
+`
+
+func testAccComputeInstance_basic(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_compute_instance" "test" {
+  name                = "%s"
+  image_id            = data.huaweicloud_images_image.test.id
+  flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]
+  stop_before_destroy = true
+
+  network {
+    uuid              = data.huaweicloud_vpc_subnet.test.id
+    source_dest_check = false
+  }
+}
+`, testAccCompute_data, rName)
 }
 
 func testAccNetworkingV2VIPAssociateConfig_basic(rName string) string {

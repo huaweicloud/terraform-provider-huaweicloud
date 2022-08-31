@@ -33,3 +33,7 @@ func orderURL(sc *golangsdk.ServiceClient, orderId string) string {
 func deleteOrderURL(sc *golangsdk.ServiceClient) string {
 	return sc.ServiceURL(sc.DomainID, "common/order-mgr/resources/delete")
 }
+
+func passwordURL(client *golangsdk.ServiceClient, id string) string {
+	return client.ServiceURL("cloudservers", id, "os-reset-password")
+}

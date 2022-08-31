@@ -425,8 +425,7 @@ func isValidLogLevel(level string) bool {
 // PathSearch evaluates a JMESPath expression against input data and returns the result.
 func PathSearch(expression string, obj interface{}, defaultValue interface{}) interface{} {
 	v, err := jmespath.Search(expression, obj)
-	if err != nil {
-		log.Printf("Error fetching metadata access: %s", err.Error())
+	if err != nil || v == nil {
 		return defaultValue
 	}
 	return v

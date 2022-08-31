@@ -129,12 +129,12 @@ func resourceComputeEIPAssociateCreate(d *schema.ResourceData, meta interface{})
 		// get EIP id
 		eipAddr := v.(string)
 		publicID = eipAddr
-		pAddress, err := getFloatingIPbyAddress(vpcClient, eipAddr)
+		epsID := "all_granted_eps"
+		eipID, err := common.GetEipIDbyAddress(vpcClient, eipAddr, epsID)
 		if err != nil {
 			return fmtp.Errorf("Error getting EIP: %s", err)
 		}
 
-		eipID := pAddress.ID
 		err = bindPortToEIP(vpcClient, eipID, portID)
 		if err != nil {
 			return fmtp.Errorf("Error associating port %s to EIP: %s", portID, err)
@@ -200,7 +200,8 @@ func resourceComputeEIPAssociateRead(d *schema.ResourceData, meta interface{}) e
 	if v, ok := d.GetOk("public_ip"); ok {
 		eipAddr := v.(string)
 		publicID = eipAddr
-		eipInfo, err := getFloatingIPbyAddress(vpcClient, eipAddr)
+		epsID := "all_granted_eps"
+		eipInfo, err := getFloatingIPbyAddress(vpcClient, eipAddr, epsID)
 		if err != nil {
 			if eipInfo != nil {
 				logp.Printf("[WARN] can not find the EIP by %s", eipAddr)
@@ -271,12 +272,13 @@ func resourceComputeEIPAssociateDelete(d *schema.ResourceData, meta interface{})
 		}
 
 		eipAddr := v.(string)
-		eipInfo, err := getFloatingIPbyAddress(vpcClient, eipAddr)
+		epsID := "all_granted_eps"
+		eipID, err := common.GetEipIDbyAddress(vpcClient, eipAddr, epsID)
 		if err != nil {
 			return fmtp.Errorf("Error getting EIP: %s", err)
 		}
 
-		err = unbindPortFromEIP(vpcClient, eipInfo.ID, portID)
+		err = unbindPortFromEIP(vpcClient, eipID, portID)
 		if err != nil {
 			return fmtp.Errorf("Error disassociating Floating IP: %s", err)
 		}
@@ -327,9 +329,10 @@ func getComputeInstancePortIDbyFixedIP(client *golangsdk.ServiceClient, config *
 	return
 }
 
-func getFloatingIPbyAddress(client *golangsdk.ServiceClient, floatingIP string) (*eips.PublicIp, error) {
+func getFloatingIPbyAddress(client *golangsdk.ServiceClient, floatingIP, epsID string) (*eips.PublicIp, error) {
 	listOpts := &eips.ListOpts{
-		PublicIp: []string{floatingIP},
+		PublicIp:            []string{floatingIP},
+		EnterpriseProjectId: epsID,
 	}
 
 	pages, err := eips.List(client, listOpts).AllPages()

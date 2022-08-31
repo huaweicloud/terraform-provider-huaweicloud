@@ -77,3 +77,39 @@ data "huaweicloud_rds_flavors" "test" {
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
 }
 `
+
+func TestAccRdsFlavorDataSource_groupType(t *testing.T) {
+	dataSourceName := "data.huaweicloud_rds_flavors.test"
+
+	dc := acceptance.InitDataSourceCheck(dataSourceName)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRdsFlavorDataSource_groupType,
+				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
+					resource.TestMatchResourceAttr(dataSourceName, "flavors.#", regexp.MustCompile(`\d+`)),
+					resource.TestCheckOutput("group_type_validation", "true"),
+				),
+			},
+		},
+	})
+}
+
+var testAccRdsFlavorDataSource_groupType = `
+data "huaweicloud_rds_flavors" "base" {
+  db_type = "MySQL"
+}
+
+data "huaweicloud_rds_flavors" "test" {
+  db_type    = "MySQL"
+  group_type = data.huaweicloud_rds_flavors.base.flavors[0].group_type
+}
+
+output "group_type_validation" {
+  value = !contains([for a in data.huaweicloud_rds_flavors.test.flavors[*].group_type : a == data.huaweicloud_rds_flavors.base.flavors[0].group_type], false)
+}
+`

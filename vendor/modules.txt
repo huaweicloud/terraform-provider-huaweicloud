@@ -12,11 +12,12 @@ github.com/apparentlymart/go-cidr/cidr
 github.com/apparentlymart/go-textseg/textseg
 # github.com/apparentlymart/go-textseg/v13 v13.0.0
 github.com/apparentlymart/go-textseg/v13/textseg
-# github.com/chnsz/golangsdk v0.0.0-20220816121712-c2c3003e9e4d
+# github.com/chnsz/golangsdk v0.0.0-20220826060937-d49168741ce0
 ## explicit
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/internal
 github.com/chnsz/golangsdk/openstack
+github.com/chnsz/golangsdk/openstack/aad/v1/rules
 github.com/chnsz/golangsdk/openstack/antiddos/v1/antiddos
 github.com/chnsz/golangsdk/openstack/aom/v1/icagents
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/apigroups

@@ -10,26 +10,10 @@ resource "huaweicloud_obs_bucket_object" "test" {
   source = var.local_file_path
 }
 
-resource "huaweicloud_identity_agency" "test" {
-  name                   = "obs_agency"
-  delegated_service_name = "op_svc_cff"
-
-  project_role {
-    project = "MOS"
-    roles = [
-      "OBS OperateAccess",
-    ]
-  }
-  domain_roles = [
-    "OBS OperateAccess",
-    "IAM ReadOnlyAccess",
-  ]
-}
-
 resource "huaweicloud_fgs_function" "test" {
   name        = var.function_name
   app         = "default"
-  agency      = huaweicloud_identity_agency.test.name
+  agency      = var.agency_name
   description = "Download file from OBS bucket"
   handler     = "index.handler"
   depend_list = [

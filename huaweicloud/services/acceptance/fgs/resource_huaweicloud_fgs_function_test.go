@@ -146,45 +146,6 @@ func TestAccFgsV2Function_text(t *testing.T) {
 	})
 }
 
-func TestAccFgsV2Function_agency(t *testing.T) {
-	var f function.Function
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_fgs_function.test"
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&f,
-		getResourceObj,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccFgsV2Function_agency(randName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "agency", randName),
-					resource.TestCheckResourceAttr(resourceName, "func_mounts.0.mount_type", "sfs"),
-					resource.TestCheckResourceAttr(resourceName, "func_mounts.0.status", "active"),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"xrole",
-					"agency",
-					"func_code",
-				},
-			},
-		},
-	})
-}
-
 func testAccFgsV2Function_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
@@ -261,63 +222,4 @@ resource "huaweicloud_fgs_function" "test" {
   func_code             = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
 }
 `, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-func testAccFgsV2Function_agency(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%s"
-  cidr       = "192.168.1.0/24"
-  gateway_ip = "192.168.1.1"
-  vpc_id     = huaweicloud_vpc.test.id
-}
-
-resource "huaweicloud_sfs_file_system" "test" {
-  share_proto = "NFS"
-  size        = 10
-  name        = "%s"
-  description = "test sfs for fgs"
-}
-
-resource "huaweicloud_identity_agency" "test" {
-  name                   = "%s"
-  description            = "test agency for fgs"
-  delegated_service_name = "op_svc_cff"
-
-  project_role {
-    project = "cn-north-4"
-    roles = [
-      "VPC Administrator",
-      "SFS Administrator",
-    ]
-  }
-}
-
-resource "huaweicloud_fgs_function" "test" {
-  name        = "%s"
-  package     = "default"
-  description = "fuction test"
-  handler     = "test.handler"
-  memory_size = 128
-  timeout     = 3
-  runtime     = "Python2.7"
-  code_type   = "inline"
-  func_code   = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
-  agency      = huaweicloud_identity_agency.test.name
-  vpc_id      = huaweicloud_vpc.test.id
-  network_id  = huaweicloud_vpc_subnet.test.id
-
-  func_mounts {
-    mount_type       = "sfs"
-    mount_resource   = huaweicloud_sfs_file_system.test.id
-    mount_share_path = huaweicloud_sfs_file_system.test.export_location
-    local_mount_path = "/mnt"
-  }
-}
-`, rName, rName, rName, rName, rName)
 }

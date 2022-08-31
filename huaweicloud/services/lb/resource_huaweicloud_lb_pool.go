@@ -115,6 +115,13 @@ func ResourcePoolV2() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 						},
+
+						"timeout": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							ForceNew: true,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -150,12 +157,19 @@ func resourcePoolV2Create(ctx context.Context, d *schema.ResourceData, meta inte
 					"Persistence cookie_name needs to be set if using 'APP_COOKIE' persistence type")
 			}
 			persistence.CookieName = pV["cookie_name"].(string)
+
+			if pV["timeout"].(int) != 0 {
+				return fmtp.DiagErrorf(
+					"Persistence timeout is invalid when type is set to 'APP_COOKIE'")
+			}
 		} else {
 			if pV["cookie_name"].(string) != "" {
 				return fmtp.DiagErrorf(
 					"Persistence cookie_name can only be set if using 'APP_COOKIE' persistence type")
 			}
 		}
+
+		persistence.PersistenceTimeout = pV["timeout"].(int)
 	}
 
 	createOpts := pools.CreateOpts{
@@ -250,6 +264,7 @@ func resourcePoolV2Read(_ context.Context, d *schema.ResourceData, meta interfac
 		params := make(map[string]interface{})
 		params["cookie_name"] = pool.Persistence.CookieName
 		params["type"] = pool.Persistence.Type
+		params["timeout"] = pool.Persistence.PersistenceTimeout
 		persistence[0] = params
 		mErr = multierror.Append(mErr, d.Set("persistence", persistence))
 	}

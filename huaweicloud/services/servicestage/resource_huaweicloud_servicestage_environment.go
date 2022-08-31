@@ -53,6 +53,12 @@ func ResourceEnvironment() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"basic_resources": {
 				Type:     schema.TypeSet,
 				Required: true,
@@ -112,14 +118,15 @@ func buildResourcesList(resources *schema.Set) []environments.Resource {
 	return result
 }
 
-func buildEnvironmentCreateOpts(d *schema.ResourceData) environments.CreateOpts {
+func buildEnvironmentCreateOpts(d *schema.ResourceData, conf *config.Config) environments.CreateOpts {
 	desc := d.Get("description").(string)
 	return environments.CreateOpts{
-		Name:              d.Get("name").(string),
-		Description:       &desc,
-		VpcId:             d.Get("vpc_id").(string),
-		BaseResources:     buildResourcesList(d.Get("basic_resources").(*schema.Set)),
-		OptionalResources: buildResourcesList(d.Get("optional_resources").(*schema.Set)),
+		Name:                d.Get("name").(string),
+		Description:         &desc,
+		VpcId:               d.Get("vpc_id").(string),
+		BaseResources:       buildResourcesList(d.Get("basic_resources").(*schema.Set)),
+		OptionalResources:   buildResourcesList(d.Get("optional_resources").(*schema.Set)),
+		EnterpriseProjectId: common.GetEnterpriseProjectID(d, conf),
 	}
 }
 
@@ -130,7 +137,7 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating ServiceStage v2 client: %s", err)
 	}
 
-	opt := buildEnvironmentCreateOpts(d)
+	opt := buildEnvironmentCreateOpts(d, config)
 	log.Printf("[DEBUG] The createOpt of ServiceStage environment is: %v", opt)
 	resp, err := environments.Create(client, opt)
 	if err != nil {
@@ -176,6 +183,7 @@ func resourceEnvironmentRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("name", resp.Name),
 		d.Set("description", resp.Description),
 		d.Set("vpc_id", resp.VpcId),
+		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
 		d.Set("basic_resources", flattenEnvironmentResources(resp.BaseResources)),
 		d.Set("optional_resources", flattenEnvironmentResources(resp.OptionalResources)),
 	)

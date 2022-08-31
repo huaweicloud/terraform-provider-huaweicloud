@@ -75,6 +75,9 @@ var (
 	HW_MEETING_APP_KEY          = os.Getenv("HW_MEETING_APP_KEY")
 	HW_MEETING_USER_ID          = os.Getenv("HW_MEETING_USER_ID")
 	HW_MEETING_ROOM_ID          = os.Getenv("HW_MEETING_ROOM_ID")
+
+	HW_AAD_INSTANCE_ID = os.Getenv("HW_AAD_INSTANCE_ID")
+	HW_AAD_IP_ADDRESS  = os.Getenv("HW_AAD_IP_ADDRESS")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -344,5 +347,12 @@ func TestAccPreCheckParticipants(t *testing.T) {
 	if HW_CHAIR_EMAIL == "" || HW_GUEST_EMAIL == "" {
 		t.Skip("The chair (HW_CHAIR_EMAIL) or guest (HW_GUEST_EMAIL) mailbox is not completed for acceptance test of " +
 			"conference.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckAadForwardRule(t *testing.T) {
+	if HW_AAD_INSTANCE_ID == "" || HW_AAD_IP_ADDRESS == "" {
+		t.Skip("The instance information is not completed for AAD rule acceptance test.")
 	}
 }

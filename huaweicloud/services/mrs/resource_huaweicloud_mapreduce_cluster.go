@@ -522,7 +522,8 @@ func resourceMRSClusterV2Create(d *schema.ResourceData, meta interface{}) error 
 		return fmtp.Errorf("Error creating networking client: %s", err)
 	}
 
-	eipId, publicIp, err := queryEipInfo(networkingClient, d.Get("eip_id").(string), d.Get("public_ip").(string))
+	epsID := "all_granted_eps"
+	eipId, publicIp, err := queryEipInfo(networkingClient, d.Get("eip_id").(string), d.Get("public_ip").(string), epsID)
 	if err != nil {
 		return fmtp.Errorf("Unable to find the eip_id=%s,public_ip=%s on the server: %s", d.Get("eip_id").(string),
 			d.Get("public_ip").(string), err)
@@ -581,12 +582,14 @@ func resourceMRSClusterV2Create(d *schema.ResourceData, meta interface{}) error 
 	return resourceMRSClusterV2Read(d, meta)
 }
 
-func queryEipInfo(client *golangsdk.ServiceClient, eipId, PublicIp string) (string, string, error) {
+func queryEipInfo(client *golangsdk.ServiceClient, eipId, PublicIp, epsID string) (string, string, error) {
 	if eipId == "" && PublicIp == "" {
 		return "", "", nil
 	}
 
-	var listOpts eips.ListOpts
+	listOpts := eips.ListOpts{
+		EnterpriseProjectId: epsID,
+	}
 	if eipId != "" {
 		listOpts.Id = []string{eipId}
 	}

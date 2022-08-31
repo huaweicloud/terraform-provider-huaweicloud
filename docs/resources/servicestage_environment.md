@@ -45,6 +45,9 @@ The following arguments are supported:
 * `vpc_id` - (Required, String, ForceNew) Specifies the VPC ID to which the environment belongs.
   Changing this will create a new resource.
 
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise projcet ID to which the application
+  belongs. Changing this will create a new resource.
+
 * `basic_resources` - (Required, List) Specifies the basic resources.
   The [object](#servicestage_env_resources) structure is documented below.
 
