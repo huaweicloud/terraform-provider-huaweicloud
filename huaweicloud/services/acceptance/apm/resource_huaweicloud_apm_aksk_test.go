@@ -13,7 +13,7 @@ import (
 )
 
 func getAppResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	c, _ := httpclient_go.NewHttpClientGo(conf)
+	c, _ := httpclient_go.NewHttpClientGo(conf, "apm", acceptance.HW_REGION_NAME)
 	c.WithMethod(httpclient_go.MethodGet).
 		WithUrlWithoutEndpoint(conf, "apm", conf.Region, "v1/apm2/access-keys")
 	response, err := c.Do()

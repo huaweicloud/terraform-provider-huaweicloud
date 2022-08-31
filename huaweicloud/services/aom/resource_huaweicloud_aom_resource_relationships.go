@@ -118,10 +118,10 @@ func buildDeleteResourceOpts(d *schema.ResourceData) []entity.UnbindResourcePara
 }
 
 func ResourceResourceCiRelationshipsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	conf := meta.(*config.Config)
+	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 
 	opts := entity.ResourceImportParam{
@@ -129,9 +129,8 @@ func ResourceResourceCiRelationshipsCreate(ctx context.Context, d *schema.Resour
 		Resources: buildResourceOpts(d),
 	}
 
-	client.WithMethod(httpclient_go.MethodPut).
-		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/resource/"+d.Get("rf_resource_type").(string)+
-			"/type/"+d.Get("type").(string)+"/ci-relationships").WithBody(opts)
+	client.WithMethod(httpclient_go.MethodPut).WithUrl("v1/resource/" + d.Get("rf_resource_type").(string) +
+		"/type/" + d.Get("type").(string) + "/ci-relationships").WithBody(opts)
 	response, err := client.Do()
 	if err != nil {
 		return diag.Errorf("error Associate Resource field %s: client do error : %s", opts, err)
@@ -158,9 +157,9 @@ func ResourceResourceCiRelationshipsCreate(ctx context.Context, d *schema.Resour
 
 func ResourceResourceCiRelationshipsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	client, err := httpclient_go.NewHttpClientGo(cfg, "aom", cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 
 	opts := entity.PageResourceListParam{
@@ -170,9 +169,8 @@ func ResourceResourceCiRelationshipsRead(ctx context.Context, d *schema.Resource
 		Keywords:        map[string]string{"RESOURCE_ID": d.Get("resource_id").(string)},
 	}
 
-	client.WithMethod(httpclient_go.MethodPost).
-		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/resource/"+d.Get("rf_resource_type").(string)+
-			"/type/"+d.Get("type").(string)+"/ci-relationships").WithBody(opts)
+	client.WithMethod(httpclient_go.MethodPost).WithUrl("v1/resource/" + d.Get("rf_resource_type").(string) +
+		"/type/" + d.Get("type").(string) + "/ci-relationships").WithBody(opts)
 	response, err := client.Do()
 
 	body, diags := client.CheckDeletedDiag(d, err, response, "error retrieving Resource")
@@ -204,18 +202,17 @@ func ResourceResourceCiRelationshipsRead(ctx context.Context, d *schema.Resource
 
 func ResourceResourceCiRelationshipsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	client, err := httpclient_go.NewHttpClientGo(cfg, "aom", cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 
 	opts := entity.DeleteResourceParam{
 		Data: buildDeleteResourceOpts(d),
 	}
 
-	client.WithMethod(httpclient_go.MethodDelete).
-		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/resource/"+d.Get("rf_resource_type").(string)+
-			"/type/"+d.Get("type").(string)+"/ci-relationships").WithBody(opts)
+	client.WithMethod(httpclient_go.MethodDelete).WithUrl("v1/resource/" + d.Get("rf_resource_type").(string) +
+		"/type/" + d.Get("type").(string) + "/ci-relationships").WithBody(opts)
 
 	response, err := client.Do()
 	if err != nil {

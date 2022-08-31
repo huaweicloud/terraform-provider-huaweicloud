@@ -14,7 +14,7 @@ import (
 )
 
 func getDashboardResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	c, _ := httpclient_go.NewHttpClientGo(conf)
+	c, _ := httpclient_go.NewHttpClientGo(conf, "lts", acceptance.HW_REGION_NAME)
 	c.WithMethod(httpclient_go.MethodGet).
 		WithUrlWithoutEndpoint(conf, "lts", conf.Region, "v2/"+conf.GetProjectID(conf.Region)+
 			"/dashboards?id="+state.Primary.ID).WithHeader(map[string]string{"content-type": "application/json;charset=UTF8"})

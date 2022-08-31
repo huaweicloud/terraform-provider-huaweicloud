@@ -127,9 +127,9 @@ func ResourceLtsStruct() *schema.Resource {
 
 func resourceLtsStructTemplateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 	var url string
 	header := make(map[string]string)
@@ -151,7 +151,7 @@ func resourceLtsStructTemplateCreate(ctx context.Context, d *schema.ResourceData
 		opts.TemplateType = d.Get("template_type").(string)
 		opts.TemplateName = d.Get("template_name").(string)
 	}
-	client.WithMethod(httpclient_go.MethodPost).WithUrlWithoutEndpoint(cfg, "lts", region, url).WithHeader(header).WithBody(opts)
+	client.WithMethod(httpclient_go.MethodPost).WithUrl(url).WithHeader(header).WithBody(opts)
 	response, err := client.Do()
 	if err != nil {
 		return diag.Errorf("error request creating StructTemplate fields %s: %s", opts.LogGroupId, err)
@@ -169,16 +169,16 @@ func resourceLtsStructTemplateCreate(ctx context.Context, d *schema.ResourceData
 
 func resourceLtsStructTemplateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
 	region := cfg.GetRegion(d)
-	client.WithMethod(httpclient_go.MethodGet).WithUrlWithoutEndpoint(cfg, "lts", region, "v2/"+
-		cfg.GetProjectID(region)+"/lts/struct/template?logGroupId="+
-		d.Get("log_group_id").(string)+"&logStreamId="+d.Get("log_stream_id").(string)).
+	client.WithMethod(httpclient_go.MethodGet).WithUrl("v2/" +
+		cfg.GetProjectID(region) + "/lts/struct/template?logGroupId=" +
+		d.Get("log_group_id").(string) + "&logStreamId=" + d.Get("log_stream_id").(string)).
 		WithHeader(header)
 	resp, err := client.Do()
 	body, diags := client.CheckDeletedDiag(d, err, resp, "error StructTemplate read instance")
@@ -208,9 +208,9 @@ func resourceLtsStructTemplateRead(_ context.Context, d *schema.ResourceData, me
 
 func resourceLtsStructTemplateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
@@ -218,8 +218,7 @@ func resourceLtsStructTemplateDelete(_ context.Context, d *schema.ResourceData, 
 	structTemplateDeleteRequest := entity.DeleteStructTemplateReqBody{
 		Id: d.Id(),
 	}
-	client.WithMethod(httpclient_go.MethodDelete).WithUrlWithoutEndpoint(cfg, "lts", region, "v2/"+
-		cfg.GetProjectID(region)+"/lts/struct/template").
+	client.WithMethod(httpclient_go.MethodDelete).WithUrl("v2/" + cfg.GetProjectID(region) + "/lts/struct/template").
 		WithHeader(header).WithBody(structTemplateDeleteRequest)
 	resp, err := client.Do()
 	if err != nil {
@@ -238,9 +237,9 @@ func resourceLtsStructTemplateDelete(_ context.Context, d *schema.ResourceData, 
 
 func resourceLtsStructTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
@@ -252,8 +251,7 @@ func resourceLtsStructTemplateUpdate(ctx context.Context, d *schema.ResourceData
 		TemplateType: d.Get("template_type").(string),
 		TemplateName: d.Get("template_name").(string),
 	}
-	client.WithMethod(httpclient_go.MethodPut).WithUrlWithoutEndpoint(cfg, "lts", region, "v3/"+
-		cfg.GetProjectID(region)+"/lts/struct/template").
+	client.WithMethod(httpclient_go.MethodPut).WithUrl("v3/" + cfg.GetProjectID(region) + "/lts/struct/template").
 		WithHeader(header).WithBody(structTemplateRequest)
 	response, err := client.Do()
 	if err != nil {

@@ -94,10 +94,10 @@ func ResourceAomComponent() *schema.Resource {
 }
 
 func ResourceAomComponentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	conf := meta.(*config.Config)
+	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 	opts := entity2.ComponentParam{
 		Description: d.Get("description").(string),
@@ -105,8 +105,7 @@ func ResourceAomComponentCreate(ctx context.Context, d *schema.ResourceData, met
 		ModelId:     d.Get("model_id").(string),
 		Name:        d.Get("name").(string),
 	}
-	client.WithMethod(httpclient_go.MethodPost).
-		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/components").WithBody(opts)
+	client.WithMethod(httpclient_go.MethodPost).WithUrl("v1/components").WithBody(opts)
 	response, err := client.Do()
 	if err != nil {
 		return diag.Errorf("error create Component %s: %s", opts.Name, err)
@@ -133,14 +132,13 @@ func ResourceAomComponentCreate(ctx context.Context, d *schema.ResourceData, met
 }
 
 func ResourceAomComponentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	conf := meta.(*config.Config)
+	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 
-	client.WithMethod(httpclient_go.MethodGet).
-		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/components/"+d.Id())
+	client.WithMethod(httpclient_go.MethodGet).WithUrl("v1/components/" + d.Id())
 	response, err := client.Do()
 
 	body, diags := client.CheckDeletedDiag(d, err, response, "error retrieving Component")
@@ -174,10 +172,10 @@ func ResourceAomComponentRead(ctx context.Context, d *schema.ResourceData, meta 
 }
 
 func ResourceAomComponentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	conf := meta.(*config.Config)
+	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 
 	opts := entity2.ComponentParam{
@@ -187,8 +185,7 @@ func ResourceAomComponentUpdate(ctx context.Context, d *schema.ResourceData, met
 		Name:        d.Get("name").(string),
 	}
 
-	client.WithMethod(httpclient_go.MethodPut).
-		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/components/"+d.Id()).WithBody(opts)
+	client.WithMethod(httpclient_go.MethodPut).WithUrl("v1/components/" + d.Id()).WithBody(opts)
 
 	response, err := client.Do()
 	if err != nil {
@@ -209,14 +206,13 @@ func ResourceAomComponentUpdate(ctx context.Context, d *schema.ResourceData, met
 }
 
 func ResourceAomComponentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	conf := meta.(*config.Config)
+	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 
-	client.WithMethod(httpclient_go.MethodDelete).
-		WithUrlWithoutEndpoint(cfg, "aom", cfg.GetRegion(d), "v1/components/"+d.Id())
+	client.WithMethod(httpclient_go.MethodDelete).WithUrl("v1/components/" + d.Id())
 
 	response, err := client.Do()
 	if err != nil {

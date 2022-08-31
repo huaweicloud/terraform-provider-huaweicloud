@@ -1,10 +1,9 @@
 package httpclient_go
 
 import (
-	"bytes"
 	"crypto/tls"
-	"encoding/json"
 	"fmt"
+	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -21,29 +20,25 @@ const (
 )
 
 type HttpClientGo struct {
-	signer    *Signer
-	Method    string
-	Url       string
-	Body      interface{}
-	Header    map[string]string
-	request   *http.Request
-	Error     error
-	Transport *http.Transport
+	Client      *golangsdk.ServiceClient
+	Method      string
+	Url         string
+	RequestOpts golangsdk.RequestOpts
+	Header      map[string]string
+	Error       error
+	Transport   *http.Transport
 }
 
-func NewHttpClientGo(c *config.Config) (*HttpClientGo, diag.Diagnostics) {
-
-	if c.AccessKey == "" || c.SecretKey == "" {
-		return nil, diag.Errorf("AKSK is not set")
+func NewHttpClientGo(c *config.Config, product, region string) (*HttpClientGo, error) {
+	client, err := c.NewServiceClient(product, region)
+	if err != nil {
+		return nil, err
 	}
-
 	return &HttpClientGo{
-		signer: &Signer{
-			Key:    c.AccessKey,
-			Secret: c.SecretKey,
-		},
-		Header: map[string]string{
-			"content-type": "application/json",
+		Client: client,
+		RequestOpts: golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders:      map[string]string{"content-type": "application/json"},
 		},
 	}, nil
 }
@@ -54,7 +49,7 @@ func (client *HttpClientGo) WithMethod(method string) *HttpClientGo {
 }
 
 func (client *HttpClientGo) WithUrl(url string) *HttpClientGo {
-	client.Url = url
+	client.Url = client.Client.Endpoint + url
 	return client
 }
 
@@ -66,7 +61,7 @@ func (client *HttpClientGo) WithUrlWithoutEndpoint(cfg *config.Config, srv, regi
 }
 
 func (client *HttpClientGo) WithBody(body interface{}) *HttpClientGo {
-	client.Body = body
+	client.RequestOpts.JSONBody = body
 	return client
 }
 
@@ -74,48 +69,17 @@ func (client *HttpClientGo) WithHeader(header map[string]string) *HttpClientGo {
 	if len(header) == 0 {
 		return client
 	}
-	client.Header = header
+	client.RequestOpts.MoreHeaders = header
 	return client
 }
 
-func (client *HttpClientGo) ToRequest() {
-	var err error
-	if client.Body == nil {
-		client.request, err = http.NewRequest(client.Method, client.Url, nil)
-		if err != nil {
-			client.Error = err
-			return
-		}
-	} else {
-		b, err := json.Marshal(client.Body)
-		if err != nil {
-			client.Error = err
-			return
-		}
-		client.request, err = http.NewRequest(client.Method, client.Url, ioutil.NopCloser(bytes.NewBuffer(b)))
-		if err != nil {
-			client.Error = err
-			return
-		}
-	}
-	for k, v := range client.Header {
-		client.request.Header.Add(k, v)
-	}
+func (client *HttpClientGo) WithOKCodes(arr []int) *HttpClientGo {
+	client.RequestOpts.OkCodes = arr
+	return client
 }
 
 func (client *HttpClientGo) Do() (*http.Response, error) {
-	if client.request == nil {
-		client.ToRequest()
-	}
-	err := client.signer.Sign(client.request)
-	if err != nil {
-		return nil, err
-	}
-	c := http.DefaultClient
-	if client.Transport != nil {
-		c.Transport = client.Transport
-	}
-	return c.Do(client.request)
+	return client.Client.Request(client.Method, client.Url, &client.RequestOpts)
 }
 
 func (client *HttpClientGo) WithTransport() *HttpClientGo {

@@ -54,14 +54,13 @@ func ResourcePrometheusInstance() *schema.Resource {
 }
 
 func resourcePrometheusInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, dErr := httpclient_go.NewHttpClientGo(config)
-	if dErr != nil {
-		return dErr
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	client, err := httpclient_go.NewHttpClientGo(conf, "aom", region)
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
-	region := config.GetRegion(d)
-	client.WithMethod(httpclient_go.MethodGet).WithUrlWithoutEndpoint(config, "aom",
-		region, "v1/"+config.GetProjectID(region)+"/prometheus-instances?action=prom_for_cloud_service")
+	client.WithMethod(httpclient_go.MethodGet).WithUrl("v1/" + conf.GetProjectID(region) + "/prometheus-instances?action=prom_for_cloud_service")
 
 	resp, err := client.Do()
 	if err != nil {
@@ -97,10 +96,10 @@ func buildPrometheusInstanceMap(rlt *entity.PrometheusInstanceParams) []map[stri
 }
 
 func resourcePrometheusInstancePatch(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, dErr := httpclient_go.NewHttpClientGo(config)
-	if dErr != nil {
-		return dErr
+	conf := meta.(*config.Config)
+	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 	var p = d.Get("prom_for_cloud_service").([]interface{})[0]
 	service := p.(map[string]interface{})["ces_metric_namespaces"].([]interface{})
@@ -111,9 +110,9 @@ func resourcePrometheusInstancePatch(_ context.Context, d *schema.ResourceData, 
 	patchOpts := &entity.PrometheusInstanceParams{
 		PromForCloudService: &entity.PromForCloudService{CesMetricNamespaces: namespace},
 	}
-	region := config.GetRegion(d)
-	client.WithMethod(httpclient_go.MethodPost).WithUrlWithoutEndpoint(config, "aom",
-		region, "v1/"+config.GetProjectID(region)+"/prometheus-instances?action=prom_for_cloud_service").WithBody(patchOpts)
+	region := conf.GetRegion(d)
+	client.WithMethod(httpclient_go.MethodPost).WithUrl("v1/" + conf.GetProjectID(region) + "/prometheus-instances?action=prom_for_cloud_service").
+		WithBody(patchOpts).WithOKCodes([]int{200, 204})
 	r, err := client.Do()
 
 	if r.StatusCode != 204 || err != nil {

@@ -14,7 +14,7 @@ import (
 )
 
 func getCompResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	c, _ := httpclient_go.NewHttpClientGo(conf)
+	c, _ := httpclient_go.NewHttpClientGo(conf, "aom", acceptance.HW_REGION_NAME)
 
 	c.WithMethod(httpclient_go.MethodGet).
 		WithUrlWithoutEndpoint(conf, "aom", conf.Region, "v1/components/"+state.Primary.Attributes["id"])

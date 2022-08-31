@@ -343,6 +343,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v2",
 		Product: "LTS",
 	},
+	"apm": {
+		Name:             "apm",
+		Version:          "v1",
+		Product:          "APM",
+		WithOutProjectID: true,
+	},
 	"smn": {
 		Name:         "smn",
 		Version:      "v2",

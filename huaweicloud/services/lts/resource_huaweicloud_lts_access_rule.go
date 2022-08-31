@@ -117,10 +117,10 @@ func buildFileOpts(rawRules []interface{}) []entity.AomMappingfilesInfo {
 
 func resourceAomMappingRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
 	region := cfg.GetRegion(d)
-	if diaErr != nil {
-		return diaErr
+	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", region)
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 	aomMappingRequestInfo := entity.AomMappingRequestInfo{
 		ProjectId: cfg.GetProjectID(region),
@@ -133,9 +133,7 @@ func resourceAomMappingRuleCreate(ctx context.Context, d *schema.ResourceData, m
 			Files:       buildFileOpts(d.Get("files").([]interface{})),
 		},
 	}
-	client.WithMethod(httpclient_go.MethodPost).
-		WithUrlWithoutEndpoint(cfg, "lts", region,
-			"v2/"+cfg.GetProjectID(region)+"/lts/aom-mapping"+"?isBatch=false").
+	client.WithMethod(httpclient_go.MethodPost).WithUrl("v2/" + cfg.GetProjectID(region) + "/lts/aom-mapping" + "?isBatch=false").
 		WithBody(aomMappingRequestInfo)
 	response, err := client.Do()
 	if err != nil {
@@ -161,16 +159,14 @@ func resourceAomMappingRuleCreate(ctx context.Context, d *schema.ResourceData, m
 
 func resourceAomMappingRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	region := cfg.GetRegion(d)
+	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", region)
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
-	region := cfg.GetRegion(d)
-	client.WithMethod(httpclient_go.MethodGet).
-		WithUrlWithoutEndpoint(cfg, "lts", region,
-			"v2/"+cfg.GetProjectID(region)+"/lts/aom-mapping/"+d.Id()).WithHeader(header)
+	client.WithMethod(httpclient_go.MethodGet).WithUrl("v2/" + cfg.GetProjectID(region) + "/lts/aom-mapping/" + d.Id()).WithHeader(header)
 	response, err := client.Do()
 	body, diags := client.CheckDeletedDiag(d, err, response, "error retrieving AomMappingRule")
 	if body == nil {
@@ -196,16 +192,14 @@ func resourceAomMappingRuleRead(_ context.Context, d *schema.ResourceData, meta 
 
 func resourceAomMappingRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
-	if diaErr != nil {
-		return diaErr
+	region := cfg.GetRegion(d)
+	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", region)
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
-	region := cfg.GetRegion(d)
-	client.WithMethod(httpclient_go.MethodDelete).
-		WithUrlWithoutEndpoint(cfg, "lts", region,
-			"v2/"+cfg.GetProjectID(region)+"/lts/aom-mapping?id="+d.Id()).WithHeader(header)
+	client.WithMethod(httpclient_go.MethodDelete).WithUrl("v2/" + cfg.GetProjectID(region) + "/lts/aom-mapping?id=" + d.Id()).WithHeader(header)
 	response, err := client.Do()
 	if err != nil {
 		return diag.Errorf("error delete AomMappingRule %s: %s", d.Id(), err)
@@ -223,10 +217,10 @@ func resourceAomMappingRuleDelete(_ context.Context, d *schema.ResourceData, met
 
 func resourceAomMappingRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, diaErr := httpclient_go.NewHttpClientGo(cfg)
 	region := cfg.GetRegion(d)
-	if diaErr != nil {
-		return diaErr
+	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", region)
+	if err != nil {
+		return diag.Errorf("err creating Client； %s", err)
 	}
 	Opts := entity.AomMappingRequestInfo{
 		ProjectId: cfg.GetProjectID(region),
@@ -240,9 +234,7 @@ func resourceAomMappingRuleUpdate(ctx context.Context, d *schema.ResourceData, m
 			Files:       buildFileOpts(d.Get("files").([]interface{})),
 		},
 	}
-	client.WithMethod(httpclient_go.MethodPut).
-		WithUrlWithoutEndpoint(cfg, "lts", region,
-			"v2/"+cfg.GetProjectID(region)+"/lts/aom-mapping").WithBody(Opts)
+	client.WithMethod(httpclient_go.MethodPut).WithUrl("v2/" + cfg.GetProjectID(region) + "/lts/aom-mapping").WithBody(Opts)
 	response, err := client.Do()
 	if err != nil {
 		return diag.Errorf("error update AomMappingRule fields %s: %s", Opts.RuleName, err)

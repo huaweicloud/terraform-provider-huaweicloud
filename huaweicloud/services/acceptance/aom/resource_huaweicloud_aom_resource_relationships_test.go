@@ -14,7 +14,7 @@ import (
 )
 
 func getCmdbResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	c, _ := httpclient_go.NewHttpClientGo(conf)
+	c, _ := httpclient_go.NewHttpClientGo(conf, "aom", acceptance.HW_REGION_NAME)
 
 	opts := entity.PageResourceListParam{
 		CiId:     state.Primary.Attributes["env_id"],
