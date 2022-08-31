@@ -345,9 +345,15 @@ func resourceObsBucketCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceObsBucketUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	obsClient, err := config.ObjectStorageClient(GetRegion(d, config))
+	region := GetRegion(d, config)
+	obsClient, err := config.ObjectStorageClient(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+	}
+
+	obsClientWithSignature, err := config.ObjectStorageClientWithSignature(region)
+	if err != nil {
+		return fmtp.Errorf("Error creating HuaweiCloud OBS client with signature: %s", err)
 	}
 
 	logp.Printf("[DEBUG] Update OBS bucket %s", d.Id())
@@ -390,7 +396,7 @@ func resourceObsBucketUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if d.HasChanges("encryption", "kms_key_id", "kms_key_project_id") {
-		if err := resourceObsBucketEncryptionUpdate(config, obsClient, d); err != nil {
+		if err := resourceObsBucketEncryptionUpdate(config, obsClientWithSignature, d); err != nil {
 			return err
 		}
 	}
@@ -662,7 +668,7 @@ func resourceObsBucketEncryptionUpdate(config *config.Config, obsClient *obs.Obs
 	if d.Get("encryption").(bool) {
 		input := &obs.SetBucketEncryptionInput{}
 		input.Bucket = bucket
-		input.SSEAlgorithm = obs.DEFAULT_SSE_KMS_ENCRYPTION
+		input.SSEAlgorithm = obs.DEFAULT_SSE_KMS_ENCRYPTION_OBS
 		input.KMSMasterKeyID = d.Get("kms_key_id").(string)
 
 		if v, ok := d.GetOk("kms_key_project_id"); ok {
