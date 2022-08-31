@@ -12,7 +12,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/elb/v2/loadbalancers"
-	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
+	"github.com/chnsz/golangsdk/openstack/networking/v1/ports"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -232,7 +232,7 @@ func resourceLoadBalancerV2Read(_ context.Context, d *schema.ResourceData, meta 
 			return fmtp.DiagErrorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
-		port, err := ports.Get(networkingClient, lb.VipPortID).Extract()
+		port, err := ports.Get(networkingClient, lb.VipPortID)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -362,13 +362,13 @@ func resourceLoadBalancerV2SecurityGroups(networkingClient *golangsdk.ServiceCli
 	if v, ok := d.GetOk("security_group_ids"); ok {
 		securityGroups := resourcePortSecurityGroupsV2(v.(*schema.Set))
 		updateOpts := ports.UpdateOpts{
-			SecurityGroups: &securityGroups,
+			SecurityGroups: securityGroups,
 		}
 
 		logp.Printf("[DEBUG] Adding security groups to loadbalancer "+
 			"VIP Port %s: %#v", vipPortID, updateOpts)
 
-		_, err := ports.Update(networkingClient, vipPortID, updateOpts).Extract()
+		_, err := ports.Update(networkingClient, vipPortID, updateOpts)
 		if err != nil {
 			return err
 		}
