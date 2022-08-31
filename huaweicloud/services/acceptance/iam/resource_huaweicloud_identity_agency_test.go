@@ -21,56 +21,6 @@ func getIdentityAgencyResourceFunc(c *config.Config, state *terraform.ResourceSt
 	return agency.Get(client, state.Primary.ID).Extract()
 }
 
-func TestAccIdentityAgency_basic(t *testing.T) {
-	var agency agency.Agency
-	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_identity_agency.test"
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&agency,
-		getIdentityAgencyResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckAdminOnly(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccIdentityAgency_basic(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "description", "This is a test agency"),
-					resource.TestCheckResourceAttr(resourceName, "delegated_service_name", "op_svc_evs"),
-					resource.TestCheckResourceAttr(resourceName, "duration", "FOREVER"),
-					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "1"),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccIdentityAgency_update(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "description", "This is a updated test agency"),
-					resource.TestCheckResourceAttr(resourceName, "delegated_service_name", "op_svc_evs"),
-					resource.TestCheckResourceAttr(resourceName, "duration", "FOREVER"),
-					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "2"),
-				),
-			},
-		},
-	})
-}
-
 func TestAccIdentityAgency_domain(t *testing.T) {
 	var agency agency.Agency
 	rName := acceptance.RandomAccResourceName()
@@ -119,34 +69,6 @@ func TestAccIdentityAgency_domain(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccIdentityAgency_basic(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_identity_agency" "test" {
-  name                   = "%s"
-  description            = "This is a test agency"
-  delegated_service_name = "op_svc_evs"
-
-  domain_roles = [
-    "OBS OperateAccess",
-  ]
-}
-`, rName)
-}
-
-func testAccIdentityAgency_update(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_identity_agency" "test" {
-  name                   = "%s"
-  description            = "This is a updated test agency"
-  delegated_service_name = "op_svc_evs"
-
-  domain_roles = [
-    "OBS OperateAccess", "KMS Administrator",
-  ]
-}
-`, rName)
 }
 
 func testAccIdentityAgency_domain(rName string) string {

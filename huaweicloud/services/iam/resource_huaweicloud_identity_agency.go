@@ -58,7 +58,7 @@ func ResourceIAMAgencyV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: validation.StringMatch(regexp.MustCompile("^op_svc_[A-Za-z]+"),
-					"the value must start with op_svc_, for example, op_svc_obs"),
+					"the value must start with op_svc_."),
 			},
 			"description": {
 				Type:     schema.TypeString,

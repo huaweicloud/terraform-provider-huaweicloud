@@ -233,8 +233,8 @@ The following arguments are supported:
   + `kms_key_id` - (Optional, String, ForceNew) Specifies the ID of a KMS key. This is used to encrypt the volume.
     Changing this parameter will create a new resource.
 
-    -> You need to create an agency (EVSAccessKMS) when disk encryption is used in the current project for the first time
-    ever. The account and permission of the created agency are `op_svc_evs` and **KMS Administrator**, respectively.
+    -> You need to create an agency (EVSAccessKMS) when disk encryption is used in the current project for the first
+    time ever.
 
 * `storage` - (Optional, List, ForceNew) Specifies the disk initialization management parameter.
   If omitted, disks are managed based on the DockerLVMConfigOverride parameter in extendParam.

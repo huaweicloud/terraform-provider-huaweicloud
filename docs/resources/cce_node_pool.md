@@ -147,7 +147,6 @@ The `data_volumes` block supports:
   Changing this parameter will create a new resource.
 
   -> You need to create an agency (EVSAccessKMS) when disk encryption is used in the current project for the first time ever.
-  The account and permission of the created agency are `op_svc_evs` and **KMS Administrator**, respectively.
 
 The `taints` block supports:
 
