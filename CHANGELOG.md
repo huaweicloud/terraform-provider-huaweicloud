@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 1.40.1 (August 31, 2022)
+
+* **New Data Source:**
+  + `huaweicloud_elb_pools` [GH-2341]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_compute_instance: Make `auto-renew` updatable [GH-2340]
+* resource/huaweicloud_dds_instance: Make `port` updatable [GH-2343]
+* resource/huaweicloud_obs_bucket: Support `kms_key_project_id` field [GH-2344]
+
 ## 1.40.0 (August 27, 2022)
 
 * **New Resurce:**
