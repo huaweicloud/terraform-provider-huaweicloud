@@ -96,6 +96,7 @@ github.com/chnsz/golangsdk/openstack/dcs/v2/tags
 github.com/chnsz/golangsdk/openstack/dcs/v2/whitelists
 github.com/chnsz/golangsdk/openstack/dds/v3/flavors
 github.com/chnsz/golangsdk/openstack/dds/v3/instances
+github.com/chnsz/golangsdk/openstack/dds/v3/jobs
 github.com/chnsz/golangsdk/openstack/dds/v3/roles
 github.com/chnsz/golangsdk/openstack/dds/v3/users
 github.com/chnsz/golangsdk/openstack/dis/v2/streams

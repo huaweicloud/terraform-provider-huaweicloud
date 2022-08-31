@@ -144,3 +144,11 @@ func ExtractInstances(r pagination.Page) (ListInstanceResponse, error) {
 	err := (r.(InstancePage)).ExtractInto(&s)
 	return s, err
 }
+
+// PortUpdateResp is the structure that represents the detail of the database user.
+type PortUpdateResp struct {
+	// Job ID.
+	JobId string `json:"job_id"`
+	// Database access port.
+	Port int `json:"port"`
+}
