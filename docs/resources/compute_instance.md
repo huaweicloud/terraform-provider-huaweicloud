@@ -400,7 +400,7 @@ Note that the imported state may not be identical to your resource definition, d
 API response, security or some other reason.
 The missing attributes include: `admin_pass`, `user_data`, `data_disks`, `scheduler_hints`, `stop_before_destroy`,
 `delete_disks_on_termination`, `delete_eip_on_termination`, `network/access_network`, `bandwidth`, `eip_type`,
-`power_action` and arguments for pre-paid (expect for `auto_renew`).
+`power_action` and arguments for pre-paid.
 It is generally recommended running `terraform plan` after importing an instance.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to
 align with the instance. Also you can ignore changes as below.

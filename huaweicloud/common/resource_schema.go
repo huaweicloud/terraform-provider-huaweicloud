@@ -82,7 +82,7 @@ func SchemaAutoRenew(conflicts []string) *schema.Schema {
 	return &resourceSchema
 }
 
-func SchemaNewAutoRenew(conflicts []string) *schema.Schema {
+func SchemaAutoRenewUpdatable(conflicts []string) *schema.Schema {
 	resourceSchema := schema.Schema{
 		Type:     schema.TypeString,
 		Optional: true,
