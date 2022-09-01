@@ -463,6 +463,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_sms_source_servers": sms.DataSourceServers(),
 
+			"huaweicloud_scm_certificates": scm.DataSourceCertificates(),
+
 			"huaweicloud_sfs_file_system": DataSourceSFSFileSystemV2(),
 			"huaweicloud_sfs_turbos":      sfs.DataSourceTurbos(),
 
