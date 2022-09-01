@@ -109,6 +109,9 @@ The following arguments are supported:
 * `flavor` - (Required, List, ForceNew) Specifies the flavors information. The structure is described below. Changing
   this creates a new instance.
 
+* `port` - (Optional, Int) Specifies the database access port. The valid values are range from `2,100` to `9,500` and
+  `27,017`, `27,018`, `27,019`. Defaults to `8,635`.
+
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy. The structure is described below.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the dds instance.

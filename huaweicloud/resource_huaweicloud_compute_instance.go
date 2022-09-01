@@ -350,7 +350,7 @@ func ResourceComputeInstanceV2() *schema.Resource {
 			"charging_mode": schemaChargingMode(novaConflicts),
 			"period_unit":   schemaPeriodUnit(novaConflicts),
 			"period":        schemaPeriod(novaConflicts),
-			"auto_renew":    schemaAutoRenew(novaConflicts),
+			"auto_renew":    common.SchemaAutoRenewUpdatable(novaConflicts),
 			"auto_pay":      schemaAutoPay(novaConflicts),
 
 			"user_id": { // required if in prePaid charging mode with key_pair.
@@ -1180,6 +1180,16 @@ func resourceComputeInstanceV2Update(ctx context.Context, d *schema.ResourceData
 		action := d.Get("power_action").(string)
 		if err = doPowerAction(ecsClient, d, action); err != nil {
 			return diag.Errorf("Doing power action (%s) for instance (%s) failed: %s", action, d.Id(), err)
+		}
+	}
+
+	if d.HasChange("auto_renew") {
+		bssClient, err := config.BssV2Client(GetRegion(d, config))
+		if err != nil {
+			return diag.Errorf("error creating BSS V2 client: %s", err)
+		}
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
 		}
 	}
 

@@ -57,7 +57,7 @@ func TestAccDDSV3Instance_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDDSInstanceV3Config_basic(rName),
+				Config: testAccDDSInstanceV3Config_basic(rName, 8800),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -66,6 +66,14 @@ func TestAccDDSV3Instance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "08:00-09:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "8"),
+					resource.TestCheckResourceAttr(resourceName, "port", "8800"),
+				),
+			},
+			{
+				Config: testAccDDSInstanceV3Config_basic(rName, 8635),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "port", "8635"),
 				),
 			},
 			{
@@ -219,7 +227,7 @@ resource "huaweicloud_networking_secgroup" "secgroup_acc" {
 }`, rName)
 }
 
-func testAccDDSInstanceV3Config_basic(rName string) string {
+func testAccDDSInstanceV3Config_basic(rName string, port int) string {
 	return fmt.Sprintf(`
 %s
 
@@ -229,8 +237,9 @@ resource "huaweicloud_dds_instance" "instance" {
   vpc_id            = data.huaweicloud_vpc.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
-  password          = "Test@123"
+  password          = "Terraform@123"
   mode              = "Sharding"
+  port              = %d
 
   datastore {
     type           = "DDS-Community"
@@ -267,7 +276,7 @@ resource "huaweicloud_dds_instance" "instance" {
     foo   = "bar"
     owner = "terraform"
   }
-}`, testAccDDSInstanceV3Config_Base(rName), rName)
+}`, testAccDDSInstanceV3Config_Base(rName), rName, port)
 }
 
 func testAccDDSInstanceV3Config_updateBackupStrategy(rName string) string {
@@ -280,7 +289,7 @@ resource "huaweicloud_dds_instance" "instance" {
   vpc_id            = data.huaweicloud_vpc.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
-  password          = "Test@123"
+  password          = "Terraform@123"
   mode              = "Sharding"
 
   datastore {
@@ -331,7 +340,7 @@ resource "huaweicloud_dds_instance" "instance" {
   vpc_id            = data.huaweicloud_vpc.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
-  password          = "Test@123"
+  password          = "Terraform@123"
   mode              = "Sharding"
 
   datastore {
@@ -382,7 +391,7 @@ resource "huaweicloud_dds_instance" "instance" {
   vpc_id            = data.huaweicloud_vpc.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
-  password          = "Test@123"
+  password          = "Terraform@123"
   mode              = "Sharding"
 
   datastore {
@@ -433,7 +442,7 @@ resource "huaweicloud_dds_instance" "instance" {
   vpc_id            = data.huaweicloud_vpc.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
-  password          = "Test@123"
+  password          = "Terraform@123"
   mode              = "Sharding"
 
   datastore {
@@ -484,7 +493,7 @@ resource "huaweicloud_dds_instance" "instance" {
   vpc_id                = data.huaweicloud_vpc.test.id
   subnet_id             = data.huaweicloud_vpc_subnet.test.id
   security_group_id     = huaweicloud_networking_secgroup.secgroup_acc.id
-  password              = "Test@123"
+  password              = "Terraform@123"
   mode                  = "Sharding"
   enterprise_project_id = "%s"
 

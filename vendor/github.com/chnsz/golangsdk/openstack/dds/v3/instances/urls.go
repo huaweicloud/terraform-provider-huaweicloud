@@ -17,3 +17,7 @@ func listURL(c *golangsdk.ServiceClient) string {
 func modifyURL(c *golangsdk.ServiceClient, serverID, action string) string {
 	return c.ServiceURL("instances", serverID, action)
 }
+
+func portModifiedURL(c *golangsdk.ServiceClient, instanceId string) string {
+	return c.ServiceURL("instances", instanceId, "modify-port")
+}

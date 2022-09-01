@@ -19,6 +19,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
+	"github.com/chnsz/golangsdk/openstack/bss/v2/resources"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -196,4 +197,11 @@ func GetAutoPay(d *schema.ResourceData) string {
 		return "false"
 	}
 	return "true"
+}
+
+func UpdateAutoRenew(c *golangsdk.ServiceClient, enabled, resourceId string) error {
+	if enabled == "true" {
+		return resources.EnableAutoRenew(c, resourceId)
+	}
+	return resources.DisableAutoRenew(c, resourceId)
 }
