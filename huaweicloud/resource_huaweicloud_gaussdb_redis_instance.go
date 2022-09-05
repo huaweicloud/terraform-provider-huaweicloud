@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -199,7 +200,7 @@ func resourceGaussRedisInstanceV3() *schema.Resource {
 				},
 			},
 
-			// charge info: charging_mode, period_unit, period, auto_renew
+			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
 			// make ForceNew false here but do nothing in update method!
 			"charging_mode": {
 				Type:     schema.TypeString,
@@ -223,6 +224,13 @@ func resourceGaussRedisInstanceV3() *schema.Resource {
 				ValidateFunc: validation.IntBetween(1, 9),
 			},
 			"auto_renew": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"true", "false",
+				}, false),
+			},
+			"auto_pay": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: validation.StringInSlice([]string{
@@ -347,7 +355,7 @@ func resourceGaussRedisInstanceV3Create(d *schema.ResourceData, meta interface{}
 			ChargingMode: d.Get("charging_mode").(string),
 			PeriodType:   d.Get("period_unit").(string),
 			PeriodNum:    d.Get("period").(int),
-			IsAutoPay:    "true",
+			IsAutoPay:    common.GetAutoPay(d),
 			IsAutoRenew:  d.Get("auto_renew").(string),
 		}
 		createOpts.ChargeInfo = chargeInfo
@@ -582,7 +590,7 @@ func resourceGaussRedisInstanceV3Update(d *schema.ResourceData, meta interface{}
 			Size: d.Get("volume_size").(int),
 		}
 		if d.Get("charging_mode") == "prePaid" {
-			extendOpts.IsAutoPay = "true"
+			extendOpts.IsAutoPay = common.GetAutoPay(d)
 		}
 
 		n, err := instances.ExtendVolume(client, d.Id(), extendOpts).Extract()
@@ -639,7 +647,7 @@ func resourceGaussRedisInstanceV3Update(d *schema.ResourceData, meta interface{}
 				Num: expandSize,
 			}
 			if d.Get("charging_mode") == "prePaid" {
-				enlargeNodeOpts.IsAutoPay = "true"
+				enlargeNodeOpts.IsAutoPay = common.GetAutoPay(d)
 			}
 			logp.Printf("[DEBUG] Enlarge Node Options: %+v", enlargeNodeOpts)
 
@@ -824,7 +832,7 @@ func GaussRedisInstanceUpdateFlavor(d *schema.ResourceData, client, bssClient *g
 		},
 	}
 	if d.Get("charging_mode") == "prePaid" {
-		resizeOpts.IsAutoPay = "true"
+		resizeOpts.IsAutoPay = common.GetAutoPay(d)
 	}
 
 	n, err := instances.Resize(client, d.Id(), resizeOpts).Extract()
