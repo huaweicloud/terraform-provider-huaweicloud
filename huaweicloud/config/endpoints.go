@@ -1,6 +1,8 @@
 package config
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // ServiceCatalog defines a struct which was used to generate a service client for huaweicloud.
 // the endpoint likes https://{Name}.{Region}.myhuaweicloud.com/{Version}/{project_id}/{ResourceBase}
@@ -580,6 +582,15 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:          "v3",
 		WithOutProjectID: true,
 		Product:          "SCM",
+	},
+
+	// catalog for cc
+	"cc": {
+		Name:             "cc",
+		Version:          "v3",
+		Scope:            "global",
+		WithOutProjectID: true,
+		Product:          "CC",
 	},
 
 	// catalog for Joint-Operation Cloud only
