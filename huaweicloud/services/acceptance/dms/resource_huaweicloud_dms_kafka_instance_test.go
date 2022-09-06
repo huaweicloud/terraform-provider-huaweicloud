@@ -161,6 +161,8 @@ func TestAccKafkaInstance_newFormat(t *testing.T) {
 						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.id"),
 					resource.TestCheckResourceAttrPair(resourceName, "storage_spec_code",
 						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.ios.0.storage_spec_code"),
+					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.1.advertised_ip", "www.terraform-test.com"),
+					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.2.advertised_ip", "192.168.0.53"),
 				),
 			},
 			{
@@ -175,6 +177,9 @@ func TestAccKafkaInstance_newFormat(t *testing.T) {
 						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.id"),
 					resource.TestCheckResourceAttrPair(resourceName, "storage_spec_code",
 						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.ios.1.storage_spec_code"),
+					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.0.advertised_ip", "172.16.35.62"),
+					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.1.advertised_ip", "www.terraform-test-1.com"),
+					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.2.advertised_ip", "192.168.0.53"),
 				),
 			},
 		},
@@ -373,6 +378,8 @@ data "huaweicloud_dms_kafka_flavors" "test" {
 
 locals {
   query_results = data.huaweicloud_dms_kafka_flavors.test
+
+  advertised_ips = ["", "www.terraform-test.com", "192.168.0.53"]
 }
 
 resource "huaweicloud_dms_kafka_instance" "test" {
@@ -392,6 +399,13 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   password         = "Kafkatest@123"
   manager_user     = "kafka-user"
   manager_password = "Kafkatest@123"
+
+  dynamic "cross_vpc_accesses" {
+    for_each = local.advertised_ips
+    content {
+      advertised_ip = cross_vpc_accesses.value
+    }
+  }
 }`, testAccKafkaInstance_base(rName), rName)
 }
 
@@ -405,6 +419,8 @@ data "huaweicloud_dms_kafka_flavors" "test" {
 
 locals {
   query_results = data.huaweicloud_dms_kafka_flavors.test
+
+  advertised_ips = ["172.16.35.62", "www.terraform-test-1.com", "192.168.0.53"]
 }
 
 resource "huaweicloud_dms_kafka_instance" "test" {
@@ -424,5 +440,12 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   password         = "Kafkatest@123"
   manager_user     = "kafka-user"
   manager_password = "Kafkatest@123"
+
+  dynamic "cross_vpc_accesses" {
+    for_each = local.advertised_ips
+    content {
+      advertised_ip = cross_vpc_accesses.value
+    }
+  }
 }`, testAccKafkaInstance_base(rName), rName)
 }
