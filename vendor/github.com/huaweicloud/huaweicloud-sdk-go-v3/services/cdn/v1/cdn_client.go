@@ -628,6 +628,28 @@ func (c *CdnClient) ShowTopUrlInvoker(request *model.ShowTopUrlRequest) *ShowTop
 	return &ShowTopUrlInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ShowUrlTaskInfo 查询刷新预热URL记录
+//
+// 查询刷新预热URL记录。如需此接口，请提交工单开通
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *CdnClient) ShowUrlTaskInfo(request *model.ShowUrlTaskInfoRequest) (*model.ShowUrlTaskInfoResponse, error) {
+	requestDef := GenReqDefForShowUrlTaskInfo()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowUrlTaskInfoResponse), nil
+	}
+}
+
+// ShowUrlTaskInfoInvoker 查询刷新预热URL记录
+func (c *CdnClient) ShowUrlTaskInfoInvoker(request *model.ShowUrlTaskInfoRequest) *ShowUrlTaskInfoInvoker {
+	requestDef := GenReqDefForShowUrlTaskInfo()
+	return &ShowUrlTaskInfoInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // UpdateBlackWhiteList 设置IP黑白名单
 //
 // 设置域名的IP黑白名单。

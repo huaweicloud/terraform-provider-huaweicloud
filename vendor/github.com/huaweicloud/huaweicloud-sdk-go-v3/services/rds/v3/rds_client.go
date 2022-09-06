@@ -2024,6 +2024,28 @@ func (c *RdsClient) SetDbUserPwdInvoker(request *model.SetDbUserPwdRequest) *Set
 	return &SetDbUserPwdInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// SetReadOnlySwitch 设置数据库用户只读参数
+//
+// 根据业务需求，设置数据库用户只读
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *RdsClient) SetReadOnlySwitch(request *model.SetReadOnlySwitchRequest) (*model.SetReadOnlySwitchResponse, error) {
+	requestDef := GenReqDefForSetReadOnlySwitch()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.SetReadOnlySwitchResponse), nil
+	}
+}
+
+// SetReadOnlySwitchInvoker 设置数据库用户只读参数
+func (c *RdsClient) SetReadOnlySwitchInvoker(request *model.SetReadOnlySwitchRequest) *SetReadOnlySwitchInvoker {
+	requestDef := GenReqDefForSetReadOnlySwitch()
+	return &SetReadOnlySwitchInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // UpdateDatabase 修改指定实例的数据库备注
 //
 // 修改指定实例中的数据库备注。
@@ -2292,6 +2314,28 @@ func (c *RdsClient) SearchQueryScaleFlavors(request *model.SearchQueryScaleFlavo
 func (c *RdsClient) SearchQueryScaleFlavorsInvoker(request *model.SearchQueryScaleFlavorsRequest) *SearchQueryScaleFlavorsInvoker {
 	requestDef := GenReqDefForSearchQueryScaleFlavors()
 	return &SearchQueryScaleFlavorsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// SetDatabaseUserPrivilege 设置数据库用户权限
+//
+// 设置数据库用户权限：只读或可读写。
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *RdsClient) SetDatabaseUserPrivilege(request *model.SetDatabaseUserPrivilegeRequest) (*model.SetDatabaseUserPrivilegeResponse, error) {
+	requestDef := GenReqDefForSetDatabaseUserPrivilege()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.SetDatabaseUserPrivilegeResponse), nil
+	}
+}
+
+// SetDatabaseUserPrivilegeInvoker 设置数据库用户权限
+func (c *RdsClient) SetDatabaseUserPrivilegeInvoker(request *model.SetDatabaseUserPrivilegeRequest) *SetDatabaseUserPrivilegeInvoker {
+	requestDef := GenReqDefForSetDatabaseUserPrivilege()
+	return &SetDatabaseUserPrivilegeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // SetPostgresqlDbUserPwd 重置数据库帐号密码

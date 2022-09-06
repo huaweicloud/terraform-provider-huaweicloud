@@ -154,6 +154,8 @@ The `configs` block support:
   + **http**: HTTP, which is the default value.
   + **https**: HTTPS.
 
+* `ipv6_enable` - (Optional, Bool) Specifies whether to enable IPv6.
+
 * `https_settings` - (Optional, List) Specifies the certificate configuration. The [object](#https_settings_object)
   structure is documented below.
 

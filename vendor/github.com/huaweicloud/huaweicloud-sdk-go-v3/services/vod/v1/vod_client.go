@@ -311,6 +311,50 @@ func (c *VodClient) CreateTemplateGroupInvoker(request *model.CreateTemplateGrou
 	return &CreateTemplateGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// CreateTemplateGroupCollection 创建转码模板组集合
+//
+// 创建转码模板组集合
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *VodClient) CreateTemplateGroupCollection(request *model.CreateTemplateGroupCollectionRequest) (*model.CreateTemplateGroupCollectionResponse, error) {
+	requestDef := GenReqDefForCreateTemplateGroupCollection()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateTemplateGroupCollectionResponse), nil
+	}
+}
+
+// CreateTemplateGroupCollectionInvoker 创建转码模板组集合
+func (c *VodClient) CreateTemplateGroupCollectionInvoker(request *model.CreateTemplateGroupCollectionRequest) *CreateTemplateGroupCollectionInvoker {
+	requestDef := GenReqDefForCreateTemplateGroupCollection()
+	return &CreateTemplateGroupCollectionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateTranscodeTemplate 创建自定义转码模板
+//
+// 创建自定义转码模板。
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *VodClient) CreateTranscodeTemplate(request *model.CreateTranscodeTemplateRequest) (*model.CreateTranscodeTemplateResponse, error) {
+	requestDef := GenReqDefForCreateTranscodeTemplate()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateTranscodeTemplateResponse), nil
+	}
+}
+
+// CreateTranscodeTemplateInvoker 创建自定义转码模板
+func (c *VodClient) CreateTranscodeTemplateInvoker(request *model.CreateTranscodeTemplateRequest) *CreateTranscodeTemplateInvoker {
+	requestDef := GenReqDefForCreateTranscodeTemplate()
+	return &CreateTranscodeTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // CreateWatermarkTemplate 创建水印模板
 //
 // 创建水印模板。
@@ -397,6 +441,50 @@ func (c *VodClient) DeleteTemplateGroup(request *model.DeleteTemplateGroupReques
 func (c *VodClient) DeleteTemplateGroupInvoker(request *model.DeleteTemplateGroupRequest) *DeleteTemplateGroupInvoker {
 	requestDef := GenReqDefForDeleteTemplateGroup()
 	return &DeleteTemplateGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteTemplateGroupCollection 删除转码模板组集合
+//
+// 删除转码模板组集合
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *VodClient) DeleteTemplateGroupCollection(request *model.DeleteTemplateGroupCollectionRequest) (*model.DeleteTemplateGroupCollectionResponse, error) {
+	requestDef := GenReqDefForDeleteTemplateGroupCollection()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteTemplateGroupCollectionResponse), nil
+	}
+}
+
+// DeleteTemplateGroupCollectionInvoker 删除转码模板组集合
+func (c *VodClient) DeleteTemplateGroupCollectionInvoker(request *model.DeleteTemplateGroupCollectionRequest) *DeleteTemplateGroupCollectionInvoker {
+	requestDef := GenReqDefForDeleteTemplateGroupCollection()
+	return &DeleteTemplateGroupCollectionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteTranscodeTemplate 删除自定义模板
+//
+// 删除自定义模板
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *VodClient) DeleteTranscodeTemplate(request *model.DeleteTranscodeTemplateRequest) (*model.DeleteTranscodeTemplateResponse, error) {
+	requestDef := GenReqDefForDeleteTranscodeTemplate()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteTranscodeTemplateResponse), nil
+	}
+}
+
+// DeleteTranscodeTemplateInvoker 删除自定义模板
+func (c *VodClient) DeleteTranscodeTemplateInvoker(request *model.DeleteTranscodeTemplateRequest) *DeleteTranscodeTemplateInvoker {
+	requestDef := GenReqDefForDeleteTranscodeTemplate()
+	return &DeleteTranscodeTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // DeleteWatermarkTemplate 删除水印模板
@@ -509,6 +597,28 @@ func (c *VodClient) ListTemplateGroupInvoker(request *model.ListTemplateGroupReq
 	return &ListTemplateGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListTemplateGroupCollection 查询自定义模板组集合
+//
+// 查询转码模板组集合
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *VodClient) ListTemplateGroupCollection(request *model.ListTemplateGroupCollectionRequest) (*model.ListTemplateGroupCollectionResponse, error) {
+	requestDef := GenReqDefForListTemplateGroupCollection()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListTemplateGroupCollectionResponse), nil
+	}
+}
+
+// ListTemplateGroupCollectionInvoker 查询自定义模板组集合
+func (c *VodClient) ListTemplateGroupCollectionInvoker(request *model.ListTemplateGroupCollectionRequest) *ListTemplateGroupCollectionInvoker {
+	requestDef := GenReqDefForListTemplateGroupCollection()
+	return &ListTemplateGroupCollectionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListTopStatistics 查询TopN媒资信息
 //
 // 查询指定域名在指定日期播放次数排名Top 100的媒资统计数据。
@@ -529,6 +639,28 @@ func (c *VodClient) ListTopStatistics(request *model.ListTopStatisticsRequest) (
 func (c *VodClient) ListTopStatisticsInvoker(request *model.ListTopStatisticsRequest) *ListTopStatisticsInvoker {
 	requestDef := GenReqDefForListTopStatistics()
 	return &ListTopStatisticsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListTranscodeTemplate 查询转码模板列表
+//
+// 查询转码模板列表
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *VodClient) ListTranscodeTemplate(request *model.ListTranscodeTemplateRequest) (*model.ListTranscodeTemplateResponse, error) {
+	requestDef := GenReqDefForListTranscodeTemplate()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListTranscodeTemplateResponse), nil
+	}
+}
+
+// ListTranscodeTemplateInvoker 查询转码模板列表
+func (c *VodClient) ListTranscodeTemplateInvoker(request *model.ListTranscodeTemplateRequest) *ListTranscodeTemplateInvoker {
+	requestDef := GenReqDefForListTranscodeTemplate()
+	return &ListTranscodeTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListWatermarkTemplate 查询水印列表
@@ -915,6 +1047,50 @@ func (c *VodClient) UpdateTemplateGroup(request *model.UpdateTemplateGroupReques
 func (c *VodClient) UpdateTemplateGroupInvoker(request *model.UpdateTemplateGroupRequest) *UpdateTemplateGroupInvoker {
 	requestDef := GenReqDefForUpdateTemplateGroup()
 	return &UpdateTemplateGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateTemplateGroupCollection 修改转码模板组集合
+//
+// 修改转码模板组结合
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *VodClient) UpdateTemplateGroupCollection(request *model.UpdateTemplateGroupCollectionRequest) (*model.UpdateTemplateGroupCollectionResponse, error) {
+	requestDef := GenReqDefForUpdateTemplateGroupCollection()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateTemplateGroupCollectionResponse), nil
+	}
+}
+
+// UpdateTemplateGroupCollectionInvoker 修改转码模板组集合
+func (c *VodClient) UpdateTemplateGroupCollectionInvoker(request *model.UpdateTemplateGroupCollectionRequest) *UpdateTemplateGroupCollectionInvoker {
+	requestDef := GenReqDefForUpdateTemplateGroupCollection()
+	return &UpdateTemplateGroupCollectionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateTranscodeTemplate 修改转码模板
+//
+// 修改转码模板
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *VodClient) UpdateTranscodeTemplate(request *model.UpdateTranscodeTemplateRequest) (*model.UpdateTranscodeTemplateResponse, error) {
+	requestDef := GenReqDefForUpdateTranscodeTemplate()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateTranscodeTemplateResponse), nil
+	}
+}
+
+// UpdateTranscodeTemplateInvoker 修改转码模板
+func (c *VodClient) UpdateTranscodeTemplateInvoker(request *model.UpdateTranscodeTemplateRequest) *UpdateTranscodeTemplateInvoker {
+	requestDef := GenReqDefForUpdateTranscodeTemplate()
+	return &UpdateTranscodeTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // UpdateWatermarkTemplate 修改水印模板

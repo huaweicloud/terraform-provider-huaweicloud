@@ -9,10 +9,10 @@ import (
 // 配置项。
 type Configs struct {
 
-	// 回源请求头配置
+	// 回源请求头改写 该功能将覆盖原有配置（清空之前的配置），在使用此接口时，请上传全量头部信息。
 	OriginRequestHeader *[]OriginRequestHeader `json:"origin_request_header,omitempty"`
 
-	// http header配置
+	// http header配置 该功能将覆盖原有配置（清空之前的配置），在使用此接口时，请上传全量头部信息。
 	HttpResponseHeader *[]HttpResponseHeader `json:"http_response_header,omitempty"`
 
 	UrlAuth *UrlAuth `json:"url_auth,omitempty"`
@@ -30,6 +30,9 @@ type Configs struct {
 	Compress *Compress `json:"compress,omitempty"`
 
 	CacheUrlParameterFilter *CacheUrlParameterFilter `json:"cache_url_parameter_filter,omitempty"`
+
+	// ipv6设置（1：打开；0：关闭）
+	Ipv6Accelerate *int32 `json:"ipv6_accelerate,omitempty"`
 }
 
 func (o Configs) String() string {

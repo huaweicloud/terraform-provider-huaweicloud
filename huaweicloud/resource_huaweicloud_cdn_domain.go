@@ -271,6 +271,10 @@ func resourceCdnDomainV1() *schema.Resource {
 								"follow", "http", "https",
 							}, false),
 						},
+						"ipv6_enable": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
 						"https_settings":             &httpsConfig,
 						"retrieval_request_header":   &requestAndResponseHeader,
 						"http_response_header":       &requestAndResponseHeader,
@@ -504,6 +508,10 @@ func configOrUpdateConfigs(hcCdnClient *cdnv1.CdnClient, rawConfigs []interface{
 	}
 
 	configs := rawConfigs[0].(map[string]interface{})
+	ipv6Accelerate := 0
+	if configs["ipv6_enable"].(bool) {
+		ipv6Accelerate = 1
+	}
 
 	configsOpts := model.Configs{
 		Https:                   buildHttpsOpts(configs["https_settings"].([]interface{})),
@@ -514,6 +522,7 @@ func configOrUpdateConfigs(hcCdnClient *cdnv1.CdnClient, rawConfigs []interface{
 		ForceRedirect:           buildForceRedirectOpts(configs["force_redirect"].([]interface{})),
 		Compress:                buildCompressOpts(configs["compress"].([]interface{})),
 		CacheUrlParameterFilter: buildCacheUrlParameterFilterOpts(configs["cache_url_parameter_filter"].([]interface{})),
+		Ipv6Accelerate:          utils.Int32(int32(ipv6Accelerate)),
 	}
 
 	req := model.UpdateDomainFullConfigRequest{
@@ -780,6 +789,7 @@ func getConfigsAttrs(hcCdnClient *cdnv1.CdnClient, domainName, epsId, privateKey
 		"force_redirect":             flattenForceRedirectAttrs(configs.ForceRedirect),
 		"compress":                   flattenCompressAttrs(configs.Compress),
 		"cache_url_parameter_filter": flattenCacheUrlParameterFilterAttrs(configs.CacheUrlParameterFilter),
+		"ipv6_enable":                configs.Ipv6Accelerate != nil && *configs.Ipv6Accelerate == 1,
 	}
 
 	return []map[string]interface{}{configsAttrs}, nil

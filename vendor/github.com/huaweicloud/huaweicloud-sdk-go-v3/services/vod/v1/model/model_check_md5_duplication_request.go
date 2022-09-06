@@ -10,7 +10,7 @@ import (
 type CheckMd5DuplicationRequest struct {
 
 	// 文件大小
-	Size int32 `json:"size"`
+	Size int64 `json:"size"`
 
 	// 文件MD5。  建议参考[上传校验](https://support.huaweicloud.com/api-vod/vod_04_0212.html#vod_04_0212__section575102165412)生成对应的MD5值。
 	Md5 string `json:"md5"`

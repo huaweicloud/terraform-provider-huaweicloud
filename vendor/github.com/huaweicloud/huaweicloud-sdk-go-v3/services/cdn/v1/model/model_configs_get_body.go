@@ -30,6 +30,9 @@ type ConfigsGetBody struct {
 	Compress *Compress `json:"compress,omitempty"`
 
 	CacheUrlParameterFilter *CacheUrlParameterFilter `json:"cache_url_parameter_filter,omitempty"`
+
+	// ipv6设置（1：打开；0：关闭）
+	Ipv6Accelerate *int32 `json:"ipv6_accelerate,omitempty"`
 }
 
 func (o ConfigsGetBody) String() string {
