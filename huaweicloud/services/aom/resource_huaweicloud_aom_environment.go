@@ -123,7 +123,7 @@ func ResourceAomEnvironmentCreate(ctx context.Context, d *schema.ResourceData, m
 	conf := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 
 	opts := entity2.EnvParam{
@@ -138,6 +138,9 @@ func ResourceAomEnvironmentCreate(ctx context.Context, d *schema.ResourceData, m
 	client.WithMethod(httpclient_go.MethodPost).WithUrl("v1/environments").WithBody(opts)
 	response, err := client.Do()
 	if err != nil {
+		if strings.Contains(err.Error(), "The environment name already exists.") {
+			return getEnvByName(d, meta)
+		}
 		return diag.Errorf("error create Environment fields %s: %s", opts, err)
 	}
 	defer response.Body.Close()
@@ -164,7 +167,7 @@ func ResourceAomEnvironmentRead(ctx context.Context, d *schema.ResourceData, met
 	conf := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 
 	client.WithMethod(httpclient_go.MethodGet).WithUrl("v1/environments/" + d.Id())
@@ -216,7 +219,7 @@ func ResourceAomEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, m
 	conf := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 	opts := entity2.EnvParam{
 		ComponentId:  d.Get("component_id").(string),
@@ -251,7 +254,7 @@ func ResourceAomEnvironmentDelete(ctx context.Context, d *schema.ResourceData, m
 	conf := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 
 	client.WithMethod(httpclient_go.MethodDelete).WithUrl("v1/environments/" + d.Id())
@@ -271,4 +274,58 @@ func ResourceAomEnvironmentDelete(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	return diag.Errorf("error delete Environment %s:  %s", d.Id(), string(body))
+}
+
+func getEnvByName(d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client: %s", err)
+	}
+
+	client.WithMethod(httpclient_go.MethodGet).
+		WithUrl("v1/environments/name/" + d.Get("env_name").(string) + "?region=" + conf.GetRegion(d) + "&component_id=" + d.Get("component_id").(string))
+	response, err := client.Do()
+
+	body, diags := client.CheckDeletedDiag(d, err, response, "error retrieving Environments")
+	if body == nil {
+		return diags
+	}
+
+	rlt := &entity2.EnvVo{}
+	err = json.Unmarshal(body, rlt)
+	if err != nil {
+		return diag.Errorf("error retrieving Environment %s", d.Id())
+	}
+
+	d.SetId(rlt.EnvId)
+	mErr := multierror.Append(nil,
+		d.Set("aom_id", rlt.AomId),
+		d.Set("component_id", rlt.ComponentId),
+		d.Set("create_time", rlt.CreateTime),
+		d.Set("creator", rlt.Creator),
+		d.Set("description", rlt.Description),
+		d.Set("env_id", rlt.EnvId),
+		d.Set("env_name", rlt.EnvName),
+		d.Set("env_type", rlt.EnvType),
+		d.Set("enterprise_project_id", rlt.EpsId),
+		d.Set("modified_time", rlt.ModifiedTime),
+		d.Set("modifier", rlt.Modifier),
+		d.Set("os_type", rlt.OsType),
+		d.Set("region", rlt.Region),
+		d.Set("register_type", rlt.RegisterType),
+	)
+	var envTags []map[string]interface{}
+	for _, obj := range rlt.EnvTags {
+		envTag := make(map[string]string)
+		envTag["tag_id"] = obj.TagId
+		envTag["tag_name"] = obj.TagName
+	}
+	mErr = multierror.Append(mErr, d.Set("env_tags", envTags))
+
+	if err := mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error setting Environment fields: %s", err)
+	}
+
+	return nil
 }

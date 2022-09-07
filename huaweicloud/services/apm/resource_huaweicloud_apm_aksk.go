@@ -49,7 +49,7 @@ func ResourceApmAkSkCreate(ctx context.Context, d *schema.ResourceData, meta int
 	cfg := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "apm", cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 
 	opts := entity.CreateAkSkParam{
@@ -87,7 +87,7 @@ func ResourceApmAkSkRead(ctx context.Context, d *schema.ResourceData, meta inter
 	cfg := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "apm", cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 
 	client.WithMethod(httpclient_go.MethodGet).WithUrl("v1/apm2/access-keys")
@@ -133,7 +133,7 @@ func ResourceApmAkSkDelete(ctx context.Context, d *schema.ResourceData, meta int
 	cfg := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "apm", cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 
 	client.WithMethod(httpclient_go.MethodDelete).WithUrl("v1/apm2/access-keys/" + d.Id())

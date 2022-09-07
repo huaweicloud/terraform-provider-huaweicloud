@@ -171,7 +171,7 @@ func resourceLtsStructTemplateRead(_ context.Context, d *schema.ResourceData, me
 	cfg := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
@@ -210,7 +210,7 @@ func resourceLtsStructTemplateDelete(_ context.Context, d *schema.ResourceData, 
 	cfg := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
@@ -239,7 +239,7 @@ func resourceLtsStructTemplateUpdate(ctx context.Context, d *schema.ResourceData
 	cfg := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"

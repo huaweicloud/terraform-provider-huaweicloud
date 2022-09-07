@@ -58,7 +58,7 @@ func resourcePrometheusInstanceRead(_ context.Context, d *schema.ResourceData, m
 	region := conf.GetRegion(d)
 	client, err := httpclient_go.NewHttpClientGo(conf, "aom", region)
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 	client.WithMethod(httpclient_go.MethodGet).WithUrl("v1/" + conf.GetProjectID(region) + "/prometheus-instances?action=prom_for_cloud_service")
 
@@ -99,7 +99,7 @@ func resourcePrometheusInstancePatch(_ context.Context, d *schema.ResourceData, 
 	conf := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 	var p = d.Get("prom_for_cloud_service").([]interface{})[0]
 	service := p.(map[string]interface{})["ces_metric_namespaces"].([]interface{})

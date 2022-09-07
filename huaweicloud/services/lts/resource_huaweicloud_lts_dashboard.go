@@ -89,7 +89,7 @@ func resourceLtsDashBoardCreate(ctx context.Context, d *schema.ResourceData, met
 	region := cfg.GetRegion(d)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", region)
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
@@ -133,7 +133,7 @@ func resourceLtsDashBoardRead(_ context.Context, d *schema.ResourceData, meta in
 	region := cfg.GetRegion(d)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", region)
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
@@ -163,7 +163,7 @@ func resourceLtsDashBoardDelete(_ context.Context, d *schema.ResourceData, meta 
 	region := cfg.GetRegion(d)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", region)
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
@@ -189,7 +189,7 @@ func resourceDashBoardUpdate(_ context.Context, d *schema.ResourceData, meta int
 	region := cfg.GetRegion(d)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", region)
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
