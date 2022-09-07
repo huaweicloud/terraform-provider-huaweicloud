@@ -290,3 +290,26 @@ func Resize(client *golangsdk.ServiceClient, id string, opts ResizeInstanceOpts)
 	}
 	return "", err
 }
+
+// CrossVpcUpdateOpts is the structure required by the UpdateCrossVpc method to update the internal IP address for
+// cross-VPC access.
+type CrossVpcUpdateOpts struct {
+	// User-defined advertised IP contents key-value pair.
+	// The key is the listeners IP.
+	// The value is advertised.listeners IP, or domain name.
+	Contents map[string]string `json:"advertised_ip_contents" required:"true"`
+}
+
+// UpdateCrossVpc is a method to update the internal IP address for cross-VPC access using given parameters.
+func UpdateCrossVpc(c *golangsdk.ServiceClient, instanceId string, opts CrossVpcUpdateOpts) (*CrossVpc, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r CrossVpc
+	_, err = c.Post(crossVpcURL(c, instanceId), b, &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return &r, err
+}
