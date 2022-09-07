@@ -1097,6 +1097,18 @@ func (i *SetDbUserPwdInvoker) Invoke() (*model.SetDbUserPwdResponse, error) {
 	}
 }
 
+type SetReadOnlySwitchInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *SetReadOnlySwitchInvoker) Invoke() (*model.SetReadOnlySwitchResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.SetReadOnlySwitchResponse), nil
+	}
+}
+
 type UpdateDatabaseInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -1238,6 +1250,18 @@ func (i *SearchQueryScaleFlavorsInvoker) Invoke() (*model.SearchQueryScaleFlavor
 		return nil, err
 	} else {
 		return result.(*model.SearchQueryScaleFlavorsResponse), nil
+	}
+}
+
+type SetDatabaseUserPrivilegeInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *SetDatabaseUserPrivilegeInvoker) Invoke() (*model.SetDatabaseUserPrivilegeResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.SetDatabaseUserPrivilegeResponse), nil
 	}
 }
 

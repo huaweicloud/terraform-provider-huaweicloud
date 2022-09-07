@@ -317,6 +317,18 @@ func (i *ShowTopUrlInvoker) Invoke() (*model.ShowTopUrlResponse, error) {
 	}
 }
 
+type ShowUrlTaskInfoInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowUrlTaskInfoInvoker) Invoke() (*model.ShowUrlTaskInfoResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowUrlTaskInfoResponse), nil
+	}
+}
+
 type UpdateBlackWhiteListInvoker struct {
 	*invoker.BaseInvoker
 }

@@ -161,6 +161,30 @@ func (i *CreateTemplateGroupInvoker) Invoke() (*model.CreateTemplateGroupRespons
 	}
 }
 
+type CreateTemplateGroupCollectionInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateTemplateGroupCollectionInvoker) Invoke() (*model.CreateTemplateGroupCollectionResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateTemplateGroupCollectionResponse), nil
+	}
+}
+
+type CreateTranscodeTemplateInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateTranscodeTemplateInvoker) Invoke() (*model.CreateTranscodeTemplateResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateTranscodeTemplateResponse), nil
+	}
+}
+
 type CreateWatermarkTemplateInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -206,6 +230,30 @@ func (i *DeleteTemplateGroupInvoker) Invoke() (*model.DeleteTemplateGroupRespons
 		return nil, err
 	} else {
 		return result.(*model.DeleteTemplateGroupResponse), nil
+	}
+}
+
+type DeleteTemplateGroupCollectionInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteTemplateGroupCollectionInvoker) Invoke() (*model.DeleteTemplateGroupCollectionResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteTemplateGroupCollectionResponse), nil
+	}
+}
+
+type DeleteTranscodeTemplateInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteTranscodeTemplateInvoker) Invoke() (*model.DeleteTranscodeTemplateResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteTranscodeTemplateResponse), nil
 	}
 }
 
@@ -269,6 +317,18 @@ func (i *ListTemplateGroupInvoker) Invoke() (*model.ListTemplateGroupResponse, e
 	}
 }
 
+type ListTemplateGroupCollectionInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListTemplateGroupCollectionInvoker) Invoke() (*model.ListTemplateGroupCollectionResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListTemplateGroupCollectionResponse), nil
+	}
+}
+
 type ListTopStatisticsInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -278,6 +338,18 @@ func (i *ListTopStatisticsInvoker) Invoke() (*model.ListTopStatisticsResponse, e
 		return nil, err
 	} else {
 		return result.(*model.ListTopStatisticsResponse), nil
+	}
+}
+
+type ListTranscodeTemplateInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListTranscodeTemplateInvoker) Invoke() (*model.ListTranscodeTemplateResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListTranscodeTemplateResponse), nil
 	}
 }
 
@@ -482,6 +554,30 @@ func (i *UpdateTemplateGroupInvoker) Invoke() (*model.UpdateTemplateGroupRespons
 		return nil, err
 	} else {
 		return result.(*model.UpdateTemplateGroupResponse), nil
+	}
+}
+
+type UpdateTemplateGroupCollectionInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateTemplateGroupCollectionInvoker) Invoke() (*model.UpdateTemplateGroupCollectionResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateTemplateGroupCollectionResponse), nil
+	}
+}
+
+type UpdateTranscodeTemplateInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateTranscodeTemplateInvoker) Invoke() (*model.UpdateTranscodeTemplateResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateTranscodeTemplateResponse), nil
 	}
 }
 
