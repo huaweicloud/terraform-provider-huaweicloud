@@ -1,4 +1,4 @@
-package huaweicloud
+package elb
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
-func dataSourceElbFlavorsV3() *schema.Resource {
+func DataSourceElbFlavorsV3() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceElbFlavorsV3Read,
 
@@ -89,7 +89,7 @@ func dataSourceElbFlavorsV3() *schema.Resource {
 
 func dataSourceElbFlavorsV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(GetRegion(d, config))
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
 	}
@@ -160,7 +160,7 @@ func dataSourceElbFlavorsV3Read(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("flavors", s); err != nil {
 		return err
 	}
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 
 	return nil
 }
