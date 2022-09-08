@@ -1,4 +1,4 @@
-package huaweicloud
+package obs
 
 import (
 	"strings"
@@ -62,8 +62,8 @@ func DataSourceObsBucketObject() *schema.Resource {
 // Attribute parameters are not returned in one interface.
 // Two interfaces need to be called to get all parameters.
 func dataSourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	obsClient, err := config.ObjectStorageClient(GetRegion(d, config))
+	conf := meta.(*config.Config)
+	obsClient, err := conf.ObjectStorageClient(conf.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}

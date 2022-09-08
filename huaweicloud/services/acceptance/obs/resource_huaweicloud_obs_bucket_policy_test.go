@@ -1,4 +1,4 @@
-package huaweicloud
+package obs
 
 import (
 	"fmt"
@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
@@ -22,9 +23,12 @@ func TestAccObsBucketPolicy_basic(t *testing.T) {
 		name)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckOBS(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckObsBucketDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccObsBucketPolicyConfig(name),
@@ -57,9 +61,12 @@ func TestAccObsBucketPolicy_update(t *testing.T) {
 		name)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckOBS(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckObsBucketDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccObsBucketPolicyConfig(name),
@@ -91,9 +98,12 @@ func TestAccObsBucketPolicy_s3(t *testing.T) {
 		name, name)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckOBS(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckObsBucketDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccObsBucketPolicyS3Foramt(name),
@@ -127,12 +137,12 @@ func testAccCheckObsBucketHasPolicy(n string, expectedPolicyText string) resourc
 		var err error
 		var obsClient *obs.ObsClient
 
-		config := testAccProvider.Meta().(*config.Config)
+		conf := acceptance.TestAccProvider.Meta().(*config.Config)
 		format := rs.Primary.Attributes["policy_format"]
 		if format == "obs" {
-			obsClient, err = config.ObjectStorageClientWithSignature(HW_REGION_NAME)
+			obsClient, err = conf.ObjectStorageClientWithSignature(acceptance.HW_REGION_NAME)
 		} else {
-			obsClient, err = config.ObjectStorageClient(HW_REGION_NAME)
+			obsClient, err = conf.ObjectStorageClient(acceptance.HW_REGION_NAME)
 		}
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)

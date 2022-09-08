@@ -1,4 +1,4 @@
-package huaweicloud
+package obs
 
 import (
 	"bytes"
@@ -110,8 +110,8 @@ func resourceObsBucketObjectPut(d *schema.ResourceData, meta interface{}) error 
 	var resp *obs.PutObjectOutput
 	var err error
 
-	config := meta.(*config.Config)
-	obsClient, err := config.ObjectStorageClient(GetRegion(d, config))
+	conf := meta.(*config.Config)
+	obsClient, err := conf.ObjectStorageClient(conf.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
@@ -230,8 +230,8 @@ func putFileToObject(obsClient *obs.ObsClient, d *schema.ResourceData) (*obs.Put
 }
 
 func resourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	obsClient, err := config.ObjectStorageClient(GetRegion(d, config))
+	conf := meta.(*config.Config)
+	obsClient, err := conf.ObjectStorageClient(conf.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
@@ -276,8 +276,8 @@ func resourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceObsBucketObjectDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	obsClient, err := config.ObjectStorageClient(GetRegion(d, config))
+	conf := meta.(*config.Config)
+	obsClient, err := conf.ObjectStorageClient(conf.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}

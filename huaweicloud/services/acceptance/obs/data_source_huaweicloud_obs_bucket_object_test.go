@@ -1,4 +1,4 @@
-package huaweicloud
+package obs
 
 import (
 	"fmt"
@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccObsBucketObjectDataSource_content(t *testing.T) {
@@ -21,8 +22,11 @@ func TestAccObsBucketObjectDataSource_content(t *testing.T) {
 	resourceConf, dataSourceConf := testAccObsBucketObjectDataSource_content(rInt)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:                  func() { testAccPreCheckOBS(t) },
-		Providers:                 testAccProviders,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories:         acceptance.TestAccProviderFactories,
 		PreventPostDestroyRefresh: true,
 		Steps: []resource.TestStep{
 			{
@@ -65,8 +69,11 @@ func TestAccObsBucketObjectDataSource_source(t *testing.T) {
 	resourceConf, dataSourceConf := testAccObsBucketObjectDataSource_source(rInt, tmpFile.Name())
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:                  func() { testAccPreCheckOBS(t) },
-		Providers:                 testAccProviders,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories:         acceptance.TestAccProviderFactories,
 		PreventPostDestroyRefresh: true,
 		Steps: []resource.TestStep{
 			{
@@ -93,8 +100,11 @@ func TestAccObsBucketObjectDataSource_allParams(t *testing.T) {
 	resourceConf, dataSourceConf := testAccObsBucketObjectDataSource_allParams(rInt)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:                  func() { testAccPreCheckOBS(t) },
-		Providers:                 testAccProviders,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories:         acceptance.TestAccProviderFactories,
 		PreventPostDestroyRefresh: true,
 		Steps: []resource.TestStep{
 			{
@@ -129,8 +139,8 @@ func testAccCheckAwsObsObjectDataSourceExists(n string) resource.TestCheckFunc {
 		bucket := rs.Primary.Attributes["bucket"]
 		key := rs.Primary.Attributes["key"]
 
-		config := testAccProvider.Meta().(*config.Config)
-		obsClient, err := config.ObjectStorageClient(HW_REGION_NAME)
+		conf := acceptance.TestAccProvider.Meta().(*config.Config)
+		obsClient, err := conf.ObjectStorageClient(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 		}
@@ -142,7 +152,7 @@ func testAccCheckAwsObsObjectDataSourceExists(n string) resource.TestCheckFunc {
 			},
 		})
 		if err != nil {
-			return getObsError("Error listing objects of OBS bucket", bucket, err)
+			return fmtp.Errorf("Error listing objects of OBS bucket", bucket, err)
 		}
 
 		var exist bool

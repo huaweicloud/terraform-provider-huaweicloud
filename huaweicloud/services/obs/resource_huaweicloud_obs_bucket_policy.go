@@ -1,4 +1,4 @@
-package huaweicloud
+package obs
 
 import (
 	"strings"
@@ -52,13 +52,13 @@ func ResourceObsBucketPolicy() *schema.Resource {
 func resourceObsBucketPolicyPut(d *schema.ResourceData, meta interface{}) error {
 	var err error
 	var obsClient *obs.ObsClient
-	config := meta.(*config.Config)
+	conf := meta.(*config.Config)
 
 	format := d.Get("policy_format").(string)
 	if format == "obs" {
-		obsClient, err = config.ObjectStorageClientWithSignature(GetRegion(d, config))
+		obsClient, err = conf.ObjectStorageClientWithSignature(conf.GetRegion(d))
 	} else {
-		obsClient, err = config.ObjectStorageClient(GetRegion(d, config))
+		obsClient, err = conf.ObjectStorageClient(conf.GetRegion(d))
 	}
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
@@ -84,14 +84,14 @@ func resourceObsBucketPolicyPut(d *schema.ResourceData, meta interface{}) error 
 func resourceObsBucketPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	var err error
 	var obsClient *obs.ObsClient
-	config := meta.(*config.Config)
+	conf := meta.(*config.Config)
 
 	format := d.Get("policy_format").(string)
 	logp.Printf("[DEBUG] obs bucket policy format: %s", format)
 	if format == "obs" {
-		obsClient, err = config.ObjectStorageClientWithSignature(GetRegion(d, config))
+		obsClient, err = conf.ObjectStorageClientWithSignature(conf.GetRegion(d))
 	} else {
-		obsClient, err = config.ObjectStorageClient(GetRegion(d, config))
+		obsClient, err = conf.ObjectStorageClient(conf.GetRegion(d))
 	}
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
@@ -117,13 +117,13 @@ func resourceObsBucketPolicyRead(d *schema.ResourceData, meta interface{}) error
 func resourceObsBucketPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	var err error
 	var obsClient *obs.ObsClient
-	config := meta.(*config.Config)
+	conf := meta.(*config.Config)
 
 	format := d.Get("policy_format").(string)
 	if format == "obs" {
-		obsClient, err = config.ObjectStorageClientWithSignature(GetRegion(d, config))
+		obsClient, err = conf.ObjectStorageClientWithSignature(conf.GetRegion(d))
 	} else {
-		obsClient, err = config.ObjectStorageClient(GetRegion(d, config))
+		obsClient, err = conf.ObjectStorageClient(conf.GetRegion(d))
 	}
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)

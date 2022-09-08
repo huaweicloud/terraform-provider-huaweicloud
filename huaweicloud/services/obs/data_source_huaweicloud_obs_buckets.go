@@ -64,8 +64,8 @@ func DataSourceObsBuckets() *schema.Resource {
 }
 
 func dataSourceObsBucketsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ObjectStorageClient(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	client, err := conf.ObjectStorageClient(conf.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
@@ -130,11 +130,4 @@ func queryMetadata(client *obs.ObsClient, name string) (*obs.GetBucketMetadataOu
 		err = golangsdk.ErrDefault404{}
 	}
 	return metadata, getObsError("Error querying OBS bucket metadata", name, err)
-}
-
-func getObsError(action string, bucket string, err error) error {
-	if obsError, ok := err.(obs.ObsError); ok {
-		return fmtp.Errorf("%s %s: %s,\n Reason: %s", action, bucket, obsError.Code, obsError.Message)
-	}
-	return err
 }

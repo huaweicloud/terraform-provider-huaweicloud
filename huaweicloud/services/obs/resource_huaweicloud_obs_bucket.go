@@ -1,4 +1,4 @@
-package huaweicloud
+package obs
 
 import (
 	"bytes"
@@ -9,6 +9,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/obs"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -252,7 +253,7 @@ func ResourceObsBucket() *schema.Resource {
 				},
 			},
 
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 			"force_destroy": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -310,9 +311,9 @@ func ResourceObsBucket() *schema.Resource {
 }
 
 func resourceObsBucketCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := GetRegion(d, config)
-	obsClient, err := config.ObjectStorageClient(region)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	obsClient, err := conf.ObjectStorageClient(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
@@ -325,7 +326,7 @@ func resourceObsBucketCreate(d *schema.ResourceData, meta interface{}) error {
 		ACL:               obs.AclType(acl),
 		StorageClass:      obs.StorageClassType(class),
 		IsFSFileInterface: d.Get("parallel_fs").(bool),
-		Epid:              GetEnterpriseProjectID(d, config),
+		Epid:              conf.GetEnterpriseProjectID(d),
 	}
 	opts.Location = region
 	if _, ok := d.GetOk("multi_az"); ok {
@@ -344,14 +345,14 @@ func resourceObsBucketCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceObsBucketUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := GetRegion(d, config)
-	obsClient, err := config.ObjectStorageClient(region)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	obsClient, err := conf.ObjectStorageClient(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
 
-	obsClientWithSignature, err := config.ObjectStorageClientWithSignature(region)
+	obsClientWithSignature, err := conf.ObjectStorageClientWithSignature(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud OBS client with signature: %s", err)
 	}
@@ -370,13 +371,9 @@ func resourceObsBucketUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if d.HasChange("policy") {
-		policyClient := obsClient
-		format := d.Get("policy_format").(string)
-		if format == "obs" {
-			policyClient, err = config.ObjectStorageClientWithSignature(GetRegion(d, config))
-			if err != nil {
-				return fmtp.Errorf("Error creating HuaweiCloud OBS policy client: %s", err)
-			}
+		policyClient := obsClientWithSignature
+		if d.Get("policy_format").(string) != "obs" {
+			policyClient = obsClient
 		}
 		if err := resourceObsBucketPolicyUpdate(policyClient, d); err != nil {
 			return err
@@ -396,7 +393,7 @@ func resourceObsBucketUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if d.HasChanges("encryption", "kms_key_id", "kms_key_project_id") {
-		if err := resourceObsBucketEncryptionUpdate(config, obsClientWithSignature, d); err != nil {
+		if err := resourceObsBucketEncryptionUpdate(conf, obsClientWithSignature, d); err != nil {
 			return err
 		}
 	}
@@ -435,9 +432,9 @@ func resourceObsBucketUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceObsBucketRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := GetRegion(d, config)
-	obsClient, err := config.ObjectStorageClient(region)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	obsClient, err := conf.ObjectStorageClient(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
@@ -459,7 +456,7 @@ func resourceObsBucketRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("region", region)
-	d.Set("bucket_domain_name", bucketDomainNameWithCloud(d.Get("bucket").(string), region, config.Cloud))
+	d.Set("bucket_domain_name", bucketDomainNameWithCloud(d.Get("bucket").(string), region, conf.Cloud))
 
 	// Read storage class
 	if err := setObsBucketStorageClass(obsClient, d); err != nil {
@@ -510,7 +507,7 @@ func resourceObsBucketRead(d *schema.ResourceData, meta interface{}) error {
 	policyClient := obsClient
 	format := d.Get("policy_format").(string)
 	if format == "obs" {
-		policyClient, err = config.ObjectStorageClientWithSignature(GetRegion(d, config))
+		policyClient, err = conf.ObjectStorageClientWithSignature(region)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud OBS policy client: %s", err)
 		}
@@ -528,8 +525,8 @@ func resourceObsBucketRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceObsBucketDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	obsClient, err := config.ObjectStorageClient(GetRegion(d, config))
+	conf := meta.(*config.Config)
+	obsClient, err := conf.ObjectStorageClient(conf.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}

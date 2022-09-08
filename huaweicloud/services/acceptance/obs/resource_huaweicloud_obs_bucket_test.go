@@ -1,4 +1,4 @@
-package huaweicloud
+package obs
 
 import (
 	"fmt"
@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
@@ -16,9 +17,12 @@ func TestAccObsBucket_basic(t *testing.T) {
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckOBS(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckObsBucketDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccObsBucket_basic(rInt),
@@ -31,7 +35,7 @@ func TestAccObsBucket_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "multi_az", "false"),
 					resource.TestCheckResourceAttr(resourceName, "parallel_fs", "false"),
 					resource.TestCheckResourceAttr(resourceName, "encryption", "false"),
-					resource.TestCheckResourceAttr(resourceName, "region", HW_REGION_NAME),
+					resource.TestCheckResourceAttr(resourceName, "region", acceptance.HW_REGION_NAME),
 					resource.TestCheckResourceAttr(resourceName, "bucket_version", "3.0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
@@ -65,9 +69,13 @@ func TestAccObsBucket_withEpsId(t *testing.T) {
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckEpsID(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckObsBucketDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccObsBucket_epsId(rInt),
@@ -76,7 +84,7 @@ func TestAccObsBucket_withEpsId(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						resourceName, "bucket", testAccObsBucketName(rInt)),
 					resource.TestCheckResourceAttr(
-						resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+						resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -88,9 +96,12 @@ func TestAccObsBucket_multiAZ(t *testing.T) {
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckOBS(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckObsBucketDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccObsBucketConfigMultiAZ(rInt),
@@ -113,9 +124,12 @@ func TestAccObsBucket_parallelFS(t *testing.T) {
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckOBS(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckObsBucketDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccObsBucketConfigParallelFS(rInt),
@@ -140,9 +154,12 @@ func TestAccObsBucket_encryption(t *testing.T) {
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckOBS(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckObsBucketDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccObsBucket_basic(rInt),
@@ -172,9 +189,12 @@ func TestAccObsBucket_versioning(t *testing.T) {
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckOBS(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckObsBucketDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccObsBucketConfigWithVersioning(rInt),
@@ -202,9 +222,12 @@ func TestAccObsBucket_logging(t *testing.T) {
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckOBS(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckObsBucketDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccObsBucketConfigWithLogging(rInt),
@@ -222,9 +245,12 @@ func TestAccObsBucket_quota(t *testing.T) {
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckOBS(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckObsBucketDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccObsBucketConfigWithQuota(rInt),
@@ -243,9 +269,12 @@ func TestAccObsBucket_lifecycle(t *testing.T) {
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckOBS(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckObsBucketDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccObsBucketConfigWithLifecycle(rInt),
@@ -282,9 +311,12 @@ func TestAccObsBucket_website(t *testing.T) {
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckOBS(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckObsBucketDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccObsBucketWebsiteConfigWithRoutingRules(rInt),
@@ -305,9 +337,12 @@ func TestAccObsBucket_cors(t *testing.T) {
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckOBS(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckObsBucketDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccObsBucketConfigWithCORS(rInt),
@@ -330,8 +365,8 @@ func TestAccObsBucket_cors(t *testing.T) {
 }
 
 func testAccCheckObsBucketDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	obsClient, err := config.ObjectStorageClient(HW_REGION_NAME)
+	conf := acceptance.TestAccProvider.Meta().(*config.Config)
+	obsClient, err := conf.ObjectStorageClient(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
@@ -360,8 +395,8 @@ func testAccCheckObsBucketExists(n string) resource.TestCheckFunc {
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		obsClient, err := config.ObjectStorageClient(HW_REGION_NAME)
+		conf := acceptance.TestAccProvider.Meta().(*config.Config)
+		obsClient, err := conf.ObjectStorageClient(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 		}
@@ -381,8 +416,8 @@ func testAccCheckObsBucketLogging(name, target, prefix string) resource.TestChec
 			return fmtp.Errorf("Not found: %s", name)
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		obsClient, err := config.ObjectStorageClient(HW_REGION_NAME)
+		conf := acceptance.TestAccProvider.Meta().(*config.Config)
+		obsClient, err := conf.ObjectStorageClient(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 		}
@@ -411,7 +446,7 @@ func testAccObsBucketName(randInt int) string {
 }
 
 func testAccObsBucketDomainName(randInt int) string {
-	return fmt.Sprintf("tf-test-bucket-%d.obs.%s.myhuaweicloud.com", randInt, HW_REGION_NAME)
+	return fmt.Sprintf("tf-test-bucket-%d.obs.%s.myhuaweicloud.com", randInt, acceptance.HW_REGION_NAME)
 }
 
 func testAccObsBucket_basic(randInt int) string {
@@ -474,7 +509,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
   acl                   = "private"
   enterprise_project_id = "%s"
 }
-`, randInt, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, randInt, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccObsBucketConfigMultiAZ(randInt int) string {
