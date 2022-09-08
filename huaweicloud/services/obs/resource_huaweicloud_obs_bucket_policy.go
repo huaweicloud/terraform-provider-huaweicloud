@@ -1,10 +1,11 @@
 package obs
 
 import (
-	"fmt"
+	"context"
 	"log"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/obs"
@@ -14,13 +15,13 @@ import (
 
 func ResourceObsBucketPolicy() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceObsBucketPolicyPut,
-		Read:   resourceObsBucketPolicyRead,
-		Update: resourceObsBucketPolicyPut,
-		Delete: resourceObsBucketPolicyDelete,
+		CreateContext: resourceObsBucketPolicyPut,
+		ReadContext:   resourceObsBucketPolicyRead,
+		UpdateContext: resourceObsBucketPolicyPut,
+		DeleteContext: resourceObsBucketPolicyDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: resourceObsBucketImport,
+			StateContext: resourceObsBucketImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -50,7 +51,7 @@ func ResourceObsBucketPolicy() *schema.Resource {
 	}
 }
 
-func resourceObsBucketPolicyPut(d *schema.ResourceData, meta interface{}) error {
+func resourceObsBucketPolicyPut(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var err error
 	var obsClient *obs.ObsClient
 	conf := meta.(*config.Config)
@@ -62,7 +63,7 @@ func resourceObsBucketPolicyPut(d *schema.ResourceData, meta interface{}) error 
 		obsClient, err = conf.ObjectStorageClient(conf.GetRegion(d))
 	}
 	if err != nil {
-		return fmt.Errorf("Error creating OBS client: %s", err)
+		return diag.Errorf("Error creating OBS client: %s", err)
 	}
 
 	bucket := d.Get("bucket").(string)
@@ -74,7 +75,7 @@ func resourceObsBucketPolicyPut(d *schema.ResourceData, meta interface{}) error 
 		Policy: policy,
 	}
 	if _, err = obsClient.SetBucketPolicy(params); err != nil {
-		return getObsError("Error setting OBS bucket policy", bucket, err)
+		return diag.FromErr(getObsError("Error setting OBS bucket policy", bucket, err))
 	}
 
 	// seem bucket as the policy id
@@ -82,7 +83,7 @@ func resourceObsBucketPolicyPut(d *schema.ResourceData, meta interface{}) error 
 	return nil
 }
 
-func resourceObsBucketPolicyRead(d *schema.ResourceData, meta interface{}) error {
+func resourceObsBucketPolicyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var err error
 	var obsClient *obs.ObsClient
 	conf := meta.(*config.Config)
@@ -95,7 +96,7 @@ func resourceObsBucketPolicyRead(d *schema.ResourceData, meta interface{}) error
 		obsClient, err = conf.ObjectStorageClient(conf.GetRegion(d))
 	}
 	if err != nil {
-		return fmt.Errorf("Error creating OBS client: %s", err)
+		return diag.Errorf("Error creating OBS client: %s", err)
 	}
 
 	// set bucket from the policy id
@@ -109,13 +110,13 @@ func resourceObsBucketPolicyRead(d *schema.ResourceData, meta interface{}) error
 		pol = output.Policy
 	}
 	if err := d.Set("policy", pol); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil
 }
 
-func resourceObsBucketPolicyDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceObsBucketPolicyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var err error
 	var obsClient *obs.ObsClient
 	conf := meta.(*config.Config)
@@ -127,7 +128,7 @@ func resourceObsBucketPolicyDelete(d *schema.ResourceData, meta interface{}) err
 		obsClient, err = conf.ObjectStorageClient(conf.GetRegion(d))
 	}
 	if err != nil {
-		return fmt.Errorf("Error creating OBS client: %s", err)
+		return diag.Errorf("Error creating OBS client: %s", err)
 	}
 
 	bucket := d.Get("bucket").(string)
@@ -135,13 +136,13 @@ func resourceObsBucketPolicyDelete(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] OBS bucket: %s, delete policy", bucket)
 	_, err = obsClient.DeleteBucketPolicy(bucket)
 	if err != nil {
-		return getObsError("Error deleting policy of OBS bucket %s: %s", bucket, err)
+		return diag.FromErr(getObsError("Error deleting policy of OBS bucket %s: %s", bucket, err))
 	}
 
 	return nil
 }
 
-func resourceObsBucketImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceObsBucketImport(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	var policyFormat = "obs"
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) == 2 {

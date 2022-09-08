@@ -2,11 +2,13 @@ package obs
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -16,12 +18,12 @@ import (
 
 func ResourceObsBucketObject() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceObsBucketObjectPut,
-		Read:   resourceObsBucketObjectRead,
-		Update: resourceObsBucketObjectPut,
-		Delete: resourceObsBucketObjectDelete,
+		CreateContext: resourceObsBucketObjectPut,
+		ReadContext:   resourceObsBucketObjectRead,
+		UpdateContext: resourceObsBucketObjectPut,
+		DeleteContext: resourceObsBucketObjectDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceObsBucketObjectImport,
+			StateContext: resourceObsBucketObjectImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -107,14 +109,14 @@ func ResourceObsBucketObject() *schema.Resource {
 	}
 }
 
-func resourceObsBucketObjectPut(d *schema.ResourceData, meta interface{}) error {
+func resourceObsBucketObjectPut(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var resp *obs.PutObjectOutput
 	var err error
 
 	conf := meta.(*config.Config)
 	obsClient, err := conf.ObjectStorageClient(conf.GetRegion(d))
 	if err != nil {
-		return fmt.Errorf("Error creating OBS client: %s", err)
+		return diag.Errorf("Error creating OBS client: %s", err)
 	}
 
 	bucket := d.Get("bucket").(string)
@@ -122,9 +124,9 @@ func resourceObsBucketObjectPut(d *schema.ResourceData, meta interface{}) error 
 	_, err = obsClient.HeadBucket(bucket)
 	if err != nil {
 		if obsError, ok := err.(obs.ObsError); ok && obsError.StatusCode == 404 {
-			return fmt.Errorf("OBS bucket(%s) not found", bucket)
+			return diag.Errorf("OBS bucket(%s) not found", bucket)
 		}
-		return fmt.Errorf("error reading OBS bucket %s: %s", bucket, err)
+		return diag.Errorf("error reading OBS bucket %s: %s", bucket, err)
 	}
 
 	source := d.Get("source").(string)
@@ -134,9 +136,9 @@ func resourceObsBucketObjectPut(d *schema.ResourceData, meta interface{}) error 
 		_, err := os.Stat(source)
 		if err != nil {
 			if os.IsNotExist(err) {
-				return fmt.Errorf("source file %s is not exist", source)
+				return diag.Errorf("source file %s is not exist", source)
 			}
-			return err
+			return diag.FromErr(err)
 		}
 
 		// put source file
@@ -149,10 +151,10 @@ func resourceObsBucketObjectPut(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	if err != nil {
-		return getObsError("Error putting object to OBS bucket", bucket, err)
+		return diag.FromErr(getObsError("Error putting object to OBS bucket", bucket, err))
 	}
 	if resp == nil {
-		return fmt.Errorf("putting object to OBS bucket %s without null response", bucket)
+		return diag.Errorf("putting object to OBS bucket %s without null response", bucket)
 	}
 
 	log.Printf("[DEBUG] Response of putting %s to OBS Bucket %s: %#v", key, bucket, resp)
@@ -163,7 +165,7 @@ func resourceObsBucketObjectPut(d *schema.ResourceData, meta interface{}) error 
 	}
 	d.SetId(key)
 
-	return resourceObsBucketObjectRead(d, meta)
+	return resourceObsBucketObjectRead(ctx, d, meta)
 }
 
 func putContentToObject(obsClient *obs.ObsClient, d *schema.ResourceData) (*obs.PutObjectOutput, error) {
@@ -230,11 +232,11 @@ func putFileToObject(obsClient *obs.ObsClient, d *schema.ResourceData) (*obs.Put
 	return obsClient.PutFile(putInput)
 }
 
-func resourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) error {
+func resourceObsBucketObjectRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	obsClient, err := conf.ObjectStorageClient(conf.GetRegion(d))
 	if err != nil {
-		return fmt.Errorf("Error creating OBS client: %s", err)
+		return diag.Errorf("Error creating OBS client: %s", err)
 	}
 
 	bucket := d.Get("bucket").(string)
@@ -245,7 +247,7 @@ func resourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) error
 
 	resp, err := obsClient.ListObjects(input)
 	if err != nil {
-		return getObsError("Error listing objects of OBS bucket", bucket, err)
+		return diag.FromErr(getObsError("Error listing objects of OBS bucket", bucket, err))
 	}
 
 	var exist bool
@@ -276,11 +278,11 @@ func resourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) error
 	return nil
 }
 
-func resourceObsBucketObjectDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceObsBucketObjectDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	obsClient, err := conf.ObjectStorageClient(conf.GetRegion(d))
 	if err != nil {
-		return fmt.Errorf("Error creating OBS client: %s", err)
+		return diag.Errorf("Error creating OBS client: %s", err)
 	}
 
 	bucket := d.Get("bucket").(string)
@@ -293,13 +295,13 @@ func resourceObsBucketObjectDelete(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] Object %s will be deleted with all versions", key)
 	_, err = obsClient.DeleteObject(input)
 	if err != nil {
-		return getObsError("Error deleting object of OBS bucket", bucket, err)
+		return diag.FromErr(getObsError("Error deleting object of OBS bucket", bucket, err))
 	}
 
 	return nil
 }
 
-func resourceObsBucketObjectImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceObsBucketObjectImport(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
 		err := fmt.Errorf("Invalid format specified for OBS bucket object. Format must be <bucket>/<key>")

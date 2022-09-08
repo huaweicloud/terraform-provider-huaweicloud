@@ -1,10 +1,11 @@
 package obs
 
 import (
-	"fmt"
+	"context"
 	"log"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/obs"
@@ -13,7 +14,7 @@ import (
 
 func DataSourceObsBucketObject() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceObsBucketObjectRead,
+		ReadContext: dataSourceObsBucketObjectRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -61,11 +62,11 @@ func DataSourceObsBucketObject() *schema.Resource {
 
 // Attribute parameters are not returned in one interface.
 // Two interfaces need to be called to get all parameters.
-func dataSourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceObsBucketObjectRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	obsClient, err := conf.ObjectStorageClient(conf.GetRegion(d))
 	if err != nil {
-		return fmt.Errorf("Error creating OBS client: %s", err)
+		return diag.Errorf("Error creating OBS client: %s", err)
 	}
 
 	bucket := d.Get("bucket").(string)
@@ -78,7 +79,7 @@ func dataSourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) err
 		},
 	})
 	if err != nil {
-		return getObsError("Error listing objects of OBS bucket", bucket, err)
+		return diag.FromErr(getObsError("Error listing objects of OBS bucket", bucket, err))
 	}
 
 	var exist bool
@@ -91,7 +92,7 @@ func dataSourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 	if !exist {
-		return fmt.Errorf("object %s not found in bucket %s", key, bucket)
+		return diag.Errorf("object %s not found in bucket %s", key, bucket)
 	}
 
 	log.Printf("[DEBUG] Data Source Reading OBS Bucket Object %s: %#v", key, objectContent)
@@ -103,7 +104,7 @@ func dataSourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) err
 		},
 	})
 	if err != nil {
-		return getObsError("Error get object info of OBS bucket", bucket, err)
+		return diag.FromErr(getObsError("Error get object info of OBS bucket", bucket, err))
 	}
 
 	log.Printf("[DEBUG] Data Source Reading OBS Bucket Object : %#v", object)
