@@ -441,20 +441,26 @@ func resourceObsBucketRead(_ context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("Error creating OBS client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Read OBS bucket: %s", d.Id())
-	_, err = obsClient.HeadBucket(d.Id())
+	bucket := d.Id()
+	log.Printf("[DEBUG] Read OBS bucket: %s", bucket)
+	_, err = obsClient.HeadBucket(bucket)
 	if err != nil {
 		if obsError, ok := err.(obs.ObsError); ok && obsError.StatusCode == 404 {
-			log.Printf("[WARN] OBS bucket(%s) not found", d.Id())
 			d.SetId("")
-			return nil
+			return diag.Diagnostics{
+				diag.Diagnostic{
+					Severity: diag.Warning,
+					Summary:  "Resource not found",
+					Detail:   fmt.Sprintf("OBS bucket(%s) not found", bucket),
+				},
+			}
 		}
-		return diag.Errorf("error reading OBS bucket %s: %s", d.Id(), err)
+		return diag.Errorf("error reading OBS bucket %s: %s", bucket, err)
 	}
 
 	// for import case
 	if _, ok := d.GetOk("bucket"); !ok {
-		d.Set("bucket", d.Id())
+		d.Set("bucket", bucket)
 	}
 
 	d.Set("region", region)

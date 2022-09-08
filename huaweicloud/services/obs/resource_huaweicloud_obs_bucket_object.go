@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -234,7 +235,8 @@ func putFileToObject(obsClient *obs.ObsClient, d *schema.ResourceData) (*obs.Put
 
 func resourceObsBucketObjectRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	obsClient, err := conf.ObjectStorageClient(conf.GetRegion(d))
+	region := conf.GetRegion(d)
+	obsClient, err := conf.ObjectStorageClient(region)
 	if err != nil {
 		return diag.Errorf("Error creating OBS client: %s", err)
 	}
@@ -261,19 +263,33 @@ func resourceObsBucketObjectRead(_ context.Context, d *schema.ResourceData, meta
 	}
 	if !exist {
 		d.SetId("")
-		log.Printf("[WARN] object %s not found in bucket %s", key, bucket)
-		return nil
+		return diag.Diagnostics{
+			diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "Resource not found",
+				Detail:   fmt.Sprintf("object %s not found in bucket %s", key, bucket),
+			},
+		}
 	}
-	log.Printf("[DEBUG] Reading OBS Bucket Object %s: %#v", key, object)
 
+	log.Printf("[DEBUG] Reading OBS Bucket Object %s: %#v", key, object)
 	class := string(object.StorageClass)
 	if class == "" {
-		d.Set("storage_class", "STANDARD")
+		class = "STANDARD"
 	} else {
-		d.Set("storage_class", normalizeStorageClass(class))
+		class = normalizeStorageClass(class)
 	}
-	d.Set("size", object.Size)
-	d.Set("etag", strings.Trim(object.ETag, `"`))
+
+	mErr := multierror.Append(
+		d.Set("region", region),
+		d.Set("storage_class", class),
+		d.Set("size", object.Size),
+		d.Set("etag", strings.Trim(object.ETag, `"`)),
+	)
+
+	if err = mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error setting bucket object fields: %s", err)
+	}
 
 	return nil
 }

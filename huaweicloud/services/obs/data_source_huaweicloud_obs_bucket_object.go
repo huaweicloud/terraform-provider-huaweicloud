@@ -5,6 +5,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -64,7 +65,8 @@ func DataSourceObsBucketObject() *schema.Resource {
 // Two interfaces need to be called to get all parameters.
 func dataSourceObsBucketObjectRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	obsClient, err := conf.ObjectStorageClient(conf.GetRegion(d))
+	region := conf.GetRegion(d)
+	obsClient, err := conf.ObjectStorageClient(region)
 	if err != nil {
 		return diag.Errorf("Error creating OBS client: %s", err)
 	}
@@ -110,16 +112,25 @@ func dataSourceObsBucketObjectRead(_ context.Context, d *schema.ResourceData, me
 	log.Printf("[DEBUG] Data Source Reading OBS Bucket Object : %#v", object)
 
 	d.SetId(key)
-	d.Set("size", objectContent.Size)
-	d.Set("etag", strings.Trim(objectContent.ETag, `"`))
-	d.Set("version_id", object.VersionId)
-	d.Set("content_type", object.ContentType)
 
 	class := string(objectContent.StorageClass)
 	if class == "" {
-		d.Set("storage_class", "STANDARD")
+		class = "STANDARD"
 	} else {
-		d.Set("storage_class", normalizeStorageClass(class))
+		class = normalizeStorageClass(class)
+	}
+
+	mErr := multierror.Append(
+		d.Set("region", region),
+		d.Set("size", objectContent.Size),
+		d.Set("etag", strings.Trim(objectContent.ETag, `"`)),
+		d.Set("version_id", object.VersionId),
+		d.Set("content_type", object.ContentType),
+		d.Set("storage_class", class),
+	)
+
+	if err = mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error setting bucket object fields: %s", err)
 	}
 
 	return nil
