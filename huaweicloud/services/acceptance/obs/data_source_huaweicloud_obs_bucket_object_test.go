@@ -6,12 +6,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/chnsz/golangsdk/openstack/obs"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
@@ -129,11 +128,11 @@ func testAccCheckAwsObsObjectDataSourceExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Can't find Obs object data source: %s", n)
+			return fmt.Errorf("can't find OBS object data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("Obs object data source ID not set")
+			return fmt.Errorf("OBS object data source ID not set")
 		}
 
 		bucket := rs.Primary.Attributes["bucket"]
@@ -142,7 +141,7 @@ func testAccCheckAwsObsObjectDataSourceExists(n string) resource.TestCheckFunc {
 		conf := acceptance.TestAccProvider.Meta().(*config.Config)
 		obsClient, err := conf.ObjectStorageClient(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+			return fmt.Errorf("Error creating OBS client: %s", err)
 		}
 
 		respList, err := obsClient.ListObjects(&obs.ListObjectsInput{
@@ -152,7 +151,7 @@ func testAccCheckAwsObsObjectDataSourceExists(n string) resource.TestCheckFunc {
 			},
 		})
 		if err != nil {
-			return fmtp.Errorf("Error listing objects of OBS bucket", bucket, err)
+			return fmt.Errorf("Error listing objects of OBS bucket %s: %s", bucket, err)
 		}
 
 		var exist bool
@@ -163,7 +162,7 @@ func testAccCheckAwsObsObjectDataSourceExists(n string) resource.TestCheckFunc {
 			}
 		}
 		if !exist {
-			return fmtp.Errorf("object %s not found in bucket %s", key, bucket)
+			return fmt.Errorf("object %s not found in bucket %s", key, bucket)
 		}
 
 		return nil

@@ -6,12 +6,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/chnsz/golangsdk/openstack/obs"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
@@ -97,7 +96,7 @@ func testAccCheckObsBucketObjectDestroy(s *terraform.State) error {
 	conf := acceptance.TestAccProvider.Meta().(*config.Config)
 	obsClient, err := conf.ObjectStorageClient(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+		return fmt.Errorf("Error creating OBS client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -116,7 +115,7 @@ func testAccCheckObsBucketObjectDestroy(s *terraform.State) error {
 			if obsError, ok := err.(obs.ObsError); ok && obsError.Code == "NoSuchBucket" {
 				return nil
 			}
-			return fmtp.Errorf("Error listing objects of OBS bucket %s: %s", bucket, err)
+			return fmt.Errorf("Error listing objects of OBS bucket %s: %s", bucket, err)
 		}
 
 		var exist bool
@@ -127,7 +126,7 @@ func testAccCheckObsBucketObjectDestroy(s *terraform.State) error {
 			}
 		}
 		if exist {
-			return fmtp.Errorf("Resource %s still exists in bucket %s", rs.Primary.ID, bucket)
+			return fmt.Errorf("Resource %s still exists in bucket %s", rs.Primary.ID, bucket)
 		}
 	}
 
@@ -138,17 +137,17 @@ func testAccCheckObsBucketObjectExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not Found: %s", n)
+			return fmt.Errorf("Not Found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No OBS Bucket Object ID is set")
+			return fmt.Errorf("No OBS Bucket Object ID is set")
 		}
 
 		conf := acceptance.TestAccProvider.Meta().(*config.Config)
 		obsClient, err := conf.ObjectStorageClient(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+			return fmt.Errorf("Error creating OBS client: %s", err)
 		}
 
 		bucket := rs.Primary.Attributes["bucket"]
@@ -159,7 +158,7 @@ func testAccCheckObsBucketObjectExists(n string) resource.TestCheckFunc {
 
 		resp, err := obsClient.ListObjects(input)
 		if err != nil {
-			return fmtp.Errorf("Error listing objects of OBS bucket", bucket, err)
+			return fmt.Errorf("Error listing objects of OBS bucket %s: %s", bucket, err)
 		}
 
 		var exist bool
@@ -170,7 +169,7 @@ func testAccCheckObsBucketObjectExists(n string) resource.TestCheckFunc {
 			}
 		}
 		if !exist {
-			return fmtp.Errorf("Resource %s not found in bucket %s", rs.Primary.ID, bucket)
+			return fmt.Errorf("Resource %s not found in bucket %s", rs.Primary.ID, bucket)
 		}
 
 		return nil
@@ -181,14 +180,14 @@ func testAccObsBucketObjecImportStateIdFunc() resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		bucket, ok := s.RootModule().Resources["huaweicloud_obs_bucket.object_bucket"]
 		if !ok {
-			return "", fmtp.Errorf("Bucket not found: %s", bucket)
+			return "", fmt.Errorf("Bucket not found: %s", bucket)
 		}
 		object, ok := s.RootModule().Resources["huaweicloud_obs_bucket_object.object"]
 		if !ok {
-			return "", fmtp.Errorf("Object not found: %s", object)
+			return "", fmt.Errorf("Object not found: %s", object)
 		}
 		if bucket.Primary.ID == "" || object.Primary.ID == "" {
-			return "", fmtp.Errorf("resource not found: %s/%s", bucket.Primary.ID, object.Primary.ID)
+			return "", fmt.Errorf("resource not found: %s/%s", bucket.Primary.ID, object.Primary.ID)
 		}
 		return fmt.Sprintf("%s/%s", bucket.Primary.ID, object.Primary.ID), nil
 	}

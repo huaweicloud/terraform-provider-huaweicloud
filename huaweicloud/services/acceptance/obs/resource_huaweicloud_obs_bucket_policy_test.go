@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/obs"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccObsBucketPolicy_basic(t *testing.T) {
@@ -127,11 +127,11 @@ func testAccCheckObsBucketHasPolicy(n string, expectedPolicyText string) resourc
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No OBS Bucket ID is set")
+			return fmt.Errorf("No OBS Bucket ID is set")
 		}
 
 		var err error
@@ -145,17 +145,17 @@ func testAccCheckObsBucketHasPolicy(n string, expectedPolicyText string) resourc
 			obsClient, err = conf.ObjectStorageClient(acceptance.HW_REGION_NAME)
 		}
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+			return fmt.Errorf("Error creating OBS client: %s", err)
 		}
 
 		policy, err := obsClient.GetBucketPolicy(rs.Primary.ID)
 		if err != nil {
-			return fmtp.Errorf("GetBucketPolicy error: %v", err)
+			return fmt.Errorf("GetBucketPolicy error: %v", err)
 		}
 
 		actualPolicyText := policy.Policy
 		if actualPolicyText != expectedPolicyText {
-			return fmtp.Errorf("non-equivalent policy error:\n\nexpected: %s\n\n     got: %s",
+			return fmt.Errorf("non-equivalent policy error:\n\nexpected: %s\n\n     got: %s",
 				expectedPolicyText, actualPolicyText)
 		}
 
@@ -167,7 +167,7 @@ func testAccOBSPolicyImportStateIDFunc() resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		policyRes, ok := s.RootModule().Resources["huaweicloud_obs_bucket_policy.s3_policy"]
 		if !ok {
-			return "", fmtp.Errorf("huaweicloud_obs_bucket_policy resource not found")
+			return "", fmt.Errorf("resource not found")
 		}
 
 		return fmt.Sprintf("%s/s3", policyRes.Primary.ID), nil

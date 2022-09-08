@@ -4,14 +4,13 @@ import (
 	"context"
 	"errors"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/obs"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func DataSourceObsBuckets() *schema.Resource {
@@ -67,14 +66,14 @@ func dataSourceObsBucketsRead(_ context.Context, d *schema.ResourceData, meta in
 	conf := meta.(*config.Config)
 	client, err := conf.ObjectStorageClient(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud OBS client: %s", err)
+		return diag.Errorf("Error creating OBS client: %s", err)
 	}
 	r, err := client.ListBuckets(&obs.ListBucketsInput{
 		BucketType: obs.OBJECT,
 	})
 
 	if err != nil {
-		return fmtp.DiagErrorf("Error querying OBS buckets: %s", err)
+		return diag.Errorf("Error querying OBS buckets: %s", err)
 	}
 
 	ids := make([]string, 0, len(r.Buckets))
@@ -86,7 +85,7 @@ func dataSourceObsBucketsRead(_ context.Context, d *schema.ResourceData, meta in
 	for _, v := range r.Buckets {
 		metadata, err := queryMetadata(client, v.Name)
 		if err != nil && !errors.As(err, &golangsdk.ErrDefault404{}) {
-			return fmtp.DiagErrorf("Error querying OBS bucket metadata: %s", err)
+			return diag.Errorf("Error querying OBS bucket metadata: %s", err)
 		}
 
 		storageClass, enterpriseProjectID, region := "", "", ""
@@ -116,7 +115,7 @@ func dataSourceObsBucketsRead(_ context.Context, d *schema.ResourceData, meta in
 	d.SetId(hashcode.Strings(ids))
 	err = d.Set("buckets", buckets)
 	if err != nil {
-		return fmtp.DiagErrorf("error setting OBS attributes: %s", err)
+		return diag.Errorf("error setting OBS attributes: %s", err)
 	}
 	return nil
 }
