@@ -50,7 +50,6 @@ func TestAccCCIPersistentVolumeClaims_basic(t *testing.T) {
 
 func TestAccCCIPersistentVolumeClaims_obs(t *testing.T) {
 	var pvc persistentvolumeclaims.ListResp
-	rInt := acctest.RandInt()
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cci_pvc.test"
 	volumeType := "obs"
@@ -65,7 +64,7 @@ func TestAccCCIPersistentVolumeClaims_obs(t *testing.T) {
 		CheckDestroy: testAccCheckCCIPersistentVolumeClaimsDestroy(volumeType),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCIPersistentVolumeClaims_obs(rName, volumeType, rInt),
+				Config: testAccCCIPersistentVolumeClaims_obs(rName, volumeType),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCIPersistentVolumeClaimsExists(resourceName, volumeType, &pvc),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -235,9 +234,14 @@ resource "huaweicloud_cci_pvc" "test" {
 `, rName, HW_ENTERPRISE_PROJECT_ID_TEST, rName, HW_CCI_NAMESPACE, volumeType)
 }
 
-func testAccCCIPersistentVolumeClaims_obs(rName, volumeType string, suffix int) string {
+func testAccCCIPersistentVolumeClaims_obs(rName, volumeType string) string {
 	return fmt.Sprintf(`
-%s
+resource "huaweicloud_obs_bucket" "bucket" {
+  bucket                = "%s"
+  storage_class         = "STANDARD"
+  acl                   = "private"
+  enterprise_project_id = "%s"
+}
 
 resource "huaweicloud_cci_pvc" "test" {
   name        = "%s"
@@ -245,7 +249,7 @@ resource "huaweicloud_cci_pvc" "test" {
   volume_type = "%s"
   volume_id   = huaweicloud_obs_bucket.bucket.id
 }
-`, testAccObsBucket_epsId(suffix), rName, HW_CCI_NAMESPACE, volumeType)
+`, rName, HW_ENTERPRISE_PROJECT_ID_TEST, rName, HW_CCI_NAMESPACE, volumeType)
 }
 
 func testAccCCIPersistentVolumeClaims_nfs(rName, volumeType string) string {
