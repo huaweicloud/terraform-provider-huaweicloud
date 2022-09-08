@@ -16,14 +16,15 @@ import (
 )
 
 func TestAccObsBucketObject_source(t *testing.T) {
+	rInt := acctest.RandInt()
 	resourceName := "huaweicloud_obs_bucket_object.object"
+
 	tmpFile, err := ioutil.TempFile("", "tf-acc-obs-obj-source")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer os.Remove(tmpFile.Name())
 
-	rInt := acctest.RandInt()
 	// write some data to the tempfile
 	err = ioutil.WriteFile(tmpFile.Name(), []byte("initial object state"), 0644)
 	if err != nil {

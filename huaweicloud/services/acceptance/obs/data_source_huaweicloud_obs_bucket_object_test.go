@@ -25,8 +25,7 @@ func TestAccObsBucketObjectDataSource_content(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckOBS(t)
 		},
-		ProviderFactories:         acceptance.TestAccProviderFactories,
-		PreventPostDestroyRefresh: true,
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: resourceConf,
@@ -37,7 +36,7 @@ func TestAccObsBucketObjectDataSource_content(t *testing.T) {
 			{
 				Config: dataSourceConf,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAwsObsObjectDataSourceExists(dataSourceName),
+					testAccCheckObsObjectDataSourceExists(dataSourceName),
 					resource.TestCheckResourceAttr(dataSourceName, "content_type", "binary/octet-stream"),
 					resource.TestCheckResourceAttr(dataSourceName, "storage_class", "STANDARD"),
 				),
@@ -54,17 +53,16 @@ func TestAccObsBucketObjectDataSource_source(t *testing.T) {
 	}
 	defer os.Remove(tmpFile.Name())
 
-	rInt := acctest.RandInt()
-
 	// write test data to the tempfile
 	for i := 0; i < 1024; i++ {
-		_, err := tmpFile.WriteString("test obs object file storage")
+		_, err := tmpFile.WriteString("test obs object file storage\n")
 		if err != nil {
 			t.Fatal(err)
 		}
 	}
 	tmpFile.Close()
 
+	rInt := acctest.RandInt()
 	resourceConf, dataSourceConf := testAccObsBucketObjectDataSource_source(rInt, tmpFile.Name())
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -72,8 +70,7 @@ func TestAccObsBucketObjectDataSource_source(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckOBS(t)
 		},
-		ProviderFactories:         acceptance.TestAccProviderFactories,
-		PreventPostDestroyRefresh: true,
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: resourceConf,
@@ -84,7 +81,7 @@ func TestAccObsBucketObjectDataSource_source(t *testing.T) {
 			{
 				Config: dataSourceConf,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAwsObsObjectDataSourceExists(dataSourceName),
+					testAccCheckObsObjectDataSourceExists(dataSourceName),
 					resource.TestCheckResourceAttr(dataSourceName, "content_type", "binary/octet-stream"),
 					resource.TestCheckResourceAttr(dataSourceName, "storage_class", "STANDARD"),
 				),
@@ -103,8 +100,7 @@ func TestAccObsBucketObjectDataSource_allParams(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckOBS(t)
 		},
-		ProviderFactories:         acceptance.TestAccProviderFactories,
-		PreventPostDestroyRefresh: true,
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: resourceConf,
@@ -115,7 +111,7 @@ func TestAccObsBucketObjectDataSource_allParams(t *testing.T) {
 			{
 				Config: dataSourceConf,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAwsObsObjectDataSourceExists(dataSourceName),
+					testAccCheckObsObjectDataSourceExists(dataSourceName),
 					resource.TestCheckResourceAttr(dataSourceName, "content_type", "application/unknown"),
 					resource.TestCheckResourceAttr(dataSourceName, "storage_class", "STANDARD"),
 				),
@@ -124,7 +120,7 @@ func TestAccObsBucketObjectDataSource_allParams(t *testing.T) {
 	})
 }
 
-func testAccCheckAwsObsObjectDataSourceExists(n string) resource.TestCheckFunc {
+func testAccCheckObsObjectDataSourceExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
