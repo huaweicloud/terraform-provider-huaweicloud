@@ -451,7 +451,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_modelarts_notebook_images":  modelarts.DataSourceNotebookImages(),
 
 			"huaweicloud_obs_buckets":       obs.DataSourceObsBuckets(),
-			"huaweicloud_obs_bucket_object": DataSourceObsBucketObject(),
+			"huaweicloud_obs_bucket_object": obs.DataSourceObsBucketObject(),
 
 			"huaweicloud_rds_flavors":         rds.DataSourceRdsFlavor(),
 			"huaweicloud_rds_engine_versions": rds.DataSourceRdsEngineVersionsV3(),
@@ -779,9 +779,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_networking_vip":           vpc.ResourceNetworkingVip(),
 			"huaweicloud_networking_vip_associate": vpc.ResourceNetworkingVIPAssociateV2(),
 
-			"huaweicloud_obs_bucket":        ResourceObsBucket(),
-			"huaweicloud_obs_bucket_object": ResourceObsBucketObject(),
-			"huaweicloud_obs_bucket_policy": ResourceObsBucketPolicy(),
+			"huaweicloud_obs_bucket":        obs.ResourceObsBucket(),
+			"huaweicloud_obs_bucket_object": obs.ResourceObsBucketObject(),
+			"huaweicloud_obs_bucket_policy": obs.ResourceObsBucketPolicy(),
 
 			"huaweicloud_oms_migration_task": oms.ResourceMigrationTask(),
 
