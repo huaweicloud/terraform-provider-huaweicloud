@@ -407,15 +407,13 @@ func resourceVpcEIPV1Update(d *schema.ResourceData, meta interface{}) error {
 				return fmtp.Errorf("error updating bandwidth: %s", err)
 			}
 
-			// wait for order success
 			orderData, ok := order.(bandwidthsv2.PrePaid)
-			if !ok {
-				return fmtp.Errorf("error extracting order data")
-			}
-			if orderData.OrderID != "" {
+			if ok {
+				logp.Printf("[DEBUG] The orderData is: %#v", orderData)
+				// wait for order success
 				bssClient, err := config.BssV2Client(config.GetRegion(d))
 				if err != nil {
-					return fmtp.Errorf("error creating bss v2 client: %s", err)
+					return fmtp.Errorf("error creating BSS v2 client: %s", err)
 				}
 				if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutCreate)/time.Second), orderData.OrderID); err != nil {
 					return err
