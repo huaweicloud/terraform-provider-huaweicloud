@@ -97,7 +97,7 @@ func ResourceAomComponentCreate(ctx context.Context, d *schema.ResourceData, met
 	conf := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 	opts := entity2.ComponentParam{
 		Description: d.Get("description").(string),
@@ -108,6 +108,9 @@ func ResourceAomComponentCreate(ctx context.Context, d *schema.ResourceData, met
 	client.WithMethod(httpclient_go.MethodPost).WithUrl("v1/components").WithBody(opts)
 	response, err := client.Do()
 	if err != nil {
+		if strings.Contains(err.Error(), "The component name already exists.") {
+			return getCompByName(d, meta)
+		}
 		return diag.Errorf("error create Component %s: %s", opts.Name, err)
 	}
 	defer response.Body.Close()
@@ -135,7 +138,7 @@ func ResourceAomComponentRead(ctx context.Context, d *schema.ResourceData, meta 
 	conf := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 
 	client.WithMethod(httpclient_go.MethodGet).WithUrl("v1/components/" + d.Id())
@@ -175,7 +178,7 @@ func ResourceAomComponentUpdate(ctx context.Context, d *schema.ResourceData, met
 	conf := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 
 	opts := entity2.ComponentParam{
@@ -209,7 +212,7 @@ func ResourceAomComponentDelete(ctx context.Context, d *schema.ResourceData, met
 	conf := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 
 	client.WithMethod(httpclient_go.MethodDelete).WithUrl("v1/components/" + d.Id())
@@ -230,4 +233,45 @@ func ResourceAomComponentDelete(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	return diag.Errorf("error delete Component %s:  %s", d.Id(), string(body))
+}
+
+func getCompByName(d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("err creating Client: %s", err)
+	}
+
+	client.WithMethod(httpclient_go.MethodGet).WithUrl("v1/components/application/" + d.Get("model_id").(string) + "/name/" + d.Get("name").(string))
+	response, err := client.Do()
+
+	body, diags := client.CheckDeletedDiag(d, err, response, "error retrieving Component")
+	if body == nil {
+		return diags
+	}
+
+	rlt := &entity2.ComponentVo{}
+	err = json.Unmarshal(body, rlt)
+	if err != nil {
+		return diag.Errorf("error retrieving Component %s", d.Id())
+	}
+
+	d.SetId(rlt.Id)
+	mErr := multierror.Append(nil,
+		d.Set("aom_id", rlt.AomId),
+		d.Set("app_id", rlt.AppId),
+		d.Set("create_time", rlt.CreateTime),
+		d.Set("creator", rlt.Creator),
+		d.Set("description", rlt.Description),
+		d.Set("modified_time", rlt.ModifiedTime),
+		d.Set("modifier", rlt.Modifier),
+		d.Set("name", rlt.Name),
+		d.Set("register_type", rlt.RegisterType),
+		d.Set("sub_app_id", rlt.SubAppId),
+	)
+	if err := mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error setting Component fields: %s", err)
+	}
+
+	return nil
 }

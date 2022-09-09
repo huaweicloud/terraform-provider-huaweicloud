@@ -62,14 +62,14 @@ func ResourceCiRelationships() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"project_id": {
+			"resource_region": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"resource_region": {
+			"project_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 			"enterprise_project_id": {
@@ -97,13 +97,17 @@ func ResourceCiRelationships() *schema.Resource {
 	}
 }
 
-func buildResourceOpts(d *schema.ResourceData) []entity.ResourceImportDetailParam {
+func buildResourceOpts(d *schema.ResourceData, conf *config.Config) []entity.ResourceImportDetailParam {
+	projectId := d.Get("project_id").(string)
+	if projectId == "" {
+		projectId = conf.GetProjectID(conf.GetRegion(d))
+	}
 	return []entity.ResourceImportDetailParam{
 		{
 			ResourceId:     d.Get("resource_id").(string),
 			ResourceName:   d.Get("resource_name").(string),
 			ResourceRegion: d.Get("resource_region").(string),
-			ProjectId:      d.Get("project_id").(string),
+			ProjectId:      projectId,
 			EpsId:          d.Get("enterprise_project_id").(string),
 			EpsName:        d.Get("enterprise_project_name").(string),
 		},
@@ -121,12 +125,12 @@ func ResourceResourceCiRelationshipsCreate(ctx context.Context, d *schema.Resour
 	conf := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 
 	opts := entity.ResourceImportParam{
 		EnvId:     d.Get("env_id").(string),
-		Resources: buildResourceOpts(d),
+		Resources: buildResourceOpts(d, conf),
 	}
 
 	client.WithMethod(httpclient_go.MethodPut).WithUrl("v1/resource/" + d.Get("rf_resource_type").(string) +
@@ -159,7 +163,7 @@ func ResourceResourceCiRelationshipsRead(ctx context.Context, d *schema.Resource
 	cfg := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "aom", cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 
 	opts := entity.PageResourceListParam{
@@ -204,7 +208,7 @@ func ResourceResourceCiRelationshipsDelete(ctx context.Context, d *schema.Resour
 	cfg := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "aom", cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 
 	opts := entity.DeleteResourceParam{

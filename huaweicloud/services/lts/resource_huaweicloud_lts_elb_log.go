@@ -50,7 +50,7 @@ func resourceLtsElbCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	region := cfg.GetRegion(d)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "elb", region)
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
@@ -90,7 +90,7 @@ func resourceLtsElbRead(_ context.Context, d *schema.ResourceData, meta interfac
 	region := cfg.GetRegion(d)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "elb", region)
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
@@ -122,7 +122,7 @@ func resourceLtsElbDelete(_ context.Context, d *schema.ResourceData, meta interf
 	region := cfg.GetRegion(d)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "elb", region)
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
@@ -148,7 +148,7 @@ func resourceLtsElbUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	region := cfg.GetRegion(d)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "elb", region)
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"

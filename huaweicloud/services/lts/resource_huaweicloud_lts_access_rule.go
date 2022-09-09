@@ -120,7 +120,7 @@ func resourceAomMappingRuleCreate(ctx context.Context, d *schema.ResourceData, m
 	region := cfg.GetRegion(d)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", region)
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 	aomMappingRequestInfo := entity.AomMappingRequestInfo{
 		ProjectId: cfg.GetProjectID(region),
@@ -162,7 +162,7 @@ func resourceAomMappingRuleRead(_ context.Context, d *schema.ResourceData, meta 
 	region := cfg.GetRegion(d)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", region)
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
@@ -195,7 +195,7 @@ func resourceAomMappingRuleDelete(_ context.Context, d *schema.ResourceData, met
 	region := cfg.GetRegion(d)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", region)
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
@@ -220,7 +220,7 @@ func resourceAomMappingRuleUpdate(ctx context.Context, d *schema.ResourceData, m
 	region := cfg.GetRegion(d)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", region)
 	if err != nil {
-		return diag.Errorf("err creating Client； %s", err)
+		return diag.Errorf("err creating Client: %s", err)
 	}
 	Opts := entity.AomMappingRequestInfo{
 		ProjectId: cfg.GetProjectID(region),
