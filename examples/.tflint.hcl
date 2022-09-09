@@ -20,3 +20,7 @@ rule "terraform_documented_variables" {
 rule "terraform_typed_variables" {
   enabled = false
 }
+# https://github.com/terraform-linters/tflint/blob/master/docs/rules/terraform_required_version.md
+rule "terraform_required_version" {
+  enabled = false
+}
