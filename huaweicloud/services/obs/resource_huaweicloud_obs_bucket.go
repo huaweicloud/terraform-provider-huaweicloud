@@ -1,29 +1,32 @@
-package huaweicloud
+package obs
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/url"
 
-	"github.com/chnsz/golangsdk/openstack/obs"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk/openstack/obs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceObsBucket() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceObsBucketCreate,
-		Read:   resourceObsBucketRead,
-		Update: resourceObsBucketUpdate,
-		Delete: resourceObsBucketDelete,
+		CreateContext: resourceObsBucketCreate,
+		ReadContext:   resourceObsBucketRead,
+		UpdateContext: resourceObsBucketUpdate,
+		DeleteContext: resourceObsBucketDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceObsBucketImport,
+			StateContext: resourceObsBucketImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -252,7 +255,7 @@ func ResourceObsBucket() *schema.Resource {
 				},
 			},
 
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 			"force_destroy": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -309,12 +312,12 @@ func ResourceObsBucket() *schema.Resource {
 	}
 }
 
-func resourceObsBucketCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := GetRegion(d, config)
-	obsClient, err := config.ObjectStorageClient(region)
+func resourceObsBucketCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	obsClient, err := conf.ObjectStorageClient(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+		return diag.Errorf("Error creating OBS client: %s", err)
 	}
 
 	bucket := d.Get("bucket").(string)
@@ -325,232 +328,234 @@ func resourceObsBucketCreate(d *schema.ResourceData, meta interface{}) error {
 		ACL:               obs.AclType(acl),
 		StorageClass:      obs.StorageClassType(class),
 		IsFSFileInterface: d.Get("parallel_fs").(bool),
-		Epid:              GetEnterpriseProjectID(d, config),
+		Epid:              conf.GetEnterpriseProjectID(d),
 	}
 	opts.Location = region
 	if _, ok := d.GetOk("multi_az"); ok {
 		opts.AvailableZone = "3az"
 	}
 
-	logp.Printf("[DEBUG] OBS bucket create opts: %#v", opts)
+	log.Printf("[DEBUG] OBS bucket create opts: %#v", opts)
 	_, err = obsClient.CreateBucket(opts)
 	if err != nil {
-		return getObsError("Error creating bucket", bucket, err)
+		return diag.FromErr(getObsError("Error creating bucket", bucket, err))
 	}
 
 	// Assign the bucket name as the resource ID
 	d.SetId(bucket)
-	return resourceObsBucketUpdate(d, meta)
+	return resourceObsBucketUpdate(ctx, d, meta)
 }
 
-func resourceObsBucketUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := GetRegion(d, config)
-	obsClient, err := config.ObjectStorageClient(region)
+func resourceObsBucketUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	obsClient, err := conf.ObjectStorageClient(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+		return diag.Errorf("Error creating OBS client: %s", err)
 	}
 
-	obsClientWithSignature, err := config.ObjectStorageClientWithSignature(region)
+	obsClientWithSignature, err := conf.ObjectStorageClientWithSignature(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud OBS client with signature: %s", err)
+		return diag.Errorf("Error creating OBS client with signature: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Update OBS bucket %s", d.Id())
+	log.Printf("[DEBUG] Update OBS bucket %s", d.Id())
 	if d.HasChange("acl") && !d.IsNewResource() {
 		if err := resourceObsBucketAclUpdate(obsClient, d); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("storage_class") && !d.IsNewResource() {
 		if err := resourceObsBucketClassUpdate(obsClient, d); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("policy") {
-		policyClient := obsClient
-		format := d.Get("policy_format").(string)
-		if format == "obs" {
-			policyClient, err = config.ObjectStorageClientWithSignature(GetRegion(d, config))
-			if err != nil {
-				return fmtp.Errorf("Error creating HuaweiCloud OBS policy client: %s", err)
-			}
+		policyClient := obsClientWithSignature
+		if d.Get("policy_format").(string) != "obs" {
+			policyClient = obsClient
 		}
 		if err := resourceObsBucketPolicyUpdate(policyClient, d); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("tags") {
 		if err := resourceObsBucketTagsUpdate(obsClient, d); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("versioning") {
 		if err := resourceObsBucketVersioningUpdate(obsClient, d); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChanges("encryption", "kms_key_id", "kms_key_project_id") {
-		if err := resourceObsBucketEncryptionUpdate(config, obsClientWithSignature, d); err != nil {
-			return err
+		if err := resourceObsBucketEncryptionUpdate(conf, obsClientWithSignature, d); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("logging") {
 		if err := resourceObsBucketLoggingUpdate(obsClient, d); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("quota") {
 		if err := resourceObsBucketQuotaUpdate(obsClient, d); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("lifecycle_rule") {
 		if err := resourceObsBucketLifecycleUpdate(obsClient, d); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("website") {
 		if err := resourceObsBucketWebsiteUpdate(obsClient, d); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("cors_rule") {
 		if err := resourceObsBucketCorsUpdate(obsClient, d); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
-	return resourceObsBucketRead(d, meta)
+	return resourceObsBucketRead(ctx, d, meta)
 }
 
-func resourceObsBucketRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := GetRegion(d, config)
-	obsClient, err := config.ObjectStorageClient(region)
+func resourceObsBucketRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	obsClient, err := conf.ObjectStorageClient(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+		return diag.Errorf("Error creating OBS client: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Read OBS bucket: %s", d.Id())
-	_, err = obsClient.HeadBucket(d.Id())
+	bucket := d.Id()
+	log.Printf("[DEBUG] Read OBS bucket: %s", bucket)
+	_, err = obsClient.HeadBucket(bucket)
 	if err != nil {
 		if obsError, ok := err.(obs.ObsError); ok && obsError.StatusCode == 404 {
-			logp.Printf("[WARN] OBS bucket(%s) not found", d.Id())
 			d.SetId("")
-			return nil
+			return diag.Diagnostics{
+				diag.Diagnostic{
+					Severity: diag.Warning,
+					Summary:  "Resource not found",
+					Detail:   fmt.Sprintf("OBS bucket(%s) not found", bucket),
+				},
+			}
 		}
-		return fmtp.Errorf("error reading OBS bucket %s: %s", d.Id(), err)
+		return diag.Errorf("error reading OBS bucket %s: %s", bucket, err)
 	}
 
 	// for import case
 	if _, ok := d.GetOk("bucket"); !ok {
-		d.Set("bucket", d.Id())
+		d.Set("bucket", bucket)
 	}
 
 	d.Set("region", region)
-	d.Set("bucket_domain_name", bucketDomainNameWithCloud(d.Get("bucket").(string), region, config.Cloud))
+	d.Set("bucket_domain_name", bucketDomainNameWithCloud(d.Get("bucket").(string), region, conf.Cloud))
 
 	// Read storage class
 	if err := setObsBucketStorageClass(obsClient, d); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Read enterprise project id, multi_az and parallel_fs
 	if err := setObsBucketMetadata(obsClient, d); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Read the versioning
 	if err := setObsBucketVersioning(obsClient, d); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Read the encryption configuration
 	if err := setObsBucketEncryption(obsClient, d); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Read the logging configuration
 	if err := setObsBucketLogging(obsClient, d); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Read the quota
 	if err := setObsBucketQuota(obsClient, d); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Read the Lifecycle configuration
 	if err := setObsBucketLifecycleConfiguration(obsClient, d); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Read the website configuration
 	if err := setObsBucketWebsiteConfiguration(obsClient, d); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Read the CORS rules
 	if err := setObsBucketCorsRules(obsClient, d); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Read the bucket policy
 	policyClient := obsClient
 	format := d.Get("policy_format").(string)
 	if format == "obs" {
-		policyClient, err = config.ObjectStorageClientWithSignature(GetRegion(d, config))
+		policyClient, err = conf.ObjectStorageClientWithSignature(region)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud OBS policy client: %s", err)
+			return diag.Errorf("Error creating OBS policy client: %s", err)
 		}
 	}
 	if err := setObsBucketPolicy(policyClient, d); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Read the tags
 	if err := setObsBucketTags(obsClient, d); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil
 }
 
-func resourceObsBucketDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	obsClient, err := config.ObjectStorageClient(GetRegion(d, config))
+func resourceObsBucketDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	obsClient, err := conf.ObjectStorageClient(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+		return diag.Errorf("Error creating OBS client: %s", err)
 	}
 
 	bucket := d.Id()
-	logp.Printf("[DEBUG] deleting OBS Bucket: %s", bucket)
+	log.Printf("[DEBUG] deleting OBS Bucket: %s", bucket)
 	_, err = obsClient.DeleteBucket(bucket)
 	if err != nil {
 		obsError, ok := err.(obs.ObsError)
 		if ok && obsError.Code == "BucketNotEmpty" {
-			logp.Printf("[WARN] OBS bucket: %s is not empty", bucket)
+			log.Printf("[WARN] OBS bucket: %s is not empty", bucket)
 			if d.Get("force_destroy").(bool) {
 				err = deleteAllBucketObjects(obsClient, bucket)
 				if err == nil {
-					logp.Printf("[WARN] all objects of %s have been deleted, and try again", bucket)
-					return resourceObsBucketDelete(d, meta)
+					log.Printf("[WARN] all objects of %s have been deleted, and try again", bucket)
+					return resourceObsBucketDelete(ctx, d, meta)
 				}
 			}
-			return err
+			return diag.FromErr(err)
 		}
-		return fmtp.Errorf("Error deleting OBS bucket %s, %s", bucket, err)
+		return diag.Errorf("Error deleting OBS bucket %s, %s", bucket, err)
 	}
 	return nil
 }
@@ -570,7 +575,7 @@ func resourceObsBucketTagsUpdate(obsClient *obs.ObsClient, d *schema.ResourceDat
 	req := &obs.SetBucketTaggingInput{}
 	req.Bucket = bucket
 	req.Tags = tagList
-	logp.Printf("[DEBUG] set tags of OBS bucket %s: %#v", bucket, req)
+	log.Printf("[DEBUG] set tags of OBS bucket %s: %#v", bucket, req)
 
 	_, err := obsClient.SetBucketTagging(req)
 	if err != nil {
@@ -587,7 +592,7 @@ func resourceObsBucketAclUpdate(obsClient *obs.ObsClient, d *schema.ResourceData
 		Bucket: bucket,
 		ACL:    obs.AclType(acl),
 	}
-	logp.Printf("[DEBUG] set ACL of OBS bucket %s: %#v", bucket, i)
+	log.Printf("[DEBUG] set ACL of OBS bucket %s: %#v", bucket, i)
 
 	_, err := obsClient.SetBucketAcl(i)
 	if err != nil {
@@ -604,7 +609,7 @@ func resourceObsBucketPolicyUpdate(obsClient *obs.ObsClient, d *schema.ResourceD
 	policy := d.Get("policy").(string)
 
 	if policy != "" {
-		logp.Printf("[DEBUG] OBS bucket: %s, set policy: %s", bucket, policy)
+		log.Printf("[DEBUG] OBS bucket: %s, set policy: %s", bucket, policy)
 		params := &obs.SetBucketPolicyInput{
 			Bucket: bucket,
 			Policy: policy,
@@ -614,7 +619,7 @@ func resourceObsBucketPolicyUpdate(obsClient *obs.ObsClient, d *schema.ResourceD
 			return getObsError("Error setting OBS bucket policy", bucket, err)
 		}
 	} else {
-		logp.Printf("[DEBUG] OBS bucket: %s, delete policy", bucket)
+		log.Printf("[DEBUG] OBS bucket: %s, delete policy", bucket)
 		_, err := obsClient.DeleteBucketPolicy(bucket)
 		if err != nil {
 			return getObsError("Error deleting policy of OBS bucket %s: %s", bucket, err)
@@ -631,7 +636,7 @@ func resourceObsBucketClassUpdate(obsClient *obs.ObsClient, d *schema.ResourceDa
 	input := &obs.SetBucketStoragePolicyInput{}
 	input.Bucket = bucket
 	input.StorageClass = obs.StorageClassType(class)
-	logp.Printf("[DEBUG] set storage class of OBS bucket %s: %#v", bucket, input)
+	log.Printf("[DEBUG] set storage class of OBS bucket %s: %#v", bucket, input)
 
 	_, err := obsClient.SetBucketStoragePolicy(input)
 	if err != nil {
@@ -652,7 +657,7 @@ func resourceObsBucketVersioningUpdate(obsClient *obs.ObsClient, d *schema.Resou
 	} else {
 		input.Status = obs.VersioningStatusSuspended
 	}
-	logp.Printf("[DEBUG] set versioning of OBS bucket %s: %#v", bucket, input)
+	log.Printf("[DEBUG] set versioning of OBS bucket %s: %#v", bucket, input)
 
 	_, err := obsClient.SetBucketVersioning(input)
 	if err != nil {
@@ -677,7 +682,7 @@ func resourceObsBucketEncryptionUpdate(config *config.Config, obsClient *obs.Obs
 			input.ProjectID = config.GetProjectID(config.GetRegion(d))
 		}
 
-		logp.Printf("[DEBUG] enable default encryption of OBS bucket %s: %#v", bucket, input)
+		log.Printf("[DEBUG] enable default encryption of OBS bucket %s: %#v", bucket, input)
 		_, err := obsClient.SetBucketEncryption(input)
 		if err != nil {
 			return getObsError("failed to enable default encryption of OBS bucket", bucket, err)
@@ -708,7 +713,7 @@ func resourceObsBucketLoggingUpdate(obsClient *obs.ObsClient, d *schema.Resource
 			loggingStatus.TargetPrefix = val
 		}
 	}
-	logp.Printf("[DEBUG] set logging of OBS bucket %s: %#v", bucket, loggingStatus)
+	log.Printf("[DEBUG] set logging of OBS bucket %s: %#v", bucket, loggingStatus)
 
 	_, err := obsClient.SetBucketLoggingConfiguration(loggingStatus)
 	if err != nil {
@@ -739,7 +744,7 @@ func resourceObsBucketLifecycleUpdate(obsClient *obs.ObsClient, d *schema.Resour
 	lifecycleRules := d.Get("lifecycle_rule").([]interface{})
 
 	if len(lifecycleRules) == 0 {
-		logp.Printf("[DEBUG] remove all lifecycle rules of bucket %s", bucket)
+		log.Printf("[DEBUG] remove all lifecycle rules of bucket %s", bucket)
 		_, err := obsClient.DeleteBucketLifecycleConfiguration(bucket)
 		if err != nil {
 			return getObsError("Error deleting lifecycle rules of OBS bucket", bucket, err)
@@ -820,7 +825,7 @@ func resourceObsBucketLifecycleUpdate(obsClient *obs.ObsClient, d *schema.Resour
 	opts := &obs.SetBucketLifecycleConfigurationInput{}
 	opts.Bucket = bucket
 	opts.LifecycleRules = rules
-	logp.Printf("[DEBUG] set lifecycle configurations of OBS bucket %s: %#v", bucket, opts)
+	log.Printf("[DEBUG] set lifecycle configurations of OBS bucket %s: %#v", bucket, opts)
 
 	_, err := obsClient.SetBucketLifecycleConfiguration(opts)
 	if err != nil {
@@ -844,7 +849,7 @@ func resourceObsBucketWebsiteUpdate(obsClient *obs.ObsClient, d *schema.Resource
 	} else if len(ws) == 0 {
 		return resourceObsBucketWebsiteDelete(obsClient, d)
 	} else {
-		return fmtp.Errorf("Cannot specify more than one website.")
+		return fmt.Errorf("cannot specify more than one website")
 	}
 }
 
@@ -854,7 +859,7 @@ func resourceObsBucketCorsUpdate(obsClient *obs.ObsClient, d *schema.ResourceDat
 
 	if len(rawCors) == 0 {
 		// Delete CORS
-		logp.Printf("[DEBUG] delete CORS rules of OBS bucket: %s", bucket)
+		log.Printf("[DEBUG] delete CORS rules of OBS bucket: %s", bucket)
 		_, err := obsClient.DeleteBucketCors(bucket)
 		if err != nil {
 			return getObsError("Error deleting CORS rules of OBS bucket", bucket, err)
@@ -887,14 +892,14 @@ func resourceObsBucketCorsUpdate(obsClient *obs.ObsClient, d *schema.ResourceDat
 				}
 			}
 		}
-		logp.Printf("[DEBUG] set CORS of OBS bucket %s: %#v", bucket, r)
+		log.Printf("[DEBUG] set CORS of OBS bucket %s: %#v", bucket, r)
 		rules = append(rules, r)
 	}
 
 	corsInput := &obs.SetBucketCorsInput{}
 	corsInput.Bucket = bucket
 	corsInput.CorsRules = rules
-	logp.Printf("[DEBUG] OBS bucket: %s, put CORS: %#v", bucket, corsInput)
+	log.Printf("[DEBUG] OBS bucket: %s, put CORS: %#v", bucket, corsInput)
 
 	_, err := obsClient.SetBucketCors(corsInput)
 	if err != nil {
@@ -921,7 +926,7 @@ func resourceObsBucketWebsitePut(obsClient *obs.ObsClient, d *schema.ResourceDat
 	}
 
 	if indexDocument == "" && redirectAllRequestsTo == "" {
-		return fmtp.Errorf("Must specify either index_document or redirect_all_requests_to.")
+		return fmt.Errorf("Must specify either index_document or redirect_all_requests_to")
 	}
 
 	websiteConfiguration := &obs.SetBucketWebsiteConfigurationInput{}
@@ -966,7 +971,7 @@ func resourceObsBucketWebsitePut(obsClient *obs.ObsClient, d *schema.ResourceDat
 		websiteConfiguration.RoutingRules = unmarshaledRules
 	}
 
-	logp.Printf("[DEBUG] set website configuration of OBS bucket %s: %#v", bucket, websiteConfiguration)
+	log.Printf("[DEBUG] set website configuration of OBS bucket %s: %#v", bucket, websiteConfiguration)
 	_, err := obsClient.SetBucketWebsiteConfiguration(websiteConfiguration)
 	if err != nil {
 		return getObsError("Error updating website configuration of OBS bucket", bucket, err)
@@ -978,7 +983,7 @@ func resourceObsBucketWebsitePut(obsClient *obs.ObsClient, d *schema.ResourceDat
 func resourceObsBucketWebsiteDelete(obsClient *obs.ObsClient, d *schema.ResourceData) error {
 	bucket := d.Get("bucket").(string)
 
-	logp.Printf("[DEBUG] delete website configuration of OBS bucket %s", bucket)
+	log.Printf("[DEBUG] delete website configuration of OBS bucket %s", bucket)
 	_, err := obsClient.DeleteBucketWebsiteConfiguration(bucket)
 	if err != nil {
 		return getObsError("Error deleting website configuration of OBS bucket", bucket, err)
@@ -991,10 +996,10 @@ func setObsBucketStorageClass(obsClient *obs.ObsClient, d *schema.ResourceData) 
 	bucket := d.Id()
 	output, err := obsClient.GetBucketStoragePolicy(bucket)
 	if err != nil {
-		logp.Printf("[WARN] Error getting storage class of OBS bucket %s: %s", bucket, err)
+		log.Printf("[WARN] Error getting storage class of OBS bucket %s: %s", bucket, err)
 	} else {
 		class := string(output.StorageClass)
-		logp.Printf("[DEBUG] getting storage class of OBS bucket %s: %s", bucket, class)
+		log.Printf("[DEBUG] getting storage class of OBS bucket %s: %s", bucket, class)
 		d.Set("storage_class", normalizeStorageClass(class))
 	}
 
@@ -1010,7 +1015,7 @@ func setObsBucketMetadata(obsClient *obs.ObsClient, d *schema.ResourceData) erro
 	if err != nil {
 		return getObsError("Error getting metadata of OBS bucket", bucket, err)
 	}
-	logp.Printf("[DEBUG] getting metadata of OBS bucket %s: %#v", bucket, output)
+	log.Printf("[DEBUG] getting metadata of OBS bucket %s: %#v", bucket, output)
 
 	d.Set("enterprise_project_id", output.Epid)
 
@@ -1039,14 +1044,14 @@ func setObsBucketPolicy(obsClient *obs.ObsClient, d *schema.ResourceData) error 
 				d.Set("policy", nil)
 				return nil
 			}
-			return fmtp.Errorf("Error getting policy of OBS bucket %s: %s,\n Reason: %s",
+			return fmt.Errorf("Error getting policy of OBS bucket %s: %s,\n Reason: %s",
 				bucket, obsError.Code, obsError.Message)
 		}
 		return err
 	}
 
 	pol := output.Policy
-	logp.Printf("[DEBUG] getting policy of OBS bucket %s: %s", bucket, pol)
+	log.Printf("[DEBUG] getting policy of OBS bucket %s: %s", bucket, pol)
 	d.Set("policy", pol)
 
 	return nil
@@ -1059,7 +1064,7 @@ func setObsBucketVersioning(obsClient *obs.ObsClient, d *schema.ResourceData) er
 		return getObsError("Error getting versioning status of OBS bucket", bucket, err)
 	}
 
-	logp.Printf("[DEBUG] getting versioning status of OBS bucket %s: %s", bucket, output.Status)
+	log.Printf("[DEBUG] getting versioning status of OBS bucket %s: %s", bucket, output.Status)
 	if output.Status == obs.VersioningStatusEnabled {
 		d.Set("versioning", true)
 	} else {
@@ -1080,13 +1085,13 @@ func setObsBucketEncryption(obsClient *obs.ObsClient, d *schema.ResourceData) er
 				d.Set("kms_key_project_id", nil)
 				return nil
 			}
-			return fmtp.Errorf("Error getting encryption configuration of OBS bucket %s: %s,\n Reason: %s",
+			return fmt.Errorf("Error getting encryption configuration of OBS bucket %s: %s,\n Reason: %s",
 				bucket, obsError.Code, obsError.Message)
 		}
 		return err
 	}
 
-	logp.Printf("[DEBUG] getting encryption configuration of OBS bucket %s: %+v", bucket, output.BucketEncryptionConfiguration)
+	log.Printf("[DEBUG] getting encryption configuration of OBS bucket %s: %+v", bucket, output.BucketEncryptionConfiguration)
 	if output.SSEAlgorithm != "" {
 		d.Set("encryption", true)
 		d.Set("kms_key_id", output.KMSMasterKeyID)
@@ -1117,10 +1122,10 @@ func setObsBucketLogging(obsClient *obs.ObsClient, d *schema.ResourceData) error
 		}
 		lcList = append(lcList, logging)
 	}
-	logp.Printf("[DEBUG] getting logging configuration of OBS bucket %s: %#v", bucket, lcList)
+	log.Printf("[DEBUG] getting logging configuration of OBS bucket %s: %#v", bucket, lcList)
 
 	if err := d.Set("logging", lcList); err != nil {
-		return fmtp.Errorf("Error saving logging configuration of OBS bucket %s: %s", bucket, err)
+		return fmt.Errorf("Error saving logging configuration of OBS bucket %s: %s", bucket, err)
 	}
 
 	return nil
@@ -1133,7 +1138,7 @@ func setObsBucketQuota(obsClient *obs.ObsClient, d *schema.ResourceData) error {
 		return getObsError("Error getting quota of OBS bucket", bucket, err)
 	}
 
-	logp.Printf("[DEBUG] getting quota of OBS bucket %s: %d", bucket, output.Quota)
+	log.Printf("[DEBUG] getting quota of OBS bucket %s: %d", bucket, output.Quota)
 
 	d.Set("quota", output.Quota)
 
@@ -1149,14 +1154,14 @@ func setObsBucketLifecycleConfiguration(obsClient *obs.ObsClient, d *schema.Reso
 				d.Set("lifecycle_rule", nil)
 				return nil
 			}
-			return fmtp.Errorf("Error getting lifecycle configuration of OBS bucket %s: %s,\n Reason: %s",
+			return fmt.Errorf("Error getting lifecycle configuration of OBS bucket %s: %s,\n Reason: %s",
 				bucket, obsError.Code, obsError.Message)
 		}
 		return err
 	}
 
 	rawRules := output.LifecycleRules
-	logp.Printf("[DEBUG] getting original lifecycle configuration of OBS bucket %s, lifecycle: %#v", bucket, rawRules)
+	log.Printf("[DEBUG] getting original lifecycle configuration of OBS bucket %s, lifecycle: %#v", bucket, rawRules)
 
 	rules := make([]map[string]interface{}, 0, len(rawRules))
 	for _, lifecycleRule := range rawRules {
@@ -1214,9 +1219,9 @@ func setObsBucketLifecycleConfiguration(obsClient *obs.ObsClient, d *schema.Reso
 		rules = append(rules, rule)
 	}
 
-	logp.Printf("[DEBUG] saving lifecycle configuration of OBS bucket %s, lifecycle: %#v", bucket, rules)
+	log.Printf("[DEBUG] saving lifecycle configuration of OBS bucket %s, lifecycle: %#v", bucket, rules)
 	if err := d.Set("lifecycle_rule", rules); err != nil {
-		return fmtp.Errorf("Error saving lifecycle configuration of OBS bucket %s: %s", bucket, err)
+		return fmt.Errorf("Error saving lifecycle configuration of OBS bucket %s: %s", bucket, err)
 	}
 
 	return nil
@@ -1231,13 +1236,13 @@ func setObsBucketWebsiteConfiguration(obsClient *obs.ObsClient, d *schema.Resour
 				d.Set("website", nil)
 				return nil
 			}
-			return fmtp.Errorf("Error getting website configuration of OBS bucket %s: %s,\n Reason: %s",
+			return fmt.Errorf("Error getting website configuration of OBS bucket %s: %s,\n Reason: %s",
 				bucket, obsError.Code, obsError.Message)
 		}
 		return err
 	}
 
-	logp.Printf("[DEBUG] getting original website configuration of OBS bucket %s, output: %#v", bucket, output.BucketWebsiteConfiguration)
+	log.Printf("[DEBUG] getting original website configuration of OBS bucket %s, output: %#v", bucket, output.BucketWebsiteConfiguration)
 	var websites []map[string]interface{}
 	w := make(map[string]interface{})
 
@@ -1272,15 +1277,15 @@ func setObsBucketWebsiteConfiguration(obsClient *obs.ObsClient, d *schema.Resour
 	if len(rawRules) > 0 {
 		rr, err := normalizeWebsiteRoutingRules(rawRules)
 		if err != nil {
-			return fmtp.Errorf("Error while marshaling website routing rules: %s", err)
+			return fmt.Errorf("Error while marshaling website routing rules: %s", err)
 		}
 		w["routing_rules"] = rr
 	}
 
 	websites = append(websites, w)
-	logp.Printf("[DEBUG] saving website configuration of OBS bucket %s, website: %#v", bucket, websites)
+	log.Printf("[DEBUG] saving website configuration of OBS bucket %s, website: %#v", bucket, websites)
 	if err := d.Set("website", websites); err != nil {
-		return fmtp.Errorf("Error saving website configuration of OBS bucket %s: %s", bucket, err)
+		return fmt.Errorf("Error saving website configuration of OBS bucket %s: %s", bucket, err)
 	}
 	return nil
 }
@@ -1294,14 +1299,14 @@ func setObsBucketCorsRules(obsClient *obs.ObsClient, d *schema.ResourceData) err
 				d.Set("cors_rule", nil)
 				return nil
 			}
-			return fmtp.Errorf("Error getting CORS configuration of OBS bucket %s: %s,\n Reason: %s",
+			return fmt.Errorf("Error getting CORS configuration of OBS bucket %s: %s,\n Reason: %s",
 				bucket, obsError.Code, obsError.Message)
 		}
 		return err
 	}
 
 	corsRules := output.CorsRules
-	logp.Printf("[DEBUG] getting original CORS rules of OBS bucket %s, CORS: %#v", bucket, corsRules)
+	log.Printf("[DEBUG] getting original CORS rules of OBS bucket %s, CORS: %#v", bucket, corsRules)
 
 	rules := make([]map[string]interface{}, 0, len(corsRules))
 	for _, ruleObject := range corsRules {
@@ -1319,9 +1324,9 @@ func setObsBucketCorsRules(obsClient *obs.ObsClient, d *schema.ResourceData) err
 		rules = append(rules, rule)
 	}
 
-	logp.Printf("[DEBUG] saving CORS rules of OBS bucket %s, CORS: %#v", bucket, rules)
+	log.Printf("[DEBUG] saving CORS rules of OBS bucket %s, CORS: %#v", bucket, rules)
 	if err := d.Set("cors_rule", rules); err != nil {
-		return fmtp.Errorf("Error saving CORS rules of OBS bucket %s: %s", bucket, err)
+		return fmt.Errorf("Error saving CORS rules of OBS bucket %s: %s", bucket, err)
 	}
 
 	return nil
@@ -1336,7 +1341,7 @@ func setObsBucketTags(obsClient *obs.ObsClient, d *schema.ResourceData) error {
 				d.Set("tags", nil)
 				return nil
 			}
-			return fmtp.Errorf("Error getting tags of OBS bucket %s: %s,\n Reason: %s",
+			return fmt.Errorf("Error getting tags of OBS bucket %s: %s,\n Reason: %s",
 				bucket, obsError.Code, obsError.Message)
 		}
 		return err
@@ -1346,9 +1351,9 @@ func setObsBucketTags(obsClient *obs.ObsClient, d *schema.ResourceData) error {
 	for _, tag := range output.Tags {
 		tagmap[tag.Key] = tag.Value
 	}
-	logp.Printf("[DEBUG] getting tags of OBS bucket %s: %#v", bucket, tagmap)
+	log.Printf("[DEBUG] getting tags of OBS bucket %s: %#v", bucket, tagmap)
 	if err := d.Set("tags", tagmap); err != nil {
-		return fmtp.Errorf("Error saving tags of OBS bucket %s: %s", bucket, err)
+		return fmt.Errorf("Error saving tags of OBS bucket %s: %s", bucket, err)
 	}
 	return nil
 }
@@ -1372,13 +1377,13 @@ func deleteAllBucketObjects(obsClient *obs.ObsClient, bucket string) error {
 		Bucket:  bucket,
 		Objects: objects,
 	}
-	logp.Printf("[DEBUG] objects of %s will be deleted: %v", bucket, objects)
+	log.Printf("[DEBUG] objects of %s will be deleted: %v", bucket, objects)
 	output, err := obsClient.DeleteObjects(deleteOpts)
 	if err != nil {
 		return getObsError("Error deleting all objects of OBS bucket", bucket, err)
 	}
 	if len(output.Errors) > 0 {
-		return fmtp.Errorf("Error some objects are still exist in %s: %#v", bucket, output.Errors)
+		return fmt.Errorf("Error some objects are still exist in %s: %#v", bucket, output.Errors)
 	}
 	return nil
 }
@@ -1398,7 +1403,7 @@ func expirationHash(v interface{}) int {
 
 func getObsError(action string, bucket string, err error) error {
 	if obsError, ok := err.(obs.ObsError); ok {
-		return fmtp.Errorf("%s %s: %s,\n Reason: %s", action, bucket, obsError.Code, obsError.Message)
+		return fmt.Errorf("%s %s: %s,\n Reason: %s", action, bucket, obsError.Code, obsError.Message)
 	}
 	return err
 }

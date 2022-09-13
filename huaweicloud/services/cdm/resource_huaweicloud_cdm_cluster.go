@@ -292,8 +292,8 @@ func resourceCdmClusterRead(_ context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating CDM v1 client, err=%s", err)
 	}
 
-	detail, gErr := clusters.Get(client, d.Id())
-	if gErr != nil {
+	detail, err := clusters.Get(client, d.Id())
+	if err != nil {
 		return common.CheckDeletedDiag(d, err, "Error retrieving CDM cluster")
 	}
 

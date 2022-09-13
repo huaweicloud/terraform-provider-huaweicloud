@@ -1,19 +1,21 @@
-package huaweicloud
+package obs
 
 import (
+	"context"
+	"log"
 	"strings"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/obs"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func DataSourceObsBucketObject() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceObsBucketObjectRead,
+		ReadContext: dataSourceObsBucketObjectRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -61,11 +63,12 @@ func DataSourceObsBucketObject() *schema.Resource {
 
 // Attribute parameters are not returned in one interface.
 // Two interfaces need to be called to get all parameters.
-func dataSourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	obsClient, err := config.ObjectStorageClient(GetRegion(d, config))
+func dataSourceObsBucketObjectRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	obsClient, err := conf.ObjectStorageClient(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+		return diag.Errorf("Error creating OBS client: %s", err)
 	}
 
 	bucket := d.Get("bucket").(string)
@@ -78,7 +81,7 @@ func dataSourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) err
 		},
 	})
 	if err != nil {
-		return getObsError("Error listing objects of OBS bucket", bucket, err)
+		return diag.FromErr(getObsError("Error listing objects of OBS bucket", bucket, err))
 	}
 
 	var exist bool
@@ -91,10 +94,10 @@ func dataSourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 	if !exist {
-		return fmtp.Errorf("object %s not found in bucket %s", key, bucket)
+		return diag.Errorf("object %s not found in bucket %s", key, bucket)
 	}
 
-	logp.Printf("[DEBUG] Data Source Reading OBS Bucket Object %s: %#v", key, objectContent)
+	log.Printf("[DEBUG] Data Source Reading OBS Bucket Object %s: %#v", key, objectContent)
 
 	object, err := obsClient.GetObject(&obs.GetObjectInput{
 		GetObjectMetadataInput: obs.GetObjectMetadataInput{
@@ -103,22 +106,31 @@ func dataSourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) err
 		},
 	})
 	if err != nil {
-		return getObsError("Error get object info of OBS bucket", bucket, err)
+		return diag.FromErr(getObsError("Error get object info of OBS bucket", bucket, err))
 	}
 
-	logp.Printf("[DEBUG] Data Source Reading OBS Bucket Object : %#v", object)
+	log.Printf("[DEBUG] Data Source Reading OBS Bucket Object : %#v", object)
 
 	d.SetId(key)
-	d.Set("size", objectContent.Size)
-	d.Set("etag", strings.Trim(objectContent.ETag, `"`))
-	d.Set("version_id", object.VersionId)
-	d.Set("content_type", object.ContentType)
 
 	class := string(objectContent.StorageClass)
 	if class == "" {
-		d.Set("storage_class", "STANDARD")
+		class = "STANDARD"
 	} else {
-		d.Set("storage_class", normalizeStorageClass(class))
+		class = normalizeStorageClass(class)
+	}
+
+	mErr := multierror.Append(
+		d.Set("region", region),
+		d.Set("size", objectContent.Size),
+		d.Set("etag", strings.Trim(objectContent.ETag, `"`)),
+		d.Set("version_id", object.VersionId),
+		d.Set("content_type", object.ContentType),
+		d.Set("storage_class", class),
+	)
+
+	if err = mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error setting bucket object fields: %s", err)
 	}
 
 	return nil

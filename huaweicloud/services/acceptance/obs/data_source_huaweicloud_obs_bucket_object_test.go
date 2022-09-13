@@ -1,4 +1,4 @@
-package huaweicloud
+package obs
 
 import (
 	"fmt"
@@ -6,13 +6,13 @@ import (
 	"os"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/chnsz/golangsdk/openstack/obs"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccObsBucketObjectDataSource_content(t *testing.T) {
@@ -21,9 +21,11 @@ func TestAccObsBucketObjectDataSource_content(t *testing.T) {
 	resourceConf, dataSourceConf := testAccObsBucketObjectDataSource_content(rInt)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:                  func() { testAccPreCheckOBS(t) },
-		Providers:                 testAccProviders,
-		PreventPostDestroyRefresh: true,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: resourceConf,
@@ -34,7 +36,7 @@ func TestAccObsBucketObjectDataSource_content(t *testing.T) {
 			{
 				Config: dataSourceConf,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAwsObsObjectDataSourceExists(dataSourceName),
+					testAccCheckObsObjectDataSourceExists(dataSourceName),
 					resource.TestCheckResourceAttr(dataSourceName, "content_type", "binary/octet-stream"),
 					resource.TestCheckResourceAttr(dataSourceName, "storage_class", "STANDARD"),
 				),
@@ -51,23 +53,24 @@ func TestAccObsBucketObjectDataSource_source(t *testing.T) {
 	}
 	defer os.Remove(tmpFile.Name())
 
-	rInt := acctest.RandInt()
-
 	// write test data to the tempfile
 	for i := 0; i < 1024; i++ {
-		_, err := tmpFile.WriteString("test obs object file storage")
+		_, err := tmpFile.WriteString("test obs object file storage\n")
 		if err != nil {
 			t.Fatal(err)
 		}
 	}
 	tmpFile.Close()
 
+	rInt := acctest.RandInt()
 	resourceConf, dataSourceConf := testAccObsBucketObjectDataSource_source(rInt, tmpFile.Name())
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:                  func() { testAccPreCheckOBS(t) },
-		Providers:                 testAccProviders,
-		PreventPostDestroyRefresh: true,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: resourceConf,
@@ -78,7 +81,7 @@ func TestAccObsBucketObjectDataSource_source(t *testing.T) {
 			{
 				Config: dataSourceConf,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAwsObsObjectDataSourceExists(dataSourceName),
+					testAccCheckObsObjectDataSourceExists(dataSourceName),
 					resource.TestCheckResourceAttr(dataSourceName, "content_type", "binary/octet-stream"),
 					resource.TestCheckResourceAttr(dataSourceName, "storage_class", "STANDARD"),
 				),
@@ -93,9 +96,11 @@ func TestAccObsBucketObjectDataSource_allParams(t *testing.T) {
 	resourceConf, dataSourceConf := testAccObsBucketObjectDataSource_allParams(rInt)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:                  func() { testAccPreCheckOBS(t) },
-		Providers:                 testAccProviders,
-		PreventPostDestroyRefresh: true,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: resourceConf,
@@ -106,7 +111,7 @@ func TestAccObsBucketObjectDataSource_allParams(t *testing.T) {
 			{
 				Config: dataSourceConf,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAwsObsObjectDataSourceExists(dataSourceName),
+					testAccCheckObsObjectDataSourceExists(dataSourceName),
 					resource.TestCheckResourceAttr(dataSourceName, "content_type", "application/unknown"),
 					resource.TestCheckResourceAttr(dataSourceName, "storage_class", "STANDARD"),
 				),
@@ -115,24 +120,24 @@ func TestAccObsBucketObjectDataSource_allParams(t *testing.T) {
 	})
 }
 
-func testAccCheckAwsObsObjectDataSourceExists(n string) resource.TestCheckFunc {
+func testAccCheckObsObjectDataSourceExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Can't find Obs object data source: %s", n)
+			return fmt.Errorf("can't find OBS object data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("Obs object data source ID not set")
+			return fmt.Errorf("OBS object data source ID not set")
 		}
 
 		bucket := rs.Primary.Attributes["bucket"]
 		key := rs.Primary.Attributes["key"]
 
-		config := testAccProvider.Meta().(*config.Config)
-		obsClient, err := config.ObjectStorageClient(HW_REGION_NAME)
+		conf := acceptance.TestAccProvider.Meta().(*config.Config)
+		obsClient, err := conf.ObjectStorageClient(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+			return fmt.Errorf("Error creating OBS client: %s", err)
 		}
 
 		respList, err := obsClient.ListObjects(&obs.ListObjectsInput{
@@ -142,7 +147,7 @@ func testAccCheckAwsObsObjectDataSourceExists(n string) resource.TestCheckFunc {
 			},
 		})
 		if err != nil {
-			return getObsError("Error listing objects of OBS bucket", bucket, err)
+			return fmt.Errorf("Error listing objects of OBS bucket %s: %s", bucket, err)
 		}
 
 		var exist bool
@@ -153,7 +158,7 @@ func testAccCheckAwsObsObjectDataSourceExists(n string) resource.TestCheckFunc {
 			}
 		}
 		if !exist {
-			return fmtp.Errorf("object %s not found in bucket %s", key, bucket)
+			return fmt.Errorf("object %s not found in bucket %s", key, bucket)
 		}
 
 		return nil

@@ -137,10 +137,12 @@ func TestAccVpcEIP_WithEpsId(t *testing.T) {
 }
 
 func TestAccVpcEIP_prePaid(t *testing.T) {
-	var eip eips.PublicIp
-
-	randName := acceptance.RandomAccResourceNameWithDash()
-	resourceName := "huaweicloud_vpc_eip.test"
+	var (
+		eip          eips.PublicIp
+		randName     = acceptance.RandomAccResourceNameWithDash()
+		udpateName   = acceptance.RandomAccResourceNameWithDash()
+		resourceName = "huaweicloud_vpc_eip.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -157,7 +159,7 @@ func TestAccVpcEIP_prePaid(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVpcEip_prePaid(randName),
+				Config: testAccVpcEip_prePaid(randName, 5),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "status", "UNBOUND"),
@@ -165,6 +167,49 @@ func TestAccVpcEIP_prePaid(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.name", randName),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
 					resource.TestCheckResourceAttr(resourceName, "period_unit", "month"),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.size", "5"),
+					resource.TestCheckResourceAttrSet(resourceName, "bandwidth.0.id"),
+					resource.TestCheckResourceAttrSet(resourceName, "address"),
+				),
+			},
+			{
+				Config: testAccVpcEip_prePaid(udpateName, 5),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "status", "UNBOUND"),
+					resource.TestCheckResourceAttr(resourceName, "publicip.0.type", "5_bgp"),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.name", udpateName),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttr(resourceName, "period_unit", "month"),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.size", "5"),
+					resource.TestCheckResourceAttrSet(resourceName, "bandwidth.0.id"),
+					resource.TestCheckResourceAttrSet(resourceName, "address"),
+				),
+			},
+			{
+				Config: testAccVpcEip_prePaid(udpateName, 6),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "status", "UNBOUND"),
+					resource.TestCheckResourceAttr(resourceName, "publicip.0.type", "5_bgp"),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.name", udpateName),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttr(resourceName, "period_unit", "month"),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.size", "6"),
+					resource.TestCheckResourceAttrSet(resourceName, "bandwidth.0.id"),
+					resource.TestCheckResourceAttrSet(resourceName, "address"),
+				),
+			},
+			{
+				Config: testAccVpcEip_prePaid(randName, 7),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "status", "UNBOUND"),
+					resource.TestCheckResourceAttr(resourceName, "publicip.0.type", "5_bgp"),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.name", randName),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttr(resourceName, "period_unit", "month"),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.size", "7"),
 					resource.TestCheckResourceAttrSet(resourceName, "bandwidth.0.id"),
 					resource.TestCheckResourceAttrSet(resourceName, "address"),
 				),
@@ -321,7 +366,7 @@ resource "huaweicloud_vpc_eip" "test" {
 `, rName)
 }
 
-func testAccVpcEip_prePaid(rName string) string {
+func testAccVpcEip_prePaid(rName string, size int) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc_eip" "test" {
   charging_mode = "prePaid"
@@ -333,11 +378,11 @@ resource "huaweicloud_vpc_eip" "test" {
   }
   bandwidth {
     share_type  = "PER"
-    name        = "%s"
-    size        = 5
+    name        = "%[1]s"
+    size        = %[2]d
   }
 }
-`, rName)
+`, rName, size)
 }
 
 func testAccVpcEip_ipv6(rName string) string {

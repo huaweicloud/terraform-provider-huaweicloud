@@ -1,25 +1,27 @@
-package huaweicloud
+package obs
 
 import (
+	"context"
+	"log"
 	"strings"
 
-	"github.com/chnsz/golangsdk/openstack/obs"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk/openstack/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceObsBucketPolicy() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceObsBucketPolicyPut,
-		Read:   resourceObsBucketPolicyRead,
-		Update: resourceObsBucketPolicyPut,
-		Delete: resourceObsBucketPolicyDelete,
+		CreateContext: resourceObsBucketPolicyPut,
+		ReadContext:   resourceObsBucketPolicyRead,
+		UpdateContext: resourceObsBucketPolicyPut,
+		DeleteContext: resourceObsBucketPolicyDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: resourceObsBucketImport,
+			StateContext: resourceObsBucketImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -49,31 +51,31 @@ func ResourceObsBucketPolicy() *schema.Resource {
 	}
 }
 
-func resourceObsBucketPolicyPut(d *schema.ResourceData, meta interface{}) error {
+func resourceObsBucketPolicyPut(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var err error
 	var obsClient *obs.ObsClient
-	config := meta.(*config.Config)
+	conf := meta.(*config.Config)
 
 	format := d.Get("policy_format").(string)
 	if format == "obs" {
-		obsClient, err = config.ObjectStorageClientWithSignature(GetRegion(d, config))
+		obsClient, err = conf.ObjectStorageClientWithSignature(conf.GetRegion(d))
 	} else {
-		obsClient, err = config.ObjectStorageClient(GetRegion(d, config))
+		obsClient, err = conf.ObjectStorageClient(conf.GetRegion(d))
 	}
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+		return diag.Errorf("Error creating OBS client: %s", err)
 	}
 
 	bucket := d.Get("bucket").(string)
 	policy := d.Get("policy").(string)
-	logp.Printf("[DEBUG] OBS bucket: %s, set policy: %s", bucket, policy)
+	log.Printf("[DEBUG] OBS bucket: %s, set policy: %s", bucket, policy)
 
 	params := &obs.SetBucketPolicyInput{
 		Bucket: bucket,
 		Policy: policy,
 	}
 	if _, err = obsClient.SetBucketPolicy(params); err != nil {
-		return getObsError("Error setting OBS bucket policy", bucket, err)
+		return diag.FromErr(getObsError("Error setting OBS bucket policy", bucket, err))
 	}
 
 	// seem bucket as the policy id
@@ -81,26 +83,26 @@ func resourceObsBucketPolicyPut(d *schema.ResourceData, meta interface{}) error 
 	return nil
 }
 
-func resourceObsBucketPolicyRead(d *schema.ResourceData, meta interface{}) error {
+func resourceObsBucketPolicyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var err error
 	var obsClient *obs.ObsClient
-	config := meta.(*config.Config)
+	conf := meta.(*config.Config)
 
 	format := d.Get("policy_format").(string)
-	logp.Printf("[DEBUG] obs bucket policy format: %s", format)
+	log.Printf("[DEBUG] obs bucket policy format: %s", format)
 	if format == "obs" {
-		obsClient, err = config.ObjectStorageClientWithSignature(GetRegion(d, config))
+		obsClient, err = conf.ObjectStorageClientWithSignature(conf.GetRegion(d))
 	} else {
-		obsClient, err = config.ObjectStorageClient(GetRegion(d, config))
+		obsClient, err = conf.ObjectStorageClient(conf.GetRegion(d))
 	}
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+		return diag.Errorf("Error creating OBS client: %s", err)
 	}
 
 	// set bucket from the policy id
 	d.Set("bucket", d.Id())
 
-	logp.Printf("[DEBUG] read policy for obs bucket: %s", d.Id())
+	log.Printf("[DEBUG] read policy for obs bucket: %s", d.Id())
 	output, err := obsClient.GetBucketPolicy(d.Id())
 
 	var pol string
@@ -108,39 +110,39 @@ func resourceObsBucketPolicyRead(d *schema.ResourceData, meta interface{}) error
 		pol = output.Policy
 	}
 	if err := d.Set("policy", pol); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil
 }
 
-func resourceObsBucketPolicyDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceObsBucketPolicyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var err error
 	var obsClient *obs.ObsClient
-	config := meta.(*config.Config)
+	conf := meta.(*config.Config)
 
 	format := d.Get("policy_format").(string)
 	if format == "obs" {
-		obsClient, err = config.ObjectStorageClientWithSignature(GetRegion(d, config))
+		obsClient, err = conf.ObjectStorageClientWithSignature(conf.GetRegion(d))
 	} else {
-		obsClient, err = config.ObjectStorageClient(GetRegion(d, config))
+		obsClient, err = conf.ObjectStorageClient(conf.GetRegion(d))
 	}
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+		return diag.Errorf("Error creating OBS client: %s", err)
 	}
 
 	bucket := d.Get("bucket").(string)
 
-	logp.Printf("[DEBUG] OBS bucket: %s, delete policy", bucket)
+	log.Printf("[DEBUG] OBS bucket: %s, delete policy", bucket)
 	_, err = obsClient.DeleteBucketPolicy(bucket)
 	if err != nil {
-		return getObsError("Error deleting policy of OBS bucket %s: %s", bucket, err)
+		return diag.FromErr(getObsError("Error deleting policy of OBS bucket %s: %s", bucket, err))
 	}
 
 	return nil
 }
 
-func resourceObsBucketImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceObsBucketImport(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	var policyFormat = "obs"
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) == 2 {
