@@ -64,7 +64,7 @@ func ResourceCiRelationships() *schema.Resource {
 			},
 			"resource_region": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 			"project_id": {
@@ -99,6 +99,10 @@ func ResourceCiRelationships() *schema.Resource {
 
 func buildResourceOpts(d *schema.ResourceData, conf *config.Config) []entity.ResourceImportDetailParam {
 	projectId := d.Get("project_id").(string)
+	resourceRegion := d.Get("resource_region").(string)
+	if resourceRegion == "" {
+		resourceRegion = conf.GetRegion(d)
+	}
 	if projectId == "" {
 		projectId = conf.GetProjectID(conf.GetRegion(d))
 	}
@@ -106,7 +110,7 @@ func buildResourceOpts(d *schema.ResourceData, conf *config.Config) []entity.Res
 		{
 			ResourceId:     d.Get("resource_id").(string),
 			ResourceName:   d.Get("resource_name").(string),
-			ResourceRegion: d.Get("resource_region").(string),
+			ResourceRegion: resourceRegion,
 			ProjectId:      projectId,
 			EpsId:          d.Get("enterprise_project_id").(string),
 			EpsName:        d.Get("enterprise_project_name").(string),
