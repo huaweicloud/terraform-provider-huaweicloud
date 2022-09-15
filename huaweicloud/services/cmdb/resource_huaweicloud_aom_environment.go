@@ -1,4 +1,4 @@
-package aom
+package cmdb
 
 import (
 	"context"
@@ -121,7 +121,7 @@ func ResourceAomEnvironment() *schema.Resource {
 
 func ResourceAomEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
+	client, err := httpclient_go.NewHttpClientGo(conf, "cmdb", conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("err creating Client: %s", err)
 	}
@@ -165,7 +165,7 @@ func ResourceAomEnvironmentCreate(ctx context.Context, d *schema.ResourceData, m
 
 func ResourceAomEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
+	client, err := httpclient_go.NewHttpClientGo(conf, "cmdb", conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("err creating Client: %s", err)
 	}
@@ -217,7 +217,7 @@ func ResourceAomEnvironmentRead(ctx context.Context, d *schema.ResourceData, met
 
 func ResourceAomEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
+	client, err := httpclient_go.NewHttpClientGo(conf, "cmdb", conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("err creating Client: %s", err)
 	}
@@ -252,7 +252,7 @@ func ResourceAomEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, m
 
 func ResourceAomEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
+	client, err := httpclient_go.NewHttpClientGo(conf, "cmdb", conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("err creating Client: %s", err)
 	}
@@ -278,7 +278,7 @@ func ResourceAomEnvironmentDelete(ctx context.Context, d *schema.ResourceData, m
 
 func getEnvByName(d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
+	client, err := httpclient_go.NewHttpClientGo(conf, "cmdb", conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("err creating Client: %s", err)
 	}

@@ -1,4 +1,4 @@
-package aom
+package cmdb
 
 import (
 	"context"
@@ -127,7 +127,7 @@ func buildDeleteResourceOpts(d *schema.ResourceData) []entity.UnbindResourcePara
 
 func ResourceResourceCiRelationshipsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
+	client, err := httpclient_go.NewHttpClientGo(conf, "cmdb", conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("err creating Client: %s", err)
 	}
@@ -165,7 +165,7 @@ func ResourceResourceCiRelationshipsCreate(ctx context.Context, d *schema.Resour
 
 func ResourceResourceCiRelationshipsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := httpclient_go.NewHttpClientGo(cfg, "aom", cfg.GetRegion(d))
+	client, err := httpclient_go.NewHttpClientGo(cfg, "cmdb", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("err creating Client: %s", err)
 	}
@@ -210,7 +210,7 @@ func ResourceResourceCiRelationshipsRead(ctx context.Context, d *schema.Resource
 
 func ResourceResourceCiRelationshipsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := httpclient_go.NewHttpClientGo(cfg, "aom", cfg.GetRegion(d))
+	client, err := httpclient_go.NewHttpClientGo(cfg, "cmdb", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("err creating Client: %s", err)
 	}

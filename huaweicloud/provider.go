@@ -24,6 +24,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cdm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ces"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cloudtable"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cmdb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cpts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cse"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/css"
@@ -548,14 +549,15 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_antiddos_basic": antiddos.ResourceCloudNativeAntiDdos(),
 
-			"huaweicloud_aom_alarm_rule":                  aom.ResourceAlarmRule(),
-			"huaweicloud_aom_alarm_policy":                aom.ResourceAlarmPolicy(),
-			"huaweicloud_aom_application":                 aom.ResourceAomApplication(),
-			"huaweicloud_aom_component":                   aom.ResourceAomComponent(),
-			"huaweicloud_aom_cmdb_resource_relationships": aom.ResourceCiRelationships(),
-			"huaweicloud_aom_environment":                 aom.ResourceAomEnvironment(),
-			"huaweicloud_aom_prometheus_instance":         aom.ResourcePrometheusInstance(),
-			"huaweicloud_aom_service_discovery_rule":      aom.ResourceServiceDiscoveryRule(),
+			"huaweicloud_aom_alarm_rule":             aom.ResourceAlarmRule(),
+			"huaweicloud_aom_alarm_policy":           aom.ResourceAlarmPolicy(),
+			"huaweicloud_aom_prometheus_instance":    aom.ResourcePrometheusInstance(),
+			"huaweicloud_aom_service_discovery_rule": aom.ResourceServiceDiscoveryRule(),
+
+			"huaweicloud_aom_application":                 cmdb.ResourceAomApplication(),
+			"huaweicloud_aom_component":                   cmdb.ResourceAomComponent(),
+			"huaweicloud_aom_cmdb_resource_relationships": cmdb.ResourceCiRelationships(),
+			"huaweicloud_aom_environment":                 cmdb.ResourceAomEnvironment(),
 
 			"huaweicloud_api_gateway_api":   ResourceAPIGatewayAPI(),
 			"huaweicloud_api_gateway_group": ResourceAPIGatewayGroup(),
