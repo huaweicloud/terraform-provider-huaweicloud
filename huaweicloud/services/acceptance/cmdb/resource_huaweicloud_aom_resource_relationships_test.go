@@ -1,4 +1,4 @@
-package aom
+package cmdb
 
 import (
 	"encoding/json"
@@ -14,7 +14,7 @@ import (
 )
 
 func getCmdbResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	c, _ := httpclient_go.NewHttpClientGo(conf, "aom", acceptance.HW_REGION_NAME)
+	c, _ := httpclient_go.NewHttpClientGo(conf, "cmdb", acceptance.HW_REGION_NAME)
 
 	opts := entity.PageResourceListParam{
 		CiId:     state.Primary.Attributes["env_id"],
@@ -23,7 +23,7 @@ func getCmdbResourceFunc(conf *config.Config, state *terraform.ResourceState) (i
 	}
 
 	c.WithMethod(httpclient_go.MethodGet).
-		WithUrlWithoutEndpoint(conf, "aom", conf.Region, "v1/resource/"+state.Primary.Attributes["rf_resource_type"]+
+		WithUrlWithoutEndpoint(conf, "cmdb", conf.Region, "v1/resource/"+state.Primary.Attributes["rf_resource_type"]+
 			"/type/"+state.Primary.Attributes["type"]+"/ci-relationships").WithBody(opts)
 	response, err := c.Do()
 	body, _ := c.CheckDeletedDiag(nil, err, response, "")

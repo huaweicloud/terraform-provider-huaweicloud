@@ -620,6 +620,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v1",
 		Product: "VOD",
 	},
+
+	"cmdb": {
+		Name:    "cmdb",
+		Version: "v1",
+		Product: "AOM",
+	},
 }
 
 // GetServiceEndpoint try to get the endpoint from customizing map
