@@ -624,6 +624,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"cmdb": {
 		Name:    "cmdb",
 		Version: "v1",
+		Scope:   "global",
 		Product: "AOM",
 	},
 }
