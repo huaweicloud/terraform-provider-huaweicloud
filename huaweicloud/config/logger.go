@@ -225,7 +225,7 @@ func isSecurityFields(field string) bool {
 	// 'secret' is apply to the AK/SK response JSON body.
 	// 'pwd' and 'token' is the high frequency sensitive keywords in the request and response bodies.
 	if strings.Contains(checkField, "password") || strings.Contains(checkField, "secret") ||
-		strings.HasSuffix(field, "pwd") || strings.HasSuffix(checkField, "token") {
+		strings.HasSuffix(checkField, "pwd") || strings.HasSuffix(checkField, "token") {
 		return true
 	}
 
