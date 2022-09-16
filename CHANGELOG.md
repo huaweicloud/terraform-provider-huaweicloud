@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## 1.40.2 (September 16, 2022)
+
+* **New Resurce:**
+  + `huaweicloud_projectman_project` [GH-2279]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cdn_domain: Support IPv6 function [GH-2347]
+* resource/huaweicloud_dms_kafka_instance: Support the cross-vpc modification [GH-2360]
+* resource/huaweicloud_dds_instance: Add prepaid support [GH-2361]
+* resource/huaweicloud_fgs_function: Support create functions by SWR image [GH-2379]
+
+BUG FIXES:
+
+* resource/huaweicloud_dcs_instance: ignore the error of ShowIpWhitelist API when reading [GH-2380]
+* resource/huaweicloud_cce_node: fix node can't loggin issue [GH-2381]
+
 ## 1.40.1 (August 31, 2022)
 
 * **New Data Source:**
