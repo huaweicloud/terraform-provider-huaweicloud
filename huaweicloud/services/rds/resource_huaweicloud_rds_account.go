@@ -59,6 +59,10 @@ func resourceRdsAccountCreate(ctx context.Context, d *schema.ResourceData, meta 
 
 	dbUser := d.Get("name").(string)
 	instanceId := d.Get("instance_id").(string)
+
+	config.MutexKV.Lock(instanceId)
+	defer config.MutexKV.Unlock(instanceId)
+
 	createOpts := &model.CreateDbUserRequest{
 		InstanceId: instanceId,
 		Body: &model.UserForCreation{
@@ -134,8 +138,12 @@ func resourceRdsAccountUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		return fmtp.DiagErrorf("error creating RDS client: %s", err)
 	}
 
+	instanceId := d.Get("instance_id").(string)
+	config.MutexKV.Lock(instanceId)
+	defer config.MutexKV.Unlock(instanceId)
+
 	updateOpts := &model.SetDbUserPwdRequest{
-		InstanceId: d.Get("instance_id").(string),
+		InstanceId: instanceId,
 		Body: &model.DbUserPwdRequest{
 			Name:     d.Get("name").(string),
 			Password: d.Get("password").(string),
@@ -158,8 +166,12 @@ func resourceRdsAccountDelete(ctx context.Context, d *schema.ResourceData, meta 
 		return fmtp.DiagErrorf("error creating RDS client: %s", err)
 	}
 
+	instanceId := d.Get("instance_id").(string)
+	config.MutexKV.Lock(instanceId)
+	defer config.MutexKV.Unlock(instanceId)
+
 	deleteOpts := &model.DeleteDbUserRequest{
-		InstanceId: d.Get("instance_id").(string),
+		InstanceId: instanceId,
 		UserName:   d.Get("name").(string),
 	}
 
