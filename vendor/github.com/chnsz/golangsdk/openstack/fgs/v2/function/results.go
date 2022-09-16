@@ -23,6 +23,7 @@ type Function struct {
 	CodeUrl             string         `json:"code_url"`
 	CodeFileName        string         `json:"code_filename"`
 	CodeSize            int64          `json:"code_size"`
+	CustomImage         CustomImage    `json:"custom_image"`
 	UserData            string         `json:"user_data"`
 	EncryptedUserData   string         `json:"encrypted_user_data"`
 	Digest              string         `json:"digest"`

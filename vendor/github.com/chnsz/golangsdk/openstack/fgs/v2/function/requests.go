@@ -21,23 +21,29 @@ type FunctionCodeOpts struct {
 
 //function struct
 type CreateOpts struct {
-	FuncName            string           `json:"func_name" required:"true"`
-	Package             string           `json:"package" required:"true"`
-	CodeType            string           `json:"code_type" required:"true"`
-	CodeUrl             string           `json:"code_url,omitempty"`
-	Description         string           `json:"description,omitempty"`
-	CodeFilename        string           `json:"code_filename,omitempty"`
-	Handler             string           `json:"handler" required:"true"`
-	MemorySize          int              `json:"memory_size" required:"true"`
-	Runtime             string           `json:"runtime" required:"true"`
-	Timeout             int              `json:"timeout" required:"true"`
-	UserData            string           `json:"user_data,omitempty"`
-	EncryptedUserData   string           `json:"encrypted_user_data,omitempty"`
-	Xrole               string           `json:"xrole,omitempty"`
-	AppXrole            string           `json:"app_xrole,omitempty"`
-	FuncCode            FunctionCodeOpts `json:"func_code,omitempty"`
-	EnterpriseProjectID string           `json:"enterprise_project_id,omitempty"`
-	Type                string           `json:"type,omitempty"`
+	FuncName            string            `json:"func_name" required:"true"`
+	MemorySize          int               `json:"memory_size" required:"true"`
+	Package             string            `json:"package" required:"true"`
+	Runtime             string            `json:"runtime" required:"true"`
+	Timeout             int               `json:"timeout" required:"true"`
+	AppXrole            string            `json:"app_xrole,omitempty"`
+	CodeFilename        string            `json:"code_filename,omitempty"`
+	CodeType            string            `json:"code_type,omitempty"`
+	CodeUrl             string            `json:"code_url,omitempty"`
+	CustomImage         *CustomImage      `json:"custom_image,omitempty"`
+	Description         string            `json:"description,omitempty"`
+	EncryptedUserData   string            `json:"encrypted_user_data,omitempty"`
+	EnterpriseProjectID string            `json:"enterprise_project_id,omitempty"`
+	FuncCode            *FunctionCodeOpts `json:"func_code,omitempty"`
+	Handler             string            `json:"handler,omitempty"`
+	Type                string            `json:"type,omitempty"`
+	UserData            string            `json:"user_data,omitempty"`
+	Xrole               string            `json:"xrole,omitempty"`
+}
+
+type CustomImage struct {
+	Enabled bool   `json:"enabled" required:"true"`
+	Image   string `json:"image" required:"true"`
 }
 
 func (opts CreateOpts) ToCreateFunctionMap() (map[string]interface{}, error) {

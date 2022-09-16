@@ -146,6 +146,50 @@ func TestAccFgsV2Function_text(t *testing.T) {
 	})
 }
 
+func TestAccFgsV2Function_createByImage(t *testing.T) {
+	var f function.Function
+	randName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_fgs_function.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&f,
+		getResourceObj,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckComponentDeployment(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFgsV2Function_createByImage(randName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "agency", "functiongraph_swr_trust"),
+					resource.TestCheckResourceAttr(resourceName, "runtime", "Custom Image"),
+					resource.TestCheckResourceAttr(resourceName, "custom_image.0.url", acceptance.HW_BUILD_IMAGE_URL),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"app",
+					"package",
+					"xrole",
+					"agency",
+				},
+			},
+		},
+	})
+}
+
 func testAccFgsV2Function_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
@@ -222,4 +266,21 @@ resource "huaweicloud_fgs_function" "test" {
   func_code             = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
 }
 `, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccFgsV2Function_createByImage(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_fgs_function" "test" {
+  name        = "%s"
+  app         = "default"
+  memory_size = 128
+  runtime     = "Custom Image"
+  timeout     = 3
+  agency      = "functiongraph_swr_trust"
+
+  custom_image {
+    url = "%[2]s"
+  }
+}
+`, rName, acceptance.HW_BUILD_IMAGE_URL)
 }

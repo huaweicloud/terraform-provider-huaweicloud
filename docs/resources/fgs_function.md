@@ -54,32 +54,62 @@ EOF
 }
 ```
 
+### Create function using SWR image
+
+```hcl
+variable "function_name" {}
+variable "agency_name" {} // The agent name that authorizes FunctionGraph service SWR administrator privilege
+variable "image_url" {}
+
+resource "huaweicloud_fgs_function" "by_swr_image" {
+  name        = var.function_name
+  agency      = var.agency_name
+  app         = "default"
+  runtime     = "Custom Image"
+  memory_size = 128
+  timeout     = 3
+
+  custom_image {
+    url = var.image_url
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the Function resource. If omitted, the
-  provider-level region will be used. Changing this creates a new Function resource.
+  provider-level region will be used. Changing this will create a new resource.
 
 * `name` - (Required, String, ForceNew) Specifies the name of the function.
+  Changing this will create a new resource.
 
 * `app` - (Required, String) Specifies the group to which the function belongs.
 
-* `handler` - (Required, String) Specifies the entry point of the function.
-
 * `memory_size` - (Required, Int) Specifies the memory size(MB) allocated to the function.
 
-* `runtime` - (Required, String, ForceNew) Specifies the environment for executing the function. Changing this creates a
-  new Function resource.
+* `runtime` - (Required, String, ForceNew) Specifies the environment for executing the function.
+  If the function is created using a SWR image, set this parameter to `Custom Image`.
+  Changing this will create a new resource.
 
 * `timeout` - (Required, Int) Specifies the timeout interval of the function, ranges from 3s to 900s.
 
-* `code_type` - (Required, String) Specifies the function code type, which can be inline: inline code, zip: ZIP file,
-  jar: JAR file or java functions, obs: function code stored in an OBS bucket.
+* `code_type` - (Optional, String) Specifies the function code type, which can be:
+  + **inline**: inline code.
+  + **zip**: ZIP file.
+  + **jar**: JAR file or java functions.
+  + **obs**: function code stored in an OBS bucket.
+
+* `handler` - (Optional, String) Specifies the entry point of the function.
+
+-> If the function is created using a SWR image, keep `code_type` and `handler` empty.
 
 * `functiongraph_version` - (Optional, String, ForceNew) Specifies the FunctionGraph version, defaults to **v1**.
   + **v1**: Hosts event-driven functions in a serverless context.
   + **v2**: Next-generation function hosting service powered by Huawei YuanRong architecture.
+
+  Changing this will create a new resource.
 
 * `func_code` - (Optional, String) Specifies the function code. When code_type is set to inline, zip, or jar, this
   parameter is mandatory, and the code can be encoded using Base64 or just with the text code.
@@ -110,8 +140,8 @@ The following arguments are supported:
 * `initializer_timeout` - (Optional, Int) Specifies the maximum duration the function can be initialized. Value range:
   1s to 300s.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the function. Changing
-  this creates a new function.
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the function.
+  Changing this will create a new resource.
 
 * `vpc_id`  - (Optional, String) Specifies the ID of VPC.
 
@@ -127,6 +157,10 @@ The following arguments are supported:
 * `func_mounts` - (Optional, List) Specifies the file system list. The `func_mounts` object structure is documented
   below.
 
+* `custom_image` - (Optional, List, ForceNew) Specifies the custom image configuration for creating function.
+  The [object](#functiongraph_custom_image) structure is documented below.
+  Changing this will create a new resource.
+
 The `func_mounts` block supports:
 
 * `mount_type` - (Required, String) Specifies the mount type. Options: sfs, sfsTurbo, and ecs.
@@ -136,6 +170,12 @@ The `func_mounts` block supports:
 * `mount_share_path` - (Required, String) Specifies the remote mount path. Example: 192.168.0.12:/data.
 
 * `local_mount_path` - (Required, String) Specifies the function access path.
+
+<a name="functiongraph_custom_image"></a>
+The `custom_image` block supports:
+
+* `url` - (Required, String, ForceNew) Specifies the URL of SWR image, the URL must start with `swr.`.
+  Changing this will create a new resource.
 
 ## Attributes Reference
 
