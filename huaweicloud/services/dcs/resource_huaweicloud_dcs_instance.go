@@ -730,12 +730,14 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	// set white list
+	// some regions (cn-south-1) will fail to call the API due to the cloud reason
+	// ignore the error temporarily.
 	wList, err := whitelists.Get(client, d.Id()).Extract()
-	if err != nil {
-		return fmtp.DiagErrorf("Error setting whitelists for DCS instance, error: %s", err)
+	if err != nil || wList == nil {
+		logp.Printf("[WARN] Error fetching whitelists for DCS instance, error: %s", err)
 	}
-	logp.Printf("[DEBUG] Find DCS instance white list : %#v", r)
 
+	logp.Printf("[DEBUG] Find DCS instance white list : %#v", wList.Groups)
 	whiteList := make([]map[string]interface{}, len(wList.Groups))
 	for i, group := range wList.Groups {
 		whiteList[i] = map[string]interface{}{
