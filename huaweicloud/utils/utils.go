@@ -233,6 +233,17 @@ func RemoveNil(data map[string]interface{}) map[string]interface{} {
 		switch v := v.(type) {
 		case map[string]interface{}:
 			withoutNil[k] = RemoveNil(v)
+		case []map[string]interface{}:
+			rv := make([]map[string]interface{}, 0, len(v))
+			for _, vv := range v {
+				rst := RemoveNil(vv)
+				if len(rst) > 0 {
+					rv = append(rv, rst)
+				}
+			}
+			if len(rv) > 0 {
+				withoutNil[k] = rv
+			}
 		default:
 			withoutNil[k] = v
 		}
