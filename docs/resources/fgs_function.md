@@ -80,9 +80,10 @@ resource "huaweicloud_fgs_function" "by_swr_image" {
 The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the Function resource. If omitted, the
-  provider-level region will be used. Changing this creates a new Function resource.
+  provider-level region will be used. Changing this will create a new resource.
 
 * `name` - (Required, String, ForceNew) Specifies the name of the function.
+  Changing this will create a new resource.
 
 * `app` - (Required, String) Specifies the group to which the function belongs.
 
@@ -107,6 +108,8 @@ The following arguments are supported:
 * `functiongraph_version` - (Optional, String, ForceNew) Specifies the FunctionGraph version, defaults to **v1**.
   + **v1**: Hosts event-driven functions in a serverless context.
   + **v2**: Next-generation function hosting service powered by Huawei YuanRong architecture.
+
+  Changing this will create a new resource.
 
 * `func_code` - (Optional, String) Specifies the function code. When code_type is set to inline, zip, or jar, this
   parameter is mandatory, and the code can be encoded using Base64 or just with the text code.
@@ -137,8 +140,8 @@ The following arguments are supported:
 * `initializer_timeout` - (Optional, Int) Specifies the maximum duration the function can be initialized. Value range:
   1s to 300s.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the function. Changing
-  this creates a new function.
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the function.
+  Changing this will create a new resource.
 
 * `vpc_id`  - (Optional, String) Specifies the ID of VPC.
 
