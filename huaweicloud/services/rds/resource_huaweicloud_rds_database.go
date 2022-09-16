@@ -82,6 +82,9 @@ func resourceRdsDatabaseCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	instanceId := d.Get("instance_id").(string)
+	config.MutexKV.Lock(instanceId)
+	defer config.MutexKV.Unlock(instanceId)
+
 	dbName := d.Get("name").(string)
 	createOpts := rds.DatabaseForCreation{
 		Name:         dbName,
@@ -144,8 +147,12 @@ func resourceRdsDatabaseUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
+	instanceId := d.Get("instance_id").(string)
+	config.MutexKV.Lock(instanceId)
+	defer config.MutexKV.Unlock(instanceId)
+
 	updateOpts := rds.UpdateDatabaseRequest{
-		InstanceId: d.Get("instance_id").(string),
+		InstanceId: instanceId,
 		Body: &rds.UpdateDatabaseReq{
 			Name:    d.Get("name").(string),
 			Comment: d.Get("description").(string),
@@ -161,15 +168,19 @@ func resourceRdsDatabaseUpdate(ctx context.Context, d *schema.ResourceData, meta
 	return resourceRdsDatabaseRead(ctx, d, meta)
 }
 
-func resourceRdsDatabaseDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceRdsDatabaseDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	client, err := c.HcRdsV3Client(c.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
+	instanceId := d.Get("instance_id").(string)
+	config.MutexKV.Lock(instanceId)
+	defer config.MutexKV.Unlock(instanceId)
+
 	deleteOpts := rds.DeleteDatabaseRequest{
-		InstanceId: d.Get("instance_id").(string),
+		InstanceId: instanceId,
 		DbName:     d.Get("name").(string),
 	}
 
