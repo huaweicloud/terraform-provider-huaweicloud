@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -252,7 +253,9 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 			},
 			"cross_vpc_accesses": {
 				Type:     schema.TypeList,
+				Optional: true,
 				Computed: true,
+				MaxItems: 3,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"lisenter_ip": {
@@ -261,6 +264,7 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 						},
 						"advertised_ip": {
 							Type:     schema.TypeString,
+							Optional: true,
 							Computed: true,
 						},
 						"port": {
@@ -321,11 +325,87 @@ func getKafkaProductDetail(config *config.Config, d *schema.ResourceData) (*prod
 	return nil, fmtp.Errorf("can not found product detail base on product_id: %s", productID)
 }
 
-func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	if _, ok := d.GetOk("flavor_id"); ok {
-		return newKafkaInstanceCreate(ctx, d, meta)
+func updateCrossVpcAccesses(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	oldVal, newVal := d.GetChange("cross_vpc_accesses")
+	var crossVpcAccess []map[string]interface{}
+	if len(oldVal.([]interface{})) < 1 {
+		v, err := instances.Get(client, d.Id()).Extract()
+		if err != nil {
+			return fmtp.Errorf("error getting DMS instance: %v", err)
+		}
+		crossVpcAccess, err = flattenConnectPorts(v.CrossVpcInfo)
+		if err != nil {
+			return fmtp.Errorf("[ERROR] error retriving details of the cross-VPC information: %v", err)
+		}
+	} else {
+		oldAccesses := oldVal.([]interface{})
+		for _, val := range oldAccesses {
+			crossVpcAccess = append(crossVpcAccess, val.(map[string]interface{}))
+		}
 	}
-	return oldKafkaInstanceCreate(ctx, d, meta)
+
+	newAccesses := newVal.([]interface{})
+	contentMap := make(map[string]string)
+	for i, oldAccess := range crossVpcAccess {
+		lisIp := oldAccess["lisenter_ip"].(string)
+		// If we configure the advertised ip as ["192.168.0.19", "192.168.0.8"], the length of new accesses is 2, and
+		// the length of old accesses is always 3.
+		if len(newAccesses) > i {
+			// Make sure the index is valid.
+			newAccess := newAccesses[i].(map[string]interface{})
+			// Since the "advertised_ip" is already a definition in the schema, the key name must exist.
+			if advIp, ok := newAccess["advertised_ip"].(string); ok && advIp != "" {
+				contentMap[lisIp] = advIp
+				continue
+			}
+		}
+		contentMap[lisIp] = lisIp
+	}
+
+	opts := instances.CrossVpcUpdateOpts{
+		Contents: contentMap,
+	}
+	result, err := instances.UpdateCrossVpc(client, d.Id(), opts)
+	if err != nil {
+		return fmtp.Errorf("error updating advertised IP: %v", err)
+	}
+
+	if !result.Success {
+		failureIp := make([]string, 0, len(result.Connections))
+		for _, val := range result.Connections {
+			if !val.Success {
+				failureIp = append(failureIp, val.ListenersIp)
+			}
+		}
+		return fmtp.Errorf("failed to update the advertised IPs corresponding to some listener IPs (%v)", failureIp)
+	}
+	return nil
+}
+
+func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var dErr diag.Diagnostics
+	if _, ok := d.GetOk("flavor_id"); ok {
+		dErr = newKafkaInstanceCreate(ctx, d, meta)
+	} else {
+		dErr = oldKafkaInstanceCreate(ctx, d, meta)
+	}
+	if dErr != nil {
+		return dErr
+	}
+
+	if _, ok := d.GetOk("cross_vpc_accesses"); ok {
+		conf := meta.(*config.Config)
+		region := conf.GetRegion(d)
+		client, err := conf.DmsV2Client(region)
+		if err != nil {
+			return fmtp.DiagErrorf("error creating HuaweiCloud DMS instance client: %s", err)
+		}
+		if err = updateCrossVpcAccesses(client, d); err != nil {
+			return diag.Errorf("Failed to update default advertised IP: %v", err)
+		}
+	}
+
+	return resourceDmsKafkaInstanceRead(ctx, d, meta)
 }
 
 func newKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -574,7 +654,7 @@ func oldKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 	return resourceDmsKafkaInstanceRead(ctx, d, meta)
 }
 
-func flattenConnectPorts(strInfos string) ([]map[string]interface{}, error) {
+func flattenConnectPorts(strInfos string) (result []map[string]interface{}, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Printf("[ERROR] Recover panic when flattening cross-VPC infos structure: %#v", r)
@@ -586,23 +666,28 @@ func flattenConnectPorts(strInfos string) ([]map[string]interface{}, error) {
 	}
 
 	crossVpcInfos := make(map[string]interface{})
-	err := json.Unmarshal([]byte(strInfos), &crossVpcInfos)
+	err = json.Unmarshal([]byte(strInfos), &crossVpcInfos)
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	result := make([]map[string]interface{}, 0, len(crossVpcInfos))
-	for key, val := range crossVpcInfos {
-		crossVpcInfo := val.(map[string]interface{})
-		result = append(result, map[string]interface{}{
-			"lisenter_ip":   key,
+	keyList := make([]string, 0, len(crossVpcInfos))
+	result = make([]map[string]interface{}, len(crossVpcInfos))
+	for k := range crossVpcInfos {
+		keyList = append(keyList, k)
+	}
+	sort.Strings(keyList) // Sort by listeners IP.
+	for i, k := range keyList {
+		crossVpcInfo := crossVpcInfos[k].(map[string]interface{})
+		result[i] = map[string]interface{}{
+			"lisenter_ip":   k,
 			"advertised_ip": crossVpcInfo["advertised_ip"],
 			"port":          crossVpcInfo["port"],
 			"port_id":       crossVpcInfo["port_id"],
-		})
+		}
 	}
 
-	return result, nil
+	return
 }
 
 func setKafkaFlavorId(d *schema.ResourceData, flavorId string) error {
@@ -745,6 +830,13 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 			mErr = multierror.Append(mErr, e)
 		}
 	}
+
+	if d.HasChange("cross_vpc_accesses") {
+		if err = updateCrossVpcAccesses(dmsV2Client, d); err != nil {
+			mErr = multierror.Append(mErr, err)
+		}
+	}
+
 	if mErr.ErrorOrNil() != nil {
 		return fmtp.DiagErrorf("error while updating DMS Kafka instances, there %s", mErr)
 	}

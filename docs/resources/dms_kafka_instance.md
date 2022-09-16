@@ -22,6 +22,8 @@ data "huaweicloud_dms_kafka_flavors" "test" {
 
 locals {
   query_results = data.huaweicloud_dms_kafka_flavors.test
+
+  advertised_ips = ["", "www.terraform-test.com", "192.168.0.53"]
 }
 
 resource "huaweicloud_dms_kafka_instance" "test" {
@@ -42,6 +44,13 @@ resource "huaweicloud_dms_kafka_instance" "test" {
 
   manager_user     = "kafka-user"
   manager_password = "Kafkatest@123"
+
+  dynamic "cross_vpc_accesses" {
+    for_each = local.advertised_ips
+    content {
+      advertised_ip = cross_vpc_accesses.value
+    }
+  }
 }
 ```
 
@@ -217,6 +226,14 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the DMS kafka instance.
 
+* `cross_vpc_accesses` - (Optional, List) Specifies the access information of cross-VPC.
+  The [object](#dms_cross_vpc_accesses) structure is documented below.
+
+<a name="dms_cross_vpc_accesses"></a>
+The `cross_vpc_accesses` block supports:
+
+* `advertised_ip` -(Optional, String) The advertised IP Address or domain name.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -242,7 +259,6 @@ In addition to all arguments above, the following attributes are exported:
 The `cross_vpc_accesses` block supports:
 
 * `lisenter_ip` - The listener IP address.
-* `advertised_ip` - The advertised IP Address.
 * `port` - The port number.
 * `port_id` - The port ID associated with the address.
 
