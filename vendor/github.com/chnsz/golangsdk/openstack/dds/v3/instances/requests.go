@@ -23,6 +23,7 @@ type CreateOpts struct {
 	Flavor              []Flavor       `json:"flavor" required:"true"`
 	BackupStrategy      BackupStrategy `json:"backup_strategy,omitempty"`
 	EnterpriseProjectID string         `json:"enterprise_project_id,omitempty"`
+	ChargeInfo          *ChargeInfo    `json:"charge_info,omitempty"`
 }
 
 type DataStore struct {
@@ -43,6 +44,14 @@ type BackupStrategy struct {
 	StartTime string `json:"start_time" required:"true"`
 	KeepDays  *int   `json:"keep_days,omitempty"`
 	Period    string `json:"period,omitempty"`
+}
+
+type ChargeInfo struct {
+	ChargeMode  string `json:"charge_mode" required:"true"`
+	PeriodType  string `json:"period_type,omitempty"`
+	PeriodNum   int    `json:"period_num,omitempty"`
+	IsAutoRenew bool   `json:"is_auto_renew,omitempty"`
+	IsAutoPay   bool   `json:"is_auto_pay,omitempty"`
 }
 
 type CreateInstanceBuilder interface {
@@ -147,21 +156,32 @@ type UpdateOpt struct {
 }
 
 type UpdateVolumeOpts struct {
+	Volume    VolumeOpts `json:"volume" required:"true"`
+	IsAutoPay bool       `json:"is_auto_pay,omitempty"`
+}
+
+type VolumeOpts struct {
 	GroupID string `json:"group_id,omitempty"`
 	Size    *int   `json:"size,omitempty"`
 }
 
 type UpdateNodeNumOpts struct {
-	Type     string            `json:"type" required:"true"`
-	SpecCode string            `json:"spec_code" required:"true"`
-	Num      int               `json:"num" required:"true"`
-	Volume   *UpdateVolumeOpts `json:"volume,omitempty"`
+	Type      string      `json:"type" required:"true"`
+	SpecCode  string      `json:"spec_code" required:"true"`
+	Num       int         `json:"num" required:"true"`
+	Volume    *VolumeOpts `json:"volume,omitempty"`
+	IsAutoPay bool        `json:"is_auto_pay,omitempty"`
 }
 
-type UpdateSpecOpts struct {
+type SpecOpts struct {
 	TargetType     string `json:"target_type,omitempty"`
 	TargetID       string `json:"target_id" required:"true"`
 	TargetSpecCode string `json:"target_spec_code" required:"true"`
+}
+
+type UpdateSpecOpts struct {
+	Resize    SpecOpts `json:"resize" required:"true"`
+	IsAutoPay bool     `json:"is_auto_pay,omitempty"`
 }
 
 func Update(client *golangsdk.ServiceClient, instanceId string, opts []UpdateOpt) (r UpdateInstanceResult) {

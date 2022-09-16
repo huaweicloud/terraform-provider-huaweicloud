@@ -195,7 +195,12 @@ func ResourceDdsInstanceV3() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
-			"tags": common.TagsSchema(),
+			"charging_mode": common.SchemaChargingMode(nil),
+			"period_unit":   common.SchemaPeriodUnit(nil),
+			"period":        common.SchemaPeriod(nil),
+			"auto_renew":    common.SchemaAutoRenew(nil),
+			"auto_pay":      common.SchemaAutoPay(nil),
+			"tags":          common.TagsSchema(),
 			"db_username": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -321,6 +326,21 @@ func DdsInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID str
 	}
 }
 
+func buildChargeInfoParams(d *schema.ResourceData) instances.ChargeInfo {
+	chargeInfo := instances.ChargeInfo{
+		ChargeMode: d.Get("charging_mode").(string),
+		PeriodType: d.Get("period_unit").(string),
+		PeriodNum:  d.Get("period").(int),
+	}
+	if d.Get("auto_pay").(string) != "false" {
+		chargeInfo.IsAutoPay = true
+	}
+	if d.Get("auto_renew").(string) == "true" {
+		chargeInfo.IsAutoRenew = true
+	}
+	return chargeInfo
+}
+
 func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.DdsV3Client(config.GetRegion(d))
@@ -346,6 +366,10 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 		createOpts.Ssl = "1"
 	} else {
 		createOpts.Ssl = "0"
+	}
+	if d.Get("charging_mode").(string) == "prePaid" {
+		chargeInfo := buildChargeInfoParams(d)
+		createOpts.ChargeInfo = &chargeInfo
 	}
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	// Add password here so it wouldn't go in the above log entry
@@ -639,10 +663,19 @@ func resourceDdsInstanceV3Delete(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	instanceId := d.Id()
-	result := instances.Delete(client, instanceId)
-	if result.Err != nil {
-		return diag.FromErr(err)
+	// for prePaid mode, we should unsubscribe the resource
+	if d.Get("charging_mode").(string) == "prePaid" {
+		err = common.UnsubscribePrePaidResource(d, config, []string{instanceId})
+		if err != nil {
+			return diag.Errorf("error unsubscribing DDS instance : %s", err)
+		}
+	} else {
+		result := instances.Delete(client, instanceId)
+		if result.Err != nil {
+			return diag.FromErr(result.Err)
+		}
 	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"normal", "abnormal", "frozen", "createfail", "enlargefail", "data_disk_full"},
 		Target:     []string{"deleted"},
@@ -797,30 +830,40 @@ func flavorNumUpdate(ctx context.Context, client *golangsdk.ServiceClient, d *sc
 	var numUpdateOpts []instances.UpdateOpt
 
 	if groupType == "mongos" {
+		updateNodeNumOpts := instances.UpdateNodeNumOpts{
+			Type:     groupType,
+			SpecCode: d.Get(specCodeIndex).(string),
+			Num:      newNum - oldNum,
+		}
+		if d.Get("charging_mode").(string) == "prePaid" && d.Get("auto_pay").(string) != "false" {
+			updateNodeNumOpts.IsAutoPay = true
+
+		}
 		opt := instances.UpdateOpt{
-			Param: "",
-			Value: instances.UpdateNodeNumOpts{
-				Type:     groupType,
-				SpecCode: d.Get(specCodeIndex).(string),
-				Num:      newNum - oldNum,
-			},
+			Param:  "",
+			Value:  updateNodeNumOpts,
 			Action: "enlarge",
 			Method: "post",
 		}
+
 		numUpdateOpts = append(numUpdateOpts, opt)
 	} else {
-		volume := instances.UpdateVolumeOpts{
+		volume := instances.VolumeOpts{
 			Size: &volumeSize,
 		}
+		updateNodeNumOpts := instances.UpdateNodeNumOpts{
+			Type:     groupType,
+			SpecCode: d.Get(specCodeIndex).(string),
+			Num:      newNum - oldNum,
+			Volume:   &volume,
+		}
+		if d.Get("charging_mode").(string) == "prePaid" && d.Get("auto_pay").(string) != "false" {
+			updateNodeNumOpts.IsAutoPay = true
 
+		}
 		opt := instances.UpdateOpt{
-			Param: "",
-			Value: instances.UpdateNodeNumOpts{
-				Type:     groupType,
-				SpecCode: d.Get(specCodeIndex).(string),
-				Num:      newNum - oldNum,
-				Volume:   &volume,
-			},
+			Param:  "",
+			Value:  updateNodeNumOpts,
 			Action: "enlarge",
 			Method: "post",
 		}
@@ -855,12 +898,19 @@ func flavorSizeUpdate(ctx context.Context, client *golangsdk.ServiceClient, d *s
 
 		for _, groupID := range groupIDs {
 			var sizeUpdateOpts []instances.UpdateOpt
-			opt := instances.UpdateOpt{
-				Param: "volume",
-				Value: instances.UpdateVolumeOpts{
+			updateVolumeOpts := instances.UpdateVolumeOpts{
+				Volume: instances.VolumeOpts{
 					GroupID: groupID,
 					Size:    &newSize,
 				},
+			}
+			if d.Get("charging_mode").(string) == "prePaid" && d.Get("auto_pay").(string) != "false" {
+				updateVolumeOpts.IsAutoPay = true
+
+			}
+			opt := instances.UpdateOpt{
+				Param:  "",
+				Value:  updateVolumeOpts,
 				Action: "enlarge-volume",
 				Method: "post",
 			}
@@ -872,11 +922,18 @@ func flavorSizeUpdate(ctx context.Context, client *golangsdk.ServiceClient, d *s
 		}
 	} else {
 		var sizeUpdateOpts []instances.UpdateOpt
-		opt := instances.UpdateOpt{
-			Param: "volume",
-			Value: instances.UpdateVolumeOpts{
+		updateVolumeOpts := instances.UpdateVolumeOpts{
+			Volume: instances.VolumeOpts{
 				Size: &newSize,
 			},
+		}
+		if d.Get("charging_mode").(string) == "prePaid" && d.Get("auto_pay").(string) != "false" {
+			updateVolumeOpts.IsAutoPay = true
+
+		}
+		opt := instances.UpdateOpt{
+			Param:  "volume",
+			Value:  updateVolumeOpts,
 			Action: "enlarge-volume",
 			Method: "post",
 		}
@@ -903,13 +960,20 @@ func flavorSpecCodeUpdate(ctx context.Context, client *golangsdk.ServiceClient, 
 		}
 		for _, ID := range nodeIDs {
 			var specUpdateOpts []instances.UpdateOpt
-			opt := instances.UpdateOpt{
-				Param: "resize",
-				Value: instances.UpdateSpecOpts{
+			updateSpecOpts := instances.UpdateSpecOpts{
+				Resize: instances.SpecOpts{
 					TargetType:     "mongos",
 					TargetID:       ID,
 					TargetSpecCode: d.Get(specCodeIndex).(string),
 				},
+			}
+			if d.Get("charging_mode").(string) == "prePaid" && d.Get("auto_pay").(string) != "false" {
+				updateSpecOpts.IsAutoPay = true
+
+			}
+			opt := instances.UpdateOpt{
+				Param:  "",
+				Value:  updateSpecOpts,
 				Action: "resize",
 				Method: "post",
 			}
@@ -927,13 +991,20 @@ func flavorSpecCodeUpdate(ctx context.Context, client *golangsdk.ServiceClient, 
 
 		for _, ID := range groupIDs {
 			var specUpdateOpts []instances.UpdateOpt
-			opt := instances.UpdateOpt{
-				Param: "resize",
-				Value: instances.UpdateSpecOpts{
+			updateSpecOpts := instances.UpdateSpecOpts{
+				Resize: instances.SpecOpts{
 					TargetType:     "shard",
 					TargetID:       ID,
 					TargetSpecCode: d.Get(specCodeIndex).(string),
 				},
+			}
+			if d.Get("charging_mode").(string) == "prePaid" && d.Get("auto_pay").(string) != "false" {
+				updateSpecOpts.IsAutoPay = true
+
+			}
+			opt := instances.UpdateOpt{
+				Param:  "resize",
+				Value:  updateSpecOpts,
 				Action: "resize",
 				Method: "post",
 			}
@@ -945,12 +1016,19 @@ func flavorSpecCodeUpdate(ctx context.Context, client *golangsdk.ServiceClient, 
 		}
 	} else {
 		var specUpdateOpts []instances.UpdateOpt
-		opt := instances.UpdateOpt{
-			Param: "resize",
-			Value: instances.UpdateSpecOpts{
+		updateSpecOpts := instances.UpdateSpecOpts{
+			Resize: instances.SpecOpts{
 				TargetID:       d.Id(),
 				TargetSpecCode: d.Get(specCodeIndex).(string),
 			},
+		}
+		if d.Get("charging_mode").(string) == "prePaid" && d.Get("auto_pay").(string) != "false" {
+			updateSpecOpts.IsAutoPay = true
+
+		}
+		opt := instances.UpdateOpt{
+			Param:  "resize",
+			Value:  updateSpecOpts,
 			Action: "resize",
 			Method: "post",
 		}

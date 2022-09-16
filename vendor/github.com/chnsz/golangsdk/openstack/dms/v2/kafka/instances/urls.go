@@ -32,3 +32,7 @@ func listURL(client *golangsdk.ServiceClient) string {
 func extend(client *golangsdk.ServiceClient, id string) string {
 	return client.ServiceURL(client.ProjectID, resourcePath, id, "extend")
 }
+
+func crossVpcURL(client *golangsdk.ServiceClient, id string) string {
+	return client.ServiceURL(client.ProjectID, resourcePath, id, "crossvpc/modify")
+}

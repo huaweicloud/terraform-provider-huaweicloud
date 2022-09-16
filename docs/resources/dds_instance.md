@@ -121,6 +121,32 @@ The following arguments are supported:
 
 **NOTE:** The instance will be restarted in the background when switching SSL. Please operate with caution.
 
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance.
+  The valid values are as follows:
+  + `prePaid`: indicates the yearly/monthly billing mode.
+  + `postPaid`: indicates the pay-per-use billing mode.
+
+  Default value is `postPaid`.
+  Changing this creates a new instance.
+
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the instance.
+  Valid values are *month* and *year*. This parameter is mandatory if `charging_mode` is set to *prePaid*.
+  Changing this creates a new instance.
+
+* `period` - (Optional, Int, ForceNew) Specifies the charging period of the instance.
+  If `period_unit` is set to *month*, the value ranges from 1 to 9.
+  If `period_unit` is set to *year*, the value ranges from 1 to 3.
+  This parameter is mandatory if `charging_mode` is set to *prePaid*.
+  Changing this creates a new instance.
+
+* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
+  Valid values are `true` and `false`, defaults to `false`.
+  Changing this creates a new instance.
+
+* `auto_pay` - (Optional, String, ForceNew) Specifies whether auto pay is enabled.
+  Valid values are *true* and *false*. Defaults to *true*. If you set this to *false*, you need to pay the order
+  yourself in time, be careful about the timeout of resource creation. Changing this creates a new instance.
+
 * `tags` - (Optional, Map) The key/value pairs to associate with the DDS instance.
 
 The `datastore` block supports:
