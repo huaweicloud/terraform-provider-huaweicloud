@@ -10,7 +10,7 @@ import (
 	_ "github.com/GehirnInc/crypt/sha512_crypt"
 )
 
-var letters = []byte("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ=_")
+var letters = []byte("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 // Salt generates a random salt according to given size
 func Salt(size int) ([]byte, error) {
@@ -22,7 +22,7 @@ func Salt(size int) ([]byte, error) {
 
 	arc := uint8(0)
 	for i, x := range salt {
-		arc = x & 63
+		arc = x % 62
 		salt[i] = letters[arc]
 	}
 	return salt, nil
