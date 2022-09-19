@@ -1,8 +1,10 @@
 package obs
 
 import (
+	"bytes"
 	"context"
 	"log"
+	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -37,22 +39,22 @@ func DataSourceObsBucketObject() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"content_type": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
+			"body": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"etag": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"version_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"size": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -73,65 +75,81 @@ func dataSourceObsBucketObjectRead(_ context.Context, d *schema.ResourceData, me
 
 	bucket := d.Get("bucket").(string)
 	key := d.Get("key").(string)
-
-	objects, err := obsClient.ListObjects(&obs.ListObjectsInput{
+	objectMeta, err := obsClient.GetObjectMetadata(&obs.GetObjectMetadataInput{
 		Bucket: bucket,
-		ListObjsInput: obs.ListObjsInput{
-			Prefix: key,
-		},
+		Key:    key,
 	})
 	if err != nil {
-		return diag.FromErr(getObsError("Error listing objects of OBS bucket", bucket, err))
-	}
-
-	var exist bool
-	var objectContent obs.Content
-	for _, content := range objects.Contents {
-		if key == content.Key {
-			exist = true
-			objectContent = content
-			break
+		if obsError, ok := err.(obs.ObsError); ok && obsError.StatusCode == 404 {
+			return diag.Errorf("object %s not found in bucket %s", key, bucket)
 		}
-	}
-	if !exist {
-		return diag.Errorf("object %s not found in bucket %s", key, bucket)
+		return diag.Errorf("error fetching object %s in bucket %s: %s", key, bucket, err)
 	}
 
-	log.Printf("[DEBUG] Data Source Reading OBS Bucket Object %s: %#v", key, objectContent)
-
-	object, err := obsClient.GetObject(&obs.GetObjectInput{
-		GetObjectMetadataInput: obs.GetObjectMetadataInput{
-			Bucket: bucket,
-			Key:    key,
-		},
-	})
-	if err != nil {
-		return diag.FromErr(getObsError("Error get object info of OBS bucket", bucket, err))
-	}
-
-	log.Printf("[DEBUG] Data Source Reading OBS Bucket Object : %#v", object)
-
+	log.Printf("[DEBUG] Reading OBS Bucket Object %s metadata: %#v", key, objectMeta)
 	d.SetId(key)
 
-	class := string(objectContent.StorageClass)
+	class := string(objectMeta.StorageClass)
 	if class == "" {
 		class = "STANDARD"
 	} else {
 		class = normalizeStorageClass(class)
 	}
 
+	size := objectMeta.ContentLength
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("size", objectContent.Size),
-		d.Set("etag", strings.Trim(objectContent.ETag, `"`)),
-		d.Set("version_id", object.VersionId),
-		d.Set("content_type", object.ContentType),
 		d.Set("storage_class", class),
+		d.Set("size", size),
+		d.Set("etag", strings.Trim(objectMeta.ETag, `"`)),
+		d.Set("version_id", objectMeta.VersionId),
+		d.Set("content_type", objectMeta.ContentType),
 	)
+
+	// body is available only for objects which have a human-readable Content-Type
+	// (text/* and application/json) and smaller than 64KB
+	if isContentTypeAllowed(objectMeta.ContentType) && size < 65536 {
+		object, err := obsClient.GetObject(&obs.GetObjectInput{
+			GetObjectMetadataInput: obs.GetObjectMetadataInput{
+				Bucket: bucket,
+				Key:    key,
+			},
+		})
+		if err != nil {
+			return diag.FromErr(getObsError("Error get object info of OBS bucket", bucket, err))
+		}
+
+		defer object.Body.Close()
+		log.Printf("[DEBUG] Reading OBS Bucket Object : %#v", object)
+
+		buf := new(bytes.Buffer)
+		bytesRead, err := buf.ReadFrom(object.Body)
+		if err != nil {
+			return diag.Errorf("Failed reading content of OBS object (%s): %s", key, err)
+		}
+
+		log.Printf("[INFO] saving %d bytes from OBS object %s", bytesRead, key)
+		mErr = multierror.Append(mErr, d.Set("body", buf.String()))
+	}
 
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting bucket object fields: %s", err)
 	}
 
 	return nil
+}
+
+func isContentTypeAllowed(contentType string) bool {
+	allowedContentTypes := []*regexp.Regexp{
+		regexp.MustCompile("^text/.+"),
+		regexp.MustCompile("^application/json$"),
+	}
+
+	for _, r := range allowedContentTypes {
+		if r.MatchString(contentType) {
+			return true
+		}
+	}
+
+	return false
 }

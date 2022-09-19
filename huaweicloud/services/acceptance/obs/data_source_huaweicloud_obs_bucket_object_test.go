@@ -112,8 +112,9 @@ func TestAccObsBucketObjectDataSource_allParams(t *testing.T) {
 				Config: dataSourceConf,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckObsObjectDataSourceExists(dataSourceName),
-					resource.TestCheckResourceAttr(dataSourceName, "content_type", "application/unknown"),
+					resource.TestCheckResourceAttr(dataSourceName, "content_type", "application/json"),
 					resource.TestCheckResourceAttr(dataSourceName, "storage_class", "STANDARD"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "body"),
 				),
 			},
 		},
@@ -226,7 +227,7 @@ resource "huaweicloud_obs_bucket_object" "object" {
   acl           = "private"
   storage_class = "STANDARD"
   encryption    = true
-  content_type  = "application/unknown"
+  content_type  = "application/json"
   content       = <<CONTENT
     {"msg": "Hi there!"}
 CONTENT

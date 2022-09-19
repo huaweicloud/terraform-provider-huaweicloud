@@ -87,6 +87,7 @@ func ResourceObsBucketObject() *schema.Resource {
 			"content_type": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 
 			"etag": {
@@ -243,37 +244,26 @@ func resourceObsBucketObjectRead(_ context.Context, d *schema.ResourceData, meta
 
 	bucket := d.Get("bucket").(string)
 	key := d.Get("key").(string)
-	input := &obs.ListObjectsInput{}
-	input.Bucket = bucket
-	input.Prefix = key
-
-	resp, err := obsClient.ListObjects(input)
+	objectMeta, err := obsClient.GetObjectMetadata(&obs.GetObjectMetadataInput{
+		Bucket: bucket,
+		Key:    key,
+	})
 	if err != nil {
-		return diag.FromErr(getObsError("Error listing objects of OBS bucket", bucket, err))
+		if obsError, ok := err.(obs.ObsError); ok && obsError.StatusCode == 404 {
+			d.SetId("")
+			return diag.Diagnostics{
+				diag.Diagnostic{
+					Severity: diag.Warning,
+					Summary:  "Resource not found",
+					Detail:   fmt.Sprintf("object %s not found in bucket %s", key, bucket),
+				},
+			}
+		}
+		return diag.Errorf("error fetching object %s in bucket %s: %s", key, bucket, err)
 	}
 
-	var exist bool
-	var object obs.Content
-	for _, content := range resp.Contents {
-		if key == content.Key {
-			exist = true
-			object = content
-			break
-		}
-	}
-	if !exist {
-		d.SetId("")
-		return diag.Diagnostics{
-			diag.Diagnostic{
-				Severity: diag.Warning,
-				Summary:  "Resource not found",
-				Detail:   fmt.Sprintf("object %s not found in bucket %s", key, bucket),
-			},
-		}
-	}
-
-	log.Printf("[DEBUG] Reading OBS Bucket Object %s: %#v", key, object)
-	class := string(object.StorageClass)
+	log.Printf("[DEBUG] Reading OBS Bucket Object %s metadata: %#v", key, objectMeta)
+	class := string(objectMeta.StorageClass)
 	if class == "" {
 		class = "STANDARD"
 	} else {
@@ -283,8 +273,10 @@ func resourceObsBucketObjectRead(_ context.Context, d *schema.ResourceData, meta
 	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("storage_class", class),
-		d.Set("size", object.Size),
-		d.Set("etag", strings.Trim(object.ETag, `"`)),
+		d.Set("content_type", objectMeta.ContentType),
+		d.Set("version_id", objectMeta.VersionId),
+		d.Set("size", objectMeta.ContentLength),
+		d.Set("etag", strings.Trim(objectMeta.ETag, `"`)),
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
