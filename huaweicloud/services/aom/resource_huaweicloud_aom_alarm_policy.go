@@ -483,7 +483,7 @@ func buildAlarmTags(tags []entity.AlarmTag) interface{} {
 	var ret []map[string]interface{}
 	var m = make(map[string]interface{})
 	if len(tags) == 0 {
-		return tags
+		return ret
 	}
 	m["auto_tags"] = tags[0].AutoTags
 	m["custom_tags"] = tags[0].CustomTags
