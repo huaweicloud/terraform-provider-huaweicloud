@@ -472,11 +472,21 @@ func buildMetricAlarmSpecMap(spec entity.MetricAlarmSpec) []map[string]interface
 	m["alarm_rule_template_bind_enable"] = spec.AlarmRuletemplateBindEnable
 	m["alarm_rule_template_id"] = spec.AlarmRuletemplateId
 	m["no_data_conditions"] = buildNoDataConditionsMap(spec.NoDataConditions)
-	m["alarm_tags"] = spec.AlarmTags
+	m["alarm_tags"] = buildAlarmTags(spec.AlarmTags)
 	m["trigger_conditions"] = buildTriggerConditionsMap(spec.TriggerConditions)
 	m["monitor_objects"] = spec.MonitorObjects
 	m["recovery_conditions"] = spec.RecoveryConditions
 	return []map[string]interface{}{m}
+}
+
+func buildAlarmTags(tags []entity.AlarmTag) interface{} {
+	var ret []map[string]interface{}
+	var m = make(map[string]interface{})
+	m["auto_tags"] = tags[0].AutoTags
+	m["custom_tags"] = tags[0].CustomTags
+	m["custom_annotations"] = tags[0].CustomAnnotations
+	ret = append(ret, m)
+	return ret
 }
 
 func buildTriggerConditionsMap(conditions []entity.TriggerCondition) interface{} {
