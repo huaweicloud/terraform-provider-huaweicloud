@@ -81,7 +81,7 @@ func resourcePrometheusInstanceRead(_ context.Context, d *schema.ResourceData, m
 	if err != nil {
 		mErr = multierror.Append(mErr, err)
 	}
-	d.Set("prom_for_cloud_service", buildPrometheusInstanceMap(rlt))
+	d.Set("prom_for_cloud_service", flattenPrometheusInstanceMap(rlt))
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error getting AOM prometheus instance fields: %s", err)
 	}
@@ -89,7 +89,7 @@ func resourcePrometheusInstanceRead(_ context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func buildPrometheusInstanceMap(rlt *entity.PrometheusInstanceParams) []map[string]interface{} {
+func flattenPrometheusInstanceMap(rlt *entity.PrometheusInstanceParams) []map[string]interface{} {
 	var m = make(map[string]interface{})
 	m["ces_metric_namespaces"] = rlt.PromForCloudService.CesMetricNamespaces
 	return []map[string]interface{}{m}

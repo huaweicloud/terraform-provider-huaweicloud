@@ -63,14 +63,14 @@ func ResourceAlarmPolicy() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"metric_alarm_spec":   schemaMetricAlarmSpe(),
+			"metric_alarm_spec":   schemaMetricAlarmSpec(),
 			"event_alarm_spec":    schemeEventAlarmSpec(),
 			"alarm_notifications": schemeAlarmNotifications(),
 		},
 	}
 }
 
-func schemaMetricAlarmSpe() *schema.Schema {
+func schemaMetricAlarmSpec() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeList,
 		Optional: true,
@@ -384,9 +384,9 @@ func resourceAlarmPolicyCreate(ctx context.Context, d *schema.ResourceData, meta
 		AlarmRuleEnable:      d.Get("alarm_rule_enable").(bool),
 		AlarmRuleStatus:      d.Get("alarm_rule_status").(string),
 		AlarmRuleType:        d.Get("alarm_rule_type").(string),
-		MetricAlarmSpec:      buildMetricAlarmSpec(d.Get("metric_alarm_spec").([]interface{})),
-		EventAlarmSpec:       buildEventAlarmSpec(d.Get("event_alarm_spec").([]interface{})),
-		AlarmNotifications:   buildAlarmNotifications(d.Get("alarm_notifications").([]interface{})),
+		MetricAlarmSpec:      flattenMetricAlarmSpec(d.Get("metric_alarm_spec").([]interface{})),
+		EventAlarmSpec:       flattenEventAlarmSpec(d.Get("event_alarm_spec").([]interface{})),
+		AlarmNotifications:   flattenAlarmNotifications(d.Get("alarm_notifications").([]interface{})),
 	}
 	region := conf.GetRegion(d)
 	client.WithMethod(httpclient_go.MethodPost).WithUrl("v4/" + conf.GetProjectID(region) + "/alarm-rules?action_id=add-alarm-action").WithBody(createOpts)
@@ -449,8 +449,8 @@ func resourceAlarmPolicyRead(ctx context.Context, d *schema.ResourceData, meta i
 				d.Set("alarm_rule_enable", params.AlarmRuleEnable),
 				d.Set("alarm_rule_name", params.AlarmRuleName),
 				d.Set("alarm_rule_type", params.AlarmRuleType),
-				d.Set("alarm_notifications", buildAlarmNotificationsMap(params.AlarmNotifications)),
-				d.Set("metric_alarm_spec", buildMetricAlarmSpecMap(params.MetricAlarmSpec)),
+				d.Set("alarm_notifications", flattenAlarmNotificationsMap(params.AlarmNotifications)),
+				d.Set("metric_alarm_spec", flattenMetricAlarmSpecMap(params.MetricAlarmSpec)),
 			)
 			if err = mErr.ErrorOrNil(); err != nil {
 				return diag.Errorf("error getting AOM alarm policy fields: %s", err)
@@ -464,22 +464,35 @@ func resourceAlarmPolicyRead(ctx context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
-func buildMetricAlarmSpecMap(spec entity.MetricAlarmSpec) []map[string]interface{} {
+func flattenMetricAlarmSpecMap(spec entity.MetricAlarmSpec) []map[string]interface{} {
 	var m = make(map[string]interface{})
 	m["monitor_type"] = spec.MonitorType
 	m["resource_kind"] = spec.ResourceKind
 	m["metric_kind"] = spec.MetricKind
 	m["alarm_rule_template_bind_enable"] = spec.AlarmRuletemplateBindEnable
 	m["alarm_rule_template_id"] = spec.AlarmRuletemplateId
-	m["no_data_conditions"] = buildNoDataConditionsMap(spec.NoDataConditions)
-	m["alarm_tags"] = spec.AlarmTags
-	m["trigger_conditions"] = buildTriggerConditionsMap(spec.TriggerConditions)
+	m["no_data_conditions"] = flattenNoDataConditionsMap(spec.NoDataConditions)
+	m["alarm_tags"] = flattenAlarmTags(spec.AlarmTags)
+	m["trigger_conditions"] = flattenTriggerConditionsMap(spec.TriggerConditions)
 	m["monitor_objects"] = spec.MonitorObjects
 	m["recovery_conditions"] = spec.RecoveryConditions
 	return []map[string]interface{}{m}
 }
 
-func buildTriggerConditionsMap(conditions []entity.TriggerCondition) interface{} {
+func flattenAlarmTags(tags []entity.AlarmTag) interface{} {
+	var ret []map[string]interface{}
+	var m = make(map[string]interface{})
+	if len(tags) == 0 {
+		return ret
+	}
+	m["auto_tags"] = tags[0].AutoTags
+	m["custom_tags"] = tags[0].CustomTags
+	m["custom_annotations"] = tags[0].CustomAnnotations
+	ret = append(ret, m)
+	return ret
+}
+
+func flattenTriggerConditionsMap(conditions []entity.TriggerCondition) interface{} {
 	var ret []map[string]interface{}
 	for _, condition := range conditions {
 		var m = make(map[string]interface{})
@@ -502,7 +515,7 @@ func buildTriggerConditionsMap(conditions []entity.TriggerCondition) interface{}
 	return ret
 }
 
-func buildNoDataConditionsMap(conditions []entity.NoDataCondition) []map[string]interface{} {
+func flattenNoDataConditionsMap(conditions []entity.NoDataCondition) []map[string]interface{} {
 	var ret []map[string]interface{}
 	for _, condition := range conditions {
 		var m = make(map[string]interface{})
@@ -514,7 +527,7 @@ func buildNoDataConditionsMap(conditions []entity.NoDataCondition) []map[string]
 	return ret
 }
 
-func buildAlarmNotificationsMap(notifications entity.AlarmNotifications) []map[string]interface{} {
+func flattenAlarmNotificationsMap(notifications entity.AlarmNotifications) []map[string]interface{} {
 	var m = make(map[string]interface{})
 	m["notification_type"] = notifications.NotificationType
 	m["route_group_enable"] = notifications.RouteGroupEnable
@@ -551,7 +564,7 @@ func resourceAlarmPolicyDelete(ctx context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func buildMetricAlarmSpec(raw interface{}) entity.MetricAlarmSpec {
+func flattenMetricAlarmSpec(raw interface{}) entity.MetricAlarmSpec {
 	mas := make([]entity.MetricAlarmSpec, 0)
 	b, err := json.Marshal(raw)
 	if err != nil {
@@ -567,7 +580,7 @@ func buildMetricAlarmSpec(raw interface{}) entity.MetricAlarmSpec {
 	return mas[0]
 }
 
-func buildEventAlarmSpec(raw interface{}) entity.EventAlarmSpec {
+func flattenEventAlarmSpec(raw interface{}) entity.EventAlarmSpec {
 	mas := make([]entity.EventAlarmSpec, 0)
 	b, err := json.Marshal(raw)
 	if err != nil {
@@ -583,7 +596,7 @@ func buildEventAlarmSpec(raw interface{}) entity.EventAlarmSpec {
 	return mas[0]
 }
 
-func buildAlarmNotifications(raw interface{}) entity.AlarmNotifications {
+func flattenAlarmNotifications(raw interface{}) entity.AlarmNotifications {
 	mas := make([]entity.AlarmNotifications, 0)
 	b, err := json.Marshal(raw)
 	if err != nil {
