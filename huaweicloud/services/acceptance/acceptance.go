@@ -179,11 +179,11 @@ func TestAccPreCheckMrsCustom(t *testing.T) {
 }
 
 func RandomAccResourceName() string {
-	return fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
+	return fmt.Sprintf("tf_test_%s", acctest.RandString(5))
 }
 
 func RandomAccResourceNameWithDash() string {
-	return fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	return fmt.Sprintf("tf-test-%s", acctest.RandString(5))
 }
 
 func RandomCidr() string {
