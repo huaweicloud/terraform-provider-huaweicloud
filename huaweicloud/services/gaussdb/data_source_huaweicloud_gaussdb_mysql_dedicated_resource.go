@@ -1,4 +1,4 @@
-package huaweicloud
+package gaussdb
 
 import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -6,13 +6,13 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk/openstack/geminidb/v3/instances"
+	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func dataSourceGeminiDBDehResource() *schema.Resource {
+func DataSourceGaussDBMysqlDehResource() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceGeminiDBDehResourceRead,
+		Read: dataSourceGaussDBMysqlDehResourceRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -26,8 +26,11 @@ func dataSourceGeminiDBDehResource() *schema.Resource {
 				Computed: true,
 			},
 			"availability_zone": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeList,
 				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"architecture": {
 				Type:     schema.TypeString,
@@ -53,10 +56,10 @@ func dataSourceGeminiDBDehResource() *schema.Resource {
 	}
 }
 
-func dataSourceGeminiDBDehResourceRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceGaussDBMysqlDehResourceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	region := GetRegion(d, config)
-	client, err := config.GeminiDBV3Client(region)
+	region := config.GetRegion(d)
+	client, err := config.GaussdbV3Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}
@@ -74,7 +77,7 @@ func dataSourceGeminiDBDehResourceRead(d *schema.ResourceData, meta interface{})
 	resource_name := d.Get("resource_name").(string)
 	refinedResources := []instances.DehResource{}
 	for _, refResource := range allResources.Resources {
-		if refResource.EngineName != "cassandra" {
+		if refResource.EngineName != "taurus" {
 			continue
 		}
 		if resource_name != "" && refResource.ResourceName != resource_name {

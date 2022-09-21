@@ -1,4 +1,4 @@
-package huaweicloud
+package gaussdb
 
 import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -6,13 +6,13 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances"
+	"github.com/chnsz/golangsdk/openstack/geminidb/v3/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func dataSourceGaussDBMysqlDehResource() *schema.Resource {
+func DataSourceGeminiDBDehResource() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceGaussDBMysqlDehResourceRead,
+		Read: dataSourceGeminiDBDehResourceRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -26,11 +26,8 @@ func dataSourceGaussDBMysqlDehResource() *schema.Resource {
 				Computed: true,
 			},
 			"availability_zone": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeString,
 				Computed: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
 			},
 			"architecture": {
 				Type:     schema.TypeString,
@@ -56,10 +53,10 @@ func dataSourceGaussDBMysqlDehResource() *schema.Resource {
 	}
 }
 
-func dataSourceGaussDBMysqlDehResourceRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceGeminiDBDehResourceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	region := GetRegion(d, config)
-	client, err := config.GaussdbV3Client(region)
+	region := config.GetRegion(d)
+	client, err := config.GeminiDBV3Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}
@@ -77,7 +74,7 @@ func dataSourceGaussDBMysqlDehResourceRead(d *schema.ResourceData, meta interfac
 	resource_name := d.Get("resource_name").(string)
 	refinedResources := []instances.DehResource{}
 	for _, refResource := range allResources.Resources {
-		if refResource.EngineName != "taurus" {
+		if refResource.EngineName != "cassandra" {
 			continue
 		}
 		if resource_name != "" && refResource.ResourceName != resource_name {

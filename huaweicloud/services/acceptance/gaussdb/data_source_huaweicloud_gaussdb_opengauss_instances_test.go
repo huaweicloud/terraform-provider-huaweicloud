@@ -45,27 +45,6 @@ func testAccCheckOpenGaussInstancesDataSourceID(n string) resource.TestCheckFunc
 	}
 }
 
-func testAccVpcConfig_Base(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%s"
-  cidr       = "192.168.0.0/16"
-  gateway_ip = "192.168.0.1"
-
-  vpc_id = huaweicloud_vpc.test.id
-
-  timeouts {
-    delete = "20m"
-  }
-}
-`, rName, rName)
-}
-
 func testAccOpenGaussInstancesDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
@@ -85,7 +64,7 @@ resource "huaweicloud_networking_secgroup_rule" "test" {
 
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   name      = "%s"
-  password  = "Test@123"
+  password  = "Test@12345678"
   flavor    = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
   vpc_id    = huaweicloud_vpc.test.id
   subnet_id = huaweicloud_vpc_subnet.test.id
