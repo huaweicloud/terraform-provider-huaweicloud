@@ -1,9 +1,10 @@
-package huaweicloud
+package gaussdb
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -15,8 +16,8 @@ func TestAccOpenGaussInstanceDataSource_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOpenGaussInstanceDataSource_basic(rName),
@@ -47,19 +48,20 @@ func testAccOpenGaussInstanceDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
+resource "huaweicloud_networking_secgroup" "test" {
+  name        = "%s"
+  description = "terraform security group rule acceptance test"
 }
 
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   name        = "%s"
-  password    = "Test@123"
+  password    = "Test@12345678"
   flavor      = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
   vpc_id      = huaweicloud_vpc.test.id
   subnet_id   = huaweicloud_vpc_subnet.test.id
 
   availability_zone = "cn-north-4a,cn-north-4a,cn-north-4a"
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
 
   ha {
     mode             = "enterprise"
@@ -81,5 +83,5 @@ data "huaweicloud_gaussdb_opengauss_instance" "test" {
     huaweicloud_gaussdb_opengauss_instance.test,
   ]
 }
-`, testAccVpcConfig_Base(rName), rName)
+`, testAccVpcConfig_Base(rName), rName, rName)
 }

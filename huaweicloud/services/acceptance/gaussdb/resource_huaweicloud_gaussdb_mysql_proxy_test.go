@@ -78,7 +78,7 @@ resource "huaweicloud_vpc_subnet" "test" {
 
 resource "huaweicloud_gaussdb_mysql_instance" "test" {
   name        = "%s"
-  password    = "Test@123"
+  password    = "Test@12345678"
   flavor      = "gaussdb.mysql.2xlarge.x86.4"
   vpc_id      = huaweicloud_vpc.test.id
   subnet_id   = huaweicloud_vpc_subnet.test.id

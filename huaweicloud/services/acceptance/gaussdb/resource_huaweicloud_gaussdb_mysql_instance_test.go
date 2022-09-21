@@ -1,9 +1,10 @@
-package huaweicloud
+package gaussdb
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances"
@@ -20,9 +21,9 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 	resourceName := "huaweicloud_gaussdb_mysql_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGaussDBInstanceDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckGaussDBInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGaussDBInstanceConfig_basic(rName),
@@ -49,8 +50,8 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 }
 
 func testAccCheckGaussDBInstanceDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	client, err := config.GaussdbV3Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	client, err := config.GaussdbV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("error creating HuaweiCloud GaussDB client: %s", err)
 	}
@@ -80,8 +81,8 @@ func testAccCheckGaussDBInstanceExists(n string, instance *instances.TaurusDBIns
 			return fmtp.Errorf("No ID is set.")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		client, err := config.GaussdbV3Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		client, err := config.GaussdbV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("error creating HuaweiCloud GaussDB client: %s", err)
 		}
@@ -109,7 +110,7 @@ data "huaweicloud_networking_secgroup" "test" {
 
 resource "huaweicloud_gaussdb_mysql_instance" "test" {
   name                  = "%s"
-  password              = "Test@123"
+  password              = "Test@12345678"
   flavor                = "gaussdb.mysql.4xlarge.x86.4"
   vpc_id                = huaweicloud_vpc.test.id
   subnet_id             = huaweicloud_vpc_subnet.test.id
@@ -134,7 +135,7 @@ data "huaweicloud_networking_secgroup" "test" {
 
 resource "huaweicloud_gaussdb_mysql_instance" "test" {
   name                  = "%s"
-  password              = "Test@123"
+  password              = "Test@12345678"
   flavor                = "gaussdb.mysql.4xlarge.x86.4"
   vpc_id                = huaweicloud_vpc.test.id
   subnet_id             = huaweicloud_vpc_subnet.test.id

@@ -1,9 +1,10 @@
-package huaweicloud
+package gaussdb
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk/openstack/geminidb/v3/instances"
@@ -20,9 +21,9 @@ func TestAccGeminiDBInstance_basic(t *testing.T) {
 	resourceName := "huaweicloud_gaussdb_cassandra_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGeminiDBInstanceDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckGeminiDBInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGeminiDBInstanceConfig_basic(rName),
@@ -37,8 +38,8 @@ func TestAccGeminiDBInstance_basic(t *testing.T) {
 }
 
 func testAccCheckGeminiDBInstanceDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	client, err := config.GeminiDBV3Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	client, err := config.GeminiDBV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GeminiDB client: %s", err)
 	}
@@ -71,8 +72,8 @@ func testAccCheckGeminiDBInstanceExists(n string, instance *instances.GeminiDBIn
 			return fmtp.Errorf("No ID is set.")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		client, err := config.GeminiDBV3Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		client, err := config.GeminiDBV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud GeminiDB client: %s", err)
 		}
@@ -125,7 +126,7 @@ data "huaweicloud_networking_secgroup" "test" {
 
 resource "huaweicloud_gaussdb_cassandra_instance" "test" {
   name        = "%s"
-  password    = "Test@123"
+  password    = "Test@12345678"
   flavor      = "geminidb.cassandra.xlarge.4"
   volume_size = 100
   vpc_id      = huaweicloud_vpc.test.id

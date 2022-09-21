@@ -1,9 +1,10 @@
-package huaweicloud
+package gaussdb
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -15,8 +16,8 @@ func TestAccGaussRedisInstanceDataSource_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGaussRedisInstanceDataSource_basic(rName),
@@ -61,7 +62,7 @@ data "huaweicloud_gaussdb_nosql_flavors" "test" {
 
 resource "huaweicloud_gaussdb_redis_instance" "test" {
   name        = "%s"
-  password    = "Test@123"
+  password    = "Test@12345678"
   flavor      = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
   volume_size = 100
   vpc_id      = huaweicloud_vpc.test.id

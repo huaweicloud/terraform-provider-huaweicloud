@@ -205,3 +205,8 @@ func UpdateAutoRenew(c *golangsdk.ServiceClient, enabled, resourceId string) err
 	}
 	return resources.DisableAutoRenew(c, resourceId)
 }
+
+func HasFilledOpt(d *schema.ResourceData, param string) bool {
+	_, b := d.GetOk(param)
+	return b
+}
