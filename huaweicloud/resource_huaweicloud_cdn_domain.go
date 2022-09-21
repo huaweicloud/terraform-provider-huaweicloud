@@ -243,6 +243,26 @@ func resourceCdnDomainV1() *schema.Resource {
 							Optional: true,
 							Default:  1,
 						},
+						"obs_web_hosting_enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"http_port": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"https_port": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"retrieval_host": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -502,27 +522,60 @@ func buildCacheUrlParameterFilterOpts(rawCacheUrlParameterFilter []interface{}) 
 	return &CacheUrlParameterFilterOpts
 }
 
-func configOrUpdateConfigs(hcCdnClient *cdnv1.CdnClient, rawConfigs []interface{}, domainName, epsId string) error {
-	if len(rawConfigs) != 1 {
+func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
+	if len(rawSources) < 1 {
 		return nil
 	}
 
-	configs := rawConfigs[0].(map[string]interface{})
-	ipv6Accelerate := 0
-	if configs["ipv6_enable"].(bool) {
-		ipv6Accelerate = 1
+	sourcesOpts := make([]model.SourcesConfig, len(rawSources))
+	for i, v := range rawSources {
+		source := v.(map[string]interface{})
+		var priority int32
+		if source["active"].(int) == 1 {
+			priority = 70
+		} else {
+			priority = 30
+		}
+		obsWebHostingStatus := "off"
+		if source["obs_web_hosting_enabled"].(bool) {
+			obsWebHostingStatus = "on"
+		}
+		sourcesOpts[i] = model.SourcesConfig{
+			OriginAddr:          source["origin"].(string),
+			OriginType:          source["origin_type"].(string),
+			Priority:            priority,
+			ObsWebHostingStatus: utils.String(obsWebHostingStatus),
+			HttpPort:            utils.Int32IgnoreEmpty(int32(source["http_port"].(int))),
+			HttpsPort:           utils.Int32IgnoreEmpty(int32(source["https_port"].(int))),
+			HostName:            utils.StringIgnoreEmpty(source["retrieval_host"].(string)),
+		}
 	}
 
+	return &sourcesOpts
+}
+
+func configOrUpdateSourcesAndConfigs(hcCdnClient *cdnv1.CdnClient, rawSources []interface{}, rawConfigs []interface{}, domainName, epsId string) error {
 	configsOpts := model.Configs{
-		Https:                   buildHttpsOpts(configs["https_settings"].([]interface{})),
-		OriginRequestHeader:     buildOriginRequestHeaderOpts(configs["retrieval_request_header"].([]interface{})),
-		HttpResponseHeader:      buildHttpResponseHeaderOpts(configs["http_response_header"].([]interface{})),
-		UrlAuth:                 buildUrlAuthOpts(configs["url_signing"].([]interface{})),
-		OriginProtocol:          utils.StringIgnoreEmpty(configs["origin_protocol"].(string)),
-		ForceRedirect:           buildForceRedirectOpts(configs["force_redirect"].([]interface{})),
-		Compress:                buildCompressOpts(configs["compress"].([]interface{})),
-		CacheUrlParameterFilter: buildCacheUrlParameterFilterOpts(configs["cache_url_parameter_filter"].([]interface{})),
-		Ipv6Accelerate:          utils.Int32(int32(ipv6Accelerate)),
+		Sources: buildSourcesOpts(rawSources),
+	}
+
+	if len(rawConfigs) == 1 {
+		configs := rawConfigs[0].(map[string]interface{})
+
+		ipv6Accelerate := 0
+		if configs["ipv6_enable"].(bool) {
+			ipv6Accelerate = 1
+		}
+
+		configsOpts.Https = buildHttpsOpts(configs["https_settings"].([]interface{}))
+		configsOpts.OriginRequestHeader = buildOriginRequestHeaderOpts(configs["retrieval_request_header"].([]interface{}))
+		configsOpts.HttpResponseHeader = buildHttpResponseHeaderOpts(configs["http_response_header"].([]interface{}))
+		configsOpts.UrlAuth = buildUrlAuthOpts(configs["url_signing"].([]interface{}))
+		configsOpts.OriginProtocol = utils.StringIgnoreEmpty(configs["origin_protocol"].(string))
+		configsOpts.ForceRedirect = buildForceRedirectOpts(configs["force_redirect"].([]interface{}))
+		configsOpts.Compress = buildCompressOpts(configs["compress"].([]interface{}))
+		configsOpts.CacheUrlParameterFilter = buildCacheUrlParameterFilterOpts(configs["cache_url_parameter_filter"].([]interface{}))
+		configsOpts.Ipv6Accelerate = utils.Int32(int32(ipv6Accelerate))
 	}
 
 	req := model.UpdateDomainFullConfigRequest{
@@ -765,18 +818,44 @@ func flattenCacheUrlParameterFilterAttrs(cacheUrlParameterFilter *model.CacheUrl
 	return []map[string]interface{}{cacheUrlParameterFilterAttrs}
 }
 
-func getConfigsAttrs(hcCdnClient *cdnv1.CdnClient, domainName, epsId, privateKey, urlAuthKey string) ([]map[string]interface{}, error) {
+func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{} {
+	if sources == nil || len(*sources) == 0 {
+		return nil
+	}
+
+	sourcesAttrs := make([]map[string]interface{}, len(*sources))
+	for i, v := range *sources {
+		var active int
+		if v.Priority == 70 {
+			active = 1
+		}
+		sourcesAttrs[i] = map[string]interface{}{
+			"origin":                  v.OriginAddr,
+			"origin_type":             v.OriginType,
+			"active":                  active,
+			"obs_web_hosting_enabled": v.ObsWebHostingStatus != nil && *v.ObsWebHostingStatus == "on",
+			"http_port":               v.HttpPort,
+			"https_port":              v.HttpsPort,
+			"retrieval_host":          v.HostName,
+		}
+	}
+
+	return sourcesAttrs
+}
+
+func getSourcesAndConfigsAttrs(hcCdnClient *cdnv1.CdnClient, domainName, epsId, privateKey,
+	urlAuthKey string) ([]map[string]interface{}, []map[string]interface{}, error) {
 	req := model.ShowDomainFullConfigRequest{
 		DomainName:          domainName,
 		EnterpriseProjectId: utils.StringIgnoreEmpty(epsId),
 	}
 	resp, err := hcCdnClient.ShowDomainFullConfig(&req)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	if resp.Configs == nil {
-		return nil, fmtp.Errorf("unbale to find the configs of domain: %s", domainName)
+		return nil, nil, fmtp.Errorf("unbale to find the configs of domain: %s", domainName)
 	}
 
 	configs := resp.Configs
@@ -792,7 +871,7 @@ func getConfigsAttrs(hcCdnClient *cdnv1.CdnClient, domainName, epsId, privateKey
 		"ipv6_enable":                configs.Ipv6Accelerate != nil && *configs.Ipv6Accelerate == 1,
 	}
 
-	return []map[string]interface{}{configsAttrs}, nil
+	return flattenSourcesAttrs(configs.Sources), []map[string]interface{}{configsAttrs}, nil
 }
 
 func getCacheAttrs(hcCdnClient *cdnv1.CdnClient, domainId, epsId string) ([]map[string]interface{}, error) {
@@ -862,23 +941,14 @@ func resourceCdnDomainV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("domain_status", v.DomainStatus)
 	d.Set("service_area", v.ServiceArea)
 
-	// set sources
-	sources := make([]map[string]interface{}, len(v.Sources))
-	for i, source := range v.Sources {
-		sources[i] = make(map[string]interface{})
-		sources[i]["origin"] = source.IporDomain
-		sources[i]["origin_type"] = source.OriginType
-		sources[i]["active"] = source.ActiveStandby
-	}
-	d.Set("sources", sources)
-
 	privateKey := d.Get("configs.0.https_settings.0.private_key").(string)
 	urlAuthKey := d.Get("configs.0.url_signing.0.key").(string)
-	configAttrs, err := getConfigsAttrs(hcCdnClient, v.DomainName, epsId, privateKey, urlAuthKey)
+	sources, configAttrs, err := getSourcesAndConfigsAttrs(hcCdnClient, v.DomainName, epsId, privateKey, urlAuthKey)
 	if err != nil {
 		return fmtp.Errorf("Error reading CDN Domain configs settings: %s", err)
 	}
 
+	d.Set("sources", sources)
 	d.Set("configs", configAttrs)
 
 	cacheAttrs, err := getCacheAttrs(hcCdnClient, id, epsId)
@@ -908,26 +978,9 @@ func resourceCdnDomainV1Update(d *schema.ResourceData, meta interface{}) error {
 	opts := getResourceExtensionOpts(d, config)
 	timeout := d.Timeout(schema.TimeoutCreate)
 
-	if d.HasChange("sources") && !d.IsNewResource() {
-		opts := getResourceExtensionOpts(d, config)
-		updateOpts := &domains.OriginOpts{
-			Sources: getDomainSources(d),
-		}
-
-		if err = domains.Origin(cdnClient, id, opts, updateOpts).Err; err != nil {
-			return fmtp.Errorf("Error updating CDN Domain orgin servers: %s", err)
-		}
-
-		// Wait for CDN domain to become active again before continuing
-		logp.Printf("[INFO] Waiting for CDN domain %s to become online.", id)
-		err = waitDomainOnlin(cdnClient, id, opts, timeout)
-		if err != nil {
-			return err
-		}
-	}
-
-	if d.HasChange("configs") {
-		err = configOrUpdateConfigs(hcCdnClient, d.Get("configs").([]interface{}), domainName, epsId)
+	if d.HasChanges("sources", "configs") || d.IsNewResource() {
+		err = configOrUpdateSourcesAndConfigs(hcCdnClient, d.Get("sources").([]interface{}),
+			d.Get("configs").([]interface{}), domainName, epsId)
 		if err != nil {
 			return fmtp.Errorf("Error updating CDN Domain configs settings: %s", err)
 		}

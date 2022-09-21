@@ -146,6 +146,15 @@ The `sources` block supports:
 * `active` - (Optional, Int) Whether an origin server is active or standby (1: active; 0: standby). The default value is
   1.
 
+* `obs_web_hosting_enabled` - (Optional, Bool) Whether to enable static website hosting for the OBS bucket.
+  This parameter is mandatory when the `origin_type` is **obs_bucket**.
+
+* `http_port` - (Optional, Int) Specifies the HTTP port. Default value: **80**.
+
+* `https_port` - (Optional, Int) Specifies the HTTPS port. Default value: **443**.
+
+* `retrieval_host` - (Optional, String) Specifies the retrieval host. The default value is the acceleration domain name.
+
 <a name="configs_object"></a>
 The `configs` block support:
 

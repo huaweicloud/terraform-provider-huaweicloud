@@ -60,6 +60,32 @@ func TestAccCdnDomain_cache(t *testing.T) {
 	})
 }
 
+func TestAccCdnDomain_retrievalHost(t *testing.T) {
+	var domain domains.CdnDomain
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckCDN(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCdnDomainV1Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCdnDomainV1_retrievalHost,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCdnDomainV1Exists("huaweicloud_cdn_domain.domain_1", &domain),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_cdn_domain.domain_1", "name", HW_CDN_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_cdn_domain.domain_1", "sources.0.retrieval_host", "customize.test.huaweicloud.com"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_cdn_domain.domain_1", "sources.0.http_port", "8001"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_cdn_domain.domain_1", "sources.0.https_port", "8002"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccCdnDomain_configs(t *testing.T) {
 	var domain domains.CdnDomain
 
@@ -187,6 +213,23 @@ resource "huaweicloud_cdn_domain" "domain_1" {
       ttl_type  = 4
       priority  = 2
     }
+  }
+}
+`, HW_CDN_DOMAIN_NAME)
+
+var testAccCdnDomainV1_retrievalHost = fmt.Sprintf(`
+resource "huaweicloud_cdn_domain" "domain_1" {
+  name                  = "%s"
+  type                  = "wholeSite"
+  enterprise_project_id = 0
+
+  sources {
+    active         = 1
+    origin         = "100.254.53.75"
+    origin_type    = "ipaddr"
+    retrieval_host = "customize.test.huaweicloud.com"
+    http_port      = 8001
+    https_port     = 8002
   }
 }
 `, HW_CDN_DOMAIN_NAME)
