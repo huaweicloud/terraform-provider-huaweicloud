@@ -195,6 +195,11 @@ func RandomCidrAndGatewayIp() (string, string) {
 	return fmt.Sprintf("172.16.%d.0/24", seed), fmt.Sprintf("172.16.%d.1", seed)
 }
 
+func RandomPassword() string {
+	return fmt.Sprintf("%s%s%s%d", acctest.RandStringFromCharSet(2, "ABCDEFGHIJKLMNOPQRSTUVWXZY"),
+		acctest.RandString(3), acctest.RandStringFromCharSet(2, "~!@#%^*-_=+?"), acctest.RandIntRange(1000, 9999))
+}
+
 // lintignore:AT003
 func TestAccPrecheckWafInstance(t *testing.T) {
 	if HW_WAF_ENABLE_FLAG == "" {
