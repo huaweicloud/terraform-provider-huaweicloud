@@ -1,6 +1,8 @@
 package instances
 
 import (
+	"fmt"
+
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
 )
@@ -204,8 +206,12 @@ func GetInstanceByName(client *golangsdk.ServiceClient, name string) (ListTaurus
 	if err != nil {
 		return instance, err
 	}
-	if all.TotalCount == 0 {
-		return instance, nil
+	if all.TotalCount < 1 {
+		return instance, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Body: []byte(fmt.Sprintf("the database instance (%s) does not exist", name)),
+			},
+		}
 	}
 
 	instance = all.Instances[0]
