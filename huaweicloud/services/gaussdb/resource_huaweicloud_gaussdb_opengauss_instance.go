@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
 	"github.com/chnsz/golangsdk/openstack/opengauss/v3/backups"
 	"github.com/chnsz/golangsdk/openstack/opengauss/v3/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -238,6 +239,10 @@ func ResourceOpenGaussInstance() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"charging_mode": common.SchemaChargingMode(nil),
+			"period_unit":   common.SchemaPeriodUnit(nil),
+			"period":        common.SchemaPeriod(nil),
+			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
 
 			// Attributes
 			"status": {
@@ -371,6 +376,7 @@ func buildOpenGaussInstanceCreateOpts(ctx context.Context, d *schema.ResourceDat
 		ConfigurationId:     d.Get("configuration_id").(string),
 		ShardingNum:         d.Get("sharding_num").(int),
 		CoordinatorNum:      d.Get("coordinator_num").(int),
+		ReplicaNum:          d.Get("replica_num").(int),
 		DataStore:           resourceOpenGaussDataStore(d),
 		BackupStrategy:      resourceOpenGaussBackupStrategy(d),
 	}
@@ -407,6 +413,18 @@ func buildOpenGaussInstanceCreateOpts(ctx context.Context, d *schema.ResourceDat
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.Password = d.Get("password").(string)
 
+	if d.Get("charging_mode").(string) == "prePaid" {
+		if err := common.ValidatePrePaidChargeInfo(d); err != nil {
+			return createOpts, err
+		}
+		createOpts.ChargeInfo = &instances.ChargeInfo{
+			ChargeMode:  "prePaid",
+			PeriodType:  d.Get("period_unit").(string),
+			PeriodNum:   d.Get("period").(int),
+			IsAutoRenew: d.Get("auto_renew").(string),
+			IsAutoPay:   "true",
+		}
+	}
 	return createOpts, nil
 }
 
@@ -448,7 +466,25 @@ func resourceOpenGaussInstanceCreate(ctx context.Context, d *schema.ResourceData
 	if err != nil {
 		return diag.Errorf("error creating OpenGauss instance: %s", err)
 	}
-	d.SetId(resp.Instance.Id)
+
+	if resp.OrderId != "" {
+		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating BSS v2 client: %s", err)
+		}
+		err = common.WaitOrderComplete(ctx, bssClient, resp.OrderId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, resp.OrderId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		d.SetId(resourceId)
+	} else {
+		d.SetId(resp.Instance.Id)
+	}
 
 	// waiting for the instance to become ready
 	stateConf := &resource.StateChangeConf{
@@ -606,6 +642,7 @@ func resourceOpenGaussInstanceRead(ctx context.Context, d *schema.ResourceData, 
 		d.Set("switch_strategy", instance.SwitchStrategy),
 		d.Set("maintenance_window", instance.MaintenanceWindow),
 		d.Set("public_ips", instance.PublicIps),
+		d.Set("charging_mode", instance.ChargeInfo.ChargeMode),
 		d.Set("datastore", flattenOpenGaussDataStore(instance.DataStore)),
 		d.Set("backup_strategy", flattenOpenGaussBackupStrategy(instance.BackupStrategy)),
 		setOpenGaussNodesAndRelatedNumbers(d, instance, &dnNum),
@@ -619,7 +656,8 @@ func resourceOpenGaussInstanceRead(ctx context.Context, d *schema.ResourceData, 
 	return nil
 }
 
-func expandOpenGaussShardingNumber(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+func expandOpenGaussShardingNumber(ctx context.Context, config *config.Config, client *golangsdk.ServiceClient,
+	d *schema.ResourceData) error {
 	old, newnum := d.GetChange("sharding_num")
 	if newnum.(int) < old.(int) {
 		return fmt.Errorf("error expanding shard for instance: new num must be larger than the old one.")
@@ -631,12 +669,14 @@ func expandOpenGaussShardingNumber(ctx context.Context, client *golangsdk.Servic
 				Count: expandSize,
 			},
 		},
+		IsAutoPay: "true",
 	}
 	tflog.Debug(ctx, fmt.Sprintf("The updateOpts object of sharding number is: %#v", opts))
-	return updateVolumeAndRelatedHaNumbers(ctx, client, opts, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	return updateVolumeAndRelatedHaNumbers(ctx, config, client, d, opts)
 }
 
-func expandOpenGaussCoordinatorNumber(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+func expandOpenGaussCoordinatorNumber(ctx context.Context, config *config.Config, client *golangsdk.ServiceClient,
+	d *schema.ResourceData) error {
 	old, newnum := d.GetChange("coordinator_num")
 	if newnum.(int) < old.(int) {
 		return fmt.Errorf("error expanding coordinator for instance: new number must be larger than the old one.")
@@ -655,12 +695,14 @@ func expandOpenGaussCoordinatorNumber(ctx context.Context, client *golangsdk.Ser
 		ExpandCluster: &instances.UpdateClusterOpts{
 			Coordinators: coordinators,
 		},
+		IsAutoPay: "true",
 	}
 	tflog.Debug(ctx, fmt.Sprintf("The updateOpts object of coordinator number is: %#v", opts))
-	return updateVolumeAndRelatedHaNumbers(ctx, client, opts, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	return updateVolumeAndRelatedHaNumbers(ctx, config, client, d, opts)
 }
 
-func updateOpenGaussVolumeSize(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+func updateOpenGaussVolumeSize(ctx context.Context, config *config.Config, client *golangsdk.ServiceClient,
+	d *schema.ResourceData) error {
 	volumeRaw := d.Get("volume").([]interface{})
 	dnSize := volumeRaw[0].(map[string]interface{})["size"].(int)
 	dnNum := 1
@@ -674,36 +716,50 @@ func updateOpenGaussVolumeSize(ctx context.Context, client *golangsdk.ServiceCli
 		EnlargeVolume: &instances.UpdateVolumeOpts{
 			Size: dnSize * dnNum,
 		},
+		IsAutoPay: "true",
 	}
 	tflog.Debug(ctx, fmt.Sprintf("The updateOpts object of volume size is: %#v", opts))
-	return updateVolumeAndRelatedHaNumbers(ctx, client, opts, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	return updateVolumeAndRelatedHaNumbers(ctx, config, client, d, opts)
 }
 
-func updateVolumeAndRelatedHaNumbers(ctx context.Context, client *golangsdk.ServiceClient, opts instances.UpdateOpts,
-	instanceId string, timeout time.Duration) error {
-	_, err := instances.Update(client, instanceId, opts)
+func updateVolumeAndRelatedHaNumbers(ctx context.Context, config *config.Config, client *golangsdk.ServiceClient,
+	d *schema.ResourceData, opts instances.UpdateOpts) error {
+	instanceId := d.Id()
+	resp, err := instances.Update(client, instanceId, opts)
 	if err != nil {
 		return fmt.Errorf("error updating instance (%s): %s", instanceId, err)
 	}
+	if resp.OrderId != "" {
+		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		if err != nil {
+			return fmt.Errorf("error creating BSS v2 client: %s", err)
+		}
+		if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), resp.OrderId); err != nil {
+			return err
+		}
+	}
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"MODIFYING", "EXPANDING", "BACKING UP"},
-		Target:       []string{"ACTIVE"},
-		Refresh:      OpenGaussInstanceStateRefreshFunc(client, instanceId),
-		Timeout:      timeout,
-		Delay:        10 * time.Second,
-		PollInterval: 20 * time.Second,
+		Pending:                   []string{"MODIFYING", "EXPANDING", "BACKING UP"},
+		Target:                    []string{"ACTIVE"},
+		Refresh:                   OpenGaussInstanceStateRefreshFunc(client, instanceId),
+		Timeout:                   d.Timeout(schema.TimeoutUpdate),
+		Delay:                     20 * time.Second,
+		PollInterval:              20 * time.Second,
+		ContinuousTargetOccurence: 2,
 	}
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		return fmt.Errorf("error waiting for instance (%s) status to active: %s ", instanceId, err)
 	}
+
 	return nil
 }
 
 func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	client, err := config.OpenGaussV3Client(config.GetRegion(d))
+	region := config.GetRegion(d)
+	client, err := config.OpenGaussV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating GaussDB v3 client: %s ", err)
 	}
@@ -733,17 +789,17 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 	}
 
 	if d.HasChange("sharding_num") {
-		if err := expandOpenGaussShardingNumber(ctx, client, d); err != nil {
+		if err := expandOpenGaussShardingNumber(ctx, config, client, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 	if d.HasChange("coordinator_num") {
-		if err := expandOpenGaussCoordinatorNumber(ctx, client, d); err != nil {
+		if err := expandOpenGaussCoordinatorNumber(ctx, config, client, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 	if d.HasChange("volume") {
-		if err := updateOpenGaussVolumeSize(ctx, client, d); err != nil {
+		if err := updateOpenGaussVolumeSize(ctx, config, client, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -767,6 +823,16 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
+	if d.HasChange("auto_renew") {
+		bssClient, err := config.BssV2Client(region)
+		if err != nil {
+			return diag.Errorf("error creating BSS V2 client: %s", err)
+		}
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
+		}
+	}
+
 	return resourceOpenGaussInstanceRead(ctx, d, meta)
 }
 
@@ -778,18 +844,25 @@ func resourceOpenGaussInstanceDelete(ctx context.Context, d *schema.ResourceData
 	}
 
 	instanceId := d.Id()
-	result := instances.Delete(client, instanceId)
-	if result.Err != nil {
-		return common.CheckDeletedDiag(d, result.Err, "OpenGauss instance")
+	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
+		if err := common.UnsubscribePrePaidResource(d, config, []string{instanceId}); err != nil {
+			return diag.Errorf("error unsubscribe OpenGauss instance: %s", err)
+		}
+	} else {
+		result := instances.Delete(client, instanceId)
+		if result.Err != nil {
+			return common.CheckDeletedDiag(d, result.Err, "OpenGauss instance")
+		}
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"ACTIVE", "BACKING UP", "FAILED"},
-		Target:     []string{"DELETED"},
-		Refresh:    OpenGaussInstanceStateRefreshFunc(client, instanceId),
-		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      10 * time.Second,
-		MinTimeout: 10 * time.Second,
+		Pending:        []string{"ACTIVE", "BACKING UP", "FAILED"},
+		Target:         []string{"DELETED"},
+		Refresh:        OpenGaussInstanceStateRefreshFunc(client, instanceId),
+		Timeout:        d.Timeout(schema.TimeoutDelete),
+		Delay:          60 * time.Second,
+		MinTimeout:     20 * time.Second,
+		NotFoundChecks: 2,
 	}
 
 	_, err = stateConf.WaitForStateContext(ctx)
