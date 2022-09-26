@@ -79,6 +79,62 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 	})
 }
 
+func TestAccOpenGaussInstance_haModeCentralized(t *testing.T) {
+	var (
+		instance     instances.GaussDBInstance
+		resourceName = "huaweicloud_gaussdb_opengauss_instance.test"
+		rName        = acceptance.RandomAccResourceNameWithDash()
+		password     = fmt.Sprintf("%s@123", acctest.RandString(5))
+		newPassword  = fmt.Sprintf("%sUpdate@123", acctest.RandString(5))
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getOpenGaussInstanceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccOpenGaussInstance_haModeCentralized(rName, password),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "subnet_id", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
+						"huaweicloud_networking_secgroup.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "gaussdb.opengauss.ee.m6.2xlarge.x868.ha"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "password", password),
+					resource.TestCheckResourceAttr(resourceName, "ha.0.mode", "centralization_standard"),
+					resource.TestCheckResourceAttr(resourceName, "ha.0.replication_mode", "sync"),
+					resource.TestCheckResourceAttr(resourceName, "ha.0.consistency", "strong"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.type", "ULTRAHIGH"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
+					resource.TestCheckResourceAttr(resourceName, "replica_num", "3"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
+				),
+			},
+			{
+				Config: testAccOpenGaussInstance_haModeCentralizedUpdate(rName, newPassword),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", rName)),
+					resource.TestCheckResourceAttr(resourceName, "password", newPassword),
+					resource.TestCheckResourceAttr(resourceName, "replica_num", "3"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "80"),
+					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "08:00-09:00"),
+					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "8"),
+				),
+			},
+		},
+	})
+}
+
 func testAccOpenGaussInstance_base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
@@ -166,6 +222,69 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
 
   ha {
     mode             = "enterprise"
+    replication_mode = "sync"
+    consistency      = "strong"
+  }
+
+  volume {
+    type = "ULTRAHIGH"
+    size = 80
+  }
+
+  backup_strategy {
+    start_time = "08:00-09:00"
+    keep_days  = 8
+  }
+}
+`, testAccOpenGaussInstance_base(rName), rName, password)
+}
+
+func testAccOpenGaussInstance_haModeCentralized(rName, password string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_gaussdb_opengauss_instance" "test" {
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  flavor            = "gaussdb.opengauss.ee.m6.2xlarge.x868.ha"
+  name              = "%[2]s"
+  password          = "%[3]s"
+  replica_num       = 3
+  availability_zone = "${data.huaweicloud_availability_zones.test.names[0]},${data.huaweicloud_availability_zones.test.names[0]},${data.huaweicloud_availability_zones.test.names[0]}"
+
+  ha {
+    mode             = "centralization_standard"
+    replication_mode = "sync"
+    consistency      = "strong"
+  }
+
+  volume {
+    type = "ULTRAHIGH"
+    size = 40
+  }
+}
+`, testAccOpenGaussInstance_base(rName), rName, password)
+}
+
+func testAccOpenGaussInstance_haModeCentralizedUpdate(rName, password string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_gaussdb_opengauss_instance" "test" {
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  flavor            = "gaussdb.opengauss.ee.m6.2xlarge.x868.ha"
+  name              = "%[2]s-update"
+  password          = "%[3]s"
+  replica_num       = 3
+  availability_zone = "${data.huaweicloud_availability_zones.test.names[0]},${data.huaweicloud_availability_zones.test.names[0]},${data.huaweicloud_availability_zones.test.names[0]}"
+
+  ha {
+    mode             = "centralization_standard"
     replication_mode = "sync"
     consistency      = "strong"
   }

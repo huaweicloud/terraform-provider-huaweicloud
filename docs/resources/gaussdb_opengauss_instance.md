@@ -8,7 +8,7 @@ GaussDB OpenGauss instance management within HuaweiCoud.
 
 ## Example Usage
 
-### create a basic instance
+### Create a instance for distributed HA mode
 
 ```hcl
 variable "network_id" {}
@@ -31,6 +31,40 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
 
   ha {
     mode             = "enterprise"
+    replication_mode = "sync"
+    consistency      = "strong"
+  }
+
+  volume {
+    type = "ULTRAHIGH"
+    size = 40
+  }
+}
+```
+
+### Create a instance for centralized HA mode
+
+```hcl
+variable "instance_name" {}
+variable "instance_password" {}
+variable "vpc_id" {}
+variable "network_id" {}
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_gaussdb_opengauss_instance" "instance_acc" {
+  vpc_id            = var.vpc_id
+  subnet_id         = var.network_id
+  security_group_id = var.security_group_id
+  name              = var.instance_name
+  password          = var.instance_password
+  flavor            = "gaussdb.opengauss.ee.m6.2xlarge.x868.ha"
+  availability_zone = join(",", slice(data.huaweicloud_availability_zones.myaz.names, 0, 3))
+
+  replica_num = 3
+
+  ha {
+    mode             = "centralization_standard"
     replication_mode = "sync"
     consistency      = "strong"
   }
@@ -100,10 +134,16 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `sharding_num` - (Optional, Int) Specifies the sharding number. The valid value is range form `1` to `9`.
-  The default value is 3.
+  The default value is 3. This parameter is valid only when the HA mode is set to **enterprise**.
 
 * `coordinator_num` - (Optional, Int) Specifies the coordinator number. Values: 1~9. The default value is 3.
   The value must not be greater than twice value of `sharding_num`.
+  This parameter is valid only when the HA mode is set to **enterprise**.
+
+* `replica_num` - (Optional, Int, ForceNew) The replica number. The valid values are **2** and **3**, defaults to **3**.
+  Double replicas are only available for specific users and supports only instance versions are v1.3.0 or later.
+  This parameter is valid only when the HA mode is set to **centralization_standard**.
+  Changing this parameter will create a new resource.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID.
   Changing this parameter will create a new resource.
@@ -125,6 +165,7 @@ The following arguments are supported:
 The `ha` block supports:
 
 * `mode` - (Required, String, ForceNew) Specifies the database mode. Only **enterprise** is supported now.
+  The valid values are **enterprise** and **centralization_standard**.
   Changing this parameter will create a new resource.
 
 * `replication_mode` - (Required, String, ForceNew) Specifies the database replication mode.
