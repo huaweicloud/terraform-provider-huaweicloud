@@ -1,0 +1,86 @@
+# This is a basic workflow to help you get started with Actions
+
+name: scan-api
+
+# Controls when the workflow will run
+on:
+  push:
+    paths:
+      - 'CHANGELOG.md'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # /home/runner/work/terraform-provider-huaweicloud/terraform-provider-huaweicloud
+      - uses: actions/checkout@v3
+        with:
+          path: terraform-provider-huaweicloud
+
+      - uses: actions/checkout@v3
+        with:
+          repository: chnsz/terraform-provider-generator
+          token: ${{ secrets.GH_PAT }}
+          path: terraform-provider-generator
+
+      - uses: actions/checkout@v3
+        with:
+          repository: chnsz/terraform-api-scan
+          token: ${{ secrets.GH_PAT }}
+          path: terraform-api-scan
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+
+      - name: HashiCorp - Setup Terraform
+        uses: hashicorp/setup-terraform@v2.0.0
+        with:
+          terraform_wrapper: false
+
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+      
+      - name: export schemas for the providers
+        run: |
+          cd terraform-api-scan
+          terraform init
+          terraform providers schema -json > schema.json
+          cd ..
+      
+      - name: parse APIs that golangsdk/go-SDK resources depend-on
+        run: |
+          awk -v startIndex=$(awk '/var allServiceCatalog/{print NR}' terraform-provider-huaweicloud/huaweicloud/config/endpoints.go) -v endIndex=$(awk '/func GetServiceEndpoint/{print NR}' terraform-provider-huaweicloud/huaweicloud/config/endpoints.go) 'BEGIN{print "package config\n\n var AllServiceCatalog = map[string]ServiceCatalog{"}{if(NR>startIndex && NR<endIndex-2){print $0}}' terraform-provider-huaweicloud/huaweicloud/config/endpoints.go >terraform-provider-huaweicloud/huaweicloud/config/endpoints2.go
+          cp terraform-api-scan/*.go terraform-provider-huaweicloud/
+          subPackPath="/huaweicloud"
+          providerSchemaPath="../terraform-api-scan/schema.json"
+          cd terraform-provider-huaweicloud
+          rm -rf docs/api
+          mkdir docs/api
+          go run *.go -basePath=./ -outputDir=docs/api/ -version=${{ steps.get_version.outputs.VERSION }} -providerSchemaPath=${providerSchemaPath}
+          cd ..
+      
+      - name: parse APIs that auto-generated resources depend-on
+        run: |
+          pwd
+          ls -l |grep terraform
+          cd terraform-api-scan/scan-autogen-code
+          go run main.go -inputDir=../../terraform-provider-generator/src/main/resources -outputDir=../../terraform-provider-huaweicloud/docs/api
+          ls -l ../../terraform-provider-huaweicloud/docs/api
+          cd ../../
+
+      - name: commit APIs that resources depend-on
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          repository: terraform-provider-huaweicloud
+          file_pattern: 'docs/api/*.yaml'
+          commit_message: Update APIs that resources depend-on
