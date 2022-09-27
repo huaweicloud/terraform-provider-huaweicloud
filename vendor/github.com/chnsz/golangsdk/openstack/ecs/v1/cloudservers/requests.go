@@ -386,3 +386,35 @@ func ChangeAdminPassword(client *golangsdk.ServiceClient, id, newPassword string
 	_, r.Err = client.Put(passwordURL(client, id), b, nil, &golangsdk.RequestOpts{OkCodes: []int{204}})
 	return
 }
+
+// UpdateOptsBuilder allows extensions to add additional attributes to the
+// Update request.
+type UpdateOptsBuilder interface {
+	ToServerUpdateMap() (map[string]interface{}, error)
+}
+
+// UpdateOpts specifies the base attributes that may be updated on an existing
+// server.
+type UpdateOpts struct {
+	Name        string  `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Hostname    string  `json:"hostname,omitempty"`
+}
+
+// ToServerUpdateMap formats an UpdateOpts structure into a request body.
+func (opts UpdateOpts) ToServerUpdateMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "server")
+}
+
+// Update requests that various attributes of the indicated server be changed.
+func Update(client *golangsdk.ServiceClient, id string, opts UpdateOptsBuilder) (r UpdateResult) {
+	b, err := opts.ToServerUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = client.Put(updateURL(client, id), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes: []int{200},
+	})
+	return
+}

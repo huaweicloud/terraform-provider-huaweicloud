@@ -25,6 +25,7 @@ type CreateOpts struct {
 	ChargeInfo          *ChargeInfo     `json:"charge_info,omitempty"`
 	TimeZone            string          `json:"time_zone,omitempty"`
 	FixedIp             string          `json:"data_vip,omitempty"`
+	Collation           string          `json:"collation,omitempty"`
 }
 
 type CreateReplicaOpts struct {
