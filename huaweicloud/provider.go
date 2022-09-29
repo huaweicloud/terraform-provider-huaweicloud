@@ -582,10 +582,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_throttling_policy":           apig.ResourceApigThrottlingPolicyV2(),
 			"huaweicloud_apig_vpc_channel":                 apig.ResourceApigVpcChannelV2(),
 
-			"huaweicloud_as_configuration":  as.ResourceASConfiguration(),
-			"huaweicloud_as_group":          as.ResourceASGroup(),
-			"huaweicloud_as_lifecycle_hook": as.ResourceASLifecycleHook(),
-			"huaweicloud_as_policy":         as.ResourceASPolicy(),
+			"huaweicloud_as_configuration":    as.ResourceASConfiguration(),
+			"huaweicloud_as_group":            as.ResourceASGroup(),
+			"huaweicloud_as_lifecycle_hook":   as.ResourceASLifecycleHook(),
+			"huaweicloud_as_policy":           as.ResourceASPolicy(),
+			"huaweicloud_as_bandwidth_policy": as.ResourceASBandWidthPolicy(),
 
 			"huaweicloud_bms_instance": bms.ResourceBmsInstance(),
 			"huaweicloud_bcs_instance": resourceBCSInstanceV2(),
