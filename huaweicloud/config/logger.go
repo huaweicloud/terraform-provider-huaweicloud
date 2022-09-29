@@ -234,6 +234,8 @@ func isSecurityFields(field string) bool {
 	// 'nonce' is apply to the random string for authorization methods.
 	// 'email', 'phone' and 'sip_number' can uniquely identify a person.
 	// 'signature' are used for encryption.
-	securityFields := []string{"adminpass", "encrypted_user_data", "nonce", "email", "phone", "sip_number", "signature"}
+	// 'user_passwd' is apply to the dms/kafka user request JSON body
+	securityFields := []string{"adminpass", "encrypted_user_data", "nonce", "email", "phone", "sip_number",
+		"signature", "user_passwd"}
 	return utils.StrSliceContains(securityFields, checkField)
 }
