@@ -370,7 +370,12 @@ func resourceVaultCreate(ctx context.Context, d *schema.ResourceData, meta inter
 			}
 		}
 		d.SetId(resp.Orders[0].ResourceId)
-		err = common.WaitOrderComplete(ctx, d, config, resp.Orders[0].ID)
+
+		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating BSS v2 client: %s", err)
+		}
+		err = common.WaitOrderComplete(ctx, bssClient, resp.Orders[0].ID, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return diag.Errorf("the order is not completed while creating CBR vault (%s): %v", d.Id(), err)
 		}
