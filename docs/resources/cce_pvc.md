@@ -93,7 +93,6 @@ The following arguments are supported:
   + **csi-disk**: EVS.
   + **csi-obs**: OBS.
   + **csi-nas**: SFS.
-  + **csi-sfsturbo**: SFS-Turbo.
 
 * `access_modes` - (Required, List, ForceNew) Specifies the desired access modes the volume should have.
   The valid values are as follows:
