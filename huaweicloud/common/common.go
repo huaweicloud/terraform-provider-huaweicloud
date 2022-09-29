@@ -11,6 +11,7 @@ package common
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -30,6 +31,18 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
+
+// ErrorResp is the response when API failed
+type ErrorResp struct {
+	ErrorCode string `json:"error_code"`
+	ErrorMsg  string `json:"error_msg"`
+}
+
+func ParseErrorMsg(body []byte) (ErrorResp, error) {
+	resp := ErrorResp{}
+	err := json.Unmarshal(body, &resp)
+	return resp, err
+}
 
 // GetRegion returns the region that was specified ina the resource. If a
 // region was not set, the provider-level region is checked. The provider-level
