@@ -795,6 +795,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_rds_account":               rds.ResourceRdsAccount(),
 			"huaweicloud_rds_database":              rds.ResourceRdsDatabase(),
+			"huaweicloud_rds_database_privilege":    rds.ResourceRdsDatabasePrivilege(),
 			"huaweicloud_rds_instance":              rds.ResourceRdsInstance(),
 			"huaweicloud_rds_parametergroup":        rds.ResourceRdsConfiguration(),
 			"huaweicloud_rds_read_replica_instance": rds.ResourceRdsReadReplicaInstance(),
