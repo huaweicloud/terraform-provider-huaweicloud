@@ -1,41 +1,46 @@
-package huaweicloud
+package vpcep
 
 import (
 	"fmt"
 	"testing"
 
 	"github.com/chnsz/golangsdk/openstack/vpcep/v1/endpoints"
-	"github.com/chnsz/golangsdk/openstack/vpcep/v1/services"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccVPCEndpointApproval_Basic(t *testing.T) {
-	var service services.Service
 	var endpoint endpoints.Endpoint
 
-	rName := fmt.Sprintf("acc-test-%s", acctest.RandString(4))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_vpcep_approval.approval"
 
+	rc := acceptance.InitResourceCheck(
+		"huaweicloud_vpcep_endpoint.test",
+		&endpoint,
+		getVpcepEndpointResourceFunc,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVPCEPServiceDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVPCEndpointApproval_Basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckVPCEPServiceExists("huaweicloud_vpcep_service.test", &service),
-					testAccCheckVPCEndpointExists("huaweicloud_vpcep_endpoint.test", &endpoint),
-					resource.TestCheckResourceAttrPtr(resourceName, "id", &service.ID),
-					resource.TestCheckResourceAttrPtr(resourceName, "connections.0.endpoint_id", &endpoint.ID),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(resourceName, "id", "huaweicloud_vpcep_service.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "connections.0.endpoint_id",
+						"huaweicloud_vpcep_endpoint.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "connections.0.status", "accepted"),
 				),
 			},
 			{
 				Config: testAccVPCEndpointApproval_Update(rName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPtr(resourceName, "connections.0.endpoint_id", &endpoint.ID),
+					resource.TestCheckResourceAttrPair(resourceName, "connections.0.endpoint_id",
+						"huaweicloud_vpcep_endpoint.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "connections.0.status", "rejected"),
 				),
 			},
