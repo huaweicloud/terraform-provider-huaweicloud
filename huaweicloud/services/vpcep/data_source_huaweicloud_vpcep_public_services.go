@@ -1,15 +1,19 @@
-package huaweicloud
+package vpcep
 
 import (
+	"context"
+
 	"github.com/chnsz/golangsdk/openstack/vpcep/v1/services"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-uuid"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func DataSourceVPCEPPublicServices() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceVpcepPublicRead,
+		ReadContext: dataSourceVpcepPublicRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -57,12 +61,12 @@ func DataSourceVPCEPPublicServices() *schema.Resource {
 	}
 }
 
-func dataSourceVpcepPublicRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceVpcepPublicRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	region := GetRegion(d, config)
+	region := config.GetRegion(d)
 	vpcepClient, err := config.VPCEPClient(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
+		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
 
 	listOpts := services.ListOpts{
@@ -72,16 +76,27 @@ func dataSourceVpcepPublicRead(d *schema.ResourceData, meta interface{}) error {
 
 	allServices, err := services.ListPublic(vpcepClient, listOpts)
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve vpc endpoint public services: %s", err)
+		return diag.Errorf("unable to retrieve VPC endpoint public services: %s", err)
 	}
 
-	if len(allServices) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+	uuid, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
 	}
+	d.SetId(uuid)
 
-	d.SetId(allServices[0].ID)
-	d.Set("region", region)
+	mErr := multierror.Append(
+		d.Set("region", region),
+		d.Set("services", flattenListVpcEndpointsServices(allServices)),
+	)
+
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenListVpcEndpointsServices(allServices []services.PublicService) []map[string]interface{} {
+	if allServices == nil {
+		return nil
+	}
 	services := make([]map[string]interface{}, len(allServices))
 	for i, v := range allServices {
 		services[i] = map[string]interface{}{
@@ -92,9 +107,5 @@ func dataSourceVpcepPublicRead(d *schema.ResourceData, meta interface{}) error {
 			"is_charge":    v.IsChange,
 		}
 	}
-	if err := d.Set("services", services); err != nil {
-		return err
-	}
-
-	return nil
+	return services
 }
