@@ -148,6 +148,37 @@ func TestAccFunctionGraphTrigger_smn(t *testing.T) {
 	})
 }
 
+func TestAccFunctionGraphTrigger_lts(t *testing.T) {
+	var (
+		randName     = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_fgs_trigger.test"
+		ltsTrigger   trigger.Trigger
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&ltsTrigger,
+		getTriggerResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheckFgsTrigger(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFunctionGraphLtsTrigger_basic(randName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "type", "LTS"),
+					resource.TestCheckResourceAttrSet(resourceName, "lts.0.log_group_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "lts.0.log_topic_id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccFunctionGraphTimingTrigger_base(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
@@ -248,6 +279,51 @@ resource "huaweicloud_fgs_trigger" "test" {
     topic_urn = huaweicloud_smn_topic.test.topic_urn
   }
 }`, testAccFunctionGraphTimingTrigger_base(rName), rName)
+}
+
+func testAccFunctionGraphLtsTrigger_basic(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_lts_group" "test" {
+  group_name  = "%[1]s"
+  ttl_in_days = 1
+}
+
+resource "huaweicloud_lts_stream" "test" {
+  group_id    = huaweicloud_lts_group.test.id
+  stream_name = "%[1]s"
+}
+
+resource "huaweicloud_identity_agency" "test" {
+  name = "%[1]s"
+  delegated_service_name = "%[3]s"
+
+  project_role {
+    project = "%[2]s"
+    roles = ["LTS FullAccess"]
+  }
+}
+
+resource "huaweicloud_fgs_function" "test" {
+  name        = "%[1]s"
+  app         = "default"
+  handler     = "index.handler"
+  memory_size = 128
+  timeout     = 10
+  runtime     = "Python2.7"
+  code_type   = "inline"
+  agency      = huaweicloud_identity_agency.test.name
+  func_code   = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
+}
+
+resource "huaweicloud_fgs_trigger" "test" {
+  function_urn = huaweicloud_fgs_function.test.urn
+  type         = "LTS"
+
+  lts {
+    log_group_id = huaweicloud_lts_group.test.id
+    log_topic_id = huaweicloud_lts_stream.test.id
+  }
+}`, rName, acceptance.HW_REGION_NAME, acceptance.HW_FGS_TRIGGER_LTS_AGENCY)
 }
 
 func testAccNetwork_config(rName string) string {

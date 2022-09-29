@@ -168,6 +168,24 @@ resource "huaweicloud_fgs_trigger" "test" {
 }
 ```
 
+### Create a LTS trigger
+
+```hcl
+variable "log_group_id" {}
+variable "log_topic_id" {}
+
+resource "huaweicloud_fgs_trigger" "test" {
+  function_urn = var.function_urn
+  type         = "LTS"
+  status       = "ACTIVE"
+
+  lts {
+    log_group_id = var.log_group_id
+    log_topic_id = var.log_topic_id
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -180,7 +198,7 @@ The following arguments are supported:
   Changing this will create a new trigger resource.
 
 * `type` - (Required, String, ForceNew) Specifies the type of the function.
-  The valid values currently only support **TIMER**, **OBS**, **SMN**, **DIS**, **KAFKA**, **APIG** and
+  The valid values currently only support **TIMER**, **OBS**, **SMN**, **DIS**, **KAFKA**, **APIG**, **LTS**, and
   **DEDICATEDGATEWAY**. Changing this will create a new trigger resource.
 
 * `status` - (Optional, String) Specifies whether trigger is enabled. The valid values are **ACTIVE** and **DISABLED**.
@@ -217,6 +235,10 @@ The following arguments are supported:
 * `apig` - (Optional, List, ForceNew) Specifies the configuration of the shared APIG and dedicated APIG trigger.
   Changing this will create a new trigger resource.
   The [object](#fgs_trigger_apig) structure is documented below.
+
+* `lts` - (Optional, List, ForceNew) Specifies the configuration of the LTS trigger.
+  Changing this will create a new trigger resource.
+  The [object](#fgs_trigger_lts) structure is documented below.
 
 <a name="fgs_trigger_timer"></a>
 The `timer` block supports:
@@ -329,6 +351,15 @@ The `apig` block supports:
 
 * `timeout` - (Optional, Int, ForceNew) Specifies the timeout for request sending. The valid value is range form
   `1` to `60,000`, default to `5,000`. Changing this will create a new trigger resource.
+
+<a name="fgs_trigger_lts"></a>
+The `lts` block supports:
+
+* `log_group_id` - (Required, String, ForceNew) Specifies the log group ID.
+  Changing this will create a new trigger resource.
+
+* `log_topic_id` - (Required, String, ForceNew) Specifies the log stream ID.
+  Changing this will create a new trigger resource.
 
 ## Attributes Reference
 

@@ -78,6 +78,8 @@ var (
 
 	HW_AAD_INSTANCE_ID = os.Getenv("HW_AAD_INSTANCE_ID")
 	HW_AAD_IP_ADDRESS  = os.Getenv("HW_AAD_IP_ADDRESS")
+
+	HW_FGS_TRIGGER_LTS_AGENCY = os.Getenv("HW_FGS_TRIGGER_LTS_AGENCY")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -175,6 +177,13 @@ func TestAccPreCheckSms(t *testing.T) {
 func TestAccPreCheckMrsCustom(t *testing.T) {
 	if HW_MAPREDUCE_CUSTOM == "" {
 		t.Skip("HW_MAPREDUCE_CUSTOM must be set for acceptance tests:custom type cluster of map reduce")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckFgsTrigger(t *testing.T) {
+	if HW_FGS_TRIGGER_LTS_AGENCY == "" {
+		t.Skip("HW_FGS_TRIGGER_LTS_AGENCY must be set for FGS trigger acceptance tests")
 	}
 }
 
