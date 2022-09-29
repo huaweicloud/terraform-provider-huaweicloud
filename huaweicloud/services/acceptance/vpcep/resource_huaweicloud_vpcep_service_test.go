@@ -1,33 +1,38 @@
-package huaweicloud
+package vpcep
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/vpcep/v1/services"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccVPCEPService_Basic(t *testing.T) {
 	var service services.Service
 
-	rName := fmt.Sprintf("acc-test-%s", acctest.RandString(4))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_vpcep_service.test"
 
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&service,
+		getVpcepServiceResourceFunc,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVPCEPServiceDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVPCEPService_Basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckVPCEPServiceExists(resourceName, &service),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "available"),
 					resource.TestCheckResourceAttr(resourceName, "approval", "false"),
@@ -63,18 +68,22 @@ func TestAccVPCEPService_Basic(t *testing.T) {
 func TestAccVPCEPService_Permission(t *testing.T) {
 	var service services.Service
 
-	rName := fmt.Sprintf("acc-test-%s", acctest.RandString(4))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_vpcep_service.test"
-
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&service,
+		getVpcepServiceResourceFunc,
+	)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVPCEPServiceDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVPCEPService_Permission(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckVPCEPServiceExists(resourceName, &service),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "available"),
 					resource.TestCheckResourceAttr(resourceName, "permissions.#", "2"),
@@ -92,57 +101,13 @@ func TestAccVPCEPService_Permission(t *testing.T) {
 	})
 }
 
-func testAccCheckVPCEPServiceDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	vpcepClient, err := config.VPCEPClient(HW_REGION_NAME)
+func getVpcepServiceResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	vpcepClient, err := conf.VPCEPClient(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating VPC endpoint client: %s", err)
+		return nil, fmt.Errorf("error creating VPCEP client: %s", err)
 	}
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_vpcep_service" {
-			continue
-		}
-
-		_, err := services.Get(vpcepClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmtp.Errorf("VPC endpoint service still exists")
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckVPCEPServiceExists(n string, service *services.Service) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*config.Config)
-		vpcepClient, err := config.VPCEPClient(HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating VPC endpoint client: %s", err)
-		}
-
-		found, err := services.Get(vpcepClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("VPC endpoint service not found")
-		}
-
-		*service = *found
-
-		return nil
-	}
+	return services.Get(vpcepClient, state.Primary.ID).Extract()
 }
 
 func testAccVPCEPService_Precondition(rName string) string {
@@ -250,3 +215,27 @@ resource "huaweicloud_vpcep_service" "test" {
 }
 `, testAccVPCEPService_Precondition(rName), rName)
 }
+
+const testAccCompute_data = `
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_images_image" "test" {
+  name        = "Ubuntu 20.04 server 64bit"
+  most_recent = true
+}
+
+data "huaweicloud_networking_secgroup" "test" {
+  name = "default"
+}
+`

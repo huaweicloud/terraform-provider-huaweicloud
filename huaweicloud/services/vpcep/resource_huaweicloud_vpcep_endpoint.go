@@ -1,27 +1,29 @@
-package huaweicloud
+package vpcep
 
 import (
+	"context"
+	"log"
 	"time"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/vpcep/v1/endpoints"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceVPCEndpoint() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceVPCEndpointCreate,
-		Read:   resourceVPCEndpointRead,
-		Update: resourceVPCEndpointUpdate,
-		Delete: resourceVPCEndpointDelete,
+		CreateContext: resourceVPCEndpointCreate,
+		ReadContext:   resourceVPCEndpointRead,
+		UpdateContext: resourceVPCEndpointUpdate,
+		DeleteContext: resourceVPCEndpointDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -94,16 +96,17 @@ func ResourceVPCEndpoint() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 		},
 	}
 }
 
-func resourceVPCEndpointCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceVPCEndpointCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	vpcepClient, err := config.VPCEPClient(GetRegion(d, config))
+	region := config.GetRegion(d)
+	vpcepClient, err := config.VPCEPClient(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
+		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
 
 	enableDNS := d.Get("enable_dns").(bool)
@@ -133,51 +136,46 @@ func resourceVPCEndpointCreate(d *schema.ResourceData, meta interface{}) error {
 		createOpts.Tags = taglist
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	ep, err := endpoints.Create(vpcepClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud VPC endpoint: %s", err)
+		return diag.Errorf("error creating VPC endpoint: %s", err)
 	}
 
 	d.SetId(ep.ID)
-	logp.Printf("[INFO] Waiting for Huaweicloud VPC endpoint(%s) to become accepted", ep.ID)
+	log.Printf("[INFO] Waiting for VPC endpoint(%s) to become accepted", ep.ID)
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"creating"},
-		Target:     []string{"accepted", "pendingAcceptance"},
-		Refresh:    waitForVPCEndpointStatus(vpcepClient, ep.ID),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Pending:      []string{"creating"},
+		Target:       []string{"accepted", "pendingAcceptance"},
+		Refresh:      waitForVPCEndpointStatus(vpcepClient, ep.ID),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        5 * time.Second,
+		PollInterval: 3 * time.Second,
 	}
 
-	_, stateErr := stateConf.WaitForState()
+	_, stateErr := stateConf.WaitForStateContext(ctx)
 	if stateErr != nil {
-		return fmtp.Errorf(
-			"Error waiting for VPC endpoint(%s) to become accepted: %s",
-			ep.ID, stateErr)
+		return diag.Errorf("error waiting for VPC endpoint(%s) to become accepted: %s", ep.ID, stateErr)
 	}
 
-	return resourceVPCEndpointRead(d, meta)
+	return resourceVPCEndpointRead(ctx, d, meta)
 }
 
-func resourceVPCEndpointRead(d *schema.ResourceData, meta interface{}) error {
+func resourceVPCEndpointRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	vpcepClient, err := config.VPCEPClient(GetRegion(d, config))
+	region := config.GetRegion(d)
+	vpcepClient, err := config.VPCEPClient(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
+		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
 
 	ep, err := endpoints.Get(vpcepClient, d.Id()).Extract()
 	if err != nil {
-		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			d.SetId("")
-			return nil
-		}
-		return fmtp.Errorf("Error retrieving Huaweicloud VPC endpoint: %s", err)
+		return common.CheckDeletedDiag(d, err, "VPC endpoint")
 	}
 
-	logp.Printf("[DEBUG] retrieving Huaweicloud VPC endpoint: %#v", ep)
-	d.Set("region", GetRegion(d, config))
+	log.Printf("[DEBUG] retrieving VPC endpoint: %#v", ep)
+	d.Set("region", region)
 	d.Set("status", ep.Status)
 	d.Set("service_id", ep.ServiceID)
 	d.Set("service_name", ep.ServiceName)
@@ -206,50 +204,51 @@ func resourceVPCEndpointRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceVPCEndpointUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceVPCEndpointUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	vpcepClient, err := config.VPCEPClient(GetRegion(d, config))
+	region := config.GetRegion(d)
+	vpcepClient, err := config.VPCEPClient(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
+		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
 
 	//update tags
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(vpcepClient, d, tagVPCEP, d.Id())
 		if tagErr != nil {
-			return fmtp.Errorf("Error updating tags of VPC endpoint service %s: %s", d.Id(), tagErr)
+			return diag.Errorf("error updating tags of VPC endpoint service %s: %s", d.Id(), tagErr)
 		}
 	}
-	return resourceVPCEndpointRead(d, meta)
+	return resourceVPCEndpointRead(ctx, d, meta)
 }
 
-func resourceVPCEndpointDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceVPCEndpointDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	vpcepClient, err := config.VPCEPClient(GetRegion(d, config))
+	region := config.GetRegion(d)
+	vpcepClient, err := config.VPCEPClient(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
+		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
 
 	err = endpoints.Delete(vpcepClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting Huaweicloud VPC endpoint %s: %s", d.Id(), err)
+		return diag.Errorf("error deleting VPC endpoint %s: %s", d.Id(), err)
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"deleting"},
-		Target:     []string{"deleted"},
-		Refresh:    waitForVPCEndpointStatus(vpcepClient, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Pending:      []string{"deleting"},
+		Target:       []string{"deleted"},
+		Refresh:      waitForVPCEndpointStatus(vpcepClient, d.Id()),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        5 * time.Second,
+		PollInterval: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Error deleting Huaweicloud VPC endpoint %s: %s", d.Id(), err)
+		return diag.Errorf("error deleting VPC endpoint %s: %s", d.Id(), err)
 	}
 
-	d.SetId("")
 	return nil
 }
 
@@ -258,7 +257,7 @@ func waitForVPCEndpointStatus(vpcepClient *golangsdk.ServiceClient, id string) r
 		ep, err := endpoints.Get(vpcepClient, id).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[INFO] Successfully deleted Huaweicloud VPC endpoint %s", id)
+				log.Printf("[INFO] Successfully deleted VPC endpoint %s", id)
 				return ep, "deleted", nil
 			}
 			return ep, "error", err

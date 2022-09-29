@@ -69,6 +69,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/tms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vod"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpcep"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/waf"
 )
 
@@ -487,7 +488,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_subnet":             vpc.DataSourceVpcSubnetV1(),
 			"huaweicloud_vpc_subnets":            vpc.DataSourceVpcSubnets(),
 			"huaweicloud_vpc_subnet_ids":         vpc.DataSourceVpcSubnetIdsV1(),
-			"huaweicloud_vpcep_public_services":  DataSourceVPCEPPublicServices(),
+
+			"huaweicloud_vpcep_public_services": vpcep.DataSourceVPCEPPublicServices(),
 
 			"huaweicloud_waf_certificate":         waf.DataSourceWafCertificateV1(),
 			"huaweicloud_waf_policies":            waf.DataSourceWafPoliciesV1(),
@@ -844,9 +846,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_subnet":                      vpc.ResourceVpcSubnetV1(),
 			"huaweicloud_vpc_address_group":               vpc.ResourceVpcAddressGroup(),
 
-			"huaweicloud_vpcep_approval": ResourceVPCEndpointApproval(),
-			"huaweicloud_vpcep_endpoint": ResourceVPCEndpoint(),
-			"huaweicloud_vpcep_service":  ResourceVPCEndpointService(),
+			"huaweicloud_vpcep_approval": vpcep.ResourceVPCEndpointApproval(),
+			"huaweicloud_vpcep_endpoint": vpcep.ResourceVPCEndpoint(),
+			"huaweicloud_vpcep_service":  vpcep.ResourceVPCEndpointService(),
 
 			"huaweicloud_vpnaas_endpoint_group":  deprecated.ResourceVpnEndpointGroupV2(),
 			"huaweicloud_vpnaas_ike_policy":      deprecated.ResourceVpnIKEPolicyV2(),

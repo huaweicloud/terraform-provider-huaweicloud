@@ -1,19 +1,21 @@
-package huaweicloud
+package vpcep
 
 import (
+	"context"
+	"log"
 	"regexp"
 	"strings"
 	"time"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/vpcep/v1/services"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 const (
@@ -23,13 +25,13 @@ const (
 
 func ResourceVPCEndpointService() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceVPCEndpointServiceCreate,
-		Read:   resourceVPCEndpointServiceRead,
-		Update: resourceVPCEndpointServiceUpdate,
-		Delete: resourceVPCEndpointServiceDelete,
+		CreateContext: resourceVPCEndpointServiceCreate,
+		ReadContext:   resourceVPCEndpointServiceRead,
+		UpdateContext: resourceVPCEndpointServiceUpdate,
+		DeleteContext: resourceVPCEndpointServiceDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -44,9 +46,10 @@ func ResourceVPCEndpointService() *schema.Resource {
 				ForceNew: true,
 			},
 			"server_type": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"VM", "LB", "VIP"}, false),
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,
@@ -134,7 +137,7 @@ func ResourceVPCEndpointService() *schema.Resource {
 					},
 				},
 			},
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 		},
 	}
 }
@@ -166,17 +169,18 @@ func doPermissionAction(client *golangsdk.ServiceClient, serviceID, action strin
 		Permissions: permissions,
 	}
 
-	logp.Printf("[DEBUG] %s permissions %#v to VPC endpoint service %s", action, permissions, serviceID)
+	log.Printf("[DEBUG] %s permissions %#v to VPC endpoint service %s", action, permissions, serviceID)
 	result := services.PermAction(client, serviceID, permOpts)
 
 	return result.Err
 }
 
-func resourceVPCEndpointServiceCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceVPCEndpointServiceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	vpcepClient, err := config.VPCEPClient(GetRegion(d, config))
+	region := config.GetRegion(d)
+	vpcepClient, err := config.VPCEPClient(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
+		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
 
 	approval := d.Get("approval").(bool)
@@ -196,58 +200,53 @@ func resourceVPCEndpointServiceCreate(d *schema.ResourceData, meta interface{}) 
 		createOpts.Tags = taglist
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	n, err := services.Create(vpcepClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud VPC endpoint service: %s", err)
+		return diag.Errorf("error creating VPC endpoint service: %s", err)
 	}
 
 	d.SetId(n.ID)
-	logp.Printf("[INFO] Waiting for Huaweicloud VPC endpoint service(%s) to become available", n.ID)
+	log.Printf("[INFO] Waiting for VPC endpoint service(%s) to become available", n.ID)
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"creating"},
-		Target:     []string{"available"},
-		Refresh:    waitForResourceStatus(vpcepClient, n.ID),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Pending:      []string{"creating"},
+		Target:       []string{"available"},
+		Refresh:      waitForResourceStatus(vpcepClient, n.ID),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        5 * time.Second,
+		PollInterval: 3 * time.Second,
 	}
 
-	_, stateErr := stateConf.WaitForState()
+	_, stateErr := stateConf.WaitForStateContext(ctx)
 	if stateErr != nil {
-		return fmtp.Errorf(
-			"Error waiting for VPC endpoint service(%s) to become available: %s",
-			n.ID, stateErr)
+		return diag.Errorf("error waiting for VPC endpoint service(%s) to become available: %s", n.ID, stateErr)
 	}
 
 	// add permissions
 	raw := d.Get("permissions").(*schema.Set).List()
 	err = doPermissionAction(vpcepClient, d.Id(), "add", raw)
 	if err != nil {
-		return fmtp.Errorf("Error adding permissions to VPC endpoint service %s: %s", d.Id(), err)
+		return diag.Errorf("error adding permissions to VPC endpoint service %s: %s", d.Id(), err)
 	}
 
-	return resourceVPCEndpointServiceRead(d, meta)
+	return resourceVPCEndpointServiceRead(ctx, d, meta)
 }
 
-func resourceVPCEndpointServiceRead(d *schema.ResourceData, meta interface{}) error {
+func resourceVPCEndpointServiceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	vpcepClient, err := config.VPCEPClient(GetRegion(d, config))
+	region := config.GetRegion(d)
+	vpcepClient, err := config.VPCEPClient(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
+		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
 
 	n, err := services.Get(vpcepClient, d.Id()).Extract()
 	if err != nil {
-		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			d.SetId("")
-			return nil
-		}
-		return fmtp.Errorf("Error retrieving Huaweicloud VPC endpoint service: %s", err)
+		return common.CheckDeletedDiag(d, err, "VPC endpoint")
 	}
 
-	logp.Printf("[DEBUG] retrieving Huaweicloud VPC endpoint service: %#v", n)
-	d.Set("region", GetRegion(d, config))
+	log.Printf("[DEBUG] retrieving VPC endpoint service: %#v", n)
+	d.Set("region", region)
 	d.Set("status", n.Status)
 	d.Set("service_name", n.ServiceName)
 	nameList := strings.Split(n.ServiceName, ".")
@@ -290,11 +289,12 @@ func resourceVPCEndpointServiceRead(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func resourceVPCEndpointServiceUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceVPCEndpointServiceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	vpcepClient, err := config.VPCEPClient(GetRegion(d, config))
+	region := config.GetRegion(d)
+	vpcepClient, err := config.VPCEPClient(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
+		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
 
 	if d.HasChanges("name", "approval", "port_id", "port_mapping") {
@@ -315,7 +315,7 @@ func resourceVPCEndpointServiceUpdate(d *schema.ResourceData, meta interface{}) 
 
 		_, err = services.Update(vpcepClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return fmtp.Errorf("Error updating Huaweicloud VPC endpoint service: %s", err)
+			return diag.Errorf("error updating VPC endpoint service: %s", err)
 		}
 	}
 
@@ -323,7 +323,7 @@ func resourceVPCEndpointServiceUpdate(d *schema.ResourceData, meta interface{}) 
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(vpcepClient, d, tagVPCEPService, d.Id())
 		if tagErr != nil {
-			return fmtp.Errorf("Error updating tags of VPC endpoint service %s: %s", d.Id(), tagErr)
+			return diag.Errorf("error updating tags of VPC endpoint service %s: %s", d.Id(), tagErr)
 		}
 	}
 
@@ -337,56 +337,56 @@ func resourceVPCEndpointServiceUpdate(d *schema.ResourceData, meta interface{}) 
 
 		err = doPermissionAction(vpcepClient, d.Id(), "add", added.List())
 		if err != nil {
-			return fmtp.Errorf("Error adding permissions to VPC endpoint service %s: %s", d.Id(), err)
+			return diag.Errorf("error adding permissions to VPC endpoint service %s: %s", d.Id(), err)
 		}
 
 		err = doPermissionAction(vpcepClient, d.Id(), "remove", removed.List())
 		if err != nil {
-			return fmtp.Errorf("Error removing permissions to VPC endpoint service %s: %s", d.Id(), err)
+			return diag.Errorf("error removing permissions to VPC endpoint service %s: %s", d.Id(), err)
 		}
 	}
 
-	return resourceVPCEndpointServiceRead(d, meta)
+	return resourceVPCEndpointServiceRead(ctx, d, meta)
 }
 
-func resourceVPCEndpointServiceDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceVPCEndpointServiceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	vpcepClient, err := config.VPCEPClient(GetRegion(d, config))
+	region := config.GetRegion(d)
+	vpcepClient, err := config.VPCEPClient(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
+		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
 
 	err = services.Delete(vpcepClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting Huaweicloud VPC endpoint service %s: %s", d.Id(), err)
+		return diag.Errorf("error deleting VPC endpoint service %s: %s", d.Id(), err)
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"available", "deleting"},
-		Target:     []string{"deleted"},
-		Refresh:    waitForResourceStatus(vpcepClient, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Pending:      []string{"available", "deleting"},
+		Target:       []string{"deleted"},
+		Refresh:      waitForResourceStatus(vpcepClient, d.Id()),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        5 * time.Second,
+		PollInterval: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Error deleting Huaweicloud VPC endpoint service %s: %s", d.Id(), err)
+		return diag.Errorf("error deleting VPC endpoint service %s: %s", d.Id(), err)
 	}
 
-	d.SetId("")
 	return nil
 }
 
 func flattenVPCEndpointConnections(client *golangsdk.ServiceClient, id string) ([]map[string]interface{}, error) {
 	allConns, err := services.ListConnections(client, id, nil)
 	if err != nil {
-		logp.Printf("[WARN] Error querying connections of VPC endpoint service: %s", err)
+		log.Printf("[WARN] Error querying connections of VPC endpoint service: %s", err)
 		return nil, err
 	}
 
-	logp.Printf("[DEBUG] retrieving connections of VPC endpoint service: %#v", allConns)
+	log.Printf("[DEBUG] retrieving connections of VPC endpoint service: %#v", allConns)
 	connections := make([]map[string]interface{}, len(allConns))
 	for i, v := range allConns {
 		connections[i] = map[string]interface{}{
@@ -403,11 +403,11 @@ func flattenVPCEndpointConnections(client *golangsdk.ServiceClient, id string) (
 func flattenVPCEndpointPermissions(client *golangsdk.ServiceClient, id string) ([]string, error) {
 	allPerms, err := services.ListPermissions(client, id)
 	if err != nil {
-		logp.Printf("[WARN] Error querying permissions of VPC endpoint service: %s", err)
+		log.Printf("[WARN] Error querying permissions of VPC endpoint service: %s", err)
 		return nil, err
 	}
 
-	logp.Printf("[DEBUG] retrieving permissions of VPC endpoint service: %#v", allPerms)
+	log.Printf("[DEBUG] retrieving permissions of VPC endpoint service: %#v", allPerms)
 	perms := make([]string, len(allPerms))
 	for i, v := range allPerms {
 		perms[i] = v.Permission
@@ -421,7 +421,7 @@ func waitForResourceStatus(vpcepClient *golangsdk.ServiceClient, id string) reso
 		n, err := services.Get(vpcepClient, id).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[INFO] Successfully deleted Huaweicloud VPC endpoint service %s", id)
+				log.Printf("[INFO] Successfully deleted VPC endpoint service %s", id)
 				return n, "deleted", nil
 			}
 			return n, "error", err
