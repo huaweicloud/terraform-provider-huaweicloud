@@ -250,6 +250,12 @@ resource "huaweicloud_cce_node" "test" {
     volumetype = "SSD"
     size       = 100
   }
+
+  lifecycle {
+    ignore_changes = [
+      tags,
+    ]
+  }  
 }
 
 resource "huaweicloud_cci_namespace" "test" {
@@ -468,11 +474,6 @@ resource "huaweicloud_rds_instance" "test" {
   volume {
     type = "CLOUDSSD"
     size = 50
-  }
-
-  backup_strategy {
-    start_time = "08:00-09:00"
-    keep_days  = 1
   }
 }
 
