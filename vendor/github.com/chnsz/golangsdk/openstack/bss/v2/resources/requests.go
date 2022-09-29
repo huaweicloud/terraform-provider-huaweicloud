@@ -1,8 +1,6 @@
 package resources
 
 import (
-	"fmt"
-
 	"github.com/chnsz/golangsdk"
 )
 
@@ -29,14 +27,7 @@ type ListOpts struct {
 	ExpireTimeEnd string `json:"expire_time_end,omitempty"`
 }
 
-// Get is a method to retrieves a particular resource based on its unique ID.
-func Get(c *golangsdk.ServiceClient, resourceId string, onlyMainRes bool) (*Resource, error) {
-	opts := ListOpts{
-		ResourceIds: []string{resourceId},
-	}
-	if onlyMainRes {
-		opts.OnlyMainResource = 1
-	}
+func List(c *golangsdk.ServiceClient, opts ListOpts) (*QueryResp, error) {
 	b, err := golangsdk.BuildRequestBody(opts, "")
 	if err != nil {
 		return nil, err
@@ -49,11 +40,7 @@ func Get(c *golangsdk.ServiceClient, resourceId string, onlyMainRes bool) (*Reso
 	if err != nil {
 		return nil, err
 	}
-	if r.TotalCount < 1 {
-		return nil, fmt.Errorf("unabled to find the resource (%s) from the server.", resourceId)
-	}
-	resList := r.Resources
-	return &resList[0], nil
+	return &r, nil
 }
 
 // EnableAutoRenew is a method to enable the auto-renew of the prepaid resource.
