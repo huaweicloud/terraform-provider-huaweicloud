@@ -4,6 +4,7 @@
 
 * **New Resurce:**
   + `huaweicloud_rds_database_privilege` [GH-2374]
+  + `huaweicloud_as_bandwidth_policy` [GH-2375]
   + `huaweicloud_gaussdb_influx_instance` [GH-2393]
   + `huaweicloud_gaussdb_mongo_instance` [GH-2393]
   + `huaweicloud_cc_connection` [GH-2407]
@@ -12,15 +13,20 @@
   + `huaweicloud_dms_kafka_user` [GH-2408]
   + `huaweicloud_lts_struct_template` [GH-2411]
 
+* **New Data Source:**
+  + `huaweicloud_cdn_domain_statistics` [GH-2352]
+  + `huaweicloud_scm_certificates` [GH-2353]
+
 ENHANCEMENTS:
 
-* resource/huaweicloud_as_bandwidth_policy: support to scale bandwidths [GH-2375]
+* resource/huaweicloud_cdn_domain: support retrieval host configuration [GH-2355]
 * resource/huaweicloud_css_cluster: support master-node and purchase a yearly/monthly cluster [GH-2383]
 * resource/huaweicloud_gaussdb_opengauss_instance: support new ha mode for centralized type [GH-2387]
 * resource/huaweicloud_gaussdb_opengauss_instance: refactor instance resource [GH-2398]
 * resource/huaweicloud_gaussdb_opengauss_instance: support new payment for instance resource [GH-2406]
 * resource/huaweicloud_rds_instance: add collation support [GH-2404]
 * resource/huaweicloud_fgs_trigger: add LTS trigger type support [GH-2410]
+* data/huaweicloud_obs_bucket_object:  support to display content of an object data source with `body` [GH-2368]
 
 BUG FIXES:
 
