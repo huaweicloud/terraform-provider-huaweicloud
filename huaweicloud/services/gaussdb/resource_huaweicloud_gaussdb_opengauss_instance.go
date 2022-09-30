@@ -27,6 +27,7 @@ type ConsistencyType string
 
 const (
 	HaModeDistributed HaMode = "enterprise"
+	HAModeCentralized HaMode = "centralization_standard"
 
 	ConsistencyTypeStrong   ConsistencyType = "strong"
 	ConsistencyTypeEventual ConsistencyType = "eventual"
@@ -103,7 +104,7 @@ func ResourceOpenGaussInstance() *schema.Resource {
 							Required: true,
 							ForceNew: true,
 							ValidateFunc: validation.StringInSlice([]string{
-								string(HaModeDistributed),
+								string(HaModeDistributed), string(HAModeCentralized),
 							}, true),
 							DiffSuppressFunc: utils.SuppressCaseDiffs,
 						},
@@ -113,7 +114,6 @@ func ResourceOpenGaussInstance() *schema.Resource {
 							ForceNew: true,
 						},
 						"consistency": {
-
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
@@ -154,6 +154,18 @@ func ResourceOpenGaussInstance() *schema.Resource {
 				Optional:     true,
 				Default:      3,
 				ValidateFunc: validation.IntBetween(1, 9),
+			},
+			"replica_num": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				ValidateFunc: validation.IntInSlice([]int{
+					2, 3,
+				}),
+				Default: 3,
+				ConflictsWith: []string{
+					"sharding_num", "coordinator_num",
+				},
 			},
 			"security_group_id": {
 				Type:     schema.TypeString,
@@ -339,9 +351,6 @@ func OpenGaussInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instance
 			return nil, "", err
 		}
 
-		if v.Id == "" {
-			return v, "DELETED", nil
-		}
 		return v, v.Status, nil
 	}
 }
@@ -378,6 +387,9 @@ func buildOpenGaussInstanceCreateOpts(ctx context.Context, d *schema.ResourceDat
 	}
 	if mode == string(HaModeDistributed) {
 		dn_num = d.Get("sharding_num").(int)
+	}
+	if mode == string(HAModeCentralized) {
+		dn_num = d.Get("replica_num").(int) + 1
 	}
 
 	volumeRaw := d.Get("volume").([]interface{})
@@ -521,12 +533,21 @@ func setOpenGaussNodesAndRelatedNumbers(d *schema.ResourceData, instance instanc
 		}
 	}
 
-	*dnNum = shardingNum / 3
-	return multierror.Append(nil,
-		d.Set("nodes", nodesList),
-		d.Set("sharding_num", dnNum),
-		d.Set("coordinator_num", coordinatorNum),
-	).ErrorOrNil()
+	if shardingNum > 0 && coordinatorNum > 0 {
+		*dnNum = shardingNum / 3
+		return multierror.Append(nil,
+			d.Set("nodes", nodesList),
+			d.Set("sharding_num", dnNum),
+			d.Set("coordinator_num", coordinatorNum),
+		).ErrorOrNil()
+	} else {
+		// If the HA mode is centralized, the HA structure of API response is nil.
+		*dnNum = instance.ReplicaNum + 1
+		return multierror.Append(nil,
+			d.Set("nodes", nodesList),
+			d.Set("replica_num", instance.ReplicaNum),
+		).ErrorOrNil()
+	}
 }
 
 func setOpenGaussPrivateIpsAndEndpoints(d *schema.ResourceData, privateIps []string, port int) error {
@@ -542,6 +563,7 @@ func setOpenGaussPrivateIpsAndEndpoints(d *schema.ResourceData, privateIps []str
 		endpoint := fmt.Sprintf("%s:%d", ip_list[i], port)
 		endpoints = append(endpoints, endpoint)
 	}
+
 	return multierror.Append(nil,
 		d.Set("private_ips", ip_list),
 		d.Set("endpoints", endpoints),
@@ -643,6 +665,9 @@ func updateOpenGaussVolumeSize(ctx context.Context, client *golangsdk.ServiceCli
 	dnNum := 1
 	if d.Get("ha.0.mode").(string) == string(HaModeDistributed) {
 		dnNum = d.Get("sharding_num").(int)
+	}
+	if d.Get("ha.0.mode").(string) == string(HAModeCentralized) {
+		dnNum = d.Get("replica_num").(int) + 1
 	}
 	opts := instances.UpdateOpts{
 		EnlargeVolume: &instances.UpdateVolumeOpts{
