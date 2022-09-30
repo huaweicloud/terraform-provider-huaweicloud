@@ -11,7 +11,8 @@ GaussDB OpenGauss instance management within HuaweiCoud.
 ### create a basic instance
 
 ```hcl
-variable "network_id" {}
+variable "vpc_id" {}
+variable "subnet_network_id" {}
 variable "security_group_id" {}
 variable "instance_name" {}
 variable "instance_password" {}
@@ -19,7 +20,8 @@ variable "instance_password" {}
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {
-  network_id        = var.network_id
+  vpc_id            = var.vpc_id
+  subnet_id         = var.subnet_network_id
   security_group_id = var.security_group_id
 
   flavor            = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
