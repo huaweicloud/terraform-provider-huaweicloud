@@ -1,0 +1,31 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_apig_vpc_channel
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: APIG
+paths:
+  /v1/{project_id}/cloudservers/{serverID}:
+    get:
+      tag: APIG
+      operationId: Get
+  /v2/{project_id}/apigw/instances/{instanceId}/vpc-channels/{chanId}:
+    delete:
+      tag: APIG
+      operationId: Delete
+    get:
+      tag: APIG
+      operationId: Get
+    put:
+      tag: APIG
+      operationId: Update
+  /v2/{project_id}/apigw/instances/{instanceId}/vpc-channels:
+    get:
+      tag: APIG
+      operationId: List
+    post:
+      tag: APIG
+      operationId: Create

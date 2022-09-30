@@ -1,0 +1,26 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_aad_forward_rule
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: Advanced Anti-DDoS
+paths:
+  /v1/aad/instances/{instanceId}/{ip}/rules/batch-create:
+    post:
+      tag: Advanced Anti-DDoS
+      operationId: BatchCreate
+  /v1/aad/instances/{instanceId}/{ip}/rules/batch-delete:
+    post:
+      tag: Advanced Anti-DDoS
+      operationId: BatchDelete
+  /v1/aad/instances/{instanceId}/{ip}/rules/{ruleId}:
+    put:
+      tag: Advanced Anti-DDoS
+      operationId: Update
+  /v1/aad/instances/{instanceId}/{ip}/rules:
+    get:
+      tag: Advanced Anti-DDoS
+      operationId: List

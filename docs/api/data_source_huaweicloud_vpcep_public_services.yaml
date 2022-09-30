@@ -1,0 +1,14 @@
+info:
+  version: refs/heads/master
+  title: data_source_huaweicloud_vpcep_public_services
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: VPCEP
+paths:
+  /v1/{project_id}/vpc-endpoint-services/public:
+    get:
+      tag: VPCEP
+      operationId: ListPublic

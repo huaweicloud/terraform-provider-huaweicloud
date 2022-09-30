@@ -1,0 +1,14 @@
+info:
+  version: refs/heads/master
+  title: data_source_huaweicloud_cce_addon_template
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: CCE
+paths:
+  /api/v3/addontemplates:
+    get:
+      tag: CCE
+      operationId: List

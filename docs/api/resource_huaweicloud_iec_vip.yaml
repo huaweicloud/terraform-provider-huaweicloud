@@ -1,0 +1,28 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_iec_vip
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: IEC
+paths:
+  /v1/ports/{portId}:
+    delete:
+      tag: IEC
+      operationId: Delete
+    get:
+      tag: IEC
+      operationId: Get
+    put:
+      tag: IEC
+      operationId: Update
+  /v1/ports:
+    post:
+      tag: IEC
+      operationId: Create
+  /v1/subnets/{subnetId}:
+    get:
+      tag: IEC
+      operationId: Get

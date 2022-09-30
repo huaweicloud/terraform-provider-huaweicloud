@@ -1,0 +1,36 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_images_image
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: IMS
+paths:
+  /v2/cloudimages/action:
+    post:
+      tag: IMS
+      operationId: CreateImageByServer
+  /v2/cloudimages:
+    get:
+      tag: IMS
+      operationId: List
+  /v2/images/{imageID}:
+    delete:
+      tag: IMS
+      operationId: Delete
+    get:
+      tag: IMS
+      operationId: Get
+    patch:
+      tag: IMS
+      operationId: Update
+  /v2/{project_id}/{project_id}/images/{id}/tags/action:
+    post:
+      tag: IMS
+      operationId: BatchAction
+  /v2/{project_id}/{project_id}/images/{id}/tags:
+    get:
+      tag: IMS
+      operationId: Get

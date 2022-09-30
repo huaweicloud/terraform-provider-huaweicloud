@@ -1,0 +1,14 @@
+info:
+  version: refs/heads/master
+  title: data_source_huaweicloud_dcs_flavors
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: DCS
+paths:
+  /v2/{project_id}/flavors:
+    get:
+      tag: DCS
+      operationId: List

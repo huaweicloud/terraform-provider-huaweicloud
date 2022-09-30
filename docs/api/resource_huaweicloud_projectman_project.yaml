@@ -1,0 +1,28 @@
+info:
+    version: v4
+    title: resource_huaweicloud_projectman_project
+    description: Manages a Project resource within HuaweiCloud.
+host: myhuaweicloud.com
+tags:
+    - name: ProjectMan
+servers:
+    - url: https://projectman-ext.cn-north-4.myhuaweicloud.com
+paths:
+    /v4/project:
+        POST:
+            tag: ProjectMan
+            operationId: CreateProject
+            x-ref-api: POST /v4/project
+    /v4/projects/{id}:
+        DELETE:
+            tag: ProjectMan
+            operationId: DeleteProject
+            x-ref-api: DELETE /v4/projects/{id}
+        GET:
+            tag: ProjectMan
+            operationId: GetProject
+            x-ref-api: GET /v4/projects/{id}
+        PUT:
+            tag: ProjectMan
+            operationId: UpdateProject
+            x-ref-api: PUT /v4/projects/{id}

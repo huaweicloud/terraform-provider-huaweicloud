@@ -1,0 +1,23 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_mpc_transcoding_template_group
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: MPC
+paths:
+  /v1/{project_id}/template_group/transcodings:
+    delete:
+      tag: MPC
+      operationId: DeleteTemplateGroup
+    get:
+      tag: MPC
+      operationId: ListTemplateGroup
+    post:
+      tag: MPC
+      operationId: CreateTemplateGroup
+    put:
+      tag: MPC
+      operationId: UpdateTemplateGroup

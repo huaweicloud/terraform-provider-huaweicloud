@@ -1,0 +1,14 @@
+info:
+  version: refs/heads/master
+  title: data_source_huaweicloud_vpc_route
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: VPC
+paths:
+  /v2.0/vpc/routes:
+    get:
+      tag: VPC
+      operationId: List

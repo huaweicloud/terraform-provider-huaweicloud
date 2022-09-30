@@ -1,0 +1,36 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_dns_recordset
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: DNS
+paths:
+  /v2/zones/{zoneID}/recordsets/{rrsetID}:
+    delete:
+      tag: DNS
+      operationId: Delete
+    get:
+      tag: DNS
+      operationId: Get
+    put:
+      tag: DNS
+      operationId: Update
+  /v2/zones/{zoneID}/recordsets:
+    post:
+      tag: DNS
+      operationId: Create
+  /v2/zones/{zoneID}:
+    get:
+      tag: DNS
+      operationId: Get
+  /v2/{project_id}/{resourceType}/{id}/tags/action:
+    post:
+      tag: DNS
+      operationId: Create
+  /v2/{project_id}/{resourceType}/{id}/tags:
+    get:
+      tag: DNS
+      operationId: Get

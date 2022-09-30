@@ -1,0 +1,14 @@
+info:
+  version: refs/heads/master
+  title: data_source_huaweicloud_fgs_dependencies
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: FunctionGraph
+paths:
+  /v2/{project_id}/fgs/dependencies:
+    get:
+      tag: FunctionGraph
+      operationId: List

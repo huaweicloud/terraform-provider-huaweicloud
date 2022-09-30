@@ -1,0 +1,14 @@
+info:
+  version: refs/heads/master
+  title: data_source_huaweicloud_nat_gateway
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: NAT
+paths:
+  /v2/{project_id}/nat_gateways:
+    get:
+      tag: NAT
+      operationId: List

@@ -1,0 +1,22 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_cce_node_attach
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: CCE
+paths:
+  /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/add:
+    post:
+      tag: CCE
+      operationId: Add
+  /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/operation/remove:
+    put:
+      tag: CCE
+      operationId: Remove
+  /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/reset:
+    post:
+      tag: CCE
+      operationId: Reset

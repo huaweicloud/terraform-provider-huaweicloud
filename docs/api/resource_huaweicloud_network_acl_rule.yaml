@@ -1,0 +1,28 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_network_acl_rule
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: VPC
+paths:
+  /v2.0/fwaas/firewall_policies/{id}/remove_rule:
+    put:
+      tag: VPC
+      operationId: RemoveRule
+  /v2.0/fwaas/firewall_rules/{id}:
+    delete:
+      tag: VPC
+      operationId: Delete
+    get:
+      tag: VPC
+      operationId: Get
+    put:
+      tag: VPC
+      operationId: Update
+  /v2.0/fwaas/firewall_rules:
+    post:
+      tag: VPC
+      operationId: Create

@@ -1,0 +1,20 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_live_domain
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: Live
+paths:
+  /v1/{project_id}/domain:
+    delete:
+      tag: Live
+      operationId: DeleteDomain
+    get:
+      tag: Live
+      operationId: ShowDomain
+    post:
+      tag: Live
+      operationId: CreateDomain

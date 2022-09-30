@@ -1,0 +1,22 @@
+info:
+  version: refs/heads/master
+  title: data_source_huaweicloud_sfs_file_system
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: SFS
+paths:
+  /v2/{project_id}/shares/detail:
+    get:
+      tag: SFS
+      operationId: List
+  /v2/{project_id}/shares/{id}/action:
+    post:
+      tag: SFS
+      operationId: ListAccessRights
+  /v2/{project_id}/shares/{id}/export_locations:
+    get:
+      tag: SFS
+      operationId: GetExportLocations

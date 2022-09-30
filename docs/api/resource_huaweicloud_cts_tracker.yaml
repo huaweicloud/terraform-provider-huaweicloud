@@ -1,0 +1,18 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_cts_tracker
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: CTS
+paths:
+  /v3/{project_id}/tracker:
+    put:
+      tag: CTS
+      operationId: UpdateTracker
+  /v3/{project_id}/trackers:
+    get:
+      tag: CTS
+      operationId: ListTrackers

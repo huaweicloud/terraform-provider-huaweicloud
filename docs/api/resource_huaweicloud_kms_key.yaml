@@ -1,0 +1,62 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_kms_key
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: DEW
+paths:
+  /v1.0/{project_id}/kms/{id}/tags/action:
+    post:
+      tag: DEW
+      operationId: Create
+  /v1.0/{project_id}/kms/{id}/tags:
+    get:
+      tag: DEW
+      operationId: Get
+  /v1.0/{project_id}/kms/create-key:
+    post:
+      tag: DEW
+      operationId: Create
+  /v1.0/{project_id}/kms/describe-key:
+    post:
+      tag: DEW
+      operationId: Get
+  /v1.0/{project_id}/kms/disable-key-rotation:
+    post:
+      tag: DEW
+      operationId: Disable
+  /v1.0/{project_id}/kms/disable-key:
+    post:
+      tag: DEW
+      operationId: DisableKey
+  /v1.0/{project_id}/kms/enable-key-rotation:
+    post:
+      tag: DEW
+      operationId: Enable
+  /v1.0/{project_id}/kms/enable-key:
+    post:
+      tag: DEW
+      operationId: EnableKey
+  /v1.0/{project_id}/kms/get-key-rotation-status:
+    post:
+      tag: DEW
+      operationId: Get
+  /v1.0/{project_id}/kms/schedule-key-deletion:
+    post:
+      tag: DEW
+      operationId: Delete
+  /v1.0/{project_id}/kms/update-key-alias:
+    post:
+      tag: DEW
+      operationId: UpdateAlias
+  /v1.0/{project_id}/kms/update-key-description:
+    post:
+      tag: DEW
+      operationId: UpdateDes
+  /v1.0/{project_id}/kms/update-key-rotation-interval:
+    post:
+      tag: DEW
+      operationId: Update

@@ -1,0 +1,18 @@
+info:
+  version: refs/heads/master
+  title: data_source_huaweicloud_lb_loadbalancer
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: ELB
+paths:
+  /v2/{project_id}/elb/loadbalancers:
+    get:
+      tag: ELB
+      operationId: List
+  /v2.0/{project_id}/loadbalancers/{id}/tags:
+    get:
+      tag: ELB
+      operationId: Get

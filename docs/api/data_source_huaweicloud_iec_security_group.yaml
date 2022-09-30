@@ -1,0 +1,14 @@
+info:
+  version: refs/heads/master
+  title: data_source_huaweicloud_iec_security_group
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: IEC
+paths:
+  /v1/security-groups:
+    get:
+      tag: IEC
+      operationId: List

@@ -1,0 +1,24 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_elb_pool
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: ELB
+paths:
+  /v3/{project_id}/elb/pools/{id}:
+    delete:
+      tag: ELB
+      operationId: Delete
+    get:
+      tag: ELB
+      operationId: Get
+    put:
+      tag: ELB
+      operationId: Update
+  /v3/{project_id}/elb/pools:
+    post:
+      tag: ELB
+      operationId: Create

@@ -1,0 +1,14 @@
+info:
+  version: refs/heads/master
+  title: data_source_huaweicloud_modelarts_datasets
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: ModelArts
+paths:
+  /v2/{project_id}/datasets:
+    get:
+      tag: ModelArts
+      operationId: List

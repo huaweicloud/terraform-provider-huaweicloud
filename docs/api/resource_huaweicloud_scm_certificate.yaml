@@ -1,0 +1,25 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_scm_certificate
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: SCM
+paths:
+  /v3/scm/certificates/import:
+    post:
+      tag: SCM
+      operationId: Import
+  /v3/scm/certificates/{id}/push:
+    post:
+      tag: SCM
+      operationId: Push
+  /v3/scm/certificates/{id}:
+    delete:
+      tag: SCM
+      operationId: Delete
+    get:
+      tag: SCM
+      operationId: Get

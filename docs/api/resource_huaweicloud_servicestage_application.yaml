@@ -1,0 +1,38 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_servicestage_application
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: ServiceStage
+paths:
+  /v2/{project_id}/cas/applications/{appId}/components:
+    get:
+      tag: ServiceStage
+      operationId: List
+  /v2/{project_id}/cas/applications/{appId}/configuration:
+    delete:
+      tag: ServiceStage
+      operationId: DeleteConfig
+    get:
+      tag: ServiceStage
+      operationId: ListConfig
+    put:
+      tag: ServiceStage
+      operationId: UpdateConfig
+  /v2/{project_id}/cas/applications/{appId}:
+    delete:
+      tag: ServiceStage
+      operationId: Delete
+    get:
+      tag: ServiceStage
+      operationId: Get
+    put:
+      tag: ServiceStage
+      operationId: Update
+  /v2/{project_id}/cas/applications:
+    post:
+      tag: ServiceStage
+      operationId: Create

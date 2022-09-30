@@ -1,0 +1,32 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_lb_l7rule
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: ELB
+paths:
+  /v2/{project_id}/elb/l7policies/{id}:
+    get:
+      tag: ELB
+      operationId: Get
+  /v2/{project_id}/elb/l7policies/{policyID}/rules/{ruleID}:
+    delete:
+      tag: ELB
+      operationId: DeleteRule
+    get:
+      tag: ELB
+      operationId: GetRule
+    put:
+      tag: ELB
+      operationId: UpdateRule
+  /v2/{project_id}/elb/l7policies/{policyID}/rules:
+    post:
+      tag: ELB
+      operationId: CreateRule
+  /v2/{project_id}/elb/listeners/{id}:
+    get:
+      tag: ELB
+      operationId: Get

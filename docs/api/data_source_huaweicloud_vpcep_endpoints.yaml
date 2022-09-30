@@ -1,0 +1,15 @@
+info:
+    version: v4
+    title: data_source_huaweicloud_vpcep_endpoints
+    description: Use this data source to get the list of VPC endpoints.
+host: myhuaweicloud.com
+tags:
+    - name: VPCEP
+servers:
+    - url: https://vpcep.cn-north-4.myhuaweicloud.com
+paths:
+    /v1/{project_id}/vpc-endpoints:
+        GET:
+            tag: VPCEP
+            operationId: ListVpcEndpoints
+            x-ref-api: GET /v1/{project_id}/vpc-endpoints

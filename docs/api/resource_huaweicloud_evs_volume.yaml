@@ -1,0 +1,40 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_evs_volume
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: EVS
+paths:
+  /v1/{project_id}/cloudservers/{serverId}/detachvolume/{volumeId}:
+    delete:
+      tag: ECS
+      operationId: Detach
+  /v2.1/{project_id}/cloudvolumes/{id}/action:
+    post:
+      tag: EVS
+      operationId: ExtendSize
+  /v2/{project_id}/cloudvolumes/{id}/tags/action:
+    POST:
+      tag: EVS
+      operationId: batchUpdate
+  /v2/{project_id}/cloudvolumes/{id}:
+    delete:
+      tag: EVS
+      operationId: Delete
+    get:
+      tag: EVS
+      operationId: Get
+    put:
+      tag: EVS
+      operationId: Update
+  /v2.1/{project_id}/cloudvolumes:
+    post:
+      tag: EVS
+      operationId: Create
+  /v1/{project_id}/jobs/{jobId}:
+    get:
+      tag: ECS
+      operationId: Get

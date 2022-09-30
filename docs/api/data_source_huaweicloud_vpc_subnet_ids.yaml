@@ -1,0 +1,14 @@
+info:
+  version: refs/heads/master
+  title: data_source_huaweicloud_vpc_subnet_ids
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: VPC
+paths:
+  /v1/{project_id}/subnets:
+    get:
+      tag: VPC
+      operationId: List

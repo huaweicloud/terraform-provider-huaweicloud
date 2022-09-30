@@ -1,0 +1,9 @@
+info:
+  version: refs/heads/master
+  title: data_source_huaweicloud_obs_bucket_object
+  description: 404.This resource is waiting to be upgraded, so there is none method output.
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+paths:

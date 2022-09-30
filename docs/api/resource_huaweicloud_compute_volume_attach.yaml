@@ -1,0 +1,26 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_compute_volume_attach
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: ECS
+paths:
+  /v1/{project_id}/cloudservers/{server_id}/block_device/{volume_id}:
+    get:
+      tag: ECS
+      operationId: Get
+  /v1/{project_id}/cloudservers/{serverId}/attachvolume:
+    post:
+      tag: ECS
+      operationId: Attach
+  /v1/{project_id}/cloudservers/{serverId}/detachvolume/{volumeId}:
+    delete:
+      tag: ECS
+      operationId: Detach
+  /v1/{project_id}/jobs/{jobId}:
+    get:
+      tag: ECS
+      operationId: Get

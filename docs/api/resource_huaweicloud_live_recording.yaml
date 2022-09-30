@@ -1,0 +1,24 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_live_recording
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: Live
+paths:
+  /v1/{project_id}/record/rules/{id}:
+    delete:
+      tag: Live
+      operationId: DeleteRecordRule
+    get:
+      tag: Live
+      operationId: ShowRecordRule
+    put:
+      tag: Live
+      operationId: UpdateRecordRule
+  /v1/{project_id}/record/rules:
+    post:
+      tag: Live
+      operationId: CreateRecordRule

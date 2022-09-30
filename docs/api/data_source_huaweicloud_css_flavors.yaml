@@ -1,0 +1,14 @@
+info:
+  version: refs/heads/master
+  title: data_source_huaweicloud_css_flavors
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: CSS
+paths:
+  /v1.0/{project_id}/es-flavors:
+    get:
+      tag: CSS
+      operationId: ListFlavors

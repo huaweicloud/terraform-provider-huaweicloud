@@ -1,0 +1,36 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_vpcep_service
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: VPCEP
+paths:
+  /v1/{project_id}/vpc-endpoint-services/{serviceID}/connections:
+    get:
+      tag: VPCEP
+      operationId: ListConnections
+  /v1/{project_id}/vpc-endpoint-services/{serviceID}/permissions/action:
+    post:
+      tag: VPCEP
+      operationId: PermAction
+  /v1/{project_id}/vpc-endpoint-services/{serviceID}/permissions:
+    get:
+      tag: VPCEP
+      operationId: ListPermissions
+  /v1/{project_id}/vpc-endpoint-services/{serviceID}:
+    delete:
+      tag: VPCEP
+      operationId: Delete
+    get:
+      tag: VPCEP
+      operationId: Get
+    put:
+      tag: VPCEP
+      operationId: Update
+  /v1/{project_id}/vpc-endpoint-services:
+    post:
+      tag: VPCEP
+      operationId: Create

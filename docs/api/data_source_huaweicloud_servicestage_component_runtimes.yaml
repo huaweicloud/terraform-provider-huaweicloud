@@ -1,0 +1,14 @@
+info:
+  version: refs/heads/master
+  title: data_source_huaweicloud_servicestage_component_runtimes
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: ServiceStage
+paths:
+  /v2/{project_id}/cas/metadata/runtimes:
+    get:
+      tag: ServiceStage
+      operationId: ListRuntimes

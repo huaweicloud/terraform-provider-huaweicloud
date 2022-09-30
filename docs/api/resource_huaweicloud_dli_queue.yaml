@@ -1,0 +1,31 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_dli_queue
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: DLI
+paths:
+  /v1.0/{project_id}/queues/{queueName}/action:
+    put:
+      tag: DLI
+      operationId: ScaleOrRestart
+  /v1.0/{project_id}/queues/{queueName}:
+    delete:
+      tag: DLI
+      operationId: Delete
+    get:
+      tag: DLI
+      operationId: Get
+    put:
+      tag: DLI
+      operationId: UpdateCidr
+  /v1.0/{project_id}/queues:
+    get:
+      tag: DLI
+      operationId: List
+    post:
+      tag: DLI
+      operationId: Create

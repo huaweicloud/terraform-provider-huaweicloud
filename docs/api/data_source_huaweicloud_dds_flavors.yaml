@@ -1,0 +1,14 @@
+info:
+  version: refs/heads/master
+  title: data_source_huaweicloud_dds_flavors
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: DDS
+paths:
+  /v3/{project_id}/flavors:
+    get:
+      tag: DDS
+      operationId: List

@@ -1,0 +1,14 @@
+info:
+  version: refs/heads/master
+  title: data_source_huaweicloud_cce_node_pool
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: CCE
+paths:
+  /api/v3/projects/{project_id}/clusters/{clusterid}/nodepools:
+    get:
+      tag: CCE
+      operationId: List

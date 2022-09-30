@@ -1,0 +1,28 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_dis_stream
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: DIS
+paths:
+  /v2/{project_id}/stream/{id}/tags/action:
+    POST:
+      tag: DIS
+      operationId: batchUpdate
+  /v2/{project_id}/streams/{streamName}:
+    delete:
+      tag: DIS
+      operationId: Delete
+    get:
+      tag: DIS
+      operationId: Get
+    put:
+      tag: DIS
+      operationId: UpdatePartition
+  /v2/{project_id}/streams:
+    post:
+      tag: DIS
+      operationId: Create

@@ -1,0 +1,44 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_rds_instance
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: RDS
+paths:
+  /v3/{project_id}/instances/{id}/backups/policy:
+    put:
+      tag: RDS
+      operationId: Update
+  /v3/{project_id}/instances/{id}/tags/action:
+    post:
+      tag: RDS
+      operationId: Create
+  /v3/{project_id}/instances/{instanceId}/{path}:
+    put:
+      tag: RDS
+      operationId: UpdatePort
+  /v3/{project_id}/instances/{instancesId}/{updata}:
+    post:
+      tag: RDS
+      operationId: Resize
+    put:
+      tag: RDS
+      operationId: Rename
+  /v3/{project_id}/instances/{serverID}:
+    delete:
+      tag: RDS
+      operationId: Delete
+  /v3/{project_id}/instances:
+    get:
+      tag: RDS
+      operationId: List
+    post:
+      tag: RDS
+      operationId: Create
+  /v3/{project_id}/jobs:
+    get:
+      tag: RDS
+      operationId: GetRDSJob

@@ -1,0 +1,14 @@
+info:
+  version: refs/heads/master
+  title: data_source_huaweicloud_identity_role
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: IAM
+paths:
+  /v3/roles:
+    get:
+      tag: IAM
+      operationId: List

@@ -1,0 +1,23 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_vod_transcoding_template_group
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: VOD
+paths:
+  /v1.0/{project_id}/asset/template_group/transcodings:
+    delete:
+      tag: VOD
+      operationId: DeleteTemplateGroup
+    get:
+      tag: VOD
+      operationId: ListTemplateGroup
+    post:
+      tag: VOD
+      operationId: CreateTemplateGroup
+    put:
+      tag: VOD
+      operationId: UpdateTemplateGroup

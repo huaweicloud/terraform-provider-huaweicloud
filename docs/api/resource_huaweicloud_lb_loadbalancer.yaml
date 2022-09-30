@@ -1,0 +1,39 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_lb_loadbalancer
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: ELB
+paths:
+  /v2/{project_id}/elb/loadbalancers/{id}:
+    delete:
+      tag: ELB
+      operationId: Delete
+    get:
+      tag: ELB
+      operationId: Get
+    put:
+      tag: ELB
+      operationId: Update
+  /v2/{project_id}/elb/loadbalancers:
+    post:
+      tag: ELB
+      operationId: Create
+  /v2.0/{project_id}/loadbalancers/{id}/tags/action:
+    post:
+      tag: ELB
+      operationId: Create
+  /v2.0/{project_id}/loadbalancers/{id}/tags:
+    get:
+      tag: ELB
+      operationId: Get
+  /v1/ports/{id}:
+    get:
+      tag: ELB
+      operationId: Get
+    put:
+      tag: ELB
+      operationId: Update

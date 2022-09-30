@@ -1,0 +1,43 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_identity_agency
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: IAM
+paths:
+  /v3.0/OS-AGENCY/agencies/{id}:
+    delete:
+      tag: IAM
+      operationId: Delete
+    get:
+      tag: IAM
+      operationId: Get
+    put:
+      tag: IAM
+      operationId: Update
+  /v3.0/OS-AGENCY/agencies:
+    post:
+      tag: IAM
+      operationId: Create
+  /v3.0/OS-AGENCY/{resource}/{resourceID}/agencies/{agencyID}/roles/{roleID}:
+    delete:
+      tag: IAM
+      operationId: DetachRoleByProject
+    put:
+      tag: IAM
+      operationId: AttachRoleByProject
+  /v3.0/OS-AGENCY/{resource}/{resourceID}/agencies/{agencyID}/roles:
+    get:
+      tag: IAM
+      operationId: ListRolesAttachedOnProject
+  /v3/projects:
+    get:
+      tag: IAM
+      operationId: List
+  /v3/roles:
+    get:
+      tag: IAM
+      operationId: List

@@ -1,0 +1,90 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_gaussdb_mysql_instance
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: GaussDB
+paths:
+  /v3/{project_id}/configurations:
+    get:
+      tag: GaussDB
+      operationId: List
+  /v3/{project_id}/dedicated-resources:
+    get:
+      tag: GaussDB
+      operationId: ListDeh
+  /v3/{project_id}/instance/{instanceId}/audit-log/switch-status:
+    get:
+      tag: GaussDB
+      operationId: Get
+  /v3/{project_id}/instance/{instanceId}/audit-log/switch:
+    post:
+      tag: GaussDB
+      operationId: Update
+  /v3/{project_id}/instances/{id}/backups/policy/update:
+    put:
+      tag: GaussDB
+      operationId: Update
+  /v3/{project_id}/instances/{id}/tags/action:
+    post:
+      tag: GaussDB
+      operationId: Create
+  /v3/{project_id}/instances/{id}/tags:
+    get:
+      tag: GaussDB
+      operationId: Get
+  /v3/{project_id}/instances/{instanceID}/action:
+    post:
+      tag: GaussDB
+      operationId: Resize
+  /v3/{project_id}/instances/{instanceID}/name:
+    put:
+      tag: GaussDB
+      operationId: UpdateName
+  /v3/{project_id}/instances/{instanceID}/nodes/enlarge:
+    post:
+      tag: GaussDB
+      operationId: CreateReplica
+  /v3/{project_id}/instances/{instanceID}/nodes/{nodeID}:
+    delete:
+      tag: GaussDB
+      operationId: DeleteReplica
+  /v3/{project_id}/instances/{instanceID}/password:
+    post:
+      tag: GaussDB
+      operationId: UpdatePass
+  /v3/{project_id}/instances/{instanceID}/proxy/enlarge:
+    post:
+      tag: GaussDB
+      operationId: EnlargeProxy
+  /v3/{project_id}/instances/{instanceID}/proxy:
+    delete:
+      tag: GaussDB
+      operationId: DeleteProxy
+    get:
+      tag: GaussDB
+      operationId: GetProxy
+    post:
+      tag: GaussDB
+      operationId: EnableProxy
+  /v3/{project_id}/instances/{instanceID}/volume/extend:
+    post:
+      tag: GaussDB
+      operationId: ExtendVolume
+  /v3/{project_id}/instances/{instanceID}:
+    delete:
+      tag: GaussDB
+      operationId: Delete
+    get:
+      tag: GaussDB
+      operationId: Get
+  /v3/{project_id}/instances:
+    get:
+      tag: GaussDB
+      operationId: List
+    post:
+      tag: GaussDB
+      operationId: Create

@@ -1,0 +1,28 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_dms_rabbitmq_instance
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: RabbitMQ
+paths:
+  /v2/{project_id}/instances/{id}:
+    delete:
+      tag: RabbitMQ
+      operationId: Delete
+    get:
+      tag: RabbitMQ
+      operationId: Get
+    put:
+      tag: RabbitMQ
+      operationId: Update
+  /v2/{project_id}/instances:
+    post:
+      tag: RabbitMQ
+      operationId: Create
+  /v2/{project_id}/{resourceType}/{id}/tags:
+    get:
+      tag: RabbitMQ
+      operationId: Get

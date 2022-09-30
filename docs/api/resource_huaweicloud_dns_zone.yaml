@@ -1,0 +1,40 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_dns_zone
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: DNS
+paths:
+  /v2/zones/{zoneID}/associaterouter:
+    post:
+      tag: DNS
+      operationId: AssociateZone
+  /v2/zones/{zoneID}/disassociaterouter:
+    post:
+      tag: DNS
+      operationId: DisassociateZone
+  /v2/zones/{zoneID}:
+    delete:
+      tag: DNS
+      operationId: Delete
+    get:
+      tag: DNS
+      operationId: Get
+    patch:
+      tag: DNS
+      operationId: Update
+  /v2/zones:
+    post:
+      tag: DNS
+      operationId: Create
+  /v2/{project_id}/{resourceType}/{id}/tags/action:
+    post:
+      tag: DNS
+      operationId: Create
+  /v2/{project_id}/{resourceType}/{id}/tags:
+    get:
+      tag: DNS
+      operationId: Get

@@ -1,0 +1,14 @@
+info:
+  version: refs/heads/master
+  title: data_source_huaweicloud_iec_port
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: IEC
+paths:
+  /v1/ports:
+    get:
+      tag: IEC
+      operationId: List

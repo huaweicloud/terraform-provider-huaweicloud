@@ -1,0 +1,24 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_rds_configuration
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: RDS
+paths:
+  /v3/{project_id}/configurations/{id}:
+    delete:
+      tag: RDS
+      operationId: Delete
+    get:
+      tag: RDS
+      operationId: Get
+    put:
+      tag: RDS
+      operationId: Update
+  /v3/{project_id}/configurations:
+    post:
+      tag: RDS
+      operationId: Create

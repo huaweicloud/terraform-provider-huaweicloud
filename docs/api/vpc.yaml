@@ -1,0 +1,43 @@
+info:
+    version: 1.0.0
+    title: vpc
+    description: 管理一个虚拟私有云 VPC
+host: myhuaweicloud.com
+tags:
+    - name: vpc
+servers:
+    - url: https://localhost.com/vpcs
+paths:
+    /v1/{project_id}/vpcs:
+        POST:
+            tag: vpc
+            operationId: Create
+            x-ref-api: POST /v1/{project_id}/vpcs
+    /v1/{project_id}/vpcs/{id}:
+        DELETE:
+            tag: vpc
+            operationId: DeleteVpc
+            x-ref-api: DELETE /v1/{project_id}/vpcs/{id}
+        GET:
+            tag: vpc
+            operationId: UpdateVpcWaiting
+            x-ref-api: GET /v1/{project_id}/vpcs/{id}
+        PUT:
+            tag: vpc
+            operationId: UpdateVpc
+            x-ref-api: PUT /v1/{project_id}/vpcs/{id}
+    /v1/{project_id}/vpcs/{vpc_id}:
+        GET:
+            tag: vpc
+            operationId: GetVpc
+            x-ref-api: GET /v1/{project_id}/vpcs/{vpc_id}
+    /v1/{project_id}/vpcs/subnets/{id}:
+        GET:
+            tag: vpc
+            operationId: GetSubnets
+            x-ref-api: GET /v1/{project_id}/vpcs/subnets/{id}
+    /v1/{project_id}/vpcs/tags/{id}:
+        GET:
+            tag: vpc
+            operationId: GetTags
+            x-ref-api: GET /v1/{project_id}/vpcs/tags/{id}

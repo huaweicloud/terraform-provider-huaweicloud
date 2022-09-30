@@ -1,0 +1,25 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_fgs_function
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: FunctionGraph
+paths:
+  /v2/{project_id}/fgs/functions/{functionUrn}/code:
+    put:
+      tag: FunctionGraph
+      operationId: UpdateCode
+  /v2/{project_id}/fgs/functions/{functionUrn}/config:
+    get:
+      tag: FunctionGraph
+      operationId: GetMetadata
+    put:
+      tag: FunctionGraph
+      operationId: UpdateMetadata
+  /v2/{project_id}/fgs/functions/{functionUrn}:
+    delete:
+      tag: FunctionGraph
+      operationId: Delete

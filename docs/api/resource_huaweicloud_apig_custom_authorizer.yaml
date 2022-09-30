@@ -1,0 +1,27 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_apig_custom_authorizer
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: APIG
+paths:
+  /v2/{project_id}/apigw/instances/{instanceId}/authorizers/{id}:
+    delete:
+      tag: APIG
+      operationId: Delete
+    get:
+      tag: APIG
+      operationId: Get
+    put:
+      tag: APIG
+      operationId: Update
+  /v2/{project_id}/apigw/instances/{instanceId}/authorizers:
+    get:
+      tag: APIG
+      operationId: List
+    post:
+      tag: APIG
+      operationId: Create

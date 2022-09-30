@@ -1,0 +1,22 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_meeting_admin_assignment
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: 
+paths:
+  /{project_id}/usg/dcs/corp/admin/delete:
+    post:
+      tag: 
+      operationId: BatchDelete
+  /{project_id}/usg/dcs/corp/admin/{account}:
+    get:
+      tag: 
+      operationId: Get
+  /{project_id}/usg/dcs/corp/admin:
+    post:
+      tag: 
+      operationId: Create

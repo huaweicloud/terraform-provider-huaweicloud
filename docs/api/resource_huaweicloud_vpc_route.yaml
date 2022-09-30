@@ -1,0 +1,21 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_vpc_route
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: VPC
+paths:
+  /v2.0/vpc/routes/{id}:
+    delete:
+      tag: VPC
+      operationId: Delete
+    get:
+      tag: VPC
+      operationId: Get
+  /v2.0/vpc/routes:
+    post:
+      tag: VPC
+      operationId: Create

@@ -1,0 +1,14 @@
+info:
+  version: refs/heads/master
+  title: data_source_huaweicloud_vpc_bandwidth
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: EIP
+paths:
+  /v1/{project_id}/bandwidths:
+    get:
+      tag: EIP
+      operationId: List

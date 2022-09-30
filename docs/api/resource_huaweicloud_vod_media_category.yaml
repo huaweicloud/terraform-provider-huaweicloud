@@ -1,0 +1,23 @@
+info:
+  version: refs/heads/master
+  title: resource_huaweicloud_vod_media_category
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: VOD
+paths:
+  /v1.0/{project_id}/asset/category:
+    delete:
+      tag: VOD
+      operationId: DeleteAssetCategory
+    get:
+      tag: VOD
+      operationId: ListAssetCategory
+    post:
+      tag: VOD
+      operationId: CreateAssetCategory
+    put:
+      tag: VOD
+      operationId: UpdateAssetCategory
