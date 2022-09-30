@@ -563,6 +563,7 @@ func setOpenGaussPrivateIpsAndEndpoints(d *schema.ResourceData, privateIps []str
 		endpoint := fmt.Sprintf("%s:%d", ip_list[i], port)
 		endpoints = append(endpoints, endpoint)
 	}
+
 	return multierror.Append(nil,
 		d.Set("private_ips", ip_list),
 		d.Set("endpoints", endpoints),
