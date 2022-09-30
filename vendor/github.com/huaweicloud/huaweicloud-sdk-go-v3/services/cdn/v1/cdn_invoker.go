@@ -5,6 +5,18 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v1/model"
 )
 
+type BatchDeleteTagsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *BatchDeleteTagsInvoker) Invoke() (*model.BatchDeleteTagsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.BatchDeleteTagsResponse), nil
+	}
+}
+
 type CreateDomainInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -38,6 +50,18 @@ func (i *CreateRefreshTasksInvoker) Invoke() (*model.CreateRefreshTasksResponse,
 		return nil, err
 	} else {
 		return result.(*model.CreateRefreshTasksResponse), nil
+	}
+}
+
+type CreateTagsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateTagsInvoker) Invoke() (*model.CreateTagsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateTagsResponse), nil
 	}
 }
 
@@ -302,6 +326,18 @@ func (i *ShowResponseHeaderInvoker) Invoke() (*model.ShowResponseHeaderResponse,
 		return nil, err
 	} else {
 		return result.(*model.ShowResponseHeaderResponse), nil
+	}
+}
+
+type ShowTagsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowTagsInvoker) Invoke() (*model.ShowTagsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowTagsResponse), nil
 	}
 }
 

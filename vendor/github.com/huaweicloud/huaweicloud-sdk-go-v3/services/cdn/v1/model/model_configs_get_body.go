@@ -33,6 +33,8 @@ type ConfigsGetBody struct {
 
 	// ipv6设置（1：打开；0：关闭）
 	Ipv6Accelerate *int32 `json:"ipv6_accelerate,omitempty"`
+
+	ErrorCodeCache *ErrorCodeCache `json:"error_code_cache,omitempty"`
 }
 
 func (o ConfigsGetBody) String() string {

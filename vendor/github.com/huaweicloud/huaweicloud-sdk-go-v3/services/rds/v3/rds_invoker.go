@@ -1121,6 +1121,18 @@ func (i *UpdateDatabaseInvoker) Invoke() (*model.UpdateDatabaseResponse, error) 
 	}
 }
 
+type UpdateDbUserCommentInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateDbUserCommentInvoker) Invoke() (*model.UpdateDbUserCommentResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateDbUserCommentResponse), nil
+	}
+}
+
 type AllowDbPrivilegeInvoker struct {
 	*invoker.BaseInvoker
 }

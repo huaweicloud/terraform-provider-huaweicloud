@@ -8,8 +8,8 @@ import (
 
 // Response Object
 type UpdateDomainProtectPolicyResponse struct {
-	ProtectPolicy  *ProtectPolicyResult `json:"protect_policy,omitempty"`
-	HttpStatusCode int                  `json:"-"`
+	ProtectPolicy  *UpdateDomainProtectPolicyResponseBodyProtectPolicy `json:"protect_policy,omitempty"`
+	HttpStatusCode int                                                 `json:"-"`
 }
 
 func (o UpdateDomainProtectPolicyResponse) String() string {

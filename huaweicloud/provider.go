@@ -69,6 +69,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/tms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vod"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpcep"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/waf"
 )
 
@@ -487,7 +488,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_subnet":             vpc.DataSourceVpcSubnetV1(),
 			"huaweicloud_vpc_subnets":            vpc.DataSourceVpcSubnets(),
 			"huaweicloud_vpc_subnet_ids":         vpc.DataSourceVpcSubnetIdsV1(),
-			"huaweicloud_vpcep_public_services":  DataSourceVPCEPPublicServices(),
+
+			"huaweicloud_vpcep_public_services": vpcep.DataSourceVPCEPPublicServices(),
 
 			"huaweicloud_waf_certificate":         waf.DataSourceWafCertificateV1(),
 			"huaweicloud_waf_policies":            waf.DataSourceWafPoliciesV1(),
@@ -582,10 +584,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_throttling_policy":           apig.ResourceApigThrottlingPolicyV2(),
 			"huaweicloud_apig_vpc_channel":                 apig.ResourceApigVpcChannelV2(),
 
-			"huaweicloud_as_configuration":  as.ResourceASConfiguration(),
-			"huaweicloud_as_group":          as.ResourceASGroup(),
-			"huaweicloud_as_lifecycle_hook": as.ResourceASLifecycleHook(),
-			"huaweicloud_as_policy":         as.ResourceASPolicy(),
+			"huaweicloud_as_configuration":    as.ResourceASConfiguration(),
+			"huaweicloud_as_group":            as.ResourceASGroup(),
+			"huaweicloud_as_lifecycle_hook":   as.ResourceASLifecycleHook(),
+			"huaweicloud_as_policy":           as.ResourceASPolicy(),
+			"huaweicloud_as_bandwidth_policy": as.ResourceASBandWidthPolicy(),
 
 			"huaweicloud_bms_instance": bms.ResourceBmsInstance(),
 			"huaweicloud_bcs_instance": resourceBCSInstanceV2(),
@@ -694,6 +697,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_mysql_proxy":        gaussdb.ResourceGaussDBProxy(),
 			"huaweicloud_gaussdb_opengauss_instance": gaussdb.ResourceOpenGaussInstance(),
 			"huaweicloud_gaussdb_redis_instance":     gaussdb.ResourceGaussRedisInstanceV3(),
+			"huaweicloud_gaussdb_influx_instance":    gaussdb.ResourceGaussDBInfluxInstanceV3(),
+			"huaweicloud_gaussdb_mongo_instance":     gaussdb.ResourceGaussDBMongoInstanceV3(),
 
 			"huaweicloud_ges_graph": ResourceGesGraphV1(),
 
@@ -795,6 +800,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_rds_account":               rds.ResourceRdsAccount(),
 			"huaweicloud_rds_database":              rds.ResourceRdsDatabase(),
+			"huaweicloud_rds_database_privilege":    rds.ResourceRdsDatabasePrivilege(),
 			"huaweicloud_rds_instance":              rds.ResourceRdsInstance(),
 			"huaweicloud_rds_parametergroup":        rds.ResourceRdsConfiguration(),
 			"huaweicloud_rds_read_replica_instance": rds.ResourceRdsReadReplicaInstance(),
@@ -842,9 +848,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_subnet":                      vpc.ResourceVpcSubnetV1(),
 			"huaweicloud_vpc_address_group":               vpc.ResourceVpcAddressGroup(),
 
-			"huaweicloud_vpcep_approval": ResourceVPCEndpointApproval(),
-			"huaweicloud_vpcep_endpoint": ResourceVPCEndpoint(),
-			"huaweicloud_vpcep_service":  ResourceVPCEndpointService(),
+			"huaweicloud_vpcep_approval": vpcep.ResourceVPCEndpointApproval(),
+			"huaweicloud_vpcep_endpoint": vpcep.ResourceVPCEndpoint(),
+			"huaweicloud_vpcep_service":  vpcep.ResourceVPCEndpointService(),
 
 			"huaweicloud_vpnaas_endpoint_group":  deprecated.ResourceVpnEndpointGroupV2(),
 			"huaweicloud_vpnaas_ike_policy":      deprecated.ResourceVpnIKEPolicyV2(),

@@ -112,10 +112,6 @@ The following arguments are supported:
 
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled. Valid values are "true" and "false".
 
-* `auto_pay` - (Optional, String) Specifies whether auto pay is enabled.
-  Valid values are *true* and *false*. Defaults to *true*. If you set this to *false*, you need to pay the order
-  yourself in time, be careful about the timeout of resource creation. Changing this will do nothing.
-
 The `datastore` block supports:
 
 * `engine` - (Optional, String, ForceNew) Specifies the database engine. Only "redis" is supported now.
