@@ -448,6 +448,8 @@ github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kafka/v2
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kafka/v2/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1

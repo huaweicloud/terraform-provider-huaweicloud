@@ -119,7 +119,7 @@ resource "huaweicloud_dms_kafka_topic" "topic" {
   partitions  = 10
   aging_time  = 36
 }
-`, testAccKafkaInstance_base(rName), rName)
+`, testAccKafkaInstance_basic(rName), rName)
 }
 
 func testAccDmsKafkaTopic_update_part1(rName string) string {
@@ -132,7 +132,7 @@ resource "huaweicloud_dms_kafka_topic" "topic" {
   partitions  = 20
   aging_time  = 72
 }
-`, testAccKafkaInstance_base(rName), rName)
+`, testAccKafkaInstance_basic(rName), rName)
 }
 
 func testAccDmsKafkaTopic_update_part2(rName string) string {
@@ -147,5 +147,5 @@ resource "huaweicloud_dms_kafka_topic" "topic" {
   sync_flushing    = true
   sync_replication = true
 }
-`, testAccKafkaInstance_base(rName), rName)
+`, testAccKafkaInstance_basic(rName), rName)
 }

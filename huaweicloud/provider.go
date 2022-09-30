@@ -662,6 +662,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dli_permission":   dli.ResourceDliPermission(),
 
 			"huaweicloud_dms_instance":          deprecated.ResourceDmsInstancesV1(),
+			"huaweicloud_dms_kafka_user":        dms.ResourceDmsKafkaUser(),
+			"huaweicloud_dms_kafka_permissions": dms.ResourceDmsKafkaPermissions(),
 			"huaweicloud_dms_kafka_instance":    dms.ResourceDmsKafkaInstance(),
 			"huaweicloud_dms_kafka_topic":       dms.ResourceDmsKafkaTopic(),
 			"huaweicloud_dms_rabbitmq_instance": dms.ResourceDmsRabbitmqInstance(),
