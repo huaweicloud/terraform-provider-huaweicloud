@@ -66,7 +66,6 @@ func ResourceOpenGaussInstance() *schema.Resource {
 			"name": {
 				Type:             schema.TypeString,
 				Required:         true,
-				DiffSuppressFunc: utils.SuppressCaseDiffs,
 			},
 			"flavor": {
 				Type:     schema.TypeString,
