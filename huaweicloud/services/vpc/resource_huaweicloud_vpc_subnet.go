@@ -226,13 +226,13 @@ func resourceVpcSubnetCreate(ctx context.Context, d *schema.ResourceData, meta i
 }
 
 // GetVpcSubnetById is a method to obtain subnet informations from special region through subnet ID.
-func GetVpcSubnetById(config *config.Config, region, subentId string) (*subnets.Subnet, error) {
+func GetVpcSubnetById(config *config.Config, region, networkId string) (*subnets.Subnet, error) {
 	subnetClient, err := config.NetworkingV1Client(region)
 	if err != nil {
 		return nil, err
 	}
 
-	return subnets.Get(subnetClient, subentId).Extract()
+	return subnets.Get(subnetClient, networkId).Extract()
 }
 
 func resourceVpcSubnetRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

@@ -7,32 +7,46 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/opengauss/v3/backups"
-	"github.com/chnsz/golangsdk/openstack/opengauss/v3/instances"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/opengauss/v3/backups"
+	"github.com/chnsz/golangsdk/openstack/opengauss/v3/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+)
+
+type HaMode string
+type ConsistencyType string
+
+const (
+	HaModeDistributed HaMode = "enterprise"
+
+	ConsistencyTypeStrong   ConsistencyType = "strong"
+	ConsistencyTypeEventual ConsistencyType = "eventual"
 )
 
 func ResourceOpenGaussInstance() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceOpenGaussInstanceCreate,
-		Read:   resourceOpenGaussInstanceRead,
-		Delete: resourceOpenGaussInstanceDelete,
-		Update: resourceOpenGaussInstanceUpdate,
+		CreateContext: resourceOpenGaussInstanceCreate,
+		ReadContext:   resourceOpenGaussInstanceRead,
+		UpdateContext: resourceOpenGaussInstanceUpdate,
+		DeleteContext: resourceOpenGaussInstanceDelete,
+
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(120 * time.Minute),
-			Update: schema.DefaultTimeout(60 * time.Minute),
-			Delete: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(90 * time.Minute),
+			Delete: schema.DefaultTimeout(45 * time.Minute),
 		},
 		CustomizeDiff: func(_ context.Context, d *schema.ResourceDiff, v interface{}) error {
 			if d.HasChange("coordinator_num") {
@@ -64,8 +78,8 @@ func ResourceOpenGaussInstance() *schema.Resource {
 			},
 			"password": {
 				Type:      schema.TypeString,
-				Sensitive: true,
 				Required:  true,
+				Sensitive: true,
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,
@@ -77,21 +91,57 @@ func ResourceOpenGaussInstance() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"security_group_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+			"ha": {
+				Type:     schema.TypeList,
+				Required: true,
 				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"mode": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+							ValidateFunc: validation.StringInSlice([]string{
+								string(HaModeDistributed),
+							}, true),
+							DiffSuppressFunc: utils.SuppressCaseDiffs,
+						},
+						"replication_mode": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"consistency": {
+
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							ValidateFunc: validation.StringInSlice([]string{
+								string(ConsistencyTypeStrong), string(ConsistencyTypeEventual),
+							}, true),
+							DiffSuppressFunc: utils.SuppressCaseDiffs,
+						},
+					},
+				},
 			},
-			"port": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-			"configuration_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+			"volume": {
+				Type:     schema.TypeList,
+				Required: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"size": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+					},
+				},
 			},
 			"sharding_num": {
 				Type:         schema.TypeInt,
@@ -104,6 +154,22 @@ func ResourceOpenGaussInstance() *schema.Resource {
 				Optional:     true,
 				Default:      3,
 				ValidateFunc: validation.IntBetween(1, 9),
+			},
+			"security_group_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"configuration_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"port": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -138,32 +204,6 @@ func ResourceOpenGaussInstance() *schema.Resource {
 					},
 				},
 			},
-			"ha": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"mode": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-						"replication_mode": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-						"consistency": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-						},
-					},
-				},
-			},
 			"backup_strategy": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -182,28 +222,12 @@ func ResourceOpenGaussInstance() *schema.Resource {
 					},
 				},
 			},
-			"volume": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-						"size": {
-							Type:     schema.TypeInt,
-							Required: true,
-						},
-					},
-				},
-			},
 			"force_import": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+
+			// Attributes
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -322,36 +346,8 @@ func OpenGaussInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instance
 	}
 }
 
-func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.OpenGaussV3Client(config.GetRegion(d))
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
-	}
-
-	// If force_import set, try to import it instead of creating
-	if common.HasFilledOpt(d, "force_import") {
-		logp.Printf("[DEBUG] Gaussdb opengauss instance force_import is set, try to import it instead of creating")
-		listOpts := instances.ListGaussDBInstanceOpts{
-			Name: d.Get("name").(string),
-		}
-		pages, err := instances.List(client, listOpts).AllPages()
-		if err != nil {
-			return err
-		}
-
-		allInstances, err := instances.ExtractGaussDBInstances(pages)
-		if err != nil {
-			return fmtp.Errorf("Unable to retrieve instances: %s ", err)
-		}
-		if allInstances.TotalCount > 0 {
-			instance := allInstances.Instances[0]
-			logp.Printf("[DEBUG] Found existing opengauss instance %s with name %s", instance.Id, instance.Name)
-			d.SetId(instance.Id)
-			return resourceOpenGaussInstanceRead(d, meta)
-		}
-	}
-
+func buildOpenGaussInstanceCreateOpts(ctx context.Context, d *schema.ResourceData,
+	config *config.Config) (instances.CreateGaussDBOpts, error) {
 	createOpts := instances.CreateGaussDBOpts{
 		Name:                d.Get("name").(string),
 		Flavor:              d.Get("flavor").(string),
@@ -370,21 +366,23 @@ func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) e
 		BackupStrategy:      resourceOpenGaussBackupStrategy(d),
 	}
 
+	var dn_num int = 1
 	haRaw := d.Get("ha").([]interface{})
-	if len(haRaw) > 0 {
-		logp.Printf("[DEBUG] ha: %+v", haRaw)
-		ha := haRaw[0].(map[string]interface{})
-		createOpts.Ha = &instances.HaOpt{
-			Mode:            ha["mode"].(string),
-			ReplicationMode: ha["replication_mode"].(string),
-			Consistency:     ha["consistency"].(string),
-		}
+	tflog.Debug(ctx, fmt.Sprintf("The HA structure is: %#v", haRaw))
+	ha := haRaw[0].(map[string]interface{})
+	mode := ha["mode"].(string)
+	createOpts.Ha = &instances.HaOpt{
+		Mode:            mode,
+		ReplicationMode: ha["replication_mode"].(string),
+		Consistency:     ha["consistency"].(string),
+	}
+	if mode == string(HaModeDistributed) {
+		dn_num = d.Get("sharding_num").(int)
 	}
 
-	dn_num := d.Get("sharding_num").(int)
 	volumeRaw := d.Get("volume").([]interface{})
 	if len(volumeRaw) > 0 {
-		logp.Printf("[DEBUG] volume: %+v", volumeRaw)
+		tflog.Debug(ctx, fmt.Sprintf("The volume structure is: %#v", volumeRaw))
 		volume := volumeRaw[0].(map[string]interface{})
 		dn_size := volume["size"].(int)
 		volume_size := dn_size * dn_num
@@ -393,102 +391,118 @@ func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) e
 			Size: volume_size,
 		}
 	}
-
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	tflog.Debug(ctx, fmt.Sprintf("The createOpts object is: %#v", createOpts))
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.Password = d.Get("password").(string)
 
-	instance, err := instances.Create(client, createOpts).Extract()
+	return createOpts, nil
+}
+
+func resourceOpenGaussInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config := meta.(*config.Config)
+	client, err := config.OpenGaussV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating OpenGauss instance : %s", err)
+		return diag.Errorf("error creating GaussDB v3 client: %s ", err)
 	}
 
-	id := instance.Instance.Id
-	d.SetId(id)
+	// If force_import set, try to import it instead of creating
+	if common.HasFilledOpt(d, "force_import") {
+		tflog.Debug(ctx, "Gaussdb opengauss instance force_import is set, try to import it instead of creating")
+		listOpts := instances.ListGaussDBInstanceOpts{
+			Name: d.Get("name").(string),
+		}
+		pages, err := instances.List(client, listOpts).AllPages()
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		allInstances, err := instances.ExtractGaussDBInstances(pages)
+		if err != nil {
+			return diag.Errorf("unable to retrieve instances: %s", err)
+		}
+		if allInstances.TotalCount > 0 {
+			instance := allInstances.Instances[0]
+			tflog.Debug(ctx, fmt.Sprintf("found existing opengauss instance %s with name %s", instance.Id, instance.Name))
+			d.SetId(instance.Id)
+			return resourceOpenGaussInstanceRead(ctx, d, meta)
+		}
+	}
+
+	createOpts, err := buildOpenGaussInstanceCreateOpts(ctx, d, config)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	resp, err := instances.Create(client, createOpts).Extract()
+	if err != nil {
+		return diag.Errorf("error creating OpenGauss instance: %s", err)
+	}
+	d.SetId(resp.Instance.Id)
 
 	// waiting for the instance to become ready
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"BUILD", "BACKING UP"},
 		Target:       []string{"ACTIVE"},
-		Refresh:      OpenGaussInstanceStateRefreshFunc(client, id),
+		Refresh:      OpenGaussInstanceStateRefreshFunc(client, d.Id()),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        180 * time.Second,
-		PollInterval: 30 * time.Second,
+		Delay:        20 * time.Second,
+		PollInterval: 20 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf(
-			"Error waiting for instance (%s) to become ready: %s",
-			id, err)
+		return diag.Errorf("error waiting for instance (%s) to become ready: %s", d.Id(), err)
 	}
 
 	// This is a workaround to avoid db connection issue
 	time.Sleep(360 * time.Second) //lintignore:R018
 
-	return resourceOpenGaussInstanceRead(d, meta)
+	return resourceOpenGaussInstanceRead(ctx, d, meta)
 }
 
-func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.OpenGaussV3Client(region)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
+func flattenOpenGaussDataStore(dataStore instances.DataStoreOpt) []map[string]interface{} {
+	if dataStore == (instances.DataStoreOpt{}) {
+		return nil
 	}
+	return []map[string]interface{}{
+		{
+			"version": dataStore.Version,
+			"engine":  dataStore.Type,
+		},
+	}
+}
 
-	instanceID := d.Id()
-	instance, err := instances.GetInstanceByID(client, instanceID)
-	if err != nil {
-		return common.CheckDeleted(d, err, "OpenGauss instance")
+func flattenOpenGaussBackupStrategy(backupStrategy instances.BackupStrategyOpt) []map[string]interface{} {
+	if backupStrategy == (instances.BackupStrategyOpt{}) {
+		return nil
 	}
-	if instance.Id == "" {
-		d.SetId("")
+	return []map[string]interface{}{
+		{
+			"start_time": backupStrategy.StartTime,
+			"keep_days":  backupStrategy.KeepDays,
+		},
+	}
+}
+
+func flattenOpenGaussVolume(volume instances.VolumeOpt, dnNum int) []map[string]interface{} {
+	if volume == (instances.VolumeOpt{}) {
 		return nil
 	}
 
-	logp.Printf("[DEBUG] Retrieved instance %s: %#v", instanceID, instance)
-
-	d.Set("region", region)
-	d.Set("name", instance.Name)
-	d.Set("status", instance.Status)
-	d.Set("type", instance.Type)
-	d.Set("vpc_id", instance.VpcId)
-	d.Set("subnet_id", instance.SubnetId)
-	d.Set("security_group_id", instance.SecurityGroupId)
-	d.Set("db_user_name", instance.DbUserName)
-	d.Set("time_zone", instance.TimeZone)
-	d.Set("flavor", instance.FlavorRef)
-	d.Set("port", strconv.Itoa(instance.Port))
-	d.Set("switch_strategy", instance.SwitchStrategy)
-	d.Set("maintenance_window", instance.MaintenanceWindow)
-	d.Set("public_ips", instance.PublicIps)
-
-	if len(instance.PrivateIps) > 0 {
-		private_ips := instance.PrivateIps[0]
-		ip_list := strings.Split(private_ips, "/")
-		endpoints := []string{}
-		for i := 0; i < len(ip_list); i++ {
-			ip_list[i] = strings.Trim(ip_list[i], " ")
-			endpoint := fmt.Sprintf("%s:%d", ip_list[i], instance.Port)
-			endpoints = append(endpoints, endpoint)
-		}
-		d.Set("private_ips", ip_list)
-		d.Set("endpoints", endpoints)
+	return []map[string]interface{}{
+		{
+			"type": volume.Type,
+			"size": volume.Size / dnNum,
+		},
 	}
+}
 
-	// set data store
-	dbList := make([]map[string]interface{}, 1)
-	db := map[string]interface{}{
-		"version": instance.DataStore.Version,
-		"engine":  instance.DataStore.Type,
-	}
-	dbList[0] = db
-	d.Set("datastore", dbList)
+func setOpenGaussNodesAndRelatedNumbers(d *schema.ResourceData, instance instances.GaussDBInstance,
+	dnNum *int) error {
+	var (
+		shardingNum    = 0
+		coordinatorNum = 0
+	)
 
-	// set nodes
-	sharding_num := 0
-	coordinator_num := 0
 	nodesList := make([]map[string]interface{}, 0, 1)
 	for _, raw := range instance.Nodes {
 		node := map[string]interface{}{
@@ -499,52 +513,248 @@ func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) err
 			"availability_zone": raw.AvailabilityZone,
 		}
 		nodesList = append(nodesList, node)
+
 		if strings.Contains(raw.Name, "_gaussdbv5cn") {
-			coordinator_num += 1
+			coordinatorNum += 1
 		} else if strings.Contains(raw.Name, "_gaussdbv5dn") {
-			sharding_num += 1
+			shardingNum += 1
 		}
 	}
-	d.Set("nodes", nodesList)
-	d.Set("coordinator_num", coordinator_num)
 
-	dn_num := sharding_num / 3
-	d.Set("sharding_num", dn_num)
+	*dnNum = shardingNum / 3
+	return multierror.Append(nil,
+		d.Set("nodes", nodesList),
+		d.Set("sharding_num", dnNum),
+		d.Set("coordinator_num", coordinatorNum),
+	).ErrorOrNil()
+}
 
-	// set backup_strategy
-	backupStrategyList := make([]map[string]interface{}, 1)
-	backupStrategy := map[string]interface{}{
-		"start_time": instance.BackupStrategy.StartTime,
-		"keep_days":  instance.BackupStrategy.KeepDays,
+func setOpenGaussPrivateIpsAndEndpoints(d *schema.ResourceData, privateIps []string, port int) error {
+	if len(privateIps) < 1 {
+		return nil
 	}
-	backupStrategyList[0] = backupStrategy
-	d.Set("backup_strategy", backupStrategyList)
 
-	// set volume
-	volume_size := instance.Volume.Size
-	dn_size := volume_size / dn_num
-	volumeList := make([]map[string]interface{}, 1)
-	volume := map[string]interface{}{
-		"type": instance.Volume.Type,
-		"size": dn_size,
+	privateIp := privateIps[0]
+	ip_list := strings.Split(privateIp, "/")
+	endpoints := []string{}
+	for i := 0; i < len(ip_list); i++ {
+		ip_list[i] = strings.Trim(ip_list[i], " ")
+		endpoint := fmt.Sprintf("%s:%d", ip_list[i], port)
+		endpoints = append(endpoints, endpoint)
 	}
-	volumeList[0] = volume
-	d.Set("volume", volumeList)
+	return multierror.Append(nil,
+		d.Set("private_ips", ip_list),
+		d.Set("endpoints", endpoints),
+	).ErrorOrNil()
+}
 
+func resourceOpenGaussInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config := meta.(*config.Config)
+	region := config.GetRegion(d)
+	client, err := config.OpenGaussV3Client(region)
+	if err != nil {
+		return diag.Errorf("error creating GaussDB v3 client: %s ", err)
+	}
+
+	instanceID := d.Id()
+	instance, err := instances.GetInstanceByID(client, instanceID)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "OpenGauss instance")
+	}
+	if instance.Id == "" {
+		d.SetId("")
+		return nil
+	}
+
+	var dnNum int = 1
+	tflog.Debug(ctx, fmt.Sprintf("Retrieved instance (%s): %#v", instanceID, instance))
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("name", instance.Name),
+		d.Set("status", instance.Status),
+		d.Set("type", instance.Type),
+		d.Set("vpc_id", instance.VpcId),
+		d.Set("subnet_id", instance.SubnetId),
+		d.Set("security_group_id", instance.SecurityGroupId),
+		d.Set("db_user_name", instance.DbUserName),
+		d.Set("time_zone", instance.TimeZone),
+		d.Set("flavor", instance.FlavorRef),
+		d.Set("port", strconv.Itoa(instance.Port)),
+		d.Set("switch_strategy", instance.SwitchStrategy),
+		d.Set("maintenance_window", instance.MaintenanceWindow),
+		d.Set("public_ips", instance.PublicIps),
+		d.Set("datastore", flattenOpenGaussDataStore(instance.DataStore)),
+		d.Set("backup_strategy", flattenOpenGaussBackupStrategy(instance.BackupStrategy)),
+		setOpenGaussNodesAndRelatedNumbers(d, instance, &dnNum),
+		d.Set("volume", flattenOpenGaussVolume(instance.Volume, dnNum)),
+		setOpenGaussPrivateIpsAndEndpoints(d, instance.PrivateIps, instance.Port),
+	)
+
+	if mErr.ErrorOrNil() != nil {
+		return diag.Errorf("error setting OpenGauss instance fields: %s", mErr.ErrorOrNil())
+	}
 	return nil
 }
 
-func resourceOpenGaussInstanceDelete(d *schema.ResourceData, meta interface{}) error {
+func expandOpenGaussShardingNumber(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	old, newnum := d.GetChange("sharding_num")
+	if newnum.(int) < old.(int) {
+		return fmt.Errorf("error expanding shard for instance: new num must be larger than the old one.")
+	}
+	expandSize := newnum.(int) - old.(int)
+	opts := instances.UpdateOpts{
+		ExpandCluster: &instances.UpdateClusterOpts{
+			Shard: &instances.Shard{
+				Count: expandSize,
+			},
+		},
+	}
+	tflog.Debug(ctx, fmt.Sprintf("The updateOpts object of sharding number is: %#v", opts))
+	return updateVolumeAndRelatedHaNumbers(ctx, client, opts, d.Id(), d.Timeout(schema.TimeoutUpdate))
+}
+
+func expandOpenGaussCoordinatorNumber(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	old, newnum := d.GetChange("coordinator_num")
+	if newnum.(int) < old.(int) {
+		return fmt.Errorf("error expanding coordinator for instance: new number must be larger than the old one.")
+	}
+	expandSize := newnum.(int) - old.(int)
+
+	var coordinators []instances.Coordinator
+	azlist := strings.Split(d.Get("availability_zone").(string), ",")
+	for i := 0; i < expandSize; i++ {
+		coordinator := instances.Coordinator{
+			AzCode: azlist[0],
+		}
+		coordinators = append(coordinators, coordinator)
+	}
+	opts := instances.UpdateOpts{
+		ExpandCluster: &instances.UpdateClusterOpts{
+			Coordinators: coordinators,
+		},
+	}
+	tflog.Debug(ctx, fmt.Sprintf("The updateOpts object of coordinator number is: %#v", opts))
+	return updateVolumeAndRelatedHaNumbers(ctx, client, opts, d.Id(), d.Timeout(schema.TimeoutUpdate))
+}
+
+func updateOpenGaussVolumeSize(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	volumeRaw := d.Get("volume").([]interface{})
+	dnSize := volumeRaw[0].(map[string]interface{})["size"].(int)
+	dnNum := 1
+	if d.Get("ha.0.mode").(string) == string(HaModeDistributed) {
+		dnNum = d.Get("sharding_num").(int)
+	}
+	opts := instances.UpdateOpts{
+		EnlargeVolume: &instances.UpdateVolumeOpts{
+			Size: dnSize * dnNum,
+		},
+	}
+	tflog.Debug(ctx, fmt.Sprintf("The updateOpts object of volume size is: %#v", opts))
+	return updateVolumeAndRelatedHaNumbers(ctx, client, opts, d.Id(), d.Timeout(schema.TimeoutUpdate))
+}
+
+func updateVolumeAndRelatedHaNumbers(ctx context.Context, client *golangsdk.ServiceClient, opts instances.UpdateOpts,
+	instanceId string, timeout time.Duration) error {
+	_, err := instances.Update(client, instanceId, opts)
+	if err != nil {
+		return fmt.Errorf("error updating instance (%s): %s", instanceId, err)
+	}
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"MODIFYING", "EXPANDING", "BACKING UP"},
+		Target:       []string{"ACTIVE"},
+		Refresh:      OpenGaussInstanceStateRefreshFunc(client, instanceId),
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 20 * time.Second,
+	}
+
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for instance (%s) status to active: %s ", instanceId, err)
+	}
+	return nil
+}
+
+func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.OpenGaussV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
+		return diag.Errorf("error creating GaussDB v3 client: %s ", err)
+	}
+
+	tflog.Debug(ctx, fmt.Sprintf("Updating OpenGaussDB instances %s", d.Id()))
+	instanceId := d.Id()
+
+	if d.HasChange("name") {
+		renameOpts := instances.RenameOpts{
+			Name: d.Get("name").(string),
+		}
+		_, err = instances.Rename(client, renameOpts, instanceId).Extract()
+		if err != nil {
+			return diag.Errorf("error updating name for instance (%s): %s", instanceId, err)
+		}
+	}
+
+	if d.HasChange("password") {
+		restorePasswordOpts := instances.RestorePasswordOpts{
+			Password: d.Get("password").(string),
+		}
+		r := golangsdk.ErrResult{}
+		r.Result = instances.RestorePassword(client, restorePasswordOpts, instanceId)
+		if r.ExtractErr() != nil {
+			return diag.Errorf("error updating password for instance (%s): %s ", instanceId, r.Err)
+		}
+	}
+
+	if d.HasChange("sharding_num") {
+		if err := expandOpenGaussShardingNumber(ctx, client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+	if d.HasChange("coordinator_num") {
+		if err := expandOpenGaussCoordinatorNumber(ctx, client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+	if d.HasChange("volume") {
+		if err := updateOpenGaussVolumeSize(ctx, client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("backup_strategy") {
+		backupRaw := d.Get("backup_strategy").([]interface{})
+		rawMap := backupRaw[0].(map[string]interface{})
+		keep_days := rawMap["keep_days"].(int)
+
+		updateOpts := backups.UpdateOpts{
+			KeepDays:           &keep_days,
+			StartTime:          rawMap["start_time"].(string),
+			Period:             "1,2,3,4,5,6,7", // Fixed to "1,2,3,4,5,6,7"
+			DifferentialPeriod: "30",            // Fixed to "30"
+		}
+
+		tflog.Debug(ctx, fmt.Sprintf("The updateOpts object of backup_strategy parameter is: %#v", updateOpts))
+		err = backups.Update(client, d.Id(), updateOpts).ExtractErr()
+		if err != nil {
+			return diag.Errorf("error updating backup_strategy: %s", err)
+		}
+	}
+
+	return resourceOpenGaussInstanceRead(ctx, d, meta)
+}
+
+func resourceOpenGaussInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config := meta.(*config.Config)
+	client, err := config.OpenGaussV3Client(config.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating GaussDB v3 client: %s ", err)
 	}
 
 	instanceId := d.Id()
 	result := instances.Delete(client, instanceId)
 	if result.Err != nil {
-		return common.CheckDeleted(d, result.Err, "OpenGauss instance")
+		return common.CheckDeletedDiag(d, result.Err, "OpenGauss instance")
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -556,181 +766,10 @@ func resourceOpenGaussInstanceDelete(d *schema.ResourceData, meta interface{}) e
 		MinTimeout: 10 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf(
-			"Error waiting for instance (%s) to be deleted: %s ",
-			instanceId, err)
+		return diag.Errorf("Error waiting for instance (%s) to be deleted: %s", instanceId, err)
 	}
-	logp.Printf("[DEBUG] Successfully deleted instance %s", instanceId)
+	tflog.Debug(ctx, fmt.Sprintf("Instance deleted successfully %s", instanceId))
 	return nil
-}
-
-func resourceOpenGaussInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.OpenGaussV3Client(config.GetRegion(d))
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
-	}
-
-	logp.Printf("[DEBUG] Updating OpenGaussDB instances %s", d.Id())
-	instanceId := d.Id()
-
-	dn_num := d.Get("sharding_num").(int)
-	if d.HasChange("sharding_num") {
-		old, newnum := d.GetChange("sharding_num")
-		if newnum.(int) < old.(int) {
-			return fmtp.Errorf(
-				"Error expanding shard for instance (%s): new num must be larger than the old one.",
-				instanceId)
-		}
-		dn_num = newnum.(int)
-		expand_size := newnum.(int) - old.(int)
-		updateClusterOpts := instances.UpdateClusterOpts{
-			Shard: &instances.Shard{
-				Count: expand_size,
-			},
-		}
-		logp.Printf("[DEBUG] Expand Shard Options: %+v", updateClusterOpts)
-		result := instances.UpdateCluster(client, updateClusterOpts, instanceId)
-		if result.Err != nil {
-			return fmtp.Errorf("Error expanding shard for instance %s: %s ", instanceId, result.Err)
-		}
-
-		stateConf := &resource.StateChangeConf{
-			Pending:    []string{"MODIFYING", "EXPANDING", "BACKING UP"},
-			Target:     []string{"ACTIVE"},
-			Refresh:    OpenGaussInstanceStateRefreshFunc(client, instanceId),
-			Timeout:    d.Timeout(schema.TimeoutUpdate),
-			Delay:      60 * time.Second,
-			MinTimeout: 30 * time.Second,
-		}
-
-		_, err = stateConf.WaitForState()
-		if err != nil {
-			return fmtp.Errorf(
-				"Error waiting for instance (%s) shard to be Updated: %s ",
-				instanceId, err)
-		}
-	}
-
-	if d.HasChange("coordinator_num") {
-		old, newnum := d.GetChange("coordinator_num")
-		if newnum.(int) < old.(int) {
-			return fmtp.Errorf(
-				"Error expanding coordinator for instance (%s): new num must be larger than the old one.",
-				instanceId)
-		}
-		expand_size := newnum.(int) - old.(int)
-
-		var coordinators []instances.Coordinator
-		azs := d.Get("availability_zone").(string)
-		az_list := strings.Split(azs, ",")
-		for i := 0; i < expand_size; i++ {
-			coordinator := instances.Coordinator{
-				AzCode: az_list[0],
-			}
-			coordinators = append(coordinators, coordinator)
-		}
-		updateClusterOpts := instances.UpdateClusterOpts{
-			Coordinators: coordinators,
-		}
-		logp.Printf("[DEBUG] Expand Coordinator Options: %+v", updateClusterOpts)
-		result := instances.UpdateCluster(client, updateClusterOpts, instanceId)
-		if result.Err != nil {
-			return fmtp.Errorf("Error expanding coordinator for instance %s: %s ", instanceId, result.Err)
-		}
-
-		stateConf := &resource.StateChangeConf{
-			Pending:    []string{"MODIFYING", "EXPANDING", "BACKING UP"},
-			Target:     []string{"ACTIVE"},
-			Refresh:    OpenGaussInstanceStateRefreshFunc(client, instanceId),
-			Timeout:    d.Timeout(schema.TimeoutUpdate),
-			Delay:      60 * time.Second,
-			MinTimeout: 30 * time.Second,
-		}
-
-		_, err = stateConf.WaitForState()
-		if err != nil {
-			return fmtp.Errorf(
-				"Error waiting for instance (%s) coordinator to be Updated: %s ",
-				instanceId, err)
-		}
-	}
-
-	if d.HasChange("volume") {
-		volumeRaw := d.Get("volume").([]interface{})
-		dn_size := volumeRaw[0].(map[string]interface{})["size"].(int)
-		volume_size := dn_size * dn_num
-		updateVolumeOpts := instances.UpdateVolumeOpts{
-			Size: volume_size,
-		}
-		logp.Printf("[DEBUG] Update Volume Options: %+v", updateVolumeOpts)
-		result := instances.UpdateVolume(client, updateVolumeOpts, instanceId)
-		if result.Err != nil {
-			return fmtp.Errorf("Error updating instance %s: %s ", instanceId, result.Err)
-		}
-
-		stateConf := &resource.StateChangeConf{
-			Pending:    []string{"MODIFYING", "EXPANDING", "BACKING UP"},
-			Target:     []string{"ACTIVE"},
-			Refresh:    OpenGaussInstanceStateRefreshFunc(client, instanceId),
-			Timeout:    d.Timeout(schema.TimeoutUpdate),
-			Delay:      40 * time.Second,
-			MinTimeout: 20 * time.Second,
-		}
-
-		_, err = stateConf.WaitForState()
-		if err != nil {
-			return fmtp.Errorf(
-				"Error waiting for instance (%s) volume to be Updated: %s ",
-				instanceId, err)
-		}
-	}
-	logp.Printf("[DEBUG] Successfully updated instance %s", instanceId)
-
-	if d.HasChange("backup_strategy") {
-		backupRaw := d.Get("backup_strategy").([]interface{})
-		rawMap := backupRaw[0].(map[string]interface{})
-		keep_days := rawMap["keep_days"].(int)
-
-		updateOpts := backups.UpdateOpts{
-			KeepDays:  &keep_days,
-			StartTime: rawMap["start_time"].(string),
-			// Fixed to "1,2,3,4,5,6,7"
-			Period: "1,2,3,4,5,6,7",
-			// Fixed to "30"
-			DifferentialPeriod: "30",
-		}
-
-		logp.Printf("[DEBUG] Update backup_strategy: %#v", updateOpts)
-
-		err = backups.Update(client, d.Id(), updateOpts).ExtractErr()
-		if err != nil {
-			return fmtp.Errorf("Error updating backup_strategy: %s", err)
-		}
-	}
-
-	if d.HasChange("name") {
-		renameOpts := instances.RenameOpts{
-			Name: d.Get("name").(string),
-		}
-		_, err = instances.Rename(client, renameOpts, instanceId).Extract()
-		if err != nil {
-			return fmtp.Errorf("Error updating name for instance (%s): %s ", instanceId, err)
-		}
-	}
-
-	if d.HasChange("password") {
-		restorePasswordOpts := instances.RestorePasswordOpts{
-			Password: d.Get("password").(string),
-		}
-		r := golangsdk.ErrResult{}
-		r.Result = instances.RestorePassword(client, restorePasswordOpts, instanceId)
-		if r.ExtractErr() != nil {
-			return fmtp.Errorf("Error updating password for instance (%s): %s ", instanceId, r.Err)
-		}
-	}
-
-	return resourceOpenGaussInstanceRead(d, meta)
 }
