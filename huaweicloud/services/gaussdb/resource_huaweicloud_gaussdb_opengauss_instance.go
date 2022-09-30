@@ -63,9 +63,8 @@ func ResourceOpenGaussInstance() *schema.Resource {
 				Computed: true,
 			},
 			"name": {
-				Type:             schema.TypeString,
-				Required:         true,
-				DiffSuppressFunc: utils.SuppressCaseDiffs,
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"flavor": {
 				Type:     schema.TypeString,
@@ -340,6 +339,9 @@ func OpenGaussInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instance
 			return nil, "", err
 		}
 
+		if v.Id == "" {
+			return v, "DELETED", nil
+		}
 		return v, v.Status, nil
 	}
 }
@@ -360,7 +362,6 @@ func buildOpenGaussInstanceCreateOpts(ctx context.Context, d *schema.ResourceDat
 		ConfigurationId:     d.Get("configuration_id").(string),
 		ShardingNum:         d.Get("sharding_num").(int),
 		CoordinatorNum:      d.Get("coordinator_num").(int),
-		Password:            d.Get("password").(string),
 		DataStore:           resourceOpenGaussDataStore(d),
 		BackupStrategy:      resourceOpenGaussBackupStrategy(d),
 	}
@@ -390,6 +391,9 @@ func buildOpenGaussInstanceCreateOpts(ctx context.Context, d *schema.ResourceDat
 			Size: volume_size,
 		}
 	}
+	tflog.Debug(ctx, fmt.Sprintf("The createOpts object is: %#v", createOpts))
+	// Add password here so it wouldn't go in the above log entry
+	createOpts.Password = d.Get("password").(string)
 
 	return createOpts, nil
 }
@@ -428,7 +432,6 @@ func resourceOpenGaussInstanceCreate(ctx context.Context, d *schema.ResourceData
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	tflog.Debug(ctx, fmt.Sprintf("The createOpts object is: %#v", createOpts))
 	resp, err := instances.Create(client, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating OpenGauss instance: %s", err)
