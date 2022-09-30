@@ -1,6 +1,8 @@
 package instances
 
 import (
+	"fmt"
+
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
 )
@@ -34,29 +36,40 @@ type RestorePointOpt struct {
 	DatabaseName map[string]string `json:"database_name,omitempty"`
 }
 
+type ChargeInfo struct {
+	ChargeMode  string `json:"charge_mode" required:"true"`
+	PeriodType  string `json:"period_type,omitempty"`
+	PeriodNum   int    `json:"period_num,omitempty"`
+	IsAutoRenew string `json:"is_auto_renew,omitempty"`
+	IsAutoPay   string `json:"is_auto_pay,omitempty"`
+}
+
 type CreateGaussDBOpts struct {
-	Name                string             `json:"name" required:"true"`
-	Region              string             `json:"region,omitempty"`
-	Flavor              string             `json:"flavor_ref" required:"true"`
-	VpcId               string             `json:"vpc_id,omitempty"`
-	SubnetId            string             `json:"subnet_id,omitempty"`
-	SecurityGroupId     string             `json:"security_group_id,omitempty"`
-	Password            string             `json:"password" required:"true"`
-	Port                string             `json:"port,omitempty"`
-	DiskEncryptionId    string             `json:"disk_encryption_id,omitempty"`
-	TimeZone            string             `json:"time_zone,omitempty"`
-	AvailabilityZone    string             `json:"availability_zone" required:"true"`
-	ConfigurationId     string             `json:"configuration_id,omitempty"`
-	DsspoolId           string             `json:"dsspool_id,omitempty"`
-	ReplicaOfId         string             `json:"replica_of_id,omitempty"`
-	ShardingNum         int                `json:"sharding_num" required:"true"`
-	CoordinatorNum      int                `json:"coordinator_num" required:"true"`
-	EnterpriseProjectId string             `json:"enterprise_project_id,omitempty"`
-	DataStore           DataStoreOpt       `json:"datastore" required:"true"`
-	Volume              VolumeOpt          `json:"volume" required:"true"`
-	Ha                  *HaOpt             `json:"ha,omitempty"`
-	BackupStrategy      *BackupStrategyOpt `json:"backup_strategy,omitempty"`
-	RestorePoint        *RestorePointOpt   `json:"restore_point,omitempty"`
+	Ha             *HaOpt             `json:"ha,omitempty"`
+	BackupStrategy *BackupStrategyOpt `json:"backup_strategy,omitempty"`
+	ChargeInfo     *ChargeInfo        `json:"charge_info,omitempty"`
+	RestorePoint   *RestorePointOpt   `json:"restore_point,omitempty"`
+
+	AvailabilityZone    string       `json:"availability_zone" required:"true"`
+	DataStore           DataStoreOpt `json:"datastore" required:"true"`
+	Flavor              string       `json:"flavor_ref" required:"true"`
+	Name                string       `json:"name" required:"true"`
+	Password            string       `json:"password" required:"true"`
+	Volume              VolumeOpt    `json:"volume" required:"true"`
+	Region              string       `json:"region,omitempty"`
+	VpcId               string       `json:"vpc_id,omitempty"`
+	SubnetId            string       `json:"subnet_id,omitempty"`
+	SecurityGroupId     string       `json:"security_group_id,omitempty"`
+	Port                string       `json:"port,omitempty"`
+	DiskEncryptionId    string       `json:"disk_encryption_id,omitempty"`
+	TimeZone            string       `json:"time_zone,omitempty"`
+	ConfigurationId     string       `json:"configuration_id,omitempty"`
+	DsspoolId           string       `json:"dsspool_id,omitempty"`
+	ReplicaOfId         string       `json:"replica_of_id,omitempty"`
+	ShardingNum         int          `json:"sharding_num,omitempty"`
+	CoordinatorNum      int          `json:"coordinator_num,omitempty"`
+	EnterpriseProjectId string       `json:"enterprise_project_id,omitempty"`
+	ReplicaNum          int          `json:"replica_num,omitempty"`
 }
 
 type CreateGaussDBBuilder interface {
@@ -146,6 +159,32 @@ func UpdateCluster(client *golangsdk.ServiceClient, opts UpdateClusterOptsBuilde
 	return
 }
 
+// UpdateOpts is the structure that used to expand sharding number, coordinator number or volume size.
+type UpdateOpts struct {
+	// Configuration required to expand sharding number or coordinator number.
+	ExpandCluster *UpdateClusterOpts `json:"expand_cluster,omitempty"`
+	// Configuration required to expand volume size.
+	EnlargeVolume *UpdateVolumeOpts `json:"enlarge_volume,omitempty"`
+	// Whether to automatically pay from the account, defaults to false.
+	IsAutoPay string `json:"is_auto_pay,omitempty"`
+}
+
+// Update is a method to update sharding number, coordinator number and volume configuration.
+// Note: The sharding number and the coordinator number can be updated at the same time, but neither of them can be
+// updated at the same time as volume
+func Update(c *golangsdk.ServiceClient, instanceId string, opts UpdateOpts) (*UpdateResponse, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r UpdateResponse
+	_, err = c.Post(updateURL(c, instanceId, "action"), b, &r, &golangsdk.RequestOpts{
+		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+	})
+	return &r, err
+}
+
 func Delete(client *golangsdk.ServiceClient, instanceId string) (r DeleteResult) {
 	url := deleteURL(client, instanceId)
 
@@ -216,8 +255,12 @@ func GetInstanceByID(client *golangsdk.ServiceClient, instanceId string) (GaussD
 	if err != nil {
 		return instance, err
 	}
-	if all.TotalCount == 0 {
-		return instance, nil
+	if all.TotalCount < 1 {
+		return instance, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Body: []byte(fmt.Sprintf("the database instance (%s) does not exist", instanceId)),
+			},
+		}
 	}
 
 	instance = all.Instances[0]
@@ -240,8 +283,12 @@ func GetInstanceByName(client *golangsdk.ServiceClient, name string) (GaussDBIns
 	if err != nil {
 		return instance, err
 	}
-	if all.TotalCount == 0 {
-		return instance, nil
+	if all.TotalCount < 1 {
+		return instance, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Body: []byte(fmt.Sprintf("the database instance (%s) does not exist", name)),
+			},
+		}
 	}
 
 	instance = all.Instances[0]
