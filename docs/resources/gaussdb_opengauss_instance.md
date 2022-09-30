@@ -166,7 +166,7 @@ The following arguments are supported:
 <a name="opengauss_ha"></a>
 The `ha` block supports:
 
-* `mode` - (Required, String, ForceNew) Specifies the database mode. Only **enterprise** is supported now.
+* `mode` - (Required, String, ForceNew) Specifies the database mode.
   The valid values are **enterprise** and **centralization_standard**.
   Changing this parameter will create a new resource.
 
