@@ -19,6 +19,28 @@ func CdnClientBuilder() *http_client.HcHttpClientBuilder {
 	return builder
 }
 
+// BatchDeleteTags 删除资源标签配置接口
+//
+// 用于删除资源标签
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *CdnClient) BatchDeleteTags(request *model.BatchDeleteTagsRequest) (*model.BatchDeleteTagsResponse, error) {
+	requestDef := GenReqDefForBatchDeleteTags()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.BatchDeleteTagsResponse), nil
+	}
+}
+
+// BatchDeleteTagsInvoker 删除资源标签配置接口
+func (c *CdnClient) BatchDeleteTagsInvoker(request *model.BatchDeleteTagsRequest) *BatchDeleteTagsInvoker {
+	requestDef := GenReqDefForBatchDeleteTags()
+	return &BatchDeleteTagsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // CreateDomain 创建加速域名
 //
 // 创建加速域名。
@@ -83,6 +105,28 @@ func (c *CdnClient) CreateRefreshTasks(request *model.CreateRefreshTasksRequest)
 func (c *CdnClient) CreateRefreshTasksInvoker(request *model.CreateRefreshTasksRequest) *CreateRefreshTasksInvoker {
 	requestDef := GenReqDefForCreateRefreshTasks()
 	return &CreateRefreshTasksInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateTags 创建资源标签配置接口
+//
+// 用于创建资源标签
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *CdnClient) CreateTags(request *model.CreateTagsRequest) (*model.CreateTagsResponse, error) {
+	requestDef := GenReqDefForCreateTags()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateTagsResponse), nil
+	}
+}
+
+// CreateTagsInvoker 创建资源标签配置接口
+func (c *CdnClient) CreateTagsInvoker(request *model.CreateTagsRequest) *CreateTagsInvoker {
+	requestDef := GenReqDefForCreateTags()
+	return &CreateTagsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // DeleteDomain 删除加速域名
@@ -598,6 +642,28 @@ func (c *CdnClient) ShowResponseHeader(request *model.ShowResponseHeaderRequest)
 func (c *CdnClient) ShowResponseHeaderInvoker(request *model.ShowResponseHeaderRequest) *ShowResponseHeaderInvoker {
 	requestDef := GenReqDefForShowResponseHeader()
 	return &ShowResponseHeaderInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowTags 查询资源标签列表配置接口
+//
+// 用于查询资源标签列表
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *CdnClient) ShowTags(request *model.ShowTagsRequest) (*model.ShowTagsResponse, error) {
+	requestDef := GenReqDefForShowTags()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowTagsResponse), nil
+	}
+}
+
+// ShowTagsInvoker 查询资源标签列表配置接口
+func (c *CdnClient) ShowTagsInvoker(request *model.ShowTagsRequest) *ShowTagsInvoker {
+	requestDef := GenReqDefForShowTags()
+	return &ShowTagsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ShowTopUrl 查询TOP100 URL明细

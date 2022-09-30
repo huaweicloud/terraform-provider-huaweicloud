@@ -37,3 +37,7 @@ func deleteOrderURL(sc *golangsdk.ServiceClient) string {
 func passwordURL(client *golangsdk.ServiceClient, id string) string {
 	return client.ServiceURL("cloudservers", id, "os-reset-password")
 }
+
+func updateURL(sc *golangsdk.ServiceClient, serverID string) string {
+	return sc.ServiceURL("cloudservers", serverID)
+}
