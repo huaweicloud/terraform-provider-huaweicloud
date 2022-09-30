@@ -10,10 +10,10 @@ import (
 type AclPolicyOption struct {
 
 	// 允许访问的IP地址或网段。
-	AllowAddressNetmasks []AllowAddressNetmasksOption `json:"allow_address_netmasks"`
+	AllowAddressNetmasks *[]AllowAddressNetmasksOption `json:"allow_address_netmasks,omitempty"`
 
 	// 允许访问的IP地址区间。
-	AllowIpRanges []AllowIpRangesOption `json:"allow_ip_ranges"`
+	AllowIpRanges *[]AllowIpRangesOption `json:"allow_ip_ranges,omitempty"`
 }
 
 func (o AclPolicyOption) String() string {

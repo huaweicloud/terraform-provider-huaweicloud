@@ -1152,7 +1152,11 @@ func resourceComputeInstanceV2Update(ctx context.Context, d *schema.ResourceData
 		}
 
 		if strings.EqualFold(d.Get("charging_mode").(string), "prePaid") {
-			err = common.WaitOrderComplete(ctx, d, config, resp.OrderID)
+			bssClient, err := config.BssV2Client(config.GetRegion(d))
+			if err != nil {
+				return diag.Errorf("error creating BSS v2 client: %s", err)
+			}
+			err = common.WaitOrderComplete(ctx, bssClient, resp.OrderID, d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
 				return diag.Errorf("The order (%s) is not completed while extending system disk (%s) size: %#v",
 					resp.OrderID, d.Id(), err)

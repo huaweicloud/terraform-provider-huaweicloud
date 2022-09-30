@@ -174,10 +174,6 @@ The following arguments are supported:
 * `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
   Valid values are **true** and **false**. Defaults to **false**. Changing this will create a new vault.
 
-* `auto_pay` - (Optional, String, ForceNew) Specifies whether auto pay is enabled.
-  Valid values are **true** and **false**. Defaults to **true**. If you set this to **false**, you need to pay the order
-  yourself in time. Be careful about the timeout of resource creation. Changing this will create a new vault.
-
 <a name="cbr_vault_resources"></a>
 The `resources` block supports:
 
@@ -221,8 +217,8 @@ $ terraform import huaweicloud_cbr_vault.test 01c33779-7c83-4182-8b6b-24a671fced
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `period_unit`, `period`, `auto_renew`,
-`auto_pay`. It is generally recommended running `terraform plan` after importing a vault.
+API response, security or some other reason. The missing attributes include: `period_unit`, `period`, `auto_renew`.
+It is generally recommended running `terraform plan` after importing a vault.
 You can then decide if changes should be applied to the vault, or the resource definition should be updated to align
 with the vault. Also you can ignore changes as below.
 
@@ -232,7 +228,7 @@ resource "huaweicloud_cbr_vault" "test" {
 
   lifecycle {
     ignore_changes = [
-      period_unit, period, auto_renew, auto_pay,
+      period_unit, period, auto_renew,
     ]
   }
 }

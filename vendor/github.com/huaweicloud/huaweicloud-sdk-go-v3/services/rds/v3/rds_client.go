@@ -2068,6 +2068,28 @@ func (c *RdsClient) UpdateDatabaseInvoker(request *model.UpdateDatabaseRequest) 
 	return &UpdateDatabaseInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// UpdateDbUserComment 修改数据库用户名备注
+//
+// 修改数据库用户名备注
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *RdsClient) UpdateDbUserComment(request *model.UpdateDbUserCommentRequest) (*model.UpdateDbUserCommentResponse, error) {
+	requestDef := GenReqDefForUpdateDbUserComment()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateDbUserCommentResponse), nil
+	}
+}
+
+// UpdateDbUserCommentInvoker 修改数据库用户名备注
+func (c *RdsClient) UpdateDbUserCommentInvoker(request *model.UpdateDbUserCommentRequest) *UpdateDbUserCommentInvoker {
+	requestDef := GenReqDefForUpdateDbUserComment()
+	return &UpdateDbUserCommentInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // AllowDbPrivilege 授权数据库帐号
 //
 // 在指定实例的数据库中, 设置帐号的权限。

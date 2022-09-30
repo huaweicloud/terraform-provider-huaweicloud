@@ -275,7 +275,11 @@ func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, m
 		}
 
 		// wait for the order to be completed.
-		err = common.WaitOrderComplete(ctx, d, config, resp.OrderID)
+		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating BSS v2 client: %s", err)
+		}
+		err = common.WaitOrderComplete(ctx, bssClient, resp.OrderID, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return diag.Errorf("the order is not completed while creating ELB loadbalancer (%s): %#v", resp.LoadBalancerID, err)
 		}
@@ -461,7 +465,11 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 			}
 
 			// wait for the order to be completed.
-			err = common.WaitOrderComplete(ctx, d, config, resp.OrderID)
+			bssClient, err := config.BssV2Client(config.GetRegion(d))
+			if err != nil {
+				return diag.Errorf("error creating BSS v2 client: %s", err)
+			}
+			err = common.WaitOrderComplete(ctx, bssClient, resp.OrderID, d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
 				return diag.Errorf("the order is not completed while updating ELB loadbalancer (%s): %#v", resp.LoadBalancerID, err)
 			}

@@ -81,7 +81,9 @@ func resourceGroupV2Read(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	return fmtp.Errorf("Error HuaweiCloud log group %s: No Found", d.Id())
+	logp.Printf("[WARN] log group %s: resource is gone and will be removed in Terraform state", d.Id())
+	d.SetId("")
+	return nil
 }
 
 func resourceGroupV2Update(d *schema.ResourceData, meta interface{}) error {

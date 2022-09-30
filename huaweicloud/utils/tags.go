@@ -68,6 +68,21 @@ func TagsToMap(tags []tags.ResourceTag) map[string]string {
 	return result
 }
 
+// FlattenTagsToMap returns the list of tags into a map.
+func FlattenTagsToMap(tags interface{}) map[string]string {
+	if tagArray, ok := tags.([]interface{}); ok {
+		result := make(map[string]string)
+		for _, val := range tagArray {
+			if t, ok := val.(map[string]string); ok {
+				result[t["key"]] = t["value"]
+			}
+		}
+		return result
+	}
+
+	return nil
+}
+
 // ExpandResourceTags returns the tags for the given map of data.
 func ExpandResourceTags(tagmap map[string]interface{}) []tags.ResourceTag {
 	var taglist []tags.ResourceTag

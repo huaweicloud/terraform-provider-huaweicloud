@@ -29,7 +29,6 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/response"
 	"io/ioutil"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"time"
 )
@@ -126,29 +125,28 @@ func (client *DefaultHttpClient) recordResponseInfo(exch *exchange.SdkExchange, 
 
 func (client *DefaultHttpClient) listenRequest(req *http.Request) error {
 	if client.httpHandler != nil && client.httpHandler.RequestHandlers != nil && req != nil {
-		bodyBytes, err := httputil.DumpRequest(req, true)
-		if err != nil {
-			return err
-		}
-
 		reqClone := req.Clone(req.Context())
-		reqClone.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
-		defer reqClone.Body.Close()
+
+		if req.Body != nil {
+			bodyBytes, err := ioutil.ReadAll(req.Body)
+			if err != nil {
+				return err
+			}
+
+			req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+			reqClone.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+			defer reqClone.Body.Close()
+		}
 
 		client.httpHandler.RequestHandlers(*reqClone)
 	}
+
 	return nil
 }
 
 func (client *DefaultHttpClient) listenResponse(resp *http.Response) error {
 	if client.httpHandler != nil && client.httpHandler.ResponseHandlers != nil && resp != nil {
-		bodyBytes, err := httputil.DumpResponse(resp, true)
-		if err != nil {
-			return err
-		}
-
 		respClone := http.Response{
-			Body:             ioutil.NopCloser(bytes.NewBuffer(bodyBytes)),
 			Status:           resp.Status,
 			StatusCode:       resp.StatusCode,
 			Proto:            resp.Proto,
@@ -161,10 +159,21 @@ func (client *DefaultHttpClient) listenResponse(resp *http.Response) error {
 			Uncompressed:     resp.Uncompressed,
 			Trailer:          resp.Trailer,
 		}
-		defer respClone.Body.Close()
+
+		if resp.Body != nil {
+			bodyBytes, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return err
+			}
+
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+			respClone.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+			defer respClone.Body.Close()
+		}
 
 		client.httpHandler.ResponseHandlers(respClone)
 	}
+
 	return nil
 }
 

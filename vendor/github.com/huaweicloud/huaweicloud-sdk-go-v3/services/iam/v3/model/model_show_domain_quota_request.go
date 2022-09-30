@@ -15,7 +15,7 @@ type ShowDomainQuotaRequest struct {
 	// 待查询的账号ID，获取方式请参见：[获取账号、IAM用户、项目、用户组、委托的名称和ID](https://support.huaweicloud.com/api-iam/iam_17_0002.html)。
 	DomainId string `json:"domain_id"`
 
-	// 查询配额的类型，取值范围为：user, group, idp, agency, policy, assigment_group_mp, assigment_agency_mp, assigment_group_ep, assigment_user_ep。
+	// 查询配额的类型，取值范围为：user, group, idp, agency, policy, assigment_group_mp, assigment_agency_mp, assigment_group_ep, assigment_user_ep, mapping。
 	Type *ShowDomainQuotaRequestType `json:"type,omitempty"`
 }
 
@@ -42,6 +42,7 @@ type ShowDomainQuotaRequestTypeEnum struct {
 	ASSIGMENT_AGENCY_MP ShowDomainQuotaRequestType
 	ASSIGMENT_GROUP_EP  ShowDomainQuotaRequestType
 	ASSIGMENT_USER_EP   ShowDomainQuotaRequestType
+	MAPPING             ShowDomainQuotaRequestType
 }
 
 func GetShowDomainQuotaRequestTypeEnum() ShowDomainQuotaRequestTypeEnum {
@@ -72,6 +73,9 @@ func GetShowDomainQuotaRequestTypeEnum() ShowDomainQuotaRequestTypeEnum {
 		},
 		ASSIGMENT_USER_EP: ShowDomainQuotaRequestType{
 			value: "assigment_user_ep",
+		},
+		MAPPING: ShowDomainQuotaRequestType{
+			value: "mapping",
 		},
 	}
 }
