@@ -64,8 +64,8 @@ func ResourceOpenGaussInstance() *schema.Resource {
 				Computed: true,
 			},
 			"name": {
-				Type:             schema.TypeString,
-				Required:         true,
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"flavor": {
 				Type:     schema.TypeString,
