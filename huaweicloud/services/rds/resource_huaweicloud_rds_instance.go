@@ -193,6 +193,12 @@ func ResourceRdsInstance() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"collation": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+
 			"ssl_enable": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -303,6 +309,7 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		TimeZone:            d.Get("time_zone").(string),
 		FixedIp:             d.Get("fixed_ip").(string),
 		DiskEncryptionId:    d.Get("volume.0.disk_encryption_id").(string),
+		Collation:           d.Get("collation").(string),
 		Port:                buildRdsInstanceDBPort(d),
 		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 		Region:              region,

@@ -63,6 +63,11 @@ type Turbo struct {
 	EnterpriseProjectId string `json:"enterprise_project_id"`
 }
 
+type TurboExpandResponse struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
 func (r *Turbo) UnmarshalJSON(b []byte) error {
 	type tmp Turbo
 	var s struct {
@@ -118,6 +123,13 @@ func (r GetResult) Extract() (*Turbo, error) {
 	return &object, err
 }
 
+// Extract will get the Turbo expand response from the ExpandResult
+func (r ExpandResult) Extract() (*TurboExpandResponse, error) {
+	var resp TurboExpandResponse
+	err := r.ExtractInto(&resp)
+	return &resp, err
+}
+
 // TurboPage is the page returned by a pager when traversing over a
 // collection of Shares.
 type TurboPage struct {
@@ -153,4 +165,9 @@ func (r TurboPage) NextPageURL() (string, error) {
 		return "", err
 	}
 	return golangsdk.ExtractNextURL(s.Links)
+}
+
+type PagedList struct {
+	Count  int     `json:"count"`
+	Shares []Turbo `json:"shares"`
 }
