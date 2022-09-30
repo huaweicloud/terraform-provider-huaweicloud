@@ -27,13 +27,13 @@ jobs:
       - uses: actions/checkout@v3
         with:
           repository: chnsz/terraform-provider-generator
-          token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.REVIEWDOG_TOKEN }}
           path: terraform-provider-generator
 
       - uses: actions/checkout@v3
         with:
           repository: chnsz/terraform-api-scan
-          token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.REVIEWDOG_TOKEN }}
           path: terraform-api-scan
 
       - name: Set up Go
