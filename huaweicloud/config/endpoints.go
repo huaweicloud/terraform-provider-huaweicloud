@@ -667,3 +667,11 @@ func GetServiceEndpoint(c *Config, srv, region string) string {
 	}
 	return ep
 }
+
+// GetServiceCatalog returns the catalog object of a service
+func GetServiceCatalog(service string) *ServiceCatalog {
+	if catalog, ok := allServiceCatalog[service]; ok {
+		return &catalog
+	}
+	return nil
+}
