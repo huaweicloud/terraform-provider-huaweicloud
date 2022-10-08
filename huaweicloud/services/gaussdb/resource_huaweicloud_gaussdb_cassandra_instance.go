@@ -326,10 +326,10 @@ func GeminiDBInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceI
 		instance, err := instances.GetInstanceByID(client, instanceID)
 
 		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return instance, "deleted", nil
+			}
 			return nil, "", err
-		}
-		if instance.Id == "" {
-			return instance, "deleted", nil
 		}
 
 		return instance, instance.Status, nil
