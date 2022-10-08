@@ -77,7 +77,7 @@ jobs:
           pwd
           ls -l |grep terraform
           cd terraform-api-scan/scan-autogen-code
-          go run main.go -inputDir=../../terraform-provider-generator/src/main/resources -outputDir=../../terraform-provider-huaweicloud/docs/api
+          go run main.go -inputDir=../../terraform-provider-generator/src/main/resources -outputDir=../../terraform-provider-huaweicloud/docs/api -version=${{ steps.get_version.outputs.VERSION }}
           ls -l ../../terraform-provider-huaweicloud/docs/api
           cd ../../
 
