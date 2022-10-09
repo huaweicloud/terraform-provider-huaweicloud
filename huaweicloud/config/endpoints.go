@@ -286,6 +286,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "DNS",
 	},
+	"workspace": {
+		Name:    "workspace",
+		Version: "v2",
+		Product: "Workspace",
+	},
 
 	// catalog for database
 	"rdsv1": {

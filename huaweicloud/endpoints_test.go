@@ -1063,6 +1063,19 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 		t.Fatalf("ModelArts v2 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
 	t.Logf("ModelArts v2 endpoint:\t %s", actualURL)
+
+	// test the endpoint of Workspace service (with region)
+	serviceClient, err = config.WorkspaceV2Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud Workspace V2 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://workspace.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("Workspace region endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("Workspace region endpoint:\t %s", actualURL)
+
 }
 
 func TestAccServiceEndpoints_Edge(t *testing.T) {
