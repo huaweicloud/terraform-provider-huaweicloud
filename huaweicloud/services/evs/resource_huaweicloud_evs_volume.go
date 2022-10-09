@@ -248,12 +248,13 @@ func resourceEvsVolumeCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	logp.Printf("[DEBUG] Waiting for the EVS volume to become available, the volume ID is %s.", d.Id())
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"creating"},
-		Target:     []string{"available"},
-		Refresh:    CloudVolumeRefreshFunc(evsV2Client, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      3 * time.Second,
-		MinTimeout: 5 * time.Second,
+		Pending:                   []string{"creating"},
+		Target:                    []string{"available"},
+		Refresh:                   CloudVolumeRefreshFunc(evsV2Client, d.Id()),
+		Timeout:                   d.Timeout(schema.TimeoutCreate),
+		Delay:                     3 * time.Second,
+		MinTimeout:                5 * time.Second,
+		ContinuousTargetOccurence: 2,
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
