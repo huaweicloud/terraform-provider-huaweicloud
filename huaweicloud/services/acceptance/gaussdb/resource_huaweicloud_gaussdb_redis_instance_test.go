@@ -7,6 +7,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/geminidb/v3/instances"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -67,6 +68,9 @@ func testAccCheckGaussRedisInstanceDestroy(s *terraform.State) error {
 
 		found, err := instances.GetInstanceByID(client, rs.Primary.ID)
 		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return nil
+			}
 			return err
 		}
 		if found.Id != "" {
@@ -96,6 +100,9 @@ func testAccCheckGaussRedisInstanceExists(n string, instance *instances.GeminiDB
 
 		found, err := instances.GetInstanceByID(client, rs.Primary.ID)
 		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return fmt.Errorf("Instance <%s> not found.", rs.Primary.ID)
+			}
 			return err
 		}
 		if found.Id == "" {
