@@ -152,7 +152,7 @@ resource "huaweicloud_vpc_subnet" "test" {
   gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1), 1)
 
   timeouts {
-    delete = "20m"
+    delete = "40m"
   }
 }
 
@@ -160,7 +160,7 @@ resource "huaweicloud_networking_secgroup" "test" {
   name = "%[1]s"
 
   timeouts {
-    delete = "20m"
+    delete = "40m"
   }
 }
 

@@ -452,12 +452,13 @@ func resourceOpenGaussInstanceCreate(ctx context.Context, d *schema.ResourceData
 
 	// waiting for the instance to become ready
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"BUILD", "BACKING UP"},
-		Target:       []string{"ACTIVE"},
-		Refresh:      OpenGaussInstanceStateRefreshFunc(client, d.Id()),
-		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        20 * time.Second,
-		PollInterval: 20 * time.Second,
+		Pending:                   []string{"BUILD", "BACKING UP"},
+		Target:                    []string{"ACTIVE"},
+		Refresh:                   OpenGaussInstanceStateRefreshFunc(client, d.Id()),
+		Timeout:                   d.Timeout(schema.TimeoutCreate),
+		Delay:                     20 * time.Second,
+		PollInterval:              20 * time.Second,
+		ContinuousTargetOccurence: 2,
 	}
 
 	_, err = stateConf.WaitForStateContext(ctx)
