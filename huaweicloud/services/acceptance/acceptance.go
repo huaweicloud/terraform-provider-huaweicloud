@@ -44,6 +44,7 @@ var (
 	HW_DEST_REGION         = os.Getenv("HW_DEST_REGION")
 	HW_DEST_PROJECT_ID     = os.Getenv("HW_DEST_PROJECT_ID")
 	HW_CHARGING_MODE       = os.Getenv("HW_CHARGING_MODE")
+	HW_HIGH_COST_ALLOW     = os.Getenv("HW_HIGH_COST_ALLOW")
 	HW_SWR_SHARING_ACCOUNT = os.Getenv("HW_SWR_SHARING_ACCOUNT")
 
 	HW_CERTIFICATE_KEY_PATH         = os.Getenv("HW_CERTIFICATE_KEY_PATH")
@@ -255,6 +256,13 @@ func TestAccPreCheckOBSBucket(t *testing.T) {
 func TestAccPreCheckChargingMode(t *testing.T) {
 	if HW_CHARGING_MODE != "prePaid" {
 		t.Skip("This environment does not support prepaid tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckHighCostAllow(t *testing.T) {
+	if HW_HIGH_COST_ALLOW == "" {
+		t.Skip("Do not allow expensive testing")
 	}
 }
 

@@ -37,7 +37,10 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckHighCostAllow(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -98,6 +101,7 @@ func TestAccOpenGaussInstance_prepaid(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckChargingMode(t)
+			acceptance.TestAccPreCheckHighCostAllow(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -156,7 +160,10 @@ func TestAccOpenGaussInstance_haModeCentralized(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckHighCostAllow(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
