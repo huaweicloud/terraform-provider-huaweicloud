@@ -63,6 +63,7 @@ func TagsToMap(tags []tags.ResourceTag) map[string]string {
 	}
 
 	// ignore system tags to keep the tags consistent with what the user set
+	delete(result, "CCE-Cluster-ID")
 	delete(result, "CCE-Dynamic-Provisioning-Node")
 
 	return result
