@@ -97,6 +97,13 @@ func TestAccCCEClusterV3_withEip(t *testing.T) {
 				),
 			},
 			{
+				Config: testAccCCEClusterV3_withEipUpdate(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCCEClusterV3Exists(resourceName, &cluster),
+					resource.TestCheckResourceAttr(resourceName, "authentication_mode", "rbac"),
+				),
+			},
+			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -354,6 +361,47 @@ resource "huaweicloud_cce_cluster" "test" {
   container_network_type = "overlay_l2"
   authentication_mode    = "rbac"
   eip                    = huaweicloud_vpc_eip.test.address
+}
+`, testAccCCEClusterV3_Base(rName), rName)
+}
+
+func testAccCCEClusterV3_withEipUpdate(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_vpc_eip" "test" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    name        = "test"
+    size        = 8
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
+}
+
+resource "huaweicloud_vpc_eip" "update" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    name        = "test"
+    size        = 8
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
+}
+
+resource "huaweicloud_cce_cluster" "test" {
+  name                   = "%s"
+  cluster_type           = "VirtualMachine"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  container_network_type = "overlay_l2"
+  authentication_mode    = "rbac"
+  eip                    = huaweicloud_vpc_eip.update.address
 }
 `, testAccCCEClusterV3_Base(rName), rName)
 }

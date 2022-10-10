@@ -157,8 +157,7 @@ The following arguments are supported:
   The [object](#cce_cluster_masters) structure is documented below.
   This parameter and `multi_az` are alternative. Changing this parameter will create a new cluster resource.
 
-* `eip` - (Optional, String, ForceNew) Specifies the EIP address of the cluster.
-  Changing this parameter will create a new cluster resource.
+* `eip` - (Optional, String) Specifies the EIP address of the cluster.
 
 * `kube_proxy_mode` - (Optional, String, ForceNew) Specifies the service forwarding mode.
   Changing this parameter will create a new cluster resource. Two modes are available:

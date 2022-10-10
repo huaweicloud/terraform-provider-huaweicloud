@@ -188,7 +188,6 @@ func ResourceCCEClusterV3() *schema.Resource {
 			"eip": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				ValidateFunc: utils.ValidateIP,
 			},
 			"service_network_cidr": {
@@ -659,6 +658,27 @@ func resourceCCEClusterV3Update(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
+	if d.HasChange("eip") {
+		eipClient, err := config.NetworkingV1Client(config.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating networking client: %s", err)
+		}
+
+		oldEip, newEip := d.GetChange("eip")
+		if oldEip.(string) != "" {
+			err = resourceCCEClusterV3EipAction(cceClient, eipClient, d.Id(), oldEip.(string), "unbind")
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+		if newEip.(string) != "" {
+			err = resourceCCEClusterV3EipAction(cceClient, eipClient, d.Id(), newEip.(string), "bind")
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+
 	return resourceCCEClusterV3Read(ctx, d, meta)
 }
 
@@ -820,6 +840,27 @@ func resourceCCEClusterV3Awake(ctx context.Context, d *schema.ResourceData, cceC
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		return fmtp.Errorf("Error awaking HuaweiCloud CCE cluster: %s", err)
+	}
+	return nil
+}
+
+func resourceCCEClusterV3EipAction(cceClient, eipClient *golangsdk.ServiceClient,
+	clusterID, eip, action string) error {
+	eipID, err := common.GetEipIDbyAddress(eipClient, eip, "all_granted_eps")
+	if err != nil {
+		return fmt.Errorf("error fetching EIP ID: %s", err)
+	}
+
+	opts := clusters.UpdateIpOpts{
+		Action: action,
+		Spec: clusters.IpSpec{
+			ID: eipID,
+		},
+	}
+
+	err = clusters.UpdateMasterIp(cceClient, clusterID, opts).ExtractErr()
+	if err != nil {
+		return fmt.Errorf("error %sing the eip of CCE cluster: %s", action, err)
 	}
 	return nil
 }
