@@ -163,6 +163,26 @@ The following arguments are supported:
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy.
   The [object](#opengauss_backup_strategy) structure is documented below.
 
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of opengauss instance.
+  The valid values are as follows:
+  + **prePaid**: the yearly/monthly billing mode.
+  + **postPaid**: the pay-per-use billing mode.
+
+  Defaults to **postPaid**. Changing this parameter will create a new resource.
+
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of opengauss instance.
+  Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.
+  Changing this parameter will create a new resource.
+
+* `period` - (Optional, Int, ForceNew) Specifies the charging period of opengauss instance.
+  If `period_unit` is set to **month**, the value ranges from 1 to 9.
+  If `period_unit` is set to **year**, the value ranges from 1 to 5.
+  This parameter is mandatory if `charging_mode` is set to **prePaid**.
+  Changing this parameter will create a new resource.
+
+* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
+  Valid values are **true** and **false**. Defaults to **false**.
+
 <a name="opengauss_ha"></a>
 The `ha` block supports:
 
