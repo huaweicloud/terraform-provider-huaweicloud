@@ -295,6 +295,10 @@ func resourceCdnDomainV1() *schema.Resource {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
+						"range_based_retrieval_enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
 						"https_settings":             &httpsConfig,
 						"retrieval_request_header":   &requestAndResponseHeader,
 						"http_response_header":       &requestAndResponseHeader,
@@ -567,6 +571,11 @@ func configOrUpdateSourcesAndConfigs(hcCdnClient *cdnv1.CdnClient, rawSources []
 			ipv6Accelerate = 1
 		}
 
+		originRangeStatus := "off"
+		if configs["range_based_retrieval_enabled"].(bool) {
+			originRangeStatus = "on"
+		}
+
 		configsOpts.Https = buildHttpsOpts(configs["https_settings"].([]interface{}))
 		configsOpts.OriginRequestHeader = buildOriginRequestHeaderOpts(configs["retrieval_request_header"].([]interface{}))
 		configsOpts.HttpResponseHeader = buildHttpResponseHeaderOpts(configs["http_response_header"].([]interface{}))
@@ -576,6 +585,7 @@ func configOrUpdateSourcesAndConfigs(hcCdnClient *cdnv1.CdnClient, rawSources []
 		configsOpts.Compress = buildCompressOpts(configs["compress"].([]interface{}))
 		configsOpts.CacheUrlParameterFilter = buildCacheUrlParameterFilterOpts(configs["cache_url_parameter_filter"].([]interface{}))
 		configsOpts.Ipv6Accelerate = utils.Int32(int32(ipv6Accelerate))
+		configsOpts.OriginRangeStatus = &originRangeStatus
 	}
 
 	req := model.UpdateDomainFullConfigRequest{
@@ -860,15 +870,16 @@ func getSourcesAndConfigsAttrs(hcCdnClient *cdnv1.CdnClient, domainName, epsId, 
 
 	configs := resp.Configs
 	configsAttrs := map[string]interface{}{
-		"https_settings":             flattenHttpsAttrs(configs.Https, privateKey),
-		"retrieval_request_header":   flattenOriginRequestHeaderAttrs(configs.OriginRequestHeader),
-		"http_response_header":       flattenHttpResponseHeaderAttrs(configs.HttpResponseHeader),
-		"url_signing":                flattenUrlAuthAttrs(configs.UrlAuth, urlAuthKey),
-		"origin_protocol":            configs.OriginProtocol,
-		"force_redirect":             flattenForceRedirectAttrs(configs.ForceRedirect),
-		"compress":                   flattenCompressAttrs(configs.Compress),
-		"cache_url_parameter_filter": flattenCacheUrlParameterFilterAttrs(configs.CacheUrlParameterFilter),
-		"ipv6_enable":                configs.Ipv6Accelerate != nil && *configs.Ipv6Accelerate == 1,
+		"https_settings":                flattenHttpsAttrs(configs.Https, privateKey),
+		"retrieval_request_header":      flattenOriginRequestHeaderAttrs(configs.OriginRequestHeader),
+		"http_response_header":          flattenHttpResponseHeaderAttrs(configs.HttpResponseHeader),
+		"url_signing":                   flattenUrlAuthAttrs(configs.UrlAuth, urlAuthKey),
+		"origin_protocol":               configs.OriginProtocol,
+		"force_redirect":                flattenForceRedirectAttrs(configs.ForceRedirect),
+		"compress":                      flattenCompressAttrs(configs.Compress),
+		"cache_url_parameter_filter":    flattenCacheUrlParameterFilterAttrs(configs.CacheUrlParameterFilter),
+		"ipv6_enable":                   configs.Ipv6Accelerate != nil && *configs.Ipv6Accelerate == 1,
+		"range_based_retrieval_enabled": configs.OriginRangeStatus != nil && *configs.OriginRangeStatus == "on",
 	}
 
 	return flattenSourcesAttrs(configs.Sources), []map[string]interface{}{configsAttrs}, nil
