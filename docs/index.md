@@ -127,6 +127,14 @@ This is a preferred approach over any other when running in ECS as you can avoid
 hard coding credentials. Instead these are leased on-the-fly by Terraform
 which reduces the chance of leakage.
 
+Usage:
+
+```hcl
+provider "huaweicloud" {
+  region = "cn-north-4"
+}
+```
+
 ### Assume role
 
 If provided with an IAM agency, Terraform will attempt to assume this role using the supplied credentials.
