@@ -1,6 +1,7 @@
 package scm
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -13,7 +14,10 @@ func TestAccDatasourceCertificates_basic(t *testing.T) {
 	dc := acceptance.InitDataSourceCheck(rName)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckScmCertificateName(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
@@ -35,8 +39,9 @@ func TestAccDatasourceCertificates_basic(t *testing.T) {
 }
 
 func testAccDatasourceCertificates_basic() string {
-	return `
+	return fmt.Sprintf(`
 data "huaweicloud_scm_certificates" "test" {
+	name = "%s"
 }
-`
+`, acceptance.HW_CERTIFICATE_NAME)
 }

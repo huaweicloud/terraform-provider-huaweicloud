@@ -49,9 +49,14 @@ func DataSourceCertificates() *schema.Resource {
 				Optional:    true,
 				Description: `Whether to support deployment.`,
 			},
+			"name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Certificate name.`,
+			},
 			"certificates": {
 				Type:        schema.TypeList,
-				Elem:        certificateCertificatesSchema(),
+				Elem:        certificatesCertificateSchema(),
 				Computed:    true,
 				Description: `Certificate list. For details, see Data structure of the Certificate field.`,
 			},
@@ -59,7 +64,7 @@ func DataSourceCertificates() *schema.Resource {
 	}
 }
 
-func certificateCertificatesSchema() *schema.Resource {
+func certificatesCertificateSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -95,12 +100,12 @@ func certificateCertificatesSchema() *schema.Resource {
 			"type": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Certificate type. The value can be: **DV_SSL_CERT**, **DV_SSL_CERT_BASIC**, **EV_SSL_CERT**, **EV_SSL_CERT_PRO**, **OV_SSL_CERT**, **OV_SSL_CERT_PRO**.`,
+				Description: `Certificate type.`,
 			},
 			"brand": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Certificate authority. The value can be: **GLOBALSIGN**, **SYMANTEC**, **GEOTRUST**, **CFCA**.`,
+				Description: `Certificate authority.`,
 			},
 			"expire_time": {
 				Type:        schema.TypeString,
@@ -160,7 +165,7 @@ func resourceCertificatesRead(ctx context.Context, d *schema.ResourceData, meta 
 	)
 	listCertificatesClient, err := config.NewServiceClient(listCertificatesProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating Certificate Client: %s", err)
+		return diag.Errorf("error creating Certificates Client: %s", err)
 	}
 
 	listCertificatesPath := listCertificatesClient.Endpoint + listCertificatesHttpUrl
@@ -175,7 +180,7 @@ func resourceCertificatesRead(ctx context.Context, d *schema.ResourceData, meta 
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving Certificate")
+		return common.CheckDeletedDiag(d, err, "error retrieving Certificates")
 	}
 
 	listCertificatesRespJson, err := json.Marshal(listCertificatesResp)
@@ -197,13 +202,14 @@ func resourceCertificatesRead(ctx context.Context, d *schema.ResourceData, meta 
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("certificates", flattenListCertificatesBodyCertificates(listCertificatesRespBody)),
+		d.Set("certificates", filterListCertificatesBodyCertificate(
+			flattenListCertificatesBodyCertificate(listCertificatesRespBody), d)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenListCertificatesBodyCertificates(resp interface{}) []interface{} {
+func flattenListCertificatesBodyCertificate(resp interface{}) []interface{} {
 	if resp == nil {
 		return nil
 	}
@@ -233,17 +239,32 @@ func flattenListCertificatesBodyCertificates(resp interface{}) []interface{} {
 	return rst
 }
 
+func filterListCertificatesBodyCertificate(all []interface{}, d *schema.ResourceData) []interface{} {
+	rst := make([]interface{}, 0, len(all))
+	for _, v := range all {
+		if param, ok := d.GetOk("name"); ok && param != utils.PathSearch("name", v, nil) {
+			continue
+		}
+
+		rst = append(rst, v)
+	}
+	return rst
+}
+
 func buildListCertificatesQueryParams(d *schema.ResourceData) string {
 	res := ""
 	if v, ok := d.GetOk("status"); ok {
 		res = fmt.Sprintf("%s&status=%v", res, v)
 	}
+
 	if v, ok := d.GetOk("enterprise_project_id"); ok {
 		res = fmt.Sprintf("%s&enterprise_project_id=%v", res, v)
 	}
+
 	if v, ok := d.GetOk("deploy_support"); ok {
 		res = fmt.Sprintf("%s&deploy_support=%v", res, v)
 	}
+
 	if res != "" {
 		res = "?" + res[1:]
 	}
