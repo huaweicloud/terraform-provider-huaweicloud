@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -258,6 +259,14 @@ func IsResourceNotFound(err error) bool {
 	}
 	_, ok := err.(golangsdk.ErrDefault404)
 	return ok
+}
+
+// GetTimezoneCode calculates the time zone code and returns a signed number.
+// For example, the time zone code for 'Asia/Shanghai' is 8, and the time zone code for 'America/Alaska' is -4.
+func GetTimezoneCode() int {
+	timeStr := strings.Split(time.Now().String(), " ")[2]
+	timezoneNum, _ := strconv.Atoi(timeStr)
+	return timezoneNum / 100
 }
 
 // FormatTimeStampRFC3339 is used to unify the time format to RFC-3339 and return a time string.

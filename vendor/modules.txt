@@ -294,6 +294,7 @@ github.com/chnsz/golangsdk/openstack/waf_hw/v1/whiteblackip_rules
 github.com/chnsz/golangsdk/openstack/workspace/v2/desktops
 github.com/chnsz/golangsdk/openstack/workspace/v2/jobs
 github.com/chnsz/golangsdk/openstack/workspace/v2/services
+github.com/chnsz/golangsdk/openstack/workspace/v2/users
 github.com/chnsz/golangsdk/pagination
 github.com/chnsz/golangsdk/testhelper
 # github.com/davecgh/go-spew v1.1.1
