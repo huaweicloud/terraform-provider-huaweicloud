@@ -23,6 +23,11 @@ resource "huaweicloud_cdn_domain" "domain_1" {
     origin_type = "ipaddr"
     active      = 1
   }
+
+  tags = {
+    key = "val"
+    foo = "bar"
+  }
 }
 ```
 
@@ -136,6 +141,8 @@ The following arguments are supported:
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id. Changing this parameter will create
   a new resource.
+
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the domain.
 
 The `sources` block supports:
 
