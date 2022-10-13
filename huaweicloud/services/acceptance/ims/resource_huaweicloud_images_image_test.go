@@ -1,4 +1,4 @@
-package huaweicloud
+package ims
 
 import (
 	"fmt"
@@ -8,6 +8,8 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -22,9 +24,9 @@ func TestAccImsImage_basic(t *testing.T) {
 	resourceName := "huaweicloud_images_image.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckImsImageDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckImsImageDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccImsImage_basic(rName),
@@ -63,16 +65,16 @@ func TestAccImsImage_withEpsId(t *testing.T) {
 	resourceName := "huaweicloud_images_image.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckEpsID(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckImsImageDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckImsImageDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccImsImage_withEpsId(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImsImageExists(resourceName, &image),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -80,8 +82,8 @@ func TestAccImsImage_withEpsId(t *testing.T) {
 }
 
 func testAccCheckImsImageDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	imageClient, err := config.ImageV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	imageClient, err := config.ImageV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud Image: %s", err)
 	}
@@ -91,7 +93,7 @@ func testAccCheckImsImageDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := getCloudimage(imageClient, rs.Primary.ID)
+		_, err := ims.GetCloudimage(imageClient, rs.Primary.ID)
 		if err == nil {
 			return fmtp.Errorf("Image still exists")
 		}
@@ -111,13 +113,13 @@ func testAccCheckImsImageExists(n string, image *cloudimages.Image) resource.Tes
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		imageClient, err := config.ImageV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		imageClient, err := config.ImageV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud Image: %s", err)
 		}
 
-		found, err := getCloudimage(imageClient, rs.Primary.ID)
+		found, err := ims.GetCloudimage(imageClient, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -258,5 +260,5 @@ resource "huaweicloud_images_image" "test" {
     key = "value"
   }
 }
-`, rName, rName, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

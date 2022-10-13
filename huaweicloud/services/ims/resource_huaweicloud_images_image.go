@@ -1,4 +1,4 @@
-package huaweicloud
+package ims
 
 import (
 	"strings"
@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -42,7 +43,7 @@ func ResourceImsImage() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 
 			"max_ram": {
 				Type:     schema.TypeInt,
@@ -150,7 +151,7 @@ func resourceContainerImageTags(d *schema.ResourceData) []cloudimages.ImageTag {
 
 func resourceImsImageCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	imsClient, err := config.ImageV2Client(GetRegion(d, config))
+	imsClient, err := config.ImageV2Client(common.GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
@@ -165,7 +166,7 @@ func resourceImsImageCreate(d *schema.ResourceData, meta interface{}) error {
 			MinRam:              d.Get("min_ram").(int),
 			InstanceId:          val.(string),
 			ImageTags:           imageTags,
-			EnterpriseProjectID: GetEnterpriseProjectID(d, config),
+			EnterpriseProjectID: common.GetEnterpriseProjectID(d, config),
 		}
 		logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 		v, err = cloudimages.CreateImageByServer(imsClient, createOpts).ExtractJobResponse()
@@ -182,7 +183,7 @@ func resourceImsImageCreate(d *schema.ResourceData, meta interface{}) error {
 			CmkId:               d.Get("cmk_id").(string),
 			Type:                d.Get("type").(string),
 			ImageTags:           imageTags,
-			EnterpriseProjectID: GetEnterpriseProjectID(d, config),
+			EnterpriseProjectID: common.GetEnterpriseProjectID(d, config),
 		}
 		logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 		v, err = cloudimages.CreateImageByOBS(imsClient, createOpts).ExtractJobResponse()
@@ -214,7 +215,7 @@ func resourceImsImageCreate(d *schema.ResourceData, meta interface{}) error {
 	return fmtp.Errorf("Unexpected conversion error in resourceImsImageCreate.")
 }
 
-func getCloudimage(client *golangsdk.ServiceClient, id string) (*cloudimages.Image, error) {
+func GetCloudimage(client *golangsdk.ServiceClient, id string) (*cloudimages.Image, error) {
 	listOpts := &cloudimages.ListOpts{
 		ID:    id,
 		Limit: 1,
@@ -252,12 +253,12 @@ func getInstanceID(data string) string {
 
 func resourceImsImageRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	imsClient, err := config.ImageV2Client(GetRegion(d, config))
+	imsClient, err := config.ImageV2Client(common.GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
-	img, err := getCloudimage(imsClient, d.Id())
+	img, err := GetCloudimage(imsClient, d.Id())
 	if err != nil {
 		return fmtp.Errorf("Image %s not found: %s", d.Id(), err)
 	}
@@ -298,7 +299,7 @@ func resourceImsImageRead(d *schema.ResourceData, meta interface{}) error {
 
 func setTagForImage(d *schema.ResourceData, meta interface{}, imageID string, tagmap map[string]interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.ImageV2Client(GetRegion(d, config))
+	client, err := config.ImageV2Client(common.GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
@@ -323,7 +324,7 @@ func setTagForImage(d *schema.ResourceData, meta interface{}, imageID string, ta
 
 func resourceImsImageUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	imsClient, err := config.ImageV2Client(GetRegion(d, config))
+	imsClient, err := config.ImageV2Client(common.GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
@@ -353,7 +354,7 @@ func resourceImsImageUpdate(d *schema.ResourceData, meta interface{}) error {
 			}
 		}
 
-		if hasFilledOpt(d, "tags") {
+		if common.HasFilledOpt(d, "tags") {
 			tagmap := d.Get("tags").(map[string]interface{})
 			if len(tagmap) > 0 {
 				logp.Printf("[DEBUG] Setting tags: %v", tagmap)
@@ -370,7 +371,7 @@ func resourceImsImageUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceImsImageDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	imageClient, err := config.ImageV2Client(GetRegion(d, config))
+	imageClient, err := config.ImageV2Client(common.GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
