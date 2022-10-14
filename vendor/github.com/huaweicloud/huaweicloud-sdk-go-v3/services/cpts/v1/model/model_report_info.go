@@ -17,6 +17,9 @@ type ReportInfo struct {
 	Rtproportion *string `json:"rtproportion,omitempty"`
 
 	TaskInfo *ReportTaskInfo `json:"taskInfo,omitempty"`
+
+	// 响应时间分布
+	RespTimeRange *interface{} `json:"respTimeRange,omitempty"`
 }
 
 func (o ReportInfo) String() string {

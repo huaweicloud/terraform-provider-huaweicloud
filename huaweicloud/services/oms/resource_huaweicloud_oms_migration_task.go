@@ -505,13 +505,13 @@ func resourceMigrationTaskCreate(ctx context.Context, d *schema.ResourceData, me
 	taskID := strconv.FormatInt(*resp.Id, 10)
 	d.SetId(taskID)
 
-	err = waitForTaskStartedORCompleted(ctx, client, *resp.Id, d.Timeout(schema.TimeoutCreate))
+	err = waitForTaskStartedORCompleted(ctx, client, taskID, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for task (%s) started: %s", taskID, err)
 	}
 
 	if !d.Get("start_task").(bool) {
-		_, err = client.StopTask(&oms.StopTaskRequest{TaskId: *resp.Id})
+		_, err = client.StopTask(&oms.StopTaskRequest{TaskId: taskID})
 		if err != nil {
 			return diag.Errorf("error stopping OMS migration task: %s", err)
 		}
@@ -527,10 +527,7 @@ func resourceMigrationTaskRead(_ context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating OMS client: %s", err)
 	}
 
-	taskID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return diag.Errorf("the task ID must be integer: %s", err)
-	}
+	taskID := d.Id()
 
 	resp, err := client.ShowTask(&oms.ShowTaskRequest{TaskId: taskID})
 	if err != nil {
@@ -570,10 +567,7 @@ func resourceMigrationTaskUpdate(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating OMS client: %s", err)
 	}
 
-	taskID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return diag.Errorf("the task ID must be integer: %s", err)
-	}
+	taskID := d.Id()
 
 	if d.HasChange("bandwidth_policy") {
 		updateBandwidthPolicyOpts := buildBandwidthPolicyOpts(d.Get("bandwidth_policy").([]interface{}))
@@ -613,10 +607,7 @@ func resourceMigrationTaskDelete(_ context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating OMS client: %s", err)
 	}
 
-	taskID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return diag.Errorf("the task ID must be integer: %s", err)
-	}
+	taskID := d.Id()
 
 	// must stop the running task before deleting it
 	resp, err := client.ShowTask(&oms.ShowTaskRequest{TaskId: taskID})
@@ -625,7 +616,7 @@ func resourceMigrationTaskDelete(_ context.Context, d *schema.ResourceData, meta
 	}
 
 	if resp.Status == nil {
-		diag.Errorf("unable to find the status OMS migration task: %d", taskID)
+		diag.Errorf("unable to find the status OMS migration task: %s", taskID)
 	}
 
 	if *resp.Status == 2 {
@@ -646,7 +637,7 @@ func resourceMigrationTaskDelete(_ context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func getTaskStatus(client *v2.OmsClient, taskId int64) resource.StateRefreshFunc {
+func getTaskStatus(client *v2.OmsClient, taskId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		taskGet, err := client.ShowTask(&oms.ShowTaskRequest{TaskId: taskId})
 		if err != nil {
@@ -658,7 +649,7 @@ func getTaskStatus(client *v2.OmsClient, taskId int64) resource.StateRefreshFunc
 	}
 }
 
-func waitForTaskStartedORCompleted(ctx context.Context, client *v2.OmsClient, taskID int64, timeout time.Duration) error {
+func waitForTaskStartedORCompleted(ctx context.Context, client *v2.OmsClient, taskID string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"0", "1"},
 		Target:     []string{"2", "5"},

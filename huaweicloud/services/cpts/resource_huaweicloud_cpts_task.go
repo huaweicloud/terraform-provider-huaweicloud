@@ -142,10 +142,10 @@ func resourceTaskRead(_ context.Context, d *schema.ResourceData, meta interface{
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("name", response.Taskinfo.Name),
-		d.Set("project_id", response.Taskinfo.ProjectId),
-		d.Set("benchmark_concurrency", response.Taskinfo.BenchConcurrent),
-		d.Set("status", response.Taskinfo.RunStatus),
+		d.Set("name", response.TaskInfo.Name),
+		d.Set("project_id", response.TaskInfo.ProjectId),
+		d.Set("benchmark_concurrency", response.TaskInfo.BenchConcurrent),
+		d.Set("status", response.TaskInfo.RunStatus),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -278,7 +278,7 @@ func waitingforTaskFinished(ctx context.Context, client *v1.CptsClient, id int64
 			if err != nil {
 				return nil, "", err
 			}
-			status := resp.Taskinfo.RunStatus
+			status := resp.TaskInfo.RunStatus
 			return resp, fmt.Sprintf("%d", status), nil
 		},
 		Timeout:      timeout,

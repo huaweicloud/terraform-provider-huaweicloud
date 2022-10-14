@@ -20,7 +20,7 @@ type TrackerResponseBody struct {
 	// 事件文件转储加密所采用的秘钥id（从KMS获取）。 当\"tracker_type\"参数值为\"system\"和\"is_support_trace_files_encryption\"参数值为“是”时，此参数为必选项。
 	KmsId *string `json:"kms_id,omitempty"`
 
-	// 是否打开事件文件校验。当前环境仅\"tracker_type\"参数值为\"system\"时支持该功能。
+	// 是否打开事件文件校验。
 	IsSupportValidate *bool `json:"is_support_validate,omitempty"`
 
 	Lts *Lts `json:"lts,omitempty"`
@@ -45,6 +45,12 @@ type TrackerResponseBody struct {
 
 	// 事件文件转储加密功能开关。 该参数必须与kms_id参数同时使用。 当前环境仅\"tracker_type\"参数值为\"system\"时支持该功能。
 	IsSupportTraceFilesEncryption *bool `json:"is_support_trace_files_encryption,omitempty"`
+
+	// LTS服务日志组的ID。
+	GroupId *string `json:"group_id,omitempty"`
+
+	// LTS服务日志流的ID。
+	StreamId *string `json:"stream_id,omitempty"`
 
 	ObsInfo *ObsInfo `json:"obs_info,omitempty"`
 

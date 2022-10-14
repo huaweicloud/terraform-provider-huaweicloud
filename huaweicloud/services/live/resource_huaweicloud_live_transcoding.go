@@ -256,8 +256,8 @@ func buildTranscodingParams(d *schema.ResourceData) (*model.StreamTranscodingTem
 		qualityInfo[i] = model.QualityInfo{
 			TemplateName:   utils.String(template["name"].(string)),
 			Quality:        template["name"].(string),
-			Width:          int32(width),
-			Height:         int32(height),
+			Width:          utils.Int32(int32(width)),
+			Height:         utils.Int32(int32(height)),
 			Bitrate:        int32(template["bitrate"].(int)),
 			VideoFrameRate: utils.Int32(int32(template["frame_rate"].(int))),
 			Codec:          &codec,

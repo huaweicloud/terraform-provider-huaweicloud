@@ -10,7 +10,7 @@ type ReportbrokensInfo struct {
 	BrandBrokens *BrandBrokens `json:"brand_brokens,omitempty"`
 
 	// 时间戳
-	CommonTimestamps *[]string `json:"commonTimestamps,omitempty"`
+	CommonTimestamps *[]int64 `json:"commonTimestamps,omitempty"`
 
 	RespcodeBrokens *RespcodeBrokens `json:"respcode_brokens,omitempty"`
 

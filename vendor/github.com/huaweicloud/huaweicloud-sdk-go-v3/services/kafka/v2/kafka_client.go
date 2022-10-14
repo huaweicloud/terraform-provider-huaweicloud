@@ -203,7 +203,7 @@ func (c *KafkaClient) CreatePartitionInvoker(request *model.CreatePartitionReque
 
 // CreatePostPaidInstance 创建实例
 //
-// [创建按需计费类型的Kafka实例。](tag:hc,hk,hws,hws_hk,otc,hws_ocb,ctc,sbc,hk_sbc,cmcc)[创建kafka实例。](tag:ocb)
+// [创建按需计费类型的Kafka实例。](tag:hc,hk,hws,hws_hk,otc,hws_ocb,ctc,sbc,hk_sbc,cmcc,hws_eu)[创建kafka实例。](tag:ocb)
 //
 // 详细说明请参考华为云API Explorer。
 // Please refer to Huawei cloud API Explorer for details.
@@ -375,6 +375,28 @@ func (c *KafkaClient) ListEngineProducts(request *model.ListEngineProductsReques
 func (c *KafkaClient) ListEngineProductsInvoker(request *model.ListEngineProductsRequest) *ListEngineProductsInvoker {
 	requestDef := GenReqDefForListEngineProducts()
 	return &ListEngineProductsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListInstanceConsumerGroups 查询所有消费组
+//
+// 查询所有消费组。
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *KafkaClient) ListInstanceConsumerGroups(request *model.ListInstanceConsumerGroupsRequest) (*model.ListInstanceConsumerGroupsResponse, error) {
+	requestDef := GenReqDefForListInstanceConsumerGroups()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListInstanceConsumerGroupsResponse), nil
+	}
+}
+
+// ListInstanceConsumerGroupsInvoker 查询所有消费组
+func (c *KafkaClient) ListInstanceConsumerGroupsInvoker(request *model.ListInstanceConsumerGroupsRequest) *ListInstanceConsumerGroupsInvoker {
+	requestDef := GenReqDefForListInstanceConsumerGroups()
+	return &ListInstanceConsumerGroupsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListInstanceTopics Kafka实例查询Topic

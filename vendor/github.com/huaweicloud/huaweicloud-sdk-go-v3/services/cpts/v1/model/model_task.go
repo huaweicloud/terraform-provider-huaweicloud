@@ -9,25 +9,28 @@ import (
 // tasks
 type Task struct {
 
-	// bench_concurrent
+	// 基准并发
 	BenchConcurrent *int32 `json:"bench_concurrent,omitempty"`
 
-	// description
+	// 描述信息
 	Description *string `json:"description,omitempty"`
 
-	// id
+	// 任务Id
 	Id *int32 `json:"id,omitempty"`
 
-	// name
+	// 任务名称
 	Name *string `json:"name,omitempty"`
 
-	// operate_mode
+	// 任务压测模式
 	OperateMode *int32 `json:"operate_mode,omitempty"`
 
 	TaskRunInfo *TaskRunInfo `json:"task_run_info,omitempty"`
 
-	// update_time
+	// 更新时间
 	UpdateTime *string `json:"update_time,omitempty"`
+
+	// 任务间用例是否并行执行
+	Parallel *bool `json:"parallel,omitempty"`
 }
 
 func (o Task) String() string {

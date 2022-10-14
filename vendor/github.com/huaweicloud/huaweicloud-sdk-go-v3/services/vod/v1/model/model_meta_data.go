@@ -12,6 +12,9 @@ import (
 // 视频的元数据信息。  经过视频解析后产生，包括封装格式、大小、分辨率、码率、帧率。
 type MetaData struct {
 
+	// 视频封装格式。  取值如下： - MP4 - TS - MOV - MXF - MPG - FLV - WMV - MP3 - WMA - APE - FLAC - AAC - AC3 - MMF - AMR - M4A - M4R - OGG - WAV - WV - MP2 - AVI - F4V - M4V - MPEG - HLS - DASH
+	PackType *MetaDataPackType `json:"pack_type,omitempty"`
+
 	// 视频编码格式。  取值如下： - MPEG-2 - MPEG-4 - H.264 - H.265 - WMV - Vorbis - AAC - AC-3 - AMR - APE - FLAC - MP3 - MP2 - WMA - PCM - ADPCM - WavPack
 	Codec *MetaDataCodec `json:"codec,omitempty"`
 
@@ -47,6 +50,148 @@ func (o MetaData) String() string {
 	}
 
 	return strings.Join([]string{"MetaData", string(data)}, " ")
+}
+
+type MetaDataPackType struct {
+	value string
+}
+
+type MetaDataPackTypeEnum struct {
+	MP4  MetaDataPackType
+	TS   MetaDataPackType
+	MOV  MetaDataPackType
+	MXF  MetaDataPackType
+	MPG  MetaDataPackType
+	FLV  MetaDataPackType
+	WMV  MetaDataPackType
+	MP3  MetaDataPackType
+	WMA  MetaDataPackType
+	APE  MetaDataPackType
+	FLAC MetaDataPackType
+	AAC  MetaDataPackType
+	AC3  MetaDataPackType
+	MMF  MetaDataPackType
+	AMR  MetaDataPackType
+	M4_A MetaDataPackType
+	M4_R MetaDataPackType
+	OGG  MetaDataPackType
+	WAV  MetaDataPackType
+	WV   MetaDataPackType
+	MP2  MetaDataPackType
+	AVI  MetaDataPackType
+	F4_V MetaDataPackType
+	M4_V MetaDataPackType
+	MPEG MetaDataPackType
+	HLS  MetaDataPackType
+	DASH MetaDataPackType
+}
+
+func GetMetaDataPackTypeEnum() MetaDataPackTypeEnum {
+	return MetaDataPackTypeEnum{
+		MP4: MetaDataPackType{
+			value: "MP4",
+		},
+		TS: MetaDataPackType{
+			value: "TS",
+		},
+		MOV: MetaDataPackType{
+			value: "MOV",
+		},
+		MXF: MetaDataPackType{
+			value: "MXF",
+		},
+		MPG: MetaDataPackType{
+			value: "MPG",
+		},
+		FLV: MetaDataPackType{
+			value: "FLV",
+		},
+		WMV: MetaDataPackType{
+			value: "WMV",
+		},
+		MP3: MetaDataPackType{
+			value: "MP3",
+		},
+		WMA: MetaDataPackType{
+			value: "WMA",
+		},
+		APE: MetaDataPackType{
+			value: "APE",
+		},
+		FLAC: MetaDataPackType{
+			value: "FLAC",
+		},
+		AAC: MetaDataPackType{
+			value: "AAC",
+		},
+		AC3: MetaDataPackType{
+			value: "AC3",
+		},
+		MMF: MetaDataPackType{
+			value: "MMF",
+		},
+		AMR: MetaDataPackType{
+			value: "AMR",
+		},
+		M4_A: MetaDataPackType{
+			value: "M4A",
+		},
+		M4_R: MetaDataPackType{
+			value: "M4R",
+		},
+		OGG: MetaDataPackType{
+			value: "OGG",
+		},
+		WAV: MetaDataPackType{
+			value: "WAV",
+		},
+		WV: MetaDataPackType{
+			value: "WV",
+		},
+		MP2: MetaDataPackType{
+			value: "MP2",
+		},
+		AVI: MetaDataPackType{
+			value: "AVI",
+		},
+		F4_V: MetaDataPackType{
+			value: "F4V",
+		},
+		M4_V: MetaDataPackType{
+			value: "M4V",
+		},
+		MPEG: MetaDataPackType{
+			value: "MPEG",
+		},
+		HLS: MetaDataPackType{
+			value: "HLS",
+		},
+		DASH: MetaDataPackType{
+			value: "DASH",
+		},
+	}
+}
+
+func (c MetaDataPackType) Value() string {
+	return c.value
+}
+
+func (c MetaDataPackType) MarshalJSON() ([]byte, error) {
+	return utils.Marshal(c.value)
+}
+
+func (c *MetaDataPackType) UnmarshalJSON(b []byte) error {
+	myConverter := converter.StringConverterFactory("string")
+	if myConverter != nil {
+		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+		if err == nil {
+			c.value = val.(string)
+			return nil
+		}
+		return err
+	} else {
+		return errors.New("convert enum data to string error")
+	}
 }
 
 type MetaDataCodec struct {

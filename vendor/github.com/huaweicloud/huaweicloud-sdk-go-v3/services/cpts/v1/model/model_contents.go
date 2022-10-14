@@ -8,23 +8,29 @@ import (
 
 type Contents struct {
 
-	// content_id
+	// 事务id，若不为0表示此卡片为事务；为0表示非事务
 	ContentId *int32 `json:"content_id,omitempty"`
 
 	// content
 	Content *[]Content `json:"content,omitempty"`
 
-	// index
+	// 排序索引标识
 	Index *int32 `json:"index,omitempty"`
 
 	// selected_temp_name
 	SelectedTempName *string `json:"selected_temp_name,omitempty"`
 
-	// data
+	// 数据（循环、条件控制器作用的数据）
 	Data *interface{} `json:"data,omitempty"`
 
-	// data_type
+	// 类型，0:默认请求；1:数据指令；201:循环指令； 202:条件指令；301:集合点
 	DataType *int32 `json:"data_type,omitempty"`
+
+	// 若类型为202:条件指令，该字段为条件配置
+	Conditions *interface{} `json:"conditions,omitempty"`
+
+	// 是否禁用
+	IsDisabled *bool `json:"is_disabled,omitempty"`
 }
 
 func (o Contents) String() string {

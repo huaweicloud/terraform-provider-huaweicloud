@@ -197,6 +197,18 @@ func (i *ListEngineProductsInvoker) Invoke() (*model.ListEngineProductsResponse,
 	}
 }
 
+type ListInstanceConsumerGroupsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListInstanceConsumerGroupsInvoker) Invoke() (*model.ListInstanceConsumerGroupsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListInstanceConsumerGroupsResponse), nil
+	}
+}
+
 type ListInstanceTopicsInvoker struct {
 	*invoker.BaseInvoker
 }

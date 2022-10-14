@@ -15,7 +15,7 @@ type UpdateCaseRequest struct {
 	// 类型
 	Target string `json:"target"`
 
-	Body *UpdateCaseRequestBody `json:"body,omitempty"`
+	Body *CaseInfo `json:"body,omitempty"`
 }
 
 func (o UpdateCaseRequest) String() string {
