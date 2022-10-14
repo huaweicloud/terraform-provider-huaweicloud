@@ -32,7 +32,7 @@ func getDliAuthResourceFunc(config *config.Config, state *terraform.ResourceStat
 
 // test database permissions
 func TestAccResourceDliAuth_basic(t *testing.T) {
-	var obj auth.GrantDataPermissionOpts
+	var obj auth.Privilege
 	resourceName := "huaweicloud_dli_permission.test"
 	name := acceptance.RandomAccResourceName()
 
@@ -93,7 +93,7 @@ resource "huaweicloud_dli_permission" "test" {
 }
 
 func TestAccResourceDliAuth_flink(t *testing.T) {
-	var obj auth.GrantDataPermissionOpts
+	var obj auth.Privilege
 	resourceName := "huaweicloud_dli_permission.test"
 	name := acceptance.RandomAccResourceName()
 
@@ -154,7 +154,7 @@ resource "huaweicloud_dli_permission" "test" {
 }
 
 func TestAccResourceDliAuth_table(t *testing.T) {
-	var obj auth.GrantDataPermissionOpts
+	var obj auth.Privilege
 	resourceName := "huaweicloud_dli_permission.test"
 	name := acceptance.RandomAccResourceName()
 
@@ -217,7 +217,7 @@ resource "huaweicloud_dli_permission" "test" {
 }
 
 func TestAccResourceDliAuth_package(t *testing.T) {
-	var obj auth.GrantDataPermissionOpts
+	var obj auth.Privilege
 	resourceName := "huaweicloud_dli_permission.test"
 	name := acceptance.RandomAccResourceName()
 	packageGroupName := acceptance.RandomAccResourceNameWithDash()
@@ -283,7 +283,7 @@ resource "huaweicloud_dli_permission" "test" {
 }
 
 func TestAccResourceDliAuth_queue(t *testing.T) {
-	var obj auth.GrantDataPermissionOpts
+	var obj auth.Privilege
 	resourceName := "huaweicloud_dli_permission.test"
 	name := acceptance.RandomAccResourceName()
 

@@ -123,7 +123,7 @@ func TestAccResourceDliSqlJob_async(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"rows", "schema", "conf"},
+				ImportStateVerifyIgnore: []string{"rows", "schema", "conf", "duration", "status"},
 			},
 		},
 	})
