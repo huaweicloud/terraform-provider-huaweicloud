@@ -340,6 +340,18 @@ func TestAccServiceEndpoints_Security(t *testing.T) {
 	}
 	t.Logf("KMS(v1) endpoint:\t %s", actualURL)
 
+	// test the endpoint of KMS service v3
+	serviceClient, err = config.KmsV3Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud KMS(v3) client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://kms.%s.%s/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("KMS(v3) endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("KMS(v3) endpoint:\t %s", actualURL)
+
 	// test the endpoint of SCM service
 	serviceClient, err = config.ScmV3Client(HW_REGION_NAME)
 	if err != nil {
