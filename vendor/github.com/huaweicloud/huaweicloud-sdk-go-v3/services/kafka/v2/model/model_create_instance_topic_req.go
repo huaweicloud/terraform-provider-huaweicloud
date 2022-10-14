@@ -23,7 +23,7 @@ type CreateInstanceTopicReq struct {
 	// 是否开启同步复制，开启后，客户端生产消息时相应的也要设置acks=-1，否则不生效，默认关闭。
 	SyncReplication *bool `json:"sync_replication,omitempty"`
 
-	// 消息老化时间。默认值为72。 取值范围[1~168](tag:hc,hk,hws,hws_hk,hws_ocb,ctc,sbc,hk_sbc)[1-720](tag:ocb,otc)，单位小时。
+	// 消息老化时间。默认值为72。 取值范围[1~168](tag:hc,hk,hws,hws_hk,hws_ocb,ctc,sbc,hk_sbc,hws_eu)[1-720](tag:ocb,otc)，单位小时。
 	RetentionTime *int32 `json:"retention_time,omitempty"`
 }
 

@@ -24,8 +24,8 @@ type ProjectsSet struct {
 	// 工程名字
 	Name *string `json:"name,omitempty"`
 
-	// 工程状态
-	Status *int32 `json:"status,omitempty"`
+	// 工程来源 0:CPTS,2:CloudTest
+	Source *int32 `json:"source,omitempty"`
 
 	// 外部参数
 	ExternalParams *interface{} `json:"external_params,omitempty"`

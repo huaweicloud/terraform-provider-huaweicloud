@@ -2,7 +2,6 @@ package oms
 
 import (
 	"fmt"
-	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -19,12 +18,7 @@ func getMigrationTaskResourceFunc(conf *config.Config, state *terraform.Resource
 		return nil, fmt.Errorf("error creating MPC client: %s", err)
 	}
 
-	taskID, err := strconv.ParseInt(state.Primary.ID, 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("the task ID must be integer: %s", err)
-	}
-
-	return c.ShowTask(&oms.ShowTaskRequest{TaskId: taskID})
+	return c.ShowTask(&oms.ShowTaskRequest{TaskId: state.Primary.ID})
 }
 
 func TestAccMigrationTask_object(t *testing.T) {

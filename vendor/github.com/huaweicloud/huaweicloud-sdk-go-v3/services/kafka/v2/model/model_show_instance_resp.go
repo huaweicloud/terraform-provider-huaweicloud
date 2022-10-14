@@ -50,7 +50,7 @@ type ShowInstanceResp struct {
 	// 资源规格标识。   - dms.instance.kafka.cluster.c3.mini：Kafka实例的基准带宽为100MByte/秒。   - dms.instance.kafka.cluster.c3.small.2：Kafka实例的基准带宽为300MByte/秒。   - dms.instance.kafka.cluster.c3.middle.2：Kafka实例的基准带宽为600MByte/秒。   - dms.instance.kafka.cluster.c3.high.2：Kafka实例的基准带宽为1200MByte/秒。
 	ResourceSpecCode *string `json:"resource_spec_code,omitempty"`
 
-	// 付费模式，1表示按需计费，0表示包年/包月计费。
+	// [付费模式，1表示按需计费，0表示包年/包月计费。](tag:hc,hk,hws,hws_hk,otc,ctc,sbc,hk_sbc,cmcc)[付费模式，暂未使用。](tag:hws_ocb,ocb)[付费模式，1表示按需计费](tag:hws_eu)
 	ChargingMode *int32 `json:"charging_mode,omitempty"`
 
 	// VPC ID。
@@ -202,6 +202,21 @@ type ShowInstanceResp struct {
 
 	// 是否开启磁盘加密。
 	DiskEncrypted *bool `json:"disk_encrypted,omitempty"`
+
+	// 磁盘加密key，未开启磁盘加密时为空。
+	DiskEncryptedKey *string `json:"disk_encrypted_key,omitempty"`
+
+	// 公网访问Kafka Manager连接地址。
+	PublicManagementConnectAddress *string `json:"public_management_connect_address,omitempty"`
+
+	// 子网网段。
+	SubnetCidr *string `json:"subnet_cidr,omitempty"`
+
+	// 子网名称。
+	SubnetName *string `json:"subnet_name,omitempty"`
+
+	// 是否开启访问控制。
+	EnableAcl *bool `json:"enable_acl,omitempty"`
 
 	// Kafka实例私有连接地址。
 	KafkaPrivateConnectAddress *string `json:"kafka_private_connect_address,omitempty"`

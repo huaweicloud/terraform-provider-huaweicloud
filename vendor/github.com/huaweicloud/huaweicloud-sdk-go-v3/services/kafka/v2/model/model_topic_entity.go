@@ -32,7 +32,7 @@ type TopicEntity struct {
 	// 扩展配置。
 	ExternalConfigs *interface{} `json:"external_configs,omitempty"`
 
-	// topic类型。
+	// topic类型(0:普通Topic 1:系统(内部)Topic。
 	TopicType *int32 `json:"topic_type,omitempty"`
 }
 

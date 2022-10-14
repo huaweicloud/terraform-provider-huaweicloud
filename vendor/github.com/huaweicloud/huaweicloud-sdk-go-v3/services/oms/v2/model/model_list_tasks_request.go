@@ -18,7 +18,7 @@ type ListTasksRequest struct {
 	// 起始的任务序号，默认为0。 取值大于等于0，取值为0时从第一条开始查询。
 	Offset *int32 `json:"offset,omitempty"`
 
-	// 迁移任务状态（无该参数时代表查询所有状态的任务）： 1：等待调度 2：正在执行 3：停止 4：失败 5：成功
+	// 迁移任务状态（无该参数时代表查询所有状态的任务）： 1：等待调度 2：正在执行 3：停止 4：失败 5：成功 7: 暂停中
 	Status *int32 `json:"status,omitempty"`
 }
 

@@ -101,6 +101,18 @@ func (i *DeleteTempInvoker) Invoke() (*model.DeleteTempResponse, error) {
 	}
 }
 
+type DeleteVariableInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteVariableInvoker) Invoke() (*model.DeleteVariableResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteVariableResponse), nil
+	}
+}
+
 type ListVariablesInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -209,6 +221,18 @@ func (i *UpdateTaskInvoker) Invoke() (*model.UpdateTaskResponse, error) {
 	}
 }
 
+type UpdateTaskRelatedTestCaseInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateTaskRelatedTestCaseInvoker) Invoke() (*model.UpdateTaskRelatedTestCaseResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateTaskRelatedTestCaseResponse), nil
+	}
+}
+
 type UpdateTaskStatusInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -278,6 +302,18 @@ func (i *ListProjectSetsInvoker) Invoke() (*model.ListProjectSetsResponse, error
 		return nil, err
 	} else {
 		return result.(*model.ListProjectSetsResponse), nil
+	}
+}
+
+type ListProjectTestCaseInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListProjectTestCaseInvoker) Invoke() (*model.ListProjectTestCaseResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListProjectTestCaseResponse), nil
 	}
 }
 
