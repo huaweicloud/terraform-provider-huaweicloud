@@ -165,6 +165,8 @@ The `configs` block support:
 
 * `ipv6_enable` - (Optional, Bool) Specifies whether to enable IPv6.
 
+* `range_based_retrieval_enabled` - (Optional, Bool) Specifies whether to enable range-based retrieval.
+
 * `https_settings` - (Optional, List) Specifies the certificate configuration. The [object](#https_settings_object)
   structure is documented below.
 
@@ -264,7 +266,7 @@ The `cache_url_parameter_filter` block support:
 * `value` - (Optional, String) Specifies the parameter values. Multiple values are separated by semicolons (;).
 
 <a name="cache_settings_object"></a>
-The `configs` block support:
+The `cache_settings` block support:
 
 * `follow_origin` - (Optional, Bool) Specifies whether to enable origin cache control.
 

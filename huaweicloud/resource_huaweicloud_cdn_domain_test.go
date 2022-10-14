@@ -108,6 +108,8 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cdn_domain.domain_1", "configs.0.ipv6_enable", "true"),
 					resource.TestCheckResourceAttr(
+						"huaweicloud_cdn_domain.domain_1", "configs.0.range_based_retrieval_enabled", "true"),
+					resource.TestCheckResourceAttr(
 						"huaweicloud_cdn_domain.domain_1", "configs.0.https_settings.0.certificate_name", "terraform-test"),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cdn_domain.domain_1", "configs.0.https_settings.0.https_status", "on"),
@@ -247,8 +249,9 @@ resource "huaweicloud_cdn_domain" "domain_1" {
   }
 
   configs {
-	origin_protocol = "http"
-	ipv6_enable     = true
+	origin_protocol               = "http"
+	ipv6_enable                   = true
+	range_based_retrieval_enabled = "true"
 
     https_settings {
       certificate_name = "terraform-test"
