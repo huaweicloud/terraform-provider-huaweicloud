@@ -201,7 +201,7 @@ func FormatHeaders(headers http.Header, seperator string) string {
 	return strings.Join(redactedHeaders, seperator)
 }
 
-func maskSecurityFields(data map[string]interface{}) bool {
+func maskSecurityFields(data map[string]interface{}) {
 	for k, val := range data {
 		switch val := val.(type) {
 		case string:
@@ -211,12 +211,9 @@ func maskSecurityFields(data map[string]interface{}) bool {
 				data[k] = "** large string **"
 			}
 		case map[string]interface{}:
-			if masked := maskSecurityFields(val); masked {
-				return true
-			}
+			maskSecurityFields(val)
 		}
 	}
-	return false
 }
 
 func isSecurityFields(field string) bool {
