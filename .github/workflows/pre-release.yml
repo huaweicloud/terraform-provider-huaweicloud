@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: scan-api
+name: pre-release
 
 # Controls when the workflow will run
 on:
@@ -13,7 +13,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  build:
+  scan-api:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -86,3 +86,60 @@ jobs:
           repository: terraform-provider-huaweicloud
           file_pattern: 'docs/api/*.yaml'
           commit_message: Update APIs that resources depend-on ${{ steps.get_version.outputs.VERSION }}
+
+  acc-test:
+    if: ${{ always() }}
+    needs: [scan-api]
+
+    env:
+      HW_ACCESS_KEY: ${{ secrets.HW_ACCESS_KEY }}
+      HW_SECRET_KEY: ${{ secrets.HW_SECRET_KEY }}
+      HW_REGION_NAME: cn-north-4
+      HW_ENTERPRISE_PROJECT_ID: "0"
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      # run acceptance test
+      - name: Run acceptance basic test
+        # run the step only when HW_ACCESS_KEY is setted
+        if: ${{ env.HW_ACCESS_KEY }}
+        shell: bash {0}
+        run: |
+          result=0
+          total=0
+          last_tag=$(git tag --sort=-creatordate | sed -n 1p)
+          all_files=$(git diff $last_tag --name-only huaweicloud | grep -v "_test.go")
+          echo -e "the following files have changed since $last_tag:\n$all_files\n"
+
+          for f in $all_files; do
+            path=${f%/*}
+            if [ "X$path" != "Xhuaweicloud" ]; then
+              # update path to "huaweicloud/services\acceptance/xxx"
+              path=${path/services/services\/acceptance}
+            fi
+
+            org_file=${f##*/}
+            test_file=$path/${org_file/%.go/_test.go}
+
+            if [ -f "./${test_file}" ]; then
+              basic_cases=$(grep "^func TestAcc" ./${test_file} | grep _basic | awk '{print $2}' | awk -F '(' '{print $1}')
+              if [ "X$basic_cases" != "X" ]; then
+                total=`expr $total + 1`
+                echo -e "\nrun acceptance basic tests: $basic_cases"
+                make testacc TEST="./$path" TESTARGS="-run ${basic_cases}"
+                if [ $? -ne 0 ]; then
+                  result=`expr $result + 1`
+                fi
+              fi
+            else
+              echo -e "\n[skipped] --- ./${test_file} does not exist"
+            fi
+          done
+
+          echo -e "\n[summary] $result failed in $total acceptance basic tests"
+          exit $result
