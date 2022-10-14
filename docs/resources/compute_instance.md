@@ -224,8 +224,10 @@ The following arguments are supported:
 
 * `admin_pass` - (Optional, String) Specifies the administrative password to assign to the instance.
 
-* `key_pair` - (Optional, String, ForceNew) Specifies the name of a key pair to put on the instance. The key pair must
-  already be created and associated with the tenant's account. Changing this creates a new instance.
+* `key_pair` - (Optional, String) Specifies the SSH keypair name used for logging in to the instance.
+
+* `private_key` - (Optional, String) Specifies the the private key of the keypair in use. This parameter is mandatory
+  when replacing or unbinding a keypair and the instance is in **Running** state.
 
 * `system_disk_type` - (Optional, String, ForceNew) Specifies the system disk type of the instance. Defaults to `GPSSD`.
   Changing this creates a new instance.

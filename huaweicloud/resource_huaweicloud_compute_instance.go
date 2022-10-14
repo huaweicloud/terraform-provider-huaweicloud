@@ -113,7 +113,12 @@ func ResourceComputeInstanceV2() *schema.Resource {
 			"key_pair": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
+			},
+			"private_key": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Sensitive:    true,
+				RequiredWith: []string{"key_pair"},
 			},
 			"security_groups": {
 				Type:          schema.TypeSet,
@@ -1176,6 +1181,13 @@ func resourceComputeInstanceV2Update(ctx context.Context, d *schema.ResourceData
 		if err != nil {
 			return diag.Errorf(
 				"error waiting for huaweicloud_compute_instance system disk %s to become ready: %s", systemDiskID, err)
+		}
+	}
+
+	// update the key_pair before power action
+	if d.HasChange("key_pair") {
+		if err := updateEcsInstanceKeyPair(ctx, d, config); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
