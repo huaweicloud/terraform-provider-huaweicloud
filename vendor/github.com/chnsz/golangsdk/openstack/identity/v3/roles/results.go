@@ -2,11 +2,14 @@ package roles
 
 import (
 	"encoding/json"
+	"strconv"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/internal"
 	"github.com/chnsz/golangsdk/pagination"
 )
+
+const defaultPageNumber = 1
 
 // Role grants permissions to a user.
 type Role struct {
@@ -91,7 +94,7 @@ type DeleteResult struct {
 
 // RolePage is a single page of Role results.
 type RolePage struct {
-	pagination.LinkedPageBase
+	pagination.OffsetPageBase
 }
 
 // IsEmpty determines whether or not a page of Roles contains any results.
@@ -100,19 +103,25 @@ func (r RolePage) IsEmpty() (bool, error) {
 	return len(roles) == 0, err
 }
 
-// NextPageURL extracts the "next" link from the links section of the result.
-func (r RolePage) NextPageURL() (string, error) {
-	var s struct {
-		Links struct {
-			Next     string `json:"next"`
-			Previous string `json:"previous"`
-		} `json:"links"`
+// NextOffset returns offset of the next element of the page.
+func (current RolePage) CurrentPageNum() int {
+	q := current.URL.Query()
+	page, _ := strconv.Atoi(q.Get("page"))
+	if page == 0 {
+		return defaultPageNumber
 	}
-	err := r.ExtractInto(&s)
-	if err != nil {
-		return "", err
-	}
-	return s.Links.Next, err
+	return page
+}
+
+// NextPageURL generates the URL for the page of results after this one.
+func (current RolePage) NextPageURL() (string, error) {
+	currentPageNum := current.CurrentPageNum()
+	currentURL := current.URL
+	q := currentURL.Query()
+	q.Set("page", strconv.Itoa(currentPageNum+1))
+	currentURL.RawQuery = q.Encode()
+
+	return currentURL.String(), nil
 }
 
 // ExtractProjects returns a slice of Roles contained in a single page of
