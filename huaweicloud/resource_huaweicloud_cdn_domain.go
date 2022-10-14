@@ -355,6 +355,7 @@ func resourceCdnDomainV1() *schema.Resource {
 					},
 				},
 			},
+			"tags": tagsSchema(),
 			"cname": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -968,6 +969,24 @@ func resourceCdnDomainV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.Set("cache_settings", cacheAttrs)
 
+	// Set domain tags
+	tags, err := hcCdnClient.ShowTags(&model.ShowTagsRequest{ResourceId: id})
+	if err != nil {
+		return fmtp.Errorf("error reading CDN Domain tags: %s", err)
+	}
+	if tags.Tags != nil {
+		tagsToSet := make(map[string]interface{}, len(*tags.Tags))
+		for _, tag := range *tags.Tags {
+			if tag.Value != nil {
+				tagsToSet[tag.Key] = *tag.Value
+			} else {
+				tagsToSet[tag.Key] = ""
+			}
+		}
+
+		d.Set("tags", tagsToSet)
+	}
+
 	return nil
 }
 
@@ -1015,6 +1034,52 @@ func resourceCdnDomainV1Update(d *schema.ResourceData, meta interface{}) error {
 		err = waitDomainOnlin(cdnClient, id, opts, timeout)
 		if err != nil {
 			return err
+		}
+	}
+
+	if d.HasChange("tags") {
+		oTagsRaw, nTagsRaw := d.GetChange("tags")
+		oTagsMap := oTagsRaw.(map[string]interface{})
+		nTagsMap := nTagsRaw.(map[string]interface{})
+
+		// remove old tags
+		if len(oTagsMap) > 0 {
+			var taglist []string
+			for k := range oTagsMap {
+				taglist = append(taglist, k)
+			}
+			deleteTagsReq := model.BatchDeleteTagsRequest{
+				Body: &model.DeleteTagsRequestBody{
+					ResourceId: id,
+					Tags:       taglist,
+				},
+			}
+			_, err := hcCdnClient.BatchDeleteTags(&deleteTagsReq)
+			if err != nil {
+				return fmtp.Errorf("error deleting CDN Domain tags: %s", err)
+			}
+		}
+
+		// set new tags
+		if len(nTagsMap) > 0 {
+			taglist := make([]model.Map, 0, len(nTagsMap))
+			for k, v := range nTagsMap {
+				tag := model.Map{
+					Key:   k,
+					Value: utils.String(v.(string)),
+				}
+				taglist = append(taglist, tag)
+			}
+			createTagsReq := model.CreateTagsRequest{
+				Body: &model.CreateTagsRequestBody{
+					ResourceId: id,
+					Tags:       taglist,
+				},
+			}
+			_, err := hcCdnClient.CreateTags(&createTagsReq)
+			if err != nil {
+				return fmtp.Errorf("error creating CDN Domain tags: %s", err)
+			}
 		}
 	}
 

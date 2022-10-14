@@ -26,6 +26,10 @@ func TestAccCdnDomain_basic(t *testing.T) {
 					testAccCheckCdnDomainV1Exists("huaweicloud_cdn_domain.domain_1", &domain),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cdn_domain.domain_1", "name", HW_CDN_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_cdn_domain.domain_1", "tags.key", "val"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_cdn_domain.domain_1", "tags.foo", "bar"),
 				),
 			},
 		},
@@ -185,13 +189,19 @@ func testAccCheckCdnDomainV1Exists(n string, domain *domains.CdnDomain) resource
 
 var testAccCdnDomainV1_basic = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "domain_1" {
-  name   = "%s"
-  type   = "wholeSite"
+  name                  = "%s"
+  type                  = "wholeSite"
   enterprise_project_id = 0
+
   sources {
-      active = 1
-      origin = "100.254.53.75"
-      origin_type  = "ipaddr"
+    active      = 1
+    origin      = "100.254.53.75"
+    origin_type = "ipaddr"
+  }
+
+  tags = {
+    key = "val"
+    foo = "bar"
   }
 }
 `, HW_CDN_DOMAIN_NAME)
