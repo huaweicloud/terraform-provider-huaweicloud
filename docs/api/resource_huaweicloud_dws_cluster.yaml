@@ -1,5 +1,5 @@
 info:
-  version: refs/heads/master
+  version: v1.41.1
   title: resource_huaweicloud_dws_cluster
   description: 404.This resource is waiting to be upgraded, so there is none method output.
 schemes:

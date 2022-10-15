@@ -1,5 +1,5 @@
 info:
-  version: refs/heads/master
+  version: v1.41.1
   title: data_source_huaweicloud_gaussdb_mysql_instances
   description: 
 schemes:

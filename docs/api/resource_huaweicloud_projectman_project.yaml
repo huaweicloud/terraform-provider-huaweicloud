@@ -1,5 +1,5 @@
 info:
-    version: v4
+    version: v1.41.1
     title: resource_huaweicloud_projectman_project
     description: Manages a Project resource within HuaweiCloud.
 host: myhuaweicloud.com

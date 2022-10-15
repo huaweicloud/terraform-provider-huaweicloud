@@ -1,5 +1,5 @@
 info:
-    version: v4
+    version: v1.41.1
     title: data_source_huaweicloud_scm_certificates
     description: Use this data source to get the list of SCM certificates.
 host: myhuaweicloud.com
