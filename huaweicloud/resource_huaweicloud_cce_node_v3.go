@@ -690,7 +690,7 @@ func resourceCCEStorage(d *schema.ResourceData) *nodes.StorageSpec {
 		}
 
 		storageSpec.StorageGroups = groups
-
+		return &storageSpec
 	}
 	return nil
 }
