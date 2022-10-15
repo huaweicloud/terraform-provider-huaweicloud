@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.41.1 (October 15, 2022)
+
+BUG FIXES:
+
+* resource/huaweicloud_cce_node: fix storage spec issue [GH-2432]
+
 ## 1.41.0 (September 30, 2022)
 
 * **New Resurce:**
