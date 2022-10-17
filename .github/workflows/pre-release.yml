@@ -48,10 +48,9 @@ jobs:
           terraform_wrapper: false
 
       - name: Get the version
-        id: get_version
         run: |
           version=$(head -n 4 terraform-provider-huaweicloud/CHANGELOG.md  | grep "^## " | awk '{printf "v%s", $2}')
-          echo ::set-output name=VERSION::$version
+          echo "VERSION=$version" >> $GITHUB_ENV
       
       - name: export schemas for the providers
         run: |
@@ -68,7 +67,7 @@ jobs:
           cd terraform-provider-huaweicloud
           rm -rf docs/api
           mkdir docs/api
-          go run *.go -basePath=./ -outputDir=docs/api/ -version=${{ steps.get_version.outputs.VERSION }} -providerSchemaPath=${providerSchemaPath}
+          go run *.go -basePath=./ -outputDir=docs/api/ -version=${{ env.VERSION }} -providerSchemaPath=${providerSchemaPath}
           cd ..
       
       - name: parse APIs that auto-generated resources depend-on
@@ -85,7 +84,7 @@ jobs:
         with:
           repository: terraform-provider-huaweicloud
           file_pattern: 'docs/api/*.yaml'
-          commit_message: Update APIs that resources depend-on ${{ steps.get_version.outputs.VERSION }}
+          commit_message: Update APIs that resources depend-on ${{ env.VERSION }}
 
   acc-test:
     if: ${{ always() }}
