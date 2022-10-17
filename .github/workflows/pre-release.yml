@@ -93,9 +93,64 @@ jobs:
           file_pattern: 'docs/api/*.yaml'
           commit_message: Update APIs that resources depend-on ${{ env.VERSION }}
 
+  generate-schema:
+    if: ${{ always() }}
+    needs: scan-api
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # /home/runner/work/terraform-provider-huaweicloud/terraform-provider-huaweicloud
+      - uses: actions/checkout@v3
+        with:
+          path: terraform-provider-huaweicloud
+          ref: master
+
+      - uses: actions/checkout@v3
+        with:
+          repository: chnsz/huaweicloud-provider-json
+          token: ${{ secrets.REVIEWDOG_TOKEN }}
+          path: huaweicloud-provider-json
+
+      - name: import the latest codes of provider and build
+        run: |
+          cd huaweicloud-provider-json
+          go get github.com/huaweicloud/terraform-provider-huaweicloud@master
+          go build -o generate-schemas
+          cp ./generate-schemas ../terraform-provider-huaweicloud
+          cd ..
+
+      - name: generate-schema
+        run: |
+          cd terraform-provider-huaweicloud
+          target="./docs/json"
+          rm -rf $target
+          ./generate-schemas -product
+          ./generate-schemas -r -name="all" -output-dir=$target
+          ./generate-schemas -d -name="all" -output-dir=$target
+          rm -f $target/data-sources/vpc_route.json
+          rm -f $target/resources/networking_port.json
+
+      - name: Get the provider release version
+        run: |
+          version=$(head -n 4 terraform-provider-huaweicloud/CHANGELOG.md  | grep "^## " | awk '{printf "v%s", $2}')
+          echo "VERSION=$version" >> $GITHUB_ENV
+
+      - name: auto-commit
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          repository: terraform-provider-huaweicloud
+          file_pattern: 'docs/json/'
+          commit_message: Update schema json files based-on ${{ env.VERSION }}
+
   acc-test:
     if: ${{ always() }}
-    needs: [scan-api]
+    needs: [scan-api, generate-schema]
 
     env:
       HW_ACCESS_KEY: ${{ secrets.HW_ACCESS_KEY }}
