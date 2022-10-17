@@ -4,6 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"time"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -11,8 +14,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
-	"io"
-	"time"
 )
 
 func ResourceAlarmPolicy() *schema.Resource {
@@ -116,7 +117,7 @@ func schemaMetricAlarmSpec() *schema.Schema {
 					Optional: true,
 					ForceNew: true,
 					Computed: true,
-					Elem:     schema.TypeInt,
+					Elem:     &schema.Schema{Type: schema.TypeInt},
 				},
 			},
 		},
