@@ -1,0 +1,47 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_iec_vpc": {
+          "block": {
+            "attributes": {
+              "cidr": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "mode": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_num": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "IEC",
+            "name": "Intelligent EdgeCloud",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "智能边缘云",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

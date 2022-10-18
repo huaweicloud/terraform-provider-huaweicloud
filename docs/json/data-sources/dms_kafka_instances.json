@@ -1,0 +1,118 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_kafka_instances": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "fuzzy_match": {
+                "type": "bool",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "include_failure": {
+                "type": "bool",
+                "optional": true
+              },
+              "instance_id": {
+                "type": "string",
+                "optional": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_user": "string",
+                      "availability_zones": [
+                        "list",
+                        "string"
+                      ],
+                      "connect_address": "string",
+                      "cross_vpc_accesses": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "advertised_ip": "string",
+                            "lisenter_ip": "string",
+                            "port": "number",
+                            "port_id": "string"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "dumping": "bool",
+                      "enable_auto_topic": "bool",
+                      "enable_public_ip": "bool",
+                      "engine_version": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "maintain_begin": "string",
+                      "maintain_end": "string",
+                      "manager_user": "string",
+                      "manegement_connect_address": "string",
+                      "name": "string",
+                      "network_id": "string",
+                      "partition_num": "number",
+                      "port": "number",
+                      "product_id": "string",
+                      "public_conn_addresses": "string",
+                      "public_ip_ids": [
+                        "list",
+                        "string"
+                      ],
+                      "resource_spec_code": "string",
+                      "retention_policy": "string",
+                      "security_group_id": "string",
+                      "ssl_enable": "bool",
+                      "status": "string",
+                      "storage_space": "number",
+                      "storage_spec_code": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "type": "string",
+                      "used_storage_space": "number",
+                      "user_id": "string",
+                      "user_name": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DMS",
+            "name": "Distributed Message Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 DMS",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

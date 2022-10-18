@@ -1,0 +1,170 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_opengauss_instance": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "computed": true
+              },
+              "backup_strategy": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "keep_days": "number",
+                      "start_time": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "coordinator_num": {
+                "type": "number",
+                "computed": true
+              },
+              "datastore": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "engine": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "db_user_name": {
+                "type": "string",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "computed": true
+              },
+              "flavor": {
+                "type": "string",
+                "computed": true
+              },
+              "ha": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "replication_mode": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "maintenance_window": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "nodes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone": "string",
+                      "id": "string",
+                      "name": "string",
+                      "role": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "port": {
+                "type": "number",
+                "computed": true
+              },
+              "private_ips": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "computed": true
+              },
+              "sharding_num": {
+                "type": "number",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "switch_strategy": {
+                "type": "string",
+                "computed": true
+              },
+              "time_zone": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "computed": true
+              },
+              "volume": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "size": "number",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforopenGauss",
+            "name": "GaussDB(for openGauss)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for openGauss)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

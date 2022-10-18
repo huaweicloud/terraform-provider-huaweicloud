@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_scm_certificates": {
+          "block": {
+            "attributes": {
+              "certificates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "brand": "string",
+                      "deploy_support": "bool",
+                      "description": "string",
+                      "domain": "string",
+                      "domain_count": "number",
+                      "domain_type": "string",
+                      "enterprise_project_id": "string",
+                      "expire_time": "string",
+                      "id": "string",
+                      "name": "string",
+                      "sans": "string",
+                      "signature_algorithm": "string",
+                      "status": "string",
+                      "type": "string",
+                      "validity_period": "number",
+                      "wildcard_count": "number"
+                    }
+                  ]
+                ],
+                "description": "Certificate list. For details, see Data structure of the Certificate field.",
+                "computed": true
+              },
+              "deploy_support": {
+                "type": "bool",
+                "description": "Whether to support deployment.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The enterprise project id of the project.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Certificate status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "SCM",
+            "name": "SSL Certificate Manager",
+            "catalog": "Security & Compliance",
+            "name_cn": "SSL证书管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

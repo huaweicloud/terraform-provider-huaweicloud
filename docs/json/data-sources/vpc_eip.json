@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpc_eip": {
+          "block": {
+            "attributes": {
+              "bandwidth_id": {
+                "type": "string",
+                "computed": true
+              },
+              "bandwidth_share_type": {
+                "type": "string",
+                "computed": true
+              },
+              "bandwidth_size": {
+                "type": "number",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_version": {
+                "type": "number",
+                "computed": true
+              },
+              "ipv6_address": {
+                "type": "string",
+                "computed": true
+              },
+              "port_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "private_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "public_ip": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "EIP",
+            "name": "Elastic IP",
+            "catalog": "Networking",
+            "name_cn": "弹性公网IP",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

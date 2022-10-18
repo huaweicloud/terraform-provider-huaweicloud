@@ -5,13 +5,17 @@
         "huaweicloud_rds_flavors": {
           "block": {
             "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "optional": true
+              },
               "db_type": {
                 "type": "string",
                 "required": true
               },
               "db_version": {
                 "type": "string",
-                "required": true
+                "optional": true
               },
               "flavors": {
                 "type": [
@@ -19,14 +23,28 @@
                   [
                     "object",
                     {
+                      "availability_zones": [
+                        "list",
+                        "string"
+                      ],
+                      "db_versions": [
+                        "list",
+                        "string"
+                      ],
+                      "group_type": "string",
+                      "id": "string",
+                      "instance_mode": "string",
                       "memory": "number",
-                      "mode": "string",
                       "name": "string",
-                      "vcpus": "string"
+                      "vcpus": "number"
                     }
                   ]
                 ],
                 "computed": true
+              },
+              "group_type": {
+                "type": "string",
+                "optional": true
               },
               "id": {
                 "type": "string",
@@ -34,7 +52,7 @@
               },
               "instance_mode": {
                 "type": "string",
-                "required": true
+                "optional": true
               },
               "memory": {
                 "type": "number",
@@ -51,9 +69,11 @@
             }
           },
           "product": {
-            "catalog": "Database",
+            "short": "RDS",
             "name": "Relational Database Service",
-            "short": "RDS"
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
           }
         }
       }

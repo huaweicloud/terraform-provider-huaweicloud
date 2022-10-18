@@ -1,0 +1,96 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_evs_volumes": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "server_id": {
+                "type": "string",
+                "optional": true
+              },
+              "shareable": {
+                "type": "bool",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "volumes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attachments": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "attached_at": "string",
+                            "attached_mode": "string",
+                            "device_name": "string",
+                            "id": "string",
+                            "server_id": "string"
+                          }
+                        ]
+                      ],
+                      "availability_zone": "string",
+                      "bootable": "bool",
+                      "create_at": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "name": "string",
+                      "service_type": "string",
+                      "shareable": "bool",
+                      "size": "number",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "update_at": "string",
+                      "wwn": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "EVS",
+            "name": "Elastic Volume Service",
+            "catalog": "Storage",
+            "name_cn": "云硬盘",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

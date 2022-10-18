@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_iec_network_acl": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "inbound_rules": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "networks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "subnet_id": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "outbound_rules": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "IEC",
+            "name": "Intelligent EdgeCloud",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "智能边缘云",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

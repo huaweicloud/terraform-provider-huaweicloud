@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_kps_keypairs": {
+          "block": {
+            "attributes": {
+              "fingerprint": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_managed": {
+                "type": "bool",
+                "optional": true
+              },
+              "keypairs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "fingerprint": "string",
+                      "is_managed": "bool",
+                      "name": "string",
+                      "public_key": "string",
+                      "scope": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "public_key": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string"
+              }
+            }
+          },
+          "product": {
+            "short": "KPS",
+            "name": "Data Encryption Workshop KPS",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据加密服务-密钥对管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

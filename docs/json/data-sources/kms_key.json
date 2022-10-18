@@ -34,15 +34,18 @@
               },
               "key_alias": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "key_description": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "key_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "key_state": {
                 "type": "string",
@@ -51,6 +54,18 @@
               },
               "region": {
                 "type": "string",
+                "computed": true
+              },
+              "rotation_enabled": {
+                "type": "bool",
+                "computed": true
+              },
+              "rotation_interval": {
+                "type": "number",
+                "computed": true
+              },
+              "rotation_number": {
+                "type": "number",
                 "computed": true
               },
               "scheduled_deletion_date": {
@@ -65,6 +80,13 @@
                 "computed": true
               }
             }
+          },
+          "product": {
+            "short": "KMS",
+            "name": "Data Encryption Workshop KMS",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据加密服务-密钥管理",
+            "catalog_cn": "安全与合规"
           }
         }
       }
