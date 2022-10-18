@@ -139,6 +139,25 @@
                 "forcenew": true,
                 "max_items": 1
               },
+              "lts": {
+                "block": {
+                  "attributes": {
+                    "log_group_id": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "log_topic_id": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
               "obs": {
                 "block": {
                   "attributes": {

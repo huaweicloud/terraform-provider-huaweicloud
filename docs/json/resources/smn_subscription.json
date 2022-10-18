@@ -50,9 +50,9 @@
           "product": {
             "short": "SMN",
             "name": "Simple Message Notification",
-            "catalog": "Application",
+            "catalog": "Management & Governance",
             "name_cn": "消息通知服务",
-            "catalog_cn": "应用服务"
+            "catalog_cn": "管理与监管"
           }
         }
       }

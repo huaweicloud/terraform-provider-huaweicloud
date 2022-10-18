@@ -47,6 +47,11 @@
                 "type": "string",
                 "optional": true
               },
+              "kms_key_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "multi_az": {
                 "type": "bool",
                 "optional": true,

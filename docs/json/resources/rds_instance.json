@@ -24,6 +24,11 @@
                 "computed": true,
                 "forcenew": true
               },
+              "collation": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "created": {
                 "type": "string",
                 "computed": true

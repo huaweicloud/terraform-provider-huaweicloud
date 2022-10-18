@@ -275,12 +275,12 @@
                                 }
                               }
                             },
-                            "nesting_mode": "list",
+                            "nesting_mode": "set",
                             "min_items": 1
                           }
                         }
                       },
-                      "nesting_mode": "list"
+                      "nesting_mode": "set"
                     },
                     "probe": {
                       "block": {
@@ -646,9 +646,9 @@
           "product": {
             "short": "ServiceStage",
             "name": "ServiceStage",
-            "catalog": "Application",
+            "catalog": "DevCloud",
             "name_cn": "应用管理与运维平台",
-            "catalog_cn": "应用服务"
+            "catalog_cn": "软件开发服务"
           }
         }
       }

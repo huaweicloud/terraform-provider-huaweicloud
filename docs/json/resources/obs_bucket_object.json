@@ -20,7 +20,8 @@
               },
               "content_type": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "encryption": {
                 "type": "bool",

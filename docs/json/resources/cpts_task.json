@@ -44,9 +44,9 @@
           "product": {
             "short": "CPTS",
             "name": "Cloud Performance Test Service",
-            "catalog": "Application",
+            "catalog": "DevCloud",
             "name_cn": "云性能测试服务",
-            "catalog_cn": "应用服务"
+            "catalog_cn": "软件开发服务"
           }
         }
       }

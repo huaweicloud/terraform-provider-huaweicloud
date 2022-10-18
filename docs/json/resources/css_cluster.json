@@ -5,6 +5,17 @@
         "huaweicloud_css_cluster": {
           "block": {
             "attributes": {
+              "auto_renew": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "availability_zone": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "created": {
                 "type": "string",
                 "computed": true
@@ -30,11 +41,6 @@
                 "computed": true,
                 "forcenew": true
               },
-              "expect_node_num": {
-                "type": "number",
-                "optional": true,
-                "default": 1
-              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -50,8 +56,11 @@
                   [
                     "object",
                     {
+                      "availability_zone": "string",
                       "id": "string",
                       "name": "string",
+                      "spec_code": "string",
+                      "status": "string",
                       "type": "string"
                     }
                   ]
@@ -64,9 +73,25 @@
                 "forcenew": true,
                 "sensitive": true
               },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "security_mode": {
                 "type": "bool",
@@ -77,12 +102,32 @@
                 "type": "string",
                 "computed": true
               },
+              "subnet_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "tags": {
                 "type": [
                   "map",
                   "string"
                 ],
                 "optional": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "vpcep_endpoint_id": {
+                "type": "string",
+                "computed": true
+              },
+              "vpcep_ip": {
+                "type": "string",
+                "computed": true
               }
             },
             "block_types": {
@@ -123,35 +168,29 @@
                 "nesting_mode": "list",
                 "max_items": 1
               },
-              "node_config": {
+              "client_node_config": {
                 "block": {
                   "attributes": {
-                    "availability_zone": {
-                      "type": "string",
-                      "optional": true,
-                      "forcenew": true
-                    },
                     "flavor": {
                       "type": "string",
                       "required": true,
                       "forcenew": true
+                    },
+                    "instance_number": {
+                      "type": "number",
+                      "required": true
                     }
                   },
                   "block_types": {
-                    "network_info": {
+                    "volume": {
                       "block": {
                         "attributes": {
-                          "security_group_id": {
-                            "type": "string",
+                          "size": {
+                            "type": "number",
                             "required": true,
                             "forcenew": true
                           },
-                          "subnet_id": {
-                            "type": "string",
-                            "required": true,
-                            "forcenew": true
-                          },
-                          "vpc_id": {
+                          "volume_type": {
                             "type": "string",
                             "required": true,
                             "forcenew": true
@@ -162,7 +201,27 @@
                       "forcenew": true,
                       "min_items": 1,
                       "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "cold_node_config": {
+                "block": {
+                  "attributes": {
+                    "flavor": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
                     },
+                    "instance_number": {
+                      "type": "number",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
                     "volume": {
                       "block": {
                         "attributes": {
@@ -186,7 +245,152 @@
                 },
                 "nesting_mode": "list",
                 "forcenew": true,
-                "min_items": 1,
+                "max_items": 1
+              },
+              "ess_node_config": {
+                "block": {
+                  "attributes": {
+                    "flavor": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "instance_number": {
+                      "type": "number",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "volume": {
+                      "block": {
+                        "attributes": {
+                          "size": {
+                            "type": "number",
+                            "required": true
+                          },
+                          "volume_type": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true,
+                      "min_items": 1,
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "kibana_public_access": {
+                "block": {
+                  "attributes": {
+                    "bandwidth": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "public_ip": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "whitelist": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "whitelist_enabled": {
+                      "type": "bool",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "master_node_config": {
+                "block": {
+                  "attributes": {
+                    "flavor": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "instance_number": {
+                      "type": "number",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "volume": {
+                      "block": {
+                        "attributes": {
+                          "size": {
+                            "type": "number",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "volume_type": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true,
+                      "min_items": 1,
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "public_access": {
+                "block": {
+                  "attributes": {
+                    "bandwidth": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "public_ip": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "whitelist": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "whitelist_enabled": {
+                      "type": "bool",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "vpcep_endpoint": {
+                "block": {
+                  "attributes": {
+                    "endpoint_with_dns_name": {
+                      "type": "bool",
+                      "required": true
+                    },
+                    "whitelist": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
                 "max_items": 1
               }
             }
@@ -194,9 +398,9 @@
           "product": {
             "short": "CSS",
             "name": "Cloud Search Service",
-            "catalog": "Enterprise Intelligence",
+            "catalog": "Analytics",
             "name_cn": "云搜索服务",
-            "catalog_cn": "EI 企业智能"
+            "catalog_cn": "大数据"
           }
         }
       }

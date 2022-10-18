@@ -123,9 +123,9 @@
           "product": {
             "short": "DIS",
             "name": "Data Ingestion Service",
-            "catalog": "Enterprise Intelligence",
+            "catalog": "Analytics",
             "name_cn": "数据接入服务",
-            "catalog_cn": "EI 企业智能"
+            "catalog_cn": "大数据"
           }
         }
       }
