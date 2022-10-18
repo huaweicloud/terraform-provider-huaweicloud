@@ -41,7 +41,7 @@ BUG FIXES:
   + `huaweicloud_lts_struct_template` [GH-2411]
 
 * **New Data Source:**
-  + `huaweicloud_cdn_domain_statistics` [GH-2352]
+  + `huaweicloud_cdn_domain_statistics` [GH-2355]
   + `huaweicloud_scm_certificates` [GH-2353]
 
 ENHANCEMENTS:

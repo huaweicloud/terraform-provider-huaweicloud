@@ -98,7 +98,7 @@ func resourceVirtualPrivateCloudCreate(ctx context.Context, d *schema.ResourceDa
 	region := config.GetRegion(d)
 	vpcClient, err := config.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
+		return fmtp.DiagErrorf("error creating Huaweicloud VPC client: %s", err)
 	}
 
 	createOpts := vpcs.CreateOpts{
