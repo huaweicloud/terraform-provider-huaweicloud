@@ -847,15 +847,16 @@ func (c *Config) SmsV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("sms", region)
 }
 
-func (c *Config) MlsV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("mls", region)
-}
-
 func (c *Config) ScmV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("scm", region)
 }
 
 // the following clients are used for Joint-Operation Cloud only
+
+// MlsV1Client has the endpoint: https://mls.{{region}}/{{cloud}}/v1.0/{{project_id}}
+func (c *Config) MlsV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("mls", region)
+}
 
 // NatV2Client has the endpoint: https://nat.{{region}}/{{cloud}}/v2.0/
 func (c *Config) NatV2Client(region string) (*golangsdk.ServiceClient, error) {

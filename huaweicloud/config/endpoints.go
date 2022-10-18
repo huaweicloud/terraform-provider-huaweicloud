@@ -577,11 +577,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v1",
 		Product: "OMS",
 	},
-	"mls": {
-		Name:    "mls",
-		Version: "v1.0",
-		Product: "MLS",
-	},
 	"scm": {
 		Name:             "scm",
 		Version:          "v3",
@@ -596,15 +591,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Scope:            "global",
 		WithOutProjectID: true,
 		Product:          "CC",
-	},
-
-	// catalog for Joint-Operation Cloud only
-	// no need to put the key into allServiceCatalog
-	"natv2": {
-		Name:             "nat",
-		Version:          "v2.0",
-		WithOutProjectID: true,
-		Product:          "NAT",
 	},
 
 	"cpts": {
@@ -649,6 +635,20 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "projectman-ext",
 		Version: "v4",
 		Product: "ProjectMan",
+	},
+
+	// catalog for Joint-Operation Cloud only
+	// it should be at the end of this map, and no necessary to put the key into allServiceCatalog
+	"mls": {
+		Name:    "mls",
+		Version: "v1.0",
+		Product: "MLS",
+	},
+	"natv2": {
+		Name:             "nat",
+		Version:          "v2.0",
+		WithOutProjectID: true,
+		Product:          "NAT",
 	},
 }
 
