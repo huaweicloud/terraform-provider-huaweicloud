@@ -3,6 +3,7 @@ package dds
 import (
 	"context"
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
 	"time"
@@ -10,7 +11,6 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/dds/v3/users"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -169,7 +169,7 @@ func resourceDatabaseUserCreate(ctx context.Context, d *schema.ResourceData, met
 	return resourceDatabaseUserRead(ctx, d, meta)
 }
 
-func resourceDatabaseUserRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDatabaseUserRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	client, err := conf.DdsV3Client(region)
@@ -191,7 +191,7 @@ func resourceDatabaseUserRead(ctx context.Context, d *schema.ResourceData, meta 
 		return common.CheckDeletedDiag(d, err, fmt.Sprintf("unable to find user (%s) from DDS instance (%s)", name, instanceId))
 	}
 	user := resp[0]
-	tflog.Debug(ctx, fmt.Sprintf("The user response is: %#v", user))
+	log.Printf("[DEBUG] The user response is: %#v", user)
 
 	mErr := multierror.Append(
 		d.Set("region", region),
