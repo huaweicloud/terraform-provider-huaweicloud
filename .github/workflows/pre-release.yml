@@ -16,7 +16,6 @@ jobs:
   scan-api:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -41,19 +40,30 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: 1.19
-
-      - name: HashiCorp - Setup Terraform
-        uses: hashicorp/setup-terraform@v2.0.0
-        with:
-          terraform_wrapper: false
-
+          
       - name: Get the version
         run: |
           version=$(head -n 4 terraform-provider-huaweicloud/CHANGELOG.md  | grep "^## " | awk '{printf "v%s", $2}')
           echo "VERSION=$version" >> $GITHUB_ENV
-      
-      - name: export schemas for the providers
+
+      - name: Build Terraform Provider
         run: |
+          cd terraform-provider-huaweicloud
+          make build FLAGS='-mod=readonly'
+          cd ..
+
+      - name: export schemas for the providers
+        env:
+          TF_CLI_CONFIG_FILE: ${{ github.workspace }}/hw_dev.tfrc
+        run: |
+          cat>${{ github.workspace }}/hw_dev.tfrc<<EOF
+          provider_installation {
+            dev_overrides {
+              "huaweicloud/huaweicloud" = "/home/runner/go/bin"
+            }
+            direct {}
+          }
+          EOF
           cd terraform-api-scan
           terraform init
           terraform providers schema -json > schema.json
@@ -72,11 +82,8 @@ jobs:
       
       - name: parse APIs that auto-generated resources depend-on
         run: |
-          pwd
-          ls -l | grep terraform
           cd terraform-api-scan/scan-autogen-code
           go run main.go -inputDir=../../terraform-provider-generator/src/main/resources -outputDir=../../terraform-provider-huaweicloud/docs/api -version=${{ steps.get_version.outputs.VERSION }}
-          ls -l ../../terraform-provider-huaweicloud/docs/api
           cd ../../
 
       - name: commit APIs that resources depend-on
