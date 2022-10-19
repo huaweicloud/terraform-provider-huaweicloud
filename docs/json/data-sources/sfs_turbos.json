@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_sfs_turbos": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "share_proto": {
+                "type": "string",
+                "optional": true
+              },
+              "share_type": {
+                "type": "string",
+                "optional": true
+              },
+              "size": {
+                "type": "number",
+                "optional": true
+              },
+              "turbos": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone": "string",
+                      "available_capacity": "string",
+                      "crypt_key_id": "string",
+                      "enhanced": "bool",
+                      "enterprise_project_id": "string",
+                      "export_location": "string",
+                      "id": "string",
+                      "name": "string",
+                      "security_group_id": "string",
+                      "share_proto": "string",
+                      "share_type": "string",
+                      "size": "number",
+                      "subnet_id": "string",
+                      "version": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SFS",
+            "name": "Scalable File Service(SFS)",
+            "catalog": "Storage",
+            "name_cn": "弹性文件服务(SFS)",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

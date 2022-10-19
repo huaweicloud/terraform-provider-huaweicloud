@@ -1,0 +1,46 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cdm_flavors": {
+          "block": {
+            "attributes": {
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CDM",
+            "name": "Cloud Data Migration",
+            "catalog": "Migration",
+            "name_cn": "云数据迁移",
+            "catalog_cn": "迁移"
+          }
+        }
+      }
+    }
+  }
+}

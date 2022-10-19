@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_projectman_project": {
+          "block": {
+            "attributes": {
+              "archive": {
+                "type": "number",
+                "description": "Whether the project is archived.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description about the project.",
+                "optional": true,
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The enterprise project ID of the project.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The project name.",
+                "required": true
+              },
+              "project_code": {
+                "type": "string",
+                "description": "The project code.",
+                "computed": true
+              },
+              "project_num_id": {
+                "type": "number",
+                "description": "The number id of project.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source": {
+                "type": "string",
+                "description": "The source of project.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "template_id": {
+                "type": "number",
+                "description": "The template id which used to create project.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of project.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "ProjectMan",
+            "name": "ProjectMan",
+            "catalog": "DevCloud",
+            "name_cn": "项目管理",
+            "catalog_cn": "软件开发服务"
+          }
+        }
+      }
+    }
+  }
+}

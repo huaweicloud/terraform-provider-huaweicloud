@@ -1,0 +1,139 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_mysql_instance": {
+          "block": {
+            "attributes": {
+              "availability_zone_mode": {
+                "type": "string",
+                "computed": true
+              },
+              "backup_strategy": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "keep_days": "number",
+                      "start_time": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "configuration_id": {
+                "type": "string",
+                "computed": true
+              },
+              "datastore": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "engine": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "db_user_name": {
+                "type": "string",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "computed": true
+              },
+              "flavor": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "master_availability_zone": {
+                "type": "string",
+                "computed": true
+              },
+              "mode": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "nodes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone": "string",
+                      "id": "string",
+                      "name": "string",
+                      "private_read_ip": "string",
+                      "status": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "port": {
+                "type": "number",
+                "computed": true
+              },
+              "private_write_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "read_replicas": {
+                "type": "number",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "time_zone": {
+                "type": "string",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

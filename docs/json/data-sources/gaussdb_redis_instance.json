@@ -1,0 +1,142 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_redis_instance": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "computed": true
+              },
+              "backup_strategy": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "keep_days": "number",
+                      "start_time": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "datastore": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "engine": "string",
+                      "storage_engine": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "db_user_name": {
+                "type": "string",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "computed": true
+              },
+              "flavor": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "mode": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "node_num": {
+                "type": "number",
+                "computed": true
+              },
+              "nodes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone": "string",
+                      "id": "string",
+                      "name": "string",
+                      "private_ip": "string",
+                      "status": "string",
+                      "support_reduce": "bool"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "port": {
+                "type": "number",
+                "computed": true
+              },
+              "private_ips": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
+              "volume_size": {
+                "type": "number",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforNoSQL",
+            "name": "GaussDB NoSQL",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB NoSQL",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

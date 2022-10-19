@@ -1,0 +1,57 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_networking_secgroups": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "security_groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "name": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPC",
+            "name": "Virtual Private Cloud",
+            "catalog": "Networking",
+            "name_cn": "虚拟私有云",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

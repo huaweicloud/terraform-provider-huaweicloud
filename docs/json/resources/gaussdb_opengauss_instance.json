@@ -5,9 +5,19 @@
         "huaweicloud_gaussdb_opengauss_instance": {
           "block": {
             "attributes": {
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
               "availability_zone": {
                 "type": "string",
                 "required": true,
+                "forcenew": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "configuration_id": {
@@ -78,6 +88,16 @@
                 "required": true,
                 "sensitive": true
               },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "port": {
                 "type": "string",
                 "optional": true,
@@ -101,6 +121,12 @@
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "replica_num": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true,
+                "default": 3
               },
               "security_group_id": {
                 "type": "string",
@@ -200,6 +226,7 @@
                 },
                 "nesting_mode": "list",
                 "forcenew": true,
+                "min_items": 1,
                 "max_items": 1
               },
               "volume": {

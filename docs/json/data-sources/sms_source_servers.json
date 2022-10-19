@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_sms_source_servers": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "ip": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "servers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "agent_version": "string",
+                      "connected": "bool",
+                      "disks": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "device_type": "string",
+                            "name": "string",
+                            "size": "number"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "ip": "string",
+                      "memory": "number",
+                      "name": "string",
+                      "os_type": "string",
+                      "os_version": "string",
+                      "registered_time": "string",
+                      "state": "string",
+                      "vcpus": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "state": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "SMS",
+            "name": "Server Migration Service",
+            "catalog": "Migration",
+            "name_cn": "主机迁移服务",
+            "catalog_cn": "迁移"
+          }
+        }
+      }
+    }
+  }
+}

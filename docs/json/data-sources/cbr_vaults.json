@@ -1,0 +1,156 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cbr_vaults": {
+          "block": {
+            "attributes": {
+              "auto_expand_enabled": {
+                "type": "bool",
+                "optional": true
+              },
+              "consistent_level": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "policy_id": {
+                "type": "string",
+                "optional": true
+              },
+              "protection_type": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "size": {
+                "type": "number",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "vaults": {
+                "block": {
+                  "attributes": {
+                    "allocated": {
+                      "type": "number",
+                      "computed": true
+                    },
+                    "auto_expand_enabled": {
+                      "type": "bool",
+                      "computed": true
+                    },
+                    "consistent_level": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "enterprise_project_id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "policy_id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "protection_type": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "resources": {
+                      "type": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "excludes": [
+                              "list",
+                              "string"
+                            ],
+                            "includes": [
+                              "list",
+                              "string"
+                            ],
+                            "server_id": "string"
+                          }
+                        ]
+                      ],
+                      "computed": true
+                    },
+                    "size": {
+                      "type": "number",
+                      "computed": true
+                    },
+                    "spec_code": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "storage": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "tags": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "used": {
+                      "type": "number",
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

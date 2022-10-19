@@ -25,7 +25,8 @@
               },
               "code_type": {
                 "type": "string",
-                "required": true
+                "optional": true,
+                "computed": true
               },
               "code_url": {
                 "type": "string",
@@ -66,7 +67,8 @@
               },
               "handler": {
                 "type": "string",
-                "required": true
+                "optional": true,
+                "computed": true
               },
               "id": {
                 "type": "string",
@@ -136,6 +138,18 @@
               }
             },
             "block_types": {
+              "custom_image": {
+                "block": {
+                  "attributes": {
+                    "url": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
               "func_mounts": {
                 "block": {
                   "attributes": {

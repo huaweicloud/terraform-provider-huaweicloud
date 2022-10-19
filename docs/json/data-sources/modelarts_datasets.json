@@ -1,0 +1,89 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelarts_datasets": {
+          "block": {
+            "attributes": {
+              "datasets": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "data_format": "string",
+                      "data_source": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "data_type": "number",
+                            "path": "string",
+                            "with_column_header": "bool"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "id": "string",
+                      "labels": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "property_color": "string",
+                            "property_shape": "string",
+                            "property_shortcut": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "output_path": "string",
+                      "schemas": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "status": "number",
+                      "type": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "number",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

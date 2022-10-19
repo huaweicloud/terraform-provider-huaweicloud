@@ -1,0 +1,108 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_compute_instances": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "optional": true
+              },
+              "flavor_name": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_id": {
+                "type": "string",
+                "optional": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone": "string",
+                      "enterprise_project_id": "string",
+                      "flavor_id": "string",
+                      "flavor_name": "string",
+                      "id": "string",
+                      "image_id": "string",
+                      "key_pair": "string",
+                      "name": "string",
+                      "scheduler_hints": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "group": "string"
+                          }
+                        ]
+                      ],
+                      "security_group_ids": [
+                        "list",
+                        "string"
+                      ],
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "user_data": "string",
+                      "volume_attached": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "is_sys_volume": "bool",
+                            "volume_id": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "key_pair": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ECS",
+            "name": "Elastic Cloud Server",
+            "catalog": "Compute",
+            "name_cn": "弹性云服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

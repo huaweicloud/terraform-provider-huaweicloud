@@ -11,19 +11,23 @@
               },
               "description": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "domain_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "name": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "policy": {
                 "type": "string",
@@ -31,13 +35,22 @@
               },
               "references": {
                 "type": "number",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "type": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               }
             }
+          },
+          "product": {
+            "short": "IAM",
+            "name": "Identity and Access Management",
+            "catalog": "Management & Governance",
+            "name_cn": "统一身份认证服务",
+            "catalog_cn": "管理与监管"
           }
         }
       }

@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dcs_flavors": {
+          "block": {
+            "attributes": {
+              "cache_mode": {
+                "type": "string",
+                "optional": true
+              },
+              "capacity": {
+                "type": "number",
+                "required": true
+              },
+              "cpu_architecture": {
+                "type": "string",
+                "optional": true
+              },
+              "engine": {
+                "type": "string",
+                "optional": true,
+                "default": "Redis"
+              },
+              "engine_version": {
+                "type": "string",
+                "optional": true
+              },
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "available_zones": [
+                        "list",
+                        "string"
+                      ],
+                      "cache_mode": "string",
+                      "capacity": "number",
+                      "charging_modes": [
+                        "list",
+                        "string"
+                      ],
+                      "cpu_architecture": "string",
+                      "engine": "string",
+                      "engine_versions": "string",
+                      "ip_count": "number",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cdn_domain_statistics": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "Specifies the action name.",
+                "required": true
+              },
+              "country": {
+                "type": "string",
+                "description": "Specifies the country or region code.",
+                "optional": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the domain name list.",
+                "required": true
+              },
+              "end_time": {
+                "type": "number",
+                "description": "Specifies the end timestamp of the query.",
+                "required": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project that the resource belongs to.",
+                "optional": true
+              },
+              "group_by": {
+                "type": "string",
+                "description": "Specifies the data grouping mode.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "interval": {
+                "type": "number",
+                "description": "Specifies the query time interval.",
+                "optional": true
+              },
+              "isp": {
+                "type": "string",
+                "description": "Specifies the carrier code.",
+                "optional": true
+              },
+              "province": {
+                "type": "string",
+                "description": "Specifies the province code.",
+                "optional": true
+              },
+              "result": {
+                "type": "string",
+                "description": "The data organized according to the specified grouping mode.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "number",
+                "description": "Specifies the start timestamp of the query.",
+                "required": true
+              },
+              "stat_type": {
+                "type": "string",
+                "description": "Specifies the status type.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CDN",
+            "name": "Content Delivery Network",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

@@ -32,6 +32,13 @@
                 "optional": true,
                 "computed": true
               },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
               "type": {
                 "type": "string",
                 "required": true,
@@ -86,10 +93,18 @@
               "configs": {
                 "block": {
                   "attributes": {
+                    "ipv6_enable": {
+                      "type": "bool",
+                      "optional": true
+                    },
                     "origin_protocol": {
                       "type": "string",
                       "optional": true,
                       "computed": true
+                    },
+                    "range_based_retrieval_enabled": {
+                      "type": "bool",
+                      "optional": true
                     }
                   },
                   "block_types": {
@@ -291,6 +306,21 @@
                       "optional": true,
                       "default": 1
                     },
+                    "http_port": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "https_port": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "obs_web_hosting_enabled": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
                     "origin": {
                       "type": "string",
                       "required": true
@@ -298,6 +328,11 @@
                     "origin_type": {
                       "type": "string",
                       "required": true
+                    },
+                    "retrieval_host": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
                     }
                   }
                 },
@@ -310,9 +345,9 @@
           "product": {
             "short": "CDN",
             "name": "Content Delivery Network",
-            "catalog": "Storage",
+            "catalog": "Content Delivery & Edge Computing",
             "name_cn": "内容分发网络",
-            "catalog_cn": "存储"
+            "catalog_cn": "CDN与智能边缘"
           }
         }
       }

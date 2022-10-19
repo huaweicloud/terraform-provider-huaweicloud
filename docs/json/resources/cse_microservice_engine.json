@@ -104,15 +104,21 @@
                   ]
                 ],
                 "computed": true
+              },
+              "version": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "default": "CSE2"
               }
             }
           },
           "product": {
             "short": "CSE",
             "name": "Cloud Service Engine",
-            "catalog": "Application",
+            "catalog": "Middleware",
             "name_cn": "微服务引擎",
-            "catalog_cn": "应用服务"
+            "catalog_cn": "应用中间件"
           }
         }
       }

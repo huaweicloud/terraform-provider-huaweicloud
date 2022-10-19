@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_css_flavors": {
+          "block": {
+            "attributes": {
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "disk_range": "string",
+                      "id": "string",
+                      "memory": "number",
+                      "name": "string",
+                      "region": "string",
+                      "type": "string",
+                      "vcpus": "number",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "memory": {
+                "type": "number",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              },
+              "vcpus": {
+                "type": "number",
+                "optional": true
+              },
+              "version": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSS",
+            "name": "Cloud Search Service",
+            "catalog": "Analytics",
+            "name_cn": "云搜索服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cci_namespaces": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "namespaces": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "auto_expend_enabled": "bool",
+                      "container_network_enabled": "bool",
+                      "created_at": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "name": "string",
+                      "network": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "security_group_id": "string",
+                            "vpc": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "id": "string",
+                                  "network_id": "string",
+                                  "subnet_cidr": "string",
+                                  "subnet_id": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "rbac_enabled": "bool",
+                      "recycling_interval": "number",
+                      "status": "string",
+                      "type": "string",
+                      "warmup_pool_size": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCI",
+            "name": "Cloud Container Instance",
+            "catalog": "Containers",
+            "name_cn": "云容器实例",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_fgs_dependencies": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "packages": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "etag": "string",
+                      "file_name": "string",
+                      "id": "string",
+                      "link": "string",
+                      "name": "string",
+                      "owner": "string",
+                      "runtime": "string",
+                      "size": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "runtime": {
+                "type": "string",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "FunctionGraph",
+            "name": "FunctionGraph",
+            "catalog": "Compute",
+            "name_cn": "函数工作流",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

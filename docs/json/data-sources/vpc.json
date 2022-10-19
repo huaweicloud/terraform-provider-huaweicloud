@@ -7,7 +7,8 @@
             "attributes": {
               "cidr": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "description": {
                 "type": "string",
@@ -15,15 +16,18 @@
               },
               "enterprise_project_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "name": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "region": {
                 "type": "string",
@@ -31,7 +35,8 @@
               },
               "status": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "tags": {
                 "type": [
@@ -43,9 +48,11 @@
             }
           },
           "product": {
-            "catalog": "Network",
+            "short": "VPC",
             "name": "Virtual Private Cloud",
-            "short": "VPC"
+            "catalog": "Networking",
+            "name_cn": "虚拟私有云",
+            "catalog_cn": "网络"
           }
         }
       }

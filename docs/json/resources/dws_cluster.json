@@ -172,9 +172,9 @@
           "product": {
             "short": "DWS",
             "name": "Data Warehouse Service",
-            "catalog": "Enterprise Intelligence",
+            "catalog": "Analytics",
             "name_cn": "数据仓库服务",
-            "catalog_cn": "EI 企业智能"
+            "catalog_cn": "大数据"
           }
         }
       }

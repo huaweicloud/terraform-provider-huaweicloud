@@ -1,0 +1,69 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_nosql_flavors": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "optional": true
+              },
+              "engine": {
+                "type": "string",
+                "optional": true,
+                "default": "cassandra"
+              },
+              "engine_version": {
+                "type": "string",
+                "optional": true
+              },
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zones": [
+                        "list",
+                        "string"
+                      ],
+                      "engine": "string",
+                      "engine_version": "string",
+                      "memory": "string",
+                      "name": "string",
+                      "vcpus": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "memory": {
+                "type": "number",
+                "optional": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "vcpus": {
+                "type": "number",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}
