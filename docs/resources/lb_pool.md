@@ -4,7 +4,7 @@ subcategory: "Elastic Load Balance (ELB)"
 
 # huaweicloud_lb_pool
 
-Manages an ELB pool resource within HuaweiCloud. This is an alternative to `huaweicloud_lb_pool_v2`
+Manages an ELB pool resource within HuaweiCloud.
 
 ## Example Usage
 

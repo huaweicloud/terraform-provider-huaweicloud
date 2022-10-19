@@ -4,7 +4,7 @@ subcategory: "NAT Gateway (NAT)"
 
 # huaweicloud_nat_gateway
 
-Manages a Nat gateway resource within HuaweiCloud Nat This is an alternative to `huaweicloud_nat_gateway_v2`
+Manages a Nat gateway resource within HuaweiCloud Nat.
 
 ## Example Usage
 

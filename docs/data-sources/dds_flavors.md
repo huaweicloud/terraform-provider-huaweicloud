@@ -4,8 +4,7 @@ subcategory: "Document Database Service (DDS)"
 
 # huaweicloud_dds_flavors
 
-Use this data source to get the details of available DDS flavors. This is an alternative
-to `huaweicloud_dds_flavors_v3`
+Use this data source to get the details of available DDS flavors.
 
 ## Example Usage
 

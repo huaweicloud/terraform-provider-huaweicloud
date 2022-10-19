@@ -4,7 +4,7 @@ subcategory: "Relational Database Service (RDS)"
 
 # huaweicloud_rds_instance
 
-Manage RDS instance resource within HuaweiCloud. This is an alternative to `huaweicloud_rds_instance_v3`
+Manage RDS instance resource within HuaweiCloud.
 
 ## Example Usage
 

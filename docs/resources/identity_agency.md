@@ -4,7 +4,7 @@ subcategory: "Identity and Access Management (IAM)"
 
 # huaweicloud_identity_agency
 
-Manages an agency resource within huawei cloud. This is an alternative to `huaweicloud_iam_agency_v3`
+Manages an agency resource within huawei cloud.
 
 ## Example Usage
 

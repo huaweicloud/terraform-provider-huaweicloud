@@ -4,7 +4,7 @@ subcategory: "Deprecated"
 
 # huaweicloud_dms_queue
 
-Manages a DMS queue in the huaweicloud DMS Service. This is an alternative to `huaweicloud_dms_queue_v1`
+Manages a DMS queue in the huaweicloud DMS Service.
 
 -> **NOTE:** Distributed Message Service (Shared Edition) has withdrawn. Please use DMS for Kafka instead.
 

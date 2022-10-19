@@ -4,7 +4,7 @@ subcategory: "Elastic Load Balance (ELB)"
 
 # huaweicloud_lb_l7policy
 
-Manages an ELB L7 Policy resource within HuaweiCloud. This is an alternative to `huaweicloud_lb_l7policy_v2`
+Manages an ELB L7 Policy resource within HuaweiCloud.
 
 ## Example Usage
 

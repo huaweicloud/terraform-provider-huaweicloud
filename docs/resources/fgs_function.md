@@ -4,7 +4,7 @@ subcategory: "FunctionGraph"
 
 # huaweicloud_fgs_function
 
-Manages a Function resource within HuaweiCloud. This is an alternative to `huaweicloud_fgs_function_v2`
+Manages a Function resource within HuaweiCloud.
 
 ## Example Usage
 

@@ -7,7 +7,6 @@ subcategory: "Deprecated"
 !> **WARNING:** It has been deprecated.
 
 Provides an HuaweiCloud Backup Policy of Resources.
-This is an alternative to `huaweicloud_csbs_backup_policy_v1`
 
 ## Example Usage
 

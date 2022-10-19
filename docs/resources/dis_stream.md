@@ -6,8 +6,6 @@ subcategory: "Data Ingestion Service (DIS)"
 
 Manages DIS Stream resource within HuaweiCloud.
 
-This is an alternative to `huaweicloud_dis_stream_v2`
-
 ## Example Usage
 
 ### Create a stream that type is BLOB

@@ -8,7 +8,6 @@ subcategory: "Deprecated"
 `huaweicloud_dms_rabbitmq_instance` instead.
 
 Manages a DMS instance in the huaweicloud DMS Service.
-This is an alternative to `huaweicloud_dms_instance_v1`
 
 ## Example Usage
 

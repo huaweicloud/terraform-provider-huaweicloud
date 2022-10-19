@@ -4,8 +4,7 @@ subcategory: "Virtual Private Cloud (VPC)"
 
 # huaweicloud_vpc_peering_connection_accepter
 
-Provides a resource to manage the accepter's side of a VPC Peering Connection. This is an alternative
-to `huaweicloud_vpc_peering_connection_accepter_v2`
+Provides a resource to manage the accepter's side of a VPC Peering Connection.
 
 -> **NOTE:** When a cross-tenant (requester's tenant differs from the accepter's tenant) VPC Peering Connection
   is created, a VPC Peering Connection resource is automatically created in the accepter's account.
