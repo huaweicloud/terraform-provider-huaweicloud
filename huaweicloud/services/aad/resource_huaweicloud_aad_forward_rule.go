@@ -3,11 +3,11 @@ package aad
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -129,7 +129,7 @@ func GetForwardRuleFromServer(client *golangsdk.ServiceClient, instanceId, advan
 	return nil, golangsdk.ErrDefault404{}
 }
 
-func resourceForwardRuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceForwardRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.AadV1Client("")
 	if err != nil {
@@ -144,7 +144,7 @@ func resourceForwardRuleRead(ctx context.Context, d *schema.ResourceData, meta i
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving Advanced Anti-DDoS forward rule")
 	}
-	tflog.Debug(ctx, "Retrieved Advanced Anti-DDos forward rule: %#v", resp)
+	log.Printf("[DEBUG] Retrieved Advanced Anti-DDos forward rule: %#v", resp)
 
 	mErr := multierror.Append(nil,
 		d.Set("forward_protocol", resp.ForwardProtocol),
@@ -186,7 +186,7 @@ func resourceForwardRuleUpdate(ctx context.Context, d *schema.ResourceData, meta
 	return resourceForwardRuleRead(ctx, d, meta)
 }
 
-func resourceForwardRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceForwardRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.AadV1Client("")
 	if err != nil {
@@ -208,7 +208,7 @@ func resourceForwardRuleDelete(ctx context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func resourceForwardRuleImportState(ctx context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,
+func resourceForwardRuleImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,
 	error) {
 	parts := strings.SplitN(d.Id(), "/", 4)
 	if len(parts) != 4 {

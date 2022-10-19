@@ -2,11 +2,11 @@ package rds
 
 import (
 	"context"
+	"log"
 	"strings"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	v3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3"
@@ -110,7 +110,7 @@ func resourceRdsDatabasePrivilegeCreate(ctx context.Context, d *schema.ResourceD
 		DbName: d.Get("db_name").(string),
 		Users:  buildUserOpts(d.Get("users").([]interface{})),
 	}
-	tflog.Debug(ctx, "Create RDS database privilege options: %#v", createOpts)
+	log.Printf("[DEBUG] Create RDS database privilege options: %#v", createOpts)
 
 	privilegeReq := rds.AllowDbUserPrivilegeRequest{
 		InstanceId: instanceId,
@@ -159,7 +159,7 @@ func resourceRdsDatabasePrivilegeRead(_ context.Context, d *schema.ResourceData,
 	return nil
 }
 
-func resourceRdsDatabasePrivilegeDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceRdsDatabasePrivilegeDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	client, err := c.HcRdsV3Client(c.GetRegion(d))
 	if err != nil {
@@ -170,7 +170,7 @@ func resourceRdsDatabasePrivilegeDelete(ctx context.Context, d *schema.ResourceD
 		DbName: d.Get("db_name").(string),
 		Users:  buildRevokeUserOpts(d.Get("users").([]interface{})),
 	}
-	tflog.Debug(ctx, "Delete RDS database privilege options: %#v", deleteOpts)
+	log.Printf("[DEBUG] Delete RDS database privilege options: %#v", deleteOpts)
 
 	deleteReq := rds.RevokeRequest{
 		InstanceId: d.Get("instance_id").(string),

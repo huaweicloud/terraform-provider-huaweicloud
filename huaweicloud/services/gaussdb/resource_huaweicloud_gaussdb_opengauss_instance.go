@@ -3,12 +3,12 @@ package gaussdb
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -360,7 +360,7 @@ func OpenGaussInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instance
 	}
 }
 
-func buildOpenGaussInstanceCreateOpts(ctx context.Context, d *schema.ResourceData,
+func buildOpenGaussInstanceCreateOpts(d *schema.ResourceData,
 	config *config.Config) (instances.CreateGaussDBOpts, error) {
 	createOpts := instances.CreateGaussDBOpts{
 		Name:                d.Get("name").(string),
@@ -383,7 +383,7 @@ func buildOpenGaussInstanceCreateOpts(ctx context.Context, d *schema.ResourceDat
 
 	var dn_num int = 1
 	haRaw := d.Get("ha").([]interface{})
-	tflog.Debug(ctx, fmt.Sprintf("The HA structure is: %#v", haRaw))
+	log.Printf("[DEBUG] The HA structure is: %#v", haRaw)
 	ha := haRaw[0].(map[string]interface{})
 	mode := ha["mode"].(string)
 	createOpts.Ha = &instances.HaOpt{
@@ -400,7 +400,7 @@ func buildOpenGaussInstanceCreateOpts(ctx context.Context, d *schema.ResourceDat
 
 	volumeRaw := d.Get("volume").([]interface{})
 	if len(volumeRaw) > 0 {
-		tflog.Debug(ctx, fmt.Sprintf("The volume structure is: %#v", volumeRaw))
+		log.Printf("[DEBUG] The volume structure is: %#v", volumeRaw)
 		volume := volumeRaw[0].(map[string]interface{})
 		dn_size := volume["size"].(int)
 		volume_size := dn_size * dn_num
@@ -409,7 +409,7 @@ func buildOpenGaussInstanceCreateOpts(ctx context.Context, d *schema.ResourceDat
 			Size: volume_size,
 		}
 	}
-	tflog.Debug(ctx, fmt.Sprintf("The createOpts object is: %#v", createOpts))
+	log.Printf("[DEBUG] The createOpts object is: %#v", createOpts)
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.Password = d.Get("password").(string)
 
@@ -437,7 +437,7 @@ func resourceOpenGaussInstanceCreate(ctx context.Context, d *schema.ResourceData
 
 	// If force_import set, try to import it instead of creating
 	if common.HasFilledOpt(d, "force_import") {
-		tflog.Debug(ctx, "Gaussdb opengauss instance force_import is set, try to import it instead of creating")
+		log.Printf("[DEBUG] Gaussdb opengauss instance force_import is set, try to import it instead of creating")
 		listOpts := instances.ListGaussDBInstanceOpts{
 			Name: d.Get("name").(string),
 		}
@@ -452,13 +452,13 @@ func resourceOpenGaussInstanceCreate(ctx context.Context, d *schema.ResourceData
 		}
 		if allInstances.TotalCount > 0 {
 			instance := allInstances.Instances[0]
-			tflog.Debug(ctx, fmt.Sprintf("found existing opengauss instance %s with name %s", instance.Id, instance.Name))
+			log.Printf("[DEBUG] found existing opengauss instance %s with name %s", instance.Id, instance.Name)
 			d.SetId(instance.Id)
 			return resourceOpenGaussInstanceRead(ctx, d, meta)
 		}
 	}
 
-	createOpts, err := buildOpenGaussInstanceCreateOpts(ctx, d, config)
+	createOpts, err := buildOpenGaussInstanceCreateOpts(d, config)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -607,7 +607,7 @@ func setOpenGaussPrivateIpsAndEndpoints(d *schema.ResourceData, privateIps []str
 	).ErrorOrNil()
 }
 
-func resourceOpenGaussInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceOpenGaussInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
 	client, err := config.OpenGaussV3Client(region)
@@ -626,7 +626,7 @@ func resourceOpenGaussInstanceRead(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	var dnNum int = 1
-	tflog.Debug(ctx, fmt.Sprintf("Retrieved instance (%s): %#v", instanceID, instance))
+	log.Printf("[DEBUG] Retrieved instance (%s): %#v", instanceID, instance)
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("name", instance.Name),
@@ -671,7 +671,7 @@ func expandOpenGaussShardingNumber(ctx context.Context, config *config.Config, c
 		},
 		IsAutoPay: "true",
 	}
-	tflog.Debug(ctx, fmt.Sprintf("The updateOpts object of sharding number is: %#v", opts))
+	log.Printf("[DEBUG] The updateOpts object of sharding number is: %#v", opts)
 	return updateVolumeAndRelatedHaNumbers(ctx, config, client, d, opts)
 }
 
@@ -697,7 +697,7 @@ func expandOpenGaussCoordinatorNumber(ctx context.Context, config *config.Config
 		},
 		IsAutoPay: "true",
 	}
-	tflog.Debug(ctx, fmt.Sprintf("The updateOpts object of coordinator number is: %#v", opts))
+	log.Printf("[DEBUG] The updateOpts object of coordinator number is: %#v", opts)
 	return updateVolumeAndRelatedHaNumbers(ctx, config, client, d, opts)
 }
 
@@ -718,7 +718,7 @@ func updateOpenGaussVolumeSize(ctx context.Context, config *config.Config, clien
 		},
 		IsAutoPay: "true",
 	}
-	tflog.Debug(ctx, fmt.Sprintf("The updateOpts object of volume size is: %#v", opts))
+	log.Printf("[DEBUG] The updateOpts object of volume size is: %#v", opts)
 	return updateVolumeAndRelatedHaNumbers(ctx, config, client, d, opts)
 }
 
@@ -764,7 +764,7 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error creating GaussDB v3 client: %s ", err)
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("Updating OpenGaussDB instances %s", d.Id()))
+	log.Printf("[DEBUG] Updating OpenGaussDB instances %s", d.Id())
 	instanceId := d.Id()
 
 	if d.HasChange("name") {
@@ -816,7 +816,7 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 			DifferentialPeriod: "30",            // Fixed to "30"
 		}
 
-		tflog.Debug(ctx, fmt.Sprintf("The updateOpts object of backup_strategy parameter is: %#v", updateOpts))
+		log.Printf("[DEBUG] The updateOpts object of backup_strategy parameter is: %#v", updateOpts)
 		err = backups.Update(client, d.Id(), updateOpts).ExtractErr()
 		if err != nil {
 			return diag.Errorf("error updating backup_strategy: %s", err)
@@ -869,6 +869,6 @@ func resourceOpenGaussInstanceDelete(ctx context.Context, d *schema.ResourceData
 	if err != nil {
 		return diag.Errorf("Error waiting for instance (%s) to be deleted: %s", instanceId, err)
 	}
-	tflog.Debug(ctx, fmt.Sprintf("Instance deleted successfully %s", instanceId))
+	log.Printf("[DEBUG] Instance deleted successfully %s", instanceId)
 	return nil
 }

@@ -119,7 +119,7 @@ resource "huaweicloud_dds_instance" "test" {
 
   name     = "%[1]s"
   mode     = "Sharding"
-  password = "Test@123"
+  password = "Test@12345678"
 
   datastore {
     type           = "DDS-Community"

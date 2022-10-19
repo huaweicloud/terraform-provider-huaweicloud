@@ -3,11 +3,11 @@ package workspace
 import (
 	"context"
 	"fmt"
+	"log"
 	"sort"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -317,7 +317,7 @@ func resourceDesktopCreate(ctx context.Context, d *schema.ResourceData, meta int
 	if err != nil {
 		return diag.Errorf("error waiting for the job (%s) completed: %s", resp.JobId, err)
 	}
-	tflog.Debug(ctx, fmt.Sprintf("The job (%s) has been completed", resp.JobId))
+	log.Printf("[DEBUG] The job (%s) has been completed", resp.JobId)
 
 	d.SetId(desktopId)
 	return resourceDesktopRead(ctx, d, meta)
@@ -380,7 +380,7 @@ func flattenDesktopSecurityGroups(securityGroups []desktops.SecurityGroup) []int
 	return result
 }
 
-func resourceDesktopRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDesktopRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	client, err := conf.WorkspaceV2Client(region)
@@ -437,9 +437,9 @@ func updateDesktopFlavor(ctx context.Context, client *golangsdk.ServiceClient, d
 		if err != nil {
 			return fmt.Errorf("error waiting for the job (%s) completed: %s", job.ID, err)
 		}
-		tflog.Debug(ctx, fmt.Sprintf("The job (%s) has been completed", job.ID))
+		log.Printf("[DEBUG] The job (%s) has been completed", job.ID)
 	}
-	tflog.Debug(ctx, "All jobs has been completed")
+	log.Printf("[DEBUG] All jobs has been completed")
 	return nil
 }
 
@@ -502,7 +502,7 @@ func updateDesktopVolumes(ctx context.Context, client *golangsdk.ServiceClient, 
 					},
 				},
 			}
-			tflog.Debug(ctx, fmt.Sprintf("The new volumeOpts is: %#v", newVolumeOpts))
+			log.Printf("[DEBUG] The new volumeOpts is: %#v", newVolumeOpts)
 			resp, err := desktops.NewVolumes(client, newVolumeOpts)
 			if err != nil {
 				return fmt.Errorf("failed to add volume: %s", err)
@@ -511,14 +511,14 @@ func updateDesktopVolumes(ctx context.Context, client *golangsdk.ServiceClient, 
 			if err != nil {
 				return fmt.Errorf("error waiting for the job (%s) completed: %s", resp.JobId, err)
 			}
-			tflog.Debug(ctx, fmt.Sprintf("The job (%s) has been completed", resp.JobId))
+			log.Printf("[DEBUG] The job (%s) has been completed", resp.JobId)
 		}
 
 		if len(expandSlice) > 1 {
 			expandOpts := desktops.VolumeExpandOpts{
 				VolumeConfigs: expandSlice,
 			}
-			tflog.Debug(ctx, fmt.Sprintf("The new expandOpts is: %#v", expandOpts))
+			log.Printf("[DEBUG] The new expandOpts is: %#v", expandOpts)
 			resp, err := desktops.ExpandVolumes(client, expandOpts)
 			if err != nil {
 				return fmt.Errorf("failed to expand volume size: %s", err)
@@ -527,7 +527,7 @@ func updateDesktopVolumes(ctx context.Context, client *golangsdk.ServiceClient, 
 			if err != nil {
 				return fmt.Errorf("error waiting for the job (%s) completed: %s", resp.JobId, err)
 			}
-			tflog.Debug(ctx, fmt.Sprintf("The job (%s) has been completed", resp.JobId))
+			log.Printf("[DEBUG] The job (%s) has been completed", resp.JobId)
 		}
 	}
 	return nil
