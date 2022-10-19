@@ -4,7 +4,7 @@ subcategory: "Elastic Load Balance (ELB)"
 
 # huaweicloud_lb_listener
 
-Manages an ELB listener resource within HuaweiCloud. This is an alternative to `huaweicloud_lb_listener_v2`
+Manages an ELB listener resource within HuaweiCloud.
 
 ## Example Usage
 

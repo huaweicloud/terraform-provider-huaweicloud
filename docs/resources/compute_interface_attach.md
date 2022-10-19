@@ -4,7 +4,7 @@ subcategory: "Elastic Cloud Server (ECS)"
 
 # huaweicloud_compute_interface_attach
 
-Attaches a Network Interface to an Instance. This is an alternative to `huaweicloud_compute_interface_attach_v2`
+Attaches a Network Interface to an Instance.
 
 ## Example Usage
 

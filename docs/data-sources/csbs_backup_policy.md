@@ -6,8 +6,7 @@ subcategory: "Deprecated"
 
 !> **WARNING:** It has been deprecated.
 
-The HuaweiCloud CSBS Backup Policy data source allows access of backup Policy resources. This is an alternative
-to `huaweicloud_csbs_backup_policy_v1`
+The HuaweiCloud CSBS Backup Policy data source allows access of backup Policy resources.
 
 ## Example Usage
 

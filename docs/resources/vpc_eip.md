@@ -4,7 +4,7 @@ subcategory: "Elastic IP (EIP)"
 
 # huaweicloud_vpc_eip
 
-Manages an EIP resource within HuaweiCloud. This is an alternative to `huaweicloud_vpc_eip_v1`
+Manages an EIP resource within HuaweiCloud.
 
 ## Example Usage
 

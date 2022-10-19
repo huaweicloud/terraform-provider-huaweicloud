@@ -6,7 +6,7 @@ subcategory: "Deprecated"
 
 !> **WARNING:** It has been deprecated, use `huaweicloud_vpc_route_table` to get the route details.
 
-Provides a list of route ids for a vpc_id. This is an alternative to `huaweicloud_vpc_route_ids_v2`
+Provides a list of route ids for a vpc_id.
 
 This resource can be useful for getting back a list of route ids for a vpc.
 

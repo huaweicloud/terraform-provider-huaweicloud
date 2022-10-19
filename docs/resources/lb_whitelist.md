@@ -4,7 +4,7 @@ subcategory: "Elastic Load Balance (ELB)"
 
 # huaweicloud_lb_whitelist
 
-Manages an ELB whitelist resource within HuaweiCloud. This is an alternative to `huaweicloud_lb_whitelist_v2`
+Manages an ELB whitelist resource within HuaweiCloud.
 
 ## Example Usage
 

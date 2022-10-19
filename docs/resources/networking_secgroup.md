@@ -4,7 +4,7 @@ subcategory: "Virtual Private Cloud (VPC)"
 
 # huaweicloud_networking_secgroup
 
-Manages a Security Group resource within HuaweiCloud. This is an alternative to `huaweicloud_networking_secgroup_v2`
+Manages a Security Group resource within HuaweiCloud.
 
 ## Example Usage
 

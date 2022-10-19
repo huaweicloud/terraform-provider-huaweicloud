@@ -4,8 +4,7 @@ subcategory: "Virtual Private Cloud (VPC)"
 
 # huaweicloud_networking_port
 
-Use this data source to get the ID of an available HuaweiCloud port. This is an alternative
-to `huaweicloud_networking_port_v2`
+Use this data source to get the ID of an available HuaweiCloud port.
 
 ## Example Usage
 

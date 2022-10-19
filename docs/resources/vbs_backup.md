@@ -6,7 +6,7 @@ subcategory: "Deprecated"
 
 !> **WARNING:** It has been deprecated.
 
-Provides an VBS Backup resource. This is an alternative to `huaweicloud_vbs_backup_v2`
+Provides an VBS Backup resource.
 
 ## Example Usage
 

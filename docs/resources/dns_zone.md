@@ -4,7 +4,7 @@ subcategory: "Domain Name Service (DNS)"
 
 # huaweicloud_dns_zone
 
-Manages a DNS zone in the HuaweiCloud DNS Service. This is an alternative to `huaweicloud_dns_zone_v2`
+Manages a DNS zone in the HuaweiCloud DNS Service.
 
 ## Example Usage
 

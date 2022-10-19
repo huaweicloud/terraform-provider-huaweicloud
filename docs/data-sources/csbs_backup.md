@@ -6,8 +6,7 @@ subcategory: "Deprecated"
 
 !> **WARNING:** It has been deprecated.
 
-The HuaweiCloud CSBS Backup data source allows access of backup resources. This is an alternative
-to `huaweicloud_csbs_backup_v1`
+The HuaweiCloud CSBS Backup data source allows access of backup resources.
 
 ## Example Usage
 

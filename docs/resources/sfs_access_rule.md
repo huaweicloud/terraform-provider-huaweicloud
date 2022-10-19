@@ -4,8 +4,7 @@ subcategory: "Scalable File Service (SFS)"
 
 # huaweicloud_sfs_access_rule
 
-Provides an access rule resource of Scalable File Resource (SFS). This is an alternative
-to `huaweicloud_sfs_access_rule_v2`
+Provides an access rule resource of Scalable File Resource (SFS).
 
 ## Example Usage
 

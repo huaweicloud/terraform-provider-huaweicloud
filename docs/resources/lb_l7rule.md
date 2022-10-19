@@ -4,7 +4,7 @@ subcategory: "Elastic Load Balance (ELB)"
 
 # huaweicloud_lb_l7rule
 
-Manages an ELB L7 Rule resource within HuaweiCloud. This is an alternative to `huaweicloud_lb_l7rule_v2`
+Manages an ELB L7 Rule resource within HuaweiCloud.
 
 ## Example Usage
 

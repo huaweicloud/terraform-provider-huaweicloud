@@ -4,7 +4,7 @@ subcategory: "Virtual Private Cloud (VPC)"
 
 # huaweicloud_vpc_subnet
 
-Provides details about a specific VPC subnet. This is an alternative to `huaweicloud_vpc_subnet_v1`
+Provides details about a specific VPC subnet.
 
 This resource can prove useful when a module accepts a subnet id as an input variable and needs to, for example,
 determine the id of the VPC that the subnet belongs to.

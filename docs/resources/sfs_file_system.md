@@ -5,7 +5,6 @@ subcategory: "Scalable File Service (SFS)"
 # huaweicloud_sfs_file_system
 
 Provides a Shared File System (SFS) resource within HuaweiCloud.
-This is an alternative to `huaweicloud_sfs_file_system_v2`
 
 ## Example Usage
 

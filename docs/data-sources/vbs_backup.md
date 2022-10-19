@@ -6,8 +6,7 @@ subcategory: "Deprecated"
 
 !> **WARNING:** It has been deprecated.
 
-The VBS Backup data source provides details about a specific VBS Backup. This is an alternative
-to `huaweicloud_vbs_backup`
+The VBS Backup data source provides details about a specific VBS Backup.
 
 ## Example Usage
 
