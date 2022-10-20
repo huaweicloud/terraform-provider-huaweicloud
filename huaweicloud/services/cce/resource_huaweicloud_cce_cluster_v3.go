@@ -1,4 +1,4 @@
-package huaweicloud
+package cce
 
 import (
 	"context"
@@ -217,14 +217,14 @@ func ResourceCCEClusterV3() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"tags": tagsForceNewSchema(),
+			"tags": common.TagsForceNewSchema(),
 
 			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
-			"charging_mode": schemaChargingMode(nil),
-			"period_unit":   schemaPeriodUnit(nil),
-			"period":        schemaPeriod(nil),
-			"auto_renew":    schemaAutoRenew(nil),
-			"auto_pay":      schemaAutoPay(nil),
+			"charging_mode": common.SchemaChargingMode(nil),
+			"period_unit":   common.SchemaPeriodUnit(nil),
+			"period":        common.SchemaPeriod(nil),
+			"auto_renew":    common.SchemaAutoRenew(nil),
+			"auto_pay":      common.SchemaAutoPay(nil),
 
 			"delete_efs": associateDeleteSchema,
 			"delete_eni": associateDeleteSchema,
@@ -367,7 +367,7 @@ func resourceClusterExtendParamV3(d *schema.ResourceData, config *config.Config)
 		extendParam["clusterExternalIP"] = eip.(string)
 	}
 
-	epsID := GetEnterpriseProjectID(d, config)
+	epsID := config.GetEnterpriseProjectID(d)
 	if epsID != "" {
 		extendParam["enterpriseProjectId"] = epsID
 	}
@@ -402,17 +402,17 @@ func resourceClusterMastersV3(d *schema.ResourceData) ([]clusters.MasterSpec, er
 
 func resourceCCEClusterV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	cceClient, err := config.CceV3Client(GetRegion(d, config))
+	cceClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Unable to create HuaweiCloud CCE client : %s", err)
 	}
-	icAgentClient, err := config.AomV1Client(GetRegion(d, config))
+	icAgentClient, err := config.AomV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Unable to create HuaweiCloud AOM client : %s", err)
 	}
 
 	authenticating_proxy := make(map[string]string)
-	if hasFilledOpt(d, "authenticating_proxy_ca") {
+	if common.HasFilledOpt(d, "authenticating_proxy_ca") {
 		authenticating_proxy["ca"] = utils.EncodeBase64IfNot(d.Get("authenticating_proxy_ca").(string))
 		authenticating_proxy["cert"] = utils.EncodeBase64IfNot(d.Get("authenticating_proxy_cert").(string))
 		authenticating_proxy["privateKey"] = utils.EncodeBase64IfNot(d.Get("authenticating_proxy_private_key").(string))
@@ -421,7 +421,7 @@ func resourceCCEClusterV3Create(ctx context.Context, d *schema.ResourceData, met
 	billingMode := 0
 	if d.Get("charging_mode").(string) == "prePaid" || d.Get("billing_mode").(int) == 1 {
 		billingMode = 1
-		if err := validatePrePaidChargeInfo(d); err != nil {
+		if err := common.ValidatePrePaidChargeInfo(d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -536,7 +536,7 @@ func resourceCCEClusterV3Create(ctx context.Context, d *schema.ResourceData, met
 
 func resourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	cceClient, err := config.CceV3Client(GetRegion(d, config))
+	cceClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
@@ -629,7 +629,7 @@ func resourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta in
 
 func resourceCCEClusterV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	cceClient, err := config.CceV3Client(GetRegion(d, config))
+	cceClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE Client: %s", err)
 	}
@@ -684,14 +684,14 @@ func resourceCCEClusterV3Update(ctx context.Context, d *schema.ResourceData, met
 
 func resourceCCEClusterV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	cceClient, err := config.CceV3Client(GetRegion(d, config))
+	cceClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE Client: %s", err)
 	}
 
 	// for prePaid mode, we should unsubscribe the resource
 	if d.Get("charging_mode").(string) == "prePaid" || d.Get("billing_mode").(int) == 1 {
-		if err := UnsubscribePrePaidResource(d, config, []string{d.Id()}); err != nil {
+		if err := common.UnsubscribePrePaidResource(d, config, []string{d.Id()}); err != nil {
 			return fmtp.DiagErrorf("Error unsubscribing HuaweiCloud CCE cluster: %s", err)
 		}
 	} else {

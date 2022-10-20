@@ -1,4 +1,4 @@
-package huaweicloud
+package cce
 
 import (
 	"context"
@@ -183,7 +183,7 @@ func DataSourceCCEClusterV3() *schema.Resource {
 
 func dataSourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	cceClient, err := config.CceV3Client(GetRegion(d, config))
+	cceClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Unable to create HuaweiCloud CCE client : %s", err)
 	}
@@ -218,7 +218,7 @@ func dataSourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta 
 
 	d.SetId(Cluster.Metadata.Id)
 	mErr := multierror.Append(nil,
-		d.Set("region", GetRegion(d, config)),
+		d.Set("region", config.GetRegion(d)),
 		d.Set("name", Cluster.Metadata.Name),
 		d.Set("status", Cluster.Status.Phase),
 		d.Set("flavor_id", Cluster.Spec.Flavor),

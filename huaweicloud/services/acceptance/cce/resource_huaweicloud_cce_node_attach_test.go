@@ -1,4 +1,4 @@
-package huaweicloud
+package cce
 
 import (
 	"fmt"
@@ -7,6 +7,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccCCENodeAttachV3_basic(t *testing.T) {
@@ -19,9 +20,9 @@ func TestAccCCENodeAttachV3_basic(t *testing.T) {
 	clusterName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCCENodeV3Destroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckCCENodeV3Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCCENodeAttachV3_basic(rName),

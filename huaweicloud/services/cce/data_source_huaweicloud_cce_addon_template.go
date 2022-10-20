@@ -1,4 +1,4 @@
-package huaweicloud
+package cce
 
 import (
 	"context"
@@ -89,7 +89,7 @@ func DataSourceCCEAddonTemplateV3() *schema.Resource {
 
 func dataSourceCCEAddonTemplateV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	region := GetRegion(d, config)
+	region := config.GetRegion(d)
 	client, err := config.CceAddonV3Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client : %s", err)

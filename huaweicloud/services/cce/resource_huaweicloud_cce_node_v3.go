@@ -1,4 +1,4 @@
-package huaweicloud
+package cce
 
 import (
 	"context"
@@ -389,7 +389,7 @@ func ResourceCCENodeV3() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			//(node/ecs_tags)
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 			"annotations": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -398,11 +398,11 @@ func ResourceCCENodeV3() *schema.Resource {
 			},
 
 			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
-			"charging_mode": schemaChargingMode(nil),
-			"period_unit":   schemaPeriodUnit(nil),
-			"period":        schemaPeriod(nil),
-			"auto_renew":    schemaAutoRenew(nil),
-			"auto_pay":      schemaAutoPay(nil),
+			"charging_mode": common.SchemaChargingMode(nil),
+			"period_unit":   common.SchemaPeriodUnit(nil),
+			"period":        common.SchemaPeriod(nil),
+			"auto_renew":    common.SchemaAutoRenew(nil),
+			"auto_pay":      common.SchemaAutoPay(nil),
 
 			"extend_param": {
 				Type:     schema.TypeMap,
@@ -697,7 +697,7 @@ func resourceCCEStorage(d *schema.ResourceData) *nodes.StorageSpec {
 
 func resourceCCENodeV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	nodeClient, err := config.CceV3Client(GetRegion(d, config))
+	nodeClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE Node client: %s", err)
 	}
@@ -706,7 +706,7 @@ func resourceCCENodeV3Create(ctx context.Context, d *schema.ResourceData, meta i
 	billingMode := 0
 	if d.Get("charging_mode").(string) == "prePaid" || d.Get("billing_mode").(int) == 2 {
 		billingMode = 2
-		if err := validatePrePaidChargeInfo(d); err != nil {
+		if err := common.ValidatePrePaidChargeInfo(d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -783,11 +783,11 @@ func resourceCCENodeV3Create(ctx context.Context, d *schema.ResourceData, meta i
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	// Add loginSpec here so it wouldn't go in the above log entry
 	var loginSpec nodes.LoginSpec
-	if hasFilledOpt(d, "key_pair") {
+	if common.HasFilledOpt(d, "key_pair") {
 		loginSpec = nodes.LoginSpec{
 			SshKey: d.Get("key_pair").(string),
 		}
-	} else if hasFilledOpt(d, "password") {
+	} else if common.HasFilledOpt(d, "password") {
 		password, err := utils.TryPasswordEncrypt(d.Get("password").(string))
 		if err != nil {
 			return diag.FromErr(err)
@@ -832,7 +832,7 @@ func resourceCCENodeV3Create(ctx context.Context, d *schema.ResourceData, meta i
 
 func resourceCCENodeV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	nodeClient, err := config.CceV3Client(GetRegion(d, config))
+	nodeClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE Node client: %s", err)
 	}
@@ -897,7 +897,7 @@ func resourceCCENodeV3Read(_ context.Context, d *schema.ResourceData, meta inter
 	)
 
 	// fetch tags from ECS instance
-	computeClient, err := config.ComputeV1Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -917,7 +917,7 @@ func resourceCCENodeV3Read(_ context.Context, d *schema.ResourceData, meta inter
 
 func resourceCCENodeV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	nodeClient, err := config.CceV3Client(GetRegion(d, config))
+	nodeClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
@@ -935,7 +935,7 @@ func resourceCCENodeV3Update(ctx context.Context, d *schema.ResourceData, meta i
 
 	//update tags
 	if d.HasChange("tags") {
-		computeClient, err := config.ComputeV1Client(GetRegion(d, config))
+		computeClient, err := config.ComputeV1Client(config.GetRegion(d))
 		if err != nil {
 			return fmtp.DiagErrorf("Error creating HuaweiCloud compute client: %s", err)
 		}
@@ -952,7 +952,7 @@ func resourceCCENodeV3Update(ctx context.Context, d *schema.ResourceData, meta i
 
 func resourceCCENodeV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	nodeClient, err := config.CceV3Client(GetRegion(d, config))
+	nodeClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
@@ -963,11 +963,11 @@ func resourceCCENodeV3Delete(ctx context.Context, d *schema.ResourceData, meta i
 		var removeOpts nodes.RemoveOpts
 
 		var loginSpec nodes.LoginSpec
-		if hasFilledOpt(d, "key_pair") {
+		if common.HasFilledOpt(d, "key_pair") {
 			loginSpec = nodes.LoginSpec{
 				SshKey: d.Get("key_pair").(string),
 			}
-		} else if hasFilledOpt(d, "password") {
+		} else if common.HasFilledOpt(d, "password") {
 			password, err := utils.TryPasswordEncrypt(d.Get("password").(string))
 			if err != nil {
 				return diag.FromErr(err)
@@ -997,7 +997,7 @@ func resourceCCENodeV3Delete(ctx context.Context, d *schema.ResourceData, meta i
 			publicIP := d.Get("public_ip").(string)
 
 			resourceIDs := make([]string, 0, 2)
-			computeClient, err := config.ComputeV1Client(GetRegion(d, config))
+			computeClient, err := config.ComputeV1Client(config.GetRegion(d))
 			if err != nil {
 				return fmtp.DiagErrorf("Error creating HuaweiCloud compute client: %s", err)
 			}
@@ -1017,7 +1017,7 @@ func resourceCCENodeV3Delete(ctx context.Context, d *schema.ResourceData, meta i
 
 			// unsubscribe the eip if necessary
 			if _, ok := d.GetOk("iptype"); ok && publicIP != "" {
-				eipClient, err := config.NetworkingV1Client(GetRegion(d, config))
+				eipClient, err := config.NetworkingV1Client(config.GetRegion(d))
 				if err != nil {
 					return fmtp.DiagErrorf("Error creating networking client: %s", err)
 				}
@@ -1031,7 +1031,7 @@ func resourceCCENodeV3Delete(ctx context.Context, d *schema.ResourceData, meta i
 			}
 
 			if len(resourceIDs) > 0 {
-				if err := UnsubscribePrePaidResource(d, config, resourceIDs); err != nil {
+				if err := common.UnsubscribePrePaidResource(d, config, resourceIDs); err != nil {
 					return fmtp.DiagErrorf("Error unsubscribing HuaweiCloud CCE node: %s", err)
 				}
 			}
@@ -1195,4 +1195,41 @@ func resourceCCENodeV3Import(_ context.Context, d *schema.ResourceData, meta int
 	d.Set("cluster_id", clusterID)
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func waitForServerTargetState(ctx context.Context, client *golangsdk.ServiceClient, ID string, pending, target []string, timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      pending,
+		Target:       target,
+		Refresh:      ServerV1StateRefreshFunc(client, ID),
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmtp.Errorf("error waiting for instance (%s) to become target state (%v): %s", ID, target, err)
+	}
+	return nil
+}
+
+// ServerV1StateRefreshFunc returns a resource.StateRefreshFunc that is used to watch an HuaweiCloud instance.
+func ServerV1StateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		s, err := cloudservers.Get(client, instanceID).Extract()
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return s, "DELETED", nil
+			}
+			return nil, "", err
+		}
+
+		// get fault message when status is ERROR
+		if s.Status == "ERROR" {
+			fault := fmtp.Errorf("[error code: %d, message: %s]", s.Fault.Code, s.Fault.Message)
+			return s, "ERROR", fault
+		}
+		return s, s.Status, nil
+	}
 }

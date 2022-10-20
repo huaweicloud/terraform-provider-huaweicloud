@@ -363,12 +363,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_bms_flavors": bms.DataSourceBmsFlavors(),
 			"huaweicloud_cbr_vaults":  cbr.DataSourceCbrVaultsV3(),
 
-			"huaweicloud_cce_addon_template": DataSourceCCEAddonTemplateV3(),
-			"huaweicloud_cce_cluster":        DataSourceCCEClusterV3(),
+			"huaweicloud_cce_addon_template": cce.DataSourceCCEAddonTemplateV3(),
+			"huaweicloud_cce_cluster":        cce.DataSourceCCEClusterV3(),
 			"huaweicloud_cce_clusters":       cce.DataSourceCCEClusters(),
-			"huaweicloud_cce_node":           DataSourceCCENodeV3(),
+			"huaweicloud_cce_node":           cce.DataSourceCCENodeV3(),
 			"huaweicloud_cce_nodes":          cce.DataSourceCCENodes(),
-			"huaweicloud_cce_node_pool":      DataSourceCCENodePoolV3(),
+			"huaweicloud_cce_node_pool":      cce.DataSourceCCENodePoolV3(),
 			"huaweicloud_cci_namespaces":     cci.DataSourceCciNamespaces(),
 
 			"huaweicloud_cdm_flavors": DataSourceCdmFlavorV1(),
@@ -516,8 +516,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_subnet_v1":             vpc.DataSourceVpcSubnetV1(),
 			"huaweicloud_vpc_subnet_ids_v1":         vpc.DataSourceVpcSubnetIdsV1(),
 
-			"huaweicloud_cce_cluster_v3": DataSourceCCEClusterV3(),
-			"huaweicloud_cce_node_v3":    DataSourceCCENodeV3(),
+			"huaweicloud_cce_cluster_v3": cce.DataSourceCCEClusterV3(),
+			"huaweicloud_cce_node_v3":    cce.DataSourceCCENodeV3(),
 
 			"huaweicloud_csbs_backup_v1":        dataSourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy_v1": dataSourceCSBSBackupPolicyV1(),
@@ -593,11 +593,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_cc_connection":       cc.ResourceCloudConnection(),
 			"huaweicloud_cc_network_instance": cc.ResourceNetworkInstance(),
 
-			"huaweicloud_cce_cluster":     ResourceCCEClusterV3(),
-			"huaweicloud_cce_node":        ResourceCCENodeV3(),
-			"huaweicloud_cce_node_attach": ResourceCCENodeAttachV3(),
-			"huaweicloud_cce_addon":       ResourceCCEAddonV3(),
-			"huaweicloud_cce_node_pool":   ResourceCCENodePool(),
+			"huaweicloud_cce_cluster":     cce.ResourceCCEClusterV3(),
+			"huaweicloud_cce_node":        cce.ResourceCCENodeV3(),
+			"huaweicloud_cce_node_attach": cce.ResourceCCENodeAttachV3(),
+			"huaweicloud_cce_addon":       cce.ResourceCCEAddonV3(),
+			"huaweicloud_cce_node_pool":   cce.ResourceCCENodePool(),
 			"huaweicloud_cce_namespace":   cce.ResourceCCENamespaceV1(),
 			"huaweicloud_cce_pvc":         cce.ResourceCcePersistentVolumeClaimsV1(),
 
@@ -941,8 +941,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_v1":                             vpc.ResourceVirtualPrivateCloudV1(),
 			"huaweicloud_vpc_subnet_v1":                      vpc.ResourceVpcSubnetV1(),
 
-			"huaweicloud_cce_cluster_v3": ResourceCCEClusterV3(),
-			"huaweicloud_cce_node_v3":    ResourceCCENodeV3(),
+			"huaweicloud_cce_cluster_v3": cce.ResourceCCEClusterV3(),
+			"huaweicloud_cce_node_v3":    cce.ResourceCCENodeV3(),
 
 			"huaweicloud_as_configuration_v1": as.ResourceASConfiguration(),
 			"huaweicloud_as_group_v1":         as.ResourceASGroup(),

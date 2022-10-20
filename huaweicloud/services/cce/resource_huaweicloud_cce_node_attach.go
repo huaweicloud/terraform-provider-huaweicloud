@@ -1,4 +1,4 @@
-package huaweicloud
+package cce
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -137,7 +138,7 @@ func ResourceCCENodeAttachV3() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			//(node/ecs_tags)
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 
 			"flavor_id": {
 				Type:     schema.TypeString,
@@ -236,7 +237,7 @@ func ResourceCCENodeAttachV3() *schema.Resource {
 }
 
 func resourceCCENodeAttachV3ServerConfig(d *schema.ResourceData) *nodes.ServerConfig {
-	if hasFilledOpt(d, "tags") || hasFilledOpt(d, "image_id") {
+	if common.HasFilledOpt(d, "tags") || common.HasFilledOpt(d, "image_id") {
 		serverConfig := nodes.ServerConfig{
 			UserTags: resourceCCENodeTags(d),
 		}
@@ -273,8 +274,8 @@ func resourceCCENodeAttachV3RuntimeConfig(d *schema.ResourceData) *nodes.Runtime
 }
 
 func resourceCCENodeAttachV3K8sOptions(d *schema.ResourceData) *nodes.K8sOptions {
-	if hasFilledOpt(d, "labels") || hasFilledOpt(d, "taints") || hasFilledOpt(d, "max_pods") ||
-		hasFilledOpt(d, "nic_multi_queue") || hasFilledOpt(d, "nic_threshold") {
+	if common.HasFilledOpt(d, "labels") || common.HasFilledOpt(d, "taints") || common.HasFilledOpt(d, "max_pods") ||
+		common.HasFilledOpt(d, "nic_multi_queue") || common.HasFilledOpt(d, "nic_threshold") {
 		k8sOptions := nodes.K8sOptions{
 			Labels:        resourceCCENodeK8sTags(d),
 			Taints:        resourceCCETaint(d),
@@ -289,7 +290,7 @@ func resourceCCENodeAttachV3K8sOptions(d *schema.ResourceData) *nodes.K8sOptions
 }
 
 func resourceCCENodeAttachV3Lifecycle(d *schema.ResourceData) *nodes.Lifecycle {
-	if hasFilledOpt(d, "preinstall") || hasFilledOpt(d, "postinstall") {
+	if common.HasFilledOpt(d, "preinstall") || common.HasFilledOpt(d, "postinstall") {
 		lifecycle := nodes.Lifecycle{
 			Preinstall:  d.Get("preinstall").(string),
 			PostInstall: d.Get("postinstall").(string),
@@ -301,7 +302,7 @@ func resourceCCENodeAttachV3Lifecycle(d *schema.ResourceData) *nodes.Lifecycle {
 
 func resourceCCENodeAttachV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	nodeClient, err := config.CceV3Client(GetRegion(d, config))
+	nodeClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE Node client: %s", err)
 	}
@@ -343,7 +344,7 @@ func resourceCCENodeAttachV3Create(ctx context.Context, d *schema.ResourceData, 
 	logp.Printf("[DEBUG] Add node Options: %#v", addOpts)
 	// Add loginSpec here so it wouldn't go in the above log entry
 	var loginSpec nodes.LoginSpec
-	if hasFilledOpt(d, "key_pair") {
+	if common.HasFilledOpt(d, "key_pair") {
 		loginSpec = nodes.LoginSpec{
 			SshKey: d.Get("key_pair").(string),
 		}
@@ -392,7 +393,7 @@ func resourceCCENodeAttachV3Create(ctx context.Context, d *schema.ResourceData, 
 func resourceCCENodeAttachV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	if d.HasChanges("os", "key_pair", "password") {
-		nodeClient, err := config.CceV3Client(GetRegion(d, config))
+		nodeClient, err := config.CceV3Client(config.GetRegion(d))
 		if err != nil {
 			return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
 		}
@@ -420,7 +421,7 @@ func resourceCCENodeAttachV3Update(ctx context.Context, d *schema.ResourceData, 
 		logp.Printf("[DEBUG] Reset node Options: %#v", resetOpts)
 		// Add loginSpec here so it wouldn't go in the above log entry
 		var loginSpec nodes.LoginSpec
-		if hasFilledOpt(d, "key_pair") {
+		if common.HasFilledOpt(d, "key_pair") {
 			loginSpec = nodes.LoginSpec{
 				SshKey: d.Get("key_pair").(string),
 			}
@@ -472,7 +473,7 @@ func resourceCCENodeAttachV3Update(ctx context.Context, d *schema.ResourceData, 
 
 func resourceCCENodeAttachV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	nodeClient, err := config.CceV3Client(GetRegion(d, config))
+	nodeClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
@@ -482,7 +483,7 @@ func resourceCCENodeAttachV3Delete(ctx context.Context, d *schema.ResourceData, 
 	var removeOpts nodes.RemoveOpts
 	var loginSpec nodes.LoginSpec
 
-	if hasFilledOpt(d, "key_pair") {
+	if common.HasFilledOpt(d, "key_pair") {
 		loginSpec = nodes.LoginSpec{
 			SshKey: d.Get("key_pair").(string),
 		}

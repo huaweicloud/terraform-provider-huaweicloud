@@ -1,9 +1,10 @@
-package huaweicloud
+package cce
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -24,9 +25,9 @@ func TestAccCCENodePool_basic(t *testing.T) {
 	clusterName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCCENodePoolDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckCCENodePoolDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCCENodePool_basic(rName),
@@ -80,9 +81,9 @@ func TestAccCCENodePool_tagsLabelsTaints(t *testing.T) {
 	clusterName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCCENodePoolDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckCCENodePoolDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCCENodePool_tagsLabelsTaints(rName),
@@ -129,11 +130,11 @@ func TestAccCCENodePool_data_volume_encryption(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheck(t)
-			testAccPreCheckKms(t)
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckKms(t)
 		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCCENodePoolDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckCCENodePoolDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCCENodePool_data_volume_encryption(rName),
@@ -148,8 +149,8 @@ func TestAccCCENodePool_data_volume_encryption(t *testing.T) {
 }
 
 func testAccCheckCCENodePoolDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	cceClient, err := config.CceV3Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	cceClient, err := config.CceV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
@@ -214,8 +215,8 @@ func testAccCheckCCENodePoolExists(n string, cluster string, nodePool *nodepools
 			return fmtp.Errorf("Cluster id is not set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		cceClient, err := config.CceV3Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		cceClient, err := config.CceV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 		}

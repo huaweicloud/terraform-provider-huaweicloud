@@ -1,4 +1,4 @@
-package huaweicloud
+package cce
 
 import (
 	"context"
@@ -135,7 +135,7 @@ func DataSourceCCENodeV3() *schema.Resource {
 
 func dataSourceCceNodesV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	cceClient, err := config.CceV3Client(GetRegion(d, config))
+	cceClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Unable to create HuaweiCloud CCE client : %s", err)
 	}
@@ -193,7 +193,7 @@ func dataSourceCceNodesV3Read(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("public_ip", Node.Status.PublicIP),
 		d.Set("private_ip", Node.Status.PrivateIP),
 		d.Set("status", Node.Status.Phase),
-		d.Set("region", GetRegion(d, config)),
+		d.Set("region", config.GetRegion(d)),
 	)
 
 	var volumes []map[string]interface{}
@@ -216,7 +216,7 @@ func dataSourceCceNodesV3Read(_ context.Context, d *schema.ResourceData, meta in
 	mErr = multierror.Append(mErr, d.Set("root_volume", rootVolume))
 
 	// fetch tags from ECS instance
-	computeClient, err := config.ComputeV1Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud compute client: %s", err)
 	}

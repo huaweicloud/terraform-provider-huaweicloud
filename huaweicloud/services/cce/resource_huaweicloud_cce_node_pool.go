@@ -1,4 +1,4 @@
-package huaweicloud
+package cce
 
 import (
 	"context"
@@ -194,7 +194,7 @@ func ResourceCCENodePool() *schema.Resource {
 						},
 					}},
 			},
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 			"billing_mode": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -277,7 +277,7 @@ func resourceCCENodePoolTags(d *schema.ResourceData) []tags.ResourceTag {
 
 func resourceCCENodePoolCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	nodePoolClient, err := config.CceV3Client(GetRegion(d, config))
+	nodePoolClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE Node Pool client: %s", err)
 	}
@@ -343,11 +343,11 @@ func resourceCCENodePoolCreate(ctx context.Context, d *schema.ResourceData, meta
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	// Add loginSpec here so it wouldn't go in the above log entry
 	var loginSpec nodes.LoginSpec
-	if hasFilledOpt(d, "key_pair") {
+	if common.HasFilledOpt(d, "key_pair") {
 		loginSpec = nodes.LoginSpec{
 			SshKey: d.Get("key_pair").(string),
 		}
-	} else if hasFilledOpt(d, "password") {
+	} else if common.HasFilledOpt(d, "password") {
 		password, err := utils.TryPasswordEncrypt(d.Get("password").(string))
 		if err != nil {
 			return diag.FromErr(err)
@@ -391,7 +391,7 @@ func resourceCCENodePoolCreate(ctx context.Context, d *schema.ResourceData, meta
 
 func resourceCCENodePoolRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	nodePoolClient, err := config.CceV3Client(GetRegion(d, config))
+	nodePoolClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE Node Pool client: %s", err)
 	}
@@ -498,16 +498,16 @@ func resourceCCENodePoolRead(_ context.Context, d *schema.ResourceData, meta int
 
 func resourceCCENodePoolUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	nodePoolClient, err := config.CceV3Client(GetRegion(d, config))
+	nodePoolClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
 
 	initialNodeCount := d.Get("initial_node_count").(int)
 	var loginSpec nodes.LoginSpec
-	if hasFilledOpt(d, "key_pair") {
+	if common.HasFilledOpt(d, "key_pair") {
 		loginSpec = nodes.LoginSpec{SshKey: d.Get("key_pair").(string)}
-	} else if hasFilledOpt(d, "password") {
+	} else if common.HasFilledOpt(d, "password") {
 		password, err := utils.TryPasswordEncrypt(d.Get("password").(string))
 		if err != nil {
 			return diag.FromErr(err)
@@ -574,7 +574,7 @@ func resourceCCENodePoolUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 func resourceCCENodePoolDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	nodePoolClient, err := config.CceV3Client(GetRegion(d, config))
+	nodePoolClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
