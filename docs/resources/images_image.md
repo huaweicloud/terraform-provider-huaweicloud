@@ -15,7 +15,7 @@ variable "instance_name" {}
 variable "image_name" {}
 
 data resource "huaweicloud_compute_instance" "test" {
-  name               = var.instance_name
+  name = var.instance_name
 }
 
 resource "huaweicloud_images_image" "test" {
