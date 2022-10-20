@@ -49,6 +49,11 @@ func TestAccGaussDBProxy_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"instance_id",
+					"flavor",
+					"node_num",
+				},
 			},
 		},
 	})
