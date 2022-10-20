@@ -21,6 +21,8 @@ The following arguments are supported:
 * `region` - (Optional, String) Specifies the region in which to query the data source.
   If omitted, the provider-level region will be used.
 
+* `name` - (Optional, String) Certificate name.
+
 * `status` - (Optional, String) Certificate status.  
 The options are as follows:
   - ALL: All certificate status.
@@ -50,10 +52,10 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The resource ID.
 
 * `certificates` - Certificate list. For details, see Data structure of the Certificate field.
-  The [Certificate](#certificate_Certificates) structure is documented below.
+  The [Certificate](#certificates_Certificate) structure is documented below.
 
-<a name="certificate_Certificates"></a>
-The `Certificates` block supports:
+<a name="certificates_Certificate"></a>
+The `Certificate` block supports:
 
 * `id` - Certificate ID.
 
@@ -67,10 +69,11 @@ The `Certificates` block supports:
 
 * `deploy_support` - Whether to support deployment.
 
-* `type` - Certificate type. The value can be: **DV_SSL_CERT**, **DV_SSL_CERT_BASIC**, **EV_SSL_CERT**,
-  **EV_SSL_CERT_PRO**, **OV_SSL_CERT**, **OV_SSL_CERT_PRO**.
+* `type` - Certificate type.  
+The value can be: **DV_SSL_CERT**, **DV_SSL_CERT_BASIC**, **EV_SSL_CERT**, **EV_SSL_CERT_PRO**, **OV_SSL_CERT**, **OV_SSL_CERT_PRO**.
 
-* `brand` - Certificate authority. The value can be: **GLOBALSIGN**, **SYMANTEC**, **GEOTRUST**, **CFCA**.
+* `brand` - Certificate authority.  
+The value can be: **GLOBALSIGN**, **SYMANTEC**, **GEOTRUST**, **CFCA**.
 
 * `expire_time` - Certificate expiration time.
 

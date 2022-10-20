@@ -53,6 +53,7 @@ var (
 	HW_CERTIFICATE_SERVICE          = os.Getenv("HW_CERTIFICATE_SERVICE")
 	HW_CERTIFICATE_PROJECT          = os.Getenv("HW_CERTIFICATE_PROJECT")
 	HW_CERTIFICATE_PROJECT_UPDATED  = os.Getenv("HW_CERTIFICATE_PROJECT_UPDATED")
+	HW_CERTIFICATE_NAME             = os.Getenv("HW_CERTIFICATE_NAME")
 	HW_DMS_ENVIRONMENT              = os.Getenv("HW_DMS_ENVIRONMENT")
 	HW_SMS_SOURCE_SERVER            = os.Getenv("HW_SMS_SOURCE_SERVER")
 
@@ -376,5 +377,12 @@ func TestAccPreCheckParticipants(t *testing.T) {
 func TestAccPreCheckAadForwardRule(t *testing.T) {
 	if HW_AAD_INSTANCE_ID == "" || HW_AAD_IP_ADDRESS == "" {
 		t.Skip("The instance information is not completed for AAD rule acceptance test.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckScmCertificateName(t *testing.T) {
+	if HW_CERTIFICATE_NAME == "" {
+		t.Skip("HW_CERTIFICATE_NAME must be set for SCM acceptance tests.")
 	}
 }
