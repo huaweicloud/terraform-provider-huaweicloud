@@ -34,21 +34,6 @@ jobs:
     - name: Vet
       run: make vet
 
-  # This workflow contains a job called "tfproviderlint"
-  tfproviderlint:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
-
-      # Runs tfproviderlint-github-action
-      - uses: bflad/tfproviderlint-github-action@master
-        with:
-          args: -V011=false -V012=false -V013=false -V014=false -R019=false ./...
-
   golangci:
     runs-on: ubuntu-latest
     steps:
@@ -63,3 +48,32 @@ jobs:
           version: latest
           # Optional: show only new issues if it's a pull request. The default value is `false`.
           only-new-issues: true
+
+  # This workflow contains a job called "tfproviderlint"
+  # Ignoring bflad/tfproviderlint until https://github.com/bflad/tfproviderlint/issues/255 is fixed...
+  # using ShiChangkuo/tfproviderlint instead
+  tfproviderlint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: ">=1.18"
+
+      - name: Checkout provider
+        uses: actions/checkout@v3
+        with:
+          path: terraform-provider-huaweicloud
+
+      - name: Checkout tfproviderlint
+        uses: actions/checkout@v3
+        with:
+          repository: ShiChangkuo/tfproviderlint
+          path: tfproviderlint
+
+      - name: Install tfproviderlint and Check
+        run: |
+          cd ${{ github.workspace }}/tfproviderlint/cmd/tfproviderlint
+          go install
+          cd ${{ github.workspace }}/terraform-provider-huaweicloud
+          tfproviderlint -V011=false -V012=false -V013=false -V014=false -R019=false ./...
