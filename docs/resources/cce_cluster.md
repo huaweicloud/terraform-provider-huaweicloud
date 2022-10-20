@@ -77,6 +77,43 @@ resource "huaweicloud_cce_cluster" "cluster" {
 }
 ```
 
+## CCE Turbo Cluster
+
+```hcl
+resource "huaweicloud_vpc" "myvpc" {
+  name = "vpc"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "mysubnet" {
+  name       = "subnet"
+  cidr       = "192.168.0.0/24"
+  gateway_ip = "192.168.0.1"
+
+  //dns is required for cce node installing
+  primary_dns   = "100.125.1.250"
+  secondary_dns = "100.125.21.250"
+  vpc_id        = huaweicloud_vpc.myvpc.id
+}
+
+resource "huaweicloud_vpc_subnet" "eni_test" {
+  name          = "subnet-eni"
+  cidr          = "192.168.2.0/24"
+  gateway_ip    = "192.168.2.1"
+  vpc_id        = huaweicloud_vpc.test.id
+}
+
+resource "huaweicloud_cce_cluster" "test" {
+  name                   = cluster"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = huaweicloud_vpc.myvpc.id
+  subnet_id              = huaweicloud_vpc_subnet.mysubnet.id
+  container_network_type = "eni"
+  eni_subnet_id          = huaweicloud_vpc_subnet.eni_test.subnet_id
+  eni_subnet_cidr        = huaweicloud_vpc_subnet.eni_test.cidr
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
