@@ -852,22 +852,20 @@ func resizeInstance(ctx context.Context, d *schema.ResourceData, meta interface{
 
 	opts := instances.ResizeInstanceOpts{}
 	if _, ok := d.GetOk("product_id"); ok {
-		var product *products.Detail
 		if engineType == "kafka" {
-			product, err = getKafkaProductDetail(config, d)
+			product, err := getKafkaProductDetail(config, d)
+			if err != nil {
+				return fmtp.Errorf("change storage_space failed, error querying product detail: %s", err)
+			}
+			opts.NewSpecCode = product.SpecCode
 		} else {
-			product, err = getRabbitMQProductDetail(config, d)
+			product, err := getRabbitMQProductDetail(config, d)
+			if err != nil {
+				return fmtp.Errorf("change storage_space failed, error querying product detail: %s", err)
+			}
+			opts.NewSpecCode = product.SpecCode
 		}
-		if err != nil || product == nil {
-			return fmtp.Errorf("change storage_space failed, error querying product detail: %s", err)
-		}
-		logp.Printf("[DEBUG] Get DMS product detail: %#v", product)
-
 		opts.NewStorageSpace = d.Get("storage_space").(int)
-		opts.NewSpecCode = product.SpecCode
-		if engineType == "rabbitmq" {
-			opts.NewSpecCode = product.ProductInfos[0].SpecCode
-		}
 	} else {
 		opts.NewSpecCode = d.Get("storage_spec_code").(string)
 		opts.NewStorageSpace = d.Get("storage_space").(int)
@@ -917,7 +915,7 @@ func resourceDmsKafkaInstanceDelete(ctx context.Context, d *schema.ResourceData,
 	logp.Printf("[DEBUG] Waiting for instance (%s) to delete", d.Id())
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"DELETING", "RUNNING"},
+		Pending:      []string{"DELETING", "RUNNING", "ERROR"}, // Status may change to ERROR on deletion.
 		Target:       []string{"DELETED"},
 		Refresh:      DmsKafkaInstanceStateRefreshFunc(dmsV2Client, d.Id()),
 		Timeout:      d.Timeout(schema.TimeoutDelete),

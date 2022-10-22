@@ -17,7 +17,7 @@ func TestAccKafkaInstancesDataSource_basic(t *testing.T) {
 	dc3 := acceptance.InitDataSourceCheck("data.huaweicloud_dms_kafka_instances.query_3")
 	dc4 := acceptance.InitDataSourceCheck("data.huaweicloud_dms_kafka_instances.query_4")
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -47,6 +47,7 @@ func TestAccKafkaInstancesDataSource_basic(t *testing.T) {
 
 func testAccKafkaInstancesDataSource_basic() string {
 	rName := acceptance.RandomAccResourceNameWithDash()
+	fuzzyName := rName[0 : len(rName)-1]
 
 	return fmt.Sprintf(`
 %s
@@ -56,11 +57,15 @@ data "huaweicloud_dms_kafka_instances" "query_0" {
     huaweicloud_dms_kafka_instance.test,
   ]
 
-  name        = "tf-acc-test"
+  name        = "%s"
   fuzzy_match = true
 }
 
 data "huaweicloud_dms_kafka_instances" "query_1" {
+  depends_on = [
+    huaweicloud_dms_kafka_instance.test,
+  ]
+  
   name = huaweicloud_dms_kafka_instance.test.name
 }
 
@@ -69,6 +74,10 @@ data "huaweicloud_dms_kafka_instances" "query_2" {
 }
 
 data "huaweicloud_dms_kafka_instances" "query_3" {
+  depends_on = [
+    huaweicloud_dms_kafka_instance.test,
+  ]
+  
   enterprise_project_id = huaweicloud_dms_kafka_instance.test.enterprise_project_id
 }
 
@@ -79,5 +88,5 @@ data "huaweicloud_dms_kafka_instances" "query_4" {
 
   status = "RUNNING"
 }
-`, testAccKafkaInstance_basic(rName))
+`, testAccKafkaInstance_basic(rName), fuzzyName)
 }

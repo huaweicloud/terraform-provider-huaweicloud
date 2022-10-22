@@ -193,7 +193,7 @@ func ResourceDmsRabbitmqInstance() *schema.Resource {
 	}
 }
 
-func getRabbitMQProductDetail(config *config.Config, d *schema.ResourceData) (*products.Detail, error) {
+func getRabbitMQProductDetail(config *config.Config, d *schema.ResourceData) (*products.ProductInfo, error) {
 	productRsp, err := getProducts(config, config.GetRegion(d), "rabbitmq")
 	if err != nil {
 		return nil, fmtp.Errorf("error querying product detail, please check product_id, error: %s", err)
@@ -207,22 +207,27 @@ func getRabbitMQProductDetail(config *config.Config, d *schema.ResourceData) (*p
 			continue
 		}
 		for _, v := range ps.Values {
-			for _, p := range v.Details {
+			for _, detail := range v.Details {
 				// All informations of product for single instance type and the kafka engine type are stored in the
 				// detail structure.
 				if v.Name == "single" {
-					if p.ProductID == productID {
-						return &p, nil
+					if detail.ProductID == productID {
+						return &products.ProductInfo{
+							Storage:          detail.Storage,
+							ProductID:        detail.ProductID,
+							SpecCode:         detail.SpecCode,
+							IOs:              detail.IOs,
+							AvailableZones:   detail.AvailableZones,
+							UnavailableZones: detail.UnavailableZones,
+						}, nil
 					}
 				} else {
-					for _, pi := range p.ProductInfos {
-						if pi.ProductID == productID {
-							p.ProductInfos = []products.ProductInfo{pi}
-							return &p, nil
+					for _, product := range detail.ProductInfos {
+						if product.ProductID == productID {
+							return &product, nil
 						}
 					}
 				}
-
 			}
 		}
 	}
@@ -256,10 +261,9 @@ func resourceDmsRabbitmqInstanceCreate(ctx context.Context, d *schema.ResourceDa
 		if err != nil || product == nil {
 			return fmtp.DiagErrorf("query DMS RabbimtMQ product failed: %s", err)
 		}
-		space := product.ProductInfos[0].Storage
-		defaultStorageSpace, err := strconv.ParseInt(space, 10, 32)
+		defaultStorageSpace, err := strconv.ParseInt(product.Storage, 10, 32)
 		if err != nil {
-			return fmtp.DiagErrorf("Parse storage capacity to int error, %v: %s", space, err)
+			return fmtp.DiagErrorf("Parse storage capacity to int error, %v: %s", product.Storage, err)
 		}
 		storageSpace = int(defaultStorageSpace)
 	}
