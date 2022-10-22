@@ -1,0 +1,24 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_cts_notification
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: CTS
+paths:
+  /v3/{project_id}/notifications/{notification_type}:
+    get:
+      tag: CTS
+      operationId: ListNotifications
+  /v3/{project_id}/notifications:
+    delete:
+      tag: CTS
+      operationId: DeleteNotification
+    post:
+      tag: CTS
+      operationId: CreateNotification
+    put:
+      tag: CTS
+      operationId: UpdateNotification

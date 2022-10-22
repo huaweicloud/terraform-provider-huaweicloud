@@ -1,0 +1,103 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_compute_instance
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: ECS
+paths:
+  /v2/cloudimages:
+    get:
+      tag: ECS
+      operationId: List
+  /v1/{project_id}/cloudservers/action:
+    post:
+      tag: ECS
+      operationId: PowerAction
+  /v1/{project_id}/cloudservers/delete:
+    post:
+      tag: ECS
+      operationId: Delete
+  /v1/{project_id}/cloudservers/{id}/os-reset-password:
+    put:
+      tag: ECS
+      operationId: ChangeAdminPassword
+  /v1/{project_id}/cloudservers/{id}/tags/action:
+    post:
+      tag: ECS
+      operationId: Create
+  /v1/{project_id}/cloudservers/{id}/tags:
+    get:
+      tag: ECS
+      operationId: Get
+  /v1/{project_id}/cloudservers/{server_id}/block_device/{volume_id}:
+    get:
+      tag: ECS
+      operationId: Get
+  /v1.1/{project_id}/cloudservers/{serverID}/resize:
+    post:
+      tag: ECS
+      operationId: Resize
+  /v1/{project_id}/cloudservers/{serverID}:
+    get:
+      tag: ECS
+      operationId: Get
+  /v1.1/{project_id}/cloudservers:
+    post:
+      tag: ECS
+      operationId: CreatePrePaid
+  /v2.1/{project_id}/cloudvolumes/{id}/action:
+    post:
+      tag: ECS
+      operationId: ExtendSize
+  /v2/{project_id}/cloudvolumes/{id}:
+    get:
+      tag: ECS
+      operationId: Get
+  /v2.1/{project_id}/flavors/detail:
+    get:
+      tag: ECS
+      operationId: IDFromName
+  /v2.1/{project_id}/os-volumes_boot:
+    post:
+      tag: ECS
+      operationId: Create
+  /v1/ports/{id}:
+    get:
+      tag: ECS
+      operationId: Get
+    put:
+      tag: ECS
+      operationId: Update
+  /v2.1/{project_id}/servers/{id}/action:
+    post:
+      tag: ECS
+      operationId: RemoveServer
+  /v2.1/{project_id}/servers/{id}/metadata/{key}:
+    delete:
+      tag: ECS
+      operationId: DeleteMetadatum
+  /v2.1/{project_id}/servers/{id}/metadata:
+    post:
+      tag: ECS
+      operationId: UpdateMetadata
+  /v1/{project_id}/servers/{id}:
+    delete:
+      tag: ECS
+      operationId: Delete
+    get:
+      tag: ECS
+      operationId: Get
+    put:
+      tag: ECS
+      operationId: Update
+  /v1.1/{project_id}/servers:
+    post:
+      tag: ECS
+      operationId: Create
+  /v1/{project_id}/subnets/{id}:
+    get:
+      tag: ECS
+      operationId: Get

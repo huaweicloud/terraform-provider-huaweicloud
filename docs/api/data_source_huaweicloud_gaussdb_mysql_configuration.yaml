@@ -1,0 +1,14 @@
+info:
+  version: v1.41.1
+  title: data_source_huaweicloud_gaussdb_mysql_configuration
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: GaussDB
+paths:
+  /v3/{project_id}/configurations:
+    get:
+      tag: GaussDB
+      operationId: List

@@ -7,11 +7,17 @@
             "attributes": {
               "availability_zone": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "cidr": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "computed": true
               },
               "dhcp_enable": {
                 "type": "bool",
@@ -26,7 +32,8 @@
               },
               "gateway_ip": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "id": {
                 "type": "string",
@@ -51,11 +58,13 @@
               },
               "name": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "primary_dns": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "region": {
                 "type": "string",
@@ -63,11 +72,13 @@
               },
               "secondary_dns": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "status": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "subnet_id": {
                 "type": "string",
@@ -75,14 +86,17 @@
               },
               "vpc_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               }
             }
           },
           "product": {
-            "catalog": "Network",
+            "short": "VPC",
             "name": "Virtual Private Cloud",
-            "short": "VPC"
+            "catalog": "Networking",
+            "name_cn": "虚拟私有云",
+            "catalog_cn": "网络"
           }
         }
       }

@@ -1,0 +1,131 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cce_clusters": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "optional": true
+              },
+              "cluster_type": {
+                "type": "string",
+                "optional": true
+              },
+              "clusters": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "authentication_mode": "string",
+                      "billing_mode": "number",
+                      "certificate_clusters": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "certificate_authority_data": "string",
+                            "name": "string",
+                            "server": "string"
+                          }
+                        ]
+                      ],
+                      "certificate_users": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "client_certificate_data": "string",
+                            "client_key_data": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "cluster_type": "string",
+                      "cluster_version": "string",
+                      "container_network_cidr": "string",
+                      "container_network_type": "string",
+                      "description": "string",
+                      "endpoints": [
+                        "set",
+                        [
+                          "object",
+                          {
+                            "type": "string",
+                            "url": "string"
+                          }
+                        ]
+                      ],
+                      "eni_subnet_cidr": "string",
+                      "eni_subnet_id": "string",
+                      "enterprise_project_id": "string",
+                      "flavor_id": "string",
+                      "id": "string",
+                      "kube_config_raw": "string",
+                      "masters": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "availability_zone": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "security_group_id": "string",
+                      "service_network_cidr": "string",
+                      "status": "string",
+                      "subnet_id": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCE",
+            "name": "Cloud Container Engine",
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

@@ -4,7 +4,7 @@ subcategory: "Content Delivery Network (CDN)"
 
 # huaweicloud_cdn_domain
 
-CDN domain management This is an alternative to `huaweicloud_cdn_domain_v1`
+CDN domain management.
 
 ## Example Usage
 
@@ -22,6 +22,11 @@ resource "huaweicloud_cdn_domain" "domain_1" {
     origin      = var.origin_server
     origin_type = "ipaddr"
     active      = 1
+  }
+
+  tags = {
+    key = "val"
+    foo = "bar"
   }
 }
 ```
@@ -137,6 +142,8 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id. Changing this parameter will create
   a new resource.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the domain.
+
 The `sources` block supports:
 
 * `origin` - (Required, String) The domain name or IP address of the origin server.
@@ -145,6 +152,15 @@ The `sources` block supports:
 
 * `active` - (Optional, Int) Whether an origin server is active or standby (1: active; 0: standby). The default value is
   1.
+
+* `obs_web_hosting_enabled` - (Optional, Bool) Whether to enable static website hosting for the OBS bucket.
+  This parameter is mandatory when the `origin_type` is **obs_bucket**.
+
+* `http_port` - (Optional, Int) Specifies the HTTP port. Default value: **80**.
+
+* `https_port` - (Optional, Int) Specifies the HTTPS port. Default value: **443**.
+
+* `retrieval_host` - (Optional, String) Specifies the retrieval host. The default value is the acceleration domain name.
 
 <a name="configs_object"></a>
 The `configs` block support:
@@ -155,6 +171,8 @@ The `configs` block support:
   + **https**: HTTPS.
 
 * `ipv6_enable` - (Optional, Bool) Specifies whether to enable IPv6.
+
+* `range_based_retrieval_enabled` - (Optional, Bool) Specifies whether to enable range-based retrieval.
 
 * `https_settings` - (Optional, List) Specifies the certificate configuration. The [object](#https_settings_object)
   structure is documented below.
@@ -255,7 +273,7 @@ The `cache_url_parameter_filter` block support:
 * `value` - (Optional, String) Specifies the parameter values. Multiple values are separated by semicolons (;).
 
 <a name="cache_settings_object"></a>
-The `configs` block support:
+The `cache_settings` block support:
 
 * `follow_origin` - (Optional, Bool) Specifies whether to enable origin cache control.
 

@@ -635,6 +635,12 @@ resource "huaweicloud_cce_node" "test" {
     kms_key_id = huaweicloud_kms_key.test.id
   }
 
+  data_volumes {
+    size       = 100
+    volumetype = "SSD"
+    kms_key_id = huaweicloud_kms_key.test.id
+  }
+
   storage {
     selectors {
       name              = "cceUse"
@@ -666,7 +672,6 @@ resource "huaweicloud_cce_node" "test" {
       virtual_spaces {
         name        = "runtime"
         size        = "90%%"
-        lvm_lv_type = "linear"
       }
     }
 

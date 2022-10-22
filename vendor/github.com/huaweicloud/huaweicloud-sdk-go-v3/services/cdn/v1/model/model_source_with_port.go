@@ -12,6 +12,9 @@ import (
 // 源站信息
 type SourceWithPort struct {
 
+	// 加速域名id。
+	DomainId *string `json:"domain_id,omitempty"`
+
 	// 源站IP（非内网IP）或者域名。
 	IpOrDomain string `json:"ip_or_domain"`
 

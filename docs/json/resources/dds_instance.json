@@ -5,9 +5,20 @@
         "huaweicloud_dds_instance": {
           "block": {
             "attributes": {
+              "auto_renew": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "availability_zone": {
                 "type": "string",
                 "required": true,
+                "forcenew": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "db_username": {
@@ -61,8 +72,19 @@
                 "required": true,
                 "sensitive": true
               },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "port": {
                 "type": "number",
+                "optional": true,
                 "computed": true
               },
               "region": {

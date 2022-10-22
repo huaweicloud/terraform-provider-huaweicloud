@@ -162,6 +162,33 @@ func TestAccRdsInstance_mysql(t *testing.T) {
 	})
 }
 
+func TestAccRdsInstance_sqlserver(t *testing.T) {
+	var instance instances.RdsInstanceResponse
+	name := acceptance.RandomAccResourceName()
+	resourceType := "huaweicloud_rds_instance"
+	resourceName := "huaweicloud_rds_instance.test"
+	pwd := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
+		acctest.RandIntRange(10, 99))
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRdsInstance_sqlserver(name, pwd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "collation", "Chinese_PRC_CI_AS"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8635"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckRdsInstanceDestroy(rsType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
@@ -449,6 +476,45 @@ resource "huaweicloud_rds_instance" "test" {
 
   volume {
     type = "LOCALSSD"
+    size = 40
+  }
+}
+`, testAccRdsInstance_base(name), name, pwd)
+}
+
+func testAccRdsInstance_sqlserver(name, pwd string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+resource "huaweicloud_rds_instance" "test" {
+  name                = "%s"
+  flavor              = "rds.mssql.spec.se.c6.large.4"
+  security_group_id   = huaweicloud_networking_secgroup.test.id
+  subnet_id           = data.huaweicloud_vpc_subnet.test.id
+  vpc_id              = data.huaweicloud_vpc.test.id
+  collation           = "Chinese_PRC_CI_AS"
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0],
+  ]
+
+  db {
+    password = "%s"
+    type     = "SQLServer"
+    version  = "2014_SE"
+    port     = 8635
+  }
+
+  volume {
+    type = "ULTRAHIGH"
     size = 40
   }
 }

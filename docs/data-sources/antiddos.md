@@ -6,7 +6,7 @@ subcategory: "Deprecated"
 
 !> **WARNING:** It has been deprecated.
 
-Query the Anti-DDos resource. This is an alternative to `huaweicloud_antiddos_v1`
+Query the Anti-DDos resource.
 
 ## Example Usage
 

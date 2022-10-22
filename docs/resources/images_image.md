@@ -8,33 +8,19 @@ Manages an Image resource within HuaweiCloud IMS.
 
 ## Example Usage
 
-### Creating an image from ECS
+### Creating an image from an existing ECS
 
 ```hcl
-variable "security_group_id" {}
 variable "instance_name" {}
 variable "image_name" {}
 
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-resource "huaweicloud_compute_instance" "test" {
-  name               = var.instance_name
-  image_name         = "Ubuntu 18.04 server 64bit"
-  security_group_ids = [var.security_group_id]
-  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-
-  network {
-    uuid = data.huaweicloud_vpc_subnet.test.id
-  }
+data resource "huaweicloud_compute_instance" "test" {
+  name = var.instance_name
 }
 
 resource "huaweicloud_images_image" "test" {
   name        = var.image_name
-  instance_id = huaweicloud_compute_instance.test.id
+  instance_id = data.huaweicloud_compute_instance.test.id
   description = "created by Terraform"
 
   tags = {

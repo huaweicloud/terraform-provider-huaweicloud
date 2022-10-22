@@ -195,6 +195,28 @@ func (c *CptsClient) DeleteTempInvoker(request *model.DeleteTempRequest) *Delete
 	return &DeleteTempInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// DeleteVariable 删除全局变量
+//
+// 删除全局变量
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *CptsClient) DeleteVariable(request *model.DeleteVariableRequest) (*model.DeleteVariableResponse, error) {
+	requestDef := GenReqDefForDeleteVariable()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteVariableResponse), nil
+	}
+}
+
+// DeleteVariableInvoker 删除全局变量
+func (c *CptsClient) DeleteVariableInvoker(request *model.DeleteVariableRequest) *DeleteVariableInvoker {
+	requestDef := GenReqDefForDeleteVariable()
+	return &DeleteVariableInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListVariables 查询全局变量
 //
 // 查询全局变量
@@ -393,6 +415,28 @@ func (c *CptsClient) UpdateTaskInvoker(request *model.UpdateTaskRequest) *Update
 	return &UpdateTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// UpdateTaskRelatedTestCase 修改任务关联用例
+//
+// 修改任务关联用例
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *CptsClient) UpdateTaskRelatedTestCase(request *model.UpdateTaskRelatedTestCaseRequest) (*model.UpdateTaskRelatedTestCaseResponse, error) {
+	requestDef := GenReqDefForUpdateTaskRelatedTestCase()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateTaskRelatedTestCaseResponse), nil
+	}
+}
+
+// UpdateTaskRelatedTestCaseInvoker 修改任务关联用例
+func (c *CptsClient) UpdateTaskRelatedTestCaseInvoker(request *model.UpdateTaskRelatedTestCaseRequest) *UpdateTaskRelatedTestCaseInvoker {
+	requestDef := GenReqDefForUpdateTaskRelatedTestCase()
+	return &UpdateTaskRelatedTestCaseInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // UpdateTaskStatus 更新任务状态
 //
 // 更新任务状态
@@ -523,6 +567,28 @@ func (c *CptsClient) ListProjectSets(request *model.ListProjectSetsRequest) (*mo
 func (c *CptsClient) ListProjectSetsInvoker(request *model.ListProjectSetsRequest) *ListProjectSetsInvoker {
 	requestDef := GenReqDefForListProjectSets()
 	return &ListProjectSetsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListProjectTestCase 查询用例树
+//
+// 查询用例树
+//
+// 详细说明请参考华为云API Explorer。
+// Please refer to Huawei cloud API Explorer for details.
+func (c *CptsClient) ListProjectTestCase(request *model.ListProjectTestCaseRequest) (*model.ListProjectTestCaseResponse, error) {
+	requestDef := GenReqDefForListProjectTestCase()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListProjectTestCaseResponse), nil
+	}
+}
+
+// ListProjectTestCaseInvoker 查询用例树
+func (c *CptsClient) ListProjectTestCaseInvoker(request *model.ListProjectTestCaseRequest) *ListProjectTestCaseInvoker {
+	requestDef := GenReqDefForListProjectTestCase()
+	return &ListProjectTestCaseInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ShowProcess 查询导入进度

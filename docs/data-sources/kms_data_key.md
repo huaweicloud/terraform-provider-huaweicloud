@@ -5,7 +5,6 @@ subcategory: "Data Encryption Workshop (DEW)"
 # huaweicloud_kms_data_key
 
 Use this data source to get the plaintext and the ciphertext of an available HuaweiCloud KMS DEK (data encryption key).
-This is an alternative to `huaweicloud_kms_key_v1`
 
 ## Example Usage
 

@@ -1,0 +1,137 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_as_bandwidth_policy": {
+          "block": {
+            "attributes": {
+              "alarm_id": {
+                "type": "string",
+                "description": "Specifies the alarm rule ID.",
+                "optional": true,
+                "computed": true
+              },
+              "bandwidth_id": {
+                "type": "string",
+                "description": "Specifies the scaling bandwidth ID.",
+                "required": true
+              },
+              "cool_down_time": {
+                "type": "number",
+                "description": "Specifies the cooldown period (in seconds).",
+                "optional": true,
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the AS policy.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "scaling_policy_name": {
+                "type": "string",
+                "description": "Specifies the AS policy name.",
+                "required": true
+              },
+              "scaling_policy_type": {
+                "type": "string",
+                "description": "Specifies the AS policy type.",
+                "required": true
+              },
+              "scaling_resource_type": {
+                "type": "string",
+                "description": "the scaling resource type.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "the AS policy status.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "scaling_policy_action": {
+                "block": {
+                  "attributes": {
+                    "limits": {
+                      "type": "number",
+                      "description": "Specifies the operation restrictions.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "operation": {
+                      "type": "string",
+                      "description": "Specifies the operation to be performed. The default operation is ADD.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "size": {
+                      "type": "number",
+                      "description": "Specifies the bandwidth (Mbit/s).",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "scheduled_policy": {
+                "block": {
+                  "attributes": {
+                    "end_time": {
+                      "type": "string",
+                      "description": "Specifies the end time of the scaling action triggered periodically.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "launch_time": {
+                      "type": "string",
+                      "description": "Specifies the time when the scaling action is triggered. The time format complies with UTC.",
+                      "required": true
+                    },
+                    "recurrence_type": {
+                      "type": "string",
+                      "description": "Specifies the periodic triggering type.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "recurrence_value": {
+                      "type": "string",
+                      "description": "Specifies the day when a periodic scaling action is triggered.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "start_time": {
+                      "type": "string",
+                      "description": "Specifies the start time of the scaling action triggered periodically.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "AS",
+            "name": "Auto Scaling",
+            "catalog": "Compute",
+            "name_cn": "弹性伸缩",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

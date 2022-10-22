@@ -113,7 +113,12 @@ func ResourceComputeInstanceV2() *schema.Resource {
 			"key_pair": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
+			},
+			"private_key": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Sensitive:    true,
+				RequiredWith: []string{"key_pair"},
 			},
 			"security_groups": {
 				Type:          schema.TypeSet,
@@ -1152,7 +1157,11 @@ func resourceComputeInstanceV2Update(ctx context.Context, d *schema.ResourceData
 		}
 
 		if strings.EqualFold(d.Get("charging_mode").(string), "prePaid") {
-			err = common.WaitOrderComplete(ctx, d, config, resp.OrderID)
+			bssClient, err := config.BssV2Client(config.GetRegion(d))
+			if err != nil {
+				return diag.Errorf("error creating BSS v2 client: %s", err)
+			}
+			err = common.WaitOrderComplete(ctx, bssClient, resp.OrderID, d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
 				return diag.Errorf("The order (%s) is not completed while extending system disk (%s) size: %#v",
 					resp.OrderID, d.Id(), err)
@@ -1172,6 +1181,13 @@ func resourceComputeInstanceV2Update(ctx context.Context, d *schema.ResourceData
 		if err != nil {
 			return diag.Errorf(
 				"error waiting for huaweicloud_compute_instance system disk %s to become ready: %s", systemDiskID, err)
+		}
+	}
+
+	// update the key_pair before power action
+	if d.HasChange("key_pair") {
+		if err := updateEcsInstanceKeyPair(ctx, d, config); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 

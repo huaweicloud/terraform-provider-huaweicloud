@@ -4,7 +4,7 @@ subcategory: "Elastic Load Balance (ELB)"
 
 # huaweicloud_lb_monitor
 
-Manages an ELB monitor resource within HuaweiCloud. This is an alternative to `huaweicloud_lb_monitor_v2`
+Manages an ELB monitor resource within HuaweiCloud.
 
 ## Example Usage
 

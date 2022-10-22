@@ -236,7 +236,11 @@ func resourceEvsVolumeCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	// If charging mode is PrePaid, wait for the order to be completed.
 	if job.OrderID != "" {
-		err = common.WaitOrderComplete(ctx, d, config, job.OrderID)
+		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating BSS v2 client: %s", err)
+		}
+		err = common.WaitOrderComplete(ctx, bssClient, job.OrderID, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return fmtp.DiagErrorf("The order is not completed while creating EVS volume (%s): %#v", d.Id(), err)
 		}
@@ -244,12 +248,13 @@ func resourceEvsVolumeCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	logp.Printf("[DEBUG] Waiting for the EVS volume to become available, the volume ID is %s.", d.Id())
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"creating"},
-		Target:     []string{"available"},
-		Refresh:    CloudVolumeRefreshFunc(evsV2Client, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      3 * time.Second,
-		MinTimeout: 5 * time.Second,
+		Pending:                   []string{"creating"},
+		Target:                    []string{"available"},
+		Refresh:                   CloudVolumeRefreshFunc(evsV2Client, d.Id()),
+		Timeout:                   d.Timeout(schema.TimeoutCreate),
+		Delay:                     3 * time.Second,
+		MinTimeout:                5 * time.Second,
+		ContinuousTargetOccurence: 2,
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
@@ -379,7 +384,11 @@ func resourceEvsVolumeUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 
 		if strings.EqualFold(d.Get("charging_mode").(string), "prePaid") {
-			err = common.WaitOrderComplete(ctx, d, config, resp.OrderID)
+			bssClient, err := config.BssV2Client(config.GetRegion(d))
+			if err != nil {
+				return diag.Errorf("error creating BSS v2 client: %s", err)
+			}
+			err = common.WaitOrderComplete(ctx, bssClient, resp.OrderID, d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
 				return fmtp.DiagErrorf("The order (%s) is not completed while extending EVS volume (%s) size: %#v",
 					resp.OrderID, d.Id(), err)

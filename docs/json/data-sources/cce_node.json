@@ -52,11 +52,13 @@
               },
               "name": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "node_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "os": {
                 "type": "string",
@@ -97,7 +99,8 @@
               },
               "status": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "subnet_id": {
                 "type": "string",
@@ -113,9 +116,11 @@
             }
           },
           "product": {
-            "catalog": "Container",
+            "short": "CCE",
             "name": "Cloud Container Engine",
-            "short": "CCE"
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
           }
         }
       }

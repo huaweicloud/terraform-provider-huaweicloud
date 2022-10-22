@@ -4,7 +4,7 @@ subcategory: "Cloud Data Migration (CDM)"
 
 # huaweicloud_cdm_flavors
 
-Use this data source to get available Huaweicloud cdm flavors. This is an alternative to `huaweicloud_cdm_flavors_v1`
+Use this data source to get available Huaweicloud cdm flavors.
 
 ## Example Usage
 

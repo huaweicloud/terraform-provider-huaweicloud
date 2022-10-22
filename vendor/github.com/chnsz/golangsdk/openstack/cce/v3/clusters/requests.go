@@ -279,7 +279,7 @@ func UpdateMasterIp(c *golangsdk.ServiceClient, id string, opts UpdateIpOptsBuil
 		r.Err = err
 		return
 	}
-	_, r.Err = c.Put(masterIpURL(c, id), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = c.Put(masterIpURL(c, id), b, nil, &golangsdk.RequestOpts{
 		OkCodes: []int{200},
 	})
 	return

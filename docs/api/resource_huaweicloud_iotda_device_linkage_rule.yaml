@@ -1,0 +1,21 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_iotda_device_linkage_rule
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: IoTDA
+paths:
+  /v5/iot/{project_id}/rules/{rule_id}:
+    delete:
+      tag: IoTDA
+      operationId: DeleteRule
+    get:
+      tag: IoTDA
+      operationId: ShowRule
+  /v5/iot/{project_id}/rules:
+    post:
+      tag: IoTDA
+      operationId: CreateRule

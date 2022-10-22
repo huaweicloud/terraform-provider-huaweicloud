@@ -8,21 +8,46 @@ Manages a Security Group Rule resource within HuaweiCloud.
 
 ## Example Usage
 
-```hcl
-resource "huaweicloud_networking_secgroup" "mysecgroup" {
-  name        = "secgroup"
-  description = "My security group"
-}
+### Create an ingress rule that opens TCP port 8080 with port range parameters
 
-resource "huaweicloud_networking_secgroup_rule" "secgroup_rule" {
-  security_group_id = huaweicloud_networking_secgroup.mysecgroup.id
+```hcl
+variable "security_group_id" {}
+
+resource "huaweicloud_networking_secgroup_rule" "test" {
+  security_group_id = var.security_group_id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
-  action            = "allow"
   port_range_min    = 8080
   port_range_max    = 8080
   remote_ip_prefix  = "0.0.0.0/0"
+}
+```
+
+### Create an ingress rule that enable the remote address group and open some TCP ports
+
+```hcl
+variable "group_name" {}
+variable "security_group_id" {}
+
+resource "huaweicloud_vpc_address_group" "test" {
+  name = var.group_name
+
+  addresses = [
+    "192.168.10.12",
+    "192.168.11.0-192.168.11.240",
+  ]
+}
+
+resource "huaweicloud_networking_secgroup_rule" "test" {
+  security_group_id       = var.security_group_id
+  direction               = "ingress"
+  action                  = "allow"
+  ethertype               = "IPv4"
+  ports                   = "80,500,600-800"
+  protocol                = "tcp"
+  priority                = 5
+  remote_address_group_id = huaweicloud_vpc_address_group.test.id
 }
 ```
 
@@ -69,13 +94,16 @@ The following arguments are supported:
   group rule.
 
 * `remote_address_group_id` - (Optional, String, ForceNew) Specifies the remote address group ID.
+  This parameter is not used with `port_range_min` and `port_range_max`.
   Changing this creates a new security group rule.
 
 * `action` - (Optional, String, ForceNew) Specifies the effective policy. The valid values are **allow** and **deny**.
+  This parameter is not used with `port_range_min` and `port_range_max`.
   Changing this creates a new security group rule.
 
 * `priority` - (Optional, String, ForceNew) Specifies the priority number.
   The valid value is range from **1** to **100**. The default value is **1**.
+  This parameter is not used with `port_range_min` and `port_range_max`.
   Changing this creates a new security group rule.
 
 ## Attributes Reference

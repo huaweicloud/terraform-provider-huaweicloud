@@ -1,0 +1,24 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_evs_snapshot
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: EVS
+paths:
+  /v2/{project_id}/cloudsnapshots/{id}:
+    delete:
+      tag: EVS
+      operationId: Delete
+    get:
+      tag: EVS
+      operationId: Get
+    put:
+      tag: EVS
+      operationId: Update
+  /v2/{project_id}/cloudsnapshots:
+    post:
+      tag: EVS
+      operationId: Create

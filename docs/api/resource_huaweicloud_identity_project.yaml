@@ -1,0 +1,24 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_identity_project
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: IAM
+paths:
+  /v3/projects/{projectID}:
+    delete:
+      tag: IAM
+      operationId: Delete
+    get:
+      tag: IAM
+      operationId: Get
+    patch:
+      tag: IAM
+      operationId: Update
+  /v3/projects:
+    post:
+      tag: IAM
+      operationId: Create

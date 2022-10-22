@@ -16,7 +16,7 @@ type ShowUrlTaskInfoResponse struct {
 	Count *int32 `json:"count,omitempty"`
 
 	// url信息
-	Results *[]Urls `json:"results,omitempty"`
+	Result *[]Urls `json:"result,omitempty"`
 
 	XRequestId     *string `json:"X-request-id,omitempty"`
 	HttpStatusCode int     `json:"-"`

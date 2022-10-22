@@ -47,9 +47,9 @@
           "product": {
             "short": "CSS",
             "name": "Cloud Search Service",
-            "catalog": "Enterprise Intelligence",
+            "catalog": "Analytics",
             "name_cn": "云搜索服务",
-            "catalog_cn": "EI 企业智能"
+            "catalog_cn": "大数据"
           }
         }
       }

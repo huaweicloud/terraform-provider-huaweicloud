@@ -81,9 +81,9 @@
           "product": {
             "short": "ModelArts",
             "name": "ModelArts",
-            "catalog": "Enterprise Intelligence",
+            "catalog": "AI",
             "name_cn": "AI开发平台",
-            "catalog_cn": "EI 企业智能"
+            "catalog_cn": "人工智能"
           }
         }
       }

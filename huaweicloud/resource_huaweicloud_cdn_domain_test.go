@@ -26,6 +26,10 @@ func TestAccCdnDomain_basic(t *testing.T) {
 					testAccCheckCdnDomainV1Exists("huaweicloud_cdn_domain.domain_1", &domain),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cdn_domain.domain_1", "name", HW_CDN_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_cdn_domain.domain_1", "tags.key", "val"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_cdn_domain.domain_1", "tags.foo", "bar"),
 				),
 			},
 		},
@@ -60,6 +64,32 @@ func TestAccCdnDomain_cache(t *testing.T) {
 	})
 }
 
+func TestAccCdnDomain_retrievalHost(t *testing.T) {
+	var domain domains.CdnDomain
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckCDN(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCdnDomainV1Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCdnDomainV1_retrievalHost,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCdnDomainV1Exists("huaweicloud_cdn_domain.domain_1", &domain),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_cdn_domain.domain_1", "name", HW_CDN_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_cdn_domain.domain_1", "sources.0.retrieval_host", "customize.test.huaweicloud.com"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_cdn_domain.domain_1", "sources.0.http_port", "8001"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_cdn_domain.domain_1", "sources.0.https_port", "8002"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccCdnDomain_configs(t *testing.T) {
 	var domain domains.CdnDomain
 
@@ -81,6 +111,8 @@ func TestAccCdnDomain_configs(t *testing.T) {
 						"huaweicloud_cdn_domain.domain_1", "configs.0.origin_protocol", "http"),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cdn_domain.domain_1", "configs.0.ipv6_enable", "true"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_cdn_domain.domain_1", "configs.0.range_based_retrieval_enabled", "true"),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cdn_domain.domain_1", "configs.0.https_settings.0.certificate_name", "terraform-test"),
 					resource.TestCheckResourceAttr(
@@ -157,13 +189,19 @@ func testAccCheckCdnDomainV1Exists(n string, domain *domains.CdnDomain) resource
 
 var testAccCdnDomainV1_basic = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "domain_1" {
-  name   = "%s"
-  type   = "wholeSite"
+  name                  = "%s"
+  type                  = "wholeSite"
   enterprise_project_id = 0
+
   sources {
-      active = 1
-      origin = "100.254.53.75"
-      origin_type  = "ipaddr"
+    active      = 1
+    origin      = "100.254.53.75"
+    origin_type = "ipaddr"
+  }
+
+  tags = {
+    key = "val"
+    foo = "bar"
   }
 }
 `, HW_CDN_DOMAIN_NAME)
@@ -191,6 +229,23 @@ resource "huaweicloud_cdn_domain" "domain_1" {
 }
 `, HW_CDN_DOMAIN_NAME)
 
+var testAccCdnDomainV1_retrievalHost = fmt.Sprintf(`
+resource "huaweicloud_cdn_domain" "domain_1" {
+  name                  = "%s"
+  type                  = "wholeSite"
+  enterprise_project_id = 0
+
+  sources {
+    active         = 1
+    origin         = "100.254.53.75"
+    origin_type    = "ipaddr"
+    retrieval_host = "customize.test.huaweicloud.com"
+    http_port      = 8001
+    https_port     = 8002
+  }
+}
+`, HW_CDN_DOMAIN_NAME)
+
 var testAccCdnDomainV1_configs = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "domain_1" {
   name                  = "%s"
@@ -204,8 +259,9 @@ resource "huaweicloud_cdn_domain" "domain_1" {
   }
 
   configs {
-	origin_protocol = "http"
-	ipv6_enable     = true
+	origin_protocol               = "http"
+	ipv6_enable                   = true
+	range_based_retrieval_enabled = "true"
 
     https_settings {
       certificate_name = "terraform-test"

@@ -44,6 +44,7 @@ var (
 	HW_DEST_REGION         = os.Getenv("HW_DEST_REGION")
 	HW_DEST_PROJECT_ID     = os.Getenv("HW_DEST_PROJECT_ID")
 	HW_CHARGING_MODE       = os.Getenv("HW_CHARGING_MODE")
+	HW_HIGH_COST_ALLOW     = os.Getenv("HW_HIGH_COST_ALLOW")
 	HW_SWR_SHARING_ACCOUNT = os.Getenv("HW_SWR_SHARING_ACCOUNT")
 
 	HW_CERTIFICATE_KEY_PATH         = os.Getenv("HW_CERTIFICATE_KEY_PATH")
@@ -52,6 +53,7 @@ var (
 	HW_CERTIFICATE_SERVICE          = os.Getenv("HW_CERTIFICATE_SERVICE")
 	HW_CERTIFICATE_PROJECT          = os.Getenv("HW_CERTIFICATE_PROJECT")
 	HW_CERTIFICATE_PROJECT_UPDATED  = os.Getenv("HW_CERTIFICATE_PROJECT_UPDATED")
+	HW_CERTIFICATE_NAME             = os.Getenv("HW_CERTIFICATE_NAME")
 	HW_DMS_ENVIRONMENT              = os.Getenv("HW_DMS_ENVIRONMENT")
 	HW_SMS_SOURCE_SERVER            = os.Getenv("HW_SMS_SOURCE_SERVER")
 
@@ -78,6 +80,8 @@ var (
 
 	HW_AAD_INSTANCE_ID = os.Getenv("HW_AAD_INSTANCE_ID")
 	HW_AAD_IP_ADDRESS  = os.Getenv("HW_AAD_IP_ADDRESS")
+
+	HW_FGS_TRIGGER_LTS_AGENCY = os.Getenv("HW_FGS_TRIGGER_LTS_AGENCY")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -178,12 +182,19 @@ func TestAccPreCheckMrsCustom(t *testing.T) {
 	}
 }
 
+// lintignore:AT003
+func TestAccPreCheckFgsTrigger(t *testing.T) {
+	if HW_FGS_TRIGGER_LTS_AGENCY == "" {
+		t.Skip("HW_FGS_TRIGGER_LTS_AGENCY must be set for FGS trigger acceptance tests")
+	}
+}
+
 func RandomAccResourceName() string {
-	return fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
+	return fmt.Sprintf("tf_test_%s", acctest.RandString(5))
 }
 
 func RandomAccResourceNameWithDash() string {
-	return fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	return fmt.Sprintf("tf-test-%s", acctest.RandString(5))
 }
 
 func RandomCidr() string {
@@ -193,6 +204,11 @@ func RandomCidr() string {
 func RandomCidrAndGatewayIp() (string, string) {
 	seed := acctest.RandIntRange(0, 255)
 	return fmt.Sprintf("172.16.%d.0/24", seed), fmt.Sprintf("172.16.%d.1", seed)
+}
+
+func RandomPassword() string {
+	return fmt.Sprintf("%s%s%s%d", acctest.RandStringFromCharSet(2, "ABCDEFGHIJKLMNOPQRSTUVWXZY"),
+		acctest.RandString(3), acctest.RandStringFromCharSet(2, "~!@#%^*-_=+?"), acctest.RandIntRange(1000, 9999))
 }
 
 // lintignore:AT003
@@ -241,6 +257,13 @@ func TestAccPreCheckOBSBucket(t *testing.T) {
 func TestAccPreCheckChargingMode(t *testing.T) {
 	if HW_CHARGING_MODE != "prePaid" {
 		t.Skip("This environment does not support prepaid tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckHighCostAllow(t *testing.T) {
+	if HW_HIGH_COST_ALLOW == "" {
+		t.Skip("Do not allow expensive testing")
 	}
 }
 
@@ -354,5 +377,12 @@ func TestAccPreCheckParticipants(t *testing.T) {
 func TestAccPreCheckAadForwardRule(t *testing.T) {
 	if HW_AAD_INSTANCE_ID == "" || HW_AAD_IP_ADDRESS == "" {
 		t.Skip("The instance information is not completed for AAD rule acceptance test.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckScmCertificateName(t *testing.T) {
+	if HW_CERTIFICATE_NAME == "" {
+		t.Skip("HW_CERTIFICATE_NAME must be set for SCM acceptance tests.")
 	}
 }

@@ -6,7 +6,7 @@ subcategory: "Deprecated"
 
 !> **WARNING:** It has been deprecated.
 
-Provides an HuaweiCloud Backup of Resources. This is an alternative to `huaweicloud_csbs_backup_v1`
+Provides an HuaweiCloud Backup of Resources.
 
 ## Example Usage
 

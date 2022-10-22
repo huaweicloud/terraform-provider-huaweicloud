@@ -40,7 +40,8 @@ func getLtsStructTemplateFunc(conf *config.Config, state *terraform.ResourceStat
 
 func TestAccLtsStructTemplate_basic(t *testing.T) {
 	var instance entity.ShowStructTemplateResponse
-	resourceName := "huaweicloud_lts_struct_template.struct_1"
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_lts_struct_template.template_1"
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -51,17 +52,19 @@ func TestAccLtsStructTemplate_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckInternal(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: tesLtsStructTemplate_basic(),
+				Config: tesLtsStructTemplate_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "log_group_id", "e5e5a6de-354d-45af-a7da-0fb91e9a3796"),
-					resource.TestCheckResourceAttr(resourceName, "log_stream_id", "45bbeee7-2144-4d40-9c80-ba452298b6b8"),
+					resource.TestCheckResourceAttrPair(resourceName, "log_group_id",
+						"huaweicloud_lts_group.group_1", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "log_stream_id",
+						"huaweicloud_lts_stream.stream_1", "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "demo_log"),
 				),
 			},
 			{
@@ -92,11 +95,20 @@ func testAccLtsStructImportStateIdFunc() resource.ImportStateIdFunc {
 	}
 }
 
-func tesLtsStructTemplate_basic() string {
-	return `
-resource "huaweicloud_lts_struct_template" "struct_1" {
-  log_group_id        = "e5e5a6de-354d-45af-a7da-0fb91e9a3796"
-  log_stream_id      = "45bbeee7-2144-4d40-9c80-ba452298b6b8"
-  template_type    = "custom"
-}`
+func tesLtsStructTemplate_basic(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_lts_group" "group_1" {
+  group_name  = "%[1]s"
+  ttl_in_days = 1
+}
+resource "huaweicloud_lts_stream" "stream_1" {
+  group_id    = huaweicloud_lts_group.group_1.id
+  stream_name = "%[1]s"
+}
+
+resource "huaweicloud_lts_struct_template" "template_1" {
+  log_group_id  = huaweicloud_lts_group.group_1.id
+  log_stream_id = huaweicloud_lts_stream.stream_1.id
+  template_type = "custom"
+}`, rName)
 }

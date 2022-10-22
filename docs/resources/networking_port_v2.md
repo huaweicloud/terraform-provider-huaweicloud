@@ -4,7 +4,7 @@ subcategory: "Deprecated"
 
 # huaweicloud_networking_port
 
-Manages a Port resource within HuaweiCloud. This is an alternative to `huaweicloud_networking_port_v2`
+Manages a Port resource within HuaweiCloud.
 
 ## Example Usage
 

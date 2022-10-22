@@ -1,0 +1,157 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dli_flinkjar_job": {
+          "block": {
+            "attributes": {
+              "checkpoint_path": {
+                "type": "string",
+                "optional": true
+              },
+              "cu_num": {
+                "type": "number",
+                "optional": true,
+                "default": 2
+              },
+              "dependency_files": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "dependency_jars": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "entrypoint": {
+                "type": "string",
+                "optional": true
+              },
+              "entrypoint_args": {
+                "type": "string",
+                "optional": true
+              },
+              "feature": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "flink_version": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image": {
+                "type": "string",
+                "optional": true
+              },
+              "log_enabled": {
+                "type": "bool",
+                "optional": true,
+                "default": false
+              },
+              "main_class": {
+                "type": "string",
+                "optional": true
+              },
+              "manager_cu_num": {
+                "type": "number",
+                "optional": true,
+                "default": 1
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "obs_bucket": {
+                "type": "string",
+                "optional": true
+              },
+              "parallel_num": {
+                "type": "number",
+                "optional": true,
+                "default": 1
+              },
+              "queue_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "restart_when_exception": {
+                "type": "bool",
+                "optional": true,
+                "default": false
+              },
+              "resume_checkpoint": {
+                "type": "bool",
+                "optional": true
+              },
+              "resume_max_num": {
+                "type": "number",
+                "optional": true,
+                "default": -1
+              },
+              "runtime_config": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "smn_topic": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "tm_cu_num": {
+                "type": "number",
+                "optional": true,
+                "default": 1
+              },
+              "tm_slot_num": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Analytics",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

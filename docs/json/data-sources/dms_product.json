@@ -5,9 +5,18 @@
         "huaweicloud_dms_product": {
           "block": {
             "attributes": {
+              "availability_zones": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
               "bandwidth": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "engine": {
                 "type": "string",
@@ -21,11 +30,6 @@
                 "type": "string",
                 "required": true
               },
-              "io_type": {
-                "type": "string",
-                "optional": true,
-                "computed": true
-              },
               "node_num": {
                 "type": "string",
                 "optional": true,
@@ -33,7 +37,8 @@
               },
               "partition_num": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "region": {
                 "type": "string",
@@ -49,6 +54,14 @@
                 "optional": true,
                 "computed": true
               },
+              "storage_spec_codes": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
               "version": {
                 "type": "string",
                 "optional": true,
@@ -60,6 +73,13 @@
                 "computed": true
               }
             }
+          },
+          "product": {
+            "short": "DMS",
+            "name": "Distributed Message Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 DMS",
+            "catalog_cn": "应用中间件"
           }
         }
       }

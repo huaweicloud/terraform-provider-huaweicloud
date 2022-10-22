@@ -1,0 +1,26 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_vpc_bandwidth
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: EIP
+paths:
+  /v2.0/{project_id}/bandwidths/{ID}:
+    delete:
+      tag: EIP
+      operationId: Delete
+  /v1/{project_id}/bandwidths/{id}:
+    get:
+      tag: EIP
+      operationId: Get
+  /v2.0/{project_id}/bandwidths/{ID}:
+    put:
+      tag: EIP
+      operationId: Update
+  /v2.0/{project_id}/bandwidths:
+    post:
+      tag: EIP
+      operationId: Create

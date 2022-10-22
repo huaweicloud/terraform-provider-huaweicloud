@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_servicestage_component_runtimes": {
+          "block": {
+            "attributes": {
+              "default_port": {
+                "type": "number",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "runtimes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "default_port": "number",
+                      "description": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ServiceStage",
+            "name": "ServiceStage",
+            "catalog": "DevCloud",
+            "name_cn": "应用管理与运维平台",
+            "catalog_cn": "软件开发服务"
+          }
+        }
+      }
+    }
+  }
+}

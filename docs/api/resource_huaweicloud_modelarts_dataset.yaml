@@ -1,0 +1,24 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_modelarts_dataset
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: ModelArts
+paths:
+  /v2/{project_id}/datasets/{datasetId}:
+    delete:
+      tag: ModelArts
+      operationId: Delete
+    get:
+      tag: ModelArts
+      operationId: Get
+    put:
+      tag: ModelArts
+      operationId: Update
+  /v2/{project_id}/datasets:
+    post:
+      tag: ModelArts
+      operationId: Create

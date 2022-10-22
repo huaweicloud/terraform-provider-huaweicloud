@@ -43,9 +43,11 @@
             }
           },
           "product": {
-            "catalog": "Compute",
+            "short": "ECS",
             "name": "Elastic Cloud Server",
-            "short": "ECS"
+            "catalog": "Compute",
+            "name_cn": "弹性云服务器",
+            "catalog_cn": "计算"
           }
         }
       }

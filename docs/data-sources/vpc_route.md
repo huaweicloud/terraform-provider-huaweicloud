@@ -6,7 +6,7 @@ subcategory: "Deprecated"
 
 !> **WARNING:** It has been deprecated, use `huaweicloud_vpc_route_table` to get the route details.
 
-Provides details about a specific VPC route. This is an alternative to `huaweicloud_vpc_route_v2`
+Provides details about a specific VPC route.
 
 ## Example Usage
 

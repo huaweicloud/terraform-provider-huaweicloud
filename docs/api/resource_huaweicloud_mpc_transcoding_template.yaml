@@ -1,0 +1,23 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_mpc_transcoding_template
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: MPC
+paths:
+  /v1/{project_id}/template/transcodings:
+    delete:
+      tag: MPC
+      operationId: DeleteTemplate
+    get:
+      tag: MPC
+      operationId: ListTemplate
+    post:
+      tag: MPC
+      operationId: CreateTransTemplate
+    put:
+      tag: MPC
+      operationId: UpdateTransTemplate

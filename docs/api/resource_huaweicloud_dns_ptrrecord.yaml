@@ -1,0 +1,25 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_dns_ptrrecord
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: DNS
+paths:
+  /v2/{project_id}/DNS-ptr_record/{id}/tags/action:
+    POST:
+      tag: DNS
+      operationId: batchUpdate
+  /v2/{project_id}/DNS-ptr_record/{id}/tags:
+    get:
+      tag: DNS
+      operationId: Get
+  /v2/reverse/floatingips/{region}:{floatingip_id}:
+    get:
+      tag: DNS
+      operationId: Get
+    patch:
+      tag: DNS
+      operationId: Create

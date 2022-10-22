@@ -1,0 +1,24 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_swr_repository
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: SWR
+paths:
+  /v2/manage/namespaces/{namespace}/repos/{repository}:
+    delete:
+      tag: SWR
+      operationId: Delete
+    get:
+      tag: SWR
+      operationId: Get
+    patch:
+      tag: SWR
+      operationId: Update
+  /v2/manage/namespaces/{namespace}/repos:
+    post:
+      tag: SWR
+      operationId: Create

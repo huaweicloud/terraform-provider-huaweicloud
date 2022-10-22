@@ -3,10 +3,10 @@ package sfs
 import (
 	"context"
 	"fmt"
+	"log"
 	"regexp"
 	"strconv"
 
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -201,7 +201,7 @@ func dataSourceTurbosRead(ctx context.Context, d *schema.ResourceData, meta inte
 	if size, ok := d.GetOk("size"); ok {
 		result = filterTurbosBySize(result, size.(int))
 	}
-	tflog.Debug(ctx, fmt.Sprintf("the filter result of STS turbo list is: %s", result))
+	log.Printf("[DEBUG] the filter result of STS turbo list is: %s", result)
 
 	turbos, ids := flattenTurbos(result)
 	d.SetId(hashcode.Strings(ids))

@@ -1,0 +1,24 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_iec_vpc
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: IEC
+paths:
+  /v1/vpcs/{vpcId}:
+    delete:
+      tag: IEC
+      operationId: Delete
+    get:
+      tag: IEC
+      operationId: Get
+    put:
+      tag: IEC
+      operationId: Update
+  /v1/vpcs:
+    post:
+      tag: IEC
+      operationId: Create

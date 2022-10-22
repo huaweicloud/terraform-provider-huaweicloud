@@ -1,0 +1,36 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_sfs_file_system
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: SFS
+paths:
+  /v2/{project_id}/sfs/{id}/tags/action:
+    post:
+      tag: SFS
+      operationId: Create
+  /v2/{project_id}/sfs/{id}/tags:
+    get:
+      tag: SFS
+      operationId: Get
+  /v2/{project_id}/shares/{id}/action:
+    post:
+      tag: SFS
+      operationId: GrantAccess
+  /v2/{project_id}/shares/{id}:
+    delete:
+      tag: SFS
+      operationId: Delete
+    get:
+      tag: SFS
+      operationId: Get
+    put:
+      tag: SFS
+      operationId: Update
+  /v2/{project_id}/shares:
+    post:
+      tag: SFS
+      operationId: Create

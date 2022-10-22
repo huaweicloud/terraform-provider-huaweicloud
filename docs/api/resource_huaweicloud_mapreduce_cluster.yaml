@@ -1,0 +1,41 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_mapreduce_cluster
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: MRS
+paths:
+  /v1.1/{project_id}/cluster_infos/{id}:
+    get:
+      tag: MRS
+      operationId: Get
+    put:
+      tag: MRS
+      operationId: Update
+  /v1.1/{project_id}/clusters/{clusterId}/hosts:
+    get:
+      tag: MRS
+      operationId: ListHosts
+  /v1.1/{project_id}/clusters/{id}/tags/action:
+    post:
+      tag: MRS
+      operationId: Create
+  /v1.1/{project_id}/clusters/{id}/tags:
+    get:
+      tag: MRS
+      operationId: Get
+  /v1.1/{project_id}/clusters/{id}:
+    delete:
+      tag: MRS
+      operationId: Delete
+  /v2/{project_id}/clusters:
+    post:
+      tag: MRS
+      operationId: Create
+  /v1/{project_id}/publicips:
+    get:
+      tag: MRS
+      operationId: List

@@ -15,7 +15,7 @@ type UpdateTaskResponse struct {
 	// message
 	Message *string `json:"message,omitempty"`
 
-	Taskinfo       *TaskInfo `json:"taskinfo,omitempty"`
+	TaskInfo       *TaskInfo `json:"taskInfo,omitempty"`
 	HttpStatusCode int       `json:"-"`
 }
 

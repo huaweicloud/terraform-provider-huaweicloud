@@ -4,7 +4,7 @@ subcategory: "Document Database Service (DDS)"
 
 # huaweicloud_dds_instance
 
-Manages dds instance resource within HuaweiCloud This is an alternativeto `huaweicloud_dds_instance_v3`
+Manages dds instance resource within HuaweiCloud.
 
 ## Example Usage: Creating a Cluster Community Edition
 
@@ -142,10 +142,6 @@ The following arguments are supported:
 * `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
   Valid values are `true` and `false`, defaults to `false`.
   Changing this creates a new instance.
-
-* `auto_pay` - (Optional, String, ForceNew) Specifies whether auto pay is enabled.
-  Valid values are *true* and *false*. Defaults to *true*. If you set this to *false*, you need to pay the order
-  yourself in time, be careful about the timeout of resource creation. Changing this creates a new instance.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the DDS instance.
 

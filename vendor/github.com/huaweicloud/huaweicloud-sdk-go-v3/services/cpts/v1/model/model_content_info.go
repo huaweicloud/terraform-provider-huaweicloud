@@ -14,14 +14,14 @@ type ContentInfo struct {
 	// bodys
 	Bodys *[]interface{} `json:"bodys,omitempty"`
 
-	// check_end_length
-	CheckEndLength *string `json:"check_end_length,omitempty"`
+	// TCP/UDP协议返回数据长度
+	CheckEndLength *interface{} `json:"check_end_length,omitempty"`
 
-	// check_end_str
-	CheckEndStr *string `json:"check_end_str,omitempty"`
+	// TCP/UDP协议返回结束符
+	CheckEndStr *interface{} `json:"check_end_str,omitempty"`
 
-	// check_end_type
-	CheckEndType *string `json:"check_end_type,omitempty"`
+	// TCP/UDP协议返回结束类型，1：返回数据长度；2：结束符
+	CheckEndType *interface{} `json:"check_end_type,omitempty"`
 
 	// connect_timeout
 	ConnectTimeout *int32 `json:"connect_timeout,omitempty"`

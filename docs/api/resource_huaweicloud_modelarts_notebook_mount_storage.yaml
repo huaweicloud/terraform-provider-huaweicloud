@@ -1,0 +1,25 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_modelarts_notebook_mount_storage
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: ModelArts
+paths:
+  /v1/{project_id}/notebooks/{id}/storage/{storageId}:
+    delete:
+      tag: ModelArts
+      operationId: DeleteMount
+    get:
+      tag: ModelArts
+      operationId: GetMount
+  /v1/{project_id}/notebooks/{id}/storage:
+    post:
+      tag: ModelArts
+      operationId: Mount
+  /v1/{project_id}/notebooks/{id}:
+    get:
+      tag: ModelArts
+      operationId: Get

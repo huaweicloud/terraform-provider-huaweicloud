@@ -1,0 +1,37 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_fgs_trigger
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: FunctionGraph
+paths:
+  /v1.0/apigw/api-groups/{id}:
+    get:
+      tag: FunctionGraph
+      operationId: Get
+  /v1.0/apigw/envs:
+    get:
+      tag: FunctionGraph
+      operationId: List
+  /v2/{project_id}/fgs/triggers/{functionUrn}/{triggerTypeCode}/{triggerId}:
+    put:
+      tag: FunctionGraph
+      operationId: Update
+  /v2/{project_id}/fgs/triggers/{functionUrn}:
+    get:
+      tag: FunctionGraph
+      operationId: List
+    post:
+      tag: FunctionGraph
+      operationId: Create
+  /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{groupId}:
+    get:
+      tag: FunctionGraph
+      operationId: Get
+  /v2/{project_id}/apigw/instances/{instanceId}/{path}:
+    get:
+      tag: FunctionGraph
+      operationId: List

@@ -4,7 +4,7 @@ subcategory: "Elastic Load Balance (ELB)"
 
 # huaweicloud_lb_certificate
 
-Manages an ELB certificate resource within HuaweiCloud. This is an alternative to `huaweicloud_lb_certificate_v2`
+Manages an ELB certificate resource within HuaweiCloud.
 
 ## Example Usage
 

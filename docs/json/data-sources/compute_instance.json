@@ -11,7 +11,8 @@
               },
               "enterprise_project_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "fixed_ip_v4": {
                 "type": "string",
@@ -136,9 +137,11 @@
             }
           },
           "product": {
-            "catalog": "Compute",
+            "short": "ECS",
             "name": "Elastic Cloud Server",
-            "short": "ECS"
+            "catalog": "Compute",
+            "name_cn": "弹性云服务器",
+            "catalog_cn": "计算"
           }
         }
       }

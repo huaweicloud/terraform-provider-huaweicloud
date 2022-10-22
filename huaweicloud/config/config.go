@@ -675,6 +675,10 @@ func (c *Config) KmsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("kmsv1", region)
 }
 
+func (c *Config) KmsV3Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("kmsv3", region)
+}
+
 // WafV1Client is not avaliable in HuaweiCloud, will be imported by other clouds
 func (c *Config) WafV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("waf", region)
@@ -743,6 +747,10 @@ func (c *Config) ModelArtsV1Client(region string) (*golangsdk.ServiceClient, err
 
 func (c *Config) ModelArtsV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("modelartsv2", region)
+}
+
+func (c *Config) WorkspaceV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("workspace", region)
 }
 
 // ********** client for Application **********
@@ -843,15 +851,16 @@ func (c *Config) SmsV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("sms", region)
 }
 
-func (c *Config) MlsV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("mls", region)
-}
-
 func (c *Config) ScmV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("scm", region)
 }
 
 // the following clients are used for Joint-Operation Cloud only
+
+// MlsV1Client has the endpoint: https://mls.{{region}}/{{cloud}}/v1.0/{{project_id}}
+func (c *Config) MlsV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("mls", region)
+}
 
 // NatV2Client has the endpoint: https://nat.{{region}}/{{cloud}}/v2.0/
 func (c *Config) NatV2Client(region string) (*golangsdk.ServiceClient, error) {

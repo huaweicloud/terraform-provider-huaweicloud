@@ -79,6 +79,12 @@ type ReportoutlineInfo struct {
 
 	// 服务id
 	ServiceId *string `json:"serviceId,omitempty"`
+
+	ProgressState *string `json:"progressState,omitempty"`
+
+	CreateBy *string `json:"createBy,omitempty"`
+
+	StatusValue *string `json:"statusValue,omitempty"`
 }
 
 func (o ReportoutlineInfo) String() string {

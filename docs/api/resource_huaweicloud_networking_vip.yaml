@@ -1,0 +1,28 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_networking_vip
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: VPC
+paths:
+  /v1/{project_id}/ports/{portId}:
+    delete:
+      tag: VPC
+      operationId: Delete
+    get:
+      tag: VPC
+      operationId: Get
+    put:
+      tag: VPC
+      operationId: Update
+  /v1/{project_id}/ports:
+    post:
+      tag: VPC
+      operationId: Create
+  /v1/{project_id}/subnets/{id}:
+    get:
+      tag: VPC
+      operationId: Get

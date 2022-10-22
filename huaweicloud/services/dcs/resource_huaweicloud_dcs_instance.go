@@ -3,6 +3,7 @@ package dcs
 import (
 	"context"
 	"errors"
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -576,7 +577,11 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 
 	// If charging mode is PrePaid, wait for the order to be completed.
 	if strings.EqualFold(d.Get("charging_mode").(string), chargeModePrePaid) {
-		err = common.WaitOrderComplete(ctx, d, conf, r.OrderId)
+		bssClient, err := conf.BssV2Client(conf.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating BSS v2 client: %s", err)
+		}
+		err = common.WaitOrderComplete(ctx, bssClient, r.OrderId, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return fmtp.DiagErrorf("[DEBUG] Error the order is not completed while "+
 				"creating DCS instance. %s : %#v", d.Id(), err)
@@ -903,7 +908,11 @@ func resizeDcsInstance(ctx context.Context, d *schema.ResourceData, meta interfa
 
 		if d.Get("charging_mode").(string) == chargeModePrePaid {
 			// wait for order pay
-			err = common.WaitOrderComplete(ctx, d, config, r.OrderId)
+			bssClient, err := config.BssV2Client(config.GetRegion(d))
+			if err != nil {
+				return fmt.Errorf("error creating BSS v2 client: %s", err)
+			}
+			err = common.WaitOrderComplete(ctx, bssClient, r.OrderId, d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
 				return err
 			}

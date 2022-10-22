@@ -25,6 +25,11 @@
                 "type": "string",
                 "computed": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "file": {
                 "type": "string",
                 "computed": true
@@ -35,7 +40,8 @@
               },
               "image_type": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "metadata": {
                 "type": [
@@ -59,7 +65,8 @@
               },
               "name": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "name_regex": {
                 "type": "string",
@@ -67,15 +74,18 @@
               },
               "os": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "os_version": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "owner": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "protected": {
                 "type": "bool",
@@ -117,9 +127,17 @@
               },
               "visibility": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               }
             }
+          },
+          "product": {
+            "short": "IMS",
+            "name": "Image Management Service",
+            "catalog": "Compute",
+            "name_cn": "镜像服务",
+            "catalog_cn": "计算"
           }
         }
       }

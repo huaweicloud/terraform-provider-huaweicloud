@@ -1,0 +1,14 @@
+info:
+  version: v1.41.1
+  title: data_source_huaweicloud_compute_instances
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: ECS
+paths:
+  /v1/{project_id}/cloudservers/detail:
+    get:
+      tag: ECS
+      operationId: List

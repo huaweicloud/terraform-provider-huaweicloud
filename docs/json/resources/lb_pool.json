@@ -52,6 +52,12 @@
                       "optional": true,
                       "forcenew": true
                     },
+                    "timeout": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
                     "type": {
                       "type": "string",
                       "required": true,

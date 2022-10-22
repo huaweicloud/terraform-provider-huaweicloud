@@ -1,0 +1,39 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_meeting_conference
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: 
+paths:
+  /{project_id}/mmc/management/conference/duration:
+    put:
+      tag: 
+      operationId: ExtendTime
+  /{project_id}/mmc/management/conferences/confDetail:
+    get:
+      tag: 
+      operationId: Get
+  /{project_id}/mmc/management/conferences/history/confDetail:
+    get:
+      tag: 
+      operationId: GetHistory
+  /{project_id}/mmc/management/conferences/history:
+    get:
+      tag: 
+      operationId: ListHistory
+  /{project_id}/mmc/management/conferences:
+    delete:
+      tag: 
+      operationId: Delete
+    get:
+      tag: 
+      operationId: GetControlToken
+    post:
+      tag: 
+      operationId: Create
+    put:
+      tag: 
+      operationId: Update

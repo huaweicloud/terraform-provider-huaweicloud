@@ -1,6 +1,8 @@
 package config
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // ServiceCatalog defines a struct which was used to generate a service client for huaweicloud.
 // the endpoint likes https://{Name}.{Region}.myhuaweicloud.com/{Version}/{project_id}/{ResourceBase}
@@ -27,7 +29,7 @@ var multiCatalogKeys = map[string][]string{
 	"vpc":          {"networkv2", "vpcv3", "fwv2"},
 	"elb":          {"elbv2", "elbv3"},
 	"dns":          {"dns_region"},
-	"kms":          {"kmsv1"},
+	"kms":          {"kmsv1", "kmsv3"},
 	"mrs":          {"mrsv2"},
 	"rds":          {"rdsv1"},
 	"waf":          {"waf-dedicated"},
@@ -284,6 +286,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "DNS",
 	},
+	"workspace": {
+		Name:    "workspace",
+		Version: "v2",
+		Product: "Workspace",
+	},
 
 	// catalog for database
 	"rdsv1": {
@@ -397,6 +404,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"kmsv1": {
 		Name:    "kms",
 		Version: "v1",
+		Product: "DEW",
+	},
+	"kmsv3": {
+		Name:    "kms",
+		Version: "v3",
 		Product: "DEW",
 	},
 	"waf": {
@@ -570,11 +582,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v1",
 		Product: "OMS",
 	},
-	"mls": {
-		Name:    "mls",
-		Version: "v1.0",
-		Product: "MLS",
-	},
 	"scm": {
 		Name:             "scm",
 		Version:          "v3",
@@ -582,13 +589,13 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Product:          "SCM",
 	},
 
-	// catalog for Joint-Operation Cloud only
-	// no need to put the key into allServiceCatalog
-	"natv2": {
-		Name:             "nat",
-		Version:          "v2.0",
+	// catalog for cc
+	"cc": {
+		Name:             "cc",
+		Version:          "v3",
+		Scope:            "global",
 		WithOutProjectID: true,
-		Product:          "NAT",
+		Product:          "CC",
 	},
 
 	"cpts": {
@@ -634,6 +641,20 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v4",
 		Product: "ProjectMan",
 	},
+
+	// catalog for Joint-Operation Cloud only
+	// it should be at the end of this map, and no necessary to put the key into allServiceCatalog
+	"mls": {
+		Name:    "mls",
+		Version: "v1.0",
+		Product: "MLS",
+	},
+	"natv2": {
+		Name:             "nat",
+		Version:          "v2.0",
+		WithOutProjectID: true,
+		Product:          "NAT",
+	},
 }
 
 // GetServiceEndpoint try to get the endpoint from customizing map
@@ -655,4 +676,12 @@ func GetServiceEndpoint(c *Config, srv, region string) string {
 		ep = fmt.Sprintf("https://%s.%s.%s/", catalog.Name, region, c.Cloud)
 	}
 	return ep
+}
+
+// GetServiceCatalog returns the catalog object of a service
+func GetServiceCatalog(service string) *ServiceCatalog {
+	if catalog, ok := allServiceCatalog[service]; ok {
+		return &catalog
+	}
+	return nil
 }

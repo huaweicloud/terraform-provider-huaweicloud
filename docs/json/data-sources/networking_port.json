@@ -21,11 +21,13 @@
               },
               "device_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "device_owner": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "fixed_ip": {
                 "type": "string",
@@ -37,26 +39,31 @@
               },
               "mac_address": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "name": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "network_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "port_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "project_id": {
                 "type": "string",
                 "optional": true
               },
               "region": {
-                "type": "string"
+                "type": "string",
+                "computed": true
               },
               "security_group_ids": {
                 "type": [
@@ -67,14 +74,17 @@
               },
               "status": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               }
             }
           },
           "product": {
-            "catalog": "Network",
+            "short": "VPC",
             "name": "Virtual Private Cloud",
-            "short": "VPC"
+            "catalog": "Networking",
+            "name_cn": "虚拟私有云",
+            "catalog_cn": "网络"
           }
         }
       }

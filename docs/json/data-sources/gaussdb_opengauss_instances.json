@@ -1,0 +1,126 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_opengauss_instances": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone": "string",
+                      "backup_strategy": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "keep_days": "number",
+                            "start_time": "string"
+                          }
+                        ]
+                      ],
+                      "coordinator_num": "number",
+                      "datastore": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "engine": "string",
+                            "version": "string"
+                          }
+                        ]
+                      ],
+                      "db_user_name": "string",
+                      "enterprise_project_id": "string",
+                      "flavor": "string",
+                      "ha": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "replication_mode": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "maintenance_window": "string",
+                      "name": "string",
+                      "nodes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "availability_zone": "string",
+                            "id": "string",
+                            "name": "string",
+                            "role": "string",
+                            "status": "string"
+                          }
+                        ]
+                      ],
+                      "port": "number",
+                      "private_ips": [
+                        "list",
+                        "string"
+                      ],
+                      "region": "string",
+                      "security_group_id": "string",
+                      "sharding_num": "number",
+                      "status": "string",
+                      "subnet_id": "string",
+                      "switch_strategy": "string",
+                      "time_zone": "string",
+                      "type": "string",
+                      "volume": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "size": "number",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "optional": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

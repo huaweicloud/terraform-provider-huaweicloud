@@ -1,0 +1,32 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_cdm_job
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: CDM
+paths:
+  /v1.1/{project_id}/clusters/{clusterId}/cdm/job/{jobName}/start:
+    put:
+      tag: CDM
+      operationId: Start
+  /v1.1/{project_id}/clusters/{clusterId}/cdm/job/{jobName}/stop:
+    put:
+      tag: CDM
+      operationId: Stop
+  /v1.1/{project_id}/clusters/{clusterId}/cdm/job/{jobName}:
+    delete:
+      tag: CDM
+      operationId: Delete
+    get:
+      tag: CDM
+      operationId: Get
+    put:
+      tag: CDM
+      operationId: Update
+  /v1.1/{project_id}/clusters/{clusterId}/cdm/job:
+    post:
+      tag: CDM
+      operationId: Create

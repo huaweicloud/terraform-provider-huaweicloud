@@ -17,9 +17,12 @@ import (
 	aomv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2"
 	cdnv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v1"
 	cptsv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1"
+	cssv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1"
+	cssv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v2"
 	ctsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3"
 	iamv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3"
 	iotdav5 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5"
+	dmsv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kafka/v2"
 	kpsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3"
 	livev1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1"
 	mpcv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1"
@@ -238,6 +241,24 @@ func (c *Config) HcOmsV2Client(region string) (*omsv2.OmsClient, error) {
 	return omsv2.NewOmsClient(hcClient), nil
 }
 
+// HcCssV1Client is the css service client using huaweicloud-sdk-go-v3 package
+func (c *Config) HcCssV1Client(region string) (*cssv1.CssClient, error) {
+	hcClient, err := NewHcClient(c, region, "css", false)
+	if err != nil {
+		return nil, err
+	}
+	return cssv1.NewCssClient(hcClient), nil
+}
+
+// HcCssV2Client is the css service client using huaweicloud-sdk-go-v3 package
+func (c *Config) HcCssV2Client(region string) (*cssv2.CssClient, error) {
+	hcClient, err := NewHcClient(c, region, "css", false)
+	if err != nil {
+		return nil, err
+	}
+	return cssv2.NewCssClient(hcClient), nil
+}
+
 // HcCdnV1Client is the CDN service client using huaweicloud-sdk-go-v3 package
 func (c *Config) HcCdnV1Client(region string) (*cdnv1.CdnClient, error) {
 	hcClient, err := NewHcClient(c, region, "cdn", false)
@@ -245,6 +266,15 @@ func (c *Config) HcCdnV1Client(region string) (*cdnv1.CdnClient, error) {
 		return nil, err
 	}
 	return cdnv1.NewCdnClient(hcClient), nil
+}
+
+// HcDmsV2Client is the DMS service client using huaweicloud-sdk-go-v3 package
+func (c *Config) HcDmsV2Client(region string) (*dmsv2.KafkaClient, error) {
+	hcClient, err := NewHcClient(c, region, "dmsv2", false)
+	if err != nil {
+		return nil, err
+	}
+	return dmsv2.NewKafkaClient(hcClient), nil
 }
 
 // NewHcClient is the common client using huaweicloud-sdk-go-v3 package

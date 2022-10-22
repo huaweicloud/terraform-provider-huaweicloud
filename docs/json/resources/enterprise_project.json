@@ -26,6 +26,10 @@
                 "type": "string",
                 "required": true
               },
+              "skip_disable_on_destroy": {
+                "type": "bool",
+                "optional": true
+              },
               "status": {
                 "type": "number",
                 "computed": true
@@ -44,7 +48,7 @@
           "product": {
             "short": "EPS",
             "name": "Enterprise Project Management Service",
-            "catalog": "Management \u0026 Governance",
+            "catalog": "Management & Governance",
             "name_cn": "企业项目管理服务",
             "catalog_cn": "管理与监管"
           }

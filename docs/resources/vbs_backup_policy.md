@@ -6,7 +6,7 @@ subcategory: "Deprecated"
 
 !> **WARNING:** It has been deprecated.
 
-Provides an VBS Backup Policy resource. This is an alternative to `huaweicloud_vbs_backup_policy_v2`
+Provides an VBS Backup Policy resource.
 
 ## Example Usage
 

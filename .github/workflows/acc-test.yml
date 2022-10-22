@@ -23,7 +23,7 @@ jobs:
 
       - uses: actions/setup-go@v3
         with:
-          go-version: ">=1.16"
+          go-version: ">=1.18"
 
        ## have checkout merge commit,so just diff base_ref with HEAD
       - run: scripts/acc-test.sh "origin/${{github.base_ref}}" > pr-acc-test.log

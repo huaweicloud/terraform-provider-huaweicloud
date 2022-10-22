@@ -1,0 +1,24 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_lts_group
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: LTS
+paths:
+  /v2/{project_id}/groups/{id}:
+    delete:
+      tag: LTS
+      operationId: Delete
+    post:
+      tag: LTS
+      operationId: Update
+  /v2/{project_id}/groups:
+    get:
+      tag: LTS
+      operationId: List
+    post:
+      tag: LTS
+      operationId: Create

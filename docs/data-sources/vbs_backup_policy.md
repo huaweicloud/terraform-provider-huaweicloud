@@ -6,8 +6,7 @@ subcategory: "Deprecated"
 
 !> **WARNING:** It has been deprecated.
 
-The VBS Backup Policy data source provides details about a specific VBS backup policy. This is an alternative
-to `huaweicloud_vbs_backup_policy_v2`
+The VBS Backup Policy data source provides details about a specific VBS backup policy.
 
 ## Example Usage
 

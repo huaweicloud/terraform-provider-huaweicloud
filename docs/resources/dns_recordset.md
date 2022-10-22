@@ -4,7 +4,7 @@ subcategory: "Domain Name Service (DNS)"
 
 # huaweicloud_dns_recordset
 
-Manages a DNS record set in the HuaweiCloud DNS Service. This is an alternative to `huaweicloud_dns_recordset_v2`
+Manages a DNS record set in the HuaweiCloud DNS Service.
 
 ## Example Usage
 

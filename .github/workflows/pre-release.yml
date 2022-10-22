@@ -1,0 +1,206 @@
+# This is a basic workflow to help you get started with Actions
+
+name: pre-release
+
+# Controls when the workflow will run
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'CHANGELOG.md'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  scan-api:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # /home/runner/work/terraform-provider-huaweicloud/terraform-provider-huaweicloud
+      - uses: actions/checkout@v3
+        with:
+          path: terraform-provider-huaweicloud
+
+      - uses: actions/checkout@v3
+        with:
+          repository: chnsz/terraform-provider-generator
+          token: ${{ secrets.REVIEWDOG_TOKEN }}
+          path: terraform-provider-generator
+
+      - uses: actions/checkout@v3
+        with:
+          repository: chnsz/terraform-api-scan
+          token: ${{ secrets.REVIEWDOG_TOKEN }}
+          path: terraform-api-scan
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ">=1.18"
+          
+      - name: Get the version
+        run: |
+          version=$(head -n 4 terraform-provider-huaweicloud/CHANGELOG.md  | grep "^## " | awk '{printf "v%s", $2}')
+          echo "VERSION=$version" >> $GITHUB_ENV
+
+      - name: Build Terraform Provider
+        run: |
+          cd terraform-provider-huaweicloud
+          make build FLAGS='-mod=readonly'
+          cd ..
+
+      - name: export schemas for the providers
+        env:
+          TF_CLI_CONFIG_FILE: ${{ github.workspace }}/hw_dev.tfrc
+        run: |
+          cat>${{ github.workspace }}/hw_dev.tfrc<<EOF
+          provider_installation {
+            dev_overrides {
+              "huaweicloud/huaweicloud" = "/home/runner/go/bin"
+            }
+            direct {}
+          }
+          EOF
+          cd terraform-api-scan
+          terraform init
+          terraform providers schema -json > schema.json
+          cd ..
+      
+      - name: parse APIs that golangsdk/go-SDK resources depend-on
+        run: |
+          cp terraform-api-scan/*.go terraform-provider-huaweicloud/
+          subPackPath="/huaweicloud"
+          providerSchemaPath="../terraform-api-scan/schema.json"
+          cd terraform-provider-huaweicloud
+          rm -rf docs/api
+          mkdir docs/api
+          go run *.go -basePath=./ -outputDir=docs/api/ -version=${{ env.VERSION }} -providerSchemaPath=${providerSchemaPath}
+          cd ..
+      
+      - name: parse APIs that auto-generated resources depend-on
+        run: |
+          cd terraform-api-scan/scan-autogen-code
+          go run main.go -inputDir=../../terraform-provider-generator/src/main/resources -outputDir=../../terraform-provider-huaweicloud/docs/api -version=${{ steps.get_version.outputs.VERSION }}
+          cd ../../
+
+      - name: commit APIs that resources depend-on
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          repository: terraform-provider-huaweicloud
+          file_pattern: 'docs/api/*.yaml'
+          commit_message: Update APIs that resources depend-on ${{ env.VERSION }}
+
+  generate-schema:
+    if: ${{ always() }}
+    needs: scan-api
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ">=1.18"
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # /home/runner/work/terraform-provider-huaweicloud/terraform-provider-huaweicloud
+      - uses: actions/checkout@v3
+        with:
+          path: terraform-provider-huaweicloud
+          ref: master
+
+      - uses: actions/checkout@v3
+        with:
+          repository: chnsz/huaweicloud-provider-json
+          token: ${{ secrets.REVIEWDOG_TOKEN }}
+          path: huaweicloud-provider-json
+
+      - name: import the latest codes of provider and build
+        run: |
+          cd huaweicloud-provider-json
+          go get github.com/huaweicloud/terraform-provider-huaweicloud@master
+          go build -o generate-schemas
+          cp ./generate-schemas ../terraform-provider-huaweicloud
+          cd ..
+
+      - name: generate-schema
+        run: |
+          cd terraform-provider-huaweicloud
+          target="./docs/json"
+          rm -rf $target
+          ./generate-schemas -product
+          ./generate-schemas -r -name="all" -output-dir=$target
+          ./generate-schemas -d -name="all" -output-dir=$target
+          rm -f $target/data-sources/vpc_route.json
+          rm -f $target/resources/networking_port.json
+
+      - name: Get the provider release version
+        run: |
+          version=$(head -n 4 terraform-provider-huaweicloud/CHANGELOG.md  | grep "^## " | awk '{printf "v%s", $2}')
+          echo "VERSION=$version" >> $GITHUB_ENV
+
+      - name: auto-commit
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          repository: terraform-provider-huaweicloud
+          file_pattern: 'docs/json/'
+          commit_message: Update schema json files based-on ${{ env.VERSION }}
+
+  acc-test:
+    if: ${{ always() }}
+    needs: [scan-api, generate-schema]
+
+    env:
+      HW_ACCESS_KEY: ${{ secrets.HW_ACCESS_KEY }}
+      HW_SECRET_KEY: ${{ secrets.HW_SECRET_KEY }}
+      HW_REGION_NAME: cn-north-4
+      HW_ENTERPRISE_PROJECT_ID: "0"
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      # run acceptance test
+      - name: Run acceptance basic test
+        # run the step only when HW_ACCESS_KEY is setted
+        if: ${{ env.HW_ACCESS_KEY }}
+        shell: bash {0}
+        run: |
+          result=0
+          total=0
+          last_tag=$(git tag --sort=-creatordate | sed -n 1p)
+          all_files=$(git diff $last_tag --name-only huaweicloud | grep -v "_test.go")
+          echo -e "the following files have changed since $last_tag:\n$all_files\n"
+
+          for f in $all_files; do
+            path=${f%/*}
+            if [ "X$path" != "Xhuaweicloud" ]; then
+              # update path to "huaweicloud/services\acceptance/xxx"
+              path=${path/services/services\/acceptance}
+            fi
+
+            org_file=${f##*/}
+            test_file=$path/${org_file/%.go/_test.go}
+
+            if [ -f "./${test_file}" ]; then
+              basic_cases=$(grep "^func TestAcc" ./${test_file} | grep _basic | awk '{print $2}' | awk -F '(' '{print $1}')
+              if [ "X$basic_cases" != "X" ]; then
+                total=`expr $total + 1`
+                echo -e "\nrun acceptance basic tests: $basic_cases"
+                make testacc TEST="./$path" TESTARGS="-run ${basic_cases}"
+                if [ $? -ne 0 ]; then
+                  result=`expr $result + 1`
+                fi
+              fi
+            else
+              echo -e "\n[skipped] --- ./${test_file} does not exist"
+            fi
+          done
+
+          echo -e "\n[summary] $result failed in $total acceptance basic tests"
+          exit $result

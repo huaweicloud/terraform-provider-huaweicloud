@@ -1,0 +1,141 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rds_instances": {
+          "block": {
+            "attributes": {
+              "datastore_type": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone": [
+                        "list",
+                        "string"
+                      ],
+                      "backup_strategy": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "keep_days": "number",
+                            "start_time": "string"
+                          }
+                        ]
+                      ],
+                      "created": "string",
+                      "db": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "port": "number",
+                            "type": "string",
+                            "user_name": "string",
+                            "version": "string"
+                          }
+                        ]
+                      ],
+                      "enterprise_project_id": "string",
+                      "fixed_ip": "string",
+                      "flavor": "string",
+                      "ha_replication_mode": "string",
+                      "id": "string",
+                      "name": "string",
+                      "nodes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "availability_zone": "string",
+                            "id": "string",
+                            "name": "string",
+                            "role": "string",
+                            "status": "string"
+                          }
+                        ]
+                      ],
+                      "param_group_id": "string",
+                      "private_ips": [
+                        "list",
+                        "string"
+                      ],
+                      "public_ips": [
+                        "list",
+                        "string"
+                      ],
+                      "region": "string",
+                      "security_group_id": "string",
+                      "ssl_enable": "bool",
+                      "status": "string",
+                      "subnet_id": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "time_zone": "string",
+                      "volume": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "disk_encryption_id": "string",
+                            "size": "number",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

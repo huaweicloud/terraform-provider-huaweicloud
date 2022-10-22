@@ -11,6 +11,7 @@ package common
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -30,6 +31,18 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
+
+// ErrorResp is the response when API failed
+type ErrorResp struct {
+	ErrorCode string `json:"error_code"`
+	ErrorMsg  string `json:"error_msg"`
+}
+
+func ParseErrorMsg(body []byte) (ErrorResp, error) {
+	resp := ErrorResp{}
+	err := json.Unmarshal(body, &resp)
+	return resp, err
+}
 
 // GetRegion returns the region that was specified ina the resource. If a
 // region was not set, the provider-level region is checked. The provider-level
@@ -149,33 +162,69 @@ func CheckForRetryableError(err error) *resource.RetryError {
 	}
 }
 
-func WaitOrderComplete(ctx context.Context, d *schema.ResourceData, config *config.Config, orderNum string) error {
-	bssV2Client, err := config.BssV2Client(GetRegion(d, config))
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud bss V2 client: %s", err)
-	}
+func WaitOrderComplete(ctx context.Context, client *golangsdk.ServiceClient, orderId string,
+	timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"3", "6"}, // 3: Processing; 6: Pending payment.
 		Target:       []string{"5"},      // 5: Completed.
-		Refresh:      refreshOrderStatus(bssV2Client, orderNum),
-		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Refresh:      refreshOrderStatusFunc(client, orderId),
+		Timeout:      timeout,
 		Delay:        5 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
-	_, err = stateConf.WaitForStateContext(ctx)
+	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Error while waiting for the order (%s) to complete payment: %#v", orderNum, err)
+		return fmt.Errorf("error waiting for the order (%s) to complete payment: %#v", orderId, err)
 	}
 	return nil
 }
 
-func refreshOrderStatus(c *golangsdk.ServiceClient, orderNum string) resource.StateRefreshFunc {
+func refreshOrderStatusFunc(client *golangsdk.ServiceClient, orderId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		r, err := orders.Get(c, orderNum).Extract()
+		r, err := orders.Get(client, orderId).Extract()
 		if err != nil {
 			return nil, "Error", err
 		}
 		return r, strconv.Itoa(r.OrderInfo.Status), nil
+	}
+}
+
+// WaitOrderResourceComplete is the method to wait for the resource to be generated.
+// Notes: Note that this method needs to be used in conjunction with method "WaitOrderComplete", because the ID of some
+// resources may not be generated when the order is not completed.
+func WaitOrderResourceComplete(ctx context.Context, client *golangsdk.ServiceClient, orderId string,
+	timeout time.Duration) (string, error) {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"DONE"},
+		Refresh:      refreshOrderResourceStatusFunc(client, orderId),
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	res, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return "", fmt.Errorf("error while waiting for the order (%s) to complete: %#v", orderId, err)
+	}
+
+	r := res.(resources.Resource)
+	return r.ResourceId, nil
+}
+
+func refreshOrderResourceStatusFunc(client *golangsdk.ServiceClient, orderId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		listOpts := resources.ListOpts{
+			OrderId:          orderId,
+			OnlyMainResource: 1,
+		}
+		resp, err := resources.List(client, listOpts)
+		if err != nil || resp == nil {
+			return nil, "ERROR", fmt.Errorf("error waiting for the order (%s) to complete: %#v", orderId, err)
+		}
+		if resp.TotalCount < 1 {
+			return nil, "PENDING", nil
+		}
+		return resp.Resources[0], "DONE", nil
 	}
 }
 
@@ -204,4 +253,9 @@ func UpdateAutoRenew(c *golangsdk.ServiceClient, enabled, resourceId string) err
 		return resources.EnableAutoRenew(c, resourceId)
 	}
 	return resources.DisableAutoRenew(c, resourceId)
+}
+
+func HasFilledOpt(d *schema.ResourceData, param string) bool {
+	_, b := d.GetOk(param)
+	return b
 }

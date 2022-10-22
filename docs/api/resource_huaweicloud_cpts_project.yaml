@@ -1,0 +1,18 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_cpts_project
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: CPTS
+paths:
+  /v1/{project_id}/test-suites/{test_suite_id}:
+    delete:
+      tag: CPTS
+      operationId: DeleteProject
+  /v1/{project_id}/test-suites:
+    post:
+      tag: CPTS
+      operationId: CreateProject

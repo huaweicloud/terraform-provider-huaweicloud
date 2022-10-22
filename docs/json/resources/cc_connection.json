@@ -1,0 +1,77 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cc_connection": {
+          "block": {
+            "attributes": {
+              "bandwidth_package_number": {
+                "type": "number",
+                "description": "The number of bandwidth packages associated with the cloud connection instance.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description about the cloud connection.",
+                "optional": true,
+                "computed": true
+              },
+              "domain_id": {
+                "type": "string",
+                "description": "The Domain ID.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The enterprise project id of the cloud connection.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "inter_region_bandwidth_number": {
+                "type": "number",
+                "description": "The number of inter-domain bandwidths associated with the cloud connection instance.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The cloud connection name.",
+                "required": true
+              },
+              "network_instance_number": {
+                "type": "number",
+                "description": "The number of network instances associated with the cloud connection instance.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the cloud connection.",
+                "computed": true
+              },
+              "used_scene": {
+                "type": "string",
+                "description": "The Scenario.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

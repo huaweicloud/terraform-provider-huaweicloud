@@ -1,0 +1,24 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_iotda_device
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: IoTDA
+paths:
+  /v5/iot/{project_id}/devices/{device_id}:
+    delete:
+      tag: IoTDA
+      operationId: DeleteDevice
+    get:
+      tag: IoTDA
+      operationId: ShowDevice
+    put:
+      tag: IoTDA
+      operationId: UpdateDevice
+  /v5/iot/{project_id}/devices:
+    post:
+      tag: IoTDA
+      operationId: AddDevice

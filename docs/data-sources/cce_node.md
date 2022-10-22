@@ -4,7 +4,7 @@ subcategory: "Cloud Container Engine (CCE)"
 
 # huaweicloud_cce_node
 
-To get the specified node in a cluster. This is an alternative to `huaweicloud_cce_node_v3`
+To get the specified node in a cluster.
 
 ## Example Usage
 

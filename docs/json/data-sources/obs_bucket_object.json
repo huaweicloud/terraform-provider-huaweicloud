@@ -5,6 +5,10 @@
         "huaweicloud_obs_bucket_object": {
           "block": {
             "attributes": {
+              "body": {
+                "type": "string",
+                "computed": true
+              },
               "bucket": {
                 "type": "string",
                 "required": true
@@ -44,9 +48,11 @@
             }
           },
           "product": {
-            "catalog": "Storage",
+            "short": "OBS",
             "name": "Object Storage Service",
-            "short": "OBS"
+            "catalog": "Storage",
+            "name_cn": "对象存储服务",
+            "catalog_cn": "存储"
           }
         }
       }

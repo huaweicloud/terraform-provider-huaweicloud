@@ -1,0 +1,28 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_iotda_device_group
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: IoTDA
+paths:
+  /v5/iot/{project_id}/device-group/{group_id}/devices:
+    get:
+      tag: IoTDA
+      operationId: ShowDevicesInGroup
+  /v5/iot/{project_id}/device-group/{group_id}:
+    delete:
+      tag: IoTDA
+      operationId: DeleteDeviceGroup
+    get:
+      tag: IoTDA
+      operationId: ShowDeviceGroup
+    put:
+      tag: IoTDA
+      operationId: UpdateDeviceGroup
+  /v5/iot/{project_id}/device-group:
+    post:
+      tag: IoTDA
+      operationId: AddDeviceGroup

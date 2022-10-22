@@ -27,10 +27,10 @@ type QualityInfo struct {
 	Codec *QualityInfoCodec `json:"codec,omitempty"`
 
 	// 视频宽度（单位：像素） - H264   取值范围：32-3840，必须为2的倍数 。 - H265   取值范围：320-3840 ，必须为4的倍数。
-	Width int32 `json:"width"`
+	Width *int32 `json:"width,omitempty"`
 
 	// 视频高度（单位：像素） - H264   取值范围：32-2160，必须为2的倍数。 - H265   取值范围：240-2160，必须为4的倍数。
-	Height int32 `json:"height"`
+	Height *int32 `json:"height,omitempty"`
 
 	// 转码视频的码率（单位：Kbps）。 取值范围：40-30000。
 	Bitrate int32 `json:"bitrate"`

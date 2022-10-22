@@ -4,7 +4,7 @@ subcategory: "Cloud Container Engine (CCE)"
 
 # huaweicloud_cce_cluster
 
-Provides a CCE cluster resource. This is an alternative to `huaweicloud_cce_cluster_v3`
+Provides a CCE cluster resource.
 
 ## Basic Usage
 
@@ -74,6 +74,43 @@ resource "huaweicloud_cce_cluster" "cluster" {
   container_network_type = "overlay_l2"
   authentication_mode    = "rbac"
   eip                    = huaweicloud_vpc_eip.myeip.address
+}
+```
+
+## CCE Turbo Cluster
+
+```hcl
+resource "huaweicloud_vpc" "myvpc" {
+  name = "vpc"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "mysubnet" {
+  name       = "subnet"
+  cidr       = "192.168.0.0/24"
+  gateway_ip = "192.168.0.1"
+
+  //dns is required for cce node installing
+  primary_dns   = "100.125.1.250"
+  secondary_dns = "100.125.21.250"
+  vpc_id        = huaweicloud_vpc.myvpc.id
+}
+
+resource "huaweicloud_vpc_subnet" "eni_test" {
+  name          = "subnet-eni"
+  cidr          = "192.168.2.0/24"
+  gateway_ip    = "192.168.2.1"
+  vpc_id        = huaweicloud_vpc.test.id
+}
+
+resource "huaweicloud_cce_cluster" "test" {
+  name                   = cluster"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = huaweicloud_vpc.myvpc.id
+  subnet_id              = huaweicloud_vpc_subnet.mysubnet.id
+  container_network_type = "eni"
+  eni_subnet_id          = huaweicloud_vpc_subnet.eni_test.subnet_id
+  eni_subnet_cidr        = huaweicloud_vpc_subnet.eni_test.cidr
 }
 ```
 
@@ -157,8 +194,7 @@ The following arguments are supported:
   The [object](#cce_cluster_masters) structure is documented below.
   This parameter and `multi_az` are alternative. Changing this parameter will create a new cluster resource.
 
-* `eip` - (Optional, String, ForceNew) Specifies the EIP address of the cluster.
-  Changing this parameter will create a new cluster resource.
+* `eip` - (Optional, String) Specifies the EIP address of the cluster.
 
 * `kube_proxy_mode` - (Optional, String, ForceNew) Specifies the service forwarding mode.
   Changing this parameter will create a new cluster resource. Two modes are available:
@@ -188,10 +224,6 @@ The following arguments are supported:
 
 * `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled. Valid values are **true** and
   **false**. Changing this parameter will create a new cluster resource.
-
-* `auto_pay` - (Optional, String, ForceNew) Specifies whether auto pay is enabled.
-  Valid values are *true* and *false*. Defaults to *true*. If you set this to *false*, you need to pay the order
-  yourself in time, be careful about the timeout of resource creation. Changing this creates a new cluster resource.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project ID of the CCE cluster.
   Changing this parameter will create a new cluster resource.

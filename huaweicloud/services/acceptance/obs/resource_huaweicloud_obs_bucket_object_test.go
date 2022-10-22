@@ -61,7 +61,7 @@ func TestAccObsBucketObject_source(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccObsBucketObjecImportStateIdFunc(),
 				ImportStateVerifyIgnore: []string{
-					"content_type", "encryption", "source", "version_id",
+					"encryption", "source",
 				},
 			},
 		},

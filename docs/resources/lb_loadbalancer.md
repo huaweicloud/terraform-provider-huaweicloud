@@ -4,7 +4,7 @@ subcategory: "Elastic Load Balance (ELB)"
 
 # huaweicloud_lb_loadbalancer
 
-Manages an ELB loadbalancer resource within HuaweiCloud. This is an alternative to `huaweicloud_lb_loadbalancer_v2`
+Manages an ELB loadbalancer resource within HuaweiCloud.
 
 ## Example Usage
 

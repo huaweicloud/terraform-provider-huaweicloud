@@ -1,0 +1,37 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_dli_flinksql_job
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: DLI
+paths:
+  /v1.0/{project_id}/dli/obs-authorize:
+    post:
+      tag: DLI
+      operationId: AuthorizeBucket
+  /v1.0/{project_id}/streaming/jobs/run:
+    post:
+      tag: DLI
+      operationId: Run
+  /v1.0/{project_id}/streaming/jobs/stop:
+    post:
+      tag: DLI
+      operationId: Stop
+  /v1.0/{project_id}/streaming/jobs/{strconv.Itoa(jobId)}:
+    delete:
+      tag: DLI
+      operationId: Delete
+    get:
+      tag: DLI
+      operationId: Get
+  /v1.0/{project_id}/streaming/sql-jobs/{strconv.Itoa(jobId)}:
+    put:
+      tag: DLI
+      operationId: UpdateSqlJob
+  /v1.0/{project_id}/streaming/sql-jobs:
+    post:
+      tag: DLI
+      operationId: CreateSqlJob

@@ -5,6 +5,10 @@ import (
 	"github.com/chnsz/golangsdk/pagination"
 )
 
+var requestOpts = golangsdk.RequestOpts{
+	MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+}
+
 // CreateOptsBuilder allows extensions to add additional parameters to the
 // Create request.
 type CreateOptsBuilder interface {
@@ -84,6 +88,52 @@ func List(c *golangsdk.ServiceClient) ([]Turbo, error) {
 	return ExtractTurbos(pages)
 }
 
+// ListOptsBuilder allows extensions to add additional parameters to the List
+// request.
+type ListOptsBuilder interface {
+	ToVolumeListQuery() (string, error)
+}
+
+// ListOpts holds options for listing Volumes. It is passed to the volumes.List
+// function.
+type ListOpts struct {
+	// Requests a page size of items.
+	Limit int `q:"limit"`
+	// Used in conjunction with limit to return a slice of items.
+	Offset int `q:"offset"`
+}
+
+// ToVolumeListQuery formats a ListOpts into a query string.
+func (opts ListOpts) ToVolumeListQuery() (string, error) {
+	q, err := golangsdk.BuildQueryString(opts)
+	return q.String(), err
+}
+
+// ListPage returns one page limited by the conditions provided in Opts.
+func ListPage(client *golangsdk.ServiceClient, opts ListOptsBuilder) (*PagedList, error) {
+	url := listURL(client)
+	if opts != nil {
+		query, err := opts.ToVolumeListQuery()
+		if err != nil {
+			return nil, err
+		}
+		url += query
+	}
+
+	var rst golangsdk.Result
+	_, err := client.Get(url, &rst.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	var r PagedList
+	err = rst.ExtractInto(&r)
+	return &r, err
+}
+
 // Get will get a single SFS Trubo file system with given UUID
 func Get(client *golangsdk.ServiceClient, id string) (r GetResult) {
 	_, r.Err = client.Get(resourceURL(client, id), &r.Body, nil)
@@ -122,13 +172,13 @@ func (opts ExpandOpts) ToShareExpandMap() (map[string]interface{}, error) {
 }
 
 // Expand will expand a SFS Turbo based on the values in ExpandOpts.
-func Expand(client *golangsdk.ServiceClient, share_id string, opts ExpandOptsBuilder) (r ExpandResult) {
+func Expand(client *golangsdk.ServiceClient, shareId string, opts ExpandOptsBuilder) (r ExpandResult) {
 	b, err := opts.ToShareExpandMap()
 	if err != nil {
 		r.Err = err
 		return
 	}
-	_, r.Err = client.Post(actionURL(client, share_id), b, nil, &golangsdk.RequestOpts{
+	_, r.Err = client.Post(actionURL(client, shareId), b, nil, &golangsdk.RequestOpts{
 		OkCodes: []int{202},
 	})
 	return

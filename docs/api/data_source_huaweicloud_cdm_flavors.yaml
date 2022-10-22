@@ -1,0 +1,9 @@
+info:
+  version: v1.41.1
+  title: data_source_huaweicloud_cdm_flavors
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+paths:

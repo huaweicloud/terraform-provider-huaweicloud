@@ -7,19 +7,23 @@
             "attributes": {
               "description": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "enterprise_project_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "name": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "region": {
                 "type": "string",
@@ -27,26 +31,32 @@
               },
               "spec": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "status": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "subnet_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "vpc_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               }
             }
           },
           "product": {
-            "catalog": "Network",
+            "short": "NAT",
             "name": "NAT Gateway",
-            "short": "NAT"
+            "catalog": "Networking",
+            "name_cn": "NAT网关",
+            "catalog_cn": "网络"
           }
         }
       }

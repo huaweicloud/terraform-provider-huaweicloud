@@ -103,9 +103,9 @@
           "product": {
             "short": "CloudTable",
             "name": "CloudTable Service",
-            "catalog": "Enterprise Intelligence",
+            "catalog": "Analytics",
             "name_cn": "表格存储服务",
-            "catalog_cn": "EI 企业智能"
+            "catalog_cn": "大数据"
           }
         }
       }

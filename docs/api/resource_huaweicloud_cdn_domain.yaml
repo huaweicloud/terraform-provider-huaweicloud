@@ -1,0 +1,26 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_cdn_domain
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: CDN
+paths:
+  /v1.0/cdn/domains/{domainId}/detail:
+    get:
+      tag: CDN
+      operationId: Get
+  /v1.0/cdn/domains/{domainId}/disable:
+    put:
+      tag: CDN
+      operationId: Disable
+  /v1.0/cdn/domains/{domainId}:
+    delete:
+      tag: CDN
+      operationId: Delete
+  /v1.0/cdn/domains:
+    post:
+      tag: CDN
+      operationId: Create

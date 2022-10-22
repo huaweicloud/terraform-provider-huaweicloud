@@ -131,8 +131,7 @@
               },
               "eip": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "eni_subnet_cidr": {
                 "type": "string",

@@ -1,0 +1,18 @@
+info:
+  version: v1.41.1
+  title: data_source_huaweicloud_cce_clusters
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: CCE
+paths:
+  /api/v3/projects/{project_id}/clusters/{id}/clustercert:
+    get:
+      tag: CCE
+      operationId: GetCert
+  /api/v3/projects/{project_id}/clusters:
+    get:
+      tag: CCE
+      operationId: List

@@ -1,0 +1,14 @@
+info:
+  version: v1.41.1
+  title: data_source_huaweicloud_sms_source_servers
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: SMS
+paths:
+  /v3/sources:
+    get:
+      tag: SMS
+      operationId: List

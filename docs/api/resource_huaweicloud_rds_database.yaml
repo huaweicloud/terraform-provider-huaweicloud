@@ -1,0 +1,26 @@
+info:
+  version: v1.41.1
+  title: resource_huaweicloud_rds_database
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: RDS
+paths:
+  /v3/{project_id}/instances/{instance_id}/database/detail:
+    get:
+      tag: RDS
+      operationId: ListDatabases
+  /v3/{project_id}/instances/{instance_id}/database/update:
+    post:
+      tag: RDS
+      operationId: UpdateDatabase
+  /v3/{project_id}/instances/{instance_id}/database/{db_name}:
+    delete:
+      tag: RDS
+      operationId: DeleteDatabase
+  /v3/{project_id}/instances/{instance_id}/database:
+    post:
+      tag: RDS
+      operationId: CreateDatabase
