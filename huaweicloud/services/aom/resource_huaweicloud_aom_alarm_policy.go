@@ -378,7 +378,7 @@ func resourceAlarmPolicyCreate(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return diag.Errorf("err creating Client: %s", err)
 	}
-	var ePid := conf.EnterpriseProjectID
+	var ePid = conf.EnterpriseProjectID
 	if len(ePid) == 0{
 		ePid = "0"	
 	}
