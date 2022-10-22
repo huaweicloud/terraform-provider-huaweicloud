@@ -378,9 +378,13 @@ func resourceAlarmPolicyCreate(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return diag.Errorf("err creating Client: %s", err)
 	}
+	var ePid := conf.EnterpriseProjectID
+	if len(ePid) == 0{
+		ePid = "0"	
+	}
 	createOpts := entity.AddAlarmRuleParams{
 		AlarmRuleName:        d.Get("alarm_rule_name").(string),
-		EnterpriseProjectId:  conf.EnterpriseProjectID,
+		EnterpriseProjectId:  ePid ,
 		AlarmRuleDescription: d.Get("alarm_rule_description").(string),
 		AlarmRuleEnable:      d.Get("alarm_rule_enable").(bool),
 		AlarmRuleStatus:      d.Get("alarm_rule_status").(string),
