@@ -562,10 +562,7 @@ func waitForDesktopDeleted(ctx context.Context, client *golangsdk.ServiceClient,
 		Refresh:      refreshDesktopStatusFunc(client, desktopId),
 		Timeout:      timeout,
 		Delay:        10 * time.Second,
-		PollInterval: 15 * time.Second,
-		// Because the ECS is deleted before the deletion is completed, the desktop API will return an empty status
-		// temporarily.
-		NotFoundChecks: 3,
+		PollInterval: 10 * time.Second,
 	}
 
 	_, err := stateConf.WaitForStateContext(ctx)
@@ -580,6 +577,11 @@ func refreshDesktopStatusFunc(client *golangsdk.ServiceClient, desktopId string)
 				return resp, "deleted", nil
 			}
 			return resp, "", err
+		}
+		// During the removal process of desktop, the workspace service cannot perceive the ECS mechine and the API will
+		// return an empty status.
+		if resp.Status == "" {
+			return resp, "deleting", nil
 		}
 
 		return resp, resp.TaskStatus, nil
