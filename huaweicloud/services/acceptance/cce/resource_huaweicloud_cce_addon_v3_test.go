@@ -162,7 +162,7 @@ func testAccCCEAddonV3_Base(rName string) string {
 resource "huaweicloud_cce_node" "test" {
   cluster_id        = huaweicloud_cce_cluster.test.id
   name              = "%s"
-  flavor_id         = "s6.large.2"
+  flavor_id         = "c7.large.4"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   key_pair          = huaweicloud_compute_keypair.test.name
 
@@ -184,7 +184,7 @@ func testAccCCEAddonV3_basic(rName string) string {
 
 resource "huaweicloud_cce_addon" "test" {
   cluster_id    = huaweicloud_cce_cluster.test.id
-  version       = "1.1.10"
+  version       = "1.2.1"
   template_name = "metrics-server"
   depends_on    = [huaweicloud_cce_node.test]
 }
@@ -199,7 +199,7 @@ resource "huaweicloud_cce_node_pool" "test" {
   cluster_id         = huaweicloud_cce_cluster.test.id
   name               = "%s"
   os                 = "EulerOS 2.5"
-  flavor_id          = "s6.large.2"
+  flavor_id          = "c7.large.4"
   initial_node_count = 4
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
   key_pair           = huaweicloud_compute_keypair.test.name
