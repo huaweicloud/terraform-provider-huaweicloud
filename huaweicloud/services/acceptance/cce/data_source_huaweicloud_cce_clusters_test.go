@@ -19,7 +19,7 @@ func TestAccCCEClustersDataSource_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCEClusterV3DataSource_basic(rName),
+				Config: testAccCCEClustersDataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "clusters.0.name", rName),
@@ -31,7 +31,7 @@ func TestAccCCEClustersDataSource_basic(t *testing.T) {
 	})
 }
 
-func testAccCCEClusterV3DataSource_basic(rName string) string {
+func testAccCCEClustersDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 

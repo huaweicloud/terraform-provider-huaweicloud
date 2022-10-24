@@ -1,4 +1,4 @@
-package huaweicloud
+package cce
 
 import (
 	"context"
@@ -180,7 +180,7 @@ func getValuesValues(d *schema.ResourceData) (basic, custom, flavor map[string]i
 
 func resourceCCEAddonV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	cceClient, err := config.CceAddonV3Client(GetRegion(d, config))
+	cceClient, err := config.CceAddonV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Unable to create HuaweiCloud CCE client : %s", err)
 	}
@@ -239,7 +239,7 @@ func resourceCCEAddonV3Create(ctx context.Context, d *schema.ResourceData, meta 
 
 func resourceCCEAddonV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	cceClient, err := config.CceAddonV3Client(GetRegion(d, config))
+	cceClient, err := config.CceAddonV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
@@ -268,7 +268,7 @@ func resourceCCEAddonV3Read(_ context.Context, d *schema.ResourceData, meta inte
 
 func resourceCCEAddonV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	cceClient, err := config.CceAddonV3Client(GetRegion(d, config))
+	cceClient, err := config.CceAddonV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCEAddon Client: %s", err)
 	}

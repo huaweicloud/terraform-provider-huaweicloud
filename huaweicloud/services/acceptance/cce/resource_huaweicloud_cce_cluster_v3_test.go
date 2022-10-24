@@ -1,9 +1,10 @@
-package huaweicloud
+package cce
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -21,9 +22,9 @@ func TestAccCCEClusterV3_basic(t *testing.T) {
 	resourceName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCCEClusterV3Destroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckCCEClusterV3Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCCEClusterV3_basic(rName),
@@ -60,9 +61,9 @@ func TestAccCCEClusterV3_prePaid(t *testing.T) {
 	resourceName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCCEClusterV3Destroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckCCEClusterV3Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCCEClusterV3_prePaid(rName),
@@ -85,9 +86,9 @@ func TestAccCCEClusterV3_withEip(t *testing.T) {
 	resourceName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCCEClusterV3Destroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckCCEClusterV3Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCCEClusterV3_withEip(rName),
@@ -122,15 +123,15 @@ func TestAccCCEClusterV3_withEpsId(t *testing.T) {
 	resourceName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckEpsID(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCCEClusterV3Destroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckCCEClusterV3Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCCEClusterV3_withEpsId(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCEClusterV3Exists(resourceName, &cluster),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -144,9 +145,9 @@ func TestAccCCEClusterV3_turbo(t *testing.T) {
 	resourceName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCCEClusterV3Destroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckCCEClusterV3Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCCEClusterV3_turbo(rName),
@@ -166,9 +167,9 @@ func TestAccCCEClusterV3_HibernateAndAwake(t *testing.T) {
 	resourceName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCCEClusterV3Destroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckCCEClusterV3Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCCEClusterV3_basic(rName),
@@ -199,8 +200,8 @@ func TestAccCCEClusterV3_HibernateAndAwake(t *testing.T) {
 }
 
 func testAccCheckCCEClusterV3Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	cceClient, err := config.CceV3Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	cceClient, err := config.CceV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
@@ -230,8 +231,8 @@ func testAccCheckCCEClusterV3Exists(n string, cluster *clusters.Clusters) resour
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		cceClient, err := config.CceV3Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		cceClient, err := config.CceV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 		}
@@ -419,7 +420,7 @@ resource "huaweicloud_cce_cluster" "test" {
   enterprise_project_id  = "%s"
 }
 
-`, testAccCCEClusterV3_Base(rName), rName, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccCCEClusterV3_Base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccCCEClusterV3_turbo(rName string) string {

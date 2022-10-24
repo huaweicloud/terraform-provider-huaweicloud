@@ -82,6 +82,8 @@ var (
 	HW_AAD_IP_ADDRESS  = os.Getenv("HW_AAD_IP_ADDRESS")
 
 	HW_FGS_TRIGGER_LTS_AGENCY = os.Getenv("HW_FGS_TRIGGER_LTS_AGENCY")
+
+	HW_KMS_ENVIRONMENT = os.Getenv("HW_KMS_ENVIRONMENT")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -384,5 +386,19 @@ func TestAccPreCheckAadForwardRule(t *testing.T) {
 func TestAccPreCheckScmCertificateName(t *testing.T) {
 	if HW_CERTIFICATE_NAME == "" {
 		t.Skip("HW_CERTIFICATE_NAME must be set for SCM acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckKms(t *testing.T) {
+	if HW_KMS_ENVIRONMENT == "" {
+		t.Skip("This environment does not support KMS tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckProjectID(t *testing.T) {
+	if HW_PROJECT_ID == "" {
+		t.Skip("HW_PROJECT_ID must be set for acceptance tests")
 	}
 }

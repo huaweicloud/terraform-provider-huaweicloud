@@ -1,9 +1,11 @@
-package huaweicloud
+package cce
 
 import (
 	"context"
+	"strconv"
 	"strings"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
@@ -126,7 +128,7 @@ func DataSourceCCENodePoolV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 			"subnet_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -157,7 +159,7 @@ func DataSourceCCENodePoolV3() *schema.Resource {
 
 func dataSourceCceNodePoolsV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	cceClient, err := config.CceV3Client(GetRegion(d, config))
+	cceClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("unable to create HuaweiCloud CCE client : %s", err)
 	}
@@ -188,7 +190,7 @@ func dataSourceCceNodePoolsV3Read(_ context.Context, d *schema.ResourceData, met
 
 	d.SetId(NodePool.Metadata.Id)
 	mErr := multierror.Append(nil,
-		d.Set("region", GetRegion(d, config)),
+		d.Set("region", config.GetRegion(d)),
 		d.Set("node_pool_id", NodePool.Metadata.Id),
 		d.Set("name", NodePool.Metadata.Name),
 		d.Set("type", NodePool.Spec.Type),
@@ -210,12 +212,27 @@ func dataSourceCceNodePoolsV3Read(_ context.Context, d *schema.ResourceData, met
 	// set extend_param
 	var extendParam = NodePool.Spec.NodeTemplate.ExtendParam
 	mErr = multierror.Append(mErr, d.Set("max_pods", extendParam["maxPods"]))
-
 	delete(extendParam, "maxPods")
-	if len(extendParam) > 0 {
-		mErr = multierror.Append(mErr, d.Set("extend_param", extendParam))
 
+	extendParamToSet := map[string]string{}
+	for k, v := range extendParam {
+		switch v := v.(type) {
+		case string:
+			extendParamToSet[k] = v
+		case int:
+			extendParamToSet[k] = strconv.Itoa(v)
+		case int32:
+			extendParamToSet[k] = strconv.FormatInt(int64(v), 10)
+		case float64:
+			extendParamToSet[k] = strconv.FormatFloat(v, 'f', -1, 64)
+		case bool:
+			extendParamToSet[k] = strconv.FormatBool(v)
+		default:
+			logp.Printf("[WARN] can not set %s to extend_param, the value is %v", k, v)
+		}
 	}
+
+	mErr = multierror.Append(mErr, d.Set("extend_param", extendParamToSet))
 
 	// set labels
 	labels := map[string]string{}
