@@ -73,6 +73,10 @@ jobs:
           ref: master
           fetch-depth: 100
 
+      - uses: actions/setup-go@v3
+        with:
+          go-version: ">=1.18"
+
       # run acceptance test
       - name: Run acceptance basic test
         # run the step only when HW_ACCESS_KEY is setted
