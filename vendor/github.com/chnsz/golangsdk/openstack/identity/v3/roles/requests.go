@@ -27,6 +27,16 @@ type ListOpts struct {
 	// policy: system-defined policy; role: system-defined role
 	PermissionType string `q:"permission_type"`
 
+	// The number of pages of data for paging query, the minimum value is 1.
+	// Need to exist at the same time as "PerPage" parameter. When the "DomainID" parameter is passed in to query the
+	// custom policies, it can be used together.
+	Page int `q:"page"`
+
+	// The number of data per page in paging query, the value range is from 1 to 300, the default value is 300.
+	// It needs to exist at the same time as "Page" parameter. When the "Page" and "PerPage" parameters are not passed,
+	// a maximum of 300 permissions are returned per page.
+	PerPage int `q:"per_page"`
+
 	// Display mode of the permission. The options include domain, project, and all.
 	Type string `q:"type"`
 
@@ -36,6 +46,12 @@ type ListOpts struct {
 
 // ToRoleListQuery formats a ListOpts into a query string.
 func (opts ListOpts) ToRoleListQuery() (string, error) {
+	if opts.PerPage == 0 {
+		opts.PerPage = 300
+	}
+	if opts.Page == 0 {
+		opts.Page = 1
+	}
 	q, err := golangsdk.BuildQueryString(opts)
 	return q.String(), err
 }
@@ -52,7 +68,7 @@ func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) pagination.Page
 	}
 
 	return pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
-		return RolePage{pagination.LinkedPageBase{PageResult: r}}
+		return RolePage{pagination.OffsetPageBase{PageResult: r}}
 	})
 }
 
