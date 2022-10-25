@@ -95,10 +95,6 @@ func testAccDesktop_base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
-data "huaweicloud_networking_secgroups" "test" {
-  name = "WorkspaceUserSecurityGroup"
-}
-
 resource "huaweicloud_vpc" "test" {
   name = "%[1]s"
   cidr = "192.168.128.0/18"
@@ -114,6 +110,14 @@ resource "huaweicloud_vpc_subnet" "test" {
 
 resource "huaweicloud_networking_secgroup" "test" {
   name = "%[1]s"
+}
+
+resource "huaweicloud_workspace_service" "test" {
+  access_mode = "INTERNET"
+  vpc_id      = huaweicloud_vpc.test.id
+  network_ids = [
+    huaweicloud_vpc_subnet.test.id,
+  ]
 }
 `, rName)
 }
@@ -132,8 +136,10 @@ resource "huaweicloud_workspace_desktop" "test" {
   image_id          = "63aa8670-27ad-4747-8c44-6d8919e785a7"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   vpc_id            = huaweicloud_vpc.test.id
-  security_groups   = setunion(data.huaweicloud_networking_secgroups.test.security_groups[*].id,
-    [huaweicloud_networking_secgroup.test.id])
+  security_groups   = [
+    huaweicloud_workspace_service.test.desktop_security_group.0.id,
+    huaweicloud_networking_secgroup.test.id,
+  ]
 
   nic {
     network_id = huaweicloud_vpc_subnet.test.id
@@ -181,8 +187,10 @@ resource "huaweicloud_workspace_desktop" "test" {
   image_id          = "63aa8670-27ad-4747-8c44-6d8919e785a7"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   vpc_id            = huaweicloud_vpc.test.id
-  security_groups   = setunion(data.huaweicloud_networking_secgroups.test.security_groups[*].id,
-    [huaweicloud_networking_secgroup.test.id])
+  security_groups   = [
+    huaweicloud_workspace_service.test.desktop_security_group.0.id,
+    huaweicloud_networking_secgroup.test.id,
+  ]
 
   nic {
     network_id = huaweicloud_vpc_subnet.test.id
