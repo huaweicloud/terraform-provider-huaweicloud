@@ -290,9 +290,10 @@ func ResourceCssCluster() *schema.Resource {
 				Computed: true,
 			},
 
-			"period_unit": common.SchemaPeriodUnit(nil),
-			"period":      common.SchemaPeriod(nil),
-			"auto_renew":  common.SchemaAutoRenew(nil),
+			"charging_mode": common.SchemaChargingMode(nil),
+			"period_unit":   common.SchemaPeriodUnit(nil),
+			"period":        common.SchemaPeriod(nil),
+			"auto_renew":    common.SchemaAutoRenew(nil),
 
 			"expect_node_num": {
 				Type:       schema.TypeInt,
@@ -649,7 +650,7 @@ func buildClusterCreateParameters(d *schema.ResourceData, config *config.Config)
 		}
 	}
 
-	if payModel, ok := d.GetOk("period_unit"); ok {
+	if payModel, ok := d.GetOk("period_unit"); ok || d.Get("charging_mode").(string) == "prePaid" {
 		createOpts.PayInfo = &cssv2model.PayInfoBody{
 			Period:    int32(d.Get("period").(int)),
 			IsAutoPay: utils.Int32(1),

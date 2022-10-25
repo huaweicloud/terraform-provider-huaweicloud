@@ -182,10 +182,10 @@ resource "huaweicloud_css_cluster" "test" {
   subnet_id         = huaweicloud_vpc_subnet.test.id
   vpc_id            = huaweicloud_vpc.test.id
 
-
-  period_unit = "month"
-  period      = %d
-  auto_renew  = "true"
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = %d
+  auto_renew    = "true"
 
   ess_node_config {
     flavor          = "ess.spec-4u8g"
