@@ -79,7 +79,7 @@ func ResourceComponent() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ValidateFunc: validation.StringInSlice([]string{
-								"GitHub", "GitLab", "Gitee", "Bitbucket", "package",
+								"GitHub", "GitLab", "Gitee", "Bitbucket", "package", "DevCloud",
 							}, false),
 						},
 						"url": {
@@ -91,6 +91,16 @@ func ResourceComponent() *schema.Resource {
 							Optional:     true,
 							Computed:     true,
 							ExactlyOneOf: []string{"source.0.storage_type"},
+						},
+						"repo_ref": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"source.0.storage_type"},
+						},
+						"repo_namespace": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"source.0.storage_type"},
 						},
 						"storage_type": {
 							Type:     schema.TypeString,
@@ -166,13 +176,15 @@ func buildRepoSourceStructure(sources []interface{}) *components.Source {
 				Url:     source["url"].(string),
 			},
 		}
-	case "GitHub", "GitLab", "Gitee", "Bitbucket":
+	case "GitHub", "GitLab", "Gitee", "Bitbucket", "DevCloud":
 		result = components.Source{
 			Kind: "code",
 			Spec: components.Spec{
-				RepoType: rType,
-				RepoAuth: source["authorization"].(string),
-				RepoUrl:  source["url"].(string),
+				RepoType:      rType,
+				RepoAuth:      source["authorization"].(string),
+				RepoUrl:       source["url"].(string),
+				RepoRef:       source["repo_ref"].(string),
+				RepoNamespace: source["repo_namespace"].(string),
 			},
 		}
 	default:
@@ -240,11 +252,13 @@ func flattenRepoSource(source components.Source) (result []map[string]interface{
 				"url":          source.Spec.Url,
 			})
 		} else if source.Spec.RepoType == "GitHub" || source.Spec.Type == "GitLab" ||
-			source.Spec.Type == "Gitee" || source.Spec.Type == "Bitbucket" {
+			source.Spec.Type == "Gitee" || source.Spec.Type == "Bitbucket" || source.Spec.Type == "DevCloud" {
 			result = append(result, map[string]interface{}{
-				"type":          source.Spec.RepoType,
-				"authorization": source.Spec.RepoAuth,
-				"url":           source.Spec.RepoUrl,
+				"type":           source.Spec.RepoType,
+				"authorization":  source.Spec.RepoAuth,
+				"url":            source.Spec.RepoUrl,
+				"repo_ref":       source.Spec.RepoRef,
+				"repo_namespace": source.Spec.RepoNamespace,
 			})
 		}
 	}

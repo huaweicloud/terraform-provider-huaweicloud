@@ -294,6 +294,7 @@ resource "huaweicloud_servicestage_component" "test" {
     type          = "GitHub"
     authorization = huaweicloud_servicestage_repo_token_authorization.test.name
     url           = "%[3]s"
+    repo_ref      = "master"
   }
 
   builder {
