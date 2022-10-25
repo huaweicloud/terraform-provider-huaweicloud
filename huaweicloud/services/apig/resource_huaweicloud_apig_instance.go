@@ -337,7 +337,7 @@ func setApigInstanceParamters(d *schema.ResourceData, config *config.Config, res
 		d.Set("egress_address", resp.Ipv4EgressAddress),
 		d.Set("ingress_address", resp.Ipv4IngressEipAddress),
 		setApigAvailableZones(d, resp),
-		d.Set("create_time", utils.FormatTimeStampRFC3339(resp.CreateTimestamp)),
+		d.Set("create_time", utils.FormatTimeStampRFC3339(resp.CreateTimestamp, false)),
 		setApigIngressAccess(d, config, resp),
 		setApigSupportedFeatures(d, resp),
 	)

@@ -658,7 +658,7 @@ func setMrsClsuterCreateTimestamp(d *schema.ResourceData, resp *cluster.Cluster)
 	if err != nil {
 		return err
 	}
-	return d.Set("create_time", utils.FormatTimeStampRFC3339(createTime))
+	return d.Set("create_time", utils.FormatTimeStampRFC3339(createTime, false))
 }
 
 func setMrsClsuterUpdateTimestamp(d *schema.ResourceData, resp *cluster.Cluster) error {
@@ -666,7 +666,7 @@ func setMrsClsuterUpdateTimestamp(d *schema.ResourceData, resp *cluster.Cluster)
 	if err != nil {
 		return err
 	}
-	return d.Set("update_time", utils.FormatTimeStampRFC3339(updateTime))
+	return d.Set("update_time", utils.FormatTimeStampRFC3339(updateTime, false))
 }
 
 func setMrsClsuterChargingTimestamp(d *schema.ResourceData, resp *cluster.Cluster) error {
@@ -674,7 +674,7 @@ func setMrsClsuterChargingTimestamp(d *schema.ResourceData, resp *cluster.Cluste
 	if err != nil {
 		return err
 	}
-	return d.Set("charging_start_time", utils.FormatTimeStampRFC3339(chargingStartTime))
+	return d.Set("charging_start_time", utils.FormatTimeStampRFC3339(chargingStartTime, false))
 }
 
 func setMrsClsuterComponentList(d *schema.ResourceData, resp *cluster.Cluster) error {

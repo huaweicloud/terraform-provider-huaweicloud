@@ -857,6 +857,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_workspace_desktop": workspace.ResourceDesktop(),
 			"huaweicloud_workspace_service": workspace.ResourceService(),
+			"huaweicloud_workspace_user":    workspace.ResourceUser(),
 
 			"huaweicloud_cpts_project": cpts.ResourceProject(),
 			"huaweicloud_cpts_task":    cpts.ResourceTask(),

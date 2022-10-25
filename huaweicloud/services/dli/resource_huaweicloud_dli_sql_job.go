@@ -215,7 +215,7 @@ func resourceSqlJobRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("queue_name", dt.QueueName),
 		d.Set("job_type", dt.JobType),
 		d.Set("owner", dt.Owner),
-		d.Set("start_time", utils.FormatTimeStampRFC3339(int64(dt.StartTime))),
+		d.Set("start_time", utils.FormatTimeStampRFC3339(int64(dt.StartTime), false)),
 		d.Set("duration", dt.Duration),
 		d.Set("status", dt.Status),
 		d.Set("tags", utils.TagsToMap(dt.Tags)),
