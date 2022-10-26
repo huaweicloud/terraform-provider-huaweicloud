@@ -145,6 +145,10 @@ The following arguments are supported:
   This parameter is valid only when security_mode is set to true.
   The [kibana_public_access](#Css_kibana_public_access) structure is documented below.
 
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the cluster.
+  Valid values are **prePaid** and **postPaid**, defaults to **postPaid**.
+  Changing this parameter will create a new resource.
+
 * `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the instance.
   Valid values are *month* and *year*.
   Changing this parameter will create a new resource.
