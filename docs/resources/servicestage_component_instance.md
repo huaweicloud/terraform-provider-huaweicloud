@@ -373,7 +373,7 @@ The `entrypoint` block supports:
 <a name="servicestage_lifecycle_process"></a>
 The `post_start` and `pre_stop` block supports:
 
-* `type` - (Required, List) Specifies the process type. The valid values are `command` and `http`.
+* `type` - (Required, List) Specifies the process type. The valid values are **command** and **http**.
 
 * `parameters` - (Required, List) Specifies the start post-processing or stop pre-processing parameters.
   The [object](#servicestage_process_param) structure is documented below.
@@ -449,7 +449,7 @@ The `command_param` block supports:
 <a name="servicestage_http_param"></a>
 The `http_param` block supports:
 
-* `scheme` - (Required, String) Specifies the protocol scheme. The valid values are `HTTP` and `HTTPS`.
+* `scheme` - (Required, String) Specifies the protocol scheme. The valid values are **HTTP** and **HTTPS**.
 
 * `port` - (Required, Int) Specifies the port number.
 
@@ -467,7 +467,7 @@ The `external_access` block supports:
 
 * `protocol` - (Optional, String) Specifies the protocol. The valid values are **HTTP** and **HTTPS**.
 
-* `address` - (Optional, String) Specifies the access address. For example: **www.example.com**.
+* `address` - (Optional, String) Specifies the access address. For example: www.example.com.
 
 * `port` - (Optional, Int) Specifies the listening port of the application component process.
 
