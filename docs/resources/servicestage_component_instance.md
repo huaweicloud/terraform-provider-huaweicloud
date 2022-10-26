@@ -449,7 +449,7 @@ The `command_param` block supports:
 <a name="servicestage_http_param"></a>
 The `http_param` block supports:
 
-* `protocol` - (Required, String) Specifies the protocol. The valid values are `HTTP` and `HTTPS`.
+* `scheme` - (Required, String) Specifies the protocol scheme. The valid values are `HTTP` and `HTTPS`.
 
 * `port` - (Required, Int) Specifies the port number.
 
