@@ -112,6 +112,9 @@ type LoadBalancer struct {
 
 	// Deletion Protection Enable.
 	DeletionProtectionEnable bool `json:"deletion_protection_enable"`
+
+	// Autoscaling configuration
+	AutoScaling AutoScaling `json:"autoscaling"`
 }
 
 // EipInfo

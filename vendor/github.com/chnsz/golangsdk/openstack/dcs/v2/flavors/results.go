@@ -11,6 +11,7 @@ type Flavor struct {
 	Engine           string           `json:"engine"`
 	EngineVersion    string           `json:"engine_version"`
 	TenantIPCount    int              `json:"tenant_ip_count"`
+	ReplicaCount     int              `json:"replica_count"`
 	IsDes            bool             `json:"is_dec"`
 	Capacity         []string         `json:"capacity"`
 	BillingMode      []string         `json:"billing_mode"`

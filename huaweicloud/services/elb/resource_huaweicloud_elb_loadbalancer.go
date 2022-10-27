@@ -200,6 +200,16 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"enable": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"min_l7_flavor_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -252,6 +262,12 @@ func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, m
 				ChargeMode: d.Get("bandwidth_charge_mode").(string),
 				ShareType:  d.Get("sharetype").(string),
 			},
+		}
+	}
+	if v, ok := d.GetOk("enable"); ok {
+		createOpts.AutoScaling = &loadbalancers.AutoScaling{
+			Enable:      v.(bool),
+			MinL7Flavor: d.Get("min_l7_flavor_id").(string),
 		}
 	}
 
@@ -355,6 +371,8 @@ func resourceLoadBalancerV3Read(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("l7_flavor_id", lb.L7FlavorID),
 		d.Set("region", config.GetRegion(d)),
 		d.Set("enterprise_project_id", lb.EnterpriseProjectID),
+		d.Set("enable", lb.AutoScaling.Enable),
+		d.Set("min_l7_flavor_id", lb.AutoScaling.MinL7Flavor),
 	)
 
 	for _, eip := range lb.Eips {
@@ -395,7 +413,7 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 
 	//lintignore:R019
 	if d.HasChanges("name", "description", "cross_vpc_backend", "ipv4_subnet_id", "ipv6_network_id",
-		"ipv6_bandwidth_id", "ipv4_address", "l4_flavor_id", "l7_flavor_id") {
+		"ipv6_bandwidth_id", "ipv4_address", "l4_flavor_id", "l7_flavor_id", "enable") {
 		var updateOpts loadbalancers.UpdateOpts
 		if d.HasChange("name") {
 			updateOpts.Name = d.Get("name").(string)
@@ -436,6 +454,22 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 		if v, ok := d.GetOk("ipv6_network_id"); ok {
 			v6SubnetID := v.(string)
 			updateOpts.IpV6VipSubnetID = &v6SubnetID
+		}
+
+		if d.HasChange("enable") {
+			enable := d.Get("enable").(bool)
+			updateOpts.AutoScaling = &loadbalancers.AutoScaling{
+				Enable: enable,
+			}
+			if v, ok := d.GetOk("l4_flavor_id"); ok && !enable {
+				updateOpts.L4Flavor = v.(string)
+			}
+			if v, ok := d.GetOk("l7_flavor_id"); ok && !enable {
+				updateOpts.L7Flavor = v.(string)
+			}
+			if v, ok := d.GetOk("min_l7_flavor_id"); ok {
+				updateOpts.AutoScaling.MinL7Flavor = v.(string)
+			}
 		}
 
 		log.Printf("[DEBUG] Updating loadbalancer %s with options: %#v", d.Id(), updateOpts)
