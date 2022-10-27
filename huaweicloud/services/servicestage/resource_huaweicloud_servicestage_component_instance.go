@@ -122,7 +122,7 @@ func probeDetailSchemaResource() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"protocol": {
+						"scheme": {
 							Type:     schema.TypeString,
 							Required: true,
 							ValidateFunc: validation.StringInSlice([]string{
@@ -939,7 +939,7 @@ func buildConfigurationStructure(configs []interface{}) (instances.Configuration
 		Strategy:              buildStrategyStructure(config["strategy"].([]interface{})),
 		Lifecycle:             buildLifecycleStructure(config["lifecycle"].([]interface{})),
 		LogCollectionPolicies: buildLogCollectionPoliciesStructure(config["log_collection_policy"].(*schema.Set)),
-		Scheduler:             buildSchedulerStructure(config["lifecycle"].([]interface{})),
+		Scheduler:             buildSchedulerStructure(config["scheduler"].([]interface{})),
 		Probe:                 probe,
 	}, nil
 }
