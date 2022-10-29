@@ -33,7 +33,8 @@ func TestAccDmsRabbitmqInstances_basic(t *testing.T) {
 		getDmsRabitMqInstanceFunc,
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	// DMS instances use the tenant-level shared lock, the instances cannot be created or modified in parallel.
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -49,14 +50,6 @@ func TestAccDmsRabbitmqInstances_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"password",
-				},
-			},
-			{
 				Config: testAccDmsRabbitmqInstance_update(rName, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
@@ -66,6 +59,14 @@ func TestAccDmsRabbitmqInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"password", "used_storage_space",
+				},
 			},
 		},
 	})
@@ -81,7 +82,7 @@ func TestAccDmsRabbitmqInstances_withEpsId(t *testing.T) {
 		getDmsRabitMqInstanceFunc,
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -111,7 +112,7 @@ func TestAccDmsRabbitmqInstances_compatible(t *testing.T) {
 		getDmsRabitMqInstanceFunc,
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -131,7 +132,7 @@ func TestAccDmsRabbitmqInstances_compatible(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"password",
+					"password", "used_storage_space",
 				},
 			},
 		},
@@ -148,7 +149,7 @@ func TestAccDmsRabbitmqInstances_single(t *testing.T) {
 		getDmsRabitMqInstanceFunc,
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -165,17 +166,21 @@ func TestAccDmsRabbitmqInstances_single(t *testing.T) {
 
 func testAccDmsRabbitmqInstance_Base(rName string) string {
 	return fmt.Sprintf(`
-
-data "huaweicloud_vpc" "test" {
-  name = "vpc-default"
+resource "huaweicloud_vpc" "test" {
+  name        = "%[1]s"
+  cidr        = "192.168.0.0/24"
+  description = "Test for DMS RabbitMQ"
 }
 
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
+resource "huaweicloud_vpc_subnet" "test" {
+  name       = "%[1]s"
+  cidr       = "192.168.0.0/24"
+  gateway_ip = "192.168.0.1"
+  vpc_id     = huaweicloud_vpc.test.id
 }
 
 resource "huaweicloud_networking_secgroup" "test" {
-  name        = "%s"
+  name        = "%[1]s"
   description = "secgroup for rabbitmq"
 }
 
@@ -205,8 +210,8 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
   name        = "%s"
   description = "rabbitmq test"
   
-  vpc_id             = data.huaweicloud_vpc.test.id
-  network_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id             = huaweicloud_vpc.test.id
+  network_id         = huaweicloud_vpc_subnet.test.id
   security_group_id  = huaweicloud_networking_secgroup.test.id
   availability_zones = [
     data.huaweicloud_availability_zones.test.names[0]
@@ -235,8 +240,8 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
   name        = "%s"
   description = "rabbitmq test update"
 
-  vpc_id             = data.huaweicloud_vpc.test.id
-  network_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id             = huaweicloud_vpc.test.id
+  network_id         = huaweicloud_vpc_subnet.test.id
   security_group_id  = huaweicloud_networking_secgroup.test.id
   availability_zones = [
     data.huaweicloud_availability_zones.test.names[0]
@@ -266,8 +271,8 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
   description           = "rabbitmq test"
   enterprise_project_id = "%s"
 
-  vpc_id             = data.huaweicloud_vpc.test.id
-  network_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id             = huaweicloud_vpc.test.id
+  network_id         = huaweicloud_vpc_subnet.test.id
   security_group_id  = huaweicloud_networking_secgroup.test.id
   availability_zones = [
     data.huaweicloud_availability_zones.test.names[0],
@@ -299,8 +304,8 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
   name        = "%s"
   description = "rabbitmq test"
   
-  vpc_id            = data.huaweicloud_vpc.test.id
-  network_id        = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
   available_zones   = [data.huaweicloud_dms_az.test.id]
 
@@ -324,35 +329,13 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
 func testAccDmsRabbitmqInstance_single(rName string) string {
 	randPwd := fmt.Sprintf("%s!#%d", acctest.RandString(5), acctest.RandIntRange(0, 999))
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
+%[1]s
 
-data "huaweicloud_dms_product" "test" {
+data "huaweicloud_dms_product" "single" {
   engine           = "rabbitmq"
   instance_type    = "single"
   version          = "3.7.17"
   node_num         = 1
-}
-
-resource "huaweicloud_vpc" "test" {
-  name        = "%[1]s"
-  cidr        = "192.168.0.0/16"
-  description = "Test for DMS RabbitMQ"
-}
-
-locals {
-  subnet_cidr = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1)
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%[1]s"
-  cidr       = local.subnet_cidr
-  gateway_ip = cidrhost(local.subnet_cidr, 1)
-  vpc_id     = huaweicloud_vpc.test.id
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name        = "%[1]s"
-  description = "The security group for DMS Kafka"
 }
 
 resource "huaweicloud_dms_rabbitmq_instance" "test" {
@@ -360,18 +343,18 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0],
   ]
 
-  name              = "%[1]s"
+  name              = "%[2]s"
   vpc_id            = huaweicloud_vpc.test.id
   network_id        = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
 
-  product_id        = data.huaweicloud_dms_product.test.id
-  engine_version    = data.huaweicloud_dms_product.test.version
-  storage_spec_code = data.huaweicloud_dms_product.test.storage_spec_code
-  storage_space     = data.huaweicloud_dms_product.test.storage
+  product_id        = data.huaweicloud_dms_product.single.id
+  engine_version    = data.huaweicloud_dms_product.single.version
+  storage_spec_code = data.huaweicloud_dms_product.single.storage_spec_code
+  storage_space     = data.huaweicloud_dms_product.single.storage
 
   access_user = "root"
-  password    = "%[2]s"
+  password    = "%[3]s"
 }
-`, rName, randPwd)
+`, testAccDmsRabbitmqInstance_Base(rName), rName, randPwd)
 }
