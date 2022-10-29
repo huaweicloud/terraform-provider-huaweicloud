@@ -15,7 +15,9 @@ variable "application_id"
 variable "component_name"
 variable "token_auth_name"
 variable "repo_url"
-variable "domain_name"
+variable "repo_ref"
+variable "repo_namespace"
+variable "organization_name"
 variable "cluster_id"
 
 resource "huaweicloud_servicestage_component" "test" {
@@ -26,13 +28,15 @@ resource "huaweicloud_servicestage_component" "test" {
   framework      = "Web"
 
   source {
-    type          = "GitHub"
-    authorization = var.token_auth_name
-    url           = var.repo_url
+    type           = "GitHub"
+    authorization  = var.token_auth_name
+    url            = var.repo_url
+    repo_ref       = var.repo_ref
+    repo_namespace = var.repo_namespace
   }
 
   builder {
-    organization = var.domain_name
+    organization = var.organization_name
     cluster_id   = var.cluster_id
 
     node_label = {
@@ -108,13 +112,19 @@ The `source` block supports:
 * `authorization` - (Optional, String) Specifies the authorization name.
   This parameter and `storage_type` are alternative.
 
+* `repo_ref` - (Optional, String) Specifies the name of the branch of the code repository.
+  The default value is `master`.
+
+* `repo_namespace` - (Optional, String) Specifies the namespace name.
+
 * `storage_type` - (Optional, String) Specifies the storage type, such as **obs**, **swr**.
+  This parameter is conflict with `repo_ref` and `repo_namespace`.
 
 <a name="servicestage_component_builder"></a>
 The `builder` block supports:
 
 * `organization` - (Required, String) Specifies the organization name.
-  The organization is usually **domain name**.
+  The organization is usually **domain name**. You can find out in the organization management of SWR.
 
 * `cluster_id` - (Required, String) Specifies the cluster ID.
 
