@@ -69,6 +69,11 @@ type Instance struct {
 	OrderID           string   `json:"order_id"`
 	MaintainBegin     string   `json:"maintain_begin"`
 	MaintainEnd       string   `json:"maintain_end"`
+	EnableAutoTopic   bool     `json:"enable_auto_topic"`
+	EnablePublicip    bool     `json:"enable_publicip"`
+	PublicBandwidth   int      `json:"public_bandwidth"`
+	PublicipId        string   `json:"publicip_id"`
+	RetentionPolicy   string   `json:"retention_policy"`
 }
 
 // UpdateResult is a struct from which can get the result of update method
