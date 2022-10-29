@@ -286,6 +286,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "DNS",
 	},
+	"er": {
+		Name:    "er",
+		Version: "v3",
+		Product: "ER",
+	},
+
 	"workspace": {
 		Name:    "workspace",
 		Version: "v2",

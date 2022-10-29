@@ -44,6 +44,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/eip"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/elb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/eps"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/er"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/evs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/fgs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/gaussdb"
@@ -396,8 +397,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_maintainwindow":  dms.DataSourceDmsMaintainWindow(),
 
 			"huaweicloud_enterprise_project": eps.DataSourceEnterpriseProject(),
-			"huaweicloud_evs_volumes":        evs.DataSourceEvsVolumesV2(),
-			"huaweicloud_fgs_dependencies":   fgs.DataSourceFunctionGraphDependencies(),
+
+			"huaweicloud_er_availability_zones": er.DataSourceAvailabilityZones(),
+
+			"huaweicloud_evs_volumes":      evs.DataSourceEvsVolumesV2(),
+			"huaweicloud_fgs_dependencies": fgs.DataSourceFunctionGraphDependencies(),
 
 			"huaweicloud_gaussdb_cassandra_dedicated_resource": gaussdb.DataSourceGeminiDBDehResource(),
 			"huaweicloud_gaussdb_cassandra_flavors":            gaussdb.DataSourceCassandraFlavors(),
