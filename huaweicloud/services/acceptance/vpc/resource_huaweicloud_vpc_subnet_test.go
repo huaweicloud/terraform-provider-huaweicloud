@@ -40,6 +40,7 @@ func TestAccVpcSubnetV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttrSet(resourceName, "ipv4_subnet_id"),
 				),
 			},
 			{
@@ -49,6 +50,7 @@ func TestAccVpcSubnetV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "updated by acc test"),
 					resource.TestCheckResourceAttr(resourceName, "dhcp_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_updated"),
+					resource.TestCheckResourceAttrSet(resourceName, "ipv4_subnet_id"),
 				),
 			},
 			{
@@ -80,6 +82,7 @@ func TestAccVpcSubnetV1_ipv6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "gateway_ip", "192.168.0.1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttrSet(resourceName, "ipv4_subnet_id"),
 				),
 			},
 			{
@@ -96,6 +99,7 @@ func TestAccVpcSubnetV1_ipv6(t *testing.T) {
 						regexp.MustCompile("([[:xdigit:]]*):([[:xdigit:]]*:){1,6}[[:xdigit:]]*/\\d{1,3}")),
 					resource.TestMatchResourceAttr(resourceName, "ipv6_gateway",
 						regexp.MustCompile("([[:xdigit:]]*):([[:xdigit:]]*:){1,6}([[:xdigit:]]){1,4}")),
+					resource.TestCheckResourceAttrSet(resourceName, "ipv4_subnet_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "ipv6_subnet_id"),
 				),
 			},

@@ -77,9 +77,9 @@ The `subnets` block supports:
 * `primary_dns` - Indicates the IP address of DNS server 1 on the subnet.
 * `secondary_dns` - Indicates the IP address of DNS server 2 on the subnet.
 * `availability_zone` - Indicates the availability zone (AZ) to which the subnet belongs to.
-* `subnet_id` - Indicates the subnet (Native OpenStack API) ID.
 * `dhcp_enable` - Indicates whether the DHCP is enabled.
 * `dns_list` - Indicates The IP address list of DNS servers on the subnet.
+* `ipv4_subnet_id` - Indicates the ID of the IPv4 subnet (Native OpenStack API).
 * `ipv6_enable` - Indicates whether the IPv6 is enabled.
 * `ipv6_subnet_id` - Indicates the ID of the IPv6 subnet (Native OpenStack API).
 * `ipv6_cidr` - Indicates the IPv6 subnet CIDR block.
