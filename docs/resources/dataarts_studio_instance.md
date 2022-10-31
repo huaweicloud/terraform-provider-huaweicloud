@@ -71,8 +71,8 @@ The following arguments are supported:
   Changing this creates a new instance.
 
   -> 1. Only **one** DataArts Studio instance can be purchased in an enterprise project.
-  <br/> 2. If DataArts Studio needs to communicate with other cloud services, ensure that the enterprise project
-    of DataArts Studio is the same as that of other cloud services.
+<br/> 2. If DataArts Studio needs to communicate with other cloud services, ensure that the enterprise project
+  of DataArts Studio is the same as that of other cloud services.
 
 * `tags` - (Optional, Map, ForceNew) The key/value pairs to associate with the DataArts Studio instance.
   Changing this creates a new instance.
