@@ -139,9 +139,8 @@ The following arguments are supported:
   This parameter is mandatory if `charging_mode` is set to *prePaid*.
   Changing this creates a new instance.
 
-* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
+* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
   Valid values are `true` and `false`, defaults to `false`.
-  Changing this creates a new instance.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the DDS instance.
 

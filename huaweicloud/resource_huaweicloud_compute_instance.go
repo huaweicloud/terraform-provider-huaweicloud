@@ -618,36 +618,40 @@ func resourceComputeInstanceV2Create(ctx context.Context, d *schema.ResourceData
 		// Add password here so it wouldn't go in the above log entry
 		createOpts.AdminPass = d.Get("admin_pass").(string)
 
-		var job_id string
 		if d.Get("charging_mode") == "prePaid" {
 			// prePaid.
 			n, err := cloudservers.CreatePrePaid(ecsV11Client, createOpts).ExtractOrderResponse()
 			if err != nil {
 				return diag.Errorf("error creating server: %s", err)
 			}
-			job_id = n.JobID
+			bssClient, err := config.BssV2Client(GetRegion(d, config))
+			if err != nil {
+				return diag.Errorf("error creating BSS v2 client: %s", err)
+			}
+			err = common.WaitOrderComplete(ctx, bssClient, n.OrderID, d.Timeout(schema.TimeoutCreate))
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, n.OrderID, d.Timeout(schema.TimeoutCreate))
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			d.SetId(resourceId)
 		} else {
 			// postPaid.
 			n, err := cloudservers.Create(ecsV11Client, createOpts).ExtractJobResponse()
 			if err != nil {
 				return diag.Errorf("error creating server: %s", err)
 			}
-			job_id = n.JobID
+			if err := cloudservers.WaitForJobSuccess(ecsClient, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
+				return diag.FromErr(err)
+			}
+			serverId, err := cloudservers.GetJobEntity(ecsClient, n.JobID, "server_id")
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			d.SetId(serverId.(string))
 		}
-
-		if err := cloudservers.WaitForJobSuccess(ecsClient, int(d.Timeout(schema.TimeoutCreate)/time.Second), job_id); err != nil {
-			return diag.FromErr(err)
-		}
-
-		entity, err := cloudservers.GetJobEntity(ecsClient, job_id, "server_id")
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		server_id := entity.(string)
-
-		// Store the ID now
-		d.SetId(server_id)
-
 	} else {
 		// OpenStack API implementation. Clean up this after removing block_device.
 

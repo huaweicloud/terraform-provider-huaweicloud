@@ -153,8 +153,7 @@ The following arguments are supported:
   This parameter is mandatory if `charging_mode` is set to **prePaid**.
   Changing this parameter will create a new resource.
 
-* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled. Valid values are **true** and
-  **false**. Changing this parameter will create a new resource.
+* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled. Valid values are **true** and **false**.
 
 ## Attributes Reference
 

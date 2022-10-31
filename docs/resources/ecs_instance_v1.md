@@ -209,8 +209,7 @@ The following arguments are supported:
 
 * `period` - (Optional, Int, ForceNew) The charging period of the instance. Changing this creates a new server.
 
-* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled. Changing this creates a new
-  server.
+* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled. Changing this creates a new server.
 
 * `auto_recovery` - (Optional, Bool) Whether configure automatic recovery of an instance.
 

@@ -145,16 +145,28 @@ func TestAccEvsVolume_prePaid(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEvsVolume_prePaid(rName),
+				Config: testAccEvsVolume_prePaid(rName, false),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
+				),
+			},
+			{
+				Config: testAccEvsVolume_prePaid(rName, true),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
 				),
 			},
 			{
@@ -253,12 +265,12 @@ resource "huaweicloud_evs_volume" "test" {
 `, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccEvsVolume_prePaid(rName string) string {
+func testAccEvsVolume_prePaid(rName string, isAutoRenew bool) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_evs_volume" "test" {
-  name              = "%s"
+  name              = "%[1]s"
   description       = "test volume for charging mode"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   volume_type       = "SSD"
@@ -267,7 +279,7 @@ resource "huaweicloud_evs_volume" "test" {
   charging_mode = "prePaid"
   period_unit   = "month"
   period        = 1
-  auto_renew    = "true"
+  auto_renew    = "%v"
 }
-`, rName)
+`, rName, isAutoRenew)
 }

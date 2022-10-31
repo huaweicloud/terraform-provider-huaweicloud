@@ -293,7 +293,7 @@ func ResourceCssCluster() *schema.Resource {
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
-			"auto_renew":    common.SchemaAutoRenew(nil),
+			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
 
 			"expect_node_num": {
 				Type:       schema.TypeInt,
@@ -1251,6 +1251,17 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 			}
 		}
 	}
+
+	if d.HasChange("auto_renew") {
+		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating BSS V2 client: %s", err)
+		}
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return diag.Errorf("error updating the auto-renew of the cluster (%s): %s", d.Id(), err)
+		}
+	}
+
 	return resourceCssClusterRead(ctx, d, meta)
 }
 

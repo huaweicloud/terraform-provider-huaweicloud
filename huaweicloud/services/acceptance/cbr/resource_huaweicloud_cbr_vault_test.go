@@ -156,6 +156,7 @@ func TestAccVault_prePaidServer(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "resources.0.excludes.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
 				),
 			},
 			{
@@ -163,6 +164,7 @@ func TestAccVault_prePaidServer(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
 					resource.TestCheckResourceAttr(resourceName, "name", randName+"-update"),
 					resource.TestCheckResourceAttr(resourceName, "consistent_level", "app_consistent"),
 					resource.TestCheckResourceAttr(resourceName, "type", cbr.VaultTypeServer),
@@ -518,7 +520,7 @@ resource "huaweicloud_evs_volume" "test" {
 }
 
 resource "huaweicloud_compute_volume_attach" "test" {
-  count = length(huaweicloud_evs_volume.test)
+  count = length(var.volume_configuration)
 
   instance_id = huaweicloud_compute_instance.test.id
   volume_id   = huaweicloud_evs_volume.test[count.index].id
@@ -609,7 +611,6 @@ resource "huaweicloud_cbr_vault" "test" {
   charging_mode = "prePaid"
   period_unit   = "month"
   period        = 1
-  auto_renew    = "true"
 
   resources {
     server_id = huaweicloud_compute_instance.test.id

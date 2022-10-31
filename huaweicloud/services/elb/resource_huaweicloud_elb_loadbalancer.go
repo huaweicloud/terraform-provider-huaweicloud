@@ -171,7 +171,7 @@ func ResourceLoadBalancerV3() *schema.Resource {
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
-			"auto_renew":    common.SchemaAutoRenew(nil),
+			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
 			"auto_pay":      common.SchemaAutoPay(nil),
 
 			"enterprise_project_id": {
@@ -283,8 +283,13 @@ func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, m
 		if err != nil {
 			return diag.Errorf("the order is not completed while creating ELB loadbalancer (%s): %#v", resp.LoadBalancerID, err)
 		}
+		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, resp.OrderID,
+			d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
 
-		loadBalancerID = resp.LoadBalancerID
+		loadBalancerID = resourceId
 	} else {
 		log.Printf("[DEBUG] Create Options: %#v", createOpts)
 		lb, err := loadbalancers.Create(elbClient, createOpts).Extract()
@@ -448,11 +453,9 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 		}
 
 		if d.Get("charging_mode").(string) == "prePaid" && d.HasChanges("l4_flavor_id", "l7_flavor_id") {
-			autoRenew, _ := strconv.ParseBool(d.Get("auto_renew").(string))
 			prepaidOpts := loadbalancers.PrepaidOpts{
 				PeriodType: d.Get("period_unit").(string),
 				PeriodNum:  d.Get("period").(int),
-				AutoRenew:  autoRenew,
 			}
 			if d.Get("auto_pay").(string) != "false" {
 				prepaidOpts.AutoPay = true
@@ -483,6 +486,16 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 		err = waitForElbV3LoadBalancer(ctx, elbClient, d.Id(), "ACTIVE", nil, timeout)
 		if err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("auto_renew") {
+		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating BSS V2 client: %s", err)
+		}
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return diag.Errorf("error updating the auto-renew of the loadbalancer (%s): %s", d.Id(), err)
 		}
 	}
 

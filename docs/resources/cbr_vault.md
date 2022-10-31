@@ -171,8 +171,8 @@ The following arguments are supported:
   This parameter is mandatory if `charging_mode` is set to **prePaid**.
   Changing this will create a new vault.
 
-* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
-  Valid values are **true** and **false**. Defaults to **false**. Changing this will create a new vault.
+* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
+  Valid values are **true** and **false**. Defaults to **false**.
 
 <a name="cbr_vault_resources"></a>
 The `resources` block supports:

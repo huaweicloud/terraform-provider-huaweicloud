@@ -202,6 +202,49 @@ func TestAccDcsInstances_single(t *testing.T) {
 	})
 }
 
+func TestAccDcsInstances_prePaid(t *testing.T) {
+	var instance instances.DcsInstance
+	var rName = acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_dcs_instance.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDcsResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDcsInstance_prePaid(rName, false),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
+				),
+			},
+			{
+				Config: testAccDcsInstance_prePaid(rName, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit"},
+			},
+		},
+	})
+}
+
 func testAccDcsV1Instance_basic(instanceName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
@@ -417,4 +460,35 @@ resource "huaweicloud_dcs_instance" "instance_1" {
     ip_address = ["172.16.10.100", "172.16.0.0/24"]
   }
 }`, instanceName)
+}
+
+func testAccDcsInstance_prePaid(instanceName string, isAutoRenew bool) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+resource "huaweicloud_dcs_instance" "test" {
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
+  availability_zones = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), [])
+
+  name               = "%s"
+  engine             = "Redis"
+  engine_version     = "5.0"
+  flavor             = "redis.ha.xu1.tiny.r2.128"
+  capacity           = 0.125
+  password           = "Huawei_test"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "%v"
+}`, instanceName, isAutoRenew)
 }

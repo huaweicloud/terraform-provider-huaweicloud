@@ -161,7 +161,10 @@ func TestAccDDSV3Instance_prePaid(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -172,6 +175,7 @@ func TestAccDDSV3Instance_prePaid(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "08:00-09:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "8"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
 				),
 			},
 			{
@@ -184,6 +188,7 @@ func TestAccDDSV3Instance_prePaid(t *testing.T) {
 					testAccCheckDDSV3InstanceFlavor(&instance, "shard", "num", 3),
 					testAccCheckDDSV3InstanceFlavor(&instance, "shard", "size", "30"),
 					testAccCheckDDSV3InstanceFlavor(&instance, "mongos", "spec_code", "dds.mongodb.c6.large.4.mongos"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
 				),
 			},
 		},
@@ -592,7 +597,7 @@ resource "huaweicloud_dds_instance" "instance" {
   charging_mode = "prePaid"
   period_unit   = "month"
   period        = 1
-  auto_renew    = true
+  auto_renew    = false
 
   datastore {
     type           = "DDS-Community"

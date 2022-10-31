@@ -223,13 +223,7 @@ func ResourceGaussRedisInstanceV3() *schema.Resource {
 				RequiredWith: []string{"period_unit"},
 				ValidateFunc: validation.IntBetween(1, 9),
 			},
-			"auto_renew": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"true", "false",
-				}, false),
-			},
+			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
 			"auto_pay": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -753,6 +747,16 @@ func resourceGaussRedisInstanceV3Update(d *schema.ResourceData, meta interface{}
 		_, err := stateConf.WaitForState()
 		if err != nil {
 			return fmtp.Errorf("Error waiting for huaweicloud_gaussdb_redis_instance %s to become ready: %s", d.Id(), err)
+		}
+	}
+
+	if d.HasChange("auto_renew") {
+		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		if err != nil {
+			return fmtp.Errorf("error creating BSS V2 client: %s", err)
+		}
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return fmtp.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
 		}
 	}
 

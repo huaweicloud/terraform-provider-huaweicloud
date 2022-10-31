@@ -62,7 +62,7 @@ func TestAccCssCluster_basic(t *testing.T) {
 	})
 }
 
-func TestAccCssCluster_security(t *testing.T) {
+func TestAccCssCluster_prePaid(t *testing.T) {
 	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_css_cluster.test"
 
@@ -74,12 +74,15 @@ func TestAccCssCluster_security(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCssCluster_security(rName, 1, "bar"),
+				Config: testAccCssCluster_prePaid(rName, 1, false),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -92,6 +95,15 @@ func TestAccCssCluster_security(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "vpcep_endpoint.0.endpoint_with_dns_name", "true"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpcep_endpoint_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpcep_ip"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
+				),
+			},
+			{
+				Config: testAccCssCluster_prePaid(rName, 1, true),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
 				),
 			},
 		},
@@ -167,12 +179,12 @@ resource "huaweicloud_css_cluster" "test" {
 `, testAccCssBase(rName), rName, nodeNum, keepDays, tag)
 }
 
-func testAccCssCluster_security(rName string, nodeNum int, tag string) string {
+func testAccCssCluster_prePaid(rName string, nodeNum int, isAutoRenew bool) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_css_cluster" "test" {
-  name           = "%s"
+  name           = "%[2]s"
   engine_version = "7.10.2"
   security_mode  = true
   password       = "Test@passw0rd"
@@ -184,8 +196,8 @@ resource "huaweicloud_css_cluster" "test" {
 
   charging_mode = "prePaid"
   period_unit   = "month"
-  period        = %d
-  auto_renew    = "true"
+  period        = %[3]d
+  auto_renew    = "%[4]v"
 
   ess_node_config {
     flavor          = "ess.spec-4u8g"
@@ -226,11 +238,6 @@ resource "huaweicloud_css_cluster" "test" {
   vpcep_endpoint {
     endpoint_with_dns_name = true
   }
-
-  tags = {
-    foo = "%s"
-    key = "value"
-  }
 }
-`, testAccCssBase(rName), rName, nodeNum, tag)
+`, testAccCssBase(rName), rName, nodeNum, isAutoRenew)
 }

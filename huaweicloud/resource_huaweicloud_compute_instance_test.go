@@ -93,7 +93,10 @@ func TestAccComputeInstance_prePaid(t *testing.T) {
 	resourceName := "huaweicloud_compute_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccPreCheckChargingMode(t)
+		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{

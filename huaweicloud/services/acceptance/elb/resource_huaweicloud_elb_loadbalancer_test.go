@@ -149,7 +149,10 @@ func TestAccElbV3LoadBalancer_prePaid(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -161,6 +164,7 @@ func TestAccElbV3LoadBalancer_prePaid(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_backend", "false"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
 				),
 			},
 			{
@@ -176,6 +180,7 @@ func TestAccElbV3LoadBalancer_prePaid(t *testing.T) {
 						resourceName, "l4_flavor_id", "data.huaweicloud_elb_flavors.l4flavors", "ids.0"),
 					resource.TestCheckResourceAttrPair(
 						resourceName, "l7_flavor_id", "data.huaweicloud_elb_flavors.l7flavors", "ids.0"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
 				),
 			},
 		},
@@ -290,9 +295,11 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   name            = "%s"
   ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.subnet_id
   ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
-  charging_mode   = "prePaid"
-  period_unit     = "month"
-  period          = 1
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "false"
 
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0]
@@ -335,9 +342,11 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   description     = "update flavors"
   l4_flavor_id    = data.huaweicloud_elb_flavors.l4flavors.ids[0]
   l7_flavor_id    = data.huaweicloud_elb_flavors.l7flavors.ids[0]
-  charging_mode   = "prePaid"
-  period_unit     = "month"
-  period          = 1
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "true"
 
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0]

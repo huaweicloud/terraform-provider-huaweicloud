@@ -158,9 +158,8 @@ The following arguments are supported:
   If `period_unit` is set to *year*, the value ranges from 1 to 3.
   Changing this parameter will create a new resource.
 
-* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
+* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
   Valid values are `true` and `false`, defaults to `false`.
-  Changing this parameter will create a new resource.
 
 <a name="Css_ess_node_config"></a>
 The `ess_node_config`, `master_node_config`, `client_node_config` and `cold_node_config` block supports:

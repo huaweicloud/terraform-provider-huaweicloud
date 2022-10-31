@@ -171,18 +171,29 @@ func TestAccCCENodeV3_prePaid(t *testing.T) {
 	clusterName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      testAccCheckCCENodeV3Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCENodeV3_prePaid(rName),
+				Config: testAccCCENodeV3_prePaid(rName, false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCENodeV3Exists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
 					resource.TestCheckResourceAttr(resourceName, "period_unit", "month"),
 					resource.TestCheckResourceAttr(resourceName, "period", "1"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
+				),
+			},
+			{
+				Config: testAccCCENodeV3_prePaid(rName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCCENodeV3Exists(resourceName, clusterName, &node),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
 				),
 			},
 		},
@@ -529,34 +540,33 @@ resource "huaweicloud_cce_node" "test" {
 `, testAccCCENodeV3_Base(rName), rName, rName)
 }
 
-func testAccCCENodeV3_prePaid(rName string) string {
+func testAccCCENodeV3_prePaid(rName string, isAutoRenew bool) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_cce_node" "test" {
   cluster_id        = huaweicloud_cce_cluster.test.id
-  name              = "%s"
+  name              = "%[2]s"
   flavor_id         = "s6.large.2"
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone = try(element(data.huaweicloud_availability_zones.test.names, 0), null)
   key_pair          = huaweicloud_compute_keypair.test.name
-  charging_mode     = "prePaid"
-  period_unit       = "month"
-  period            = "1"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = "1"
+  auto_renew    = "%[3]v"
 
   root_volume {
     size       = 40
     volumetype = "SSD"
   }
+
   data_volumes {
     size       = 100
     volumetype = "SSD"
   }
-  tags = {
-    foo = "bar"
-    key = "value"
-  }
 }
-`, testAccCCENodeV3_Base(rName), rName)
+`, testAccCCENodeV3_Base(rName), rName, isAutoRenew)
 }
 
 func testAccCCENodeV3_password(rName string) string {

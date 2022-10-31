@@ -223,7 +223,7 @@ func ResourceCCEClusterV3() *schema.Resource {
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
-			"auto_renew":    common.SchemaAutoRenew(nil),
+			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
 			"auto_pay":      common.SchemaAutoPay(nil),
 
 			"delete_efs": associateDeleteSchema,
@@ -478,22 +478,39 @@ func resourceCCEClusterV3Create(ctx context.Context, d *schema.ResourceData, met
 		return fmtp.DiagErrorf("Error creating HuaweiCloud Cluster: %s", err)
 	}
 
-	jobID := s.Status.JobID
-	if jobID == "" {
-		return fmtp.DiagErrorf("Error fetching job id after creating cce cluster: %s", clusterName)
+	if orderId, ok := s.Spec.ExtendParam["orderID"]; ok && orderId != "" {
+		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating BSS v2 client: %s", err)
+		}
+		err = common.WaitOrderComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		d.SetId(resourceId)
+	} else {
+		jobID := s.Status.JobID
+		if jobID == "" {
+			return fmtp.DiagErrorf("Error fetching job id after creating cce cluster: %s", clusterName)
+		}
+
+		clusterID, err := getCCEClusterIDFromJob(ctx, cceClient, jobID, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		d.SetId(clusterID)
 	}
 
-	clusterID, err := getCCEClusterIDFromJob(ctx, cceClient, jobID, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	d.SetId(clusterID)
-
-	logp.Printf("[DEBUG] Waiting for HuaweiCloud CCE cluster (%s) to become available", clusterID)
+	logp.Printf("[DEBUG] Waiting for HuaweiCloud CCE cluster (%s) to become available", d.Id())
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Creating"},
 		Target:       []string{"Available"},
-		Refresh:      waitForCCEClusterActive(cceClient, clusterID),
+		Refresh:      waitForCCEClusterActive(cceClient, d.Id()),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        20 * time.Second,
 		PollInterval: 20 * time.Second,
@@ -676,6 +693,16 @@ func resourceCCEClusterV3Update(ctx context.Context, d *schema.ResourceData, met
 			if err != nil {
 				return diag.FromErr(err)
 			}
+		}
+	}
+
+	if d.HasChange("auto_renew") {
+		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating BSS V2 client: %s", err)
+		}
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return diag.Errorf("error updating the auto-renew of the cluster (%s): %s", d.Id(), err)
 		}
 	}
 

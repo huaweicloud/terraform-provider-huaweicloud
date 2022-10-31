@@ -72,6 +72,47 @@ func TestAccGaussInfluxInstance_basic(t *testing.T) {
 	})
 }
 
+func TestAccGaussInfluxInstance_prePaid(t *testing.T) {
+	var (
+		instance instances.GeminiDBInstance
+
+		resourceName = "huaweicloud_gaussdb_influx_instance.test"
+		rName        = acceptance.RandomAccResourceName()
+		password     = acceptance.RandomPassword()
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getNosqlInstance,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGaussInfluxInstanceConfig_prePaid(rName, password, false),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
+				),
+			},
+			{
+				Config: testAccGaussInfluxInstanceConfig_prePaid(rName, password, true),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
+				),
+			},
+		},
+	})
+}
+
 func testAccGaussInfluxInstanceConfig_basic(rName, password string) string {
 	return fmt.Sprintf(`
 %s
@@ -152,4 +193,40 @@ resource "huaweicloud_gaussdb_influx_instance" "test" {
   }
 }
 `, testAccVpcConfig_Base(rName), rName, password)
+}
+
+func testAccGaussInfluxInstanceConfig_prePaid(rName, password string, isAutoRenew bool) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_networking_secgroup" "test" {
+  name = "default"
+}
+
+data "huaweicloud_gaussdb_nosql_flavors" "test" {
+  vcpus             = 2
+  engine            = "influxdb"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+}
+
+resource "huaweicloud_gaussdb_influx_instance" "test" {
+  name        = "%[2]s"
+  password    = "%[3]s"
+  flavor      = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
+  volume_size = 200
+  vpc_id      = huaweicloud_vpc.test.id
+  subnet_id   = huaweicloud_vpc_subnet.test.id
+  node_num    = 4
+
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "%[4]v"
+}
+`, testAccVpcConfig_Base(rName), rName, password, isAutoRenew)
 }
