@@ -749,6 +749,10 @@ func (c *Config) ModelArtsV2Client(region string) (*golangsdk.ServiceClient, err
 	return c.NewServiceClient("modelartsv2", region)
 }
 
+func (c *Config) DataArtsV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("dataarts", region)
+}
+
 func (c *Config) WorkspaceV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("workspace", region)
 }

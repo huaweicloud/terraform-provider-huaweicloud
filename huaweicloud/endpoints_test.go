@@ -1076,6 +1076,18 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	}
 	t.Logf("ModelArts v2 endpoint:\t %s", actualURL)
 
+	// test the endpoint of DataArts Studio v1 service
+	serviceClient, err = config.DataArtsV1Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud DataArts v1 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://dayu.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("DataArts v1 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("DataArts v1 endpoint:\t %s", actualURL)
+
 	// test the endpoint of Workspace service (with region)
 	serviceClient, err = config.WorkspaceV2Client(HW_REGION_NAME)
 	if err != nil {
