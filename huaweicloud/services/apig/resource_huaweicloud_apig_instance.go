@@ -238,7 +238,7 @@ func ApigInstanceV2StateRefreshFunc(client *golangsdk.ServiceClient, id string) 
 
 func waitForApigInstanceCreateCompleted(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	ref := Refresh{
-		Pending:      []string{"Creating", "Initing", "Installing", "Registering"},
+		Pending:      []string{"Creating", "Initing", "Installing", "Registering", "CreateSuccess"},
 		Target:       []string{"Running"},
 		Delay:        30 * time.Second,
 		Timeout:      d.Timeout(schema.TimeoutCreate),
