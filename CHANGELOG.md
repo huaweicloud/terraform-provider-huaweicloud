@@ -1,5 +1,26 @@
 # CHANGELOG
 
+## 1.42.0 (October 31, 2022)
+
+* **New Resurce:**
+  + `huaweicloud_workspace_desktop` [GH-2420]
+  + `huaweicloud_workspace_user` [GH-2426]
+  + `huaweicloud_workspace_service` [GH-2453]
+  + `huaweicloud_dataarts_studio_instance` [GH-2476]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_gaussdb_opengauss_instance: Add prepaid support [GH-2406]
+* resource/huaweicloud_cce_cluster: Support binding or unbinding EIP without rebuild [GH-2418]
+* resource/huaweicloud_cdn_domain: Add tags and range-based interival support [GH-2421] [GH-2425]
+* resource/huaweicloud_compute_instance: Support updting keypair without rebuild [GH-2431]
+* resource/huaweicloud_servicestage_component: Support `DevCloud` repository [GH-2462]
+
+BUG FIXES:
+
+* resource/huaweicloud_cce_node_attach: Fix issue when attaching a prePaid instance [GH-2395]
+* resource/huaweicloud_dms_rabbitmq_instance: Fix crash when creating Rabbitmq instance [GH-2456]
+
 ## 1.41.1 (October 15, 2022)
 
 BUG FIXES:
