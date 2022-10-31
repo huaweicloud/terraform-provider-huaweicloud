@@ -107,10 +107,6 @@ func DataSourceVpcSubnets() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"subnet_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
 						"dhcp_enable": {
 							Type:     schema.TypeBool,
 							Computed: true,
@@ -120,6 +116,15 @@ func DataSourceVpcSubnets() *schema.Resource {
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Set:      schema.HashString,
+						},
+						"subnet_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "schema: Deprecated",
+						},
+						"ipv4_subnet_id": {
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 						"ipv6_subnet_id": {
 							Type:     schema.TypeString,
@@ -204,6 +209,7 @@ func dataSourceVpcSubnetsRead(_ context.Context, d *schema.ResourceData, meta in
 			"availability_zone": item.AvailabilityZone,
 			"vpc_id":            item.VPC_ID,
 			"subnet_id":         item.SubnetId,
+			"ipv4_subnet_id":    item.SubnetId,
 			"ipv6_subnet_id":    item.IPv6SubnetId,
 			"ipv6_cidr":         item.IPv6CIDR,
 			"ipv6_gateway":      item.IPv6Gateway,

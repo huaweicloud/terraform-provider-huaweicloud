@@ -85,7 +85,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - The status of the subnet. The value can be ACTIVE, DOWN, UNKNOWN, or ERROR.
 
-* `subnet_id` - The subnet (Native OpenStack API) ID.
+* `ipv4_subnet_id` - The ID of the IPv4 subnet (Native OpenStack API).
 
 * `ipv6_subnet_id` - The ID of the IPv6 subnet (Native OpenStack API).
 
