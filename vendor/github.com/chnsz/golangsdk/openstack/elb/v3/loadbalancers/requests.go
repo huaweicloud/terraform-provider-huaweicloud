@@ -73,6 +73,9 @@ type CreateOpts struct {
 
 	// Prepaid configuration
 	PrepaidOpts *PrepaidOpts `json:"prepaid_options,omitempty"`
+
+	// Autoscaling configuration
+	AutoScaling *AutoScaling `json:"autoscaling,omitempty"`
 }
 
 // BandwidthRef
@@ -137,6 +140,12 @@ type PrepaidOpts struct {
 	PeriodNum  int    `json:"period_num,omitempty"`
 	AutoRenew  bool   `json:"auto_renew,omitempty"`
 	AutoPay    bool   `json:"auto_pay,omitempty"`
+}
+
+// AutoScaling configuration
+type AutoScaling struct {
+	Enable      bool   `json:"enable"`
+	MinL7Flavor string `json:"min_l7_flavor_id,omitempty"`
 }
 
 // ToLoadBalancerCreateMap builds a request body from CreateOpts.
@@ -212,6 +221,9 @@ type UpdateOpts struct {
 
 	// Prepaid configuration
 	PrepaidOpts *PrepaidOpts `json:"prepaid_options,omitempty"`
+
+	// Autoscaling configuration
+	AutoScaling *AutoScaling `json:"autoscaling,omitempty"`
 }
 
 // ToLoadBalancerUpdateMap builds a request body from UpdateOpts.
