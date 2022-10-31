@@ -1,14 +1,12 @@
 info:
-  version: v1.41.1
+  version: v1.42.0
   title: resource_huaweicloud_cce_node
   description: 
 schemes:
   - https
 host: huaweicloud.com
 tags:
-  - name: ECS
   - name: CCE
-  - name: 
 paths:
   /v1/{project_id}/cloudservers/{id}/tags/action:
     POST:
@@ -46,8 +44,5 @@ paths:
       operationId: Get
   /{project_id}/jobs/{jobid}:
     get:
-      tag: 
-      operationId: GetJobDetails
-    get:
-      tag: 
+      tag: CCE
       operationId: GetJobDetails

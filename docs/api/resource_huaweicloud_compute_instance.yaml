@@ -1,5 +1,5 @@
 info:
-  version: v1.41.1
+  version: v1.42.0
   title: resource_huaweicloud_compute_instance
   description: 
 schemes:
@@ -71,10 +71,10 @@ paths:
     put:
       tag: ECS
       operationId: Update
-  /v2.1/{project_id}/servers/{id}/action:
+  /v1/{project_id}/servers/{id}/action:
     post:
       tag: ECS
-      operationId: RemoveServer
+      operationId: ChangeAdminPassword
   /v2.1/{project_id}/servers/{id}/metadata/{key}:
     delete:
       tag: ECS

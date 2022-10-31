@@ -1,33 +1,33 @@
 info:
-  version: v1.41.1
+  version: v1.42.0
   title: resource_huaweicloud_meeting_user
   description: 
 schemes:
   - https
 host: huaweicloud.com
 tags:
-  - name: 
+  - name: MEETING
 paths:
   /{project_id}/usg/dcs/corp/admin/delete:
     post:
-      tag: 
+      tag: MEETING
       operationId: BatchDelete
   /{project_id}/usg/dcs/corp/admin:
     post:
-      tag: 
+      tag: MEETING
       operationId: Create
   /{project_id}/usg/dcs/corp/member/delete:
     post:
-      tag: 
+      tag: MEETING
       operationId: BatchDelete
   /{project_id}/usg/dcs/corp/member/{account}:
     get:
-      tag: 
+      tag: MEETING
       operationId: Get
     put:
-      tag: 
+      tag: MEETING
       operationId: Update
   /{project_id}/usg/dcs/corp/member:
     post:
-      tag: 
+      tag: MEETING
       operationId: Create

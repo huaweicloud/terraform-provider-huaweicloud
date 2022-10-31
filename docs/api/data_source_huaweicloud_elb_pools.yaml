@@ -1,9 +1,14 @@
 info:
-  version: v1.41.1
-  title: data_source_huaweicloud_elb_pools
-  description: 
-schemes:
-  - https
-host: huaweicloud.com
+    title: data_source_huaweicloud_elb_pools
+    description: Use this data source to get the list of ELB pools.
+host: myhuaweicloud.com
 tags:
+    - name: ELB
+servers:
+    - url: https://elb.cn-north-4.myhuaweicloud.com
 paths:
+    /v3/{project_id}/elb/pools:
+        GET:
+            tag: ELB
+            operationId: ListPools
+            x-ref-api: GET /v3/{project_id}/elb/pools

@@ -1,7 +1,7 @@
 info:
-  version: v1.41.1
+  version: v1.42.0
   title: resource_huaweicloud_obs_bucket_object
-  description: 404.This resource is waiting to be upgraded, so there is none method output.
+  description: 
 schemes:
   - https
 host: huaweicloud.com

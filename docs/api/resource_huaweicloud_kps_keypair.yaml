@@ -1,5 +1,5 @@
 info:
-  version: v1.41.1
+  version: v1.42.0
   title: resource_huaweicloud_kps_keypair
   description: 
 schemes:
@@ -7,14 +7,13 @@ schemes:
 host: huaweicloud.com
 tags:
   - name: DEW
-  - name: 
 paths:
   /v3/{project_id}/keypairs/{keypair_name}:
     delete:
       tag: DEW
       operationId: DeleteKeypair
     put:
-      tag: 
+      tag: DEW
       operationId: UpdateKeypairDescription
   /v3/{project_id}/keypairs:
     post:

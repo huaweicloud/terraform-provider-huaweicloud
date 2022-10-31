@@ -1,0 +1,29 @@
+info:
+    title: resource_huaweicloud_codehub_repository
+    description: Manages a CodeHub repository resource within HuaweiCloud.
+host: myhuaweicloud.com
+tags:
+    - name: codeHub
+servers:
+    - url: https://codehub-ext.cn-north-4.myhuaweicloud.com
+paths:
+    /v1/repositories:
+        POST:
+            tag: codeHub
+            operationId: CreateRepository
+            x-ref-api: POST /v1/repositories
+    /v1/repositories/{id}/status:
+        GET:
+            tag: codeHub
+            operationId: QueryRepositoryStatus
+            x-ref-api: GET /v1/repositories/{id}/status
+    /v1/repositories/{repository_uuid}:
+        DELETE:
+            tag: codeHub
+            operationId: DeleteRepository
+            x-ref-api: DELETE /v1/repositories/{repository_uuid}
+    /v2/repositories/{repository_uuid}:
+        GET:
+            tag: codeHub
+            operationId: GetRepository
+            x-ref-api: GET /v2/repositories/{repository_uuid}

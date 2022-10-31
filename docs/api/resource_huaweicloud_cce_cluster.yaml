@@ -1,14 +1,12 @@
 info:
-  version: v1.41.1
+  version: v1.42.0
   title: resource_huaweicloud_cce_cluster
   description: 
 schemes:
   - https
 host: huaweicloud.com
 tags:
-  - name: AOM
   - name: CCE
-  - name: 
 paths:
   /svcstg/icmgr/v1/{project_id}/agents:
     post:
@@ -20,7 +18,7 @@ paths:
       operationId: GetCert
   /{project_id}/clusters/{id}/mastereip:
     put:
-      tag: 
+      tag: CCE
       operationId: UpdateMasterIp
   /api/v3/projects/{project_id}/clusters/{id}/operation/{action}:
     post:

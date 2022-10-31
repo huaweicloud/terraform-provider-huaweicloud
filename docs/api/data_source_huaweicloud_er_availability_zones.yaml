@@ -1,0 +1,14 @@
+info:
+    title: data_source_huaweicloud_er_availability_zones
+    description: Use this data source to query the list of availability zones that enterprise router instance can be create.
+host: myhuaweicloud.com
+tags:
+    - name: ER
+servers:
+    - url: https://er.cn-north-4.myhuaweicloud.com
+paths:
+    /v3/{project_id}/enterprise-router/availability-zones:
+        GET:
+            tag: ER
+            operationId: GetAvailabilityZones
+            x-ref-api: GET /v3/{project_id}/enterprise-router/availability-zones

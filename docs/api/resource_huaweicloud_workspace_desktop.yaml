@@ -1,0 +1,37 @@
+info:
+  version: v1.42.0
+  title: resource_huaweicloud_workspace_desktop
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: Workspace
+paths:
+  /v2/{project_id}/desktops/resize:
+    post:
+      tag: Workspace
+      operationId: UpdateProduct
+  /v2/{project_id}/desktops/{desktopId}:
+    delete:
+      tag: Workspace
+      operationId: Delete
+    get:
+      tag: Workspace
+      operationId: Get
+  /v2/{project_id}/desktops:
+    post:
+      tag: Workspace
+      operationId: Create
+  /v2/{project_id}/volumes/expand:
+    post:
+      tag: Workspace
+      operationId: ExpandVolumes
+  /v2/{project_id}/volumes:
+    post:
+      tag: Workspace
+      operationId: NewVolumes
+  /v2/{project_id}/workspace-sub-jobs:
+    get:
+      tag: Workspace
+      operationId: List

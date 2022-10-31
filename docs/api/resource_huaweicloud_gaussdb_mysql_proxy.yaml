@@ -1,5 +1,5 @@
 info:
-  version: v1.41.1
+  version: v1.42.0
   title: resource_huaweicloud_gaussdb_mysql_proxy
   description: 
 schemes:
@@ -16,9 +16,6 @@ paths:
     delete:
       tag: GaussDB
       operationId: DeleteProxy
-    get:
-      tag: GaussDB
-      operationId: GetProxy
     post:
       tag: GaussDB
       operationId: EnableProxy

@@ -1,0 +1,23 @@
+info:
+  version: v1.42.0
+  title: resource_huaweicloud_workspace_service
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: Workspace
+paths:
+  /v2/{project_id}/workspaces:
+    delete:
+      tag: Workspace
+      operationId: Delete
+    get:
+      tag: Workspace
+      operationId: Get
+    post:
+      tag: Workspace
+      operationId: Create
+    put:
+      tag: Workspace
+      operationId: Update
