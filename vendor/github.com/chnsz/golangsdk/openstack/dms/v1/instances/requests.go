@@ -89,6 +89,21 @@ type CreateOps struct {
 
 	//Indicates the storage I/O specification. For details on how to select a disk type
 	StorageSpecCode string `json:"storage_spec_code,omitempty"`
+
+	// Indicates whether to enable automatic topic creation.
+	EnableAutoTopic bool `json:"enable_auto_topic,omitempty"`
+
+	// Indicates whether to enable public access for an instance.
+	EnablePublicip bool `json:"enable_publicip,omitempty"`
+
+	// Indicates the public network bandwidth. Unit: Mbit/s
+	PublicBandwidth int `json:"public_bandwidth,omitempty"`
+
+	// ndicates the ID of the elastic IP address (EIP) bound to an instance.
+	PublicipId string `json:"publicip_id,omitempty"`
+
+	// Indicates the action to be taken when the memory usage reaches the disk capacity threshold.
+	RetentionPolicy string `json:"retention_policy,omitempty"`
 }
 
 // ToInstanceCreateMap is used for type convert
@@ -119,12 +134,12 @@ func Delete(client *golangsdk.ServiceClient, id string) (r DeleteResult) {
 	return
 }
 
-//UpdateOptsBuilder is an interface which can build the map paramter of update function
+// UpdateOptsBuilder is an interface which can build the map paramter of update function
 type UpdateOptsBuilder interface {
 	ToInstanceUpdateMap() (map[string]interface{}, error)
 }
 
-//UpdateOpts is a struct which represents the parameters of update function
+// UpdateOpts is a struct which represents the parameters of update function
 type UpdateOpts struct {
 	// Indicates the name of an instance.
 	// An instance name starts with a letter,
@@ -146,6 +161,9 @@ type UpdateOpts struct {
 
 	// Indicates the ID of a security group.
 	SecurityGroupID string `json:"security_group_id,omitempty"`
+
+	// Indicates the action to be taken when the memory usage reaches the disk capacity threshold.
+	RetentionPolicy string `json:"retention_policy,omitempty"`
 }
 
 // ToInstanceUpdateMap is used for type convert

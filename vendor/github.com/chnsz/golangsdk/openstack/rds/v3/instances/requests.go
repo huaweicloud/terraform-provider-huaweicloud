@@ -109,7 +109,7 @@ func CreateReplica(client *golangsdk.ServiceClient, opts CreateRdsBuilder) (r Cr
 	}
 
 	_, r.Err = client.Post(createURL(client), b, &r.Body, &golangsdk.RequestOpts{
-		OkCodes: []int{202},
+		OkCodes: []int{200, 202},
 	})
 
 	return
