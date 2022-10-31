@@ -1,9 +1,20 @@
 info:
   version: v1.42.0
   title: resource_huaweicloud_obs_bucket_policy
-  description: 
+  description:
 schemes:
   - https
 host: huaweicloud.com
 tags:
+  - name: OBS
 paths:
+  ?policy:
+    put:
+      tag: OBS
+      operationId: SetBucketPolicy
+    get:
+      tag: OBS
+      operationId: GetBucketPolicy
+    delete:
+      tag: OBS
+      operationId: DeleteBucketPolicy

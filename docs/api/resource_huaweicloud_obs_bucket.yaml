@@ -1,9 +1,113 @@
 info:
   version: v1.42.0
   title: resource_huaweicloud_obs_bucket
-  description: 
+  description:
 schemes:
   - https
 host: huaweicloud.com
 tags:
+  - name: OBS
 paths:
+  /:
+    put:
+      tag: OBS
+      operationId: CreateBucket
+    head:
+      tag: OBS
+      operationId: HeadBucket
+    delete:
+      tag: OBS
+      operationId: DeleteBucket
+  ?tagging:
+    put:
+      tag: OBS
+      operationId: SetBucketTagging
+    get:
+      tag: OBS
+      operationId: GetBucketTagging
+  ?acl:
+    put:
+      tag: OBS
+      operationId: SetBucketAcl
+  ?policy:
+    put:
+      tag: OBS
+      operationId: SetBucketPolicy
+    delete:
+      tag: OBS
+      operationId: DeleteBucketPolicy
+    get:
+      tag: OBS
+      operationId: GetBucketPolicy
+  ?storageClass:
+    put:
+      tag: OBS
+      operationId: SetBucketStoragePolicy
+    get:
+      tag: OBS
+      operationId: GetBucketStoragePolicy
+  ?versioning:
+    put:
+      tag: OBS
+      operationId: SetBucketVersioning
+    get:
+      tag: OBS
+      operationId: GetBucketVersioning
+  ?encryption:
+    put:
+      tag: OBS
+      operationId: SetBucketEncryption
+    delete:
+      tag: OBS
+      operationId: DeleteBucketEncryption
+    get:
+      tag: OBS
+      operationId: GetBucketEncryption
+  ?logging:
+    put:
+      tag: OBS
+      operationId: SetBucketLoggingConfiguration
+    get:
+      tag: OBS
+      operationId: GetBucketLoggingConfiguration
+  ?quota:
+    put:
+      tag: OBS
+      operationId: SetBucketQuota
+    get:
+      tag: OBS
+      operationId: GetBucketQuota
+  ?lifecycle:
+    delete:
+      tag: OBS
+      operationId: DeleteBucketLifecycleConfiguration
+    put:
+      tag: OBS
+      operationId: SetBucketLifecycleConfiguration
+    get:
+      tag: OBS
+      operationId: GetBucketLifecycleConfiguration
+  ?cors:
+    delete:
+      tag: OBS
+      operationId: DeleteBucketCors
+    put:
+      tag: OBS
+      operationId: SetBucketCors
+    get:
+      tag: OBS
+      operationId: GetBucketCors
+  ?website:
+    put:
+      tag: OBS
+      operationId: SetBucketWebsiteConfiguration
+    delete:
+      tag: OBS
+      operationId: DeleteBucketWebsiteConfiguration
+    get:
+      tag: OBS
+      operationId: GetBucketWebsiteConfiguration
+  ?delete:
+    post:
+      tag: OBS
+      operationId: DeleteObjects
