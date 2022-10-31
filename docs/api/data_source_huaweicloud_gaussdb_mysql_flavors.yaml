@@ -1,9 +1,14 @@
 info:
   version: v1.42.0
   title: data_source_huaweicloud_gaussdb_mysql_flavors
-  description: 
+  description:
 schemes:
   - https
 host: huaweicloud.com
 tags:
+  - name: GaussDB
 paths:
+  /v3/{project_id}/flavors/{database_name}:
+    get:
+      tag: GaussDB
+      operationId: ShowGaussdbMySqlFlavors

@@ -1,9 +1,17 @@
 info:
   version: v1.42.0
   title: data_source_huaweicloud_obs_buckets
-  description: 
+  description:
 schemes:
   - https
 host: huaweicloud.com
 tags:
+  - name: OBS
 paths:
+  /:
+    get:
+      tag: OBS
+      operationId: ListBuckets
+    head:
+      tag: OBS
+      operationId: GetBucketMetadata
