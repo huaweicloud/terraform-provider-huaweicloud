@@ -232,6 +232,10 @@ func ResourceCCENodeAttachV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"charging_mode": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
