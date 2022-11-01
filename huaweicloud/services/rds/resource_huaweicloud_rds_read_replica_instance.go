@@ -256,7 +256,7 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 			// Ensure that the instance is 'ACTIVE', not going to enter 'BACKING UP'.
 			ContinuousTargetOccurence: 2,
 		}
-		if _, err = stateConf.WaitForState(); err != nil {
+		if _, err = stateConf.WaitForStateContext(ctx); err != nil {
 			return diag.Errorf("error waiting for replica instance (%s) creation completed: %s", instanceID, err)
 		}
 	}
