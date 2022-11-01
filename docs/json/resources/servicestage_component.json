@@ -75,6 +75,14 @@
                       "optional": true,
                       "computed": true
                     },
+                    "repo_namespace": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "repo_ref": {
+                      "type": "string",
+                      "optional": true
+                    },
                     "storage_type": {
                       "type": "string",
                       "optional": true,

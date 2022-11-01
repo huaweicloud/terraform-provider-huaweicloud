@@ -9,6 +9,10 @@
                 "type": "string",
                 "computed": true
               },
+              "charging_mode": {
+                "type": "string",
+                "computed": true
+              },
               "cluster_id": {
                 "type": "string",
                 "required": true,

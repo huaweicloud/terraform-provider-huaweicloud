@@ -2,90 +2,86 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_vpc_subnet": {
+        "huaweicloud_dataarts_studio_instance": {
           "block": {
             "attributes": {
+              "auto_renew": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "availability_zone": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "computed": true
+              },
+              "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
                 "computed": true,
                 "forcenew": true
               },
-              "cidr": {
+              "expire_days": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
-              },
-              "description": {
-                "type": "string",
-                "optional": true
-              },
-              "dhcp_enable": {
-                "type": "bool",
-                "optional": true,
-                "default": true
-              },
-              "dns_list": {
-                "type": [
-                  "list",
-                  "string"
-                ],
-                "optional": true,
                 "computed": true
-              },
-              "gateway_ip": {
-                "type": "string",
-                "required": true,
-                "forcenew": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "ipv4_subnet_id": {
-                "type": "string",
-                "computed": true
-              },
-              "ipv6_cidr": {
-                "type": "string",
-                "computed": true
-              },
-              "ipv6_enable": {
-                "type": "bool",
-                "optional": true
-              },
-              "ipv6_gateway": {
-                "type": "string",
-                "computed": true
-              },
-              "ipv6_subnet_id": {
-                "type": "string",
-                "computed": true
-              },
               "name": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
-              "primary_dns": {
+              "order_id": {
                 "type": "string",
-                "optional": true,
                 "computed": true
+              },
+              "period": {
+                "type": "number",
+                "required": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
               },
               "region": {
                 "type": "string",
                 "computed": true
               },
-              "secondary_dns": {
+              "security_group_id": {
                 "type": "string",
-                "optional": true,
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "number",
                 "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
               },
               "tags": {
                 "type": [
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "forcenew": true
+              },
+              "version": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
               },
               "vpc_id": {
                 "type": "string",
@@ -95,11 +91,11 @@
             }
           },
           "product": {
-            "short": "VPC",
-            "name": "Virtual Private Cloud",
-            "catalog": "Networking",
-            "name_cn": "虚拟私有云",
-            "catalog_cn": "网络"
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
           }
         }
       }

@@ -335,7 +335,7 @@
                                         "type": "number",
                                         "required": true
                                       },
-                                      "protocol": {
+                                      "scheme": {
                                         "type": "string",
                                         "required": true
                                       }
@@ -411,7 +411,7 @@
                                         "type": "number",
                                         "required": true
                                       },
-                                      "protocol": {
+                                      "scheme": {
                                         "type": "string",
                                         "required": true
                                       }

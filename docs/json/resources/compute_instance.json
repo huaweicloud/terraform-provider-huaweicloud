@@ -97,8 +97,7 @@
               },
               "key_pair": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "name": {
                 "type": "string",
@@ -118,6 +117,11 @@
                 "type": "string",
                 "optional": true,
                 "computed": true
+              },
+              "private_key": {
+                "type": "string",
+                "optional": true,
+                "sensitive": true
               },
               "public_ip": {
                 "type": "string",

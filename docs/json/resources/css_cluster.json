@@ -16,6 +16,12 @@
                 "computed": true,
                 "forcenew": true
               },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "created": {
                 "type": "string",
                 "computed": true
