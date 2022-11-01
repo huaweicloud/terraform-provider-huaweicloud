@@ -170,43 +170,19 @@ func TestAccDDSV3Instance_prePaid(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "ssl", "true"),
-					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "08:00-09:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "8"),
 				),
 			},
 			{
-				Config: testAccDDSInstanceV3Config_prePaidUpdateBackupStrategy(rName),
+				Config: testAccDDSInstanceV3Config_prePaidUpdate(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "00:00-01:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "7"),
-				),
-			},
-			{
-				Config: testAccDDSInstanceV3Config_prePaidUpdateFlavorNum(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					testAccCheckDDSV3InstanceFlavor(&instance, "shard", "num", 3),
-				),
-			},
-			{
-				Config: testAccDDSInstanceV3Config_prePaidUpdateFlavorSize(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					testAccCheckDDSV3InstanceFlavor(&instance, "shard", "size", "30"),
-				),
-			},
-			{
-				Config: testAccDDSInstanceV3Config_prePaidUpdateFlavorSpecCode(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					testAccCheckDDSV3InstanceFlavor(&instance, "mongos", "spec_code", "dds.mongodb.c6.large.4.mongos"),
 				),
 			},
@@ -612,11 +588,11 @@ resource "huaweicloud_dds_instance" "instance" {
   security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
   password          = "Terraform@123"
   mode              = "Sharding"
-  charging_mode     = "prePaid"
-  period_unit       = "month"
-  period            = 1
-  auto_renew        = false
-  auto_pay          = true
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = true
 
   datastore {
     type           = "DDS-Community"
@@ -646,17 +622,12 @@ resource "huaweicloud_dds_instance" "instance" {
 
   backup_strategy {
     start_time = "08:00-09:00"
-    keep_days  = "8"
-  }
-
-  tags = {
-    foo   = "bar"
-    owner = "terraform"
+    keep_days  = 8
   }
 }`, testAccDDSInstanceV3Config_Base(rName), rName)
 }
 
-func testAccDDSInstanceV3Config_prePaidUpdateBackupStrategy(rName string) string {
+func testAccDDSInstanceV3Config_prePaidUpdate(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -668,179 +639,11 @@ resource "huaweicloud_dds_instance" "instance" {
   security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
   password          = "Terraform@123"
   mode              = "Sharding"
-  charging_mode     = "prePaid"
-  period_unit       = "month"
-  period            = 1
-  auto_renew        = false
-  auto_pay          = true
 
-  datastore {
-    type           = "DDS-Community"
-    version        = "3.4"
-    storage_engine = "wiredTiger"
-  }
-
-  flavor {
-    type      = "mongos"
-    num       = 2
-    spec_code = "dds.mongodb.c6.large.2.mongos"
-  }
-  flavor {
-    type      = "shard"
-    num       = 2
-    storage   = "ULTRAHIGH"
-    size      = 20
-    spec_code = "dds.mongodb.c6.large.2.shard"
-  }
-  flavor {
-    type      = "config"
-    num       = 1
-    storage   = "ULTRAHIGH"
-    size      = 20
-    spec_code = "dds.mongodb.c6.large.2.config"
-  }
-
-  backup_strategy {
-    start_time = "00:00-01:00"
-    keep_days  = "7"
-  }
-
-  tags = {
-    foo   = "bar"
-    owner = "terraform"
-  }
-}`, testAccDDSInstanceV3Config_Base(rName), rName)
-}
-
-func testAccDDSInstanceV3Config_prePaidUpdateFlavorNum(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_dds_instance" "instance" {
-  name              = "%s"
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  vpc_id            = data.huaweicloud_vpc.test.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
-  password          = "Terraform@123"
-  mode              = "Sharding"
-  charging_mode     = "prePaid"
-  period_unit       = "month"
-  period            = 1
-  auto_renew        = false
-  auto_pay          = true
-
-  datastore {
-    type           = "DDS-Community"
-    version        = "3.4"
-    storage_engine = "wiredTiger"
-  }
-
-  flavor {
-    type      = "mongos"
-    num       = 2
-    spec_code = "dds.mongodb.c6.large.2.mongos"
-  }
-  flavor {
-    type      = "shard"
-    num       = 3
-    storage   = "ULTRAHIGH"
-    size      = 20
-    spec_code = "dds.mongodb.c6.large.2.shard"
-  }
-  flavor {
-    type      = "config"
-    num       = 1
-    storage   = "ULTRAHIGH"
-    size      = 20
-    spec_code = "dds.mongodb.c6.large.2.config"
-  }
-
-  backup_strategy {
-    start_time = "08:00-09:00"
-    keep_days  = "8"
-  }
-
-  tags = {
-    foo   = "bar"
-    owner = "terraform"
-  }
-}`, testAccDDSInstanceV3Config_Base(rName), rName)
-}
-
-func testAccDDSInstanceV3Config_prePaidUpdateFlavorSize(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_dds_instance" "instance" {
-  name              = "%s"
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  vpc_id            = data.huaweicloud_vpc.test.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
-  password          = "Terraform@123"
-  mode              = "Sharding"
-  charging_mode     = "prePaid"
-  period_unit       = "month"
-  period            = 1
-  auto_renew        = false
-  auto_pay          = true
-
-  datastore {
-    type           = "DDS-Community"
-    version        = "3.4"
-    storage_engine = "wiredTiger"
-  }
-
-  flavor {
-    type      = "mongos"
-    num       = 2
-    spec_code = "dds.mongodb.c6.large.2.mongos"
-  }
-  flavor {
-    type      = "shard"
-    num       = 3
-    storage   = "ULTRAHIGH"
-    size      = 30
-    spec_code = "dds.mongodb.c6.large.2.shard"
-  }
-  flavor {
-    type      = "config"
-    num       = 1
-    storage   = "ULTRAHIGH"
-    size      = 20
-    spec_code = "dds.mongodb.c6.large.2.config"
-  }
-
-  backup_strategy {
-    start_time = "08:00-09:00"
-    keep_days  = "8"
-  }
-
-  tags = {
-    foo   = "bar"
-    owner = "terraform"
-  }
-}`, testAccDDSInstanceV3Config_Base(rName), rName)
-}
-
-func testAccDDSInstanceV3Config_prePaidUpdateFlavorSpecCode(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_dds_instance" "instance" {
-  name              = "%s"
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  vpc_id            = data.huaweicloud_vpc.test.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
-  password          = "Terraform@123"
-  mode              = "Sharding"
-  charging_mode     = "prePaid"
-  period_unit       = "month"
-  period            = 1
-  auto_renew        = false
-  auto_pay          = true
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "true"
 
   datastore {
     type           = "DDS-Community"
@@ -869,13 +672,8 @@ resource "huaweicloud_dds_instance" "instance" {
   }
 
   backup_strategy {
-    start_time = "08:00-09:00"
-    keep_days  = "8"
-  }
-
-  tags = {
-    foo   = "bar"
-    owner = "terraform"
+    start_time = "00:00-01:00"
+    keep_days  = 7
   }
 }`, testAccDDSInstanceV3Config_Base(rName), rName)
 }

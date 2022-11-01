@@ -385,7 +385,26 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 	}
 	logp.Printf("[DEBUG] Create : instance %s: %#v", instance.Id, instance)
 
-	d.SetId(instance.Id)
+	if instance.OrderId != "" {
+		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating BSS v2 client: %s", err)
+		}
+		err = common.WaitOrderComplete(ctx, bssClient, instance.OrderId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, instance.OrderId,
+			d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		d.SetId(resourceId)
+	} else {
+		d.SetId(instance.Id)
+	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"creating", "updating"},
 		Target:     []string{"normal"},
@@ -596,9 +615,19 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	if len(opts) > 0 {
-		r := instances.Update(client, d.Id(), opts)
-		if r.Err != nil {
-			return fmtp.DiagErrorf("Error updating instance from result: %s ", r.Err)
+		resp, err := instances.Update(client, d.Id(), opts).Extract()
+		if err != nil {
+			return fmtp.DiagErrorf("Error updating instance from result: %s ", err)
+		}
+		if resp.OrderId != "" {
+			bssClient, err := config.BssV2Client(config.GetRegion(d))
+			if err != nil {
+				return diag.Errorf("error creating BSS v2 client: %s", err)
+			}
+			err = common.WaitOrderComplete(ctx, bssClient, resp.OrderId, d.Timeout(schema.TimeoutCreate))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		stateConf := &resource.StateChangeConf{
@@ -631,20 +660,25 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 			numIndex := fmt.Sprintf("flavor.%d.num", i)
 			volumeSizeIndex := fmt.Sprintf("flavor.%d.size", i)
 			specCodeIndex := fmt.Sprintf("flavor.%d.spec_code", i)
-			if d.HasChange(numIndex) {
-				err := flavorNumUpdate(ctx, client, d, i)
+
+			// The update operation of the volume size must ahead of the update operation of the number. Because the
+			// size and number are updated at the same time and the number is increased, and the request will fail.
+			// For example, when the number is increased from 2 to 3, and the size of all nodes is increased from 20 to
+			// 30, the newly added node will prompt that the storage update failed and cannot be updated from 30 to 30.
+			if d.HasChange(volumeSizeIndex) {
+				err := flavorSizeUpdate(ctx, config, client, d, i)
 				if err != nil {
 					return diag.FromErr(err)
 				}
 			}
-			if d.HasChange(volumeSizeIndex) {
-				err := flavorSizeUpdate(ctx, client, d, i)
+			if d.HasChange(numIndex) {
+				err := flavorNumUpdate(ctx, config, client, d, i)
 				if err != nil {
 					return diag.FromErr(err)
 				}
 			}
 			if d.HasChange(specCodeIndex) {
-				err := flavorSpecCodeUpdate(ctx, client, d, i)
+				err := flavorSpecCodeUpdate(ctx, config, client, d, i)
 				if err != nil {
 					return diag.FromErr(err)
 				}
@@ -785,10 +819,22 @@ func getDdsInstanceV3MongosNodeID(client *golangsdk.ServiceClient, d *schema.Res
 
 }
 
-func flavorUpdate(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, opts []instances.UpdateOpt) error {
-	r := instances.Update(client, d.Id(), opts)
-	if r.Err != nil {
-		return fmtp.Errorf("Error updating instance from result: %s ", r.Err)
+func flavorUpdate(ctx context.Context, config *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	opts []instances.UpdateOpt) error {
+	resp, err := instances.Update(client, d.Id(), opts).Extract()
+	if err != nil {
+		return fmtp.Errorf("Error updating instance from result: %s ", err)
+	}
+
+	if resp.OrderId != "" {
+		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		if err != nil {
+			return fmt.Errorf("error creating BSS v2 client: %s", err)
+		}
+		err = common.WaitOrderComplete(ctx, bssClient, resp.OrderId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return err
+		}
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -800,17 +846,15 @@ func flavorUpdate(ctx context.Context, client *golangsdk.ServiceClient, d *schem
 		MinTimeout: 10 * time.Second,
 	}
 
-	_, err := stateConf.WaitForStateContext(ctx)
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf(
-			"Error waiting for instance (%s) to become ready: %s ",
-			d.Id(), err)
+		return fmtp.Errorf("Error waiting for instance (%s) to become ready: %s ", d.Id(), err)
 	}
 
 	return nil
 }
 
-func flavorNumUpdate(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, i int) error {
+func flavorNumUpdate(ctx context.Context, config *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData, i int) error {
 	groupTypeIndex := fmt.Sprintf("flavor.%d.type", i)
 	groupType := d.Get(groupTypeIndex).(string)
 	if groupType != "mongos" && groupType != "shard" {
@@ -869,14 +913,14 @@ func flavorNumUpdate(ctx context.Context, client *golangsdk.ServiceClient, d *sc
 		}
 		numUpdateOpts = append(numUpdateOpts, opt)
 	}
-	err := flavorUpdate(ctx, client, d, numUpdateOpts)
+	err := flavorUpdate(ctx, config, client, d, numUpdateOpts)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func flavorSizeUpdate(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, i int) error {
+func flavorSizeUpdate(ctx context.Context, config *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData, i int) error {
 	volumeSizeIndex := fmt.Sprintf("flavor.%d.size", i)
 	oldSizeRaw, newSizeRaw := d.GetChange(volumeSizeIndex)
 	oldSize := oldSizeRaw.(int)
@@ -915,7 +959,7 @@ func flavorSizeUpdate(ctx context.Context, client *golangsdk.ServiceClient, d *s
 				Method: "post",
 			}
 			sizeUpdateOpts = append(sizeUpdateOpts, opt)
-			err := flavorUpdate(ctx, client, d, sizeUpdateOpts)
+			err := flavorUpdate(ctx, config, client, d, sizeUpdateOpts)
 			if err != nil {
 				return err
 			}
@@ -938,7 +982,7 @@ func flavorSizeUpdate(ctx context.Context, client *golangsdk.ServiceClient, d *s
 			Method: "post",
 		}
 		sizeUpdateOpts = append(sizeUpdateOpts, opt)
-		err := flavorUpdate(ctx, client, d, sizeUpdateOpts)
+		err := flavorUpdate(ctx, config, client, d, sizeUpdateOpts)
 		if err != nil {
 			return err
 		}
@@ -946,7 +990,7 @@ func flavorSizeUpdate(ctx context.Context, client *golangsdk.ServiceClient, d *s
 	return nil
 }
 
-func flavorSpecCodeUpdate(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, i int) error {
+func flavorSpecCodeUpdate(ctx context.Context, config *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData, i int) error {
 	specCodeIndex := fmt.Sprintf("flavor.%d.spec_code", i)
 	groupTypeIndex := fmt.Sprintf("flavor.%d.type", i)
 	groupType := d.Get(groupTypeIndex).(string)
@@ -978,7 +1022,7 @@ func flavorSpecCodeUpdate(ctx context.Context, client *golangsdk.ServiceClient, 
 				Method: "post",
 			}
 			specUpdateOpts = append(specUpdateOpts, opt)
-			err := flavorUpdate(ctx, client, d, specUpdateOpts)
+			err := flavorUpdate(ctx, config, client, d, specUpdateOpts)
 			if err != nil {
 				return err
 			}
@@ -1009,7 +1053,7 @@ func flavorSpecCodeUpdate(ctx context.Context, client *golangsdk.ServiceClient, 
 				Method: "post",
 			}
 			specUpdateOpts = append(specUpdateOpts, opt)
-			err := flavorUpdate(ctx, client, d, specUpdateOpts)
+			err := flavorUpdate(ctx, config, client, d, specUpdateOpts)
 			if err != nil {
 				return err
 			}
@@ -1033,7 +1077,7 @@ func flavorSpecCodeUpdate(ctx context.Context, client *golangsdk.ServiceClient, 
 			Method: "post",
 		}
 		specUpdateOpts = append(specUpdateOpts, opt)
-		err := flavorUpdate(ctx, client, d, specUpdateOpts)
+		err := flavorUpdate(ctx, config, client, d, specUpdateOpts)
 		if err != nil {
 			return err
 		}
