@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
 	"time"
 
@@ -163,13 +162,7 @@ func ResourceRdsReadReplicaInstance() *schema.Resource {
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
-			"auto_renew": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"true", "false",
-				}, false),
-			},
+			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
 
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
