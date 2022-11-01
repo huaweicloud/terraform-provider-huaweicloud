@@ -158,7 +158,7 @@ func ResourceRdsReadReplicaInstance() *schema.Resource {
 				},
 			},
 
-			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
+			// charge info: charging_mode, period_unit, period, auto_renew
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
