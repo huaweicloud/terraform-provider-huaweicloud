@@ -58,6 +58,7 @@
                       ],
                       "gateway_ip": "string",
                       "id": "string",
+                      "ipv4_subnet_id": "string",
                       "ipv6_cidr": "string",
                       "ipv6_enable": "bool",
                       "ipv6_gateway": "string",
@@ -66,7 +67,6 @@
                       "primary_dns": "string",
                       "secondary_dns": "string",
                       "status": "string",
-                      "subnet_id": "string",
                       "tags": [
                         "map",
                         "string"

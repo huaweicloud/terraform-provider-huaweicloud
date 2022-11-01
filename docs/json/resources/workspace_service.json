@@ -1,0 +1,161 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_service": {
+          "block": {
+            "attributes": {
+              "access_mode": {
+                "type": "string",
+                "required": true
+              },
+              "auth_type": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "default": "LITE_AS"
+              },
+              "dedicated_subnets": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "desktop_security_group": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "infrastructure_security_group": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "internet_access_address": {
+                "type": "string",
+                "computed": true
+              },
+              "internet_access_port": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "management_subnet_cidr": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "network_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "ad_domain": {
+                "block": {
+                  "attributes": {
+                    "active_dns_ip": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "active_domain_ip": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "active_domain_name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "admin_account": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "delete_computer_object": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "password": {
+                      "type": "string",
+                      "required": true,
+                      "sensitive": true
+                    },
+                    "standby_dns_ip": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "standby_domain_ip": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "standby_domain_name": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

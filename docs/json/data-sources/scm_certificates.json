@@ -47,6 +47,11 @@
                 "type": "string",
                 "computed": true
               },
+              "name": {
+                "type": "string",
+                "description": "Certificate name.",
+                "optional": true
+              },
               "region": {
                 "type": "string",
                 "computed": true
