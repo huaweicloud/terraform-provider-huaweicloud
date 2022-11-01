@@ -1,5 +1,5 @@
 info:
-  version: v1.42.0
+  version: v1.xx.y
   title: data_source_huaweicloud_obs_buckets
   description:
 schemes:

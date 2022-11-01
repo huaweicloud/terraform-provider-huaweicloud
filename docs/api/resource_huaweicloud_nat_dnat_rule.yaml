@@ -1,5 +1,5 @@
 info:
-  version: v1.42.0
+  version: v1.xx.y
   title: resource_huaweicloud_nat_dnat_rule
   description: 
 schemes:
