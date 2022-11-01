@@ -524,7 +524,7 @@ func resourceCCEClusterV3Create(ctx context.Context, d *schema.ResourceData, met
 	if d.Get("hibernate").(bool) {
 		err = resourceCCEClusterV3Hibernate(ctx, d, cceClient)
 		if err != nil {
-			diags = append(diags, fmtp.DiagErrorf("Error installing ICAgent in CCE cluster: %s", result.Err)[0])
+			diags = append(diags, diag.FromErr(err)...)
 		}
 	}
 
@@ -805,7 +805,7 @@ func resourceCCEClusterV3Hibernate(ctx context.Context, d *schema.ResourceData, 
 
 	logp.Printf("[DEBUG] Waiting for HuaweiCloud CCE cluster (%s) to become hibernating", clusterID)
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Available"},
+		Pending:      []string{"Available", "Hibernating"},
 		Target:       []string{"Hibernation"},
 		Refresh:      waitForCCEClusterActive(cceClient, clusterID),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
