@@ -2,7 +2,7 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_dcs_": {
+        "huaweicloud_dcs_flavors": {
           "block": {
             "attributes": {
               "cache_mode": {
