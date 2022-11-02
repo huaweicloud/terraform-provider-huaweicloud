@@ -228,12 +228,13 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
 		if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutCreate)/time.Second), resp.OrderId); err != nil {
-			return diag.Errorf("error waiting for replica order %s succuss: %s", resp.OrderId, err)
+			return diag.Errorf("error waiting for replica order %s success: %s", resp.OrderId, err)
 		}
-		_, err = common.WaitOrderResourceComplete(ctx, bssClient, resp.OrderId, d.Timeout(schema.TimeoutCreate))
+		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, resp.OrderId, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return diag.FromErr(err)
+			return diag.Errorf("error waiting for replica order resource %s complete: %s", resp.OrderId, err)
 		}
+		d.SetId(resourceId)
 	} else {
 		if err := checkRDSInstanceJobFinish(client, resp.JobId, d.Timeout(schema.TimeoutCreate)); err != nil {
 			return diag.Errorf("error creating replica instance (%s): %s", instanceID, err)
