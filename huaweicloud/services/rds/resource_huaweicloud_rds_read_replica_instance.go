@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"log"
 	"time"
 
@@ -231,28 +230,49 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 		if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutCreate)/time.Second), resp.OrderId); err != nil {
 			return diag.Errorf("error waiting for replica order %s succuss: %s", resp.OrderId, err)
 		}
-	}
-
-	if resp.JobId != "" {
+		_, err = common.WaitOrderResourceComplete(ctx, bssClient, resp.OrderId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	} else {
 		if err := checkRDSInstanceJobFinish(client, resp.JobId, d.Timeout(schema.TimeoutCreate)); err != nil {
 			return diag.Errorf("error creating replica instance (%s): %s", instanceID, err)
 		}
-	} else {
-		// for prePaid charge mode
-		stateConf := &resource.StateChangeConf{
-			Pending:      []string{"BUILD"},
-			Target:       []string{"ACTIVE", "BACKING UP"},
-			Refresh:      rdsInstanceStateRefreshFunc(client, instanceID),
-			Timeout:      d.Timeout(schema.TimeoutCreate),
-			Delay:        20 * time.Second,
-			PollInterval: 10 * time.Second,
-			// Ensure that the instance is 'ACTIVE', not going to enter 'BACKING UP'.
-			ContinuousTargetOccurence: 2,
-		}
-		if _, err = stateConf.WaitForStateContext(ctx); err != nil {
-			return diag.Errorf("error waiting for replica instance (%s) creation completed: %s", instanceID, err)
-		}
 	}
+
+	//if resp.JobId != "" {
+	//	if err := checkRDSInstanceJobFinish(client, resp.JobId, d.Timeout(schema.TimeoutCreate)); err != nil {
+	//		return diag.Errorf("error creating replica instance (%s): %s", instanceID, err)
+	//	}
+	//} else {
+	//	bssClient, err := config.BssV2Client(config.GetRegion(d))
+	//	if err != nil {
+	//		return diag.Errorf("error creating BSS v2 client: %s", err)
+	//	}
+	//	err = common.WaitOrderComplete(ctx, bssClient, resp.OrderId, d.Timeout(schema.TimeoutCreate))
+	//	if err != nil {
+	//		return diag.FromErr(err)
+	//	}
+	//	_, err = common.WaitOrderResourceComplete(ctx, bssClient, resp.OrderId, d.Timeout(schema.TimeoutCreate))
+	//	if err != nil {
+	//		return diag.FromErr(err)
+	//	}
+	//
+	//	//// for prePaid charge mode
+	//	//stateConf := &resource.StateChangeConf{
+	//	//	Pending:      []string{"BUILD"},
+	//	//	Target:       []string{"ACTIVE", "BACKING UP"},
+	//	//	Refresh:      rdsInstanceStateRefreshFunc(client, instanceID),
+	//	//	Timeout:      d.Timeout(schema.TimeoutCreate),
+	//	//	Delay:        20 * time.Second,
+	//	//	PollInterval: 10 * time.Second,
+	//	//	// Ensure that the instance is 'ACTIVE', not going to enter 'BACKING UP'.
+	//	//	ContinuousTargetOccurence: 2,
+	//	//}
+	//	//if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+	//	//	return diag.Errorf("error waiting for replica instance (%s) creation completed: %s", instanceID, err)
+	//	//}
+	//}
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		tagList := utils.ExpandResourceTags(tagRaw)
