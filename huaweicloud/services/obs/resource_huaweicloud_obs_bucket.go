@@ -99,6 +99,23 @@ func ResourceObsBucket() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(0),
 			},
 
+			"storage_info": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"size": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"object_number": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+					},
+				},
+			},
+
 			"lifecycle_rule": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -526,6 +543,11 @@ func resourceObsBucketRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	// Read the tags
 	if err := setObsBucketTags(obsClient, d); err != nil {
+		return diag.FromErr(err)
+	}
+
+	// Read the storage info
+	if err := setObsBucketStorageInfo(obsClient, d); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -1354,6 +1376,30 @@ func setObsBucketTags(obsClient *obs.ObsClient, d *schema.ResourceData) error {
 	log.Printf("[DEBUG] getting tags of OBS bucket %s: %#v", bucket, tagmap)
 	if err := d.Set("tags", tagmap); err != nil {
 		return fmt.Errorf("Error saving tags of OBS bucket %s: %s", bucket, err)
+	}
+	return nil
+}
+
+func setObsBucketStorageInfo(obsClient *obs.ObsClient, d *schema.ResourceData) error {
+	bucket := d.Id()
+	output, err := obsClient.GetBucketStorageInfo(bucket)
+	if err != nil {
+		if obsError, ok := err.(obs.ObsError); ok {
+			return fmt.Errorf("error getting storage info of OBS bucket %s: %s,\n Reason: %s",
+				bucket, obsError.Code, obsError.Message)
+		}
+		return err
+	}
+	log.Printf("[DEBUG] getting storage info of OBS bucket %s: %#v", bucket, output)
+
+	storages := make([]map[string]interface{}, 1)
+	storages[0] = map[string]interface{}{
+		"size":          output.Size,
+		"object_number": output.ObjectNumber,
+	}
+
+	if err := d.Set("storage_info", storages); err != nil {
+		return fmt.Errorf("error saving storage info of OBS bucket %s: %s", bucket, err)
 	}
 	return nil
 }

@@ -85,7 +85,7 @@ resource "huaweicloud_obs_bucket" "b" {
 
   cors_rule {
     allowed_origins = ["https://obs-website-test.hashicorp.com"]
-    allowed_methods = ["PUT","POST"]
+    allowed_methods = ["PUT", "POST"]
     allowed_headers = ["*"]
     expose_headers  = ["ETag"]
     max_age_seconds = 3000
@@ -145,13 +145,13 @@ The following arguments are supported:
 
 * `bucket` - (Required, String, ForceNew) Specifies the name of the bucket. Changing this parameter will create a new
   resource. A bucket must be named according to the globally applied DNS naming regulations as follows:
-  + The name must be globally unique in OBS.
-  + The name must contain 3 to 63 characters. Only lowercase letters, digits, hyphens (-), and periods (.) are
+    + The name must be globally unique in OBS.
+    + The name must contain 3 to 63 characters. Only lowercase letters, digits, hyphens (-), and periods (.) are
       allowed.
-  + The name cannot start or end with a period (.) or hyphen (-), and cannot contain two consecutive periods (.) or
+    + The name cannot start or end with a period (.) or hyphen (-), and cannot contain two consecutive periods (.) or
       contain a period (.) and a hyphen (-) adjacent to each other.
-  + The name cannot be an IP address.
-  + If the name contains any periods (.), a security certificate verification message may appear when you access the
+    + The name cannot be an IP address.
+    + If the name contains any periods (.), a security certificate verification message may appear when you access the
       bucket or its objects by entering a domain name.
 
 * `storage_class` - (Optional, String) Specifies the storage class of the bucket. OBS provides three storage classes:
@@ -175,9 +175,11 @@ The following arguments are supported:
 * `logging` - (Optional, Map) A settings of bucket logging (documented below).
 
 <!-- markdownlint-disable MD033 -->
+
 * `quota` - (Optional, Int) Specifies bucket storage quota. Must be a positive integer in the unit of byte. The maximum
   storage quota is 2<sup>63</sup> – 1 bytes. The default bucket storage quota is 0, indicating that the bucket storage
   quota is not limited.
+
 <!-- markdownlint-enable MD033 -->
 
 * `website` - (Optional, List) A website object (documented below).
@@ -236,7 +238,7 @@ The `website` object supports the following:
   when redirects are applied. Each rule contains a `Condition` and a `Redirect` as shown in the following table:
 
   Parameter | Key
-    --- | ---
+      --- | ---
   Condition | KeyPrefixEquals, HttpErrorCodeReturnedEquals
   Redirect | Protocol, HostName, ReplaceKeyPrefixWith, ReplaceKeyWith, HttpRedirectCode
 
@@ -310,6 +312,14 @@ In addition to all arguments above, the following attributes are exported:
 * `bucket_domain_name` - The bucket domain name. Will be of format `bucketname.obs.region.myhuaweicloud.com`.
 * `bucket_version` - The OBS version of the bucket.
 * `region` - The region where this bucket resides in.
+* `storage_info` - The OBS storage info of the bucket.
+  The [object](#bucket_storage_info_attr) structure is documented below.
+
+<a name="bucket_storage_info_attr"></a>
+The `storage_info` block supports:
+
+* `size` - The stored size of the bucket.
+* `object_number` - The number of objects stored in the bucket.
 
 ## Import
 

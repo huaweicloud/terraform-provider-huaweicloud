@@ -39,6 +39,8 @@ func TestAccObsBucket_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "bucket_version", "3.0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "storage_info.0.size", "0"),
+					resource.TestCheckResourceAttr(resourceName, "storage_info.0.object_number", "0"),
 				),
 			},
 			{
