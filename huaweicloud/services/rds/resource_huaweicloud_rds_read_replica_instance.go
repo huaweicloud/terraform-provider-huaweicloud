@@ -3,7 +3,6 @@ package rds
 import (
 	"context"
 	"fmt"
-	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
 	"log"
 	"time"
 
@@ -227,8 +226,9 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
-		if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutCreate)/time.Second), resp.OrderId); err != nil {
-			return diag.Errorf("error waiting for replica order %s success: %s", resp.OrderId, err)
+		err = common.WaitOrderComplete(ctx, bssClient, resp.OrderId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
 		}
 		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, resp.OrderId, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
@@ -240,40 +240,6 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 			return diag.Errorf("error creating replica instance (%s): %s", instanceID, err)
 		}
 	}
-
-	//if resp.JobId != "" {
-	//	if err := checkRDSInstanceJobFinish(client, resp.JobId, d.Timeout(schema.TimeoutCreate)); err != nil {
-	//		return diag.Errorf("error creating replica instance (%s): %s", instanceID, err)
-	//	}
-	//} else {
-	//	bssClient, err := config.BssV2Client(config.GetRegion(d))
-	//	if err != nil {
-	//		return diag.Errorf("error creating BSS v2 client: %s", err)
-	//	}
-	//	err = common.WaitOrderComplete(ctx, bssClient, resp.OrderId, d.Timeout(schema.TimeoutCreate))
-	//	if err != nil {
-	//		return diag.FromErr(err)
-	//	}
-	//	_, err = common.WaitOrderResourceComplete(ctx, bssClient, resp.OrderId, d.Timeout(schema.TimeoutCreate))
-	//	if err != nil {
-	//		return diag.FromErr(err)
-	//	}
-	//
-	//	//// for prePaid charge mode
-	//	//stateConf := &resource.StateChangeConf{
-	//	//	Pending:      []string{"BUILD"},
-	//	//	Target:       []string{"ACTIVE", "BACKING UP"},
-	//	//	Refresh:      rdsInstanceStateRefreshFunc(client, instanceID),
-	//	//	Timeout:      d.Timeout(schema.TimeoutCreate),
-	//	//	Delay:        20 * time.Second,
-	//	//	PollInterval: 10 * time.Second,
-	//	//	// Ensure that the instance is 'ACTIVE', not going to enter 'BACKING UP'.
-	//	//	ContinuousTargetOccurence: 2,
-	//	//}
-	//	//if _, err = stateConf.WaitForStateContext(ctx); err != nil {
-	//	//	return diag.Errorf("error waiting for replica instance (%s) creation completed: %s", instanceID, err)
-	//	//}
-	//}
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		tagList := utils.ExpandResourceTags(tagRaw)
@@ -360,7 +326,7 @@ func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.Resourc
 	}
 
 	instanceID := d.Id()
-	if err = updateRdsInstanceFlavor(d, config, client, instanceID, true); err != nil {
+	if err = updateRdsInstanceFlavor(d, config, client, instanceID, false); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -379,12 +345,14 @@ func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.Resourc
 }
 
 func updateRdsInstanceAutoRenew(d *schema.ResourceData, config *config.Config) error {
-	bssClient, err := config.BssV2Client(config.GetRegion(d))
-	if err != nil {
-		return fmt.Errorf("error creating BSS V2 client: %s", err)
-	}
-	if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
-		return fmt.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
+	if d.HasChange("auto_renew") {
+		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		if err != nil {
+			return fmt.Errorf("error creating BSS V2 client: %s", err)
+		}
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return fmt.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
+		}
 	}
 	return nil
 }
