@@ -42,7 +42,7 @@ paths:
     get:
       tag: CCE
       operationId: Get
-  /{project_id}/jobs/{jobid}:
+  /api/v3/projects/{project_id}/jobs/{jobid}:
     get:
       tag: CCE
       operationId: GetJobDetails

@@ -8,14 +8,14 @@ host: huaweicloud.com
 tags:
   - name: CSE
 paths:
-  /{project_id}/registry/microservices/{serviceId}:
+  /v2/{project_id}/registry/microservices/{serviceId}:
     delete:
       tag: CSE
       operationId: Delete
     get:
       tag: CSE
       operationId: Get
-  /{project_id}/registry/microservices:
+  /v2/{project_id}/registry/microservices:
     post:
       tag: CSE
       operationId: Create

@@ -16,7 +16,7 @@ paths:
     get:
       tag: CCE
       operationId: GetCert
-  /{project_id}/clusters/{id}/mastereip:
+  /api/v3/projects/{project_id}/clusters/{id}/mastereip:
     put:
       tag: CCE
       operationId: UpdateMasterIp
