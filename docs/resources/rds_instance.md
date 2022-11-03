@@ -134,7 +134,7 @@ The following arguments are supported:
 
   -> **NOTE:** Services will be interrupted for 5 to 10 minutes when you change RDS instance flavor.
 
-* `db` - (Required, String, ForceNew) Specifies the database information. Structure is documented below. Changing this
+* `db` - (Required, List, ForceNew) Specifies the database information. Structure is documented below. Changing this
   parameter will create a new resource.
 
 * `vpc_id` - (Required, String, ForceNew) Specifies the VPC ID. Changing this parameter will create a new resource.

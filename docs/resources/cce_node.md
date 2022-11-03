@@ -162,7 +162,6 @@ resource "huaweicloud_cce_node" "mynode" {
       virtual_spaces {
         name        = "runtime"
         size        = "90%"
-        lvm_lv_type = "linear"
       }
     }
 
