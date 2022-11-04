@@ -57,4 +57,7 @@ jobs:
         if: ${{ steps.get-comment-body.outputs.commentLength > 0 }}
         with:
           name: acceptance-test
-          path: pr-acc-test.log
+          path: |
+            pr-acc-test.log
+            coverage_*.html
+          if-no-files-found: ignore

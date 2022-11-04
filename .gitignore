@@ -19,7 +19,8 @@ modules-dev/
 *.iml
 *.test
 *.pem
-
+*.cov
+*.html
 
 # Test exclusions
 !command/test-fixtures/**/*.tfstate
