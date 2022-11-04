@@ -15,16 +15,19 @@ import (
 func getEipResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	c, err := conf.NetworkingV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HuaweiCloud Network client: %s", err)
+		return nil, fmt.Errorf("error creating VPC v1 client: %s", err)
 	}
 	return eips.Get(c, state.Primary.ID).Extract()
 }
 
-func TestAccVpcEIP_basic(t *testing.T) {
-	var eip eips.PublicIp
+func TestAccVpcEip_basic(t *testing.T) {
+	var (
+		eip eips.PublicIp
 
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_vpc_eip.test"
+		resourceName = "huaweicloud_vpc_eip.test"
+		randName     = acceptance.RandomAccResourceName()
+		udpateName   = acceptance.RandomAccResourceName()
+	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -41,22 +44,30 @@ func TestAccVpcEIP_basic(t *testing.T) {
 				Config: testAccVpcEip_basic(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", randName),
 					resource.TestCheckResourceAttr(resourceName, "status", "UNBOUND"),
 					resource.TestCheckResourceAttr(resourceName, "publicip.0.type", "5_bgp"),
 					resource.TestCheckResourceAttr(resourceName, "publicip.0.ip_version", "4"),
 					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.name", randName),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.size", "5"),
 					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.share_type", "PER"),
 					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.charge_mode", "traffic"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttrSet(resourceName, "address"),
 				),
 			},
 			{
-				Config: testAccVpcEip_tags(randName),
+				Config: testAccVpcEip_update(udpateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", udpateName),
 					resource.TestCheckResourceAttr(resourceName, "status", "UNBOUND"),
-					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "publicip.0.ip_version", "6"),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.name", udpateName),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.size", "8"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
 				),
 			},
 			{
@@ -68,11 +79,13 @@ func TestAccVpcEIP_basic(t *testing.T) {
 	})
 }
 
-func TestAccVpcEIP_share(t *testing.T) {
-	var eip eips.PublicIp
+func TestAccVpcEip_share(t *testing.T) {
+	var (
+		eip eips.PublicIp
 
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_vpc_eip.test"
+		randName     = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_vpc_eip.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -105,11 +118,13 @@ func TestAccVpcEIP_share(t *testing.T) {
 	})
 }
 
-func TestAccVpcEIP_WithEpsId(t *testing.T) {
-	var eip eips.PublicIp
+func TestAccVpcEip_WithEpsId(t *testing.T) {
+	var (
+		eip eips.PublicIp
 
-	randName := acceptance.RandomAccResourceNameWithDash()
-	resourceName := "huaweicloud_vpc_eip.test"
+		randName     = acceptance.RandomAccResourceNameWithDash()
+		resourceName = "huaweicloud_vpc_eip.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -136,11 +151,12 @@ func TestAccVpcEIP_WithEpsId(t *testing.T) {
 	})
 }
 
-func TestAccVpcEIP_prePaid(t *testing.T) {
+func TestAccVpcEip_prePaid(t *testing.T) {
 	var (
-		eip          eips.PublicIp
+		eip eips.PublicIp
+
 		randName     = acceptance.RandomAccResourceNameWithDash()
-		udpateName   = acceptance.RandomAccResourceNameWithDash()
+		updateName   = acceptance.RandomAccResourceNameWithDash()
 		resourceName = "huaweicloud_vpc_eip.test"
 	)
 
@@ -163,6 +179,7 @@ func TestAccVpcEIP_prePaid(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "status", "UNBOUND"),
+					resource.TestCheckResourceAttr(resourceName, "name", randName),
 					resource.TestCheckResourceAttr(resourceName, "publicip.0.type", "5_bgp"),
 					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.name", randName),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
@@ -173,12 +190,13 @@ func TestAccVpcEIP_prePaid(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccVpcEip_prePaid(udpateName, 5),
+				Config: testAccVpcEip_prePaid(updateName, 5),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "status", "UNBOUND"),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "publicip.0.type", "5_bgp"),
-					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.name", udpateName),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
 					resource.TestCheckResourceAttr(resourceName, "period_unit", "month"),
 					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.size", "5"),
@@ -187,12 +205,13 @@ func TestAccVpcEIP_prePaid(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccVpcEip_prePaid(udpateName, 6),
+				Config: testAccVpcEip_prePaid(updateName, 6),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "status", "UNBOUND"),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "publicip.0.type", "5_bgp"),
-					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.name", udpateName),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
 					resource.TestCheckResourceAttr(resourceName, "period_unit", "month"),
 					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.size", "6"),
@@ -200,29 +219,18 @@ func TestAccVpcEIP_prePaid(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "address"),
 				),
 			},
-			{
-				Config: testAccVpcEip_prePaid(randName, 7),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "status", "UNBOUND"),
-					resource.TestCheckResourceAttr(resourceName, "publicip.0.type", "5_bgp"),
-					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.name", randName),
-					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
-					resource.TestCheckResourceAttr(resourceName, "period_unit", "month"),
-					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.size", "7"),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidth.0.id"),
-					resource.TestCheckResourceAttrSet(resourceName, "address"),
-				),
-			},
 		},
 	})
 }
 
-func TestAccVpcEIP_ipv6(t *testing.T) {
-	var eip eips.PublicIp
+func TestAccVpcEip_deprecated(t *testing.T) {
+	var (
+		eip eips.PublicIp
 
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_vpc_eip.test"
+		randName        = acceptance.RandomAccResourceName()
+		resourceName    = "huaweicloud_vpc_eip.test"
+		vipResourceName = "huaweicloud_networking_vip.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -236,46 +244,7 @@ func TestAccVpcEIP_ipv6(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVpcEip_ipv6(randName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "status", "UNBOUND"),
-					resource.TestCheckResourceAttr(resourceName, "publicip.0.type", "5_bgp"),
-					resource.TestCheckResourceAttr(resourceName, "publicip.0.ip_version", "6"),
-					resource.TestCheckResourceAttr(resourceName, "name", randName),
-					resource.TestCheckResourceAttrSet(resourceName, "address"),
-					resource.TestCheckResourceAttrSet(resourceName, "ipv6_address"),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccVpcEIP_port(t *testing.T) {
-	var eip eips.PublicIp
-
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_vpc_eip.test"
-	vipResourceName := "huaweicloud_networking_vip.vip_1"
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&eip,
-		getEipResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccVpcEip_port(randName),
+				Config: testAccVpcEip_deprecated(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "status", "BOUND"),
@@ -297,31 +266,20 @@ func TestAccVpcEIP_port(t *testing.T) {
 func testAccVpcEip_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc_eip" "test" {
-  publicip {
-    type = "5_bgp"
-  }
-  bandwidth {
-    share_type  = "PER"
-    name        = "%s"
-    size        = 5
-    charge_mode = "traffic"
-  }
-}
-`, rName)
-}
+  name = "%[1]s"
 
-func testAccVpcEip_tags(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_vpc_eip" "test" {
   publicip {
-    type = "5_bgp"
+    type       = "5_bgp"
+    ip_version = 4
   }
+
   bandwidth {
     share_type  = "PER"
-    name        = "%s"
+    name        = "%[1]s"
     size        = 5
     charge_mode = "traffic"
   }
+
   tags = {
     foo = "bar"
     key = "value"
@@ -330,34 +288,62 @@ resource "huaweicloud_vpc_eip" "test" {
 `, rName)
 }
 
-func testAccVpcEip_epsId(rName string) string {
+func testAccVpcEip_update(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc_eip" "test" {
+  name = "%[1]s"
+
   publicip {
-    type = "5_bgp"
+    type       = "5_bgp"
+    ip_version = 6
   }
+
   bandwidth {
     share_type  = "PER"
-    name        = "%s"
+    name        = "%[1]s"
     size        = 8
     charge_mode = "traffic"
   }
-  enterprise_project_id = "%s"
+
+  tags = {
+    foo  = "bar1"
+    key1 = "value"
+  }
 }
-`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, rName)
+}
+
+func testAccVpcEip_epsId(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc_eip" "test" {
+  enterprise_project_id = "%[1]s"
+
+  publicip {
+    type = "5_bgp"
+  }
+
+  bandwidth {
+    share_type  = "PER"
+    name        = "%[2]s"
+    size        = 5
+    charge_mode = "traffic"
+  }
+}
+`, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, rName)
 }
 
 func testAccVpcEip_share(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc_bandwidth" "test" {
-	name = "%s"
-	size = 5
+  name = "%s"
+  size = 5
 }
 
 resource "huaweicloud_vpc_eip" "test" {
   publicip {
     type = "5_bgp"
   }
+
   bandwidth {
     share_type = "WHOLE"
     id         = huaweicloud_vpc_bandwidth.test.id
@@ -369,71 +355,56 @@ resource "huaweicloud_vpc_eip" "test" {
 func testAccVpcEip_prePaid(rName string, size int) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc_eip" "test" {
-  charging_mode = "prePaid"
-  period_unit   = "month"
-  period        = 1
+  name = "%[1]s"
 
   publicip {
     type = "5_bgp"
   }
+
   bandwidth {
-    share_type  = "PER"
-    name        = "%[1]s"
-    size        = %[2]d
+    share_type = "PER"
+    name       = "%[1]s"
+    size       = %[2]d
   }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
 }
 `, rName, size)
 }
 
-func testAccVpcEip_ipv6(rName string) string {
+func testAccVpcEip_deprecated(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc_eip" "test" {
-  name = "%s"
-
-  publicip {
-    type       = "5_bgp"
-    ip_version = 6
-  }
-  bandwidth {
-    share_type  = "PER"
-    name        = "%s"
-    size        = 5
-    charge_mode = "traffic"
-  }
-}
-`, rName, rName)
-}
-
-func testAccVpcEip_port(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "vpc_1" {
-  name = "%s"
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
   cidr = "192.168.0.0/16"
 }
 
-resource "huaweicloud_vpc_subnet" "subnet_1" {
-  vpc_id     = huaweicloud_vpc.vpc_1.id
-  name       = "%s"
-  cidr       = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
+resource "huaweicloud_vpc_subnet" "test" {
+  vpc_id     = huaweicloud_vpc.test.id
+  name       = "%[1]s"
+  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1)
+  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1), 1)
 }
 
-resource "huaweicloud_networking_vip" "vip_1" {
-  name       = "%s"
-  network_id = huaweicloud_vpc_subnet.subnet_1.id
+resource "huaweicloud_networking_vip" "test" {
+  name       = "%[1]s"
+  network_id = huaweicloud_vpc_subnet.test.id
 }
 
 resource "huaweicloud_vpc_eip" "test" {
   publicip {
     type    = "5_bgp"
-    port_id = huaweicloud_networking_vip.vip_1.id
+    port_id = huaweicloud_networking_vip.test.id
   }
+
   bandwidth {
-    name        = "%s"
+    name        = "%[1]s"
     size        = 5
     share_type  = "PER"
     charge_mode = "traffic"
   }
 }
-`, rName, rName, rName, rName)
+`, rName)
 }

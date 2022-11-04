@@ -187,7 +187,7 @@ func dataSourceVpcEipsRead(_ context.Context, d *schema.ResourceData, meta inter
 		eip := map[string]interface{}{
 			"id":                    item.ID,
 			"name":                  item.Alias,
-			"status":                NormalizeEIPStatus(item.Status),
+			"status":                NormalizeEipStatus(item.Status),
 			"type":                  item.Type,
 			"private_ip":            item.PrivateAddress,
 			"public_ip":             item.PublicAddress,

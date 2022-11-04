@@ -117,7 +117,7 @@ func dataSourceVpcEipRead(_ context.Context, d *schema.ResourceData, meta interf
 
 	mErr := multierror.Append(nil,
 		d.Set("region", config.GetRegion(d)),
-		d.Set("status", NormalizeEIPStatus(Eip.Status)),
+		d.Set("status", NormalizeEipStatus(Eip.Status)),
 		d.Set("public_ip", Eip.PublicAddress),
 		d.Set("ipv6_address", Eip.PublicIpv6Address),
 		d.Set("ip_version", Eip.IpVersion),

@@ -114,7 +114,7 @@ func dataSourceIECNetworkEipsRead(d *schema.ResourceData, meta interface{}) erro
 			"public_ip":            item.PublicIpAddress,
 			"private_ip":           item.PrivateIpAddress,
 			"port_id":              item.PortID,
-			"status":               eip.NormalizeEIPStatus(item.Status),
+			"status":               eip.NormalizeEipStatus(item.Status),
 			"ip_version":           item.IPVersion,
 			"bandwidth_id":         item.BandwidthID,
 			"bandwidth_name":       item.BandwidthName,
