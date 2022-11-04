@@ -40,6 +40,7 @@ jobs:
           if [ $failed -gt 0 ]; then
             reactions="confused,eyes"
           fi
+
           echo "::set-output name=body::$body"
           echo "::set-output name=commentLength::$commentLength"
           echo "::set-output name=reactions::$reactions"
@@ -51,3 +52,12 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: ${{ steps.get-comment-body.outputs.body }}
           reactions: ${{ steps.get-comment-body.outputs.reactions }}
+
+      - uses: actions/upload-artifact@v3
+        if: ${{ steps.get-comment-body.outputs.commentLength > 0 }}
+        with:
+          name: acceptance-test
+          path: |
+            pr-acc-test.log
+            coverage_*.html
+          if-no-files-found: ignore
