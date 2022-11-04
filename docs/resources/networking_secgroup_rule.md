@@ -101,7 +101,7 @@ The following arguments are supported:
   This parameter is not used with `port_range_min` and `port_range_max`.
   Changing this creates a new security group rule.
 
-* `priority` - (Optional, String, ForceNew) Specifies the priority number.
+* `priority` - (Optional, Int, ForceNew) Specifies the priority number.
   The valid value is range from **1** to **100**. The default value is **1**.
   This parameter is not used with `port_range_min` and `port_range_max`.
   Changing this creates a new security group rule.

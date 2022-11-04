@@ -175,7 +175,7 @@ the `alarm_actions` block supports:
     + notification: indicates that a notification will be sent to the user.
     + autoscaling: indicates that a scaling action will be triggered.
 
-* `notification_list` - (Optional, List) specifies the list of objects to be notified if the alarm status changes, the
+* `notification_list` - (Required, List) specifies the list of objects to be notified if the alarm status changes, the
   maximum length is 5. If `type` is set to *notification*, the value of notification_list cannot be empty. If `type` is
   set to *autoscaling*, the value of notification_list must be **[]**
   and the value of namespace must be *SYS.AS*.
@@ -187,7 +187,7 @@ the `ok_actions` block supports:
 * `type` - (Optional, String) specifies the type of action triggered by an alarm. the value is notification.
   notification: indicates that a notification will be sent to the user.
 
-* `notification_list` - (Optional, List) specifies the list of objects to be notified if the alarm status changes, the
+* `notification_list` - (Required, List) specifies the list of objects to be notified if the alarm status changes, the
   maximum length is 5.
 
 ## Attributes Reference
