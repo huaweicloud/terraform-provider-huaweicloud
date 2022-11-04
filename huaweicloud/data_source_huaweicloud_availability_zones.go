@@ -50,6 +50,7 @@ func dataSourceAvailabilityZonesRead(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return fmtp.Errorf("Error retrieving Availability Zones: %s", err)
 	}
+
 	zoneInfo, err := availabilityzones.ExtractAvailabilityZones(allPages)
 	if err != nil {
 		return fmtp.Errorf("Error extracting Availability Zones: %s", err)

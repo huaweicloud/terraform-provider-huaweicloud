@@ -296,6 +296,7 @@ func resourceASPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		AlarmID:      d.Get("alarm_id").(string),
 		CoolDownTime: d.Get("cool_down_time").(int),
 	}
+
 	scheduledPolicyList := d.Get("scheduled_policy").([]interface{})
 	if len(scheduledPolicyList) == 1 {
 		scheduledPolicyMap := scheduledPolicyList[0].(map[string]interface{})
