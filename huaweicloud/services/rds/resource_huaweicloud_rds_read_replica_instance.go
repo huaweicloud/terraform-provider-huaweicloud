@@ -156,6 +156,12 @@ func ResourceRdsReadReplicaInstance() *schema.Resource {
 				},
 			},
 
+			// charge info: charging_mode, period_unit, period, auto_renew
+			"charging_mode": common.SchemaChargingMode(nil),
+			"period_unit":   common.SchemaPeriodUnit(nil),
+			"period":        common.SchemaPeriod(nil),
+			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
+
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -187,6 +193,24 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 	}
 
+	// PrePaid
+	if d.Get("charging_mode") == "prePaid" {
+		if err := common.ValidatePrePaidChargeInfo(d); err != nil {
+			return diag.FromErr(err)
+		}
+
+		chargeInfo := &instances.ChargeInfo{
+			ChargeMode: d.Get("charging_mode").(string),
+			PeriodType: d.Get("period_unit").(string),
+			PeriodNum:  d.Get("period").(int),
+			IsAutoPay:  true,
+		}
+		if d.Get("auto_renew").(string) == "true" {
+			chargeInfo.IsAutoRenew = true
+		}
+		createOpts.ChargeInfo = chargeInfo
+	}
+
 	log.Printf("[DEBUG] Create replica instance Options: %#v", createOpts)
 	resp, err := instances.CreateReplica(client, createOpts).Extract()
 	if err != nil {
@@ -196,10 +220,26 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 	instance := resp.Instance
 	d.SetId(instance.Id)
 	instanceID := d.Id()
-	if err := checkRDSInstanceJobFinish(client, resp.JobId, d.Timeout(schema.TimeoutCreate)); err != nil {
-		return diag.Errorf("error creating replica instance (%s): %s", instanceID, err)
+	// wait for order success
+	if resp.OrderId != "" {
+		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating BSS V2 client: %s", err)
+		}
+		err = common.WaitOrderComplete(ctx, bssClient, resp.OrderId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, resp.OrderId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.Errorf("error waiting for replica order resource %s complete: %s", resp.OrderId, err)
+		}
+		d.SetId(resourceId)
+	} else {
+		if err := checkRDSInstanceJobFinish(client, resp.JobId, d.Timeout(schema.TimeoutCreate)); err != nil {
+			return diag.Errorf("error creating replica instance (%s): %s", instanceID, err)
+		}
 	}
-
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		tagList := utils.ExpandResourceTags(tagRaw)
@@ -286,7 +326,11 @@ func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.Resourc
 	}
 
 	instanceID := d.Id()
-	if err := updateRdsInstanceFlavor(d, config, client, instanceID, false); err != nil {
+	if err = updateRdsInstanceFlavor(d, config, client, instanceID, false); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err = updateRdsInstanceAutoRenew(d, config); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -298,6 +342,19 @@ func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.Resourc
 	}
 
 	return resourceRdsReadReplicaInstanceRead(ctx, d, meta)
+}
+
+func updateRdsInstanceAutoRenew(d *schema.ResourceData, config *config.Config) error {
+	if d.HasChange("auto_renew") {
+		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		if err != nil {
+			return fmt.Errorf("error creating BSS V2 client: %s", err)
+		}
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return fmt.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
+		}
+	}
+	return nil
 }
 
 func expandAvailabilityZone(resp *instances.RdsInstanceResponse) string {

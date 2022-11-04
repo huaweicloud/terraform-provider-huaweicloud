@@ -743,10 +743,11 @@ func updateRdsInstanceFlavor(d *schema.ResourceData, config *config.Config, clie
 	}
 
 	resizeFlavor := instances.SpecCode{
-		Speccode: d.Get("flavor").(string),
+		Speccode:  d.Get("flavor").(string),
+		IsAutoPay: true,
 	}
-	if isSupportAutoPay && d.Get("auto_pay").(string) != "false" {
-		resizeFlavor.IsAutoPay = true
+	if isSupportAutoPay && d.Get("auto_pay").(string) == "false" {
+		resizeFlavor.IsAutoPay = false
 	}
 	var resizeFlavorOpts instances.ResizeFlavorOpts
 	resizeFlavorOpts.ResizeFlavor = &resizeFlavor
