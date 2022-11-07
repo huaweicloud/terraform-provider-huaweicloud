@@ -681,6 +681,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_elb_ipgroup":      elb.ResourceIpGroupV3(),
 			"huaweicloud_elb_pool":         elb.ResourcePoolV3(),
 			"huaweicloud_elb_member":       elb.ResourceMemberV3(),
+			"huaweicloud_elb_logtank":      elb.ResourceLogTanksV3(),
 
 			"huaweicloud_enterprise_project": eps.ResourceEnterpriseProject(),
 
