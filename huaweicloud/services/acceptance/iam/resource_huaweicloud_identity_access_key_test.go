@@ -57,6 +57,7 @@ func TestAccIdentityAccessKey_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "active"),
 					resource.TestCheckResourceAttr(resourceName, "description", "access key by terraform"),
 					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
+					resource.TestCheckNoResourceAttr(resourceName, "secret"),
 				),
 			},
 			{
@@ -64,6 +65,39 @@ func TestAccIdentityAccessKey_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "status", "inactive"),
 					resource.TestCheckResourceAttr(resourceName, "description", "access key by terraform updated"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccIdentityAccessKey_secret(t *testing.T) {
+	var cred credentials.Credential
+	var userName = acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_identity_access_key.key_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&cred,
+		getIdentityAccessKeyResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAdminOnly(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccIdentityAccessKey_secret(userName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "status", "active"),
+					resource.TestCheckResourceAttr(resourceName, "description", "access key by terraform"),
+					resource.TestCheckResourceAttrSet(resourceName, "secret"),
+					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
 				),
 			},
 		},
@@ -101,6 +135,23 @@ resource "huaweicloud_identity_access_key" "key_1" {
   description = "access key by terraform updated"
   secret_file = "./credentials.csv"
   status      = "inactive"
+}
+`, userName)
+}
+
+func testAccIdentityAccessKey_secret(userName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_identity_user" "user_1" {
+  name        = "%s"
+  password    = "password123@!"
+  enabled     = true
+  description = "tested by terraform"
+}
+
+resource "huaweicloud_identity_access_key" "key_1" {
+  user_id     = huaweicloud_identity_user.user_1.id
+  description = "access key by terraform"
+  secret_file = "/null/credentials.csv"
 }
 `, userName)
 }

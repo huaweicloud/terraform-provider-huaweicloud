@@ -109,8 +109,11 @@ func resourceIdentityKeyCreate(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating access key: %s", err)
 	}
-	d.SetId(accessKey.AccessKey)
 
+	d.SetId(accessKey.AccessKey)
+	d.Set("user_name", userName)
+
+	var diags diag.Diagnostics
 	var outputFile string
 	if v, ok := d.GetOk("secret_file"); ok {
 		outputFile = v.(string)
@@ -121,7 +124,12 @@ func resourceIdentityKeyCreate(ctx context.Context, d *schema.ResourceData, meta
 	if err := writeToCSVFile(outputFile, accessKey); err != nil {
 		// set the SecretKey as it was returned only in creation response
 		d.Set("secret", accessKey.SecretKey)
-		return fmtp.DiagErrorf("Error saving the access key to %s: %s", outputFile, err)
+		diagSecret := diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  "Unable to save the secret key to secret_file",
+			Detail:   fmt.Sprintf("Unable to save the secret key to %s: %s", outputFile, err),
+		}
+		diags = append(diags, diagSecret)
 	}
 
 	if v, ok := d.GetOk("pgp_key"); ok {
@@ -144,8 +152,8 @@ func resourceIdentityKeyCreate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
-	d.Set("user_name", userName)
-	return resourceIdentityKeyRead(ctx, d, meta)
+	diags = append(diags, resourceIdentityKeyRead(ctx, d, meta)...)
+	return diags
 }
 
 func resourceIdentityKeyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
