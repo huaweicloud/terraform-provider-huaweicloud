@@ -85,7 +85,7 @@ jobs:
       - name: parse APIs that auto-generated resources depend-on
         run: |
           cd terraform-api-scan/scan-autogen-code
-          go run main.go -inputDir=../../terraform-provider-generator/src/main/resources -outputDir=../../terraform-provider-huaweicloud/docs/api
+          go run main.go -inputDir=../../terraform-provider-generator/src/main/resources -outputDir=../../terraform-provider-huaweicloud/docs/api -providerSchemaPath=../schema.json
           cd ../../
 
       - name: commit APIs that resources depend-on
