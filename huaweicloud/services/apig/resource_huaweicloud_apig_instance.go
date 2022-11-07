@@ -1,39 +1,56 @@
 package apig
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/instances"
-	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/instances"
+	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-type Refresh struct {
-	Pending, Target                          []string
-	Delay, Timeout, MinTimeout, PollInterval time.Duration
-}
+type Edition string      // The edition of the dedicated instance.
+type ProviderType string // The type of the loadbalancer provider.
+
+const (
+	// IPv4 Editions
+	EditionBasic        Edition = "BASIC"        // Basic Edition instance.
+	EditionProfessional Edition = "PROFESSIONAL" // Professional Edition instance.
+	EditionEnterprise   Edition = "ENTERPRISE"   // Enterprise Edition instance.
+	EditionPlatinum     Edition = "PLATINUM"     // Platinum Edition instance.
+	// IPv6 Editions
+	Ipv6EditionBasic        Edition = "BASIC_IPv6"        // IPv6 instance of the Basic Edition.
+	Ipv6EditionProfessional Edition = "PROFESSIONAL_IPv6" // IPv6 instance of the Professional Edition.
+	Ipv6EditionEnterprise   Edition = "ENTERPRISE_IPv6"   // IPv6 instance of the Enterprise Edition.
+	Ipv6EditionPlatinum     Edition = "PLATINUM_IPv6"     // IPv6 instance of the Platinum Edition.
+
+	ProviderTypeLvs ProviderType = "lvs" // Linux virtual server.
+	ProviderTypeElb ProviderType = "elb" // Elastic load balance.
+)
 
 func ResourceApigInstanceV2() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceApigInstanceV2Create,
-		Read:   resourceApigInstanceV2Read,
-		Update: resourceApigInstanceV2Update,
-		Delete: resourceApigInstanceV2Delete,
+		CreateContext: resourceInstanceCreate,
+		ReadContext:   resourceInstanceRead,
+		UpdateContext: resourceInstanceUpdate,
+		DeleteContext: resourceInstanceDelete,
+
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -44,364 +61,386 @@ func ResourceApigInstanceV2() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The region in which to create the dedicated instance resource.`,
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^([\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5A-Za-z-_0-9]{2,63})$"),
-					"The name consists of 3 to 64 characters, starting with a letter. Only letters, digits, "+
-						"hyphens (-) and underscore (_) are allowed."),
+				ValidateFunc: validation.All(
+					validation.StringMatch(regexp.MustCompile("^([\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5A-Za-z-_0-9]*)$"),
+						"The name can only contain letters, digits, hyphens (-) and underscore (_), and must start "+
+							"with a letter."),
+					validation.StringLenBetween(3, 64),
+				),
+				Description: `The name of the dedicated instance.`,
 			},
 			"edition": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					"BASIC", "PROFESSIONAL", "ENTERPRISE", "PLATINUM",
+					string(EditionBasic),
+					string(EditionProfessional),
+					string(EditionEnterprise),
+					string(EditionPlatinum),
+					string(Ipv6EditionBasic),
+					string(Ipv6EditionProfessional),
+					string(Ipv6EditionEnterprise),
+					string(Ipv6EditionPlatinum),
 				}, false),
+				Description: `The edition of the dedicated instance.`,
 			},
 			"vpc_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The ID of the VPC used to create the dedicated instance.`,
 			},
 			"subnet_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The ID of the VPC subnet used to create the dedicated instance.`,
 			},
 			"security_group_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The ID of the security group to which the dedicated instance belongs to.`,
 			},
-			"available_zones": {
-				Type:     schema.TypeList,
-				Required: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+			"availability_zones": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `schema: Required; The name list of availability zones for the dedicated instance.`,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ValidateFunc: validation.All(
+					validation.StringMatch(regexp.MustCompile("^[^<>]*$"),
+						"The description cannot contain the angle brackets (< and >)."),
+					validation.StringLenBetween(0, 255),
+				),
+				Description: `The description of the dedicated instance.`,
 			},
 			"enterprise_project_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The enterprise project ID to which the dedicated instance belongs.`,
 			},
 			"bandwidth_size": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ValidateFunc: validation.IntBetween(1, 2000),
+				Description:  `The egress bandwidth size of the dedicated instance.`,
 			},
 			"eip_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The EIP ID associated with the dedicated instance.`,
+			},
+			"ipv6_enable": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Whether public access with an IPv6 address is supported.`,
+			},
+			"loadbalancer_provider": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					string(ProviderTypeLvs), string(ProviderTypeElb),
+				}, false),
+				Description: `The type of loadbalancer provider used by the instance.`,
 			},
 			"maintain_begin": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^(02|06|10|14|18|22):00:00$"),
+				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^(02|06|10|14|18|22):00:00$`),
 					"The start-time format of maintenance window is not 'xx:00:00' or "+
 						"the hour is not 02, 06, 10, 14, 18 or 22."),
+				Description: `The start time of the maintenance time window.`,
+			},
+			// Attributes
+			"maintain_end": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `End time of the maintenance time window, 4-hour difference between the start time and end time.`,
 			},
 			"ingress_address": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"egress_address": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"create_time": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"maintain_end": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"supported_features": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The ingress EIP address.`,
 			},
 			"vpc_ingress_address": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The ingress private IP address of the VPC.`,
+			},
+			"egress_address": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The egress (NAT) public IP address.`,
+			},
+			"supported_features": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The supported features of the dedicated instance.`,
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Time when the dedicated instance is created, in RFC-3339 format.`,
+			},
+			"status": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Status of the dedicated instance.`,
+			},
+			// Deprecated arguments
+			"available_zones": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `schema: Deprecated; The name list of availability zones for the dedicated instance.`,
+			},
+			"create_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Deprecated:  "Use 'created_at' instead",
+				Description: `schema: Deprecated; Time when the dedicated instance is created.`,
 			},
 		},
 	}
 }
 
 func buildMaintainEndTime(maintainStart string) (string, error) {
-	regex := regexp.MustCompile("^(02|06|10|14|18|22):00:00$")
-	isMatched := regex.MatchString(maintainStart)
-	if !isMatched {
-		return "", fmtp.Errorf("The start-time format of maintenance window is not 'xx:00:00' or " +
-			"the hour is not 02, 06, 10, 14, 18 or 22.")
-	}
-	result := regex.FindStringSubmatch(maintainStart)
+	result := regexp.MustCompile("^(02|06|10|14|18|22):00:00$").FindStringSubmatch(maintainStart)
 	if len(result) < 2 {
-		return "", fmtp.Errorf("The hour is missing")
+		return "", fmt.Errorf("the hour is missing")
 	}
 	num, err := strconv.Atoi(result[1])
 	if err != nil {
-		return "", fmtp.Errorf("The number (%s) cannot be converted to string", result[1])
+		return "", fmt.Errorf("the number (%s) cannot be converted to string", result[1])
 	}
 	return fmt.Sprintf("%02d:00:00", (num+4)%24), nil
 }
 
-func buildApigAvailableZones(d *schema.ResourceData) []string {
-	ids := d.Get("available_zones").([]interface{}) // List of one or more available zone names (codes).
-	result := make([]string, len(ids))
-	for i, v := range ids {
-		result[i] = v.(string)
+func buildInstanceAvailabilityZones(d *schema.ResourceData) ([]string, error) {
+	if v, ok := d.GetOk("availability_zones"); ok {
+		return utils.ExpandToStringList(v.([]interface{})), nil
 	}
-	return result
+
+	// When 'availability_zones' is omitted, the deprecated parameter 'available_zones' is used.
+	if v, ok := d.GetOk("available_zones"); ok {
+		return utils.ExpandToStringList(v.([]interface{})), nil
+	}
+
+	return nil, fmt.Errorf("the parameter 'availability_zones' must be specified.")
 }
 
-func buildApigInstanceParameters(d *schema.ResourceData, config *config.Config) (instances.CreateOpts, error) {
-	opt := instances.CreateOpts{
-		Name:                d.Get("name").(string),
-		Edition:             d.Get("edition").(string),
-		VpcId:               d.Get("vpc_id").(string),
-		SubnetId:            d.Get("subnet_id").(string),
-		SecurityGroupId:     d.Get("security_group_id").(string),
-		Description:         d.Get("description").(string),
-		EipId:               d.Get("eip_id").(string),
-		BandwidthSize:       d.Get("bandwidth_size").(int), // Bandwidth 0 means turn off the egress access.
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, config),
-		AvailableZoneIds:    buildApigAvailableZones(d),
+func buildInstanceCreateOpts(d *schema.ResourceData, config *config.Config) (instances.CreateOpts, error) {
+	result := instances.CreateOpts{
+		Name:                 d.Get("name").(string),
+		Edition:              d.Get("edition").(string),
+		VpcId:                d.Get("vpc_id").(string),
+		SubnetId:             d.Get("subnet_id").(string),
+		SecurityGroupId:      d.Get("security_group_id").(string),
+		Description:          d.Get("description").(string),
+		EipId:                d.Get("eip_id").(string),
+		BandwidthSize:        d.Get("bandwidth_size").(int), // Bandwidth 0 means turn off the egress access.
+		EnterpriseProjectId:  common.GetEnterpriseProjectID(d, config),
+		Ipv6Enable:           d.Get("ipv6_enable").(bool),
+		LoadbalancerProvider: d.Get("loadbalancer_provider").(string),
 	}
+
+	azList, err := buildInstanceAvailabilityZones(d)
+	if err != nil {
+		return result, err
+	}
+	result.AvailableZoneIds = azList
+
 	if v, ok := d.GetOk("maintain_begin"); ok {
 		startTime := v.(string)
-		opt.MaintainBegin = startTime
+		result.MaintainBegin = startTime
 		endTime, err := buildMaintainEndTime(startTime)
 		if err != nil {
-			return opt, err
+			return result, err
 		}
-		opt.MaintainEnd = endTime
+		result.MaintainEnd = endTime
 	}
 
-	return opt, nil
+	log.Printf("[DEBUG] Create options of the dedicated instance is: %#v", result)
+	return result, nil
 }
 
-func watiForApigInstanceV2TargetState(d *schema.ResourceData, client *golangsdk.ServiceClient, ref Refresh) error {
-	stateConf := &resource.StateChangeConf{
-		Pending: ref.Pending,
-		Target:  ref.Target,
-		Refresh: ApigInstanceV2StateRefreshFunc(client, d.Id()),
-		Timeout: ref.Timeout,
-		Delay:   ref.Delay,
-	}
-	if ref.MinTimeout != 0 {
-		stateConf.MinTimeout = ref.MinTimeout
-	} else {
-		stateConf.PollInterval = ref.PollInterval
-	}
-	_, err := stateConf.WaitForState()
-	return err
-}
-
-func ApigInstanceV2StateRefreshFunc(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		opt := instances.ListOpts{
-			Id: id,
-		}
-		// Some status cannot be read by GET method, just like 'Deleting'.
-		// GET method will link to other table (vpc) for query. The response time is not as good as the LIST method.
-		allPages, err := instances.List(client, opt).AllPages()
-		if err != nil {
-			return allPages, "", fmtp.Errorf("Error getting APIG v2 dedicated instance by ID (%s): %s", id, err)
-		}
-		instances, err := instances.ExtractInstances(allPages)
-		if err != nil {
-			return allPages, "", fmtp.Errorf("Error getting APIG v2 dedicated instance by ID (%s): %s", id, err)
-		}
-
-		if len(instances) == 0 {
-			return instances, "DELETED", nil
-		}
-		return instances[0], instances[0].Status, nil
-	}
-}
-
-func waitForApigInstanceCreateCompleted(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	ref := Refresh{
-		Pending:      []string{"Creating", "Initing", "Installing", "Registering", "CreateSuccess"},
-		Target:       []string{"Running"},
-		Delay:        30 * time.Second,
-		Timeout:      d.Timeout(schema.TimeoutCreate),
-		PollInterval: 10 * time.Second,
-	}
-	return watiForApigInstanceV2TargetState(d, client, ref)
-}
-
-func resourceApigInstanceV2Create(d *schema.ResourceData, meta interface{}) error {
+func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	opts, err := buildApigInstanceParameters(d, config)
-	if err != nil {
-		return fmtp.Errorf("Error craeting APIG v2 dedicated instance options: %s", err)
-	}
-	logp.Printf("[DEBUG] Create APIG v2 dedicated instance options: %#v", opts)
-
 	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
-	v, err := instances.Create(client, opts).Extract()
+
+	opts, err := buildInstanceCreateOpts(d, config)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 dedicated instance: %s", err)
+		return diag.Errorf("error creating the dedicated instance options: %s", err)
 	}
-	d.SetId(v.Id)
-	err = waitForApigInstanceCreateCompleted(d, client)
+	log.Printf("[DEBUG] The CreateOpts of the dedicated instance is: %#v", opts)
+
+	resp, err := instances.Create(client, opts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error waiting for APIG v2 dedicated instance (%s) to become running: %s", d.Id(), err)
+		return diag.Errorf("error creating the dedicated instance: %s", err)
 	}
-	return resourceApigInstanceV2Read(d, meta)
+	d.SetId(resp.Id)
+
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      InstanceStateRefreshFunc(client, d.Id(), []string{"Running"}),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        20 * time.Second,
+		PollInterval: 20 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return diag.Errorf("error waiting for the dedicated instance (%s) to become running: %s", d.Id(), err)
+	}
+	return resourceInstanceRead(ctx, d, meta)
 }
 
-// Method setApigAvailableZones is used to convert the string returned by the API which contains
+// parseInstanceAvailabilityZones is a method that used to convert the string returned by the API which contains
 // brackets ([ and ]) and space into a list of strings (available_zone code) and save to state.
-func setApigAvailableZones(d *schema.ResourceData, resp instances.Instance) error {
-	codesStr := strings.TrimLeft(resp.AvailableZoneIds, "[")
+func parseInstanceAvailabilityZones(azStr string) []string {
+	codesStr := strings.TrimLeft(azStr, "[")
 	codesStr = strings.TrimRight(codesStr, "]")
 	codesStr = strings.ReplaceAll(codesStr, " ", "")
-	codes := strings.Split(codesStr, ",")
-	return d.Set("available_zones", codes)
+
+	return strings.Split(codesStr, ",")
 }
 
-func setApigIngressAccess(d *schema.ResourceData, config *config.Config, resp instances.Instance) error {
-	if resp.Ipv4IngressEipAddress != "" {
-		// The response of ingress acess does not contain eip_id, just the ip address.
-		publicAddress := resp.Ipv4IngressEipAddress
-		client, err := config.NetworkingV1Client(config.GetRegion(d))
-		if err != nil {
-			return fmtp.Errorf("Error creating VPC client: %s", err)
-		}
-		opt := eips.ListOpts{
-			PublicIp:            []string{publicAddress},
-			EnterpriseProjectId: "all_granted_eps",
-		}
-		allPages, err := eips.List(client, opt).AllPages()
-		if err != nil {
-			return err
-		}
-		publicIps, err := eips.ExtractPublicIPs(allPages)
-		if err != nil {
-			return err
-		}
-		if len(publicIps) > 0 {
-			return d.Set("eip_id", publicIps[0].ID)
-		}
-		logp.Printf("[WARN] The instance does not synchronize EIP information, got (%s), but not found on the server",
-			publicAddress)
+// The response of ingress acess does not contain EIP ID, just the IP address.
+func parseInstanceIngressAccess(config *config.Config, region, publicAddress string) (*string, error) {
+	if publicAddress == "" {
+		return nil, nil
 	}
-	return d.Set("eip_id", nil)
-}
 
-func setApigSupportedFeatures(d *schema.ResourceData, resp instances.Instance) error {
-	features := resp.SupportedFeatures
-	result := make([]interface{}, len(features))
-	for i, v := range features {
-		result[i] = v
+	client, err := config.NetworkingV1Client(region)
+	if err != nil {
+		return nil, fmt.Errorf("error creating VPC v1 client: %s", err)
 	}
-	return d.Set("supported_features", result)
+
+	opt := eips.ListOpts{
+		PublicIp:            []string{publicAddress},
+		EnterpriseProjectId: "all_granted_eps",
+	}
+	allPages, err := eips.List(client, opt).AllPages()
+	if err != nil {
+		return nil, err
+	}
+	publicIps, err := eips.ExtractPublicIPs(allPages)
+	if err != nil {
+		return nil, err
+	}
+	if len(publicIps) > 0 {
+		return &publicIps[0].ID, nil
+	}
+
+	log.Printf("[WARN] The instance does not synchronize EIP information, got (%s), but not found on the server",
+		publicAddress)
+	return nil, nil
 }
 
-func setApigInstanceParamters(d *schema.ResourceData, config *config.Config, resp instances.Instance) error {
+func parseInstanceIpv6Enable(ipv6Address string) bool {
+	return ipv6Address != ""
+}
+
+func resourceInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config := meta.(*config.Config)
+	region := config.GetRegion(d)
+	client, err := config.ApigV2Client(region)
+	if err != nil {
+		return diag.Errorf("error creating APIG v2 client: %s", err)
+	}
+	resp, err := instances.Get(client, d.Id()).Extract()
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error getting instance (%s) details form server", d.Id()))
+	}
+	log.Printf("[DEBUG] Retrieved the dedicated instance (%s): %#v", d.Id(), resp)
+
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", region),
 		d.Set("name", resp.Name),
 		d.Set("edition", resp.Edition),
 		d.Set("vpc_id", resp.VpcId),
 		d.Set("subnet_id", resp.SubnetId),
 		d.Set("security_group_id", resp.SecurityGroupId),
-		d.Set("maintain_begin", resp.MaintainBegin),
-		d.Set("maintain_end", resp.MaintainEnd),
 		d.Set("description", resp.Description),
 		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
-		d.Set("status", resp.Status),
 		d.Set("bandwidth_size", resp.BandwidthSize),
+		d.Set("ipv6_enable", parseInstanceIpv6Enable(resp.Ipv6IngressEipAddress)),
+		d.Set("loadbalancer_provider", resp.LoadbalancerProvider),
+		d.Set("availability_zones", parseInstanceAvailabilityZones(resp.AvailableZoneIds)),
+		d.Set("maintain_begin", resp.MaintainBegin),
+		// Attributes
+		d.Set("maintain_end", resp.MaintainEnd),
+		d.Set("ingress_address", resp.Ipv4IngressEipAddress),
 		d.Set("vpc_ingress_address", resp.Ipv4VpcIngressAddress),
 		d.Set("egress_address", resp.Ipv4EgressAddress),
-		d.Set("ingress_address", resp.Ipv4IngressEipAddress),
-		setApigAvailableZones(d, resp),
+		d.Set("supported_features", resp.SupportedFeatures),
+		d.Set("status", resp.Status),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(resp.CreateTimestamp, false)),
+		// Deprecated
 		d.Set("create_time", utils.FormatTimeStampRFC3339(resp.CreateTimestamp, false)),
-		setApigIngressAccess(d, config, resp),
-		setApigSupportedFeatures(d, resp),
 	)
+
+	if eipId, err := parseInstanceIngressAccess(config, region, resp.Ipv4IngressEipAddress); err != nil {
+		mErr = multierror.Append(mErr, err)
+	} else {
+		mErr = multierror.Append(d.Set("eip_id", eipId))
+	}
+
 	if mErr.ErrorOrNil() != nil {
-		return mErr
+		return diag.Errorf("error saving resource fields of the dedicated instance: %s", mErr)
 	}
 	return nil
 }
 
-func getApigInstanceFromServer(d *schema.ResourceData, client *golangsdk.ServiceClient) (*instances.Instance, error) {
-	resp, err := instances.Get(client, d.Id()).Extract()
-	if err != nil {
-		return resp, common.CheckDeleted(d, err, "APIG v2 dedicated instance")
-	}
-	logp.Printf("[DEBUG] Retrieved APIG v2 dedicated instance (%s): %+v", d.Id(), resp)
-	return resp, nil
-}
-
-func resourceApigInstanceV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG client: %s", err)
-	}
-	resp, err := getApigInstanceFromServer(d, client)
-	if err != nil {
-		return common.CheckDeleted(d, err, fmt.Sprintf("error getting APIG dedicated instance (%s) form server", d.Id()))
-	}
-	return setApigInstanceParamters(d, config, *resp)
-}
-
-func buildApigInstanceUpdateOpts(d *schema.ResourceData) (instances.UpdateOpts, error) {
-	opts := instances.UpdateOpts{}
+func buildInstanceUpdateOpts(d *schema.ResourceData) (instances.UpdateOpts, error) {
+	result := instances.UpdateOpts{}
 	if d.HasChange("name") {
-		opts.Name = d.Get("name").(string)
+		result.Name = d.Get("name").(string)
 	}
 	if d.HasChange("description") {
-		opts.Description = d.Get("description").(string)
+		result.Description = utils.String(d.Get("description").(string))
+	}
+	if d.HasChange("security_group_id") {
+		result.SecurityGroupId = d.Get("security_group_id").(string)
 	}
 	if d.HasChange("maintain_begin") {
 		startTime := d.Get("maintain_begin").(string)
-		opts.MaintainBegin = startTime
+		result.MaintainBegin = startTime
 		endTime, err := buildMaintainEndTime(startTime)
 		if err != nil {
-			return opts, err
+			return result, err
 		}
-		opts.MaintainEnd = endTime
+		result.MaintainEnd = endTime
 	}
-	if d.HasChange("security_group_id") {
-		opts.SecurityGroupId = d.Get("security_group_id").(string)
-	}
-	logp.Printf("[DEBUG] Update options of APIG v2 dedicated instance is: %#v", opts)
-	return opts, nil
-}
 
-func waitForApigInstanceUpdateCompleted(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	ref := Refresh{
-		Pending:    []string{"Updating", "Running"},
-		Target:     []string{"Running"},
-		Delay:      2 * time.Second,
-		Timeout:    d.Timeout(schema.TimeoutUpdate),
-		MinTimeout: 2 * time.Second,
-	}
-	return watiForApigInstanceV2TargetState(d, client, ref)
+	log.Printf("[DEBUG] Update options of the dedicated instance is: %#v", result)
+	return result, nil
 }
 
 func updateApigInstanceEgressAccess(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
@@ -414,17 +453,17 @@ func updateApigInstanceEgressAccess(d *schema.ResourceData, client *golangsdk.Se
 		}
 		egress, err := instances.EnableEgressAccess(client, d.Id(), opts).Extract()
 		if err != nil {
-			return fmtp.Errorf("Unable to enable egress access of the dedicated instance (%s), size: %d", d.Id(), size)
+			return fmt.Errorf("unable to enable egress bandwidth of the dedicated instance (%s): %s", d.Id(), err)
 		}
 		if egress.BandwidthSize != size {
-			return fmtp.Errorf("Wrong bandwidth size is enabled, size: %d", size)
+			return fmt.Errorf("the egress bandwidth size change failed, want '%d', but '%d'", size, egress.BandwidthSize)
 		}
 	}
 	// Disable the egress access.
 	if newVal.(int) == 0 {
 		err := instances.DisableEgressAccess(client, d.Id()).ExtractErr()
 		if err != nil {
-			return fmtp.Errorf("Unable to disable egress bandwidth of the dedicated instance (%s)", d.Id())
+			return fmt.Errorf("unable to disable egress bandwidth of the dedicated instance (%s)", d.Id())
 		}
 		return nil
 	}
@@ -435,15 +474,15 @@ func updateApigInstanceEgressAccess(d *schema.ResourceData, client *golangsdk.Se
 	}
 	egress, err := instances.UpdateEgressBandwidth(client, d.Id(), opts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Unable to update egress bandwidth of the dedicated instance (%s), size: %d", d.Id(), size)
+		return fmt.Errorf("unable to update egress bandwidth of the dedicated instance (%s): %s", d.Id(), err)
 	}
 	if egress.BandwidthSize != size {
-		return fmtp.Errorf("Wrong bandwidth size is set, size: %d", size)
+		return fmt.Errorf("the egress bandwidth size change failed, want '%d', but '%d'", size, egress.BandwidthSize)
 	}
 	return nil
 }
 
-func updateApigInstanceIngressAccess(d *schema.ResourceData, client *golangsdk.ServiceClient) (err error) {
+func updateInstanceIngressAccess(d *schema.ResourceData, client *golangsdk.ServiceClient) (err error) {
 	oldVal, newVal := d.GetChange("eip_id")
 	// Disable the ingress access.
 	// The update logic is to disable first and then enable. Update means thar both oldVal and newVal exist.
@@ -461,71 +500,96 @@ func updateApigInstanceIngressAccess(d *schema.ResourceData, client *golangsdk.S
 	return
 }
 
-func disableApigInstanceIngressAccess(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	return instances.DisableIngressAccess(client, d.Id()).ExtractErr()
-}
-
-func resourceApigInstanceV2Update(d *schema.ResourceData, meta interface{}) error {
+func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
 	// Update egress access
 	if d.HasChange("bandwidth_size") {
 		if err = updateApigInstanceEgressAccess(d, client); err != nil {
-			return fmtp.Errorf("Update egress access failed: %s", err)
+			return diag.Errorf("update egress access failed: %s", err)
 		}
 	}
 	// Update ingerss access
 	if d.HasChange("eip_id") {
-		if err = updateApigInstanceIngressAccess(d, client); err != nil {
-			return fmtp.Errorf("Update ingress access failed: %s", err)
+		if err = updateInstanceIngressAccess(d, client); err != nil {
+			return diag.Errorf("update ingress access failed: %s", err)
 		}
 	}
-	// Update APIG v2 instance name, maintain window, description and security group id
-	updateOpts, err := buildApigInstanceUpdateOpts(d)
+	// Update instance name, maintain window, description and security group ID.
+	updateOpts, err := buildInstanceUpdateOpts(d)
 	if err != nil {
-		return fmtp.Errorf("Unable to get the update options of APIG v2 dedicated instance: %s", err)
+		return diag.Errorf("unable to get the update options of the dedicated instance: %s", err)
 	}
 	if updateOpts != (instances.UpdateOpts{}) {
 		_, err = instances.Update(client, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return fmtp.Errorf("Error updating APIG v2 dedicated instance: %s", err)
+			return diag.Errorf("error updating the dedicated instance: %s", err)
 		}
-		err = waitForApigInstanceUpdateCompleted(d, client)
+
+		stateConf := &resource.StateChangeConf{
+			Pending:      []string{"PENDING"},
+			Target:       []string{"COMPLETED"},
+			Refresh:      InstanceStateRefreshFunc(client, d.Id(), []string{"Running"}),
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			Delay:        20 * time.Second,
+			PollInterval: 20 * time.Second,
+		}
+		_, err = stateConf.WaitForStateContext(ctx)
 		if err != nil {
-			return fmtp.Errorf("Error waiting for APIG dedicated instance (%s) to become running: %s", d.Id(), err)
+			return diag.FromErr(err)
 		}
 	}
-	return resourceApigInstanceV2Read(d, meta)
+	return resourceInstanceRead(ctx, d, meta)
 }
 
-func waitForApigInstanceDeleteCompleted(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	ref := Refresh{
-		Pending:      []string{"Deleting"},
-		Target:       []string{"DELETED"},
-		Delay:        30 * time.Second,
-		Timeout:      d.Timeout(schema.TimeoutDelete),
-		PollInterval: 10 * time.Second,
-	}
-	return watiForApigInstanceV2TargetState(d, client, ref)
-}
-
-func resourceApigInstanceV2Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 	if err = instances.Delete(client, d.Id()).ExtractErr(); err != nil {
-		return fmtp.Errorf("Unable to delete the APIG v2 dedicated instance (%s): %s", d.Id(), err)
+		return diag.Errorf("error deleting the dedicated instance (%s): %s", d.Id(), err)
 	}
-	err = waitForApigInstanceDeleteCompleted(d, client)
+
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      InstanceStateRefreshFunc(client, d.Id(), nil),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        20 * time.Second,
+		PollInterval: 20 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Error deleting APIG v2 dedicated instance (%s): %s", d.Id(), err)
+		return diag.FromErr(err)
 	}
-	d.SetId("")
+
 	return nil
+}
+
+func InstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceId string, targets []string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		resp, err := instances.Get(client, instanceId).Extract()
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok && len(targets) < 1 {
+				return resp, "COMPLETED", nil
+			}
+			return resp, "", err
+		}
+
+		if utils.StrSliceContains([]string{"CreateFail", "InitingFailed", "RegisterFailed", "InstallFailed",
+			"UpdateFailed", "RollbackFailed", "UnRegisterFailed", "DeleteFailed"}, resp.Status) {
+			return resp, "", fmt.Errorf("unexpect status (%s)", resp.Status)
+		}
+
+		if utils.StrSliceContains(targets, resp.Status) {
+			return resp, "COMPLETED", nil
+		}
+		return resp, "PENDING", nil
+	}
 }

@@ -76,6 +76,11 @@ type Instance struct {
 	ChargeMode int `json:"charging_mode"`
 	// Yearly/Monthly subscription order ID.
 	CbcMetadata string `json:"cbc_metadata"`
+	// The type of load balancer used by the instance.
+	// The valid values are as follows:
+	// + lvs: Linux virtual server
+	// + elb: Elastic load balance
+	LoadbalancerProvider string `json:"loadbalancer_provider"`
 	// Description about the APIG dedicated instance.
 	Description string `json:"description"`
 	// VPC ID.
@@ -110,6 +115,35 @@ type Instance struct {
 	Version string `json:"instance_version"`
 	// Supported features.
 	SupportedFeatures []string `json:"supported_features"`
+	// THe list of endpoint service.
+	EndpointServices []EndpointService `json:"endpoint_services"`
+	// The IP of the serivce node.
+	NodeIp NodeIp `json:"node_ips"`
+	// The ingress address list of public network.
+	PublicIps []IpDetail `json:"publicips"`
+	// The ingress address list of private network.
+	PrivateIps []IpDetail `json:"privateips"`
+}
+
+type EndpointService struct {
+	// The service name of the endpoint node.
+	ServiceName string `json:"service_name"`
+	// The create time of the endpoint node.
+	CreatedAt string `json:"created_at"`
+}
+
+type NodeIp struct {
+	// The IP address list of the livedata node.
+	LiveData []string `json:"livedata"`
+	// The IP address list of the shubao node.
+	Shubao []string `json:"shubao"`
+}
+
+type IpDetail struct {
+	// IP address.
+	IpAddress string `json:"ip_address"`
+	// Bandwidth size.
+	BandwidthSize int `json:"bandwidth_size"`
 }
 
 // Call its Extract method to interpret it as a Instance.

@@ -119,10 +119,6 @@ func testAccApigApplication_base(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%s"
-}
-
 resource "huaweicloud_apig_instance" "test" {
   name                  = "%s"
   edition               = "BASIC"
@@ -135,7 +131,7 @@ resource "huaweicloud_apig_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0],
   ]
 }
-`, testAccApigInstance_base(rName), rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccInstance_base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccApigApplication_basic(rName, code string) string {

@@ -41,67 +41,91 @@ resource "huaweicloud_apig_instance" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to create the APIG dedicated instance resource.
-  If omitted, the provider-level region will be used. Changing this will create a new APIG dedicated instance resource.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the dedicated instance resource.  
+  If omitted, the provider-level region will be used.
+  Changing this will create a new resource.
 
-* `name` - (Required, String) Specifies the name of the API dedicated instance. The API group name consists of 3 to 64
-  characters, starting with a letter. Only letters, digits, and underscores (_) are allowed.
+* `name` - (Required, String) Specifies the name of the dedicated instance.  
+  The name can contain `3` to `64` characters, only letters, digits, hyphens (-) and underscores (_) are allowed, and
+  must start with a letter.
 
-* `edition` - (Required, String, ForceNew) Specifies the edition of the APIG dedicated instance. The supported editions
-  are as follows: BASIC, PROFESSIONAL, ENTERPRISE, PLATINUM. Changing this will create a new APIG dedicated instance
-  resource.
+* `edition` - (Required, String, ForceNew) Specifies the edition of the dedicated instance.  
+  The valid values are as follows:
+  + **BASIC**: Basic Edition instance.
+  + **PROFESSIONAL**: Professional Edition instance.
+  + **ENTERPRISE**: Enterprise Edition instance.
+  + **PLATINUM**: Platinum Edition instance.
+  + **BASIC_IPV6**: IPv6 instance of the Basic Edition.
+  + **PROFESSIONAL_IPV6**: IPv6 instance of the Professional Edition.
+  + **ENTERPRISE_IPV6**: IPv6 instance of the Enterprise Edition.
+  + **PLATINUM_IPV6**: IPv6 instance of the Platinum Edition.
+  
+  Changing this will create a new resource.
 
-* `vpc_id` - (Required, String, ForceNew) Specifies an ID of the VPC used to create the APIG dedicated instance.
-  Changing this will create a new APIG dedicated instance resource.
+* `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC used to create the dedicated instance.  
+  Changing this will create a new resource.
 
-* `subnet_id` - (Required, String, ForceNew) Specifies an ID of the VPC subnet used to create the APIG dedicated
-  instance. Changing this will create a new APIG dedicated instance resource.
+* `subnet_id` - (Required, String, ForceNew) Specifies the ID of the VPC subnet used to create the dedicated instance.  
+  Changing this will create a new resource.
 
-* `security_group_id` - (Required, String) Specifies an ID of the security group to which the APIG dedicated instance
+* `security_group_id` - (Required, String) Specifies the ID of the security group to which the dedicated instance
   belongs to.
 
-* `available_zones` - (Optional, List, ForceNew) Specifies an array of available zone names for the APIG dedicated
-  instance. Please following [reference](https://developer.huaweicloud.com/intl/en-us/endpoint?APIG) for list elements.
-  Changing this will create a new APIG dedicated instance resource.
+* `availability_zones` - (Required, List, ForceNew) Specifies the name list of availability zones for the dedicated
+  instance.  
+  Please following [reference](https://developer.huaweicloud.com/intl/en-us/endpoint?APIG) for list elements.
+  Changing this will create a new resource.
 
-* `description` - (Optional, String) Specifies the description about the APIG dedicated instance. The description
-  contain a maximum of 255 characters and the angle brackets (< and >) are not allowed.
+* `description` - (Optional, String) Specifies the description of the dedicated instance.  
+  The description contain a maximum of `255` characters and the angle brackets (< and >) are not allowed.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies an enterprise project ID. This parameter is required
-  for enterprise users. Changing this will create a new APIG dedicated instance resource.
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID to which the dedicated
+  instance belongs.  
+  This parameter is required for enterprise users. Changing this will create a new resource.
 
-* `maintain_begin` - (Optional, String) Specifies a start time of the maintenance time window in the format 'xx:00:00'.
-  The value of xx can be 02, 06, 10, 14, 18 or 22.
+* `bandwidth_size` - (Optional, Int) Specifies the egress bandwidth size of the dedicated instance.  
+  The valid value is range from `1` to `2,000`.
 
-* `bandwidth_size` - (Optional, Int) Specifies the egress bandwidth size of the APIG dedicated instance. The range of
-  valid value is from 1 to 2000.
+* `maintain_begin` - (Optional, String) Specifies the start time of the maintenance time window.  
+  The format is **xx:00:00**, the value of **xx** can be `02`, `06`, `10`, `14`, `18` or `22`.
 
-* `eip_id` - (Optional, String) Specifies the eip ID associated with the APIG dedicated instance.
+* `eip_id` - (Optional, String) Specifies the EIP ID associated with the dedicated instance.
+
+* `ipv6_enable` - (Optional, String, ForceNew) Specifies whether public access with an IPv6 address is supported.  
+  Changing this will create a new resource.
+
+* `loadbalancer_provider` - (Optional, String, ForceNew) Specifies the provider type of load balancer used by the
+  dedicated instance.  
+  The valid values are as follows:
+  + **lvs**: Linux virtual server.
+  + **elb**: Elastic load balance.
+
+  Changing this will create a new resource.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - ID of the APIG dedicated instance.
+* `id` - ID of the dedicated instance.
 * `maintain_end` - End time of the maintenance time window, 4-hour difference between the start time and end time.
-* `create_time` - Time when the APIG instance is created, in RFC-3339 format.
-* `status` - Status of the APIG dedicated instance.
+* `ingress_address` - The ingress EIP address.
+* `vpc_ingress_address` - The ingress private IP address of the VPC.
+* `egress_address` - The egress (NAT) public IP address.
 * `supported_features` - The supported features of the APIG dedicated instance.
-* `egress_address` - The egress (nat) public ip address.
-* `ingress_address` - The ingress eip address.
-* `vpc_ingress_address` - The ingress private ip address of vpc.
+* `created_at` - Time when the dedicated instance is created, in RFC-3339 format.
+* `status` - Status of the dedicated instance.
 
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 40 minute.
-* `update` - Default is 10 minute.
-* `delete` - Default is 10 minute.
+* `create` - Default is 40 minutes.
+* `update` - Default is 10 minutes.
+* `delete` - Default is 10 minutes.
 
 ## Import
 
-APIG Dedicated Instances can be imported by their `id`, e.g.
+Dedicated instances can be imported by their `id`, e.g.
 
 ```
 $ terraform import huaweicloud_apig_instance.test de379eed30aa4d31a84f426ea3c7ef4e
