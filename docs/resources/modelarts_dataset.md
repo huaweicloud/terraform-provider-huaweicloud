@@ -37,7 +37,7 @@ The following arguments are supported:
  provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Specifies the name of the dataset. The name consists of 1 to 100 characters,
- starting with a letter. Only letters, chinese charactors, digits underscores (_) and hyphens (-) are allowed.
+ starting with a letter. Only letters, chinese characters, digits underscores (_) and hyphens (-) are allowed.
 
 * `type` - (Required, Int, ForceNew) Specifies the type of dataset. The options are as follows:
   + **0**: Image classification, supported formats: `.jpg`, `.png`, `.jpeg`, `.bmp`.

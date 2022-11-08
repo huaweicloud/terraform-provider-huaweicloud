@@ -135,7 +135,7 @@ The following arguments are supported:
   provider-level region will be used. Changing this will create a new instance.
 
 * `name` - (Required, String, ForceNew) Specifies a unique name of the BCS instance. The name consists of 4 to 24
-  characters, including letters, digits, chinese charactors and hyphens (-), and the name cannot start with a hyphen.
+  characters, including letters, digits, chinese characters and hyphens (-), and the name cannot start with a hyphen.
   Changing this will create a new instance.
 
 * `edition` - (Required, Int, ForceNew) Specifies Service edition of the BCS instance. Valid values are `1`, `2` and `4`
@@ -161,7 +161,7 @@ The following arguments are supported:
 
 * `password` - (Required, String, ForceNew) Specifies the Resource access and blockchain management password. The
   password consists of 8 to 12 characters and must consist at least three of following: uppercase letters, lowercase
-  letters, digits, chinese charactors, special charactors(!@$%^-_=+[{}]:,./?). Changing this will create a new instance.
+  letters, digits, chinese characters, special characters(!@$%^-_=+[{}]:,./?). Changing this will create a new instance.
 
 * `volume_type` - (Required, String, ForceNew) Specifies the storage volume type to attach to each organization of the
   BCS instance. Valid values are `nfs` (SFS) and `efs` (SFS Turbo). Changing this will create a new instance.
@@ -243,7 +243,7 @@ The `couchdb` block supports:
 
 * `password` - (Required, String, ForceNew) Specifies the password of the couch datebase. The password consists of 8 to
   26 characters and must consist at least three of following: uppercase letters, lowercase letters, digits, special
-  charactors(!@$%^-_=+[{}]:,./?). Changing this creates a new instance.
+  characters(!@$%^-_=+[{}]:,./?). Changing this creates a new instance.
 
 The `sfs_turbo` block supports:
 

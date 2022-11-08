@@ -26,7 +26,7 @@ The following arguments are supported:
 If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String, ForceNew) Specifies the space name. The name contains a maximum of 64 characters.
-Only letters, digits, hyphens (-), underscore (_) and the following specail characters are allowed: `?'#().,&%@!`.
+Only letters, digits, hyphens (-), underscore (_) and the following special characters are allowed: `?'#().,&%@!`.
 Changing this parameter will create a new resource.
 
 ## Attributes Reference

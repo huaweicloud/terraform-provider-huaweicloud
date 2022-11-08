@@ -370,12 +370,12 @@ The EIP must have been created and must be in the same region as the cluster.
   record MapReduce cluster creation failures. Changing this will create a new MapReduce cluster resource.
 
 * `manager_admin_pass` - (Optional, String, ForceNew) Specifies the administrator password, which is used to log in to
-  the cluster management page. The password can contain 8 to 26 charactors and cannot be the username or the username
+  the cluster management page. The password can contain 8 to 26 characters and cannot be the username or the username
   spelled backwards. The password must contain lowercase letters, uppercase letters, digits, spaces and the special
   characters: `!?,.:-_{}[]@$^+=/`. Changing this will create a new MapReduce cluster resource.
 
 * `node_admin_pass` - (Optional, String, ForceNew) Specifies the administrator password, which is used to log in to the
-  each nodes(/ECSs). The password can contain 8 to 26 charactors and cannot be the username or the username spelled
+  each nodes(/ECSs). The password can contain 8 to 26 characters and cannot be the username or the username spelled
   backwards. The password must contain lowercase letters, uppercase letters, digits, spaces and the special
   characters: `!?,.:-_{}[]@$^+=/`. Changing this will create a new MapReduce cluster resource. This parameter
   and `node_key_pair` are alternative.
