@@ -291,6 +291,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v2",
 		Product: "Workspace",
 	},
+	"er": {
+		Name:    "er",
+		Version: "v3",
+		Product: "ER",
+	},
 
 	// catalog for database
 	"rdsv1": {
