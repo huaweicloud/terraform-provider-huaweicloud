@@ -53,3 +53,9 @@ jobs:
           # merge commit, and it's easy to commit this by mistake. Enable this option
           # to also validate the commit message for one commit PRs.
           validateSingleCommit: false
+          # If the PR contains one of these labels (newline delimited), the
+          # validation is skipped.
+          # If you want to rerun the validation when labels change, you might want
+          # to use the `labeled` and `unlabeled` event triggers in your workflow.
+          ignoreLabels: |
+            ignore-semantic-pull-request
