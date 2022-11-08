@@ -23,12 +23,13 @@ func TestAccBmsInstance_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheckBms(t)
 			acceptance.TestAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheckChargingMode(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      testAccCheckBmsInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBmsInstance_basic(rName),
+				Config: testAccBmsInstance_basic(rName, false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckBmsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -36,6 +37,14 @@ func TestAccBmsInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
+				),
+			},
+			{
+				Config: testAccBmsInstance_basic(rName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckBmsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
 				),
 			},
 		},
@@ -97,42 +106,52 @@ func testAccCheckBmsInstanceExists(n string, instance *baremetalservers.CloudSer
 	}
 }
 
-func testAccBmsInstance_basic(rName string) string {
+func testAccBmsInstance_base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
-data "huaweicloud_vpc" "test" {
-  name = "vpc-default"
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
+  cidr = "192.168.0.0/16"
 }
 
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
+resource "huaweicloud_vpc_subnet" "test" {
+  vpc_id = huaweicloud_vpc.test.id
+
+  name       = "%[1]s"
+  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1)
+  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1), 1)
 }
 
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
+resource "huaweicloud_networking_secgroup" "test" {
+  name = "%[1]s"
 }
 
 data "huaweicloud_bms_flavors" "test" {
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone = try(element(data.huaweicloud_availability_zones.test.names, 0), "")
 }
 
-resource "huaweicloud_compute_keypair" "test" {
-  name = "%s"
+resource "huaweicloud_kps_keypair" "test" {
+  name = "%[1]s"
 
   lifecycle {
     ignore_changes = [
       public_key,
     ]
   }
+}`, rName)
 }
+
+func testAccBmsInstance_basic(rName string, isAutoRenew bool) string {
+	return fmt.Sprintf(`
+%[1]s
 
 resource "huaweicloud_vpc_eip" "myeip" {
   publicip {
     type = "5_bgp"
   }
   bandwidth {
-    name        = "%s"
+    name        = "%[2]s"
     size        = 8
     share_type  = "PER"
     charge_mode = "traffic"
@@ -140,29 +159,30 @@ resource "huaweicloud_vpc_eip" "myeip" {
 }
 
 resource "huaweicloud_bms_instance" "test" {
-  name                  = "%s"
-  user_id               = "%s"
-  # CentOS 7.4 64bit for BareMetal
-  image_id              = "519ea918-1fea-4ebc-911a-593739b1a3bc"
-  flavor_id             = data.huaweicloud_bms_flavors.test.flavors[0].id
-  security_groups       = [data.huaweicloud_networking_secgroup.test.id]
-  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
-  vpc_id                = data.huaweicloud_vpc.test.id
-  eip_id                = huaweicloud_vpc_eip.myeip.id
-  charging_mode         = "prePaid"
-  period_unit           = "month"
-  period                = "1"
-  key_pair              = huaweicloud_compute_keypair.test.name
-  enterprise_project_id = "%s"
+  security_groups   = [huaweicloud_networking_secgroup.test.id]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = huaweicloud_vpc.test.id
+  flavor_id         = data.huaweicloud_bms_flavors.test.flavors[0].id
+  key_pair          = huaweicloud_kps_keypair.test.name
+  image_id          = "519ea918-1fea-4ebc-911a-593739b1a3bc" # CentOS 7.4 64bit for BareMetal
+
+  name                  = "%[2]s"
+  user_id               = "%[3]s"
+  enterprise_project_id = "%[4]s"
 
   nics {
-    subnet_id = data.huaweicloud_vpc_subnet.test.id
+    subnet_id = huaweicloud_vpc_subnet.test.id
   }
 
   tags = {
     foo = "bar"
     key = "value"
   }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = "1"
+  auto_renew    = "%[5]v"
 }
-`, rName, rName, rName, acceptance.HW_USER_ID, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccBmsInstance_base(rName), rName, acceptance.HW_USER_ID, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, isAutoRenew)
 }

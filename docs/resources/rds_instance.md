@@ -184,8 +184,7 @@ The following arguments are supported:
   to *month*, the value ranges from 1 to 9. If `period_unit` is set to *year*, the value ranges from 1 to 3. This
   parameter is mandatory if `charging_mode` is set to *prePaid*. Changing this creates a new resource.
 
-* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled. Valid values are "true" and "
-  false". Changing this creates a new resource.
+* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled. Valid values are "true" and "false".
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the RDS instance. Changing this
   parameter creates a new RDS instance.

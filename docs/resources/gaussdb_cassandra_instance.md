@@ -114,7 +114,7 @@ The following arguments are supported:
   do nothing.
 
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
-  Valid values are "true" and "false". Changing this will do nothing.
+  Valid values are "true" and "false".
 
 * `datastore` - (Optional, List, ForceNew) Specifies the database information. Structure is documented below. Changing
   this parameter will create a new resource.

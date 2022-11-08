@@ -51,6 +51,7 @@ var (
 	HW_ADMIN                        = os.Getenv("HW_ADMIN")
 	HW_ENTERPRISE_PROJECT_ID_TEST   = os.Getenv("HW_ENTERPRISE_PROJECT_ID_TEST")
 	HW_USER_ID                      = os.Getenv("HW_USER_ID")
+	HW_CHARGING_MODE                = os.Getenv("HW_CHARGING_MODE")
 )
 
 var testAccProviders map[string]*schema.Provider
@@ -193,6 +194,12 @@ func testAccPreCheckProjectID(t *testing.T) {
 func testAccAsConfigPreCheck(t *testing.T) {
 	if HW_FLAVOR_ID == "" {
 		t.Skip("HW_FLAVOR_ID must be set for acceptance tests")
+	}
+}
+
+func testAccPreCheckChargingMode(t *testing.T) {
+	if HW_CHARGING_MODE != "prePaid" {
+		t.Skip("This environment does not support prepaid tests")
 	}
 }
 

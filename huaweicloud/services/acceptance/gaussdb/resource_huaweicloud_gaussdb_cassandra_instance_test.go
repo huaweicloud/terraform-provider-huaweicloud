@@ -38,6 +38,39 @@ func TestAccGeminiDBInstance_basic(t *testing.T) {
 	})
 }
 
+func TestAccGeminiDBInstance_prePaid(t *testing.T) {
+	var instance instances.GeminiDBInstance
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_gaussdb_cassandra_instance.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckGeminiDBInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGeminiDBInstanceConfig_prePaid(rName, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGeminiDBInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
+				),
+			},
+			{
+				Config: testAccGeminiDBInstanceConfig_prePaid(rName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGeminiDBInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckGeminiDBInstanceDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	client, err := config.GeminiDBV3Client(acceptance.HW_REGION_NAME)
@@ -155,4 +188,35 @@ resource "huaweicloud_gaussdb_cassandra_instance" "test" {
   }
 }
 `, testAccVpcConfig_Base(rName), rName)
+}
+
+func testAccGeminiDBInstanceConfig_prePaid(rName string, isAutoRenew bool) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_networking_secgroup" "test" {
+  name = "default"
+}
+
+resource "huaweicloud_gaussdb_cassandra_instance" "test" {
+  name        = "%[2]s"
+  password    = "Test@12345678"
+  flavor      = "geminidb.cassandra.xlarge.4"
+  volume_size = 100
+  vpc_id      = huaweicloud_vpc.test.id
+  subnet_id   = huaweicloud_vpc_subnet.test.id
+  ssl         = true
+  node_num    = 4
+
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "%[3]v"
+}
+`, testAccVpcConfig_Base(rName), rName, isAutoRenew)
 }

@@ -233,13 +233,7 @@ func ResourceGaussDBInfluxInstanceV3() *schema.Resource {
 				RequiredWith: []string{"period_unit"},
 				ValidateFunc: validation.IntBetween(1, 9),
 			},
-			"auto_renew": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"true", "false",
-				}, false),
-			},
+			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
 
 			"tags": common.TagsSchema(),
 		},

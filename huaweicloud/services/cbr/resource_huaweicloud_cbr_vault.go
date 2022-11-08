@@ -158,7 +158,7 @@ func ResourceVault() *schema.Resource {
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
-			"auto_renew":    common.SchemaAutoRenew(nil),
+			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
 			"auto_pay":      common.SchemaAutoPay(nil),
 			"allocated": {
 				Type:     schema.TypeFloat,
@@ -356,7 +356,7 @@ func resourceVaultCreate(ctx context.Context, d *schema.ResourceData, meta inter
 		if len(resp.Orders) < 1 {
 			return diag.Errorf("unable to find any order information after creating CBR vault")
 		}
-		if resp.Orders[0].ResourceId == "" {
+		if resp.Orders[0].ID == "" {
 			return diag.Diagnostics{
 				{
 					Severity: diag.Warning,
@@ -369,16 +369,20 @@ func resourceVaultCreate(ctx context.Context, d *schema.ResourceData, meta inter
 				},
 			}
 		}
-		d.SetId(resp.Orders[0].ResourceId)
-
 		bssClient, err := config.BssV2Client(config.GetRegion(d))
 		if err != nil {
 			return diag.Errorf("error creating BSS v2 client: %s", err)
 		}
 		err = common.WaitOrderComplete(ctx, bssClient, resp.Orders[0].ID, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return diag.Errorf("the order is not completed while creating CBR vault (%s): %v", d.Id(), err)
+			return diag.Errorf("the order is not completed while creating CBR vault: %v", err)
 		}
+		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, resp.Orders[0].ID, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		d.SetId(resourceId)
 	} else {
 		vault, err := result.Extract()
 		if err != nil {
@@ -657,6 +661,16 @@ func resourceVaultUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 	if d.HasChange("tags") {
 		if err = utils.UpdateResourceTags(client, d, "vault", d.Id()); err != nil {
 			return diag.Errorf("failed to update tags: %s", err)
+		}
+	}
+
+	if d.HasChange("auto_renew") {
+		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating BSS V2 client: %s", err)
+		}
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return diag.Errorf("error updating the auto-renew of the vault (%s): %s", d.Id(), err)
 		}
 	}
 

@@ -49,6 +49,41 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 	})
 }
 
+func TestAccGaussDBInstance_prePaid(t *testing.T) {
+	var (
+		instance instances.TaurusDBInstance
+
+		resourceName = "huaweicloud_gaussdb_mysql_instance.test"
+		password     = acceptance.RandomPassword()
+		rName        = acceptance.RandomAccResourceName()
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckGaussDBInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGaussDBInstanceConfig_prePaid(rName, password, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGaussDBInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
+				),
+			},
+			{
+				Config: testAccGaussDBInstanceConfig_prePaid(rName, password, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGaussDBInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckGaussDBInstanceDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	client, err := config.GaussdbV3Client(acceptance.HW_REGION_NAME)
@@ -149,4 +184,31 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   }
 }
 `, testAccVpcConfig_Base(rName), rName)
+}
+
+func testAccGaussDBInstanceConfig_prePaid(rName, password string, isAutoRenew bool) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_networking_secgroup" "test" {
+  name = "%[2]s"
+}
+
+resource "huaweicloud_gaussdb_mysql_instance" "test" {
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+
+  flavor   = "gaussdb.mysql.4xlarge.x86.4"
+  name     = "%[2]s"
+  password = "%[3]s"
+
+  enterprise_project_id = "0"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "%[4]v"
+}
+`, testAccVpcConfig_Base(rName), rName, password, isAutoRenew)
 }

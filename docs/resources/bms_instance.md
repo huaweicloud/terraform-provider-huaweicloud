@@ -180,8 +180,8 @@ installed, the `admin_pass` field becomes invalid.
   , the value ranges from 1 to 9. If `period_unit` is set to *year*, the value is 1. This parameter is mandatory
   if `charging_mode` is set to *prePaid*. Changing this creates a new instance.
 
-* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled. Valid values are "true" and "
-  false", defaults to *false*. Changing this creates a new instance.
+* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled. Valid values are "true" and "
+  false", defaults to *false*.
 
 * `agency_name` - (Optional, String, ForceNew) Specifies the IAM agency name which is created on IAM to provide
   temporary credentials for BMS to access cloud services. Changing this creates a new instance.

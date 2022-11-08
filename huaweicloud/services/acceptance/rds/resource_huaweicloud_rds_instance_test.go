@@ -189,6 +189,43 @@ func TestAccRdsInstance_sqlserver(t *testing.T) {
 	})
 }
 
+func TestAccRdsInstance_prePaid(t *testing.T) {
+	var (
+		instance instances.RdsInstanceResponse
+
+		resourceType = "huaweicloud_rds_instance"
+		resourceName = "huaweicloud_rds_instance.test"
+		name         = acceptance.RandomAccResourceName()
+		password     = fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
+			acctest.RandIntRange(10, 99))
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRdsInstance_prePaid(name, password, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
+				),
+			},
+			{
+				Config: testAccRdsInstance_prePaid(name, password, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckRdsInstanceDestroy(rsType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
@@ -262,10 +299,18 @@ resource "huaweicloud_vpc_subnet" "test" {
   primary_dns   = "100.125.1.250"
   secondary_dns = "100.125.21.250"
   vpc_id        = huaweicloud_vpc.test.id
+
+  timeouts {
+    delete = "30m"
+  }
 }
 
 resource "huaweicloud_networking_secgroup" "test" {
   name = "%s"
+
+  timeouts {
+    delete = "30m"
+  }
 }
 `, name, name, name)
 }
@@ -519,4 +564,38 @@ resource "huaweicloud_rds_instance" "test" {
   }
 }
 `, testAccRdsInstance_base(name), name, pwd)
+}
+
+func testAccRdsInstance_prePaid(name, pwd string, isAutoRenew bool) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_rds_instance" "test" {
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  availability_zone = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), [])
+
+  name      = "%[2]s"
+  flavor    = "rds.mssql.spec.se.c6.large.4"
+  collation = "Chinese_PRC_CI_AS"
+
+  db {
+    password = "%[3]s"
+    type     = "SQLServer"
+    version  = "2014_SE"
+    port     = 8635
+  }
+
+  volume {
+    type = "ULTRAHIGH"
+    size = 40
+  }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "%[4]v"
+}
+`, testAccRdsInstance_base(name), name, pwd, isAutoRenew)
 }

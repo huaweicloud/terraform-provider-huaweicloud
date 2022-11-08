@@ -236,7 +236,7 @@ func ResourceDcsInstance() *schema.Resource {
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
-			"auto_renew":    common.SchemaAutoRenew(nil),
+			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
 			"auto_pay":      common.SchemaAutoPay(nil),
 			"tags":          common.TagsSchema(),
 			"order_id": {
@@ -586,6 +586,10 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 			return fmtp.DiagErrorf("[DEBUG] Error the order is not completed while "+
 				"creating DCS instance. %s : %#v", d.Id(), err)
 		}
+		_, err = common.WaitOrderResourceComplete(ctx, bssClient, r.OrderId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	// wait for the instance to be created successfully and in running state
@@ -826,6 +830,16 @@ func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, met
 		err = waitForWhiteListCompleted(ctx, client, d)
 		if err != nil {
 			return fmtp.DiagErrorf("Error while waiting to create DCS whitelist: %s", err)
+		}
+	}
+
+	if d.HasChange("auto_renew") {
+		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating BSS V2 client: %s", err)
+		}
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
 		}
 	}
 
