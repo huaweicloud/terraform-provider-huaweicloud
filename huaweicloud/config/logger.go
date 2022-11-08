@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"math"
 	"net/http"
@@ -113,7 +112,7 @@ func (lrt *LogRoundTripper) logRequest(original io.ReadCloser, contentType strin
 		log.Printf("[DEBUG] Not logging because the request body isn't JSON")
 	}
 
-	return ioutil.NopCloser(strings.NewReader(bs.String())), nil
+	return io.NopCloser(strings.NewReader(bs.String())), nil
 }
 
 // logResponse will log the HTTP Response details.
@@ -130,7 +129,7 @@ func (lrt *LogRoundTripper) logResponse(original io.ReadCloser, contentType stri
 		if debugInfo != "" {
 			log.Printf("[DEBUG] API Response Body: %s", debugInfo)
 		}
-		return ioutil.NopCloser(strings.NewReader(bs.String())), nil
+		return io.NopCloser(strings.NewReader(bs.String())), nil
 	}
 
 	log.Printf("[DEBUG] Not logging because the response body isn't JSON")

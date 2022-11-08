@@ -4,14 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"time"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
-	"io/ioutil"
-	"time"
 )
 
 func ResourceApmAkSk() *schema.Resource {
@@ -64,7 +65,7 @@ func ResourceApmAkSkCreate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error convert data %s to %v : %s", string(body), opts, err)
 	}
@@ -149,7 +150,7 @@ func ResourceApmAkSkDelete(ctx context.Context, d *schema.ResourceData, meta int
 	mErr := &multierror.Error{}
 
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		mErr = multierror.Append(mErr, err)
 	}

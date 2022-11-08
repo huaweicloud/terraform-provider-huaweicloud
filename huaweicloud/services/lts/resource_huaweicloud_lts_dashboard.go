@@ -4,6 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"strings"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -11,8 +14,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"io/ioutil"
-	"strings"
 )
 
 func ResourceLtsDashboard() *schema.Resource {
@@ -109,7 +110,7 @@ func resourceLtsDashBoardCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating LtsDashBoard fields %s: %s", dashBoardRequest.LogGroupId, err)
 	}
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error convert data %s, %s", string(body), err)
 	}
@@ -174,7 +175,7 @@ func resourceLtsDashBoardDelete(_ context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error delete LtsDashBoard %s: %s", d.Id(), err)
 	}
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error delete LtsDashBoard %s: %s", d.Id(), err)
 	}
@@ -209,7 +210,7 @@ func resourceDashBoardUpdate(_ context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error update LtsDashBoard fields %s: %s", dashBoardRequest.LogGroupId, err)
 	}
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error convert data %s, %s", string(body), err)
 	}

@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -170,7 +170,7 @@ func resourceLtsStructTemplateCreate(ctx context.Context, d *schema.ResourceData
 	}
 
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error convert data %s , %s", string(body), err)
 	}
@@ -244,7 +244,7 @@ func resourceLtsStructTemplateDelete(_ context.Context, d *schema.ResourceData, 
 	}
 
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return diag.Errorf("error delete StructTemplate %s: %s", d.Id(), string(body))
 	}
@@ -280,7 +280,7 @@ func resourceLtsStructTemplateUpdate(ctx context.Context, d *schema.ResourceData
 	}
 
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error convert data %s , %s", string(body), err)
 	}

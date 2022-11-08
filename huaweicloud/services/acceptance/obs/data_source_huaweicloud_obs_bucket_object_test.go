@@ -2,7 +2,6 @@ package obs
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -47,7 +46,7 @@ func TestAccObsBucketObjectDataSource_content(t *testing.T) {
 
 func TestAccObsBucketObjectDataSource_source(t *testing.T) {
 	dataSourceName := "data.huaweicloud_obs_bucket_object.obj"
-	tmpFile, err := ioutil.TempFile("", "tf-acc-obs-obj-source")
+	tmpFile, err := os.CreateTemp("", "tf-acc-obs-obj-source")
 	if err != nil {
 		t.Fatal(err)
 	}

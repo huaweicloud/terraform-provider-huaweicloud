@@ -3,13 +3,14 @@ package lts
 import (
 	"context"
 	"encoding/json"
+	"io"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
-	"io/ioutil"
 )
 
 func ResourceLtsElb() *schema.Resource {
@@ -69,7 +70,7 @@ func resourceLtsElbCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating LogTank fields %s: %s", LogTankRequest.Logtank.LogGroupId, err)
 	}
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error convert data %s, %s", string(body), err)
 	}
@@ -133,7 +134,7 @@ func resourceLtsElbDelete(_ context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("error delete LogTank %s: %s", d.Id(), err)
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return diag.Errorf("error delete LogTank %s: %s", d.Id(), err)
 	}
@@ -163,7 +164,7 @@ func resourceLtsElbUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error update LogTank fields %s: %s", LogTankRequest, err)
 	}
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error update LogTank %s: %s", string(body), err)
 	}

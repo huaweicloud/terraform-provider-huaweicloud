@@ -3,13 +3,14 @@ package httpclient_go
 import (
 	"crypto/tls"
 	"fmt"
+	"io"
+	"net/http"
+	"strings"
+
 	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"io/ioutil"
-	"net/http"
-	"strings"
 )
 
 const (
@@ -98,7 +99,7 @@ func (client HttpClientGo) CheckDeletedDiag(d *schema.ResourceData, err error, r
 	}
 
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, diag.Errorf("error convert data %s: %s", string(body), err)
 	}

@@ -3,15 +3,16 @@ package cmdb
 import (
 	"context"
 	"encoding/json"
+	"io"
+	"strings"
+	"time"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	entity2 "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
-	"io/ioutil"
-	"strings"
-	"time"
 )
 
 func ResourceAomEnvironment() *schema.Resource {
@@ -144,7 +145,7 @@ func ResourceAomEnvironmentCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error create Environment fields %s: %s", opts, err)
 	}
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error convert data %s, %s", string(body), err)
 	}
@@ -238,7 +239,7 @@ func ResourceAomEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error update Environment %s: %s", string(body), err)
 	}
@@ -264,7 +265,7 @@ func ResourceAomEnvironmentDelete(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error delete Environment %s: %s", d.Id(), err)
 	}
