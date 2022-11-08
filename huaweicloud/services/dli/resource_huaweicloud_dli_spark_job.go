@@ -342,7 +342,7 @@ func checkDliSparkJobCancelResult(ctx context.Context, client *golangsdk.Service
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("error waiting for DLI spark job (%s) to be cancelled: %s", jobId, err)
+		return fmtp.Errorf("error waiting for DLI spark job (%s) to be canceled: %s", jobId, err)
 	}
 	return nil
 }

@@ -34,7 +34,7 @@ func getDmsKafkaPermissionsFunc(c *config.Config, state *terraform.ResourceState
 
 	response, err := client.ShowTopicAccessPolicy(request)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving DMS kafka premissions: %s", err)
+		return nil, fmt.Errorf("error retrieving DMS kafka permissions: %s", err)
 	}
 
 	if response.Policies != nil && len(*response.Policies) != 0 {

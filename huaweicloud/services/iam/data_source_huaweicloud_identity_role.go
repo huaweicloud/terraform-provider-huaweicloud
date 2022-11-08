@@ -101,7 +101,7 @@ func dataSourceIdentityRoleV3Attributes(_ context.Context, d *schema.ResourceDat
 
 	policy, err := json.Marshal(role.Policy)
 	if err != nil {
-		return fmtp.DiagErrorf("Error marshalling policy: %s", err)
+		return fmtp.DiagErrorf("Error marshaling policy: %s", err)
 	}
 
 	mErr := multierror.Append(nil,

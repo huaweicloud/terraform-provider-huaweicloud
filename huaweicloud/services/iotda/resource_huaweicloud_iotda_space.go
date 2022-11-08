@@ -37,7 +37,7 @@ func ResourceSpace() *schema.Resource {
 				ForceNew: true,
 				ValidateFunc: validation.StringMatch(regexp.MustCompile(`[A-Za-z-_0-9?'#().,&%@!]{1,64}`),
 					"The name contains a maximum of 64 characters. Only letters, digits, "+
-						"hyphens (-), underscore (_) and the following specail characters are allowed: ?'#().,&%@!"),
+						"hyphens (-), underscore (_) and the following special characters are allowed: ?'#().,&%@!"),
 			},
 
 			"is_default": {

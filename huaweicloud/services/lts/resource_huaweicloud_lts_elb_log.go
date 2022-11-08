@@ -104,7 +104,7 @@ func resourceLtsElbRead(_ context.Context, d *schema.ResourceData, meta interfac
 	rlt := &entity.CreateLogtankResponse{}
 	err = json.Unmarshal(body, rlt)
 	if err != nil {
-		return diag.Errorf("error retriving Elb LogTank %s", d.Id())
+		return diag.Errorf("error retrieving Elb LogTank %s", d.Id())
 	}
 	mErr := multierror.Append(nil,
 		d.Set("loadbalancer_id", rlt.Logtank.LoadBalancerID),

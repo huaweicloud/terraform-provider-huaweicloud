@@ -206,7 +206,7 @@ func resourceLoadBalancerV2Read(_ context.Context, d *schema.ResourceData, meta 
 
 	lb, err := loadbalancers.Get(elbClient, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Error retriving loadbalancer")
+		return common.CheckDeletedDiag(d, err, "Error retrieving loadbalancer")
 	}
 
 	logp.Printf("[DEBUG] Retrieved loadbalancer %s: %#v", d.Id(), lb)

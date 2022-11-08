@@ -18,7 +18,7 @@ import (
 const (
 	stringRegxp     = `^[\x{4E00}-\x{9FFC}A-Za-z-_0-9?'#().,&%@!]*$`
 	stringFormatMsg = "Only letters, Chinese characters, digits, hyphens (-), underscores (_) and" +
-		" the following specail characters are allowed: ?'#().,&%@!"
+		" the following special characters are allowed: ?'#().,&%@!"
 )
 
 func ResourceProduct() *schema.Resource {

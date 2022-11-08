@@ -491,7 +491,7 @@ func getDedicatedApigSubDomainAndEnvId(d *schema.ResourceData, config *config.Co
 	}
 	envList, err := dedicatedEnvs.ExtractEnvironments(pages)
 	if err != nil {
-		return envId, subDomain, fmtp.Errorf("Unable to retrive the response to list: %s", err)
+		return envId, subDomain, fmtp.Errorf("Unable to retrieve the response to list: %s", err)
 	}
 	if len(envList) <= 0 {
 		return envId, subDomain, fmtp.Errorf("There is no environment named %s: %s", envName, err)
@@ -603,7 +603,7 @@ func resourceFunctionGraphTriggerCreate(d *schema.ResourceData, meta interface{}
 	d.SetId(resp.TriggerId)
 
 	if resp.TriggerTypeCode == kafkaTrigger {
-		// The defualt status of terraform DMS kafka trigger is 'ACTIVE'.
+		// The default status of terraform DMS kafka trigger is 'ACTIVE'.
 		if d.Get("status").(string) == "" {
 			d.Set("status", statusActive)
 		}

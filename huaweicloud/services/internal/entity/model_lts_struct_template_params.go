@@ -72,7 +72,7 @@ func (s *StructTemplateRequest) ToDemoFieldsInfo() {
 		},
 		{
 			Type:      "string",
-			FieldName: "protocal",
+			FieldName: "protocol",
 			Index:     7,
 		},
 		{

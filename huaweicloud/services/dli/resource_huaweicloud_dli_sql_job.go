@@ -327,7 +327,7 @@ func checkSqlJobCancelledResult(ctx context.Context, client *golangsdk.ServiceCl
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("error waiting for Dli sql job (%s) to be cancelled: %s", id, err)
+		return fmtp.Errorf("error waiting for Dli sql job (%s) to be canceled: %s", id, err)
 	}
 	return nil
 }

@@ -113,7 +113,7 @@ func ResourceDesktop() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					"sudo", "defualt", "administrators", "users",
+					"sudo", "default", "administrators", "users",
 				}, false),
 			},
 			"root_volume": {
