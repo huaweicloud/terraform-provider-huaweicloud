@@ -34,7 +34,7 @@ func TestAccKafkaInstance_basic(t *testing.T) {
 	)
 
 	// DMS instances use the tenant-level shared lock, the instances cannot be created or modified in parallel.
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -85,7 +85,7 @@ func TestAccKafkaInstance_withEpsId(t *testing.T) {
 		getKafkaInstanceFunc,
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -115,7 +115,7 @@ func TestAccKafkaInstance_compatible(t *testing.T) {
 		getKafkaInstanceFunc,
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -145,7 +145,7 @@ func TestAccKafkaInstance_newFormat(t *testing.T) {
 		getKafkaInstanceFunc,
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),

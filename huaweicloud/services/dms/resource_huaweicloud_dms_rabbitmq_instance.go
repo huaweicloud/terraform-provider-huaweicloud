@@ -21,6 +21,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+const lockKey = "DMS"
+
 func ResourceDmsRabbitmqInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDmsRabbitmqInstanceCreate,
@@ -31,8 +33,8 @@ func ResourceDmsRabbitmqInstance() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(30 * time.Minute),
-			Update: schema.DefaultTimeout(20 * time.Minute),
+			Create: schema.DefaultTimeout(50 * time.Minute),
+			Update: schema.DefaultTimeout(50 * time.Minute),
 			Delete: schema.DefaultTimeout(15 * time.Minute),
 		},
 
@@ -235,6 +237,9 @@ func getRabbitMQProductDetail(config *config.Config, d *schema.ResourceData) (*p
 }
 
 func resourceDmsRabbitmqInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config.MutexKV.Lock(lockKey)
+	defer config.MutexKV.Unlock(lockKey)
+
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
 	dmsV2Client, err := config.DmsV2Client(region)
@@ -409,6 +414,9 @@ func resourceDmsRabbitmqInstanceRead(_ context.Context, d *schema.ResourceData, 
 }
 
 func resourceDmsRabbitmqInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config.MutexKV.Lock(lockKey)
+	defer config.MutexKV.Unlock(lockKey)
+
 	config := meta.(*config.Config)
 	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
 	if err != nil {
@@ -489,7 +497,7 @@ func resourceDmsRabbitmqInstanceDelete(ctx context.Context, d *schema.ResourceDa
 	logp.Printf("[DEBUG] Waiting for instance (%s) to delete", d.Id())
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"DELETING", "RUNNING"},
+		Pending:      []string{"DELETING", "RUNNING", "ERROR"}, // Status may change to ERROR on deletion.
 		Target:       []string{"DELETED"},
 		Refresh:      DmsRabbitmqInstanceStateRefreshFunc(dmsV2Client, d.Id()),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
