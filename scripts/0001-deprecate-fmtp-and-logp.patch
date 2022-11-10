@@ -1,0 +1,42 @@
+Subject: [PATCH] deprecate fmtp and logp
+
+---
+ huaweicloud/utils/fmtp/errors.go | 3 +++
+ huaweicloud/utils/logp/log.go    | 1 +
+ 2 files changed, 4 insertions(+)
+
+diff --git a/huaweicloud/utils/fmtp/errors.go b/huaweicloud/utils/fmtp/errors.go
+index 6a088939..75bbc90b 100644
+--- a/huaweicloud/utils/fmtp/errors.go
++++ b/huaweicloud/utils/fmtp/errors.go
+@@ -7,12 +7,15 @@ import (
+ 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+ )
+ 
++// Deprecated: please use fmt.Errorf instead and don't contain `huaweicloud` in the format string
+ func Errorf(format string, a ...interface{}) error {
+ 	newFormat := utils.BuildNewFormatByConfig(format)
+ 	return fmt.Errorf(newFormat, a...)
+ }
+ 
+ // DiagErrorf wraps fmtp.Errorf into diag.Diagnostics
++
++// Deprecated: please use diag.Errorf instead and don't contain `huaweicloud` in the format string
+ func DiagErrorf(format string, a ...interface{}) diag.Diagnostics {
+ 	return diag.FromErr(Errorf(format, a...))
+ }
+diff --git a/huaweicloud/utils/logp/log.go b/huaweicloud/utils/logp/log.go
+index 6814302c..1225dde7 100644
+--- a/huaweicloud/utils/logp/log.go
++++ b/huaweicloud/utils/logp/log.go
+@@ -6,6 +6,7 @@ import (
+ 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+ )
+ 
++// Deprecated: Please use log.Printf instead and don't contain `huaweicloud` in the format string
+ func Printf(format string, v ...interface{}) {
+ 	newFormat := utils.BuildNewFormatByConfig(format)
+ 	log.Printf(newFormat, v...)
+-- 
+2.17.1
+
