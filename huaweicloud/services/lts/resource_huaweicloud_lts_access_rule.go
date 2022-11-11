@@ -3,6 +3,9 @@ package lts
 import (
 	"context"
 	"encoding/json"
+	"io"
+	"strings"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -10,8 +13,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"io/ioutil"
-	"strings"
 )
 
 func ResourceAomMappingRule() *schema.Resource {
@@ -141,7 +142,7 @@ func resourceAomMappingRuleCreate(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error convert data %s , %s", string(body), err)
 	}
@@ -205,7 +206,7 @@ func resourceAomMappingRuleDelete(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error delete AomMappingRule %s: %s", d.Id(), err)
 	}
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error delete AomMappingRule %s: %s", d.Id(), err)
 	}
@@ -242,7 +243,7 @@ func resourceAomMappingRuleUpdate(ctx context.Context, d *schema.ResourceData, m
 	d.SetId(Opts.RuleId)
 
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error update AomMappingRule %s: %s", string(body), err)
 	}

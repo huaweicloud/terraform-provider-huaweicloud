@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"sync"
 	"testing"
@@ -27,7 +27,7 @@ func testRequestRetry(t *testing.T, count int) {
 
 	th.Mux.HandleFunc("/route/", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
-		_, err := ioutil.ReadAll(r.Body)
+		_, err := io.ReadAll(r.Body)
 		if err != nil {
 			t.Errorf("Error hadling test request")
 		}

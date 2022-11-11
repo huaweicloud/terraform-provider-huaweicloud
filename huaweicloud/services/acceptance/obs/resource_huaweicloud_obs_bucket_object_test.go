@@ -2,7 +2,6 @@ package obs
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -19,14 +18,14 @@ func TestAccObsBucketObject_source(t *testing.T) {
 	rInt := acctest.RandInt()
 	resourceName := "huaweicloud_obs_bucket_object.object"
 
-	tmpFile, err := ioutil.TempFile("", "tf-acc-obs-obj-source")
+	tmpFile, err := os.CreateTemp("", "tf-acc-obs-obj-source")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer os.Remove(tmpFile.Name())
 
 	// write some data to the tempfile
-	err = ioutil.WriteFile(tmpFile.Name(), []byte("initial object state"), 0644)
+	err = os.WriteFile(tmpFile.Name(), []byte("initial object state"), 0644)
 	if err != nil {
 		t.Fatal(err)
 	}

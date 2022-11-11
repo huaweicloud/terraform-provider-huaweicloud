@@ -3,15 +3,16 @@ package cmdb
 import (
 	"context"
 	"encoding/json"
+	"io"
+	"strings"
+	"time"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	entity2 "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
-	"io/ioutil"
-	"strings"
-	"time"
 )
 
 func ResourceAomComponent() *schema.Resource {
@@ -114,7 +115,7 @@ func ResourceAomComponentCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error create Component %s: %s", opts.Name, err)
 	}
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error convert data %s, %s", string(body), err)
 	}
@@ -196,7 +197,7 @@ func ResourceAomComponentUpdate(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error update Component %s: %s", string(body), err)
 	}
@@ -223,7 +224,7 @@ func ResourceAomComponentDelete(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error delete Component %s: %s", d.Id(), err)
 	}

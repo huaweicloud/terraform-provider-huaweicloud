@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"strings"
 	"time"
 
@@ -144,7 +144,7 @@ func ResourceResourceCiRelationshipsCreate(ctx context.Context, d *schema.Resour
 		return diag.Errorf("error Associate Resource field %s: client do error : %s", opts, err)
 	}
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error convert data %s, %s", string(body), err)
 	}
@@ -228,7 +228,7 @@ func ResourceResourceCiRelationshipsDelete(ctx context.Context, d *schema.Resour
 	}
 
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return diag.Errorf("error delete Resource convert data %s to %v: %s", string(body), opts, err)
 	}
