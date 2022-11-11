@@ -25,7 +25,9 @@ linters:
     - staticcheck
     - typecheck
     - unused
+    - gocritic
     - gocyclo
+    - gosec
     - nestif
     - misspell
 
@@ -57,6 +59,12 @@ linters-settings:
     locale: US
     ignore-words:
       - classis
+  gosec:
+    # To select a subset of rules to run.
+    # Available rules: https://github.com/securego/gosec#available-rules
+    # Default: [] - means include all rules
+    severity: medium
+    confidence: medium
 
 issues:
   # List of regexps of issue texts to exclude.
