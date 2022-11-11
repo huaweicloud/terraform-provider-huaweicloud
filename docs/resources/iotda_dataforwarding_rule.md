@@ -52,7 +52,7 @@ The following arguments are supported:
   resource. If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Specifies the name of data forwarding rule. The name contains a maximum of 256 characters.
-  Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following specail characters are
+  Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following special characters are
   allowed: `?'#().,&%@!`.
 
 * `trigger` - (Required, String, ForceNew) Specifies the trigger event. The options are as follows:

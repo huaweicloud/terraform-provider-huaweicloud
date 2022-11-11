@@ -170,7 +170,7 @@ func resourceDliQueueCreate(d *schema.ResourceData, meta interface{}) error {
 		Tags:                assembleTagsFromRecource("tags", d),
 	}
 
-	logp.Printf("[DEBUG] create dli queues using paramaters: %+v", createOpts)
+	logp.Printf("[DEBUG] create dli queues using parameters: %+v", createOpts)
 	createResult := queues.Create(dliClient, createOpts)
 	if createResult.Err != nil {
 		return fmtp.Errorf("create dli queues failed: %s", createResult.Err)
@@ -216,7 +216,7 @@ func resourceDliQueueRead(d *schema.ResourceData, meta interface{}) error {
 		QueueType: d.Get("queue_type").(string),
 	}
 
-	logp.Printf("[DEBUG] query dli queues using paramaters: %+v", queryOpts)
+	logp.Printf("[DEBUG] query dli queues using parameters: %+v", queryOpts)
 
 	queryAllResult := queues.List(dliClient, queryOpts)
 	if queryAllResult.Err != nil {

@@ -104,7 +104,7 @@ func resourceIdentityRoleRead(_ context.Context, d *schema.ResourceData, meta in
 
 	policy, err := json.Marshal(role.Policy)
 	if err != nil {
-		return fmtp.DiagErrorf("Error marshalling policy: %s", err)
+		return fmtp.DiagErrorf("Error marshaling policy: %s", err)
 	}
 
 	mErr := multierror.Append(nil,

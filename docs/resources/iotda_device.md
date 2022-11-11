@@ -45,7 +45,7 @@ The following arguments are supported:
 If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Specifies the device name, which contains 4 to 256 characters. Only letters,
-Chinese characters, digits, hyphens (-), underscore (_) and the following specail characters are allowed: `?'#().,&%@!`.
+Chinese characters, digits, hyphens (-), underscore (_) and the following special characters are allowed: `?'#().,&%@!`.
 
 * `node_id` - (Required, String, ForceNew) Specifies the node ID, which contains 4 to 256 characters.
 The node ID can be IMEI, MAC address, or serial number. Changing this parameter will create a new resource.
@@ -72,7 +72,7 @@ The child device is not directly connected to the platform. If omitted, it means
 to the platform, the `device_id` of the device is the same as the `gateway_id`.
 
 * `description` - (Optional, String) Specifies the description of device. The description contains a maximum of 2048
-characters. Only letters, Chinese characters, digits, hyphens (-), underscore (_) and the following specail characters
+characters. Only letters, Chinese characters, digits, hyphens (-), underscore (_) and the following special characters
 are allowed: `?'#().,&%@!`.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the device.

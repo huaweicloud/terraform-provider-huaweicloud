@@ -56,7 +56,7 @@ The following arguments are supported:
   provider-level region will be used. Changing this will create a new policy.
 
 * `name` - (Required, String) Specifies a unique name of the CBR policy. This parameter can contain a maximum of 64
-  characters, which may consist of chinese charactors, letters, digits, underscores(_) and hyphens (-).
+  characters, which may consist of chinese characters, letters, digits, underscores(_) and hyphens (-).
 
 * `type` - (Required, String, ForceNew) Specifies the protection type of the CBR policy.
   Valid values are **backup** and **replication**.

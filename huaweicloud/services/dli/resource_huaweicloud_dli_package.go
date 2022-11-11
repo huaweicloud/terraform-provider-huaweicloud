@@ -158,7 +158,7 @@ func ResourceDliDependentPackageV2Create(ctx context.Context, d *schema.Resource
 	// object_path is not unique and cannot be used for ID setting, because the object can exist in multiple groups.
 	d.SetId(fmt.Sprintf("%s/%s", d.Get("group_name").(string), resp.Resources[0]))
 
-	// If the owner of the configuration is not the creater, update it.
+	// If the owner of the configuration is not the creator, update it.
 	pkg, err := GetDliDependentPackageInfo(c, d.Id())
 	if err != nil {
 		return fmtp.DiagErrorf("An error occurred while getting the package: %s", err)

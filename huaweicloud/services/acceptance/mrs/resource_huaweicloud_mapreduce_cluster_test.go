@@ -345,7 +345,7 @@ func TestAccMrsMapReduceCluster_custom_compact(t *testing.T) {
 	})
 }
 
-func TestAccMrsMapReduceCluster_custom_seperate(t *testing.T) {
+func TestAccMrsMapReduceCluster_custom_separate(t *testing.T) {
 	var clusterGet cluster.Cluster
 	resourceName := "huaweicloud_mapreduce_cluster.test"
 	rName := acceptance.RandomAccResourceName()
@@ -361,7 +361,7 @@ func TestAccMrsMapReduceCluster_custom_seperate(t *testing.T) {
 		CheckDestroy:      testAccCheckMRSV2ClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMrsMapReduceClusterConfig_customSeperate(rName, password, 3),
+				Config: testAccMrsMapReduceClusterConfig_customSeparate(rName, password, 3),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -894,7 +894,7 @@ master_nodes {
 }`, testAccMrsMapReduceClusterConfig_base(rName), rName, pwd, pwd, nodeNum1)
 }
 
-func testAccMrsMapReduceClusterConfig_customSeperate(rName, pwd string, nodeNum1 int) string {
+func testAccMrsMapReduceClusterConfig_customSeparate(rName, pwd string, nodeNum1 int) string {
 	return fmt.Sprintf(`
 %s
 

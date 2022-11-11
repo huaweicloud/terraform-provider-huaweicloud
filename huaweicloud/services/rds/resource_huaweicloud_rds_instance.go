@@ -637,7 +637,7 @@ func GetRdsInstanceByID(client *golangsdk.ServiceClient, instanceID string) (*in
 	}
 	pages, err := instances.List(client, listOpts).AllPages()
 	if err != nil {
-		return nil, fmt.Errorf("An error occured while querying rds instance %s: %s", instanceID, err)
+		return nil, fmt.Errorf("An error occurred while querying rds instance %s: %s", instanceID, err)
 	}
 
 	resp, err := instances.ExtractRdsInstances(pages)

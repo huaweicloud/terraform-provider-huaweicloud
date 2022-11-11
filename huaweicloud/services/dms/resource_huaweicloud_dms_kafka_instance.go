@@ -335,7 +335,7 @@ func updateCrossVpcAccesses(client *golangsdk.ServiceClient, d *schema.ResourceD
 		}
 		crossVpcAccess, err = flattenConnectPorts(v.CrossVpcInfo)
 		if err != nil {
-			return fmtp.Errorf("[ERROR] error retriving details of the cross-VPC information: %v", err)
+			return fmtp.Errorf("[ERROR] error retrieving details of the cross-VPC information: %v", err)
 		}
 	} else {
 		oldAccesses := oldVal.([]interface{})
@@ -714,7 +714,7 @@ func resourceDmsKafkaInstanceRead(_ context.Context, d *schema.ResourceData, met
 
 	crossVpcAccess, err := flattenConnectPorts(v.CrossVpcInfo)
 	if err != nil {
-		return diag.Errorf("[ERROR] error retriving details of the cross-VPC information: %v", err)
+		return diag.Errorf("[ERROR] error retrieving details of the cross-VPC information: %v", err)
 	}
 
 	partitionNum, _ := strconv.ParseInt(v.PartitionNum, 10, 64)

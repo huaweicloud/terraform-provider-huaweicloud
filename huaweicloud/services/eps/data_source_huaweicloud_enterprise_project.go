@@ -63,7 +63,7 @@ func dataSourceEnterpriseProjectRead(_ context.Context, d *schema.ResourceData, 
 	projects, err := enterpriseprojects.List(epsClient, listOpts).Extract()
 
 	if err != nil {
-		return fmtp.DiagErrorf("Error retriving enterprise projects %s", err)
+		return fmtp.DiagErrorf("Error retrieving enterprise projects %s", err)
 	}
 
 	if len(projects) < 1 {

@@ -146,7 +146,7 @@ func resourceDmsKafkaPermissionsRead(ctx context.Context, d *schema.ResourceData
 
 	response, err := client.ShowTopicAccessPolicy(request)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving DMS kafka premission")
+		return common.CheckDeletedDiag(d, err, "error retrieving DMS kafka permission")
 	}
 
 	if response.Policies != nil && len(*response.Policies) != 0 {
@@ -157,8 +157,8 @@ func resourceDmsKafkaPermissionsRead(ctx context.Context, d *schema.ResourceData
 		return nil
 	}
 
-	// DB premission deleted
-	log.Printf("[WARN] failed to fetch DMS kafka premission %s: deleted", d.Id())
+	// DB permission deleted
+	log.Printf("[WARN] failed to fetch DMS kafka permission %s: deleted", d.Id())
 	d.SetId("")
 
 	return nil

@@ -1148,7 +1148,7 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 					},
 				})
 				if err != nil {
-					return diag.Errorf("error modifing bandwith of the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
+					return diag.Errorf("error modifing bandwidth of the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
 				}
 			}
 
@@ -1170,7 +1170,7 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 						},
 					})
 					if err != nil {
-						return diag.Errorf("error modifing bandwith of the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
+						return diag.Errorf("error modifing whitelist of the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
 					}
 				}
 			}

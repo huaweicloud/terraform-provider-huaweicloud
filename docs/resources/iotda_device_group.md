@@ -33,7 +33,7 @@ Only letters, digits, hyphens (-) and underscores (_) are allowed.
 Changing this parameter will create a new resource.
 
 * `description` - (Optional, String) Specifies the description of device group. The description contains a maximum of 64
-characters. Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following specail characters
+characters. Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following special characters
 are allowed: `?'#().,&%@!`.
 
 * `parent_group_id` - (Optional, String, ForceNew) Specifies the parent group id.
