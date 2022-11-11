@@ -51,7 +51,7 @@ data "huaweicloud_images_image" "bms_image" {
   Cannot be used simultaneously with `name`.
 
 * `visibility` - (Optional, String) The visibility of the image. Must be one of
-  **public**, **private** or **shared**.
+  **public**, **private**, **market** or **shared**.
 
 * `architecture` (Optional, String) Specifies the image architecture type. The value can be **x86** and **arm**.
 
