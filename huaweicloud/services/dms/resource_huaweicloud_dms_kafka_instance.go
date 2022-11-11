@@ -38,8 +38,8 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(30 * time.Minute),
-			Update: schema.DefaultTimeout(20 * time.Minute),
+			Create: schema.DefaultTimeout(50 * time.Minute),
+			Update: schema.DefaultTimeout(50 * time.Minute),
 			Delete: schema.DefaultTimeout(15 * time.Minute),
 		},
 
@@ -383,6 +383,9 @@ func updateCrossVpcAccesses(client *golangsdk.ServiceClient, d *schema.ResourceD
 }
 
 func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config.MutexKV.Lock(lockKey)
+	defer config.MutexKV.Unlock(lockKey)
+
 	var dErr diag.Diagnostics
 	if _, ok := d.GetOk("flavor_id"); ok {
 		dErr = newKafkaInstanceCreate(ctx, d, meta)
@@ -783,6 +786,9 @@ func resourceDmsKafkaInstanceRead(_ context.Context, d *schema.ResourceData, met
 }
 
 func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config.MutexKV.Lock(lockKey)
+	defer config.MutexKV.Unlock(lockKey)
+
 	config := meta.(*config.Config)
 	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
 	if err != nil {

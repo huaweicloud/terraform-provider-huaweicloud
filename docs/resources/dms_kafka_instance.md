@@ -266,8 +266,8 @@ The `cross_vpc_accesses` block supports:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 30 minute.
-* `update` - Default is 20 minute.
+* `create` - Default is 50 minute.
+* `update` - Default is 50 minute.
 * `delete` - Default is 15 minute.
 
 ## Import
