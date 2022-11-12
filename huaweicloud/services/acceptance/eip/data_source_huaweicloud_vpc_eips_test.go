@@ -23,10 +23,15 @@ func TestAccVpcEipsDataSource_basic(t *testing.T) {
 				Config: testAccDataSourceVpcEips_basic(randName),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "eips.0.type", "5_bgp"),
+					resource.TestCheckResourceAttr(dataSourceName, "eips.0.name", randName),
 					resource.TestCheckResourceAttr(dataSourceName, "eips.0.status", "UNBOUND"),
-					resource.TestCheckResourceAttr(dataSourceName, "eips.0.bandwidth_size", "5"),
+					resource.TestCheckResourceAttr(dataSourceName, "eips.0.type", "5_bgp"),
+					resource.TestCheckResourceAttr(dataSourceName, "eips.0.ip_version", "4"),
 					resource.TestCheckResourceAttr(dataSourceName, "eips.0.bandwidth_name", randName),
+					resource.TestCheckResourceAttr(dataSourceName, "eips.0.bandwidth_size", "5"),
+					resource.TestCheckResourceAttr(dataSourceName, "eips.0.bandwidth_share_type", "PER"),
+					resource.TestCheckResourceAttr(dataSourceName, "eips.0.tags.foo", "bar"),
+					resource.TestCheckResourceAttr(dataSourceName, "eips.0.tags.key", "value"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "eips.0.id",
 						"huaweicloud_vpc_eip.test", "id"),
 				),
@@ -59,10 +64,15 @@ func TestAccVpcEipsDataSource_byTag(t *testing.T) {
 				Config: testAccDataSourceVpcEips_byTag(randName),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "eips.0.type", "5_bgp"),
+					resource.TestCheckResourceAttr(dataSourceName, "eips.0.name", randName),
 					resource.TestCheckResourceAttr(dataSourceName, "eips.0.status", "UNBOUND"),
-					resource.TestCheckResourceAttr(dataSourceName, "eips.0.bandwidth_size", "5"),
+					resource.TestCheckResourceAttr(dataSourceName, "eips.0.type", "5_bgp"),
+					resource.TestCheckResourceAttr(dataSourceName, "eips.0.ip_version", "4"),
 					resource.TestCheckResourceAttr(dataSourceName, "eips.0.bandwidth_name", randName),
+					resource.TestCheckResourceAttr(dataSourceName, "eips.0.bandwidth_size", "5"),
+					resource.TestCheckResourceAttr(dataSourceName, "eips.0.bandwidth_share_type", "PER"),
+					resource.TestCheckResourceAttr(dataSourceName, "eips.0.tags.foo", "bar"),
+					resource.TestCheckResourceAttr(dataSourceName, "eips.0.tags.key", "value"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "eips.0.id",
 						"huaweicloud_vpc_eip.test", "id"),
 				),
@@ -77,9 +87,10 @@ func testAccDataSourceVpcEips_byTag(rName string) string {
 
 data "huaweicloud_vpc_eips" "test" {
   public_ips = [huaweicloud_vpc_eip.test.address]
+
   tags = {
     foo = "bar"
   }
 }
-`, testAccVpcEip_tags(rName))
+`, testAccVpcEip_basic(rName))
 }

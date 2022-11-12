@@ -198,7 +198,7 @@ func resourceEIPAssociateRead(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("fixed_ip", eIP.PrivateAddress),
 		d.Set("network_id", associatedPort.NetworkId),
 		d.Set("mac_address", associatedPort.MacAddress),
-		d.Set("status", NormalizeEIPStatus(eIP.Status)),
+		d.Set("status", NormalizeEipStatus(eIP.Status)),
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
@@ -244,7 +244,17 @@ func actionOnPort(client *golangsdk.ServiceClient, eipID, portID string, timeout
 		return err
 	}
 
-	return waitForEIPActive(client, eipID, timeout)
+	stateConf := &resource.StateChangeConf{
+		Target:     []string{"COMPLETED"},
+		Refresh:    eipStatusRefreshFunc(client, eipID, []string{"DOWN", "ACTIVE"}),
+		Timeout:    timeout,
+		Delay:      5 * time.Second,
+		MinTimeout: 3 * time.Second,
+	}
+
+	//nolint directives: sa1019
+	_, err = stateConf.WaitForState()
+	return err
 }
 
 func getPortbyFixedIP(client *golangsdk.ServiceClient, networkID, fixedIP string) (string, error) {
