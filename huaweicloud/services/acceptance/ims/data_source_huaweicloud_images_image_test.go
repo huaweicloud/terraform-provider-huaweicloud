@@ -47,6 +47,15 @@ func TestAccImsImageDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(dataSourceName, "status", "active"),
 				),
 			},
+			{
+				Config: testAccImsImageDataSource_market(),
+				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(dataSourceName, "protected", "true"),
+					resource.TestCheckResourceAttr(dataSourceName, "visibility", "market"),
+					resource.TestCheckResourceAttr(dataSourceName, "status", "active"),
+				),
+			},
 		},
 	})
 }
@@ -113,6 +122,16 @@ data "huaweicloud_images_image" "test" {
   most_recent  = true
 }
 `, osVersion)
+}
+
+func testAccImsImageDataSource_market() string {
+	return `
+data "huaweicloud_images_image" "test" {
+  os          = "CentOS"
+  visibility  = "market"
+  most_recent = true
+}
+`
 }
 
 func testAccImsImageDataSource_base(rName string) string {

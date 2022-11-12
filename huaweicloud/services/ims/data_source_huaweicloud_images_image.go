@@ -23,7 +23,7 @@ var iamgeValidSortKeys = []string{
 	"name", "container_format", "disk_format", "status", "id", "size",
 }
 var imageValidVisibilities = []string{
-	"public", "private", "community", "shared",
+	"public", "private", "community", "shared", "market",
 }
 
 func DataSourceImagesImageV2() *schema.Resource {
@@ -196,9 +196,9 @@ func dataSourceImagesImageV2Read(ctx context.Context, d *schema.ResourceData, me
 		return fmtp.DiagErrorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
-	visibility := d.Get("visibility").(string)
-	if visibility == "public" {
-		visibility = "gold"
+	imageType := d.Get("visibility").(string)
+	if imageType == "public" {
+		imageType = "gold"
 	}
 
 	listOpts := cloudimages.ListOpts{
@@ -211,7 +211,7 @@ func dataSourceImagesImageV2Read(ctx context.Context, d *schema.ResourceData, me
 		OsVersion:      d.Get("os_version").(string),
 		Architecture:   d.Get("architecture").(string),
 		VirtualEnvType: d.Get("image_type").(string),
-		Imagetype:      visibility,
+		Imagetype:      imageType,
 		Status:         "active",
 	}
 
@@ -283,15 +283,19 @@ func dataSourceImagesImageV2Attributes(_ context.Context, d *schema.ResourceData
 	logp.Printf("[DEBUG] huaweicloud_images_image details: %#v", image)
 	d.SetId(image.ID)
 
+	imageType := image.Imagetype
+	if imageType == "gold" {
+		imageType = "public"
+	}
 	mErr := multierror.Append(
 		d.Set("name", image.Name),
+		d.Set("visibility", imageType),
 		d.Set("container_format", image.ContainerFormat),
 		d.Set("disk_format", image.DiskFormat),
 		d.Set("min_disk_gb", image.MinDisk),
 		d.Set("min_ram_mb", image.MinRam),
 		d.Set("owner", image.Owner),
 		d.Set("protected", image.Protected),
-		d.Set("visibility", image.Visibility),
 		d.Set("image_type", image.VirtualEnvType),
 		d.Set("os", image.Platform),
 		d.Set("os_version", image.OsVersion),
