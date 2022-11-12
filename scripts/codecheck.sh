@@ -7,6 +7,18 @@ function usage() {
     echo ""
 }
 
+function checkMultierror() {
+    dir=$1
+    for f in $(ls $dir); do
+        if [[ $f =~ "_huaweicloud_" ]]; then
+            hasMultierror=$(grep -w "go-multierror" $dir/$f)
+            if [ "X$hasMultierror" == "X" ]; then
+                echo "please use go-multierror package in $f"
+            fi
+        fi
+    done
+}
+
 # Check parameters
 package=$1
 if [ "X$package" == "X" ]; then
@@ -93,6 +105,7 @@ grep -rn "lintignore:" $packageDir | grep -v "/deprecated/"
 
 if [ "X$service" != "X..." ] && [[ $package == ./huaweicloud/services/* ]]; then
     grep -rn "markdownlint" ./docs | grep "/${service}_"
+    checkMultierror $packageDir
 
     echo -e "\n==> Checking for misspell in $service..."
     misspell ./docs | grep "/${service}_"
