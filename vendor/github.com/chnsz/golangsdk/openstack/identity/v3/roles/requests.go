@@ -46,12 +46,6 @@ type ListOpts struct {
 
 // ToRoleListQuery formats a ListOpts into a query string.
 func (opts ListOpts) ToRoleListQuery() (string, error) {
-	if opts.PerPage == 0 {
-		opts.PerPage = 300
-	}
-	if opts.Page == 0 {
-		opts.Page = 1
-	}
 	q, err := golangsdk.BuildQueryString(opts)
 	return q.String(), err
 }
@@ -68,7 +62,28 @@ func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) pagination.Page
 	}
 
 	return pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
-		return RolePage{pagination.OffsetPageBase{PageResult: r}}
+		return RolePage{pagination.LinkedPageBase{PageResult: r}}
+	})
+}
+
+// ListWithPages is a method to query role pages via page size and page number.
+func ListWithPages(client *golangsdk.ServiceClient, opts ListOpts) pagination.Pager {
+	url := listURL(client)
+	if opts.PerPage == 0 {
+		opts.PerPage = 300
+	}
+	if opts.Page == 0 {
+		opts.Page = 1
+	}
+
+	query, err := opts.ToRoleListQuery()
+	if err != nil {
+		return pagination.Pager{Err: err}
+	}
+	url += query
+
+	return pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
+		return RoleOffsetPage{pagination.OffsetPageBase{PageResult: r}}
 	})
 }
 

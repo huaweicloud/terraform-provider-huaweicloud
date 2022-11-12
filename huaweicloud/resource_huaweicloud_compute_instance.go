@@ -352,11 +352,40 @@ func ResourceComputeInstanceV2() *schema.Resource {
 			},
 
 			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
-			"charging_mode": schemaChargingMode(novaConflicts),
-			"period_unit":   schemaPeriodUnit(novaConflicts),
-			"period":        schemaPeriod(novaConflicts),
-			"auto_renew":    common.SchemaAutoRenewUpdatable(novaConflicts),
-			"auto_pay":      schemaAutoPay(novaConflicts),
+			"charging_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"prePaid", "postPaid", "spot",
+				}, false),
+				ConflictsWith: novaConflicts,
+			},
+			"period_unit": schemaPeriodUnit(novaConflicts),
+			"period":      schemaPeriod(novaConflicts),
+			"auto_renew":  common.SchemaAutoRenewUpdatable(novaConflicts),
+			"auto_pay":    schemaAutoPay(novaConflicts),
+
+			"spot_maximum_price": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"spot_duration", "spot_duration_count"},
+			},
+			"spot_duration": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.IntBetween(1, 6),
+			},
+			"spot_duration_count": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"spot_duration"},
+			},
 
 			"user_id": { // required if in prePaid charging mode with key_pair.
 				Type:     schema.TypeString,
@@ -494,6 +523,14 @@ func ResourceComputeInstanceV2() *schema.Resource {
 	}
 }
 
+func getSpotDurationCount(d *schema.ResourceData) int {
+	var count = 1
+	if c, ok := d.GetOk("spot_duration_count"); ok {
+		count = c.(int)
+	}
+	return count
+}
+
 func resourceComputeInstanceV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
@@ -574,16 +611,25 @@ func resourceComputeInstanceV2Create(ctx context.Context, d *schema.ResourceData
 		}
 
 		var extendParam cloudservers.ServerExtendParam
-		if d.Get("charging_mode") == "prePaid" {
+		chargingMode := d.Get("charging_mode").(string)
+		if chargingMode == "prePaid" {
 			if err := validatePrePaidChargeInfo(d); err != nil {
 				return diag.FromErr(err)
 			}
 
-			extendParam.ChargingMode = d.Get("charging_mode").(string)
+			extendParam.ChargingMode = chargingMode
 			extendParam.PeriodType = d.Get("period_unit").(string)
 			extendParam.PeriodNum = d.Get("period").(int)
 			extendParam.IsAutoRenew = d.Get("auto_renew").(string)
 			extendParam.IsAutoPay = common.GetAutoPay(d)
+		} else if chargingMode == "spot" {
+			extendParam.MarketType = "spot"
+			extendParam.SpotPrice = d.Get("spot_maximum_price").(string)
+			if v, ok := d.GetOk("spot_duration"); ok {
+				extendParam.InterruptionPolicy = "immediate"
+				extendParam.SpotDurationHours = v.(int)
+				extendParam.SpotDurationCount = getSpotDurationCount(d)
+			}
 		}
 
 		epsID := GetEnterpriseProjectID(d, config)
@@ -831,13 +877,7 @@ func resourceComputeInstanceV2Read(_ context.Context, d *schema.ResourceData, me
 	d.Set("status", server.Status)
 	d.Set("agency_name", server.Metadata.AgencyName)
 	d.Set("agent_list", server.Metadata.AgentList)
-
-	chageMode := server.Metadata.ChargingMode
-	if chageMode == "0" {
-		d.Set("charging_mode", "postPaid")
-	} else if chageMode == "1" {
-		d.Set("charging_mode", "prePaid")
-	}
+	d.Set("charging_mode", normalizeChargingMode(server.Metadata.ChargingMode))
 
 	flavorInfo := server.Flavor
 	d.Set("flavor_id", flavorInfo.ID)
@@ -963,6 +1003,20 @@ func resourceComputeInstanceV2Read(_ context.Context, d *schema.ResourceData, me
 	}
 
 	return nil
+}
+
+func normalizeChargingMode(mode string) string {
+	var ret string
+	switch mode {
+	case "1":
+		ret = "prePaid"
+	case "2":
+		ret = "spot"
+	default:
+		ret = "postPaid"
+	}
+
+	return ret
 }
 
 func resourceComputeInstanceV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
