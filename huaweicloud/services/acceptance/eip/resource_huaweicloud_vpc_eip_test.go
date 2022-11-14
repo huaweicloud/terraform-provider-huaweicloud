@@ -175,7 +175,7 @@ func TestAccVpcEip_prePaid(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVpcEip_prePaid(randName, 5),
+				Config: testAccVpcEip_prePaid(randName, 5, false),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "status", "UNBOUND"),
@@ -184,13 +184,14 @@ func TestAccVpcEip_prePaid(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.name", randName),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
 					resource.TestCheckResourceAttr(resourceName, "period_unit", "month"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
 					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.size", "5"),
 					resource.TestCheckResourceAttrSet(resourceName, "bandwidth.0.id"),
 					resource.TestCheckResourceAttrSet(resourceName, "address"),
 				),
 			},
 			{
-				Config: testAccVpcEip_prePaid(updateName, 5),
+				Config: testAccVpcEip_prePaid(updateName, 5, true),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "status", "UNBOUND"),
@@ -199,13 +200,14 @@ func TestAccVpcEip_prePaid(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
 					resource.TestCheckResourceAttr(resourceName, "period_unit", "month"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
 					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.size", "5"),
 					resource.TestCheckResourceAttrSet(resourceName, "bandwidth.0.id"),
 					resource.TestCheckResourceAttrSet(resourceName, "address"),
 				),
 			},
 			{
-				Config: testAccVpcEip_prePaid(updateName, 6),
+				Config: testAccVpcEip_prePaid(updateName, 6, true),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "status", "UNBOUND"),
@@ -214,6 +216,7 @@ func TestAccVpcEip_prePaid(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
 					resource.TestCheckResourceAttr(resourceName, "period_unit", "month"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
 					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.size", "6"),
 					resource.TestCheckResourceAttrSet(resourceName, "bandwidth.0.id"),
 					resource.TestCheckResourceAttrSet(resourceName, "address"),
@@ -352,7 +355,7 @@ resource "huaweicloud_vpc_eip" "test" {
 `, rName)
 }
 
-func testAccVpcEip_prePaid(rName string, size int) string {
+func testAccVpcEip_prePaid(rName string, size int, isAutoRenew bool) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc_eip" "test" {
   name = "%[1]s"
@@ -370,8 +373,9 @@ resource "huaweicloud_vpc_eip" "test" {
   charging_mode = "prePaid"
   period_unit   = "month"
   period        = 1
+  auto_renew    = "%[3]v"
 }
-`, rName, size)
+`, rName, size, isAutoRenew)
 }
 
 func testAccVpcEip_deprecated(rName string) string {
