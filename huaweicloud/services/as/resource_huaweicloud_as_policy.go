@@ -2,6 +2,8 @@ package as
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"regexp"
 	"strings"
 	"time"
@@ -14,8 +16,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 var (
@@ -135,36 +135,32 @@ func getCurrentUTCwithoutSec() string {
 }
 
 func validateParameters(d *schema.ResourceData) error {
-	logp.Printf("[DEBUG] validateParameters for as policy!")
 	policyType := d.Get("scaling_policy_type").(string)
 	alarmId := d.Get("alarm_id").(string)
-	logp.Printf("[DEBUG] validateParameters alarmId is :%s", alarmId)
-	logp.Printf("[DEBUG] validateParameters policyType is :%s", policyType)
 	scheduledPolicy := d.Get("scheduled_policy").([]interface{})
-	logp.Printf("[DEBUG] validateParameters scheduledPolicy is :%#v", scheduledPolicy)
+
 	if policyType == "ALARM" {
 		if alarmId == "" {
-			return fmtp.Errorf("Parameter alarm_id should be set if policy type is ALARM.")
+			return fmt.Errorf("Parameter alarm_id should be set if policy type is ALARM.")
 		}
 	}
 	if policyType == "SCHEDULED" || policyType == "RECURRENCE" {
 		if len(scheduledPolicy) == 0 {
-			return fmtp.Errorf("Parameter scheduled_policy should be set if policy type is RECURRENCE or SCHEDULED.")
+			return fmt.Errorf("Parameter scheduled_policy should be set if policy type is RECURRENCE or SCHEDULED.")
 		}
 	}
 
 	if len(scheduledPolicy) == 1 {
 		scheduledPolicyMap := scheduledPolicy[0].(map[string]interface{})
-		logp.Printf("[DEBUG] validateParameters scheduledPolicyMap is :%#v", scheduledPolicyMap)
 		recurrenceType := scheduledPolicyMap["recurrence_type"].(string)
 		endTime := scheduledPolicyMap["end_time"].(string)
-		logp.Printf("[DEBUG] validateParameters recurrenceType is :%#v", recurrenceType)
+
 		if policyType == "RECURRENCE" {
 			if recurrenceType == "" {
-				return fmtp.Errorf("Parameter recurrence_type should be set if policy type is RECURRENCE.")
+				return fmt.Errorf("Parameter recurrence_type should be set if policy type is RECURRENCE.")
 			}
 			if endTime == "" {
-				return fmtp.Errorf("Parameter end_time should be set if policy type is RECURRENCE.")
+				return fmt.Errorf("Parameter end_time should be set if policy type is RECURRENCE.")
 			}
 		}
 	}
@@ -172,7 +168,7 @@ func validateParameters(d *schema.ResourceData) error {
 	return nil
 }
 
-func getScheduledPolicy(rawScheduledPolicy map[string]interface{}) policies.SchedulePolicyOpts {
+func buildScheduledPolicy(rawScheduledPolicy map[string]interface{}) policies.SchedulePolicyOpts {
 	scheduledPolicy := policies.SchedulePolicyOpts{
 		LaunchTime:      rawScheduledPolicy["launch_time"].(string),
 		RecurrenceType:  rawScheduledPolicy["recurrence_type"].(string),
@@ -183,7 +179,7 @@ func getScheduledPolicy(rawScheduledPolicy map[string]interface{}) policies.Sche
 	return scheduledPolicy
 }
 
-func getPolicyAction(rawPolicyAction map[string]interface{}) policies.ActionOpts {
+func buildPolicyAction(rawPolicyAction map[string]interface{}) policies.ActionOpts {
 	policyAction := policies.ActionOpts{
 		Operation:   rawPolicyAction["operation"].(string),
 		InstanceNum: rawPolicyAction["instance_number"].(int),
@@ -212,39 +208,41 @@ func resourceASPolicyCreate(ctx context.Context, d *schema.ResourceData, meta in
 	scheduledPolicyList := d.Get("scheduled_policy").([]interface{})
 	if len(scheduledPolicyList) == 1 {
 		scheduledPolicyMap := scheduledPolicyList[0].(map[string]interface{})
-		scheduledPolicy := getScheduledPolicy(scheduledPolicyMap)
+		scheduledPolicy := buildScheduledPolicy(scheduledPolicyMap)
 		createOpts.SchedulePolicy = scheduledPolicy
 	}
 	policyActionList := d.Get("scaling_policy_action").([]interface{})
 	if len(policyActionList) == 1 {
 		policyActionMap := policyActionList[0].(map[string]interface{})
-		policyAction := getPolicyAction(policyActionMap)
+		policyAction := buildPolicyAction(policyActionMap)
 		createOpts.Action = policyAction
 	}
 
-	logp.Printf("[DEBUG] Create AS policy Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create AS policy Options: %#v", createOpts)
 	asPolicyId, err := policies.Create(asClient, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("Error creating ASPolicy: %s", err)
 	}
+
 	d.SetId(asPolicyId)
-	logp.Printf("[DEBUG] Create AS Policy %q Success!", asPolicyId)
 	return resourceASPolicyRead(ctx, d, meta)
 }
 
 func resourceASPolicyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	asClient, err := conf.AutoscalingV1Client(region)
 	if err != nil {
 		return diag.Errorf("Error creating autoscaling client: %s", err)
 	}
 
-	asPolicy, err := policies.Get(asClient, d.Id()).Extract()
+	policyId := d.Id()
+	asPolicy, err := policies.Get(asClient, policyId).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "AS Policy")
 	}
 
-	logp.Printf("[DEBUG] Retrieved ASPolicy %q: %+v", d.Id(), asPolicy)
+	log.Printf("[DEBUG] Retrieved ASPolicy %q: %+v", policyId, asPolicy)
 	d.Set("scaling_policy_name", asPolicy.Name)
 	d.Set("scaling_policy_type", asPolicy.Type)
 	d.Set("alarm_id", asPolicy.AlarmID)
@@ -274,14 +272,15 @@ func resourceASPolicyRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("scheduled_policy", nil)
 	}
 
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", region)
 
 	return nil
 }
 
 func resourceASPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	asClient, err := conf.AutoscalingV1Client(region)
 	if err != nil {
 		return diag.Errorf("Error creating autoscaling client: %s", err)
 	}
@@ -299,16 +298,17 @@ func resourceASPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	scheduledPolicyList := d.Get("scheduled_policy").([]interface{})
 	if len(scheduledPolicyList) == 1 {
 		scheduledPolicyMap := scheduledPolicyList[0].(map[string]interface{})
-		scheduledPolicy := getScheduledPolicy(scheduledPolicyMap)
+		scheduledPolicy := buildScheduledPolicy(scheduledPolicyMap)
 		updateOpts.SchedulePolicy = scheduledPolicy
 	}
 	policyActionList := d.Get("scaling_policy_action").([]interface{})
 	if len(policyActionList) == 1 {
 		policyActionMap := policyActionList[0].(map[string]interface{})
-		policyAction := getPolicyAction(policyActionMap)
+		policyAction := buildPolicyAction(policyActionMap)
 		updateOpts.Action = policyAction
 	}
-	logp.Printf("[DEBUG] Update AS policy Options: %#v", updateOpts)
+
+	log.Printf("[DEBUG] Update AS policy Options: %#v", updateOpts)
 	asPolicyID, err := policies.Update(asClient, d.Id(), updateOpts).Extract()
 	if err != nil {
 		return diag.Errorf("Error updating ASPolicy %q: %s", asPolicyID, err)
@@ -318,13 +318,14 @@ func resourceASPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceASPolicyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	asClient, err := conf.AutoscalingV1Client(region)
 	if err != nil {
 		return diag.Errorf("Error creating autoscaling client: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Begin to delete AS policy %q", d.Id())
+	log.Printf("[DEBUG] Begin to delete AS policy %q", d.Id())
 	if delErr := policies.Delete(asClient, d.Id()).ExtractErr(); delErr != nil {
 		return diag.Errorf("Error deleting AS policy: %s", delErr)
 	}

@@ -16,7 +16,6 @@ import (
 func TestAccASLifecycleHook_basic(t *testing.T) {
 	var hook lifecyclehooks.Hook
 	rName := acceptance.RandomAccResourceName()
-	// If the group name of the testASGroup_basic method is updated, the resource name must also be updated.
 	resourceGroupName := "huaweicloud_as_group.acc_as_group"
 	resourceHookName := "huaweicloud_as_lifecycle_hook.test"
 

@@ -2,6 +2,8 @@ package as
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -14,8 +16,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 var (
@@ -215,7 +215,21 @@ func ResourceASConfiguration() *schema.Resource {
 	}
 }
 
-func getDisk(diskMeta []interface{}) ([]configurations.DiskOpts, error) {
+func validateDiskSize(diskSize int, diskType string) error {
+	if diskType == "SYS" {
+		if diskSize < 40 || diskSize > 32768 {
+			return fmt.Errorf("For system disk size should be [40, 32768]")
+		}
+	}
+	if diskType == "DATA" {
+		if diskSize < 10 || diskSize > 32768 {
+			return fmt.Errorf("For data disk size should be [10, 32768]")
+		}
+	}
+	return nil
+}
+
+func buildDiskOpts(diskMeta []interface{}) ([]configurations.DiskOpts, error) {
 	var diskOptsList []configurations.DiskOpts
 
 	for _, v := range diskMeta {
@@ -223,16 +237,10 @@ func getDisk(diskMeta []interface{}) ([]configurations.DiskOpts, error) {
 		size := disk["size"].(int)
 		volumeType := disk["volume_type"].(string)
 		diskType := disk["disk_type"].(string)
-		if diskType == "SYS" {
-			if size < 40 || size > 32768 {
-				return diskOptsList, fmtp.Errorf("For system disk size should be [40, 32768]")
-			}
+		if err := validateDiskSize(size, diskType); err != nil {
+			return diskOptsList, nil
 		}
-		if diskType == "DATA" {
-			if size < 10 || size > 32768 {
-				return diskOptsList, fmtp.Errorf("For data disk size should be [10, 32768]")
-			}
-		}
+
 		diskOpts := configurations.DiskOpts{
 			Size:       size,
 			VolumeType: volumeType,
@@ -251,7 +259,7 @@ func getDisk(diskMeta []interface{}) ([]configurations.DiskOpts, error) {
 	return diskOptsList, nil
 }
 
-func getPersonality(personalityMeta []interface{}) []configurations.PersonalityOpts {
+func buildPersonalityOpts(personalityMeta []interface{}) []configurations.PersonalityOpts {
 	var personalityOptsList []configurations.PersonalityOpts
 
 	for _, v := range personalityMeta {
@@ -266,7 +274,7 @@ func getPersonality(personalityMeta []interface{}) []configurations.PersonalityO
 	return personalityOptsList
 }
 
-func getPublicIps(publicIpMeta map[string]interface{}) configurations.PublicIpOpts {
+func buildPublicIpOpts(publicIpMeta map[string]interface{}) configurations.PublicIpOpts {
 	eipMap := publicIpMeta["eip"].([]interface{})[0].(map[string]interface{})
 	bandWidthMap := eipMap["bandwidth"].([]interface{})[0].(map[string]interface{})
 	bandWidthOpts := configurations.BandwidthOpts{
@@ -287,17 +295,12 @@ func getPublicIps(publicIpMeta map[string]interface{}) configurations.PublicIpOp
 	return publicIpOpts
 }
 
-func getInstanceConfig(configDataMap map[string]interface{}) (configurations.InstanceConfigOpts, error) {
+func buildInstanceConfig(configDataMap map[string]interface{}) (configurations.InstanceConfigOpts, error) {
 	disksData := configDataMap["disk"].([]interface{})
-	disks, err := getDisk(disksData)
+	disks, err := buildDiskOpts(disksData)
 	if err != nil {
-		return configurations.InstanceConfigOpts{}, fmtp.Errorf("Error happened when validating disk size: %s", err)
+		return configurations.InstanceConfigOpts{}, fmt.Errorf("the disk size is invalid: %s", err)
 	}
-	logp.Printf("[DEBUG] get disks: %#v", disks)
-
-	personalityData := configDataMap["personality"].([]interface{})
-	personalities := getPersonality(personalityData)
-	logp.Printf("[DEBUG] get personality: %#v", personalities)
 
 	instanceConfigOpts := configurations.InstanceConfigOpts{
 		InstanceID:  configDataMap["instance_id"].(string),
@@ -305,33 +308,31 @@ func getInstanceConfig(configDataMap map[string]interface{}) (configurations.Ins
 		ImageRef:    configDataMap["image"].(string),
 		SSHKey:      configDataMap["key_name"].(string),
 		UserData:    []byte(configDataMap["user_data"].(string)),
-		Disk:        disks,
-		Personality: personalities,
 		Metadata:    configDataMap["metadata"].(map[string]interface{}),
+		Personality: buildPersonalityOpts(configDataMap["personality"].([]interface{})),
+		Disk:        disks,
 	}
-	logp.Printf("[DEBUG] instanceConfigOpts: %#v", instanceConfigOpts)
+
 	pubicIpData := configDataMap["public_ip"].([]interface{})
-	logp.Printf("[DEBUG] pubicIpData: %#v", pubicIpData)
-	// user specify public_ip
 	if len(pubicIpData) == 1 {
 		publicIpMap := pubicIpData[0].(map[string]interface{})
-		publicIps := getPublicIps(publicIpMap)
+		publicIps := buildPublicIpOpts(publicIpMap)
 		instanceConfigOpts.PubicIP = &publicIps
-		logp.Printf("[DEBUG] get publicIps: %#v", publicIps)
 	}
-	logp.Printf("[DEBUG] get instanceConfig: %#v", instanceConfigOpts)
+
 	return instanceConfigOpts, nil
 }
 
 func resourceASConfigurationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	asClient, err := conf.AutoscalingV1Client(region)
 	if err != nil {
 		return diag.Errorf("Error creating autoscaling client: %s", err)
 	}
 
 	configDataMap := d.Get("instance_config").([]interface{})[0].(map[string]interface{})
-	instanceConfig, err := getInstanceConfig(configDataMap)
+	instanceConfig, err := buildInstanceConfig(configDataMap)
 	if err != nil {
 		return diag.Errorf("Error when getting instance_config info: %s", err)
 	}
@@ -340,10 +341,10 @@ func resourceASConfigurationCreate(ctx context.Context, d *schema.ResourceData, 
 		InstanceConfig: instanceConfig,
 	}
 
-	logp.Printf("[DEBUG] Create AS configuration Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create AS configuration Options: %#v", createOpts)
 	asConfigId, err := configurations.Create(asClient, createOpts).Extract()
 	if err != nil {
-		return diag.Errorf("Error creating ASConfiguration: %s", err)
+		return diag.Errorf("Error creating AS configuration: %s", err)
 	}
 
 	d.SetId(asConfigId)
@@ -351,19 +352,20 @@ func resourceASConfigurationCreate(ctx context.Context, d *schema.ResourceData, 
 }
 
 func resourceASConfigurationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	asClient, err := conf.AutoscalingV1Client(region)
 	if err != nil {
 		return diag.Errorf("Error creating autoscaling client: %s", err)
 	}
 
-	asConfig, err := configurations.Get(asClient, d.Id()).Extract()
+	configId := d.Id()
+	asConfig, err := configurations.Get(asClient, configId).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "AS Configuration")
 	}
 
-	logp.Printf("[DEBUG] Retrieved ASConfiguration %q: %+v", d.Id(), asConfig)
-
+	log.Printf("[DEBUG] Retrieved ASConfiguration %s: %+v", configId, asConfig)
 	return nil
 }
 
@@ -374,20 +376,21 @@ func resourceASConfigurationDelete(_ context.Context, d *schema.ResourceData, me
 		return diag.Errorf("Error creating autoscaling client: %s", err)
 	}
 
-	groups, err := getASGroupsByConfiguration(asClient, d.Id())
+	configId := d.Id()
+	groups, err := getASGroupsByConfiguration(asClient, configId)
 	if err != nil {
-		return diag.Errorf("Error getting AS groups by configuration ID %q: %s", d.Id(), err)
+		return diag.Errorf("Error getting AS groups by configuration ID %s: %s", configId, err)
 	}
+
 	if len(groups) > 0 {
 		var groupIds []string
 		for _, group := range groups {
 			groupIds = append(groupIds, group.ID)
 		}
-		return diag.Errorf("Can not delete the configuration %q, it is used by AS groups %s.", d.Id(), groupIds)
+		return diag.Errorf("Can not delete the configuration %s, it is used by AS groups %v.", configId, groupIds)
 	}
 
-	logp.Printf("[DEBUG] Begin to delete AS configuration %q", d.Id())
-	if delErr := configurations.Delete(asClient, d.Id()).ExtractErr(); delErr != nil {
+	if delErr := configurations.Delete(asClient, configId).ExtractErr(); delErr != nil {
 		return diag.Errorf("Error deleting AS configuration: %s", delErr)
 	}
 
@@ -402,8 +405,9 @@ func getASGroupsByConfiguration(asClient *golangsdk.ServiceClient, configuration
 	}
 	page, err := groups.List(asClient, listOpts).AllPages()
 	if err != nil {
-		return gs, fmtp.Errorf("Error getting ASGroups by configuration %q: %s", configurationID, err)
+		return gs, fmt.Errorf("Error getting ASGroups by configuration %q: %s", configurationID, err)
 	}
+
 	gs, err = page.(groups.GroupPage).Extract()
 	return gs, err
 }

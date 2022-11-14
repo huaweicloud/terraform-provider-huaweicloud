@@ -2,6 +2,8 @@ package as
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"regexp"
 	"strings"
 	"time"
@@ -17,8 +19,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/tags"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 var (
@@ -230,28 +230,28 @@ type Group struct {
 	ID string
 }
 
-func expandNetworks(Networks []Network) []groups.NetworkOpts {
-	var networks []groups.NetworkOpts
-	for _, v := range Networks {
+func expandNetworks(asNetworks []Network) []groups.NetworkOpts {
+	var res []groups.NetworkOpts
+	for _, v := range asNetworks {
 		n := groups.NetworkOpts{
 			ID: v.ID,
 		}
-		networks = append(networks, n)
+		res = append(res, n)
 	}
 
-	return networks
+	return res
 }
 
-func expandGroups(Groups []Group) []groups.SecurityGroupOpts {
-	var asgroups []groups.SecurityGroupOpts
-	for _, v := range Groups {
+func expandGroups(asGroups []Group) []groups.SecurityGroupOpts {
+	var res []groups.SecurityGroupOpts
+	for _, v := range asGroups {
 		n := groups.SecurityGroupOpts{
 			ID: v.ID,
 		}
-		asgroups = append(asgroups, n)
+		res = append(res, n)
 	}
 
-	return asgroups
+	return res
 }
 
 func expandGroupsTags(tagmap map[string]interface{}) []tags.ResourceTag {
@@ -341,7 +341,7 @@ func getInstancesInGroup(asClient *golangsdk.ServiceClient, groupID string, opts
 	var insList []instances.Instance
 	page, err := instances.List(asClient, groupID, opts).AllPages()
 	if err != nil {
-		return insList, fmtp.Errorf("error getting instances in AS group %s: %s", groupID, err)
+		return insList, fmt.Errorf("error getting instances in AS group %s: %s", groupID, err)
 	}
 	insList, err = page.(instances.InstancePage).Extract()
 	return insList, err
@@ -382,7 +382,7 @@ func refreshInstancesLifeStates(asClient *golangsdk.ServiceClient, groupID strin
 		}
 		allLifeStatus := getInstancesLifeStates(allIns)
 		for _, lifeStatus := range allLifeStatus {
-			logp.Printf("[DEBUG] Get lifecycle status in group %s: %s", groupID, lifeStatus)
+			log.Printf("[DEBUG] Get lifecycle status in group %s: %s", groupID, lifeStatus)
 			// check for creation
 			if checkInService {
 				if lifeStatus == "PENDING" || lifeStatus == "REMOVING" {
@@ -475,7 +475,7 @@ func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta int
 	} else {
 		desireNum = minNum
 	}
-	logp.Printf("[DEBUG] instance number options: min(%d), max(%d), desired(%d)", minNum, maxNum, desireNum)
+	log.Printf("[DEBUG] instance number options: min(%d), max(%d), desired(%d)", minNum, maxNum, desireNum)
 	if desireNum < minNum || desireNum > maxNum {
 		return diag.Errorf("invalid parameters: it should be min_instance_number <= desire_instance_number <= max_instance_number")
 	}
@@ -509,7 +509,7 @@ func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta int
 		EnterpriseProjectID:       common.GetEnterpriseProjectID(d, config),
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	asgId, err := groups.Create(asClient, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating AS group: %s", err)
@@ -517,7 +517,7 @@ func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 	d.SetId(asgId)
 
-	//set tags
+	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		taglist := expandGroupsTags(tagRaw)
@@ -526,7 +526,7 @@ func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta int
 		}
 	}
 
-	//enable asg
+	// enable asg
 	if d.Get("enable").(bool) {
 		enableResult := groups.Enable(asClient, asgId)
 		if enableResult.Err != nil {
@@ -547,8 +547,9 @@ func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta int
 }
 
 func resourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	asClient, err := conf.AutoscalingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
@@ -557,7 +558,7 @@ func resourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interfa
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "AS group")
 	}
-	logp.Printf("[DEBUG] Retrieved AS group %s: %#v", d.Id(), asg)
+	log.Printf("[DEBUG] Retrieved AS group %s: %#v", d.Id(), asg)
 
 	// set properties based on the read info
 	d.Set("scaling_group_name", asg.Name)
@@ -620,8 +621,7 @@ func resourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interfa
 	}
 	allIDs := getInstancesIDs(allIns)
 	d.Set("instances", allIDs)
-
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", region)
 
 	// save group tags
 	if resourceTags, err := tags.Get(asClient, d.Id()).Extract(); err == nil {
@@ -633,15 +633,16 @@ func resourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interfa
 			return diag.Errorf("error saving tags to state for AS group (%s): %s", d.Id(), err)
 		}
 	} else {
-		logp.Printf("[WARN] Error fetching tags of AS group (%s): %s", d.Id(), err)
+		log.Printf("[WARN] Error fetching tags of AS group (%s): %s", d.Id(), err)
 	}
 
 	return nil
 }
 
 func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	asClient, err := conf.AutoscalingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
@@ -655,7 +656,7 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		desireNum = minNum
 	}
 	if d.HasChanges("min_instance_number", "max_instance_number", "desire_instance_number") {
-		logp.Printf("[DEBUG] instance number options: min(%d), max(%d), desired(%d)", minNum, maxNum, desireNum)
+		log.Printf("[DEBUG] instance number options: min(%d), max(%d), desired(%d)", minNum, maxNum, desireNum)
 		if desireNum < minNum || desireNum > maxNum {
 			return diag.Errorf("invalid parameters: it should be min_instance_number <= desire_instance_number <= max_instance_number")
 		}
@@ -685,18 +686,18 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		InstanceTerminatePolicy:   d.Get("instance_terminate_policy").(string),
 		Notifications:             getAllNotifications(d),
 		IsDeletePublicip:          d.Get("delete_publicip").(bool),
-		EnterpriseProjectID:       common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID:       common.GetEnterpriseProjectID(d, conf),
 	}
 
-	logp.Printf("[DEBUG] AS Group update options: %#v", updateOpts)
+	log.Printf("[DEBUG] AS Group update options: %#v", updateOpts)
 	asgID, err := groups.Update(asClient, d.Id(), updateOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error updating AS group %s: %s", asgID, err)
 	}
 
-	//update tags
+	// update tags
 	if d.HasChange("tags") {
-		//remove old tags and set new tags
+		// remove old tags and set new tags
 		old, new := d.GetChange("tags")
 		oldRaw := old.(map[string]interface{})
 		if len(oldRaw) > 0 {
@@ -721,13 +722,13 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 			if enableResult.Err != nil {
 				return diag.Errorf("error enabling AS group %s: %s", asgID, enableResult.Err)
 			}
-			logp.Printf("[DEBUG] Enable AS group %s success", asgID)
+			log.Printf("[DEBUG] Enable AS group %s success", asgID)
 		} else {
 			enableResult := groups.Disable(asClient, asgID)
 			if enableResult.Err != nil {
 				return diag.Errorf("error disabling AS group %s: %s", asgID, enableResult.Err)
 			}
-			logp.Printf("[DEBUG] Disable AS group %s success", asgID)
+			log.Printf("[DEBUG] Disable AS group %s success", asgID)
 		}
 	}
 
@@ -743,7 +744,6 @@ func resourceASGroupDelete(ctx context.Context, d *schema.ResourceData, meta int
 
 	timeout := d.Timeout(schema.TimeoutDelete)
 	groupID := d.Id()
-	logp.Printf("[DEBUG] Begin to delete AS group %s", groupID)
 
 	// forcibly delete an AS group
 	if _, ok := d.GetOk("force_delete"); ok {
@@ -763,7 +763,7 @@ func resourceASGroupDelete(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error listing instances of AS group: %s", err)
 	}
 	allIDs := getInstancesIDs(allIns)
-	logp.Printf("[DEBUG] Instances in AS group %s: %+v", groupID, allIDs)
+	log.Printf("[DEBUG] Instances in AS group %s: %+v", groupID, allIDs)
 
 	allLifeStatus := getInstancesLifeStates(allIns)
 	for _, lifeCycleState := range allLifeStatus {
@@ -781,7 +781,7 @@ func resourceASGroupDelete(ctx context.Context, d *schema.ResourceData, meta int
 		}
 
 		deleteIns := d.Get("delete_instances").(string)
-		logp.Printf("[DEBUG] The flag delete_instances in AS group is %s", deleteIns)
+		log.Printf("[DEBUG] The flag delete_instances in AS group is %s", deleteIns)
 		batchResult := instances.BatchDelete(asClient, groupID, allIDs, deleteIns)
 		if batchResult.Err != nil {
 			return diag.Errorf("error removing instancess of AS group: %s", batchResult.Err)
@@ -806,6 +806,6 @@ func resourceASGroupValidateListenerId(v interface{}, k string) (ws []string, er
 	if len(split) <= 6 {
 		return
 	}
-	errors = append(errors, fmtp.Errorf("%s supports binding up to 6 ELB listeners which are separated by a comma.", k))
+	errors = append(errors, fmt.Errorf("%s supports binding up to 6 ELB listeners which are separated by a comma.", k))
 	return
 }

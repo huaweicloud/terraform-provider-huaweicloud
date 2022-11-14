@@ -2,6 +2,7 @@ package as
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -13,7 +14,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/lifecyclehooks"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 var hookTypeMap = map[string]string{
@@ -218,13 +218,13 @@ func setASLifecycleHookType(d *schema.ResourceData, hook *lifecyclehooks.Hook) e
 			return err
 		}
 	}
-	return fmtp.Errorf("The type of hook response is not in the map")
+	return fmt.Errorf("The type of hook response is not in the map")
 }
 
 func resourceASLifecycleHookImportState(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		return nil, fmtp.Errorf("Invalid format specified for lifecycle hook, must be <scaling_group_id>/<hook_id>")
+		return nil, fmt.Errorf("Invalid format specified for lifecycle hook, must be <scaling_group_id>/<hook_id>")
 	}
 	d.SetId(parts[1])
 	d.Set("scaling_group_id", parts[0])
