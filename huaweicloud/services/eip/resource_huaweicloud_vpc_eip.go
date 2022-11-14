@@ -200,7 +200,7 @@ func ResourceVpcEIPV1() *schema.Resource {
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit([]string{"publicip.0.ip_address"}),
 			"period":        common.SchemaPeriod([]string{"publicip.0.ip_address"}),
-			"auto_renew":    common.SchemaAutoRenew([]string{"publicip.0.ip_address"}),
+			"auto_renew":    common.SchemaAutoRenewUpdatable([]string{"publicip.0.ip_address"}),
 			"auto_pay":      common.SchemaAutoPay([]string{"publicip.0.ip_address"}),
 
 			// Attributes
@@ -636,6 +636,16 @@ func resourceVpcEipUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		tagErr := utils.UpdateResourceTags(vpcV2Client, d, "publicips", d.Id())
 		if tagErr != nil {
 			return diag.Errorf("error updating tags of VPC (%s): %s", d.Id(), tagErr)
+		}
+	}
+
+	if d.HasChange("auto_renew") {
+		bssClient, err := config.BssV2Client(region)
+		if err != nil {
+			return diag.Errorf("error creating BSS V2 client: %s", err)
+		}
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return diag.Errorf("error updating the auto-renew of the EIP (%s): %s", d.Id(), err)
 		}
 	}
 
