@@ -110,11 +110,6 @@ func ResourceASGroup() *schema.Resource {
 					},
 				},
 			},
-			"available_zones": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
 			"networks": {
 				Type:     schema.TypeList,
 				MaxItems: 5,
@@ -144,6 +139,12 @@ func ResourceASGroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+			},
+			"availability_zones": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"health_periodic_audit_method": {
 				Type:         schema.TypeString,
@@ -218,6 +219,12 @@ func ResourceASGroup() *schema.Resource {
 				Description:  "The system supports the binding of up to six ELB listeners, the IDs of which are separated using a comma.",
 				Deprecated:   "use lbaas_listeners instead",
 			},
+			"available_zones": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "schema: Deprecated",
+			},
 		},
 	}
 }
@@ -269,7 +276,16 @@ func expandGroupsTags(tagmap map[string]interface{}) []tags.ResourceTag {
 }
 
 func getAllAvailableZones(d *schema.ResourceData) []string {
-	rawZones := d.Get("available_zones").([]interface{})
+	var rawZones []interface{}
+	v1, ok1 := d.GetOk("availability_zones")
+	v2, ok2 := d.GetOk("available_zones")
+
+	if ok1 {
+		rawZones = v1.([]interface{})
+	} else if ok2 {
+		rawZones = v2.([]interface{})
+	}
+
 	zones := make([]string, len(rawZones))
 	for i, raw := range rawZones {
 		zones[i] = raw.(string)
@@ -601,6 +617,7 @@ func resourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interfa
 	d.Set("scaling_configuration_id", asg.ConfigurationID)
 	d.Set("delete_publicip", asg.DeletePublicip)
 	d.Set("enterprise_project_id", asg.EnterpriseProjectID)
+	d.Set("availability_zones", asg.AvailableZones)
 	if len(asg.Notifications) >= 1 {
 		d.Set("notifications", asg.Notifications)
 	}
