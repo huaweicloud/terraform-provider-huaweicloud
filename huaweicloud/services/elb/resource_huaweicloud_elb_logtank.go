@@ -8,17 +8,19 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/elb/v3/logtanks"
+	"github.com/chnsz/golangsdk/openstack/lts/huawei/logstreams"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func ResourceLogTanksV3() *schema.Resource {
+func ResourceLogTank() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceLogTanksV3Create,
-		ReadContext:   resourceLogTanksV3Read,
-		UpdateContext: resourceLogTanksV3Update,
-		DeleteContext: resourceLogTanksV3Delete,
+		CreateContext: resourceLogTankCreate,
+		ReadContext:   resourceLogTankRead,
+		UpdateContext: resourceLogTankUpdate,
+		DeleteContext: resourceLogTankDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -47,8 +49,13 @@ func ResourceLogTanksV3() *schema.Resource {
 	}
 }
 
-func resourceLogTanksV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceLogTankCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
+	diagnostics := checkGroupIdAndTopicId(config, d)
+	if diagnostics != nil {
+		return diagnostics
+	}
+
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating ELB v3 client: %s", err)
@@ -68,10 +75,10 @@ func resourceLogTanksV3Create(ctx context.Context, d *schema.ResourceData, meta 
 
 	d.SetId(logTank.ID)
 
-	return resourceLogTanksV3Read(ctx, d, meta)
+	return resourceLogTankRead(ctx, d, meta)
 }
 
-func resourceLogTanksV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceLogTankRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
@@ -99,8 +106,13 @@ func resourceLogTanksV3Read(_ context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourceLogTanksV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceLogTankUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
+	diagnostics := checkGroupIdAndTopicId(config, d)
+	if diagnostics != nil {
+		return diagnostics
+	}
+
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating ELB v3 client: %s", err)
@@ -120,10 +132,10 @@ func resourceLogTanksV3Update(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("unable to update logtank %s: %s", d.Id(), err)
 	}
 
-	return resourceLogTanksV3Read(ctx, d, meta)
+	return resourceLogTankRead(ctx, d, meta)
 }
 
-func resourceLogTanksV3Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceLogTankDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
@@ -134,6 +146,35 @@ func resourceLogTanksV3Delete(_ context.Context, d *schema.ResourceData, meta in
 	err = logtanks.Delete(elbClient, d.Id()).ExtractErr()
 	if err != nil {
 		return diag.Errorf("unable to delete logtank %s: %s", d.Id(), err)
+	}
+	return nil
+}
+
+func checkGroupIdAndTopicId(config *config.Config, d *schema.ResourceData) diag.Diagnostics {
+	logStreamClient, err := config.LtsV2Client(config.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating LTS client: %s", err)
+	}
+	logGroupId := d.Get("log_group_id").(string)
+	logTopicId := d.Get("log_topic_id").(string)
+	streams, err := logstreams.List(logStreamClient, logGroupId).Extract()
+	if err != nil {
+		if apiError, ok := err.(golangsdk.ErrDefault400); ok {
+			// "LTS.0201" indicates the log group is not exist
+			if resp, pErr := common.ParseErrorMsg(apiError.Body); pErr == nil && resp.ErrorCode == "LTS.0201" {
+				return diag.Errorf("the log group id %s is error: %s", logGroupId)
+			}
+		}
+		return diag.Errorf("error getting LTS log stream by log group id %s: %s", logGroupId, err)
+	}
+	containLogTopicId := false
+	for _, stream := range streams.LogStreams {
+		if stream.ID == logTopicId {
+			containLogTopicId = true
+		}
+	}
+	if !containLogTopicId {
+		return diag.Errorf("the log topic id %s not belong to the group id %s", logTopicId, logGroupId)
 	}
 	return nil
 }

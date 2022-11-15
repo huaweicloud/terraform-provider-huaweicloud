@@ -20,7 +20,7 @@ func getELBLogTankResourceFunc(c *config.Config, state *terraform.ResourceState)
 	return logtanks.Get(client, state.Primary.ID).Extract()
 }
 
-func TestAccElbV3LogTanks_basic(t *testing.T) {
+func TestAccElbLogTank_basic(t *testing.T) {
 	var logTanks logtanks.LogTank
 	rName := acceptance.RandomAccResourceNameWithDash()
 	rNameUpdate := acceptance.RandomAccResourceNameWithDash()
@@ -38,7 +38,7 @@ func TestAccElbV3LogTanks_basic(t *testing.T) {
 		CheckDestroy:      checkResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccElbV3LogTanksConfig_basic(rName),
+				Config: testAccElbLogTankConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "log_group_id",
@@ -48,7 +48,7 @@ func TestAccElbV3LogTanks_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccElbV3LogTanksConfig_update(rNameUpdate),
+				Config: testAccElbLogTankConfig_update(rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "log_group_id",
@@ -87,7 +87,7 @@ func checkResourceDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccElbV3LogTanksConfig_basic(rName string) string {
+func testAccElbLogTankConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
@@ -131,7 +131,7 @@ resource "huaweicloud_elb_logtank" "test" {
 `, rName)
 }
 
-func testAccElbV3LogTanksConfig_update(rName string) string {
+func testAccElbLogTankConfig_update(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
