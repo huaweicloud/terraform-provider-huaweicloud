@@ -229,53 +229,35 @@ func ResourceASGroup() *schema.Resource {
 	}
 }
 
-type Network struct {
-	ID string
-}
+func buildNetworksOpts(d *schema.ResourceData) []groups.NetworkOpts {
+	networks := d.Get("networks").([]interface{})
 
-type Group struct {
-	ID string
-}
-
-func expandNetworks(asNetworks []Network) []groups.NetworkOpts {
-	var res []groups.NetworkOpts
-	for _, v := range asNetworks {
-		n := groups.NetworkOpts{
-			ID: v.ID,
+	res := make([]groups.NetworkOpts, len(networks))
+	for i, v := range networks {
+		item := v.(map[string]interface{})
+		res[i] = groups.NetworkOpts{
+			ID: item["id"].(string),
 		}
-		res = append(res, n)
 	}
 
 	return res
 }
 
-func expandGroups(asGroups []Group) []groups.SecurityGroupOpts {
-	var res []groups.SecurityGroupOpts
-	for _, v := range asGroups {
-		n := groups.SecurityGroupOpts{
-			ID: v.ID,
+func buildSecurityGroupsOpts(d *schema.ResourceData) []groups.SecurityGroupOpts {
+	asGroups := d.Get("security_groups").([]interface{})
+
+	res := make([]groups.SecurityGroupOpts, len(asGroups))
+	for i, v := range asGroups {
+		item := v.(map[string]interface{})
+		res[i] = groups.SecurityGroupOpts{
+			ID: item["id"].(string),
 		}
-		res = append(res, n)
 	}
 
 	return res
 }
 
-func expandGroupsTags(tagmap map[string]interface{}) []tags.ResourceTag {
-	var taglist []tags.ResourceTag
-
-	for k, v := range tagmap {
-		tag := tags.ResourceTag{
-			Key:   k,
-			Value: v.(string),
-		}
-		taglist = append(taglist, tag)
-	}
-
-	return taglist
-}
-
-func getAllAvailableZones(d *schema.ResourceData) []string {
+func buildAvailabilityZonesOpts(d *schema.ResourceData) []string {
 	var rawZones []interface{}
 	v1, ok1 := d.GetOk("availability_zones")
 	v2, ok2 := d.GetOk("available_zones")
@@ -294,7 +276,7 @@ func getAllAvailableZones(d *schema.ResourceData) []string {
 	return zones
 }
 
-func getAllNotifications(d *schema.ResourceData) []string {
+func buildNotificationsOpts(d *schema.ResourceData) []string {
 	rawNotifications := d.Get("notifications").([]interface{})
 	notifications := make([]string, len(rawNotifications))
 	for i, raw := range rawNotifications {
@@ -304,39 +286,7 @@ func getAllNotifications(d *schema.ResourceData) []string {
 	return notifications
 }
 
-func getAllNetworks(d *schema.ResourceData, meta interface{}) []Network {
-	var Networks []Network
-
-	networks := d.Get("networks").([]interface{})
-	for _, v := range networks {
-		network := v.(map[string]interface{})
-		networkID := network["id"].(string)
-		v := Network{
-			ID: networkID,
-		}
-		Networks = append(Networks, v)
-	}
-
-	return Networks
-}
-
-func getAllSecurityGroups(d *schema.ResourceData, meta interface{}) []Group {
-	var Groups []Group
-
-	asgroups := d.Get("security_groups").([]interface{})
-	for _, v := range asgroups {
-		group := v.(map[string]interface{})
-		groupID := group["id"].(string)
-		v := Group{
-			ID: groupID,
-		}
-		Groups = append(Groups, v)
-	}
-
-	return Groups
-}
-
-func getAllLBaaSListeners(d *schema.ResourceData, meta interface{}) []groups.LBaaSListenerOpts {
+func buildLBaaSListenersOpts(d *schema.ResourceData) []groups.LBaaSListenerOpts {
 	var aslisteners []groups.LBaaSListenerOpts
 
 	listeners := d.Get("lbaas_listeners").([]interface{})
@@ -351,6 +301,20 @@ func getAllLBaaSListeners(d *schema.ResourceData, meta interface{}) []groups.LBa
 	}
 
 	return aslisteners
+}
+
+func expandGroupsTags(tagmap map[string]interface{}) []tags.ResourceTag {
+	var taglist []tags.ResourceTag
+
+	for k, v := range tagmap {
+		tag := tags.ResourceTag{
+			Key:   k,
+			Value: v.(string),
+		}
+		taglist = append(taglist, tag)
+	}
+
+	return taglist
 }
 
 func getInstancesInGroup(asClient *golangsdk.ServiceClient, groupID string, opts instances.ListOptsBuilder) ([]instances.Instance, error) {
@@ -392,13 +356,12 @@ func refreshInstancesLifeStates(asClient *golangsdk.ServiceClient, groupID strin
 		if err != nil {
 			return nil, "ERROR", err
 		}
-		// maybe the instances (or some of the instances) have not put in the asg when creating
+		// maybe the instances (or some of the instances) have not put in the autoscaling group when creating
 		if checkInService && len(allIns) != insNum {
 			return allIns, "PENDING", err
 		}
 		allLifeStatus := getInstancesLifeStates(allIns)
 		for _, lifeStatus := range allLifeStatus {
-			log.Printf("[DEBUG] Get lifecycle status in group %s: %s", groupID, lifeStatus)
 			// check for creation
 			if checkInService {
 				if lifeStatus == "PENDING" || lifeStatus == "REMOVING" {
@@ -443,7 +406,6 @@ func checkASGroupInstancesInService(ctx context.Context, client *golangsdk.Servi
 	}
 
 	_, err := stateConf.WaitForStateContext(ctx)
-
 	return err
 }
 
@@ -458,7 +420,6 @@ func checkASGroupInstancesRemoved(ctx context.Context, client *golangsdk.Service
 	}
 
 	_, err := stateConf.WaitForStateContext(ctx)
-
 	return err
 }
 
@@ -472,7 +433,6 @@ func checkASGroupRemoved(ctx context.Context, client *golangsdk.ServiceClient, g
 	}
 
 	_, err := stateConf.WaitForStateContext(ctx)
-
 	return err
 }
 
@@ -483,9 +443,9 @@ func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
 
+	var desireNum int
 	minNum := d.Get("min_instance_number").(int)
 	maxNum := d.Get("max_instance_number").(int)
-	var desireNum int
 	if v, ok := d.GetOk("desire_instance_number"); ok {
 		desireNum = v.(int)
 	} else {
@@ -496,14 +456,6 @@ func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("invalid parameters: it should be min_instance_number <= desire_instance_number <= max_instance_number")
 	}
 
-	networks := getAllNetworks(d, meta)
-	asgNetworks := expandNetworks(networks)
-
-	secGroups := getAllSecurityGroups(d, meta)
-	asgSecGroups := expandGroups(secGroups)
-
-	asgLBaaSListeners := getAllLBaaSListeners(d, meta)
-
 	createOpts := groups.CreateOpts{
 		Name:                      d.Get("scaling_group_name").(string),
 		ConfigurationID:           d.Get("scaling_configuration_id").(string),
@@ -512,15 +464,15 @@ func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta int
 		MaxInstanceNumber:         maxNum,
 		CoolDownTime:              d.Get("cool_down_time").(int),
 		LBListenerID:              d.Get("lb_listener_id").(string),
-		LBaaSListeners:            asgLBaaSListeners,
-		AvailableZones:            getAllAvailableZones(d),
-		Networks:                  asgNetworks,
-		SecurityGroup:             asgSecGroups,
+		LBaaSListeners:            buildLBaaSListenersOpts(d),
+		Notifications:             buildNotificationsOpts(d),
+		AvailableZones:            buildAvailabilityZonesOpts(d),
+		Networks:                  buildNetworksOpts(d),
+		SecurityGroup:             buildSecurityGroupsOpts(d),
 		VpcID:                     d.Get("vpc_id").(string),
 		HealthPeriodicAuditMethod: d.Get("health_periodic_audit_method").(string),
 		HealthPeriodicAuditTime:   d.Get("health_periodic_audit_time").(int),
 		InstanceTerminatePolicy:   d.Get("instance_terminate_policy").(string),
-		Notifications:             getAllNotifications(d),
 		IsDeletePublicip:          d.Get("delete_publicip").(bool),
 		EnterpriseProjectID:       common.GetEnterpriseProjectID(d, config),
 	}
@@ -542,7 +494,7 @@ func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta int
 		}
 	}
 
-	// enable asg
+	// the autoscaling group is disabled after creating
 	if d.Get("enable").(bool) {
 		enableResult := groups.Enable(asClient, asgId)
 		if enableResult.Err != nil {
@@ -570,22 +522,18 @@ func resourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interfa
 		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
 
-	asg, err := groups.Get(asClient, d.Id()).Extract()
+	groupID := d.Id()
+	asg, err := groups.Get(asClient, groupID).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "AS group")
 	}
-	log.Printf("[DEBUG] Retrieved AS group %s: %#v", d.Id(), asg)
+	log.Printf("[DEBUG] Retrieved AS group %s: %#v", groupID, asg)
 
 	// set properties based on the read info
 	d.Set("scaling_group_name", asg.Name)
 	d.Set("vpc_id", asg.VpcID)
 	d.Set("status", asg.Status)
-
-	if asg.Status == "INSERVICE" {
-		d.Set("enable", true)
-	} else {
-		d.Set("enable", false)
-	}
+	d.Set("enable", asg.Status == "INSERVICE")
 
 	var networks []map[string]interface{}
 	for _, network := range asg.Networks {
@@ -632,25 +580,25 @@ func resourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("lbaas_listeners", listeners)
 	}
 
-	allIns, err := getInstancesInGroup(asClient, d.Id(), nil)
+	allIns, err := getInstancesInGroup(asClient, groupID, nil)
 	if err != nil {
-		return diag.Errorf("can not get the instances in AS Group %s: %s", d.Id(), err)
+		return diag.Errorf("can not get the instances in AS Group %s: %s", groupID, err)
 	}
 	allIDs := getInstancesIDs(allIns)
 	d.Set("instances", allIDs)
 	d.Set("region", region)
 
 	// save group tags
-	if resourceTags, err := tags.Get(asClient, d.Id()).Extract(); err == nil {
+	if resourceTags, err := tags.Get(asClient, groupID).Extract(); err == nil {
 		tagmap := make(map[string]string)
 		for _, val := range resourceTags.Tags {
 			tagmap[val.Key] = val.Value
 		}
 		if err := d.Set("tags", tagmap); err != nil {
-			return diag.Errorf("error saving tags to state for AS group (%s): %s", d.Id(), err)
+			return diag.Errorf("error saving tags to state for AS group (%s): %s", groupID, err)
 		}
 	} else {
-		log.Printf("[WARN] Error fetching tags of AS group (%s): %s", d.Id(), err)
+		log.Printf("[WARN] Error fetching tags of AS group (%s): %s", groupID, err)
 	}
 
 	return nil
@@ -679,13 +627,6 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		}
 	}
 
-	networks := getAllNetworks(d, meta)
-	asgNetworks := expandNetworks(networks)
-
-	secGroups := getAllSecurityGroups(d, meta)
-	asgSecGroups := expandGroups(secGroups)
-
-	asgLBaaSListeners := getAllLBaaSListeners(d, meta)
 	updateOpts := groups.UpdateOpts{
 		Name:                      d.Get("scaling_group_name").(string),
 		ConfigurationID:           d.Get("scaling_configuration_id").(string),
@@ -694,14 +635,14 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		MaxInstanceNumber:         maxNum,
 		CoolDownTime:              d.Get("cool_down_time").(int),
 		LBListenerID:              d.Get("lb_listener_id").(string),
-		LBaaSListeners:            asgLBaaSListeners,
-		AvailableZones:            getAllAvailableZones(d),
-		Networks:                  asgNetworks,
-		SecurityGroup:             asgSecGroups,
+		LBaaSListeners:            buildLBaaSListenersOpts(d),
+		Notifications:             buildNotificationsOpts(d),
+		AvailableZones:            buildAvailabilityZonesOpts(d),
+		Networks:                  buildNetworksOpts(d),
+		SecurityGroup:             buildSecurityGroupsOpts(d),
 		HealthPeriodicAuditMethod: d.Get("health_periodic_audit_method").(string),
 		HealthPeriodicAuditTime:   d.Get("health_periodic_audit_time").(int),
 		InstanceTerminatePolicy:   d.Get("instance_terminate_policy").(string),
-		Notifications:             getAllNotifications(d),
 		IsDeletePublicip:          d.Get("delete_publicip").(bool),
 		EnterpriseProjectID:       common.GetEnterpriseProjectID(d, conf),
 	}
@@ -759,8 +700,8 @@ func resourceASGroupDelete(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
 
-	timeout := d.Timeout(schema.TimeoutDelete)
 	groupID := d.Id()
+	timeout := d.Timeout(schema.TimeoutDelete)
 
 	// forcibly delete an AS group
 	if _, ok := d.GetOk("force_delete"); ok {
@@ -798,7 +739,6 @@ func resourceASGroupDelete(ctx context.Context, d *schema.ResourceData, meta int
 		}
 
 		deleteIns := d.Get("delete_instances").(string)
-		log.Printf("[DEBUG] The flag delete_instances in AS group is %s", deleteIns)
 		batchResult := instances.BatchDelete(asClient, groupID, allIDs, deleteIns)
 		if batchResult.Err != nil {
 			return diag.Errorf("error removing instancess of AS group: %s", batchResult.Err)
