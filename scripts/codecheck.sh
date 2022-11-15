@@ -7,13 +7,25 @@ function usage() {
     echo ""
 }
 
+function checkImporter() {
+    dir=$1
+    for f in $(ls $dir); do
+        if [[ $f =~ "resource_huaweicloud_" ]]; then
+            hasImporter=$(grep -w "Importer:" $dir/$f)
+            if [ "X$hasImporter" == "X" ]; then
+                echo "-> the resource in $f should can be imported"
+            fi
+        fi
+    done
+}
+
 function checkMultierror() {
     dir=$1
     for f in $(ls $dir); do
         if [[ $f =~ "_huaweicloud_" ]]; then
             hasMultierror=$(grep -w "go-multierror" $dir/$f)
             if [ "X$hasMultierror" == "X" ]; then
-                echo "please use go-multierror package in $f"
+                echo "-> please use go-multierror package in $f"
             fi
         fi
     done
@@ -99,12 +111,15 @@ echo -e "\n==> Checking for golangci-lint..."
 golangci-lint run $package
 
 # Nolint Directiving
-echo -e "\n==> Nolint Directiving..."
+echo -e "\n==> Checking for Nolint directives..."
 grep -rn "nolint:" $packageDir | grep -v "/deprecated/"
 grep -rn "lintignore:" $packageDir | grep -v "/deprecated/"
 
 if [ "X$service" != "X..." ] && [[ $package == ./huaweicloud/services/* ]]; then
     grep -rn "markdownlint" ./docs | grep "/${service}_"
+
+    echo -e "\n==> Checking for TF features in $service..."
+    checkImporter $packageDir
     checkMultierror $packageDir
 
     echo -e "\n==> Checking for misspell in $service..."
