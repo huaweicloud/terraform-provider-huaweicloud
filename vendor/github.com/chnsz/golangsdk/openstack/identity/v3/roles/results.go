@@ -94,7 +94,7 @@ type DeleteResult struct {
 
 // RolePage is a single page of Role results.
 type RolePage struct {
-	pagination.OffsetPageBase
+	pagination.LinkedPageBase
 }
 
 // IsEmpty determines whether or not a page of Roles contains any results.
@@ -103,28 +103,22 @@ func (r RolePage) IsEmpty() (bool, error) {
 	return len(roles) == 0, err
 }
 
-// NextOffset returns offset of the next element of the page.
-func (current RolePage) CurrentPageNum() int {
-	q := current.URL.Query()
-	page, _ := strconv.Atoi(q.Get("page"))
-	if page == 0 {
-		return defaultPageNumber
+// NextPageURL extracts the "next" link from the links section of the result.
+func (r RolePage) NextPageURL() (string, error) {
+	var s struct {
+		Links struct {
+			Next     string `json:"next"`
+			Previous string `json:"previous"`
+		} `json:"links"`
 	}
-	return page
+	err := r.ExtractInto(&s)
+	if err != nil {
+		return "", err
+	}
+	return s.Links.Next, err
 }
 
-// NextPageURL generates the URL for the page of results after this one.
-func (current RolePage) NextPageURL() (string, error) {
-	currentPageNum := current.CurrentPageNum()
-	currentURL := current.URL
-	q := currentURL.Query()
-	q.Set("page", strconv.Itoa(currentPageNum+1))
-	currentURL.RawQuery = q.Encode()
-
-	return currentURL.String(), nil
-}
-
-// ExtractProjects returns a slice of Roles contained in a single page of
+// ExtractRoles returns a slice of Roles contained in a single page of
 // results.
 func ExtractRoles(r pagination.Page) ([]Role, error) {
 	var s struct {
@@ -141,6 +135,48 @@ func (r roleResult) Extract() (*Role, error) {
 	}
 	err := r.ExtractInto(&s)
 	return s.Role, err
+}
+
+// RoleOffsetPage is the offset page of Role results.
+type RoleOffsetPage struct {
+	pagination.OffsetPageBase
+}
+
+// IsEmpty determines whether or not a page of Roles contains any results.
+func (r RoleOffsetPage) IsEmpty() (bool, error) {
+	roles, err := ExtractOffsetRoles(r)
+	return len(roles) == 0, err
+}
+
+// NextOffset returns offset of the next element of the page.
+func (current RoleOffsetPage) CurrentPageNum() int {
+	q := current.URL.Query()
+	page, _ := strconv.Atoi(q.Get("page"))
+	if page == 0 {
+		return defaultPageNumber
+	}
+	return page
+}
+
+// NextPageURL generates the URL for the page of results after this one.
+func (current RoleOffsetPage) NextPageURL() (string, error) {
+	currentPageNum := current.CurrentPageNum()
+	currentURL := current.URL
+	q := currentURL.Query()
+	q.Set("page", strconv.Itoa(currentPageNum+1))
+	currentURL.RawQuery = q.Encode()
+
+	return currentURL.String(), nil
+}
+
+// ExtractOffsetRoles returns a slice of Roles contained in a single page of
+// results.
+func ExtractOffsetRoles(r pagination.Page) ([]Role, error) {
+	var s struct {
+		Roles []Role `json:"roles"`
+	}
+	err := (r.(RoleOffsetPage)).ExtractInto(&s)
+	return s.Roles, err
 }
 
 // RoleAssignment is the result of a role assignments query.

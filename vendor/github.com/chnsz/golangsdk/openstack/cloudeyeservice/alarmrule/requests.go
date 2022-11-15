@@ -27,9 +27,9 @@ type ConditionOpts struct {
 	Filter             string `json:"filter" required:"true"`
 	ComparisonOperator string `json:"comparison_operator" required:"true"`
 	// The Value ranges from 0 to MAX_VALUE
-	Value int    `json:"value"`
-	Unit  string `json:"unit,omitempty"`
-	Count int    `json:"count" required:"true"`
+	Value float64 `json:"value"`
+	Unit  string  `json:"unit,omitempty"`
+	Count int     `json:"count" required:"true"`
 	// The value can be 0
 	SuppressDuration int `json:"suppress_duration"`
 }

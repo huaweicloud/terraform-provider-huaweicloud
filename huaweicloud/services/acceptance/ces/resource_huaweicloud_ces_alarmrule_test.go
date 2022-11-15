@@ -44,7 +44,7 @@ func TestAccCESAlarmRule_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "alarm_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "alarm_action_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "alarm_level", "2"),
-					resource.TestCheckResourceAttr(resourceName, "condition.0.value", "6"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.value", "6.5"),
 					resource.TestCheckResourceAttr(resourceName, "condition.0.suppress_duration", "300"),
 				),
 			},
@@ -194,7 +194,7 @@ resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
     period              = 300
     filter              = "average"
     comparison_operator = ">"
-    value               = 6
+    value               = 6.5
     unit                = "B/s"
     count               = 1
     suppress_duration   = 300

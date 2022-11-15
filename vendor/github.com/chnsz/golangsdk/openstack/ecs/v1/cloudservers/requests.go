@@ -156,21 +156,28 @@ type VolumeMetadata struct {
 }
 
 type ServerExtendParam struct {
-	ChargingMode string `json:"chargingMode,omitempty"`
-
-	RegionID string `json:"regionID,omitempty"`
-
-	PeriodType string `json:"periodType,omitempty"`
-
-	PeriodNum int `json:"periodNum,omitempty"`
-
-	IsAutoRenew string `json:"isAutoRenew,omitempty"`
-
-	IsAutoPay string `json:"isAutoPay,omitempty"`
-
+	ChargingMode        string `json:"chargingMode,omitempty"`
+	RegionID            string `json:"regionID,omitempty"`
+	PeriodType          string `json:"periodType,omitempty"`
+	PeriodNum           int    `json:"periodNum,omitempty"`
+	IsAutoRenew         string `json:"isAutoRenew,omitempty"`
+	IsAutoPay           string `json:"isAutoPay,omitempty"`
 	EnterpriseProjectId string `json:"enterprise_project_id,omitempty"`
-
 	SupportAutoRecovery string `json:"support_auto_recovery,omitempty"`
+
+	// Specifies whether to support the function of creating a disk and then ECS: true of false
+	DiskPrior string `json:"diskPrior,omitempty"`
+
+	// When creating a spot ECS, set the parameter value to "spot"
+	MarketType string `json:"marketType,omitempty"`
+	// Specifies the highest price per hour you accept for a spot ECS
+	SpotPrice string `json:"spotPrice,omitempty"`
+	// Specifies the service duration of the spot ECS in hours
+	SpotDurationHours int `json:"spot_duration_hours,omitempty"`
+	// Specifies the number of time periods in the service duration
+	SpotDurationCount int `json:"spot_duration_count,omitempty"`
+	// Specifies the spot ECS interruption policy, which can only be set to "immediate" currently
+	InterruptionPolicy string `json:"interruption_policy,omitempty"`
 }
 
 type MetaData struct {
