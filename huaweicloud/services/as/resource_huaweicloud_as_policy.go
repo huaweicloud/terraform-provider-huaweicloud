@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -243,38 +244,43 @@ func resourceASPolicyRead(_ context.Context, d *schema.ResourceData, meta interf
 	}
 
 	log.Printf("[DEBUG] Retrieved ASPolicy %q: %+v", policyId, asPolicy)
-	d.Set("scaling_policy_name", asPolicy.Name)
-	d.Set("scaling_policy_type", asPolicy.Type)
-	d.Set("alarm_id", asPolicy.AlarmID)
-	d.Set("cool_down_time", asPolicy.CoolDownTime)
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("scaling_policy_name", asPolicy.Name),
+		d.Set("scaling_policy_type", asPolicy.Type),
+		d.Set("scaling_group_id", asPolicy.ID),
+		d.Set("alarm_id", asPolicy.AlarmID),
+		d.Set("cool_down_time", asPolicy.CoolDownTime),
+		d.Set("scaling_policy_action", flattenPolicyAction(asPolicy.Action)),
+		d.Set("scheduled_policy", flattenSchedulePolicy(asPolicy.SchedulePolicy)),
+	)
 
-	policyActionInfo := asPolicy.Action
-	policyAction := map[string]interface{}{}
-	policyAction["operation"] = policyActionInfo.Operation
-	policyAction["instance_number"] = policyActionInfo.InstanceNum
-	policyActionList := []map[string]interface{}{}
-	policyActionList = append(policyActionList, policyAction)
-	d.Set("scaling_policy_action", policyActionList)
+	return diag.FromErr(mErr.ErrorOrNil())
+}
 
-	scheduledInfo := asPolicy.SchedulePolicy
-	if scheduledInfo.LaunchTime != "" {
-		scheduledMap := map[string]interface{}{
-			"launch_time":      scheduledInfo.LaunchTime,
-			"recurrence_type":  scheduledInfo.RecurrenceType,
-			"recurrence_value": scheduledInfo.RecurrenceValue,
-			"start_time":       scheduledInfo.StartTime,
-			"end_time":         scheduledInfo.EndTime,
-		}
-		scheduledPolicies := []map[string]interface{}{}
-		scheduledPolicies = append(scheduledPolicies, scheduledMap)
-		d.Set("scheduled_policy", scheduledPolicies)
-	} else {
-		d.Set("scheduled_policy", nil)
+func flattenPolicyAction(action policies.Action) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"operation":       action.Operation,
+			"instance_number": action.InstanceNum,
+		},
+	}
+}
+
+func flattenSchedulePolicy(policy policies.SchedulePolicy) []map[string]interface{} {
+	if policy.LaunchTime == "" {
+		return nil
 	}
 
-	d.Set("region", region)
-
-	return nil
+	return []map[string]interface{}{
+		{
+			"launch_time":      policy.LaunchTime,
+			"recurrence_type":  policy.RecurrenceType,
+			"recurrence_value": policy.RecurrenceValue,
+			"start_time":       policy.StartTime,
+			"end_time":         policy.EndTime,
+		},
+	}
 }
 
 func resourceASPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -325,7 +331,6 @@ func resourceASPolicyDelete(_ context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("Error creating autoscaling client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Begin to delete AS policy %q", d.Id())
 	if delErr := policies.Delete(asClient, d.Id()).ExtractErr(); delErr != nil {
 		return diag.Errorf("Error deleting AS policy: %s", delErr)
 	}
