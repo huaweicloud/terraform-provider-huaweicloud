@@ -296,6 +296,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v3",
 		Product: "ER",
 	},
+	"vpn": {
+		Name:    "vpn",
+		Version: "v5",
+		Product: "VPN",
+	},
 
 	// catalog for database
 	"rdsv1": {
