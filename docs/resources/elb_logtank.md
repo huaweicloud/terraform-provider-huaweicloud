@@ -12,6 +12,7 @@ Manage an ELB logtank resource within HuaweiCloud.
 variable "loadbalancer_id" {}
 variable "group_id" {}
 variable "topic_id" {}
+
 resource "huaweicloud_elb_logtank" "test" {
   loadbalancer_id = var.loadbalancer_id
   log_group_id    = var.group_id
@@ -26,7 +27,8 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the logtank resource.
   If omitted, the provider-level region will be used. Changing this creates a new logtank.
 
-* `loadbalancer_id` - (Required, String) Specifies the ID of a loadbalancer. It can not be changed.
+* `loadbalancer_id` - (Required, String, ForceNew) Specifies the ID of a loadbalancer. Changing this
+  creates a new logtank
 
 * `log_group_id` - (Required, String) Specifies the ID of a log group. It is provided by other service.
 

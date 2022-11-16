@@ -159,11 +159,8 @@ func checkGroupIdAndTopicId(config *config.Config, d *schema.ResourceData) diag.
 	logTopicId := d.Get("log_topic_id").(string)
 	streams, err := logstreams.List(logStreamClient, logGroupId).Extract()
 	if err != nil {
-		if apiError, ok := err.(golangsdk.ErrDefault400); ok {
-			// "LTS.0201" indicates the log group is not exist
-			if resp, pErr := common.ParseErrorMsg(apiError.Body); pErr == nil && resp.ErrorCode == "LTS.0201" {
-				return diag.Errorf("the log group id %s is error: %s", logGroupId)
-			}
+		if _, ok := err.(golangsdk.ErrDefault400); ok {
+			return diag.Errorf("the log group id %s is error: %s", logGroupId, err)
 		}
 		return diag.Errorf("error getting LTS log stream by log group id %s: %s", logGroupId, err)
 	}
@@ -171,6 +168,7 @@ func checkGroupIdAndTopicId(config *config.Config, d *schema.ResourceData) diag.
 	for _, stream := range streams.LogStreams {
 		if stream.ID == logTopicId {
 			containLogTopicId = true
+			break
 		}
 	}
 	if !containLogTopicId {

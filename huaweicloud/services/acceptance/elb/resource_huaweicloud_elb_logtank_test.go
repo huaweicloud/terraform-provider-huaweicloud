@@ -35,7 +35,7 @@ func TestAccElbLogTank_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      checkResourceDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccElbLogTankConfig_basic(rName),
@@ -64,27 +64,6 @@ func TestAccElbLogTank_basic(t *testing.T) {
 			},
 		},
 	})
-}
-
-func checkResourceDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	elbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("error creating HuaweiCloud ELB v3 client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_elb_logtank" {
-			continue
-		}
-
-		_, err := logtanks.Get(elbClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmt.Errorf("LogStanks still exists: %s", rs.Primary.ID)
-		}
-	}
-
-	return nil
 }
 
 func testAccElbLogTankConfig_basic(rName string) string {
