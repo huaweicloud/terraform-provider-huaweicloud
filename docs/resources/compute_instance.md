@@ -279,8 +279,14 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies a unique id in UUID format of enterprise project .
   Changing this creates a new instance.
 
-* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance. Valid values are *prePaid*
-  and *postPaid*, defaults to *postPaid*. Changing this creates a new instance.
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance. Valid values are *prePaid*,
+  *postPaid* and *spot*, defaults to *postPaid*. Changing this creates a new instance.
+
+  -> **NOTE:** Spot price ECSs are suitable for stateless, fault-tolerant instances that are not sensitive to
+  interruptions because they can be reclaimed suddenly. When the market price is higher than the maximum price
+  you specified, or the inventory is insufficient, your spot ECS will be terminated.
+  Do not use a spot ECS for inflexible or long-term workloads. For more details, see the differences between
+  the [billing modes](https://support.huaweicloud.com/intl/en-us/productdesc-ecs/ecs_01_0065.html).
 
 * `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the instance.
   Valid values are *month* and *year*. This parameter is mandatory if `charging_mode` is set to *prePaid*.
@@ -293,6 +299,18 @@ The following arguments are supported:
 
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
   Valid values are *true* and *false*. Defaults to *false*.
+
+* `spot_maximum_price` - (Optional, String, ForceNew) Specifies the highest price per hour you accept for a spot ECS.
+  This parameter takes effect only when `charging_mode` is set to *spot*. If the price is not specified,
+  the pay-per-use price is used by default. Changing this creates a new instance.
+
+* `spot_duration` - (Optional, Int, ForceNew) Specifies the service duration of the spot ECS in hours.
+  This parameter takes effect only when `charging_mode` is set to *spot*.
+  Changing this creates a new instance.
+
+* `spot_duration_count` - (Optional, Int, ForceNew) Specifies the number of time periods in the service duration.
+  This parameter takes effect only when `charging_mode` is set to *spot* and the default value is 1.
+  Changing this creates a new instance.
 
 * `user_id` - (Optional, String, ForceNew) Specifies a user ID, required when using key_pair in prePaid charging mode.
   Changing this creates a new instance.
@@ -398,7 +416,7 @@ Note that the imported state may not be identical to your resource definition, d
 API response, security or some other reason.
 The missing attributes include: `admin_pass`, `user_data`, `data_disks`, `scheduler_hints`, `stop_before_destroy`,
 `delete_disks_on_termination`, `delete_eip_on_termination`, `network/access_network`, `bandwidth`, `eip_type`,
-`power_action` and arguments for pre-paid.
+`power_action` and arguments for pre-paid and spot price.
 It is generally recommended running `terraform plan` after importing an instance.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to
 align with the instance. Also you can ignore changes as below.
