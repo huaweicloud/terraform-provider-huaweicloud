@@ -183,6 +183,11 @@ type RdsPage struct {
 	pagination.SinglePageBase
 }
 
+type ErrorResponse struct {
+	ErrorCode string `json:"error_code"`
+	ErrorMsg  string `json:"error_msg"`
+}
+
 func (r RdsPage) IsEmpty() (bool, error) {
 	data, err := ExtractRdsInstances(r)
 	if err != nil {

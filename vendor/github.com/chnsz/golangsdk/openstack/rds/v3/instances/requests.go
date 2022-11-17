@@ -72,6 +72,14 @@ type CreateRdsBuilder interface {
 	ToInstancesCreateMap() (map[string]interface{}, error)
 }
 
+type RestRootPasswordOpts struct {
+	DbUserPwd string `json:"db_user_pwd" required:"true"`
+}
+
+var RequestOpts = golangsdk.RequestOpts{
+	MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+}
+
 func (opts CreateOpts) ToInstancesCreateMap() (map[string]interface{}, error) {
 	b, err := golangsdk.BuildRequestBody(opts, "")
 	if err != nil {
@@ -436,4 +444,17 @@ func ListEngine(client *golangsdk.ServiceClient, dbName string) (*Engine, error)
 		return &s, err
 	}
 	return nil, err
+}
+
+func RestRootPassword(c *golangsdk.ServiceClient, instanceID string, opts RestRootPasswordOpts) (*ErrorResponse, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r ErrorResponse
+	_, err = c.Post(resetRootPasswordURL(c, instanceID), b, &r, &golangsdk.RequestOpts{
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
+	return &r, err
 }
