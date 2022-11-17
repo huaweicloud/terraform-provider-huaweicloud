@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	vpc_model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3/model"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -48,13 +49,16 @@ func ResourceVpcAddressGroup() *schema.Resource {
 				MaxItems: 20,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"ip_version": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				Default:      4,
+				ValidateFunc: validation.IntInSlice([]int{4, 6}),
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-			},
-			"ip_version": {
-				Type:     schema.TypeInt,
-				Computed: true,
 			},
 		},
 	}
@@ -77,7 +81,7 @@ func resourceVpcAddressGroupCreate(ctx context.Context, d *schema.ResourceData, 
 	addressGroupBody := &vpc_model.CreateAddressGroupOption{
 		Name:      d.Get("name").(string),
 		IpSet:     &ipSet,
-		IpVersion: 4,
+		IpVersion: int32(d.Get("ip_version").(int)),
 	}
 	if v, ok := d.GetOk("description"); ok {
 		desc := v.(string)
