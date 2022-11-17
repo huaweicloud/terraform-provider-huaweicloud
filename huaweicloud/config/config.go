@@ -637,6 +637,10 @@ func (c *Config) DnsWithRegionClient(region string) (*golangsdk.ServiceClient, e
 	return c.NewServiceClient("dns_region", region)
 }
 
+func (c *Config) ErV3Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("er", region)
+}
+
 // ********** client for Management **********
 func (c *Config) CtsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("cts", region)

@@ -868,6 +868,18 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 		t.Fatalf("VPCEP endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
 	t.Logf("VPCEP endpoint:\t %s", actualURL)
+
+	// Test the endpoint of ER endpoint (ver.3)
+	serviceClient, err = config.ErV3Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating ER v3 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://er.%s.%s/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("ER endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("ER endpoint:\t %s", actualURL)
 }
 
 func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
