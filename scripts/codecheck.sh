@@ -63,8 +63,9 @@ echo -e "\n==> Checking for running environment..."
 LINT=$(which golangci-lint)
 SCC=$(which scc)
 MISSPELL=$(which misspell)
+CYCLO=$(which gocyclo)
 
-if [ "X$LINT" == "X" ] || [ "X$SCC" == "X" ] || [ "X$MISSPELL" == "X" ]; then
+if [ "X$LINT" == "X" ] || [ "X$SCC" == "X" ] || [ "X$MISSPELL" == "X" ] || [ "X$CYCLO" == "X" ]; then
     echo "    ==> Checking PATH..."
     GOBIN=$(go env GOPATH)/bin
     added=$(echo $PATH | grep -w $GOBIN)
@@ -89,6 +90,11 @@ if [ "X$MISSPELL" == "X" ]; then
     go install github.com/client9/misspell/cmd/misspell@latest
 fi
 
+if [ "X$CYCLO" == "X" ]; then
+    echo "    ==> Installing gocyclo..."
+    go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
+fi
+
 # Apply patch
 echo -e "\n==> Applying patch..."
 git apply --check ./scripts/0001-deprecate-fmtp-and-logp.patch
@@ -105,6 +111,9 @@ scc --by-file -s complexity --no-cocomo -w $packageDir | grep -v "/deprecated/"
 if [ $? -ne 0 ]; then
     exit 1
 fi
+
+echo "the TOP10 most complex functions:"
+gocyclo -top 10 -avg $packageDir
 
 # Check golangci-lint
 echo -e "\n==> Checking for golangci-lint..."
@@ -136,10 +145,13 @@ if [ "X$service" != "X..." ] && [[ $package == ./huaweicloud/services/* ]]; then
     echo -e "\n==> Checking for code complexity in $testpackage..."
     scc --by-file -s complexity --no-cocomo -w $testpackage
 
+    echo "the TOP5 most complex functions:"
+    gocyclo -top 5 -avg $testpackage
+
     echo -e "\n==> Checking for golangci-lint in $testpackage..."
     golangci-lint run $testpackage
 
-    echo -e "\n==> Nolint Directiving in $testpackage..."
+    echo -e "\n==> Checking for Nolint directives in $testpackage..."
     grep -rn "nolint:" $testpackage
     grep -rn "lintignore:" $testpackage
 fi
