@@ -218,12 +218,12 @@ func ResourceASConfiguration() *schema.Resource {
 func validateDiskSize(diskSize int, diskType string) error {
 	if diskType == "SYS" {
 		if diskSize < 40 || diskSize > 32768 {
-			return fmt.Errorf("For system disk size should be [40, 32768]")
+			return fmt.Errorf("the system disk size should be between 40 and 32768")
 		}
 	}
 	if diskType == "DATA" {
 		if diskSize < 10 || diskSize > 32768 {
-			return fmt.Errorf("For data disk size should be [10, 32768]")
+			return fmt.Errorf("the data disk size should be between 10 and 32768")
 		}
 	}
 	return nil
@@ -328,13 +328,13 @@ func resourceASConfigurationCreate(ctx context.Context, d *schema.ResourceData, 
 	region := conf.GetRegion(d)
 	asClient, err := conf.AutoscalingV1Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating autoscaling client: %s", err)
+		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
 
 	configDataMap := d.Get("instance_config").([]interface{})[0].(map[string]interface{})
 	instanceConfig, err := buildInstanceConfig(configDataMap)
 	if err != nil {
-		return diag.Errorf("Error when getting instance_config info: %s", err)
+		return diag.Errorf("error when getting instance_config object: %s", err)
 	}
 	createOpts := configurations.CreateOpts{
 		Name:           d.Get("scaling_configuration_name").(string),
@@ -344,7 +344,7 @@ func resourceASConfigurationCreate(ctx context.Context, d *schema.ResourceData, 
 	log.Printf("[DEBUG] Create AS configuration Options: %#v", createOpts)
 	asConfigId, err := configurations.Create(asClient, createOpts).Extract()
 	if err != nil {
-		return diag.Errorf("Error creating AS configuration: %s", err)
+		return diag.Errorf("error creating AS configuration: %s", err)
 	}
 
 	d.SetId(asConfigId)
@@ -356,16 +356,16 @@ func resourceASConfigurationRead(_ context.Context, d *schema.ResourceData, meta
 	region := conf.GetRegion(d)
 	asClient, err := conf.AutoscalingV1Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating autoscaling client: %s", err)
+		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
 
 	configId := d.Id()
 	asConfig, err := configurations.Get(asClient, configId).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "AS Configuration")
+		return common.CheckDeletedDiag(d, err, "AS configuration")
 	}
 
-	log.Printf("[DEBUG] Retrieved ASConfiguration %s: %+v", configId, asConfig)
+	log.Printf("[DEBUG] Retrieved AS configuration %s: %+v", configId, asConfig)
 	return nil
 }
 
@@ -373,13 +373,13 @@ func resourceASConfigurationDelete(_ context.Context, d *schema.ResourceData, me
 	config := meta.(*config.Config)
 	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating autoscaling client: %s", err)
+		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
 
 	configId := d.Id()
 	groups, err := getASGroupsByConfiguration(asClient, configId)
 	if err != nil {
-		return diag.Errorf("Error getting AS groups by configuration ID %s: %s", configId, err)
+		return diag.Errorf("error getting AS groups by configuration ID %s: %s", configId, err)
 	}
 
 	if len(groups) > 0 {
@@ -387,11 +387,11 @@ func resourceASConfigurationDelete(_ context.Context, d *schema.ResourceData, me
 		for _, group := range groups {
 			groupIds = append(groupIds, group.ID)
 		}
-		return diag.Errorf("Can not delete the configuration %s, it is used by AS groups %v.", configId, groupIds)
+		return diag.Errorf("can not delete the configuration %s, it is used by AS groups %v", configId, groupIds)
 	}
 
 	if delErr := configurations.Delete(asClient, configId).ExtractErr(); delErr != nil {
-		return diag.Errorf("Error deleting AS configuration: %s", delErr)
+		return diag.Errorf("error deleting AS configuration: %s", delErr)
 	}
 
 	return nil
@@ -405,7 +405,7 @@ func getASGroupsByConfiguration(asClient *golangsdk.ServiceClient, configuration
 	}
 	page, err := groups.List(asClient, listOpts).AllPages()
 	if err != nil {
-		return gs, fmt.Errorf("Error getting ASGroups by configuration %q: %s", configurationID, err)
+		return gs, fmt.Errorf("error getting AS groups by configuration %s: %s", configurationID, err)
 	}
 
 	gs, err = page.(groups.GroupPage).Extract()

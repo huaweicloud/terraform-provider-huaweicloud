@@ -112,7 +112,7 @@ func testAccCheckASGroupDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	asClient, err := config.AutoscalingV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating autoscaling client: %s", err)
+		return fmt.Errorf("error creating autoscaling client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -143,7 +143,7 @@ func testAccCheckASGroupExists(n string, group *groups.Group) resource.TestCheck
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		asClient, err := config.AutoscalingV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating autoscaling client: %s", err)
+			return fmt.Errorf("error creating autoscaling client: %s", err)
 		}
 
 		found, err := groups.Get(asClient, rs.Primary.ID).Extract()

@@ -20,6 +20,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/tags"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 var (
@@ -230,9 +231,7 @@ func ResourceASGroup() *schema.Resource {
 	}
 }
 
-func buildNetworksOpts(d *schema.ResourceData) []groups.NetworkOpts {
-	networks := d.Get("networks").([]interface{})
-
+func buildNetworksOpts(networks []interface{}) []groups.NetworkOpts {
 	res := make([]groups.NetworkOpts, len(networks))
 	for i, v := range networks {
 		item := v.(map[string]interface{})
@@ -244,14 +243,30 @@ func buildNetworksOpts(d *schema.ResourceData) []groups.NetworkOpts {
 	return res
 }
 
-func buildSecurityGroupsOpts(d *schema.ResourceData) []groups.SecurityGroupOpts {
-	asGroups := d.Get("security_groups").([]interface{})
-
+func buildSecurityGroupsOpts(asGroups []interface{}) []groups.SecurityGroupOpts {
 	res := make([]groups.SecurityGroupOpts, len(asGroups))
 	for i, v := range asGroups {
 		item := v.(map[string]interface{})
 		res[i] = groups.SecurityGroupOpts{
 			ID: item["id"].(string),
+		}
+	}
+
+	return res
+}
+
+func buildLBaaSListenersOpts(listeners []interface{}) []groups.LBaaSListenerOpts {
+	if len(listeners) == 0 {
+		return nil
+	}
+
+	res := make([]groups.LBaaSListenerOpts, len(listeners))
+	for i, v := range listeners {
+		item := v.(map[string]interface{})
+		res[i] = groups.LBaaSListenerOpts{
+			PoolID:       item["pool_id"].(string),
+			ProtocolPort: item["protocol_port"].(int),
+			Weight:       item["weight"].(int),
 		}
 	}
 
@@ -277,36 +292,8 @@ func buildAvailabilityZonesOpts(d *schema.ResourceData) []string {
 	return zones
 }
 
-func buildNotificationsOpts(d *schema.ResourceData) []string {
-	rawNotifications := d.Get("notifications").([]interface{})
-	notifications := make([]string, len(rawNotifications))
-	for i, raw := range rawNotifications {
-		notifications[i] = raw.(string)
-	}
-
-	return notifications
-}
-
-func buildLBaaSListenersOpts(d *schema.ResourceData) []groups.LBaaSListenerOpts {
-	var aslisteners []groups.LBaaSListenerOpts
-
-	listeners := d.Get("lbaas_listeners").([]interface{})
-	for _, v := range listeners {
-		listener := v.(map[string]interface{})
-		s := groups.LBaaSListenerOpts{
-			PoolID:       listener["pool_id"].(string),
-			ProtocolPort: listener["protocol_port"].(int),
-			Weight:       listener["weight"].(int),
-		}
-		aslisteners = append(aslisteners, s)
-	}
-
-	return aslisteners
-}
-
 func expandGroupsTags(tagmap map[string]interface{}) []tags.ResourceTag {
-	var taglist []tags.ResourceTag
-
+	taglist := make([]tags.ResourceTag, 0, len(tagmap))
 	for k, v := range tagmap {
 		tag := tags.ResourceTag{
 			Key:   k,
@@ -465,11 +452,11 @@ func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta int
 		MaxInstanceNumber:         maxNum,
 		CoolDownTime:              d.Get("cool_down_time").(int),
 		LBListenerID:              d.Get("lb_listener_id").(string),
-		LBaaSListeners:            buildLBaaSListenersOpts(d),
-		Notifications:             buildNotificationsOpts(d),
 		AvailableZones:            buildAvailabilityZonesOpts(d),
-		Networks:                  buildNetworksOpts(d),
-		SecurityGroup:             buildSecurityGroupsOpts(d),
+		LBaaSListeners:            buildLBaaSListenersOpts(d.Get("lbaas_listeners").([]interface{})),
+		Networks:                  buildNetworksOpts(d.Get("networks").([]interface{})),
+		SecurityGroup:             buildSecurityGroupsOpts(d.Get("security_groups").([]interface{})),
+		Notifications:             utils.ExpandToStringList(d.Get("notifications").([]interface{})),
 		VpcID:                     d.Get("vpc_id").(string),
 		HealthPeriodicAuditMethod: d.Get("health_periodic_audit_method").(string),
 		HealthPeriodicAuditTime:   d.Get("health_periodic_audit_time").(int),
@@ -505,8 +492,7 @@ func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 	// check all instances are inservice
 	if desireNum > 0 {
-		timeout := d.Timeout(schema.TimeoutCreate)
-		err = checkASGroupInstancesInService(ctx, asClient, asgId, desireNum, timeout)
+		err = checkASGroupInstancesInService(ctx, asClient, asgId, desireNum, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return diag.Errorf("error waiting for instances in the AS group %s to become inservice: %s", asgId, err)
 		}
@@ -644,11 +630,11 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		MaxInstanceNumber:         maxNum,
 		CoolDownTime:              d.Get("cool_down_time").(int),
 		LBListenerID:              d.Get("lb_listener_id").(string),
-		LBaaSListeners:            buildLBaaSListenersOpts(d),
-		Notifications:             buildNotificationsOpts(d),
 		AvailableZones:            buildAvailabilityZonesOpts(d),
-		Networks:                  buildNetworksOpts(d),
-		SecurityGroup:             buildSecurityGroupsOpts(d),
+		LBaaSListeners:            buildLBaaSListenersOpts(d.Get("lbaas_listeners").([]interface{})),
+		Networks:                  buildNetworksOpts(d.Get("networks").([]interface{})),
+		SecurityGroup:             buildSecurityGroupsOpts(d.Get("security_groups").([]interface{})),
+		Notifications:             utils.ExpandToStringList(d.Get("notifications").([]interface{})),
 		HealthPeriodicAuditMethod: d.Get("health_periodic_audit_method").(string),
 		HealthPeriodicAuditTime:   d.Get("health_periodic_audit_time").(int),
 		InstanceTerminatePolicy:   d.Get("instance_terminate_policy").(string),
@@ -772,6 +758,6 @@ func resourceASGroupValidateListenerId(v interface{}, k string) (ws []string, er
 	if len(split) <= 6 {
 		return
 	}
-	errors = append(errors, fmt.Errorf("%s supports binding up to 6 ELB listeners which are separated by a comma.", k))
+	errors = append(errors, fmt.Errorf("%s supports binding up to 6 ELB listeners which are separated by a comma", k))
 	return
 }

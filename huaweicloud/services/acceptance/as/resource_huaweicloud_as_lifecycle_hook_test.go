@@ -64,7 +64,7 @@ func testAccCheckASLifecycleHookDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	asClient, err := config.AutoscalingV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating autoscaling client: %s", err)
+		return fmt.Errorf("error creating autoscaling client: %s", err)
 	}
 
 	var groupID string
@@ -107,7 +107,7 @@ func testAccCheckASLifecycleHookExists(resGroup, resHook string, hook *lifecycle
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		asClient, err := config.AutoscalingV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating autoscaling client: %s", err)
+			return fmt.Errorf("error creating autoscaling client: %s", err)
 		}
 		found, err := lifecyclehooks.Get(asClient, groupID, rs.Primary.ID).Extract()
 		if err != nil {

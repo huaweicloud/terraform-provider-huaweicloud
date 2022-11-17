@@ -142,12 +142,12 @@ func validateParameters(d *schema.ResourceData) error {
 
 	if policyType == "ALARM" {
 		if alarmId == "" {
-			return fmt.Errorf("Parameter alarm_id should be set if policy type is ALARM.")
+			return fmt.Errorf("parameter alarm_id should be set if policy type is ALARM")
 		}
 	}
 	if policyType == "SCHEDULED" || policyType == "RECURRENCE" {
 		if len(scheduledPolicy) == 0 {
-			return fmt.Errorf("Parameter scheduled_policy should be set if policy type is RECURRENCE or SCHEDULED.")
+			return fmt.Errorf("parameter scheduled_policy should be set if policy type is RECURRENCE or SCHEDULED")
 		}
 	}
 
@@ -158,10 +158,10 @@ func validateParameters(d *schema.ResourceData) error {
 
 		if policyType == "RECURRENCE" {
 			if recurrenceType == "" {
-				return fmt.Errorf("Parameter recurrence_type should be set if policy type is RECURRENCE.")
+				return fmt.Errorf("parameter recurrence_type should be set if policy type is RECURRENCE")
 			}
 			if endTime == "" {
-				return fmt.Errorf("Parameter end_time should be set if policy type is RECURRENCE.")
+				return fmt.Errorf("parameter end_time should be set if policy type is RECURRENCE")
 			}
 		}
 	}
@@ -192,12 +192,12 @@ func resourceASPolicyCreate(ctx context.Context, d *schema.ResourceData, meta in
 	config := meta.(*config.Config)
 	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating autoscaling client: %s", err)
+		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
 
 	err = validateParameters(d)
 	if err != nil {
-		return diag.Errorf("Error creating ASPolicy: %s", err)
+		return diag.Errorf("error creating AS policy: %s", err)
 	}
 	createOpts := policies.CreateOpts{
 		Name:         d.Get("scaling_policy_name").(string),
@@ -222,7 +222,7 @@ func resourceASPolicyCreate(ctx context.Context, d *schema.ResourceData, meta in
 	log.Printf("[DEBUG] Create AS policy Options: %#v", createOpts)
 	asPolicyId, err := policies.Create(asClient, createOpts).Extract()
 	if err != nil {
-		return diag.Errorf("Error creating ASPolicy: %s", err)
+		return diag.Errorf("error creating AS policy: %s", err)
 	}
 
 	d.SetId(asPolicyId)
@@ -234,16 +234,16 @@ func resourceASPolicyRead(_ context.Context, d *schema.ResourceData, meta interf
 	region := conf.GetRegion(d)
 	asClient, err := conf.AutoscalingV1Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating autoscaling client: %s", err)
+		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
 
 	policyId := d.Id()
 	asPolicy, err := policies.Get(asClient, policyId).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "AS Policy")
+		return common.CheckDeletedDiag(d, err, "AS policy")
 	}
 
-	log.Printf("[DEBUG] Retrieved ASPolicy %q: %+v", policyId, asPolicy)
+	log.Printf("[DEBUG] Retrieved AS policy %s: %+v", policyId, asPolicy)
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("scaling_policy_name", asPolicy.Name),
@@ -288,12 +288,12 @@ func resourceASPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	region := conf.GetRegion(d)
 	asClient, err := conf.AutoscalingV1Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating autoscaling client: %s", err)
+		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
 
 	err = validateParameters(d)
 	if err != nil {
-		return diag.Errorf("Error updating ASPolicy: %s", err)
+		return diag.Errorf("error updating AS policy: %s", err)
 	}
 	updateOpts := policies.UpdateOpts{
 		Name:         d.Get("scaling_policy_name").(string),
@@ -317,7 +317,7 @@ func resourceASPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	log.Printf("[DEBUG] Update AS policy Options: %#v", updateOpts)
 	asPolicyID, err := policies.Update(asClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return diag.Errorf("Error updating ASPolicy %q: %s", asPolicyID, err)
+		return diag.Errorf("error updating AS policy %s: %s", asPolicyID, err)
 	}
 
 	return resourceASPolicyRead(ctx, d, meta)
@@ -328,11 +328,11 @@ func resourceASPolicyDelete(_ context.Context, d *schema.ResourceData, meta inte
 	region := conf.GetRegion(d)
 	asClient, err := conf.AutoscalingV1Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating autoscaling client: %s", err)
+		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
 
 	if delErr := policies.Delete(asClient, d.Id()).ExtractErr(); delErr != nil {
-		return diag.Errorf("Error deleting AS policy: %s", delErr)
+		return diag.Errorf("error deleting AS policy: %s", delErr)
 	}
 
 	return nil
