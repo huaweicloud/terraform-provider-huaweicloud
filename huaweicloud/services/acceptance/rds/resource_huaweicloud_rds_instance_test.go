@@ -19,6 +19,10 @@ func TestAccRdsInstance_basic(t *testing.T) {
 	name := acceptance.RandomAccResourceName()
 	resourceType := "huaweicloud_rds_instance"
 	resourceName := "huaweicloud_rds_instance.test"
+	pwd := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
+		acctest.RandIntRange(10, 99))
+	newPwd := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
+		acctest.RandIntRange(10, 99))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -26,7 +30,7 @@ func TestAccRdsInstance_basic(t *testing.T) {
 		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRdsInstance_basic(name),
+				Config: testAccRdsInstance_basic(name, pwd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -39,10 +43,11 @@ func TestAccRdsInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.58"),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8635"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.password", pwd),
 				),
 			},
 			{
-				Config: testAccRdsInstance_update(name),
+				Config: testAccRdsInstance_update(name, newPwd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", name)),
@@ -53,6 +58,7 @@ func TestAccRdsInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_updated"),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8636"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.password", newPwd),
 				),
 			},
 			{
@@ -130,6 +136,8 @@ func TestAccRdsInstance_mysql(t *testing.T) {
 	resourceName := "huaweicloud_rds_instance.test"
 	pwd := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
 		acctest.RandIntRange(10, 99))
+	newPwd := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
+		acctest.RandIntRange(10, 99))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -145,10 +153,11 @@ func TestAccRdsInstance_mysql(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
 					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.58"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "3306"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.password", pwd),
 				),
 			},
 			{
-				Config: testAccRdsInstance_mysqlUpdate(name, pwd),
+				Config: testAccRdsInstance_mysqlUpdate(name, newPwd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -156,6 +165,7 @@ func TestAccRdsInstance_mysql(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
 					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.58"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "3308"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.password", newPwd),
 				),
 			},
 		},
@@ -315,7 +325,7 @@ resource "huaweicloud_networking_secgroup" "test" {
 `, name, name, name)
 }
 
-func testAccRdsInstance_basic(name string) string {
+func testAccRdsInstance_basic(name, password string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -330,7 +340,7 @@ resource "huaweicloud_rds_instance" "test" {
   fixed_ip          = "192.168.0.58"
 
   db {
-    password = "Huangwei!120521"
+    password = "%s"
     type     = "PostgreSQL"
     version  = "12"
     port     = 8635
@@ -349,11 +359,11 @@ resource "huaweicloud_rds_instance" "test" {
     foo = "bar"
   }
 }
-`, testAccRdsInstance_base(name), name)
+`, testAccRdsInstance_base(name), name, password)
 }
 
-// name, volume.size, backup_strategy, flavor and tags will be updated
-func testAccRdsInstance_update(name string) string {
+// name, volume.size, backup_strategy, flavor, tags and password will be updated
+func testAccRdsInstance_update(name, password string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -367,7 +377,7 @@ resource "huaweicloud_rds_instance" "test" {
   time_zone         = "UTC+08:00"
 
   db {
-    password = "Huangwei!120521"
+    password = "%s"
     type     = "PostgreSQL"
     version  = "12"
     port     = 8636
@@ -386,7 +396,7 @@ resource "huaweicloud_rds_instance" "test" {
     foo  = "bar_updated"
   }
 }
-`, testAccRdsInstance_base(name), name)
+`, testAccRdsInstance_base(name), name, password)
 }
 
 func testAccRdsInstance_epsId(name string) string {

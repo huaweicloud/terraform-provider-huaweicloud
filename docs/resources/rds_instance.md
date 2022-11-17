@@ -203,10 +203,10 @@ The `db` block supports:
   resource. Available values detailed in
   [DB Engines and Versions](https://support.huaweicloud.com/intl/en-us/productdesc-rds/en-us_topic_0043898356.html).
 
-* `password` - (Required, String, ForceNew) Specifies the database password. The value cannot be empty and should
+* `password` - (Required, String) Specifies the database password. The value cannot be empty and should
   contain 8 to 32 characters, including uppercase and lowercase letters, digits, and the following special
   characters: ~!@#%^*-_=+? You are advised to enter a strong password to improve security, preventing security risks
-  such as brute force cracking. Changing this parameter will create a new resource.
+  such as brute force cracking.
 
 * `port` - (Optional, Int) Specifies the database port.
   + The MySQL database port ranges from 1024 to 65535 (excluding 12017 and 33071, which are occupied by the RDS system

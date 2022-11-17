@@ -79,7 +79,6 @@ func ResourceRdsInstance() *schema.Resource {
 							Type:      schema.TypeString,
 							Sensitive: true,
 							Required:  true,
-							ForceNew:  true,
 						},
 						"type": {
 							Type:             schema.TypeString,
@@ -571,6 +570,10 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
+	if err := updateRdsRootPassword(d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(client, d, "instances", instanceID)
 		if tagErr != nil {
@@ -963,4 +966,19 @@ func rdsInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID str
 
 		return instance, instance.Status, nil
 	}
+}
+
+func updateRdsRootPassword(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
+	if !d.HasChange("db.0.password") {
+		return nil
+	}
+
+	updateOpts := instances.RestRootPasswordOpts{
+		DbUserPwd: d.Get("db.0.password").(string),
+	}
+	_, err := instances.RestRootPassword(client, instanceID, updateOpts)
+	if err != nil {
+		return fmt.Errorf("error resetting the root password: %s", err)
+	}
+	return nil
 }

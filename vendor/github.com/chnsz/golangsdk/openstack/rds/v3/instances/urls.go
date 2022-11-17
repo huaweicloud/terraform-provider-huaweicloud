@@ -25,3 +25,7 @@ func jobURL(c *golangsdk.ServiceClient) string {
 func engineURL(c *golangsdk.ServiceClient, dbName string) string {
 	return c.ServiceURL("datastores", dbName)
 }
+
+func resetRootPasswordURL(c *golangsdk.ServiceClient, instancesId string) string {
+	return c.ServiceURL("instances", instancesId, "password")
+}
