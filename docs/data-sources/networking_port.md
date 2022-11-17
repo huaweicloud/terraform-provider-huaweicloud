@@ -46,6 +46,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `device_id` - The ID of the device the port belongs to.
 
+* `all_allowed_ips` - The collection of allowed IP addresses on the port.
+
 * `all_fixed_ips` - The collection of Fixed IP addresses on the port.
 
 * `all_security_group_ids` - The collection of security group IDs applied on the port.

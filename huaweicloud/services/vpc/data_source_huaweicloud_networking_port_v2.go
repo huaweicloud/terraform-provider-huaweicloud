@@ -86,6 +86,11 @@ func DataSourceNetworkingPortV2() *schema.Resource {
 			},
 
 			// Computed
+			"all_allowed_ips": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"all_fixed_ips": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -214,9 +219,19 @@ func dataSourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) er
 	d.Set("device_id", port.DeviceID)
 	d.Set("region", config.GetRegion(d))
 	d.Set("all_security_group_ids", port.SecurityGroups)
+	d.Set("all_allowed_ips", expandNetworkingPortAllowedAddressPairToStringSlice(port.AllowedAddressPairs))
 	d.Set("all_fixed_ips", expandNetworkingPortFixedIPToStringSlice(port.FixedIPs))
 
 	return nil
+}
+
+func expandNetworkingPortAllowedAddressPairToStringSlice(addressPairs []ports.AddressPair) []string {
+	s := make([]string, len(addressPairs))
+	for i, addressPair := range addressPairs {
+		s[i] = addressPair.IPAddress
+	}
+
+	return s
 }
 
 func expandNetworkingPortFixedIPToStringSlice(fixedIPs []ports.IP) []string {
