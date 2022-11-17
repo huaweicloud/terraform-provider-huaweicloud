@@ -2,6 +2,7 @@ package as
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -13,7 +14,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/lifecyclehooks"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 var hookTypeMap = map[string]string{
@@ -95,7 +95,7 @@ func resourceASLifecycleHookCreate(ctx context.Context, d *schema.ResourceData, 
 	config := meta.(*config.Config)
 	client, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating AutoScaling client: %s", err)
+		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
 
 	groupId := d.Get("scaling_group_id").(string)
@@ -109,12 +109,12 @@ func resourceASLifecycleHookCreate(ctx context.Context, d *schema.ResourceData, 
 	hookType := d.Get("type").(string)
 	v, ok := hookTypeMap[hookType]
 	if !ok {
-		return diag.Errorf("Lifecycle hook type (%s) is not in the map (%#v)", hookType, hookTypeMap)
+		return diag.Errorf("lifecycle hook type (%s) is not in the map (%#v)", hookType, hookTypeMap)
 	}
 	createOpts.Type = v
 	hook, err := lifecyclehooks.Create(client, createOpts, groupId).Extract()
 	if err != nil {
-		return diag.Errorf("Error creating lifecycle hook: %s", err)
+		return diag.Errorf("error creating lifecycle hook: %s", err)
 	}
 	d.SetId(hook.Name)
 
@@ -126,17 +126,17 @@ func resourceASLifecycleHookRead(_ context.Context, d *schema.ResourceData, meta
 	region := config.GetRegion(d)
 	client, err := config.AutoscalingV1Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating AutoScaling client: %s", err)
+		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
 
 	groupId := d.Get("scaling_group_id").(string)
 	hook, err := lifecyclehooks.Get(client, groupId, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Error getting the specifies lifecycle hook of the AutoScaling service")
+		return common.CheckDeletedDiag(d, err, "error getting the specifies lifecycle hook of the autoscaling service")
 	}
 	d.Set("region", region)
 	if err = setASLifecycleHookToState(d, hook); err != nil {
-		return diag.Errorf("Error setting the lifecycle hook to state: %s", err)
+		return diag.Errorf("error setting the lifecycle hook to state: %s", err)
 	}
 	return nil
 }
@@ -145,7 +145,7 @@ func resourceASLifecycleHookUpdate(ctx context.Context, d *schema.ResourceData, 
 	config := meta.(*config.Config)
 	client, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating AutoScaling client: %s", err)
+		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
 
 	updateOpts := lifecyclehooks.UpdateOpts{}
@@ -153,7 +153,7 @@ func resourceASLifecycleHookUpdate(ctx context.Context, d *schema.ResourceData, 
 		hookType := d.Get("type").(string)
 		v, ok := hookTypeMap[hookType]
 		if !ok {
-			return diag.Errorf("The type (%s) of hook is not in the map (%#v)", hookType, hookTypeMap)
+			return diag.Errorf("the type (%s) of hook is not in the map (%#v)", hookType, hookTypeMap)
 		}
 		updateOpts.Type = v
 	}
@@ -172,7 +172,7 @@ func resourceASLifecycleHookUpdate(ctx context.Context, d *schema.ResourceData, 
 	groupId := d.Get("scaling_group_id").(string)
 	_, err = lifecyclehooks.Update(client, updateOpts, groupId, d.Id()).Extract()
 	if err != nil {
-		return diag.Errorf("Error updating the lifecycle hook of the AutoScaling service: %s", err)
+		return diag.Errorf("error updating the lifecycle hook of the autoscaling service: %s", err)
 	}
 
 	return resourceASLifecycleHookRead(ctx, d, meta)
@@ -182,13 +182,13 @@ func resourceASLifecycleHookDelete(_ context.Context, d *schema.ResourceData, me
 	config := meta.(*config.Config)
 	client, err := config.AutoscalingV1Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating AutoScaling client: %s", err)
+		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
 
 	groupId := d.Get("scaling_group_id").(string)
 	err = lifecyclehooks.Delete(client, groupId, d.Id()).ExtractErr()
 	if err != nil {
-		return diag.Errorf("Error deleting the lifecycle hook of the AutoScaling service: %s", err)
+		return diag.Errorf("error deleting the lifecycle hook of the autoscaling service: %s", err)
 	}
 
 	return nil
@@ -218,13 +218,13 @@ func setASLifecycleHookType(d *schema.ResourceData, hook *lifecyclehooks.Hook) e
 			return err
 		}
 	}
-	return fmtp.Errorf("The type of hook response is not in the map")
+	return fmt.Errorf("the type of hook response is not in the map")
 }
 
 func resourceASLifecycleHookImportState(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		return nil, fmtp.Errorf("Invalid format specified for lifecycle hook, must be <scaling_group_id>/<hook_id>")
+		return nil, fmt.Errorf("invalid format specified for lifecycle hook, must be <scaling_group_id>/<hook_id>")
 	}
 	d.SetId(parts[1])
 	d.Set("scaling_group_id", parts[0])
