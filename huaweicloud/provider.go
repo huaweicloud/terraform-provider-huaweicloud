@@ -686,7 +686,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_enterprise_project": eps.ResourceEnterpriseProject(),
 
-			"huaweicloud_er_instance": er.ResourceInstance(),
+			"huaweicloud_er_instance":       er.ResourceInstance(),
+			"huaweicloud_er_vpc_attachment": er.ResourceVpcAttachment(),
 
 			"huaweicloud_evs_snapshot": ResourceEvsSnapshotV2(),
 			"huaweicloud_evs_volume":   evs.ResourceEvsVolume(),
