@@ -195,7 +195,7 @@ func resourceASBandWidthPolicyCreate(ctx context.Context, d *schema.ResourceData
 	}
 
 	createBandwidthPolicyPath := createBandwidthPolicyClient.Endpoint + createBandwidthPolicyHttpUrl
-	createBandwidthPolicyPath = strings.Replace(createBandwidthPolicyPath, "{project_id}", createBandwidthPolicyClient.ProjectID, -1)
+	createBandwidthPolicyPath = strings.ReplaceAll(createBandwidthPolicyPath, "{project_id}", createBandwidthPolicyClient.ProjectID)
 
 	createBandwidthPolicyOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -289,8 +289,8 @@ func resourceASBandWidthPolicyRead(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	getBandwidthPolicyPath := getBandwidthPolicyClient.Endpoint + getBandwidthPolicyHttpUrl
-	getBandwidthPolicyPath = strings.Replace(getBandwidthPolicyPath, "{project_id}", getBandwidthPolicyClient.ProjectID, -1)
-	getBandwidthPolicyPath = strings.Replace(getBandwidthPolicyPath, "{id}", d.Id(), -1)
+	getBandwidthPolicyPath = strings.ReplaceAll(getBandwidthPolicyPath, "{project_id}", getBandwidthPolicyClient.ProjectID)
+	getBandwidthPolicyPath = strings.ReplaceAll(getBandwidthPolicyPath, "{id}", d.Id())
 
 	getBandwidthPolicyOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -392,8 +392,8 @@ func resourceASBandWidthPolicyUpdate(ctx context.Context, d *schema.ResourceData
 		}
 
 		updateBandwidthPolicyPath := updateBandwidthPolicyClient.Endpoint + updateBandwidthPolicyHttpUrl
-		updateBandwidthPolicyPath = strings.Replace(updateBandwidthPolicyPath, "{project_id}", updateBandwidthPolicyClient.ProjectID, -1)
-		updateBandwidthPolicyPath = strings.Replace(updateBandwidthPolicyPath, "{id}", d.Id(), -1)
+		updateBandwidthPolicyPath = strings.ReplaceAll(updateBandwidthPolicyPath, "{project_id}", updateBandwidthPolicyClient.ProjectID)
+		updateBandwidthPolicyPath = strings.ReplaceAll(updateBandwidthPolicyPath, "{id}", d.Id())
 
 		updateBandwidthPolicyOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,

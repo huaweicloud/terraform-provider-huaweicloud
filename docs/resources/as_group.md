@@ -147,7 +147,7 @@ The following arguments are supported:
 * `lbaas_listeners` - (Optional, List) An array of one or more enhanced load balancer. The system supports the binding
   of up to six load balancers. The object structure is documented below.
 
-* `available_zones` - (Optional, List) The availability zones in which to create the instances in the autoscaling group.
+* `availability_zones` - (Optional, List) The availability zones in which to create the instances in the autoscaling group.
 
 * `networks` - (Required, List) An array of one or more network IDs. The system supports up to five networks. The
   networks object structure is documented below.

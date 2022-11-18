@@ -27,8 +27,8 @@ func getASBandWidthPolicyResourceFunc(config *config.Config, state *terraform.Re
 	}
 
 	getBandwidthPolicyPath := getBandwidthPolicyClient.Endpoint + getBandwidthPolicyHttpUrl
-	getBandwidthPolicyPath = strings.Replace(getBandwidthPolicyPath, "{project_id}", getBandwidthPolicyClient.ProjectID, -1)
-	getBandwidthPolicyPath = strings.Replace(getBandwidthPolicyPath, "{id}", state.Primary.ID, -1)
+	getBandwidthPolicyPath = strings.ReplaceAll(getBandwidthPolicyPath, "{project_id}", getBandwidthPolicyClient.ProjectID)
+	getBandwidthPolicyPath = strings.ReplaceAll(getBandwidthPolicyPath, "{id}", state.Primary.ID)
 
 	getBandwidthPolicyOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,

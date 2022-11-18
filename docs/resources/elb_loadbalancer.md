@@ -155,6 +155,12 @@ The following arguments are supported:
 
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled. Valid values are **true** and **false**.
 
+* `autoscaling_enabled` - (Optional, Bool) Specifies whether autoscaling is enabled. Valid values are **true** and
+  **false**.
+
+* `min_l7_flavor_id` - (Optional, String) Specifies the ID of the minimum Layer-7 flavor for elastic scaling.
+  This parameter cannot be left blank if there are HTTP or HTTPS listeners.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
