@@ -31,13 +31,13 @@ type MetricInfo struct {
 }
 
 type ConditionInfo struct {
-	Period             int    `json:"period"`
-	Filter             string `json:"filter"`
-	ComparisonOperator string `json:"comparison_operator"`
-	Value              int    `json:"value"`
-	Unit               string `json:"unit"`
-	Count              int    `json:"count"`
-	SuppressDuration   int    `json:"suppress_duration"`
+	Period             int     `json:"period"`
+	Filter             string  `json:"filter"`
+	ComparisonOperator string  `json:"comparison_operator"`
+	Value              float64 `json:"value"`
+	Unit               string  `json:"unit"`
+	Count              int     `json:"count"`
+	SuppressDuration   int     `json:"suppress_duration"`
 }
 
 type ActionInfo struct {

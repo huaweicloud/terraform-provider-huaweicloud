@@ -158,7 +158,7 @@ func ResourceAlarmRule() *schema.Resource {
 						},
 
 						"value": {
-							Type:     schema.TypeInt,
+							Type:     schema.TypeFloat,
 							Required: true,
 						},
 
@@ -313,7 +313,7 @@ func buildAlarmCondition(d *schema.ResourceData) alarmrule.ConditionOpts {
 		opts.Period = condition["period"].(int)
 		opts.Filter = condition["filter"].(string)
 		opts.ComparisonOperator = condition["comparison_operator"].(string)
-		opts.Value = condition["value"].(int)
+		opts.Value = condition["value"].(float64)
 		opts.Unit = condition["unit"].(string)
 		opts.Count = condition["count"].(int)
 		opts.SuppressDuration = condition["suppress_duration"].(int)
