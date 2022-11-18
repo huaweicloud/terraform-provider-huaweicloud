@@ -37,7 +37,7 @@ func TestAccVpcAddressGroup_basic(t *testing.T) {
 		getVpcAddressGroupResourceFunc,
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -58,6 +58,51 @@ func TestAccVpcAddressGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "description", "updated by acc test"),
 					resource.TestCheckResourceAttr(resourceName, "addresses.#", "3"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccVpcAddressGroup_ipv6(t *testing.T) {
+	var group vpc_model.ShowAddressGroupResponse
+
+	rName := acceptance.RandomAccResourceName()
+	rNameUpdate := rName + "_updated"
+	resourceName := "huaweicloud_vpc_address_group.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&group,
+		getVpcAddressGroupResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testVpcAdressGroup_ipv6(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
+					resource.TestCheckResourceAttr(resourceName, "ip_version", "6"),
+					resource.TestCheckResourceAttr(resourceName, "addresses.#", "1"),
+				),
+			},
+			{
+				Config: testVpcAdressGroup_ipv6_update(rNameUpdate),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "description", "updated by acc test"),
+					resource.TestCheckResourceAttr(resourceName, "addresses.#", "2"),
 				),
 			},
 			{
@@ -91,6 +136,33 @@ resource "huaweicloud_vpc_address_group" "test" {
     "192.168.5.0/24",
     "192.168.3.2",
     "192.168.3.20-192.168.3.100"
+  ]
+}
+`, rName)
+}
+
+func testVpcAdressGroup_ipv6(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc_address_group" "test" {
+  name        = "%s"
+  description = "created by acc test"
+  ip_version  = 6
+  addresses   = [
+    "2001:db8:a583:6e::/64"
+  ]
+}
+`, rName)
+}
+
+func testVpcAdressGroup_ipv6_update(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc_address_group" "test" {
+  name        = "%s"
+  description = "updated by acc test"
+  ip_version  = 6
+  addresses   = [
+    "2001:db8:a583:8e::1-2001:db8:a583:8e::50",
+    "2001:db8:a583:6e::/64"
   ]
 }
 `, rName)
