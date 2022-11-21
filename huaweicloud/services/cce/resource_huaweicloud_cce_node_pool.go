@@ -264,6 +264,14 @@ func ResourceCCENodePool() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"pod_security_groups": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"current_node_count": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -279,6 +287,19 @@ func ResourceCCENodePool() *schema.Resource {
 func resourceCCENodePoolTags(d *schema.ResourceData) []tags.ResourceTag {
 	tagRaw := d.Get("tags").(map[string]interface{})
 	return utils.ExpandResourceTags(tagRaw)
+}
+
+func buildPodSecurityGroups(ids []interface{}) []nodepools.PodSecurityGroupSpec {
+	if len(ids) == 0 {
+		return nil
+	}
+
+	groups := make([]nodepools.PodSecurityGroupSpec, len(ids))
+	for i, id := range ids {
+		groups[i] = nodepools.PodSecurityGroupSpec{Id: id.(string)}
+	}
+
+	return groups
 }
 
 func resourceCCENodePoolCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -343,7 +364,8 @@ func resourceCCENodePoolCreate(ctx context.Context, d *schema.ResourceData, meta
 				ScaleDownCooldownTime: d.Get("scale_down_cooldown_time").(int),
 				Priority:              d.Get("priority").(int),
 			},
-			InitialNodeCount: &initialNodeCount,
+			InitialNodeCount:  &initialNodeCount,
+			PodSecurityGroups: buildPodSecurityGroups(d.Get("pod_security_groups").([]interface{})),
 		},
 	}
 
@@ -415,6 +437,8 @@ func resourceCCENodePoolRead(_ context.Context, d *schema.ResourceData, meta int
 		return common.CheckDeletedDiag(d, err, "Error retrieving HuaweiCloud Node Pool")
 	}
 
+	// The following parameters are not returned:
+	// password, subnet_id, preinstall, posteinstall, taints, initial_node_count, pod_security_groups
 	mErr := multierror.Append(nil,
 		d.Set("region", config.GetRegion(d)),
 		d.Set("name", s.Metadata.Name),

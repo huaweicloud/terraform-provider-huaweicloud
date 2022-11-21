@@ -112,6 +112,9 @@ extend_param = {
 * `priority` - (Optional, Int) Specifies the weight of the node pool.
   A node pool with a higher weight has a higher priority during scaling.
 
+* `pod_security_groups` - (Optional, List, ForceNew) Specifies the list of security group IDs for the pod.
+  Only supported in CCE Turbo clusters of v1.19 and above. Changing this parameter will create a new resource.
+
 * `labels` - (Optional, Map) Specifies the tags of a Kubernetes node, key/value pair format.
 
 * `tags` - (Optional, Map) Specifies the tags of a VM node, key/value pair format.
@@ -202,7 +205,7 @@ $ terraform import huaweicloud_cce_node_pool.my_node_pool 5c20fdad-7288-11eb-b81
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
-`password`, `subnet_id`, `preinstall`, `posteinstall`, `taints` and `initial_node_count`.
+`password`, `subnet_id`, `preinstall`, `posteinstall`, `taints`, `initial_node_count` and `pod_security_groups`.
 It is generally recommended running `terraform plan` after importing a node pool.
 You can then decide if changes should be applied to the node pool, or the resource
 definition should be updated to align with the node pool. Also you can ignore changes as below.
