@@ -4,17 +4,19 @@ subcategory: "Auto Scaling"
 
 # huaweicloud_as_policy
 
-Manages a AS Policy resource within HuaweiCloud.
+Manages an AS policy resource within HuaweiCloud.
 
 ## Example Usage
 
 ### AS Recurrence Policy
 
 ```hcl
+variable "as_group_id" {}
+
 resource "huaweicloud_as_policy" "my_aspolicy" {
   scaling_policy_name = "my_aspolicy"
   scaling_policy_type = "RECURRENCE"
-  scaling_group_id    = "4579f2f5-cbe8-425a-8f32-53dcb9d9053a"
+  scaling_group_id    = var.as_group_id
   cool_down_time      = 900
 
   scaling_policy_action {
@@ -24,8 +26,8 @@ resource "huaweicloud_as_policy" "my_aspolicy" {
   scheduled_policy {
     launch_time     = "07:00"
     recurrence_type = "Daily"
-    start_time      = "2020-11-30T12:00Z"
-    end_time        = "2020-12-30T12:00Z"
+    start_time      = "2022-11-30T12:00Z"
+    end_time        = "2022-12-30T12:00Z"
   }
 }
 ```
@@ -33,10 +35,12 @@ resource "huaweicloud_as_policy" "my_aspolicy" {
 ### AS Scheduled Policy
 
 ```hcl
+variable "as_group_id" {}
+
 resource "huaweicloud_as_policy" "my_aspolicy_1" {
   scaling_policy_name = "my_aspolicy_1"
   scaling_policy_type = "SCHEDULED"
-  scaling_group_id    = "4579f2f5-cbe8-425a-8f32-53dcb9d9053a"
+  scaling_group_id    = var.as_group_id
   cool_down_time      = 900
 
   scaling_policy_action {
@@ -44,16 +48,16 @@ resource "huaweicloud_as_policy" "my_aspolicy_1" {
     instance_number = 1
   }
   scheduled_policy {
-    launch_time = "2020-12-22T12:00Z"
+    launch_time = "2022-12-22T12:00Z"
   }
 }
 ```
 
-Please note that the `launch_time` of the `SCHEDULED` policy cannot be earlier than the current time.
-
 ### AS Alarm Policy
 
 ```hcl
+variable "as_group_id" {}
+
 resource "huaweicloud_ces_alarmrule" "alarm_rule" {
   alarm_name = "as_alarm_rule"
 
@@ -62,7 +66,7 @@ resource "huaweicloud_ces_alarmrule" "alarm_rule" {
     metric_name = "cpu_util"
     dimensions {
       name  = "AutoScalingGroup"
-      value = "4579f2f5-cbe8-425a-8f32-53dcb9d9053a"
+      value = var.as_group_id
     }
   }
   condition {
@@ -82,7 +86,7 @@ resource "huaweicloud_ces_alarmrule" "alarm_rule" {
 resource "huaweicloud_as_policy" "my_aspolicy_2" {
   scaling_policy_name = "my_aspolicy_2"
   scaling_policy_type = "ALARM"
-  scaling_group_id    = "4579f2f5-cbe8-425a-8f32-53dcb9d9053a"
+  scaling_group_id    = var.as_group_id
   alarm_id            = huaweicloud_ces_alarmrule.alarm_rule.id
   cool_down_time      = 900
 
@@ -97,59 +101,67 @@ resource "huaweicloud_as_policy" "my_aspolicy_2" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the AS policy. If omitted, the `region` argument
-  of the provider is used. Changing this creates a new AS policy.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the AS policy. If omitted, the
+  provider-level region will be used. Changing this creates a new AS policy.
 
-* `scaling_policy_name` - (Required, String) The name of the AS policy. The name can contain letters, digits,
+* `scaling_policy_name` - (Required, String) Specifies the name of the AS policy. The name contains only letters, digits,
   underscores(_), and hyphens(-), and cannot exceed 64 characters.
 
-* `scaling_policy_type` - (Required, String) The AS policy type. The values can be `ALARM`, `SCHEDULED`,
-  and `RECURRENCE`.
+* `scaling_group_id` - (Required, String, ForceNew) Specifies the AS group ID. Changing this creates a new AS policy.
 
-* `scaling_group_id` - (Required, String, ForceNew) The AS group ID. Changing this creates a new AS policy.
+* `scaling_policy_type` - (Required, String) Specifies the AS policy type. The value can be `ALARM`, `SCHEDULED` or `RECURRENCE`.
+  + **ALARM**: indicates that the scaling action is triggered by an alarm.
+  + **SCHEDULED**: indicates that the scaling action is triggered as scheduled.
+  + **RECURRENCE**: indicates that the scaling action is triggered periodically.
 
-* `alarm_id` - (Optional, String) The alarm rule ID. This argument is mandatory when `scaling_policy_type`
-  is set to `ALARM`. You can create an alarm rule with `huaweicloud_ces_alarmrule`.
+* `alarm_id` - (Optional, String) Specifies the alarm rule ID. This parameter is mandatory when `scaling_policy_type`
+  is set to `ALARM`. You can create an alarm rule with
+  [huaweicloud_ces_alarmrule](https://registry.terraform.io/providers/huaweicloud/huaweicloud/latest/docs/resources/ces_alarmrule).
 
-* `scheduled_policy` - (Optional, List) The periodic or scheduled AS policy. This argument is mandatory
-  when `scaling_policy_type` is set to `SCHEDULED` or `RECURRENCE`. The scheduled_policy structure is documented below.
+* `scheduled_policy` - (Optional, List) Specifies the periodic or scheduled AS policy.
+  This parameter is mandatory when `scaling_policy_type` is set to `SCHEDULED` or `RECURRENCE`.
+  The [object](#scheduled_policy_object) structure is documented below.
 
-* `scaling_policy_action` - (Optional, List) The action of the AS policy. The scaling_policy_action structure is
-  documented below.
+* `scaling_policy_action` - (Optional, List) Specifies the action of the AS policy.
+  The [object](#scaling_policy_action_object) structure is documented below.
 
-* `cool_down_time` - (Optional, Int) The cooling duration (in seconds), and is 900 by default.
+* `cool_down_time` - (Optional, Int) Specifies the cooling duration (in seconds), and the default value is 900.
 
+<a name="scheduled_policy_object"></a>
 The `scheduled_policy` block supports:
 
-* `launch_time` - (Required, String) The time when the scaling action is triggered.
-  + If `scaling_policy_type` is set to `SCHEDULED`, the time format is YYYY-MM-DDThh:mmZ.
-  + If `scaling_policy_type` is set to `RECURRENCE`, the time format is hh:mm.
+* `launch_time` - (Required, String) Specifies the time when the scaling action is triggered.
+  + If `scaling_policy_type` is set to `SCHEDULED`, the time format is **YYYY-MM-DDThh:mmZ**.
+  + If `scaling_policy_type` is set to `RECURRENCE`, the time format is **hh:mm**.
 
-* `recurrence_type` - (Optional, String) The periodic triggering type. This argument is mandatory when
+  -> the `launch_time` of the `SCHEDULED` policy cannot be earlier than the current time.
+
+* `recurrence_type` - (Optional, String) Specifies the periodic triggering type. This argument is mandatory when
   `scaling_policy_type` is set to `RECURRENCE`. The options include `Daily`, `Weekly`, and `Monthly`.
 
-* `recurrence_value` - (Optional, String) The frequency at which scaling actions are triggered.
+* `recurrence_value` - (Optional, String) Specifies the frequency at which scaling actions are triggered.
 
-* `start_time` - (Optional, String) The start time of the scaling action triggered periodically. The time format
+* `start_time` - (Optional, String) Specifies the start time of the scaling action triggered periodically. The time format
   complies with UTC. The current time is used by default. The time format is YYYY-MM-DDThh:mmZ.
 
-* `end_time` - (Optional, String) The end time of the scaling action triggered periodically. The time format complies
+* `end_time` - (Optional, String) Specifies the end time of the scaling action triggered periodically. The time format complies
   with UTC. This argument is mandatory when `scaling_policy_type`
   is set to `RECURRENCE`. The time format is YYYY-MM-DDThh:mmZ.
 
+<a name="scaling_policy_action_object"></a>
 The `scaling_policy_action` block supports:
 
-* `operation` - (Optional, String) The operation to be performed. The options include `ADD` (default), `REMOVE`,
+* `operation` - (Optional, String) Specifies the operation to be performed. The options include `ADD` (default), `REMOVE`,
   and `SET`.
 
-* `instance_number` - (Optional, Int) The number of instances to be operated. The default number is 1.
+* `instance_number` - (Optional, Int) Specifies the number of instances to be operated. The default number is 1.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
-* `status` - The AS policy status. The value can be *INSERVICE*, *PAUSED*, *EXECUTING*.
+* `id` - The resource ID in UUID format.
+* `status` - The AS policy status. The value can be *INSERVICE*, *PAUSED* or *EXECUTING*.
 
 ## Import
 
