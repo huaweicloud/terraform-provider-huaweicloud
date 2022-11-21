@@ -15,6 +15,7 @@ import (
 func TestAccASPolicy_basic(t *testing.T) {
 	var asPolicy policies.Policy
 	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_as_policy.acc_as_policy"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -24,8 +25,14 @@ func TestAccASPolicy_basic(t *testing.T) {
 			{
 				Config: testASPolicy_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckASPolicyExists("huaweicloud_as_policy.acc_as_policy", &asPolicy),
+					testAccCheckASPolicyExists(resourceName, &asPolicy),
+					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

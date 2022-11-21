@@ -29,6 +29,9 @@ func ResourceASPolicy() *schema.Resource {
 		ReadContext:   resourceASPolicyRead,
 		UpdateContext: resourceASPolicyUpdate,
 		DeleteContext: resourceASPolicyDelete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -120,6 +123,10 @@ func ResourceASPolicy() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  900,
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -250,6 +257,7 @@ func resourceASPolicyRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("scaling_group_id", asPolicy.ID),
 		d.Set("alarm_id", asPolicy.AlarmID),
 		d.Set("cool_down_time", asPolicy.CoolDownTime),
+		d.Set("status", asPolicy.Status),
 		d.Set("scaling_policy_action", flattenPolicyAction(asPolicy.Action)),
 		d.Set("scheduled_policy", flattenSchedulePolicy(asPolicy.SchedulePolicy)),
 	)

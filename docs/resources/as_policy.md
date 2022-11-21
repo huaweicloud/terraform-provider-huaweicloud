@@ -149,3 +149,12 @@ The `scaling_policy_action` block supports:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies a resource ID in UUID format.
+* `status` - The AS policy status. The value can be *INSERVICE*, *PAUSED*, *EXECUTING*.
+
+## Import
+
+AS policies can be imported by their `id`, e.g.
+
+```
+$ terraform import huaweicloud_as_policy.test 9fcb65fe-fd79-4407-8fa0-07602044e1c3
+```
