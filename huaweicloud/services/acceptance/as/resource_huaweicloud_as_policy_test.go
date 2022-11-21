@@ -27,6 +27,62 @@ func TestAccASPolicy_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckASPolicyExists(resourceName, &asPolicy),
 					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
+					resource.TestCheckResourceAttr(resourceName, "scaling_policy_type", "SCHEDULED"),
+					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.operation", "ADD"),
+					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.instance_number", "1"),
+					resource.TestCheckResourceAttrPair(resourceName, "scaling_group_id", "huaweicloud_as_group.acc_as_group", "id"),
+				),
+			},
+			{
+				Config: testASPolicy_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
+					resource.TestCheckResourceAttr(resourceName, "scaling_policy_type", "SCHEDULED"),
+					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.operation", "REMOVE"),
+					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.instance_number", "1"),
+				),
+			},
+			{
+				Config: testASPolicy_recurrence(rName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
+					resource.TestCheckResourceAttr(resourceName, "scaling_policy_type", "RECURRENCE"),
+					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.operation", "ADD"),
+					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.instance_number", "1"),
+					resource.TestCheckResourceAttr(resourceName, "scheduled_policy.0.launch_time", "07:00"),
+					resource.TestCheckResourceAttr(resourceName, "scheduled_policy.0.recurrence_type", "Daily"),
+					resource.TestCheckResourceAttrSet(resourceName, "scheduled_policy.0.start_time"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccASPolicy_Alarm(t *testing.T) {
+	var asPolicy policies.Policy
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_as_policy.acc_as_policy"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckASPolicyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testASPolicy_alarm(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckASPolicyExists(resourceName, &asPolicy),
+					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
+					resource.TestCheckResourceAttr(resourceName, "scaling_policy_type", "ALARM"),
+					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.operation", "ADD"),
+					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.instance_number", "1"),
+					resource.TestCheckResourceAttrPair(resourceName, "scaling_group_id", "huaweicloud_as_group.acc_as_group", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "alarm_id", "huaweicloud_ces_alarmrule.alarm_rule", "id"),
 				),
 			},
 			{
@@ -86,7 +142,7 @@ func testAccCheckASPolicyExists(n string, policy *policies.Policy) resource.Test
 	}
 }
 
-func testASPolicy_basic(rName string) string {
+func testASPolicy_base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
@@ -111,17 +167,17 @@ data "huaweicloud_compute_flavors" "test" {
 }
 
 resource "huaweicloud_networking_secgroup" "secgroup" {
-  name        = "%s"
+  name        = "%[1]s"
   description = "This is a terraform test security group"
 }
 
 resource "huaweicloud_compute_keypair" "acc_key" {
-  name       = "%s"
+  name       = "%[1]s"
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
 }
 
 resource "huaweicloud_as_configuration" "acc_as_config"{
-  scaling_configuration_name = "%s"
+  scaling_configuration_name = "%[1]s"
   instance_config {
     image    = data.huaweicloud_images_image.test.id
     flavor   = data.huaweicloud_compute_flavors.test.ids[0]
@@ -135,7 +191,7 @@ resource "huaweicloud_as_configuration" "acc_as_config"{
 }
 
 resource "huaweicloud_as_group" "acc_as_group"{
-  scaling_group_name       = "%s"
+  scaling_group_name       = "%[1]s"
   scaling_configuration_id = huaweicloud_as_configuration.acc_as_config.id
   vpc_id                   = data.huaweicloud_vpc.test.id
   networks {
@@ -145,9 +201,15 @@ resource "huaweicloud_as_group" "acc_as_group"{
     id = huaweicloud_networking_secgroup.secgroup.id
   }
 }
+`, rName)
+}
+
+func testASPolicy_basic(rName string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_as_policy" "acc_as_policy"{
-  scaling_policy_name = "%s"
+  scaling_policy_name = "%[2]s"
   scaling_policy_type = "SCHEDULED"
   scaling_group_id    = huaweicloud_as_group.acc_as_group.id
 
@@ -159,5 +221,91 @@ resource "huaweicloud_as_policy" "acc_as_policy"{
     launch_time = "2099-12-22T12:00Z"
   }
 }
-`, rName, rName, rName, rName, rName)
+`, testASPolicy_base(rName), rName)
+}
+
+func testASPolicy_update(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_as_policy" "acc_as_policy"{
+  scaling_policy_name = "%[2]s"
+  scaling_policy_type = "SCHEDULED"
+  scaling_group_id    = huaweicloud_as_group.acc_as_group.id
+
+  scaling_policy_action {
+    operation       = "REMOVE"
+    instance_number = 1
+  }
+  scheduled_policy {
+    launch_time = "2099-12-22T12:00Z"
+  }
+}
+`, testASPolicy_base(rName), rName)
+}
+
+func testASPolicy_recurrence(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_as_policy" "acc_as_policy"{
+  scaling_policy_name = "%[2]s"
+  scaling_policy_type = "RECURRENCE"
+  scaling_group_id    = huaweicloud_as_group.acc_as_group.id
+
+  scaling_policy_action {
+    operation       = "ADD"
+    instance_number = 1
+  }
+  scheduled_policy {
+    launch_time     = "07:00"
+    recurrence_type = "Daily"
+    start_time      = "2099-11-22T12:00Z"
+    end_time        = "2099-12-22T12:00Z"
+  }
+}
+`, testASPolicy_base(rName), rName)
+}
+
+func testASPolicy_alarm(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_ces_alarmrule" "alarm_rule" {
+  alarm_name = "%[2]s"
+
+  metric {
+    namespace   = "SYS.AS"
+    metric_name = "cpu_util"
+    dimensions {
+      name  = "AutoScalingGroup"
+      value = huaweicloud_as_group.acc_as_group.id
+    }
+  }
+  condition {
+    period              = 300
+    filter              = "average"
+    comparison_operator = ">="
+    value               = 60
+    unit                = "%%"
+    count               = 1
+  }
+  alarm_actions {
+    type              = "autoscaling"
+    notification_list = []
+  }
+}
+
+resource "huaweicloud_as_policy" "acc_as_policy"{
+  scaling_policy_name = "%[2]s"
+  scaling_policy_type = "ALARM"
+  scaling_group_id    = huaweicloud_as_group.acc_as_group.id
+  alarm_id            = huaweicloud_ces_alarmrule.alarm_rule.id
+
+  scaling_policy_action {
+    operation       = "ADD"
+    instance_number = 1
+  }
+}
+`, testASPolicy_base(rName), rName)
 }
