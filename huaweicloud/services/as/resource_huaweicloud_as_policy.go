@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -16,7 +15,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/policies"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 var (
@@ -85,10 +83,9 @@ func ResourceASPolicy() *schema.Resource {
 							Computed: true,
 						},
 						"start_time": {
-							Type:             schema.TypeString,
-							Optional:         true,
-							Default:          getCurrentUTCwithoutSec(),
-							DiffSuppressFunc: utils.SuppressDiffAll,
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
 						},
 						"end_time": {
 							Type:     schema.TypeString,
@@ -129,10 +126,8 @@ func ResourceASPolicy() *schema.Resource {
 }
 
 func getCurrentUTCwithoutSec() string {
-	utcTime := time.Now().UTC().Format(time.RFC3339)
-	splits := strings.SplitN(utcTime, ":", 3)
-	resultTime := strings.Join(splits[0:2], ":") + "Z"
-	return resultTime
+	utcTime := time.Now().UTC()
+	return utcTime.Format("2006-01-02T15:04Z")
 }
 
 func validateParameters(d *schema.ResourceData) error {
@@ -140,10 +135,8 @@ func validateParameters(d *schema.ResourceData) error {
 	alarmId := d.Get("alarm_id").(string)
 	scheduledPolicy := d.Get("scheduled_policy").([]interface{})
 
-	if policyType == "ALARM" {
-		if alarmId == "" {
-			return fmt.Errorf("parameter alarm_id should be set if policy type is ALARM")
-		}
+	if policyType == "ALARM" && alarmId == "" {
+		return fmt.Errorf("parameter alarm_id should be set if policy type is ALARM")
 	}
 	if policyType == "SCHEDULED" || policyType == "RECURRENCE" {
 		if len(scheduledPolicy) == 0 {
@@ -170,11 +163,17 @@ func validateParameters(d *schema.ResourceData) error {
 }
 
 func buildScheduledPolicy(rawScheduledPolicy map[string]interface{}) policies.SchedulePolicyOpts {
+	recurrenceType := rawScheduledPolicy["recurrence_type"].(string)
+	startTime := rawScheduledPolicy["start_time"].(string)
+	if recurrenceType != "" && startTime == "" {
+		startTime = getCurrentUTCwithoutSec()
+	}
+
 	scheduledPolicy := policies.SchedulePolicyOpts{
 		LaunchTime:      rawScheduledPolicy["launch_time"].(string),
-		RecurrenceType:  rawScheduledPolicy["recurrence_type"].(string),
 		RecurrenceValue: rawScheduledPolicy["recurrence_value"].(string),
-		StartTime:       rawScheduledPolicy["start_time"].(string),
+		RecurrenceType:  recurrenceType,
+		StartTime:       startTime,
 		EndTime:         rawScheduledPolicy["end_time"].(string),
 	}
 	return scheduledPolicy
