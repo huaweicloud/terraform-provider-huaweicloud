@@ -92,6 +92,13 @@ var (
 	HW_KMS_ENVIRONMENT = os.Getenv("HW_KMS_ENVIRONMENT")
 
 	HW_ER_TEST_ON = os.Getenv("HW_ER_TEST_ON") // Whether to run the ER related tests.
+
+	// The OBS address where the HCL/JSON template archive (No variables) is located.
+	HW_RF_TEMPLATE_ARCHIVE_NO_VARS_URI = os.Getenv("HW_RF_TEMPLATE_ARCHIVE_NO_VARS_URI")
+	// The OBS address where the HCL/JSON template archive is located.
+	HW_RF_TEMPLATE_ARCHIVE_URI = os.Getenv("HW_RF_TEMPLATE_ARCHIVE_URI")
+	// The OBS address where the variable archive corresponding to the HCL/JSON template is located.
+	HW_RF_VARIABLES_ARCHIVE_URI = os.Getenv("HW_RF_VARIABLES_ARCHIVE_URI")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -423,5 +430,13 @@ func TestAccPreCheckWorkspaceAD(t *testing.T) {
 func TestAccPreCheckER(t *testing.T) {
 	if HW_ER_TEST_ON == "" {
 		t.Skip("Skip all ER acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRfArchives(t *testing.T) {
+	if HW_RF_TEMPLATE_ARCHIVE_NO_VARS_URI == "" || HW_RF_TEMPLATE_ARCHIVE_URI == "" ||
+		HW_RF_VARIABLES_ARCHIVE_URI == "" {
+		t.Skip("Skip the archive URI parameters acceptance test for RF resource stack.")
 	}
 }
