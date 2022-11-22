@@ -16,12 +16,15 @@ type ListOptsBuilder interface {
 type ListOpts struct {
 	Isregistered           string `q:"__isregistered"`
 	Imagetype              string `q:"__imagetype"`
+	WholeImage             bool   `q:"__whole_image"`
+	SystemCmkid            string `q:"__system__cmkid"`
 	Protected              bool   `q:"protected"`
 	Visibility             string `q:"visibility"`
 	Owner                  string `q:"owner"`
 	ID                     string `q:"id"`
 	Status                 string `q:"status"`
 	Name                   string `q:"name"`
+	FlavorId               string `q:"flavor_id"`
 	ContainerFormat        string `q:"container_format"`
 	DiskFormat             string `q:"disk_format"`
 	MinRam                 int    `q:"min_ram"`

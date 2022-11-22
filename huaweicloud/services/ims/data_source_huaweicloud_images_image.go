@@ -19,7 +19,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-var iamgeValidSortKeys = []string{
+var imageValidSortKeys = []string{
 	"name", "container_format", "disk_format", "status", "id", "size",
 }
 var imageValidVisibilities = []string{
@@ -67,7 +67,7 @@ func DataSourceImagesImageV2() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "name",
-				ValidateFunc: validation.StringInSlice(iamgeValidSortKeys, false),
+				ValidateFunc: validation.StringInSlice(imageValidSortKeys, false),
 			},
 
 			"sort_direction": {
@@ -113,6 +113,11 @@ func DataSourceImagesImageV2() *schema.Resource {
 				Computed: true,
 			},
 			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"flavor_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -211,6 +216,7 @@ func dataSourceImagesImageV2Read(ctx context.Context, d *schema.ResourceData, me
 		OsVersion:      d.Get("os_version").(string),
 		Architecture:   d.Get("architecture").(string),
 		VirtualEnvType: d.Get("image_type").(string),
+		FlavorId:       d.Get("flavor_id").(string),
 		Imagetype:      imageType,
 		Status:         "active",
 	}
