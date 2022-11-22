@@ -30,6 +30,7 @@ func TestAccASConfiguration_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "instance_config.0.metadata.some_key", "some_value"),
 					resource.TestCheckResourceAttr(resourceName, "instance_config.0.disk.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "instance_config.0.public_ip.0.eip.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.security_group_ids.#", "1"),
 					resource.TestCheckResourceAttrSet(resourceName, "instance_config.0.user_data"),
 				),
 			},
@@ -164,9 +165,10 @@ func testAccASConfiguration_basic(rName string) string {
 resource "huaweicloud_as_configuration" "acc_as_config"{
   scaling_configuration_name = "%s"
   instance_config {
-    image    = data.huaweicloud_images_image.test.id
-    flavor   = data.huaweicloud_compute_flavors.test.ids[0]
-    key_name = huaweicloud_compute_keypair.acc_key.id
+    image              = data.huaweicloud_images_image.test.id
+    flavor             = data.huaweicloud_compute_flavors.test.ids[0]
+    key_name           = huaweicloud_compute_keypair.acc_key.id
+    security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
 
     metadata = {
       some_key = "some_value"

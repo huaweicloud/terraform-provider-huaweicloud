@@ -89,6 +89,37 @@ func ResourceASConfiguration() *schema.Resource {
 							Required: true,
 							ForceNew: true,
 						},
+						"charging_mode": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Default:  "postPaid",
+							ValidateFunc: validation.StringInSlice([]string{
+								"postPaid", "spot",
+							}, false),
+						},
+						"flavor_priority_policy": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
+							ValidateFunc: validation.StringInSlice([]string{
+								"PICK_FIRST", "COST_FIRST",
+							}, false),
+						},
+						"ecs_group_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
+						},
+						"security_group_ids": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
 						"disk": {
 							Type:         schema.TypeList,
 							Optional:     true,
@@ -216,6 +247,10 @@ func ResourceASConfiguration() *schema.Resource {
 					},
 				},
 			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -265,15 +300,17 @@ func buildDiskOpts(diskMeta []interface{}) ([]configurations.DiskOpts, error) {
 }
 
 func buildPersonalityOpts(personalityMeta []interface{}) []configurations.PersonalityOpts {
-	var personalityOptsList []configurations.PersonalityOpts
+	if len(personalityMeta) == 0 {
+		return nil
+	}
 
-	for _, v := range personalityMeta {
+	personalityOptsList := make([]configurations.PersonalityOpts, len(personalityMeta))
+	for i, v := range personalityMeta {
 		personality := v.(map[string]interface{})
-		personalityOpts := configurations.PersonalityOpts{
+		personalityOptsList[i] = configurations.PersonalityOpts{
 			Path:    personality["path"].(string),
 			Content: personality["content"].(string),
 		}
-		personalityOptsList = append(personalityOptsList, personalityOpts)
 	}
 
 	return personalityOptsList
@@ -300,6 +337,20 @@ func buildPublicIpOpts(publicIpMeta map[string]interface{}) configurations.Publi
 	return publicIpOpts
 }
 
+func buildSecurityGroupIDsOpts(secGroups []interface{}) []configurations.SecurityGroupOpts {
+	if len(secGroups) == 0 {
+		return nil
+	}
+
+	res := make([]configurations.SecurityGroupOpts, len(secGroups))
+	for i, v := range secGroups {
+		res[i] = configurations.SecurityGroupOpts{
+			ID: v.(string),
+		}
+	}
+	return res
+}
+
 func buildInstanceConfig(configDataMap map[string]interface{}) (configurations.InstanceConfigOpts, error) {
 	disksData := configDataMap["disk"].([]interface{})
 	disks, err := buildDiskOpts(disksData)
@@ -308,14 +359,21 @@ func buildInstanceConfig(configDataMap map[string]interface{}) (configurations.I
 	}
 
 	instanceConfigOpts := configurations.InstanceConfigOpts{
-		InstanceID:  configDataMap["instance_id"].(string),
-		FlavorRef:   configDataMap["flavor"].(string),
-		ImageRef:    configDataMap["image"].(string),
-		SSHKey:      configDataMap["key_name"].(string),
-		UserData:    []byte(configDataMap["user_data"].(string)),
-		Metadata:    configDataMap["metadata"].(map[string]interface{}),
-		Personality: buildPersonalityOpts(configDataMap["personality"].([]interface{})),
-		Disk:        disks,
+		InstanceID:           configDataMap["instance_id"].(string),
+		FlavorRef:            configDataMap["flavor"].(string),
+		ImageRef:             configDataMap["image"].(string),
+		SSHKey:               configDataMap["key_name"].(string),
+		FlavorPriorityPolicy: configDataMap["flavor_priority_policy"].(string),
+		ServerGroupID:        configDataMap["ecs_group_id"].(string),
+		UserData:             []byte(configDataMap["user_data"].(string)),
+		Metadata:             configDataMap["metadata"].(map[string]interface{}),
+		SecurityGroups:       buildSecurityGroupIDsOpts(configDataMap["security_group_ids"].([]interface{})),
+		Personality:          buildPersonalityOpts(configDataMap["personality"].([]interface{})),
+		Disk:                 disks,
+	}
+
+	if mode, ok := configDataMap["charging_mode"]; ok && mode.(string) == "spot" {
+		instanceConfigOpts.MarketType = "spot"
 	}
 
 	pubicIpData := configDataMap["public_ip"].([]interface{})
@@ -389,6 +447,7 @@ func resourceASConfigurationRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("region", region),
 		d.Set("scaling_configuration_name", asConfig.Name),
 		d.Set("instance_config", flattenInstanceConfig(asConfig.InstanceConfig)),
+		d.Set("status", normalizeConfigurationStatus(asConfig.ScalingGroupID)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -439,15 +498,19 @@ func getASGroupsByConfiguration(asClient *golangsdk.ServiceClient, configuration
 
 func flattenInstanceConfig(instanceConfig configurations.InstanceConfig) []map[string]interface{} {
 	config := map[string]interface{}{
-		"instance_id": instanceConfig.InstanceID,
-		"flavor":      instanceConfig.FlavorRef,
-		"image":       instanceConfig.ImageRef,
-		"key_name":    instanceConfig.SSHKey,
-		"user_data":   instanceConfig.UserData,
-		"metadata":    instanceConfig.Metadata,
-		"disk":        flattenInstanceDisks(instanceConfig.Disk),
-		"public_ip":   flattenInstancePublicIP(instanceConfig.PublicIp.Eip),
-		"personality": flattenInstancePersonality(instanceConfig.Personality),
+		"charging_mode":          normalizeConfigurationChargingMode(instanceConfig.MarketType),
+		"instance_id":            instanceConfig.InstanceID,
+		"flavor":                 instanceConfig.FlavorRef,
+		"image":                  instanceConfig.ImageRef,
+		"key_name":               instanceConfig.SSHKey,
+		"flavor_priority_policy": instanceConfig.FlavorPriorityPolicy,
+		"ecs_group_id":           instanceConfig.ServerGroupID,
+		"user_data":              instanceConfig.UserData,
+		"metadata":               instanceConfig.Metadata,
+		"disk":                   flattenInstanceDisks(instanceConfig.Disk),
+		"public_ip":              flattenInstancePublicIP(instanceConfig.PublicIp.Eip),
+		"security_group_ids":     flattenSecurityGroupIDs(instanceConfig.SecurityGroups),
+		"personality":            flattenInstancePersonality(instanceConfig.Personality),
 	}
 	return []map[string]interface{}{config}
 }
@@ -463,6 +526,10 @@ func flattenInstanceDisks(disks []configurations.Disk) []map[string]interface{} 
 			"volume_type": item.VolumeType,
 			"size":        item.Size,
 			"disk_type":   item.DiskType,
+		}
+
+		if kms, ok := item.Metadata["__system__cmkid"]; ok {
+			res[i]["kms_id"] = kms
 		}
 	}
 	return res
@@ -506,4 +573,30 @@ func flattenInstancePersonality(personalities []configurations.Personality) []ma
 		}
 	}
 	return res
+}
+
+func flattenSecurityGroupIDs(sgs []configurations.SecurityGroup) []string {
+	if len(sgs) == 0 {
+		return nil
+	}
+
+	res := make([]string, len(sgs))
+	for i, item := range sgs {
+		res[i] = item.ID
+	}
+	return res
+}
+
+func normalizeConfigurationStatus(groupIDs string) string {
+	if groupIDs != "" {
+		return "Bound"
+	}
+	return "Unbound"
+}
+
+func normalizeConfigurationChargingMode(marketType string) string {
+	if marketType == "" {
+		return "postPaid"
+	}
+	return "spot"
 }
