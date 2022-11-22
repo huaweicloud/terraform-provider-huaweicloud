@@ -68,7 +68,7 @@ func ResourceCCENodePool() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
-			"labels": { //(k8s_tags)
+			"labels": { // (k8s_tags)
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -195,6 +195,12 @@ func ResourceCCENodePool() *schema.Resource {
 					}},
 			},
 			"tags": common.TagsSchema(),
+			// charge info: charging_mode, period_unit, period, auto_renew
+			"charging_mode": common.SchemaChargingMode(nil),
+			"period_unit":   common.SchemaPeriodUnit(nil),
+			"period":        common.SchemaPeriod(nil),
+			"auto_renew":    common.SchemaAutoRenew(nil),
+
 			"billing_mode": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -280,6 +286,13 @@ func resourceCCENodePoolCreate(ctx context.Context, d *schema.ResourceData, meta
 	nodePoolClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE Node Pool client: %s", err)
+	}
+
+	// validation
+	if d.Get("charging_mode").(string) == "prePaid" {
+		if err := common.ValidatePrePaidChargeInfo(d); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	// wait for the cce cluster to become available
@@ -418,6 +431,10 @@ func resourceCCENodePoolRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("priority", s.Spec.Autoscaling.Priority),
 		d.Set("type", s.Spec.Type),
 	)
+
+	if s.Spec.NodeTemplate.BillingMode != 0 {
+		mErr = multierror.Append(mErr, d.Set("charging_mode", "prePaid"))
+	}
 
 	// set extend_param
 	var extendParam = s.Spec.NodeTemplate.ExtendParam
