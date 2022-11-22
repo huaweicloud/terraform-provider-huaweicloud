@@ -68,6 +68,9 @@ type Image struct {
 	Productcode            string `json:"__productcode"`
 	ImageSize              string `json:"__image_size"`
 	DataOrigin             string `json:"__data_origin"`
+	LazyLoading            string `json:"__lazyloading"`
+	ActiveAt               string `json:"active_at"`
+	OsFeatureList          string `json:"__os_feature_list"`
 	SupportKvm             string `json:"__support_kvm"`
 	SupportXen             string `json:"__support_xen"`
 	SupportLargeMemory     string `json:"__support_largememory"`
@@ -78,8 +81,17 @@ type Image struct {
 	SupportXenHana         string `json:"__support_xen_hana"`
 	SupportKvmInfiniband   string `json:"__support_kvm_infiniband"`
 	SystemSupportMarket    bool   `json:"__system_support_market"`
+	IsOffshelved           string `json:"__is_offshelved"`
 	RootOrigin             string `json:"__root_origin"`
 	SequenceNum            string `json:"__sequence_num"`
+	SupportFcInject        string `json:"__support_fc_inject"`
+	HwFirmwareType         string `json:"hw_firmware_type"`
+	HwVifMultiqueueEnabled string `json:"hw_vif_multiqueue_enabled"`
+	SupportArm             string `json:"__support_arm"`
+	SupportAgentList       string `json:"__support_agent_list"`
+	SystemCmkid            string `json:"__system__cmkid"`
+	AccountCode            string `json:"__account_code"`
+	SupportAmd             string `json:"__support_amd"`
 }
 
 func (r *Image) UnmarshalJSON(b []byte) error {
