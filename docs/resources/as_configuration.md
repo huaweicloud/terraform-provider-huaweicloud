@@ -4,7 +4,7 @@ subcategory: "Auto Scaling"
 
 # huaweicloud_as_configuration
 
-Manages an AS Configuration resource within HuaweiCloud.
+Manages an AS configuration resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -100,7 +100,7 @@ resource "huaweicloud_as_configuration" "my_as_config" {
 The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the AS configuration.
-  If omitted, the `region` argument of the provider is used. Changing this will create a new resource.
+  If omitted, the provider-level region will be used. Changing this will create a new resource.
 
 * `scaling_configuration_name` - (Required, String, ForceNew) Specifies the AS configuration name.
   The name contains only letters, digits, underscores (_), and hyphens (-), and cannot exceed 64 characters.
@@ -195,3 +195,30 @@ The `personality` block supports:
 
 * `contents` - (Required, String, ForceNew) Specifies the content of the injected file, which must be encoded with base64.
   Changing this creates a new resource.
+
+## Attributes Reference
+
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - The resource ID in UUID format.
+
+## Import
+
+AS configurations can be imported by their `id`, e.g.
+
+```
+$ terraform import huaweicloud_as_configuration.test 18518c8a-9d15-416b-8add-2ee874751d18
+```
+
+Note that the imported state may not be identical to your resource definition, due to `instance_config.0.instance_id`
+is missing from the API response. You can ignore changes after importing an AS configuration as below.
+
+```
+resource "huaweicloud_as_configuration" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [ instance_config.0.instance_id ]
+  }
+}
+```

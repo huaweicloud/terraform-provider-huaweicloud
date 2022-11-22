@@ -6,6 +6,7 @@ import (
 	"log"
 	"regexp"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -31,6 +32,9 @@ func ResourceASConfiguration() *schema.Resource {
 		CreateContext: resourceASConfigurationCreate,
 		ReadContext:   resourceASConfigurationRead,
 		DeleteContext: resourceASConfigurationDelete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -200,7 +204,8 @@ func ResourceASConfiguration() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 							// just stash the hash for state & diff comparisons
-							StateFunc: utils.HashAndHexEncode,
+							StateFunc:        utils.HashAndHexEncode,
+							DiffSuppressFunc: utils.SuppressUserData,
 						},
 						"metadata": {
 							Type:     schema.TypeMap,
@@ -348,6 +353,14 @@ func resourceASConfigurationCreate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	d.SetId(asConfigId)
+
+	// instance_id is missing from Get response, we should set it to the state before READ method
+	if v, ok := d.GetOk("instance_config.0.instance_id"); ok {
+		instanceConfig := []map[string]interface{}{
+			{"instance_id": v},
+		}
+		d.Set("instance_config", instanceConfig)
+	}
 	return resourceASConfigurationRead(ctx, d, meta)
 }
 
@@ -365,8 +378,20 @@ func resourceASConfigurationRead(_ context.Context, d *schema.ResourceData, meta
 		return common.CheckDeletedDiag(d, err, "AS configuration")
 	}
 
+	// update InstanceID if necessary
+	if v, ok := d.GetOk("instance_config.0.instance_id"); ok {
+		if asConfig.InstanceConfig.InstanceID == "" {
+			asConfig.InstanceConfig.InstanceID = v.(string)
+		}
+	}
 	log.Printf("[DEBUG] Retrieved AS configuration %s: %+v", configId, asConfig)
-	return nil
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("scaling_configuration_name", asConfig.Name),
+		d.Set("instance_config", flattenInstanceConfig(asConfig.InstanceConfig)),
+	)
+
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceASConfigurationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -410,4 +435,75 @@ func getASGroupsByConfiguration(asClient *golangsdk.ServiceClient, configuration
 
 	gs, err = page.(groups.GroupPage).Extract()
 	return gs, err
+}
+
+func flattenInstanceConfig(instanceConfig configurations.InstanceConfig) []map[string]interface{} {
+	config := map[string]interface{}{
+		"instance_id": instanceConfig.InstanceID,
+		"flavor":      instanceConfig.FlavorRef,
+		"image":       instanceConfig.ImageRef,
+		"key_name":    instanceConfig.SSHKey,
+		"user_data":   instanceConfig.UserData,
+		"metadata":    instanceConfig.Metadata,
+		"disk":        flattenInstanceDisks(instanceConfig.Disk),
+		"public_ip":   flattenInstancePublicIP(instanceConfig.PublicIp.Eip),
+		"personality": flattenInstancePersonality(instanceConfig.Personality),
+	}
+	return []map[string]interface{}{config}
+}
+
+func flattenInstanceDisks(disks []configurations.Disk) []map[string]interface{} {
+	if len(disks) == 0 {
+		return nil
+	}
+
+	res := make([]map[string]interface{}, len(disks))
+	for i, item := range disks {
+		res[i] = map[string]interface{}{
+			"volume_type": item.VolumeType,
+			"size":        item.Size,
+			"disk_type":   item.DiskType,
+		}
+	}
+	return res
+}
+
+func flattenInstancePublicIP(eipObject configurations.Eip) []map[string]interface{} {
+	if eipObject.Type == "" {
+		return nil
+	}
+
+	bwInfo := []map[string]interface{}{
+		{
+			"share_type":    eipObject.Bandwidth.ShareType,
+			"size":          eipObject.Bandwidth.Size,
+			"charging_mode": eipObject.Bandwidth.ChargingMode,
+		},
+	}
+
+	eipInfo := []map[string]interface{}{
+		{
+			"ip_type":   eipObject.Type,
+			"bandwidth": bwInfo,
+		},
+	}
+
+	return []map[string]interface{}{
+		{"eip": eipInfo},
+	}
+}
+
+func flattenInstancePersonality(personalities []configurations.Personality) []map[string]interface{} {
+	if len(personalities) == 0 {
+		return nil
+	}
+
+	res := make([]map[string]interface{}, len(personalities))
+	for i, item := range personalities {
+		res[i] = map[string]interface{}{
+			"path":    item.Path,
+			"content": item.Content,
+		}
+	}
+	return res
 }

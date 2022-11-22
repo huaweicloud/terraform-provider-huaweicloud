@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"log"
 	"reflect"
@@ -36,6 +37,23 @@ func SuppressCaseDiffs(k, old, new string, d *schema.ResourceData) bool {
 // Suppress changes if we get a computed min_disk_gb if value is unspecified (default 0)
 func SuppressMinDisk(k, old, new string, d *schema.ResourceData) bool {
 	return new == "0" || old == new
+}
+
+// Suppress changes if we get a base64 format or plaint text user_data
+func SuppressUserData(k, old, new string, d *schema.ResourceData) bool {
+	// user_data is in base64 format
+	if HashAndHexEncode(old) == new {
+		return true
+	}
+
+	// user_data is plaint text
+	if plaint, err := base64.StdEncoding.DecodeString(old); err == nil {
+		if HashAndHexEncode(string(plaint)) == new {
+			return true
+		}
+	}
+
+	return false
 }
 
 func SuppressLBWhitelistDiffs(k, old, new string, d *schema.ResourceData) bool {

@@ -27,7 +27,16 @@ func TestAccASConfiguration_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckASConfigurationExists(resourceName, &asConfig),
 					resource.TestCheckResourceAttr(resourceName, "scaling_configuration_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.metadata.some_key", "some_value"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.disk.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.public_ip.0.eip.#", "1"),
+					resource.TestCheckResourceAttrSet(resourceName, "instance_config.0.user_data"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -48,7 +57,18 @@ func TestAccASConfiguration_instance(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckASConfigurationExists(resourceName, &asConfig),
 					resource.TestCheckResourceAttr(resourceName, "scaling_configuration_name", rName),
+					resource.TestCheckResourceAttrSet(resourceName, "instance_config.0.user_data"),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.instance_id",
+						"huaweicloud_compute_instance.test", "id"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"instance_config.0.instance_id",
+				},
 			},
 		},
 	})
@@ -144,14 +164,34 @@ func testAccASConfiguration_basic(rName string) string {
 resource "huaweicloud_as_configuration" "acc_as_config"{
   scaling_configuration_name = "%s"
   instance_config {
-    image  = data.huaweicloud_images_image.test.id
-    flavor = data.huaweicloud_compute_flavors.test.ids[0]
+    image    = data.huaweicloud_images_image.test.id
+    flavor   = data.huaweicloud_compute_flavors.test.ids[0]
+    key_name = huaweicloud_compute_keypair.acc_key.id
+
+    metadata = {
+      some_key = "some_value"
+    }
+    user_data = <<EOT
+#!/bin/sh
+echo "Hello World! The time is now $(date -R)!" | tee /root/output.txt
+EOT
+
     disk {
       size        = 40
       volume_type = "SSD"
       disk_type   = "SYS"
     }
-    key_name = huaweicloud_compute_keypair.acc_key.id
+
+    public_ip {
+      eip {
+        ip_type = "5_bgp"
+        bandwidth {
+          size          = 10
+          share_type    = "PER"
+          charging_mode = "traffic"
+        }
+      }
+    }
   }
 }
 `, testAccASConfiguration_base(rName), rName)
@@ -177,6 +217,7 @@ resource "huaweicloud_as_configuration" "acc_as_config"{
   instance_config {
     instance_id = huaweicloud_compute_instance.test.id
     key_name    = huaweicloud_compute_keypair.acc_key.id
+    user_data   = "IyEvYmluL3NoCmVjaG8gIkhlbGxvIFdvcmxkISBUaGUgdGltZSBpcyBub3cgJChkYXRlIC1SKSEiIHwgdGVlIC9yb290L291dHB1dC50eHQK"
   }
 }
 `, testAccASConfiguration_base(rName), rName, rName)
