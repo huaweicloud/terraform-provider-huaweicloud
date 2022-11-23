@@ -89,6 +89,14 @@ func ResourceASConfiguration() *schema.Resource {
 							Required: true,
 							ForceNew: true,
 						},
+						"security_group_ids": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
+							Description: "schema: Required",
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
 						"charging_mode": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -112,13 +120,6 @@ func ResourceASConfiguration() *schema.Resource {
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
-						},
-						"security_group_ids": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 						"disk": {
 							Type:         schema.TypeList,

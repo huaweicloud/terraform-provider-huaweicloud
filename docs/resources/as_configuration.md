@@ -74,15 +74,17 @@ resource "huaweicloud_as_configuration" "my_as_config" {
 variable "flavor_id" {}
 variable "image_id" {}
 variable "ssh_key" {}
+variable "security_group_id" {}
 
 resource "huaweicloud_as_configuration" "my_as_config" {
   scaling_configuration_name = "my_as_config"
 
   instance_config {
-    flavor    = var.flavor_id
-    image     = var.image_id
-    key_name  = var.ssh_key
-    user_data = file("userdata.txt")
+    flavor             = var.flavor_id
+    image              = var.image_id
+    key_name           = var.ssh_key
+    security_group_ids = [var.security_group_id]
+    user_data          = file("userdata.txt")
 
     disk {
       size        = 40
@@ -102,13 +104,15 @@ resource "huaweicloud_as_configuration" "my_as_config" {
 ```hcl
 variable "instance_id" {}
 variable "ssh_key" {}
+variable "security_group_id" {}
 
 resource "huaweicloud_as_configuration" "my_as_config" {
   scaling_configuration_name = "my_as_config"
 
   instance_config {
-    instance_id = var.instance_id
-    key_name    = var.ssh_key
+    instance_id        = var.instance_id
+    key_name           = var.ssh_key
+    security_group_ids = [var.security_group_id]
   }
 }
 ```
@@ -146,6 +150,9 @@ The `instance_config` block supports:
 * `key_name` - (Required, String, ForceNew) Specifies the name of the SSH key pair used to log in to the instance.
   Changing this will create a new resource.
 
+* `security_group_ids` - (Required, List, ForceNew) Specifies an array of one or more security group IDs.
+  Changing this will create a new resource.
+
 * `flavor_priority_policy` - (Optional, String, ForceNew) Specifies the priority policy used when there are multiple flavors
   and instances to be created using an AS configuration. The value can be `PICK_FIRST` and `COST_FIRST`.
 
@@ -156,9 +163,6 @@ The `instance_config` block supports:
   Changing this will create a new resource.
 
 * `ecs_group_id` - (Optional, String, ForceNew) Specifies the ECS group ID. Changing this will create a new resource.
-
-* `security_group_ids` - (Optional, List, ForceNew) Specifies an array of one or more security group IDs.
-  Changing this will create a new resource.
 
 * `user_data` - (Optional, String, ForceNew) Specifies the user data to provide when launching the instance.
   The file content must be encoded with Base64. Changing this will create a new resource.
