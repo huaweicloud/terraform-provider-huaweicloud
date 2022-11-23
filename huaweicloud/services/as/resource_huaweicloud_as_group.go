@@ -188,11 +188,6 @@ func ResourceASGroup() *schema.Resource {
 				Default:      "OLD_CONFIG_OLD_INSTANCE",
 				ValidateFunc: validation.StringInSlice(TerminatePolices, false),
 			},
-			"notifications": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
 			"delete_publicip": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -251,7 +246,13 @@ func ResourceASGroup() *schema.Resource {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: "schema: Deprecated",
+				Description: "schema: Deprecated; use availability_zones instead",
+			},
+			"notifications": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "schema: Deprecated; The notification mode has been canceled",
 			},
 		},
 	}

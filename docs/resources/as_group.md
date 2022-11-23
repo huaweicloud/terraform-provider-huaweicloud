@@ -202,9 +202,6 @@ The following arguments are supported:
 
 * `description` (Optional, String) Specifies the description of the AS group. The value can contain 0 to 256 characters.
 
-* `notifications` - (Optional, List) Specifies the notification mode. The system only supports `EMAIL`
-  mode which refers to notification by email.
-
 * `delete_publicip` - (Optional, Bool) Specifies whether to delete the elastic IP address bound to the instances of
   AS group when deleting the instances. The options are `true` and `false`.
 
