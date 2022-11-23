@@ -55,6 +55,8 @@ type GeminiDBInstance struct {
 	PayMode           string         `json:"pay_mode"`
 	TimeZone          string         `json:"time_zone"`
 	MaintenanceWindow string         `json:"maintenance_window"`
+	LbIpAddress       string         `json:"lb_ip_address"`
+	LbPort            string         `json:"lb_port"`
 	Actions           []string       `json:"actions"`
 	Groups            []Groups       `json:"groups"`
 	BackupStrategy    BackupStrategy `json:"backup_strategy"`

@@ -181,6 +181,14 @@ func ResourceGaussDBInfluxInstanceV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"lb_ip_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"lb_port": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"nodes": {
 				Type:     schema.TypeList,
 				Computed: true,

@@ -132,10 +132,12 @@ type Storage struct {
 type StorageParams struct {
 	// Host path. This parameter is applicable to the HostPath storage type.
 	Path string `json:"path,omitempty"`
-	// Name of a configuration item or secret. This parameter is applicable to the ConfigMap and Secret storage type.
+	// Name of a configuration item. This parameter is applicable to the ConfigMap storage type.
 	Name string `json:"name,omitempty"`
 	// PVC name. This parameter is applicable to the PersistentVolumeClaim storage type.
 	ClaimName string `json:"claimName,omitempty"`
+	// Secret name. This parameter is applicable to the Secret storage type.
+	SecretName string `json:"secretName,omitempty"`
 }
 
 // Mount is an object that specifies the directory mounted to the container.

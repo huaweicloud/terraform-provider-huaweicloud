@@ -164,6 +164,14 @@ func ResourceGaussRedisInstanceV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"lb_ip_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"lb_port": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"nodes": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -424,6 +432,8 @@ func resourceGaussRedisInstanceV3Read(d *schema.ResourceData, meta interface{}) 
 	d.Set("security_group_id", instance.SecurityGroupId)
 	d.Set("mode", instance.Mode)
 	d.Set("db_user_name", instance.DbUserName)
+	d.Set("lb_ip_address", instance.LbIpAddress)
+	d.Set("lb_port", instance.LbPort)
 
 	if dbPort, err := strconv.Atoi(instance.Port); err == nil {
 		d.Set("port", dbPort)

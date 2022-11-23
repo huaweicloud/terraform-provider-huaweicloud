@@ -154,6 +154,8 @@ In addition to all arguments above, the following attributes are exported:
 * `db_user_name` - Indicates the default username.
 * `nodes` - Indicates the instance nodes information. Structure is documented below.
 * `private_ips` - Indicates the IP address list of the db.
+* `lb_ip_address` - Indicates the LB IP address of the db.
+* `lb_port` - Indicates the LB port of the db.
 
 The `nodes` block contains:
 

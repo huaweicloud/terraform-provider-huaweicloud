@@ -63,12 +63,28 @@ type Group struct {
 	InstanceTerminatePolicy   string          `json:"instance_terminate_policy"`
 	Notifications             []string        `json:"notifications"`
 	DeletePublicip            bool            `json:"delete_publicip"`
+	DeleteVolume              bool            `json:"delete_volume"`
 	CloudLocationID           string          `json:"cloud_location_id"`
+	ActivityType              string          `json:"activity_type"`
+	MultiAZPriorityPolicy     string          `json:"multi_az_priority_policy"`
+	Description               string          `json:"description"`
+	IamAgencyName             string          `json:"iam_agency_name"`
 	EnterpriseProjectID       string          `json:"enterprise_project_id"`
 }
 
 type Network struct {
+	ID                  string        `json:"id"`
+	IPv6Enable          bool          `json:"ipv6_enable"`
+	IPv6BandWidth       BandWidth     `json:"ipv6_bandwidth"`
+	AllowedAddressPairs []AddressPair `json:"allowed_address_pairs"`
+}
+
+type BandWidth struct {
 	ID string `json:"id"`
+}
+
+type AddressPair struct {
+	IpAddress string `json:"ip_address"`
 }
 
 type SecurityGroup struct {

@@ -5,7 +5,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
 )
 
-//Describes the Node Pool Structure of cluster
+// Describes the Node Pool Structure of cluster
 type ListNodePool struct {
 	// API type, fixed value "List"
 	Kind string `json:"kind"`
@@ -57,6 +57,8 @@ type Spec struct {
 	Autoscaling AutoscalingSpec `json:"autoscaling"`
 	// Node pool management parameters
 	NodeManagement NodeManagementSpec `json:"nodeManagement"`
+	// Security group configurations
+	PodSecurityGroups []PodSecurityGroupSpec `json:"podSecurityGroups"`
 }
 
 type AutoscalingSpec struct {

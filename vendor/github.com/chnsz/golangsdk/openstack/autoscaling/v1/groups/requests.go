@@ -21,20 +21,35 @@ type CreateOpts struct {
 	LBListenerID              string              `json:"lb_listener_id,omitempty"`
 	LBaaSListeners            []LBaaSListenerOpts `json:"lbaas_listeners,omitempty"`
 	AvailableZones            []string            `json:"available_zones,omitempty"`
-	Networks                  []NetworkOpts       `json:"networks" required:"ture"`
-	SecurityGroup             []SecurityGroupOpts `json:"security_groups" required:"ture"`
 	VpcID                     string              `json:"vpc_id" required:"ture"`
+	Networks                  []NetworkOpts       `json:"networks" required:"ture"`
+	SecurityGroup             []SecurityGroupOpts `json:"security_groups,omitempty"`
 	HealthPeriodicAuditMethod string              `json:"health_periodic_audit_method,omitempty"`
 	HealthPeriodicAuditTime   int                 `json:"health_periodic_audit_time,omitempty"`
 	HealthPeriodicAuditGrace  int                 `json:"health_periodic_audit_grace_period,omitempty"`
 	InstanceTerminatePolicy   string              `json:"instance_terminate_policy,omitempty"`
 	Notifications             []string            `json:"notifications,omitempty"`
 	IsDeletePublicip          bool                `json:"delete_publicip,omitempty"`
+	IsDeleteVolume            bool                `json:"delete_volume,omitempty"`
+	MultiAZPriorityPolicy     string              `json:"multi_az_priority_policy,omitempty"`
+	Description               string              `json:"description,omitempty"`
+	IamAgencyName             string              `json:"iam_agency_name,omitempty"`
 	EnterpriseProjectID       string              `json:"enterprise_project_id,omitempty"`
 }
 
 type NetworkOpts struct {
-	ID string `json:"id,omitempty"`
+	ID                  string            `json:"id,omitempty"`
+	IPv6Enable          bool              `json:"ipv6_enable,omitempty"`
+	IPv6BandWidth       *BandWidthOpts    `json:"ipv6_bandwidth,omitempty"`
+	AllowedAddressPairs []AddressPairOpts `json:"allowed_address_pairs,omitempty"`
+}
+
+type BandWidthOpts struct {
+	ID string `json:"id" required:"true"`
+}
+
+type AddressPairOpts struct {
+	IpAddress string `json:"ip_address,omitempty"`
 }
 
 type SecurityGroupOpts struct {
@@ -138,6 +153,9 @@ type UpdateOpts struct {
 	Notifications             []string            `json:"notifications,omitempty"`
 	IsDeletePublicip          bool                `json:"delete_publicip,omitempty"`
 	ConfigurationID           string              `json:"scaling_configuration_id,omitempty"`
+	MultiAZPriorityPolicy     string              `json:"multi_az_priority_policy,omitempty"`
+	Description               *string             `json:"description,omitempty"`
+	IamAgencyName             string              `json:"iam_agency_name,omitempty"`
 	EnterpriseProjectID       string              `json:"enterprise_project_id,omitempty"`
 }
 
