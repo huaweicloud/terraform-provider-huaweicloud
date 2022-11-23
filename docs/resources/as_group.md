@@ -24,9 +24,6 @@ resource "huaweicloud_as_group" "my_as_group" {
   networks {
     id = "ad091b52-742f-469e-8f3c-fd81cadf0743"
   }
-  security_groups {
-    id = "45e4c6de-6bf0-4843-8953-2babde3d4810"
-  }
 }
 ```
 
@@ -45,9 +42,6 @@ resource "huaweicloud_as_group" "my_as_group_tags" {
 
   networks {
     id = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  }
-  security_groups {
-    id = "45e4c6de-6bf0-4843-8953-2babde3d4810"
   }
   tags = {
     foo = "bar"
@@ -71,9 +65,6 @@ resource "huaweicloud_as_group" "my_as_group_only_remove_members" {
 
   networks {
     id = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  }
-  security_groups {
-    id = "45e4c6de-6bf0-4843-8953-2babde3d4810"
   }
 }
 ```
@@ -111,9 +102,6 @@ resource "huaweicloud_as_group" "my_as_group_with_enhanced_lb" {
   networks {
     id = "ad091b52-742f-469e-8f3c-fd81cadf0743"
   }
-  security_groups {
-    id = "45e4c6de-6bf0-4843-8953-2babde3d4810"
-  }
   lbaas_listeners {
     pool_id       = huaweicloud_lb_pool.pool_1.id
     protocol_port = huaweicloud_lb_listener.listener_1.protocol_port
@@ -149,13 +137,26 @@ The following arguments are supported:
 
 * `availability_zones` - (Optional, List) The availability zones in which to create the instances in the autoscaling group.
 
+* `multi_az_scaling_policy` - (Optional, String) The priority policy used to select target AZs when adjusting the number
+  of instances in an AS group. The value can be `EQUILIBRIUM_DISTRIBUTE` and `PICK_FIRST`.
+
+  + **EQUILIBRIUM_DISTRIBUTE** (default): When adjusting the number of instances, ensure that instances in each AZ in the
+    availability_zones list is evenly distributed. If instances cannot be added in the target AZ, select another AZ based
+    on the PICK_FIRST policy.
+  + **PICK_FIRST**: When adjusting the number of instances, target AZs are determined in the order in the availability_zones list.
+
+* `vpc_id` - (Required, String, ForceNew) The VPC ID. Changing this creates a new group.
+
 * `networks` - (Required, List) An array of one or more network IDs. The system supports up to five networks. The
   networks object structure is documented below.
 
-* `security_groups` - (Required, List) An array of one or more security group IDs to associate with the group. The
+* `security_groups` - (Optional, List) An array of one or more security group IDs to associate with the group. The
   security_groups object structure is documented below.
 
-* `vpc_id` - (Required, String, ForceNew) The VPC ID. Changing this creates a new group.
+  -> If the security group is specified both in the AS configuration and AS group, scaled ECS instances will be added to
+  the security group specified in the AS configuration. If the security group is not specified in either of them, scaled
+  ECS instances will be added to the default security group. For your convenience, you are advised to specify the security
+  group in the AS configuration.
 
 * `health_periodic_audit_method` - (Optional, String) The health check method for instances in the AS group. The health
   check methods include `ELB_AUDIT` and `NOVA_AUDIT`. If load balancing is configured, the default value of this
@@ -164,11 +165,18 @@ The following arguments are supported:
 * `health_periodic_audit_time` - (Optional, Int) The health check period for instances. The period has four options: 5
   minutes (default), 15 minutes, 60 minutes, and 180 minutes.
 
+* `health_periodic_audit_grace_period` - (Optional, Int) The health check grace period for instances. The unit is second
+  and the value ranges from 0 to 86400. The default value is 600.
+
+  -> This parameter is valid only when the instance health check method of the AS group is `ELB_AUDIT`.
+
 * `instance_terminate_policy` - (Optional, String) The instance removal policy. The policy has four
   options: `OLD_CONFIG_OLD_INSTANCE` (default), `OLD_CONFIG_NEW_INSTANCE`,
   `OLD_INSTANCE`, and `NEW_INSTANCE`.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the scaling group.
+
+* `description` (Optional, String) The description of the AS group. The value can contain 0 to 256 characters.
 
 * `notifications` - (Optional, List) The notification mode. The system only supports `EMAIL`
   mode which refers to notification by email.
@@ -190,6 +198,10 @@ The following arguments are supported:
 The `networks` block supports:
 
 * `id` - (Required, String) The network UUID.
+
+* `ipv6_enable` - (Optional, Bool) Whether to support IPv6 addresses. The default value is false.
+
+* `ipv6_bandwidth_id` - (Optional, String) The ID of the shared bandwidth of an IPv6 address.
 
 The `security_groups` block supports:
 

@@ -127,12 +127,21 @@ func ResourceASGroup() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 						},
+						"ipv6_enable": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"ipv6_bandwidth_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 					},
 				},
 			},
 			"security_groups": {
 				Type:     schema.TypeList,
-				Required: true,
+				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
@@ -148,6 +157,11 @@ func ResourceASGroup() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"multi_az_scaling_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"health_periodic_audit_method": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -160,6 +174,13 @@ func ResourceASGroup() *schema.Resource {
 				Default:      5,
 				ValidateFunc: validation.IntInSlice(HealthAuditTime),
 				Description:  "The health check period for instances, in minutes.",
+			},
+			"health_periodic_audit_grace_period": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntBetween(0, 86400),
+				Description:  "The health check grace period for instances, in seconds.",
 			},
 			"instance_terminate_policy": {
 				Type:         schema.TypeString,
@@ -191,6 +212,11 @@ func ResourceASGroup() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"tags": common.TagsSchema(),
 			"enterprise_project_id": {
@@ -236,16 +262,27 @@ func buildNetworksOpts(networks []interface{}) []groups.NetworkOpts {
 	for i, v := range networks {
 		item := v.(map[string]interface{})
 		res[i] = groups.NetworkOpts{
-			ID: item["id"].(string),
+			ID:         item["id"].(string),
+			IPv6Enable: item["ipv6_enable"].(bool),
+		}
+
+		if id, ok := item["ipv6_bandwidth_id"]; ok && id.(string) != "" {
+			res[i].IPv6BandWidth = &groups.BandWidthOpts{
+				ID: id.(string),
+			}
 		}
 	}
 
 	return res
 }
 
-func buildSecurityGroupsOpts(asGroups []interface{}) []groups.SecurityGroupOpts {
-	res := make([]groups.SecurityGroupOpts, len(asGroups))
-	for i, v := range asGroups {
+func buildSecurityGroupsOpts(secGroups []interface{}) []groups.SecurityGroupOpts {
+	if len(secGroups) == 0 {
+		return nil
+	}
+
+	res := make([]groups.SecurityGroupOpts, len(secGroups))
+	for i, v := range secGroups {
 		item := v.(map[string]interface{})
 		res[i] = groups.SecurityGroupOpts{
 			ID: item["id"].(string),
@@ -460,7 +497,10 @@ func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta int
 		VpcID:                     d.Get("vpc_id").(string),
 		HealthPeriodicAuditMethod: d.Get("health_periodic_audit_method").(string),
 		HealthPeriodicAuditTime:   d.Get("health_periodic_audit_time").(int),
+		HealthPeriodicAuditGrace:  d.Get("health_periodic_audit_grace_period").(int),
 		InstanceTerminatePolicy:   d.Get("instance_terminate_policy").(string),
+		MultiAZPriorityPolicy:     d.Get("multi_az_scaling_policy").(string),
+		Description:               d.Get("description").(string),
 		IsDeletePublicip:          d.Get("delete_publicip").(bool),
 		EnterpriseProjectID:       common.GetEnterpriseProjectID(d, config),
 	}
@@ -514,8 +554,8 @@ func resourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interfa
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "AS group")
 	}
-	log.Printf("[DEBUG] Retrieved AS group %s: %#v", groupID, asg)
 
+	log.Printf("[DEBUG] Retrieved AS group %s: %#v", groupID, asg)
 	allIns, err := getInstancesInGroup(asClient, groupID, nil)
 	if err != nil {
 		return diag.Errorf("can not get the instances in AS Group %s: %s", groupID, err)
@@ -538,10 +578,13 @@ func resourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("lb_listener_id", asg.LBListenerID),
 		d.Set("health_periodic_audit_method", asg.HealthPeriodicAuditMethod),
 		d.Set("health_periodic_audit_time", asg.HealthPeriodicAuditTime),
+		d.Set("health_periodic_audit_grace_period", asg.HealthPeriodicAuditGrace),
 		d.Set("instance_terminate_policy", asg.InstanceTerminatePolicy),
 		d.Set("delete_publicip", asg.DeletePublicip),
 		d.Set("enterprise_project_id", asg.EnterpriseProjectID),
 		d.Set("availability_zones", asg.AvailableZones),
+		d.Set("multi_az_scaling_policy", asg.MultiAZPriorityPolicy),
+		d.Set("description", asg.Description),
 		d.Set("notifications", asg.Notifications),
 		d.Set("instances", allIDs),
 		d.Set("networks", flattenNetworks(asg.Networks)),
@@ -567,7 +610,9 @@ func flattenNetworks(networks []groups.Network) []map[string]interface{} {
 	res := make([]map[string]interface{}, len(networks))
 	for i, item := range networks {
 		res[i] = map[string]interface{}{
-			"id": item.ID,
+			"id":                item.ID,
+			"ipv6_enable":       item.IPv6Enable,
+			"ipv6_bandwidth_id": item.IPv6BandWidth.ID,
 		}
 	}
 	return res
@@ -637,8 +682,11 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		Notifications:             utils.ExpandToStringList(d.Get("notifications").([]interface{})),
 		HealthPeriodicAuditMethod: d.Get("health_periodic_audit_method").(string),
 		HealthPeriodicAuditTime:   d.Get("health_periodic_audit_time").(int),
+		HealthPeriodicAuditGrace:  d.Get("health_periodic_audit_grace_period").(int),
 		InstanceTerminatePolicy:   d.Get("instance_terminate_policy").(string),
+		MultiAZPriorityPolicy:     d.Get("multi_az_scaling_policy").(string),
 		IsDeletePublicip:          d.Get("delete_publicip").(bool),
+		Description:               utils.String(d.Get("description").(string)),
 		EnterpriseProjectID:       common.GetEnterpriseProjectID(d, conf),
 	}
 

@@ -32,6 +32,10 @@ func TestAccASGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "lbaas_listeners.0.protocol_port", "8080"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "multi_az_scaling_policy", "EQUILIBRIUM_DISTRIBUTE"),
+					resource.TestCheckResourceAttr(resourceName, "cool_down_time", "300"),
+					resource.TestCheckResourceAttr(resourceName, "health_periodic_audit_time", "5"),
+					resource.TestCheckResourceAttr(resourceName, "health_periodic_audit_grace_period", "600"),
 					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
 					resource.TestCheckResourceAttrSet(resourceName, "availability_zones.#"),
 				),
@@ -55,6 +59,10 @@ func TestAccASGroup_basic(t *testing.T) {
 				Config: testASGroup_basic_enable(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckASGroupExists(resourceName, &asGroup),
+					resource.TestCheckResourceAttr(resourceName, "multi_az_scaling_policy", "PICK_FIRST"),
+					resource.TestCheckResourceAttr(resourceName, "cool_down_time", "600"),
+					resource.TestCheckResourceAttr(resourceName, "health_periodic_audit_time", "15"),
+					resource.TestCheckResourceAttr(resourceName, "health_periodic_audit_grace_period", "900"),
 					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
 				),
 			},
@@ -292,6 +300,11 @@ resource "huaweicloud_as_group" "acc_as_group"{
   scaling_configuration_id = huaweicloud_as_configuration.acc_as_config.id
   vpc_id                   = data.huaweicloud_vpc.test.id
   enable                   = true
+
+  multi_az_scaling_policy            = "PICK_FIRST"
+  cool_down_time                     = 600
+  health_periodic_audit_time         = 15
+  health_periodic_audit_grace_period = 900
 
   networks {
     id = data.huaweicloud_vpc_subnet.test.id
