@@ -8,19 +8,15 @@ Manages an AS Lifecycle Hook resource within HuaweiCloud.
 
 ## Example Usage
 
-### Basic Lifecycle Hook
-
 ```hcl
 variable "hook_name" {}
-
 variable "as_group_id" {}
-
 variable "smn_topic_urn" {}
 
 resource "huaweicloud_as_lifecycle_hook" "test" {
+  scaling_group_id       = var.as_group_id
   name                   = var.hook_name
   type                   = "ADD"
-  scaling_group_id       = var.as_group_id
   default_result         = "ABANDON"
   notification_topic_urn = var.smn_topic_urn
   notification_message   = "This is a test message"
@@ -31,8 +27,11 @@ resource "huaweicloud_as_lifecycle_hook" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the AS lifecycle hook. If omitted, the `region`
-  argument of the provider is used. Changing this creates a new AS lifecycle hook.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the AS lifecycle hook.
+  If omitted, the provider-level region will be used. Changing this creates a new AS lifecycle hook.
+
+* `scaling_group_id` - (Required, String, ForceNew) Specifies the ID of the AS group in UUID format.
+  Changing this creates a new AS lifecycle hook.
 
 * `name` - (Required, String) Specifies the lifecycle hook name. This parameter can contain a maximum of 32 characters,
   which may consist of letters, digits, underscores (_) and hyphens (-).
@@ -42,9 +41,6 @@ The following arguments are supported:
   + `REMOVE`: The hook suspends the instance when the instance is terminated.
 
 * `notification_topic_urn` - (Required, String) Specifies a unique topic in SMN.
-
-* `scaling_group_id` - (Required, String, ForceNew) Specifies the ID of the AS group in UUID format. Changing this
-  creates a new AS lifecycle hook.
 
 * `default_result` - (Optional, String) Specifies the default lifecycle hook callback operation. This operation is
   performed when the timeout duration expires. The valid values are *ABANDON* and *CONTINUE*, default to *ABANDON*.
@@ -70,5 +66,5 @@ In addition to all arguments above, the following attributes are exported:
 Lifecycle hooks can be imported using the AS group ID and hook ID separated by a slash, e.g.
 
 ```
-$ terraform import huaweicloud_as_lifecycle_hook.test <AS group ID>/<Lifecycle hook ID>
+$ terraform import huaweicloud_as_lifecycle_hook.test &ltAS group ID&gt/&ltLifecycle hook ID&gt
 ```

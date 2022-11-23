@@ -3,6 +3,7 @@ package as
 import (
 	"context"
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
 
@@ -76,7 +77,7 @@ func ResourceASLifecycleHook() *schema.Resource {
 			"notification_message": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[^()<>&']{1,256}$"),
+				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[^()<>&']{1,256}$`),
 					"The 'notification_message' of the lifecycle hook has special character"),
 			},
 			"notification_topic_name": {
@@ -112,12 +113,14 @@ func resourceASLifecycleHookCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("lifecycle hook type (%s) is not in the map (%#v)", hookType, hookTypeMap)
 	}
 	createOpts.Type = v
+
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	hook, err := lifecyclehooks.Create(client, createOpts, groupId).Extract()
 	if err != nil {
 		return diag.Errorf("error creating lifecycle hook: %s", err)
 	}
-	d.SetId(hook.Name)
 
+	d.SetId(hook.Name)
 	return resourceASLifecycleHookRead(ctx, d, meta)
 }
 
@@ -134,6 +137,8 @@ func resourceASLifecycleHookRead(_ context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error getting the specifies lifecycle hook of the autoscaling service")
 	}
+	log.Printf("[DEBUG] Retrieved lifecycle hook of AS group %s: %#v", groupId, hook)
+
 	d.Set("region", region)
 	if err = setASLifecycleHookToState(d, hook); err != nil {
 		return diag.Errorf("error setting the lifecycle hook to state: %s", err)
@@ -169,6 +174,8 @@ func resourceASLifecycleHookUpdate(ctx context.Context, d *schema.ResourceData, 
 	if d.HasChange("notification_message") {
 		updateOpts.NotificationMetadata = d.Get("notification_message").(string)
 	}
+
+	log.Printf("[DEBUG] Update Options: %#v", updateOpts)
 	groupId := d.Get("scaling_group_id").(string)
 	_, err = lifecyclehooks.Update(client, updateOpts, groupId, d.Id()).Extract()
 	if err != nil {
@@ -226,6 +233,7 @@ func resourceASLifecycleHookImportState(_ context.Context, d *schema.ResourceDat
 	if len(parts) != 2 {
 		return nil, fmt.Errorf("invalid format specified for lifecycle hook, must be <scaling_group_id>/<hook_id>")
 	}
+
 	d.SetId(parts[1])
 	d.Set("scaling_group_id", parts[0])
 	return []*schema.ResourceData{d}, nil

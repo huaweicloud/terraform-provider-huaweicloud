@@ -34,7 +34,7 @@ func TestAccASLifecycleHook_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceHookName, "timeout", "3600"),
 					resource.TestCheckResourceAttr(resourceHookName, "notification_message", "This is a test message"),
 					resource.TestMatchResourceAttr(resourceHookName, "notification_topic_urn",
-						regexp.MustCompile(fmt.Sprintf("^(urn:smn:%s:[0-9a-z]{32}:%s)$", acceptance.HW_REGION_NAME, rName))),
+						regexp.MustCompile(fmt.Sprintf(`^(urn:smn:%s:[0-9a-z]{32}:%s)$`, acceptance.HW_REGION_NAME, rName))),
 				),
 			},
 			{
@@ -47,7 +47,7 @@ func TestAccASLifecycleHook_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceHookName, "timeout", "600"),
 					resource.TestCheckResourceAttr(resourceHookName, "notification_message", "This is a update message"),
 					resource.TestMatchResourceAttr(resourceHookName, "notification_topic_urn",
-						regexp.MustCompile(fmt.Sprintf("^(urn:smn:%s:[0-9a-z]{32}:%s-update)$", acceptance.HW_REGION_NAME, rName))),
+						regexp.MustCompile(fmt.Sprintf(`^(urn:smn:%s:[0-9a-z]{32}:%s-update)$`, acceptance.HW_REGION_NAME, rName))),
 				),
 			},
 			{
