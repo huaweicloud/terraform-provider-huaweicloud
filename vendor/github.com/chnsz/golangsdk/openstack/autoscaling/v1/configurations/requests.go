@@ -36,27 +36,38 @@ func (opts CreateOpts) ToConfigurationCreateMap() (map[string]interface{}, error
 	return b, nil
 }
 
-//InstanceConfigOpts is an inner struct of CreateOpts
+// InstanceConfigOpts is an inner struct of CreateOpts
 type InstanceConfigOpts struct {
-	InstanceID  string            `json:"instance_id,omitempty"`
-	FlavorRef   string            `json:"flavorRef,omitempty"`
-	ImageRef    string            `json:"imageRef,omitempty"`
-	Disk        []DiskOpts        `json:"disk,omitempty"`
-	SSHKey      string            `json:"key_name,omitempty"`
-	Personality []PersonalityOpts `json:"personality,omitempty"`
-	PubicIP     *PublicIpOpts     `json:"public_ip,omitempty"`
+	InstanceID           string `json:"instance_id,omitempty"`
+	FlavorRef            string `json:"flavorRef,omitempty"`
+	ImageRef             string `json:"imageRef,omitempty"`
+	SSHKey               string `json:"key_name,omitempty"`
+	ServerGroupID        string `json:"server_group_id,omitempty"`
+	Tenancy              string `json:"tenancy,omitempty"`
+	DedicatedHostID      string `json:"dedicated_host_id,omitempty"`
+	FlavorPriorityPolicy string `json:"multi_flavor_priority_policy,omitempty"`
+	MarketType           string `json:"market_type,omitempty"`
+
+	Disk           []DiskOpts          `json:"disk,omitempty"`
+	Personality    []PersonalityOpts   `json:"personality,omitempty"`
+	PubicIP        *PublicIpOpts       `json:"public_ip,omitempty"`
+	SecurityGroups []SecurityGroupOpts `json:"security_groups,omitempty"`
+
 	// UserData contains configuration information or scripts to use upon launch.
 	// Create will base64-encode it for you, if it isn't already.
 	UserData []byte                 `json:"-"`
-	Metadata map[string]interface{} `json:"metadata,omitempty"` //TODO not sure the type
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-//DiskOpts is an inner struct of InstanceConfigOpts
+// DiskOpts is an inner struct of InstanceConfigOpts
 type DiskOpts struct {
-	Size       int               `json:"size" required:"true"`
-	VolumeType string            `json:"volume_type" required:"true"`
-	DiskType   string            `json:"disk_type" required:"true"`
-	Metadata   map[string]string `json:"metadata,omitempty"`
+	Size               int               `json:"size" required:"true"`
+	VolumeType         string            `json:"volume_type" required:"true"`
+	DiskType           string            `json:"disk_type" required:"true"`
+	DedicatedStorageID string            `json:"dedicated_storage_id,omitempty"`
+	DataDiskImageID    string            `json:"data_disk_image_id,omitempty"`
+	SnapshotId         string            `json:"snapshot_id,omitempty"`
+	Metadata           map[string]string `json:"metadata,omitempty"`
 }
 
 type PersonalityOpts struct {
@@ -80,8 +91,12 @@ type BandwidthOpts struct {
 	ID           string `json:"id,omitempty"`
 }
 
-//Create is a method by which can be able to access to create a configuration
-//of autoscaling
+type SecurityGroupOpts struct {
+	ID string `json:"id" required:"true"`
+}
+
+// Create is a method by which can be able to access to create a configuration
+// of autoscaling
 func Create(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateResult) {
 	b, err := opts.ToConfigurationCreateMap()
 	if err != nil {
@@ -94,14 +109,14 @@ func Create(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateRe
 	return
 }
 
-//Get is a method by which can be able to access to get a configuration of
-//autoscaling detailed information
+// Get is a method by which can be able to access to get a configuration of
+// autoscaling detailed information
 func Get(client *golangsdk.ServiceClient, id string) (r GetResult) {
 	_, r.Err = client.Get(getURL(client, id), &r.Body, nil)
 	return
 }
 
-//Delete
+// Delete is a method by which can be able to delete a configuration of autoscaling
 func Delete(client *golangsdk.ServiceClient, id string) (r DeleteResult) {
 	_, r.Err = client.Delete(deleteURL(client, id), nil)
 	return
@@ -121,7 +136,7 @@ func (opts ListOpts) ToConfigurationListQuery() (string, error) {
 	return q.String(), err
 }
 
-//List is method that can be able to list all configurations of autoscaling service
+// List is method that can be able to list all configurations of autoscaling service
 func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) pagination.Pager {
 	url := listURL(client)
 	if opts != nil {

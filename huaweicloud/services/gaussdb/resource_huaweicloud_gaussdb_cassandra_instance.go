@@ -203,6 +203,14 @@ func ResourceGeminiDBInstanceV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"lb_ip_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"lb_port": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"nodes": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -488,6 +496,8 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 	d.Set("dedicated_resource_id", instance.DedicatedResourceId)
 	d.Set("mode", instance.Mode)
 	d.Set("db_user_name", instance.DbUserName)
+	d.Set("lb_ip_address", instance.LbIpAddress)
+	d.Set("lb_port", instance.LbPort)
 
 	if instance.DedicatedResourceId != "" {
 		pages, err := instances.ListDeh(client).AllPages()
