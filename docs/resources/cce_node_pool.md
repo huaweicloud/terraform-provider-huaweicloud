@@ -122,6 +122,20 @@ extend_param = {
 * `data_volumes` - (Required, List, ForceNew) Specifies the configuration of the data disks.
   The structure is described below. Changing this parameter will create a new resource.
 
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the CCE node pool. Valid values are
+  *prePaid* and *postPaid*, defaults to *postPaid*. Changing this parameter will create a new resource.
+
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the CCE node pool.
+  Valid values are *month* and *year*. This parameter is mandatory if `charging_mode` is set to *prePaid*.
+  Changing this parameter will create a new resource.
+
+* `period` - (Optional, Int, ForceNew) Specifies the charging period of the CCE node pool. If `period_unit` is set to
+  *month*, the value ranges from 1 to 9. If `period_unit` is set to *year*, the value ranges from 1 to 3. This parameter
+  is mandatory if `charging_mode` is set to *prePaid*. Changing this parameter will create a new resource.
+
+* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled. Valid values are "true" and "false".
+  Changing this parameter will create a new resource.
+
 * `taints` - (Optional, List) Specifies the taints configuration of the nodes to set anti-affinity.
   The structure is described below.
 

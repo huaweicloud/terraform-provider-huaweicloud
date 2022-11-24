@@ -74,6 +74,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vod"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpcep"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpn"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/waf"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/workspace"
 )
@@ -466,6 +467,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_engine_versions": rds.DataSourceRdsEngineVersionsV3(),
 			"huaweicloud_rds_instances":       rds.DataSourceRdsInstances(),
 			"huaweicloud_rds_backups":         rds.DataSourceBackup(),
+			"huaweicloud_rds_storage_types":   rds.DataSourceStoragetype(),
 
 			"huaweicloud_servicestage_component_runtimes": servicestage.DataSourceComponentRuntimes(),
 
@@ -854,6 +856,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpcep_approval": vpcep.ResourceVPCEndpointApproval(),
 			"huaweicloud_vpcep_endpoint": vpcep.ResourceVPCEndpoint(),
 			"huaweicloud_vpcep_service":  vpcep.ResourceVPCEndpointService(),
+
+			"huaweicloud_vpn_gateway": vpn.ResourceGateway(),
 
 			"huaweicloud_scm_certificate": scm.ResourceScmCertificate(),
 
