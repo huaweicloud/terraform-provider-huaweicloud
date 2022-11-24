@@ -149,6 +149,12 @@ func ResourceListenerV3() *schema.Resource {
 				Computed: true,
 			},
 
+			"advanced_forwarding_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
 			"tags": common.TagsSchema(),
 		},
 	}
@@ -168,6 +174,7 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 			sniContainerRefs = append(sniContainerRefs, v.(string))
 		}
 	}
+	enhanceL7policy := d.Get("advanced_forwarding_enabled").(bool)
 	createOpts := listeners.CreateOpts{
 		Protocol:               listeners.Protocol(d.Get("protocol").(string)),
 		ProtocolPort:           d.Get("protocol_port").(int),
@@ -180,6 +187,7 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 		TlsCiphersPolicy:       d.Get("tls_ciphers_policy").(string),
 		SniContainerRefs:       sniContainerRefs,
 		Http2Enable:            &http2_enable,
+		EnhanceL7policy:        &enhanceL7policy,
 	}
 
 	if v, ok := d.GetOk("idle_timeout"); ok {
@@ -235,7 +243,7 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 
 	d.SetId(listener.ID)
 
-	//set tags
+	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		elbV2Client, err := config.ElbV2Client(config.GetRegion(d))
@@ -288,6 +296,7 @@ func resourceListenerV3Read(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("request_timeout", listener.ClientTimeout),
 		d.Set("response_timeout", listener.MemberTimeout),
 		d.Set("loadbalancer_id", listener.Loadbalancers[0].ID),
+		d.Set("advanced_forwarding_enabled", listener.EnhanceL7policy),
 	)
 
 	if listener.IpGroup != (listeners.IpGroup{}) {
@@ -324,11 +333,11 @@ func resourceListenerV3Update(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating elb client: %s", err)
 	}
 
-	//lintignore:R019
+	// lintignore:R019
 	if d.HasChanges("name", "description", "ca_certificate", "default_pool_id",
 		"idle_timeout", "request_timeout", "response_timeout", "server_certificate",
 		"access_policy", "ip_group", "forward_eip", "tls_ciphers_policy",
-		"sni_certificate", "http2_enable") {
+		"sni_certificate", "http2_enable", "advanced_forwarding_enabled") {
 		var updateOpts listeners.UpdateOpts
 		if d.HasChange("name") {
 			updateOpts.Name = d.Get("name").(string)
@@ -391,6 +400,10 @@ func resourceListenerV3Update(ctx context.Context, d *schema.ResourceData, meta 
 		if d.HasChange("http2_enable") {
 			http2 := d.Get("http2_enable").(bool)
 			updateOpts.Http2Enable = &http2
+		}
+		if d.HasChange("advanced_forwarding_enabled") {
+			enhanceL7policy := d.Get("advanced_forwarding_enabled").(bool)
+			updateOpts.EnhanceL7policy = &enhanceL7policy
 		}
 
 		// Wait for LoadBalancer to become active before continuing

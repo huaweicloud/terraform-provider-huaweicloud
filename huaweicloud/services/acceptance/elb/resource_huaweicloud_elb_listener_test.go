@@ -46,6 +46,7 @@ func TestAccElbV3Listener_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "forward_eip", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "advanced_forwarding_enabled", "false"),
 				),
 			},
 			{
@@ -55,6 +56,7 @@ func TestAccElbV3Listener_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "forward_eip", "false"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
+					resource.TestCheckResourceAttr(resourceName, "advanced_forwarding_enabled", "true"),
 				),
 			},
 			{
@@ -90,11 +92,12 @@ resource "huaweicloud_elb_loadbalancer" "test" {
 }
 
 resource "huaweicloud_elb_listener" "test" {
-  name            = "%s"
-  description     = "test description"
-  protocol        = "HTTP"
-  protocol_port   = 8080
-  loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
+  name                        = "%s"
+  description                 = "test description"
+  protocol                    = "HTTP"
+  protocol_port               = 8080
+  loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
+  advanced_forwarding_enabled = false
 
   forward_eip = true
 
@@ -135,11 +138,12 @@ resource "huaweicloud_elb_loadbalancer" "test" {
 }
 
 resource "huaweicloud_elb_listener" "test" {
-  name            = "%s"
-  description     = "test description"
-  protocol        = "HTTP"
-  protocol_port   = 8080
-  loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
+  name                        = "%s"
+  description                 = "test description"
+  protocol                    = "HTTP"
+  protocol_port               = 8080
+  loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
+  advanced_forwarding_enabled = true
 
   idle_timeout = 62
   request_timeout = 63
