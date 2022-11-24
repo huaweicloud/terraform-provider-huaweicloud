@@ -857,7 +857,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpcep_endpoint": vpcep.ResourceVPCEndpoint(),
 			"huaweicloud_vpcep_service":  vpcep.ResourceVPCEndpointService(),
 
-			"huaweicloud_vpn_gateway": vpn.ResourceGateway(),
+			"huaweicloud_vpn_gateway":          vpn.ResourceGateway(),
+			"huaweicloud_vpn_customer_gateway": vpn.ResourceCustomerGateway(),
 
 			"huaweicloud_scm_certificate": scm.ResourceScmCertificate(),
 
