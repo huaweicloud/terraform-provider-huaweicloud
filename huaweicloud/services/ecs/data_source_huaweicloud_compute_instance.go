@@ -2,18 +2,17 @@ package ecs
 
 import (
 	"context"
+	"log"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/block_devices"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/chnsz/golangsdk/openstack/evs/v2/cloudvolumes"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
-	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -229,14 +228,14 @@ func setEcsInstanceVolumeAttached(d *schema.ResourceData, ecsClient, evsClient *
 			if err != nil {
 				return err
 			}
-			logp.Printf("[DEBUG] Retrieved volume %s: %#v", b.ID, volumeInfo)
+			log.Printf("[DEBUG] Retrieved volume %s: %#v", b.ID, volumeInfo)
 
 			// retrieve volume `pci_address`
 			va, err := block_devices.Get(ecsClient, d.Id(), b.ID).Extract()
 			if err != nil {
 				return err
 			}
-			logp.Printf("[DEBUG] Retrieved block device %s: %#v", b.ID, va)
+			log.Printf("[DEBUG] Retrieved block device %s: %#v", b.ID, va)
 
 			bds[i] = map[string]interface{}{
 				"volume_id":   b.ID,
@@ -260,11 +259,11 @@ func setEcsInstanceParams(d *schema.ResourceData, conf *config.Config, ecsClient
 	region := conf.GetRegion(d)
 	networkingClient, err := conf.NetworkingV2Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v2 client: %s", err)
+		return diag.Errorf("error creating networking v2 client: %s", err)
 	}
 	blockStorageClient, err := conf.BlockStorageV2Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud EVS client: %s", err)
+		return diag.Errorf("error creating EVS client: %s", err)
 	}
 
 	mErr := multierror.Append(nil,
@@ -294,24 +293,24 @@ func dataSourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, me
 	region := conf.GetRegion(d)
 	ecsClient, err := conf.ComputeV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud ECS v1 client: %s", err)
+		return diag.Errorf("error creating ECS client: %s", err)
 	}
 
 	opt := buildListOptsWithoutStatus(d, conf)
 	allServers, err := queryEcsInstances(ecsClient, opt)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve cloud servers: %s", err)
+		return diag.Errorf("unable to retrieve cloud servers: %s", err)
 	}
 
 	if len(allServers) < 1 {
-		return fmtp.DiagErrorf("Your query returned no results, please change your search criteria and try again.")
+		return diag.Errorf("Your query returned no results, please change your search criteria and try again.")
 	}
 	if len(allServers) > 1 {
-		return fmtp.DiagErrorf("Your query returned more than one result, please try a more specific search criteria.")
+		return diag.Errorf("Your query returned more than one result, please try a more specific search criteria.")
 	}
 
 	server := allServers[0]
-	logp.Printf("[DEBUG] fetching the ecs instance: %#v", server)
+	log.Printf("[DEBUG] fetching the ecs instance: %#v", server)
 
 	d.SetId(server.ID)
 
@@ -338,7 +337,7 @@ func flattenComputeNetworks(d *schema.ResourceData, client *golangsdk.ServiceCli
 			p, err := ports.Get(client, addr.PortID).Extract()
 			if err != nil {
 				networkID = ""
-				logp.Printf("[DEBUG] failed to fetch port %s", addr.PortID)
+				log.Printf("[DEBUG] failed to fetch port %s", addr.PortID)
 			} else {
 				networkID = p.NetworkID
 			}
@@ -358,6 +357,6 @@ func flattenComputeNetworks(d *schema.ResourceData, client *golangsdk.ServiceCli
 		}
 	}
 
-	logp.Printf("[DEBUG] flatten Instance Networks: %#v", networks)
+	log.Printf("[DEBUG] flatten Instance Networks: %#v", networks)
 	return networks, publicIP
 }

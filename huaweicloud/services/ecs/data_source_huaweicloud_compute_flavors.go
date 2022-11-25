@@ -1,20 +1,22 @@
 package ecs
 
 import (
+	"context"
 	"strconv"
 	"strings"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/flavors"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func DataSourceEcsFlavors() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceEcsFlavorsRead,
+		ReadContext: dataSourceEcsFlavorsRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -51,12 +53,12 @@ func DataSourceEcsFlavors() *schema.Resource {
 	}
 }
 
-func dataSourceEcsFlavorsRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceEcsFlavorsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	ecsClient, err := conf.ComputeV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud ECS client: %s", err)
+		return diag.Errorf("error creating ECS client: %s", err)
 	}
 
 	listOpts := &flavors.ListOpts{
@@ -65,12 +67,12 @@ func dataSourceEcsFlavorsRead(d *schema.ResourceData, meta interface{}) error {
 
 	pages, err := flavors.List(ecsClient, listOpts).AllPages()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	allFlavors, err := flavors.ExtractFlavors(pages)
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve flavors: %s ", err)
+		return diag.Errorf("unable to retrieve flavors: %s ", err)
 	}
 
 	cpu := d.Get("cpu_core_count").(int)
@@ -118,13 +120,15 @@ func dataSourceEcsFlavorsRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if len(ids) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
+		return diag.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	d.SetId(hashcode.Strings(ids))
-	d.Set("ids", ids)
-	d.Set("region", region)
 
-	return nil
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("ids", ids),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
