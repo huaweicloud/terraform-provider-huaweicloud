@@ -1,4 +1,4 @@
-package huaweicloud
+package ecs
 
 import (
 	"context"
@@ -193,7 +193,8 @@ func queryEcsInstances(client *golangsdk.ServiceClient, opt *cloudservers.ListOp
 
 func dataSourceComputeInstancesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	ecsClient, err := conf.ComputeV1Client(GetRegion(d, conf))
+	region := conf.GetRegion(d)
+	ecsClient, err := conf.ComputeV1Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud ECS v1 client: %s", err)
 	}

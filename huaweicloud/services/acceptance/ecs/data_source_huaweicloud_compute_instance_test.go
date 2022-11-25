@@ -1,9 +1,10 @@
-package huaweicloud
+package ecs
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
@@ -18,9 +19,9 @@ func TestAccComputeInstanceDataSource_basic(t *testing.T) {
 	var instance cloudservers.CloudServer
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceDataSource_basic(rName),

@@ -1,4 +1,4 @@
-package huaweicloud
+package ecs
 
 import (
 	"context"
@@ -255,18 +255,20 @@ func setEcsInstanceVolumeAttached(d *schema.ResourceData, ecsClient, evsClient *
 	return nil
 }
 
-func setEcsInstanceParams(d *schema.ResourceData, config *config.Config, ecsClient *golangsdk.ServiceClient,
+func setEcsInstanceParams(d *schema.ResourceData, conf *config.Config, ecsClient *golangsdk.ServiceClient,
 	server cloudservers.CloudServer) diag.Diagnostics {
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	region := conf.GetRegion(d)
+	networkingClient, err := conf.NetworkingV2Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v2 client: %s", err)
 	}
-	blockStorageClient, err := config.BlockStorageV2Client(GetRegion(d, config))
+	blockStorageClient, err := conf.BlockStorageV2Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud EVS client: %s", err)
 	}
+
 	mErr := multierror.Append(nil,
-		d.Set("region", GetRegion(d, config)),
+		d.Set("region", region),
 		d.Set("availability_zone", server.AvailabilityZone),
 		d.Set("name", server.Name),
 		d.Set("status", server.Status),
@@ -288,13 +290,14 @@ func setEcsInstanceParams(d *schema.ResourceData, config *config.Config, ecsClie
 }
 
 func dataSourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	ecsClient, err := conf.ComputeV1Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud ECS v1 client: %s", err)
 	}
 
-	opt := buildListOptsWithoutStatus(d, config)
+	opt := buildListOptsWithoutStatus(d, conf)
 	allServers, err := queryEcsInstances(ecsClient, opt)
 	if err != nil {
 		return fmtp.DiagErrorf("Unable to retrieve cloud servers: %s", err)
@@ -314,7 +317,7 @@ func dataSourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, me
 
 	// Set instance parameters
 
-	return setEcsInstanceParams(d, config, ecsClient, server)
+	return setEcsInstanceParams(d, conf, ecsClient, server)
 }
 
 // flattenComputeNetworks collects instance network information

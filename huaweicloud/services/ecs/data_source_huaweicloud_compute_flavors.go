@@ -1,4 +1,4 @@
-package huaweicloud
+package ecs
 
 import (
 	"strconv"
@@ -52,8 +52,9 @@ func DataSourceEcsFlavors() *schema.Resource {
 }
 
 func dataSourceEcsFlavorsRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	ecsClient, err := conf.ComputeV1Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud ECS client: %s", err)
 	}
@@ -123,7 +124,7 @@ func dataSourceEcsFlavorsRead(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId(hashcode.Strings(ids))
 	d.Set("ids", ids)
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", region)
 
 	return nil
 }
