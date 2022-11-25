@@ -90,6 +90,8 @@ var (
 	HW_FGS_TRIGGER_LTS_AGENCY = os.Getenv("HW_FGS_TRIGGER_LTS_AGENCY")
 
 	HW_KMS_ENVIRONMENT = os.Getenv("HW_KMS_ENVIRONMENT")
+
+	HW_ER_TEST_ON = os.Getenv("HW_ER_TEST_ON") // Whether to run the ER related tests.
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -414,5 +416,12 @@ func TestAccPreCheckWorkspaceAD(t *testing.T) {
 	if HW_WORKSPACE_AD_DOMAIN_NAME == "" || HW_WORKSPACE_AD_SERVER_PWD == "" || HW_WORKSPACE_AD_DOMAIN_IP == "" ||
 		HW_WORKSPACE_AD_VPC_ID == "" || HW_WORKSPACE_AD_NETWORK_ID == "" {
 		t.Skip("The configuration of AD server is not completed for Workspace service acceptance test.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckER(t *testing.T) {
+	if HW_ER_TEST_ON == "" {
+		t.Skip("Skip all ER acceptance tests.")
 	}
 }
