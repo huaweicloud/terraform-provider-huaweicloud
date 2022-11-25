@@ -107,6 +107,13 @@ func ResourcePoolV3() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 						},
+
+						"timeout": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							ForceNew: true,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -123,23 +130,9 @@ func resourcePoolV3Create(ctx context.Context, d *schema.ResourceData, meta inte
 
 	var persistence pools.SessionPersistence
 	if p, ok := d.GetOk("persistence"); ok {
-		pV := (p.([]interface{}))[0].(map[string]interface{})
-
-		persistence = pools.SessionPersistence{
-			Type: pV["type"].(string),
-		}
-
-		if persistence.Type == "APP_COOKIE" {
-			if pV["cookie_name"].(string) == "" {
-				return diag.Errorf(
-					"Persistence cookie_name needs to be set if using 'APP_COOKIE' persistence type")
-			}
-			persistence.CookieName = pV["cookie_name"].(string)
-		} else {
-			if pV["cookie_name"].(string) != "" {
-				return diag.Errorf(
-					"Persistence cookie_name can only be set if using 'APP_COOKIE' persistence type")
-			}
+		persistence, err = buildPersistence(p)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -217,6 +210,7 @@ func resourcePoolV3Read(_ context.Context, d *schema.ResourceData, meta interfac
 		params := make(map[string]interface{})
 		params["cookie_name"] = pool.Persistence.CookieName
 		params["type"] = pool.Persistence.Type
+		params["timeout"] = pool.Persistence.PersistenceTimeout
 		persistence[0] = params
 		mErr = multierror.Append(mErr, d.Set("persistence", persistence))
 	}
@@ -246,6 +240,13 @@ func resourcePoolV3Update(ctx context.Context, d *schema.ResourceData, meta inte
 	if d.HasChange("description") {
 		description := d.Get("description").(string)
 		updateOpts.Description = &description
+	}
+	if d.HasChange("persistence") {
+		persistence, err := buildPersistence(d.Get("persistence"))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		updateOpts.Persistence = &persistence
 	}
 
 	log.Printf("[DEBUG] Updating pool %s with options: %#v", d.Id(), updateOpts)
@@ -324,4 +325,31 @@ func resourceElbV3PoolRefreshFunc(elbClient *golangsdk.ServiceClient, poolID str
 		// The pool resource has no Status attribute, so a successful Get is the best we can do
 		return pool, "ACTIVE", nil
 	}
+}
+
+func buildPersistence(p interface{}) (pools.SessionPersistence, error) {
+	pV := (p.([]interface{}))[0].(map[string]interface{})
+
+	persistence := pools.SessionPersistence{
+		Type: pV["type"].(string),
+	}
+
+	if persistence.Type == "APP_COOKIE" {
+		if pV["cookie_name"].(string) == "" {
+			return persistence, fmt.Errorf(
+				"persistence cookie_name needs to be set if using 'APP_COOKIE' persistence type")
+		}
+		persistence.CookieName = pV["cookie_name"].(string)
+
+		if pV["timeout"].(int) != 0 {
+			return persistence, fmt.Errorf(
+				"persistence timeout is invalid when type is set to 'APP_COOKIE'")
+		}
+	} else if pV["cookie_name"].(string) != "" {
+		return persistence, fmt.Errorf(
+			"persistence cookie_name can only be set if using 'APP_COOKIE' persistence type")
+	}
+
+	persistence.PersistenceTimeout = pV["timeout"].(int)
+	return persistence, nil
 }
