@@ -400,8 +400,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_maintainwindow":  dms.DataSourceDmsMaintainWindow(),
 
 			"huaweicloud_enterprise_project": eps.DataSourceEnterpriseProject(),
-			"huaweicloud_evs_volumes":        evs.DataSourceEvsVolumesV2(),
-			"huaweicloud_fgs_dependencies":   fgs.DataSourceFunctionGraphDependencies(),
+
+			"huaweicloud_er_route_tables": er.DataSourceRouteTables(),
+
+			"huaweicloud_evs_volumes":      evs.DataSourceEvsVolumesV2(),
+			"huaweicloud_fgs_dependencies": fgs.DataSourceFunctionGraphDependencies(),
 
 			"huaweicloud_gaussdb_cassandra_dedicated_resource": gaussdb.DataSourceGeminiDBDehResource(),
 			"huaweicloud_gaussdb_cassandra_flavors":            gaussdb.DataSourceCassandraFlavors(),
