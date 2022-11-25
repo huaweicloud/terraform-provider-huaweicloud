@@ -4,55 +4,62 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
+
+func getEcsInstanceResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := conf.ComputeV1Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating compute v1 client: %s", err)
+	}
+
+	resourceID := state.Primary.ID
+	found, err := cloudservers.Get(client, resourceID).Extract()
+	if err == nil && found.Status == "DELETED" {
+		return nil, fmt.Errorf("the resource %s has been deleted", resourceID)
+	}
+
+	return found, err
+}
 
 func TestAccComputeInstanceDataSource_basic(t *testing.T) {
 	rName := fmt.Sprintf("ecs-data-test-%s", acctest.RandString(5))
-	resourceName := "data.huaweicloud_compute_instance.this"
+	dataSourceName := "data.huaweicloud_compute_instance.this"
 	var instance cloudservers.CloudServer
+
+	dc := acceptance.InitDataSourceCheck(dataSourceName)
+	rc := acceptance.InitResourceCheck(
+		"huaweicloud_compute_instance.test",
+		&instance,
+		getEcsInstanceResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckComputeInstanceDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceDataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists("huaweicloud_compute_instance.test", &instance),
-					testAccCheckComputeInstanceDataSourceID(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttrSet(resourceName, "status"),
-					resource.TestCheckResourceAttrSet(resourceName, "system_disk_id"),
-					resource.TestCheckResourceAttrSet(resourceName, "security_groups.#"),
-					resource.TestCheckResourceAttrSet(resourceName, "network.#"),
-					resource.TestCheckResourceAttrSet(resourceName, "volume_attached.#"),
+					dc.CheckResourceExists(),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(dataSourceName, "name", rName),
+					resource.TestCheckResourceAttrSet(dataSourceName, "status"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "system_disk_id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "security_groups.#"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "network.#"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "volume_attached.#"),
 				),
 			},
 		},
 	})
-}
-
-func testAccCheckComputeInstanceDataSourceID(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Can't find compute instance data source: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("Compute instance data source ID not set")
-		}
-
-		return nil
-	}
 }
 
 func testAccComputeInstanceDataSource_basic(rName string) string {
