@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/bootfromvolume"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/keypairs"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/schedulerhints"
@@ -610,6 +609,10 @@ func resourceComputeInstanceV2Create(ctx context.Context, d *schema.ResourceData
 			UserData:         []byte(d.Get("user_data").(string)),
 		}
 
+		if tags, ok := d.GetOk("tags"); ok {
+			createOpts.ServerTags = utils.ExpandResourceTags(tags.(map[string]interface{}))
+		}
+
 		var extendParam cloudservers.ServerExtendParam
 		chargingMode := d.Get("charging_mode").(string)
 		if chargingMode == "prePaid" {
@@ -777,16 +780,6 @@ func resourceComputeInstanceV2Create(ctx context.Context, d *schema.ResourceData
 		timeout := d.Timeout(schema.TimeoutCreate)
 		if err := waitForServerTargetState(ctx, ecsClient, d.Id(), pending, target, timeout); err != nil {
 			return diag.Errorf("State waiting timeout: %s", err)
-		}
-	}
-
-	// Set tags
-	if hasFilledOpt(d, "tags") {
-		tagRaw := d.Get("tags").(map[string]interface{})
-		taglist := utils.ExpandResourceTags(tagRaw)
-		tagErr := tags.Create(ecsClient, "cloudservers", d.Id(), taglist).ExtractErr()
-		if tagErr != nil {
-			logp.Printf("[WARN] Error setting tags of instance:%s, err=%s", d.Id(), err)
 		}
 	}
 
@@ -993,14 +986,7 @@ func resourceComputeInstanceV2Read(_ context.Context, d *schema.ResourceData, me
 	}
 
 	// Set instance tags
-	if resourceTags, err := tags.Get(ecsClient, "cloudservers", d.Id()).Extract(); err == nil {
-		tagmap := utils.TagsToMap(resourceTags.Tags)
-		if err := d.Set("tags", tagmap); err != nil {
-			return diag.Errorf("error saving tags to state for compute instance (%s): %s", d.Id(), err)
-		}
-	} else {
-		logp.Printf("[WARN] Error fetching tags of compute instance (%s): %s", d.Id(), err)
-	}
+	d.Set("tags", flattenTagsToMap(server.Tags))
 
 	return nil
 }
@@ -1909,4 +1895,19 @@ func shouldUnsubscribeEIP(d *schema.ResourceData) bool {
 	_, sharebw := d.GetOk("bandwidth.0.id")
 
 	return deleteEIP && eipAddr != "" && eipType != "" && !sharebw
+}
+
+func flattenTagsToMap(tags []string) map[string]string {
+	result := make(map[string]string)
+
+	for _, tagStr := range tags {
+		tag := strings.SplitN(tagStr, "=", 2)
+		if len(tag) == 1 {
+			result[tag[0]] = ""
+		} else if len(tag) == 2 {
+			result[tag[0]] = tag[1]
+		}
+	}
+
+	return result
 }

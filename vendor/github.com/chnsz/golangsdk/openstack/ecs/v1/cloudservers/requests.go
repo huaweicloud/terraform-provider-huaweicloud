@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/pagination"
 )
 
@@ -48,7 +49,7 @@ type CreateOpts struct {
 
 	Tags []string `json:"tags,omitempty"`
 
-	ServerTags []ServerTags `json:"server_tags,omitempty"`
+	ServerTags []tags.ResourceTag `json:"server_tags,omitempty"`
 }
 
 // CreateOptsBuilder allows extensions to add additional parameters to the
@@ -199,11 +200,6 @@ type SchedulerHints struct {
 
 	// DedicatedHostID specifies a DeH ID.
 	DedicatedHostID string `json:"dedicated_host_id,omitempty"`
-}
-
-type ServerTags struct {
-	Key   string `json:"key" required:"true"`
-	Value string `json:"value,omitempty"`
 }
 
 // Create requests a server to be provisioned to the user in the current tenant.
