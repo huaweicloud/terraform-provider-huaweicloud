@@ -48,7 +48,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Data source ID.
+* `id` - The data source ID.
 
 * `instances` - List of ECS instance details. The object structure of each ECS instance is documented below.
 
@@ -60,6 +60,8 @@ The `instances` block supports:
 
 * `image_id` - The image ID of the instance.
 
+* `image_name` - The image name of the instance.
+
 * `flavor_id` - The flavor ID.
 
 * `flavor_name` - The flavor name of the instance.
@@ -70,25 +72,47 @@ The `instances` block supports:
 
 * `availability_zone` - The availability zone where the instance is located.
 
+* `public_ip` - The EIP address that is associted to the instance.
+
+* `system_disk_id` - The system disk voume ID.
+
 * `key_pair` - The key pair that is used to authenticate the instance.
 
 * `security_group_ids` - An array of one or more security group IDs to associate with the instance.
 
 * `user_data` - The user data (information after encoding) configured during instance creation.
 
-* `volume_attached` - An array of one or more disks to attach to the instance. The object structure is documented below.
+* `network` - An array of one or more networks to attach to the instance.
+  The [network object](#compute_instances_network_object) structure is documented below.
+
+* `volume_attached` - An array of one or more disks to attach to the instance.
+  The [volume attached object](#compute_instances_volume_object) structure is documented below.
 
 * `scheduler_hints` - The scheduler with hints on how the instance should be launched.
-  The object structure is documented below.
+  The [scheduler hints](#compute_instances_scheduler_hint_object) structure is documented below.
 
 * `tags` - The key/value pairs to associate with the instance.
 
+<a name="compute_instances_network_object"></a>
+The `network` block supports:
+
+* `uuid` - The network ID to attach to the server.
+* `port` - The port ID corresponding to the IP address on that network.
+* `mac` - The MAC address of the NIC on that network.
+* `fixed_ip_v4` - The fixed IPv4 address of the instance on this network.
+* `fixed_ip_v6` - The Fixed IPv6 address of the instance on that network.
+
+<a name="compute_instances_volume_object"></a>
 The `volume_attached` block supports:
 
-* `volume_id` - The volume id on that attachment.
-
+* `volume_id` - The volume ID on that attachment.
+* `boot_index` - The volume boot index on that attachment.
 * `is_sys_volume` - Whether the volume is the system disk.
+* `size` - The volume size on that attachment.
+* `type` - The volume type on that attachment.
+* `pci_address` - The volume pci address on that attachment.
 
+<a name="compute_instances_scheduler_hint_object"></a>
 The `scheduler_hints` block supports:
 
-* `group` - The UUID of a server group where the instance will be placed into.
+* `group` - The server group ID where the instance will be placed into.

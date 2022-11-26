@@ -45,31 +45,35 @@ In addition to all arguments above, the following attributes are exported:
 * `system_disk_id` - The system disk voume ID.
 * `user_data` - The user data (information after encoding) configured during instance creation.
 * `security_group_ids` - An array of one or more security group IDs to associate with the instance.
-* `network` - An array of one or more networks to attach to the instance. The network object structure is documented
-  below.
-* `volume_attached` - An array of one or more disks to attach to the instance. The volume_attached object structure is
-  documented below.
-* `scheduler_hints` - The scheduler with hints on how the instance should be launched. The available hints are described
-  below.
+* `network` - An array of one or more networks to attach to the instance.
+  The [network object](#compute_instance_network_object) structure is documented below.
+* `volume_attached` - An array of one or more disks to attach to the instance.
+  The [volume attached object](#compute_instance_volume_object) structure is documented below.
+* `scheduler_hints` - The scheduler with hints on how the instance should be launched.
+  The [scheduler hints](#compute_instance_scheduler_hint_object) structure is documented below.
 * `tags` - The key/value pairs to associate with the instance.
 * `status` - The status of the instance.
 
+<a name="compute_instance_network_object"></a>
 The `network` block supports:
 
-* `uuid` - The network UUID to attach to the server.
+* `uuid` - The network ID to attach to the server.
 * `port` - The port ID corresponding to the IP address on that network.
 * `mac` - The MAC address of the NIC on that network.
 * `fixed_ip_v4` - The fixed IPv4 address of the instance on this network.
 * `fixed_ip_v6` - The Fixed IPv6 address of the instance on that network.
 
+<a name="compute_instance_volume_object"></a>
 The `volume_attached` block supports:
 
-* `volume_id` - The volume id on that attachment.
+* `volume_id` - The volume ID on that attachment.
 * `boot_index` - The volume boot index on that attachment.
+* `is_sys_volume` - Whether the volume is the system disk.
 * `size` - The volume size on that attachment.
 * `type` - The volume type on that attachment.
 * `pci_address` - The volume pci address on that attachment.
 
+<a name="compute_instance_scheduler_hint_object"></a>
 The `scheduler_hints` block supports:
 
-* `group` - The UUID of a Server Group where the instance will be placed into.
+* `group` - The server group ID where the instance will be placed into.
