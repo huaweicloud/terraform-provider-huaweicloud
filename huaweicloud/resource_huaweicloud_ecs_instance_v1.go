@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/secgroups"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/servers"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
@@ -255,6 +254,10 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 		createOpts.MetaData = &metadata
 	}
 
+	if tags, ok := d.GetOk("tags"); ok {
+		createOpts.ServerTags = utils.ExpandResourceTags(tags.(map[string]interface{}))
+	}
+
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.AdminPass = d.Get("password").(string)
@@ -298,15 +301,6 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 
 	if instance_id != "" {
 		d.SetId(instance_id)
-
-		if hasFilledOpt(d, "tags") {
-			tagRaw := d.Get("tags").(map[string]interface{})
-			taglist := utils.ExpandResourceTags(tagRaw)
-			tagErr := tags.Create(computeV1Client, "cloudservers", instance_id, taglist).ExtractErr()
-			if tagErr != nil {
-				logp.Printf("[WARN] Error setting tags of instance:%s, err=%s", instance_id, err)
-			}
-		}
 
 		if hasFilledOpt(d, "auto_recovery") {
 			ar := d.Get("auto_recovery").(bool)
@@ -360,14 +354,7 @@ func resourceEcsInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("nics", nics)
 
 	// Set instance tags
-	if resourceTags, err := tags.Get(computeClient, "cloudservers", d.Id()).Extract(); err == nil {
-		tagmap := utils.TagsToMap(resourceTags.Tags)
-		if err := d.Set("tags", tagmap); err != nil {
-			return fmtp.Errorf("Error saving tags to state for ECS instance (%s): %s", d.Id(), err)
-		}
-	} else {
-		logp.Printf("[WARN] Error fetching tags of ECS instance (%s): %s", d.Id(), err)
-	}
+	d.Set("tags", flattenTagsToMap(server.Tags))
 
 	ar, err := resourceECSAutoRecoveryV1Read(d, meta, d.Id())
 	if err != nil && !utils.IsResourceNotFound(err) {
