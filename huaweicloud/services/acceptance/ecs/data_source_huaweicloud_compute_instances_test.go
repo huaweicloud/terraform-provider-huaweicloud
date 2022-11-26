@@ -1,15 +1,14 @@
-package huaweicloud
+package ecs
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccComputeInstancesDataSource_basic(t *testing.T) {
@@ -17,16 +16,23 @@ func TestAccComputeInstancesDataSource_basic(t *testing.T) {
 	dataSourceName := "data.huaweicloud_compute_instances.test"
 	var instance cloudservers.CloudServer
 
+	dc := acceptance.InitDataSourceCheck(dataSourceName)
+	rc := acceptance.InitResourceCheck(
+		"huaweicloud_compute_instance.test",
+		&instance,
+		getEcsInstanceResourceFunc,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstancesDataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists("huaweicloud_compute_instance.test", &instance),
-					testAccCheckComputeInstancesDataSourceID(dataSourceName),
+					dc.CheckResourceExists(),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "name", rName),
 					resource.TestCheckResourceAttr(dataSourceName, "instances.#", "1"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "instances.0.id"),
@@ -42,21 +48,6 @@ func TestAccComputeInstancesDataSource_basic(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckComputeInstancesDataSourceID(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Can't find compute instances data source: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("Data source ID not set")
-		}
-
-		return nil
-	}
 }
 
 func testAccComputeInstancesDataSource_basic(rName string) string {

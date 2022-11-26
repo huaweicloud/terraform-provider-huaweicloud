@@ -1,18 +1,18 @@
-package huaweicloud
+package ecs
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"strings"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
 func DataSourceComputeInstances() *schema.Resource {
@@ -186,23 +186,24 @@ func filterCloudServers(d *schema.ResourceData, servers []cloudservers.CloudServ
 func queryEcsInstances(client *golangsdk.ServiceClient, opt *cloudservers.ListOpts) ([]cloudservers.CloudServer, error) {
 	pages, err := cloudservers.List(client, opt).AllPages()
 	if err != nil {
-		return []cloudservers.CloudServer{}, fmtp.Errorf("Error getting cloud servers: %s", err)
+		return []cloudservers.CloudServer{}, fmt.Errorf("error getting cloud servers: %s", err)
 	}
 	return cloudservers.ExtractServers(pages)
 }
 
 func dataSourceComputeInstancesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	ecsClient, err := conf.ComputeV1Client(GetRegion(d, conf))
+	region := conf.GetRegion(d)
+	ecsClient, err := conf.ComputeV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud ECS v1 client: %s", err)
+		return diag.Errorf("error creating ECS client: %s", err)
 	}
 
 	opt := buildListOptsWithoutIP(d, conf)
 
 	allServers, err := queryEcsInstances(ecsClient, opt)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve cloud servers: %s", err)
+		return diag.Errorf("unable to retrieve cloud servers: %s", err)
 	}
 
 	servers, ids := filterCloudServers(d, allServers)
@@ -256,7 +257,7 @@ func parseEcsInstanceTagInfo(tags []string) map[string]interface{} {
 	for _, tag := range tags {
 		kv := strings.SplitN(tag, "=", 2)
 		if len(kv) != 2 {
-			logp.Printf("[WARN] Invalid key/value format of tag: %s", tag)
+			log.Printf("[WARN] Invalid key/value format of tag: %s", tag)
 			continue
 		}
 		result[kv[0]] = kv[1]
@@ -301,7 +302,7 @@ func setComputeInstancesParams(d *schema.ResourceData, config *config.Config,
 	}
 
 	if err := d.Set("instances", result); err != nil {
-		return fmtp.DiagErrorf("Error setting cloud server list: %s", err)
+		return diag.Errorf("error setting cloud server list: %s", err)
 	}
 	return nil
 }

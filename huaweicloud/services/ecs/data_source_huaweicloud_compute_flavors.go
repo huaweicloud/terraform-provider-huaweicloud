@@ -1,20 +1,21 @@
-package huaweicloud
+package ecs
 
 import (
+	"context"
 	"strconv"
-	"strings"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/flavors"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func DataSourceEcsFlavors() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceEcsFlavorsRead,
+		ReadContext: dataSourceEcsFlavorsRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -51,11 +52,12 @@ func DataSourceEcsFlavors() *schema.Resource {
 	}
 }
 
-func dataSourceEcsFlavorsRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
+func dataSourceEcsFlavorsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	ecsClient, err := conf.ComputeV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud ECS client: %s", err)
+		return diag.Errorf("error creating ECS client: %s", err)
 	}
 
 	listOpts := &flavors.ListOpts{
@@ -64,19 +66,18 @@ func dataSourceEcsFlavorsRead(d *schema.ResourceData, meta interface{}) error {
 
 	pages, err := flavors.List(ecsClient, listOpts).AllPages()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	allFlavors, err := flavors.ExtractFlavors(pages)
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve flavors: %s ", err)
+		return diag.Errorf("unable to retrieve flavors: %s ", err)
 	}
 
 	cpu := d.Get("cpu_core_count").(int)
 	mem := int64(d.Get("memory_size").(int)) * 1024
 	pType := d.Get("performance_type").(string)
 	gen := d.Get("generation").(string)
-	az := d.Get("availability_zone").(string)
 
 	var ids []string
 	for _, flavor := range allFlavors {
@@ -97,33 +98,19 @@ func dataSourceEcsFlavorsRead(d *schema.ResourceData, meta interface{}) error {
 			continue
 		}
 
-		if az != "" {
-			status := flavor.OsExtraSpecs.OperationStatus
-			azStatusRaw := flavor.OsExtraSpecs.OperationAz
-			azStatusList := strings.Split(azStatusRaw, ",")
-			if strings.Contains(azStatusRaw, az) {
-				for i := 0; i < len(azStatusList); i++ {
-					azStatus := azStatusList[i]
-					if azStatus == (az+"(abandon)") || azStatus == (az+"(sellout)") || azStatus == (az+"obt_sellout") {
-						continue
-					}
-				}
-			} else if status == "abandon" || strings.Contains(status, "sellout") {
-				continue
-			}
-		}
-
 		ids = append(ids, flavor.ID)
 	}
 
 	if len(ids) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
+		return diag.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	d.SetId(hashcode.Strings(ids))
-	d.Set("ids", ids)
-	d.Set("region", GetRegion(d, config))
 
-	return nil
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("ids", ids),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }

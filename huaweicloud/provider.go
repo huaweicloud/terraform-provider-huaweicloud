@@ -379,9 +379,9 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cdn_domain_statistics": cdn.DataSourceStatistics(),
 
-			"huaweicloud_compute_flavors":   DataSourceEcsFlavors(),
-			"huaweicloud_compute_instance":  DataSourceComputeInstance(),
-			"huaweicloud_compute_instances": DataSourceComputeInstances(),
+			"huaweicloud_compute_flavors":   ecs.DataSourceEcsFlavors(),
+			"huaweicloud_compute_instance":  ecs.DataSourceComputeInstance(),
+			"huaweicloud_compute_instances": ecs.DataSourceComputeInstances(),
 
 			"huaweicloud_csbs_backup":        dataSourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy": dataSourceCSBSBackupPolicyV1(),
