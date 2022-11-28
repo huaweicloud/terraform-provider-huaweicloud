@@ -26,6 +26,10 @@ type SessionPersistence struct {
 
 	// Name of cookie if persistence mode is set appropriately.
 	CookieName string `json:"cookie_name,omitempty"`
+
+	// Specifies the sticky session timeout duration in minutes.
+	// This parameter is invalid when type is set to APP_COOKIE.
+	PersistenceTimeout int `json:"persistence_timeout,omitempty"`
 }
 
 // LoadBalancerID represents a load balancer.
@@ -55,7 +59,7 @@ type Pool struct {
 	Description string `json:"description"`
 
 	// A list of listeners objects IDs.
-	Listeners []ListenerID `json:"listeners"` //[]map[string]interface{}
+	Listeners []ListenerID `json:"listeners"` // []map[string]interface{}
 
 	// A list of member objects IDs.
 	Members []Member `json:"members"`

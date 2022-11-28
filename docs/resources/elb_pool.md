@@ -62,6 +62,11 @@ The `persistence` argument supports:
 * `cookie_name` - (Optional, String, ForceNew) The name of the cookie if persistence mode is set appropriately. Required
   if `type = APP_COOKIE`.
 
+* `timeout` - (Optional, Int, ForceNew) Specifies the sticky session timeout duration in minutes. This parameter is
+  invalid when type is set to APP_COOKIE. The value range varies depending on the protocol of the backend server group:
+  + When the protocol of the backend server group is TCP or UDP, the value ranges from 1 to 60.
+  + When the protocol of the backend server group is HTTP or HTTPS, the value ranges from 1 to 1440.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
