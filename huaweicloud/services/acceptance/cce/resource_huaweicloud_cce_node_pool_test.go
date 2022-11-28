@@ -175,6 +175,32 @@ func TestAccCCENodePool_prePaid(t *testing.T) {
 	})
 }
 
+func TestAccCCENodePool_podSecurityGroups(t *testing.T) {
+	var nodePool nodepools.NodePool
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_cce_node_pool.test"
+	// clusterName here is used to provide the cluster id to fetch cce node pool.
+	clusterName := "huaweicloud_cce_cluster.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckCCENodePoolDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCCENodePool_podSecurityGroups(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCCENodePoolExists(resourceName, clusterName, &nodePool),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckCCENodePoolDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	cceClient, err := config.CceV3Client(acceptance.HW_REGION_NAME)
@@ -428,6 +454,56 @@ resource "huaweicloud_cce_node_pool" "test" {
   }
 }
 `, testAccCCENodePool_Base(rName), rName, rName)
+}
+
+func testAccCCENodePool_podSecurityGroups(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_compute_keypair" "test" {
+  name       = "%[2]s"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
+}
+
+resource "huaweicloud_networking_secgroup" "test1" {
+  name = "%[2]s-secgroup1"
+}
+
+resource "huaweicloud_networking_secgroup" "test2" {
+  name = "%[2]s-secgroup2"
+}
+
+resource "huaweicloud_cce_node_pool" "test" {
+  cluster_id               = huaweicloud_cce_cluster.test.id
+  name                     = "%[2]s"
+  os                       = "CentOS 7.6"
+  flavor_id                = "s6.large.2"
+  initial_node_count       = 1
+  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  key_pair                 = huaweicloud_compute_keypair.test.name
+  scall_enable             = false
+  min_node_count           = 0
+  max_node_count           = 0
+  scale_down_cooldown_time = 0
+  priority                 = 0
+  type                     = "vm"
+  pod_security_groups      = [
+    huaweicloud_networking_secgroup.test1.id,
+    huaweicloud_networking_secgroup.test2.id
+  ]
+
+  root_volume {
+    size       = 40
+    volumetype = "SSD"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SSD"
+  }
+}
+`, testAccCCEClusterV3_turbo(rName), rName)
 }
 
 func testAccCCENodePool_tagsLabelsTaints(rName string) string {
