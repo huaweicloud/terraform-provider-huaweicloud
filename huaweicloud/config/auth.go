@@ -108,7 +108,7 @@ func genClient(c *Config, ao golangsdk.AuthOptionsProvider) (*golangsdk.Provider
 	// Set UserAgent
 	client.UserAgent.Prepend("terraform-provider-iac")
 
-	customUserAgent := os.Getenv("TF_CUSTOM_UA")
+	customUserAgent := os.Getenv("HW_TF_CUSTOM_UA")
 	if customUserAgent != "" {
 		client.UserAgent.Prepend(customUserAgent)
 	}
