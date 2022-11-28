@@ -52,7 +52,7 @@ data "huaweicloud_vpc_subnet" "test" {
 
 resource "huaweicloud_lb_loadbalancer" "test" {
   name          = "%s"
-  vip_subnet_id = data.huaweicloud_vpc_subnet.test.subnet_id
+  vip_subnet_id = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
   description   = "test for load balancer data source"
 }
 

@@ -78,7 +78,7 @@ resource "huaweicloud_vpc_subnet" "test" {
 
 resource "huaweicloud_lb_loadbalancer" "test" {
   name          = "%[1]s"
-  vip_subnet_id = huaweicloud_vpc_subnet.test.subnet_id
+  vip_subnet_id = huaweicloud_vpc_subnet.test.ipv4_subnet_id
 }
 
 resource "huaweicloud_lb_listener" "test" {

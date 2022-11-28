@@ -121,7 +121,7 @@ data "huaweicloud_vpc_subnet" "test" {
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
   name          = "%s"
-  vip_subnet_id = data.huaweicloud_vpc_subnet.test.subnet_id
+  vip_subnet_id = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
 
 }
 
@@ -143,7 +143,7 @@ resource "huaweicloud_lb_member" "member_1" {
   address       = "192.168.0.10"
   protocol_port = 8080
   pool_id       = huaweicloud_lb_pool.pool_1.id
-  subnet_id     = data.huaweicloud_vpc_subnet.test.subnet_id
+  subnet_id     = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
 
   timeouts {
     create = "5m"
@@ -156,7 +156,7 @@ resource "huaweicloud_lb_member" "member_2" {
   address       = "192.168.0.11"
   protocol_port = 8080
   pool_id       = huaweicloud_lb_pool.pool_1.id
-  subnet_id     = data.huaweicloud_vpc_subnet.test.subnet_id
+  subnet_id     = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
 
   timeouts {
     create = "5m"
@@ -175,7 +175,7 @@ data "huaweicloud_vpc_subnet" "test" {
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
   name          = "%s"
-  vip_subnet_id = data.huaweicloud_vpc_subnet.test.subnet_id
+  vip_subnet_id = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
 }
 
 resource "huaweicloud_lb_listener" "listener_1" {
@@ -198,7 +198,7 @@ resource "huaweicloud_lb_member" "member_1" {
   weight         = 10
   admin_state_up = "true"
   pool_id        = huaweicloud_lb_pool.pool_1.id
-  subnet_id      = data.huaweicloud_vpc_subnet.test.subnet_id
+  subnet_id      = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
 
   timeouts {
     create = "5m"
@@ -213,7 +213,7 @@ resource "huaweicloud_lb_member" "member_2" {
   weight         = 15
   admin_state_up = "true"
   pool_id        = huaweicloud_lb_pool.pool_1.id
-  subnet_id      = data.huaweicloud_vpc_subnet.test.subnet_id
+  subnet_id      = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
 
   timeouts {
     create = "5m"

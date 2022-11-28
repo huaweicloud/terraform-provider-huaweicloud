@@ -11,8 +11,10 @@ Manages an ELB loadbalancer resource within HuaweiCloud.
 ### Basic Loadbalancer
 
 ```hcl
+variable "ipv4_subnet_id" {}
+
 resource "huaweicloud_lb_loadbalancer" "lb_1" {
-  vip_subnet_id = "d9415786-5f1a-428b-b35f-2f1523e146d2"
+  vip_subnet_id = var.ipv4_subnet_id
 
   tags = {
     key = "value"
@@ -23,8 +25,10 @@ resource "huaweicloud_lb_loadbalancer" "lb_1" {
 ### Loadbalancer With EIP
 
 ```hcl
+variable "ipv4_subnet_id" {}
+
 resource "huaweicloud_lb_loadbalancer" "lb_1" {
-  vip_subnet_id = "d9415786-5f1a-428b-b35f-2f1523e146d2"
+  vip_subnet_id = ipv4_subnet_id
 }
 
 resource "huaweicloud_vpc_eip_associate" "eip_1" {
@@ -44,9 +48,8 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Human-readable description for the loadbalancer.
 
-* `vip_subnet_id` - (Required, String, ForceNew) The network on which to allocate the loadbalancer's address. A tenant
-  can only create Loadbalancers on networks authorized by policy (e.g. networks that belong to them or networks that are
-  shared). Changing this creates a new loadbalancer.
+* `vip_subnet_id` - (Required, String, ForceNew) The **IPv4 subnet ID** of the subnet where the load balancer works.
+  Changing this creates a new loadbalancer.
 
 * `vip_address` - (Optional, String, ForceNew) The ip address of the load balancer. Changing this creates a new
   loadbalancer.
