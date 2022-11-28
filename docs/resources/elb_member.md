@@ -26,7 +26,11 @@ The following arguments are supported:
 
 * `pool_id` - (Required, String, ForceNew) The id of the pool that this member will be assigned to.
 
-* `subnet_id` - (Required, String, ForceNew) The subnet in which to access the member
+* `subnet_id` - (Optional, String, ForceNew) The subnet in which to access the member.
+  The IPv4 or IPv6 subnet must be in the same VPC as the subnet of the load balancer.
+  If this parameter is not passed, cross-VPC backend has been enabled for the load balancer. In this case,
+  cross-VPC backend servers must use private IPv4 addresses, and the protocol of the backend server group
+  must be TCP, HTTP, or HTTPS.
 
 * `name` - (Optional, String) Human-readable name for the member.
 
