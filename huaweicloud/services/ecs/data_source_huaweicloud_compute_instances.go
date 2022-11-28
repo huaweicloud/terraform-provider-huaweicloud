@@ -2,14 +2,10 @@ package ecs
 
 import (
 	"context"
-	"fmt"
-	"log"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
@@ -73,6 +69,10 @@ func DataSourceComputeInstances() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"image_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"flavor_id": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -106,34 +106,17 @@ func DataSourceComputeInstances() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"volume_attached": {
-							Type:     schema.TypeList,
+						"system_disk_id": {
+							Type:     schema.TypeString,
 							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"volume_id": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"is_sys_volume": {
-										Type:     schema.TypeBool,
-										Computed: true,
-									},
-								},
-							},
 						},
-						"scheduler_hints": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"group": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-								},
-							},
+						"public_ip": {
+							Type:     schema.TypeString,
+							Computed: true,
 						},
+						"network":         computedSchemaNetworks(),
+						"volume_attached": computedSchemaVolumeAttached(),
+						"scheduler_hints": computedSchemaSchedulerHints(),
 						"tags": {
 							Type:     schema.TypeMap,
 							Computed: true,
@@ -183,14 +166,6 @@ func filterCloudServers(d *schema.ResourceData, servers []cloudservers.CloudServ
 	return result, ids
 }
 
-func queryEcsInstances(client *golangsdk.ServiceClient, opt *cloudservers.ListOpts) ([]cloudservers.CloudServer, error) {
-	pages, err := cloudservers.List(client, opt).AllPages()
-	if err != nil {
-		return []cloudservers.CloudServer{}, fmt.Errorf("error getting cloud servers: %s", err)
-	}
-	return cloudservers.ExtractServers(pages)
-}
-
 func dataSourceComputeInstancesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
@@ -199,9 +174,8 @@ func dataSourceComputeInstancesRead(_ context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating ECS client: %s", err)
 	}
 
-	opt := buildListOptsWithoutIP(d, conf)
-
-	allServers, err := queryEcsInstances(ecsClient, opt)
+	opts := buildListOptsWithoutIP(d, conf)
+	allServers, err := queryEcsInstances(ecsClient, opts)
 	if err != nil {
 		return diag.Errorf("unable to retrieve cloud servers: %s", err)
 	}
@@ -213,89 +187,53 @@ func dataSourceComputeInstancesRead(_ context.Context, d *schema.ResourceData, m
 	return setComputeInstancesParams(d, conf, servers)
 }
 
-func IsSystemVolume(index string) bool {
-	return index == "0"
-}
-
-func parseEcsInstanceSecurityGroupIds(groups []cloudservers.SecurityGroups) []string {
-	result := make([]string, len(groups))
-
-	for i, sg := range groups {
-		result[i] = sg.ID
+func setComputeInstancesParams(d *schema.ResourceData, conf *config.Config, servers []cloudservers.CloudServer) diag.Diagnostics {
+	region := conf.GetRegion(d)
+	ecsClient, err := conf.ComputeV1Client(region)
+	if err != nil {
+		return diag.Errorf("error creating ECS client: %s", err)
 	}
 
-	return result
-}
-
-func parseEcsInstanceSchedulerHintInfo(hints cloudservers.OsSchedulerHints) []map[string]interface{} {
-	result := make([]map[string]interface{}, len(hints.Group))
-
-	for i, val := range hints.Group {
-		result[i] = map[string]interface{}{
-			"group": val,
-		}
+	evsClient, err := conf.BlockStorageV2Client(region)
+	if err != nil {
+		return diag.Errorf("error creating EVS client: %s", err)
 	}
 
-	return result
-}
-
-func parseEcsInstanceVolumeAttachedInfo(attachList []cloudservers.VolumeAttached) []map[string]interface{} {
-	result := make([]map[string]interface{}, len(attachList))
-
-	for i, volume := range attachList {
-		result[i] = map[string]interface{}{
-			"volume_id":     volume.ID,
-			"is_sys_volume": IsSystemVolume(volume.BootIndex),
-		}
+	networkingClient, err := conf.NetworkingV2Client(region)
+	if err != nil {
+		return diag.Errorf("error creating networking v2 client: %s", err)
 	}
 
-	return result
-}
-
-func parseEcsInstanceTagInfo(tags []string) map[string]interface{} {
-	result := map[string]interface{}{}
-	for _, tag := range tags {
-		kv := strings.SplitN(tag, "=", 2)
-		if len(kv) != 2 {
-			log.Printf("[WARN] Invalid key/value format of tag: %s", tag)
-			continue
-		}
-		result[kv[0]] = kv[1]
-	}
-
-	return result
-}
-
-func setComputeInstancesParams(d *schema.ResourceData, config *config.Config,
-	servers []cloudservers.CloudServer) diag.Diagnostics {
 	result := make([]map[string]interface{}, len(servers))
-
-	for i, val := range servers {
+	for i, item := range servers {
 		server := map[string]interface{}{
-			"id":                    val.ID,
-			"user_data":             val.UserData,
-			"name":                  val.Name,
-			"flavor_name":           val.Flavor.Name,
-			"status":                val.Status,
-			"enterprise_project_id": val.EnterpriseProjectID,
-			"flavor_id":             val.Flavor.ID,
-			"image_id":              val.Image.ID,
-			"availability_zone":     val.AvailabilityZone,
-			"key_pair":              val.KeyName,
+			"id":                    item.ID,
+			"name":                  item.Name,
+			"image_id":              item.Image.ID,
+			"image_name":            item.Metadata.ImageName,
+			"flavor_id":             item.Flavor.ID,
+			"flavor_name":           item.Flavor.Name,
+			"status":                item.Status,
+			"availability_zone":     item.AvailabilityZone,
+			"enterprise_project_id": item.EnterpriseProjectID,
+			"user_data":             item.UserData,
+			"key_pair":              item.KeyName,
+			"tags":                  flattenEcsInstanceTags(item.Tags),
+			"security_group_ids":    flattenEcsInstanceSecurityGroupIds(item.SecurityGroups),
+			"scheduler_hints":       flattenEcsInstanceSchedulerHints(item.OsSchedulerHints),
 		}
 
-		server["security_group_ids"] = parseEcsInstanceSecurityGroupIds(val.SecurityGroups)
+		if len(item.VolumeAttached) > 0 {
+			vols, sysDiskID := flattenEcsInstanceVolumeAttached(ecsClient, evsClient, item.ID)
+			server["volume_attached"] = vols
+			server["system_disk_id"] = sysDiskID
 
-		if len(val.OsSchedulerHints.Group) > 0 {
-			server["scheduler_hints"] = parseEcsInstanceSchedulerHintInfo(val.OsSchedulerHints)
 		}
 
-		if len(val.VolumeAttached) > 0 {
-			server["volume_attached"] = parseEcsInstanceVolumeAttachedInfo(val.VolumeAttached)
-		}
-
-		if len(val.Tags) > 0 {
-			server["tags"] = parseEcsInstanceTagInfo(val.Tags)
+		if len(item.Addresses) > 0 {
+			networks, eip := flattenEcsInstanceNetworks(networkingClient, item.Addresses)
+			server["network"] = networks
+			server["public_ip"] = eip
 		}
 
 		result[i] = server
