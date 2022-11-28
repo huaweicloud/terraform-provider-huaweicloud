@@ -204,7 +204,7 @@ resource "huaweicloud_compute_keypair" "acc_key" {
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
   name          = "%s"
-  vip_subnet_id = data.huaweicloud_vpc_subnet.test.subnet_id
+  vip_subnet_id = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
 }
 
 resource "huaweicloud_lb_listener" "listener_1" {
