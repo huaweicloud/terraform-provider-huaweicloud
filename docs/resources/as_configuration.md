@@ -4,27 +4,32 @@ subcategory: "Auto Scaling"
 
 # huaweicloud_as_configuration
 
-Manages an AS Configuration resource within HuaweiCloud.
+Manages an AS configuration resource within HuaweiCloud.
 
 ## Example Usage
 
 ### Basic AS Configuration
 
 ```hcl
+variable "flavor_id" {}
+variable "image_id" {}
+variable "ssh_key" {}
+variable "security_group_id" {}
+
 resource "huaweicloud_as_configuration" "my_as_config" {
   scaling_configuration_name = "my_as_config"
 
   instance_config {
-    flavor = var.flavor
-    image  = var.image_id
+    flavor             = var.flavor_id
+    image              = var.image_id
+    key_name           = var.ssh_key
+    security_group_ids = [var.security_group_id]
 
     disk {
       size        = 40
       volume_type = "SSD"
       disk_type   = "SYS"
     }
-    key_name  = var.keyname
-    user_data = file("userdata.txt")
   }
 }
 ```
@@ -32,12 +37,20 @@ resource "huaweicloud_as_configuration" "my_as_config" {
 ### AS Configuration With Encrypted Data Disk
 
 ```hcl
+variable "flavor_id" {}
+variable "image_id" {}
+variable "ssh_key" {}
+variable "kms_id" {}
+variable "security_group_id" {}
+
 resource "huaweicloud_as_configuration" "my_as_config" {
   scaling_configuration_name = "my_as_config"
 
   instance_config {
-    flavor = var.flavor
-    image  = var.image_id
+    flavor             = var.flavor_id
+    image              = var.image_id
+    key_name           = var.ssh_key
+    security_group_ids = [var.security_group_id]
 
     disk {
       size        = 40
@@ -51,8 +64,6 @@ resource "huaweicloud_as_configuration" "my_as_config" {
       disk_type   = "DATA"
       kms_id      = var.kms_id
     }
-    key_name  = var.keyname
-    user_data = file("userdata.txt")
   }
 }
 ```
@@ -60,12 +71,20 @@ resource "huaweicloud_as_configuration" "my_as_config" {
 ### AS Configuration With User Data and Metadata
 
 ```hcl
+variable "flavor_id" {}
+variable "image_id" {}
+variable "ssh_key" {}
+variable "security_group_id" {}
+
 resource "huaweicloud_as_configuration" "my_as_config" {
   scaling_configuration_name = "my_as_config"
 
   instance_config {
-    flavor = var.flavor
-    image  = var.image_id
+    flavor             = var.flavor_id
+    image              = var.image_id
+    key_name           = var.ssh_key
+    security_group_ids = [var.security_group_id]
+    user_data          = file("userdata.txt")
 
     disk {
       size        = 40
@@ -73,8 +92,6 @@ resource "huaweicloud_as_configuration" "my_as_config" {
       disk_type   = "SYS"
     }
 
-    key_name  = var.keyname
-    user_data = file("userdata.txt")
     metadata  = {
       some_key = "some_value"
     }
@@ -85,12 +102,17 @@ resource "huaweicloud_as_configuration" "my_as_config" {
 ### AS Configuration uses the existing instance specifications as the template
 
 ```hcl
+variable "instance_id" {}
+variable "ssh_key" {}
+variable "security_group_id" {}
+
 resource "huaweicloud_as_configuration" "my_as_config" {
   scaling_configuration_name = "my_as_config"
 
   instance_config {
-    instance_id = "4579f2f5-cbe8-425a-8f32-53dcb9d9053a"
-    key_name    = var.keyname
+    instance_id        = var.instance_id
+    key_name           = var.ssh_key
+    security_group_ids = [var.security_group_id]
   }
 }
 ```
@@ -100,7 +122,7 @@ resource "huaweicloud_as_configuration" "my_as_config" {
 The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the AS configuration.
-  If omitted, the `region` argument of the provider is used. Changing this will create a new resource.
+  If omitted, the provider-level region will be used. Changing this will create a new resource.
 
 * `scaling_configuration_name` - (Required, String, ForceNew) Specifies the AS configuration name.
   The name contains only letters, digits, underscores (_), and hyphens (-), and cannot exceed 64 characters.
@@ -127,6 +149,20 @@ The `instance_config` block supports:
 
 * `key_name` - (Required, String, ForceNew) Specifies the name of the SSH key pair used to log in to the instance.
   Changing this will create a new resource.
+
+* `security_group_ids` - (Required, List, ForceNew) Specifies an array of one or more security group IDs.
+  Changing this will create a new resource.
+
+* `flavor_priority_policy` - (Optional, String, ForceNew) Specifies the priority policy used when there are multiple flavors
+  and instances to be created using an AS configuration. The value can be `PICK_FIRST` and `COST_FIRST`.
+
+  + **PICK_FIRST** (default): When an ECS is added for capacity expansion, the target flavor is determined in the order
+    in the flavor list.
+  + **COST_FIRST**: When an ECS is added for capacity expansion, the target flavor is determined for minimal expenses.
+
+  Changing this will create a new resource.
+
+* `ecs_group_id` - (Optional, String, ForceNew) Specifies the ECS group ID. Changing this will create a new resource.
 
 * `user_data` - (Optional, String, ForceNew) Specifies the user data to provide when launching the instance.
   The file content must be encoded with Base64. Changing this will create a new resource.
@@ -195,3 +231,31 @@ The `personality` block supports:
 
 * `contents` - (Required, String, ForceNew) Specifies the content of the injected file, which must be encoded with base64.
   Changing this creates a new resource.
+
+## Attributes Reference
+
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - The resource ID in UUID format.
+* `status` - The AS configuration status, the value can be **Bound** or **Unbound**.
+
+## Import
+
+AS configurations can be imported by their `id`, e.g.
+
+```
+$ terraform import huaweicloud_as_configuration.test 18518c8a-9d15-416b-8add-2ee874751d18
+```
+
+Note that the imported state may not be identical to your resource definition, due to `instance_config.0.instance_id`
+is missing from the API response. You can ignore changes after importing an AS configuration as below.
+
+```
+resource "huaweicloud_as_configuration" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [ instance_config.0.instance_id ]
+  }
+}
+```
