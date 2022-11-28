@@ -52,7 +52,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `container_network_type` - The container network type: **overlay_l2** , **underlay_ipvlan**, **vpc-router** or **eni**.
 
-* `eni_subnet_id` - ENI subnet ID. Specified when creating a CCE Turbo cluster.
+* `eni_subnet_id` - The **IPv4 subnet ID** of the subnet where the ENI resides.
+  Specified when creating a CCE Turbo cluster.
 
 * `eni_subnet_cidr` - ENI network segment. Specified when creating a CCE Turbo cluster.
 

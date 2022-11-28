@@ -452,7 +452,7 @@ resource "huaweicloud_cce_cluster" "test" {
   vpc_id                 = huaweicloud_vpc.test.id
   subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "eni"
-  eni_subnet_id          = huaweicloud_vpc_subnet.eni_test.subnet_id
+  eni_subnet_id          = huaweicloud_vpc_subnet.eni_test.ipv4_subnet_id
   eni_subnet_cidr        = huaweicloud_vpc_subnet.eni_test.cidr
 }
 

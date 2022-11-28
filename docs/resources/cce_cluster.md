@@ -109,7 +109,7 @@ resource "huaweicloud_cce_cluster" "test" {
   vpc_id                 = huaweicloud_vpc.myvpc.id
   subnet_id              = huaweicloud_vpc_subnet.mysubnet.id
   container_network_type = "eni"
-  eni_subnet_id          = huaweicloud_vpc_subnet.eni_test.subnet_id
+  eni_subnet_id          = huaweicloud_vpc_subnet.eni_test.ipv4_subnet_id
   eni_subnet_cidr        = huaweicloud_vpc_subnet.eni_test.cidr
 }
 ```
@@ -162,8 +162,8 @@ The following arguments are supported:
 * `service_network_cidr` - (Optional, String, ForceNew) Specifies the service network segment.
   Changing this parameter will create a new cluster resource.
 
-* `eni_subnet_id` - (Optional, String, ForceNew) Specifies the ENI subnet ID. Specified when creating a CCE Turbo
-  cluster. Changing this parameter will create a new cluster resource.
+* `eni_subnet_id` - (Optional, String, ForceNew) Specifies the **IPv4 subnet ID** of the subnet where the ENI resides.
+  Specified when creating a CCE Turbo cluster. Changing this parameter will create a new cluster resource.
 
 * `eni_subnet_cidr` - (Optional, String, ForceNew) Specifies the ENI network segment. Specified when creating a CCE
   Turbo cluster. Changing this parameter will create a new cluster resource.
