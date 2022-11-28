@@ -17,7 +17,7 @@ resource "huaweicloud_elb_loadbalancer" "basic" {
   cross_vpc_backend = true
 
   vpc_id         = "{{ vpc_id }}"
-  ipv4_subnet_id = "{{ subnet_id }}"
+  ipv4_subnet_id = "{{ ipv4_subnet_id }}"
 
   l4_flavor_id = "{{ l4_flavor_id }}"
   l7_flavor_id = "{{ l7_flavor_id }}"
@@ -42,7 +42,7 @@ resource "huaweicloud_elb_loadbalancer" "basic" {
   vpc_id            = "{{ vpc_id }}"
   ipv6_network_id   = "{{ ipv6_network_id }}"
   ipv6_bandwidth_id = "{{ ipv6_bandwidth_id }}"
-  ipv4_subnet_id    = "{{ subnet_id }}"
+  ipv4_subnet_id    = "{{ ipv4_subnet_id }}"
 
   l4_flavor_id = "{{ l4_flavor_id }}"
   l7_flavor_id = "{{ l7_flavor_id }}"
@@ -69,7 +69,7 @@ resource "huaweicloud_elb_loadbalancer" "basic" {
   vpc_id            = "{{ vpc_id }}"
   ipv6_network_id   = "{{ ipv6_network_id }}"
   ipv6_bandwidth_id = "{{ ipv6_bandwidth_id }}"
-  ipv4_subnet_id    = "{{ subnet_id }}"
+  ipv4_subnet_id    = "{{ ipv4_subnet_id }}"
 
   l4_flavor_id = "{{ l4_flavor_id }}"
   l7_flavor_id = "{{ l7_flavor_id }}"
@@ -108,9 +108,10 @@ The following arguments are supported:
 * `vpc_id` - (Optional, String, ForceNew) The vpc on which to create the loadbalancer. Changing this creates a new
   loadbalancer.
 
-* `ipv4_subnet_id` - (Optional, String) The subnet on which to allocate the loadbalancer's ipv4 address.
+* `ipv4_subnet_id` - (Optional, String) The **IPv4 subnet ID** of the subnet on which to allocate the loadbalancer's
+  ipv4 address.
 
-* `ipv6_network_id` - (Optional, String) The network on which to allocate the loadbalancer's ipv6 address.
+* `ipv6_network_id` - (Optional, String) The **ID** of the subnet on which to allocate the loadbalancer's ipv6 address.
 
 * `ipv6_bandwidth_id` - (Optional, String) The ipv6 bandwidth id. Only support shared bandwidth.
 

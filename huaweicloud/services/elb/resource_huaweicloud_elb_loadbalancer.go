@@ -70,13 +70,15 @@ func ResourceLoadBalancerV3() *schema.Resource {
 			},
 
 			"ipv4_subnet_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "the IPv4 subnet ID of the subnet where the load balancer resides",
 			},
 
 			"ipv6_network_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "the ID of the subnet where the load balancer resides",
 			},
 
 			"ipv6_bandwidth_id": {

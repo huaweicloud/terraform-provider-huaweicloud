@@ -197,7 +197,7 @@ data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_elb_loadbalancer" "test" {
   name            = "%s"
-  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.subnet_id
+  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
   ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
 
   availability_zone = [
@@ -223,7 +223,7 @@ data "huaweicloud_availability_zones" "test" {}
 resource "huaweicloud_elb_loadbalancer" "test" {
   name              = "%s"
   cross_vpc_backend = true
-  ipv4_subnet_id    = data.huaweicloud_vpc_subnet.test.subnet_id
+  ipv4_subnet_id    = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
   ipv6_network_id   = data.huaweicloud_vpc_subnet.test.id
 
   availability_zone = [
@@ -248,7 +248,7 @@ data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_elb_loadbalancer" "test" {
   name                  = "%s"
-  ipv4_subnet_id        = data.huaweicloud_vpc_subnet.test.subnet_id
+  ipv4_subnet_id        = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
@@ -272,7 +272,7 @@ data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_elb_loadbalancer" "test" {
   name              = "%s"
-  ipv4_subnet_id    = data.huaweicloud_vpc_subnet.test.subnet_id
+  ipv4_subnet_id    = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
   availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
 
   iptype                = "5_bgp"
@@ -293,7 +293,7 @@ data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_elb_loadbalancer" "test" {
   name            = "%s"
-  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.subnet_id
+  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
   ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
 
   charging_mode = "prePaid"
@@ -337,7 +337,7 @@ data "huaweicloud_elb_flavors" "l7flavors" {
 
 resource "huaweicloud_elb_loadbalancer" "test" {
   name            = "%s"
-  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.subnet_id
+  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
   ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
   description     = "update flavors"
   l4_flavor_id    = data.huaweicloud_elb_flavors.l4flavors.ids[0]
