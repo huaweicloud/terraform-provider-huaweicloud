@@ -16,6 +16,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/evs/v2/cloudvolumes"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func DataSourceComputeInstance() *schema.Resource {
@@ -27,6 +28,10 @@ func DataSourceComputeInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+			},
+			"instance_id": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -228,15 +233,24 @@ func dataSourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, me
 		return diag.Errorf("unable to retrieve cloud servers: %s", err)
 	}
 
-	if len(allServers) < 1 {
+	filter := map[string]interface{}{
+		"ID": d.Get("instance_id"),
+	}
+
+	filterServers, err := utils.FilterSliceWithField(allServers, filter)
+	if err != nil {
+		return diag.Errorf("filter ECS instances failed: %s", err)
+	}
+
+	if len(filterServers) < 1 {
 		return diag.Errorf("Your query returned no results, please change your search criteria and try again.")
 	}
-	if len(allServers) > 1 {
+	if len(filterServers) > 1 {
 		return diag.Errorf("Your query returned more than one result, please try a more specific search criteria.")
 	}
 
 	server := allServers[0]
-	log.Printf("[DEBUG] fetching the ecs instance: %#v", server)
+	log.Printf("[DEBUG] fetching the ECS instance: %#v", server)
 
 	d.SetId(server.ID)
 	return setEcsInstanceParams(d, conf, ecsClient, server)
