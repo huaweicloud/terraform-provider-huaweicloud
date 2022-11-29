@@ -13,7 +13,7 @@ ENHANCEMENTS:
 * resource/huaweicloud_gaussdb_opengauss_instance: Add prepaid support [GH-2406]
 * resource/huaweicloud_cce_cluster: Support binding or unbinding EIP without rebuild [GH-2418]
 * resource/huaweicloud_cdn_domain: Add tags and range-based interival support [GH-2421] [GH-2425]
-* resource/huaweicloud_compute_instance: Support updting keypair without rebuild [GH-2431]
+* resource/huaweicloud_compute_instance: Support updating keypair without rebuild [GH-2431]
 * resource/huaweicloud_servicestage_component: Support `DevCloud` repository [GH-2462]
 
 BUG FIXES:
@@ -486,7 +486,7 @@ ENHANCEMENTS:
 BUG FIXES:
 
 * resource/huaweicloud_evs_volume: Fix update of tag [GH-1705]
-* resource/huaweicloud_elb_pool: Add HTTPS and QUIC to protocl [GH-1715]
+* resource/huaweicloud_elb_pool: Add HTTPS and QUIC to protocol [GH-1715]
 * resource/huaweicloud_obs_bucket: Ignore FsNotSupport error [GH-1723]
 
 ## 1.30.1 (November 27, 2021)
@@ -896,7 +896,7 @@ ENHANCEMENTS:
 
 BUG FIXES:
 
-* data/huaweicloud_dcs_az: Filter avaliable zones by code ([#990](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/990))
+* data/huaweicloud_dcs_az: Filter available zones by code ([#990](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/990))
 
 * resource/huaweicloud_vpcep_approval: Make vpcep approval can work cross-project ([#1010](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1010))
 
