@@ -26,6 +26,8 @@ The following arguments are supported:
 * `name` - (Optional, String) Specifies the instance name, which can be queried with a regular expression.
   The instance name supports fuzzy matching query too.
 
+* `instance_id` - (Optional, String) Specifies the ECS ID.
+
 * `flavor_name` - (Optional, String) Specifies the flavor name of the instance.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID.

@@ -20,6 +20,10 @@ func DataSourceComputeInstances() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"instance_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -147,6 +151,9 @@ func filterCloudServers(d *schema.ResourceData, servers []cloudservers.CloudServ
 	ids := make([]string, 0, len(servers))
 
 	for _, server := range servers {
+		if serverId, ok := d.GetOk("instance_id"); ok && serverId != server.ID {
+			continue
+		}
 		if flavorName, ok := d.GetOk("flavor_name"); ok && flavorName != server.Flavor.Name {
 			continue
 		}

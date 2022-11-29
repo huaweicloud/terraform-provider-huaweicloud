@@ -20,10 +20,12 @@ data "huaweicloud_compute_instance" "demo" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) The region in which to obtain the instance. If omitted, the provider-level region will
-  be used.
+* `region` - (Optional, String) The region in which to obtain the instance.
+  If omitted, the provider-level region will be used.
 
 * `name` - (Optional, String) Specifies the ECS name, which can be queried with a regular expression.
+
+* `instance_id` - (Optional, String) Specifies the ECS ID.
 
 * `fixed_ip_v4` - (Optional, String)  Specifies the IPv4 addresses of the ECS.
 

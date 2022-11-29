@@ -45,6 +45,7 @@ func TestAccComputeInstancesDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSourceName, "instances.0.network.#"),
 					resource.TestCheckResourceAttr(dataSourceName, "instances.0.tags.foo", "bar"),
 					resource.TestCheckResourceAttr(dataSourceName, "instances.0.security_group_ids.#", "1"),
+					resource.TestCheckResourceAttr("data.huaweicloud_compute_instances.byID", "instances.#", "1"),
 				),
 			},
 		},
@@ -73,10 +74,10 @@ resource "huaweicloud_compute_instance" "test" {
 
 data "huaweicloud_compute_instances" "test" {
   name = huaweicloud_compute_instance.test.name
+}
 
-  depends_on = [
-    huaweicloud_compute_instance.test
-  ]
+data "huaweicloud_compute_instances" "byID" {
+  instance_id = huaweicloud_compute_instance.test.id
 }
 `, testAccCompute_data, rName)
 }
