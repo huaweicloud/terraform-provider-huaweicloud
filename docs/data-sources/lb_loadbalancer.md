@@ -32,7 +32,7 @@ data "huaweicloud_lb_loadbalancer" "test" {
 
 * `vip_address` - (Optional, String) Specifies the private IP address of the load balancer.
 
-* `vip_subnet_id` - (Optional, String) Specifies the ID of the subnet where the load balancer works.
+* `vip_subnet_id` - (Optional, String) Specifies the **IPv4 subnet ID** of the subnet where the load balancer works.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project id of the load balancer.
 

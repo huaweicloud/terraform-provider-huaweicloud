@@ -68,7 +68,7 @@ The `clusters` block supports:
 
 * `container_network_type` - The container network type: **overlay_l2** , **underlay_ipvlan**, **vpc-router** or **eni**.
 
-* `eni_subnet_id` - The ENI subnet ID.
+* `eni_subnet_id` - The **IPv4 subnet ID** of the subnet where the ENI resides.
 
 * `eni_subnet_cidr` - The ENI network segment.
 

@@ -81,9 +81,10 @@ func ResourceMemberV2() *schema.Resource {
 			},
 
 			"subnet_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "the IPv4 subnet ID of the subnet in which to access the member",
 			},
 
 			"admin_state_up": {

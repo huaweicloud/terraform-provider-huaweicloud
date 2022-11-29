@@ -55,9 +55,10 @@ func ResourceLoadBalancerV2() *schema.Resource {
 			},
 
 			"vip_subnet_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "the IPv4 subnet ID of the subnet where the load balancer works",
 			},
 
 			"tenant_id": {

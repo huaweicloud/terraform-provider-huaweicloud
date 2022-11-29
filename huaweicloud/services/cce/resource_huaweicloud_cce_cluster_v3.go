@@ -129,6 +129,7 @@ func ResourceCCEClusterV3() *schema.Resource {
 				ForceNew:     true,
 				Computed:     true,
 				RequiredWith: []string{"eni_subnet_cidr"},
+				Description:  "the IPv4 subnet ID of the subnet where the ENI resides",
 			},
 			"eni_subnet_cidr": {
 				Type:         schema.TypeString,

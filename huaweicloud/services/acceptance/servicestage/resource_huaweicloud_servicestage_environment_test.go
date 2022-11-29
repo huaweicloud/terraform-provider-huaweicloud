@@ -382,7 +382,7 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   name            = "%[1]s_${count.index}"
   description     = "Created by terraform."
   vpc_id          = huaweicloud_vpc.test.id
-  ipv4_subnet_id  = huaweicloud_vpc_subnet.test.subnet_id
+  ipv4_subnet_id  = huaweicloud_vpc_subnet.test.ipv4_subnet_id
   ipv6_network_id = huaweicloud_vpc_subnet.test.id
 
   availability_zone = [
@@ -434,7 +434,7 @@ resource "huaweicloud_elb_member" "test" {
   address       = huaweicloud_compute_instance.test[count.index].access_ip_v4
   protocol_port = 8080
   pool_id       = huaweicloud_elb_pool.test[count.index].id
-  subnet_id     = huaweicloud_vpc_subnet.test.subnet_id
+  subnet_id     = huaweicloud_vpc_subnet.test.ipv4_subnet_id
 }
 
 resource "huaweicloud_vpc_eip" "test" {

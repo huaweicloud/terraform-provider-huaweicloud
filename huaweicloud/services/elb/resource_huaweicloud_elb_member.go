@@ -72,9 +72,10 @@ func ResourceMemberV3() *schema.Resource {
 			},
 
 			"subnet_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "The IPv4 or IPv6 subnet ID of the subnet in which to access the member",
 			},
 
 			"pool_id": {

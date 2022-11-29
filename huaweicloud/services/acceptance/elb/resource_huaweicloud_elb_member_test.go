@@ -164,7 +164,7 @@ data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_elb_loadbalancer" "test" {
   name            = "%s"
-  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.subnet_id
+  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
   ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
 
   availability_zone = [
@@ -179,10 +179,9 @@ resource "huaweicloud_elb_listener" "test" {
   protocol_port   = 8080
   loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
 
-  forward_eip = true
-
-  idle_timeout = 60
-  request_timeout = 60
+  forward_eip      = true
+  idle_timeout     = 60
+  request_timeout  = 60
   response_timeout = 60
 }
 
@@ -197,14 +196,14 @@ resource "huaweicloud_elb_member" "member_1" {
   address       = "192.168.0.10"
   protocol_port = 8080
   pool_id       = huaweicloud_elb_pool.test.id
-  subnet_id     = data.huaweicloud_vpc_subnet.test.subnet_id
+  subnet_id     = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
 }
 
 resource "huaweicloud_elb_member" "member_2" {
   address       = "192.168.0.11"
   protocol_port = 8080
   pool_id       = huaweicloud_elb_pool.test.id
-  subnet_id     = data.huaweicloud_vpc_subnet.test.subnet_id
+  subnet_id     = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
 }
 `, rName, rName, rName)
 }
@@ -219,7 +218,7 @@ data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_elb_loadbalancer" "test" {
   name            = "%s"
-  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.subnet_id
+  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
   ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
 
   availability_zone = [
@@ -234,10 +233,9 @@ resource "huaweicloud_elb_listener" "test" {
   protocol_port   = 8080
   loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
 
-  forward_eip = true
-
-  idle_timeout = 60
-  request_timeout = 60
+  forward_eip      = true
+  idle_timeout     = 60
+  request_timeout  = 60
   response_timeout = 60
 }
 
@@ -253,7 +251,7 @@ resource "huaweicloud_elb_member" "member_1" {
   protocol_port  = 8080
   weight         = 10
   pool_id        = huaweicloud_elb_pool.test.id
-  subnet_id      = data.huaweicloud_vpc_subnet.test.subnet_id
+  subnet_id      = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
 }
 
 resource "huaweicloud_elb_member" "member_2" {
@@ -261,7 +259,7 @@ resource "huaweicloud_elb_member" "member_2" {
   protocol_port  = 8080
   weight         = 15
   pool_id        = huaweicloud_elb_pool.test.id
-  subnet_id      = data.huaweicloud_vpc_subnet.test.subnet_id
+  subnet_id      = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
 }
 `, rName, rName, rName)
 }
@@ -277,7 +275,7 @@ data "huaweicloud_availability_zones" "test" {}
 resource "huaweicloud_elb_loadbalancer" "test" {
   name              = "%s"
   cross_vpc_backend = true
-  ipv4_subnet_id    = data.huaweicloud_vpc_subnet.test.subnet_id
+  ipv4_subnet_id    = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
   ipv6_network_id   = data.huaweicloud_vpc_subnet.test.id
 
   availability_zone = [
@@ -292,10 +290,9 @@ resource "huaweicloud_elb_listener" "test" {
   protocol_port   = 8080
   loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
 
-  forward_eip = true
-
-  idle_timeout = 60
-  request_timeout = 60
+  forward_eip      = true
+  idle_timeout     = 60
+  request_timeout  = 60
   response_timeout = 60
 }
 
@@ -331,7 +328,7 @@ data "huaweicloud_availability_zones" "test" {}
 resource "huaweicloud_elb_loadbalancer" "test" {
   name              = "%s"
   cross_vpc_backend = true
-  ipv4_subnet_id    = data.huaweicloud_vpc_subnet.test.subnet_id
+  ipv4_subnet_id    = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
   ipv6_network_id   = data.huaweicloud_vpc_subnet.test.id
 
   availability_zone = [
@@ -346,10 +343,9 @@ resource "huaweicloud_elb_listener" "test" {
   protocol_port   = 8080
   loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
 
-  forward_eip = true
-
-  idle_timeout = 60
-  request_timeout = 60
+  forward_eip      = true
+  idle_timeout     = 60
+  request_timeout  = 60
   response_timeout = 60
 }
 

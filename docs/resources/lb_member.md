@@ -9,11 +9,14 @@ Manages an ELB member resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
+variable "lb_pool_id" {}
+variable "ipv4_subnet_id" {}
+
 resource "huaweicloud_lb_member" "member_1" {
   address       = "192.168.199.23"
   protocol_port = 8080
-  pool_id       = var.pool_id
-  subnet_id     = var.subnet_id
+  pool_id       = var.lb_pool_id
+  subnet_id     = var.ipv4_subnet_id
 }
 ```
 
@@ -26,7 +29,7 @@ The following arguments are supported:
 
 * `pool_id` - (Required, String, ForceNew) The id of the pool that this member will be assigned to.
 
-* `subnet_id` - (Required, String, ForceNew) The subnet in which to access the member
+* `subnet_id` - (Required, String, ForceNew) The **IPv4 subnet ID** of the subnet in which to access the member.
 
 * `name` - (Optional, String) Human-readable name for the member.
 

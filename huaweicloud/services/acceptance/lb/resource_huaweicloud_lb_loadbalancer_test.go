@@ -239,7 +239,7 @@ data "huaweicloud_vpc_subnet" "test" {
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
   name          = "%s"
   description   = "created by acceptance test"
-  vip_subnet_id = data.huaweicloud_vpc_subnet.test.subnet_id
+  vip_subnet_id = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
 
   tags = {
     key   = "value"
@@ -258,7 +258,7 @@ data "huaweicloud_vpc_subnet" "test" {
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
   name           = "%s"
   admin_state_up = "true"
-  vip_subnet_id  = data.huaweicloud_vpc_subnet.test.subnet_id
+  vip_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
 
   tags = {
     key1  = "value1"
@@ -286,7 +286,7 @@ resource "huaweicloud_networking_secgroup" "secgroup_2" {
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
   name               = "%s"
-  vip_subnet_id      = data.huaweicloud_vpc_subnet.test.subnet_id
+  vip_subnet_id      = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
   security_group_ids = [
     huaweicloud_networking_secgroup.secgroup_1.id
   ]
@@ -312,7 +312,7 @@ resource "huaweicloud_networking_secgroup" "secgroup_2" {
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
   name               = "%s"
-  vip_subnet_id      = data.huaweicloud_vpc_subnet.test.subnet_id
+  vip_subnet_id      = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
   security_group_ids = [
     huaweicloud_networking_secgroup.secgroup_1.id,
     huaweicloud_networking_secgroup.secgroup_2.id
@@ -339,7 +339,7 @@ resource "huaweicloud_networking_secgroup" "secgroup_2" {
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
   name               = "%s"
-  vip_subnet_id      = data.huaweicloud_vpc_subnet.test.subnet_id
+  vip_subnet_id      = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
   security_group_ids = [
     huaweicloud_networking_secgroup.secgroup_2.id
   ]
@@ -355,7 +355,7 @@ data "huaweicloud_vpc_subnet" "test" {
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
   name                  = "%s"
-  vip_subnet_id         = data.huaweicloud_vpc_subnet.test.subnet_id
+  vip_subnet_id         = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
   enterprise_project_id = "%s"
 
   tags = {

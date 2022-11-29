@@ -68,7 +68,7 @@ resource "huaweicloud_vpc_eip" "eip_1" {
 
 resource "huaweicloud_lb_loadbalancer" "elb_1" {
   name          = var.loadbalancer_name
-  vip_subnet_id = huaweicloud_vpc_subnet.subnet_1.subnet_id
+  vip_subnet_id = huaweicloud_vpc_subnet.subnet_1.ipv4_subnet_id
 }
 
 # associate eip with loadbalancer
@@ -107,7 +107,7 @@ resource "huaweicloud_lb_member" "member_1" {
   protocol_port = 80
   weight        = 1
   pool_id       = huaweicloud_lb_pool.group_1.id
-  subnet_id     = huaweicloud_vpc_subnet.subnet_1.subnet_id
+  subnet_id     = huaweicloud_vpc_subnet.subnet_1.ipv4_subnet_id
 }
 
 resource "huaweicloud_lb_member" "member_2" {
@@ -115,5 +115,5 @@ resource "huaweicloud_lb_member" "member_2" {
   protocol_port = 80
   weight        = 1
   pool_id       = huaweicloud_lb_pool.group_1.id
-  subnet_id     = huaweicloud_vpc_subnet.subnet_1.subnet_id
+  subnet_id     = huaweicloud_vpc_subnet.subnet_1.ipv4_subnet_id
 }

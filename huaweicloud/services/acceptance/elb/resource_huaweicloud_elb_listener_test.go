@@ -78,7 +78,7 @@ data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_elb_loadbalancer" "test" {
   name            = "%s"
-  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.subnet_id
+  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
   ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
 
   availability_zone = [
@@ -124,7 +124,7 @@ data "huaweicloud_availability_zones" "test" {}
 resource "huaweicloud_elb_loadbalancer" "test" {
   name              = "%s"
   cross_vpc_backend = true
-  ipv4_subnet_id    = data.huaweicloud_vpc_subnet.test.subnet_id
+  ipv4_subnet_id    = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
   ipv6_network_id   = data.huaweicloud_vpc_subnet.test.id
 
   availability_zone = [

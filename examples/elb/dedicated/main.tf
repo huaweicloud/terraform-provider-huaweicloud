@@ -143,7 +143,7 @@ resource "huaweicloud_elb_loadbalancer" "default" {
   name            = var.elb_loadbalancer_name
   description     = "Created by terraform"
   vpc_id          = huaweicloud_vpc.default.id
-  ipv4_subnet_id  = huaweicloud_vpc_subnet.default.subnet_id
+  ipv4_subnet_id  = huaweicloud_vpc_subnet.default.ipv4_subnet_id
   ipv6_network_id = huaweicloud_vpc_subnet.default.id
 
   availability_zone = [
@@ -195,5 +195,5 @@ resource "huaweicloud_elb_member" "default" {
   address       = huaweicloud_compute_instance.default.access_ip_v4
   protocol_port = 8080
   pool_id       = huaweicloud_elb_pool.default.id
-  subnet_id     = huaweicloud_vpc_subnet.default.subnet_id
+  subnet_id     = huaweicloud_vpc_subnet.default.ipv4_subnet_id
 }
