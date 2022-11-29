@@ -120,9 +120,10 @@ func ResourceASPolicy() *schema.Resource {
 				},
 			},
 			"cool_down_time": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  900,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntBetween(0, 86400),
 			},
 			"status": {
 				Type:     schema.TypeString,
@@ -303,11 +304,14 @@ func resourceASPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error updating AS policy: %s", err)
 	}
 	updateOpts := policies.UpdateOpts{
-		Name:         d.Get("scaling_policy_name").(string),
-		Type:         d.Get("scaling_policy_type").(string),
-		AlarmID:      d.Get("alarm_id").(string),
-		CoolDownTime: d.Get("cool_down_time").(int),
+		Name:    d.Get("scaling_policy_name").(string),
+		Type:    d.Get("scaling_policy_type").(string),
+		AlarmID: d.Get("alarm_id").(string),
 	}
+	if d.HasChange("cool_down_time") {
+		updateOpts.CoolDownTime = d.Get("cool_down_time").(int)
+	}
+
 	scheduledPolicyList := d.Get("scheduled_policy").([]interface{})
 	if len(scheduledPolicyList) == 1 {
 		scheduledPolicyMap := scheduledPolicyList[0].(map[string]interface{})

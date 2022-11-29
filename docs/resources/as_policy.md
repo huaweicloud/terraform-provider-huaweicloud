@@ -17,7 +17,6 @@ resource "huaweicloud_as_policy" "my_aspolicy" {
   scaling_policy_name = "my_aspolicy"
   scaling_policy_type = "RECURRENCE"
   scaling_group_id    = var.as_group_id
-  cool_down_time      = 900
 
   scaling_policy_action {
     operation       = "ADD"
@@ -41,7 +40,6 @@ resource "huaweicloud_as_policy" "my_aspolicy_1" {
   scaling_policy_name = "my_aspolicy_1"
   scaling_policy_type = "SCHEDULED"
   scaling_group_id    = var.as_group_id
-  cool_down_time      = 900
 
   scaling_policy_action {
     operation       = "REMOVE"
@@ -125,7 +123,8 @@ The following arguments are supported:
 * `scaling_policy_action` - (Optional, List) Specifies the action of the AS policy.
   The [object](#scaling_policy_action_object) structure is documented below.
 
-* `cool_down_time` - (Optional, Int) Specifies the cooling duration (in seconds), and the default value is 900.
+* `cool_down_time` - (Optional, Int) Specifies the cooling duration (in seconds).
+  The value ranges from 0 to 86400 and is 300 by default.
 
 <a name="scheduled_policy_object"></a>
 The `scheduled_policy` block supports:

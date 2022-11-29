@@ -27,6 +27,7 @@ func TestAccASPolicy_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckASPolicyExists(resourceName, &asPolicy),
 					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
+					resource.TestCheckResourceAttr(resourceName, "cool_down_time", "300"),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policy_type", "SCHEDULED"),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.operation", "ADD"),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.instance_number", "1"),
@@ -37,6 +38,7 @@ func TestAccASPolicy_basic(t *testing.T) {
 				Config: testASPolicy_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
+					resource.TestCheckResourceAttr(resourceName, "cool_down_time", "900"),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policy_type", "SCHEDULED"),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.operation", "REMOVE"),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.instance_number", "1"),
@@ -46,6 +48,7 @@ func TestAccASPolicy_basic(t *testing.T) {
 				Config: testASPolicy_recurrence(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
+					resource.TestCheckResourceAttr(resourceName, "cool_down_time", "900"),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policy_type", "RECURRENCE"),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.operation", "ADD"),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.instance_number", "1"),
@@ -78,6 +81,7 @@ func TestAccASPolicy_Alarm(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckASPolicyExists(resourceName, &asPolicy),
 					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
+					resource.TestCheckResourceAttr(resourceName, "cool_down_time", "600"),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policy_type", "ALARM"),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.operation", "ADD"),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.instance_number", "1"),
@@ -232,6 +236,7 @@ resource "huaweicloud_as_policy" "acc_as_policy"{
   scaling_policy_name = "%[2]s"
   scaling_policy_type = "SCHEDULED"
   scaling_group_id    = huaweicloud_as_group.acc_as_group.id
+  cool_down_time      = 900
 
   scaling_policy_action {
     operation       = "REMOVE"
@@ -301,6 +306,7 @@ resource "huaweicloud_as_policy" "acc_as_policy"{
   scaling_policy_type = "ALARM"
   scaling_group_id    = huaweicloud_as_group.acc_as_group.id
   alarm_id            = huaweicloud_ces_alarmrule.alarm_rule.id
+  cool_down_time      = 600
 
   scaling_policy_action {
     operation       = "ADD"
