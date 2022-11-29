@@ -97,8 +97,10 @@ func Delete(c *golangsdk.ServiceClient, engineId, epsId string) (*RequestResp, e
 }
 
 // GetJob is a method to obtain the job detail using engine ID and job ID.
-func GetJob(c *golangsdk.ServiceClient, engineId, jobId string) (*Job, error) {
+func GetJob(c *golangsdk.ServiceClient, engineId, jobId, epsId string) (*Job, error) {
 	var r Job
-	_, err := c.Get(jobURL(c, engineId, jobId), &r, nil)
+	_, err := c.Get(jobURL(c, engineId, jobId), &r, &golangsdk.RequestOpts{
+		MoreHeaders: buildMoreHeaderUsingEpsId(epsId),
+	})
 	return &r, err
 }

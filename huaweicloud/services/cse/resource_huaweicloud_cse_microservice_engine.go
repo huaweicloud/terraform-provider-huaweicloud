@@ -181,6 +181,7 @@ func resourceMicroserviceEngineCreate(ctx context.Context, d *schema.ResourceDat
 	}
 
 	authType := d.Get("auth_type").(string)
+	epsId := common.GetEnterpriseProjectID(d, conf)
 	createOpts := engines.CreateOpts{
 		Payment:             "1",
 		SpecType:            d.Get("version").(string),
@@ -195,7 +196,7 @@ func resourceMicroserviceEngineCreate(ctx context.Context, d *schema.ResourceDat
 		SubnetCidr:          subnetResp.CIDR,
 		PublicIpId:          d.Get("eip_id").(string),
 		Inputs:              d.Get("extend_params").(map[string]interface{}),
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, conf),
+		EnterpriseProjectId: epsId,
 	}
 
 	if authType == "RBAC" {
@@ -214,7 +215,7 @@ func resourceMicroserviceEngineCreate(ctx context.Context, d *schema.ResourceDat
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Init", "Executing"},
 		Target:       []string{"Finished"},
-		Refresh:      MicroserviceJobRefreshFunc(client, d.Id(), strconv.Itoa(resp.JobId)),
+		Refresh:      MicroserviceJobRefreshFunc(client, d.Id(), strconv.Itoa(resp.JobId), epsId),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        180 * time.Second,
 		PollInterval: 15 * time.Second,
@@ -331,7 +332,8 @@ func resourceMicroserviceEngineDelete(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error creating CSE v2 client: %s", err)
 	}
 
-	resp, err := engines.Delete(client, d.Id(), common.GetEnterpriseProjectID(d, conf))
+	epsId := common.GetEnterpriseProjectID(d, conf)
+	resp, err := engines.Delete(client, d.Id(), epsId)
 	if err != nil {
 		return diag.Errorf("error getting Microservice engine: %s", err)
 	}
@@ -340,7 +342,7 @@ func resourceMicroserviceEngineDelete(ctx context.Context, d *schema.ResourceDat
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Init", "Executing"},
 		Target:       []string{"Deleted"},
-		Refresh:      MicroserviceJobRefreshFunc(client, d.Id(), strconv.Itoa(resp.JobId)),
+		Refresh:      MicroserviceJobRefreshFunc(client, d.Id(), strconv.Itoa(resp.JobId), epsId),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        120 * time.Second,
 		PollInterval: 15 * time.Second,
@@ -370,9 +372,9 @@ func parseEngineJobError(respErr error) error {
 	return respErr
 }
 
-func MicroserviceJobRefreshFunc(c *golangsdk.ServiceClient, engineId, jobId string) resource.StateRefreshFunc {
+func MicroserviceJobRefreshFunc(c *golangsdk.ServiceClient, engineId, jobId, epsId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		resp, err := engines.GetJob(c, engineId, jobId)
+		resp, err := engines.GetJob(c, engineId, jobId, epsId)
 		if newErr := parseEngineJobError(err); newErr != nil {
 			if _, ok := newErr.(golangsdk.ErrDefault404); ok {
 				return resp, "Deleted", nil
