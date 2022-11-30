@@ -10,7 +10,7 @@ tags:
 paths:
   /v2/cloudimages:
     get:
-      tag: ECS
+      tag: IMS
       operationId: List
   /v1/{project_id}/cloudservers/action:
     post:
@@ -46,11 +46,11 @@ paths:
       operationId: CreatePrePaid
   /v2.1/{project_id}/cloudvolumes/{id}/action:
     post:
-      tag: ECS
+      tag: EVS
       operationId: ExtendSize
   /v2/{project_id}/cloudvolumes/{id}:
     get:
-      tag: ECS
+      tag: EVS
       operationId: Get
   /v2.1/{project_id}/flavors/detail:
     get:
@@ -62,15 +62,15 @@ paths:
       operationId: Create
   /v1/ports/{id}:
     get:
-      tag: ECS
+      tag: VPC
       operationId: Get
     put:
-      tag: ECS
+      tag: VPC
       operationId: Update
-  /v2.1/{project_id}/servers/{id}/action:
+  /v1/{project_id}/servers/{id}/action:
     post:
       tag: ECS
-      operationId: RemoveServer
+      operationId: ChangeAdminPassword
   /v2.1/{project_id}/servers/{id}/metadata/{key}:
     delete:
       tag: ECS
@@ -95,5 +95,5 @@ paths:
       operationId: Create
   /v1/{project_id}/subnets/{id}:
     get:
-      tag: ECS
+      tag: VPC
       operationId: Get
