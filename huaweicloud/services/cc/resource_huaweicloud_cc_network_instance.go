@@ -122,21 +122,21 @@ func ResourceNetworkInstance() *schema.Resource {
 }
 
 func resourceNetworkInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createNetworkInstance: create a Cloud Connect.
 	var (
 		createNetworkInstanceHttpUrl = "v3/{domain_id}/ccaas/network-instances"
 		createNetworkInstanceProduct = "cc"
 	)
-	createNetworkInstanceClient, err := config.NewServiceClient(createNetworkInstanceProduct, region)
+	createNetworkInstanceClient, err := cfg.NewServiceClient(createNetworkInstanceProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating NetworkInstance Client: %s", err)
 	}
 
 	createNetworkInstancePath := createNetworkInstanceClient.Endpoint + createNetworkInstanceHttpUrl
-	createNetworkInstancePath = strings.Replace(createNetworkInstancePath, "{domain_id}", config.DomainID, -1)
+	createNetworkInstancePath = strings.Replace(createNetworkInstancePath, "{domain_id}", cfg.DomainID, -1)
 
 	createNetworkInstanceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -144,7 +144,7 @@ func resourceNetworkInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 			201,
 		},
 	}
-	createNetworkInstanceOpt.JSONBody = utils.RemoveNil(buildCreateNetworkInstanceBodyParams(d, config))
+	createNetworkInstanceOpt.JSONBody = utils.RemoveNil(buildCreateNetworkInstanceBodyParams(d, cfg))
 	createNetworkInstanceResp, err := createNetworkInstanceClient.Request("POST", createNetworkInstancePath, &createNetworkInstanceOpt)
 	if err != nil {
 		return diag.Errorf("error creating NetworkInstance: %s", err)
@@ -243,8 +243,8 @@ func resourceNetworkInstanceRead(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceNetworkInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	updateNetworkInstancehasChanges := []string{
 		"name",
@@ -258,13 +258,15 @@ func resourceNetworkInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 			updateNetworkInstanceHttpUrl = "v3/{domain_id}/ccaas/network-instances/{id}"
 			updateNetworkInstanceProduct = "cc"
 		)
-		updateNetworkInstanceClient, err := config.NewServiceClient(updateNetworkInstanceProduct, region)
+		updateNetworkInstanceClient, err := cfg.NewServiceClient(updateNetworkInstanceProduct, region)
 		if err != nil {
 			return diag.Errorf("error creating NetworkInstance Client: %s", err)
 		}
 
+		config.MutexKV.Lock(cfg.DomainID)
+		defer config.MutexKV.Unlock(cfg.DomainID)
 		updateNetworkInstancePath := updateNetworkInstanceClient.Endpoint + updateNetworkInstanceHttpUrl
-		updateNetworkInstancePath = strings.Replace(updateNetworkInstancePath, "{domain_id}", config.DomainID, -1)
+		updateNetworkInstancePath = strings.Replace(updateNetworkInstancePath, "{domain_id}", cfg.DomainID, -1)
 		updateNetworkInstancePath = strings.Replace(updateNetworkInstancePath, "{id}", d.Id(), -1)
 
 		updateNetworkInstanceOpt := golangsdk.RequestOpts{
@@ -273,7 +275,7 @@ func resourceNetworkInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 				200,
 			},
 		}
-		updateNetworkInstanceOpt.JSONBody = utils.RemoveNil(buildUpdateNetworkInstanceBodyParams(d, config))
+		updateNetworkInstanceOpt.JSONBody = utils.RemoveNil(buildUpdateNetworkInstanceBodyParams(d, cfg))
 		_, err = updateNetworkInstanceClient.Request("PUT", updateNetworkInstancePath, &updateNetworkInstanceOpt)
 		if err != nil {
 			return diag.Errorf("error updating NetworkInstance: %s", err)
@@ -299,21 +301,21 @@ func buildUpdateNetworkInstanceNetworkInstanceChildBody(d *schema.ResourceData) 
 }
 
 func resourceNetworkInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// deleteNetworkInstance: missing operation notes
 	var (
 		deleteNetworkInstanceHttpUrl = "v3/{domain_id}/ccaas/network-instances/{id}"
 		deleteNetworkInstanceProduct = "cc"
 	)
-	deleteNetworkInstanceClient, err := config.NewServiceClient(deleteNetworkInstanceProduct, region)
+	deleteNetworkInstanceClient, err := cfg.NewServiceClient(deleteNetworkInstanceProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating NetworkInstance Client: %s", err)
 	}
 
 	deleteNetworkInstancePath := deleteNetworkInstanceClient.Endpoint + deleteNetworkInstanceHttpUrl
-	deleteNetworkInstancePath = strings.Replace(deleteNetworkInstancePath, "{domain_id}", config.DomainID, -1)
+	deleteNetworkInstancePath = strings.Replace(deleteNetworkInstancePath, "{domain_id}", cfg.DomainID, -1)
 	deleteNetworkInstancePath = strings.Replace(deleteNetworkInstancePath, "{id}", d.Id(), -1)
 
 	deleteNetworkInstanceOpt := golangsdk.RequestOpts{
