@@ -10,7 +10,7 @@ tags:
 paths:
   /v2.0/ports/{id}:
     get:
-      tag: ECS
+      tag: VPC
       operationId: Get
   /v2.1/{project_id}/servers/{serverID}/os-interface/{portID}:
     delete:

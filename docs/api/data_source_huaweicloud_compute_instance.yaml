@@ -18,9 +18,9 @@ paths:
       operationId: List
   /v2/{project_id}/cloudvolumes/{id}:
     get:
-      tag: ECS
+      tag: EVS
       operationId: Get
   /v2.0/ports/{id}:
     get:
-      tag: ECS
+      tag: VPC
       operationId: Get

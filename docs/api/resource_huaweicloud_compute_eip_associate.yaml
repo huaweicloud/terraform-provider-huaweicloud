@@ -14,21 +14,21 @@ paths:
       operationId: Get
   /v2.0/{project_id}/bandwidths/{ID}/insert:
     post:
-      tag: ECS
+      tag: EIP
       operationId: Insert
   /v2.0/{project_id}/bandwidths/{ID}/remove:
     post:
-      tag: ECS
+      tag: EIP
       operationId: Remove
   /v1/{project_id}/bandwidths/{id}:
     get:
-      tag: ECS
+      tag: EIP
       operationId: Get
   /v1/{project_id}/publicips/{id}:
     put:
-      tag: ECS
+      tag: EIP
       operationId: Update
   /v1/{project_id}/publicips:
     get:
-      tag: ECS
+      tag: EIP
       operationId: List

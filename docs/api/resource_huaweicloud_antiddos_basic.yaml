@@ -7,7 +7,7 @@ schemes:
 host: huaweicloud.com
 tags:
   - name: Anti-DDoS
-  - name: VPC
+  - name: EIP
 paths:
   /v1/{project_id}/antiddos/{floatingIpId}/status:
     get:
@@ -26,5 +26,5 @@ paths:
       operationId: ListStatus
   /v1/{project_id}/publicips/{id}:
     get:
-      tag: VPC
+      tag: EIP
       operationId: Get
