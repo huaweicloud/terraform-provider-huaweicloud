@@ -119,12 +119,11 @@ func ResourceGateway() *schema.Resource {
 				}, false),
 			},
 			"asn": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      64512,
-				ForceNew:     true,
-				Description:  `The ASN number of BGP`,
-				ValidateFunc: validation.IntBetween(1, 4294967295),
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     64512,
+				ForceNew:    true,
+				Description: `The ASN number of BGP`,
 			},
 			"enterprise_project_id": {
 				Type:         schema.TypeString,
