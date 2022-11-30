@@ -12,9 +12,6 @@ paths:
     delete:
       tag: APIG
       operationId: DisableIngressAccess
-    delete:
-      tag: APIG
-      operationId: DisableIngressAccess
     put:
       tag: APIG
       operationId: EnableIngressAccess
@@ -39,13 +36,10 @@ paths:
       tag: APIG
       operationId: Update
   /v2/{project_id}/apigw/instances:
-    get:
-      tag: APIG
-      operationId: List
     post:
       tag: APIG
       operationId: Create
   /v1/{project_id}/publicips:
     get:
-      tag: APIG
+      tag: VPC
       operationId: List

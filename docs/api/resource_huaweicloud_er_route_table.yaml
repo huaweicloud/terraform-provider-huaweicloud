@@ -1,0 +1,40 @@
+info:
+  version: 
+  title: resource_huaweicloud_er_route_table
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: ER
+paths:
+  /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/associations:
+    get:
+      tag: ER
+      operationId: List
+  /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/disable-propagations:
+    post:
+      tag: ER
+      operationId: Delete
+  /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/disassociate:
+    post:
+      tag: ER
+      operationId: Delete
+  /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/propagations:
+    get:
+      tag: ER
+      operationId: List
+  /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}:
+    delete:
+      tag: ER
+      operationId: Delete
+    get:
+      tag: ER
+      operationId: Get
+    put:
+      tag: ER
+      operationId: Update
+  /v3/{project_id}/enterprise-router/{instanceId}/route-tables:
+    post:
+      tag: ER
+      operationId: Create

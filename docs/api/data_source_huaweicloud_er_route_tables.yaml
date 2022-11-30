@@ -1,0 +1,22 @@
+info:
+  version: 
+  title: data_source_huaweicloud_er_route_tables
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: ER
+paths:
+  /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/associations:
+    get:
+      tag: ER
+      operationId: List
+  /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/propagations:
+    get:
+      tag: ER
+      operationId: List
+  /v3/{project_id}/enterprise-router/{instanceId}/route-tables:
+    get:
+      tag: ER
+      operationId: List

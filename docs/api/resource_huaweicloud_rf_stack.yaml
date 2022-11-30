@@ -1,0 +1,29 @@
+info:
+  version: 
+  title: resource_huaweicloud_rf_stack
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: AOS
+paths:
+  /v1/{project_id}/stacks/{stackName}/deployments:
+    post:
+      tag: AOS
+      operationId: Deploy
+  /v1/{project_id}/stacks/{stackName}/events:
+    get:
+      tag: AOS
+      operationId: ListAllEvents
+  /v1/{project_id}/stacks/{stackName}:
+    delete:
+      tag: AOS
+      operationId: Delete
+  /v1/{project_id}/stacks:
+    get:
+      tag: AOS
+      operationId: ListAll
+    post:
+      tag: AOS
+      operationId: Create

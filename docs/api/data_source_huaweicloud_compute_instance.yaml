@@ -8,10 +8,14 @@ host: huaweicloud.com
 tags:
   - name: ECS
 paths:
-  /{project_id}/cloudservers/{server_id}/block_device/{volume_id}:
+  /v1/{project_id}/cloudservers/detail:
     get:
       tag: ECS
-      operationId: Get
+      operationId: List
+  /{project_id}/cloudservers/{serverId}/block_device:
+    get:
+      tag: ECS
+      operationId: List
   /v2/{project_id}/cloudvolumes/{id}:
     get:
       tag: ECS

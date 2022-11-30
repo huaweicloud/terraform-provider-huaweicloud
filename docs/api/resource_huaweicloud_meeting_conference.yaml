@@ -6,34 +6,34 @@ schemes:
   - https
 host: huaweicloud.com
 tags:
-  - name: MEETING
+  - name: Meeting
 paths:
-  /{project_id}/mmc/management/conference/duration:
+  /v1/mmc/management/conference/duration:
     put:
-      tag: MEETING
+      tag: Meeting
       operationId: ExtendTime
-  /{project_id}/mmc/management/conferences/confDetail:
+  /v1/mmc/management/conferences/confDetail:
     get:
-      tag: MEETING
+      tag: Meeting
       operationId: Get
-  /{project_id}/mmc/management/conferences/history/confDetail:
+  /v1/mmc/management/conferences/history/confDetail:
     get:
-      tag: MEETING
+      tag: Meeting
       operationId: GetHistory
-  /{project_id}/mmc/management/conferences/history:
+  /v1/mmc/management/conferences/history:
     get:
-      tag: MEETING
+      tag: Meeting
       operationId: ListHistory
-  /{project_id}/mmc/management/conferences:
+  /v1/mmc/management/conferences:
     delete:
-      tag: MEETING
+      tag: Meeting
       operationId: Delete
     get:
-      tag: MEETING
+      tag: Meeting
       operationId: GetControlToken
     post:
-      tag: MEETING
+      tag: Meeting
       operationId: Create
     put:
-      tag: MEETING
+      tag: Meeting
       operationId: Update

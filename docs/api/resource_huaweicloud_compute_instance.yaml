@@ -25,13 +25,9 @@ paths:
       tag: ECS
       operationId: ChangeAdminPassword
   /v1/{project_id}/cloudservers/{id}/tags/action:
-    post:
+    POST:
       tag: ECS
-      operationId: Create
-  /v1/{project_id}/cloudservers/{id}/tags:
-    get:
-      tag: ECS
-      operationId: Get
+      operationId: batchUpdate
   /v1/{project_id}/cloudservers/{server_id}/block_device/{volume_id}:
     get:
       tag: ECS
@@ -71,10 +67,10 @@ paths:
     put:
       tag: ECS
       operationId: Update
-  /v1/{project_id}/servers/{id}/action:
+  /v2.1/{project_id}/servers/{id}/action:
     post:
       tag: ECS
-      operationId: ChangeAdminPassword
+      operationId: RemoveServer
   /v2.1/{project_id}/servers/{id}/metadata/{key}:
     delete:
       tag: ECS

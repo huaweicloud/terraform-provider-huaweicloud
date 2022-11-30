@@ -10,7 +10,7 @@ tags:
 paths:
   /v1/{project_id}/cloudservers/{serverID}:
     get:
-      tag: APIG
+      tag: ECS
       operationId: Get
   /v2/{project_id}/apigw/instances/{instanceId}/vpc-channels/{chanId}:
     delete:

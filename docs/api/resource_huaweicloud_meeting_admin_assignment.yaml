@@ -6,17 +6,17 @@ schemes:
   - https
 host: huaweicloud.com
 tags:
-  - name: MEETING
+  - name: Meeting
 paths:
-  /{project_id}/usg/dcs/corp/admin/delete:
+  /v1/usg/dcs/corp/admin/delete:
     post:
-      tag: MEETING
+      tag: Meeting
       operationId: BatchDelete
-  /{project_id}/usg/dcs/corp/admin/{account}:
+  /v1/usg/dcs/corp/admin/{account}:
     get:
-      tag: MEETING
+      tag: Meeting
       operationId: Get
-  /{project_id}/usg/dcs/corp/admin:
+  /v1/usg/dcs/corp/admin:
     post:
-      tag: MEETING
+      tag: Meeting
       operationId: Create

@@ -1,0 +1,32 @@
+info:
+    title: resource_huaweicloud_er_instance
+    description: Manages an enterprise router instance resource within HuaweiCloud.
+host: myhuaweicloud.com
+tags:
+    - name: ER
+servers:
+    - url: https://er.cn-north-4.myhuaweicloud.com
+paths:
+    /v3/{project_id}/enterprise-router/instances:
+        POST:
+            tag: ER
+            operationId: CreateInstance
+            x-ref-api: POST /v3/{project_id}/enterprise-router/instances
+    /v3/{project_id}/enterprise-router/instances/{id}:
+        DELETE:
+            tag: ER
+            operationId: DeleteInstance
+            x-ref-api: DELETE /v3/{project_id}/enterprise-router/instances/{id}
+        GET:
+            tag: ER
+            operationId: GetInstance
+            x-ref-api: GET /v3/{project_id}/enterprise-router/instances/{id}
+        PUT:
+            tag: ER
+            operationId: UpdateInstance
+            x-ref-api: PUT /v3/{project_id}/enterprise-router/instances/{id}
+    /v3/{project_id}/enterprise-router/instances/{id}/change-availability-zone-ids:
+        POST:
+            tag: ER
+            operationId: UpdateInstanceAvailabilityZones
+            x-ref-api: POST /v3/{project_id}/enterprise-router/instances/{id}/change-availability-zone-ids

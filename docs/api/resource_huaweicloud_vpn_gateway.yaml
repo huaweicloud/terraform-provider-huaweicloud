@@ -1,0 +1,27 @@
+info:
+    title: resource_huaweicloud_vpn_gateway
+    description: Manages a VPN gateway resource within HuaweiCloud.
+host: myhuaweicloud.com
+tags:
+    - name: VPN
+servers:
+    - url: https://vpn.cn-north-4.myhuaweicloud.com
+paths:
+    /v5/{project_id}/vpn-gateways:
+        POST:
+            tag: VPN
+            operationId: CreateGateway
+            x-ref-api: POST /v5/{project_id}/vpn-gateways
+    /v5/{project_id}/vpn-gateways/{id}:
+        DELETE:
+            tag: VPN
+            operationId: DeleteGateway
+            x-ref-api: DELETE /v5/{project_id}/vpn-gateways/{id}
+        GET:
+            tag: VPN
+            operationId: GetGateway
+            x-ref-api: GET /v5/{project_id}/vpn-gateways/{id}
+        PUT:
+            tag: VPN
+            operationId: UpdateGateway
+            x-ref-api: PUT /v5/{project_id}/vpn-gateways/{id}

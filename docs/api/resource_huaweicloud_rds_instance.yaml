@@ -20,6 +20,10 @@ paths:
     put:
       tag: RDS
       operationId: UpdatePort
+  /v3/{project_id}/instances/{instancesId}/password:
+    post:
+      tag: RDS
+      operationId: RestRootPassword
   /v3/{project_id}/instances/{instancesId}/{updata}:
     post:
       tag: RDS
