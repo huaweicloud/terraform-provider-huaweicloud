@@ -66,12 +66,11 @@ func ResourceCustomerGateway() *schema.Resource {
 				}, false),
 			},
 			"asn": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      65000,
-				ForceNew:     true,
-				Description:  `The BGP ASN number of the customer gateway, only required when the route_mode is bgp, the default value is 65000.`,
-				ValidateFunc: validation.IntBetween(1, 4294967295),
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     65000,
+				ForceNew:    true,
+				Description: `The BGP ASN number of the customer gateway, only required when the route_mode is bgp, the default value is 65000.`,
 			},
 			"created_at": {
 				Type:        schema.TypeString,
