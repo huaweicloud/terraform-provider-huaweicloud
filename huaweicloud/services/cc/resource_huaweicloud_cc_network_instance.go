@@ -92,7 +92,6 @@ func ResourceNetworkInstance() *schema.Resource {
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Computed:    true,
 				Description: `The description about the network instance.`,
 				ValidateFunc: validation.All(
 					validation.StringMatch(regexp.MustCompile(`^[^<>]+$`),
@@ -136,7 +135,7 @@ func resourceNetworkInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	createNetworkInstancePath := createNetworkInstanceClient.Endpoint + createNetworkInstanceHttpUrl
-	createNetworkInstancePath = strings.Replace(createNetworkInstancePath, "{domain_id}", cfg.DomainID, -1)
+	createNetworkInstancePath = strings.ReplaceAll(createNetworkInstancePath, "{domain_id}", cfg.DomainID)
 
 	createNetworkInstanceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -203,8 +202,8 @@ func resourceNetworkInstanceRead(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	getNetworkInstancePath := getNetworkInstanceClient.Endpoint + getNetworkInstanceHttpUrl
-	getNetworkInstancePath = strings.Replace(getNetworkInstancePath, "{domain_id}", config.DomainID, -1)
-	getNetworkInstancePath = strings.Replace(getNetworkInstancePath, "{id}", d.Id(), -1)
+	getNetworkInstancePath = strings.ReplaceAll(getNetworkInstancePath, "{domain_id}", config.DomainID)
+	getNetworkInstancePath = strings.ReplaceAll(getNetworkInstancePath, "{id}", d.Id())
 
 	getNetworkInstanceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -266,8 +265,8 @@ func resourceNetworkInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 		config.MutexKV.Lock(cfg.DomainID)
 		defer config.MutexKV.Unlock(cfg.DomainID)
 		updateNetworkInstancePath := updateNetworkInstanceClient.Endpoint + updateNetworkInstanceHttpUrl
-		updateNetworkInstancePath = strings.Replace(updateNetworkInstancePath, "{domain_id}", cfg.DomainID, -1)
-		updateNetworkInstancePath = strings.Replace(updateNetworkInstancePath, "{id}", d.Id(), -1)
+		updateNetworkInstancePath = strings.ReplaceAll(updateNetworkInstancePath, "{domain_id}", cfg.DomainID)
+		updateNetworkInstancePath = strings.ReplaceAll(updateNetworkInstancePath, "{id}", d.Id())
 
 		updateNetworkInstanceOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -294,7 +293,7 @@ func buildUpdateNetworkInstanceBodyParams(d *schema.ResourceData, config *config
 func buildUpdateNetworkInstanceNetworkInstanceChildBody(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
 		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"description": d.Get("description"),
 		"cidrs":       utils.ValueIngoreEmpty(d.Get("cidrs")),
 	}
 	return params
@@ -315,8 +314,8 @@ func resourceNetworkInstanceDelete(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	deleteNetworkInstancePath := deleteNetworkInstanceClient.Endpoint + deleteNetworkInstanceHttpUrl
-	deleteNetworkInstancePath = strings.Replace(deleteNetworkInstancePath, "{domain_id}", cfg.DomainID, -1)
-	deleteNetworkInstancePath = strings.Replace(deleteNetworkInstancePath, "{id}", d.Id(), -1)
+	deleteNetworkInstancePath = strings.ReplaceAll(deleteNetworkInstancePath, "{domain_id}", cfg.DomainID)
+	deleteNetworkInstancePath = strings.ReplaceAll(deleteNetworkInstancePath, "{id}", d.Id())
 
 	deleteNetworkInstanceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,

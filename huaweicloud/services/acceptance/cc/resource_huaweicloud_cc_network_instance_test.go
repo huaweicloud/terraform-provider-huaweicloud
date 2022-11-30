@@ -70,6 +70,7 @@ func TestAccNetworkInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(rName, "instance_id", "huaweicloud_vpc.test.0", "id"),
 					resource.TestCheckResourceAttrPair(rName, "region_id", "huaweicloud_vpc.test.0", "region"),
 					resource.TestCheckResourceAttrPair(rName, "cloud_connection_id", "huaweicloud_cc_connection.test", "id"),
+					resource.TestCheckResourceAttr(rName, "description", "demo_description"),
 				),
 			},
 			{
@@ -77,7 +78,7 @@ func TestAccNetworkInstance_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "type", "vpc"),
-					resource.TestCheckResourceAttr(rName, "description", "demo_description"),
+					resource.TestCheckResourceAttr(rName, "description", ""),
 				),
 			},
 			{
@@ -170,6 +171,7 @@ resource "huaweicloud_cc_network_instance" "test" {
   instance_id         = try(huaweicloud_vpc.test[0].id, "")
   project_id          = "%[2]s"
   region_id           = try(huaweicloud_vpc.test[0].region, "")
+  description         = "demo_description"
 
   cidrs = [
     try(huaweicloud_vpc_subnet.test[0].cidr, ""),
@@ -188,7 +190,6 @@ resource "huaweicloud_cc_network_instance" "test" {
   instance_id         = try(huaweicloud_vpc.test[0].id, "")
   project_id          = "%[2]s"
   region_id           = try(huaweicloud_vpc.test[0].region, "")
-  description         = "demo_description"
 
   cidrs = [
     try(huaweicloud_vpc_subnet.test[0].cidr, ""),
