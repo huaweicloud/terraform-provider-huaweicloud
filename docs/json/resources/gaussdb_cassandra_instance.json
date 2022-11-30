@@ -56,6 +56,14 @@
                 "type": "string",
                 "computed": true
               },
+              "lb_ip_address": {
+                "type": "string",
+                "computed": true
+              },
+              "lb_port": {
+                "type": "string",
+                "computed": true
+              },
               "mode": {
                 "type": "string",
                 "computed": true

@@ -5,9 +5,19 @@
         "huaweicloud_rds_read_replica_instance": {
           "block": {
             "attributes": {
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
               "availability_zone": {
                 "type": "string",
                 "required": true,
+                "forcenew": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "db": {
@@ -42,6 +52,16 @@
               "name": {
                 "type": "string",
                 "required": true,
+                "forcenew": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
                 "forcenew": true
               },
               "primary_instance_id": {

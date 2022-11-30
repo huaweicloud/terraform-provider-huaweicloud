@@ -1,0 +1,105 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rf_stack": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the resource stack.",
+                "optional": true,
+                "forcenew": true
+              },
+              "enable_auto_rollback": {
+                "type": "bool",
+                "description": "Whether to enable automatic rollback.",
+                "optional": true,
+                "forcenew": true
+              },
+              "enable_deletion_protection": {
+                "type": "bool",
+                "description": "Whether to enable delete protection.",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the resource stack.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the RF resource stack is located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The current status of the resource stack.",
+                "computed": true
+              },
+              "template_body": {
+                "type": "string",
+                "description": "The HCL/JSON template content for deployment resources.",
+                "optional": true
+              },
+              "template_uri": {
+                "type": "string",
+                "description": "The OBS address where the HCL/JSON template archive (**.zip** file, which contains all resource **.tf.json** script files to be deployed) or **.tf.json** file is located, which describes the target status of the deployment resources.",
+                "optional": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time.",
+                "computed": true
+              },
+              "vars_body": {
+                "type": "string",
+                "description": "The variable content for deployment resources.",
+                "optional": true
+              },
+              "vars_uri": {
+                "type": "string",
+                "description": "The OBS address where the variable (**.tfvars**) file corresponding to the HCL/JSON template located, which describes the target status of the deployment resources.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "agency": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "The name of IAM agency authorized to IAC account for resources modification.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "provider_name": {
+                      "type": "string",
+                      "description": "The name of the provider corresponding to the IAM agency.",
+                      "optional": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "The configuration of the agencies authorized to IAC."
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

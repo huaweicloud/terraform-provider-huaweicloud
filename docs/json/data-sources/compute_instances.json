@@ -29,6 +29,10 @@
                 "type": "string",
                 "optional": true
               },
+              "instance_id": {
+                "type": "string",
+                "optional": true
+              },
               "instances": {
                 "type": [
                   "list",
@@ -41,8 +45,23 @@
                       "flavor_name": "string",
                       "id": "string",
                       "image_id": "string",
+                      "image_name": "string",
                       "key_pair": "string",
                       "name": "string",
+                      "network": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "fixed_ip_v4": "string",
+                            "fixed_ip_v6": "string",
+                            "mac": "string",
+                            "port": "string",
+                            "uuid": "string"
+                          }
+                        ]
+                      ],
+                      "public_ip": "string",
                       "scheduler_hints": [
                         "list",
                         [
@@ -57,6 +76,7 @@
                         "string"
                       ],
                       "status": "string",
+                      "system_disk_id": "string",
                       "tags": [
                         "map",
                         "string"
@@ -67,7 +87,11 @@
                         [
                           "object",
                           {
+                            "boot_index": "number",
                             "is_sys_volume": "bool",
+                            "pci_address": "string",
+                            "size": "number",
+                            "type": "string",
                             "volume_id": "string"
                           }
                         ]

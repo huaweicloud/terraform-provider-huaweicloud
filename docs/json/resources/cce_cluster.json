@@ -36,8 +36,7 @@
               },
               "auto_renew": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "certificate_clusters": {
                 "type": [
@@ -141,6 +140,7 @@
               },
               "eni_subnet_id": {
                 "type": "string",
+                "description": "the IPv4 subnet ID of the subnet where the ENI resides",
                 "optional": true,
                 "computed": true,
                 "forcenew": true

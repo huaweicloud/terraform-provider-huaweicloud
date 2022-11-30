@@ -7,8 +7,12 @@
             "attributes": {
               "auto_renew": {
                 "type": "string",
+                "optional": true
+              },
+              "autoscaling_enabled": {
+                "type": "bool",
                 "optional": true,
-                "forcenew": true
+                "computed": true
               },
               "availability_zone": {
                 "type": [
@@ -78,6 +82,7 @@
               },
               "ipv4_subnet_id": {
                 "type": "string",
+                "description": "the IPv4 subnet ID of the subnet where the load balancer resides",
                 "optional": true
               },
               "ipv6_address": {
@@ -98,6 +103,7 @@
               },
               "ipv6_network_id": {
                 "type": "string",
+                "description": "the ID of the subnet where the load balancer resides",
                 "optional": true
               },
               "l4_flavor_id": {
@@ -106,6 +112,11 @@
                 "computed": true
               },
               "l7_flavor_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "min_l7_flavor_id": {
                 "type": "string",
                 "optional": true,
                 "computed": true

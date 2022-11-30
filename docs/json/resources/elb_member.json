@@ -34,7 +34,8 @@
               },
               "subnet_id": {
                 "type": "string",
-                "required": true,
+                "description": "The IPv4 or IPv6 subnet ID of the subnet in which to access the member",
+                "optional": true,
                 "forcenew": true
               },
               "weight": {

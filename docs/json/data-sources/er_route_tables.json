@@ -1,0 +1,120 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_er_route_tables": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the ER instance to which the route table belongs.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name used to filter the route tables.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the ER instance and route table are located.",
+                "computed": true
+              },
+              "route_table_id": {
+                "type": "string",
+                "description": "The route table ID used to query specified route table.",
+                "optional": true
+              },
+              "route_tables": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "associations": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "attachment_id": "string",
+                            "attachment_type": "string",
+                            "id": "string"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "is_default_association": "bool",
+                      "is_default_propagation": "bool",
+                      "name": "string",
+                      "propagations": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "attachment_id": "string",
+                            "attachment_type": "string",
+                            "id": "string"
+                          }
+                        ]
+                      ],
+                      "routes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "attachments": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "attachment_id": "string",
+                                  "attachment_type": "string",
+                                  "resource_id": "string"
+                                }
+                              ]
+                            ],
+                            "destination": "string",
+                            "id": "string",
+                            "is_blackhole": "bool",
+                            "status": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ER",
+            "name": "Enterprise Router",
+            "catalog": "Networking",
+            "name_cn": "企业路由器",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

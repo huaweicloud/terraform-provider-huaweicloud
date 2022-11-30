@@ -12,7 +12,7 @@
               "cool_down_time": {
                 "type": "number",
                 "optional": true,
-                "default": 900
+                "computed": true
               },
               "id": {
                 "type": "string",
@@ -34,6 +34,10 @@
               "scaling_policy_type": {
                 "type": "string",
                 "required": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
               }
             },
             "block_types": {
@@ -79,7 +83,8 @@
                     },
                     "start_time": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     }
                   }
                 },

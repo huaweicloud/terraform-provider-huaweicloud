@@ -65,6 +65,7 @@
               },
               "vip_subnet_id": {
                 "type": "string",
+                "description": "the IPv4 subnet ID of the subnet where the load balancer works",
                 "required": true,
                 "forcenew": true
               }

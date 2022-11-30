@@ -39,6 +39,10 @@
                 "type": "string",
                 "computed": true
               },
+              "instance_id": {
+                "type": "string",
+                "optional": true
+              },
               "key_pair": {
                 "type": "string",
                 "computed": true
@@ -72,16 +76,28 @@
                 "type": "string",
                 "computed": true
               },
+              "scheduler_hints": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "group": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
               "security_group_ids": {
                 "type": [
-                  "set",
+                  "list",
                   "string"
                 ],
                 "computed": true
               },
               "security_groups": {
                 "type": [
-                  "set",
+                  "list",
                   "string"
                 ],
                 "computed": true
@@ -112,6 +128,7 @@
                     "object",
                     {
                       "boot_index": "number",
+                      "is_sys_volume": "bool",
                       "pci_address": "string",
                       "size": "number",
                       "type": "string",
@@ -120,19 +137,6 @@
                   ]
                 ],
                 "computed": true
-              }
-            },
-            "block_types": {
-              "scheduler_hints": {
-                "block": {
-                  "attributes": {
-                    "group": {
-                      "type": "string",
-                      "computed": true
-                    }
-                  }
-                },
-                "nesting_mode": "set"
               }
             }
           },

@@ -22,8 +22,7 @@
               "description": {
                 "type": "string",
                 "description": "The description about the network instance.",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "domain_id": {
                 "type": "string",

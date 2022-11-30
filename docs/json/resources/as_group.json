@@ -5,12 +5,13 @@
         "huaweicloud_as_group": {
           "block": {
             "attributes": {
-              "available_zones": {
+              "availability_zones": {
                 "type": [
                   "list",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "cool_down_time": {
                 "type": "number",
@@ -33,6 +34,11 @@
                 "optional": true,
                 "default": false
               },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "desire_instance_number": {
                 "type": "number",
                 "optional": true,
@@ -51,6 +57,12 @@
               "force_delete": {
                 "type": "bool",
                 "optional": true
+              },
+              "health_periodic_audit_grace_period": {
+                "type": "number",
+                "description": "The health check grace period for instances, in seconds.",
+                "optional": true,
+                "computed": true
               },
               "health_periodic_audit_method": {
                 "type": "string",
@@ -90,12 +102,10 @@
                 "optional": true,
                 "default": 0
               },
-              "notifications": {
-                "type": [
-                  "list",
-                  "string"
-                ],
-                "optional": true
+              "multi_az_scaling_policy": {
+                "type": "string",
+                "optional": true,
+                "computed": true
               },
               "region": {
                 "type": "string",
@@ -155,6 +165,14 @@
                     "id": {
                       "type": "string",
                       "required": true
+                    },
+                    "ipv6_bandwidth_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "ipv6_enable": {
+                      "type": "bool",
+                      "optional": true
                     }
                   }
                 },
@@ -171,8 +189,7 @@
                     }
                   }
                 },
-                "nesting_mode": "list",
-                "min_items": 1
+                "nesting_mode": "list"
               }
             }
           },

@@ -5,40 +5,49 @@
         "huaweicloud_apig_instance": {
           "block": {
             "attributes": {
-              "available_zones": {
+              "availability_zones": {
                 "type": [
                   "list",
                   "string"
                 ],
-                "required": true
+                "description": "schema: Required; The name list of availability zones for the dedicated instance.",
+                "required": true,
+                "forcenew": true
               },
               "bandwidth_size": {
                 "type": "number",
+                "description": "The egress bandwidth size of the dedicated instance.",
                 "optional": true
               },
-              "create_time": {
+              "created_at": {
                 "type": "string",
+                "description": "Time when the dedicated instance is created, in RFC-3339 format.",
                 "computed": true
               },
               "description": {
                 "type": "string",
+                "description": "The description of the dedicated instance.",
                 "optional": true
               },
               "edition": {
                 "type": "string",
+                "description": "The edition of the dedicated instance.",
                 "required": true,
                 "forcenew": true
               },
               "egress_address": {
                 "type": "string",
+                "description": "The egress (NAT) public IP address.",
                 "computed": true
               },
               "eip_id": {
                 "type": "string",
+                "description": "The EIP ID associated with the dedicated instance.",
                 "optional": true
               },
               "enterprise_project_id": {
                 "type": "string",
+                "description": "The enterprise project ID to which the dedicated instance belongs.",
                 "optional": true,
                 "computed": true,
                 "forcenew": true
@@ -49,35 +58,57 @@
               },
               "ingress_address": {
                 "type": "string",
+                "description": "The ingress EIP address.",
                 "computed": true
+              },
+              "ipv6_enable": {
+                "type": "bool",
+                "description": "Whether public access with an IPv6 address is supported.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "loadbalancer_provider": {
+                "type": "string",
+                "description": "The type of loadbalancer provider used by the instance.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "maintain_begin": {
                 "type": "string",
+                "description": "The start time of the maintenance time window.",
                 "optional": true,
                 "computed": true
               },
               "maintain_end": {
                 "type": "string",
+                "description": "End time of the maintenance time window, 4-hour difference between the start time and end time.",
                 "computed": true
               },
               "name": {
                 "type": "string",
+                "description": "The name of the dedicated instance.",
                 "required": true
               },
               "region": {
                 "type": "string",
+                "description": "The region in which to create the dedicated instance resource.",
                 "computed": true
               },
               "security_group_id": {
                 "type": "string",
+                "description": "The ID of the security group to which the dedicated instance belongs to.",
                 "required": true
               },
               "status": {
                 "type": "string",
+                "description": "Status of the dedicated instance.",
                 "computed": true
               },
               "subnet_id": {
                 "type": "string",
+                "description": "The ID of the VPC subnet used to create the dedicated instance.",
                 "required": true,
                 "forcenew": true
               },
@@ -86,15 +117,18 @@
                   "list",
                   "string"
                 ],
+                "description": "The supported features of the dedicated instance.",
                 "computed": true
               },
               "vpc_id": {
                 "type": "string",
+                "description": "The ID of the VPC used to create the dedicated instance.",
                 "required": true,
                 "forcenew": true
               },
               "vpc_ingress_address": {
                 "type": "string",
+                "description": "The ingress private IP address of the VPC.",
                 "computed": true
               }
             }

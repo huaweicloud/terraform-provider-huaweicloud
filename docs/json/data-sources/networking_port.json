@@ -5,6 +5,13 @@
         "huaweicloud_networking_port": {
           "block": {
             "attributes": {
+              "all_allowed_ips": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
               "all_fixed_ips": {
                 "type": [
                   "list",

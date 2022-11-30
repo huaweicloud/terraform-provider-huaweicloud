@@ -147,6 +147,22 @@
                 "description": "schema: Computed",
                 "computed": true
               },
+              "spot_duration": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "spot_duration_count": {
+                "type": "number",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "spot_maximum_price": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "status": {
                 "type": "string",
                 "computed": true

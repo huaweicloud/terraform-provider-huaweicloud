@@ -7,8 +7,7 @@
             "attributes": {
               "auto_renew": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "availability_zone": {
                 "type": "string",

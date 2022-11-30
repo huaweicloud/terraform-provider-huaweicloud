@@ -1,0 +1,259 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_vpn_connection": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The create time.",
+                "computed": true
+              },
+              "customer_gateway_id": {
+                "type": "string",
+                "description": "The customer gateway ID.",
+                "required": true
+              },
+              "enable_nqa": {
+                "type": "bool",
+                "description": "Whether to enable NQA check.",
+                "optional": true,
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The enterprise project ID.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "gateway_id": {
+                "type": "string",
+                "description": "The VPN gateway ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "gateway_ip": {
+                "type": "string",
+                "description": "The VPN gateway IP ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the VPN connection.",
+                "required": true
+              },
+              "peer_subnets": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The customer subnets.",
+                "required": true
+              },
+              "psk": {
+                "type": "string",
+                "description": "The pre-shared key.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the VPN connection.",
+                "computed": true
+              },
+              "tunnel_local_address": {
+                "type": "string",
+                "description": "The local tunnel address.",
+                "optional": true,
+                "computed": true
+              },
+              "tunnel_peer_address": {
+                "type": "string",
+                "description": "The peer tunnel address.",
+                "optional": true,
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The update time.",
+                "computed": true
+              },
+              "vpn_type": {
+                "type": "string",
+                "description": "The connection type. The value can be **policy**, **static** or **bgp**.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "ikepolicy": {
+                "block": {
+                  "attributes": {
+                    "authentication_algorithm": {
+                      "type": "string",
+                      "description": "The authentication algorithm, SHA1 and MD5 are less secure, please use them with caution.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "authentication_method": {
+                      "type": "string",
+                      "description": "The authentication method during IKE negotiation. Only **pre-share** supported for now.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "encryption_algorithm": {
+                      "type": "string",
+                      "description": "The encryption algorithm, 3DES is less secure, please use them with caution.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "ike_version": {
+                      "type": "string",
+                      "description": "The IKE negotiation version.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "lifetime_seconds": {
+                      "type": "number",
+                      "description": "The life cycle of SA in seconds, when the life cycle expires, IKE SA will be automatically updated.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "local_id": {
+                      "type": "string",
+                      "description": "The local ID.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "local_id_type": {
+                      "type": "string",
+                      "description": "The local ID type.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "peer_id": {
+                      "type": "string",
+                      "description": "The peer ID.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "peer_id_type": {
+                      "type": "string",
+                      "description": "The peer ID type.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "pfs": {
+                      "type": "string",
+                      "description": "The DH key group used by PFS.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "phase1_negotiation_mode": {
+                      "type": "string",
+                      "description": "The negotiation mode, only works when the ike_version is v1.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "ipsecpolicy": {
+                "block": {
+                  "attributes": {
+                    "authentication_algorithm": {
+                      "type": "string",
+                      "description": "The authentication algorithm, SHA1 and MD5 are less secure, please use them with caution.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "encapsulation_mode": {
+                      "type": "string",
+                      "description": "The encapsulation mode, only **tunnel** supported for now.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "encryption_algorithm": {
+                      "type": "string",
+                      "description": "The encryption algorithm, 3DES is less secure, please use them with caution.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "lifetime_seconds": {
+                      "type": "number",
+                      "description": "The lifecycle time of Ipsec tunnel in seconds.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "pfs": {
+                      "type": "string",
+                      "description": "The DH key group used by PFS.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "transform_protocol": {
+                      "type": "string",
+                      "description": "The transform protocol. Only **esp** supported for now.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "policy_rules": {
+                "block": {
+                  "attributes": {
+                    "destination": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of destination CIDRs.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "rule_index": {
+                      "type": "number",
+                      "description": "The rule index.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "source": {
+                      "type": "string",
+                      "description": "The source CIDR.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The policy rules. Only works when vpn_type is set to **policy**"
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

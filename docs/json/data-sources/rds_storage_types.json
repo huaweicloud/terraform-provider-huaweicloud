@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rds_storage_types": {
+          "block": {
+            "attributes": {
+              "db_type": {
+                "type": "string",
+                "description": "DB engine. The valid values are **MySQL**, **PostgreSQL**, **SQLServer**.",
+                "required": true
+              },
+              "db_version": {
+                "type": "string",
+                "description": "DB version number.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_mode": {
+                "type": "string",
+                "description": "HA mode. The valid values are **single**, **ha**, **replica**.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "storage_types": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "az_status": [
+                        "map",
+                        "string"
+                      ],
+                      "name": "string",
+                      "support_compute_group_type": [
+                        "list",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "description": "Storage_type list. For details, see Data structure of the storageType field.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

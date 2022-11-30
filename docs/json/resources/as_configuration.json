@@ -17,13 +17,35 @@
                 "type": "string",
                 "required": true,
                 "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
               }
             },
             "block_types": {
               "instance_config": {
                 "block": {
                   "attributes": {
+                    "charging_mode": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true,
+                      "default": "postPaid"
+                    },
+                    "ecs_group_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
                     "flavor": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "flavor_priority_policy": {
                       "type": "string",
                       "optional": true,
                       "computed": true,
@@ -52,6 +74,15 @@
                         "string"
                       ],
                       "optional": true,
+                      "forcenew": true
+                    },
+                    "security_group_ids": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "schema: Required",
+                      "required": true,
                       "forcenew": true
                     },
                     "user_data": {

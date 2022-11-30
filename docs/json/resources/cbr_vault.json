@@ -21,8 +21,7 @@
               },
               "auto_renew": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "bind_rules": {
                 "type": [

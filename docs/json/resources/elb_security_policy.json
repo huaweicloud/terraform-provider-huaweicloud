@@ -1,0 +1,77 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_elb_security_policy": {
+          "block": {
+            "attributes": {
+              "ciphers": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the cipher suite list of the security policy.",
+                "required": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the ELB security policy",
+                "optional": true,
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID to which the Enterprise router belongs.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "listeners": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string"
+                    }
+                  ]
+                ],
+                "description": "The listener which the security policy associated with.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the ELB security policy name.",
+                "optional": true,
+                "computed": true
+              },
+              "protocols": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the TSL protocol list which the security policy select.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ELB",
+            "name": "Elastic Load Balance",
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

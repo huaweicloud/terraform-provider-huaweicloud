@@ -1,0 +1,99 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rds_backups": {
+          "block": {
+            "attributes": {
+              "backup_id": {
+                "type": "string",
+                "description": "Backup ID.",
+                "optional": true
+              },
+              "backup_type": {
+                "type": "string",
+                "description": "Backup type.",
+                "optional": true
+              },
+              "backups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "associated_with_ddm": "bool",
+                      "begin_time": "string",
+                      "databases": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "datastore": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "type": "string",
+                            "version": "string"
+                          }
+                        ]
+                      ],
+                      "end_time": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "name": "string",
+                      "size": "number",
+                      "status": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Backup list. For details, see Data structure of the Backup field.",
+                "computed": true
+              },
+              "begin_time": {
+                "type": "string",
+                "description": "Start time in the \"yyyy-mm-ddThh:mm:ssZ\" format.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "End time in the \"yyyy-mm-ddThh:mm:ssZ\" format.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Instance ID.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Backup name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

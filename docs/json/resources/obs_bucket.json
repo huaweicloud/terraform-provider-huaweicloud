@@ -87,6 +87,19 @@
                 "optional": true,
                 "default": "STANDARD"
               },
+              "storage_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "object_number": "number",
+                      "size": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
               "tags": {
                 "type": [
                   "map",

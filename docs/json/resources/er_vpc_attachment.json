@@ -1,0 +1,88 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_er_vpc_attachment": {
+          "block": {
+            "attributes": {
+              "auto_create_vpc_routes": {
+                "type": "bool",
+                "description": "Whether to automatically configure routes for the VPC which pointing to the ER instance.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the VPC attachment.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the ER instance to which the VPC attachment belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the VPC attachment.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the ER instance and the VPC attachment are located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The current status of the VPC attachment.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "The ID of the VPC subnet to which the VPC attachment belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time.",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "The ID of the VPC to which the VPC attachment belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "ER",
+            "name": "Enterprise Router",
+            "catalog": "Networking",
+            "name_cn": "企业路由器",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

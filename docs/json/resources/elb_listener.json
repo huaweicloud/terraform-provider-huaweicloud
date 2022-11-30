@@ -9,6 +9,11 @@
                 "type": "string",
                 "optional": true
               },
+              "advanced_forwarding_enabled": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
               "ca_certificate": {
                 "type": "string",
                 "optional": true

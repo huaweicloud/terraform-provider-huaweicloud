@@ -22,7 +22,9 @@
               },
               "ip_version": {
                 "type": "number",
-                "computed": true
+                "optional": true,
+                "forcenew": true,
+                "default": 4
               },
               "name": {
                 "type": "string",

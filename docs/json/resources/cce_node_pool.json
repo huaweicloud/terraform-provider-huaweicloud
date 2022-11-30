@@ -5,6 +5,11 @@
         "huaweicloud_cce_node_pool": {
           "block": {
             "attributes": {
+              "auto_renew": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "availability_zone": {
                 "type": "string",
                 "optional": true,
@@ -14,6 +19,12 @@
               "billing_mode": {
                 "type": "number",
                 "computed": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "cluster_id": {
                 "type": "string",
@@ -87,6 +98,24 @@
                 "optional": true,
                 "forcenew": true,
                 "sensitive": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "pod_security_groups": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
               },
               "postinstall": {
                 "type": "string",

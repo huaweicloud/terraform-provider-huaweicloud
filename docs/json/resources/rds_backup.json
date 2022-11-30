@@ -1,0 +1,90 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rds_backup": {
+          "block": {
+            "attributes": {
+              "associated_with_ddm": {
+                "type": "bool",
+                "description": "Whether a DDM instance has been associated.",
+                "computed": true
+              },
+              "begin_time": {
+                "type": "string",
+                "description": "Backup start time in the \"yyyy-mm-ddThh:mm:ssZ\" format.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description about the backup.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Backup end time in the \"yyyy-mm-ddThh:mm:ssZ\" format.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Instance ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Backup name.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "size": {
+                "type": "number",
+                "description": "Backup size in KB.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Backup status.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "databases": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "Database to be backed up for Microsoft SQL Server.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "List of self-built Microsoft SQL Server databases that are partially backed up."
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

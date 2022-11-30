@@ -2,42 +2,21 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_images_image": {
+        "huaweicloud_images_images": {
           "block": {
             "attributes": {
               "architecture": {
                 "type": "string",
                 "optional": true
               },
-              "checksum": {
-                "type": "string",
-                "computed": true
-              },
-              "container_format": {
-                "type": "string",
-                "computed": true
-              },
-              "created_at": {
-                "type": "string",
-                "computed": true
-              },
-              "disk_format": {
-                "type": "string",
-                "computed": true
-              },
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
                 "computed": true
               },
-              "file": {
-                "type": "string",
-                "computed": true
-              },
               "flavor_id": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "id": {
                 "type": "string",
@@ -48,30 +27,38 @@
                 "optional": true,
                 "computed": true
               },
-              "metadata": {
+              "images": {
                 "type": [
-                  "map",
-                  "string"
+                  "list",
+                  [
+                    "object",
+                    {
+                      "checksum": "string",
+                      "container_format": "string",
+                      "created_at": "string",
+                      "disk_format": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "image_type": "string",
+                      "min_disk_gb": "number",
+                      "min_ram_mb": "number",
+                      "name": "string",
+                      "os": "string",
+                      "os_version": "string",
+                      "owner": "string",
+                      "protected": "bool",
+                      "size_bytes": "number",
+                      "status": "string",
+                      "updated_at": "string",
+                      "visibility": "string"
+                    }
+                  ]
                 ],
                 "computed": true
               },
-              "min_disk_gb": {
-                "type": "number",
-                "computed": true
-              },
-              "min_ram_mb": {
-                "type": "number",
-                "computed": true
-              },
-              "most_recent": {
-                "type": "bool",
-                "optional": true,
-                "default": false
-              },
               "name": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "name_regex": {
                 "type": "string",
@@ -92,20 +79,8 @@
                 "optional": true,
                 "computed": true
               },
-              "protected": {
-                "type": "bool",
-                "computed": true
-              },
               "region": {
                 "type": "string",
-                "computed": true
-              },
-              "schema": {
-                "type": "string",
-                "computed": true
-              },
-              "size_bytes": {
-                "type": "number",
                 "computed": true
               },
               "sort_direction": {
@@ -118,17 +93,9 @@
                 "optional": true,
                 "default": "name"
               },
-              "status": {
-                "type": "string",
-                "computed": true
-              },
               "tag": {
                 "type": "string",
                 "optional": true
-              },
-              "updated_at": {
-                "type": "string",
-                "computed": true
               },
               "visibility": {
                 "type": "string",

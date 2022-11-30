@@ -1,0 +1,123 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codehub_repository": {
+          "block": {
+            "attributes": {
+              "capacity": {
+                "type": "string",
+                "description": "The total size of the repository, in MB. If the capacity is greater than 1024M, the unit is GB.",
+                "computed": true
+              },
+              "create_at": {
+                "type": "string",
+                "description": "The creation time.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The repository description.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "enable_readme": {
+                "type": "number",
+                "description": "Whether to generate the README.md file.",
+                "optional": true,
+                "forcenew": true,
+                "default": 1
+              },
+              "gitignore_id": {
+                "type": "string",
+                "description": "The program language type for generating .gitignore files.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "https_url": {
+                "type": "string",
+                "description": "The HTTPS URL that used to the fork repository.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "import_members": {
+                "type": "number",
+                "description": "Whether to import the project members.",
+                "optional": true,
+                "forcenew": true,
+                "default": 1
+              },
+              "import_url": {
+                "type": "string",
+                "description": "The HTTPS address of the template repository encrypted using Base64.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "lfs_size": {
+                "type": "string",
+                "description": "The LFS capacity, in MB. If the capacity is greater than 1024M, the unit is GB.",
+                "computed": true
+              },
+              "license_id": {
+                "type": "number",
+                "description": "The license ID for public repository.",
+                "optional": true,
+                "forcenew": true,
+                "default": 1
+              },
+              "name": {
+                "type": "string",
+                "description": "The repository name.",
+                "required": true,
+                "forcenew": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "The project ID for CodeHub service.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "ssh_url": {
+                "type": "string",
+                "description": "The SSH URL that used to the fork repository.",
+                "computed": true
+              },
+              "status": {
+                "type": "number",
+                "description": "The repository status.",
+                "computed": true
+              },
+              "update_at": {
+                "type": "string",
+                "description": "The last update time.",
+                "computed": true
+              },
+              "visibility_level": {
+                "type": "number",
+                "description": "The visibility level.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "web_url": {
+                "type": "string",
+                "description": "The Web URL, accessing this URL will redirect to the repository detail page.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

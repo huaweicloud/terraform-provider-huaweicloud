@@ -1,0 +1,106 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_er_instance": {
+          "block": {
+            "attributes": {
+              "asn": {
+                "type": "number",
+                "description": "The BGP AS number of the Enterprise router.",
+                "required": true,
+                "forcenew": true
+              },
+              "auto_accept_shared_attachments": {
+                "type": "bool",
+                "description": "Whether to automatically accept the creation of shared attachment.",
+                "optional": true,
+                "computed": true
+              },
+              "availability_zones": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The availability zone list where the Enterprise router is located.",
+                "required": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time.",
+                "computed": true
+              },
+              "default_association_route_table_id": {
+                "type": "string",
+                "description": "The ID of the default association route table.",
+                "optional": true,
+                "computed": true
+              },
+              "default_propagation_route_table_id": {
+                "type": "string",
+                "description": "The ID of the default propagation route table.",
+                "optional": true,
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the Enterprise router.",
+                "optional": true,
+                "computed": true
+              },
+              "enable_default_association": {
+                "type": "bool",
+                "description": "Whether to enable the association of the default route table.",
+                "optional": true,
+                "computed": true
+              },
+              "enable_default_propagation": {
+                "type": "bool",
+                "description": "Whether to enable the propagation of the default route table.",
+                "optional": true,
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The enterprise project ID to which the Enterprise router belongs.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The router name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Current status of the router.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ER",
+            "name": "Enterprise Router",
+            "catalog": "Networking",
+            "name_cn": "企业路由器",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}
