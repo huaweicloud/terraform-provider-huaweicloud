@@ -90,7 +90,7 @@ func testCustomerGateway_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpn_customer_gateway" "test" {
   name = "%s"
-  ip   = "192.168.1.1"
+  ip   = "172.16.1.1"
 }
 `, name)
 }
