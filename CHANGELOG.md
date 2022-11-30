@@ -1,5 +1,51 @@
 # CHANGELOG
 
+## 1.43.0 (November 30, 2022)
+
+* **New Resurce:**
+  + `huaweicloud_codehub_repository` [GH-2354]
+  + `huaweicloud_rds_backup` [GH-2467]
+  + `huaweicloud_er_instance` [GH-2471]
+  + `huaweicloud_er_vpc_attachment` [GH-2525]
+  + `huaweicloud_er_route_table` [GH-2529]
+  + `huaweicloud_er_association` [GH-2532]
+  + `huaweicloud_er_propagation` [GH-2533]
+  + `huaweicloud_elb_logtank` [GH-2520]
+  + `huaweicloud_elb_security_policy` [GH-2521]
+  + `huaweicloud_vpn_gateway` [GH-2519]
+  + `huaweicloud_vpn_customer_gateway` [GH-2528]
+  + `huaweicloud_vpn_connection` [GH-2550]
+  + `huaweicloud_rf_stack` [GH-2551]
+  + `huaweicloud_dms_rocketmq_instance` [GH-2556]
+
+* **New Data Source:**
+  + `huaweicloud_rds_backups` [GH-2491]
+  + `huaweicloud_rds_storage_types` [GH-2496]
+  + `huaweicloud_er_route_tables` [GH-2529]
+  + `huaweicloud_images_images` [GH-2536]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_rds_read_replica_instance: Add prepaid support [GH-2482]
+* resource/huaweicloud_vpc_eip: Support updating `auto_renew` parameter [GH-2498]
+* resource/huaweicloud_elb_loadbalancer: Support autoscaling option [GH-2493]
+* resource/huaweicloud_compute_instance: Support spot price charging mode [GH-2514]
+* resource/huaweicloud_rds_instance: Support resetting the password of root user [GH-2515]
+* resource/huaweicloud_vpc_address_group: Support IPv6 addresses [GH-2524]
+* resource/huaweicloud_cce_node_pool: Add prepaid support [GH-2526]
+* resource/huaweicloud_as_configuration: Support more parameters and importing feature [GH-2537]
+* resource/huaweicloud_as_group: Support more parameters and IPv6 feature [GH-2539]
+* resource/huaweicloud_elb_listener: Support advanced_forwarding [GH-2542]
+* resource/huaweicloud_elb_pool: Add `timeout` param of persistence [GH-2546]
+* resource/huaweicloud_elb_member: Support cross vpc backend [GH-2548]
+* data/huaweicloud_networking_port: Add port allowed IPs attribute [GH-2527]
+* data/huaweicloud_compute_instances: Support filtering instances by ID [GH-2555]
+
+BUG FIXES:
+
+* resource/huaweicloud_identity_access_key: Downgrade to warning when saving secret key failed [GH-2461]
+* resource/huaweicloud_cse_microservice_engine: Fix the issue of the jobs query fails [GH-2554]
+
 ## 1.42.0 (October 31, 2022)
 
 * **New Resurce:**
