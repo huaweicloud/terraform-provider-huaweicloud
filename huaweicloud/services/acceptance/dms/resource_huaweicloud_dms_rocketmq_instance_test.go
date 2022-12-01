@@ -126,6 +126,7 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
   ]
   flavor_id           = "c6.4u8g.cluster"
   storage_spec_code   = "dms.physical.storage.high.v2"
+  broker_num          = 1
 }
 `, testAccDmsRocketmqInstance_Base(rName), updateName)
 }
