@@ -1,57 +1,74 @@
 package apig
 
 import (
-	"log"
+	"context"
+	"fmt"
 	"regexp"
 	"strings"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/applications"
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/applications"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+)
+
+type SecretAction string
+
+const (
+	SecretActionReset SecretAction = "RESET"
 )
 
 func ResourceApigApplicationV2() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceApigApplicationV2Create,
-		Read:   resourceApigApplicationV2Read,
-		Update: resourceApigApplicationV2Update,
-		Delete: resourceApigApplicationV2Delete,
+		CreateContext: resourceApplicationCreate,
+		ReadContext:   resourceApplicationRead,
+		UpdateContext: resourceApplicationUpdate,
+		DeleteContext: resourceApplicationDelete,
+
 		Importer: &schema.ResourceImporter{
-			State: resourceApigInstanceSubResourceImportState,
+			StateContext: resourceApplicationImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "The region where the application is located.",
 			},
 			"instance_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "The ID of the dedicated instance to which the application belongs.",
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.StringMatch(
-					regexp.MustCompile("^[\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5A-Za-z_0-9]{2,63}$"),
-					"The name consists of 3 to 64 characters, starting with a letter. "+
-						"Only letters, digits and underscores (_) are allowed. "+
-						"Chinese characters must be in UTF-8 or Unicode format."),
+				ValidateFunc: validation.All(
+					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5\\w]*$"),
+						"Only chinese and english letters, digits and underscores (_) are allowed, and must start "+
+							"with a chinese or english letter."),
+					validation.StringLenBetween(3, 64),
+				),
+				Description: "The application name.",
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[^<>]{1,255}$"),
-					"The description contain a maximum of 255 characters, "+
-						"and the angle brackets (< and >) are not allowed."),
+				Computed: true,
+				ValidateFunc: validation.All(
+					validation.StringMatch(regexp.MustCompile(`^[^<>]*$`),
+						"The angle brackets (< and >) are not allowed."),
+					validation.StringLenBetween(0, 255),
+				),
+				Description: "The application description.",
 			},
 			"app_codes": {
 				Type:     schema.TypeSet,
@@ -59,150 +76,148 @@ func ResourceApigApplicationV2() *schema.Resource {
 				MaxItems: 5,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
-					ValidateFunc: validation.StringMatch(
-						regexp.MustCompile("^[A-Za-z0-9+=][\\w!@#$%+-/=]{63,179}$"),
-						"The code consists of 64 to 180 characters, starting with a letter, digit, "+
-							"plus sign (+) or slash (/). Only letters, digits and following special special "+
-							"characters are allowed: !@#$%+-_/="),
+					ValidateFunc: validation.All(
+						validation.StringMatch(
+							regexp.MustCompile(`^[A-Za-z0-9+=][\w!@#$%+-/=]*$`),
+							"The code consists of 64 to 180 characters, starting with a letter, digit, "+
+								"plus sign (+) or slash (/). Only letters, digits and following special special "+
+								"characters are allowed: !@#$%+-_/="),
+						validation.StringLenBetween(64, 180),
+					),
 				},
+				Description: "The array of one or more application codes that the application has.",
 			},
 			"secret_action": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					"RESET",
+					string(SecretActionReset),
 				}, false),
+				Description: "The secret action to be done for the application.",
 			},
-			"registraion_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+			"registration_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The registration time.",
 			},
 			"app_key": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The APP key.",
 			},
 			"app_secret": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Sensitive:   true,
+				Description: "The APP secret.",
 			},
-			"update_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+			"updated_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The latest update time of the application.",
 			},
 		},
 	}
 }
 
-func buildApigApplicaitonParameters(d *schema.ResourceData) applications.AppOpts {
-	return applications.AppOpts{
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
-	}
-}
-
-func createApigV2ApplicationCode(client *golangsdk.ServiceClient, instanceId, appId, code string) error {
-	opt := applications.AppCodeOpts{
-		AppCode: code,
-	}
-	if _, err := applications.CreateAppCode(client, instanceId, appId, opt).Extract(); err != nil {
-		return err
-	}
-	return nil
-}
-
-func createApigV2ApplicationCodes(client *golangsdk.ServiceClient, instanceId, appId string,
-	codes []interface{}) error {
-	for _, v := range codes {
-		if err := createApigV2ApplicationCode(client, instanceId, appId, v.(string)); err != nil {
-			return fmtp.Errorf("Error creating APIG v2 application code: %s", err)
+func createApplicationCodes(client *golangsdk.ServiceClient, instanceId, appId string, codes []interface{}) error {
+	for _, code := range codes {
+		opt := applications.AppCodeOpts{
+			AppCode: code.(string),
+		}
+		_, err := applications.CreateAppCode(client, instanceId, appId, opt).Extract()
+		if err != nil {
+			return fmt.Errorf("error creating application code: %s", err)
 		}
 	}
 	return nil
 }
 
-func resourceApigApplicationV2Create(d *schema.ResourceData, meta interface{}) error {
+func resourceApplicationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating APIG v2 client: %s", err)
+	}
+
+	var (
+		instanceId = d.Get("instance_id").(string)
+
+		opts = applications.AppOpts{
+			Name:        d.Get("name").(string),
+			Description: d.Get("description").(string),
+		}
+	)
+	resp, err := applications.Create(client, instanceId, opts).Extract()
+	if err != nil {
+		return diag.Errorf("error creating dedicated application: %s", err)
+	}
+	d.SetId(resp.Id)
+
+	if v, ok := d.GetOk("app_codes"); ok {
+		if err := createApplicationCodes(client, instanceId, d.Id(), v.(*schema.Set).List()); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+	return resourceApplicationRead(ctx, d, meta)
+}
+
+func queryApplicationCodes(client *golangsdk.ServiceClient, instanceId, appId string) ([]applications.AppCode, error) {
+	allPages, err := applications.ListAppCode(client, instanceId, appId, applications.ListCodeOpts{}).AllPages()
+	if err != nil {
+		return nil, err
+	}
+	return applications.ExtractAppCodes(allPages)
+}
+
+func flattenApplicationCodes(codes []applications.AppCode) []interface{} {
+	if len(codes) < 1 {
+		return nil
+	}
+	result := make([]interface{}, len(codes))
+	for i, v := range codes {
+		result[i] = v.Code
+	}
+	return result
+}
+
+func resourceApplicationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
-	opts := buildApigApplicaitonParameters(d)
-	log.Printf("[DEBUG] Create Options: %#v", opts)
-	instanceId := d.Get("instance_id").(string)
-	resp, err := applications.Create(client, instanceId, opts).Extract()
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 application at the instance (%s): %s", instanceId, err)
-	}
-	d.SetId(resp.Id)
-	if v, ok := d.GetOk("app_codes"); ok {
-		if err := createApigV2ApplicationCodes(client, instanceId, d.Id(), v.(*schema.Set).List()); err != nil {
-			return fmtp.Errorf("Error creating APIG v2 application codes: %s", err)
-		}
-	}
-	return resourceApigApplicationV2Read(d, meta)
-}
 
-func getApigApplicationCodesFromServer(d *schema.ResourceData,
-	client *golangsdk.ServiceClient) ([]applications.AppCode, error) {
-	allPages, err := applications.ListAppCode(client, d.Get("instance_id").(string), d.Id(),
-		applications.ListCodeOpts{}).AllPages()
+	var (
+		instanceId = d.Get("instance_id").(string)
+		appId      = d.Id()
+	)
+	resp, err := applications.Get(client, instanceId, appId).Extract()
 	if err != nil {
-		return []applications.AppCode{}, err
+		return common.CheckDeletedDiag(d, err, "dedicated application")
 	}
-	results, err := applications.ExtractAppCodes(allPages)
-	if err != nil {
-		return results, err
-	}
-	return results, nil
-}
 
-func setApigApplicationCodes(d *schema.ResourceData, config *config.Config, resp *applications.Application) error {
-	client, err := config.ApigV2Client(config.GetRegion(d))
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
-	}
-	results, err := getApigApplicationCodesFromServer(d, client)
-	if err != nil {
-		return fmtp.Errorf("Error getting APIG v2 application codes: %s", err)
-	}
-	codes := make([]interface{}, len(results))
-	for i, v := range results {
-		codes[i] = v.Code
-	}
-	// The application code is sort by create time on server, not code.
-	return d.Set("app_codes", schema.NewSet(schema.HashString, codes))
-}
-
-func setApigApplicationParamters(d *schema.ResourceData, config *config.Config, resp *applications.Application) error {
 	mErr := multierror.Append(nil,
 		d.Set("region", config.GetRegion(d)),
 		d.Set("name", resp.Name),
 		d.Set("description", resp.Description),
-		d.Set("registraion_time", resp.RegistraionTime),
-		d.Set("update_time", resp.UpdateTime),
+		d.Set("registration_time", resp.RegistrationTime),
+		d.Set("updated_at", resp.UpdateTime),
 		d.Set("app_key", resp.AppKey),
 		d.Set("app_secret", resp.AppSecret),
-		setApigApplicationCodes(d, config, resp),
 	)
-	if mErr.ErrorOrNil() != nil {
-		return mErr
+	if codes, err := queryApplicationCodes(client, instanceId, appId); err != nil {
+		mErr = multierror.Append(mErr, err)
+	} else {
+		// The application code is sort by create time on server, not code.
+		mErr = multierror.Append(d.Set("app_codes",
+			schema.NewSet(schema.HashString, flattenApplicationCodes(codes))))
+	}
+
+	if err = mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error saving dedicated application fields: %s", err)
 	}
 	return nil
-}
-
-func resourceApigApplicationV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
-	}
-	instanceId := d.Get("instance_id").(string)
-	resp, err := applications.Get(client, instanceId, d.Id()).Extract()
-	if err != nil {
-		return common.CheckDeleted(d, err, "error retrieving APIG application")
-	}
-
-	return setApigApplicationParamters(d, config, resp)
 }
 
 func isCodeInApplication(codes []applications.AppCode, code string) (string, bool) {
@@ -214,106 +229,111 @@ func isCodeInApplication(codes []applications.AppCode, code string) (string, boo
 	return "", false
 }
 
-func removeApigV2ApplicationCode(d *schema.ResourceData, client *golangsdk.ServiceClient,
-	results []applications.AppCode, code string) error {
-	instanceId := d.Get("instance_id").(string)
-	id, ok := isCodeInApplication(results, code)
-	if !ok {
-		return fmtp.Errorf("Code is not in the application (%s)", d.Id())
+func removeApplicationCodes(client *golangsdk.ServiceClient, instanceId, appId string, codes []interface{}) error {
+	results, err := queryApplicationCodes(client, instanceId, appId)
+	if err != nil {
+		return fmt.Errorf("error retrieving application codes: %s", err)
 	}
-	if err := applications.RemoveAppCode(client, instanceId, d.Id(), id).ExtractErr(); err != nil {
-		return fmtp.Errorf("Error removing code (%s) form the application (%s) : %s", code, d.Id(), err)
-	}
-	return nil
-}
-
-func updateApigApplicationCodes(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	oldRaws, newRaws := d.GetChange("app_codes")
-	addRaws := newRaws.(*schema.Set).Difference(oldRaws.(*schema.Set))
-	removeRaws := oldRaws.(*schema.Set).Difference(newRaws.(*schema.Set))
-	if len(removeRaws.List()) != 0 {
-		results, err := getApigApplicationCodesFromServer(d, client)
-		if err != nil {
-			return fmtp.Errorf("Error getting APIG v2 application codes: %s", err)
+	for _, code := range codes {
+		codeId, ok := isCodeInApplication(results, code.(string))
+		if !ok {
+			continue
 		}
-		for _, v := range removeRaws.List() {
-			if err := removeApigV2ApplicationCode(d, client, results, v.(string)); err != nil {
-				return err
-			}
-		}
-	}
-	instanceId := d.Get("instance_id").(string)
-	if len(addRaws.List()) != 0 {
-		for _, v := range addRaws.List() {
-			if err := createApigV2ApplicationCode(client, instanceId, d.Id(), v.(string)); err != nil {
-				return err
-			}
+		if err := applications.RemoveAppCode(client, instanceId, appId, codeId).ExtractErr(); err != nil {
+			return fmt.Errorf("error removing code (%v) form the application (%s) : %s", code, appId, err)
 		}
 	}
 	return nil
 }
 
-func resourceApigApplicationV2Update(d *schema.ResourceData, meta interface{}) error {
+func updateApplicationCodes(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		instanceId       = d.Get("instance_id").(string)
+		appId            = d.Id()
+		oldRaws, newRaws = d.GetChange("app_codes")
+
+		addRaws    = newRaws.(*schema.Set).Difference(oldRaws.(*schema.Set))
+		removeRaws = oldRaws.(*schema.Set).Difference(newRaws.(*schema.Set))
+	)
+	if removeRaws.Len() > 0 {
+		if err := removeApplicationCodes(client, instanceId, appId, removeRaws.List()); err != nil {
+			return err
+		}
+	}
+
+	if addRaws.Len() > 0 {
+		if err := createApplicationCodes(client, instanceId, appId, addRaws.List()); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func resourceApplicationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
-	opt := applications.AppOpts{}
-	if d.HasChange("name") {
-		opt.Name = d.Get("name").(string)
-	}
-	if d.HasChange("description") {
-		opt.Description = d.Get("description").(string)
-	}
-	if opt != (applications.AppOpts{}) {
-		log.Printf("[DEBUG] Update Options: %#v", opt)
-		instanceId := d.Get("instance_id").(string)
-		_, err = applications.Update(client, instanceId, d.Id(), opt).Extract()
+
+	var (
+		instanceId = d.Get("instance_id").(string)
+		appId      = d.Id()
+	)
+
+	if d.HasChanges("name", "description") {
+		opt := applications.AppOpts{
+			Name:        d.Get("name").(string),
+			Description: d.Get("description").(string),
+		}
+		_, err = applications.Update(client, instanceId, appId, opt).Extract()
 		if err != nil {
-			return fmtp.Errorf("Error updating HuaweiCloud APIG v2 application (%s): %s", d.Id(), err)
+			return diag.Errorf("error updating dedicated application (%s): %s", appId, err)
 		}
 	}
 	if d.HasChange("app_codes") {
-		err = updateApigApplicationCodes(d, client)
+		err = updateApplicationCodes(client, d)
 		if err != nil {
-			return fmtp.Errorf("Updating HuaweiCloud APIG v2 application code failed: %s", err)
+			return diag.FromErr(err)
 		}
 	}
 	if d.HasChange("secret_action") {
-		if v, ok := d.GetOk("secret_action"); ok && v.(string) == "RESET" {
-			if _, err := applications.ResetAppSecret(client, d.Get("instance_id").(string), d.Id(),
+		if v, ok := d.GetOk("secret_action"); ok && v.(string) == string(SecretActionReset) {
+			if _, err := applications.ResetAppSecret(client, instanceId, appId,
 				applications.SecretResetOpts{}).Extract(); err != nil {
-				return fmtp.Errorf("Reseting HuaweiCloud APIG v2 application secret failed: %s", err)
+				return diag.Errorf("error reseting application secret: %s", err)
 			}
 		}
 	}
-	return resourceApigApplicationV2Read(d, meta)
+	return resourceApplicationRead(ctx, d, meta)
 }
 
-func resourceApigApplicationV2Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceApplicationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
-	instanceId := d.Get("instance_id").(string)
-	err = applications.Delete(client, instanceId, d.Id()).ExtractErr()
+
+	var (
+		instanceId = d.Get("instance_id").(string)
+		appId      = d.Id()
+	)
+	err = applications.Delete(client, instanceId, appId).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud APIG v2 application from the instance (%s): %s",
-			instanceId, err)
+		return diag.Errorf("error deleting application (%s) from the instance (%s): %s", appId, instanceId, err)
 	}
-	d.SetId("")
+
 	return nil
 }
 
-func resourceApigInstanceSubResourceImportState(d *schema.ResourceData,
+func resourceApplicationImportState(_ context.Context, d *schema.ResourceData,
 	meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		return nil, fmtp.Errorf("Invalid format specified for import id, must be <instance_id>/<id>")
+		return nil, fmt.Errorf("invalid format specified for import ID, must be <instance_id>/<id>")
 	}
 	d.SetId(parts[1])
-	d.Set("instance_id", parts[0])
-	return []*schema.ResourceData{d}, nil
+
+	return []*schema.ResourceData{d}, d.Set("instance_id", parts[0])
 }
