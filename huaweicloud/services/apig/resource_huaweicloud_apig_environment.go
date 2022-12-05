@@ -1,103 +1,109 @@
 package apig
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strings"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/environments"
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/environments"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceApigEnvironmentV2() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceApigEnvironmentV2Create,
-		Read:   resourceApigEnvironmentV2Read,
-		Update: resourceApigEnvironmentV2Update,
-		Delete: resourceApigEnvironmentV2Delete,
+		CreateContext: resourceEnvironmentCreate,
+		ReadContext:   resourceEnvironmentRead,
+		UpdateContext: resourceEnvironmentUpdate,
+		DeleteContext: resourceEnvironmentDelete,
+
 		Importer: &schema.ResourceImporter{
-			State: resourceApigEnvironmentResourceImportState,
+			StateContext: resourceEnvironmentResourceImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "The region where the dedicated instance is located.",
 			},
 			"instance_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "The ID of the dedicated instance to which the environment belongs.",
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.StringMatch(
-					regexp.MustCompile("^[A-Za-z][\\w0-9]{2,63}$"),
-					"The name consists of 3 to 64 characters, starting with a letter. "+
-						"Only letters, digits and underscores (_) are allowed."),
+				ValidateFunc: validation.All(
+					validation.StringMatch(regexp.MustCompile(`^[A-Za-z]\w*$`),
+						"Only letters, digits and underscores (_) are allowed, and must start with a letter."),
+					validation.StringLenBetween(3, 64),
+				),
+				Description: "The environment name.",
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[^<>]{1,255}$"),
-					"The description contain a maximum of 255 characters, "+
-						"and the angle brackets (< and >) are not allowed."),
+				ValidateFunc: validation.All(
+					validation.StringMatch(regexp.MustCompile(`^[^<>]*$`),
+						"The angle brackets (< and >) are not allowed."),
+					validation.StringLenBetween(0, 255),
+				),
+				Description: "The environment description.",
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The time when the environment was created.",
 			},
 			"create_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Deprecated:  "Use 'created_at' instead",
+				Description: `schema: Deprecated; The time when the environment was created.`,
 			},
 		},
 	}
 }
 
-func buildApigEnvironmentParameters(d *schema.ResourceData) environments.EnvironmentOpts {
-	desc := d.Get("description").(string)
-	return environments.EnvironmentOpts{
-		Name:        d.Get("name").(string),
-		Description: &desc,
-	}
-}
-
-func resourceApigEnvironmentV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
-	opts := buildApigEnvironmentParameters(d)
-	instanceId := d.Get("instance_id").(string)
+
+	var (
+		instanceId = d.Get("instance_id").(string)
+
+		opts = environments.EnvironmentOpts{
+			Name:        d.Get("name").(string),
+			Description: utils.String(d.Get("description").(string)),
+		}
+	)
+
 	resp, err := environments.Create(client, instanceId, opts).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "Error creating HuaweiCloud APIG environment")
+		return diag.Errorf("error creating dedicated environment: %s", err)
 	}
 	d.SetId(resp.Id)
-	return resourceApigEnvironmentV2Read(d, meta)
+
+	return resourceEnvironmentRead(ctx, d, meta)
 }
 
-func setApigEnvironmentParamters(d *schema.ResourceData, config *config.Config, resp *environments.Environment) error {
-	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
-		d.Set("name", resp.Name),
-		d.Set("description", resp.Description),
-		d.Set("create_time", resp.CreateTime),
-	)
-	if mErr.ErrorOrNil() != nil {
-		return mErr
-	}
-	return nil
-}
-
-// The GetEnvironmentFormServer is a method to get specifies environment form server by instance id and environment id.
+// GetEnvironmentFormServer is a method to get dedicated environment details form server using IDs.
 func GetEnvironmentFormServer(client *golangsdk.ServiceClient, instanceId,
 	envId string) (*environments.Environment, error) {
 	allPages, err := environments.List(client, instanceId, environments.ListOpts{}).AllPages()
@@ -113,86 +119,102 @@ func GetEnvironmentFormServer(client *golangsdk.ServiceClient, instanceId,
 			return &v, nil
 		}
 	}
-	return nil, fmtp.Errorf("The environment does not exist")
+	return nil, golangsdk.ErrDefault404{}
 }
 
-func resourceApigEnvironmentV2Read(d *schema.ResourceData, meta interface{}) error {
+func resourceEnvironmentRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 	instanceId := d.Get("instance_id").(string)
-	env, err := GetEnvironmentFormServer(client, instanceId, d.Id())
+	resp, err := GetEnvironmentFormServer(client, instanceId, d.Id())
 	if err != nil {
-		return common.CheckDeleted(d, err, fmt.Sprintf("Unable to get the environment (%s) form server", d.Id()))
+		return common.CheckDeletedDiag(d, err, "dedicated environment")
 	}
-	return setApigEnvironmentParamters(d, config, env)
+	mErr := multierror.Append(nil,
+		d.Set("region", config.GetRegion(d)),
+		d.Set("name", resp.Name),
+		d.Set("description", resp.Description),
+		d.Set("created_at", resp.CreateTime),
+	)
+	if err = mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error saving dedicated environment fields: %s", err)
+	}
+	return nil
 }
 
-func resourceApigEnvironmentV2Update(d *schema.ResourceData, meta interface{}) error {
+func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
+
+	var (
+		instanceId    = d.Get("instance_id").(string)
+		environmentId = d.Id()
+	)
+
 	opt := environments.EnvironmentOpts{
-		Name: d.Get("name").(string), // Due to API restrictions, the name must be provided.
+		Name:        d.Get("name").(string), // Due to API restrictions, the name must be provided.
+		Description: utils.String(d.Get("description").(string)),
 	}
-	if d.HasChange("description") {
-		desc := d.Get("description").(string)
-		opt.Description = &desc
-	}
-	instanceId := d.Get("instance_id").(string)
-	_, err = environments.Update(client, instanceId, d.Id(), opt).Extract()
+	_, err = environments.Update(client, instanceId, environmentId, opt).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error updating HuaweiCloud APIG environment (%s): %s", d.Id(), err)
+		return diag.Errorf("error updating dedicated environment (%s): %s", environmentId, err)
 	}
 
-	return resourceApigEnvironmentV2Read(d, meta)
+	return resourceEnvironmentRead(ctx, d, meta)
 }
 
-func resourceApigEnvironmentV2Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceEnvironmentDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
+
 	instanceId := d.Get("instance_id").(string)
 	err = environments.Delete(client, instanceId, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud APIG environment from the instance (%s): %s", instanceId, err)
+		return diag.Errorf("error deleting dedicated environment from the instance (%s): %s", instanceId, err)
 	}
-	d.SetId("")
+
 	return nil
 }
 
 // The ID cannot find on console, so we need to import by environment name.
-func resourceApigEnvironmentResourceImportState(d *schema.ResourceData,
+func resourceEnvironmentResourceImportState(_ context.Context, d *schema.ResourceData,
 	meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		return nil, fmtp.Errorf("Invalid format specified for import id, must be <instance_id>/<env name>")
+		return nil, fmt.Errorf("invalid format specified for import ID, must be <instance_id>/<name>")
 	}
-	instanceId := parts[0]
 	config := meta.(*config.Config)
 	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
-		return []*schema.ResourceData{d}, fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return []*schema.ResourceData{d}, fmt.Errorf("error creating APIG v2 client: %s", err)
 	}
-	name := parts[1]
-	opt := environments.ListOpts{
-		Name: name,
-	}
+
+	var (
+		instanceId = parts[0]
+		name       = parts[1]
+
+		opt = environments.ListOpts{
+			Name: name,
+		}
+	)
 	pages, err := environments.List(client, instanceId, opt).AllPages()
 	if err != nil {
-		return []*schema.ResourceData{d}, fmtp.Errorf("Error retrieving environment: %s", err)
+		return []*schema.ResourceData{d}, fmt.Errorf("error retrieving environment: %s", err)
 	}
 	resp, err := environments.ExtractEnvironments(pages)
 	if len(resp) < 1 {
-		return []*schema.ResourceData{d}, fmtp.Errorf("Unable to find the environment (%s) form server: %s", name, err)
+		return []*schema.ResourceData{d}, fmt.Errorf("unable to find the environment (%s) form server: %s", name, err)
 	}
+
 	d.SetId(resp[0].Id)
-	d.Set("instance_id", instanceId)
-	return []*schema.ResourceData{d}, nil
+	return []*schema.ResourceData{d}, d.Set("instance_id", instanceId)
 }
