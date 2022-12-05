@@ -2,6 +2,8 @@ package vpc
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/chnsz/golangsdk"
@@ -15,8 +17,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // refer to: https://support.huaweicloud.com/intl/en-us/dns_faq/dns_faq_002.html
@@ -69,7 +69,7 @@ func ResourceVpcSubnetV1() *schema.Resource {
 			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
-		Schema: map[string]*schema.Schema{ //request and response parameters
+		Schema: map[string]*schema.Schema{ // request and response parameters
 			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -170,7 +170,7 @@ func resourceVpcSubnetCreate(ctx context.Context, d *schema.ResourceData, meta i
 	region := config.GetRegion(d)
 	subnetClient, err := config.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud networking client: %s", err)
+		return diag.Errorf("Error creating Huaweicloud networking client: %s", err)
 	}
 
 	enable := d.Get("ipv6_enable").(bool)
@@ -187,15 +187,15 @@ func resourceVpcSubnetCreate(ctx context.Context, d *schema.ResourceData, meta i
 		SECONDARY_DNS:    d.Get("secondary_dns").(string),
 		DnsList:          ResourceSubnetDNSListV1(d, region),
 	}
-	logp.Printf("[DEBUG] Create VPC subnet options: %#v", createOpts)
+	log.Printf("[DEBUG] Create VPC subnet options: %#v", createOpts)
 
 	n, err := subnets.Create(subnetClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud VPC subnet: %s", err)
+		return diag.Errorf("Error creating Huaweicloud VPC subnet: %s", err)
 	}
 
 	d.SetId(n.ID)
-	logp.Printf("[INFO] Vpc Subnet ID: %s", n.ID)
+	log.Printf("[INFO] Vpc Subnet ID: %s", n.ID)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"UNKNOWN"},
@@ -208,21 +208,21 @@ func resourceVpcSubnetCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	_, stateErr := stateConf.WaitForStateContext(ctx)
 	if stateErr != nil {
-		return fmtp.DiagErrorf(
+		return diag.Errorf(
 			"Error waiting for Subnet (%s) to become ACTIVE: %s",
 			n.ID, stateErr)
 	}
 
-	//set tags
+	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		vpcSubnetV2Client, err := config.NetworkingV2Client(config.GetRegion(d))
 		if err != nil {
-			return fmtp.DiagErrorf("Error creating Huaweicloud VpcSubnet client: %s", err)
+			return diag.Errorf("Error creating Huaweicloud VpcSubnet client: %s", err)
 		}
 		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(vpcSubnetV2Client, "subnets", n.ID, taglist).ExtractErr(); tagErr != nil {
-			return fmtp.DiagErrorf("Error setting tags of VpcSubnet %q: %s", n.ID, tagErr)
+			return diag.Errorf("Error setting tags of VpcSubnet %q: %s", n.ID, tagErr)
 		}
 	}
 
@@ -275,14 +275,14 @@ func resourceVpcSubnetRead(_ context.Context, d *schema.ResourceData, meta inter
 			tagmap := utils.TagsToMap(resourceTags.Tags)
 			mErr = multierror.Append(mErr, d.Set("tags", tagmap))
 		} else {
-			logp.Printf("[WARN] Error fetching tags of Subnet (%s): %s", d.Id(), err)
+			log.Printf("[WARN] Error fetching tags of Subnet (%s): %s", d.Id(), err)
 		}
 	} else {
-		return fmtp.DiagErrorf("Error creating Huaweicloud VpcSubnet client: %s", err)
+		return diag.Errorf("Error creating Huaweicloud VpcSubnet client: %s", err)
 	}
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("error setting HuaweiCloud VPC subnet fields: %s", err)
+		return diag.Errorf("error setting HuaweiCloud VPC subnet fields: %s", err)
 	}
 
 	return nil
@@ -292,7 +292,7 @@ func resourceVpcSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	config := meta.(*config.Config)
 	subnetClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud networking client: %s", err)
+		return diag.Errorf("Error creating Huaweicloud networking client: %s", err)
 	}
 
 	if d.HasChanges("name", "description", "dhcp_enable", "primary_dns", "secondary_dns", "dns_list", "ipv6_enable") {
@@ -308,7 +308,7 @@ func resourceVpcSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta i
 				enable := d.Get("ipv6_enable").(bool)
 				updateOpts.EnableIPv6 = &enable
 			} else {
-				return fmtp.DiagErrorf("Parameter cannot be disabled after IPv6 enable")
+				return diag.Errorf("Parameter cannot be disabled after IPv6 enable")
 			}
 		}
 		if d.HasChange("description") {
@@ -326,24 +326,24 @@ func resourceVpcSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			updateOpts.DnsList = &dnsList
 		}
 
-		logp.Printf("[DEBUG] Update VPC subnet options: %#v", updateOpts)
+		log.Printf("[DEBUG] Update VPC subnet options: %#v", updateOpts)
 		vpcID := d.Get("vpc_id").(string)
 		_, err = subnets.Update(subnetClient, vpcID, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return fmtp.DiagErrorf("Error updating VPC Subnet: %s", err)
+			return diag.Errorf("Error updating VPC Subnet: %s", err)
 		}
 	}
 
-	//update tags
+	// update tags
 	if d.HasChange("tags") {
 		vpcSubnetV2Client, err := config.NetworkingV2Client(config.GetRegion(d))
 		if err != nil {
-			return fmtp.DiagErrorf("Error creating Huaweicloud VpcSubnet client: %s", err)
+			return diag.Errorf("Error creating Huaweicloud VpcSubnet client: %s", err)
 		}
 
 		tagErr := utils.UpdateResourceTags(vpcSubnetV2Client, d, "subnets", d.Id())
 		if tagErr != nil {
-			return fmtp.DiagErrorf("Error updating tags of VPC subnet %s: %s", d.Id(), tagErr)
+			return diag.Errorf("Error updating tags of VPC subnet %s: %s", d.Id(), tagErr)
 		}
 	}
 
@@ -355,7 +355,7 @@ func resourceVpcSubnetDelete(ctx context.Context, d *schema.ResourceData, meta i
 	config := meta.(*config.Config)
 	subnetClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud networking client: %s", err)
+		return diag.Errorf("Error creating Huaweicloud networking client: %s", err)
 	}
 
 	vpcID := d.Get("vpc_id").(string)
@@ -370,7 +370,7 @@ func resourceVpcSubnetDelete(ctx context.Context, d *schema.ResourceData, meta i
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting Huaweicloud Subnet: %s", err)
+		return diag.Errorf("Error deleting Huaweicloud Subnet: %s", err)
 	}
 
 	d.SetId("")
@@ -388,9 +388,9 @@ func waitForVpcSubnetActive(subnetClient *golangsdk.ServiceClient, vpcId string)
 			return n, "ACTIVE", nil
 		}
 
-		//If subnet status is other than Active, send error
+		// If subnet status is other than Active, send error
 		if n.Status == "DOWN" || n.Status == "ERROR" {
-			return nil, "", fmtp.Errorf("Subnet status: '%s'", n.Status)
+			return nil, "", fmt.Errorf("Subnet status: '%s'", n.Status)
 		}
 
 		return n, "UNKNOWN", nil
@@ -404,11 +404,11 @@ func waitForVpcSubnetDelete(subnetClient *golangsdk.ServiceClient, vpcId string,
 
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[INFO] Successfully deleted Huaweicloud subnet %s", subnetId)
+				log.Printf("[INFO] Successfully deleted Huaweicloud subnet %s", subnetId)
 				return r, "DELETED", nil
 			}
 			if _, ok := err.(golangsdk.ErrDefault500); ok {
-				logp.Printf("[DEBUG] Got 500 error when delting HuaweiCloud subnet %s, it should be stream control on API server, try again later", subnetId)
+				log.Printf("[DEBUG] Got 500 error when delting HuaweiCloud subnet %s, it should be stream control on API server, try again later", subnetId)
 				return r, "ACTIVE", nil
 			}
 
@@ -417,7 +417,7 @@ func waitForVpcSubnetDelete(subnetClient *golangsdk.ServiceClient, vpcId string,
 			// add this in retry can avoid temporary 403 error
 			// but the real 403 error can only be returned after the timeout period is reached
 			if _, ok := err.(golangsdk.ErrDefault403); ok {
-				logp.Printf("[DEBUG] Got 403 error when delting HuaweiCloud subnet %s, it should be temporary permission error, try again later", subnetId)
+				log.Printf("[DEBUG] Got 403 error when delting HuaweiCloud subnet %s, it should be temporary permission error, try again later", subnetId)
 				return r, "ACTIVE", nil
 			}
 			return r, "ACTIVE", err
@@ -426,15 +426,15 @@ func waitForVpcSubnetDelete(subnetClient *golangsdk.ServiceClient, vpcId string,
 
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[INFO] Successfully deleted Huaweicloud subnet %s", subnetId)
+				log.Printf("[INFO] Successfully deleted Huaweicloud subnet %s", subnetId)
 				return r, "DELETED", nil
 			}
 			if _, ok := err.(golangsdk.ErrDefault400); ok {
-				logp.Printf("[INFO] Successfully deleted Huaweicloud subnet %s", subnetId)
+				log.Printf("[INFO] Successfully deleted Huaweicloud subnet %s", subnetId)
 				return r, "DELETED", nil
 			}
 			if _, ok := err.(golangsdk.ErrDefault500); ok {
-				logp.Printf("[DEBUG] Got 500 error when delting HuaweiCloud subnet %s, it should be stream control on API server, try again later", subnetId)
+				log.Printf("[DEBUG] Got 500 error when delting HuaweiCloud subnet %s, it should be stream control on API server, try again later", subnetId)
 				return r, "ACTIVE", nil
 			}
 			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {

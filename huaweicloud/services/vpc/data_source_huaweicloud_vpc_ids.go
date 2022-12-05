@@ -1,15 +1,17 @@
 package vpc
 
 import (
+	"context"
+
 	"github.com/chnsz/golangsdk/openstack/networking/v1/vpcs"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func DataSourceVpcIdsV1() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceVpcIdsV1Read,
+		ReadContext: dataSourceVpcIdsV1Read,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -26,21 +28,21 @@ func DataSourceVpcIdsV1() *schema.Resource {
 	}
 }
 
-func dataSourceVpcIdsV1Read(d *schema.ResourceData, meta interface{}) error {
+func dataSourceVpcIdsV1Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud Vpc client: %s", err)
+		return diag.Errorf("Error creating Huaweicloud Vpc client: %s", err)
 	}
 
 	listOpts := vpcs.ListOpts{}
 	refinedVpcs, err := vpcs.List(vpcClient, listOpts)
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve vpcs: %s", err)
+		return diag.Errorf("Unable to retrieve vpcs: %s", err)
 	}
 
 	if len(refinedVpcs) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
+		return diag.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 

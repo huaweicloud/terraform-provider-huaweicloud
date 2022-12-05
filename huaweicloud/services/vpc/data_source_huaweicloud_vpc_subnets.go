@@ -2,6 +2,7 @@ package vpc
 
 import (
 	"context"
+	"log"
 
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/subnets"
@@ -10,8 +11,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceVpcSubnets() *schema.Resource {
@@ -163,12 +162,12 @@ func dataSourceVpcSubnetsRead(_ context.Context, d *schema.ResourceData, meta in
 	region := config.GetRegion(d)
 	client, err := config.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
+		return diag.Errorf("Error creating Huaweicloud VPC client: %s", err)
 	}
 
 	clientV2, err := config.NetworkingV2Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud VPC V2 client: %s", err)
+		return diag.Errorf("Error creating Huaweicloud VPC V2 client: %s", err)
 	}
 
 	listOpts := subnets.ListOpts{
@@ -185,10 +184,10 @@ func dataSourceVpcSubnetsRead(_ context.Context, d *schema.ResourceData, meta in
 
 	subnetList, err := subnets.List(client, listOpts)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve subnets: %s", err)
+		return diag.Errorf("Unable to retrieve subnets: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Retrieved subnets using given filter: %+v", subnetList)
+	log.Printf("[DEBUG] Retrieved subnets using given filter: %+v", subnetList)
 
 	var subnets []map[string]interface{}
 	tagFilter := d.Get("tags").(map[string]interface{})
@@ -223,17 +222,17 @@ func dataSourceVpcSubnetsRead(_ context.Context, d *schema.ResourceData, meta in
 			}
 			subnet["tags"] = tagmap
 		} else {
-			return fmtp.DiagErrorf("Error query tags of subnets (%s): %s", item.ID, err)
+			return diag.Errorf("Error query tags of subnets (%s): %s", item.ID, err)
 		}
 
 		subnets = append(subnets, subnet)
 		ids = append(ids, item.ID)
 	}
-	logp.Printf("[DEBUG]subnets List after filter, count=%d :%+v", len(subnets), subnets)
+	log.Printf("[DEBUG]subnets List after filter, count=%d :%+v", len(subnets), subnets)
 
 	mErr := d.Set("subnets", subnets)
 	if mErr != nil {
-		return fmtp.DiagErrorf("set subnets err:%s", mErr)
+		return diag.Errorf("set subnets err:%s", mErr)
 	}
 
 	d.SetId(hashcode.Strings(ids))

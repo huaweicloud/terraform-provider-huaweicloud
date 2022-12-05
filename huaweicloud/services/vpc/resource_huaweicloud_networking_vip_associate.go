@@ -1,12 +1,14 @@
 package vpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strings"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -15,12 +17,12 @@ import (
 
 func ResourceNetworkingVIPAssociateV2() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetworkingVIPAssociateV2Create,
-		Update: resourceNetworkingVIPAssociateV2Update,
-		Read:   resourceNetworkingVIPAssociateV2Read,
-		Delete: resourceNetworkingVIPAssociateV2Delete,
+		CreateContext: resourceNetworkingVIPAssociateV2Create,
+		UpdateContext: resourceNetworkingVIPAssociateV2Update,
+		ReadContext:   resourceNetworkingVIPAssociateV2Read,
+		DeleteContext: resourceNetworkingVIPAssociateV2Delete,
 		Importer: &schema.ResourceImporter{
-			State: resourceNetworkingVIPAssociateV2Import,
+			StateContext: resourceNetworkingVIPAssociateV2Import,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -67,20 +69,20 @@ func resourceNetworkingPortIDs(d *schema.ResourceData) []string {
 	return portids
 }
 
-func updateNetworkingVIPAssociate(client *golangsdk.ServiceClient, vipID string, portIDs []string) error {
+func updateNetworkingVIPAssociate(client *golangsdk.ServiceClient, vipID string, portIDs []string) diag.Diagnostics {
 	allAddrs := make([]string, len(portIDs))
 
 	// check the port id
 	for i, portid := range portIDs {
 		port, err := ports.Get(client, portid).Extract()
 		if err != nil {
-			return fmt.Errorf("error fetching port %s: %s", portid, err)
+			return diag.Errorf("error fetching port %s: %s", portid, err)
 		}
 
 		if len(port.FixedIPs) > 0 {
 			allAddrs[i] = port.FixedIPs[0].IPAddress
 		} else {
-			return fmt.Errorf("port %s has no ip address, Error associate it", portid)
+			return diag.Errorf("port %s has no ip address, Error associate it", portid)
 		}
 	}
 
@@ -98,7 +100,7 @@ func updateNetworkingVIPAssociate(client *golangsdk.ServiceClient, vipID string,
 	log.Printf("[DEBUG] VIP Associate %s with options: %#v", vipID, associateOpts)
 	_, err := ports.Update(client, vipID, associateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("error associate vip: %s", err)
+		return diag.Errorf("error associate vip: %s", err)
 	}
 
 	// Update the allowed-address-pairs of the port to 1.1.1.1/0
@@ -114,71 +116,71 @@ func updateNetworkingVIPAssociate(client *golangsdk.ServiceClient, vipID string,
 	for _, portid := range portIDs {
 		_, err = ports.Update(client, portid, portUpdateOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("error update port %s: %s", portid, err)
+			return diag.Errorf("error update port %s: %s", portid, err)
 		}
 	}
 
 	return nil
 }
 
-func resourceNetworkingVIPAssociateV2Create(d *schema.ResourceData, meta interface{}) error {
+func resourceNetworkingVIPAssociateV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmt.Errorf("error creating networking client: %s", err)
+		return diag.Errorf("error creating networking client: %s", err)
 	}
 
 	// check the vip port
 	vipID := d.Get("vip_id").(string)
 	_, err = ports.Get(networkingClient, vipID).Extract()
 	if err != nil {
-		return fmt.Errorf("error fetching vip %s: %s", vipID, err)
+		return diag.Errorf("error fetching vip %s: %s", vipID, err)
 	}
 
 	portids := resourceNetworkingPortIDs(d)
-	if err = updateNetworkingVIPAssociate(networkingClient, vipID, portids); err != nil {
-		return err
+	if diag := updateNetworkingVIPAssociate(networkingClient, vipID, portids); diag != nil {
+		return diag
 	}
 
 	// set id
 	d.SetId(hashcode.Strings(portids))
-	return resourceNetworkingVIPAssociateV2Read(d, meta)
+	return resourceNetworkingVIPAssociateV2Read(ctx, d, meta)
 }
 
-func resourceNetworkingVIPAssociateV2Update(d *schema.ResourceData, meta interface{}) error {
+func resourceNetworkingVIPAssociateV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmt.Errorf("error creating networking client: %s", err)
+		return diag.Errorf("error creating networking client: %s", err)
 	}
 
 	// check the vip port
 	vipID := d.Get("vip_id").(string)
 	_, err = ports.Get(networkingClient, vipID).Extract()
 	if err != nil {
-		return fmt.Errorf("error fetching vip %s: %s", vipID, err)
+		return diag.Errorf("error fetching vip %s: %s", vipID, err)
 	}
 
 	portids := resourceNetworkingPortIDs(d)
-	if err = updateNetworkingVIPAssociate(networkingClient, vipID, portids); err != nil {
-		return err
+	if diag := updateNetworkingVIPAssociate(networkingClient, vipID, portids); diag != nil {
+		return diag
 	}
 
-	return resourceNetworkingVIPAssociateV2Read(d, meta)
+	return resourceNetworkingVIPAssociateV2Read(ctx, d, meta)
 }
 
-func resourceNetworkingVIPAssociateV2Read(d *schema.ResourceData, meta interface{}) error {
+func resourceNetworkingVIPAssociateV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmt.Errorf("error creating networking client: %s", err)
+		return diag.Errorf("error creating networking client: %s", err)
 	}
 
 	// check the vip port
 	vipID := d.Get("vip_id").(string)
 	vip, err := ports.Get(networkingClient, vipID).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "vip")
+		return common.CheckDeletedDiag(d, err, "vip")
 	}
 
 	var allPorts []string
@@ -220,18 +222,18 @@ func resourceNetworkingVIPAssociateV2Read(d *schema.ResourceData, meta interface
 	return nil
 }
 
-func resourceNetworkingVIPAssociateV2Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceNetworkingVIPAssociateV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmt.Errorf("error creating networking client: %s", err)
+		return diag.Errorf("error creating networking client: %s", err)
 	}
 
 	// check the vip port
 	vipID := d.Get("vip_id").(string)
 	_, err = ports.Get(networkingClient, vipID).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "vip")
+		return common.CheckDeletedDiag(d, err, "vip")
 	}
 
 	// disassociate all allowed address pairs
@@ -242,14 +244,14 @@ func resourceNetworkingVIPAssociateV2Delete(d *schema.ResourceData, meta interfa
 	log.Printf("[DEBUG] Disassociate all ports with %s", vipID)
 	_, err = ports.Update(networkingClient, vipID, disassociateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("error disassociate vip: %s", err)
+		return diag.Errorf("error disassociate vip: %s", err)
 	}
 
 	d.SetId("")
 	return nil
 }
 
-func resourceNetworkingVIPAssociateV2Import(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceNetworkingVIPAssociateV2Import(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
 	if len(parts) < 2 {
 		return nil, fmt.Errorf("invalid format specified for import id, must be <vip_id>/<port_id>," +
