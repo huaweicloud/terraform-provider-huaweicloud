@@ -128,7 +128,7 @@ func resourceVPCPeeringAccepterV2Create(ctx context.Context, d *schema.ResourceD
 
 }
 
-func resourceVpcPeeringAccepterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVpcPeeringAccepterRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	peeringclient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
@@ -164,7 +164,7 @@ func resourceVPCPeeringAccepterUpdate(ctx context.Context, d *schema.ResourceDat
 	return resourceVpcPeeringAccepterRead(ctx, d, meta)
 }
 
-func resourceVPCPeeringAccepterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVPCPeeringAccepterDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Printf("[WARN] Will not delete VPC peering connection. Terraform will remove this resource from the state file, however resources may remain.")
 	d.SetId("")
 	return nil

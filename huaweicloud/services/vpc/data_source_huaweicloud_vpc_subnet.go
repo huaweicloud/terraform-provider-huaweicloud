@@ -108,7 +108,7 @@ func DataSourceVpcSubnetV1() *schema.Resource {
 	}
 }
 
-func dataSourceVpcSubnetV1Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceVpcSubnetV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	subnetClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {

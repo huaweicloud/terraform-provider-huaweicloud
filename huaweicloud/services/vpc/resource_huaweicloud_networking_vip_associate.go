@@ -222,7 +222,7 @@ func resourceNetworkingVIPAssociateV2Read(ctx context.Context, d *schema.Resourc
 	return nil
 }
 
-func resourceNetworkingVIPAssociateV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceNetworkingVIPAssociateV2Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {

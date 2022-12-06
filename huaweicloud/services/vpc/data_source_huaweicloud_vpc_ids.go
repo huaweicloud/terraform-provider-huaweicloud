@@ -28,7 +28,7 @@ func DataSourceVpcIdsV1() *schema.Resource {
 	}
 }
 
-func dataSourceVpcIdsV1Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceVpcIdsV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {

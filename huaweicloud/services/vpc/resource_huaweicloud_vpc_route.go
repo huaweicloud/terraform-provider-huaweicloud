@@ -90,7 +90,7 @@ func resourceVpcRouteV2Create(ctx context.Context, d *schema.ResourceData, meta 
 
 }
 
-func resourceVpcRouteV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVpcRouteV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	vpcRouteClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {

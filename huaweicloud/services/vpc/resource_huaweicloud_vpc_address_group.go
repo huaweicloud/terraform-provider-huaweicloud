@@ -103,7 +103,7 @@ func resourceVpcAddressGroupCreate(ctx context.Context, d *schema.ResourceData, 
 	return resourceVpcAddressGroupRead(ctx, d, meta)
 }
 
-func resourceVpcAddressGroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVpcAddressGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
 	client, err := c.HcVpcV3Client(region)
@@ -178,7 +178,7 @@ func resourceVpcAddressGroupUpdate(ctx context.Context, d *schema.ResourceData, 
 	return resourceVpcAddressGroupRead(ctx, d, meta)
 }
 
-func resourceVpcAddressGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVpcAddressGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
 	client, err := c.HcVpcV3Client(region)
