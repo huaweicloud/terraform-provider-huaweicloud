@@ -64,7 +64,7 @@ func TestAccApigThrottlingPolicyV2_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccApigSubResNameImportStateFunc(resourceName),
+				ImportStateIdFunc: testAccThrottlingPolicyImportStateFunc(),
 			},
 		},
 	})
@@ -132,7 +132,7 @@ func TestAccApigThrottlingPolicyV2_spec(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccApigSubResNameImportStateFunc(resourceName),
+				ImportStateIdFunc: testAccThrottlingPolicyImportStateFunc(),
 			},
 		},
 	})
@@ -177,6 +177,21 @@ func testAccCheckApigThrottlingPolicyExists(n string, app *throttles.ThrottlingP
 		}
 		*app = *found
 		return nil
+	}
+}
+
+func testAccThrottlingPolicyImportStateFunc() resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rName := "huaweicloud_apig_throttling_policy.test"
+		rs, ok := s.RootModule().Resources[rName]
+		if !ok {
+			return "", fmt.Errorf("Resource (%s) not found: %s", rName, rs)
+		}
+		if rs.Primary.Attributes["instance_id"] == "" || rs.Primary.Attributes["name"] == "" {
+			return "", fmt.Errorf("resource not found: %s/%s", rs.Primary.Attributes["instance_id"],
+				rs.Primary.Attributes["name"])
+		}
+		return fmt.Sprintf("%s/%s", rs.Primary.Attributes["instance_id"], rs.Primary.Attributes["name"]), nil
 	}
 }
 

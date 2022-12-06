@@ -1,134 +1,106 @@
 package apig
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strings"
 
-	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/channels"
-	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
-
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/channels"
+	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+)
+
+type (
+	MemberType    string
+	AlgorithmType string
+	ProtocolType  string
+	ChannelStatus int
 )
 
 const (
-	PROTOCOL_TCP   = "TCP"
-	PROTOCOL_HTTP  = "HTTP"
-	PROTOCOL_HTTPS = "HTTPS"
+	MemberTypeEcs MemberType = "ECS"
+	MemberTypeEip MemberType = "EIP"
+
+	AlgorithmTypeWrr AlgorithmType = "WRR"
+	AlgorithmTypeWlc AlgorithmType = "WLC"
+	AlgorithmTypeSh  AlgorithmType = "SH"
+	AlgorithmTypeUri AlgorithmType = "URI hashing"
+
+	ProtocolTypeTcp   ProtocolType = "TCP"
+	ProtocolTypeHttp  ProtocolType = "HTTP"
+	ProtocolTypeHttps ProtocolType = "HTTPS"
+
+	ChannelStatusNormal   ChannelStatus = 1
+	ChannelStatusAbnormal ChannelStatus = 2
 )
 
 var (
-	balanceStrategy = map[string]int{
-		"WRR":         1,
-		"WLC":         2,
-		"SH":          3,
-		"URI hashing": 4,
+	memberType = map[MemberType]string{
+		MemberTypeEcs: "ecs",
+		MemberTypeEip: "ip",
 	}
+
+	balanceStrategy = map[AlgorithmType]int{
+		AlgorithmTypeWrr: 1,
+		AlgorithmTypeWlc: 2,
+		AlgorithmTypeSh:  3,
+		AlgorithmTypeUri: 4,
+	}
+
 	channelStatus = map[int]string{
 		1: "Normal",
 		2: "Abnormal",
-	}
-	memberType = map[string]string{
-		"ECS": "ecs",
-		"EIP": "ip",
 	}
 )
 
 func ResourceApigVpcChannelV2() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceApigVpcChannelV2Create,
-		Read:   resourceApigVpcChannelV2Read,
-		Update: resourceApigVpcChannelV2Update,
-		Delete: resourceApigVpcChannelV2Delete,
+		CreateContext: resourceVpcChannelCreate,
+		ReadContext:   resourceVpcChannelRead,
+		UpdateContext: resourceVpcChannelUpdate,
+		DeleteContext: resourceVpcChannelDelete,
+
 		Importer: &schema.ResourceImporter{
-			State: resourceApigVpcChannelResourceImportState,
+			StateContext: resourceVpcChannelResourceImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "The region where the dedicated instance is located.",
 			},
 			"instance_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "The ID of the dedicated instance to which the VPC channel belongs.",
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.StringMatch(
-					regexp.MustCompile("^([\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5A-Za-z-_0-9]{2,63})$"),
-					"The name consists of 3 to 64 characters and only letters, digits, underscore (_), hyphens (-) "+
-						"and chinese characters are allowed. The name must start with a letter or chinese character."),
+				ValidateFunc: validation.All(
+					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa5A-Za-z]([\u4e00-\u9fa5\\w-.]*)?$"),
+						"Only chinese letters, english letters, digits hyphens (-), underscores (_) and dots (.) are "+
+							"allowed, and must start with a chinese or english letter."),
+					validation.StringLenBetween(3, 64),
+				),
+				Description: "The name of the VPC channel.",
 			},
 			"port": {
 				Type:         schema.TypeInt,
 				Required:     true,
 				ValidateFunc: validation.IntBetween(1, 65535),
-			},
-			"member_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "ECS",
-				ValidateFunc: validation.StringInSlice([]string{
-					"ECS", "EIP",
-				}, false),
-			},
-			"algorithm": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "WRR", // The default value on golangsdk is WLC, but on the console it is WRR.
-				ValidateFunc: validation.StringInSlice([]string{
-					"WRR", "WLC", "SH", "URI hashing",
-				}, false),
-			},
-			"protocol": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  PROTOCOL_TCP,
-				ValidateFunc: validation.StringInSlice([]string{
-					PROTOCOL_TCP, PROTOCOL_HTTP, PROTOCOL_HTTPS,
-				}, false),
-			},
-			"path": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"healthy_threshold": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      2,
-				ValidateFunc: validation.IntBetween(2, 10),
-			},
-			"unhealthy_threshold": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      5,
-				ValidateFunc: validation.IntBetween(2, 10),
-			},
-			"timeout": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      5,
-				ValidateFunc: validation.IntBetween(2, 30),
-			},
-			"interval": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      10,
-				ValidateFunc: validation.IntBetween(5, 300),
-			},
-			"http_code": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description:  "The host port of the VPC channel.",
 			},
 			"members": {
 				Type:     schema.TypeSet,
@@ -137,37 +109,118 @@ func ResourceApigVpcChannelV2() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"ip_address": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The IP address of the backend server.",
 						},
 						"id": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The ID of the backend server.",
 						},
 						"weight": {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							Default:      1,
 							ValidateFunc: validation.IntBetween(1, 100),
+							Description:  "The weight of current backend server.",
 						},
 					},
 				},
+				Description: "The configuration of the backend servers that bind the VPC channel.",
 			},
-			"create_time": {
+			"member_type": {
 				Type:     schema.TypeString,
-				Computed: true,
+				Optional: true,
+				Default:  string(MemberTypeEcs),
+				ValidateFunc: validation.StringInSlice([]string{
+					string(MemberTypeEcs),
+					string(MemberTypeEip),
+				}, false),
+				Description: "The member type of the VPC channel.",
+			},
+			"algorithm": {
+				Type:     schema.TypeString,
+				Optional: true,
+				// The default value on golangsdk is WLC, but on the console it is WRR.
+				Default: string(AlgorithmTypeWrr),
+				ValidateFunc: validation.StringInSlice([]string{
+					string(AlgorithmTypeWrr),
+					string(AlgorithmTypeWlc),
+					string(AlgorithmTypeSh),
+					string(AlgorithmTypeUri),
+				}, false),
+				Description: "The distribution algorithm.",
+			},
+			"protocol": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  string(ProtocolTypeTcp),
+				ValidateFunc: validation.StringInSlice([]string{
+					string(ProtocolTypeTcp),
+					string(ProtocolTypeHttp),
+					string(ProtocolTypeHttps),
+				}, false),
+				Description: "The rotocol for performing health checks on backend servers in the VPC channel.",
+			},
+			"path": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The destination path for health checks.",
+			},
+			"healthy_threshold": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      2,
+				ValidateFunc: validation.IntBetween(2, 10),
+				Description: "The the healthy threshold, which refers to the number of consecutive successful " +
+					"checks required for a backend server to be considered healthy.",
+			},
+			"unhealthy_threshold": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      5,
+				ValidateFunc: validation.IntBetween(2, 10),
+				Description: "The unhealthy threshold, which refers to the number of consecutive failed checks " +
+					"required for a backend server to be considered unhealthy.",
+			},
+			"timeout": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      5,
+				ValidateFunc: validation.IntBetween(2, 30),
+				Description:  "The timeout for determining whether a health check fails, in second.",
+			},
+			"interval": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      10,
+				ValidateFunc: validation.IntBetween(5, 300),
+				Description:  "The interval between consecutive checks, in second.",
+			},
+			"http_code": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The response codes for determining a successful HTTP response.",
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The time when the VPC channel was created.",
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The current status of the VPC channel.`,
 			},
 		},
 	}
 }
 
-func buildApigVpcChannelHealthConfig(d *schema.ResourceData) (channels.VpcHealthConfig, error) {
-	conf := channels.VpcHealthConfig{
-		Protocol:          d.Get("protocol").(string),
+func buildVpcChannelHealthConfig(d *schema.ResourceData) (channels.VpcHealthConfig, error) {
+	protocol := d.Get("protocol").(string)
+	result := channels.VpcHealthConfig{
+		Protocol:          protocol,
 		Path:              d.Get("path").(string),
 		Port:              d.Get("port").(int),
 		ThresholdNormal:   d.Get("healthy_threshold").(int),
@@ -175,27 +228,30 @@ func buildApigVpcChannelHealthConfig(d *schema.ResourceData) (channels.VpcHealth
 		Timeout:           d.Get("timeout").(int),
 		TimeInterval:      d.Get("interval").(int),
 	}
-	// The parameter of http codes is required if protocol is set to http or https.
-	if val := d.Get("protocol"); val.(string) == PROTOCOL_HTTP || val.(string) == PROTOCOL_HTTPS {
-		if codes, ok := d.GetOk("http_code"); ok {
-			conf.HttpCodes = codes.(string)
-		} else {
-			return conf, fmtp.Errorf("The http code cannot be empty if protocol is http or https")
+	// The parameter of HTTP codes is required if protocol is set to 'HTTP' or 'HTTPS'.
+	if ProtocolType(protocol) == ProtocolTypeHttp || ProtocolType(protocol) == ProtocolTypeHttps {
+		codes, ok := d.GetOk("http_code")
+		if !ok {
+			return result, fmt.Errorf("the HTTP code cannot be empty if the protocol is 'HTTP' or 'HTTPS'")
 		}
+		result.HttpCodes = codes.(string)
 	}
-	return conf, nil
+	return result, nil
 }
 
-func buildApigVpcChannelMembers(d *schema.ResourceData, config *config.Config) ([]channels.MemberInfo, error) {
-	members := d.Get("members").(*schema.Set)
-	mType := d.Get("member_type").(string)
-	result := make([]channels.MemberInfo, members.Len())
+func buildVpcChannelMembers(d *schema.ResourceData, config *config.Config) ([]channels.MemberInfo, error) {
+	var (
+		members = d.Get("members").(*schema.Set)
+		mType   = MemberType(d.Get("member_type").(string))
+		result  = make([]channels.MemberInfo, members.Len())
+	)
+
 	// Since the API requires that the name must be supported when the member type is 'ecs'.
 	// It is necessary to query the ecs instance information from server to obtain the instance name.
 	// We will cancel this unreasonable parameter configuration in the future.
 	ecsClient, err := config.ComputeV1Client(config.GetRegion(d))
 	if err != nil {
-		return result, fmtp.Errorf("Error creating HuaweiCloud ECS v1 client: %s", err)
+		return result, fmt.Errorf("error creating ECS v1 client: %s", err)
 	}
 	for i, v := range members.List() {
 		member := v.(map[string]interface{})
@@ -203,91 +259,92 @@ func buildApigVpcChannelMembers(d *schema.ResourceData, config *config.Config) (
 			Weight: member["weight"].(int),
 		}
 		switch mType {
-		case "ECS":
-			{
-				id, ok := member["id"]
-				if !ok || id == "" {
-					return result, fmtp.Errorf("The instance ID is missing, please check your input of members")
-				}
-				info.EcsId = id.(string)
-				server, err := cloudservers.Get(ecsClient, id.(string)).Extract()
-				if err != nil {
-					return result, fmtp.Errorf("Error getting ECS instance from server by id: %s", err)
-				}
-				info.EcsName = server.Name
+		case MemberTypeEcs:
+			id, ok := member["id"]
+			if !ok || id == "" {
+				return result, fmt.Errorf("the instance ID is missing, please check your input of members")
 			}
-		case "EIP":
-			{
-				addr, ok := member["ip_address"]
-				if !ok || addr == "" {
-					return result, fmtp.Errorf("The ip address of EIP is missing, please check your input of members")
-				}
-				info.Host = addr.(string)
+			info.EcsId = id.(string)
+			server, err := cloudservers.Get(ecsClient, id.(string)).Extract()
+			if err != nil {
+				return result, fmt.Errorf("error getting ECS instance from server by ID: %s", err)
 			}
+			info.EcsName = server.Name
+		case MemberTypeEip:
+			addr, ok := member["ip_address"]
+			if !ok || addr == "" {
+				return result, fmt.Errorf("the IP address of EIP is missing, please check your input of members")
+			}
+			info.Host = addr.(string)
 		default:
-			return result, fmtp.Errorf("The member type is wrong, please check your input of members")
+			return result, fmt.Errorf("the member type is wrong, please check your input of members")
 		}
 		result[i] = info
 	}
 	return result, nil
 }
 
-func buildApigVpcChannelParameters(d *schema.ResourceData, config *config.Config) (channels.ChannelOpts, error) {
-	opt := channels.ChannelOpts{
-		Name: d.Get("name").(string),
-		Port: d.Get("port").(int),
-		Type: 2, // The type is required and type 1 (private network ELB channel) is to be deprecated.
-	}
-	// Member type, use 'ECS' and 'EIP' to save the stored value for better understanding.
-	mType := d.Get("member_type").(string)
+func buildVpcChannelParameters(d *schema.ResourceData, config *config.Config) (channels.ChannelOpts, error) {
+	var (
+		mType         = MemberType(d.Get("member_type").(string))
+		algorithmType = AlgorithmType(d.Get("algorithm").(string))
+
+		opt = channels.ChannelOpts{
+			Name: d.Get("name").(string),
+			Port: d.Get("port").(int),
+			Type: 2, // The type is required and type 1 (private network ELB channel) is to be deprecated.
+		}
+	)
+
 	if val, ok := memberType[mType]; ok {
 		opt.MemberType = val
 	} else {
-		return opt, fmtp.Errorf("Wrong member type: %s", mType)
+		return opt, fmt.Errorf("wrong member type: %v", mType)
 	}
 	// Backend servers
-	members, err := buildApigVpcChannelMembers(d, config)
+	members, err := buildVpcChannelMembers(d, config)
 	if err != nil {
 		return opt, err
 	}
 	opt.Members = members
 	// Healthy check config
-	conf, err := buildApigVpcChannelHealthConfig(d)
+	conf, err := buildVpcChannelHealthConfig(d)
 	if err != nil {
 		return opt, err
 	}
 	opt.VpcHealthConfig = conf
 	// algorithm
-	v, ok := balanceStrategy[d.Get("algorithm").(string)]
+	v, ok := balanceStrategy[algorithmType]
 	if ok {
 		opt.BalanceStrategy = v
 	} else {
-		return opt, fmtp.Errorf("The value of algorithm is invalid")
+		return opt, fmt.Errorf("the value of algorithm parameter is invalid")
 	}
 	return opt, nil
 }
 
-func resourceApigVpcChannelV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	opts, err := buildApigVpcChannelParameters(d, config)
+func resourceVpcChannelCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Unable to get the create option of the vpc channel: %s", err)
+		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	opts, err := buildVpcChannelParameters(d, cfg)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return diag.Errorf("unable to get the create option of the VPC channel: %s", err)
 	}
+
 	instanceId := d.Get("instance_id").(string)
 	v, err := channels.Create(client, instanceId, opts).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "Error creating HuaweiCloud vpc channel")
+		return diag.Errorf("error creating VPC channel: %s", err)
 	}
 	d.SetId(v.Id)
-	return resourceApigVpcChannelV2Read(d, meta)
+	return resourceVpcChannelRead(ctx, d, meta)
 }
 
-func setApigVpcChannelMembers(d *schema.ResourceData, mType string, members []channels.MemberInfo) error {
+func flattenVpcChannelMembers(mType string, members []channels.MemberInfo) ([]map[string]interface{}, error) {
 	result := make([]map[string]interface{}, len(members))
 	for i, v := range members {
 		memberMap := map[string]interface{}{
@@ -299,38 +356,45 @@ func setApigVpcChannelMembers(d *schema.ResourceData, mType string, members []ch
 		case "ip":
 			memberMap["ip_address"] = v.Host
 		default:
-			return fmtp.Errorf("Wrong members (%+v) with the type (%s)", v, mType)
+			return nil, fmt.Errorf("wrong members (%+v) with the type (%v)", v, mType)
 		}
 		result[i] = memberMap
 	}
-	return d.Set("members", result)
+	return result, nil
 }
 
-func setApigVpcChannelMemberType(d *schema.ResourceData, mType string) error {
+func extractVpcChannelMemberType(mType string) *MemberType {
 	for k, v := range memberType {
 		if v == mType {
-			return d.Set("member_type", k)
+			return &k
 		}
 	}
-	return fmtp.Errorf("The member type (%s) is not supported", mType)
+	return nil
 }
 
-func setApigVpcChannelAlgorithm(d *schema.ResourceData, algorithm int) error {
+func extractVpcChannelAlgorithm(algorithm int) *AlgorithmType {
 	for k, v := range balanceStrategy {
 		if v == algorithm {
-			return d.Set("algorithm", k)
+			return &k
 		}
 	}
-	return fmtp.Errorf("The algorithm (%d) is not supported", algorithm)
+	return nil
 }
 
-func setApigVpcChannelParameters(d *schema.ResourceData, config *config.Config, resp channels.VpcChannel) error {
-	status, ok := channelStatus[resp.Status]
-	if !ok {
-		return fmtp.Errorf("The response status is invalid")
+func resourceVpcChannelRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
+	instanceId := d.Get("instance_id").(string)
+	resp, err := channels.Get(client, instanceId, d.Id()).Extract()
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "VPC channel")
+	}
+
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("name", resp.Name),
 		d.Set("port", resp.Port),
 		d.Set("protocol", strings.ToUpper(resp.VpcHealthConfig.Protocol)),
@@ -340,77 +404,83 @@ func setApigVpcChannelParameters(d *schema.ResourceData, config *config.Config, 
 		d.Set("timeout", resp.VpcHealthConfig.Timeout),
 		d.Set("interval", resp.VpcHealthConfig.TimeInterval),
 		d.Set("http_code", resp.VpcHealthConfig.HttpCodes),
-		d.Set("create_time", resp.CreateTime),
-		d.Set("status", status),
-		setApigVpcChannelMemberType(d, resp.MemberType),
-		setApigVpcChannelAlgorithm(d, resp.BalanceStrategy),
-		setApigVpcChannelMembers(d, resp.MemberType, resp.Members),
+		d.Set("created_at", resp.CreateTime),
 	)
+
+	status, ok := channelStatus[resp.Status]
+	if !ok {
+		return diag.Errorf("the response status is invalid")
+	} else {
+		mErr = multierror.Append(mErr, d.Set("status", status))
+	}
+	// Extract the member type.
+	memberType := extractVpcChannelMemberType(resp.MemberType)
+	if memberType != nil {
+		mErr = multierror.Append(mErr, d.Set("member_type", string(*memberType)))
+	}
+	// Extract the algorithm.
+	algorithm := extractVpcChannelAlgorithm(resp.BalanceStrategy)
+	if algorithm != nil {
+		mErr = multierror.Append(mErr, d.Set("algorithm", string(*algorithm)))
+	}
+
+	if members, err := flattenVpcChannelMembers(resp.MemberType, resp.Members); err != nil {
+		mErr = multierror.Append(mErr, err)
+	} else {
+		mErr = multierror.Append(mErr, d.Set("members", members))
+	}
+
 	if mErr.ErrorOrNil() != nil {
-		return mErr
+		return diag.FromErr(mErr)
 	}
 	return nil
 }
 
-func resourceApigVpcChannelV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+func resourceVpcChannelUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG client: %s", err)
-	}
-	instanceId := d.Get("instance_id").(string)
-	resp, err := channels.Get(client, instanceId, d.Id()).Extract()
-	if err != nil {
-		return common.CheckDeleted(d, err, fmt.Sprintf("error getting vpc channel (%s) form server", d.Id()))
-	}
-	return setApigVpcChannelParameters(d, config, *resp)
-}
-
-func resourceApigVpcChannelV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	opt, err := buildApigVpcChannelParameters(d, config)
+	opt, err := buildVpcChannelParameters(d, cfg)
 	if err != nil {
-		return fmtp.Errorf("Unable to get the update option of the vpc channel: %s", err)
+		return diag.Errorf("unable to get the update option of the VPC channel: %s", err)
 	}
 	instanceId := d.Get("instance_id").(string)
 	_, err = channels.Update(client, instanceId, d.Id(), opt).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error updating vpc channel: %s", err)
+		return diag.Errorf("error updating VPC channel: %s", err)
 	}
-	return resourceApigVpcChannelV2Read(d, meta)
+	return resourceVpcChannelRead(ctx, d, meta)
 }
 
-func resourceApigVpcChannelV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+func resourceVpcChannelDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 	instanceId := d.Get("instance_id").(string)
 	if err = channels.Delete(client, instanceId, d.Id()).ExtractErr(); err != nil {
-		return fmtp.Errorf("Unable to delete the vpc channel (%s): %s", d.Id(), err)
+		return diag.Errorf("unable to delete the VPC channel (%s): %s", d.Id(), err)
 	}
-	d.SetId("")
+
 	return nil
 }
 
-// The ID cannot find on console, so we need to import by channel name.
-func resourceApigVpcChannelResourceImportState(d *schema.ResourceData,
+// The ID cannot find on console, so we need to import by VPC channel name.
+func resourceVpcChannelResourceImportState(_ context.Context, d *schema.ResourceData,
 	meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		return nil, fmtp.Errorf("Invalid format specified for import id, must be <instance_id>/<channel name>")
+		return nil, fmt.Errorf("invalid format specified for import ID, must be <instance_id>/<name>")
 	}
 	instanceId := parts[0]
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return []*schema.ResourceData{d}, fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return []*schema.ResourceData{d}, fmt.Errorf("error creating APIG v2 client: %s", err)
 	}
 	name := parts[1]
 	opt := channels.ListOpts{
@@ -418,13 +488,13 @@ func resourceApigVpcChannelResourceImportState(d *schema.ResourceData,
 	}
 	pages, err := channels.List(client, instanceId, opt).AllPages()
 	if err != nil {
-		return []*schema.ResourceData{d}, fmtp.Errorf("Error retrieving channels: %s", err)
+		return []*schema.ResourceData{d}, fmt.Errorf("error retrieving VPC channels: %s", err)
 	}
 	resp, err := channels.ExtractChannels(pages)
 	if len(resp) < 1 {
-		return []*schema.ResourceData{d}, fmtp.Errorf("Unable to find the channel (%s) form server: %s", name, err)
+		return []*schema.ResourceData{d}, fmt.Errorf("unable to find the VPC channel (%s) form server: %s", name, err)
 	}
 	d.SetId(resp[0].Id)
-	d.Set("instance_id", instanceId)
-	return []*schema.ResourceData{d}, nil
+
+	return []*schema.ResourceData{d}, d.Set("instance_id", instanceId)
 }
