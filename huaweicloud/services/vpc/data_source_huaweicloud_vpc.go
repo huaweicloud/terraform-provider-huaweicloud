@@ -81,7 +81,7 @@ func dataSourceVpcV1Read(_ context.Context, d *schema.ResourceData, meta interfa
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating Huaweicloud VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	listOpts := vpcs.ListOpts{
@@ -94,16 +94,16 @@ func dataSourceVpcV1Read(_ context.Context, d *schema.ResourceData, meta interfa
 
 	refinedVpcs, err := vpcs.List(vpcClient, listOpts)
 	if err != nil {
-		return diag.Errorf("Unable to retrieve vpcs: %s", err)
+		return diag.Errorf("unable to retrieve vpcs: %s", err)
 	}
 
 	if len(refinedVpcs) < 1 {
-		return diag.Errorf("Your query returned no results. " +
+		return diag.Errorf("your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(refinedVpcs) > 1 {
-		return diag.Errorf("Your query returned more than one result." +
+		return diag.Errorf("your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
@@ -134,7 +134,7 @@ func dataSourceVpcV1Read(_ context.Context, d *schema.ResourceData, meta interfa
 		if resourceTags, err := tags.Get(vpcV2Client, "vpcs", d.Id()).Extract(); err == nil {
 			tagmap := utils.TagsToMap(resourceTags.Tags)
 			if err := d.Set("tags", tagmap); err != nil {
-				return diag.Errorf("Error saving tags to state for VPC (%s): %s", d.Id(), err)
+				return diag.Errorf("error saving tags to state for VPC (%s): %s", d.Id(), err)
 			}
 		} else {
 			log.Printf("[WARN] Error fetching tags of VPC (%s): %s", d.Id(), err)

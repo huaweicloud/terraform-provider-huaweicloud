@@ -70,7 +70,7 @@ func resourceVPCPeeringV2Create(ctx context.Context, d *schema.ResourceData, met
 	peeringClient, err := config.NetworkingV2Client(config.GetRegion(d))
 
 	if err != nil {
-		return diag.Errorf("Error creating Huaweicloud Vpc Peering Connection Client: %s", err)
+		return diag.Errorf("error creating Vpc Peering Connection Client: %s", err)
 	}
 
 	requestvpcinfo := peerings.VpcInfo{
@@ -91,12 +91,12 @@ func resourceVPCPeeringV2Create(ctx context.Context, d *schema.ResourceData, met
 	n, err := peerings.Create(peeringClient, createOpts).Extract()
 
 	if err != nil {
-		return diag.Errorf("Error creating Huaweicloud Vpc Peering Connection: %s", err)
+		return diag.Errorf("error creating Vpc Peering Connection: %s", err)
 	}
 
 	log.Printf("[INFO] Vpc Peering Connection ID: %s", n.ID)
 
-	log.Printf("[INFO] Waiting for Huaweicloud Vpc Peering Connection(%s) to become available", n.ID)
+	log.Printf("[INFO] Waiting for Vpc Peering Connection(%s) to become available", n.ID)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"CREATING"},
@@ -109,7 +109,7 @@ func resourceVPCPeeringV2Create(ctx context.Context, d *schema.ResourceData, met
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		log.Printf("Error creating Huaweicloud Vpc Peering Connection: %s", err)
+		log.Printf("Error creating Vpc Peering Connection: %s", err)
 	}
 	d.SetId(n.ID)
 
@@ -121,7 +121,7 @@ func resourceVPCPeeringV2Read(_ context.Context, d *schema.ResourceData, meta in
 	config := meta.(*config.Config)
 	peeringClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating Huaweicloud   Vpc Peering Connection Client: %s", err)
+		return diag.Errorf("error creating   Vpc Peering Connection Client: %s", err)
 	}
 
 	n, err := peerings.Get(peeringClient, d.Id()).Extract()
@@ -131,7 +131,7 @@ func resourceVPCPeeringV2Read(_ context.Context, d *schema.ResourceData, meta in
 			return nil
 		}
 
-		return diag.Errorf("Error retrieving Huaweicloud Vpc Peering Connection: %s", err)
+		return diag.Errorf("error retrieving Vpc Peering Connection: %s", err)
 	}
 
 	d.Set("name", n.Name)
@@ -148,7 +148,7 @@ func resourceVPCPeeringV2Update(ctx context.Context, d *schema.ResourceData, met
 	config := meta.(*config.Config)
 	peeringClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating Huaweicloud  Vpc Peering Connection Client: %s", err)
+		return diag.Errorf("error creating  Vpc Peering Connection Client: %s", err)
 	}
 
 	var updateOpts peerings.UpdateOpts
@@ -157,7 +157,7 @@ func resourceVPCPeeringV2Update(ctx context.Context, d *schema.ResourceData, met
 
 	_, err = peerings.Update(peeringClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return diag.Errorf("Error updating Huaweicloud Vpc Peering Connection: %s", err)
+		return diag.Errorf("error updating Vpc Peering Connection: %s", err)
 	}
 
 	return resourceVPCPeeringV2Read(ctx, d, meta)
@@ -168,7 +168,7 @@ func resourceVPCPeeringV2Delete(ctx context.Context, d *schema.ResourceData, met
 	config := meta.(*config.Config)
 	peeringClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating Huaweicloud  Vpc Peering Connection Client: %s", err)
+		return diag.Errorf("error creating  Vpc Peering Connection Client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -182,7 +182,7 @@ func resourceVPCPeeringV2Delete(ctx context.Context, d *schema.ResourceData, met
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("Error deleting Huaweicloud Vpc Peering Connection: %s", err)
+		return diag.Errorf("error deleting Vpc Peering Connection: %s", err)
 	}
 
 	d.SetId("")
@@ -211,7 +211,7 @@ func waitForVpcPeeringDelete(peeringClient *golangsdk.ServiceClient, peeringId s
 
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[INFO] Successfully deleted Huaweicloud vpc peering connection %s", peeringId)
+				log.Printf("[INFO] Successfully deleted vpc peering connection %s", peeringId)
 				return r, "DELETED", nil
 			}
 			return r, "ACTIVE", err
@@ -221,7 +221,7 @@ func waitForVpcPeeringDelete(peeringClient *golangsdk.ServiceClient, peeringId s
 
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[INFO] Successfully deleted Huaweicloud vpc peering connection %s", peeringId)
+				log.Printf("[INFO] Successfully deleted vpc peering connection %s", peeringId)
 				return r, "DELETED", nil
 			}
 			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {

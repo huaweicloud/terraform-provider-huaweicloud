@@ -36,7 +36,7 @@ func dataSourceVpcSubnetIdsV1Read(ctx context.Context, d *schema.ResourceData, m
 	config := meta.(*config.Config)
 	subnetClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating Huaweicloud Vpc client: %s", err)
+		return diag.Errorf("error creating Vpc client: %s", err)
 	}
 
 	listOpts := subnets.ListOpts{
@@ -45,7 +45,7 @@ func dataSourceVpcSubnetIdsV1Read(ctx context.Context, d *schema.ResourceData, m
 
 	refinedSubnets, err := subnets.List(subnetClient, listOpts)
 	if err != nil {
-		return diag.Errorf("Unable to retrieve subnets: %s", err)
+		return diag.Errorf("unable to retrieve subnets: %s", err)
 	}
 
 	if len(refinedSubnets) == 0 {

@@ -32,17 +32,17 @@ func dataSourceVpcIdsV1Read(ctx context.Context, d *schema.ResourceData, meta in
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating Huaweicloud Vpc client: %s", err)
+		return diag.Errorf("error creating Vpc client: %s", err)
 	}
 
 	listOpts := vpcs.ListOpts{}
 	refinedVpcs, err := vpcs.List(vpcClient, listOpts)
 	if err != nil {
-		return diag.Errorf("Unable to retrieve vpcs: %s", err)
+		return diag.Errorf("unable to retrieve vpcs: %s", err)
 	}
 
 	if len(refinedVpcs) < 1 {
-		return diag.Errorf("Your query returned no results. " +
+		return diag.Errorf("your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 

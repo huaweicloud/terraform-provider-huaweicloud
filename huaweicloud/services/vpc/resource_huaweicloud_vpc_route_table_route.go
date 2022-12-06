@@ -84,7 +84,7 @@ func resourceVpcRTBRouteCreate(ctx context.Context, d *schema.ResourceData, meta
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	var routeTableID string
@@ -113,10 +113,10 @@ func resourceVpcRTBRouteCreate(ctx context.Context, d *schema.ResourceData, meta
 		},
 	}
 
-	log.Printf("[DEBUG] add route in VPC route table[%s]: %#v", routeTableID, updateOpts)
+	log.Printf("[DEBUG] Add route in VPC route table[%s]: %#v", routeTableID, updateOpts)
 	_, err = routetables.Update(vpcClient, routeTableID, updateOpts).Extract()
 	if err != nil {
-		return diag.Errorf("Error creating VPC route: %s", err)
+		return diag.Errorf("error creating VPC route: %s", err)
 	}
 
 	routeID := fmt.Sprintf("%s/%s", routeTableID, destination)
@@ -130,7 +130,7 @@ func resourceVpcRTBRouteRead(_ context.Context, d *schema.ResourceData, meta int
 	region := config.GetRegion(d)
 	vpcClient, err := config.NetworkingV1Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	var diags diag.Diagnostics
@@ -184,7 +184,7 @@ func resourceVpcRTBRouteRead(_ context.Context, d *schema.ResourceData, meta int
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		diags = append(diags, diag.Errorf("Error saving VPC route: %s", err)[0])
+		diags = append(diags, diag.Errorf("error saving VPC route: %s", err)[0])
 	}
 
 	return diags
@@ -194,7 +194,7 @@ func resourceVpcRTBRouteUpdate(ctx context.Context, d *schema.ResourceData, meta
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	routeTableID, _ := parseResourceID(d.Id())
@@ -214,7 +214,7 @@ func resourceVpcRTBRouteUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 	log.Printf("[DEBUG] update route in vpc route table[%s]: %#v", routeTableID, updateOpts)
 	if _, err := routetables.Update(vpcClient, routeTableID, updateOpts).Extract(); err != nil {
-		return diag.Errorf("Error updating VPC route: %s", err)
+		return diag.Errorf("error updating VPC route: %s", err)
 	}
 
 	return resourceVpcRTBRouteRead(ctx, d, meta)
@@ -224,7 +224,7 @@ func resourceVpcRTBRouteDelete(_ context.Context, d *schema.ResourceData, meta i
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	routeTableID, _ := parseResourceID(d.Id())
@@ -242,7 +242,7 @@ func resourceVpcRTBRouteDelete(_ context.Context, d *schema.ResourceData, meta i
 
 	log.Printf("[DEBUG] delete route in vpc route table[%s]: %#v", routeTableID, updateOpts)
 	if _, err := routetables.Update(vpcClient, routeTableID, updateOpts).Extract(); err != nil {
-		return diag.Errorf("Error deleting VPC route: %s", err)
+		return diag.Errorf("error deleting VPC route: %s", err)
 	}
 
 	d.SetId("")
@@ -291,7 +291,7 @@ func resourceVpcRTBRouteImportState(_ context.Context, d *schema.ResourceData,
 
 	routeID, _ := parseResourceID(d.Id())
 	if routeID == "" {
-		return nil, fmt.Errorf("Invalid format specified for import id, must be <route_table_id>/<destination>")
+		return nil, fmt.Errorf("invalid format specified for import id, must be <route_table_id>/<destination>")
 	}
 
 	return []*schema.ResourceData{d}, nil
@@ -302,7 +302,7 @@ func convertRouteIDtoNewFormat(d *schema.ResourceData, conf *config.Config, oldI
 		diag.Diagnostic{
 			Severity: diag.Warning,
 			Summary:  "Deprecated ID format",
-			Detail:   fmt.Sprintf("The resource ID %s is in the old format, try to upgrade it to the new format", oldID),
+			Detail:   fmt.Sprintf("the resource ID %s is in the old format, try to upgrade it to the new format", oldID),
 		},
 	}
 
@@ -330,7 +330,7 @@ func convertRouteIDtoNewFormat(d *schema.ResourceData, conf *config.Config, oldI
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Warning,
-				Summary:  fmt.Sprintf("The resource %s does not exist", oldID),
+				Summary:  fmt.Sprintf("the resource %s does not exist", oldID),
 			})
 			d.SetId("")
 		} else {
@@ -368,7 +368,7 @@ func convertRouteIDtoNewFormat(d *schema.ResourceData, conf *config.Config, oldI
 	newRouteID := fmt.Sprintf("%s/%s", routeTableID, destination)
 	diags = append(diags, diag.Diagnostic{
 		Severity: diag.Warning,
-		Summary:  fmt.Sprintf("The resource ID is upgraded to %s", newRouteID),
+		Summary:  fmt.Sprintf("the resource ID is upgraded to %s", newRouteID),
 	})
 	return newRouteID, diags
 }

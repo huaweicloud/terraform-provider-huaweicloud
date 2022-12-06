@@ -95,7 +95,7 @@ func resourceVpcRouteTableCreate(ctx context.Context, d *schema.ResourceData, me
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	createOpts := routetables.CreateOpts{
@@ -112,7 +112,7 @@ func resourceVpcRouteTableCreate(ctx context.Context, d *schema.ResourceData, me
 	log.Printf("[DEBUG] VPC route table create options: %#v", createOpts)
 	routeTable, err := routetables.Create(vpcClient, createOpts).Extract()
 	if err != nil {
-		return diag.Errorf("Error creating VPC route table: %s", err)
+		return diag.Errorf("error creating VPC route table: %s", err)
 	}
 
 	d.SetId(routeTable.ID)
@@ -121,7 +121,7 @@ func resourceVpcRouteTableCreate(ctx context.Context, d *schema.ResourceData, me
 		subnets := utils.ExpandToStringList(v.(*schema.Set).List())
 		err = associateRouteTableSubnets(vpcClient, d.Id(), subnets)
 		if err != nil {
-			return diag.Errorf("Error associating subnets with VPC route table %s: %s", d.Id(), err)
+			return diag.Errorf("error associating subnets with VPC route table %s: %s", d.Id(), err)
 		}
 	}
 
@@ -135,7 +135,7 @@ func resourceVpcRouteTableCreate(ctx context.Context, d *schema.ResourceData, me
 		log.Printf("[DEBUG] add routes to VPC route table %s: %#v", d.Id(), updateOpts)
 		_, err = routetables.Update(vpcClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return diag.Errorf("Error creating VPC route: %s", err)
+			return diag.Errorf("error creating VPC route: %s", err)
 		}
 	}
 
@@ -147,7 +147,7 @@ func resourceVpcRouteTableRead(_ context.Context, d *schema.ResourceData, meta i
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	routeTable, err := routetables.Get(vpcClient, d.Id()).Extract()
@@ -165,7 +165,7 @@ func resourceVpcRouteTableRead(_ context.Context, d *schema.ResourceData, meta i
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("Error saving VPC route table: %s", err)
+		return diag.Errorf("error saving VPC route table: %s", err)
 	}
 
 	return nil
@@ -175,7 +175,7 @@ func resourceVpcRouteTableUpdate(ctx context.Context, d *schema.ResourceData, me
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	var changed bool
@@ -228,7 +228,7 @@ func resourceVpcRouteTableUpdate(ctx context.Context, d *schema.ResourceData, me
 	if changed {
 		log.Printf("[DEBUG] VPC route table update options: %#v", updateOpts)
 		if _, err := routetables.Update(vpcClient, d.Id(), updateOpts).Extract(); err != nil {
-			return diag.Errorf("Error updating VPC route table: %s", err)
+			return diag.Errorf("error updating VPC route table: %s", err)
 		}
 	}
 
@@ -241,7 +241,7 @@ func resourceVpcRouteTableUpdate(ctx context.Context, d *schema.ResourceData, me
 		if len(disassociateSubnets) > 0 {
 			err = disassociateRouteTableSubnets(vpcClient, d.Id(), disassociateSubnets)
 			if err != nil {
-				return diag.Errorf("Error disassociating subnets with VPC route table %s: %s", d.Id(), err)
+				return diag.Errorf("error disassociating subnets with VPC route table %s: %s", d.Id(), err)
 			}
 		}
 
@@ -249,7 +249,7 @@ func resourceVpcRouteTableUpdate(ctx context.Context, d *schema.ResourceData, me
 		if len(associateSubnets) > 0 {
 			err = associateRouteTableSubnets(vpcClient, d.Id(), associateSubnets)
 			if err != nil {
-				return diag.Errorf("Error associating subnets with VPC route table %s: %s", d.Id(), err)
+				return diag.Errorf("error associating subnets with VPC route table %s: %s", d.Id(), err)
 			}
 		}
 	}
@@ -261,20 +261,20 @@ func resourceVpcRouteTableDelete(_ context.Context, d *schema.ResourceData, meta
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	if v, ok := d.GetOk("subnets"); ok {
 		subnets := utils.ExpandToStringList(v.(*schema.Set).List())
 		err = disassociateRouteTableSubnets(vpcClient, d.Id(), subnets)
 		if err != nil {
-			return diag.Errorf("Error disassociating subnets with VPC route table %s: %s", d.Id(), err)
+			return diag.Errorf("error disassociating subnets with VPC route table %s: %s", d.Id(), err)
 		}
 	}
 
 	err = routetables.Delete(vpcClient, d.Id()).ExtractErr()
 	if err != nil {
-		return diag.Errorf("Error deleting VPC route table: %s", err)
+		return diag.Errorf("error deleting VPC route table: %s", err)
 	}
 
 	d.SetId("")

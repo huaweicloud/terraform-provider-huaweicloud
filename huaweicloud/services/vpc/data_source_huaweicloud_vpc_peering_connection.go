@@ -60,7 +60,7 @@ func dataSourceVpcPeeringConnectionV2Read(ctx context.Context, d *schema.Resourc
 	config := meta.(*config.Config)
 	peeringClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating Huaweicloud Vpc client: %s", err)
+		return diag.Errorf("error creating Vpc client: %s", err)
 	}
 
 	listOpts := peerings.ListOpts{
@@ -74,16 +74,16 @@ func dataSourceVpcPeeringConnectionV2Read(ctx context.Context, d *schema.Resourc
 
 	refinedPeering, err := peerings.List(peeringClient, listOpts)
 	if err != nil {
-		return diag.Errorf("Unable to retrieve vpc peering connections: %s", err)
+		return diag.Errorf("unable to retrieve vpc peering connections: %s", err)
 	}
 
 	if len(refinedPeering) < 1 {
-		return diag.Errorf("Your query returned no results. " +
+		return diag.Errorf("your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(refinedPeering) > 1 {
-		return diag.Errorf("Multiple VPC peering connections matched." +
+		return diag.Errorf("multiple VPC peering connections matched." +
 			" Use additional constraints to reduce matches to a single VPC peering connection")
 	}
 

@@ -73,14 +73,14 @@ func resourceVPCPeeringAccepterV2Create(ctx context.Context, d *schema.ResourceD
 	peeringClient, err := config.NetworkingV2Client(config.GetRegion(d))
 
 	if err != nil {
-		return diag.Errorf("Error creating Huaweicloud Peering client: %s", err)
+		return diag.Errorf("error creating Peering client: %s", err)
 	}
 
 	id := d.Get("vpc_peering_connection_id").(string)
 
 	n, err := peerings.Get(peeringClient, id).Extract()
 	if err != nil {
-		return diag.Errorf("Error retrieving Huaweicloud Vpc Peering Connection: %s", err)
+		return diag.Errorf("error retrieving Vpc Peering Connection: %s", err)
 	}
 
 	if n.Status != "PENDING_ACCEPTANCE" {
@@ -95,7 +95,7 @@ func resourceVPCPeeringAccepterV2Create(ctx context.Context, d *schema.ResourceD
 		_, err := peerings.Accept(peeringClient, id).ExtractResult()
 
 		if err != nil {
-			return diag.Errorf("Unable to accept VPC Peering Connection: %s", err)
+			return diag.Errorf("unable to accept VPC Peering Connection: %s", err)
 		}
 
 	} else {
@@ -104,7 +104,7 @@ func resourceVPCPeeringAccepterV2Create(ctx context.Context, d *schema.ResourceD
 		_, err := peerings.Reject(peeringClient, id).ExtractResult()
 
 		if err != nil {
-			return diag.Errorf("Unable to reject VPC Peering Connection: %s", err)
+			return diag.Errorf("unable to reject VPC Peering Connection: %s", err)
 		}
 	}
 
@@ -132,7 +132,7 @@ func resourceVpcPeeringAccepterRead(ctx context.Context, d *schema.ResourceData,
 	config := meta.(*config.Config)
 	peeringclient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating Huaweicloud peering client: %s", err)
+		return diag.Errorf("error creating peering client: %s", err)
 	}
 
 	n, err := peerings.Get(peeringclient, d.Id()).Extract()
@@ -142,7 +142,7 @@ func resourceVpcPeeringAccepterRead(ctx context.Context, d *schema.ResourceData,
 			return nil
 		}
 
-		return diag.Errorf("Error retrieving Huaweicloud Vpc Peering Connection: %s", err)
+		return diag.Errorf("error retrieving Vpc Peering Connection: %s", err)
 	}
 
 	d.Set("name", n.Name)

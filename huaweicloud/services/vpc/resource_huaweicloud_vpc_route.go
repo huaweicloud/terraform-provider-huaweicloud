@@ -65,7 +65,7 @@ func resourceVpcRouteV2Create(ctx context.Context, d *schema.ResourceData, meta 
 	vpcRouteClient, err := config.NetworkingV2Client(config.GetRegion(d))
 
 	if err != nil {
-		return diag.Errorf("Error creating Huaweicloud vpc route client: %s", err)
+		return diag.Errorf("error creating vpc route client: %s", err)
 	}
 
 	createOpts := routes.CreateOpts{
@@ -78,7 +78,7 @@ func resourceVpcRouteV2Create(ctx context.Context, d *schema.ResourceData, meta 
 	n, err := routes.Create(vpcRouteClient, createOpts).Extract()
 
 	if err != nil {
-		return diag.Errorf("Error creating Huaweicloud VPC route: %s", err)
+		return diag.Errorf("error creating VPC route: %s", err)
 	}
 	d.SetId(n.RouteID)
 
@@ -94,7 +94,7 @@ func resourceVpcRouteV2Read(ctx context.Context, d *schema.ResourceData, meta in
 	config := meta.(*config.Config)
 	vpcRouteClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating Huaweicloud Vpc route client: %s", err)
+		return diag.Errorf("error creating Vpc route client: %s", err)
 	}
 
 	n, err := routes.Get(vpcRouteClient, d.Id()).Extract()
@@ -104,7 +104,7 @@ func resourceVpcRouteV2Read(ctx context.Context, d *schema.ResourceData, meta in
 			return nil
 		}
 
-		return diag.Errorf("Error retrieving Huaweicloud Vpc route: %s", err)
+		return diag.Errorf("error retrieving Vpc route: %s", err)
 	}
 
 	d.Set("type", n.Type)
@@ -121,7 +121,7 @@ func resourceVpcRouteV2Delete(ctx context.Context, d *schema.ResourceData, meta 
 	config := meta.(*config.Config)
 	vpcRouteClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating Huaweicloud vpc route: %s", err)
+		return diag.Errorf("error creating vpc route: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -135,7 +135,7 @@ func resourceVpcRouteV2Delete(ctx context.Context, d *schema.ResourceData, meta 
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("Error deleting Huaweicloud Vpc route: %s", err)
+		return diag.Errorf("error deleting Vpc route: %s", err)
 	}
 
 	d.SetId("")
@@ -149,7 +149,7 @@ func waitForVpcRouteDelete(vpcRouteClient *golangsdk.ServiceClient, routeId stri
 
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[INFO] Successfully deleted Huaweicloud vpc route %s", routeId)
+				log.Printf("[INFO] Successfully deleted vpc route %s", routeId)
 				return r, "DELETED", nil
 			}
 			return r, "ACTIVE", err
@@ -160,7 +160,7 @@ func waitForVpcRouteDelete(vpcRouteClient *golangsdk.ServiceClient, routeId stri
 
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[INFO] Successfully deleted Huaweicloud vpc route %s", routeId)
+				log.Printf("[INFO] Successfully deleted vpc route %s", routeId)
 				return r, "DELETED", nil
 			}
 			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {

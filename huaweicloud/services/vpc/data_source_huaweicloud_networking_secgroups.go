@@ -166,7 +166,7 @@ func dataSourceNetworkingSecGroupsRead(ctx context.Context, d *schema.ResourceDa
 	region := config.GetRegion(d)
 	v3Client, err := config.NetworkingV3Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating HuaweiCloud networking v3 client: %s", err)
+		return diag.Errorf("error creating networking v3 client: %s", err)
 	}
 
 	// The List method currently does not support filtering by keyword in the description. Therefore, keyword filtering
@@ -184,7 +184,7 @@ func dataSourceNetworkingSecGroupsRead(ctx context.Context, d *schema.ResourceDa
 			// If the v3 API does not exist or has not been published in the specified region, set again using v1 API.
 			return dataSourceNetworkingSecGroupsReadV1(ctx, d, meta)
 		} else {
-			return diag.Errorf("Error getting security groups list: %s", err)
+			return diag.Errorf("error getting security groups list: %s", err)
 		}
 	} else {
 		groupList, ids = filterAvailableSecGroupsV3(allSecGroups, d.Get("description").(string))
@@ -204,7 +204,7 @@ func dataSourceNetworkingSecGroupsReadV1(_ context.Context, d *schema.ResourceDa
 	region := config.GetRegion(d)
 	v1Client, err := config.NetworkingV1Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating HuaweiCloud networking v1 client: %s", err)
+		return diag.Errorf("error creating networking v1 client: %s", err)
 	}
 
 	listOpts := v1groups.ListOpts{
@@ -212,11 +212,11 @@ func dataSourceNetworkingSecGroupsReadV1(_ context.Context, d *schema.ResourceDa
 	}
 	pages, err := v1groups.List(v1Client, listOpts).AllPages()
 	if err != nil {
-		return diag.Errorf("Error getting security groups: %s", err)
+		return diag.Errorf("error getting security groups: %s", err)
 	}
 	allSecGroups, err := v1groups.ExtractSecurityGroups(pages)
 	if err != nil {
-		return diag.Errorf("Error retrieving security groups list: %s", err)
+		return diag.Errorf("error retrieving security groups list: %s", err)
 	}
 	log.Printf("[DEBUG] Retrieved Security Groups: %+v", allSecGroups)
 

@@ -149,25 +149,25 @@ func dataSourceNetworkingPortV2Read(ctx context.Context, d *schema.ResourceData,
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return diag.Errorf("error creating networking client: %s", err)
 	}
 
 	listOpts := getNetworkingPortOpts(d)
 
 	allPages, err := ports.List(networkingClient, listOpts).AllPages()
 	if err != nil {
-		return diag.Errorf("Unable to list huaweicloud_networking_ports_v2: %s", err)
+		return diag.Errorf("unable to list networking ports v2: %s", err)
 	}
 
 	var allPorts []ports.Port
 
 	err = ports.ExtractPortsInto(allPages, &allPorts)
 	if err != nil {
-		return diag.Errorf("Unable to retrieve huaweicloud_networking_ports_v2: %s", err)
+		return diag.Errorf("unable to retrieve networking ports v2: %s", err)
 	}
 
 	if len(allPorts) == 0 {
-		return diag.Errorf("No huaweicloud_networking_port found")
+		return diag.Errorf("no networking port found")
 	}
 
 	var portsList []ports.Port
@@ -182,8 +182,8 @@ func dataSourceNetworkingPortV2Read(ctx context.Context, d *schema.ResourceData,
 			}
 		}
 		if len(portsList) == 0 {
-			log.Printf("No huaweicloud_networking_port found after the 'fixed_ip' filter")
-			return diag.Errorf("No huaweicloud_networking_port found")
+			log.Printf("No networking port found after the 'fixed_ip' filter")
+			return diag.Errorf("no networking port found")
 		}
 	} else {
 		portsList = allPorts
@@ -201,19 +201,19 @@ func dataSourceNetworkingPortV2Read(ctx context.Context, d *schema.ResourceData,
 			}
 		}
 		if len(sgPorts) == 0 {
-			log.Printf("[DEBUG] No huaweicloud_networking_port found after the 'security_group_ids' filter")
-			return diag.Errorf("No huaweicloud_networking_port found")
+			log.Printf("[DEBUG] No networking port found after the 'security_group_ids' filter")
+			return diag.Errorf("no networking port found")
 		}
 		portsList = sgPorts
 	}
 
 	if len(portsList) > 1 {
-		return diag.Errorf("More than one huaweicloud_networking_port found (%d)", len(portsList))
+		return diag.Errorf("more than one networking port found (%d)", len(portsList))
 	}
 
 	port := portsList[0]
 
-	log.Printf("[DEBUG] Retrieved huaweicloud_networking_port %s: %+v", port.ID, port)
+	log.Printf("[DEBUG] Retrieved networking port %s: %+v", port.ID, port)
 	d.SetId(port.ID)
 
 	d.Set("port_id", port.ID)

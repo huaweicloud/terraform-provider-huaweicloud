@@ -96,26 +96,26 @@ func resourceNetworkingVipCreate(ctx context.Context, d *schema.ResourceData, me
 	config := meta.(*config.Config)
 	client, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating HuaweiCloud VPC network v1 client: %s", err)
+		return diag.Errorf("error creating VPC network v1 client: %s", err)
 	}
 
 	networkId := d.Get("network_id").(string)
 	n, err := subnets.Get(client, networkId).Extract()
 	if err != nil {
-		return diag.Errorf("Error retrieving HuaweiCloud subnet by network ID (%s): %s", networkId, err)
+		return diag.Errorf("error retrieving subnet by network ID (%s): %s", networkId, err)
 	}
 
 	// Check whether the subnet ID entered by the user belongs to the same subnet as the network ID.
 	subnetId := d.Get("subnet_id").(string)
 	if subnetId != "" && subnetId != n.SubnetId && subnetId != n.IPv6SubnetId {
-		return diag.Errorf("The subnet ID does not belong to the subnet where the network ID is located.")
+		return diag.Errorf("the subnet ID does not belong to the subnet where the network ID is located.")
 	}
 
 	// Pre-check for subnet network, the virtual IP of IPv6 must be established on the basis that the subnet supports
 	// IPv6.
 	if d.Get("ip_version").(int) == 6 {
 		if n.IPv6SubnetId == "" {
-			return diag.Errorf("The subnet does not support IPv6, please enable IPv6 first.")
+			return diag.Errorf("the subnet does not support IPv6, please enable IPv6 first.")
 		}
 		subnetId = n.IPv6SubnetId
 	} else {
@@ -137,9 +137,9 @@ func resourceNetworkingVipCreate(ctx context.Context, d *schema.ResourceData, me
 	log.Printf("[DEBUG] Updating network VIP (%s) with options: %#v", d.Id(), opts)
 	vip, err := ports.Create(client, opts)
 	if err != nil {
-		return diag.Errorf("Error creating HuaweiCloud network VIP: %s", err)
+		return diag.Errorf("error creating network VIP: %s", err)
 	}
-	log.Printf("[DEBUG] Waiting for HuaweiCloud network VIP (%s) to become available.", vip.ID)
+	log.Printf("[DEBUG] Waiting for network VIP (%s) to become available.", vip.ID)
 	d.SetId(vip.ID)
 
 	stateConf := &resource.StateChangeConf{
@@ -191,7 +191,7 @@ func resourceNetworkingVipRead(_ context.Context, d *schema.ResourceData, meta i
 	region := config.GetRegion(d)
 	client, err := config.NetworkingV1Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating HuaweiCloud VPC network v1 client: %s", err)
+		return diag.Errorf("error creating VPC network v1 client: %s", err)
 	}
 
 	vip, err := ports.Get(client, d.Id())
@@ -218,7 +218,7 @@ func resourceNetworkingVipUpdate(ctx context.Context, d *schema.ResourceData, me
 	config := meta.(*config.Config)
 	client, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating HuaweiCloud VPC network v1 client: %s", err)
+		return diag.Errorf("error creating VPC network v1 client: %s", err)
 	}
 
 	opts := ports.UpdateOpts{
@@ -228,7 +228,7 @@ func resourceNetworkingVipUpdate(ctx context.Context, d *schema.ResourceData, me
 
 	_, err = ports.Update(client, d.Id(), opts)
 	if err != nil {
-		return diag.Errorf("Error updating HuaweiCloud networking VIP: %s", err)
+		return diag.Errorf("error updating networking VIP: %s", err)
 	}
 
 	return resourceNetworkingVipRead(ctx, d, meta)
@@ -238,12 +238,12 @@ func resourceNetworkingVipDelete(ctx context.Context, d *schema.ResourceData, me
 	config := meta.(*config.Config)
 	client, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating HuaweiCloud VPC network v1 client: %s", err)
+		return diag.Errorf("error creating VPC network v1 client: %s", err)
 	}
 
 	err = ports.Delete(client, d.Id()).ExtractErr()
 	if err != nil {
-		return diag.Errorf("Error deleting HuaweiCloud Network VIP: %s", err)
+		return diag.Errorf("error deleting Network VIP: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -257,7 +257,7 @@ func resourceNetworkingVipDelete(ctx context.Context, d *schema.ResourceData, me
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("Error deleting HuaweiCloud Network VIP: %s", err)
+		return diag.Errorf("error deleting Network VIP: %s", err)
 	}
 
 	d.SetId("")

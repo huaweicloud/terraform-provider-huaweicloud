@@ -162,12 +162,12 @@ func dataSourceVpcSubnetsRead(_ context.Context, d *schema.ResourceData, meta in
 	region := config.GetRegion(d)
 	client, err := config.NetworkingV1Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating Huaweicloud VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	clientV2, err := config.NetworkingV2Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating Huaweicloud VPC V2 client: %s", err)
+		return diag.Errorf("error creating VPC V2 client: %s", err)
 	}
 
 	listOpts := subnets.ListOpts{
@@ -184,7 +184,7 @@ func dataSourceVpcSubnetsRead(_ context.Context, d *schema.ResourceData, meta in
 
 	subnetList, err := subnets.List(client, listOpts)
 	if err != nil {
-		return diag.Errorf("Unable to retrieve subnets: %s", err)
+		return diag.Errorf("unable to retrieve subnets: %s", err)
 	}
 
 	log.Printf("[DEBUG] Retrieved subnets using given filter: %+v", subnetList)
@@ -222,13 +222,13 @@ func dataSourceVpcSubnetsRead(_ context.Context, d *schema.ResourceData, meta in
 			}
 			subnet["tags"] = tagmap
 		} else {
-			return diag.Errorf("Error query tags of subnets (%s): %s", item.ID, err)
+			return diag.Errorf("error query tags of subnets (%s): %s", item.ID, err)
 		}
 
 		subnets = append(subnets, subnet)
 		ids = append(ids, item.ID)
 	}
-	log.Printf("[DEBUG]subnets List after filter, count=%d :%+v", len(subnets), subnets)
+	log.Printf("[DEBUG] Subnets List after filter, count=%d :%+v", len(subnets), subnets)
 
 	mErr := d.Set("subnets", subnets)
 	if mErr != nil {
