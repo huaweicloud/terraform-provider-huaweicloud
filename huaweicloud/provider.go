@@ -49,6 +49,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/er"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/evs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/fgs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ga"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/gaussdb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
@@ -710,6 +711,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_fgs_dependency": fgs.ResourceFgsDependency(),
 			"huaweicloud_fgs_function":   fgs.ResourceFgsFunctionV2(),
 			"huaweicloud_fgs_trigger":    fgs.ResourceFunctionGraphTrigger(),
+
+			"huaweicloud_ga_accelerator": ga.ResourceAccelerator(),
 
 			"huaweicloud_gaussdb_cassandra_instance": gaussdb.ResourceGeminiDBInstanceV3(),
 			"huaweicloud_gaussdb_mysql_instance":     gaussdb.ResourceGaussDBInstance(),
