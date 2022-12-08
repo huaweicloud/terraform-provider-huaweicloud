@@ -313,6 +313,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Scope:            "global",
 		Product:          "GA",
 	},
+	"dc": {
+		Name:    "dcaas",
+		Version: "v3",
+		Product: "DC",
+	},
 
 	// catalog for database
 	"rdsv1": {
