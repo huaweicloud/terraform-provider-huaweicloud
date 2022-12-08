@@ -294,55 +294,73 @@ func resourceDmsRocketMQInstancesRead(ctx context.Context, d *schema.ResourceDat
 	}
 	d.SetId(uuid)
 
+	instances, err := flattenGetRocketmqInstancesResponseBodyInstanceRef(getRocketmqInstancesRespBody, config, region)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("instances", flattenGetRocketmqInstancesResponseBodyInstanceRef(getRocketmqInstancesRespBody)),
+		d.Set("instances", instances),
 	)
-
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenGetRocketmqInstancesResponseBodyInstanceRef(resp interface{}) []interface{} {
+func flattenGetRocketmqInstancesResponseBodyInstanceRef(resp interface{}, config *config.Config,
+	region string) ([]interface{}, error) {
 	if resp == nil {
-		return nil
+		return nil, nil
 	}
 
 	curJson := utils.PathSearch("instances", resp, make([]interface{}, 0))
 	curArray := curJson.([]interface{})
 	rst := make([]interface{}, 0, len(curArray))
 
-	crossVpcInfo := utils.PathSearch("cross_vpc_info", curJson, nil)
-	var crossVpcAccess []map[string]interface{}
-	if crossVpcInfo != nil {
-		crossVpcAccess, _ = flattenConnectPorts(crossVpcInfo.(string))
-		// if err != nil {
-		// 	return err
-		// }
-	}
-
 	for _, v := range curArray {
+		// convert the ids of the availability zone into codes
+		var availableZoneCodes []string
+		var err error
+		availableZoneIDs := utils.PathSearch("available_zones", v, nil)
+		if availableZoneIDs != nil {
+			azIDs := make([]string, 0)
+			for _, availableZoneID := range availableZoneIDs.([]interface{}) {
+				azIDs = append(azIDs, availableZoneID.(string))
+			}
+			availableZoneCodes, err = getAvailableZoneCodeByID(config, region, azIDs)
+			if err != nil {
+				return nil, err
+			}
+		}
+		crossVpcInfo := utils.PathSearch("cross_vpc_info", v, nil)
+		var crossVpcAccess []map[string]interface{}
+		if crossVpcInfo != nil {
+			crossVpcAccess, err = flattenConnectPorts(crossVpcInfo.(string))
+			if err != nil {
+				return nil, err
+			}
+		}
+
 		rst = append(rst, map[string]interface{}{
-			"name":               utils.PathSearch("name", v, nil),
-			"status":             utils.PathSearch("status", v, nil),
-			"description":        utils.PathSearch("description", v, nil),
-			"type":               utils.PathSearch("type", v, nil),
-			"specification":      utils.PathSearch("specification", v, nil),
-			"engine_version":     utils.PathSearch("engine_version", v, nil),
-			"vpc_id":             utils.PathSearch("vpc_id", v, nil),
-			"flavor_id":          utils.PathSearch("product_id", v, nil),
-			"security_group_id":  utils.PathSearch("security_group_id", v, nil),
-			"subnet_id":          utils.PathSearch("subnet_id", v, nil),
-			"availability_zones": utils.PathSearch("available_zones", v, nil),
-			"maintain_begin":     utils.PathSearch("maintain_begin", v, nil),
-			"maintain_end":       utils.PathSearch("maintain_end", v, nil),
-			"storage_space":      utils.PathSearch("total_storage_space", v, nil),
-			"used_storage_space": utils.PathSearch("used_storage_space", v, nil),
-			"enable_publicip":    utils.PathSearch("enable_publicip", v, nil),
-			"publicip_id":        utils.PathSearch("publicip_id", v, nil),
-			"publicip_address":   utils.PathSearch("publicip_address", v, nil),
-			"ssl_enable":         utils.PathSearch("ssl_enable", v, nil),
-			// "cross_vpc_accesses":      flattenInstanceRefCrossVpcAccesses(v),
+			"name":                    utils.PathSearch("name", v, nil),
+			"status":                  utils.PathSearch("status", v, nil),
+			"description":             utils.PathSearch("description", v, nil),
+			"type":                    utils.PathSearch("type", v, nil),
+			"specification":           utils.PathSearch("specification", v, nil),
+			"engine_version":          utils.PathSearch("engine_version", v, nil),
+			"vpc_id":                  utils.PathSearch("vpc_id", v, nil),
+			"flavor_id":               utils.PathSearch("product_id", v, nil),
+			"security_group_id":       utils.PathSearch("security_group_id", v, nil),
+			"subnet_id":               utils.PathSearch("subnet_id", v, nil),
+			"availability_zones":      availableZoneCodes,
+			"maintain_begin":          utils.PathSearch("maintain_begin", v, nil),
+			"maintain_end":            utils.PathSearch("maintain_end", v, nil),
+			"storage_space":           utils.PathSearch("total_storage_space", v, nil),
+			"used_storage_space":      utils.PathSearch("used_storage_space", v, nil),
+			"enable_publicip":         utils.PathSearch("enable_publicip", v, nil),
+			"publicip_id":             utils.PathSearch("publicip_id", v, nil),
+			"publicip_address":        utils.PathSearch("publicip_address", v, nil),
+			"ssl_enable":              utils.PathSearch("ssl_enable", v, nil),
+			"cross_vpc_accesses":      crossVpcAccess,
 			"storage_spec_code":       utils.PathSearch("storage_spec_code", v, nil),
 			"ipv6_enable":             utils.PathSearch("ipv6_enable", v, nil),
 			"node_num":                utils.PathSearch("node_num", v, nil),
@@ -354,10 +372,9 @@ func flattenGetRocketmqInstancesResponseBodyInstanceRef(resp interface{}) []inte
 			"public_namesrv_address":  utils.PathSearch("public_namesrv_address", v, nil),
 			"public_broker_address":   utils.PathSearch("public_broker_address", v, nil),
 			"resource_spec_code":      utils.PathSearch("resource_spec_code", v, nil),
-			"cross_vpc_accesses":      crossVpcAccess,
 		})
 	}
-	return rst
+	return rst, nil
 }
 
 func buildGetRocketmqInstancesQueryParams(d *schema.ResourceData) string {

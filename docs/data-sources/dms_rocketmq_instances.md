@@ -27,8 +27,8 @@ The following arguments are supported:
 
 * `status` - (Optional, String) Specifies the status of the DMS RocketMQ instance.
 
-* `exact_match_name` - (Optional, String) Specifies whether to search for the instance that precisely matches a specified instance name.
-  Value options: **true**, **false**.
+* `exact_match_name` - (Optional, String) Specifies whether to search for the instance that precisely matches a
+  specified instance name. Value options: **true**, **false**.
 
 ## Attributes Reference
 
@@ -112,10 +112,10 @@ The `Instance` block supports:
 <a name="DmsRocketMQInstances_InstanceCrossVpc"></a>
 The `InstanceCrossVpc` block supports:
 
-* `lisenter_ip` -
+* `lisenter_ip` - Indicates the IP of the listener.
 
-* `advertised_ip` -
+* `advertised_ip` - Indicates the advertised IP.
 
-* `port` -
+* `port` - Indicates the port.
 
-* `port_id` - 
+* `port_id` - Indicates the port ID associated with the address.
