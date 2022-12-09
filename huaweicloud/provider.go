@@ -713,6 +713,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_fgs_trigger":    fgs.ResourceFunctionGraphTrigger(),
 
 			"huaweicloud_ga_accelerator": ga.ResourceAccelerator(),
+			"huaweicloud_ga_listener":    ga.ResourceListener(),
 
 			"huaweicloud_gaussdb_cassandra_instance": gaussdb.ResourceGeminiDBInstanceV3(),
 			"huaweicloud_gaussdb_mysql_instance":     gaussdb.ResourceGaussDBInstance(),
