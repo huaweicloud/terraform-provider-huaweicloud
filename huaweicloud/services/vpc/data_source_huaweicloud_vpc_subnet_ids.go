@@ -1,15 +1,17 @@
 package vpc
 
 import (
+	"context"
+
 	"github.com/chnsz/golangsdk/openstack/networking/v1/subnets"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func DataSourceVpcSubnetIdsV1() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceVpcSubnetIdsV1Read,
+		ReadContext: dataSourceVpcSubnetIdsV1Read,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -30,11 +32,11 @@ func DataSourceVpcSubnetIdsV1() *schema.Resource {
 	}
 }
 
-func dataSourceVpcSubnetIdsV1Read(d *schema.ResourceData, meta interface{}) error {
+func dataSourceVpcSubnetIdsV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	subnetClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud Vpc client: %s", err)
+		return diag.Errorf("error creating Vpc client: %s", err)
 	}
 
 	listOpts := subnets.ListOpts{
@@ -43,11 +45,11 @@ func dataSourceVpcSubnetIdsV1Read(d *schema.ResourceData, meta interface{}) erro
 
 	refinedSubnets, err := subnets.List(subnetClient, listOpts)
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve subnets: %s", err)
+		return diag.Errorf("unable to retrieve subnets: %s", err)
 	}
 
 	if len(refinedSubnets) == 0 {
-		return fmtp.Errorf("no matching subnet found for vpc with id %s", d.Get("vpc_id").(string))
+		return diag.Errorf("no matching subnet found for vpc with id %s", d.Get("vpc_id").(string))
 	}
 
 	Subnets := make([]string, 0)

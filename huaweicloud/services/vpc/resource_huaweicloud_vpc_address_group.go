@@ -2,6 +2,7 @@ package vpc
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -11,8 +12,6 @@ import (
 	vpc_model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3/model"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceVpcAddressGroup() *schema.Resource {
@@ -69,7 +68,7 @@ func resourceVpcAddressGroupCreate(ctx context.Context, d *schema.ResourceData, 
 	region := c.GetRegion(d)
 	client, err := c.HcVpcV3Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	rawAddresses := d.Get("addresses").(*schema.Set).List()
@@ -94,22 +93,22 @@ func resourceVpcAddressGroupCreate(ctx context.Context, d *schema.ResourceData, 
 		},
 	}
 
-	logp.Printf("[DEBUG] Create VPC address group options: %#v", addressGroupBody)
+	log.Printf("[DEBUG] Create VPC address group options: %#v", addressGroupBody)
 	response, err := client.CreateAddressGroup(createOpts)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating VPC address group: %s", err)
+		return diag.Errorf("error creating VPC address group: %s", err)
 	}
 
 	d.SetId(response.AddressGroup.Id)
 	return resourceVpcAddressGroupRead(ctx, d, meta)
 }
 
-func resourceVpcAddressGroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVpcAddressGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
 	client, err := c.HcVpcV3Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	request := &vpc_model.ShowAddressGroupRequest{
@@ -118,7 +117,7 @@ func resourceVpcAddressGroupRead(ctx context.Context, d *schema.ResourceData, me
 
 	response, err := client.ShowAddressGroup(request)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Error fetching VPC address group")
+		return common.CheckDeletedDiag(d, err, "error fetching VPC address group")
 	}
 
 	mErr := multierror.Append(nil,
@@ -130,7 +129,7 @@ func resourceVpcAddressGroupRead(ctx context.Context, d *schema.ResourceData, me
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error saving VPC address group: %s", err)
+		return diag.Errorf("error saving VPC address group: %s", err)
 	}
 
 	return nil
@@ -140,7 +139,7 @@ func resourceVpcAddressGroupUpdate(ctx context.Context, d *schema.ResourceData, 
 	c := meta.(*config.Config)
 	client, err := c.HcVpcV3Client(c.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	addressGroupBody := &vpc_model.UpdateAddressGroupOption{}
@@ -170,21 +169,21 @@ func resourceVpcAddressGroupUpdate(ctx context.Context, d *schema.ResourceData, 
 		},
 	}
 
-	logp.Printf("[DEBUG] Update VPC address group options: %#v", addressGroupBody)
+	log.Printf("[DEBUG] Update VPC address group options: %#v", addressGroupBody)
 	_, err = client.UpdateAddressGroup(updateOpts)
 	if err != nil {
-		return fmtp.DiagErrorf("Error updating VPC address group: %s", err)
+		return diag.Errorf("error updating VPC address group: %s", err)
 	}
 
 	return resourceVpcAddressGroupRead(ctx, d, meta)
 }
 
-func resourceVpcAddressGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVpcAddressGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
 	client, err := c.HcVpcV3Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	request := &vpc_model.DeleteAddressGroupRequest{
@@ -193,7 +192,7 @@ func resourceVpcAddressGroupDelete(ctx context.Context, d *schema.ResourceData, 
 
 	_, err = client.DeleteAddressGroup(request)
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting VPC address group: %s", err)
+		return diag.Errorf("error deleting VPC address group: %s", err)
 	}
 
 	return nil

@@ -97,12 +97,12 @@ func dataSourceVpcsRead(_ context.Context, d *schema.ResourceData, meta interfac
 	region := config.GetRegion(d)
 	client, err := config.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
+		return fmtp.DiagErrorf("error creating VPC client: %s", err)
 	}
 
 	vpcV2Client, err := config.NetworkingV2Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud VPC V2 client: %s", err)
+		return fmtp.DiagErrorf("error creating VPC V2 client: %s", err)
 	}
 
 	listOpts := vpcs.ListOpts{
@@ -115,7 +115,7 @@ func dataSourceVpcsRead(_ context.Context, d *schema.ResourceData, meta interfac
 
 	vpcList, err := vpcs.List(client, listOpts)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve vpcs: %s", err)
+		return fmtp.DiagErrorf("unable to retrieve vpcs: %s", err)
 	}
 
 	logp.Printf("[DEBUG] Retrieved Vpc using given filter: %+v", vpcList)
@@ -145,7 +145,7 @@ func dataSourceVpcsRead(_ context.Context, d *schema.ResourceData, meta interfac
 			if _, ok := err.(golangsdk.ErrDefault403); ok {
 				logp.Printf("[WARN] Error query tags of VPC (%s): %s", vpcResource.ID, err)
 			} else {
-				return fmtp.DiagErrorf("Error query tags of VPC (%s): %s", vpcResource.ID, err)
+				return fmtp.DiagErrorf("error query tags of VPC (%s): %s", vpcResource.ID, err)
 			}
 		}
 
