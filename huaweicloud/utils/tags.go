@@ -70,12 +70,12 @@ func TagsToMap(tags []tags.ResourceTag) map[string]string {
 }
 
 // FlattenTagsToMap returns the list of tags into a map.
-func FlattenTagsToMap(tags interface{}) map[string]string {
+func FlattenTagsToMap(tags interface{}) map[string]interface{} {
 	if tagArray, ok := tags.([]interface{}); ok {
-		result := make(map[string]string)
+		result := make(map[string]interface{})
 		for _, val := range tagArray {
-			if t, ok := val.(map[string]string); ok {
-				result[t["key"]] = t["value"]
+			if t, ok := val.(map[string]interface{}); ok {
+				result[t["key"].(string)] = t["value"]
 			}
 		}
 		return result
@@ -92,6 +92,25 @@ func ExpandResourceTags(tagmap map[string]interface{}) []tags.ResourceTag {
 		tag := tags.ResourceTag{
 			Key:   k,
 			Value: v.(string),
+		}
+		taglist = append(taglist, tag)
+	}
+
+	return taglist
+}
+
+// ExpandResourceTagsMap returns the tags in format of list of maps for the given map of data.
+func ExpandResourceTagsMap(tagmap map[string]interface{}) []map[string]interface{} {
+	if len(tagmap) < 1 {
+		return nil
+	}
+
+	taglist := make([]map[string]interface{}, 0, len(tagmap))
+
+	for k, v := range tagmap {
+		tag := map[string]interface{}{
+			"key":   k,
+			"value": v,
 		}
 		taglist = append(taglist, tag)
 	}

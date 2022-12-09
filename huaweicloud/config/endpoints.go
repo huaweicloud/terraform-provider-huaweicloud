@@ -306,6 +306,13 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v5",
 		Product: "VPN",
 	},
+	"ga": {
+		Name:             "ga",
+		Version:          "v1",
+		WithOutProjectID: true,
+		Scope:            "global",
+		Product:          "GA",
+	},
 
 	// catalog for database
 	"rdsv1": {
