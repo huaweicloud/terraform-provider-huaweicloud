@@ -99,6 +99,9 @@ var (
 	HW_RF_TEMPLATE_ARCHIVE_URI = os.Getenv("HW_RF_TEMPLATE_ARCHIVE_URI")
 	// The OBS address where the variable archive corresponding to the HCL/JSON template is located.
 	HW_RF_VARIABLES_ARCHIVE_URI = os.Getenv("HW_RF_VARIABLES_ARCHIVE_URI")
+
+	// The direct connection ID (provider does not support direct connection resource).
+	HW_DC_DIRECT_CONNECT_ID = os.Getenv("HW_DC_DIRECT_CONNECT_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -438,5 +441,12 @@ func TestAccPreCheckRfArchives(t *testing.T) {
 	if HW_RF_TEMPLATE_ARCHIVE_NO_VARS_URI == "" || HW_RF_TEMPLATE_ARCHIVE_URI == "" ||
 		HW_RF_VARIABLES_ARCHIVE_URI == "" {
 		t.Skip("Skip the archive URI parameters acceptance test for RF resource stack.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDcDirectConnection(t *testing.T) {
+	if HW_DC_DIRECT_CONNECT_ID == "" {
+		t.Skip("Skip the interface acceptance test because of the direct connection ID is missing.")
 	}
 }

@@ -89,6 +89,7 @@ github.com/chnsz/golangsdk/openstack/css/v1/thesaurus
 github.com/chnsz/golangsdk/openstack/cts/v1/tracker
 github.com/chnsz/golangsdk/openstack/dayu/v1/instances
 github.com/chnsz/golangsdk/openstack/dc/v3/gateways
+github.com/chnsz/golangsdk/openstack/dc/v3/interfaces
 github.com/chnsz/golangsdk/openstack/dcs/v1/availablezones
 github.com/chnsz/golangsdk/openstack/dcs/v1/products
 github.com/chnsz/golangsdk/openstack/dcs/v2/availablezones
