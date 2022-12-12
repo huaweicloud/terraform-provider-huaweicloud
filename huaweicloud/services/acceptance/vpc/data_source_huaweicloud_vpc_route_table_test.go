@@ -35,7 +35,6 @@ func TestAccVpcRouteTableDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(dataSourceName, "default", "false"),
 					resource.TestCheckResourceAttr(dataSourceName, "subnets.#", "0"),
 				),
-				ExpectNonEmptyPlan: true,
 			},
 		},
 	})

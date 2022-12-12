@@ -3,6 +3,7 @@ package vpc
 import (
 	"context"
 	"log"
+	"regexp"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -40,6 +41,11 @@ func ResourceVpcAddressGroup() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
+				ValidateFunc: validation.All(
+					validation.StringLenBetween(1, 64),
+					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa50-9a-zA-Z-_\\.]*$"),
+						"only letters, digits, underscores (_), hyphens (-), and dot (.) are allowed"),
+				),
 			},
 			"addresses": {
 				// the addresses will be sorted by cloud
@@ -58,6 +64,11 @@ func ResourceVpcAddressGroup() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ValidateFunc: validation.All(
+					validation.StringLenBetween(0, 255),
+					validation.StringMatch(regexp.MustCompile("^[^<>]*$"),
+						"The angle brackets (< and >) are not allowed."),
+				),
 			},
 		},
 	}
