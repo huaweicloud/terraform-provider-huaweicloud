@@ -386,7 +386,6 @@ func resourceAcceleratorRead(ctx context.Context, d *schema.ResourceData, meta i
 
 	mErr = multierror.Append(
 		mErr,
-		d.Set("region", region),
 		d.Set("name", utils.PathSearch("accelerator.name", getAcceleratorRespBody, nil)),
 		d.Set("description", utils.PathSearch("accelerator.description", getAcceleratorRespBody, nil)),
 		d.Set("ip_sets", flattenGetAcceleratorResponseBodyAccelerateIp(getAcceleratorRespBody)),
