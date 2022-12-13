@@ -33,6 +33,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/css"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dataarts"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dds"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
@@ -651,6 +652,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_cluster":   css.ResourceCssCluster(),
 			"huaweicloud_css_snapshot":  css.ResourceCssSnapshot(),
 			"huaweicloud_css_thesaurus": css.ResourceCssthesaurus(),
+
+			"huaweicloud_dc_virtual_gateway": dc.ResourceVirtualGateway(),
 
 			"huaweicloud_dcs_instance": dcs.ResourceDcsInstance(),
 
