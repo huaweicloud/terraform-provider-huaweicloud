@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"os"
 	"sync"
 	"time"
 
@@ -23,6 +24,7 @@ import (
 const (
 	obsLogFile         string = "./.obs-sdk.log"
 	obsLogFileSize10MB int64  = 1024 * 1024 * 10
+	userAgent          string = "terraform-provider-iac"
 )
 
 // MutexKV is a global lock on all resources, it can lock the specified shared string (such as resource ID, resource
@@ -179,12 +181,19 @@ func (c *Config) ObjectStorageClientWithSignature(region string) (*obs.ObsClient
 		}
 	}
 
+	var agent string = userAgent
+	if customUserAgent := os.Getenv("HW_TF_CUSTOM_UA"); len(customUserAgent) > 0 {
+		agent = fmt.Sprintf("%s %s", customUserAgent, userAgent)
+	}
+	clientConfigure := obs.WithHttpClient(&c.DomainClient.HTTPClient)
+	userAgentConfigure := obs.WithUserAgent(agent)
 	obsEndpoint := getObsEndpoint(c, region)
 	if c.SecurityToken != "" {
 		return obs.New(c.AccessKey, c.SecretKey, obsEndpoint,
-			obs.WithSignature("OBS"), obs.WithSecurityToken(c.SecurityToken))
+			obs.WithSignature("OBS"), obs.WithSecurityToken(c.SecurityToken), clientConfigure,
+			userAgentConfigure)
 	}
-	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSignature("OBS"))
+	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSignature("OBS"), clientConfigure, userAgentConfigure)
 }
 
 func (c *Config) ObjectStorageClient(region string) (*obs.ObsClient, error) {
@@ -212,11 +221,18 @@ func (c *Config) ObjectStorageClient(region string) (*obs.ObsClient, error) {
 		}
 	}
 
+	var agent string = userAgent
+	if customUserAgent := os.Getenv("HW_TF_CUSTOM_UA"); len(customUserAgent) > 0 {
+		agent = fmt.Sprintf("%s %s", customUserAgent, userAgent)
+	}
+	clientConfigure := obs.WithHttpClient(&c.DomainClient.HTTPClient)
+	userAgentConfigure := obs.WithUserAgent(agent)
 	obsEndpoint := getObsEndpoint(c, region)
 	if c.SecurityToken != "" {
-		return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSecurityToken(c.SecurityToken))
+		return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSecurityToken(c.SecurityToken), clientConfigure,
+			userAgentConfigure)
 	}
-	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint)
+	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, clientConfigure, userAgentConfigure)
 }
 
 // NewServiceClient create a ServiceClient which was assembled from ServiceCatalog.

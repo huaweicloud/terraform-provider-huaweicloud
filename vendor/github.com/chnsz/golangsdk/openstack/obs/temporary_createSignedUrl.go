@@ -14,10 +14,11 @@ package obs
 
 import (
 	"errors"
+	"fmt"
 )
 
 // CreateSignedUrl creates signed url with the specified CreateSignedUrlInput, and returns the CreateSignedUrlOutput and error
-func (obsClient ObsClient) CreateSignedUrl(input *CreateSignedUrlInput) (output *CreateSignedUrlOutput, err error) {
+func (obsClient ObsClient) CreateSignedUrl(input *CreateSignedUrlInput, extensions ...extensionOptions) (output *CreateSignedUrlOutput, err error) {
 	if input == nil {
 		return nil, errors.New("CreateSignedUrlInput is nil")
 	}
@@ -34,6 +35,17 @@ func (obsClient ObsClient) CreateSignedUrl(input *CreateSignedUrlInput) (output 
 	headers := make(map[string][]string, len(input.Headers))
 	for key, value := range input.Headers {
 		headers[key] = []string{value}
+	}
+
+	for _, extension := range extensions {
+		if extensionHeader, ok := extension.(extensionHeaders); ok {
+			_err := extensionHeader(headers, obsClient.conf.signature == SignatureObs)
+			if _err != nil {
+				doLog(LEVEL_INFO, fmt.Sprintf("set header with error: %v", _err))
+			}
+		} else {
+			doLog(LEVEL_INFO, "Unsupported extensionOptions")
+		}
 	}
 
 	if input.Expires <= 0 {

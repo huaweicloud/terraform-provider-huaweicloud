@@ -115,7 +115,9 @@ func (obsClient ObsClient) UploadPart(_input *UploadPartInput, extensions ...ext
 	output = &UploadPartOutput{}
 	var repeatable bool
 	if input.Body != nil {
-		_, repeatable = input.Body.(*strings.Reader)
+		if _, ok := input.Body.(*strings.Reader); !ok {
+			repeatable = false
+		}
 		if _, ok := input.Body.(*readerWrapper); !ok && input.PartSize > 0 {
 			input.Body = &readerWrapper{reader: input.Body, totalCount: input.PartSize}
 		}
