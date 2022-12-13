@@ -318,6 +318,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v3",
 		Product: "DC",
 	},
+	"cfw": {
+		Name:    "cfw",
+		Version: "v1",
+		Product: "CFW",
+	},
 
 	// catalog for database
 	"rdsv1": {
