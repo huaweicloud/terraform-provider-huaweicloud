@@ -135,7 +135,7 @@ func resourceObsBucketObjectPut(ctx context.Context, d *schema.ResourceData, met
 	content := d.Get("content").(string)
 	if source != "" {
 		// check source file whether exist
-		_, err := os.Stat(source)
+		_, err = os.Stat(source)
 		if err != nil {
 			if os.IsNotExist(err) {
 				return diag.Errorf("source file %s is not exist", source)
