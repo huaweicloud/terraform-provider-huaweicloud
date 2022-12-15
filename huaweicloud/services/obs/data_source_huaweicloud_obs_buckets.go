@@ -3,6 +3,7 @@ package obs
 import (
 	"context"
 	"errors"
+	"github.com/hashicorp/go-multierror"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -113,9 +114,9 @@ func dataSourceObsBucketsRead(_ context.Context, d *schema.ResourceData, meta in
 		ids = append(ids, v.Name)
 	}
 	d.SetId(hashcode.Strings(ids))
-	err = d.Set("buckets", buckets)
-	if err != nil {
-		return diag.Errorf("error setting OBS attributes: %s", err)
+	mErr := multierror.Append(nil, d.Set("buckets", buckets))
+	if mErr.ErrorOrNil() != nil {
+		return diag.Errorf("error setting OBS attributes: %s", mErr)
 	}
 	return nil
 }

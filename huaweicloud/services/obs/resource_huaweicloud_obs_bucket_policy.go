@@ -2,9 +2,11 @@ package obs
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strings"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -100,7 +102,10 @@ func resourceObsBucketPolicyRead(_ context.Context, d *schema.ResourceData, meta
 	}
 
 	// set bucket from the policy id
-	d.Set("bucket", d.Id())
+	mErr := multierror.Append(nil, d.Set("bucket", d.Id()))
+	if mErr.ErrorOrNil() != nil {
+		return diag.Errorf("error saving bucket %s: %s", d.Id(), mErr)
+	}
 
 	log.Printf("[DEBUG] read policy for obs bucket: %s", d.Id())
 	output, err := obsClient.GetBucketPolicy(d.Id())
@@ -142,7 +147,7 @@ func resourceObsBucketPolicyDelete(_ context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func resourceObsBucketImport(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceObsBucketImport(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	var policyFormat = "obs"
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) == 2 {
@@ -150,7 +155,10 @@ func resourceObsBucketImport(_ context.Context, d *schema.ResourceData, meta int
 	}
 
 	d.SetId(parts[0])
-	d.Set("policy_format", policyFormat)
+	mErr := multierror.Append(nil, d.Set("policy_format", policyFormat))
+	if mErr.ErrorOrNil() != nil {
+		return nil, fmt.Errorf("error saving policy_format %s: %s", policyFormat, mErr)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
