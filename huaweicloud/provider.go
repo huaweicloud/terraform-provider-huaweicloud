@@ -42,6 +42,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dli"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/drs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dsc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dws"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ecs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/eip"
@@ -905,6 +906,8 @@ func Provider() *schema.Provider {
 
 			// devCloud
 			"huaweicloud_projectman_project": projectman.ResourceProject(),
+
+			"huaweicloud_dsc_instance": dsc.ResourceDscInstance(),
 
 			// internal only
 			"huaweicloud_apm_aksk":                apm.ResourceApmAkSk(),
