@@ -18,6 +18,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/as"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/bms"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbh"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cce"
@@ -370,6 +371,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_bms_flavors": bms.DataSourceBmsFlavors(),
 			"huaweicloud_cbr_vaults":  cbr.DataSourceCbrVaultsV3(),
 
+			"huaweicloud_cbh_instances": cbh.DataSourceCbhInstances(),
+
 			"huaweicloud_cce_addon_template": cce.DataSourceCCEAddonTemplateV3(),
 			"huaweicloud_cce_cluster":        cce.DataSourceCCEClusterV3(),
 			"huaweicloud_cce_clusters":       cce.DataSourceCCEClusters(),
@@ -604,6 +607,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cbr_policy": cbr.ResourceCBRPolicyV3(),
 			"huaweicloud_cbr_vault":  cbr.ResourceVault(),
+
+			"huaweicloud_cbh_instance": cbh.ResourceCBHInstance(),
 
 			"huaweicloud_cc_connection":       cc.ResourceCloudConnection(),
 			"huaweicloud_cc_network_instance": cc.ResourceNetworkInstance(),
