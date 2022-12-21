@@ -23,8 +23,7 @@ func CdnClientBuilder() *http_client.HcHttpClientBuilder {
 //
 // 用于删除资源标签
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) BatchDeleteTags(request *model.BatchDeleteTagsRequest) (*model.BatchDeleteTagsResponse, error) {
 	requestDef := GenReqDefForBatchDeleteTags()
 
@@ -45,8 +44,7 @@ func (c *CdnClient) BatchDeleteTagsInvoker(request *model.BatchDeleteTagsRequest
 //
 // 创建加速域名。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) CreateDomain(request *model.CreateDomainRequest) (*model.CreateDomainResponse, error) {
 	requestDef := GenReqDefForCreateDomain()
 
@@ -67,8 +65,7 @@ func (c *CdnClient) CreateDomainInvoker(request *model.CreateDomainRequest) *Cre
 //
 // 创建预热任务。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) CreatePreheatingTasks(request *model.CreatePreheatingTasksRequest) (*model.CreatePreheatingTasksResponse, error) {
 	requestDef := GenReqDefForCreatePreheatingTasks()
 
@@ -89,8 +86,7 @@ func (c *CdnClient) CreatePreheatingTasksInvoker(request *model.CreatePreheating
 //
 // 创建刷新缓存任务。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) CreateRefreshTasks(request *model.CreateRefreshTasksRequest) (*model.CreateRefreshTasksResponse, error) {
 	requestDef := GenReqDefForCreateRefreshTasks()
 
@@ -111,8 +107,7 @@ func (c *CdnClient) CreateRefreshTasksInvoker(request *model.CreateRefreshTasksR
 //
 // 用于创建资源标签
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) CreateTags(request *model.CreateTagsRequest) (*model.CreateTagsResponse, error) {
 	requestDef := GenReqDefForCreateTags()
 
@@ -133,8 +128,7 @@ func (c *CdnClient) CreateTagsInvoker(request *model.CreateTagsRequest) *CreateT
 //
 // 删除加速域名。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) DeleteDomain(request *model.DeleteDomainRequest) (*model.DeleteDomainResponse, error) {
 	requestDef := GenReqDefForDeleteDomain()
 
@@ -155,8 +149,7 @@ func (c *CdnClient) DeleteDomainInvoker(request *model.DeleteDomainRequest) *Del
 //
 // 停用加速域名。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) DisableDomain(request *model.DisableDomainRequest) (*model.DisableDomainResponse, error) {
 	requestDef := GenReqDefForDisableDomain()
 
@@ -177,8 +170,7 @@ func (c *CdnClient) DisableDomainInvoker(request *model.DisableDomainRequest) *D
 //
 // 启用加速域名。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) EnableDomain(request *model.EnableDomainRequest) (*model.EnableDomainResponse, error) {
 	requestDef := GenReqDefForEnableDomain()
 
@@ -199,8 +191,7 @@ func (c *CdnClient) EnableDomainInvoker(request *model.EnableDomainRequest) *Ena
 //
 // 查询加速域名信息
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ListDomains(request *model.ListDomainsRequest) (*model.ListDomainsResponse, error) {
 	requestDef := GenReqDefForListDomains()
 
@@ -221,8 +212,7 @@ func (c *CdnClient) ListDomainsInvoker(request *model.ListDomainsRequest) *ListD
 //
 // 查询域名已经设置的IP黑白名单。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowBlackWhiteList(request *model.ShowBlackWhiteListRequest) (*model.ShowBlackWhiteListResponse, error) {
 	requestDef := GenReqDefForShowBlackWhiteList()
 
@@ -243,8 +233,7 @@ func (c *CdnClient) ShowBlackWhiteListInvoker(request *model.ShowBlackWhiteListR
 //
 // 查询缓存规则。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowCacheRules(request *model.ShowCacheRulesRequest) (*model.ShowCacheRulesResponse, error) {
 	requestDef := GenReqDefForShowCacheRules()
 
@@ -265,8 +254,7 @@ func (c *CdnClient) ShowCacheRulesInvoker(request *model.ShowCacheRulesRequest) 
 //
 // 查询所有绑定HTTPS证书的域名信息
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowCertificatesHttpsInfo(request *model.ShowCertificatesHttpsInfoRequest) (*model.ShowCertificatesHttpsInfoResponse, error) {
 	requestDef := GenReqDefForShowCertificatesHttpsInfo()
 
@@ -287,8 +275,7 @@ func (c *CdnClient) ShowCertificatesHttpsInfoInvoker(request *model.ShowCertific
 //
 // 查询加速域名详情。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowDomainDetail(request *model.ShowDomainDetailRequest) (*model.ShowDomainDetailResponse, error) {
 	requestDef := GenReqDefForShowDomainDetail()
 
@@ -309,8 +296,7 @@ func (c *CdnClient) ShowDomainDetailInvoker(request *model.ShowDomainDetailReque
 //
 // 查询域名配置接口，支持查询回源请求头、HTTP header配置、URL鉴权、证书、源站、回源协议、强制重定向、智能压缩、缓存URL参数、IPv6开关、状态码缓存时间、Range回源、User-Agent黑白名单、改写回源URL、自定义错误页面
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowDomainFullConfig(request *model.ShowDomainFullConfigRequest) (*model.ShowDomainFullConfigResponse, error) {
 	requestDef := GenReqDefForShowDomainFullConfig()
 
@@ -339,8 +325,7 @@ func (c *CdnClient) ShowDomainFullConfigInvoker(request *model.ShowDomainFullCon
 // - 如果传的是多个域名，则每个域名的数据分开返回。
 // - 支持同时查询多个指标，不超过10个。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowDomainItemDetails(request *model.ShowDomainItemDetailsRequest) (*model.ShowDomainItemDetailsResponse, error) {
 	requestDef := GenReqDefForShowDomainItemDetails()
 
@@ -372,8 +357,7 @@ func (c *CdnClient) ShowDomainItemDetailsInvoker(request *model.ShowDomainItemDe
 // - 支持同时查询多个指标，不超过10个。
 // - 域名为海外加速场景不适用。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowDomainItemLocationDetails(request *model.ShowDomainItemLocationDetailsRequest) (*model.ShowDomainItemLocationDetailsResponse, error) {
 	requestDef := GenReqDefForShowDomainItemLocationDetails()
 
@@ -393,15 +377,22 @@ func (c *CdnClient) ShowDomainItemLocationDetailsInvoker(request *model.ShowDoma
 // ShowDomainLocationStats 查询域名统计数据-区域运营商
 //
 // - 支持查询90天内的数据。
+//
 // - 支持多指标同时查询，不超过5个。
+//
 // - 最多同时指定20个域名。
-// - 起始时间和结束时间需要同时指定，左闭右开，毫秒级时间戳，必须为5分钟整时刻点，如：0分、5分、10分、15分等，如果传的不是5分钟时刻点， 返回数据可能与预期不一致。统一用开始时间表示一个时间段，如：2019-01-24 20:15:00 表示取 [20:15:00, 20:20:00)的统计数据，且左闭右开。
+//
+// - 起始时间和结束时间需要同时指定，左闭右开，毫秒级时间戳，必须为5分钟整时刻点，如：0分、5分、10分、15分等，如果传的不是5分钟时刻点，
+// 返回数据可能与预期不一致。统一用开始时间表示一个时间段，如：2019-01-24 20:15:00 表示取 [20:15:00,
+// 20:20:00)的统计数据，且左闭右开。
+//
 // - action取值：location_detail,location_summary
+//
 // - 流量类指标单位统一为Byte（字节）、带宽类指标单位统一为bit/s（比特/秒）、请求数类和状态码类指标单位统一为次数。用于查询指定域名、指定统计指标的区域运营商明细数据。
+//
 // - 单租户调用频率：15次/s。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowDomainLocationStats(request *model.ShowDomainLocationStatsRequest) (*model.ShowDomainLocationStatsResponse, error) {
 	requestDef := GenReqDefForShowDomainLocationStats()
 
@@ -421,15 +412,21 @@ func (c *CdnClient) ShowDomainLocationStatsInvoker(request *model.ShowDomainLoca
 // ShowDomainStats 查询域名统计数据
 //
 // - 支持查询90天内的数据。
+//
 // - 支持多指标同时查询，不超过5个。
+//
 // - 最多同时指定20个域名。
-// - 起始时间和结束时间需要同时指定，左闭右开，毫秒级时间戳，必须为5分钟整时刻点，如：0分、5分、10分、15分等，如果传的不是5分钟时刻点，返回数据可能与预期不一致。统一用开始时间表示一个时间段，如：2019-01-24 20:15:00 表示取 [20:15:00, 20:20:00)的统计数据，且左闭右开。
+//
+// - 起始时间和结束时间需要同时指定，左闭右开，毫秒级时间戳，必须为5分钟整时刻点，如：0分、5分、10分、15分等，如果传的不是5分钟时刻点，返回数据可能与预期不一致。统一用开始时间表示一个时间段，如：2019-01-24
+// 20:15:00 表示取 [20:15:00, 20:20:00)的统计数据，且左闭右开。
+//
 // - action取值：detail,summary
+//
 // - 流量类指标单位统一为Byte（字节）、带宽类指标单位统一为bit/s（比特/秒）、请求数类和状态码类指标单位统一为次数。用于查询指定域名、指定统计指标的明细数据。
+//
 // - 单租户调用频率：15次/s。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowDomainStats(request *model.ShowDomainStatsRequest) (*model.ShowDomainStatsResponse, error) {
 	requestDef := GenReqDefForShowDomainStats()
 
@@ -450,8 +447,7 @@ func (c *CdnClient) ShowDomainStatsInvoker(request *model.ShowDomainStatsRequest
 //
 // 查询刷新预热任务详情。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowHistoryTaskDetails(request *model.ShowHistoryTaskDetailsRequest) (*model.ShowHistoryTaskDetailsResponse, error) {
 	requestDef := GenReqDefForShowHistoryTaskDetails()
 
@@ -472,8 +468,7 @@ func (c *CdnClient) ShowHistoryTaskDetailsInvoker(request *model.ShowHistoryTask
 //
 // 查询刷新预热任务。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowHistoryTasks(request *model.ShowHistoryTasksRequest) (*model.ShowHistoryTasksResponse, error) {
 	requestDef := GenReqDefForShowHistoryTasks()
 
@@ -494,8 +489,7 @@ func (c *CdnClient) ShowHistoryTasksInvoker(request *model.ShowHistoryTasksReque
 //
 // 获取加速域名证书。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowHttpInfo(request *model.ShowHttpInfoRequest) (*model.ShowHttpInfoResponse, error) {
 	requestDef := GenReqDefForShowHttpInfo()
 
@@ -516,8 +510,7 @@ func (c *CdnClient) ShowHttpInfoInvoker(request *model.ShowHttpInfoRequest) *Sho
 //
 // 查询IP归属信息。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowIpInfo(request *model.ShowIpInfoRequest) (*model.ShowIpInfoResponse, error) {
 	requestDef := GenReqDefForShowIpInfo()
 
@@ -538,8 +531,7 @@ func (c *CdnClient) ShowIpInfoInvoker(request *model.ShowIpInfoRequest) *ShowIpI
 //
 // 日志查询。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowLogs(request *model.ShowLogsRequest) (*model.ShowLogsResponse, error) {
 	requestDef := GenReqDefForShowLogs()
 
@@ -560,8 +552,7 @@ func (c *CdnClient) ShowLogsInvoker(request *model.ShowLogsRequest) *ShowLogsInv
 //
 // 查询回源HOST。回源HOST是CDN节点在回源过程中，在源站访问的站点域名，即http请求头中的host信息。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowOriginHost(request *model.ShowOriginHostRequest) (*model.ShowOriginHostResponse, error) {
 	requestDef := GenReqDefForShowOriginHost()
 
@@ -582,8 +573,7 @@ func (c *CdnClient) ShowOriginHostInvoker(request *model.ShowOriginHostRequest) 
 //
 // 查询当前用户域名、刷新文件、刷新目录和预热的配额
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowQuota(request *model.ShowQuotaRequest) (*model.ShowQuotaResponse, error) {
 	requestDef := GenReqDefForShowQuota()
 
@@ -604,8 +594,7 @@ func (c *CdnClient) ShowQuotaInvoker(request *model.ShowQuotaRequest) *ShowQuota
 //
 // 查询Referer过滤规则。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowRefer(request *model.ShowReferRequest) (*model.ShowReferResponse, error) {
 	requestDef := GenReqDefForShowRefer()
 
@@ -626,8 +615,7 @@ func (c *CdnClient) ShowReferInvoker(request *model.ShowReferRequest) *ShowRefer
 //
 // 列举header所有配置。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowResponseHeader(request *model.ShowResponseHeaderRequest) (*model.ShowResponseHeaderResponse, error) {
 	requestDef := GenReqDefForShowResponseHeader()
 
@@ -648,8 +636,7 @@ func (c *CdnClient) ShowResponseHeaderInvoker(request *model.ShowResponseHeaderR
 //
 // 用于查询资源标签列表
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowTags(request *model.ShowTagsRequest) (*model.ShowTagsResponse, error) {
 	requestDef := GenReqDefForShowTags()
 
@@ -669,15 +656,21 @@ func (c *CdnClient) ShowTagsInvoker(request *model.ShowTagsRequest) *ShowTagsInv
 // ShowTopUrl 查询TOP100 URL明细
 //
 // - 查询TOP100 URL明细。
+//
 // - 支持查询90天内的数据。
+//
 // - 查询跨度不能超过31天。
-// - 起始时间和结束时间，左闭右开，需要同时指定。如查询2021-10-24 00:00:00 到 2021-10-25 00:00:00 的数据，表示取 [2021-10-24 00:00:00, 2021-10-25 00:00:00)的统计数据。
+//
+// - 起始时间和结束时间，左闭右开，需要同时指定。如查询2021-10-24 00:00:00 到 2021-10-25 00:00:00
+// 的数据，表示取 [2021-10-24 00:00:00, 2021-10-25 00:00:00)的统计数据。
+//
 // - 开始时间、结束时间必须传毫秒级时间戳，且必须为凌晨0点整时刻点，如果传的不是凌晨0点整时刻点，返回数据可能与预期不一致。
+//
 // - 流量类指标单位统一为Byte（字节）、请求数类指标单位统一为次数。用于查询指定域名、指定统计指标的明细数据。
+//
 // - 单租户调用频率：5次/s。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowTopUrl(request *model.ShowTopUrlRequest) (*model.ShowTopUrlResponse, error) {
 	requestDef := GenReqDefForShowTopUrl()
 
@@ -698,8 +691,7 @@ func (c *CdnClient) ShowTopUrlInvoker(request *model.ShowTopUrlRequest) *ShowTop
 //
 // 查询刷新预热URL记录。如需此接口，请提交工单开通
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowUrlTaskInfo(request *model.ShowUrlTaskInfoRequest) (*model.ShowUrlTaskInfoResponse, error) {
 	requestDef := GenReqDefForShowUrlTaskInfo()
 
@@ -720,8 +712,7 @@ func (c *CdnClient) ShowUrlTaskInfoInvoker(request *model.ShowUrlTaskInfoRequest
 //
 // 设置域名的IP黑白名单。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) UpdateBlackWhiteList(request *model.UpdateBlackWhiteListRequest) (*model.UpdateBlackWhiteListResponse, error) {
 	requestDef := GenReqDefForUpdateBlackWhiteList()
 
@@ -742,8 +733,7 @@ func (c *CdnClient) UpdateBlackWhiteListInvoker(request *model.UpdateBlackWhiteL
 //
 // 设置CDN节点上缓存资源的缓存策略。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) UpdateCacheRules(request *model.UpdateCacheRulesRequest) (*model.UpdateCacheRulesResponse, error) {
 	requestDef := GenReqDefForUpdateCacheRules()
 
@@ -764,8 +754,7 @@ func (c *CdnClient) UpdateCacheRulesInvoker(request *model.UpdateCacheRulesReque
 //
 // 修改域名全量配置接口，支持配置回源请求头、HTTP header配置、URL鉴权、证书、源站、回源协议、强制重定向、智能压缩、缓存URL参数、IPv6、状态码缓存时间、Range回源、User-Agent黑白名单、改写回源URL、自定义错误页面
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) UpdateDomainFullConfig(request *model.UpdateDomainFullConfigRequest) (*model.UpdateDomainFullConfigResponse, error) {
 	requestDef := GenReqDefForUpdateDomainFullConfig()
 
@@ -786,8 +775,7 @@ func (c *CdnClient) UpdateDomainFullConfigInvoker(request *model.UpdateDomainFul
 //
 // 一个证书配置多个域名，设置域名强制https回源参数。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) UpdateDomainMultiCertificates(request *model.UpdateDomainMultiCertificatesRequest) (*model.UpdateDomainMultiCertificatesResponse, error) {
 	requestDef := GenReqDefForUpdateDomainMultiCertificates()
 
@@ -808,8 +796,7 @@ func (c *CdnClient) UpdateDomainMultiCertificatesInvoker(request *model.UpdateDo
 //
 // 修改源站信息。源站IP地址或域名都可以指引CDN节点回源到对应的源站服务器，源站域名不能与加速域名相同。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) UpdateDomainOrigin(request *model.UpdateDomainOriginRequest) (*model.UpdateDomainOriginResponse, error) {
 	requestDef := GenReqDefForUpdateDomainOrigin()
 
@@ -830,8 +817,7 @@ func (c *CdnClient) UpdateDomainOriginInvoker(request *model.UpdateDomainOriginR
 //
 // 开启此项配置后，当CDN节点回源请求源站返回301/302状态码时，CDN节点会先跳转到301/302对应地址获取资源并缓存后再返回给用户。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) UpdateFollow302Switch(request *model.UpdateFollow302SwitchRequest) (*model.UpdateFollow302SwitchResponse, error) {
 	requestDef := GenReqDefForUpdateFollow302Switch()
 
@@ -852,8 +838,7 @@ func (c *CdnClient) UpdateFollow302SwitchInvoker(request *model.UpdateFollow302S
 //
 // 设置加速域名HTTPS。通过配置加速域名的HTTPS证书，并将其部署在全网CDN节点，实现HTTPS安全加速。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) UpdateHttpsInfo(request *model.UpdateHttpsInfoRequest) (*model.UpdateHttpsInfoResponse, error) {
 	requestDef := GenReqDefForUpdateHttpsInfo()
 
@@ -874,8 +859,7 @@ func (c *CdnClient) UpdateHttpsInfoInvoker(request *model.UpdateHttpsInfoRequest
 //
 // 修改回源HOST。回源HOST是CDN节点在回源过程中，在源站访问的站点域名，即http请求头中的host信息。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) UpdateOriginHost(request *model.UpdateOriginHostRequest) (*model.UpdateOriginHostResponse, error) {
 	requestDef := GenReqDefForUpdateOriginHost()
 
@@ -896,8 +880,7 @@ func (c *CdnClient) UpdateOriginHostInvoker(request *model.UpdateOriginHostReque
 //
 // 修改私有桶开启关闭状态。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) UpdatePrivateBucketAccess(request *model.UpdatePrivateBucketAccessRequest) (*model.UpdatePrivateBucketAccessResponse, error) {
 	requestDef := GenReqDefForUpdatePrivateBucketAccess()
 
@@ -920,8 +903,7 @@ func (c *CdnClient) UpdatePrivateBucketAccessInvoker(request *model.UpdatePrivat
 //
 // 开启Range回源前需要确认源站是否支持Range请求，若源站不支持Range请求，开启Range回源将导致资源无法缓存。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) UpdateRangeSwitch(request *model.UpdateRangeSwitchRequest) (*model.UpdateRangeSwitchResponse, error) {
 	requestDef := GenReqDefForUpdateRangeSwitch()
 
@@ -942,8 +924,7 @@ func (c *CdnClient) UpdateRangeSwitchInvoker(request *model.UpdateRangeSwitchReq
 //
 // 设置Referer过滤规则。通过设置过滤策略，对访问者身份进行识别和过滤，实现限制访问来源的目的。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) UpdateRefer(request *model.UpdateReferRequest) (*model.UpdateReferResponse, error) {
 	requestDef := GenReqDefForUpdateRefer()
 
@@ -964,8 +945,7 @@ func (c *CdnClient) UpdateReferInvoker(request *model.UpdateReferRequest) *Updat
 //
 // 新增/修改域名响应头配置。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) UpdateResponseHeader(request *model.UpdateResponseHeaderRequest) (*model.UpdateResponseHeaderResponse, error) {
 	requestDef := GenReqDefForUpdateResponseHeader()
 

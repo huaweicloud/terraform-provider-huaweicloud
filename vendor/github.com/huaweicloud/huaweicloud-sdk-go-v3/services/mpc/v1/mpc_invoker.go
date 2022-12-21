@@ -41,6 +41,102 @@ func (i *ListAnimatedGraphicsTaskInvoker) Invoke() (*model.ListAnimatedGraphicsT
 	}
 }
 
+type CreateAgenciesTaskInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateAgenciesTaskInvoker) Invoke() (*model.CreateAgenciesTaskResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateAgenciesTaskResponse), nil
+	}
+}
+
+type ListAllBucketsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListAllBucketsInvoker) Invoke() (*model.ListAllBucketsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListAllBucketsResponse), nil
+	}
+}
+
+type ListAllObsObjListInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListAllObsObjListInvoker) Invoke() (*model.ListAllObsObjListResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListAllObsObjListResponse), nil
+	}
+}
+
+type ListNotifyEventInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListNotifyEventInvoker) Invoke() (*model.ListNotifyEventResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListNotifyEventResponse), nil
+	}
+}
+
+type ListNotifySmnTopicConfigInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListNotifySmnTopicConfigInvoker) Invoke() (*model.ListNotifySmnTopicConfigResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListNotifySmnTopicConfigResponse), nil
+	}
+}
+
+type NotifySmnTopicConfigInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *NotifySmnTopicConfigInvoker) Invoke() (*model.NotifySmnTopicConfigResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.NotifySmnTopicConfigResponse), nil
+	}
+}
+
+type ShowAgenciesTaskInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowAgenciesTaskInvoker) Invoke() (*model.ShowAgenciesTaskResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowAgenciesTaskResponse), nil
+	}
+}
+
+type UpdateBucketAuthorizedInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateBucketAuthorizedInvoker) Invoke() (*model.UpdateBucketAuthorizedResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateBucketAuthorizedResponse), nil
+	}
+}
+
 type CreateEditingJobInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -506,6 +602,30 @@ func (i *DeleteTranscodingTaskInvoker) Invoke() (*model.DeleteTranscodingTaskRes
 		return nil, err
 	} else {
 		return result.(*model.DeleteTranscodingTaskResponse), nil
+	}
+}
+
+type DeleteTranscodingTaskByConsoleInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteTranscodingTaskByConsoleInvoker) Invoke() (*model.DeleteTranscodingTaskByConsoleResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteTranscodingTaskByConsoleResponse), nil
+	}
+}
+
+type ListStatSummaryInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListStatSummaryInvoker) Invoke() (*model.ListStatSummaryResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListStatSummaryResponse), nil
 	}
 }
 

@@ -23,8 +23,7 @@ func OmsClientBuilder() *http_client.HcHttpClientBuilder {
 //
 // 源端有对象需要进行同步时，调用该接口创建一个同步事件，系统将根据同步事件中包含的对象名称进行同步(目前只支持华北-北京四、华东-上海一地区)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *OmsClient) CreateSyncEvents(request *model.CreateSyncEventsRequest) (*model.CreateSyncEventsResponse, error) {
 	requestDef := GenReqDefForCreateSyncEvents()
 
@@ -45,8 +44,7 @@ func (c *OmsClient) CreateSyncEventsInvoker(request *model.CreateSyncEventsReque
 //
 // 创建迁移任务，创建成功后，任务会被自动启动，不需要额外调用启动任务命令。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *OmsClient) CreateTask(request *model.CreateTaskRequest) (*model.CreateTaskResponse, error) {
 	requestDef := GenReqDefForCreateTask()
 
@@ -68,8 +66,7 @@ func (c *OmsClient) CreateTaskInvoker(request *model.CreateTaskRequest) *CreateT
 // 调用该接口删除迁移任务。
 // 正在运行的任务不允许删除，如果删除会返回失败；若要删除，请先行暂停任务。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *OmsClient) DeleteTask(request *model.DeleteTaskRequest) (*model.DeleteTaskResponse, error) {
 	requestDef := GenReqDefForDeleteTask()
 
@@ -90,8 +87,7 @@ func (c *OmsClient) DeleteTaskInvoker(request *model.DeleteTaskRequest) *DeleteT
 //
 // 查询用户账户下的所有任务信息。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *OmsClient) ListTasks(request *model.ListTasksRequest) (*model.ListTasksResponse, error) {
 	requestDef := GenReqDefForListTasks()
 
@@ -112,8 +108,7 @@ func (c *OmsClient) ListTasksInvoker(request *model.ListTasksRequest) *ListTasks
 //
 // 查询指定ID的任务详情。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *OmsClient) ShowTask(request *model.ShowTaskRequest) (*model.ShowTaskResponse, error) {
 	requestDef := GenReqDefForShowTask()
 
@@ -134,8 +129,7 @@ func (c *OmsClient) ShowTaskInvoker(request *model.ShowTaskRequest) *ShowTaskInv
 //
 // 迁移任务暂停或失败后，调用该接口以启动任务。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *OmsClient) StartTask(request *model.StartTaskRequest) (*model.StartTaskResponse, error) {
 	requestDef := GenReqDefForStartTask()
 
@@ -156,8 +150,7 @@ func (c *OmsClient) StartTaskInvoker(request *model.StartTaskRequest) *StartTask
 //
 // 当迁移任务处于迁移中时，调用该接口停止任务。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *OmsClient) StopTask(request *model.StopTaskRequest) (*model.StopTaskResponse, error) {
 	requestDef := GenReqDefForStopTask()
 
@@ -178,8 +171,7 @@ func (c *OmsClient) StopTaskInvoker(request *model.StopTaskRequest) *StopTaskInv
 //
 // 当迁移任务未执行完成时，修改迁移任务的流量控制策略。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *OmsClient) UpdateBandwidthPolicy(request *model.UpdateBandwidthPolicyRequest) (*model.UpdateBandwidthPolicyResponse, error) {
 	requestDef := GenReqDefForUpdateBandwidthPolicy()
 
@@ -200,8 +192,7 @@ func (c *OmsClient) UpdateBandwidthPolicyInvoker(request *model.UpdateBandwidthP
 //
 // 创建迁移任务组，创建成功后，迁移任务组会自动创建迁移任务，不需要额外调用启动任务命令（目前只支持华南-广州用户友好环境、西南-贵阳一、亚太-香港和亚太-新加坡地区）。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *OmsClient) CreateTaskGroup(request *model.CreateTaskGroupRequest) (*model.CreateTaskGroupResponse, error) {
 	requestDef := GenReqDefForCreateTaskGroup()
 
@@ -223,8 +214,7 @@ func (c *OmsClient) CreateTaskGroupInvoker(request *model.CreateTaskGroupRequest
 // 删除指定的迁移任务组.（目前只支持华南-广州用户友好环境、西南-贵阳一、亚太-香港和亚太-新加坡地区）
 // 创建任务中、监控中、暂停中状态的任务不允许删除，如果删除会返回失败；若要删除，请先行暂停任务。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *OmsClient) DeleteTaskGroup(request *model.DeleteTaskGroupRequest) (*model.DeleteTaskGroupResponse, error) {
 	requestDef := GenReqDefForDeleteTaskGroup()
 
@@ -245,8 +235,7 @@ func (c *OmsClient) DeleteTaskGroupInvoker(request *model.DeleteTaskGroupRequest
 //
 // 查询用户账户下的任务组信息（目前只支持华南-广州用户友好环境、西南-贵阳一、亚太-香港和亚太-新加坡地区）。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *OmsClient) ListTaskGroup(request *model.ListTaskGroupRequest) (*model.ListTaskGroupResponse, error) {
 	requestDef := GenReqDefForListTaskGroup()
 
@@ -267,8 +256,7 @@ func (c *OmsClient) ListTaskGroupInvoker(request *model.ListTaskGroupRequest) *L
 //
 // 当迁移任务组处于迁移失败状态时，调用该接口重启指定ID的迁移任务组（目前只支持华南-广州用户友好环境、西南-贵阳一、亚太-香港和亚太-新加坡地区）。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *OmsClient) RetryTaskGroup(request *model.RetryTaskGroupRequest) (*model.RetryTaskGroupResponse, error) {
 	requestDef := GenReqDefForRetryTaskGroup()
 
@@ -289,8 +277,7 @@ func (c *OmsClient) RetryTaskGroupInvoker(request *model.RetryTaskGroupRequest) 
 //
 // 获取指定ID的taskgroup信息（目前只支持华南-广州用户友好环境、西南-贵阳一、亚太-香港和亚太-新加坡地区）。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *OmsClient) ShowTaskGroup(request *model.ShowTaskGroupRequest) (*model.ShowTaskGroupResponse, error) {
 	requestDef := GenReqDefForShowTaskGroup()
 
@@ -311,8 +298,7 @@ func (c *OmsClient) ShowTaskGroupInvoker(request *model.ShowTaskGroupRequest) *S
 //
 // 当迁移任务组处于暂停状态时，调用该接口启动指定ID的迁移任务组（目前只支持华南-广州用户友好环境、西南-贵阳一、亚太-香港和亚太-新加坡地区）。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *OmsClient) StartTaskGroup(request *model.StartTaskGroupRequest) (*model.StartTaskGroupResponse, error) {
 	requestDef := GenReqDefForStartTaskGroup()
 
@@ -333,8 +319,7 @@ func (c *OmsClient) StartTaskGroupInvoker(request *model.StartTaskGroupRequest) 
 //
 // 当迁移任务组处于创建任务中或监控中时，调用该接口暂停指定迁移任务组（目前只支持华南-广州用户友好环境、西南-贵阳一、亚太-香港和亚太-新加坡地区）。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *OmsClient) StopTaskGroup(request *model.StopTaskGroupRequest) (*model.StopTaskGroupResponse, error) {
 	requestDef := GenReqDefForStopTaskGroup()
 
@@ -355,8 +340,7 @@ func (c *OmsClient) StopTaskGroupInvoker(request *model.StopTaskGroupRequest) *S
 //
 // 当迁移任务组未执行完成时，修改迁移任务组的流量控制策略（目前只支持华南-广州用户友好环境、西南-贵阳一、亚太-香港和亚太-新加坡地区）。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *OmsClient) UpdateTaskGroup(request *model.UpdateTaskGroupRequest) (*model.UpdateTaskGroupResponse, error) {
 	requestDef := GenReqDefForUpdateTaskGroup()
 
@@ -377,8 +361,7 @@ func (c *OmsClient) UpdateTaskGroupInvoker(request *model.UpdateTaskGroupRequest
 //
 // 查询对象存储迁移服务的API版本信息。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *OmsClient) ListApiVersions(request *model.ListApiVersionsRequest) (*model.ListApiVersionsResponse, error) {
 	requestDef := GenReqDefForListApiVersions()
 
@@ -399,8 +382,7 @@ func (c *OmsClient) ListApiVersionsInvoker(request *model.ListApiVersionsRequest
 //
 // 查询对象存储迁移服务指定API版本信息。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *OmsClient) ShowApiInfo(request *model.ShowApiInfoRequest) (*model.ShowApiInfoResponse, error) {
 	requestDef := GenReqDefForShowApiInfo()
 

@@ -9,6 +9,9 @@ import (
 // Response Object
 type ListClustersDetailsResponse struct {
 
+	// 集群个数。
+	TotalSize *int32 `json:"totalSize,omitempty"`
+
 	// 集群对象列表。
 	Clusters       *[]ClusterList `json:"clusters,omitempty"`
 	HttpStatusCode int            `json:"-"`

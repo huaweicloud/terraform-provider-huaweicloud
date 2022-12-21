@@ -3,6 +3,9 @@ package model
 import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/utils"
 
+	"errors"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/converter"
+
 	"strings"
 )
 
@@ -22,7 +25,7 @@ type AlarmRuleParam struct {
 	AlarmDescription *string `json:"alarm_description,omitempty"`
 
 	// 告警级别。1：紧急，2：重要，3：一般，4：提示。
-	AlarmLevel int32 `json:"alarm_level"`
+	AlarmLevel AlarmRuleParamAlarmLevel `json:"alarm_level"`
 
 	// 阈值规则名称。
 	AlarmRuleName string `json:"alarm_rule_name"`
@@ -55,7 +58,7 @@ type AlarmRuleParam struct {
 	Period int32 `json:"period"`
 
 	// 统计方式。
-	Statistic string `json:"statistic"`
+	Statistic AlarmRuleParamStatistic `json:"statistic"`
 
 	// 超限值。
 	Threshold string `json:"threshold"`
@@ -71,4 +74,105 @@ func (o AlarmRuleParam) String() string {
 	}
 
 	return strings.Join([]string{"AlarmRuleParam", string(data)}, " ")
+}
+
+type AlarmRuleParamAlarmLevel struct {
+	value int32
+}
+
+type AlarmRuleParamAlarmLevelEnum struct {
+	E_1 AlarmRuleParamAlarmLevel
+	E_2 AlarmRuleParamAlarmLevel
+	E_3 AlarmRuleParamAlarmLevel
+	E_4 AlarmRuleParamAlarmLevel
+}
+
+func GetAlarmRuleParamAlarmLevelEnum() AlarmRuleParamAlarmLevelEnum {
+	return AlarmRuleParamAlarmLevelEnum{
+		E_1: AlarmRuleParamAlarmLevel{
+			value: 1,
+		}, E_2: AlarmRuleParamAlarmLevel{
+			value: 2,
+		}, E_3: AlarmRuleParamAlarmLevel{
+			value: 3,
+		}, E_4: AlarmRuleParamAlarmLevel{
+			value: 4,
+		},
+	}
+}
+
+func (c AlarmRuleParamAlarmLevel) Value() int32 {
+	return c.value
+}
+
+func (c AlarmRuleParamAlarmLevel) MarshalJSON() ([]byte, error) {
+	return utils.Marshal(c.value)
+}
+
+func (c *AlarmRuleParamAlarmLevel) UnmarshalJSON(b []byte) error {
+	myConverter := converter.StringConverterFactory("int32")
+	if myConverter != nil {
+		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+		if err == nil {
+			c.value = val.(int32)
+			return nil
+		}
+		return err
+	} else {
+		return errors.New("convert enum data to int32 error")
+	}
+}
+
+type AlarmRuleParamStatistic struct {
+	value string
+}
+
+type AlarmRuleParamStatisticEnum struct {
+	MAXIMUM      AlarmRuleParamStatistic
+	MINIMUM      AlarmRuleParamStatistic
+	AVERAGE      AlarmRuleParamStatistic
+	SUM          AlarmRuleParamStatistic
+	SAMPLE_COUNT AlarmRuleParamStatistic
+}
+
+func GetAlarmRuleParamStatisticEnum() AlarmRuleParamStatisticEnum {
+	return AlarmRuleParamStatisticEnum{
+		MAXIMUM: AlarmRuleParamStatistic{
+			value: "maximum",
+		},
+		MINIMUM: AlarmRuleParamStatistic{
+			value: "minimum",
+		},
+		AVERAGE: AlarmRuleParamStatistic{
+			value: "average",
+		},
+		SUM: AlarmRuleParamStatistic{
+			value: "sum",
+		},
+		SAMPLE_COUNT: AlarmRuleParamStatistic{
+			value: "sampleCount",
+		},
+	}
+}
+
+func (c AlarmRuleParamStatistic) Value() string {
+	return c.value
+}
+
+func (c AlarmRuleParamStatistic) MarshalJSON() ([]byte, error) {
+	return utils.Marshal(c.value)
+}
+
+func (c *AlarmRuleParamStatistic) UnmarshalJSON(b []byte) error {
+	myConverter := converter.StringConverterFactory("string")
+	if myConverter != nil {
+		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+		if err == nil {
+			c.value = val.(string)
+			return nil
+		}
+		return err
+	} else {
+		return errors.New("convert enum data to string error")
+	}
 }

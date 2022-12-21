@@ -184,6 +184,33 @@ func (s Credentials) needUpdateSecurityToken() bool {
 	return s.expiredAt-time.Now().Unix() < 60
 }
 
+func (s Credentials) needUpdateAuthToken() bool {
+	if s.IdpId == "" || s.IdTokenFile == "" {
+		return false
+	}
+	if s.authToken == "" {
+		return true
+	}
+	return s.expiredAt-time.Now().Unix() < 60
+}
+
+func (s Credentials) getIdToken() (string, error) {
+	_, err := os.Stat(s.IdTokenFile)
+	if err != nil {
+		return "", err
+	}
+
+	bytes, err := ioutil.ReadFile(s.IdTokenFile)
+	if err != nil {
+		return "", err
+	}
+	idToken := string(bytes)
+	if idToken == "" {
+		return "", sdkerr.NewCredentialsTypeError("id token is empty")
+	}
+	return idToken, nil
+}
+
 func (s *Credentials) UpdateSecurityTokenFromMetadata() error {
 	credential, err := internal.GetCredentialFromMetadata()
 	if err != nil {
@@ -200,16 +227,6 @@ func (s *Credentials) UpdateSecurityTokenFromMetadata() error {
 	s.expiredAt = location.Unix()
 
 	return nil
-}
-
-func (s Credentials) needUpdateAuthToken() bool {
-	if s.IdpId == "" || s.IdTokenFile == "" {
-		return false
-	}
-	if s.authToken == "" {
-		return true
-	}
-	return s.expiredAt-time.Now().Unix() < 60
 }
 
 func (s *Credentials) updateAuthTokenByIdToken(client *impl.DefaultHttpClient) error {
@@ -233,23 +250,6 @@ func (s *Credentials) updateAuthTokenByIdToken(client *impl.DefaultHttpClient) e
 	return nil
 }
 
-func (s Credentials) getIdToken() (string, error) {
-	_, err := os.Stat(s.IdTokenFile)
-	if err != nil {
-		return "", err
-	}
-
-	bytes, err := ioutil.ReadFile(s.IdTokenFile)
-	if err != nil {
-		return "", err
-	}
-	idToken := string(bytes)
-	if idToken == "" {
-		return "", sdkerr.NewCredentialsTypeError("id token is empty")
-	}
-	return idToken, nil
-}
-
 type CredentialsBuilder struct {
 	Credentials *Credentials
 }
@@ -258,11 +258,6 @@ func NewCredentialsBuilder() *CredentialsBuilder {
 	return &CredentialsBuilder{Credentials: &Credentials{
 		IamEndpoint: internal.GetIamEndpoint(),
 	}}
-}
-
-func (builder *CredentialsBuilder) WithIamEndpointOverride(endpoint string) *CredentialsBuilder {
-	builder.Credentials.IamEndpoint = endpoint
-	return builder
 }
 
 func (builder *CredentialsBuilder) WithAk(ak string) *CredentialsBuilder {
@@ -282,6 +277,11 @@ func (builder *CredentialsBuilder) WithDomainId(domainId string) *CredentialsBui
 
 func (builder *CredentialsBuilder) WithSecurityToken(token string) *CredentialsBuilder {
 	builder.Credentials.SecurityToken = token
+	return builder
+}
+
+func (builder *CredentialsBuilder) WithIamEndpointOverride(endpoint string) *CredentialsBuilder {
+	builder.Credentials.IamEndpoint = endpoint
 	return builder
 }
 

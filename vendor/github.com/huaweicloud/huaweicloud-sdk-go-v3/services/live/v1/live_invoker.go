@@ -305,6 +305,18 @@ func (i *UpdateDomainInvoker) Invoke() (*model.UpdateDomainResponse, error) {
 	}
 }
 
+type UpdateDomainIp6SwitchInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateDomainIp6SwitchInvoker) Invoke() (*model.UpdateDomainIp6SwitchResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateDomainIp6SwitchResponse), nil
+	}
+}
+
 type UpdateRecordCallbackConfigInvoker struct {
 	*invoker.BaseInvoker
 }

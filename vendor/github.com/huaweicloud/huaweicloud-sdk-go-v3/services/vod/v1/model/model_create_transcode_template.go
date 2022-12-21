@@ -9,7 +9,7 @@ import (
 type CreateTranscodeTemplate struct {
 
 	// 模板组名称<br/>
-	Name *string `json:"name,omitempty"`
+	Name string `json:"name"`
 
 	// 是否设置成默认转码模板<br/>
 	IsDefault *bool `json:"is_default,omitempty"`
@@ -18,9 +18,9 @@ type CreateTranscodeTemplate struct {
 	IsAutoEncrypt *bool `json:"is_auto_encrypt,omitempty"`
 
 	// 画质配置信息列表<br/>
-	QualityInfoList *[]QualityInfoList `json:"quality_info_list,omitempty"`
+	QualityInfoList []QualityInfoList `json:"quality_info_list"`
 
-	Common *CommonInfo `json:"common,omitempty"`
+	Common *CommonInfo `json:"common"`
 
 	// 绑定的水印模板组ID数组<br/>
 	WatermarkTemplateIds *[]string `json:"watermark_template_ids,omitempty"`

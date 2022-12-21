@@ -21,10 +21,10 @@ type VideoInfo struct {
 	Height *int32 `json:"height,omitempty"`
 
 	// 码率,单位：kbit/s<br/>
-	Bitrate *int32 `json:"bitrate,omitempty"`
+	Bitrate int32 `json:"bitrate"`
 
 	// 帧率（默认为0，0代表自适应，单位是帧每秒）<br/>
-	FrameRate *int32 `json:"frame_rate,omitempty"`
+	FrameRate int32 `json:"frame_rate"`
 }
 
 func (o VideoInfo) String() string {

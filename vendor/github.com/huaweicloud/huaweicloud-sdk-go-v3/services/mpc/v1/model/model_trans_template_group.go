@@ -9,7 +9,7 @@ import (
 type TransTemplateGroup struct {
 
 	// 模板组名称
-	Name *string `json:"name,omitempty"`
+	Name string `json:"name"`
 
 	// 视频信息列表
 	Videos *[]VideoObj `json:"videos,omitempty"`

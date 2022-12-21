@@ -8,8 +8,8 @@ import (
 
 type InstanceRestartRequsetBody struct {
 
-	// 在线调试时必填。
-	Restart *interface{} `json:"restart,omitempty"`
+	// 空值
+	Restart *interface{} `json:"restart"`
 }
 
 func (o InstanceRestartRequsetBody) String() string {

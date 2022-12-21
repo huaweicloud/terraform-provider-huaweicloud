@@ -9,7 +9,7 @@ import (
 // Response Object
 type AddCertificateResponse struct {
 
-	// 设备CA证书ID，在上传设备CA证书时由平台分配的唯一标识。
+	// CA证书ID，在上传CA证书时由平台分配的唯一标识。
 	CertificateId *string `json:"certificate_id,omitempty"`
 
 	// CA证书CN名称。

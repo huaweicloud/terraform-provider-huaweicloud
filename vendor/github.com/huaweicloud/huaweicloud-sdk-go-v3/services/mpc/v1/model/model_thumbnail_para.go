@@ -32,9 +32,6 @@ type ThumbnailPara struct {
 	// 截图文件格式。  取值如下：  1：表示jpg格式
 	Format *int32 `json:"format,omitempty"`
 
-	// 纵横比。
-	AspectRatio *int32 `json:"aspect_ratio,omitempty"`
-
 	// 图片宽度  取值范围：(96,3840]  单位：px
 	Width *int32 `json:"width,omitempty"`
 

@@ -92,6 +92,8 @@ func (b *BaseInvoker) Invoke() (interface{}, error) {
 
 			if b.retryChecker(resp, err) {
 				time.Sleep(time.Duration(b.backoffStrategy.ComputeDelayBeforeNextRetry()))
+			} else {
+				break
 			}
 		}
 		return resp, err

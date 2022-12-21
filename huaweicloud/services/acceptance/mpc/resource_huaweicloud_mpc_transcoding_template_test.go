@@ -117,7 +117,6 @@ resource "huaweicloud_mpc_transcoding_template" "test" {
     output_policy           = "transcode"
     quality                 = 1
     profile                 = 4
-    max_reference_frames    = 4
     height                  = 0
     width                   = 0
   }
@@ -153,7 +152,6 @@ resource "huaweicloud_mpc_transcoding_template" "test" {
     output_policy           = "transcode"
     quality                 = 1
     profile                 = 3
-    max_reference_frames    = 4
     height                  = 0
     width                   = 0
   }

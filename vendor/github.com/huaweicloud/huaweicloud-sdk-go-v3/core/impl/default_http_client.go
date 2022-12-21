@@ -51,8 +51,8 @@ func NewDefaultHttpClient(httpConfig *config.HttpConfig) *DefaultHttpClient {
 
 	if httpConfig.HttpProxy != nil {
 		proxyUrl := httpConfig.HttpProxy.GetProxyUrl()
-		if proxyUrl != "" {
-			proxy, _ := url.Parse(proxyUrl)
+		proxy, err := url.Parse(proxyUrl)
+		if err == nil {
 			transport.Proxy = http.ProxyURL(proxy)
 		}
 	}

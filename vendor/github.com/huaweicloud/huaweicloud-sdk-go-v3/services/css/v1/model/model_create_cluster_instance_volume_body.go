@@ -12,7 +12,7 @@ type CreateClusterInstanceVolumeBody struct {
 	// 卷类型。  - COMMON：普通I/O。 - HIGH：高I/O。 - ULTRAHIGH：超高I/O。
 	VolumeType string `json:"volume_type"`
 
-	// 卷大小，必须大于0且为4和10的公倍数，本地盘规格大小可以通过[获取实例规格列表](ListFlavors.xml)中diskrange属性获得。 单位：GB。
+	// 卷大小，必须大于0且为4和10的公倍数，磁盘规格大小可以通过[获取实例规格列表](ListFlavors.xml)中diskrange属性获得。 单位：GB。
 	Size int32 `json:"size"`
 }
 

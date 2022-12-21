@@ -70,6 +70,6 @@ func ConvertInterfaceToString(value interface{}) string {
 		if err != nil {
 			return ""
 		}
-		return string(strings.Trim(string(b[:]), "\""))
+		return strings.Trim(string(b[:]), "\"")
 	}
 }

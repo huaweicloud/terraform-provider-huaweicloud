@@ -22,6 +22,7 @@ package core
 import (
 	"bytes"
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth"
@@ -34,8 +35,16 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
 	jsoniter "github.com/json-iterator/go"
 	"io/ioutil"
+	"net/url"
 	"reflect"
 	"strings"
+)
+
+const (
+	userAgent      = "User-Agent"
+	xRequestId     = "X-Request-Id"
+	contentType    = "Content-Type"
+	applicationXml = "application/xml"
 )
 
 type HcHttpClient struct {
@@ -83,10 +92,6 @@ func (hc *HcHttpClient) SyncInvoke(req interface{}, reqDef *def.HttpRequestDef,
 		return nil, err
 	}
 
-	for k, v := range hc.extraHeader {
-		httpRequest.AddHeaderParam(k, v)
-	}
-
 	resp, err := hc.httpClient.SyncInvokeHttpWithExchange(httpRequest, exchange)
 	if err != nil {
 		return nil, err
@@ -95,23 +100,66 @@ func (hc *HcHttpClient) SyncInvoke(req interface{}, reqDef *def.HttpRequestDef,
 	return hc.extractResponse(resp, reqDef)
 }
 
-func (hc *HcHttpClient) buildRequest(req interface{}, reqDef *def.HttpRequestDef) (*request.DefaultHttpRequest, error) {
-	builder := request.NewHttpRequestBuilder().
-		WithEndpoint(hc.endpoint).
-		WithMethod(reqDef.Method).
-		WithPath(reqDef.Path)
-
-	if reqDef.ContentType != "" {
-		builder.AddHeaderParam("Content-Type", reqDef.ContentType)
+func (hc *HcHttpClient) extractEndpoint(req interface{}, reqDef *def.HttpRequestDef, attrMaps map[string]string) (string, error) {
+	var endpoint string
+	for _, v := range reqDef.RequestFields {
+		if v.LocationType == def.Cname {
+			u, err := url.Parse(hc.endpoint)
+			if err != nil {
+				return "", err
+			}
+			value, err := hc.getFieldValueByName(v.Name, attrMaps, req)
+			if err != nil {
+				return "", err
+			}
+			endpoint = fmt.Sprintf("%s://%s.%s", u.Scheme, value, u.Host)
+		}
 	}
-	builder.AddHeaderParam("User-Agent", "huaweicloud-usdk-go/3.0")
 
-	builder, err := hc.fillParamsFromReq(req, reqDef, builder)
+	if endpoint == "" {
+		endpoint = hc.endpoint
+	}
+
+	return endpoint, nil
+}
+
+func (hc *HcHttpClient) buildRequest(req interface{}, reqDef *def.HttpRequestDef) (*request.DefaultHttpRequest, error) {
+	t := reflect.TypeOf(req)
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	attrMaps := hc.getFieldJsonTags(t)
+
+	endpoint, err := hc.extractEndpoint(req, reqDef, attrMaps)
 	if err != nil {
 		return nil, err
 	}
 
-	var httpRequest *request.DefaultHttpRequest = builder.Build()
+	builder := request.NewHttpRequestBuilder().
+		WithEndpoint(endpoint).
+		WithMethod(reqDef.Method).
+		WithPath(reqDef.Path)
+
+	if reqDef.ContentType != "" {
+		builder.AddHeaderParam(contentType, reqDef.ContentType)
+	}
+
+	uaValue := "huaweicloud-usdk-go/3.0"
+	for k, v := range hc.extraHeader {
+		if strings.ToLower(k) == strings.ToLower(userAgent) {
+			uaValue = uaValue + ";" + v
+		} else {
+			builder.AddHeaderParam(k, v)
+		}
+	}
+	builder.AddHeaderParam(userAgent, uaValue)
+
+	builder, err = hc.fillParamsFromReq(req, t, reqDef, attrMaps, builder)
+	if err != nil {
+		return nil, err
+	}
+
+	var httpRequest = builder.Build()
 
 	currentHeaderParams := httpRequest.GetHeaderParams()
 	if _, ok := currentHeaderParams["Authorization"]; !ok {
@@ -124,14 +172,8 @@ func (hc *HcHttpClient) buildRequest(req interface{}, reqDef *def.HttpRequestDef
 	return httpRequest, err
 }
 
-func (hc *HcHttpClient) fillParamsFromReq(req interface{}, reqDef *def.HttpRequestDef,
-	builder *request.HttpRequestBuilder) (*request.HttpRequestBuilder, error) {
-	t := reflect.TypeOf(req)
-	if t.Kind() == reflect.Ptr {
-		t = t.Elem()
-	}
-
-	attrMaps := hc.getFieldJsonTags(t)
+func (hc *HcHttpClient) fillParamsFromReq(req interface{}, t reflect.Type, reqDef *def.HttpRequestDef,
+	attrMaps map[string]string, builder *request.HttpRequestBuilder) (*request.HttpRequestBuilder, error) {
 
 	for _, fieldDef := range reqDef.RequestFields {
 		value, err := hc.getFieldValueByName(fieldDef.Name, attrMaps, req)
@@ -179,6 +221,7 @@ func (hc *HcHttpClient) getFieldJsonTags(t reflect.Type) map[string]string {
 			attrMaps[t.Field(i).Name] = jsonTag
 		}
 	}
+
 	return attrMaps
 }
 
@@ -224,8 +267,8 @@ func (hc *HcHttpClient) extractResponse(resp *response.DefaultHttpResponse, reqD
 		return nil, sdkerr.NewServiceResponseError(resp.Response)
 	}
 
-	err := hc.deserializeResponse(resp, reqDef)
-	if err != nil {
+	if err := hc.deserializeResponse(resp, reqDef); err != nil {
+
 		return nil, err
 	}
 
@@ -254,6 +297,16 @@ func (hc *HcHttpClient) deserializeResponse(resp *response.DefaultHttpResponse, 
 		return nil
 	}
 
+	err := hc.deserializeResponseFields(resp, reqDef)
+	if err != nil {
+		return err
+	}
+
+	addStatusCode()
+	return nil
+}
+
+func (hc *HcHttpClient) deserializeResponseFields(resp *response.DefaultHttpResponse, reqDef *def.HttpRequestDef) error {
 	data, err := ioutil.ReadAll(resp.Response.Body)
 	if err != nil {
 		if closeErr := resp.Response.Body.Close(); closeErr != nil {
@@ -261,10 +314,18 @@ func (hc *HcHttpClient) deserializeResponse(resp *response.DefaultHttpResponse, 
 		}
 		return err
 	}
-	if err := resp.Response.Body.Close(); err != nil {
+	if err = resp.Response.Body.Close(); err != nil {
 		return err
 	} else {
 		resp.Response.Body = ioutil.NopCloser(bytes.NewBuffer(data))
+	}
+
+	processError := func(err error) error {
+		return &sdkerr.ServiceResponseError{
+			StatusCode:   resp.GetStatusCode(),
+			RequestId:    resp.GetHeader(xRequestId),
+			ErrorMessage: err.Error(),
+		}
 	}
 
 	hasBody := false
@@ -272,11 +333,7 @@ func (hc *HcHttpClient) deserializeResponse(resp *response.DefaultHttpResponse, 
 		if item.LocationType == def.Header {
 			headerErr := hc.deserializeResponseHeaders(resp, reqDef, item)
 			if headerErr != nil {
-				return &sdkerr.ServiceResponseError{
-					StatusCode:   resp.GetStatusCode(),
-					RequestId:    resp.GetHeader("X-Request-Id"),
-					ErrorMessage: headerErr.Error(),
-				}
+				return processError(headerErr)
 			}
 		}
 
@@ -285,27 +342,23 @@ func (hc *HcHttpClient) deserializeResponse(resp *response.DefaultHttpResponse, 
 
 			bodyErr := hc.deserializeResponseBody(reqDef, data)
 			if bodyErr != nil {
-				return &sdkerr.ServiceResponseError{
-					StatusCode:   resp.GetStatusCode(),
-					RequestId:    resp.GetHeader("X-Request-Id"),
-					ErrorMessage: bodyErr.Error(),
-				}
+				return processError(err)
 			}
 		}
 	}
 
 	if len(data) != 0 && !hasBody {
-		err = jsoniter.Unmarshal(data, &reqDef.Response)
+		if strings.Contains(resp.Response.Header.Get(contentType), applicationXml) {
+			err = xml.Unmarshal(data, &reqDef.Response)
+		} else {
+			err = jsoniter.Unmarshal(data, &reqDef.Response)
+		}
+
 		if err != nil {
-			return &sdkerr.ServiceResponseError{
-				StatusCode:   resp.GetStatusCode(),
-				RequestId:    resp.GetHeader("X-Request-Id"),
-				ErrorMessage: err.Error(),
-			}
+			return processError(err)
 		}
 	}
 
-	addStatusCode()
 	return nil
 }
 
@@ -358,16 +411,20 @@ func (hc *HcHttpClient) deserializeResponseHeaders(resp *response.DefaultHttpRes
 	if v.Kind() == reflect.Ptr {
 		v = v.Elem()
 	}
+
 	fieldValue := v.FieldByName(item.Name)
 	headerValue := resp.GetHeader(item.JsonTag)
+	if headerValue == "" {
+		return nil
+	}
 
 	sdkConverter := converter.StringConverterFactory(fieldKind)
 	if sdkConverter == nil {
-		return errors.New("failed to convert " + item.JsonTag)
+		return fmt.Errorf("failed to convert %s", item.JsonTag)
 	}
 
-	err := sdkConverter.CovertStringToPrimitiveTypeAndSetField(fieldValue, headerValue, isPtr)
-	if err != nil {
+	if err := sdkConverter.CovertStringToPrimitiveTypeAndSetField(fieldValue, headerValue, isPtr); err != nil {
+
 		return err
 	}
 
@@ -375,18 +432,22 @@ func (hc *HcHttpClient) deserializeResponseHeaders(resp *response.DefaultHttpRes
 }
 
 func (hc *HcHttpClient) getFieldInfo(reqDef *def.HttpRequestDef, item *def.FieldDef) (bool, string) {
-	var fieldKind string
+
 	var isPtr = false
+	var fieldKind string
+
 	t := reflect.TypeOf(reqDef.Response)
 	if t.Kind() == reflect.Ptr {
 		isPtr = true
 		t = t.Elem()
 	}
+
 	field, _ := t.FieldByName(item.Name)
 	if field.Type.Kind() == reflect.Ptr {
 		fieldKind = field.Type.Elem().Kind().String()
 	} else {
 		fieldKind = field.Type.Kind().String()
 	}
+
 	return isPtr, fieldKind
 }

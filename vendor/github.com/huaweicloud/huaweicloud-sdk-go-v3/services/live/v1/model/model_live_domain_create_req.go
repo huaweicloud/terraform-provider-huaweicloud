@@ -20,8 +20,11 @@ type LiveDomainCreateReq struct {
 	// 直播所属的直播中心
 	Region string `json:"region"`
 
-	// 域名应用区域 - mainland_china表示中国大陆区域 - outside_mainland_china表示中国大陆以外区域 - global表示全球区域
+	// 域名应用区域 - mainland_china表示中国大陆区域 - outside_mainland_china表示中国大陆以外区域
 	ServiceArea *LiveDomainCreateReqServiceArea `json:"service_area,omitempty"`
+
+	// 企业项目ID
+	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 }
 
 func (o LiveDomainCreateReq) String() string {
@@ -82,7 +85,6 @@ type LiveDomainCreateReqServiceArea struct {
 type LiveDomainCreateReqServiceAreaEnum struct {
 	MAINLAND_CHINA         LiveDomainCreateReqServiceArea
 	OUTSIDE_MAINLAND_CHINA LiveDomainCreateReqServiceArea
-	GLOBAL                 LiveDomainCreateReqServiceArea
 }
 
 func GetLiveDomainCreateReqServiceAreaEnum() LiveDomainCreateReqServiceAreaEnum {
@@ -92,9 +94,6 @@ func GetLiveDomainCreateReqServiceAreaEnum() LiveDomainCreateReqServiceAreaEnum 
 		},
 		OUTSIDE_MAINLAND_CHINA: LiveDomainCreateReqServiceArea{
 			value: "outside_mainland_china",
-		},
-		GLOBAL: LiveDomainCreateReqServiceArea{
-			value: "global",
 		},
 	}
 }

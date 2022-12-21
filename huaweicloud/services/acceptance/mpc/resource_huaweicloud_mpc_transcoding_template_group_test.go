@@ -113,7 +113,6 @@ resource "huaweicloud_mpc_transcoding_template_group" "test" {
     output_policy           = "transcode"
     quality                 = 1
     profile                 = 4
-    max_reference_frames    = 4
   }
 
   videos {
@@ -152,7 +151,6 @@ resource "huaweicloud_mpc_transcoding_template_group" "test" {
     output_policy           = "transcode"
     quality                 = 1
     profile                 = 3
-    max_reference_frames    = 4
   }
 
   videos {
