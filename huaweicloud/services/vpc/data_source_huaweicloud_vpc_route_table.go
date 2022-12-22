@@ -2,6 +2,7 @@ package vpc
 
 import (
 	"context"
+	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -9,8 +10,6 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/networking/v1/routetables"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceVPCRouteTable() *schema.Resource {
@@ -82,7 +81,7 @@ func dataSourceVpcRouteTableRead(_ context.Context, d *schema.ResourceData, meta
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	listOpts := routetables.ListOpts{
@@ -91,16 +90,16 @@ func dataSourceVpcRouteTableRead(_ context.Context, d *schema.ResourceData, meta
 	}
 	pages, err := routetables.List(vpcClient, listOpts).AllPages()
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve route tables: %s", err)
+		return diag.Errorf("unable to retrieve route tables: %s", err)
 	}
 
 	allRouteTables, err := routetables.ExtractRouteTables(pages)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to extract route tables: %s", err)
+		return diag.Errorf("unable to extract route tables: %s", err)
 	}
 
 	if len(allRouteTables) < 1 {
-		return fmtp.DiagErrorf("Your query returned no results. " +
+		return diag.Errorf("your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
@@ -124,17 +123,17 @@ func dataSourceVpcRouteTableRead(_ context.Context, d *schema.ResourceData, meta
 	}
 
 	if rtbID == "" {
-		return fmtp.DiagErrorf("Your query returned no results. " +
+		return diag.Errorf("your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	// call Get API to retrieve more details about the route table
 	routeTable, err := routetables.Get(vpcClient, rtbID).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve route table %s: %s", rtbID, err)
+		return diag.Errorf("unable to retrieve route table %s: %s", rtbID, err)
 	}
 
-	logp.Printf("[DEBUG] Retrieved VPC route table %s: %+v", rtbID, routeTable)
+	log.Printf("[DEBUG] Retrieved VPC route table %s: %+v", rtbID, routeTable)
 	d.SetId(rtbID)
 
 	mErr := multierror.Append(nil,
@@ -148,7 +147,7 @@ func dataSourceVpcRouteTableRead(_ context.Context, d *schema.ResourceData, meta
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error saving VPC route table: %s", err)
+		return diag.Errorf("error saving VPC route table: %s", err)
 	}
 
 	return nil

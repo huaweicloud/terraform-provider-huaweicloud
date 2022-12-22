@@ -121,7 +121,7 @@ func resourceVPCPeeringV2Read(_ context.Context, d *schema.ResourceData, meta in
 	config := meta.(*config.Config)
 	peeringClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating   Vpc Peering Connection Client: %s", err)
+		return diag.Errorf("error creating Vpc Peering Connection Client: %s", err)
 	}
 
 	n, err := peerings.Get(peeringClient, d.Id()).Extract()
@@ -148,7 +148,7 @@ func resourceVPCPeeringV2Update(ctx context.Context, d *schema.ResourceData, met
 	config := meta.(*config.Config)
 	peeringClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating  Vpc Peering Connection Client: %s", err)
+		return diag.Errorf("error creating Vpc Peering Connection Client: %s", err)
 	}
 
 	var updateOpts peerings.UpdateOpts
@@ -168,7 +168,7 @@ func resourceVPCPeeringV2Delete(ctx context.Context, d *schema.ResourceData, met
 	config := meta.(*config.Config)
 	peeringClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating  Vpc Peering Connection Client: %s", err)
+		return diag.Errorf("error creating Vpc Peering Connection Client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{

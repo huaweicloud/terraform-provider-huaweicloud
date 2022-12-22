@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"regexp"
 	"time"
 
 	"github.com/chnsz/golangsdk"
@@ -13,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	client "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3"
 	v3vpc "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3/model"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -43,9 +45,13 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 				Computed: true,
 			},
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: utils.ValidateString64WithChinese,
+				Type:     schema.TypeString,
+				Required: true,
+				ValidateFunc: validation.All(
+					validation.StringLenBetween(0, 64),
+					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa50-9a-zA-Z-_\\.]*$"),
+						"only letters, digits, underscores (_), hyphens (-), and dot (.) are allowed"),
+				),
 			},
 			"cidr": {
 				Type:         schema.TypeString,
@@ -55,6 +61,11 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ValidateFunc: validation.All(
+					validation.StringLenBetween(0, 255),
+					validation.StringMatch(regexp.MustCompile("^[^<>]*$"),
+						"The angle brackets (< and >) are not allowed."),
+				),
 			},
 			"secondary_cidr": {
 				Type:         schema.TypeString,
