@@ -463,6 +463,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v2",
 		Product: "DBSS",
 	},
+	"hss": {
+		Name:    "hss",
+		Version: "v5",
+		Product: "HSS",
+	},
 
 	// catalog for Enterprise Intelligence
 	"mrs": {

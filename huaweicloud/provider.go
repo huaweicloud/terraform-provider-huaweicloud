@@ -54,6 +54,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/fgs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ga"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/gaussdb"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/hss"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iotda"
@@ -740,6 +741,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_mongo_instance":     gaussdb.ResourceGaussDBMongoInstanceV3(),
 
 			"huaweicloud_ges_graph": ResourceGesGraphV1(),
+
+			"huaweicloud_hss_host_group": hss.ResourceHostGroup(),
 
 			"huaweicloud_identity_access_key":       iam.ResourceIdentityKey(),
 			"huaweicloud_identity_acl":              iam.ResourceIdentityACL(),
