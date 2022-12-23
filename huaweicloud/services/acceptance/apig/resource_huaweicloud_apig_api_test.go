@@ -172,7 +172,7 @@ resource "huaweicloud_apig_vpc_channel" "test" {
     id = huaweicloud_compute_instance.test.id
   }
 }
-`, testAccApigVpcChannel_base(rName), rName, rName)
+`, testAccVpcChannel_base(rName), rName, rName)
 }
 
 func testAccApigAPI_basic(rName string) string {

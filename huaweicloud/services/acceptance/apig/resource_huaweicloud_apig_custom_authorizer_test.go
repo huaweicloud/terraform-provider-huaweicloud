@@ -55,7 +55,7 @@ func TestAccApigCustomAuthorizerV2_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccApigSubResNameImportStateFunc(resourceName),
+				ImportStateIdFunc: testAccCustomAuthorizerImportStateFunc(),
 			},
 		},
 	})
@@ -101,7 +101,7 @@ func TestAccApigCustomAuthorizerV2_backend(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccApigSubResNameImportStateFunc(resourceName),
+				ImportStateIdFunc: testAccCustomAuthorizerImportStateFunc(),
 			},
 		},
 	})
@@ -146,6 +146,21 @@ func testAccCheckApigCustomAuthorizerExists(name string, env *authorizers.Custom
 		}
 		*env = *found
 		return nil
+	}
+}
+
+func testAccCustomAuthorizerImportStateFunc() resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rName := "huaweicloud_apig_custom_authorizer.test"
+		rs, ok := s.RootModule().Resources[rName]
+		if !ok {
+			return "", fmt.Errorf("Resource (%s) not found: %s", rName, rs)
+		}
+		if rs.Primary.Attributes["instance_id"] == "" || rs.Primary.Attributes["name"] == "" {
+			return "", fmt.Errorf("resource not found: %s/%s", rs.Primary.Attributes["instance_id"],
+				rs.Primary.Attributes["name"])
+		}
+		return fmt.Sprintf("%s/%s", rs.Primary.Attributes["instance_id"], rs.Primary.Attributes["name"]), nil
 	}
 }
 
