@@ -458,6 +458,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		ResourceBase: "premium-waf",
 		Product:      "WAF",
 	},
+	"dbss": {
+		Name:    "dbss",
+		Version: "v2",
+		Product: "DBSS",
+	},
 
 	// catalog for Enterprise Intelligence
 	"mrs": {
