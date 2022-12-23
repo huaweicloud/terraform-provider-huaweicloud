@@ -3,6 +3,8 @@ package vpc
 import (
 	"context"
 	"fmt"
+	"log"
+	"regexp"
 	"strings"
 	"time"
 
@@ -14,11 +16,10 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceVPCRouteTableRoute() *schema.Resource {
@@ -66,6 +67,11 @@ func ResourceVPCRouteTableRoute() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ValidateFunc: validation.All(
+					validation.StringLenBetween(0, 255),
+					validation.StringMatch(regexp.MustCompile("^[^<>]*$"),
+						"The angle brackets (< and >) are not allowed."),
+				),
 			},
 			"route_table_id": {
 				Type:     schema.TypeString,
@@ -85,7 +91,7 @@ func resourceVpcRTBRouteCreate(ctx context.Context, d *schema.ResourceData, meta
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	var routeTableID string
@@ -114,10 +120,10 @@ func resourceVpcRTBRouteCreate(ctx context.Context, d *schema.ResourceData, meta
 		},
 	}
 
-	logp.Printf("[DEBUG] add route in VPC route table[%s]: %#v", routeTableID, updateOpts)
+	log.Printf("[DEBUG] Add route in VPC route table[%s]: %#v", routeTableID, updateOpts)
 	_, err = routetables.Update(vpcClient, routeTableID, updateOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating VPC route: %s", err)
+		return diag.Errorf("error creating VPC route: %s", err)
 	}
 
 	routeID := fmt.Sprintf("%s/%s", routeTableID, destination)
@@ -131,7 +137,7 @@ func resourceVpcRTBRouteRead(_ context.Context, d *schema.ResourceData, meta int
 	region := config.GetRegion(d)
 	vpcClient, err := config.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	var diags diag.Diagnostics
@@ -140,7 +146,7 @@ func resourceVpcRTBRouteRead(_ context.Context, d *schema.ResourceData, meta int
 	// Compatible with previous versions: conver ID to new format
 	if routeTableID == "" {
 		oldID := d.Id()
-		logp.Printf("[WARN] The resource ID %s is in the old format, try to upgrade it to the new format", oldID)
+		log.Printf("[WARN] The resource ID %s is in the old format, try to upgrade it to the new format", oldID)
 
 		newID, subDiags := convertRouteIDtoNewFormat(d, config, oldID)
 		if subDiags.HasError() {
@@ -149,7 +155,7 @@ func resourceVpcRTBRouteRead(_ context.Context, d *schema.ResourceData, meta int
 
 		diags = subDiags
 		d.SetId(newID)
-		logp.Printf("[DEBUG] The resource ID %s has upgraded to %s", oldID, d.Id())
+		log.Printf("[DEBUG] The resource ID %s has upgraded to %s", oldID, d.Id())
 		routeTableID, destination = parseResourceID(newID)
 	}
 
@@ -159,15 +165,15 @@ func resourceVpcRTBRouteRead(_ context.Context, d *schema.ResourceData, meta int
 	}
 
 	var route *routetables.Route
-	for _, item := range routeTable.Routes {
-		if item.DestinationCIDR == destination {
-			route = &item
+	for index := range routeTable.Routes {
+		if routeTable.Routes[index].DestinationCIDR == destination {
+			route = &routeTable.Routes[index]
 			break
 		}
 	}
 
 	if route == nil {
-		logp.Printf("[INFO] Since can not find destination %s in the vpc route %s, remove %s from state",
+		log.Printf("[INFO] Since can not find destination %s in the vpc route %s, remove %s from state",
 			routeTableID, destination, d.Id())
 		d.SetId("")
 		return nil
@@ -185,7 +191,7 @@ func resourceVpcRTBRouteRead(_ context.Context, d *schema.ResourceData, meta int
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		diags = append(diags, fmtp.DiagErrorf("Error saving VPC route: %s", err)[0])
+		diags = append(diags, diag.Errorf("error saving VPC route: %s", err)[0])
 	}
 
 	return diags
@@ -195,7 +201,7 @@ func resourceVpcRTBRouteUpdate(ctx context.Context, d *schema.ResourceData, meta
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	routeTableID, _ := parseResourceID(d.Id())
@@ -213,9 +219,9 @@ func resourceVpcRTBRouteUpdate(ctx context.Context, d *schema.ResourceData, meta
 		},
 	}
 
-	logp.Printf("[DEBUG] update route in vpc route table[%s]: %#v", routeTableID, updateOpts)
+	log.Printf("[DEBUG] update route in vpc route table[%s]: %#v", routeTableID, updateOpts)
 	if _, err := routetables.Update(vpcClient, routeTableID, updateOpts).Extract(); err != nil {
-		return fmtp.DiagErrorf("Error updating VPC route: %s", err)
+		return diag.Errorf("error updating VPC route: %s", err)
 	}
 
 	return resourceVpcRTBRouteRead(ctx, d, meta)
@@ -225,7 +231,7 @@ func resourceVpcRTBRouteDelete(_ context.Context, d *schema.ResourceData, meta i
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	routeTableID, _ := parseResourceID(d.Id())
@@ -241,9 +247,9 @@ func resourceVpcRTBRouteDelete(_ context.Context, d *schema.ResourceData, meta i
 		},
 	}
 
-	logp.Printf("[DEBUG] delete route in vpc route table[%s]: %#v", routeTableID, updateOpts)
+	log.Printf("[DEBUG] delete route in vpc route table[%s]: %#v", routeTableID, updateOpts)
 	if _, err := routetables.Update(vpcClient, routeTableID, updateOpts).Extract(); err != nil {
-		return fmtp.DiagErrorf("Error deleting VPC route: %s", err)
+		return diag.Errorf("error deleting VPC route: %s", err)
 	}
 
 	d.SetId("")
@@ -292,7 +298,7 @@ func resourceVpcRTBRouteImportState(_ context.Context, d *schema.ResourceData,
 
 	routeID, _ := parseResourceID(d.Id())
 	if routeID == "" {
-		return nil, fmt.Errorf("Invalid format specified for import id, must be <route_table_id>/<destination>")
+		return nil, fmt.Errorf("invalid format specified for import id, must be <route_table_id>/<destination>")
 	}
 
 	return []*schema.ResourceData{d}, nil
@@ -303,7 +309,7 @@ func convertRouteIDtoNewFormat(d *schema.ResourceData, conf *config.Config, oldI
 		diag.Diagnostic{
 			Severity: diag.Warning,
 			Summary:  "Deprecated ID format",
-			Detail:   fmt.Sprintf("The resource ID %s is in the old format, try to upgrade it to the new format", oldID),
+			Detail:   fmt.Sprintf("the resource ID %s is in the old format, try to upgrade it to the new format", oldID),
 		},
 	}
 
@@ -331,7 +337,7 @@ func convertRouteIDtoNewFormat(d *schema.ResourceData, conf *config.Config, oldI
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Warning,
-				Summary:  fmt.Sprintf("The resource %s does not exist", oldID),
+				Summary:  fmt.Sprintf("the resource %s does not exist", oldID),
 			})
 			d.SetId("")
 		} else {
@@ -369,7 +375,7 @@ func convertRouteIDtoNewFormat(d *schema.ResourceData, conf *config.Config, oldI
 	newRouteID := fmt.Sprintf("%s/%s", routeTableID, destination)
 	diags = append(diags, diag.Diagnostic{
 		Severity: diag.Warning,
-		Summary:  fmt.Sprintf("The resource ID is upgraded to %s", newRouteID),
+		Summary:  fmt.Sprintf("the resource ID is upgraded to %s", newRouteID),
 	})
 	return newRouteID, diags
 }

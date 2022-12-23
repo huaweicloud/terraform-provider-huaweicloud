@@ -61,6 +61,11 @@ instance name.`,
 func DmsRocketMQInstancesInstanceRefSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the ID of the DMS RocketMQ instance.`,
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -89,7 +94,7 @@ func DmsRocketMQInstancesInstanceRefSchema() *schema.Resource {
 			"engine_version": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the version of the RocketMQ engine. Value: 4.8.0.`,
+				Description: `Indicates the version of the RocketMQ engine.`,
 			},
 			"vpc_id": {
 				Type:        schema.TypeString,
@@ -112,11 +117,10 @@ func DmsRocketMQInstancesInstanceRefSchema() *schema.Resource {
 				Description: `Indicates the ID of a subnet.`,
 			},
 			"availability_zones": {
-				Type:     schema.TypeList,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Computed: true,
-				Description: `Indicates the list of availability zone names, where
-`,
+				Type:        schema.TypeList,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Computed:    true,
+				Description: `Indicates the list of availability zone names.`,
 			},
 			"maintain_begin": {
 				Type:        schema.TypeString,
@@ -131,7 +135,7 @@ func DmsRocketMQInstancesInstanceRefSchema() *schema.Resource {
 			"storage_space": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: `Indicates the message storage capacity, unit is GB.`,
+				Description: `Indicates the message storage capacity. Unit: GB.`,
 			},
 			"used_storage_space": {
 				Type:        schema.TypeInt,
@@ -157,7 +161,7 @@ func DmsRocketMQInstancesInstanceRefSchema() *schema.Resource {
 			"ssl_enable": {
 				Type:        schema.TypeBool,
 				Computed:    true,
-				Description: `Indicates whether the RocketMQ SASL_SSL is enabled. Defaults to false.`,
+				Description: `Indicates whether the RocketMQ SASL_SSL is enabled.`,
 			},
 			"cross_vpc_accesses": {
 				Type:        schema.TypeList,
@@ -173,7 +177,7 @@ func DmsRocketMQInstancesInstanceRefSchema() *schema.Resource {
 			"ipv6_enable": {
 				Type:        schema.TypeBool,
 				Computed:    true,
-				Description: `Indicates whether to support IPv6. Defaults to false.`,
+				Description: `Indicates whether to support IPv6.`,
 			},
 			"node_num": {
 				Type:        schema.TypeInt,
@@ -183,7 +187,7 @@ func DmsRocketMQInstancesInstanceRefSchema() *schema.Resource {
 			"new_spec_billing_enable": {
 				Type:        schema.TypeBool,
 				Computed:    true,
-				Description: `Indicates the whether billing based on new specifications is enabled.`,
+				Description: `Indicates whether billing based on new specifications is enabled.`,
 			},
 			"enable_acl": {
 				Type:        schema.TypeBool,
@@ -193,7 +197,7 @@ func DmsRocketMQInstancesInstanceRefSchema() *schema.Resource {
 			"broker_num": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: `Specifies the broker numbers. Defaults to 1.`,
+				Description: `Indicates the broker numbers.`,
 			},
 			"namesrv_address": {
 				Type:        schema.TypeString,
@@ -266,7 +270,8 @@ func resourceDmsRocketMQInstancesRead(ctx context.Context, d *schema.ResourceDat
 	}
 
 	getRocketmqInstancesPath := getRocketmqInstancesClient.Endpoint + getRocketmqInstancesHttpUrl
-	getRocketmqInstancesPath = strings.ReplaceAll(getRocketmqInstancesPath, "{project_id}", getRocketmqInstancesClient.ProjectID)
+	getRocketmqInstancesPath = strings.ReplaceAll(getRocketmqInstancesPath, "{project_id}",
+		getRocketmqInstancesClient.ProjectID)
 
 	getRocketmqInstancesQueryParams := buildGetRocketmqInstancesQueryParams(d)
 	getRocketmqInstancesPath += getRocketmqInstancesQueryParams
@@ -277,7 +282,8 @@ func resourceDmsRocketMQInstancesRead(ctx context.Context, d *schema.ResourceDat
 			200,
 		},
 	}
-	getRocketmqInstancesResp, err := getRocketmqInstancesClient.Request("GET", getRocketmqInstancesPath, &getRocketmqInstancesOpt)
+	getRocketmqInstancesResp, err := getRocketmqInstancesClient.Request("GET", getRocketmqInstancesPath,
+		&getRocketmqInstancesOpt)
 
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving DmsRocketMQInstances")
@@ -341,6 +347,7 @@ func flattenGetRocketmqInstancesResponseBodyInstanceRef(resp interface{}, config
 		}
 
 		rst = append(rst, map[string]interface{}{
+			"id":                      utils.PathSearch("instance_id", v, nil),
 			"name":                    utils.PathSearch("name", v, nil),
 			"status":                  utils.PathSearch("status", v, nil),
 			"description":             utils.PathSearch("description", v, nil),

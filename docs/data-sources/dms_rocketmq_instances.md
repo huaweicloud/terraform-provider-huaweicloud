@@ -8,7 +8,7 @@ Use this data source to get the list of DMS RocketMQ instances.
 
 ## Example Usage
 
-```HCL
+```hcl
 data "huaweicloud_dms_rocketmq_instances" "test" {
   name = "rocketmq_name_test"
 }
@@ -28,7 +28,7 @@ The following arguments are supported:
 * `status` - (Optional, String) Specifies the status of the DMS RocketMQ instance.
 
 * `exact_match_name` - (Optional, String) Specifies whether to search for the instance that precisely matches a
-  specified instance name. Value options: **true**, **false**.
+  specified instance name. Value options: **true**, **false**. Defaults to **false**.
 
 ## Attributes Reference
 
@@ -41,6 +41,8 @@ In addition to all arguments above, the following attributes are exported:
 
 <a name="DmsRocketMQInstances_Instance"></a>
 The `instances` block supports:
+
+* `id` - Indicates the ID of the DMS RocketMQ instance.
 
 * `name` - Indicates the name of the DMS RocketMQ instance.
 
@@ -70,9 +72,9 @@ The `instances` block supports:
 
 * `maintain_end` - Indicates the time at which the maintenance window ends. The format is HH:mm:ss.
 
-* `storage_space` - Indicates the message storage capacity, unit is GB.
+* `storage_space` - Indicates the message storage capacity. Unit: GB.
 
-* `used_storage_space` - Indicates the used message storage space, Unit: GB.
+* `used_storage_space` - Indicates the used message storage space. Unit: GB.
 
 * `enable_publicip` - Indicates whether to enable public access.
 

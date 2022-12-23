@@ -1,16 +1,18 @@
 package vpc
 
 import (
+	"context"
+	"log"
+
 	"github.com/chnsz/golangsdk/openstack/networking/v1/subnets"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceVpcSubnetV1() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceVpcSubnetV1Read,
+		ReadContext: dataSourceVpcSubnetV1Read,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -106,11 +108,11 @@ func DataSourceVpcSubnetV1() *schema.Resource {
 	}
 }
 
-func dataSourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
+func dataSourceVpcSubnetV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	subnetClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud Vpc client: %s", err)
+		return diag.Errorf("error creating Vpc client: %s", err)
 	}
 
 	listOpts := subnets.ListOpts{
@@ -127,21 +129,21 @@ func dataSourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	refinedSubnets, err := subnets.List(subnetClient, listOpts)
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve subnets: %s", err)
+		return diag.Errorf("unable to retrieve subnets: %s", err)
 	}
 
 	if len(refinedSubnets) == 0 {
-		return fmtp.Errorf("No matching subnet found. " +
+		return diag.Errorf("no matching subnet found. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(refinedSubnets) > 1 {
-		return fmtp.Errorf("multiple subnets matched; use additional constraints to reduce matches to a single subnet")
+		return diag.Errorf("multiple subnets matched; use additional constraints to reduce matches to a single subnet")
 	}
 
 	Subnets := refinedSubnets[0]
 
-	logp.Printf("[INFO] Retrieved Subnet using given filter %s: %+v", Subnets.ID, Subnets)
+	log.Printf("[INFO] Retrieved Subnet using given filter %s: %+v", Subnets.ID, Subnets)
 	d.SetId(Subnets.ID)
 
 	d.Set("name", Subnets.Name)

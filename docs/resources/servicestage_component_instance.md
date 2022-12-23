@@ -304,9 +304,11 @@ The `parameter` block supports:
 
 * `path` - (Optional, String) Specifies the host path. Required if the storage `type` is **HostPath**.
 
-* `name` - (Optional, String) Specifies the name of a configuration item or secret.
+* `name` - (Optional, String) Specifies the configuration item.
 
 * `claim_name` - (Optional, String) Specifies the PVC name.
+
+* `secret_name` - (Optional, String) Specifies the Secret name. Required if the storage `type` is **Secret**.
 
 <a name="servicestage_storage_mounts"></a>
 The `mount` block supports:

@@ -1,57 +1,69 @@
 package apig
 
 import (
+	"context"
+	"fmt"
 	"regexp"
+	"strings"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/apigroups"
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/environments"
-	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceApigGroupV2() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceApigGroupV2Create,
-		Read:   resourceApigGroupV2Read,
-		Update: resourceApigGroupV2Update,
-		Delete: resourceApigGroupV2Delete,
+		CreateContext: resourceGroupCreate,
+		ReadContext:   resourceGroupRead,
+		UpdateContext: resourceGroupUpdate,
+		DeleteContext: resourceGroupDelete,
+
 		Importer: &schema.ResourceImporter{
-			State: resourceApigInstanceSubResourceImportState,
+			StateContext: resourceGroupResourceImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "The region where the dedicated instance is located.",
 			},
 			"instance_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "The ID of the dedicated instance to which the group belongs.",
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.StringMatch(
-					regexp.MustCompile("^[\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5A-Za-z_0-9]{2,63}$"),
-					"The name consists of 3 to 64 characters, starting with a letter. "+
-						"Only letters, digits and underscores (_) are allowed. "+
-						"Chinese characters must be in UTF-8 or Unicode format."),
+				ValidateFunc: validation.All(
+					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5\\w]*$"),
+						"Only chinese and english letters, digits and underscores (_) are allowed, and must start "+
+							"with a chinese or english letter. Chinese characters must be in UTF-8 or Unicode format."),
+					validation.StringLenBetween(3, 64),
+				),
+				Description: "The group name.",
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[^<>]{1,255}$"),
-					"The description contain a maximum of 255 characters, "+
-						"and the angle brackets (< and >) are not allowed."),
+				ValidateFunc: validation.All(
+					validation.StringMatch(regexp.MustCompile(`^[^<>]*$`),
+						"The angle brackets (< and >) are not allowed."),
+					validation.StringLenBetween(0, 255),
+				),
+				Description: "The group description.",
 			},
 			"environment": {
 				Type:     schema.TypeSet,
@@ -66,46 +78,70 @@ func ResourceApigGroupV2() *schema.Resource {
 									"name": {
 										Type:     schema.TypeString,
 										Required: true,
-										ValidateFunc: validation.StringMatch(
-											regexp.MustCompile("^[A-Za-z][\\w_-]{2,31}$"),
-											"The name consists of 3 to 32 characters, starting with a letter. "+
-												"Only letters, digits, hyphens (-) and underscores (_) are allowed."),
+										ValidateFunc: validation.All(
+											validation.StringMatch(
+												regexp.MustCompile(`^[A-Za-z][\w-]*$`),
+												"Only letters, digits, hyphens (-) and underscores (_) are allowed, "+
+													"and must start with a letter."),
+											validation.StringLenBetween(3, 32),
+										),
+										Description: "The variable name.",
 									},
 									"value": {
 										Type:     schema.TypeString,
 										Required: true,
-										ValidateFunc: validation.StringMatch(
-											regexp.MustCompile("^[\\w:/.-]{1,255}$"),
-											"The value consists of 1 to 255 characters, only letters, digit and "+
-												"following special characters are allowed: _-/.:"),
+										ValidateFunc: validation.All(
+											validation.StringMatch(regexp.MustCompile(`^[\w:/.-]*$`),
+												"Only letters, digit and following special characters are allowed: _-/.:"),
+											validation.StringLenBetween(1, 255),
+										),
+										Description: "The variable value.",
+									},
+									"id": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The ID of the variable that the group has.",
 									},
 									"variable_id": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "schema: Deprecated; The ID of the variable that the group has.",
+										Deprecated:  "Use 'id' instead",
 									},
 								},
 							},
+							Description: "The array of one or more environment variables.",
 						},
 						"environment_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The ID of the environment to which the variables belongs.",
 						},
 					},
 				},
+				Description: "The array of one or more environments of the associated group.",
 			},
-			"registraion_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+			"registration_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The registration time.",
 			},
 			"update_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Deprecated:  "Use 'updated_at' instead",
+				Description: `schema: Deprecated; The latest update time of the group.`,
+			},
+			"updated_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The latest update time of the group.`,
 			},
 		},
 	}
 }
 
-func createApigGroupEnvironmentVariables(client *golangsdk.ServiceClient, instanceId, groupId string,
+func createEnvironmentVariables(client *golangsdk.ServiceClient, instanceId, groupId string,
 	environmentSet *schema.Set) error {
 	for _, env := range environmentSet.List() {
 		envMap := env.(map[string]interface{})
@@ -126,7 +162,7 @@ func createApigGroupEnvironmentVariables(client *golangsdk.ServiceClient, instan
 	return nil
 }
 
-func removeApigGroupEnvironmentVariables(client *golangsdk.ServiceClient, instanceId string,
+func removeEnvironmentVariables(client *golangsdk.ServiceClient, instanceId string,
 	environmentSet *schema.Set) error {
 	for _, env := range environmentSet.List() {
 		envMap := env.(map[string]interface{})
@@ -141,35 +177,56 @@ func removeApigGroupEnvironmentVariables(client *golangsdk.ServiceClient, instan
 	return nil
 }
 
-func resourceApigGroupV2Create(d *schema.ResourceData, meta interface{}) error {
+func resourceGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
-	desc := d.Get("description").(string)
-	opt := apigroups.GroupOpts{
-		Name:        d.Get("name").(string),
-		Description: &desc,
-	}
-	logp.Printf("[DEBUG] Create Option: %#v", opt)
-	instanceId := d.Get("instance_id").(string)
+
+	var (
+		instanceId = d.Get("instance_id").(string)
+
+		opt = apigroups.GroupOpts{
+			Name:        d.Get("name").(string),
+			Description: utils.String(d.Get("description").(string)),
+		}
+	)
 	resp, err := apigroups.Create(client, instanceId, opt).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG group: %s", err)
+		return diag.Errorf("error creating dedicated group: %s", err)
 	}
 	d.SetId(resp.Id)
+
 	if environments, ok := d.GetOk("environment"); ok {
-		err = createApigGroupEnvironmentVariables(client, instanceId, d.Id(), environments.(*schema.Set))
+		err = createEnvironmentVariables(client, instanceId, d.Id(), environments.(*schema.Set))
 		if err != nil {
-			return fmtp.Errorf("Binding environment variables failed: %s", err)
+			return diag.FromErr(err)
 		}
 	}
-	return resourceApigGroupV2Read(d, meta)
+	return resourceGroupRead(ctx, d, meta)
+}
+
+func queryEnvironmentVariables(client *golangsdk.ServiceClient, instanceId, groupId string) ([]environments.Variable, error) {
+	opt := environments.ListVariablesOpts{
+		GroupId: groupId,
+	}
+	pages, err := environments.ListVariables(client, instanceId, opt).AllPages()
+	if err != nil {
+		return nil, fmt.Errorf("error getting environment variable list from server: %s", err)
+	}
+	result, err := environments.ExtractVariables(pages)
+	if err != nil {
+		return nil, fmt.Errorf("error extract environment variables: %s", err)
+	}
+	return result, nil
 }
 
 // Classify all environment variables belonging to the API group according to the APIG environment.
-func setApigGroupEnvironmentVariables(d *schema.ResourceData, variables []environments.Variable) error {
+func flattenEnvironmentVariables(variables []environments.Variable) []map[string]interface{} {
+	if len(variables) < 1 {
+		return nil
+	}
 	// Store all variables of the same environment in the corresponding list,
 	// and generate a map with the environment ID as the key name.
 	environmentMap := make(map[string]interface{})
@@ -197,124 +254,114 @@ func setApigGroupEnvironmentVariables(d *schema.ResourceData, variables []enviro
 		result = append(result, envMap)
 	}
 
-	if len(result) == 0 {
-		return d.Set("environment", nil)
-	}
-	return d.Set("environment", result)
+	return result
 }
 
-func setApigGroupParamters(d *schema.ResourceData, config *config.Config, resp *apigroups.Group) error {
+func resourceGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config := meta.(*config.Config)
+	client, err := config.ApigV2Client(config.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating APIG v2 client: %s", err)
+	}
+
+	var (
+		instanceId = d.Get("instance_id").(string)
+		groupId    = d.Id()
+	)
+
+	resp, err := apigroups.Get(client, instanceId, groupId).Extract()
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "dedicated group")
+	}
+
 	mErr := multierror.Append(nil,
 		d.Set("region", config.GetRegion(d)),
 		d.Set("name", resp.Name),
 		d.Set("description", resp.Description),
-		d.Set("registraion_time", resp.RegistraionTime),
+		d.Set("registration_time", resp.RegistraionTime),
 		d.Set("update_time", resp.UpdateTime),
 	)
+	if variables, err := queryEnvironmentVariables(client, instanceId, groupId); err != nil {
+		return diag.FromErr(err)
+	} else {
+		mErr = multierror.Append(mErr, d.Set("environment", flattenEnvironmentVariables(variables)))
+	}
+
 	if mErr.ErrorOrNil() != nil {
-		return mErr
+		return diag.Errorf("error saving dedicated group fields： %s", mErr)
 	}
 	return nil
 }
 
-func getApigGroupEnvironmentVariables(d *schema.ResourceData,
-	client *golangsdk.ServiceClient) ([]environments.Variable, error) {
-	instanceId := d.Get("instance_id").(string)
-	listOpt := environments.ListVariablesOpts{
-		GroupId: d.Id(),
+func updateEnvironmentVariables(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		oldRaws, newRaws = d.GetChange("environment")
+		addRaws          = newRaws.(*schema.Set).Difference(oldRaws.(*schema.Set))
+		removeRaws       = oldRaws.(*schema.Set).Difference(newRaws.(*schema.Set))
+		instanceId       = d.Get("instance_id").(string)
+		groupId          = d.Id()
+	)
+	if err := removeEnvironmentVariables(client, instanceId, removeRaws); err != nil {
+		return err
 	}
-	pages, err := environments.ListVariables(client, instanceId, listOpt).AllPages()
-	if err != nil {
-		return []environments.Variable{}, fmtp.Errorf("Error getting environment variable list from server: %s", err)
+	if err := createEnvironmentVariables(client, instanceId, groupId, addRaws); err != nil {
+		return err
 	}
-	result, err := environments.ExtractVariables(pages)
-	if err != nil {
-		return []environments.Variable{}, fmtp.Errorf("Error extract environment variables: %s", err)
-	}
-	return result, nil
+	return nil
 }
 
-func resourceApigGroupV2Read(d *schema.ResourceData, meta interface{}) error {
+func resourceGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
-	instanceId := d.Get("instance_id").(string)
-	resp, err := apigroups.Get(client, instanceId, d.Id()).Extract()
-	if err != nil {
-		return common.CheckDeleted(d, err, "error getting APIG group")
-	}
-	if err = setApigGroupParamters(d, config, resp); err != nil {
-		return fmtp.Errorf("Error saving group to state: %s", err)
-	}
-	// Saving environment variables to state file.
-	variables, err := getApigGroupEnvironmentVariables(d, client)
-	if err != nil {
-		return err
-	}
-	if err = setApigGroupEnvironmentVariables(d, variables); err != nil {
-		return fmtp.Errorf("Error saving variables to state: %s", err)
-	}
-	return nil
-}
 
-func updateApigGroupEnvironmentVariables(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	oldRaws, newRaws := d.GetChange("environment")
-	addRaws := newRaws.(*schema.Set).Difference(oldRaws.(*schema.Set))
-	removeRaws := oldRaws.(*schema.Set).Difference(newRaws.(*schema.Set))
-	instanceId := d.Get("instance_id").(string)
-	if err := removeApigGroupEnvironmentVariables(client, instanceId, removeRaws); err != nil {
-		return err
-	}
-	if err := createApigGroupEnvironmentVariables(client, instanceId, d.Id(), addRaws); err != nil {
-		return err
-	}
-	return nil
-}
+	var (
+		instanceId = d.Get("instance_id").(string)
+		groupId    = d.Id()
+	)
 
-func resourceApigGroupV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
-	}
-	opt := apigroups.GroupOpts{}
-	if d.HasChange("name") {
-		opt.Name = d.Get("name").(string)
-	}
-	if d.HasChange("description") {
-		desc := d.Get("description").(string)
-		opt.Description = &desc
-	}
-	if opt != (apigroups.GroupOpts{}) {
-		logp.Printf("[DEBUG] Update Option: %#v", opt)
-		instanceId := d.Get("instance_id").(string)
-		_, err = apigroups.Update(client, instanceId, d.Id(), opt).Extract()
+	if d.HasChanges("name", "description") {
+		opt := apigroups.GroupOpts{
+			Name:        d.Get("name").(string),
+			Description: utils.String(d.Get("description").(string)),
+		}
+		_, err = apigroups.Update(client, instanceId, groupId, opt).Extract()
 		if err != nil {
-			return fmtp.Errorf("Error updating HuaweiCloud APIG group (%s): %s", d.Id(), err)
+			return diag.Errorf("error updating dedicated group (%s): %s", groupId, err)
 		}
 	}
+
 	if d.HasChange("environment") {
-		if err := updateApigGroupEnvironmentVariables(d, client); err != nil {
-			return fmtp.Errorf("Error updating HuaweiCloud APIG environment variables for the group (%s): %s",
-				d.Id(), err)
+		if err := updateEnvironmentVariables(client, d); err != nil {
+			return diag.Errorf("error updating environment variables: %s", err)
 		}
 	}
-	return resourceApigGroupV2Read(d, meta)
+	return resourceGroupRead(ctx, d, meta)
 }
 
-func resourceApigGroupV2Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 	instanceId := d.Get("instance_id").(string)
 	err = apigroups.Delete(client, instanceId, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud APIG group from the instance (%s): %s", instanceId, err)
+		return diag.Errorf("error deleting group from the instance (%s): %s", instanceId, err)
 	}
-	d.SetId("")
+
 	return nil
+}
+
+func resourceGroupResourceImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,
+	error) {
+	parts := strings.SplitN(d.Id(), "/", 2)
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid format specified for import ID, must be <instance_id>/<id>")
+	}
+	d.SetId(parts[1])
+	return []*schema.ResourceData{d}, d.Set("instance_id", parts[0])
 }

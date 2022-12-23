@@ -33,6 +33,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/css"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dataarts"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dds"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
@@ -49,6 +50,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/er"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/evs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/fgs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ga"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/gaussdb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
@@ -653,6 +655,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_snapshot":  css.ResourceCssSnapshot(),
 			"huaweicloud_css_thesaurus": css.ResourceCssthesaurus(),
 
+			"huaweicloud_dc_virtual_gateway": dc.ResourceVirtualGateway(),
+
 			"huaweicloud_dcs_instance": dcs.ResourceDcsInstance(),
 
 			"huaweicloud_dds_database_role": dds.ResourceDatabaseRole(),
@@ -712,6 +716,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_fgs_dependency": fgs.ResourceFgsDependency(),
 			"huaweicloud_fgs_function":   fgs.ResourceFgsFunctionV2(),
 			"huaweicloud_fgs_trigger":    fgs.ResourceFunctionGraphTrigger(),
+
+			"huaweicloud_ga_accelerator":    ga.ResourceAccelerator(),
+			"huaweicloud_ga_listener":       ga.ResourceListener(),
+			"huaweicloud_ga_endpoint_group": ga.ResourceEndpointGroup(),
+			"huaweicloud_ga_endpoint":       ga.ResourceEndpoint(),
 
 			"huaweicloud_gaussdb_cassandra_instance": gaussdb.ResourceGeminiDBInstanceV3(),
 			"huaweicloud_gaussdb_mysql_instance":     gaussdb.ResourceGaussDBInstance(),

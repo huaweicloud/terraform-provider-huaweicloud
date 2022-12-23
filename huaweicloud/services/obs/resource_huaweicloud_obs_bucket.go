@@ -868,11 +868,11 @@ func resourceObsBucketWebsiteUpdate(obsClient *obs.ObsClient, d *schema.Resource
 			w = make(map[string]interface{})
 		}
 		return resourceObsBucketWebsitePut(obsClient, d, w)
-	} else if len(ws) == 0 {
-		return resourceObsBucketWebsiteDelete(obsClient, d)
-	} else {
-		return fmt.Errorf("cannot specify more than one website")
 	}
+	if len(ws) == 0 {
+		return resourceObsBucketWebsiteDelete(obsClient, d)
+	}
+	return fmt.Errorf("cannot specify more than one website")
 }
 
 func resourceObsBucketCorsUpdate(obsClient *obs.ObsClient, d *schema.ResourceData) error {

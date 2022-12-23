@@ -402,6 +402,11 @@ func ResourceComponentInstance() *schema.Resource {
 													Optional: true,
 													Computed: true,
 												},
+												"secret_name": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Computed: true,
+												},
 											},
 										},
 									},
@@ -733,6 +738,7 @@ func buildStoragesList(storages *schema.Set) []instances.Storage {
 			parameters.Path = parameter["path"].(string)
 			parameters.Name = parameter["name"].(string)
 			parameters.ClaimName = parameter["claim_name"].(string)
+			parameters.SecretName = parameter["secret_name"].(string)
 		}
 
 		result[i] = instances.Storage{
@@ -1155,9 +1161,10 @@ func flattenStorages(storages []instances.StorageResp) (result []map[string]inte
 			"type": val.Type,
 			"parameter": []map[string]interface{}{
 				{
-					"path":       val.Parameters.Path,
-					"name":       val.Parameters.Name,
-					"claim_name": val.Parameters.ClaimName,
+					"path":        val.Parameters.Path,
+					"name":        val.Parameters.Name,
+					"claim_name":  val.Parameters.ClaimName,
+					"secret_name": val.Parameters.SecretName,
 				},
 			},
 			"mount": flattenMounts(val.Mounts),

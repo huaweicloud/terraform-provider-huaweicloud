@@ -19,7 +19,6 @@ func TestAccDataEnvironments_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t) // The creation of APIG instance needs the enterprise project ID.
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -48,5 +47,5 @@ data "huaweicloud_apig_environments" "test" {
   instance_id = huaweicloud_apig_instance.test.id
   name        = huaweicloud_apig_environment.test.name
 }
-`, testAccApigApplication_base(rName), rName)
+`, testAccEnvironment_base(rName), rName)
 }
