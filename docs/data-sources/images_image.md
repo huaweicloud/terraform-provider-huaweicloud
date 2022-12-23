@@ -74,8 +74,8 @@ data "huaweicloud_images_image" "bms_image" {
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the image.
 
-* `flavor_id` - (Optional, String) Specifies the ECS flavor ID used to filter out available public image. You can
-  specify only one flavor ID. You can specify only an ECS flavor ID and cannot specify a BMS flavor ID.
+* `flavor_id` - (Optional, String) Specifies the ECS flavor ID used to filter out available images.
+  You can specify only one flavor ID and only ECS flavor ID is valid, BMS flavor is not supported.
 
 ## Attributes Reference
 
