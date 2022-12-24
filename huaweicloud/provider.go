@@ -719,6 +719,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ga_listener":       ga.ResourceListener(),
 			"huaweicloud_ga_endpoint_group": ga.ResourceEndpointGroup(),
 			"huaweicloud_ga_endpoint":       ga.ResourceEndpoint(),
+			"huaweicloud_ga_health_check":   ga.ResourceHealthCheck(),
 
 			"huaweicloud_gaussdb_cassandra_instance": gaussdb.ResourceGeminiDBInstanceV3(),
 			"huaweicloud_gaussdb_mysql_instance":     gaussdb.ResourceGaussDBInstance(),
