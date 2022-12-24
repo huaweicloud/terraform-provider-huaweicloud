@@ -918,7 +918,8 @@ func Provider() *schema.Provider {
 			// devCloud
 			"huaweicloud_projectman_project": projectman.ResourceProject(),
 
-			"huaweicloud_dsc_instance": dsc.ResourceDscInstance(),
+			"huaweicloud_dsc_instance":  dsc.ResourceDscInstance(),
+			"huaweicloud_dsc_asset_obs": dsc.ResourceAssetObs(),
 
 			// internal only
 			"huaweicloud_apm_aksk":                apm.ResourceApmAkSk(),
