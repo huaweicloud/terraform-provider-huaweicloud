@@ -219,6 +219,8 @@ The following arguments are supported:
     Changing this parameter will create a new resource.
   + `extend_params` - (Optional, Map, ForceNew) Specifies the disk expansion parameters.
     Changing this parameter will create a new resource.
+  + `kms_key_id` - (Optional, String, ForceNew) Specifies the ID of a KMS key. This is used to encrypt the volume.
+    Changing this parameter will create a new resource.
 
 * `data_volumes` - (Required, List, ForceNew) Specifies the configurations of the data disk.
   Changing this parameter will create a new resource.

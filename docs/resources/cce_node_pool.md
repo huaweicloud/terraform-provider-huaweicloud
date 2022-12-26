@@ -151,6 +151,9 @@ The `root_volume` block supports:
 * `extend_params` - (Optional, Map, ForceNew) Specifies the disk expansion parameters.
   Changing this parameter will create a new resource.
 
+* `kms_key_id` - (Optional, String, ForceNew) Specifies the KMS key ID. This is used to encrypt the volume.
+  Changing this parameter will create a new resource.
+
 The `data_volumes` block supports:
 
 * `size` - (Required, Int, ForceNew) Specifies the disk size in GB. Changing this parameter will create a new resource.

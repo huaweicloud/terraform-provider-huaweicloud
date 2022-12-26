@@ -107,6 +107,12 @@ func ResourceCCENodePool() *schema.Resource {
 							ForceNew: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
+						"kms_key_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
+						},
 					}},
 			},
 			"data_volumes": {
@@ -521,6 +527,9 @@ func resourceCCENodePoolRead(_ context.Context, d *schema.ResourceData, meta int
 			"extend_params":  s.Spec.NodeTemplate.RootVolume.ExtendParam,
 			"extend_param":   "",
 		},
+	}
+	if s.Spec.NodeTemplate.RootVolume.Metadata != nil {
+		rootVolume[0]["kms_key_id"] = s.Spec.NodeTemplate.RootVolume.Metadata.SystemCmkid
 	}
 	mErr = multierror.Append(mErr, d.Set("root_volume", rootVolume))
 

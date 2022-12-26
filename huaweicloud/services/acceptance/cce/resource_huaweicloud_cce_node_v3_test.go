@@ -134,7 +134,7 @@ func TestAccCCENodeV3_volume_extendParams(t *testing.T) {
 	})
 }
 
-func TestAccCCENodeV3_data_volume_encryption(t *testing.T) {
+func TestAccCCENodeV3_volume_encryption(t *testing.T) {
 	var node nodes.Nodes
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -151,10 +151,11 @@ func TestAccCCENodeV3_data_volume_encryption(t *testing.T) {
 		CheckDestroy:      testAccCheckCCENodeV3Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCENodeV3_data_volume_encryption(rName),
+				Config: testAccCCENodeV3_volume_encryption(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCENodeV3Exists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttrSet(resourceName, "root_volume.0.kms_key_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "data_volumes.0.kms_key_id"),
 				),
 			},
@@ -507,7 +508,7 @@ resource "huaweicloud_cce_node" "test" {
 `, testAccCCENodeV3_Base(rName), rName)
 }
 
-func testAccCCENodeV3_data_volume_encryption(rName string) string {
+func testAccCCENodeV3_volume_encryption(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -526,6 +527,7 @@ resource "huaweicloud_cce_node" "test" {
   root_volume {
     size       = 40
     volumetype = "SSD"
+    kms_key_id = huaweicloud_kms_key.test.id
   }
   data_volumes {
     size       = 100
