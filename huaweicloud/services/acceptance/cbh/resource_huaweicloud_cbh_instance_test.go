@@ -89,7 +89,7 @@ func TestAccCBHInstance_basic(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"availability_zone", "charging_mode", "cloud_service_type",
 					"flavor_id", "hx_password", "password", "nics", "period", "period_unit", "product_info",
-					"security_groups", "subscription_num", "public_ip"},
+					"security_groups", "public_ip"},
 			},
 		},
 	})
@@ -137,18 +137,11 @@ func testCBHInstance_basic(name string) string {
 %s
 
 resource "huaweicloud_cbh_instance" "test" {
-  flavor_id = "cbh.basic.50"
-  name      = "%s"
-  vpc_id    = huaweicloud_vpc.test.id
-
-  nics {
-    subnet_id = huaweicloud_vpc_subnet.test.id
-  }
-
-  security_groups {
-    id = huaweicloud_networking_secgroup.test.id
-  }
-
+  flavor_id          = "cbh.basic.50"
+  name               = "%s"
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  security_group_id  = huaweicloud_networking_secgroup.test.id
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
   region             = "%s"
   hx_password        = "test_123456"
@@ -157,10 +150,9 @@ resource "huaweicloud_cbh_instance" "test" {
   period_unit        = "month"
   auto_renew         = "false"
   period             = "1"
-  subscription_num   = "1"
   
   product_info {
-    flavor_id          = "OFFI740586375358963717"
+    product_id         = "OFFI740586375358963717"
     resource_size      = "1"
   }
 }
@@ -186,20 +178,14 @@ resource "huaweicloud_vpc_eip_v1" "test" {
 }
 
 resource "huaweicloud_cbh_instance" "test" {
-  flavor_id = "cbh.basic.50"
-  name      = "%s"
-  vpc_id    = huaweicloud_vpc.test.id
-
-  nics {
-    subnet_id = huaweicloud_vpc_subnet.test.id
-  }
-
-  security_groups {
-    id = huaweicloud_networking_secgroup.test.id
-  }
+  flavor_id          = "cbh.basic.50"
+  name               = "%s"
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  security_group_id  = huaweicloud_networking_secgroup.test.id
 
   public_ip {
-    id = huaweicloud_vpc_eip_v1.test.id
+    id      = huaweicloud_vpc_eip_v1.test.id
     address = huaweicloud_vpc_eip_v1.test.address
   }
 
@@ -212,10 +198,9 @@ resource "huaweicloud_cbh_instance" "test" {
   period_unit        = "month"
   auto_renew         = "false"
   period             = "1"
-  subscription_num   = "1"
   
   product_info {
-    flavor_id          = "OFFI740586375358963717"
+    product_id         = "OFFI740586375358963717"
     resource_size      = "1"
   }
 }

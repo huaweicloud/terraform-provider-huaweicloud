@@ -72,10 +72,10 @@ func DataSourceCbhInstances() *schema.Resource {
 func CbhInstancesInstanceSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"publicip_address": {
+			"publicip_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the public ip of the instance.`,
+				Description: `Indicates the ID of the elastic IP.`,
 			},
 			"exp_time": {
 				Type:        schema.TypeString,
@@ -152,11 +152,6 @@ func CbhInstancesInstanceSchema() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates the ID of the instance.`,
 			},
-			"order_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the ID of order.`,
-			},
 			"resource_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -171,11 +166,6 @@ func CbhInstancesInstanceSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Indicates the type of the bastion.`,
-			},
-			"publicip_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the ID of the elastic IP bound by the instance.`,
 			},
 			"alter_permit": {
 				Type:        schema.TypeString,
@@ -314,7 +304,7 @@ func flattenGetInstancesResponseBodyInstance(resp interface{}) []interface{} {
 			autoRenew = "false"
 		}
 		rst = append(rst, map[string]interface{}{
-			"publicip_address":    utils.PathSearch("publicip", v, nil),
+			"publicip_id":         utils.PathSearch("publicId", v, nil),
 			"exp_time":            utils.PathSearch("expTime", v, nil),
 			"start_time":          utils.PathSearch("startTime", v, nil),
 			"end_time":            utils.PathSearch("endTime", v, nil),
@@ -330,10 +320,8 @@ func flattenGetInstancesResponseBodyInstance(resp interface{}) []interface{} {
 			"flavor_id":           utils.PathSearch("specification", v, nil),
 			"update":              utils.PathSearch("update", v, nil),
 			"instance_key":        utils.PathSearch("instanceKey", v, nil),
-			"order_id":            utils.PathSearch("order_id", v, nil),
 			"resource_id":         utils.PathSearch("resourceId", v, nil),
 			"bastion_type":        utils.PathSearch("bastion_type", v, nil),
-			"publicip_id":         utils.PathSearch("publicId", v, nil),
 			"alter_permit":        utils.PathSearch("alterPermit", v, nil),
 			"bastion_version":     utils.PathSearch("bastionVersion", v, nil),
 			"new_bastion_version": utils.PathSearch("newBastionVersion", v, nil),

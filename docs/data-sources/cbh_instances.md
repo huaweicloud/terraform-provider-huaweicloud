@@ -9,7 +9,15 @@ Use this data source to get the list of CBH instance.
 ## Example Usage
 
 ```hcl
-data "huaweicloud_cbh_instance" "test" {
+variable "vpc_id" {}
+variable "subnet_id" {}
+variable "security_group_id" {}
+
+data "huaweicloud_cbh_instances" "test" {
+  name              = "test_name"
+  vpc_id            = var.vpc_id
+  subnet_id         = var.subnet_id
+  security_group_id = var.security_group_id
 }
 ```
 
@@ -40,27 +48,13 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
-* `total` - Indicates the total of instances.
-
-* `quota_detail` -
-  The [QuotaDetail](#CbhInstances_QuotaDetail) structure is documented below.
-
-* `instance` - Indicates the list of CBH instance.
+* `instances` - Indicates the list of CBH instance.
   The [Instance](#CbhInstances_Instance) structure is documented below.
-
-<a name="CbhInstances_QuotaDetail"></a>
-The `QuotaDetail` block supports:
-
-* `zh_cn` - Indicates the Chinese quota description.
-
-* `en_us` - Indicates the English quota description.
-
-* `remaining` - Indicates the tenant remaining quota quantity.
 
 <a name="CbhInstances_Instance"></a>
 The `Instance` block supports:
 
-* `publicip` - Indicates the public ip of the instance.
+* `publicip_id` - Indicates the ID of the elastic IP.
 
 * `exp_time` - Indicates the expire time of the instance.
 
@@ -86,19 +80,15 @@ The `Instance` block supports:
 
 * `security_group_id` - Indicates the ID of a security group.
 
-* `specification` - Indicates the specification of the instance.
+* `flavor_id` - Indicates the specification of the instance.
 
 * `update` - Indicates whether the instance image can be upgraded.
 
 * `instance_key` - Indicates the ID of the instance.
 
-* `order_id` - Indicates the ID of order.
-
-* `period_num` - Indicates the duration of tenant purchase.
+* `period` - Indicates the duration of tenant purchase.
 
 * `bastion_type` - Indicates the type of the bastion.
-
-* `public_id` - Indicates the ID of the elastic IP bound by the instance.
 
 * `alter_permit` - Indicates whether the front-end displays the capacity expansion button.
 

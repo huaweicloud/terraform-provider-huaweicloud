@@ -54,17 +54,15 @@ func ResourceCBHInstance() *schema.Resource {
 				ForceNew:    true,
 				Description: `Specifies the name of the CBH instance.`,
 			},
-			"nics": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Elem:     CBHInstanceNicsSchema(),
-				Required: true,
+			"subnet_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Specifies the ID of a subnet.`,
 			},
-			"security_groups": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Elem:     CBHInstanceCreateSecurityGroupsSchema(),
-				Required: true,
+			"security_group_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Specifies the ID list of the security group.`,
 			},
 			"availability_zone": {
 				Type:        schema.TypeString,
@@ -77,6 +75,7 @@ func ResourceCBHInstance() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `Specifies the front end login password.`,
+				Sensitive:   true,
 			},
 			"bastion_type": {
 				Type:        schema.TypeString,
@@ -84,11 +83,36 @@ func ResourceCBHInstance() *schema.Resource {
 				ForceNew:    true,
 				Description: `Specifies the type of the bastion.`,
 			},
-			"subscription_num": {
-				Type:        schema.TypeInt,
+			"charging_mode": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"prePaid",
+				}, false),
+				Description: `Specifies the charging mode of the read replica instance.`,
+			},
+			"period_unit": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"month", "year",
+				}, false),
+				Description: `Specifies the charging period unit of the instance.`,
+			},
+			"period": {
+				Type:         schema.TypeInt,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.IntBetween(1, 9),
+				Description:  `Specifies the charging period of the read replica instance.`,
+			},
+			"auto_renew": {
+				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Specifies the number of the subscription.`,
+				Description: `Specifies whether auto renew is enabled. Valid values are "true" and "false". Defaults to **false**.`,
 			},
 			"image_id": {
 				Type:        schema.TypeString,
@@ -109,6 +133,7 @@ func ResourceCBHInstance() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: `Specifies the initial password.`,
+				Sensitive:   true,
 			},
 			"key_name": {
 				Type:        schema.TypeString,
@@ -124,18 +149,17 @@ func ResourceCBHInstance() *schema.Resource {
 				ForceNew:    true,
 				Description: `Specifies the ID of a VPC.`,
 			},
+			"ip_address": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the IP address of the subnet.`,
+			},
 			"public_ip": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Elem:     CBHInstancePublicIPSchema(),
 				Optional: true,
-			},
-			"number": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: `Specifies the elastic count.`,
 			},
 			"root_volume": {
 				Type:     schema.TypeList,
@@ -154,11 +178,12 @@ func ResourceCBHInstance() *schema.Resource {
 				ForceNew: true,
 			},
 			"slave_availability_zone": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: `Specifies the slave availability zone name. The slave machine will be created when this field is not empty.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				Description: `Specifies the slave availability zone name. The slave machine will be created when
+this field is not empty.`,
 			},
 			"metadata": {
 				Type:        schema.TypeString,
@@ -181,19 +206,6 @@ func ResourceCBHInstance() *schema.Resource {
 				ForceNew:    true,
 				Description: `Specifies the end time.`,
 			},
-			// charge info: charging_mode, period_unit, period, auto_renew
-			"charging_mode": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"prePaid",
-				}, false),
-			},
-			"period_unit": common.SchemaPeriodUnit(nil),
-			"period":      common.SchemaPeriod(nil),
-			"auto_renew":  common.SchemaAutoRenewUpdatable(nil),
 			"relative_resource_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -203,35 +215,24 @@ func ResourceCBHInstance() *schema.Resource {
 			},
 			"product_info": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Elem:     CBHInstanceProductInfoSchema(),
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"publicip_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the ID of the elastic IP.`,
-			},
-			"publicip_address": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the elastic IP address.`,
-			},
 			"network_type": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				Description: `Specifies the type of the network operation. The options are as follows: **create**, **renewals**
-and **change**.`,
+				ValidateFunc: validation.StringInSlice([]string{
+					"create", "renewals", "change",
+				}, false),
+				Description: `Specifies the type of the network operation.`,
 			},
-			"publicip": {
+			"publicip_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the public ip of the instance.`,
+				Description: `Indicates the ID of the elastic IP.`,
 			},
 			"exp_time": {
 				Type:        schema.TypeString,
@@ -268,16 +269,6 @@ and **change**.`,
 				Computed:    true,
 				Description: `Indicates the status of the instance.`,
 			},
-			"subnet_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the ID of a subnet.`,
-			},
-			"security_group_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the ID of a security group.`,
-			},
 			"update": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -288,20 +279,10 @@ and **change**.`,
 				Computed:    true,
 				Description: `Indicates the ID of the instance.`,
 			},
-			"order_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the ID of order.`,
-			},
 			"resource_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Indicates the ID of the resource.`,
-			},
-			"public_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the ID of the elastic IP bound by the instance.`,
 			},
 			"alter_permit": {
 				Type:        schema.TypeString,
@@ -330,26 +311,6 @@ and **change**.`,
 			},
 		},
 	}
-}
-
-func CBHInstanceNicsSchema() *schema.Resource {
-	sc := schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"subnet_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the ID of a subnet.`,
-			},
-			"ip_address": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the IP address.`,
-			},
-		},
-	}
-	return &sc
 }
 
 func CBHInstancePublicIPSchema() *schema.Resource {
@@ -411,7 +372,7 @@ func CBHInstanceEipBandwidthSchema() *schema.Resource {
 			"share_type": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the share type. Only PER is supported noe.`,
+				Description: `Specifies the share type. Only PER is supported.`,
 			},
 			"charge_mode": {
 				Type:        schema.TypeString,
@@ -480,24 +441,10 @@ func CBHInstanceDataVolumeSchema() *schema.Resource {
 	return &sc
 }
 
-func CBHInstanceCreateSecurityGroupsSchema() *schema.Resource {
-	sc := schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the ID list of the security group.`,
-			},
-		},
-	}
-	return &sc
-}
-
 func CBHInstanceProductInfoSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"flavor_id": {
+			"product_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
@@ -599,7 +546,8 @@ func createInstance(d *schema.ResourceData, config *config.Config, region string
 	return instanceKey, slaveInstanceKey, nil
 }
 
-func createOrder(ctx context.Context, d *schema.ResourceData, config *config.Config, region, instanceKey string) (string, diag.Diagnostics) {
+func createOrder(ctx context.Context, d *schema.ResourceData, config *config.Config, region,
+	instanceKey string) (string, diag.Diagnostics) {
 	var (
 		createInstanceHttpUrl = "v1/{project_id}/cbs/period/order"
 		payOrderHttpUrl       = "v3/orders/customer-orders/pay"
@@ -654,7 +602,8 @@ func createOrder(ctx context.Context, d *schema.ResourceData, config *config.Con
 	if err != nil {
 		return "", diag.FromErr(err)
 	}
-	resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutCreate))
+	resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId.(string),
+		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return "", diag.Errorf("error waiting for replica order resource %s complete: %s", orderId.(string), err)
 	}
@@ -662,7 +611,8 @@ func createOrder(ctx context.Context, d *schema.ResourceData, config *config.Con
 	return resourceId, nil
 }
 
-func getInstanceIdByResourceId(d *schema.ResourceData, config *config.Config, region, resourceId string) (string, diag.Diagnostics) {
+func getInstanceIdByResourceId(d *schema.ResourceData, config *config.Config, region, resourceId string) (string,
+	diag.Diagnostics) {
 	instances, err := getInstanceList(d, config, region)
 	if err != nil {
 		return "", diag.Errorf("%s", err)
@@ -739,7 +689,6 @@ func buildCreateInstanceParams(d *schema.ResourceData, config *config.Config) in
 		"vpc_id":                  utils.ValueIngoreEmpty(d.Get("vpc_id")),
 		"nics":                    buildCreateInstanceNicsChildBody(d),
 		"public_ip":               buildCreateInstancePublicIpChildBody(d),
-		"count":                   utils.ValueIngoreEmpty(d.Get("number")),
 		"root_volume":             buildCreateInstanceRootVolumeChildBody(d),
 		"data_volume":             buildCreateInstanceDataVolumeChildBody(d),
 		"security_groups":         buildCreateInstanceSecurityGroupsChildBody(d),
@@ -755,14 +704,15 @@ func buildCreateInstanceParams(d *schema.ResourceData, config *config.Config) in
 	return bodyParams
 }
 
-func buildCreateOrderParams(d *schema.ResourceData, config *config.Config, region, instanceKey string) map[string]interface{} {
+func buildCreateOrderParams(d *schema.ResourceData, config *config.Config, region,
+	instanceKey string) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"instance_key":         instanceKey,
 		"region_id":            region,
 		"end_time":             utils.ValueIngoreEmpty(d.Get("end_time")),
 		"cloud_service_type":   "hws.service.type.cbh",
 		"period_num":           utils.ValueIngoreEmpty(d.Get("period")),
-		"subscription_num":     utils.ValueIngoreEmpty(d.Get("subscription_num")),
+		"subscription_num":     1,
 		"relative_resource_id": utils.ValueIngoreEmpty(d.Get("relative_resource_id")),
 		"product_infos":        buildCreateInstanceProductInfoChildBody(d),
 	}
@@ -783,22 +733,12 @@ func buildCreateOrderParams(d *schema.ResourceData, config *config.Config, regio
 }
 
 func buildCreateInstanceNicsChildBody(d *schema.ResourceData) interface{} {
-	rawParams := d.Get("nics").([]interface{})
-	if len(rawParams) == 0 {
-		return nil
+	return []map[string]interface{}{
+		{
+			"subnet_id":  utils.ValueIngoreEmpty(d.Get("subnet_id")),
+			"ip_address": utils.ValueIngoreEmpty(d.Get("ip_address")),
+		},
 	}
-
-	params := make([]map[string]interface{}, 0)
-	for _, rawParam := range rawParams {
-		raw := rawParam.(map[string]interface{})
-		param := map[string]interface{}{
-			"subnet_id":  utils.ValueIngoreEmpty(raw["subnet_id"]),
-			"ip_address": utils.ValueIngoreEmpty(raw["ip_address"]),
-		}
-		params = append(params, param)
-	}
-
-	return params
 }
 
 func buildCreateInstancePublicIpChildBody(d *schema.ResourceData) interface{} {
@@ -883,21 +823,11 @@ func buildCreateInstanceDataVolumeChildBody(d *schema.ResourceData) interface{} 
 }
 
 func buildCreateInstanceSecurityGroupsChildBody(d *schema.ResourceData) interface{} {
-	rawParams := d.Get("security_groups").([]interface{})
-	if len(rawParams) == 0 {
-		return nil
+	return []map[string]interface{}{
+		{
+			"id": utils.ValueIngoreEmpty(d.Get("security_group_id")),
+		},
 	}
-
-	params := make([]map[string]interface{}, 0)
-	for _, rawParam := range rawParams {
-		raw := rawParam.(map[string]interface{})
-		param := map[string]interface{}{
-			"id": utils.ValueIngoreEmpty(raw["id"]),
-		}
-		params = append(params, param)
-	}
-
-	return params
 }
 
 func buildCreateInstanceProductInfoChildBody(d *schema.ResourceData) interface{} {
@@ -910,7 +840,7 @@ func buildCreateInstanceProductInfoChildBody(d *schema.ResourceData) interface{}
 	for _, rawParam := range rawParams {
 		raw := rawParam.(map[string]interface{})
 		param := map[string]interface{}{
-			"product_id":               utils.ValueIngoreEmpty(raw["flavor_id"]),
+			"product_id":               utils.ValueIngoreEmpty(raw["product_id"]),
 			"cloud_service_type":       "hws.service.type.cbh",
 			"resource_type":            "hws.resource.type.cbh.ins",
 			"resource_spec_code":       utils.ValueIngoreEmpty(d.Get("flavor_id")),
@@ -985,7 +915,7 @@ func resourceCBHInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
-	if d.HasChanges("network_type", "nics", "security_groups") {
+	if d.HasChanges("network_type", "subnet_id", "ip_address", "security_group_id") {
 		err := updateNetwork(d, config, region, updateInstanceProduct, updateNetworkHttpUrl)
 		if err != nil {
 			return diag.Errorf("error update CBH network: %s", err)
@@ -1147,40 +1077,20 @@ func buildUpdateNetworkBodyParams(d *schema.ResourceData, config *config.Config)
 }
 
 func buildUpdateInstanceNicsChildBody(d *schema.ResourceData) interface{} {
-	rawParams := d.Get("nics").([]interface{})
-	if len(rawParams) == 0 {
-		return nil
+	return []map[string]interface{}{
+		{
+			"subnet_id":  utils.ValueIngoreEmpty(d.Get("subnet_id").(string)),
+			"ip_address": utils.ValueIngoreEmpty(d.Get("ip_address").(string)),
+		},
 	}
-
-	params := make([]map[string]interface{}, 0)
-	for _, rawParam := range rawParams {
-		raw := rawParam.(map[string]interface{})
-		param := map[string]interface{}{
-			"subnet_id":  utils.ValueIngoreEmpty(raw["subnet_id"]),
-			"ip_address": utils.ValueIngoreEmpty(raw["ip_address"]),
-		}
-		params = append(params, param)
-	}
-
-	return params
 }
 
 func buildUpdateInstanceSecurityGroupsChildBody(d *schema.ResourceData) interface{} {
-	rawParams := d.Get("security_groups").([]interface{})
-	if len(rawParams) == 0 {
-		return nil
+	return []map[string]interface{}{
+		{
+			"security_group_id": utils.ValueIngoreEmpty(d.Get("security_group_id")),
+		},
 	}
-
-	params := make([]map[string]interface{}, 0)
-	for _, rawParam := range rawParams {
-		raw := rawParam.(map[string]interface{})
-		param := map[string]interface{}{
-			"id": utils.ValueIngoreEmpty(raw["id"]),
-		}
-		params = append(params, param)
-	}
-
-	return params
 }
 
 func resourceCBHInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1199,7 +1109,7 @@ func resourceCBHInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 			mErr = multierror.Append(
 				mErr,
 				d.Set("region", region),
-				d.Set("publicip_id", instance["publicip_address"]),
+				d.Set("publicip_id", instance["publicip_id"]),
 				d.Set("exp_time", instance["exp_time"]),
 				d.Set("start_time", instance["start_time"]),
 				d.Set("end_time", instance["end_time"]),
@@ -1215,10 +1125,8 @@ func resourceCBHInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 				d.Set("flavor_id", instance["flavor_id"]),
 				d.Set("update", instance["update"]),
 				d.Set("instance_key", instance["instance_key"]),
-				d.Set("order_id", instance["order_id"]),
 				d.Set("resource_id", instance["resource_id"]),
 				d.Set("bastion_type", instance["bastion_type"]),
-				d.Set("publicip_id", instance["publicip_id"]),
 				d.Set("alter_permit", instance["alter_permit"]),
 				d.Set("bastion_version", instance["bastion_version"]),
 				d.Set("new_bastion_version", instance["new_bastion_version"]),
