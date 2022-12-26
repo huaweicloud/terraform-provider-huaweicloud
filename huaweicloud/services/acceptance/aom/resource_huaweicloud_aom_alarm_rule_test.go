@@ -128,9 +128,10 @@ func testAOMAlarmRule_basic(rName string) string {
 %s
 
 resource "huaweicloud_aom_alarm_rule" "test" {
-  name        = "%s"
-  alarm_level = 2
-  description = "test rule"
+  name                 = "%s"
+  alarm_level          = 2
+  alarm_action_enabled = false
+  description          = "test rule"
 
   namespace   = "PAAS.NODE"
   metric_name = "cupUsage"
@@ -155,9 +156,10 @@ func testAOMAlarmRule_update(rName string) string {
 %s
 
 resource "huaweicloud_aom_alarm_rule" "test" {
-  name        = "%s"
-  alarm_level = 3
-  description = "test rule update"
+  name                 = "%s"
+  alarm_level          = 3
+  alarm_action_enabled = false
+  description          = "test rule update"
 
   namespace   = "PAAS.NODE"
   metric_name = "cupUsage"
