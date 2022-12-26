@@ -349,60 +349,28 @@ func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		return fmtp.DiagErrorf("error creating AOM client: %s", err)
 	}
 
+	// all parameters should be set when updating due to the API issue
+	dimensions := buildDimensionsOpts(d.Get("dimensions").([]interface{}))
 	updateOpts := aom.UpdateAlarmRuleParam{
-		AlarmRuleName: d.Get("name").(string),
-	}
-
-	if d.HasChange("description") {
-		updateOpts.AlarmDescription = utils.String(d.Get("description").(string))
-	}
-	if d.HasChange("alarm_level") {
-		updateOpts.AlarmLevel = buildAlarmLevelOpts(d.Get("alarm_level").(int))
-	}
-
-	if d.HasChange("alarm_enabled") {
-		updateOpts.IdTurnOn = utils.Bool(d.Get("alarm_enabled").(bool))
-	}
-	if d.HasChange("alarm_actions") {
-		updateOpts.AlarmActions = buildActionOpts(d.Get("alarm_actions").([]interface{}))
-	}
-	if d.HasChange("ok_actions") {
-		updateOpts.OkActions = buildActionOpts(d.Get("ok_actions").([]interface{}))
-	}
-	if d.HasChange("insufficient_data_actions") {
-		updateOpts.InsufficientDataActions = buildActionOpts(d.Get("insufficient_data_actions").([]interface{}))
-	}
-	if d.HasChange("metric_name") {
-		updateOpts.MetricName = utils.String(d.Get("metric_name").(string))
-	}
-	if d.HasChange("namespace") {
-		updateOpts.Namespace = utils.String(d.Get("namespace").(string))
-	}
-	if d.HasChange("dimensions") {
-		dimensions := buildDimensionsOpts(d.Get("dimensions").([]interface{}))
-		updateOpts.Dimensions = &dimensions
-	}
-	if d.HasChange("period") {
-		updateOpts.Period = utils.Int32(int32(d.Get("period").(int)))
-	}
-	if d.HasChange("unit") {
-		updateOpts.Unit = utils.String(d.Get("unit").(string))
-	}
-	if d.HasChange("comparison_operator") {
-		updateOpts.ComparisonOperator = utils.String(d.Get("comparison_operator").(string))
-	}
-	if d.HasChange("statistic") {
-		updateOpts.Statistic = buildStatisticOpts(d.Get("statistic").(string))
-	}
-	if d.HasChange("threshold") {
-		updateOpts.Threshold = utils.String(d.Get("threshold").(string))
-	}
-	if d.HasChange("evaluation_periods") {
-		updateOpts.EvaluationPeriods = utils.Int32(int32(d.Get("evaluation_periods").(int)))
+		AlarmRuleName:           d.Get("name").(string),
+		AlarmLevel:              buildAlarmLevelOpts(d.Get("alarm_level").(int)),
+		AlarmDescription:        utils.String(d.Get("description").(string)),
+		IdTurnOn:                utils.Bool(d.Get("alarm_enabled").(bool)),
+		AlarmActions:            buildActionOpts(d.Get("alarm_actions").([]interface{})),
+		OkActions:               buildActionOpts(d.Get("ok_actions").([]interface{})),
+		InsufficientDataActions: buildActionOpts(d.Get("insufficient_data_actions").([]interface{})),
+		Namespace:               utils.String(d.Get("namespace").(string)),
+		MetricName:              utils.String(d.Get("metric_name").(string)),
+		Dimensions:              &dimensions,
+		Period:                  utils.Int32(int32(d.Get("period").(int))),
+		Unit:                    utils.String(d.Get("unit").(string)),
+		ComparisonOperator:      utils.String(d.Get("comparison_operator").(string)),
+		Statistic:               buildStatisticOpts(d.Get("statistic").(string)),
+		Threshold:               utils.String(d.Get("threshold").(string)),
+		EvaluationPeriods:       utils.Int32(int32(d.Get("evaluation_periods").(int))),
 	}
 
 	log.Printf("[DEBUG] Update %s Options: %#v", updateOpts.AlarmRuleName, updateOpts)
-
 	reqOpts := aom.UpdateAlarmRuleRequest{
 		Body: &updateOpts,
 	}
