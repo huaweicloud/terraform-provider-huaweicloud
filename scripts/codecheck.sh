@@ -13,7 +13,7 @@ function checkImporter() {
         if [[ $f =~ "resource_huaweicloud_" ]]; then
             hasImporter=$(grep -w "Importer:" $dir/$f)
             if [ "X$hasImporter" == "X" ]; then
-                echo "-> the resource in $f should can be imported"
+                echo -e "\033[31m  -> the resource in $f should can be imported\n\033[0m"
             fi
         fi
     done
@@ -25,7 +25,7 @@ function checkMultierror() {
         if [[ $f =~ "_huaweicloud_" ]]; then
             hasMultierror=$(grep -w "go-multierror" $dir/$f)
             if [ "X$hasMultierror" == "X" ]; then
-                echo "-> please use go-multierror package in $f"
+                echo -e "\033[31m  -> please use go-multierror package in $f\n\033[0m"
             fi
         fi
     done
@@ -37,7 +37,8 @@ function checkHuaweiCloudKey() {
     for key in ${key_words[@]}; do
         result=$(grep -rn $key $dir | grep -i " huaweicloud")
         if [ "X$result" != "X" ]; then
-            echo -e "-> the following $key statements contain 'HuaweiCloud' key:\n$result\n"
+            echo -e "\033[31m  -> the following $key statements contain 'HuaweiCloud' key:\033[0m"
+            echo -e "$result\n"
         fi
     done
 }
