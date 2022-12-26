@@ -31,6 +31,17 @@ function checkMultierror() {
     done
 }
 
+function checkHuaweiCloudKey() {
+    dir=$1
+    key_words=("fmt.Errorf" "diag.Errorf" "log.Printf")
+    for key in ${key_words[@]}; do
+        result=$(grep -rn $key $dir | grep -i " huaweicloud")
+        if [ "X$result" != "X" ]; then
+            echo -e "-> the following $key statements contain 'HuaweiCloud' key:\n$result\n"
+        fi
+    done
+}
+
 # Check parameters
 package=$1
 if [ "X$package" == "X" ]; then
@@ -130,6 +141,7 @@ if [ "X$service" != "X..." ] && [[ $package == ./huaweicloud/services/* ]]; then
     echo -e "\n==> Checking for TF features in $service..."
     checkImporter $packageDir
     checkMultierror $packageDir
+    checkHuaweiCloudKey $packageDir
 
     echo -e "\n==> Checking for misspell in $service..."
     misspell ./docs | grep "/${service}_"
