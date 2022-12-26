@@ -42,7 +42,7 @@ func (obsClient ObsClient) getSecurity() securityHolder {
 }
 
 // Close closes ObsClient.
-func (obsClient ObsClient) Close() {
+func (obsClient *ObsClient) Close() {
 	obsClient.httpClient = nil
 	obsClient.conf.transport.CloseIdleConnections()
 	obsClient.conf = nil

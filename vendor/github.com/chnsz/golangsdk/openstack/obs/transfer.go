@@ -101,7 +101,7 @@ func (task *uploadPartTask) Run() interface{} {
 
 	var output *UploadPartOutput
 	var err error
-	if extensions != nil {
+	if len(extensions) != 0 {
 		output, err = task.obsClient.UploadPart(input, extensions...)
 	} else {
 		output, err = task.obsClient.UploadPart(input)
@@ -184,7 +184,7 @@ func prepareUpload(ufc *UploadCheckpoint, uploadFileStat os.FileInfo, input *Upl
 	initiateInput.EncodingType = input.EncodingType
 	var output *InitiateMultipartUploadOutput
 	var err error
-	if extensions != nil {
+	if len(extensions) != 0 {
 		output, err = obsClient.InitiateMultipartUpload(initiateInput, extensions...)
 	} else {
 		output, err = obsClient.InitiateMultipartUpload(initiateInput)
@@ -251,7 +251,7 @@ func abortTask(bucket, key, uploadID string, obsClient *ObsClient, extensions []
 	input.Bucket = bucket
 	input.Key = key
 	input.UploadId = uploadID
-	if extensions != nil {
+	if len(extensions) != 0 {
 		_, err := obsClient.AbortMultipartUpload(input, extensions...)
 		return err
 	}
@@ -288,7 +288,7 @@ func completeParts(ufc *UploadCheckpoint, enableCheckpoint bool, checkpointFileP
 	}
 	completeInput.Parts = parts
 	var completeOutput *CompleteMultipartUploadOutput
-	if extensions != nil {
+	if len(extensions) != 0 {
 		completeOutput, err = obsClient.CompleteMultipartUpload(completeInput, extensions...)
 	} else {
 		completeOutput, err = obsClient.CompleteMultipartUpload(completeInput)
@@ -512,7 +512,7 @@ func (task *downloadPartTask) Run() interface{} {
 
 	var output *GetObjectOutput
 	var err error
-	if task.extensions != nil {
+	if len(task.extensions) != 0 {
 		output, err = task.obsClient.GetObject(getObjectInput, task.extensions...)
 	} else {
 		output, err = task.obsClient.GetObject(getObjectInput)
@@ -542,7 +542,7 @@ func (task *downloadPartTask) Run() interface{} {
 }
 
 func getObjectInfo(input *DownloadFileInput, obsClient *ObsClient, extensions []extensionOptions) (getObjectmetaOutput *GetObjectMetadataOutput, err error) {
-	if extensions != nil {
+	if len(extensions) != 0 {
 		getObjectmetaOutput, err = obsClient.GetObjectMetadata(&input.GetObjectMetadataInput, extensions...)
 	} else {
 		getObjectmetaOutput, err = obsClient.GetObjectMetadata(&input.GetObjectMetadataInput)

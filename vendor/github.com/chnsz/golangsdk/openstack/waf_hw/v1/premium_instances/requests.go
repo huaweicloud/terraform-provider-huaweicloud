@@ -28,6 +28,7 @@ type CreateInstanceOpts struct {
 	VolumeType    string   `json:"volume_type,omitempty"`
 	ClusterId     string   `json:"cluster_id,omitempty"`
 	PoolId        string   `json:"pool_id,omitempty"`
+	ResTenant     *bool    `json:"res_tenant,omitempty"`
 }
 
 // ListInstanceOpts the parameters in the querying request.

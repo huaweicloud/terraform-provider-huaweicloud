@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"os"
 	"sync"
 	"time"
 
@@ -16,13 +17,10 @@ import (
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/mutexkv"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 const (
-	obsLogFile         string = "./.obs-sdk.log"
-	obsLogFileSize10MB int64  = 1024 * 1024 * 10
+	userAgent string = "terraform-provider-iac"
 )
 
 // MutexKV is a global lock on all resources, it can lock the specified shared string (such as resource ID, resource
@@ -172,31 +170,24 @@ func (c *Config) ObjectStorageClientWithSignature(region string) (*obs.ObsClient
 		return nil, fmt.Errorf("missing credentials for OBS, need access_key and secret_key values for provider")
 	}
 
-	// init log
-	if utils.IsDebugOrHigher() {
-		if err := obs.InitLog(obsLogFile, obsLogFileSize10MB, 10, obs.LEVEL_DEBUG, false); err != nil {
-			log.Printf("[WARN] initial obs sdk log failed: %s", err)
-		}
+	var agent string = userAgent
+	if customUserAgent := os.Getenv("HW_TF_CUSTOM_UA"); len(customUserAgent) > 0 {
+		agent = fmt.Sprintf("%s %s", customUserAgent, userAgent)
 	}
-
+	clientConfigure := obs.WithHttpClient(&c.DomainClient.HTTPClient)
+	userAgentConfigure := obs.WithUserAgent(agent)
 	obsEndpoint := getObsEndpoint(c, region)
 	if c.SecurityToken != "" {
 		return obs.New(c.AccessKey, c.SecretKey, obsEndpoint,
-			obs.WithSignature("OBS"), obs.WithSecurityToken(c.SecurityToken))
+			obs.WithSignature("OBS"), obs.WithSecurityToken(c.SecurityToken), clientConfigure,
+			userAgentConfigure)
 	}
-	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSignature("OBS"))
+	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSignature("OBS"), clientConfigure, userAgentConfigure)
 }
 
 func (c *Config) ObjectStorageClient(region string) (*obs.ObsClient, error) {
 	if c.AccessKey == "" || c.SecretKey == "" {
 		return nil, fmt.Errorf("missing credentials for OBS, need access_key and secret_key values for provider")
-	}
-
-	// init log
-	if utils.IsDebugOrHigher() {
-		if err := obs.InitLog(obsLogFile, obsLogFileSize10MB, 10, obs.LEVEL_DEBUG, false); err != nil {
-			log.Printf("[WARN] initial obs sdk log failed: %s", err)
-		}
 	}
 
 	if !c.SecurityKeyExpiresAt.IsZero() {
@@ -212,11 +203,18 @@ func (c *Config) ObjectStorageClient(region string) (*obs.ObsClient, error) {
 		}
 	}
 
+	var agent string = userAgent
+	if customUserAgent := os.Getenv("HW_TF_CUSTOM_UA"); len(customUserAgent) > 0 {
+		agent = fmt.Sprintf("%s %s", customUserAgent, userAgent)
+	}
+	clientConfigure := obs.WithHttpClient(&c.DomainClient.HTTPClient)
+	userAgentConfigure := obs.WithUserAgent(agent)
 	obsEndpoint := getObsEndpoint(c, region)
 	if c.SecurityToken != "" {
-		return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSecurityToken(c.SecurityToken))
+		return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSecurityToken(c.SecurityToken), clientConfigure,
+			userAgentConfigure)
 	}
-	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint)
+	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, clientConfigure, userAgentConfigure)
 }
 
 // NewServiceClient create a ServiceClient which was assembled from ServiceCatalog.

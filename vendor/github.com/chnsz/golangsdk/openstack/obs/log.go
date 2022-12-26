@@ -268,6 +268,10 @@ func initLogFile(_fullPath string) (os.FileInfo, *os.File, error) {
 
 	fd, err := os.OpenFile(_fullPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
 	if err != nil {
+		_err := fd.Close()
+		if _err != nil {
+			doLog(LEVEL_WARN, "Failed to close file with reason: %v", _err)
+		}
 		return nil, nil, err
 	}
 

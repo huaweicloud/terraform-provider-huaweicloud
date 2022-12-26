@@ -14,6 +14,7 @@ package obs
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -200,6 +201,20 @@ func (obsClient ObsClient) GetObjectMetadata(input *GetObjectMetadataInput, exte
 	return
 }
 
+func (obsClient ObsClient) GetAttribute(input *GetAttributeInput, extensions ...extensionOptions) (output *GetAttributeOutput, err error) {
+	if input == nil {
+		return nil, errors.New("GetAttributeInput is nil")
+	}
+	output = &GetAttributeOutput{}
+	err = obsClient.doActionWithBucketAndKey("GetAttribute", HTTP_HEAD, input.Bucket, input.Key, input, output, extensions)
+	if err != nil {
+		output = nil
+	} else {
+		ParseGetAttributeOutput(output)
+	}
+	return
+}
+
 // GetObject downloads object.
 //
 // You can use this API to download an object in a specified bucket.
@@ -231,7 +246,9 @@ func (obsClient ObsClient) PutObject(input *PutObjectInput, extensions ...extens
 	output = &PutObjectOutput{}
 	var repeatable bool
 	if input.Body != nil {
-		_, repeatable = input.Body.(*strings.Reader)
+		if _, ok := input.Body.(*strings.Reader); !ok {
+			repeatable = false
+		}
 		if input.ContentLength > 0 {
 			input.Body = &readerWrapper{reader: input.Body, totalCount: input.ContentLength}
 		}
@@ -264,6 +281,26 @@ func (obsClient ObsClient) isGetContentType(input *PutObjectInput) bool {
 		return true
 	}
 	return false
+}
+
+func (obsClient ObsClient) NewFolder(input *NewFolderInput, extensions ...extensionOptions) (output *NewFolderOutput, err error) {
+	if input == nil {
+		return nil, errors.New("NewFolderInput is nil")
+	}
+
+	if !strings.HasSuffix(input.Key, "/") {
+		input.Key += "/"
+	}
+
+	output = &NewFolderOutput{}
+	err = obsClient.doActionWithBucketAndKey("NewFolder", HTTP_PUT, input.Bucket, input.Key, input, output, extensions)
+	if err != nil {
+		output = nil
+	} else {
+		ParseNewFolderOutput(output)
+		output.ObjectUrl = fmt.Sprintf("%s/%s/%s", obsClient.conf.endpoint, input.Bucket, input.Key)
+	}
+	return
 }
 
 // PutFile uploads a file to the specified bucket.
@@ -361,7 +398,9 @@ func (obsClient ObsClient) AppendObject(input *AppendObjectInput, extensions ...
 	output = &AppendObjectOutput{}
 	var repeatable bool
 	if input.Body != nil {
-		_, repeatable = input.Body.(*strings.Reader)
+		if _, ok := input.Body.(*strings.Reader); !ok {
+			repeatable = false
+		}
 		if input.ContentLength > 0 {
 			input.Body = &readerWrapper{reader: input.Body, totalCount: input.ContentLength}
 		}
@@ -389,7 +428,9 @@ func (obsClient ObsClient) ModifyObject(input *ModifyObjectInput, extensions ...
 	output = &ModifyObjectOutput{}
 	var repeatable bool
 	if input.Body != nil {
-		_, repeatable = input.Body.(*strings.Reader)
+		if _, ok := input.Body.(*strings.Reader); !ok {
+			repeatable = false
+		}
 		if input.ContentLength > 0 {
 			input.Body = &readerWrapper{reader: input.Body, totalCount: input.ContentLength}
 		}
@@ -403,6 +444,38 @@ func (obsClient ObsClient) ModifyObject(input *ModifyObjectInput, extensions ...
 		output = nil
 	} else {
 		ParseModifyObjectOutput(output)
+	}
+	return
+}
+
+func (obsClient ObsClient) RenameFile(input *RenameFileInput, extensions ...extensionOptions) (output *RenameFileOutput, err error) {
+	if input == nil {
+		return nil, errors.New("RenameFileInput is nil")
+	}
+
+	output = &RenameFileOutput{}
+	err = obsClient.doActionWithBucketAndKey("RenameFile", HTTP_POST, input.Bucket, input.Key, input, output, extensions)
+	if err != nil {
+		output = nil
+	}
+	return
+}
+
+func (obsClient ObsClient) RenameFolder(input *RenameFolderInput, extensions ...extensionOptions) (output *RenameFolderOutput, err error) {
+	if input == nil {
+		return nil, errors.New("RenameFolderInput is nil")
+	}
+
+	if !strings.HasSuffix(input.Key, "/") {
+		input.Key += "/"
+	}
+	if !strings.HasSuffix(input.NewObjectKey, "/") {
+		input.NewObjectKey += "/"
+	}
+	output = &RenameFolderOutput{}
+	err = obsClient.doActionWithBucketAndKey("RenameFolder", HTTP_POST, input.Bucket, input.Key, input, output, extensions)
+	if err != nil {
+		output = nil
 	}
 	return
 }

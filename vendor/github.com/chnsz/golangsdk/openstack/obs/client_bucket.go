@@ -167,6 +167,17 @@ func (obsClient ObsClient) GetBucketMetadata(input *GetBucketMetadataInput, exte
 	return
 }
 
+func (obsClient ObsClient) GetBucketFSStatus(input *GetBucketFSStatusInput, extensions ...extensionOptions) (output *GetBucketFSStatusOutput, err error) {
+	output = &GetBucketFSStatusOutput{}
+	err = obsClient.doActionWithBucket("GetBucketFSStatus", HTTP_HEAD, input.Bucket, input, output, extensions)
+	if err != nil {
+		output = nil
+	} else {
+		ParseGetBucketFSStatusOutput(output)
+	}
+	return
+}
+
 // GetBucketStorageInfo gets storage information about a bucket.
 //
 // You can use this API to obtain storage information about a bucket, including the
