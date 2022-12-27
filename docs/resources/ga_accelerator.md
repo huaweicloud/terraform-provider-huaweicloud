@@ -78,8 +78,6 @@ In addition to all arguments above, the following attributes are exported:
   + **ERROR**: Failed to create the resource.
   + **DELETING**: The resource is being deleted.
 
-* `domain_id` - Indicates the tenant ID.
-
 * `flavor_id` - Indicates the specification ID.
 
 * `ip_sets` - Indicates the IP addresses assigned to the global accelerator.

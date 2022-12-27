@@ -87,11 +87,6 @@ func ResourceEndpoint() *schema.Resource {
 				Description:  `Specifies the weight of the endpoint based on which the listener distributes traffic.`,
 				ValidateFunc: validation.IntBetween(0, 100),
 			},
-			"domain_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Specifies the tenant ID.`,
-			},
 			"health_state": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -283,7 +278,6 @@ func resourceEndpointRead(ctx context.Context, d *schema.ResourceData, meta inte
 	mErr = multierror.Append(
 		mErr,
 		d.Set("created_at", utils.PathSearch("endpoint.created_at", getEndpointRespBody, nil)),
-		d.Set("domain_id", utils.PathSearch("endpoint.domain_id", getEndpointRespBody, nil)),
 		d.Set("endpoint_group_id", utils.PathSearch("endpoint.endpoint_group_id", getEndpointRespBody, nil)),
 		d.Set("health_state", utils.PathSearch("endpoint.health_state", getEndpointRespBody, nil)),
 		d.Set("ip_address", utils.PathSearch("endpoint.ip_address", getEndpointRespBody, nil)),

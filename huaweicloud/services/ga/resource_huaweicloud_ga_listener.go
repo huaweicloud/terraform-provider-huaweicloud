@@ -117,11 +117,6 @@ func ResourceListener() *schema.Resource {
                       - **ERROR**: Failed to create the resource.
                       - **DELETING**: The resource is being deleted.`,
 			},
-			"domain_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Specifies the tenant ID.`,
-			},
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -345,7 +340,6 @@ func resourceListenerRead(ctx context.Context, d *schema.ResourceData, meta inte
 		d.Set("client_affinity", utils.PathSearch("listener.client_affinity", getListenerRespBody, nil)),
 		d.Set("created_at", utils.PathSearch("listener.created_at", getListenerRespBody, nil)),
 		d.Set("description", utils.PathSearch("listener.description", getListenerRespBody, nil)),
-		d.Set("domain_id", utils.PathSearch("listener.domain_id", getListenerRespBody, nil)),
 		d.Set("name", utils.PathSearch("listener.name", getListenerRespBody, nil)),
 		d.Set("port_ranges", flattenGetListenerResponseBodyPortRange(getListenerRespBody)),
 		d.Set("protocol", utils.PathSearch("listener.protocol", getListenerRespBody, nil)),

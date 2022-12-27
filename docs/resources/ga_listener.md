@@ -71,17 +71,15 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
-* `domain_id` - Specifies the tenant ID.
-
-* `status` - Specifies the provisioning status. The value can be one of the following:
+* `status` - Indicates the provisioning status. The value can be one of the following:
   + **ACTIVE**: The resource is running.
   + **PENDING**: The status is to be determined.
   + **ERROR**: Failed to create the resource.
   + **DELETING**: The resource is being deleted.
 
-* `created_at` - Specifies when the listener was created.
+* `created_at` - Indicates when the listener was created.
 
-* `updated_at` - Specifies when the listener was updated.
+* `updated_at` - Indicates when the listener was updated.
   
 ## Timeouts
 

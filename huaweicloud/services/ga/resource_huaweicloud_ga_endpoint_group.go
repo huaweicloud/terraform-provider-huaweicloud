@@ -88,11 +88,6 @@ func ResourceEndpointGroup() *schema.Resource {
 				Description:  `Specifies the percentage of traffic distributed to the endpoint group.`,
 				ValidateFunc: validation.IntBetween(0, 100),
 			},
-			"domain_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Specifies the tenant ID.`,
-			},
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -314,7 +309,6 @@ func resourceEndpointGroupRead(ctx context.Context, d *schema.ResourceData, meta
 		mErr,
 		d.Set("created_at", utils.PathSearch("endpoint_group.created_at", getEndpointGroupRespBody, nil)),
 		d.Set("description", utils.PathSearch("endpoint_group.description", getEndpointGroupRespBody, nil)),
-		d.Set("domain_id", utils.PathSearch("endpoint_group.domain_id", getEndpointGroupRespBody, nil)),
 		d.Set("listeners", flattenGetEndpointGroupResponseBodyId(getEndpointGroupRespBody)),
 		d.Set("name", utils.PathSearch("endpoint_group.name", getEndpointGroupRespBody, nil)),
 		d.Set("region_id", utils.PathSearch("endpoint_group.region_id", getEndpointGroupRespBody, nil)),
