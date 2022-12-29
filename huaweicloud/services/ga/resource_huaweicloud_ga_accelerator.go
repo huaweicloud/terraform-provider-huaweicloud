@@ -97,11 +97,6 @@ func ResourceAccelerator() *schema.Resource {
 				  - **ERROR**: Failed to create the resource.
 				  - **DELETING**: The resource is being deleted.`,
 			},
-			"domain_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Specifies the tenant ID.`,
-			},
 			"flavor_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -392,7 +387,6 @@ func resourceAcceleratorRead(ctx context.Context, d *schema.ResourceData, meta i
 		d.Set("enterprise_project_id", utils.PathSearch("accelerator.enterprise_project_id", getAcceleratorRespBody, nil)),
 		d.Set("tags", flattenGetAcceleratorResponseBodyResourceTag(getAcceleratorRespBody)),
 		d.Set("status", utils.PathSearch("accelerator.status", getAcceleratorRespBody, nil)),
-		d.Set("domain_id", utils.PathSearch("accelerator.domain_id", getAcceleratorRespBody, nil)),
 		d.Set("flavor_id", utils.PathSearch("accelerator.flavor_id", getAcceleratorRespBody, nil)),
 		d.Set("frozen_info", flattenGetAcceleratorResponseBodyFrozenInfo(getAcceleratorRespBody)),
 		d.Set("created_at", utils.PathSearch("accelerator.created_at", getAcceleratorRespBody, nil)),
