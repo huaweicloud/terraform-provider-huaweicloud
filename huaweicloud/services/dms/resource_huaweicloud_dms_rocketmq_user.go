@@ -64,16 +64,18 @@ func ResourceDmsRocketMQUser() *schema.Resource {
 				Description: `Specifies whether the user is an administrator.`,
 			},
 			"default_topic_perm": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the default topic permissions. Value options: **PUB|SUB**, **PUB**, **SUB**, **DENY**.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: `Specifies the default topic permissions.
+Value options: **PUB|SUB**, **PUB**, **SUB**, **DENY**.`,
 			},
 			"default_group_perm": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the default consumer group permissions. Value options: **PUB|SUB**, **PUB**, **SUB**, **DENY**.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: `Specifies the default consumer group permissions.
+Value options: **PUB|SUB**, **PUB**, **SUB**, **DENY**.`,
 			},
 			"topic_perms": {
 				Type:        schema.TypeList,
@@ -130,8 +132,10 @@ func resourceDmsRocketMQUserCreate(ctx context.Context, d *schema.ResourceData, 
 
 	instanceID := d.Get("instance_id").(string)
 	createRocketmqUserPath := createRocketmqUserClient.Endpoint + createRocketmqUserHttpUrl
-	createRocketmqUserPath = strings.ReplaceAll(createRocketmqUserPath, "{project_id}", createRocketmqUserClient.ProjectID)
-	createRocketmqUserPath = strings.ReplaceAll(createRocketmqUserPath, "{instance_id}", fmt.Sprintf("%v", d.Get("instance_id")))
+	createRocketmqUserPath = strings.ReplaceAll(createRocketmqUserPath, "{project_id}",
+		createRocketmqUserClient.ProjectID)
+	createRocketmqUserPath = strings.ReplaceAll(createRocketmqUserPath, "{instance_id}",
+		fmt.Sprintf("%v", d.Get("instance_id")))
 
 	createRocketmqUserOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -140,7 +144,8 @@ func resourceDmsRocketMQUserCreate(ctx context.Context, d *schema.ResourceData, 
 		},
 	}
 	createRocketmqUserOpt.JSONBody = utils.RemoveNil(buildCreateRocketmqUserBodyParams(d, config))
-	createRocketmqUserResp, err := createRocketmqUserClient.Request("POST", createRocketmqUserPath, &createRocketmqUserOpt)
+	createRocketmqUserResp, err := createRocketmqUserClient.Request("POST", createRocketmqUserPath,
+		&createRocketmqUserOpt)
 	if err != nil {
 		return diag.Errorf("error creating DmsRocketMQUser: %s", err)
 	}
@@ -199,12 +204,13 @@ func resourceDmsRocketMQUserUpdate(ctx context.Context, d *schema.ResourceData, 
 
 		parts := strings.SplitN(d.Id(), "/", 2)
 		if len(parts) != 2 {
-			return diag.Errorf("invalid id format, must be <instance_id>/<topic>")
+			return diag.Errorf("invalid id format, must be <instance_id>/<user>")
 		}
 		instanceID := parts[0]
 		user := parts[1]
 		updateRocketmqUserPath := updateRocketmqUserClient.Endpoint + updateRocketmqUserHttpUrl
-		updateRocketmqUserPath = strings.ReplaceAll(updateRocketmqUserPath, "{project_id}", updateRocketmqUserClient.ProjectID)
+		updateRocketmqUserPath = strings.ReplaceAll(updateRocketmqUserPath, "{project_id}",
+			updateRocketmqUserClient.ProjectID)
 		updateRocketmqUserPath = strings.ReplaceAll(updateRocketmqUserPath, "{instance_id}", instanceID)
 		updateRocketmqUserPath = strings.ReplaceAll(updateRocketmqUserPath, "{user_name}", user)
 
@@ -270,7 +276,7 @@ func resourceDmsRocketMQUserRead(ctx context.Context, d *schema.ResourceData, me
 
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		return diag.Errorf("invalid id format, must be <instance_id>/<topic>")
+		return diag.Errorf("invalid id format, must be <instance_id>/<user>")
 	}
 	instanceID := parts[0]
 	user := parts[1]
@@ -302,12 +308,17 @@ func resourceDmsRocketMQUserRead(ctx context.Context, d *schema.ResourceData, me
 		d.Set("instance_id", instanceID),
 		d.Set("access_key", utils.PathSearch("access_key", getRocketmqUserRespBody, nil)),
 		d.Set("secret_key", utils.PathSearch("secret_key", getRocketmqUserRespBody, nil)),
-		d.Set("white_remote_address", utils.PathSearch("white_remote_address", getRocketmqUserRespBody, nil)),
+		d.Set("white_remote_address", utils.PathSearch("white_remote_address",
+			getRocketmqUserRespBody, nil)),
 		d.Set("admin", utils.PathSearch("admin", getRocketmqUserRespBody, nil)),
-		d.Set("default_topic_perm", utils.PathSearch("default_topic_perm", getRocketmqUserRespBody, nil)),
-		d.Set("default_group_perm", utils.PathSearch("default_group_perm", getRocketmqUserRespBody, nil)),
-		d.Set("topic_perms", flattenGetRocketmqUserResponseBodyPermsRef(getRocketmqUserRespBody, "topic_perms")),
-		d.Set("group_perms", flattenGetRocketmqUserResponseBodyPermsRef(getRocketmqUserRespBody, "group_perms")),
+		d.Set("default_topic_perm", utils.PathSearch("default_topic_perm",
+			getRocketmqUserRespBody, nil)),
+		d.Set("default_group_perm", utils.PathSearch("default_group_perm",
+			getRocketmqUserRespBody, nil)),
+		d.Set("topic_perms", flattenGetRocketmqUserResponseBodyPermsRef(getRocketmqUserRespBody,
+			"topic_perms")),
+		d.Set("group_perms", flattenGetRocketmqUserResponseBodyPermsRef(getRocketmqUserRespBody,
+			"group_perms")),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -350,7 +361,8 @@ func resourceDmsRocketMQUserDelete(ctx context.Context, d *schema.ResourceData, 
 	instanceID := parts[0]
 	user := parts[1]
 	deleteRocketmqUserPath := deleteRocketmqUserClient.Endpoint + deleteRocketmqUserHttpUrl
-	deleteRocketmqUserPath = strings.ReplaceAll(deleteRocketmqUserPath, "{project_id}", deleteRocketmqUserClient.ProjectID)
+	deleteRocketmqUserPath = strings.ReplaceAll(deleteRocketmqUserPath, "{project_id}",
+		deleteRocketmqUserClient.ProjectID)
 	deleteRocketmqUserPath = strings.ReplaceAll(deleteRocketmqUserPath, "{instance_id}", instanceID)
 	deleteRocketmqUserPath = strings.ReplaceAll(deleteRocketmqUserPath, "{user_name}", user)
 

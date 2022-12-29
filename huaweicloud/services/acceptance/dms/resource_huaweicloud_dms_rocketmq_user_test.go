@@ -28,7 +28,7 @@ func getDmsRocketMQUserResourceFunc(config *config.Config, state *terraform.Reso
 
 	parts := strings.SplitN(state.Primary.ID, "/", 2)
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid id format, must be <instance_id>/<topic>")
+		return nil, fmt.Errorf("invalid id format, must be <instance_id>/<user>")
 	}
 	instanceID := parts[0]
 	user := parts[1]
