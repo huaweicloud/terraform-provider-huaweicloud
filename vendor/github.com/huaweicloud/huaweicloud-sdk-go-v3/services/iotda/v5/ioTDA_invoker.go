@@ -413,6 +413,18 @@ func (i *ResetFingerprintInvoker) Invoke() (*model.ResetFingerprintResponse, err
 	}
 }
 
+type SearchDevicesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *SearchDevicesInvoker) Invoke() (*model.SearchDevicesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.SearchDevicesResponse), nil
+	}
+}
+
 type ShowDeviceInvoker struct {
 	*invoker.BaseInvoker
 }

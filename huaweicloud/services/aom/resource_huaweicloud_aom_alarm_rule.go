@@ -238,6 +238,22 @@ func buildStatisticOpts(statistic string) *aom.UpdateAlarmRuleParamStatistic {
 	return &statisticToReq
 }
 
+func buildAlarmLevelCreateOpts(alarmLevel int) aom.AlarmRuleParamAlarmLevel {
+	alarmLevelToReq := new(aom.AlarmRuleParamAlarmLevel)
+	if err := alarmLevelToReq.UnmarshalJSON([]byte(strconv.Itoa(alarmLevel))); err != nil {
+		log.Printf("[WARN] failed to parse alarm_level %d: %s", alarmLevel, err)
+	}
+	return *alarmLevelToReq
+}
+
+func buildStatisticCreateOpts(statistic string) aom.AlarmRuleParamStatistic {
+	statisticToReq := new(aom.AlarmRuleParamStatistic)
+	if err := statisticToReq.UnmarshalJSON([]byte(statistic)); err != nil {
+		log.Printf("[WARN] failed to parse statistic %s: %s", statistic, err)
+	}
+	return *statisticToReq
+}
+
 func resourceAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.HcAomV2Client(config.GetRegion(d))
@@ -248,7 +264,7 @@ func resourceAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, meta i
 	createOpts := aom.AlarmRuleParam{
 		AlarmRuleName:           d.Get("name").(string),
 		AlarmDescription:        utils.String(d.Get("description").(string)),
-		AlarmLevel:              int32(d.Get("alarm_level").(int)),
+		AlarmLevel:              buildAlarmLevelCreateOpts(d.Get("alarm_level").(int)),
 		IdTurnOn:                utils.Bool(true),
 		AlarmActions:            buildActionOpts(d.Get("alarm_actions").([]interface{})),
 		ActionEnabled:           utils.Bool(d.Get("alarm_action_enabled").(bool)),
@@ -261,7 +277,7 @@ func resourceAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 		Unit:               d.Get("unit").(string),
 		Threshold:          d.Get("threshold").(string),
-		Statistic:          d.Get("statistic").(string),
+		Statistic:          buildStatisticCreateOpts(d.Get("statistic").(string)),
 		Period:             int32(d.Get("period").(int)),
 		EvaluationPeriods:  int32(d.Get("evaluation_periods").(int)),
 		ComparisonOperator: d.Get("comparison_operator").(string),

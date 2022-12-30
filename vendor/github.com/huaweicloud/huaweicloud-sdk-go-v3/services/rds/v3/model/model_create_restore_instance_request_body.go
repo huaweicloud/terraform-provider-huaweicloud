@@ -72,7 +72,7 @@ type CreateRestoreInstanceRequestBody struct {
 	// 仅限Microsoft SQL Server实例创建使用。对于MySQL和PostgreSQL实例，该参数无意义。取值范围：根据查询SQL Server可用字符集的字符集查询列表查询可设置的字符集。 取值范围：根据[查询SQL Server可用字符集](https://support.huaweicloud.com/api-rds/rds_05_0010.html)查询可设置的字符集。
 	Collation *string `json:"collation,omitempty"`
 
-	// 标签列表。单个实例总标签数上限10个。
+	// 标签列表。单个实例总标签数上限20个。
 	Tags *[]TagWithKeyValue `json:"tags,omitempty"`
 
 	UnchangeableParam *UnchangeableParam `json:"unchangeable_param,omitempty"`

@@ -407,6 +407,14 @@ func GenReqDefForAddCertificate() *def.HttpRequestDef {
 		WithContentType("application/json")
 
 	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("SpAuthToken").
+		WithJsonTag("Sp-Auth-Token").
+		WithLocationType(def.Header))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("StageAuthToken").
+		WithJsonTag("Stage-Auth-Token").
+		WithLocationType(def.Header))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
 		WithName("InstanceId").
 		WithJsonTag("Instance-Id").
 		WithLocationType(def.Header))
@@ -437,6 +445,14 @@ func GenReqDefForCheckCertificate() *def.HttpRequestDef {
 		WithLocationType(def.Query))
 
 	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("SpAuthToken").
+		WithJsonTag("Sp-Auth-Token").
+		WithLocationType(def.Header))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("StageAuthToken").
+		WithJsonTag("Stage-Auth-Token").
+		WithLocationType(def.Header))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
 		WithName("InstanceId").
 		WithJsonTag("Instance-Id").
 		WithLocationType(def.Header))
@@ -465,6 +481,14 @@ func GenReqDefForDeleteCertificate() *def.HttpRequestDef {
 		WithJsonTag("certificate_id").
 		WithLocationType(def.Path))
 
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("SpAuthToken").
+		WithJsonTag("Sp-Auth-Token").
+		WithLocationType(def.Header))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("StageAuthToken").
+		WithJsonTag("Stage-Auth-Token").
+		WithLocationType(def.Header))
 	reqDefBuilder.WithRequestField(def.NewFieldDef().
 		WithName("InstanceId").
 		WithJsonTag("Instance-Id").
@@ -502,6 +526,14 @@ func GenReqDefForListCertificates() *def.HttpRequestDef {
 		WithJsonTag("offset").
 		WithLocationType(def.Query))
 
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("SpAuthToken").
+		WithJsonTag("Sp-Auth-Token").
+		WithLocationType(def.Header))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("StageAuthToken").
+		WithJsonTag("Stage-Auth-Token").
+		WithLocationType(def.Header))
 	reqDefBuilder.WithRequestField(def.NewFieldDef().
 		WithName("InstanceId").
 		WithJsonTag("Instance-Id").
@@ -904,6 +936,26 @@ func GenReqDefForResetFingerprint() *def.HttpRequestDef {
 		WithName("DeviceId").
 		WithJsonTag("device_id").
 		WithLocationType(def.Path))
+
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("InstanceId").
+		WithJsonTag("Instance-Id").
+		WithLocationType(def.Header))
+
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("Body").
+		WithLocationType(def.Body))
+
+	requestDef := reqDefBuilder.Build()
+	return requestDef
+}
+
+func GenReqDefForSearchDevices() *def.HttpRequestDef {
+	reqDefBuilder := def.NewHttpRequestDefBuilder().
+		WithMethod(http.MethodPost).
+		WithPath("/v5/iot/{project_id}/search/query-devices").
+		WithResponse(new(model.SearchDevicesResponse)).
+		WithContentType("application/json")
 
 	reqDefBuilder.WithRequestField(def.NewFieldDef().
 		WithName("InstanceId").

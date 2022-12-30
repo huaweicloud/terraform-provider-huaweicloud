@@ -32,9 +32,12 @@ type UpdateDomainResponse struct {
 	// 状态描述
 	StatusDescribe *string `json:"status_describe,omitempty"`
 
-	// 域名应用区域 - mainland_china表示中国大陆区域 - outside_mainland_china表示中国大陆以外区域 - global表示全球区域
-	ServiceArea    *UpdateDomainResponseServiceArea `json:"service_area,omitempty"`
-	HttpStatusCode int                              `json:"-"`
+	// 域名应用区域 - mainland_china表示中国大陆区域 - outside_mainland_china表示中国大陆以外区域
+	ServiceArea *UpdateDomainResponseServiceArea `json:"service_area,omitempty"`
+
+	// 企业项目ID
+	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
+	HttpStatusCode      int     `json:"-"`
 }
 
 func (o UpdateDomainResponse) String() string {
@@ -145,7 +148,6 @@ type UpdateDomainResponseServiceArea struct {
 type UpdateDomainResponseServiceAreaEnum struct {
 	MAINLAND_CHINA         UpdateDomainResponseServiceArea
 	OUTSIDE_MAINLAND_CHINA UpdateDomainResponseServiceArea
-	GLOBAL                 UpdateDomainResponseServiceArea
 }
 
 func GetUpdateDomainResponseServiceAreaEnum() UpdateDomainResponseServiceAreaEnum {
@@ -155,9 +157,6 @@ func GetUpdateDomainResponseServiceAreaEnum() UpdateDomainResponseServiceAreaEnu
 		},
 		OUTSIDE_MAINLAND_CHINA: UpdateDomainResponseServiceArea{
 			value: "outside_mainland_china",
-		},
-		GLOBAL: UpdateDomainResponseServiceArea{
-			value: "global",
 		},
 	}
 }

@@ -27,6 +27,7 @@ const (
 	Query
 	Body
 	Form
+	Cname
 )
 
 type FieldDef struct {

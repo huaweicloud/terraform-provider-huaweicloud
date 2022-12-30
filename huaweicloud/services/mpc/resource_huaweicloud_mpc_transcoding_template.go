@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	mpc "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1/model"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -144,12 +145,6 @@ func ResourceTranscodingTemplate() *schema.Resource {
 							ValidateFunc: validation.IntBetween(1, 3),
 							Default:      1,
 						},
-						"max_reference_frames": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(1, 8),
-							Default:      4,
-						},
 						"max_iframes_interval": {
 							Type:         schema.TypeInt,
 							Optional:     true,
@@ -191,6 +186,13 @@ func ResourceTranscodingTemplate() *schema.Resource {
 							Optional:     true,
 							ValidateFunc: validation.IntBetween(0, 2),
 						},
+						"max_reference_frames": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(1, 8),
+							Computed:     true,
+							Description:  "schema: Deprecated; the SDK does not support it",
+						},
 					},
 				},
 			},
@@ -200,9 +202,9 @@ func ResourceTranscodingTemplate() *schema.Resource {
 
 func buildCommonOpts(d *schema.ResourceData) *mpc.Common {
 	commonOpts := mpc.Common{
-		Pvc:          d.Get("low_bitrate_hd").(bool),
-		HlsInterval:  int32(d.Get("hls_segment_duration").(int)),
-		DashInterval: int32(d.Get("dash_segment_duration").(int)),
+		Pvc:          utils.Bool(d.Get("low_bitrate_hd").(bool)),
+		HlsInterval:  utils.Int32(int32(d.Get("hls_segment_duration").(int))),
+		DashInterval: utils.Int32(int32(d.Get("dash_segment_duration").(int))),
 		PackType:     int32(d.Get("output_format").(int)),
 	}
 
@@ -216,8 +218,8 @@ func buildAudioOpts(rawAudio []interface{}) *mpc.Audio {
 
 	audio := rawAudio[0].(map[string]interface{})
 	audioOpts := mpc.Audio{
-		Codec:        int32(audio["codec"].(int)),
-		SampleRate:   int32(audio["sample_rate"].(int)),
+		Codec:        utils.Int32(int32(audio["codec"].(int))),
+		SampleRate:   utils.Int32(int32(audio["sample_rate"].(int))),
 		Channels:     int32(audio["channels"].(int)),
 		Bitrate:      utils.Int32(int32(audio["bitrate"].(int))),
 		OutputPolicy: buildAudioOutputPolicyOpts(audio["output_policy"].(string)),
@@ -257,7 +259,6 @@ func buildVideoOpts(rawVideo []interface{}) *mpc.Video {
 		Profile:            utils.Int32(int32(video["profile"].(int))),
 		Level:              utils.Int32(int32(video["level"].(int))),
 		Preset:             utils.Int32(int32(video["quality"].(int))),
-		RefFramesCount:     utils.Int32(int32(video["max_reference_frames"].(int))),
 		MaxIframesInterval: utils.Int32(int32(video["max_iframes_interval"].(int))),
 		BframesCount:       utils.Int32(int32(video["max_consecutive_bframes"].(int))),
 		FrameRate:          utils.Int32(int32(video["fps"].(int))),
@@ -460,7 +461,7 @@ func flattenVideo(video *mpc.Video) []map[string]interface{} {
 		"profile":                 video.Profile,
 		"level":                   video.Level,
 		"quality":                 video.Preset,
-		"max_reference_frames":    video.RefFramesCount,
+		"max_reference_frames":    4,
 		"max_iframes_interval":    video.MaxIframesInterval,
 		"max_consecutive_bframes": video.BframesCount,
 		"fps":                     video.FrameRate,

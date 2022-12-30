@@ -21,7 +21,7 @@ type CreatePostPaidInstanceReq struct {
 	// 消息引擎。取值填写为：kafka。
 	Engine CreatePostPaidInstanceReqEngine `json:"engine"`
 
-	// 消息引擎的版本。取值填写为：1.1.0和2.3.0。
+	// 消息引擎的版本。取值填写为：   - 1.1.0   - 2.3.0   - 2.7
 	EngineVersion CreatePostPaidInstanceReqEngineVersion `json:"engine_version"`
 
 	// [新规格实例：Kafka实例业务TPS规格，取值范围：   - c6.2u4g.cluster   - c6.4u8g.cluster   - c6.8u16g.cluster   - c6.12u24g.cluster   - c6.16u32g.cluster  老规格实例：](tag:hc,hk) Kafka实例的基准带宽，表示单位时间内传送的最大数据量，单位MB。取值范围：   - 100MB   - 300MB   - 600MB   - 1200MB
@@ -81,16 +81,25 @@ type CreatePostPaidInstanceReq struct {
 	// 是否打开SSL加密访问。  实例创建后将不支持动态开启和关闭。  - true：打开SSL加密访问。 - false：不打开SSL加密访问。
 	SslEnable *bool `json:"ssl_enable,omitempty"`
 
+	// 开启SASL后使用的认证机制，如果开启了SASL认证功能（即ssl_enable=true），该字段为必选。  若该字段值为空，默认开启PLAIN认证机制。  选择其一进行SASL认证即可,支持同时开启两种认证机制。 取值如下： - PLAIN: 简单的用户名密码校验。 - SCRAM-SHA-512: 用户凭证校验，安全性比PLAIN机制更高。
+	SaslEnabledMechanisms *[]CreatePostPaidInstanceReqSaslEnabledMechanisms `json:"sasl_enabled_mechanisms,omitempty"`
+
 	// 磁盘的容量到达容量阈值后，对于消息的处理策略。  取值如下： - produce_reject：表示拒绝消息写入。 - time_base：表示自动删除最老消息。
 	RetentionPolicy *CreatePostPaidInstanceReqRetentionPolicy `json:"retention_policy,omitempty"`
 
 	// 是否开启消息转储功能。  默认不开启消息转储。
 	ConnectorEnable *bool `json:"connector_enable,omitempty"`
 
+	// 是否开启磁盘加密。
+	DiskEncryptedEnable *bool `json:"disk_encrypted_enable,omitempty"`
+
+	// 磁盘加密key，未开启磁盘加密时为空。
+	DiskEncryptedKey *string `json:"disk_encrypted_key,omitempty"`
+
 	// 是否打开kafka自动创建topic功能。 - true：开启 - false：关闭  当您选择开启，表示生产或消费一个未创建的Topic时，会自动创建一个包含3个分区和3个副本的Topic。  默认是false关闭。
 	EnableAutoTopic *bool `json:"enable_auto_topic,omitempty"`
 
-	// 存储IO规格。 [新老规格的实例的存储IO规格不相同，创建实例请选择对应的存储IO规格。 新规格实例取值范围：   - dms.physical.storage.high.v2：使用高IO的磁盘类型。   - dms.physical.storage.ultra.v2：使用超高IO的磁盘类型。  老规格实例取值范围：](tag:hc,hk)   - 参数specification为100MB时，取值dms.physical.storage.high或者dms.physical.storage.ultra   - 参数specification为300MB时，取值dms.physical.storage.high或者dms.physical.storage.ultra   - 参数specification为600MB时，取值dms.physical.storage.ultra   - 参数specification为1200MB时，取值dms.physical.storage.ultra存储IO规格。如何选择磁盘类型请参考磁盘类型及性能介绍。
+	// 存储IO规格。 [新老规格的实例的存储IO规格不相同，创建实例请选择对应的存储IO规格。 新规格实例取值范围：   - dms.physical.storage.high.v2：使用高IO的磁盘类型。   - dms.physical.storage.ultra.v2：使用超高IO的磁盘类型。  老规格实例取值范围：](tag:hc,hk)   - 参数specification为100MB/300MB时，取值dms.physical.storage.high或者dms.physical.storage.ultra   - 参数specification为600MB/1200MB时，取值dms.physical.storage.ultra   如何选择磁盘类型请参考磁盘类型及性能介绍。
 	StorageSpecCode CreatePostPaidInstanceReqStorageSpecCode `json:"storage_spec_code"`
 
 	// 企业项目ID。若为企业项目帐号，该参数必填。
@@ -154,6 +163,7 @@ type CreatePostPaidInstanceReqEngineVersion struct {
 type CreatePostPaidInstanceReqEngineVersionEnum struct {
 	E_1_1_0 CreatePostPaidInstanceReqEngineVersion
 	E_2_3_0 CreatePostPaidInstanceReqEngineVersion
+	E_2_7   CreatePostPaidInstanceReqEngineVersion
 }
 
 func GetCreatePostPaidInstanceReqEngineVersionEnum() CreatePostPaidInstanceReqEngineVersionEnum {
@@ -163,6 +173,9 @@ func GetCreatePostPaidInstanceReqEngineVersionEnum() CreatePostPaidInstanceReqEn
 		},
 		E_2_3_0: CreatePostPaidInstanceReqEngineVersion{
 			value: "2.3.0",
+		},
+		E_2_7: CreatePostPaidInstanceReqEngineVersion{
+			value: "2.7",
 		},
 	}
 }
@@ -315,6 +328,48 @@ func (c *CreatePostPaidInstanceReqPartitionNum) UnmarshalJSON(b []byte) error {
 		return err
 	} else {
 		return errors.New("convert enum data to int32 error")
+	}
+}
+
+type CreatePostPaidInstanceReqSaslEnabledMechanisms struct {
+	value string
+}
+
+type CreatePostPaidInstanceReqSaslEnabledMechanismsEnum struct {
+	PLAIN         CreatePostPaidInstanceReqSaslEnabledMechanisms
+	SCRAM_SHA_512 CreatePostPaidInstanceReqSaslEnabledMechanisms
+}
+
+func GetCreatePostPaidInstanceReqSaslEnabledMechanismsEnum() CreatePostPaidInstanceReqSaslEnabledMechanismsEnum {
+	return CreatePostPaidInstanceReqSaslEnabledMechanismsEnum{
+		PLAIN: CreatePostPaidInstanceReqSaslEnabledMechanisms{
+			value: "PLAIN",
+		},
+		SCRAM_SHA_512: CreatePostPaidInstanceReqSaslEnabledMechanisms{
+			value: "SCRAM-SHA-512",
+		},
+	}
+}
+
+func (c CreatePostPaidInstanceReqSaslEnabledMechanisms) Value() string {
+	return c.value
+}
+
+func (c CreatePostPaidInstanceReqSaslEnabledMechanisms) MarshalJSON() ([]byte, error) {
+	return utils.Marshal(c.value)
+}
+
+func (c *CreatePostPaidInstanceReqSaslEnabledMechanisms) UnmarshalJSON(b []byte) error {
+	myConverter := converter.StringConverterFactory("string")
+	if myConverter != nil {
+		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+		if err == nil {
+			c.value = val.(string)
+			return nil
+		}
+		return err
+	} else {
+		return errors.New("convert enum data to string error")
 	}
 }
 

@@ -83,7 +83,10 @@ func CanonicalURI(r *request.DefaultHttpRequest) string {
 func CanonicalQueryString(r *request.DefaultHttpRequest) string {
 	var query = make(map[string][]string, 0)
 	for key, value := range r.GetQueryParams() {
-		valueWithType := value.(reflect.Value)
+		valueWithType, ok := value.(reflect.Value)
+		if !ok {
+			continue
+		}
 
 		if valueWithType.Kind() == reflect.Slice {
 			params := r.CanonicalSliceQueryParamsToMulti(valueWithType)
@@ -196,11 +199,11 @@ func SignStringToSign(stringToSign string, signingKey []byte) (string, error) {
 // HexEncodeSHA256Hash returns hexcode of sha256
 func HexEncodeSHA256Hash(body []byte) (string, error) {
 	hash := sha256.New()
-	if body == nil {
-		body = []byte("")
-	}
 	_, err := hash.Write(body)
-	return fmt.Sprintf("%x", hash.Sum(nil)), err
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%x", hash.Sum(nil)), nil
 }
 
 // Get the finalized value for the "Authorization" header. The signature parameter is the output from SignStringToSign

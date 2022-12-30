@@ -19,12 +19,53 @@ func CssClientBuilder() *http_client.HcHttpClientBuilder {
 	return builder
 }
 
+// AddIndependentNode 添加独立master、client
+//
+// 由于集群数据面业务的增长或者不确定性，很难在一开始就能够把集群的规模形态想明白，该接口能够在非独立master和client的集群上面独立master、client角色。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CssClient) AddIndependentNode(request *model.AddIndependentNodeRequest) (*model.AddIndependentNodeResponse, error) {
+	requestDef := GenReqDefForAddIndependentNode()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.AddIndependentNodeResponse), nil
+	}
+}
+
+// AddIndependentNodeInvoker 添加独立master、client
+func (c *CssClient) AddIndependentNodeInvoker(request *model.AddIndependentNodeRequest) *AddIndependentNodeInvoker {
+	requestDef := GenReqDefForAddIndependentNode()
+	return &AddIndependentNodeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ChangeMode 安全模式修改
+//
+// 该接口用于切换集群的安全模式。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CssClient) ChangeMode(request *model.ChangeModeRequest) (*model.ChangeModeResponse, error) {
+	requestDef := GenReqDefForChangeMode()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ChangeModeResponse), nil
+	}
+}
+
+// ChangeModeInvoker 安全模式修改
+func (c *CssClient) ChangeModeInvoker(request *model.ChangeModeRequest) *ChangeModeInvoker {
+	requestDef := GenReqDefForChangeMode()
+	return &ChangeModeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // CreateAutoCreatePolicy 设置自动创建快照策略
 //
 // 该接口用于设置自动创建快照，默认一天创建一个快照。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) CreateAutoCreatePolicy(request *model.CreateAutoCreatePolicyRequest) (*model.CreateAutoCreatePolicyResponse, error) {
 	requestDef := GenReqDefForCreateAutoCreatePolicy()
 
@@ -45,8 +86,7 @@ func (c *CssClient) CreateAutoCreatePolicyInvoker(request *model.CreateAutoCreat
 //
 // 该接口用于开启公网访问。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) CreateBindPublic(request *model.CreateBindPublicRequest) (*model.CreateBindPublicResponse, error) {
 	requestDef := GenReqDefForCreateBindPublic()
 
@@ -67,8 +107,7 @@ func (c *CssClient) CreateBindPublicInvoker(request *model.CreateBindPublicReque
 //
 // 该接口用于创建集群。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) CreateCluster(request *model.CreateClusterRequest) (*model.CreateClusterResponse, error) {
 	requestDef := GenReqDefForCreateCluster()
 
@@ -89,8 +128,7 @@ func (c *CssClient) CreateClusterInvoker(request *model.CreateClusterRequest) *C
 //
 // 该接口用于给指定集群添加标签。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) CreateClustersTags(request *model.CreateClustersTagsRequest) (*model.CreateClustersTagsResponse, error) {
 	requestDef := GenReqDefForCreateClustersTags()
 
@@ -111,8 +149,7 @@ func (c *CssClient) CreateClustersTagsInvoker(request *model.CreateClustersTagsR
 //
 // 该接口用于加载存放于OBS的自定义词库。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) CreateLoadIkThesaurus(request *model.CreateLoadIkThesaurusRequest) (*model.CreateLoadIkThesaurusResponse, error) {
 	requestDef := GenReqDefForCreateLoadIkThesaurus()
 
@@ -133,8 +170,7 @@ func (c *CssClient) CreateLoadIkThesaurusInvoker(request *model.CreateLoadIkThes
 //
 // 该接口用于备份日志。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) CreateLogBackup(request *model.CreateLogBackupRequest) (*model.CreateLogBackupResponse, error) {
 	requestDef := GenReqDefForCreateLogBackup()
 
@@ -155,8 +191,7 @@ func (c *CssClient) CreateLogBackupInvoker(request *model.CreateLogBackupRequest
 //
 // 该接口用于手动创建一个快照。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) CreateSnapshot(request *model.CreateSnapshotRequest) (*model.CreateSnapshotResponse, error) {
 	requestDef := GenReqDefForCreateSnapshot()
 
@@ -179,8 +214,7 @@ func (c *CssClient) CreateSnapshotInvoker(request *model.CreateSnapshotRequest) 
 //
 // &gt;此接口亦可用于包年/包月集群退订。公安冻结的集群不能删除。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) DeleteCluster(request *model.DeleteClusterRequest) (*model.DeleteClusterResponse, error) {
 	requestDef := GenReqDefForDeleteCluster()
 
@@ -201,8 +235,7 @@ func (c *CssClient) DeleteClusterInvoker(request *model.DeleteClusterRequest) *D
 //
 // 此接口用于删除集群标签。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) DeleteClustersTags(request *model.DeleteClustersTagsRequest) (*model.DeleteClustersTagsResponse, error) {
 	requestDef := GenReqDefForDeleteClustersTags()
 
@@ -223,8 +256,7 @@ func (c *CssClient) DeleteClustersTagsInvoker(request *model.DeleteClustersTagsR
 //
 // 该接口用于删除自定义词库。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) DeleteIkThesaurus(request *model.DeleteIkThesaurusRequest) (*model.DeleteIkThesaurusResponse, error) {
 	requestDef := GenReqDefForDeleteIkThesaurus()
 
@@ -245,8 +277,7 @@ func (c *CssClient) DeleteIkThesaurusInvoker(request *model.DeleteIkThesaurusReq
 //
 // 该接口用于删除快照。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) DeleteSnapshot(request *model.DeleteSnapshotRequest) (*model.DeleteSnapshotResponse, error) {
 	requestDef := GenReqDefForDeleteSnapshot()
 
@@ -267,8 +298,7 @@ func (c *CssClient) DeleteSnapshotInvoker(request *model.DeleteSnapshotRequest) 
 //
 // 该接口用于下载安全证书。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) DownloadCert(request *model.DownloadCertRequest) (*model.DownloadCertResponse, error) {
 	requestDef := GenReqDefForDownloadCert()
 
@@ -289,8 +319,7 @@ func (c *CssClient) DownloadCertInvoker(request *model.DownloadCertRequest) *Dow
 //
 // 该接口用于查询并显示集群列表以及集群的状态。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) ListClustersDetails(request *model.ListClustersDetailsRequest) (*model.ListClustersDetailsResponse, error) {
 	requestDef := GenReqDefForListClustersDetails()
 
@@ -311,8 +340,7 @@ func (c *CssClient) ListClustersDetailsInvoker(request *model.ListClustersDetail
 //
 // 该接口用于查询指定region下的所有标签集合。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) ListClustersTags(request *model.ListClustersTagsRequest) (*model.ListClustersTagsResponse, error) {
 	requestDef := GenReqDefForListClustersTags()
 
@@ -333,8 +361,7 @@ func (c *CssClient) ListClustersTagsInvoker(request *model.ListClustersTagsReque
 //
 // 该接口用于查询并显示支持的实例规格对应的ID。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) ListFlavors(request *model.ListFlavorsRequest) (*model.ListFlavorsResponse, error) {
 	requestDef := GenReqDefForListFlavors()
 
@@ -355,8 +382,7 @@ func (c *CssClient) ListFlavorsInvoker(request *model.ListFlavorsRequest) *ListF
 //
 // 该接口用于查询具体某个集群的日志任务记录列表。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) ListLogsJob(request *model.ListLogsJobRequest) (*model.ListLogsJobResponse, error) {
 	requestDef := GenReqDefForListLogsJob()
 
@@ -377,8 +403,7 @@ func (c *CssClient) ListLogsJobInvoker(request *model.ListLogsJobRequest) *ListL
 //
 // 该接口用于查询集群的所有快照。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) ListSnapshots(request *model.ListSnapshotsRequest) (*model.ListSnapshotsResponse, error) {
 	requestDef := GenReqDefForListSnapshots()
 
@@ -399,8 +424,7 @@ func (c *CssClient) ListSnapshotsInvoker(request *model.ListSnapshotsRequest) *L
 //
 // 该接口用于获取当前集群现有的参数配置列表。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) ListYmls(request *model.ListYmlsRequest) (*model.ListYmlsResponse, error) {
 	requestDef := GenReqDefForListYmls()
 
@@ -421,8 +445,7 @@ func (c *CssClient) ListYmlsInvoker(request *model.ListYmlsRequest) *ListYmlsInv
 //
 // 该接口可获取参数配置的任务操作列表。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) ListYmlsJob(request *model.ListYmlsJobRequest) (*model.ListYmlsJobResponse, error) {
 	requestDef := GenReqDefForListYmlsJob()
 
@@ -443,8 +466,7 @@ func (c *CssClient) ListYmlsJobInvoker(request *model.ListYmlsJobRequest) *ListY
 //
 // 该接口用于修改集群密码。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) ResetPassword(request *model.ResetPasswordRequest) (*model.ResetPasswordResponse, error) {
 	requestDef := GenReqDefForResetPassword()
 
@@ -465,8 +487,7 @@ func (c *CssClient) ResetPasswordInvoker(request *model.ResetPasswordRequest) *R
 //
 // 此接口用于重启集群，重启集群将导致业务中断。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) RestartCluster(request *model.RestartClusterRequest) (*model.RestartClusterResponse, error) {
 	requestDef := GenReqDefForRestartCluster()
 
@@ -487,8 +508,7 @@ func (c *CssClient) RestartClusterInvoker(request *model.RestartClusterRequest) 
 //
 // 该接口用于手动恢复一个快照。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) RestoreSnapshot(request *model.RestoreSnapshotRequest) (*model.RestoreSnapshotResponse, error) {
 	requestDef := GenReqDefForRestoreSnapshot()
 
@@ -509,8 +529,7 @@ func (c *CssClient) RestoreSnapshotInvoker(request *model.RestoreSnapshotRequest
 //
 // 该接口用于查询自动创建快照策略。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) ShowAutoCreatePolicy(request *model.ShowAutoCreatePolicyRequest) (*model.ShowAutoCreatePolicyResponse, error) {
 	requestDef := GenReqDefForShowAutoCreatePolicy()
 
@@ -531,8 +550,7 @@ func (c *CssClient) ShowAutoCreatePolicyInvoker(request *model.ShowAutoCreatePol
 //
 // 该接口用于查询并显示单个集群详情。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) ShowClusterDetail(request *model.ShowClusterDetailRequest) (*model.ShowClusterDetailResponse, error) {
 	requestDef := GenReqDefForShowClusterDetail()
 
@@ -553,8 +571,7 @@ func (c *CssClient) ShowClusterDetailInvoker(request *model.ShowClusterDetailReq
 //
 // 该接口用于查询指定集群的标签信息。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) ShowClusterTag(request *model.ShowClusterTagRequest) (*model.ShowClusterTagResponse, error) {
 	requestDef := GenReqDefForShowClusterTag()
 
@@ -575,8 +592,7 @@ func (c *CssClient) ShowClusterTagInvoker(request *model.ShowClusterTagRequest) 
 //
 // 该接口用于日志基础配置查询。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) ShowGetLogSetting(request *model.ShowGetLogSettingRequest) (*model.ShowGetLogSettingResponse, error) {
 	requestDef := GenReqDefForShowGetLogSetting()
 
@@ -597,8 +613,7 @@ func (c *CssClient) ShowGetLogSettingInvoker(request *model.ShowGetLogSettingReq
 //
 // 该接口用于查询自定义词库的加载状态。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) ShowIkThesaurus(request *model.ShowIkThesaurusRequest) (*model.ShowIkThesaurusResponse, error) {
 	requestDef := GenReqDefForShowIkThesaurus()
 
@@ -619,8 +634,7 @@ func (c *CssClient) ShowIkThesaurusInvoker(request *model.ShowIkThesaurusRequest
 //
 // 该接口用于查询日志信息。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) ShowLogBackup(request *model.ShowLogBackupRequest) (*model.ShowLogBackupResponse, error) {
 	requestDef := GenReqDefForShowLogBackup()
 
@@ -641,8 +655,7 @@ func (c *CssClient) ShowLogBackupInvoker(request *model.ShowLogBackupRequest) *S
 //
 // 该接口用于获取终端节点连接。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) ShowVpcepConnection(request *model.ShowVpcepConnectionRequest) (*model.ShowVpcepConnectionResponse, error) {
 	requestDef := GenReqDefForShowVpcepConnection()
 
@@ -669,8 +682,7 @@ func (c *CssClient) ShowVpcepConnectionInvoker(request *model.ShowVpcepConnectio
 // - “备份路径”：快照在OBS桶中的存放路径。
 // - “IAM委托”：由于需要将快照保存在OBS中，所以需要在IAM中设置对应的委托获取对OBS服务的授权。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) StartAutoSetting(request *model.StartAutoSettingRequest) (*model.StartAutoSettingResponse, error) {
 	requestDef := GenReqDefForStartAutoSetting()
 
@@ -691,8 +703,7 @@ func (c *CssClient) StartAutoSettingInvoker(request *model.StartAutoSettingReque
 //
 // 该接口用于日志自动备份策略开启。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) StartLogAutoBackupPolicy(request *model.StartLogAutoBackupPolicyRequest) (*model.StartLogAutoBackupPolicyResponse, error) {
 	requestDef := GenReqDefForStartLogAutoBackupPolicy()
 
@@ -713,8 +724,7 @@ func (c *CssClient) StartLogAutoBackupPolicyInvoker(request *model.StartLogAutoB
 //
 // 该接口用于开启日志功能。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) StartLogs(request *model.StartLogsRequest) (*model.StartLogsResponse, error) {
 	requestDef := GenReqDefForStartLogs()
 
@@ -735,8 +745,7 @@ func (c *CssClient) StartLogsInvoker(request *model.StartLogsRequest) *StartLogs
 //
 // 该接口用于开启公网访问控制白名单。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) StartPublicWhitelist(request *model.StartPublicWhitelistRequest) (*model.StartPublicWhitelistResponse, error) {
 	requestDef := GenReqDefForStartPublicWhitelist()
 
@@ -757,8 +766,7 @@ func (c *CssClient) StartPublicWhitelistInvoker(request *model.StartPublicWhitel
 //
 // 该接口用于开启终端节点服务。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) StartVpecp(request *model.StartVpecpRequest) (*model.StartVpecpResponse, error) {
 	requestDef := GenReqDefForStartVpecp()
 
@@ -779,8 +787,7 @@ func (c *CssClient) StartVpecpInvoker(request *model.StartVpecpRequest) *StartVp
 //
 // 该接口用于日志自动备份策略关闭。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) StopLogAutoBackupPolicy(request *model.StopLogAutoBackupPolicyRequest) (*model.StopLogAutoBackupPolicyResponse, error) {
 	requestDef := GenReqDefForStopLogAutoBackupPolicy()
 
@@ -801,8 +808,7 @@ func (c *CssClient) StopLogAutoBackupPolicyInvoker(request *model.StopLogAutoBac
 //
 // 该接口用于关闭日志功能。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) StopLogs(request *model.StopLogsRequest) (*model.StopLogsResponse, error) {
 	requestDef := GenReqDefForStopLogs()
 
@@ -823,8 +829,7 @@ func (c *CssClient) StopLogsInvoker(request *model.StopLogsRequest) *StopLogsInv
 //
 // 该接口用于关闭公网访问控制白名单。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) StopPublicWhitelist(request *model.StopPublicWhitelistRequest) (*model.StopPublicWhitelistResponse, error) {
 	requestDef := GenReqDefForStopPublicWhitelist()
 
@@ -845,8 +850,7 @@ func (c *CssClient) StopPublicWhitelistInvoker(request *model.StopPublicWhitelis
 //
 // 该接口用于停用快照功能。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) StopSnapshot(request *model.StopSnapshotRequest) (*model.StopSnapshotResponse, error) {
 	requestDef := GenReqDefForStopSnapshot()
 
@@ -867,8 +871,7 @@ func (c *CssClient) StopSnapshotInvoker(request *model.StopSnapshotRequest) *Sto
 //
 // 该接口用于关闭终端节点服务。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) StopVpecp(request *model.StopVpecpRequest) (*model.StopVpecpResponse, error) {
 	requestDef := GenReqDefForStopVpecp()
 
@@ -889,8 +892,7 @@ func (c *CssClient) StopVpecpInvoker(request *model.StopVpecpRequest) *StopVpecp
 //
 // 该接口用于对集群批量添加或删除标签。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateBatchClustersTags(request *model.UpdateBatchClustersTagsRequest) (*model.UpdateBatchClustersTagsResponse, error) {
 	requestDef := GenReqDefForUpdateBatchClustersTags()
 
@@ -911,8 +913,7 @@ func (c *CssClient) UpdateBatchClustersTagsInvoker(request *model.UpdateBatchClu
 //
 // 该接口用于修改集群名称。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateClusterName(request *model.UpdateClusterNameRequest) (*model.UpdateClusterNameResponse, error) {
 	requestDef := GenReqDefForUpdateClusterName()
 
@@ -935,8 +936,7 @@ func (c *CssClient) UpdateClusterNameInvoker(request *model.UpdateClusterNameReq
 //
 // 集群扩容实例的数量和存储容量，请参考[扩容实例的数量和存储容量](UpdateExtendInstanceStorage.xml)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateExtendCluster(request *model.UpdateExtendClusterRequest) (*model.UpdateExtendClusterResponse, error) {
 	requestDef := GenReqDefForUpdateExtendCluster()
 
@@ -957,8 +957,7 @@ func (c *CssClient) UpdateExtendClusterInvoker(request *model.UpdateExtendCluste
 //
 // 该接口用于集群扩容不同类型实例的个数以及存储容量。已经存在独立Master、Client、冷数据节点的集群使用该接口扩容。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateExtendInstanceStorage(request *model.UpdateExtendInstanceStorageRequest) (*model.UpdateExtendInstanceStorageResponse, error) {
 	requestDef := GenReqDefForUpdateExtendInstanceStorage()
 
@@ -979,8 +978,7 @@ func (c *CssClient) UpdateExtendInstanceStorageInvoker(request *model.UpdateExte
 //
 // 该接口用于变更集群规格。只支持变更ess节点类型。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateFlavor(request *model.UpdateFlavorRequest) (*model.UpdateFlavorResponse, error) {
 	requestDef := GenReqDefForUpdateFlavor()
 
@@ -1005,8 +1003,7 @@ func (c *CssClient) UpdateFlavorInvoker(request *model.UpdateFlavorRequest) *Upd
 // - ess-client: Client节点。
 // - ess-master: Master节点。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateFlavorByType(request *model.UpdateFlavorByTypeRequest) (*model.UpdateFlavorByTypeResponse, error) {
 	requestDef := GenReqDefForUpdateFlavorByType()
 
@@ -1023,12 +1020,32 @@ func (c *CssClient) UpdateFlavorByTypeInvoker(request *model.UpdateFlavorByTypeR
 	return &UpdateFlavorByTypeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// UpdateInstance 节点替换
+//
+// 该接口用于替换失败节点。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CssClient) UpdateInstance(request *model.UpdateInstanceRequest) (*model.UpdateInstanceResponse, error) {
+	requestDef := GenReqDefForUpdateInstance()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateInstanceResponse), nil
+	}
+}
+
+// UpdateInstanceInvoker 节点替换
+func (c *CssClient) UpdateInstanceInvoker(request *model.UpdateInstanceRequest) *UpdateInstanceInvoker {
+	requestDef := GenReqDefForUpdateInstance()
+	return &UpdateInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // UpdateLogSetting 修改日志基础配置
 //
 // 该接口用于修改日志基础配置。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateLogSetting(request *model.UpdateLogSettingRequest) (*model.UpdateLogSettingResponse, error) {
 	requestDef := GenReqDefForUpdateLogSetting()
 
@@ -1049,8 +1066,7 @@ func (c *CssClient) UpdateLogSettingInvoker(request *model.UpdateLogSettingReque
 //
 // 该接口用于按需集群转包周期集群。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateOndemandClusterToPeriod(request *model.UpdateOndemandClusterToPeriodRequest) (*model.UpdateOndemandClusterToPeriodResponse, error) {
 	requestDef := GenReqDefForUpdateOndemandClusterToPeriod()
 
@@ -1071,8 +1087,7 @@ func (c *CssClient) UpdateOndemandClusterToPeriodInvoker(request *model.UpdateOn
 //
 // 该接口用于修改公网访问带宽。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdatePublicBandWidth(request *model.UpdatePublicBandWidthRequest) (*model.UpdatePublicBandWidthResponse, error) {
 	requestDef := GenReqDefForUpdatePublicBandWidth()
 
@@ -1091,10 +1106,9 @@ func (c *CssClient) UpdatePublicBandWidthInvoker(request *model.UpdatePublicBand
 
 // UpdateShrinkCluster 指定节点类型缩容
 //
-// 该接口用于集群对不同类型实例的个数以及存储容量进行缩容。
+// 该接口用于集群对不同类型实例的个数以及存储容量进行缩容。包周期集群不支持API操作。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateShrinkCluster(request *model.UpdateShrinkClusterRequest) (*model.UpdateShrinkClusterResponse, error) {
 	requestDef := GenReqDefForUpdateShrinkCluster()
 
@@ -1113,10 +1127,9 @@ func (c *CssClient) UpdateShrinkClusterInvoker(request *model.UpdateShrinkCluste
 
 // UpdateShrinkNodes 指定节点缩容
 //
-// 该接口可以对集群现有节点中指定节点进行缩容。
+// 该接口可以对集群现有节点中指定节点进行缩容。包周期集群不支持API操作。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateShrinkNodes(request *model.UpdateShrinkNodesRequest) (*model.UpdateShrinkNodesResponse, error) {
 	requestDef := GenReqDefForUpdateShrinkNodes()
 
@@ -1139,8 +1152,7 @@ func (c *CssClient) UpdateShrinkNodesInvoker(request *model.UpdateShrinkNodesReq
 //
 // 可以使用该接口开启快照功能。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateSnapshotSetting(request *model.UpdateSnapshotSettingRequest) (*model.UpdateSnapshotSettingResponse, error) {
 	requestDef := GenReqDefForUpdateSnapshotSetting()
 
@@ -1161,8 +1173,7 @@ func (c *CssClient) UpdateSnapshotSettingInvoker(request *model.UpdateSnapshotSe
 //
 // 该接口用于关闭公网访问。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateUnbindPublic(request *model.UpdateUnbindPublicRequest) (*model.UpdateUnbindPublicResponse, error) {
 	requestDef := GenReqDefForUpdateUnbindPublic()
 
@@ -1183,8 +1194,7 @@ func (c *CssClient) UpdateUnbindPublicInvoker(request *model.UpdateUnbindPublicR
 //
 // 该接口用于更新终端节点连接。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateVpcepConnection(request *model.UpdateVpcepConnectionRequest) (*model.UpdateVpcepConnectionResponse, error) {
 	requestDef := GenReqDefForUpdateVpcepConnection()
 
@@ -1205,8 +1215,7 @@ func (c *CssClient) UpdateVpcepConnectionInvoker(request *model.UpdateVpcepConne
 //
 // 该接口用于修改终端节点服务白名单。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateVpcepWhitelist(request *model.UpdateVpcepWhitelistRequest) (*model.UpdateVpcepWhitelistResponse, error) {
 	requestDef := GenReqDefForUpdateVpcepWhitelist()
 
@@ -1227,8 +1236,7 @@ func (c *CssClient) UpdateVpcepWhitelistInvoker(request *model.UpdateVpcepWhitel
 //
 // 该接口用于修改参数配置。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateYmls(request *model.UpdateYmlsRequest) (*model.UpdateYmlsResponse, error) {
 	requestDef := GenReqDefForUpdateYmls()
 
@@ -1249,8 +1257,7 @@ func (c *CssClient) UpdateYmlsInvoker(request *model.UpdateYmlsRequest) *UpdateY
 //
 // 该接口用于开启Kibana公网访问。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) StartKibanaPublic(request *model.StartKibanaPublicRequest) (*model.StartKibanaPublicResponse, error) {
 	requestDef := GenReqDefForStartKibanaPublic()
 
@@ -1271,8 +1278,7 @@ func (c *CssClient) StartKibanaPublicInvoker(request *model.StartKibanaPublicReq
 //
 // 该接口用于关闭Kibana公网访问控制。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) StopPublicKibanaWhitelist(request *model.StopPublicKibanaWhitelistRequest) (*model.StopPublicKibanaWhitelistResponse, error) {
 	requestDef := GenReqDefForStopPublicKibanaWhitelist()
 
@@ -1293,8 +1299,7 @@ func (c *CssClient) StopPublicKibanaWhitelistInvoker(request *model.StopPublicKi
 //
 // 该接口用于修改Kibana公网带宽。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateAlterKibana(request *model.UpdateAlterKibanaRequest) (*model.UpdateAlterKibanaResponse, error) {
 	requestDef := GenReqDefForUpdateAlterKibana()
 
@@ -1315,8 +1320,7 @@ func (c *CssClient) UpdateAlterKibanaInvoker(request *model.UpdateAlterKibanaReq
 //
 // 该接口用于关闭Kibana公网访问。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateCloseKibana(request *model.UpdateCloseKibanaRequest) (*model.UpdateCloseKibanaResponse, error) {
 	requestDef := GenReqDefForUpdateCloseKibana()
 
@@ -1337,8 +1341,7 @@ func (c *CssClient) UpdateCloseKibanaInvoker(request *model.UpdateCloseKibanaReq
 //
 // 该接口通过修改kibana白名单，修改kibana的访问权限。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdatePublicKibanaWhitelist(request *model.UpdatePublicKibanaWhitelistRequest) (*model.UpdatePublicKibanaWhitelistResponse, error) {
 	requestDef := GenReqDefForUpdatePublicKibanaWhitelist()
 
@@ -1359,8 +1362,7 @@ func (c *CssClient) UpdatePublicKibanaWhitelistInvoker(request *model.UpdatePubl
 //
 // 该接口用于添加到自定义模板。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) AddFavorite(request *model.AddFavoriteRequest) (*model.AddFavoriteResponse, error) {
 	requestDef := GenReqDefForAddFavorite()
 
@@ -1381,8 +1383,7 @@ func (c *CssClient) AddFavoriteInvoker(request *model.AddFavoriteRequest) *AddFa
 //
 // 该接口用于创建配置文件。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) CreateCnf(request *model.CreateCnfRequest) (*model.CreateCnfResponse, error) {
 	requestDef := GenReqDefForCreateCnf()
 
@@ -1403,8 +1404,7 @@ func (c *CssClient) CreateCnfInvoker(request *model.CreateCnfRequest) *CreateCnf
 //
 // 删除配置文件。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) DeleteConf(request *model.DeleteConfRequest) (*model.DeleteConfResponse, error) {
 	requestDef := GenReqDefForDeleteConf()
 
@@ -1425,8 +1425,7 @@ func (c *CssClient) DeleteConfInvoker(request *model.DeleteConfRequest) *DeleteC
 //
 // 该接口用于删除自定义模板。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) DeleteTemplate(request *model.DeleteTemplateRequest) (*model.DeleteTemplateResponse, error) {
 	requestDef := GenReqDefForDeleteTemplate()
 
@@ -1447,8 +1446,7 @@ func (c *CssClient) DeleteTemplateInvoker(request *model.DeleteTemplateRequest) 
 //
 // 该接口用于查询操作记录。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) ListActions(request *model.ListActionsRequest) (*model.ListActionsResponse, error) {
 	requestDef := GenReqDefForListActions()
 
@@ -1469,8 +1467,7 @@ func (c *CssClient) ListActionsInvoker(request *model.ListActionsRequest) *ListA
 //
 // 该接口用于查询配置文件列表。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) ListConfs(request *model.ListConfsRequest) (*model.ListConfsResponse, error) {
 	requestDef := GenReqDefForListConfs()
 
@@ -1491,8 +1488,7 @@ func (c *CssClient) ListConfsInvoker(request *model.ListConfsRequest) *ListConfs
 //
 // 该接口用于查询pipeline列表。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) ListPipelines(request *model.ListPipelinesRequest) (*model.ListPipelinesResponse, error) {
 	requestDef := GenReqDefForListPipelines()
 
@@ -1513,8 +1509,7 @@ func (c *CssClient) ListPipelinesInvoker(request *model.ListPipelinesRequest) *L
 //
 // 该接口用于查询模板列表。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) ListTemplates(request *model.ListTemplatesRequest) (*model.ListTemplatesResponse, error) {
 	requestDef := GenReqDefForListTemplates()
 
@@ -1535,8 +1530,7 @@ func (c *CssClient) ListTemplatesInvoker(request *model.ListTemplatesRequest) *L
 //
 // 该接口用于查询配置文件内容。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) ShowGetConfDetail(request *model.ShowGetConfDetailRequest) (*model.ShowGetConfDetailResponse, error) {
 	requestDef := GenReqDefForShowGetConfDetail()
 
@@ -1557,8 +1551,7 @@ func (c *CssClient) ShowGetConfDetailInvoker(request *model.ShowGetConfDetailReq
 //
 // 该接口用于连通性测试。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) StartConnectivityTest(request *model.StartConnectivityTestRequest) (*model.StartConnectivityTestResponse, error) {
 	requestDef := GenReqDefForStartConnectivityTest()
 
@@ -1579,8 +1572,7 @@ func (c *CssClient) StartConnectivityTestInvoker(request *model.StartConnectivit
 //
 // 该接口用于启动pipeline迁移数据。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) StartPipeline(request *model.StartPipelineRequest) (*model.StartPipelineResponse, error) {
 	requestDef := GenReqDefForStartPipeline()
 
@@ -1601,8 +1593,7 @@ func (c *CssClient) StartPipelineInvoker(request *model.StartPipelineRequest) *S
 //
 // 该接口用于停止pipeline迁移数据。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) StopPipeline(request *model.StopPipelineRequest) (*model.StopPipelineResponse, error) {
 	requestDef := GenReqDefForStopPipeline()
 
@@ -1623,8 +1614,7 @@ func (c *CssClient) StopPipelineInvoker(request *model.StopPipelineRequest) *Sto
 //
 // 该接口用于更新配置文件。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateCnf(request *model.UpdateCnfRequest) (*model.UpdateCnfResponse, error) {
 	requestDef := GenReqDefForUpdateCnf()
 

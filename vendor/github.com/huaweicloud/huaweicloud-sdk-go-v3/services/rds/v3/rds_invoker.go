@@ -89,6 +89,18 @@ func (i *ChangeOpsWindowInvoker) Invoke() (*model.ChangeOpsWindowResponse, error
 	}
 }
 
+type CopyConfigurationInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CopyConfigurationInvoker) Invoke() (*model.CopyConfigurationResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CopyConfigurationResponse), nil
+	}
+}
+
 type CreateConfigurationInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -269,6 +281,18 @@ func (i *ListDatastoresInvoker) Invoke() (*model.ListDatastoresResponse, error) 
 	}
 }
 
+type ListDrRelationsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListDrRelationsInvoker) Invoke() (*model.ListDrRelationsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListDrRelationsResponse), nil
+	}
+}
+
 type ListErrorLogsInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -302,6 +326,18 @@ func (i *ListFlavorsInvoker) Invoke() (*model.ListFlavorsResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.ListFlavorsResponse), nil
+	}
+}
+
+type ListInstanceParamHistoriesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListInstanceParamHistoriesInvoker) Invoke() (*model.ListInstanceParamHistoriesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListInstanceParamHistoriesResponse), nil
 	}
 }
 
@@ -521,6 +557,18 @@ func (i *SetAuditlogPolicyInvoker) Invoke() (*model.SetAuditlogPolicyResponse, e
 	}
 }
 
+type SetAutoEnlargePolicyInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *SetAutoEnlargePolicyInvoker) Invoke() (*model.SetAutoEnlargePolicyResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.SetAutoEnlargePolicyResponse), nil
+	}
+}
+
 type SetBackupPolicyInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -554,6 +602,18 @@ func (i *SetOffSiteBackupPolicyInvoker) Invoke() (*model.SetOffSiteBackupPolicyR
 		return nil, err
 	} else {
 		return result.(*model.SetOffSiteBackupPolicyResponse), nil
+	}
+}
+
+type SetSecondLevelMonitorInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *SetSecondLevelMonitorInvoker) Invoke() (*model.SetSecondLevelMonitorResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.SetSecondLevelMonitorResponse), nil
 	}
 }
 
@@ -605,6 +665,18 @@ func (i *ShowAuditlogPolicyInvoker) Invoke() (*model.ShowAuditlogPolicyResponse,
 	}
 }
 
+type ShowAutoEnlargePolicyInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowAutoEnlargePolicyInvoker) Invoke() (*model.ShowAutoEnlargePolicyResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowAutoEnlargePolicyResponse), nil
+	}
+}
+
 type ShowBackupDownloadLinkInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -653,6 +725,30 @@ func (i *ShowConfigurationInvoker) Invoke() (*model.ShowConfigurationResponse, e
 	}
 }
 
+type ShowDnsNameInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowDnsNameInvoker) Invoke() (*model.ShowDnsNameResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowDnsNameResponse), nil
+	}
+}
+
+type ShowDomainNameInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowDomainNameInvoker) Invoke() (*model.ShowDomainNameResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowDomainNameResponse), nil
+	}
+}
+
 type ShowDrReplicaStatusInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -698,6 +794,30 @@ func (i *ShowQuotasInvoker) Invoke() (*model.ShowQuotasResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.ShowQuotasResponse), nil
+	}
+}
+
+type ShowReplicationStatusInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowReplicationStatusInvoker) Invoke() (*model.ShowReplicationStatusResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowReplicationStatusResponse), nil
+	}
+}
+
+type ShowSecondLevelMonitoringInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowSecondLevelMonitoringInvoker) Invoke() (*model.ShowSecondLevelMonitoringResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowSecondLevelMonitoringResponse), nil
 	}
 }
 
@@ -1205,6 +1325,30 @@ func (i *CreatePostgresqlDbUserInvoker) Invoke() (*model.CreatePostgresqlDbUserR
 	}
 }
 
+type CreatePostgresqlExtensionInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreatePostgresqlExtensionInvoker) Invoke() (*model.CreatePostgresqlExtensionResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreatePostgresqlExtensionResponse), nil
+	}
+}
+
+type DeletePostgresqlExtensionInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeletePostgresqlExtensionInvoker) Invoke() (*model.DeletePostgresqlExtensionResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeletePostgresqlExtensionResponse), nil
+	}
+}
+
 type ListPostgresqlDatabaseSchemasInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -1238,6 +1382,18 @@ func (i *ListPostgresqlDbUserPaginatedInvoker) Invoke() (*model.ListPostgresqlDb
 		return nil, err
 	} else {
 		return result.(*model.ListPostgresqlDbUserPaginatedResponse), nil
+	}
+}
+
+type ListPostgresqlExtensionInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListPostgresqlExtensionInvoker) Invoke() (*model.ListPostgresqlExtensionResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListPostgresqlExtensionResponse), nil
 	}
 }
 
@@ -1301,6 +1457,18 @@ func (i *ShowInformationAboutDatabaseProxyInvoker) Invoke() (*model.ShowInformat
 	}
 }
 
+type ShowPostgresqlParamValueInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowPostgresqlParamValueInvoker) Invoke() (*model.ShowPostgresqlParamValueResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowPostgresqlParamValueResponse), nil
+	}
+}
+
 type StartDatabaseProxyInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -1325,6 +1493,18 @@ func (i *StopDatabaseProxyInvoker) Invoke() (*model.StopDatabaseProxyResponse, e
 	}
 }
 
+type UpdatePostgresqlParameterValueInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdatePostgresqlParameterValueInvoker) Invoke() (*model.UpdatePostgresqlParameterValueResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdatePostgresqlParameterValueResponse), nil
+	}
+}
+
 type UpdateReadWeightInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -1346,6 +1526,18 @@ func (i *AllowSqlserverDbUserPrivilegeInvoker) Invoke() (*model.AllowSqlserverDb
 		return nil, err
 	} else {
 		return result.(*model.AllowSqlserverDbUserPrivilegeResponse), nil
+	}
+}
+
+type BatchAddMsdtcsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *BatchAddMsdtcsInvoker) Invoke() (*model.BatchAddMsdtcsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.BatchAddMsdtcsResponse), nil
 	}
 }
 
@@ -1418,6 +1610,18 @@ func (i *ListAuthorizedSqlserverDbUsersInvoker) Invoke() (*model.ListAuthorizedS
 		return nil, err
 	} else {
 		return result.(*model.ListAuthorizedSqlserverDbUsersResponse), nil
+	}
+}
+
+type ListMsdtcHostsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListMsdtcHostsInvoker) Invoke() (*model.ListMsdtcHostsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListMsdtcHostsResponse), nil
 	}
 }
 

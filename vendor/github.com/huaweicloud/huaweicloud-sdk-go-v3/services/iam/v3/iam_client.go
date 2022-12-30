@@ -25,8 +25,7 @@ func IamClientBuilder() *http_client.HcHttpClientBuilder {
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) AssociateAgencyWithAllProjectsPermission(request *model.AssociateAgencyWithAllProjectsPermissionRequest) (*model.AssociateAgencyWithAllProjectsPermissionResponse, error) {
 	requestDef := GenReqDefForAssociateAgencyWithAllProjectsPermission()
 
@@ -49,8 +48,7 @@ func (c *IamClient) AssociateAgencyWithAllProjectsPermissionInvoker(request *mod
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) AssociateAgencyWithDomainPermission(request *model.AssociateAgencyWithDomainPermissionRequest) (*model.AssociateAgencyWithDomainPermissionResponse, error) {
 	requestDef := GenReqDefForAssociateAgencyWithDomainPermission()
 
@@ -73,8 +71,7 @@ func (c *IamClient) AssociateAgencyWithDomainPermissionInvoker(request *model.As
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) AssociateAgencyWithProjectPermission(request *model.AssociateAgencyWithProjectPermissionRequest) (*model.AssociateAgencyWithProjectPermissionResponse, error) {
 	requestDef := GenReqDefForAssociateAgencyWithProjectPermission()
 
@@ -97,8 +94,7 @@ func (c *IamClient) AssociateAgencyWithProjectPermissionInvoker(request *model.A
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) AssociateRoleToGroupOnEnterpriseProject(request *model.AssociateRoleToGroupOnEnterpriseProjectRequest) (*model.AssociateRoleToGroupOnEnterpriseProjectResponse, error) {
 	requestDef := GenReqDefForAssociateRoleToGroupOnEnterpriseProject()
 
@@ -120,8 +116,7 @@ func (c *IamClient) AssociateRoleToGroupOnEnterpriseProjectInvoker(request *mode
 // 基于用户为企业项目授权。
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) AssociateRoleToUserOnEnterpriseProject(request *model.AssociateRoleToUserOnEnterpriseProjectRequest) (*model.AssociateRoleToUserOnEnterpriseProjectResponse, error) {
 	requestDef := GenReqDefForAssociateRoleToUserOnEnterpriseProject()
 
@@ -144,8 +139,7 @@ func (c *IamClient) AssociateRoleToUserOnEnterpriseProjectInvoker(request *model
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) CheckAllProjectsPermissionForAgency(request *model.CheckAllProjectsPermissionForAgencyRequest) (*model.CheckAllProjectsPermissionForAgencyResponse, error) {
 	requestDef := GenReqDefForCheckAllProjectsPermissionForAgency()
 
@@ -168,8 +162,7 @@ func (c *IamClient) CheckAllProjectsPermissionForAgencyInvoker(request *model.Ch
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) CheckDomainPermissionForAgency(request *model.CheckDomainPermissionForAgencyRequest) (*model.CheckDomainPermissionForAgencyResponse, error) {
 	requestDef := GenReqDefForCheckDomainPermissionForAgency()
 
@@ -192,8 +185,7 @@ func (c *IamClient) CheckDomainPermissionForAgencyInvoker(request *model.CheckDo
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) CheckProjectPermissionForAgency(request *model.CheckProjectPermissionForAgencyRequest) (*model.CheckProjectPermissionForAgencyResponse, error) {
 	requestDef := GenReqDefForCheckProjectPermissionForAgency()
 
@@ -216,8 +208,7 @@ func (c *IamClient) CheckProjectPermissionForAgencyInvoker(request *model.CheckP
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) CreateAgency(request *model.CreateAgencyRequest) (*model.CreateAgencyResponse, error) {
 	requestDef := GenReqDefForCreateAgency()
 
@@ -240,8 +231,7 @@ func (c *IamClient) CreateAgencyInvoker(request *model.CreateAgencyRequest) *Cre
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) CreateAgencyCustomPolicy(request *model.CreateAgencyCustomPolicyRequest) (*model.CreateAgencyCustomPolicyResponse, error) {
 	requestDef := GenReqDefForCreateAgencyCustomPolicy()
 
@@ -264,8 +254,7 @@ func (c *IamClient) CreateAgencyCustomPolicyInvoker(request *model.CreateAgencyC
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) CreateCloudServiceCustomPolicy(request *model.CreateCloudServiceCustomPolicyRequest) (*model.CreateCloudServiceCustomPolicyResponse, error) {
 	requestDef := GenReqDefForCreateCloudServiceCustomPolicy()
 
@@ -290,8 +279,7 @@ func (c *IamClient) CreateCloudServiceCustomPolicyInvoker(request *model.CreateC
 //
 // &gt; - logintoken的有效期为10分钟。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) CreateLoginToken(request *model.CreateLoginTokenRequest) (*model.CreateLoginTokenResponse, error) {
 	requestDef := GenReqDefForCreateLoginToken()
 
@@ -316,8 +304,7 @@ func (c *IamClient) CreateLoginTokenInvoker(request *model.CreateLoginTokenReque
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) CreateMetadata(request *model.CreateMetadataRequest) (*model.CreateMetadataResponse, error) {
 	requestDef := GenReqDefForCreateMetadata()
 
@@ -338,8 +325,7 @@ func (c *IamClient) CreateMetadataInvoker(request *model.CreateMetadataRequest) 
 //
 // 创建OpenId Connect身份提供商配置
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) CreateOpenIdConnectConfig(request *model.CreateOpenIdConnectConfigRequest) (*model.CreateOpenIdConnectConfigResponse, error) {
 	requestDef := GenReqDefForCreateOpenIdConnectConfig()
 
@@ -360,8 +346,7 @@ func (c *IamClient) CreateOpenIdConnectConfigInvoker(request *model.CreateOpenId
 //
 // 获取联邦认证token(OpenId Connect Id token方式)
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) CreateTokenWithIdToken(request *model.CreateTokenWithIdTokenRequest) (*model.CreateTokenWithIdTokenResponse, error) {
 	requestDef := GenReqDefForCreateTokenWithIdToken()
 
@@ -382,8 +367,7 @@ func (c *IamClient) CreateTokenWithIdTokenInvoker(request *model.CreateTokenWith
 //
 // 获取联邦认证token(OpenId Connect Id token方式)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) CreateUnscopedTokenWithIdToken(request *model.CreateUnscopedTokenWithIdTokenRequest) (*model.CreateUnscopedTokenWithIdTokenResponse, error) {
 	requestDef := GenReqDefForCreateUnscopedTokenWithIdToken()
 
@@ -406,8 +390,7 @@ func (c *IamClient) CreateUnscopedTokenWithIdTokenInvoker(request *model.CreateU
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) DeleteAgency(request *model.DeleteAgencyRequest) (*model.DeleteAgencyResponse, error) {
 	requestDef := GenReqDefForDeleteAgency()
 
@@ -430,8 +413,7 @@ func (c *IamClient) DeleteAgencyInvoker(request *model.DeleteAgencyRequest) *Del
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) DeleteCustomPolicy(request *model.DeleteCustomPolicyRequest) (*model.DeleteCustomPolicyResponse, error) {
 	requestDef := GenReqDefForDeleteCustomPolicy()
 
@@ -454,8 +436,7 @@ func (c *IamClient) DeleteCustomPolicyInvoker(request *model.DeleteCustomPolicyR
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) DeleteDomainGroupInheritedRole(request *model.DeleteDomainGroupInheritedRoleRequest) (*model.DeleteDomainGroupInheritedRoleResponse, error) {
 	requestDef := GenReqDefForDeleteDomainGroupInheritedRole()
 
@@ -478,8 +459,7 @@ func (c *IamClient) DeleteDomainGroupInheritedRoleInvoker(request *model.DeleteD
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneAddUserToGroup(request *model.KeystoneAddUserToGroupRequest) (*model.KeystoneAddUserToGroupResponse, error) {
 	requestDef := GenReqDefForKeystoneAddUserToGroup()
 
@@ -502,8 +482,7 @@ func (c *IamClient) KeystoneAddUserToGroupInvoker(request *model.KeystoneAddUser
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneAssociateGroupWithDomainPermission(request *model.KeystoneAssociateGroupWithDomainPermissionRequest) (*model.KeystoneAssociateGroupWithDomainPermissionResponse, error) {
 	requestDef := GenReqDefForKeystoneAssociateGroupWithDomainPermission()
 
@@ -526,8 +505,7 @@ func (c *IamClient) KeystoneAssociateGroupWithDomainPermissionInvoker(request *m
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneAssociateGroupWithProjectPermission(request *model.KeystoneAssociateGroupWithProjectPermissionRequest) (*model.KeystoneAssociateGroupWithProjectPermissionResponse, error) {
 	requestDef := GenReqDefForKeystoneAssociateGroupWithProjectPermission()
 
@@ -550,8 +528,7 @@ func (c *IamClient) KeystoneAssociateGroupWithProjectPermissionInvoker(request *
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneCheckDomainPermissionForGroup(request *model.KeystoneCheckDomainPermissionForGroupRequest) (*model.KeystoneCheckDomainPermissionForGroupResponse, error) {
 	requestDef := GenReqDefForKeystoneCheckDomainPermissionForGroup()
 
@@ -574,8 +551,7 @@ func (c *IamClient) KeystoneCheckDomainPermissionForGroupInvoker(request *model.
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneCheckProjectPermissionForGroup(request *model.KeystoneCheckProjectPermissionForGroupRequest) (*model.KeystoneCheckProjectPermissionForGroupResponse, error) {
 	requestDef := GenReqDefForKeystoneCheckProjectPermissionForGroup()
 
@@ -598,8 +574,7 @@ func (c *IamClient) KeystoneCheckProjectPermissionForGroupInvoker(request *model
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneCheckUserInGroup(request *model.KeystoneCheckUserInGroupRequest) (*model.KeystoneCheckUserInGroupResponse, error) {
 	requestDef := GenReqDefForKeystoneCheckUserInGroup()
 
@@ -622,8 +597,7 @@ func (c *IamClient) KeystoneCheckUserInGroupInvoker(request *model.KeystoneCheck
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneCheckroleForGroup(request *model.KeystoneCheckroleForGroupRequest) (*model.KeystoneCheckroleForGroupResponse, error) {
 	requestDef := GenReqDefForKeystoneCheckroleForGroup()
 
@@ -646,8 +620,7 @@ func (c *IamClient) KeystoneCheckroleForGroupInvoker(request *model.KeystoneChec
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneCreateGroup(request *model.KeystoneCreateGroupRequest) (*model.KeystoneCreateGroupResponse, error) {
 	requestDef := GenReqDefForKeystoneCreateGroup()
 
@@ -670,8 +643,7 @@ func (c *IamClient) KeystoneCreateGroupInvoker(request *model.KeystoneCreateGrou
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneCreateIdentityProvider(request *model.KeystoneCreateIdentityProviderRequest) (*model.KeystoneCreateIdentityProviderResponse, error) {
 	requestDef := GenReqDefForKeystoneCreateIdentityProvider()
 
@@ -694,8 +666,7 @@ func (c *IamClient) KeystoneCreateIdentityProviderInvoker(request *model.Keyston
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneCreateMapping(request *model.KeystoneCreateMappingRequest) (*model.KeystoneCreateMappingResponse, error) {
 	requestDef := GenReqDefForKeystoneCreateMapping()
 
@@ -718,8 +689,7 @@ func (c *IamClient) KeystoneCreateMappingInvoker(request *model.KeystoneCreateMa
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneCreateProject(request *model.KeystoneCreateProjectRequest) (*model.KeystoneCreateProjectResponse, error) {
 	requestDef := GenReqDefForKeystoneCreateProject()
 
@@ -742,8 +712,7 @@ func (c *IamClient) KeystoneCreateProjectInvoker(request *model.KeystoneCreatePr
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneCreateProtocol(request *model.KeystoneCreateProtocolRequest) (*model.KeystoneCreateProtocolResponse, error) {
 	requestDef := GenReqDefForKeystoneCreateProtocol()
 
@@ -766,8 +735,7 @@ func (c *IamClient) KeystoneCreateProtocolInvoker(request *model.KeystoneCreateP
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneCreateScopedToken(request *model.KeystoneCreateScopedTokenRequest) (*model.KeystoneCreateScopedTokenResponse, error) {
 	requestDef := GenReqDefForKeystoneCreateScopedToken()
 
@@ -790,8 +758,7 @@ func (c *IamClient) KeystoneCreateScopedTokenInvoker(request *model.KeystoneCrea
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneDeleteGroup(request *model.KeystoneDeleteGroupRequest) (*model.KeystoneDeleteGroupResponse, error) {
 	requestDef := GenReqDefForKeystoneDeleteGroup()
 
@@ -814,8 +781,7 @@ func (c *IamClient) KeystoneDeleteGroupInvoker(request *model.KeystoneDeleteGrou
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneDeleteIdentityProvider(request *model.KeystoneDeleteIdentityProviderRequest) (*model.KeystoneDeleteIdentityProviderResponse, error) {
 	requestDef := GenReqDefForKeystoneDeleteIdentityProvider()
 
@@ -838,8 +804,7 @@ func (c *IamClient) KeystoneDeleteIdentityProviderInvoker(request *model.Keyston
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneDeleteMapping(request *model.KeystoneDeleteMappingRequest) (*model.KeystoneDeleteMappingResponse, error) {
 	requestDef := GenReqDefForKeystoneDeleteMapping()
 
@@ -862,8 +827,7 @@ func (c *IamClient) KeystoneDeleteMappingInvoker(request *model.KeystoneDeleteMa
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneDeleteProtocol(request *model.KeystoneDeleteProtocolRequest) (*model.KeystoneDeleteProtocolResponse, error) {
 	requestDef := GenReqDefForKeystoneDeleteProtocol()
 
@@ -884,8 +848,7 @@ func (c *IamClient) KeystoneDeleteProtocolInvoker(request *model.KeystoneDeleteP
 //
 // 该接口可以用于管理员查询用户组所有项目服务权限列表。 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneListAllProjectPermissionsForGroup(request *model.KeystoneListAllProjectPermissionsForGroupRequest) (*model.KeystoneListAllProjectPermissionsForGroupResponse, error) {
 	requestDef := GenReqDefForKeystoneListAllProjectPermissionsForGroup()
 
@@ -908,8 +871,7 @@ func (c *IamClient) KeystoneListAllProjectPermissionsForGroupInvoker(request *mo
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneListAuthDomains(request *model.KeystoneListAuthDomainsRequest) (*model.KeystoneListAuthDomainsResponse, error) {
 	requestDef := GenReqDefForKeystoneListAuthDomains()
 
@@ -932,8 +894,7 @@ func (c *IamClient) KeystoneListAuthDomainsInvoker(request *model.KeystoneListAu
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneListAuthProjects(request *model.KeystoneListAuthProjectsRequest) (*model.KeystoneListAuthProjectsResponse, error) {
 	requestDef := GenReqDefForKeystoneListAuthProjects()
 
@@ -956,8 +917,7 @@ func (c *IamClient) KeystoneListAuthProjectsInvoker(request *model.KeystoneListA
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneListDomainPermissionsForGroup(request *model.KeystoneListDomainPermissionsForGroupRequest) (*model.KeystoneListDomainPermissionsForGroupResponse, error) {
 	requestDef := GenReqDefForKeystoneListDomainPermissionsForGroup()
 
@@ -980,8 +940,7 @@ func (c *IamClient) KeystoneListDomainPermissionsForGroupInvoker(request *model.
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneListEndpoints(request *model.KeystoneListEndpointsRequest) (*model.KeystoneListEndpointsResponse, error) {
 	requestDef := GenReqDefForKeystoneListEndpoints()
 
@@ -1005,8 +964,7 @@ func (c *IamClient) KeystoneListEndpointsInvoker(request *model.KeystoneListEndp
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 // &gt; - 推荐使用[查询IAM用户可以访问的账号详情](https://apiexplorer.developer.huaweicloud.com/apiexplorer/doc?product&#x3D;IAM&amp;api&#x3D;KeystoneQueryAccessibleDomainDetailsToUser)，该接口可以返回相同的响应格式。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneListFederationDomains(request *model.KeystoneListFederationDomainsRequest) (*model.KeystoneListFederationDomainsResponse, error) {
 	requestDef := GenReqDefForKeystoneListFederationDomains()
 
@@ -1029,8 +987,7 @@ func (c *IamClient) KeystoneListFederationDomainsInvoker(request *model.Keystone
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneListGroups(request *model.KeystoneListGroupsRequest) (*model.KeystoneListGroupsResponse, error) {
 	requestDef := GenReqDefForKeystoneListGroups()
 
@@ -1053,8 +1010,7 @@ func (c *IamClient) KeystoneListGroupsInvoker(request *model.KeystoneListGroupsR
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneListIdentityProviders(request *model.KeystoneListIdentityProvidersRequest) (*model.KeystoneListIdentityProvidersResponse, error) {
 	requestDef := GenReqDefForKeystoneListIdentityProviders()
 
@@ -1077,8 +1033,7 @@ func (c *IamClient) KeystoneListIdentityProvidersInvoker(request *model.Keystone
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneListMappings(request *model.KeystoneListMappingsRequest) (*model.KeystoneListMappingsResponse, error) {
 	requestDef := GenReqDefForKeystoneListMappings()
 
@@ -1101,8 +1056,7 @@ func (c *IamClient) KeystoneListMappingsInvoker(request *model.KeystoneListMappi
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneListPermissions(request *model.KeystoneListPermissionsRequest) (*model.KeystoneListPermissionsResponse, error) {
 	requestDef := GenReqDefForKeystoneListPermissions()
 
@@ -1125,8 +1079,7 @@ func (c *IamClient) KeystoneListPermissionsInvoker(request *model.KeystoneListPe
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneListProjectPermissionsForGroup(request *model.KeystoneListProjectPermissionsForGroupRequest) (*model.KeystoneListProjectPermissionsForGroupResponse, error) {
 	requestDef := GenReqDefForKeystoneListProjectPermissionsForGroup()
 
@@ -1149,8 +1102,7 @@ func (c *IamClient) KeystoneListProjectPermissionsForGroupInvoker(request *model
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneListProjects(request *model.KeystoneListProjectsRequest) (*model.KeystoneListProjectsResponse, error) {
 	requestDef := GenReqDefForKeystoneListProjects()
 
@@ -1173,8 +1125,7 @@ func (c *IamClient) KeystoneListProjectsInvoker(request *model.KeystoneListProje
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneListProjectsForUser(request *model.KeystoneListProjectsForUserRequest) (*model.KeystoneListProjectsForUserResponse, error) {
 	requestDef := GenReqDefForKeystoneListProjectsForUser()
 
@@ -1197,8 +1148,7 @@ func (c *IamClient) KeystoneListProjectsForUserInvoker(request *model.KeystoneLi
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneListProtocols(request *model.KeystoneListProtocolsRequest) (*model.KeystoneListProtocolsResponse, error) {
 	requestDef := GenReqDefForKeystoneListProtocols()
 
@@ -1221,8 +1171,7 @@ func (c *IamClient) KeystoneListProtocolsInvoker(request *model.KeystoneListProt
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneListRegions(request *model.KeystoneListRegionsRequest) (*model.KeystoneListRegionsResponse, error) {
 	requestDef := GenReqDefForKeystoneListRegions()
 
@@ -1245,8 +1194,7 @@ func (c *IamClient) KeystoneListRegionsInvoker(request *model.KeystoneListRegion
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneListServices(request *model.KeystoneListServicesRequest) (*model.KeystoneListServicesResponse, error) {
 	requestDef := GenReqDefForKeystoneListServices()
 
@@ -1269,8 +1217,7 @@ func (c *IamClient) KeystoneListServicesInvoker(request *model.KeystoneListServi
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneListUsersForGroupByAdmin(request *model.KeystoneListUsersForGroupByAdminRequest) (*model.KeystoneListUsersForGroupByAdminResponse, error) {
 	requestDef := GenReqDefForKeystoneListUsersForGroupByAdmin()
 
@@ -1293,8 +1240,7 @@ func (c *IamClient) KeystoneListUsersForGroupByAdminInvoker(request *model.Keyst
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneListVersions(request *model.KeystoneListVersionsRequest) (*model.KeystoneListVersionsResponse, error) {
 	requestDef := GenReqDefForKeystoneListVersions()
 
@@ -1317,8 +1263,7 @@ func (c *IamClient) KeystoneListVersionsInvoker(request *model.KeystoneListVersi
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneRemoveDomainPermissionFromGroup(request *model.KeystoneRemoveDomainPermissionFromGroupRequest) (*model.KeystoneRemoveDomainPermissionFromGroupResponse, error) {
 	requestDef := GenReqDefForKeystoneRemoveDomainPermissionFromGroup()
 
@@ -1341,8 +1286,7 @@ func (c *IamClient) KeystoneRemoveDomainPermissionFromGroupInvoker(request *mode
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneRemoveProjectPermissionFromGroup(request *model.KeystoneRemoveProjectPermissionFromGroupRequest) (*model.KeystoneRemoveProjectPermissionFromGroupResponse, error) {
 	requestDef := GenReqDefForKeystoneRemoveProjectPermissionFromGroup()
 
@@ -1365,8 +1309,7 @@ func (c *IamClient) KeystoneRemoveProjectPermissionFromGroupInvoker(request *mod
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneRemoveUserFromGroup(request *model.KeystoneRemoveUserFromGroupRequest) (*model.KeystoneRemoveUserFromGroupResponse, error) {
 	requestDef := GenReqDefForKeystoneRemoveUserFromGroup()
 
@@ -1389,8 +1332,7 @@ func (c *IamClient) KeystoneRemoveUserFromGroupInvoker(request *model.KeystoneRe
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneShowCatalog(request *model.KeystoneShowCatalogRequest) (*model.KeystoneShowCatalogResponse, error) {
 	requestDef := GenReqDefForKeystoneShowCatalog()
 
@@ -1413,8 +1355,7 @@ func (c *IamClient) KeystoneShowCatalogInvoker(request *model.KeystoneShowCatalo
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneShowEndpoint(request *model.KeystoneShowEndpointRequest) (*model.KeystoneShowEndpointResponse, error) {
 	requestDef := GenReqDefForKeystoneShowEndpoint()
 
@@ -1437,8 +1378,7 @@ func (c *IamClient) KeystoneShowEndpointInvoker(request *model.KeystoneShowEndpo
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneShowGroup(request *model.KeystoneShowGroupRequest) (*model.KeystoneShowGroupResponse, error) {
 	requestDef := GenReqDefForKeystoneShowGroup()
 
@@ -1461,8 +1401,7 @@ func (c *IamClient) KeystoneShowGroupInvoker(request *model.KeystoneShowGroupReq
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneShowIdentityProvider(request *model.KeystoneShowIdentityProviderRequest) (*model.KeystoneShowIdentityProviderResponse, error) {
 	requestDef := GenReqDefForKeystoneShowIdentityProvider()
 
@@ -1485,8 +1424,7 @@ func (c *IamClient) KeystoneShowIdentityProviderInvoker(request *model.KeystoneS
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneShowMapping(request *model.KeystoneShowMappingRequest) (*model.KeystoneShowMappingResponse, error) {
 	requestDef := GenReqDefForKeystoneShowMapping()
 
@@ -1509,8 +1447,7 @@ func (c *IamClient) KeystoneShowMappingInvoker(request *model.KeystoneShowMappin
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneShowPermission(request *model.KeystoneShowPermissionRequest) (*model.KeystoneShowPermissionResponse, error) {
 	requestDef := GenReqDefForKeystoneShowPermission()
 
@@ -1533,8 +1470,7 @@ func (c *IamClient) KeystoneShowPermissionInvoker(request *model.KeystoneShowPer
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneShowProject(request *model.KeystoneShowProjectRequest) (*model.KeystoneShowProjectResponse, error) {
 	requestDef := GenReqDefForKeystoneShowProject()
 
@@ -1557,8 +1493,7 @@ func (c *IamClient) KeystoneShowProjectInvoker(request *model.KeystoneShowProjec
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneShowProtocol(request *model.KeystoneShowProtocolRequest) (*model.KeystoneShowProtocolResponse, error) {
 	requestDef := GenReqDefForKeystoneShowProtocol()
 
@@ -1581,8 +1516,7 @@ func (c *IamClient) KeystoneShowProtocolInvoker(request *model.KeystoneShowProto
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneShowRegion(request *model.KeystoneShowRegionRequest) (*model.KeystoneShowRegionResponse, error) {
 	requestDef := GenReqDefForKeystoneShowRegion()
 
@@ -1605,8 +1539,7 @@ func (c *IamClient) KeystoneShowRegionInvoker(request *model.KeystoneShowRegionR
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneShowSecurityCompliance(request *model.KeystoneShowSecurityComplianceRequest) (*model.KeystoneShowSecurityComplianceResponse, error) {
 	requestDef := GenReqDefForKeystoneShowSecurityCompliance()
 
@@ -1629,8 +1562,7 @@ func (c *IamClient) KeystoneShowSecurityComplianceInvoker(request *model.Keyston
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneShowSecurityComplianceByOption(request *model.KeystoneShowSecurityComplianceByOptionRequest) (*model.KeystoneShowSecurityComplianceByOptionResponse, error) {
 	requestDef := GenReqDefForKeystoneShowSecurityComplianceByOption()
 
@@ -1653,8 +1585,7 @@ func (c *IamClient) KeystoneShowSecurityComplianceByOptionInvoker(request *model
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneShowService(request *model.KeystoneShowServiceRequest) (*model.KeystoneShowServiceResponse, error) {
 	requestDef := GenReqDefForKeystoneShowService()
 
@@ -1677,8 +1608,7 @@ func (c *IamClient) KeystoneShowServiceInvoker(request *model.KeystoneShowServic
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneShowVersion(request *model.KeystoneShowVersionRequest) (*model.KeystoneShowVersionResponse, error) {
 	requestDef := GenReqDefForKeystoneShowVersion()
 
@@ -1701,8 +1631,7 @@ func (c *IamClient) KeystoneShowVersionInvoker(request *model.KeystoneShowVersio
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneUpdateGroup(request *model.KeystoneUpdateGroupRequest) (*model.KeystoneUpdateGroupResponse, error) {
 	requestDef := GenReqDefForKeystoneUpdateGroup()
 
@@ -1725,8 +1654,7 @@ func (c *IamClient) KeystoneUpdateGroupInvoker(request *model.KeystoneUpdateGrou
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneUpdateIdentityProvider(request *model.KeystoneUpdateIdentityProviderRequest) (*model.KeystoneUpdateIdentityProviderResponse, error) {
 	requestDef := GenReqDefForKeystoneUpdateIdentityProvider()
 
@@ -1749,8 +1677,7 @@ func (c *IamClient) KeystoneUpdateIdentityProviderInvoker(request *model.Keyston
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneUpdateMapping(request *model.KeystoneUpdateMappingRequest) (*model.KeystoneUpdateMappingResponse, error) {
 	requestDef := GenReqDefForKeystoneUpdateMapping()
 
@@ -1773,8 +1700,7 @@ func (c *IamClient) KeystoneUpdateMappingInvoker(request *model.KeystoneUpdateMa
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneUpdateProject(request *model.KeystoneUpdateProjectRequest) (*model.KeystoneUpdateProjectResponse, error) {
 	requestDef := GenReqDefForKeystoneUpdateProject()
 
@@ -1797,8 +1723,7 @@ func (c *IamClient) KeystoneUpdateProjectInvoker(request *model.KeystoneUpdatePr
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneUpdateProtocol(request *model.KeystoneUpdateProtocolRequest) (*model.KeystoneUpdateProtocolResponse, error) {
 	requestDef := GenReqDefForKeystoneUpdateProtocol()
 
@@ -1821,8 +1746,7 @@ func (c *IamClient) KeystoneUpdateProtocolInvoker(request *model.KeystoneUpdateP
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ListAgencies(request *model.ListAgenciesRequest) (*model.ListAgenciesResponse, error) {
 	requestDef := GenReqDefForListAgencies()
 
@@ -1845,8 +1769,7 @@ func (c *IamClient) ListAgenciesInvoker(request *model.ListAgenciesRequest) *Lis
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ListAllProjectsPermissionsForAgency(request *model.ListAllProjectsPermissionsForAgencyRequest) (*model.ListAllProjectsPermissionsForAgencyResponse, error) {
 	requestDef := GenReqDefForListAllProjectsPermissionsForAgency()
 
@@ -1869,8 +1792,7 @@ func (c *IamClient) ListAllProjectsPermissionsForAgencyInvoker(request *model.Li
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ListCustomPolicies(request *model.ListCustomPoliciesRequest) (*model.ListCustomPoliciesResponse, error) {
 	requestDef := GenReqDefForListCustomPolicies()
 
@@ -1893,8 +1815,7 @@ func (c *IamClient) ListCustomPoliciesInvoker(request *model.ListCustomPoliciesR
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ListDomainPermissionsForAgency(request *model.ListDomainPermissionsForAgencyRequest) (*model.ListDomainPermissionsForAgencyResponse, error) {
 	requestDef := GenReqDefForListDomainPermissionsForAgency()
 
@@ -1917,8 +1838,7 @@ func (c *IamClient) ListDomainPermissionsForAgencyInvoker(request *model.ListDom
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ListEnterpriseProjectsForGroup(request *model.ListEnterpriseProjectsForGroupRequest) (*model.ListEnterpriseProjectsForGroupResponse, error) {
 	requestDef := GenReqDefForListEnterpriseProjectsForGroup()
 
@@ -1941,8 +1861,7 @@ func (c *IamClient) ListEnterpriseProjectsForGroupInvoker(request *model.ListEnt
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ListEnterpriseProjectsForUser(request *model.ListEnterpriseProjectsForUserRequest) (*model.ListEnterpriseProjectsForUserResponse, error) {
 	requestDef := GenReqDefForListEnterpriseProjectsForUser()
 
@@ -1965,8 +1884,7 @@ func (c *IamClient) ListEnterpriseProjectsForUserInvoker(request *model.ListEnte
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ListGroupsForEnterpriseProject(request *model.ListGroupsForEnterpriseProjectRequest) (*model.ListGroupsForEnterpriseProjectResponse, error) {
 	requestDef := GenReqDefForListGroupsForEnterpriseProject()
 
@@ -1989,8 +1907,7 @@ func (c *IamClient) ListGroupsForEnterpriseProjectInvoker(request *model.ListGro
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ListProjectPermissionsForAgency(request *model.ListProjectPermissionsForAgencyRequest) (*model.ListProjectPermissionsForAgencyResponse, error) {
 	requestDef := GenReqDefForListProjectPermissionsForAgency()
 
@@ -2013,8 +1930,7 @@ func (c *IamClient) ListProjectPermissionsForAgencyInvoker(request *model.ListPr
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ListRolesForGroupOnEnterpriseProject(request *model.ListRolesForGroupOnEnterpriseProjectRequest) (*model.ListRolesForGroupOnEnterpriseProjectResponse, error) {
 	requestDef := GenReqDefForListRolesForGroupOnEnterpriseProject()
 
@@ -2036,8 +1952,7 @@ func (c *IamClient) ListRolesForGroupOnEnterpriseProjectInvoker(request *model.L
 // 该接口可用于查询企业项目直接关联用户的权限。
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ListRolesForUserOnEnterpriseProject(request *model.ListRolesForUserOnEnterpriseProjectRequest) (*model.ListRolesForUserOnEnterpriseProjectResponse, error) {
 	requestDef := GenReqDefForListRolesForUserOnEnterpriseProject()
 
@@ -2059,8 +1974,7 @@ func (c *IamClient) ListRolesForUserOnEnterpriseProjectInvoker(request *model.Li
 // 该接口可用于查询企业项目直接关联的用户。
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ListUsersForEnterpriseProject(request *model.ListUsersForEnterpriseProjectRequest) (*model.ListUsersForEnterpriseProjectResponse, error) {
 	requestDef := GenReqDefForListUsersForEnterpriseProject()
 
@@ -2083,8 +1997,7 @@ func (c *IamClient) ListUsersForEnterpriseProjectInvoker(request *model.ListUser
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) RemoveAllProjectsPermissionFromAgency(request *model.RemoveAllProjectsPermissionFromAgencyRequest) (*model.RemoveAllProjectsPermissionFromAgencyResponse, error) {
 	requestDef := GenReqDefForRemoveAllProjectsPermissionFromAgency()
 
@@ -2107,8 +2020,7 @@ func (c *IamClient) RemoveAllProjectsPermissionFromAgencyInvoker(request *model.
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) RemoveDomainPermissionFromAgency(request *model.RemoveDomainPermissionFromAgencyRequest) (*model.RemoveDomainPermissionFromAgencyResponse, error) {
 	requestDef := GenReqDefForRemoveDomainPermissionFromAgency()
 
@@ -2131,8 +2043,7 @@ func (c *IamClient) RemoveDomainPermissionFromAgencyInvoker(request *model.Remov
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) RemoveProjectPermissionFromAgency(request *model.RemoveProjectPermissionFromAgencyRequest) (*model.RemoveProjectPermissionFromAgencyResponse, error) {
 	requestDef := GenReqDefForRemoveProjectPermissionFromAgency()
 
@@ -2155,8 +2066,7 @@ func (c *IamClient) RemoveProjectPermissionFromAgencyInvoker(request *model.Remo
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) RevokeRoleFromGroupOnEnterpriseProject(request *model.RevokeRoleFromGroupOnEnterpriseProjectRequest) (*model.RevokeRoleFromGroupOnEnterpriseProjectResponse, error) {
 	requestDef := GenReqDefForRevokeRoleFromGroupOnEnterpriseProject()
 
@@ -2178,8 +2088,7 @@ func (c *IamClient) RevokeRoleFromGroupOnEnterpriseProjectInvoker(request *model
 // 删除企业项目直接关联用户的权限。
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) RevokeRoleFromUserOnEnterpriseProject(request *model.RevokeRoleFromUserOnEnterpriseProjectRequest) (*model.RevokeRoleFromUserOnEnterpriseProjectResponse, error) {
 	requestDef := GenReqDefForRevokeRoleFromUserOnEnterpriseProject()
 
@@ -2202,8 +2111,7 @@ func (c *IamClient) RevokeRoleFromUserOnEnterpriseProjectInvoker(request *model.
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ShowAgency(request *model.ShowAgencyRequest) (*model.ShowAgencyResponse, error) {
 	requestDef := GenReqDefForShowAgency()
 
@@ -2226,8 +2134,7 @@ func (c *IamClient) ShowAgencyInvoker(request *model.ShowAgencyRequest) *ShowAge
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ShowCustomPolicy(request *model.ShowCustomPolicyRequest) (*model.ShowCustomPolicyResponse, error) {
 	requestDef := GenReqDefForShowCustomPolicy()
 
@@ -2250,8 +2157,7 @@ func (c *IamClient) ShowCustomPolicyInvoker(request *model.ShowCustomPolicyReque
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ShowDomainApiAclPolicy(request *model.ShowDomainApiAclPolicyRequest) (*model.ShowDomainApiAclPolicyResponse, error) {
 	requestDef := GenReqDefForShowDomainApiAclPolicy()
 
@@ -2274,8 +2180,7 @@ func (c *IamClient) ShowDomainApiAclPolicyInvoker(request *model.ShowDomainApiAc
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ShowDomainConsoleAclPolicy(request *model.ShowDomainConsoleAclPolicyRequest) (*model.ShowDomainConsoleAclPolicyResponse, error) {
 	requestDef := GenReqDefForShowDomainConsoleAclPolicy()
 
@@ -2298,8 +2203,7 @@ func (c *IamClient) ShowDomainConsoleAclPolicyInvoker(request *model.ShowDomainC
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ShowDomainLoginPolicy(request *model.ShowDomainLoginPolicyRequest) (*model.ShowDomainLoginPolicyResponse, error) {
 	requestDef := GenReqDefForShowDomainLoginPolicy()
 
@@ -2322,8 +2226,7 @@ func (c *IamClient) ShowDomainLoginPolicyInvoker(request *model.ShowDomainLoginP
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ShowDomainPasswordPolicy(request *model.ShowDomainPasswordPolicyRequest) (*model.ShowDomainPasswordPolicyResponse, error) {
 	requestDef := GenReqDefForShowDomainPasswordPolicy()
 
@@ -2346,8 +2249,7 @@ func (c *IamClient) ShowDomainPasswordPolicyInvoker(request *model.ShowDomainPas
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ShowDomainProtectPolicy(request *model.ShowDomainProtectPolicyRequest) (*model.ShowDomainProtectPolicyResponse, error) {
 	requestDef := GenReqDefForShowDomainProtectPolicy()
 
@@ -2370,8 +2272,7 @@ func (c *IamClient) ShowDomainProtectPolicyInvoker(request *model.ShowDomainProt
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ShowDomainQuota(request *model.ShowDomainQuotaRequest) (*model.ShowDomainQuotaResponse, error) {
 	requestDef := GenReqDefForShowDomainQuota()
 
@@ -2393,8 +2294,7 @@ func (c *IamClient) ShowDomainQuotaInvoker(request *model.ShowDomainQuotaRequest
 // 该接口用于查询指定账号中的授权记录。
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ShowDomainRoleAssignments(request *model.ShowDomainRoleAssignmentsRequest) (*model.ShowDomainRoleAssignmentsResponse, error) {
 	requestDef := GenReqDefForShowDomainRoleAssignments()
 
@@ -2417,8 +2317,7 @@ func (c *IamClient) ShowDomainRoleAssignmentsInvoker(request *model.ShowDomainRo
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ShowMetadata(request *model.ShowMetadataRequest) (*model.ShowMetadataResponse, error) {
 	requestDef := GenReqDefForShowMetadata()
 
@@ -2439,8 +2338,7 @@ func (c *IamClient) ShowMetadataInvoker(request *model.ShowMetadataRequest) *Sho
 //
 // 查询OpenId Connect身份提供商配置
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ShowOpenIdConnectConfig(request *model.ShowOpenIdConnectConfigRequest) (*model.ShowOpenIdConnectConfigResponse, error) {
 	requestDef := GenReqDefForShowOpenIdConnectConfig()
 
@@ -2463,8 +2361,7 @@ func (c *IamClient) ShowOpenIdConnectConfigInvoker(request *model.ShowOpenIdConn
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ShowProjectDetailsAndStatus(request *model.ShowProjectDetailsAndStatusRequest) (*model.ShowProjectDetailsAndStatusResponse, error) {
 	requestDef := GenReqDefForShowProjectDetailsAndStatus()
 
@@ -2487,8 +2384,7 @@ func (c *IamClient) ShowProjectDetailsAndStatusInvoker(request *model.ShowProjec
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ShowProjectQuota(request *model.ShowProjectQuotaRequest) (*model.ShowProjectQuotaResponse, error) {
 	requestDef := GenReqDefForShowProjectQuota()
 
@@ -2511,8 +2407,7 @@ func (c *IamClient) ShowProjectQuotaInvoker(request *model.ShowProjectQuotaReque
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) UpdateAgency(request *model.UpdateAgencyRequest) (*model.UpdateAgencyResponse, error) {
 	requestDef := GenReqDefForUpdateAgency()
 
@@ -2535,8 +2430,7 @@ func (c *IamClient) UpdateAgencyInvoker(request *model.UpdateAgencyRequest) *Upd
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) UpdateAgencyCustomPolicy(request *model.UpdateAgencyCustomPolicyRequest) (*model.UpdateAgencyCustomPolicyResponse, error) {
 	requestDef := GenReqDefForUpdateAgencyCustomPolicy()
 
@@ -2559,8 +2453,7 @@ func (c *IamClient) UpdateAgencyCustomPolicyInvoker(request *model.UpdateAgencyC
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) UpdateCloudServiceCustomPolicy(request *model.UpdateCloudServiceCustomPolicyRequest) (*model.UpdateCloudServiceCustomPolicyResponse, error) {
 	requestDef := GenReqDefForUpdateCloudServiceCustomPolicy()
 
@@ -2583,8 +2476,7 @@ func (c *IamClient) UpdateCloudServiceCustomPolicyInvoker(request *model.UpdateC
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) UpdateDomainApiAclPolicy(request *model.UpdateDomainApiAclPolicyRequest) (*model.UpdateDomainApiAclPolicyResponse, error) {
 	requestDef := GenReqDefForUpdateDomainApiAclPolicy()
 
@@ -2607,8 +2499,7 @@ func (c *IamClient) UpdateDomainApiAclPolicyInvoker(request *model.UpdateDomainA
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) UpdateDomainConsoleAclPolicy(request *model.UpdateDomainConsoleAclPolicyRequest) (*model.UpdateDomainConsoleAclPolicyResponse, error) {
 	requestDef := GenReqDefForUpdateDomainConsoleAclPolicy()
 
@@ -2631,8 +2522,7 @@ func (c *IamClient) UpdateDomainConsoleAclPolicyInvoker(request *model.UpdateDom
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) UpdateDomainGroupInheritRole(request *model.UpdateDomainGroupInheritRoleRequest) (*model.UpdateDomainGroupInheritRoleResponse, error) {
 	requestDef := GenReqDefForUpdateDomainGroupInheritRole()
 
@@ -2655,8 +2545,7 @@ func (c *IamClient) UpdateDomainGroupInheritRoleInvoker(request *model.UpdateDom
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) UpdateDomainLoginPolicy(request *model.UpdateDomainLoginPolicyRequest) (*model.UpdateDomainLoginPolicyResponse, error) {
 	requestDef := GenReqDefForUpdateDomainLoginPolicy()
 
@@ -2679,8 +2568,7 @@ func (c *IamClient) UpdateDomainLoginPolicyInvoker(request *model.UpdateDomainLo
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) UpdateDomainPasswordPolicy(request *model.UpdateDomainPasswordPolicyRequest) (*model.UpdateDomainPasswordPolicyResponse, error) {
 	requestDef := GenReqDefForUpdateDomainPasswordPolicy()
 
@@ -2703,8 +2591,7 @@ func (c *IamClient) UpdateDomainPasswordPolicyInvoker(request *model.UpdateDomai
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) UpdateDomainProtectPolicy(request *model.UpdateDomainProtectPolicyRequest) (*model.UpdateDomainProtectPolicyResponse, error) {
 	requestDef := GenReqDefForUpdateDomainProtectPolicy()
 
@@ -2725,8 +2612,7 @@ func (c *IamClient) UpdateDomainProtectPolicyInvoker(request *model.UpdateDomain
 //
 // 修改OpenId Connect身份提供商配置
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) UpdateOpenIdConnectConfig(request *model.UpdateOpenIdConnectConfigRequest) (*model.UpdateOpenIdConnectConfigResponse, error) {
 	requestDef := GenReqDefForUpdateOpenIdConnectConfig()
 
@@ -2749,8 +2635,7 @@ func (c *IamClient) UpdateOpenIdConnectConfigInvoker(request *model.UpdateOpenId
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) UpdateProjectStatus(request *model.UpdateProjectStatusRequest) (*model.UpdateProjectStatusResponse, error) {
 	requestDef := GenReqDefForUpdateProjectStatus()
 
@@ -2775,8 +2660,7 @@ func (c *IamClient) UpdateProjectStatusInvoker(request *model.UpdateProjectStatu
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) CreatePermanentAccessKey(request *model.CreatePermanentAccessKeyRequest) (*model.CreatePermanentAccessKeyResponse, error) {
 	requestDef := GenReqDefForCreatePermanentAccessKey()
 
@@ -2801,8 +2685,7 @@ func (c *IamClient) CreatePermanentAccessKeyInvoker(request *model.CreatePermane
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) CreateTemporaryAccessKeyByAgency(request *model.CreateTemporaryAccessKeyByAgencyRequest) (*model.CreateTemporaryAccessKeyByAgencyResponse, error) {
 	requestDef := GenReqDefForCreateTemporaryAccessKeyByAgency()
 
@@ -2827,8 +2710,7 @@ func (c *IamClient) CreateTemporaryAccessKeyByAgencyInvoker(request *model.Creat
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) CreateTemporaryAccessKeyByToken(request *model.CreateTemporaryAccessKeyByTokenRequest) (*model.CreateTemporaryAccessKeyByTokenResponse, error) {
 	requestDef := GenReqDefForCreateTemporaryAccessKeyByToken()
 
@@ -2851,8 +2733,7 @@ func (c *IamClient) CreateTemporaryAccessKeyByTokenInvoker(request *model.Create
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) DeletePermanentAccessKey(request *model.DeletePermanentAccessKeyRequest) (*model.DeletePermanentAccessKeyResponse, error) {
 	requestDef := GenReqDefForDeletePermanentAccessKey()
 
@@ -2875,8 +2756,7 @@ func (c *IamClient) DeletePermanentAccessKeyInvoker(request *model.DeletePermane
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ListPermanentAccessKeys(request *model.ListPermanentAccessKeysRequest) (*model.ListPermanentAccessKeysResponse, error) {
 	requestDef := GenReqDefForListPermanentAccessKeys()
 
@@ -2899,8 +2779,7 @@ func (c *IamClient) ListPermanentAccessKeysInvoker(request *model.ListPermanentA
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ShowPermanentAccessKey(request *model.ShowPermanentAccessKeyRequest) (*model.ShowPermanentAccessKeyResponse, error) {
 	requestDef := GenReqDefForShowPermanentAccessKey()
 
@@ -2923,8 +2802,7 @@ func (c *IamClient) ShowPermanentAccessKeyInvoker(request *model.ShowPermanentAc
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) UpdatePermanentAccessKey(request *model.UpdatePermanentAccessKeyRequest) (*model.UpdatePermanentAccessKeyResponse, error) {
 	requestDef := GenReqDefForUpdatePermanentAccessKey()
 
@@ -2947,8 +2825,7 @@ func (c *IamClient) UpdatePermanentAccessKeyInvoker(request *model.UpdatePermane
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) CreateBindingDevice(request *model.CreateBindingDeviceRequest) (*model.CreateBindingDeviceResponse, error) {
 	requestDef := GenReqDefForCreateBindingDevice()
 
@@ -2971,8 +2848,7 @@ func (c *IamClient) CreateBindingDeviceInvoker(request *model.CreateBindingDevic
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) CreateMfaDevice(request *model.CreateMfaDeviceRequest) (*model.CreateMfaDeviceResponse, error) {
 	requestDef := GenReqDefForCreateMfaDevice()
 
@@ -2995,8 +2871,7 @@ func (c *IamClient) CreateMfaDeviceInvoker(request *model.CreateMfaDeviceRequest
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) CreateUser(request *model.CreateUserRequest) (*model.CreateUserResponse, error) {
 	requestDef := GenReqDefForCreateUser()
 
@@ -3019,8 +2894,7 @@ func (c *IamClient) CreateUserInvoker(request *model.CreateUserRequest) *CreateU
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) DeleteBindingDevice(request *model.DeleteBindingDeviceRequest) (*model.DeleteBindingDeviceResponse, error) {
 	requestDef := GenReqDefForDeleteBindingDevice()
 
@@ -3043,8 +2917,7 @@ func (c *IamClient) DeleteBindingDeviceInvoker(request *model.DeleteBindingDevic
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) DeleteMfaDevice(request *model.DeleteMfaDeviceRequest) (*model.DeleteMfaDeviceResponse, error) {
 	requestDef := GenReqDefForDeleteMfaDevice()
 
@@ -3067,8 +2940,7 @@ func (c *IamClient) DeleteMfaDeviceInvoker(request *model.DeleteMfaDeviceRequest
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneCreateUser(request *model.KeystoneCreateUserRequest) (*model.KeystoneCreateUserResponse, error) {
 	requestDef := GenReqDefForKeystoneCreateUser()
 
@@ -3091,8 +2963,7 @@ func (c *IamClient) KeystoneCreateUserInvoker(request *model.KeystoneCreateUserR
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneDeleteUser(request *model.KeystoneDeleteUserRequest) (*model.KeystoneDeleteUserResponse, error) {
 	requestDef := GenReqDefForKeystoneDeleteUser()
 
@@ -3115,8 +2986,7 @@ func (c *IamClient) KeystoneDeleteUserInvoker(request *model.KeystoneDeleteUserR
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneListGroupsForUser(request *model.KeystoneListGroupsForUserRequest) (*model.KeystoneListGroupsForUserResponse, error) {
 	requestDef := GenReqDefForKeystoneListGroupsForUser()
 
@@ -3139,8 +3009,7 @@ func (c *IamClient) KeystoneListGroupsForUserInvoker(request *model.KeystoneList
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneListUsers(request *model.KeystoneListUsersRequest) (*model.KeystoneListUsersResponse, error) {
 	requestDef := GenReqDefForKeystoneListUsers()
 
@@ -3163,8 +3032,7 @@ func (c *IamClient) KeystoneListUsersInvoker(request *model.KeystoneListUsersReq
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneShowUser(request *model.KeystoneShowUserRequest) (*model.KeystoneShowUserResponse, error) {
 	requestDef := GenReqDefForKeystoneShowUser()
 
@@ -3187,8 +3055,7 @@ func (c *IamClient) KeystoneShowUserInvoker(request *model.KeystoneShowUserReque
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneUpdateUserByAdmin(request *model.KeystoneUpdateUserByAdminRequest) (*model.KeystoneUpdateUserByAdminResponse, error) {
 	requestDef := GenReqDefForKeystoneUpdateUserByAdmin()
 
@@ -3211,8 +3078,7 @@ func (c *IamClient) KeystoneUpdateUserByAdminInvoker(request *model.KeystoneUpda
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneUpdateUserPassword(request *model.KeystoneUpdateUserPasswordRequest) (*model.KeystoneUpdateUserPasswordResponse, error) {
 	requestDef := GenReqDefForKeystoneUpdateUserPassword()
 
@@ -3235,8 +3101,7 @@ func (c *IamClient) KeystoneUpdateUserPasswordInvoker(request *model.KeystoneUpd
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ListUserLoginProtects(request *model.ListUserLoginProtectsRequest) (*model.ListUserLoginProtectsResponse, error) {
 	requestDef := GenReqDefForListUserLoginProtects()
 
@@ -3259,8 +3124,7 @@ func (c *IamClient) ListUserLoginProtectsInvoker(request *model.ListUserLoginPro
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ListUserMfaDevices(request *model.ListUserMfaDevicesRequest) (*model.ListUserMfaDevicesResponse, error) {
 	requestDef := GenReqDefForListUserMfaDevices()
 
@@ -3283,8 +3147,7 @@ func (c *IamClient) ListUserMfaDevicesInvoker(request *model.ListUserMfaDevicesR
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ShowUser(request *model.ShowUserRequest) (*model.ShowUserResponse, error) {
 	requestDef := GenReqDefForShowUser()
 
@@ -3307,8 +3170,7 @@ func (c *IamClient) ShowUserInvoker(request *model.ShowUserRequest) *ShowUserInv
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ShowUserLoginProtect(request *model.ShowUserLoginProtectRequest) (*model.ShowUserLoginProtectResponse, error) {
 	requestDef := GenReqDefForShowUserLoginProtect()
 
@@ -3331,8 +3193,7 @@ func (c *IamClient) ShowUserLoginProtectInvoker(request *model.ShowUserLoginProt
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) ShowUserMfaDevice(request *model.ShowUserMfaDeviceRequest) (*model.ShowUserMfaDeviceResponse, error) {
 	requestDef := GenReqDefForShowUserMfaDevice()
 
@@ -3355,8 +3216,7 @@ func (c *IamClient) ShowUserMfaDeviceInvoker(request *model.ShowUserMfaDeviceReq
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) UpdateLoginProtect(request *model.UpdateLoginProtectRequest) (*model.UpdateLoginProtectResponse, error) {
 	requestDef := GenReqDefForUpdateLoginProtect()
 
@@ -3379,8 +3239,7 @@ func (c *IamClient) UpdateLoginProtectInvoker(request *model.UpdateLoginProtectR
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) UpdateUser(request *model.UpdateUserRequest) (*model.UpdateUserResponse, error) {
 	requestDef := GenReqDefForUpdateUser()
 
@@ -3403,8 +3262,7 @@ func (c *IamClient) UpdateUserInvoker(request *model.UpdateUserRequest) *UpdateU
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) UpdateUserInformation(request *model.UpdateUserInformationRequest) (*model.UpdateUserInformationResponse, error) {
 	requestDef := GenReqDefForUpdateUserInformation()
 
@@ -3433,8 +3291,7 @@ func (c *IamClient) UpdateUserInformationInvoker(request *model.UpdateUserInform
 //
 // &gt; - token的有效期为24小时，建议进行缓存，避免频繁调用。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneCreateAgencyToken(request *model.KeystoneCreateAgencyTokenRequest) (*model.KeystoneCreateAgencyTokenResponse, error) {
 	requestDef := GenReqDefForKeystoneCreateAgencyToken()
 
@@ -3462,8 +3319,7 @@ func (c *IamClient) KeystoneCreateAgencyTokenInvoker(request *model.KeystoneCrea
 // &gt; - 通过Postman获取用户token示例请参见：[如何通过Postman获取用户token](https://support.huaweicloud.com/iam_faq/iam_01_034.html)。
 // &gt; - 如果需要获取具有Security Administrator权限的token，请参见：[IAM 常见问题](https://support.huaweicloud.com/iam_faq/iam_01_0608.html)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneCreateUserTokenByPassword(request *model.KeystoneCreateUserTokenByPasswordRequest) (*model.KeystoneCreateUserTokenByPasswordResponse, error) {
 	requestDef := GenReqDefForKeystoneCreateUserTokenByPassword()
 
@@ -3491,8 +3347,7 @@ func (c *IamClient) KeystoneCreateUserTokenByPasswordInvoker(request *model.Keys
 // &gt; - 通过Postman获取用户token示例请参见：[如何通过Postman获取用户token](https://support.huaweicloud.com/iam_faq/iam_01_034.html)。
 // &gt; - 如果需要获取具有Security Administrator权限的token，请参见：[IAM 常见问题](https://support.huaweicloud.com/iam_faq/iam_01_0608.html)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneCreateUserTokenByPasswordAndMfa(request *model.KeystoneCreateUserTokenByPasswordAndMfaRequest) (*model.KeystoneCreateUserTokenByPasswordAndMfaResponse, error) {
 	requestDef := GenReqDefForKeystoneCreateUserTokenByPasswordAndMfa()
 
@@ -3515,8 +3370,7 @@ func (c *IamClient) KeystoneCreateUserTokenByPasswordAndMfaInvoker(request *mode
 //
 // 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *IamClient) KeystoneValidateToken(request *model.KeystoneValidateTokenRequest) (*model.KeystoneValidateTokenResponse, error) {
 	requestDef := GenReqDefForKeystoneValidateToken()
 

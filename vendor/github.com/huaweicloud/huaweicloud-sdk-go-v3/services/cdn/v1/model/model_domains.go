@@ -24,7 +24,7 @@ type Domains struct {
 	// 域名所属用户的domain_id。
 	UserDomainId *string `json:"user_domain_id,omitempty"`
 
-	// 加速域名状态。取值意义： - online表示“已开启” - offline表示“已停用” - configuring表示“配置中” - configure_failed表示“配置失败” - checking表示“审核中” - check_failed表示“审核未通过” - deleting表示“删除中”
+	// 加速域名状态。取值意义： - online表示“已开启” - offline表示“已停用” - configuring表示“配置中” - configure_failed表示“配置失败” - checking表示“审核中” - check_failed表示“审核未通过” - deleting表示“删除中”。
 	DomainStatus *string `json:"domain_status,omitempty"`
 
 	// 加速域名对应的CNAME。
@@ -71,7 +71,7 @@ type Domains struct {
 	// 域名锁定原因
 	LockedReason *string `json:"locked_reason,omitempty"`
 
-	// 当用户开启企业项目功能时，该参数生效，表示查询资源所属项目，不传表示查询默认项目。注意：当使用子账号调用接口时，该参数必传。
+	// 当用户开启企业项目功能时，该参数生效，表示查询资源所属项目，不传表示查询默认项目。注意：当使用子帐号调用接口时，该参数必传。  您可以通过调用企业项目管理服务（EPS）的查询企业项目列表接口（ListEnterpriseProject）查询企业项目id。
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 }
 

@@ -23,6 +23,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/converter"
@@ -109,9 +110,16 @@ func (httpRequest *DefaultHttpRequest) GetBodyToBytes() (*bytes.Buffer, error) {
 		if v.Kind() == reflect.String {
 			buf.WriteString(v.Interface().(string))
 		} else {
-			encoder := json.NewEncoder(buf)
-			encoder.SetEscapeHTML(false)
-			err := encoder.Encode(httpRequest.body)
+			var err error
+			if httpRequest.headerParams["Content-Type"] == "application/xml" {
+				encoder := xml.NewEncoder(buf)
+				err = encoder.Encode(httpRequest.body)
+			} else {
+				encoder := json.NewEncoder(buf)
+				encoder.SetEscapeHTML(false)
+				err = encoder.Encode(httpRequest.body)
+			}
+
 			if err != nil {
 				return nil, err
 			}
@@ -180,8 +188,17 @@ func (httpRequest *DefaultHttpRequest) covertFormBody() (*http.Request, error) {
 	bodyBuffer := &bytes.Buffer{}
 	bodyWriter := multipart.NewWriter(bodyBuffer)
 
+	sortedKeys := make([]string, 0, len(httpRequest.GetFormPrams()))
 	for k, v := range httpRequest.GetFormPrams() {
-		if err := v.Write(bodyWriter, k); err != nil {
+		if _, ok := v.(*def.FilePart); ok {
+			sortedKeys = append(sortedKeys, k)
+		} else {
+			sortedKeys = append([]string{k}, sortedKeys...)
+		}
+	}
+
+	for _, k := range sortedKeys {
+		if err := httpRequest.GetFormPrams()[k].Write(bodyWriter, k); err != nil {
 			return nil, err
 		}
 	}
@@ -243,7 +260,10 @@ func (httpRequest *DefaultHttpRequest) fillQueryParams(req *http.Request) {
 
 	q := req.URL.Query()
 	for key, value := range httpRequest.GetQueryParams() {
-		valueWithType := value.(reflect.Value)
+		valueWithType, ok := value.(reflect.Value)
+		if !ok {
+			continue
+		}
 
 		if valueWithType.Kind() == reflect.Slice {
 			params := httpRequest.CanonicalSliceQueryParamsToMulti(valueWithType)

@@ -5,6 +5,30 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1/model"
 )
 
+type AddIndependentNodeInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *AddIndependentNodeInvoker) Invoke() (*model.AddIndependentNodeResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.AddIndependentNodeResponse), nil
+	}
+}
+
+type ChangeModeInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ChangeModeInvoker) Invoke() (*model.ChangeModeResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ChangeModeResponse), nil
+	}
+}
+
 type CreateAutoCreatePolicyInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -542,6 +566,18 @@ func (i *UpdateFlavorByTypeInvoker) Invoke() (*model.UpdateFlavorByTypeResponse,
 		return nil, err
 	} else {
 		return result.(*model.UpdateFlavorByTypeResponse), nil
+	}
+}
+
+type UpdateInstanceInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateInstanceInvoker) Invoke() (*model.UpdateInstanceResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateInstanceResponse), nil
 	}
 }
 

@@ -19,7 +19,12 @@
 
 package utils
 
-import "math/rand"
+import (
+	"crypto/rand"
+	"math/big"
+)
+
+var reader = rand.Reader
 
 func Max32(x, y int32) int32 {
 	if x > y {
@@ -39,7 +44,12 @@ func RandInt32(min, max int32) int32 {
 	if min >= max || min == 0 || max == 0 {
 		return max
 	}
-	return rand.Int31n(max-min) + min
+
+	b, err := rand.Int(reader, big.NewInt(int64(max)))
+	if err != nil {
+		return max
+	}
+	return int32(b.Int64()) + min
 }
 
 func Pow32(x, y int32) int32 {

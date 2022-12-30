@@ -11,7 +11,7 @@ type CreateClusterResponse struct {
 	Cluster *CreateClusterResp `json:"cluster,omitempty"`
 
 	// 订单号。若创建的是包周期集群，则只返回ordeld参数。
-	OrdeId         *string `json:"ordeId,omitempty"`
+	OrderId        *string `json:"orderId,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }
 

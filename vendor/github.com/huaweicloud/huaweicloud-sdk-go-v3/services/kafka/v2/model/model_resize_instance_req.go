@@ -22,6 +22,9 @@ type ResizeInstanceReq struct {
 
 	// 新规格变更后的产品ID。 涉及垂直扩容场景，需指定该项。
 	NewProductId *string `json:"new_product_id,omitempty"`
+
+	// 实例绑定的弹性IP地址的ID。 以英文逗号隔开多个弹性IP地址的ID。 如果开启了公网再扩容，需要填写此参数。
+	PublicipId *string `json:"publicip_id,omitempty"`
 }
 
 func (o ResizeInstanceReq) String() string {

@@ -13,7 +13,7 @@ type CreateClusterLoadBalance struct {
 	EndpointWithDnsName bool `json:"endpointWithDnsName"`
 
 	// 访问控制。
-	VpcPermisssions *[]string `json:"vpcPermisssions,omitempty"`
+	VpcPermissions *[]string `json:"vpcPermissions,omitempty"`
 }
 
 func (o CreateClusterLoadBalance) String() string {

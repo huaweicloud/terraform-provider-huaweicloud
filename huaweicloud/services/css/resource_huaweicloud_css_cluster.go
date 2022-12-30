@@ -506,11 +506,11 @@ func resourceCssClusterCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating CSS cluster, err=%s", err)
 	}
 
-	if (r.Cluster == nil || r.Cluster.Id == nil) && r.OrdeId == nil {
+	if (r.Cluster == nil || r.Cluster.Id == nil) && r.OrderId == nil {
 		return diag.Errorf("error creating CSS cluster: id is not found in API response,%#v", r)
 	}
 
-	if r.OrdeId == nil {
+	if r.OrderId == nil {
 		if r.Cluster == nil || r.Cluster.Id == nil {
 			return diag.Errorf("error creating CSS cluster: id is not found in API response,%#v", r)
 		}
@@ -523,13 +523,13 @@ func resourceCssClusterCreate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 
 		// 1. If charging mode is PrePaid, wait for the order to be completed.
-		err = common.WaitOrderComplete(ctx, bssClient, *r.OrdeId, d.Timeout(schema.TimeoutCreate))
+		err = common.WaitOrderComplete(ctx, bssClient, *r.OrderId, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
 		// 2. get the resource ID, must be after order success
-		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, *r.OrdeId, d.Timeout(schema.TimeoutCreate))
+		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, *r.OrderId, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -619,7 +619,7 @@ func buildClusterCreateParameters(d *schema.ResourceData, config *config.Config)
 
 		vpcPermissions := utils.ExpandToStringList(d.Get("vpcep_endpoint.0.whitelist").([]interface{}))
 		if len(vpcPermissions) > 0 {
-			createOpts.LoadBalance.VpcPermisssions = &vpcPermissions
+			createOpts.LoadBalance.VpcPermissions = &vpcPermissions
 		}
 	}
 
@@ -1075,7 +1075,7 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 			_, err := cssV1Client.StartVpecp(&model.StartVpecpRequest{
 				ClusterId: d.Id(),
 				Body: &model.StartVpecpReq{
-					EndpointWithDnsName: d.Get("vpcep_endpoint.0.endpoint_with_dns_name").(bool),
+					EndpointWithDnsName: utils.Bool(d.Get("vpcep_endpoint.0.endpoint_with_dns_name").(bool)),
 				},
 			})
 			if err != nil {

@@ -10,10 +10,10 @@ import (
 type ShowUrlTaskInfoRequest struct {
 
 	// 起始时间戳（毫秒），默认当天00:00
-	StartTime *int32 `json:"start_time,omitempty"`
+	StartTime *int64 `json:"start_time,omitempty"`
 
 	// 结束时间戳（毫秒），默认次日00:00
-	EndTime *int32 `json:"end_time,omitempty"`
+	EndTime *int64 `json:"end_time,omitempty"`
 
 	// 偏移量
 	Offset *int32 `json:"offset,omitempty"`

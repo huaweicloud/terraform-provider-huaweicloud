@@ -6,25 +6,20 @@ import (
 	"strings"
 )
 
+// 主实例信息。
 type MasterInstance struct {
 
-	// 主实例ID。
-	Id string `json:"id"`
+	// 实例ID。
+	InstanceId string `json:"instance_id"`
 
-	// 主实例状态。
-	Status string `json:"status"`
+	// 区域。
+	Region string `json:"region"`
 
-	// 主实例名称。
-	Name string `json:"name"`
+	// 项目ID。
+	ProjectId string `json:"project_id"`
 
-	// 主实例读写分离权重。
-	Weight int32 `json:"weight"`
-
-	// 可用区信息。
-	AvailableZones []AvailableZone `json:"available_zones"`
-
-	// 主实例CPU个数。
-	CpuNum int32 `json:"cpu_num"`
+	// 项目名称。
+	ProjectName string `json:"project_name"`
 }
 
 func (o MasterInstance) String() string {

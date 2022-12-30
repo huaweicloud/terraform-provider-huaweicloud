@@ -7,7 +7,7 @@ import (
 )
 
 type QualityInfoList struct {
-	Video *VideoInfo `json:"video,omitempty"`
+	Video *VideoInfo `json:"video"`
 
 	Audio *AudioInfo `json:"audio,omitempty"`
 }

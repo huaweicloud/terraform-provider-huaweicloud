@@ -9,7 +9,7 @@ import (
 type ModifyTransTemplate struct {
 
 	// 模板组名称<br/>
-	GroupId *string `json:"group_id,omitempty"`
+	GroupId string `json:"group_id"`
 
 	// 模板组名称<br/>
 	Name *string `json:"name,omitempty"`
@@ -21,7 +21,7 @@ type ModifyTransTemplate struct {
 	IsAutoEncrypt *bool `json:"is_auto_encrypt,omitempty"`
 
 	// 画质配置信息列表<br/>
-	QualityInfoList *[]QualityInfoList `json:"quality_info_list,omitempty"`
+	QualityInfoList []QualityInfoList `json:"quality_info_list"`
 
 	// 绑定的水印模板组ID数组<br/>
 	WatermarkTemplateIds *[]string `json:"watermark_template_ids,omitempty"`
@@ -29,7 +29,7 @@ type ModifyTransTemplate struct {
 	// 模板介绍<br/>
 	Description *string `json:"description,omitempty"`
 
-	Common *CommonInfo `json:"common,omitempty"`
+	Common *CommonInfo `json:"common"`
 }
 
 func (o ModifyTransTemplate) String() string {

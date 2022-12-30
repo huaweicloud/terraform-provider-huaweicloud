@@ -12,6 +12,7 @@ type ListInstantQueryAomPromGetResponse struct {
 	// 响应状态。
 	Status *string `json:"status,omitempty"`
 
+	// 响应数据。
 	Data           *interface{} `json:"data,omitempty"`
 	HttpStatusCode int          `json:"-"`
 }

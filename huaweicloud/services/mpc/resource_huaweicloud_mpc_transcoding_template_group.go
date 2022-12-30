@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	mpc "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1/model"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -136,12 +137,6 @@ func ResourceTranscodingTemplateGroup() *schema.Resource {
 							ValidateFunc: validation.IntBetween(1, 3),
 							Default:      1,
 						},
-						"max_reference_frames": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(1, 8),
-							Default:      4,
-						},
 						"max_iframes_interval": {
 							Type:         schema.TypeInt,
 							Optional:     true,
@@ -166,6 +161,13 @@ func ResourceTranscodingTemplateGroup() *schema.Resource {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							ValidateFunc: validation.IntBetween(0, 2),
+						},
+						"max_reference_frames": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(1, 8),
+							Computed:     true,
+							Description:  "schema: Deprecated; the SDK does not support it",
 						},
 					},
 				},
@@ -241,7 +243,6 @@ func buildVideoCommonOpts(rawVideoCommon []interface{}) *mpc.VideoCommon {
 		Profile:            utils.Int32(int32(videoCommon["profile"].(int))),
 		Level:              utils.Int32(int32(videoCommon["level"].(int))),
 		Preset:             utils.Int32(int32(videoCommon["quality"].(int))),
-		RefFramesCount:     utils.Int32(int32(videoCommon["max_reference_frames"].(int))),
 		MaxIframesInterval: utils.Int32(int32(videoCommon["max_iframes_interval"].(int))),
 		BframesCount:       utils.Int32(int32(videoCommon["max_consecutive_bframes"].(int))),
 		FrameRate:          utils.Int32(int32(videoCommon["fps"].(int))),
@@ -279,7 +280,7 @@ func resourceTranscodingTemplateGroupCreate(ctx context.Context, d *schema.Resou
 	}
 
 	createOpts := mpc.TransTemplateGroup{
-		Name:        utils.String(d.Get("name").(string)),
+		Name:        d.Get("name").(string),
 		Videos:      buildVideosOpts(d.Get("videos").([]interface{})),
 		VideoCommon: buildVideoCommonOpts(d.Get("video_common").([]interface{})),
 		Audio:       buildAudioOpts(d.Get("audio").([]interface{})),
@@ -351,7 +352,7 @@ func resourceTranscodingTemplateGroupUpdate(ctx context.Context, d *schema.Resou
 	}
 
 	updateOpts := mpc.ModifyTransTemplateGroup{
-		GroupId:     utils.String(d.Id()),
+		GroupId:     d.Id(),
 		Name:        utils.String(d.Get("name").(string)),
 		Videos:      buildVideosOpts(d.Get("videos").([]interface{})),
 		VideoCommon: buildVideoCommonOpts(d.Get("video_common").([]interface{})),
@@ -396,7 +397,7 @@ func flattenVideoCommon(video *mpc.VideoCommon) []map[string]interface{} {
 		"profile":                 video.Profile,
 		"level":                   video.Level,
 		"quality":                 video.Preset,
-		"max_reference_frames":    video.RefFramesCount,
+		"max_reference_frames":    4,
 		"max_iframes_interval":    video.MaxIframesInterval,
 		"max_consecutive_bframes": video.BframesCount,
 		"fps":                     video.FrameRate,

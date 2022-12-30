@@ -7,7 +7,7 @@ import (
 )
 
 type UnBindPublicReq struct {
-	Eip *BindPublicReqEipReq `json:"eip"`
+	Eip *UnBindPublicReqEipReq `json:"eip,omitempty"`
 }
 
 func (o UnBindPublicReq) String() string {
