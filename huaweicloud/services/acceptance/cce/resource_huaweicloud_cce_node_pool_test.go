@@ -120,7 +120,7 @@ func TestAccCCENodePool_tagsLabelsTaints(t *testing.T) {
 	})
 }
 
-func TestAccCCENodePool_data_volume_encryption(t *testing.T) {
+func TestAccCCENodePool_volume_encryption(t *testing.T) {
 	var nodePool nodepools.NodePool
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -137,10 +137,11 @@ func TestAccCCENodePool_data_volume_encryption(t *testing.T) {
 		CheckDestroy:      testAccCheckCCENodePoolDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCENodePool_data_volume_encryption(rName),
+				Config: testAccCCENodePool_volume_encryption(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCENodePoolExists(resourceName, clusterName, &nodePool),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttrSet(resourceName, "root_volume.0.kms_key_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "data_volumes.0.kms_key_id"),
 				),
 			},
@@ -419,7 +420,7 @@ resource "huaweicloud_cce_node_pool" "test" {
 `, testAccCCENodePool_Base(rName), rName)
 }
 
-func testAccCCENodePool_data_volume_encryption(rName string) string {
+func testAccCCENodePool_volume_encryption(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -446,6 +447,7 @@ resource "huaweicloud_cce_node_pool" "test" {
   root_volume {
     size       = 40
     volumetype = "SSD"
+    kms_key_id = huaweicloud_kms_key.test.id
   }
   data_volumes {
     size       = 100

@@ -119,6 +119,12 @@ func ResourceCCENodeV3() *schema.Resource {
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
+						"kms_key_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
+						},
 					}},
 			},
 			"data_volumes": {
@@ -507,7 +513,16 @@ func resourceCCERootVolume(d *schema.ResourceData) nodes.VolumeSpec {
 		root.VolumeType = rawMap["volumetype"].(string)
 		root.HwPassthrough = rawMap["hw_passthrough"].(bool)
 		root.ExtendParam = rawMap["extend_params"].(map[string]interface{})
+
+		if rawMap["kms_key_id"].(string) != "" {
+			metadata := nodes.VolumeMetadata{
+				SystemEncrypted: "1",
+				SystemCmkid:     rawMap["kms_key_id"].(string),
+			}
+			root.Metadata = &metadata
+		}
 	}
+
 	return root
 }
 
@@ -901,6 +916,9 @@ func resourceCCENodeV3Read(_ context.Context, d *schema.ResourceData, meta inter
 			"extend_params":  s.Spec.RootVolume.ExtendParam,
 			"extend_param":   "",
 		},
+	}
+	if s.Spec.RootVolume.Metadata != nil {
+		rootVolume[0]["kms_key_id"] = s.Spec.RootVolume.Metadata.SystemCmkid
 	}
 	mErr = multierror.Append(mErr, d.Set("root_volume", rootVolume))
 
