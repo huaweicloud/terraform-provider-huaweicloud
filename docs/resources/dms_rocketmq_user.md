@@ -8,7 +8,7 @@ Manages DMS RocketMQ user resources within HuaweiCloud.
 
 ## Example Usage
 
-```HCL
+```hcl
 variable "instance_id" {}
 
 resource "huaweicloud_dms_rocketmq_user" "test" {
@@ -19,8 +19,16 @@ resource "huaweicloud_dms_rocketmq_user" "test" {
   admin                = false
   default_topic_perm   = "PUB"
   default_group_perm   = "PUB"
-  topic_perms          = [{name = "topic_name", perm = "PUB"}]
-  group_perms          = [{name = "group_name", perm = "PUB"}]
+  
+  topic_perms {
+    name = "topic_name"
+    perm = "PUB"
+  }
+  
+  group_perms {
+    name = "group_name"
+    perm = "PUB"
+  }
 }
 ```
 
@@ -75,5 +83,5 @@ In addition to all arguments above, the following attributes are exported:
 The rocketmq user can be imported using the rocketMQ instance ID and user access key separated by a slash, e.g.
 
 ```
-$ terraform import huaweicloud_dms_rocketmq_user.test c8057fe5-23a8-46ef-ad83-c0055b4e0c5c/user_serurity_key
+$ terraform import huaweicloud_dms_rocketmq_user.test c8057fe5-23a8-46ef-ad83-c0055b4e0c5c/access_key
 ```

@@ -3,11 +3,13 @@ package dms
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -44,12 +46,18 @@ func ResourceDmsRocketMQUser() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `Specifies the access key of the user.`,
+				ValidateFunc: validation.All(
+					validation.StringMatch(regexp.MustCompile(`^[A-Za-z]*$`),
+						"Only support letters"),
+					validation.StringLenBetween(7, 64),
+				),
 			},
 			"secret_key": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Specifies the secret key of the user.`,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				Description:  `Specifies the secret key of the user.`,
+				ValidateFunc: validation.StringLenBetween(8, 32),
 			},
 			"white_remote_address": {
 				Type:        schema.TypeString,
@@ -204,7 +212,7 @@ func resourceDmsRocketMQUserUpdate(ctx context.Context, d *schema.ResourceData, 
 
 		parts := strings.SplitN(d.Id(), "/", 2)
 		if len(parts) != 2 {
-			return diag.Errorf("invalid id format, must be <instance_id>/<user>")
+			return diag.Errorf("invalid id format, must be <instance_id>/<access_key>")
 		}
 		instanceID := parts[0]
 		user := parts[1]
@@ -276,7 +284,7 @@ func resourceDmsRocketMQUserRead(ctx context.Context, d *schema.ResourceData, me
 
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		return diag.Errorf("invalid id format, must be <instance_id>/<user>")
+		return diag.Errorf("invalid id format, must be <instance_id>/<access_key>")
 	}
 	instanceID := parts[0]
 	user := parts[1]
@@ -356,7 +364,7 @@ func resourceDmsRocketMQUserDelete(ctx context.Context, d *schema.ResourceData, 
 
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		return diag.Errorf("invalid id format, must be <instance_id>/<user>")
+		return diag.Errorf("invalid id format, must be <instance_id>/<access_key>")
 	}
 	instanceID := parts[0]
 	user := parts[1]
