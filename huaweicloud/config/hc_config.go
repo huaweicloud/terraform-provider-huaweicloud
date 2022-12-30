@@ -300,7 +300,15 @@ func NewHcClient(c *Config, region, product string, globalFlag bool) (*core.HcHt
 		builder.WithCredential(credentials)
 	}
 
-	return builder.Build(), nil
+	headers := make(map[string]string)
+	customUserAgent := os.Getenv("HW_TF_CUSTOM_UA")
+	if customUserAgent != "" {
+		headers["User-Agent"] = fmt.Sprintf("%s;%s", providerUserAgent, customUserAgent)
+	} else {
+		headers["User-Agent"] = providerUserAgent
+	}
+
+	return builder.Build().PreInvoke(headers), nil
 }
 
 func getProxyFromEnv() string {

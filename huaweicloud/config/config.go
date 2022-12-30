@@ -20,7 +20,7 @@ import (
 )
 
 const (
-	userAgent string = "terraform-provider-iac"
+	providerUserAgent string = "terraform-provider-iac"
 )
 
 // MutexKV is a global lock on all resources, it can lock the specified shared string (such as resource ID, resource
@@ -170,12 +170,8 @@ func (c *Config) ObjectStorageClientWithSignature(region string) (*obs.ObsClient
 		return nil, fmt.Errorf("missing credentials for OBS, need access_key and secret_key values for provider")
 	}
 
-	var agent string = userAgent
-	if customUserAgent := os.Getenv("HW_TF_CUSTOM_UA"); len(customUserAgent) > 0 {
-		agent = fmt.Sprintf("%s %s", customUserAgent, userAgent)
-	}
 	clientConfigure := obs.WithHttpClient(&c.DomainClient.HTTPClient)
-	userAgentConfigure := obs.WithUserAgent(agent)
+	userAgentConfigure := obs.WithUserAgent(buildObsUserAgent())
 	obsEndpoint := getObsEndpoint(c, region)
 	if c.SecurityToken != "" {
 		return obs.New(c.AccessKey, c.SecretKey, obsEndpoint,
@@ -203,18 +199,23 @@ func (c *Config) ObjectStorageClient(region string) (*obs.ObsClient, error) {
 		}
 	}
 
-	var agent string = userAgent
-	if customUserAgent := os.Getenv("HW_TF_CUSTOM_UA"); len(customUserAgent) > 0 {
-		agent = fmt.Sprintf("%s %s", customUserAgent, userAgent)
-	}
 	clientConfigure := obs.WithHttpClient(&c.DomainClient.HTTPClient)
-	userAgentConfigure := obs.WithUserAgent(agent)
+	userAgentConfigure := obs.WithUserAgent(buildObsUserAgent())
 	obsEndpoint := getObsEndpoint(c, region)
 	if c.SecurityToken != "" {
 		return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSecurityToken(c.SecurityToken), clientConfigure,
 			userAgentConfigure)
 	}
 	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, clientConfigure, userAgentConfigure)
+}
+
+func buildObsUserAgent() string {
+	var agent string = providerUserAgent
+	if customUserAgent := os.Getenv("HW_TF_CUSTOM_UA"); customUserAgent != "" {
+		agent = fmt.Sprintf("%s %s", customUserAgent, providerUserAgent)
+	}
+
+	return agent
 }
 
 // NewServiceClient create a ServiceClient which was assembled from ServiceCatalog.
