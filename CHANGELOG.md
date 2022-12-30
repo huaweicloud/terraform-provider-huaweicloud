@@ -1,5 +1,36 @@
 # CHANGELOG
 
+## 1.44.0 (December 30, 2021)
+
+* **New Resurce:**
+  + `huaweicloud_ga_accelerator` [GH-2545]
+  + `huaweicloud_ga_listener` [GH-2571]
+  + `huaweicloud_ga_endpoint_group` [GH-2584]
+  + `huaweicloud_ga_health_check` [GH-2596]
+  + `huaweicloud_dms_rocketmq_consumer_group` [GH-2572]
+  + `huaweicloud_dms_rocketmq_topic` [GH-2573]
+  + `huaweicloud_dc_virtual_gateway` [GH-2575]
+  + `huaweicloud_dc_virtual_interface` [GH-2583]
+  + `huaweicloud_cfw_protection_rule` [GH-2585]
+  + `huaweicloud_dsc_instance` [GH-2587]
+  + `huaweicloud_dsc_asset_obs` [GH-2599]
+  + `huaweicloud_cbh_instance` [GH-2588]
+  + `huaweicloud_hss_host_group` [GH-2590]
+  + `huaweicloud_dbss_instance` [GH-2593]
+  + `huaweicloud_waf_cloud_instance` [GH-2601]
+
+* **New Data Source:**
+  + `huaweicloud_cfw_firewalls` [GH-2585]
+  + `huaweicloud_cbh_instances` [GH-2588]
+  + `huaweicloud_compute_servergroups` [GH-2591]
+  + `huaweicloud_dds_instances` [GH-2594]
+  + `huaweicloud_dcs_instances` [GH-2595]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_servicestage_component_instance: Add `secret_name` for the storage of the secret storge type [GH-2570]
+* resource/huaweicloud_cce_node: Support encrypt the root volume with kms key [GH-2602]
+
 ## 1.43.0 (November 30, 2022)
 
 * **New Resurce:**
