@@ -409,6 +409,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_product":         dms.DataSourceDmsProduct(),
 			"huaweicloud_dms_maintainwindow":  dms.DataSourceDmsMaintainWindow(),
 
+			"huaweicloud_dms_rocketmq_topic_user": dms.DataSourceDmsRocketMQTopicUser(),
+
 			"huaweicloud_enterprise_project": eps.DataSourceEnterpriseProject(),
 
 			"huaweicloud_er_route_tables": er.DataSourceRouteTables(),
