@@ -3,7 +3,7 @@
 ## 1.44.0 (December 30, 2021)
 
 * **New Resurce:**
-  + `huaweicloud_ga_accelerator` [GH-2545]
+  + `huaweicloud_ga_accelerator` [GH-254x]
   + `huaweicloud_ga_listener` [GH-2571]
   + `huaweicloud_ga_endpoint_group` [GH-2584]
   + `huaweicloud_ga_health_check` [GH-2596]
