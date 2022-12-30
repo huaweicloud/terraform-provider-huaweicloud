@@ -20,6 +20,7 @@ import (
 	cssv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1"
 	cssv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v2"
 	ctsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3"
+	hssv5 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5"
 	iamv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3"
 	iotdav5 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5"
 	dmsv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kafka/v2"
@@ -275,6 +276,15 @@ func (c *Config) HcDmsV2Client(region string) (*dmsv2.KafkaClient, error) {
 		return nil, err
 	}
 	return dmsv2.NewKafkaClient(hcClient), nil
+}
+
+// HcHssV5Client is the HSS service client using huaweicloud-sdk-go-v3 package
+func (c *Config) HcHssV5Client(region string) (*hssv5.HssClient, error) {
+	hcClient, err := NewHcClient(c, region, "hss", false)
+	if err != nil {
+		return nil, err
+	}
+	return hssv5.NewHssClient(hcClient), nil
 }
 
 // NewHcClient is the common client using huaweicloud-sdk-go-v3 package
