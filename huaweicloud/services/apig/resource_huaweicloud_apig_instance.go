@@ -114,6 +114,7 @@ func ResourceApigInstanceV2() *schema.Resource {
 			"availability_zones": {
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				ForceNew:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `schema: Required; The name list of availability zones for the dedicated instance.`,
@@ -138,12 +139,14 @@ func ResourceApigInstanceV2() *schema.Resource {
 			"bandwidth_size": {
 				Type:         schema.TypeInt,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.IntBetween(1, 2000),
 				Description:  `The egress bandwidth size of the dedicated instance.`,
 			},
 			"eip_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				Description: `The EIP ID associated with the dedicated instance.`,
 			},
 			"ipv6_enable": {
