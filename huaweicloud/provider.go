@@ -25,6 +25,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cdm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cdn"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ces"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cfw"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cloudtable"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cmdb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/codehub"
@@ -384,6 +385,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cdn_domain_statistics": cdn.DataSourceStatistics(),
 
+			"huaweicloud_cfw_firewalls":        cfw.DataSourceFirewalls(),
 			"huaweicloud_compute_flavors":      ecs.DataSourceEcsFlavors(),
 			"huaweicloud_compute_instance":     ecs.DataSourceComputeInstance(),
 			"huaweicloud_compute_instances":    ecs.DataSourceComputeInstances(),
@@ -632,8 +634,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdm_job":     cdm.ResourceCdmJob(),
 			"huaweicloud_cdm_link":    cdm.ResourceCdmLink(),
 
-			"huaweicloud_cdn_domain":         resourceCdnDomainV1(),
-			"huaweicloud_ces_alarmrule":      ces.ResourceAlarmRule(),
+			"huaweicloud_cdn_domain":    resourceCdnDomainV1(),
+			"huaweicloud_ces_alarmrule": ces.ResourceAlarmRule(),
+
+			"huaweicloud_cfw_protection_rule": cfw.ResourceProtectionRule(),
+
 			"huaweicloud_cloudtable_cluster": cloudtable.ResourceCloudTableCluster(),
 
 			"huaweicloud_codehub_repository": codehub.ResourceRepository(),
