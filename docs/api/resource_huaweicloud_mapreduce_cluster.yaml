@@ -7,6 +7,7 @@ schemes:
 host: huaweicloud.com
 tags:
   - name: MRS
+  - name: EIP
 paths:
   /v1.1/{project_id}/cluster_infos/{id}:
     get:
