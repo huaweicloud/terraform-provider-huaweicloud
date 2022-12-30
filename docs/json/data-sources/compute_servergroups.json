@@ -2,13 +2,9 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_servicestage_component_runtimes": {
+        "huaweicloud_compute_servergroups": {
           "block": {
             "attributes": {
-              "default_port": {
-                "type": "number",
-                "optional": true
-              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -20,15 +16,22 @@
               "region": {
                 "type": "string"
               },
-              "runtimes": {
+              "servergroups": {
                 "type": [
                   "list",
                   [
                     "object",
                     {
-                      "default_port": "number",
-                      "description": "string",
-                      "name": "string"
+                      "id": "string",
+                      "members": [
+                        "list",
+                        "string"
+                      ],
+                      "name": "string",
+                      "policies": [
+                        "list",
+                        "string"
+                      ]
                     }
                   ]
                 ],
@@ -37,11 +40,11 @@
             }
           },
           "product": {
-            "short": "ServiceStage",
-            "name": "ServiceStage",
-            "catalog": "CodeArts",
-            "name_cn": "应用管理与运维平台",
-            "catalog_cn": "软件开发生产线"
+            "short": "ECS",
+            "name": "Elastic Cloud Server",
+            "catalog": "Compute",
+            "name_cn": "弹性云服务器",
+            "catalog_cn": "计算"
           }
         }
       }

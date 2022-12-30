@@ -70,10 +70,10 @@
           },
           "product": {
             "short": "ProjectMan",
-            "name": "ProjectMan",
-            "catalog": "DevCloud",
-            "name_cn": "项目管理",
-            "catalog_cn": "软件开发服务"
+            "name": "CodeArts Req",
+            "catalog": "CodeArts",
+            "name_cn": "需求管理",
+            "catalog_cn": "软件开发生产线"
           }
         }
       }

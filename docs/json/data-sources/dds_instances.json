@@ -2,7 +2,7 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_gaussdb_cassandra_instances": {
+        "huaweicloud_dds_instances": {
           "block": {
             "attributes": {
               "id": {
@@ -15,7 +15,6 @@
                   [
                     "object",
                     {
-                      "availability_zone": "string",
                       "backup_strategy": [
                         "list",
                         [
@@ -31,55 +30,57 @@
                         [
                           "object",
                           {
-                            "engine": "string",
                             "storage_engine": "string",
+                            "type": "string",
                             "version": "string"
                           }
                         ]
                       ],
-                      "db_user_name": "string",
+                      "db_username": "string",
+                      "disk_encryption_id": "string",
                       "enterprise_project_id": "string",
-                      "flavor": "string",
                       "id": "string",
                       "mode": "string",
                       "name": "string",
-                      "node_num": "number",
                       "nodes": [
                         "list",
                         [
                           "object",
                           {
-                            "availability_zone": "string",
                             "id": "string",
                             "name": "string",
                             "private_ip": "string",
+                            "public_ip": "string",
+                            "role": "string",
                             "status": "string",
-                            "support_reduce": "bool"
+                            "type": "string"
                           }
                         ]
                       ],
                       "port": "number",
-                      "private_ips": [
-                        "list",
-                        "string"
-                      ],
-                      "region": "string",
                       "security_group_id": "string",
+                      "ssl": "bool",
                       "status": "string",
                       "subnet_id": "string",
                       "tags": [
                         "map",
                         "string"
                       ],
-                      "volume_size": "number",
                       "vpc_id": "string"
                     }
                   ]
                 ],
+                "description": "Indicates the list of DDS instances.",
                 "computed": true
+              },
+              "mode": {
+                "type": "string",
+                "description": "Specifies the mode of the database instance.",
+                "optional": true
               },
               "name": {
                 "type": "string",
+                "description": "Specifies the DB instance name.",
                 "optional": true
               },
               "region": {
@@ -88,19 +89,21 @@
               },
               "subnet_id": {
                 "type": "string",
+                "description": "Specifies the subnet Network ID.",
                 "optional": true
               },
               "vpc_id": {
                 "type": "string",
+                "description": "Specifies the VPC ID.",
                 "optional": true
               }
             }
           },
           "product": {
-            "short": "GaussDBforNoSQL",
-            "name": "GaussDB NoSQL",
+            "short": "DDS",
+            "name": "Document Database Service",
             "catalog": "Databases",
-            "name_cn": "云数据库 GaussDB NoSQL",
+            "name_cn": "文档数据库服务",
             "catalog_cn": "数据库"
           }
         }

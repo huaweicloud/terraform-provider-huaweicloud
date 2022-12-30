@@ -256,6 +256,12 @@
                       "optional": true,
                       "forcenew": true
                     },
+                    "kms_key_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
                     "size": {
                       "type": "number",
                       "required": true,

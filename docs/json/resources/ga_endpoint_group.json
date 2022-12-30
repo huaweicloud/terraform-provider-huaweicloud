@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ga_endpoint_group": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "Specifies when the endpoint group was created.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the information about the endpoint group.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the endpoint group name.",
+                "required": true
+              },
+              "region_id": {
+                "type": "string",
+                "description": "Specifies the region where the endpoint group belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the provisioning status.",
+                "computed": true
+              },
+              "traffic_dial_percentage": {
+                "type": "number",
+                "description": "Specifies the percentage of traffic distributed to the endpoint group.",
+                "optional": true,
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Specifies when the endpoint group was updated.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "listeners": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "description": "Specifies the ID of the associated listener.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the listeners associated with the endpoint group."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "GA",
+            "name": "Global Accelerator",
+            "catalog": "Networking",
+            "name_cn": "全球加速",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

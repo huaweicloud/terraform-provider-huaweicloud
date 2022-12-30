@@ -1,0 +1,81 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ga_health_check": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "Indicates when the health check was configured.",
+                "computed": true
+              },
+              "enabled": {
+                "type": "bool",
+                "description": "Specifies whether to enable health check.",
+                "required": true
+              },
+              "endpoint_group_id": {
+                "type": "string",
+                "description": "Specifies the endpoint group ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "interval": {
+                "type": "number",
+                "description": "Specifies the health check interval, in seconds.",
+                "required": true
+              },
+              "max_retries": {
+                "type": "number",
+                "description": "Specifies the maximum number of retries.",
+                "required": true
+              },
+              "port": {
+                "type": "number",
+                "description": "Specifies the port used for the health check.",
+                "required": true
+              },
+              "protocol": {
+                "type": "string",
+                "description": "Specifies the health check protocol.",
+                "optional": true,
+                "default": "TCP"
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the provisioning status.",
+                "computed": true
+              },
+              "timeout": {
+                "type": "number",
+                "description": "Specifies the timeout duration of the health check, in seconds.",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Indicates when the health check was updated. ",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GA",
+            "name": "Global Accelerator",
+            "catalog": "Networking",
+            "name_cn": "全球加速",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

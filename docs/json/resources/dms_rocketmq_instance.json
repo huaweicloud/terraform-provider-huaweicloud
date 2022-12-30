@@ -1,0 +1,225 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dms_rocketmq_instance": {
+          "block": {
+            "attributes": {
+              "availability_zones": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of availability zone names",
+                "required": true,
+                "forcenew": true
+              },
+              "broker_address": {
+                "type": "string",
+                "description": "Indicates the service data address.",
+                "computed": true
+              },
+              "broker_num": {
+                "type": "number",
+                "description": "Specifies the broker numbers.",
+                "optional": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the DMS RocketMQ instance.",
+                "optional": true,
+                "computed": true
+              },
+              "enable_acl": {
+                "type": "bool",
+                "description": "Specifies whether access control is enabled.",
+                "optional": true,
+                "computed": true
+              },
+              "enable_publicip": {
+                "type": "bool",
+                "description": "Specifies whether to enable public access.",
+                "optional": true,
+                "forcenew": true
+              },
+              "engine_version": {
+                "type": "string",
+                "description": "Specifies the version of the RocketMQ engine.",
+                "required": true,
+                "forcenew": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "description": "Specifies a product ID",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ipv6_enable": {
+                "type": "bool",
+                "description": "Specifies whether to support IPv6",
+                "optional": true,
+                "forcenew": true
+              },
+              "maintain_begin": {
+                "type": "string",
+                "description": "Indicates the time at which the maintenance window starts. The format is HH:mm:ss.",
+                "computed": true
+              },
+              "maintain_end": {
+                "type": "string",
+                "description": "Indicates the time at which the maintenance window ends. The format is HH:mm:ss.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the DMS RocketMQ instance",
+                "required": true
+              },
+              "namesrv_address": {
+                "type": "string",
+                "description": "Indicates the metadata address.",
+                "computed": true
+              },
+              "new_spec_billing_enable": {
+                "type": "bool",
+                "description": "Indicates whether billing based on new specifications is enabled.",
+                "computed": true
+              },
+              "node_num": {
+                "type": "number",
+                "description": "Indicates the node quantity.",
+                "computed": true
+              },
+              "public_broker_address": {
+                "type": "string",
+                "description": "Indicates the public network service data address.",
+                "computed": true
+              },
+              "public_namesrv_address": {
+                "type": "string",
+                "description": "Indicates the public network metadata address.",
+                "computed": true
+              },
+              "publicip_address": {
+                "type": "string",
+                "description": "Indicates the public IP address.",
+                "computed": true
+              },
+              "publicip_id": {
+                "type": "string",
+                "description": "Specifies the ID of the EIP bound to the instance.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_spec_code": {
+                "type": "string",
+                "description": "Indicates the resource specifications.",
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "description": "Specifies the ID of a security group",
+                "required": true
+              },
+              "specification": {
+                "type": "string",
+                "description": "Indicates the instance specification. For a cluster DMS RocketMQ instance, VM specifications\n  and the number of nodes are returned.",
+                "computed": true
+              },
+              "ssl_enable": {
+                "type": "bool",
+                "description": "Specifies whether the RocketMQ SASL_SSL is enabled.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the status of the DMS RocketMQ instance.",
+                "computed": true
+              },
+              "storage_space": {
+                "type": "number",
+                "description": "Specifies the message storage capacity, Unit: GB.",
+                "required": true,
+                "forcenew": true
+              },
+              "storage_spec_code": {
+                "type": "string",
+                "description": "Specifies the storage I/O specification",
+                "required": true,
+                "forcenew": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "Specifies the ID of a subnet",
+                "required": true,
+                "forcenew": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Indicates the DMS RocketMQ instance type. Value: cluster.",
+                "computed": true
+              },
+              "used_storage_space": {
+                "type": "number",
+                "description": "Indicates the used message storage space. Unit: GB.",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "Specifies the ID of a VPC",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "cross_vpc_accesses": {
+                "block": {
+                  "attributes": {
+                    "advertised_ip": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "lisenter_ip": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "port": {
+                      "type": "number",
+                      "computed": true
+                    },
+                    "port_id": {
+                      "type": "string",
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 3
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

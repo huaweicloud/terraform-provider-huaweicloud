@@ -1,0 +1,119 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ga_accelerator": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "Specifies when the global accelerator was created.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description about the global accelerator.",
+                "optional": true,
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "|-\n\t\t\t\t\tSpecifies the enterprise project ID of the tenant. The value is **0** or a string that\n\t\t\t\t\tcontains a maximum of 36 characters in UUID format with hyphens (-). **0** indicates the\n\t\t\t\t\tdefault enterprise project.",
+                "optional": true,
+                "forcenew": true,
+                "default": "0"
+              },
+              "flavor_id": {
+                "type": "string",
+                "description": "Specifies the specification ID.",
+                "computed": true
+              },
+              "frozen_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "effect": "number",
+                      "scene": [
+                        "list",
+                        "string"
+                      ],
+                      "status": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the frozen details of cloud services or resources.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the global accelerator name.",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "description": "|-\n\t\t\t\tSpecifies the provisioning status. The value can be one of the following:\n\t\t\t\t  - **ACTIVE**: The resource is running.\n\t\t\t\t  - **PENDING**: The status is to be determined.\n\t\t\t\t  - **ERROR**: Failed to create the resource.\n\t\t\t\t  - **DELETING**: The resource is being deleted.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Specifies when the global accelerator was updated.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "ip_sets": {
+                "block": {
+                  "attributes": {
+                    "area": {
+                      "type": "string",
+                      "description": "|-\n\t\t\t\t\tSpecifies the acceleration area. The value can be one of the following:\n\t\t\t\t\t  - **OUTOFCM**: Outside the Chinese mainland\n\t\t\t\t\t  - **CM**: Chinese mainland",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "ip_address": {
+                      "type": "string",
+                      "description": "Specifies the IP address.",
+                      "computed": true
+                    },
+                    "ip_type": {
+                      "type": "string",
+                      "description": "Specifies the IP address version.",
+                      "optional": true,
+                      "forcenew": true,
+                      "default": "IPV4"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "GA",
+            "name": "Global Accelerator",
+            "catalog": "Networking",
+            "name_cn": "全球加速",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

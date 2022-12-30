@@ -104,11 +104,6 @@
                       "optional": true,
                       "default": 5
                     },
-                    "max_reference_frames": {
-                      "type": "number",
-                      "optional": true,
-                      "default": 4
-                    },
                     "output_policy": {
                       "type": "string",
                       "optional": true,

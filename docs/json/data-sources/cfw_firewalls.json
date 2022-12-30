@@ -1,0 +1,97 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cfw_firewalls": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "charge_mode": "number",
+                      "engine_type": "number",
+                      "feature_toggle": [
+                        "map",
+                        "bool"
+                      ],
+                      "flavor": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "bandwidth": "number",
+                            "eip_count": "number",
+                            "log_storage": "number",
+                            "version": "number",
+                            "vpc_count": "number"
+                          }
+                        ]
+                      ],
+                      "fw_instance_id": "string",
+                      "ha_type": "number",
+                      "is_old_firewall_instance": "bool",
+                      "name": "string",
+                      "protect_objects": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "object_id": "string",
+                            "object_name": "string",
+                            "type": "number"
+                          }
+                        ]
+                      ],
+                      "resources": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cloud_service_type": "string",
+                            "resource_id": "string",
+                            "resource_size": "number",
+                            "resource_size_measure_id": "number",
+                            "resource_spec_code": "string",
+                            "resource_type": "string"
+                          }
+                        ]
+                      ],
+                      "service_type": "number",
+                      "status": "number",
+                      "support_ipv6": "bool"
+                    }
+                  ]
+                ],
+                "description": "The firewall instance records.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "service_type": {
+                "type": "number",
+                "description": "|-\n                    Service type\n                      0. North-south firewall\n                      1. East-west firewall",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -2,16 +2,20 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_cpts_project": {
+        "huaweicloud_dsc_asset_obs": {
           "block": {
             "attributes": {
-              "created_at": {
+              "bucket_name": {
                 "type": "string",
-                "computed": true
+                "description": "The bucket name.",
+                "required": true,
+                "forcenew": true
               },
-              "description": {
+              "bucket_policy": {
                 "type": "string",
-                "optional": true
+                "description": "The bucket policy.",
+                "required": true,
+                "forcenew": true
               },
               "id": {
                 "type": "string",
@@ -19,24 +23,21 @@
               },
               "name": {
                 "type": "string",
+                "description": "The name of asset.",
                 "required": true
               },
               "region": {
-                "type": "string",
-                "computed": true
-              },
-              "updated_at": {
                 "type": "string",
                 "computed": true
               }
             }
           },
           "product": {
-            "short": "CPTS",
-            "name": "Cloud Performance Test Service",
-            "catalog": "CodeArts",
-            "name_cn": "云性能测试服务",
-            "catalog_cn": "软件开发生产线"
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
           }
         }
       }

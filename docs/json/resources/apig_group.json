@@ -7,6 +7,7 @@
             "attributes": {
               "description": {
                 "type": "string",
+                "description": "The group description.",
                 "optional": true
               },
               "id": {
@@ -15,23 +16,28 @@
               },
               "instance_id": {
                 "type": "string",
+                "description": "The ID of the dedicated instance to which the group belongs.",
                 "required": true,
                 "forcenew": true
               },
               "name": {
                 "type": "string",
+                "description": "The group name.",
                 "required": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the dedicated instance is located.",
                 "computed": true
               },
-              "registraion_time": {
+              "registration_time": {
                 "type": "string",
+                "description": "The registration time.",
                 "computed": true
               },
-              "update_time": {
+              "updated_at": {
                 "type": "string",
+                "description": "The latest update time of the group.",
                 "computed": true
               }
             },
@@ -41,6 +47,7 @@
                   "attributes": {
                     "environment_id": {
                       "type": "string",
+                      "description": "The ID of the environment to which the variables belongs.",
                       "required": true
                     }
                   },
@@ -48,24 +55,29 @@
                     "variable": {
                       "block": {
                         "attributes": {
+                          "id": {
+                            "type": "string",
+                            "description": "The ID of the variable that the group has.",
+                            "computed": true
+                          },
                           "name": {
                             "type": "string",
+                            "description": "The variable name.",
                             "required": true
                           },
                           "value": {
                             "type": "string",
+                            "description": "The variable value.",
                             "required": true
-                          },
-                          "variable_id": {
-                            "type": "string",
-                            "computed": true
                           }
-                        }
+                        },
+                        "description": "The array of one or more environment variables."
                       },
                       "nesting_mode": "set",
                       "min_items": 1
                     }
-                  }
+                  },
+                  "description": "The array of one or more environments of the associated group."
                 },
                 "nesting_mode": "set"
               }

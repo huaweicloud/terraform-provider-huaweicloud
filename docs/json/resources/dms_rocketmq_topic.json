@@ -1,0 +1,92 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dms_rocketmq_topic": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the topic.",
+                "required": true,
+                "forcenew": true
+              },
+              "permission": {
+                "type": "string",
+                "description": "Specifies the permissions of the topic.",
+                "optional": true,
+                "computed": true
+              },
+              "queue_num": {
+                "type": "number",
+                "description": "Specifies the number of queues.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "total_read_queue_num": {
+                "type": "number",
+                "description": "Specifies the total number of read queues.",
+                "optional": true,
+                "computed": true
+              },
+              "total_write_queue_num": {
+                "type": "number",
+                "description": "Specifies the total number of write queues.",
+                "optional": true,
+                "computed": true
+              }
+            },
+            "block_types": {
+              "brokers": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "Indicates the name of the broker.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "read_queue_num": {
+                      "type": "number",
+                      "description": "Indicates the read queues number of the broker.",
+                      "computed": true
+                    },
+                    "write_queue_num": {
+                      "type": "number",
+                      "description": "Indicates the read queues number of the broker.",
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the list of associated brokers of the topic."
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

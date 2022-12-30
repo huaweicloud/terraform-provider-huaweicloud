@@ -5,12 +5,14 @@
         "huaweicloud_apig_environment": {
           "block": {
             "attributes": {
-              "create_time": {
+              "created_at": {
                 "type": "string",
+                "description": "The time when the environment was created.",
                 "computed": true
               },
               "description": {
                 "type": "string",
+                "description": "The environment description.",
                 "optional": true
               },
               "id": {
@@ -19,15 +21,18 @@
               },
               "instance_id": {
                 "type": "string",
+                "description": "The ID of the dedicated instance to which the environment belongs.",
                 "required": true,
                 "forcenew": true
               },
               "name": {
                 "type": "string",
+                "description": "The environment name.",
                 "required": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the dedicated instance is located.",
                 "computed": true
               }
             }
