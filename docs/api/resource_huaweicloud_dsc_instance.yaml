@@ -1,0 +1,23 @@
+info:
+    title: resource_huaweicloud_dsc_instance
+    description: 'Manages a DSC instance resource within HuaweiCloud.  '
+host: myhuaweicloud.com
+tags:
+    - name: DSC
+servers:
+    - url: https://sdg.myhuaweicloud.com
+paths:
+    /v1/{project_id}/period/order:
+        POST:
+            tag: DSC
+            operationId: CreateDscInstance
+            x-ref-api: POST /v1/{project_id}/period/order
+    /v1/{project_id}/period/product/specification:
+        DELETE:
+            tag: DSC
+            operationId: DeleteDscInstance
+            x-ref-api: DELETE /v1/{project_id}/period/product/specification
+        GET:
+            tag: DSC
+            operationId: GetDscInstance
+            x-ref-api: GET /v1/{project_id}/period/product/specification
