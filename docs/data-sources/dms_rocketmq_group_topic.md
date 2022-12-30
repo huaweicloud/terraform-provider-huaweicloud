@@ -8,9 +8,10 @@ Use this data source to get the list of DMS RocketMQ topics that associated with
 
 ## Example Usage
 
-```HCL
+```hcl
 variable "instance_id" {}
 variable "group" {}
+
 data "huaweicloud_dms_rocketmq_group_topic" "test" {
   instance_id = var.instance_id
   group       = var.group

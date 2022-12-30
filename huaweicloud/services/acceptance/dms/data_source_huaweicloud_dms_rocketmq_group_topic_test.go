@@ -2,7 +2,6 @@ package dms
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -22,7 +21,7 @@ func TestAccDatasourceDmsRocketMQGroupTopics_basic(t *testing.T) {
 				Config: testAccDatasourceDmsRocketMQGroupTopics_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestMatchResourceAttr(resourceName, "topics.#", regexp.MustCompile("[0-9]\\d*")),
+					resource.TestCheckResourceAttr(resourceName, "topics.#", "0"),
 				),
 			},
 		},
@@ -34,7 +33,7 @@ func testAccDatasourceDmsRocketMQGroupTopics_basic(name string) string {
 resource "huaweicloud_vpc" "test" {
   name        = "%[1]s"
   cidr        = "192.168.0.0/24"
-  description = "Test for DMS RocketMQ"
+  description = "test for DMS RocketMQ"
 }
 
 resource "huaweicloud_vpc_subnet" "test" {
@@ -76,8 +75,8 @@ resource "huaweicloud_dms_rocketmq_consumer_group" "test" {
     "broker-0"
   ]
 
-  name           = "%[1]s"
-  retry_max_time = "3"
+  name            = "%[1]s"
+  retry_max_times = "3"
 }
 
 data "huaweicloud_dms_rocketmq_group_topic" "test" {
