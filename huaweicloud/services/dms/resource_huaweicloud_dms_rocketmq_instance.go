@@ -3,7 +3,6 @@ package dms
 import (
 	"context"
 	"fmt"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"regexp"
 	"strings"
 	"time"
@@ -142,11 +141,11 @@ func ResourceDmsRocketMQInstance() *schema.Resource {
 				ForceNew:    true,
 				Description: `Specifies the broker numbers.`,
 			},
-			"retention_policy": {
+			"enable_acl": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Computed:    true,
-				Description: `Specifies the ACL access control.`,
+				Description: `Specifies whether access control is enabled.`,
 			},
 			"cross_vpc_accesses": {
 				Type:     schema.TypeList,
@@ -221,11 +220,6 @@ func ResourceDmsRocketMQInstance() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates whether billing based on new specifications is enabled.`,
 			},
-			"enable_acl": {
-				Type:        schema.TypeBool,
-				Computed:    true,
-				Description: `Indicates whether access control is enabled.`,
-			},
 			"namesrv_address": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -270,7 +264,8 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	createRocketmqInstancePath := createRocketmqInstanceClient.Endpoint + createRocketmqInstanceHttpUrl
-	createRocketmqInstancePath = strings.ReplaceAll(createRocketmqInstancePath, "{project_id}", createRocketmqInstanceClient.ProjectID)
+	createRocketmqInstancePath = strings.ReplaceAll(createRocketmqInstancePath, "{project_id}",
+		createRocketmqInstanceClient.ProjectID)
 
 	createRocketmqInstanceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -291,7 +286,8 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 		}
 	}
 	createRocketmqInstanceOpt.JSONBody = utils.RemoveNil(buildCreateRocketmqInstanceBodyParams(d, config, availableZones))
-	createRocketmqInstanceResp, err := createRocketmqInstanceClient.Request("POST", createRocketmqInstancePath, &createRocketmqInstanceOpt)
+	createRocketmqInstanceResp, err := createRocketmqInstanceClient.Request("POST", createRocketmqInstancePath,
+		&createRocketmqInstanceOpt)
 	if err != nil {
 		return diag.Errorf("error creating DmsRocketMQInstance: %s", err)
 	}
@@ -329,7 +325,48 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 		}
 	}
 
+	if v, ok := d.GetOk("enable_acl"); ok {
+		err := updateEnableAcl(config, region, id.(string), v.(bool))
+		if err != nil {
+			return err
+		}
+	}
 	return resourceDmsRocketMQInstanceRead(ctx, d, meta)
+}
+
+func updateEnableAcl(config *config.Config, region, id string, enableAcl bool) diag.Diagnostics {
+	var (
+		updateRocketmqInstanceHttpUrl = "v2/{project_id}/instances/{instance_id}"
+		updateRocketmqInstanceProduct = "dms"
+	)
+	updateRocketmqInstanceClient, err := config.NewServiceClient(updateRocketmqInstanceProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating DmsRocketMQInstance Client: %s", err)
+	}
+
+	updateRocketmqInstancePath := updateRocketmqInstanceClient.Endpoint + updateRocketmqInstanceHttpUrl
+	updateRocketmqInstancePath = strings.ReplaceAll(updateRocketmqInstancePath, "{project_id}",
+		updateRocketmqInstanceClient.ProjectID)
+	updateRocketmqInstancePath = strings.ReplaceAll(updateRocketmqInstancePath, "{instance_id}", id)
+
+	updateRocketmqInstanceOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+	}
+	updateRocketmqInstanceOpt.JSONBody = utils.RemoveNil(buildUpdateEnableAclBodyParams(enableAcl))
+	_, err = updateRocketmqInstanceClient.Request("PUT", updateRocketmqInstancePath, &updateRocketmqInstanceOpt)
+	if err != nil {
+		return diag.Errorf("error open DmsRocketMQInstance ACL: %s", err)
+	}
+	return nil
+}
+
+func buildUpdateEnableAclBodyParams(enableAcl bool) map[string]interface{} {
+	return map[string]interface{}{
+		"enable_acl": enableAcl,
+	}
 }
 
 func buildCreateRocketmqInstanceBodyParams(d *schema.ResourceData, config *config.Config,
@@ -363,7 +400,7 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 		"name",
 		"description",
 		"security_group_id",
-		"retention_policy",
+		"enable_acl",
 		"cross_vpc_accesses",
 	}
 
@@ -406,7 +443,7 @@ func buildUpdateRocketmqInstanceBodyParams(d *schema.ResourceData, config *confi
 	bodyParams := map[string]interface{}{
 		"description":       utils.ValueIngoreEmpty(d.Get("description")),
 		"security_group_id": utils.ValueIngoreEmpty(d.Get("security_group_id")),
-		"retention_policy":  utils.ValueIngoreEmpty(d.Get("retention_policy")),
+		"enable_acl":        utils.ValueIngoreEmpty(d.Get("enable_acl")),
 	}
 	if d.HasChange("name") {
 		bodyParams["name"] = utils.ValueIngoreEmpty(d.Get("name"))
@@ -551,8 +588,7 @@ func resourceDmsRocketMQInstanceDelete(ctx context.Context, d *schema.ResourceDa
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf(
-			"error waiting for instance (%s) to delete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for instance (%s) to delete: %s", d.Id(), err)
 	}
 
 	d.SetId("")

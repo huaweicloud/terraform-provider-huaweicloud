@@ -67,14 +67,16 @@ func TestAccDmsRocketMQInstance_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "engine_version", "4.8.0"),
+					resource.TestCheckResourceAttr(resourceName, "enable_acl", "true"),
 				),
 			},
 			{
-				Config: testDmsRocketMQInstance_basic(rName, updateName),
+				Config: testDmsRocketMQInstance_update(rName, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "engine_version", "4.8.0"),
+					resource.TestCheckResourceAttr(resourceName, "enable_acl", "false"),
 				),
 			},
 			{
@@ -115,18 +117,45 @@ func testDmsRocketMQInstance_basic(rName, updateName string) string {
 %s
 
 resource "huaweicloud_dms_rocketmq_instance" "test" {
-  name                = "%s"
-  engine_version      = "4.8.0"
-  storage_space       = 600
-  vpc_id              = huaweicloud_vpc.test.id
-  subnet_id           = huaweicloud_vpc_subnet.test.id
-  security_group_id   = huaweicloud_networking_secgroup.test.id
-  availability_zones  = [
+  name              = "%s"
+  engine_version    = "4.8.0"
+  storage_space     = 600
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  availability_zones = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
-  flavor_id           = "c6.4u8g.cluster"
-  storage_spec_code   = "dms.physical.storage.high.v2"
-  broker_num          = 1
+
+  flavor_id         = "c6.4u8g.cluster"
+  storage_spec_code = "dms.physical.storage.high.v2"
+  broker_num        = 1
+  enable_acl        = true
 }
 `, testAccDmsRocketmqInstance_Base(rName), updateName)
+}
+
+func testDmsRocketMQInstance_update(rName, name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_dms_rocketmq_instance" "test" {
+  name              = "%s"
+  engine_version    = "4.8.0"
+  storage_space     = 600
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  flavor_id         = "c6.4u8g.cluster"
+  storage_spec_code = "dms.physical.storage.high.v2"
+  broker_num        = 1
+  enable_acl        = false
+}
+`, testAccDmsRocketmqInstance_Base(rName), name)
 }

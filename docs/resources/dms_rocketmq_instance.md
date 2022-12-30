@@ -17,16 +17,16 @@ variable "availability_zones" {
 }
 
 resource "huaweicloud_dms_rocketmq_instance" "test" {
-  name                = "rocketmq_name_test"
-  description         = "this is a rocketmq instance"
-  engine_version      = "4.8.0"
-  storage_space       = 300
-  vpc_id              = var.vpc_id
-  subnet_id           = var.subnet_id
-  security_group_id   = var.security_group_id
-  availability_zones  = var.availability_zones
+  name               = "rocketmq_name_test"
+  description        = "this is a rocketmq instance"
+  engine_version     = "4.8.0"
+  storage_space      = 300
+  vpc_id             = var.vpc_id
+  subnet_id          = var.subnet_id
+  security_group_id  = var.security_group_id
+  availability_zones = var.availability_zones
   flavor_id          = "c6.4u8g.cluster"
-  storage_spec_code   = "dms.physical.storage.high.v2"
+  storage_spec_code  = "dms.physical.storage.high.v2"
 }
 ```
 
@@ -99,7 +99,7 @@ The following arguments are supported:
 * `broker_num` - (Optional, Int, ForceNew) Specifies the broker numbers. Defaults to 1.
   Changing this parameter will create a new resource.
 
-* `retention_policy` - (Optional, Bool) Specifies the ACL access control.
+* `enable_acl` - (Optional, Bool) Specifies whether access control is enabled.
 
 ## Attributes Reference
 
@@ -127,8 +127,6 @@ In addition to all arguments above, the following attributes are exported:
 * `node_num` - Indicates the node quantity.
 
 * `new_spec_billing_enable` - Indicates whether billing based on new specifications is enabled.
-
-* `enable_acl` - Indicates whether access control is enabled.
 
 * `namesrv_address` - Indicates the metadata address.
 
