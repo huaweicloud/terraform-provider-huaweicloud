@@ -692,6 +692,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Product: "ProjectMan",
 	},
 
+	// catalog for Data Security Center
+	"dsc": {
+		Name:    "sdg",
+		Product: "DSC",
+	},
+
 	// catalog for Joint-Operation Cloud only
 	// it should be at the end of this map, and no necessary to put the key into allServiceCatalog
 	"mls": {
