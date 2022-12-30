@@ -245,6 +245,13 @@ func ResourceDmsRocketMQInstance() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates the resource specifications.`,
 			},
+			"retention_policy": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies whether access control is enabled.`,
+				Deprecated:  "Use 'enable_acl' instead",
+			},
 		},
 	}
 }
@@ -325,54 +332,14 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 		}
 	}
 
-	if v, ok := d.GetOk("enable_acl"); ok {
-		err := updateEnableAcl(config, region, id.(string), v.(bool))
-		if err != nil {
-			return err
-		}
-	}
 	return resourceDmsRocketMQInstanceRead(ctx, d, meta)
-}
-
-func updateEnableAcl(config *config.Config, region, id string, enableAcl bool) diag.Diagnostics {
-	var (
-		updateRocketmqInstanceHttpUrl = "v2/{project_id}/instances/{instance_id}"
-		updateRocketmqInstanceProduct = "dms"
-	)
-	updateRocketmqInstanceClient, err := config.NewServiceClient(updateRocketmqInstanceProduct, region)
-	if err != nil {
-		return diag.Errorf("error creating DmsRocketMQInstance Client: %s", err)
-	}
-
-	updateRocketmqInstancePath := updateRocketmqInstanceClient.Endpoint + updateRocketmqInstanceHttpUrl
-	updateRocketmqInstancePath = strings.ReplaceAll(updateRocketmqInstancePath, "{project_id}",
-		updateRocketmqInstanceClient.ProjectID)
-	updateRocketmqInstancePath = strings.ReplaceAll(updateRocketmqInstancePath, "{instance_id}", id)
-
-	updateRocketmqInstanceOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			204,
-		},
-	}
-	updateRocketmqInstanceOpt.JSONBody = utils.RemoveNil(buildUpdateEnableAclBodyParams(enableAcl))
-	_, err = updateRocketmqInstanceClient.Request("PUT", updateRocketmqInstancePath, &updateRocketmqInstanceOpt)
-	if err != nil {
-		return diag.Errorf("error open DmsRocketMQInstance ACL: %s", err)
-	}
-	return nil
-}
-
-func buildUpdateEnableAclBodyParams(enableAcl bool) map[string]interface{} {
-	return map[string]interface{}{
-		"enable_acl": enableAcl,
-	}
 }
 
 func buildCreateRocketmqInstanceBodyParams(d *schema.ResourceData, config *config.Config,
 	availableZones []string) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name":              utils.ValueIngoreEmpty(d.Get("name")),
+		"enable_acl":        utils.ValueIngoreEmpty(d.Get("enable_acl")),
 		"description":       utils.ValueIngoreEmpty(d.Get("description")),
 		"engine":            "reliability",
 		"engine_version":    utils.ValueIngoreEmpty(d.Get("engine_version")),
@@ -400,6 +367,7 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 		"name",
 		"description",
 		"security_group_id",
+		"retention_policy",
 		"enable_acl",
 		"cross_vpc_accesses",
 	}
@@ -443,8 +411,14 @@ func buildUpdateRocketmqInstanceBodyParams(d *schema.ResourceData, config *confi
 	bodyParams := map[string]interface{}{
 		"description":       utils.ValueIngoreEmpty(d.Get("description")),
 		"security_group_id": utils.ValueIngoreEmpty(d.Get("security_group_id")),
-		"enable_acl":        utils.ValueIngoreEmpty(d.Get("enable_acl")),
 	}
+
+	if d.HasChange("enable_acl") {
+		bodyParams["enable_acl"] = utils.ValueIngoreEmpty(d.Get("enable_acl"))
+	} else if d.HasChange("retention_policy") {
+		bodyParams["enable_acl"] = utils.ValueIngoreEmpty(d.Get("retention_policy"))
+	}
+
 	if d.HasChange("name") {
 		bodyParams["name"] = utils.ValueIngoreEmpty(d.Get("name"))
 	}
