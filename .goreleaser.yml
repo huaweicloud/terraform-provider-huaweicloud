@@ -49,7 +49,8 @@ signs:
       - "--detach-sign"
       - "${artifact}"
 release:
+  # If set to true, will not auto-publish the release.
   # Visit your project's GitHub Releases page to publish this release.
-  draft: true
+  draft: false
 changelog:
   skip: true
