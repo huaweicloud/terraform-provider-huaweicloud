@@ -69,12 +69,11 @@ func ResourceVirtualGateway() *schema.Resource {
 				Description: "The description of the virtual gateway.",
 			},
 			"asn": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IntBetween(1, 4294967295),
-				Description:  "The local BGP ASN of the virtual gateway.",
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "The local BGP ASN of the virtual gateway.",
 			},
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
