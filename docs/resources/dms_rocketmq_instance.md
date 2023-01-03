@@ -8,7 +8,7 @@ Manage DMS RocketMQ instance resources within HuaweiCloud.
 
 ## Example Usage
 
-```HCL
+```hcl
 variable "vpc_id" {}
 variable "subnet_id" {}
 variable "security_group_id" {}
