@@ -253,12 +253,12 @@ In addition to all arguments above, the following attributes are exported:
 * `user_id` - Indicates the ID of the user who created the DMS kafka instance
 * `user_name` - Indicates the name of the user who created the DMS kafka instance
 * `connect_address` - Indicates the IP address of the DMS kafka instance.
-* `manegement_connect_address` - Indicates the connection address of the Kafka Manager of a Kafka instance.
+* `management_connect_address` - Indicates the connection address of the Kafka Manager of a Kafka instance.
 * `cross_vpc_accesses` - Indicates the Access information of cross-VPC. The structure is documented below.
 
 The `cross_vpc_accesses` block supports:
 
-* `lisenter_ip` - The listener IP address.
+* `listener_ip` - The listener IP address.
 * `port` - The port number.
 * `port_id` - The port ID associated with the address.
 
