@@ -14,9 +14,9 @@ variable "group_id" {}
 variable "response_name" {}
 
 resource "huaweicloud_apig_response" "test" {
-  name        = var.response_name
   instance_id = var.instance_id
   group_id    = var.group_id
+  name        = var.response_name
 
   rule {
     error_type  = "AUTHORIZER_FAILURE"
@@ -30,24 +30,27 @@ resource "huaweicloud_apig_response" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to create the API custom response resource. If
-  omitted, the provider-level region will be used. Changing this will create a new API custom response resource.
+* `region` - (Optional, String, ForceNew) Specifies the region where the API custom response is located.  
+  If omitted, the provider-level region will be used. Changing this will create a new resource.
 
-* `group_id` - (Required, String, ForceNew) Specifies the ID of the API group to which the API response belongs to.
-  Changing this will create a new API custom response resource.
+* `instance_id` - (Required, String, ForceNew) Specifies the ID of the dedicated instance to which the API group and the
+  API custom response belong.  
+  Changing this will create a new resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the ID of the APIG dedicated instance to which the API group
-  where the API custom response belongs. Changing this will create a new API custom response resource.
+* `group_id` - (Required, String, ForceNew) Specifies the ID of the API group to which the API custom response
+  belongs.  
+  Changing this will create a new resource.
 
-* `name` - (Required, String) Specifies the name of the API custom response. The name consists of 1 to 64 characters,
-  and only letters, digits, hyphens(-), and underscores (_) are allowed.
+* `name` - (Required, String) Specifies the name of the API custom response.  
+  The valid length is limited from `1` to `64`, letters, digits, hyphens (-) and underscores (_) are allowed.
 
-* `rule` - (Optional, List) Specifies the API custom response rules definition. The object structure is documented
-  below.
+* `rule` - (Optional, List) Specifies the API custom response rules definition.  
+  The [object](#custom_response_rule) structure is documented below.
 
+<a name="custom_response_rule"></a>
 The `rule` block supports:
 
-* `error_type` - (Required, String) Specifies the type of the API custom response rule.
+* `error_type` - (Required, String) Specifies the error type of the API response rule.
   + **AUTH_FAILURE**: Authentication failed.
   + **AUTH_HEADER_MISSING**: The identity source is missing.
   + **AUTHORIZER_FAILURE**: Custom authentication failed.
@@ -73,14 +76,14 @@ The `rule` block supports:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - ID of the API custom response.
-* `create_time` - Time when the API custom response is created.
-* `update_time` - Time when the API custom response was last modified.
+* `created_at` - The creation time of the API custom response.
+* `updated_at` - The latest update time of the API custom response.
 
 ## Import
 
 API Responses can be imported using their `name` and IDs of the APIG dedicated instances and API groups to which the API
-response belongs, separated by a slash, e.g.
+response belongs, separated by slashes, e.g.
 
-```
-$ terraform import huaweicloud_apig_response.test <instance id>/<group id>/<name>
+```shell
+$ terraform import huaweicloud_apig_response.test <instance_id>/<group_id>/<name>
 ```
