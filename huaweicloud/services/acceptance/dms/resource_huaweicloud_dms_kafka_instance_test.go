@@ -273,7 +273,7 @@ func testAccKafkaInstance_update(rName, updateName string) string {
 data "huaweicloud_dms_product" "test" {
   engine            = "kafka"
   instance_type     = "cluster"
-  version           = "2.3.0"
+  version           = "2.7"
   bandwidth         = "300MB"
   storage_spec_code = "dms.physical.storage.ultra"
 }

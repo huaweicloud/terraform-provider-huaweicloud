@@ -187,14 +187,14 @@ resource "huaweicloud_networking_secgroup" "test" {
 data "huaweicloud_dms_product" "test1" {
   engine        = "rabbitmq"
   instance_type = "cluster"
-  version       = "3.7.17"
+  version       = "3.8.35"
   node_num      = 3
 }
 
 data "huaweicloud_dms_product" "test2" {
   engine        = "rabbitmq"
   instance_type = "cluster"
-  version       = "3.7.17"
+  version       = "3.8.35"
   node_num      = 5
 }
 
@@ -334,7 +334,7 @@ func testAccDmsRabbitmqInstance_single(rName string) string {
 data "huaweicloud_dms_product" "single" {
   engine           = "rabbitmq"
   instance_type    = "single"
-  version          = "3.7.17"
+  version          = "3.8.35"
   node_num         = 1
 }
 
