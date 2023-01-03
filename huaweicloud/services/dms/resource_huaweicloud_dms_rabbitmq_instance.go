@@ -240,9 +240,9 @@ func resourceDmsRabbitmqInstanceCreate(ctx context.Context, d *schema.ResourceDa
 	config.MutexKV.Lock(lockKey)
 	defer config.MutexKV.Unlock(lockKey)
 
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	dmsV2Client, err := config.DmsV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	dmsV2Client, err := cfg.DmsV2Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("error creating HuaweiCloud DMS instance client: %s", err)
 	}
@@ -254,7 +254,7 @@ func resourceDmsRabbitmqInstanceCreate(ctx context.Context, d *schema.ResourceDa
 	} else {
 		// convert the codes of the availability zone into ids
 		azCodes := d.Get("availability_zones").(*schema.Set)
-		availableZones, err = getAvailableZoneIDByCode(config, region, azCodes.List())
+		availableZones, err = getAvailableZoneIDByCode(cfg, region, azCodes.List())
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -262,7 +262,7 @@ func resourceDmsRabbitmqInstanceCreate(ctx context.Context, d *schema.ResourceDa
 
 	storageSpace := d.Get("storage_space").(int)
 	if storageSpace == 0 {
-		product, err := getRabbitMQProductDetail(config, d)
+		product, err := getRabbitMQProductDetail(cfg, d)
 		if err != nil || product == nil {
 			return fmtp.DiagErrorf("query DMS RabbimtMQ product failed: %s", err)
 		}
@@ -289,7 +289,7 @@ func resourceDmsRabbitmqInstanceCreate(ctx context.Context, d *schema.ResourceDa
 		MaintainEnd:         d.Get("maintain_end").(string),
 		SslEnable:           d.Get("ssl_enable").(bool),
 		StorageSpecCode:     d.Get("storage_spec_code").(string),
-		EnterpriseProjectID: common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID: common.GetEnterpriseProjectID(d, cfg),
 	}
 
 	if v, ok := d.GetOk("public_ip_id"); ok {
@@ -297,7 +297,7 @@ func resourceDmsRabbitmqInstanceCreate(ctx context.Context, d *schema.ResourceDa
 		createOpts.PublicIpID = v.(string)
 	}
 
-	//set tags
+	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		taglist := utils.ExpandResourceTags(tagRaw)
@@ -317,7 +317,7 @@ func resourceDmsRabbitmqInstanceCreate(ctx context.Context, d *schema.ResourceDa
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"CREATING"},
 		Target:       []string{"RUNNING"},
-		Refresh:      DmsRabbitmqInstanceStateRefreshFunc(dmsV2Client, v.InstanceID),
+		Refresh:      rabbitmqInstanceStateRefreshFunc(dmsV2Client, v.InstanceID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        500 * time.Second,
 		MinTimeout:   3 * time.Second,
@@ -337,10 +337,10 @@ func resourceDmsRabbitmqInstanceCreate(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceDmsRabbitmqInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
-	dmsV2Client, err := config.DmsV2Client(region)
+	dmsV2Client, err := cfg.DmsV2Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("error creating HuaweiCloud DMS instance client: %s", err)
 	}
@@ -352,12 +352,12 @@ func resourceDmsRabbitmqInstanceRead(_ context.Context, d *schema.ResourceData, 
 	logp.Printf("[DEBUG] DMS rabbitmq instance %s: %+v", d.Id(), v)
 
 	availableZoneIDs := v.AvailableZones
-	availableZoneCodes, err := getAvailableZoneCodeByID(config, region, availableZoneIDs)
+	availableZoneCodes, err := getAvailableZoneCodeByID(cfg, region, availableZoneIDs)
 	mErr := multierror.Append(nil, err)
 
 	d.SetId(v.InstanceID)
 	mErr = multierror.Append(mErr,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("name", v.Name),
 		d.Set("description", v.Description),
 		d.Set("engine", v.Engine),
@@ -417,8 +417,8 @@ func resourceDmsRabbitmqInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 	config.MutexKV.Lock(lockKey)
 	defer config.MutexKV.Unlock(lockKey)
 
-	config := meta.(*config.Config)
-	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	dmsV2Client, err := cfg.DmsV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("error creating HuaweiCloud DMS instance client: %s", err)
 	}
@@ -482,8 +482,8 @@ func resourceDmsRabbitmqInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceDmsRabbitmqInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	dmsV2Client, err := cfg.DmsV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("error creating HuaweiCloud DMS instance client: %s", err)
 	}
@@ -499,7 +499,7 @@ func resourceDmsRabbitmqInstanceDelete(ctx context.Context, d *schema.ResourceDa
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"DELETING", "RUNNING", "ERROR"}, // Status may change to ERROR on deletion.
 		Target:       []string{"DELETED"},
-		Refresh:      DmsRabbitmqInstanceStateRefreshFunc(dmsV2Client, d.Id()),
+		Refresh:      rabbitmqInstanceStateRefreshFunc(dmsV2Client, d.Id()),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        90 * time.Second,
 		MinTimeout:   3 * time.Second,
@@ -517,7 +517,7 @@ func resourceDmsRabbitmqInstanceDelete(ctx context.Context, d *schema.ResourceDa
 	return nil
 }
 
-func DmsRabbitmqInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func rabbitmqInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		v, err := instances.Get(client, instanceID).Extract()
 		if err != nil {

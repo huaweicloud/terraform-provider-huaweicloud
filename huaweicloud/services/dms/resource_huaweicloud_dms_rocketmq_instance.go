@@ -14,10 +14,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/jmespath/go-jmespath"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/jmespath/go-jmespath"
 )
 
 func ResourceDmsRocketMQInstance() *schema.Resource {
@@ -329,7 +330,7 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 	d.SetId(id.(string))
 
 	if _, ok := d.GetOk("cross_vpc_accesses"); ok {
-		if err = updateCrossVpcAccesses(createRocketmqInstanceClient, d); err != nil {
+		if err = updateCrossVpcAccess(createRocketmqInstanceClient, d); err != nil {
 			return diag.Errorf("failed to update default advertised IP: %v", err)
 		}
 	}
@@ -402,7 +403,7 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 			return diag.Errorf("error updating DmsRocketMQInstance: %s", err)
 		}
 		if d.HasChange("cross_vpc_accesses") {
-			if err = updateCrossVpcAccesses(updateRocketmqInstanceClient, d); err != nil {
+			if err = updateCrossVpcAccess(updateRocketmqInstanceClient, d); err != nil {
 				return diag.Errorf("error updating DMS rocketMQ Cross-VPC access information: %s", err)
 			}
 		}
@@ -481,7 +482,7 @@ func resourceDmsRocketMQInstanceRead(ctx context.Context, d *schema.ResourceData
 	crossVpcInfo := utils.PathSearch("cross_vpc_info", getRocketmqInstanceRespBody, nil)
 	var crossVpcAccess []map[string]interface{}
 	if crossVpcInfo != nil {
-		crossVpcAccess, err = flattenConnectPorts(crossVpcInfo.(string))
+		crossVpcAccess, err = flattenCrossVpcInfo(crossVpcInfo.(string))
 		if err != nil {
 			return diag.FromErr(err)
 		}

@@ -167,7 +167,24 @@ func TestAccKafkaInstance_newFormat(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccKafkaInstance_newFormatUpdate(rName),
+				Config: testAccKafkaInstance_newFormatUpdate(rName + "_updated"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName+"_updated"),
+					resource.TestCheckResourceAttr(resourceName, "engine", "kafka"),
+					resource.TestCheckResourceAttrPair(resourceName, "broker_num",
+						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.properties.0.min_broker"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor_id",
+						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.id"),
+					resource.TestCheckResourceAttrPair(resourceName, "storage_spec_code",
+						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.ios.0.storage_spec_code"),
+					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.0.advertised_ip", "172.16.35.62"),
+					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.1.advertised_ip", "www.terraform-test-1.com"),
+					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.2.advertised_ip", "192.168.0.54"),
+				),
+			},
+			{
+				Config: testAccKafkaInstance_newFormatResize(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -175,7 +192,7 @@ func TestAccKafkaInstance_newFormat(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName, "broker_num",
 						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.properties.0.min_broker"),
 					resource.TestCheckResourceAttrPair(resourceName, "flavor_id",
-						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.id"),
+						"data.huaweicloud_dms_kafka_flavors.test", "flavors.1.id"),
 					resource.TestCheckResourceAttrPair(resourceName, "storage_spec_code",
 						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.ios.1.storage_spec_code"),
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.0.advertised_ip", "172.16.35.62"),
@@ -378,9 +395,9 @@ data "huaweicloud_dms_kafka_flavors" "test" {
 }
 
 locals {
-  query_results = data.huaweicloud_dms_kafka_flavors.test
+  flavor = data.huaweicloud_dms_kafka_flavors.test.flavors[0]
 
-  advertised_ips = ["", "www.terraform-test.com", "192.168.0.53"]
+  engine_version = element(data.huaweicloud_dms_kafka_flavors.test.versions, length(data.huaweicloud_dms_kafka_flavors.test.versions)-1)
 }
 
 resource "huaweicloud_dms_kafka_instance" "test" {
@@ -389,23 +406,26 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   network_id        = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
 
-  flavor_id          = local.query_results.flavors[0].id
-  storage_spec_code  = local.query_results.flavors[0].ios[0].storage_spec_code
-  availability_zones = local.query_results.flavors[0].ios[0].availability_zones
-  engine_version     = element(local.query_results.versions, length(local.query_results.versions)-1)
-  storage_space      = local.query_results.flavors[0].properties[0].min_broker * local.query_results.flavors[0].properties[0].min_storage_per_node
-  broker_num         = local.query_results.flavors[0].properties[0].min_broker
+  flavor_id          = local.flavor.id
+  storage_spec_code  = local.flavor.ios[0].storage_spec_code
+  availability_zones = local.flavor.ios[0].availability_zones
+  engine_version     = local.engine_version
+  storage_space      = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
+  broker_num         = local.flavor.properties[0].min_broker
 
   access_user      = "user"
   password         = "Kafkatest@123"
   manager_user     = "kafka-user"
   manager_password = "Kafkatest@123"
 
-  dynamic "cross_vpc_accesses" {
-    for_each = local.advertised_ips
-    content {
-      advertised_ip = cross_vpc_accesses.value
-    }
+  cross_vpc_accesses {
+    advertised_ip = ""
+  }
+  cross_vpc_accesses {
+    advertised_ip = "www.terraform-test.com"
+  }
+  cross_vpc_accesses {
+    advertised_ip = "192.168.0.53"
   }
 }`, testAccKafkaInstance_base(rName), rName)
 }
@@ -419,9 +439,9 @@ data "huaweicloud_dms_kafka_flavors" "test" {
 }
 
 locals {
-  query_results = data.huaweicloud_dms_kafka_flavors.test
+  flavor = data.huaweicloud_dms_kafka_flavors.test.flavors[0]
 
-  advertised_ips = ["172.16.35.62", "www.terraform-test-1.com", "192.168.0.53"]
+  engine_version = element(data.huaweicloud_dms_kafka_flavors.test.versions, length(data.huaweicloud_dms_kafka_flavors.test.versions)-1)
 }
 
 resource "huaweicloud_dms_kafka_instance" "test" {
@@ -430,23 +450,71 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   network_id        = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
 
-  flavor_id          = local.query_results.flavors[0].id
-  storage_spec_code  = local.query_results.flavors[0].ios[1].storage_spec_code
-  availability_zones = local.query_results.flavors[0].ios[0].availability_zones
-  engine_version     = element(local.query_results.versions, length(local.query_results.versions)-1)
-  storage_space      = local.query_results.flavors[0].properties[0].min_broker * local.query_results.flavors[0].properties[0].max_storage_per_node
-  broker_num         = local.query_results.flavors[0].properties[0].min_broker
+  flavor_id          = local.flavor.id
+  storage_spec_code  = local.flavor.ios[0].storage_spec_code
+  availability_zones = local.flavor.ios[0].availability_zones
+  engine_version     = local.engine_version
+  storage_space      = local.flavor.properties[0].min_broker * (local.flavor.properties[0].min_storage_per_node + 1)
+  broker_num         = local.flavor.properties[0].min_broker
 
   access_user      = "user"
   password         = "Kafkatest@123"
   manager_user     = "kafka-user"
   manager_password = "Kafkatest@123"
 
-  dynamic "cross_vpc_accesses" {
-    for_each = local.advertised_ips
-    content {
-      advertised_ip = cross_vpc_accesses.value
-    }
+  cross_vpc_accesses {
+    advertised_ip = "172.16.35.62"
+  }
+  cross_vpc_accesses {
+    advertised_ip = "www.terraform-test-1.com"
+  }
+  cross_vpc_accesses {
+    advertised_ip = "192.168.0.54"
+  }
+}`, testAccKafkaInstance_base(rName), rName)
+}
+
+func testAccKafkaInstance_newFormatResize(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_dms_kafka_flavors" "test" {
+  type = "cluster"
+}
+
+locals {
+  flavor = data.huaweicloud_dms_kafka_flavors.test.flavors[0]
+  newFlavor = data.huaweicloud_dms_kafka_flavors.test.flavors[1]
+
+  engine_version = element(data.huaweicloud_dms_kafka_flavors.test.versions, length(data.huaweicloud_dms_kafka_flavors.test.versions)-1)
+}
+
+resource "huaweicloud_dms_kafka_instance" "test" {
+  name              = "%s"
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  flavor_id          = local.newFlavor.id
+  storage_spec_code  = local.flavor.ios[0].storage_spec_code
+  availability_zones = local.flavor.ios[0].availability_zones
+  engine_version     = local.engine_version
+  storage_space      = local.newFlavor.properties[0].min_broker * local.newFlavor.properties[0].min_storage_per_node
+  broker_num         = local.flavor.properties[0].min_broker
+
+  access_user      = "user"
+  password         = "Kafkatest@123"
+  manager_user     = "kafka-user"
+  manager_password = "Kafkatest@123"
+
+  cross_vpc_accesses {
+    advertised_ip = "172.16.35.62"
+  }
+  cross_vpc_accesses {
+    advertised_ip = "www.terraform-test-1.com"
+  }
+  cross_vpc_accesses {
+    advertised_ip = "192.168.0.53"
   }
 }`, testAccKafkaInstance_base(rName), rName)
 }
