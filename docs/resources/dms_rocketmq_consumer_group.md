@@ -8,7 +8,7 @@ Manages DMS RocketMQ consumer group resources within HuaweiCloud.
 
 ## Example Usage
 
-```HCL
+```hcl
 variable "instance_id" {}
 
 resource "huaweicloud_dms_rocketmq_consumer_group" "test" {
