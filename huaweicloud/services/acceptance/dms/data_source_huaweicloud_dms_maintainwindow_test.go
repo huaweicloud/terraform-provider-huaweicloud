@@ -1,7 +1,6 @@
 package dms
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -29,8 +28,8 @@ func TestAccDmsMaintainWindowDataSource_basic(t *testing.T) {
 	})
 }
 
-var testAccDmsMaintainWindowDataSource_basic = fmt.Sprintf(`
+var testAccDmsMaintainWindowDataSource_basic = `
 data "huaweicloud_dms_maintainwindow" "maintainwindow1" {
   seq = 1
 }
-`)
+`
