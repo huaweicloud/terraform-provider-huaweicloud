@@ -56,3 +56,27 @@ func TestRequestRetry(t *testing.T) {
 	t.Run("TestRequestSingleRetry", func(t *testing.T) { testRequestRetry(t, 1) })
 	t.Run("TestRequestZeroRetry", func(t *testing.T) { testRequestRetry(t, 0) })
 }
+
+func TestCheckObsEndpoint(t *testing.T) {
+	cfg := &Config{
+		Region: "region-0",
+		Cloud:  "myhuaweicloud.com",
+	}
+
+	// without customizing OBS endpoint in Config
+	expected := "https://obs.region-1.myhuaweicloud.com/"
+	th.AssertEquals(t, expected, getObsEndpoint(cfg, "region-1"))
+
+	// with customizing OBS endpoint in Config
+	cfg.Endpoints = map[string]string{
+		"obs": "https://oss.region-0.myhuaweicloud.com/",
+	}
+
+	// the region is equal to the region in customizing endpoint
+	expected = "https://oss.region-0.myhuaweicloud.com/"
+	th.AssertEquals(t, expected, getObsEndpoint(cfg, "region-0"))
+
+	// the region is not equal to the region in customizing endpoint
+	expected = "https://oss.region-1.myhuaweicloud.com/"
+	th.AssertEquals(t, expected, getObsEndpoint(cfg, "region-1"))
+}
