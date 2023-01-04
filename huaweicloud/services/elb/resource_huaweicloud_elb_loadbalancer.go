@@ -332,7 +332,7 @@ func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, m
 	// set the ID on the resource
 	d.SetId(loadBalancerID)
 
-	//set tags
+	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		elbV2Client, err := config.ElbV2Client(config.GetRegion(d))
@@ -422,7 +422,7 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating elb v3 client: %s", err)
 	}
 
-	//lintignore:R019
+	// lintignore:R019
 	if d.HasChanges("name", "description", "cross_vpc_backend", "ipv4_subnet_id", "ipv6_network_id",
 		"ipv6_bandwidth_id", "ipv4_address", "l4_flavor_id", "l7_flavor_id", "autoscaling_enabled", "min_l7_flavor_id") {
 		var updateOpts loadbalancers.UpdateOpts
@@ -573,7 +573,7 @@ func resourceLoadBalancerV3Delete(ctx context.Context, d *schema.ResourceData, m
 		}
 	} else {
 		if err = loadbalancers.Delete(elbClient, d.Id()).ExtractErr(); err != nil {
-			return diag.Errorf("error deleting elb loadbalancer: %s", err)
+			return diag.Errorf("error deleting v3 loadbalancer: %s", err)
 		}
 	}
 

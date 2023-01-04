@@ -1,12 +1,13 @@
 package elb
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v3/flavors"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func DataSourceElbFlavorsV3() *schema.Resource {
@@ -91,7 +92,7 @@ func dataSourceElbFlavorsV3Read(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
+		return fmt.Errorf("error creating ELB client: %s", err)
 	}
 
 	listOpts := flavors.ListOpts{}
@@ -106,7 +107,7 @@ func dataSourceElbFlavorsV3Read(d *schema.ResourceData, meta interface{}) error 
 
 	allFlavors, err := flavors.ExtractFlavors(pages)
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve flavors: %s", err)
+		return fmt.Errorf("unable to retrieve flavors: %s", err)
 	}
 
 	max_connections := d.Get("max_connections").(int)
@@ -151,8 +152,8 @@ func dataSourceElbFlavorsV3Read(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	if len(ids) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+		return fmt.Errorf("your query returned no results. " +
+			"Please change your search criteria and try again")
 	}
 
 	d.SetId(hashcode.Strings(ids))
