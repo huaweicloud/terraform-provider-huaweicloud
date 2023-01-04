@@ -222,10 +222,10 @@ func resourcePoolsRead(ctx context.Context, d *schema.ResourceData, meta interfa
 	}
 
 	listPoolsPath := listPoolsClient.Endpoint + listPoolsHttpUrl
-	listPoolsPath = strings.Replace(listPoolsPath, "{project_id}", listPoolsClient.ProjectID, -1)
+	listPoolsPath = strings.ReplaceAll(listPoolsPath, "{project_id}", listPoolsClient.ProjectID)
 
-	listPoolsqueryParams := buildListPoolsQueryParams(d)
-	listPoolsPath = listPoolsPath + listPoolsqueryParams
+	listPoolsQueryParams := buildListPoolsQueryParams(d)
+	listPoolsPath += listPoolsQueryParams
 
 	listPoolsResp, err := pagination.ListAllItems(
 		listPoolsClient,

@@ -106,7 +106,7 @@ func resourceCertificateV3Create(ctx context.Context, d *schema.ResourceData, me
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	createOpts := certificates.CreateOpts{
@@ -135,7 +135,7 @@ func resourceCertificateV3Read(_ context.Context, d *schema.ResourceData, meta i
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	c, err := certificates.Get(elbClient, d.Id()).Extract()
@@ -167,7 +167,7 @@ func resourceCertificateV3Update(ctx context.Context, d *schema.ResourceData, me
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	var updateOpts certificates.UpdateOpts
@@ -202,7 +202,7 @@ func resourceCertificateV3Delete(_ context.Context, d *schema.ResourceData, meta
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	log.Printf("[DEBUG] Deleting certificate %s", d.Id())

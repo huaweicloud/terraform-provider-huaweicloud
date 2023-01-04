@@ -58,7 +58,7 @@ func resourceLogTankCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating ELB v3 client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	createOpts := logtanks.CreateOpts{
@@ -70,7 +70,7 @@ func resourceLogTankCreate(ctx context.Context, d *schema.ResourceData, meta int
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	logTank, err := logtanks.Create(elbClient, createOpts).Extract()
 	if err != nil {
-		return diag.Errorf("error creating logtank: %s", err)
+		return diag.Errorf("error creating LogTank: %s", err)
 	}
 
 	d.SetId(logTank.ID)
@@ -82,7 +82,7 @@ func resourceLogTankRead(_ context.Context, d *schema.ResourceData, meta interfa
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating ELB v3 client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	logTank, err := logtanks.Get(elbClient, d.Id()).Extract()
@@ -100,7 +100,7 @@ func resourceLogTankRead(_ context.Context, d *schema.ResourceData, meta interfa
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting Dedicated ELB logtank fields: %s", err)
+		return diag.Errorf("error setting Dedicated ELB LogTank fields: %s", err)
 	}
 
 	return nil
@@ -115,7 +115,7 @@ func resourceLogTankUpdate(ctx context.Context, d *schema.ResourceData, meta int
 
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating ELB v3 client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	var updateOpts logtanks.UpdateOpts
@@ -129,7 +129,7 @@ func resourceLogTankUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	log.Printf("[DEBUG] Updating logtank %s with options: %#v", d.Id(), updateOpts)
 	_, err = logtanks.Update(elbClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return diag.Errorf("unable to update logtank %s: %s", d.Id(), err)
+		return diag.Errorf("unable to update LogTank %s: %s", d.Id(), err)
 	}
 
 	return resourceLogTankRead(ctx, d, meta)
@@ -139,13 +139,13 @@ func resourceLogTankDelete(_ context.Context, d *schema.ResourceData, meta inter
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating ELB v3 client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Attempting to delete logtank %s", d.Id())
+	log.Printf("[DEBUG] Attempting to delete LogTank %s", d.Id())
 	err = logtanks.Delete(elbClient, d.Id()).ExtractErr()
 	if err != nil {
-		return diag.Errorf("unable to delete logtank %s: %s", d.Id(), err)
+		return diag.Errorf("unable to delete LogTank %s: %s", d.Id(), err)
 	}
 	return nil
 }

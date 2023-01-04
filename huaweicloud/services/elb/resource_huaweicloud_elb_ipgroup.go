@@ -95,7 +95,7 @@ func resourceIpGroupV3Create(ctx context.Context, d *schema.ResourceData, meta i
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb v3 client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	ipList := resourceIpGroupAddresses(d)
@@ -121,7 +121,7 @@ func resourceIpGroupV3Read(_ context.Context, d *schema.ResourceData, meta inter
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb v3 client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	ig, err := ipgroups.Get(elbClient, d.Id()).Extract()
@@ -159,7 +159,7 @@ func resourceIpGroupV3Update(ctx context.Context, d *schema.ResourceData, meta i
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb v3 client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	var updateOpts ipgroups.UpdateOpts
@@ -178,7 +178,7 @@ func resourceIpGroupV3Update(ctx context.Context, d *schema.ResourceData, meta i
 	log.Printf("[DEBUG] Updating ipgroup %s with options: %#v", d.Id(), updateOpts)
 	_, err = ipgroups.Update(elbClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return diag.Errorf("error updating elb ip group: %s", err)
+		return diag.Errorf("error updating ELB ip group: %s", err)
 	}
 
 	return resourceIpGroupV3Read(ctx, d, meta)
@@ -188,12 +188,12 @@ func resourceIpGroupV3Delete(_ context.Context, d *schema.ResourceData, meta int
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb v3 client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	log.Printf("[DEBUG] Deleting ip group %s", d.Id())
 	if err = ipgroups.Delete(elbClient, d.Id()).ExtractErr(); err != nil {
-		return diag.Errorf("error deleting elb ip group: %s", err)
+		return diag.Errorf("error deleting ELB ip group: %s", err)
 	}
 
 	return nil

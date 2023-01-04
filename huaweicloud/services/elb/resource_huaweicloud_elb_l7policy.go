@@ -69,7 +69,7 @@ func resourceL7PolicyV3Create(ctx context.Context, d *schema.ResourceData, meta 
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	createOpts := l7policies.CreateOpts{
@@ -102,7 +102,7 @@ func resourceL7PolicyV3Read(_ context.Context, d *schema.ResourceData, meta inte
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	l7Policy, err := l7policies.Get(lbClient, d.Id()).Extract()
@@ -130,7 +130,7 @@ func resourceL7PolicyV3Update(ctx context.Context, d *schema.ResourceData, meta 
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	var updateOpts l7policies.UpdateOpts
@@ -167,7 +167,7 @@ func resourceL7PolicyV3Delete(ctx context.Context, d *schema.ResourceData, meta 
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	log.Printf("[DEBUG] Attempting to delete L7 Policy %s", d.Id())

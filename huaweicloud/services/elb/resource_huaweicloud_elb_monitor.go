@@ -81,7 +81,7 @@ func resourceMonitorV3Create(ctx context.Context, d *schema.ResourceData, meta i
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	createOpts := monitors.CreateOpts{
@@ -110,7 +110,7 @@ func resourceMonitorV3Read(_ context.Context, d *schema.ResourceData, meta inter
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	monitor, err := monitors.Get(lbClient, d.Id()).Extract()
@@ -149,7 +149,7 @@ func resourceMonitorV3Update(ctx context.Context, d *schema.ResourceData, meta i
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	var updateOpts monitors.UpdateOpts
@@ -185,7 +185,7 @@ func resourceMonitorV3Delete(_ context.Context, d *schema.ResourceData, meta int
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	log.Printf("[DEBUG] Deleting monitor %s", d.Id())

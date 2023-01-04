@@ -91,7 +91,7 @@ func resourceMemberV3Create(ctx context.Context, d *schema.ResourceData, meta in
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	createOpts := pools.CreateMemberOpts{
@@ -122,7 +122,7 @@ func resourceMemberV3Read(_ context.Context, d *schema.ResourceData, meta interf
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	member, err := pools.GetMember(elbClient, d.Get("pool_id").(string), d.Id()).Extract()
@@ -151,7 +151,7 @@ func resourceMemberV3Update(ctx context.Context, d *schema.ResourceData, meta in
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	var updateOpts pools.UpdateMemberOpts
@@ -176,7 +176,7 @@ func resourceMemberV3Delete(_ context.Context, d *schema.ResourceData, meta inte
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	poolID := d.Get("pool_id").(string)

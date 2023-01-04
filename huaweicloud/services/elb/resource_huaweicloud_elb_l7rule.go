@@ -83,7 +83,7 @@ func resourceL7RuleV3Create(ctx context.Context, d *schema.ResourceData, meta in
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	l7policyID := d.Get("l7policy_id").(string)
@@ -118,7 +118,7 @@ func resourceL7RuleV3Read(_ context.Context, d *schema.ResourceData, meta interf
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	l7policyID := d.Get("l7policy_id").(string)
@@ -147,7 +147,7 @@ func resourceL7RuleV3Update(ctx context.Context, d *schema.ResourceData, meta in
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	l7policyID := d.Get("l7policy_id").(string)
@@ -180,7 +180,7 @@ func resourceL7RuleV3Delete(ctx context.Context, d *schema.ResourceData, meta in
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	l7policyID := d.Get("l7policy_id").(string)

@@ -58,7 +58,7 @@ func dataSourceELbCertificateV3Read(_ context.Context, d *schema.ResourceData, m
 	config := meta.(*config.Config)
 	client, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating Dedicated ELB(V3) Client: %s", err)
+		return diag.Errorf("error creating Dedicated ELB Client: %s", err)
 	}
 
 	listOpts := certificates.ListOpts{
@@ -70,7 +70,7 @@ func dataSourceELbCertificateV3Read(_ context.Context, d *schema.ResourceData, m
 	}
 	certs, err := certificates.ExtractCertificates(r)
 	if err != nil {
-		return diag.Errorf("unable to retrieve certs from Dedicated ELB(V3): %s", err)
+		return diag.Errorf("unable to retrieve certs from Dedicated ELB: %s", err)
 	}
 	log.Printf("[DEBUG] Get certificate list: %#v", certs)
 

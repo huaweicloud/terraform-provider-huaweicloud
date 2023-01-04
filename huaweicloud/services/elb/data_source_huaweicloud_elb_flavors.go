@@ -91,7 +91,7 @@ func dataSourceElbFlavorsV3Read(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud ELB client: %s", err)
 	}
 
 	listOpts := flavors.ListOpts{}
@@ -145,7 +145,7 @@ func dataSourceElbFlavorsV3Read(d *schema.ResourceData, meta interface{}) error 
 			"max_connections": flavor.Info.Connection,
 			"cps":             flavor.Info.Cps,
 			"qps":             flavor.Info.Qps,
-			"bandwidth":       int(flavor.Info.Bandwidth / 1000),
+			"bandwidth":       flavor.Info.Bandwidth / 1000,
 		}
 		s = append(s, mapping)
 	}

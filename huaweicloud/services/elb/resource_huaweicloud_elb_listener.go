@@ -164,7 +164,7 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	http2_enable := d.Get("http2_enable").(bool)
@@ -248,11 +248,11 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 	if len(tagRaw) > 0 {
 		elbV2Client, err := config.ElbV2Client(config.GetRegion(d))
 		if err != nil {
-			return diag.Errorf("error creating elb v2.0 client: %s", err)
+			return diag.Errorf("error creating ELB v2.0 client: %s", err)
 		}
 		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(elbV2Client, "listeners", listener.ID, taglist).ExtractErr(); tagErr != nil {
-			return diag.Errorf("error setting tags of elb listener %s: %s", listener.ID, tagErr)
+			return diag.Errorf("error setting tags of ELB listener %s: %s", listener.ID, tagErr)
 		}
 	}
 
@@ -263,13 +263,13 @@ func resourceListenerV3Read(_ context.Context, d *schema.ResourceData, meta inte
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	// client for fetching tags
 	elbV2Client, err := config.ElbV2Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb 2.0 client: %s", err)
+		return diag.Errorf("error creating ELB 2.0 client: %s", err)
 	}
 
 	listener, err := listeners.Get(elbClient, d.Id()).Extract()
@@ -316,7 +316,7 @@ func resourceListenerV3Read(_ context.Context, d *schema.ResourceData, meta inte
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		mErr = multierror.Append(mErr, d.Set("tags", tagmap))
 	} else {
-		log.Printf("[WARN] fetching tags of elb listener failed: %s", err)
+		log.Printf("[WARN] fetching tags of ELB listener failed: %s", err)
 	}
 
 	if err := mErr.ErrorOrNil(); err != nil {
@@ -330,7 +330,7 @@ func resourceListenerV3Update(ctx context.Context, d *schema.ResourceData, meta 
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	// lintignore:R019
@@ -431,11 +431,11 @@ func resourceListenerV3Update(ctx context.Context, d *schema.ResourceData, meta 
 	if d.HasChange("tags") {
 		elbV2Client, err := config.ElbV2Client(config.GetRegion(d))
 		if err != nil {
-			return diag.Errorf("error creating elb 2.0 client: %s", err)
+			return diag.Errorf("error creating ELB 2.0 client: %s", err)
 		}
 		tagErr := utils.UpdateResourceTags(elbV2Client, d, "listeners", d.Id())
 		if tagErr != nil {
-			return diag.Errorf("error updating tags of elb listener:%s, err:%s", d.Id(), tagErr)
+			return diag.Errorf("error updating tags of ELB listener:%s, err:%s", d.Id(), tagErr)
 		}
 	}
 
@@ -447,7 +447,7 @@ func resourceListenerV3Delete(ctx context.Context, d *schema.ResourceData, meta 
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	// Wait for LoadBalancer to become active before continuing
