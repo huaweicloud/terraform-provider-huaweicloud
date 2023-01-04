@@ -532,7 +532,7 @@ func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, 
 func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	dmsV2Client, err := cfg.DmsV2Client(region)
+	client, err := cfg.DmsV2Client(region)
 	if err != nil {
 		return diag.Errorf("error initializing DMS Kafka(v2) client: %s", err)
 	}
@@ -614,7 +614,7 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 	createOpts.Password = d.Get("password").(string)
 	createOpts.KafkaManagerPassword = d.Get("manager_password").(string)
 
-	kafkaInstance, err := instances.Create(dmsV2Client, createOpts).Extract()
+	kafkaInstance, err := instances.Create(client, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating DMS kafka instance: %s", err)
 	}
@@ -627,7 +627,7 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"CREATING"},
 		Target:       []string{"RUNNING"},
-		Refresh:      KafkaInstanceStateRefreshFunc(dmsV2Client, instanceID),
+		Refresh:      KafkaInstanceStateRefreshFunc(client, instanceID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        300 * time.Second,
 		PollInterval: 15 * time.Second,
@@ -652,7 +652,7 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 	stateConf = &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"BOUND"},
-		Refresh:      portBindStatusRefreshFunc(dmsV2Client, d.Id()),
+		Refresh:      portBindStatusRefreshFunc(client, d.Id()),
 		Timeout:      5 * time.Minute,
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -721,7 +721,7 @@ func resourceDmsKafkaInstanceRead(_ context.Context, d *schema.ResourceData, met
 
 	v, err := instances.Get(client, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "DMS instance")
+		return common.CheckDeletedDiag(d, err, "DMS Kafka instance")
 	}
 	log.Printf("[DEBUG] Get Kafka instance: %+v", v)
 
@@ -840,7 +840,7 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 	if d.HasChange("tags") {
 		// update tags
 		if err = utils.UpdateResourceTags(client, d, engineKafka, d.Id()); err != nil {
-			mErr = multierror.Append(mErr, fmt.Errorf("error updating tags of Kafka instance: %s, err:%s",
+			mErr = multierror.Append(mErr, fmt.Errorf("error updating tags of Kafka instance: %s, err: %s",
 				d.Id(), err))
 		}
 	}
@@ -945,7 +945,7 @@ func resourceDmsKafkaInstanceDelete(ctx context.Context, d *schema.ResourceData,
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("error waiting for instance (%s) to be deleted: %s", d.Id(), err)
+		return diag.Errorf("error waiting for DMS Kafka instance (%s) to be deleted: %s", d.Id(), err)
 	}
 
 	log.Printf("[DEBUG] DMS Kafka instance %s has been deleted", d.Id())
