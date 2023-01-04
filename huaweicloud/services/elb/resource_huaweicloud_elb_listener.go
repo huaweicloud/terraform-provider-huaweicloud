@@ -338,92 +338,9 @@ func resourceListenerV3Update(ctx context.Context, d *schema.ResourceData, meta 
 		"idle_timeout", "request_timeout", "response_timeout", "server_certificate",
 		"access_policy", "ip_group", "forward_eip", "tls_ciphers_policy",
 		"sni_certificate", "http2_enable", "advanced_forwarding_enabled") {
-		var updateOpts listeners.UpdateOpts
-		if d.HasChange("name") {
-			updateOpts.Name = d.Get("name").(string)
-		}
-		if d.HasChange("description") {
-			desc := d.Get("description").(string)
-			updateOpts.Description = &desc
-		}
-		if d.HasChange("idle_timeout") {
-			idleTimeout := d.Get("idle_timeout").(int)
-			updateOpts.KeepaliveTimeout = &idleTimeout
-		}
-		if d.HasChange("request_timeout") {
-			requestTimeout := d.Get("request_timeout").(int)
-			updateOpts.ClientTimeout = &requestTimeout
-		}
-		if d.HasChange("response_timeout") {
-			responseTimeout := d.Get("response_timeout").(int)
-			updateOpts.MemberTimeout = &responseTimeout
-		}
-		if d.HasChange("default_pool_id") {
-			updateOpts.DefaultPoolID = d.Get("default_pool_id").(string)
-		}
-		if d.HasChanges("access_policy", "ip_group") {
-			updateOpts.IpGroup = &listeners.IpGroupUpdate{
-				Type:      d.Get("access_policy").(string),
-				IpGroupId: d.Get("ip_group").(string),
-			}
-		}
-		if d.HasChange("forward_eip") {
-			fEip := d.Get("forward_eip").(bool)
-			// X-Forwarded-Host defaults to true
-			fHost := true
-			updateOpts.InsertHeaders = &listeners.InsertHeaders{
-				ForwardedELBIP: &fEip,
-				ForwardedHost:  &fHost,
-			}
-		}
-		if d.HasChange("ca_certificate") {
-			caCert := d.Get("ca_certificate").(string)
-			updateOpts.CAContainerRef = &caCert
-		}
-		if d.HasChange("tls_ciphers_policy") {
-			tlsCiphersPolicy := d.Get("tls_ciphers_policy").(string)
-			updateOpts.TlsCiphersPolicy = &tlsCiphersPolicy
-		}
-		if d.HasChange("server_certificate") {
-			serverCert := d.Get("server_certificate").(string)
-			updateOpts.DefaultTlsContainerRef = &serverCert
-		}
-		if d.HasChange("sni_certificate") {
-			var sniContainerRefs []string
-			if raw, ok := d.GetOk("sni_certificate"); ok {
-				for _, v := range raw.([]interface{}) {
-					sniContainerRefs = append(sniContainerRefs, v.(string))
-				}
-			}
-			updateOpts.SniContainerRefs = &sniContainerRefs
-		}
-		if d.HasChange("http2_enable") {
-			http2 := d.Get("http2_enable").(bool)
-			updateOpts.Http2Enable = &http2
-		}
-		if d.HasChange("advanced_forwarding_enabled") {
-			enhanceL7policy := d.Get("advanced_forwarding_enabled").(bool)
-			updateOpts.EnhanceL7policy = &enhanceL7policy
-		}
-
-		// Wait for LoadBalancer to become active before continuing
-		lbID := d.Get("loadbalancer_id").(string)
-		timeout := d.Timeout(schema.TimeoutUpdate)
-		err = waitForElbV3LoadBalancer(ctx, elbClient, lbID, "ACTIVE", nil, timeout)
+		err := updateListener(ctx, d, elbClient)
 		if err != nil {
-			return diag.FromErr(err)
-		}
-
-		log.Printf("[DEBUG] Updating listener %s with options: %#v", d.Id(), updateOpts)
-		_, err = listeners.Update(elbClient, d.Id(), updateOpts).Extract()
-		if err != nil {
-			return diag.Errorf("error updating listener %s: %s", d.Id(), err)
-		}
-
-		// Wait for LoadBalancer to become active again before continuing
-		err = waitForElbV3LoadBalancer(ctx, elbClient, lbID, "ACTIVE", nil, timeout)
-		if err != nil {
-			return diag.FromErr(err)
+			return err
 		}
 	}
 
@@ -441,6 +358,97 @@ func resourceListenerV3Update(ctx context.Context, d *schema.ResourceData, meta 
 
 	return resourceListenerV3Read(ctx, d, meta)
 
+}
+
+func updateListener(ctx context.Context, d *schema.ResourceData, elbClient *golangsdk.ServiceClient) diag.Diagnostics {
+	var updateOpts listeners.UpdateOpts
+	if d.HasChange("name") {
+		updateOpts.Name = d.Get("name").(string)
+	}
+	if d.HasChange("description") {
+		desc := d.Get("description").(string)
+		updateOpts.Description = &desc
+	}
+	if d.HasChange("idle_timeout") {
+		idleTimeout := d.Get("idle_timeout").(int)
+		updateOpts.KeepaliveTimeout = &idleTimeout
+	}
+	if d.HasChange("request_timeout") {
+		requestTimeout := d.Get("request_timeout").(int)
+		updateOpts.ClientTimeout = &requestTimeout
+	}
+	if d.HasChange("response_timeout") {
+		responseTimeout := d.Get("response_timeout").(int)
+		updateOpts.MemberTimeout = &responseTimeout
+	}
+	if d.HasChange("default_pool_id") {
+		updateOpts.DefaultPoolID = d.Get("default_pool_id").(string)
+	}
+	if d.HasChanges("access_policy", "ip_group") {
+		updateOpts.IpGroup = &listeners.IpGroupUpdate{
+			Type:      d.Get("access_policy").(string),
+			IpGroupId: d.Get("ip_group").(string),
+		}
+	}
+	if d.HasChange("forward_eip") {
+		fEip := d.Get("forward_eip").(bool)
+		// X-Forwarded-Host defaults to true
+		fHost := true
+		updateOpts.InsertHeaders = &listeners.InsertHeaders{
+			ForwardedELBIP: &fEip,
+			ForwardedHost:  &fHost,
+		}
+	}
+	if d.HasChange("ca_certificate") {
+		caCert := d.Get("ca_certificate").(string)
+		updateOpts.CAContainerRef = &caCert
+	}
+	if d.HasChange("tls_ciphers_policy") {
+		tlsCiphersPolicy := d.Get("tls_ciphers_policy").(string)
+		updateOpts.TlsCiphersPolicy = &tlsCiphersPolicy
+	}
+	if d.HasChange("server_certificate") {
+		serverCert := d.Get("server_certificate").(string)
+		updateOpts.DefaultTlsContainerRef = &serverCert
+	}
+	if d.HasChange("sni_certificate") {
+		var sniContainerRefs []string
+		if raw, ok := d.GetOk("sni_certificate"); ok {
+			for _, v := range raw.([]interface{}) {
+				sniContainerRefs = append(sniContainerRefs, v.(string))
+			}
+		}
+		updateOpts.SniContainerRefs = &sniContainerRefs
+	}
+	if d.HasChange("http2_enable") {
+		http2 := d.Get("http2_enable").(bool)
+		updateOpts.Http2Enable = &http2
+	}
+	if d.HasChange("advanced_forwarding_enabled") {
+		enhanceL7policy := d.Get("advanced_forwarding_enabled").(bool)
+		updateOpts.EnhanceL7policy = &enhanceL7policy
+	}
+
+	// Wait for LoadBalancer to become active before continuing
+	lbID := d.Get("loadbalancer_id").(string)
+	timeout := d.Timeout(schema.TimeoutUpdate)
+	err := waitForElbV3LoadBalancer(ctx, elbClient, lbID, "ACTIVE", nil, timeout)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	log.Printf("[DEBUG] Updating listener %s with options: %#v", d.Id(), updateOpts)
+	_, err = listeners.Update(elbClient, d.Id(), updateOpts).Extract()
+	if err != nil {
+		return diag.Errorf("error updating listener %s: %s", d.Id(), err)
+	}
+
+	// Wait for LoadBalancer to become active again before continuing
+	err = waitForElbV3LoadBalancer(ctx, elbClient, lbID, "ACTIVE", nil, timeout)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	return nil
 }
 
 func resourceListenerV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
