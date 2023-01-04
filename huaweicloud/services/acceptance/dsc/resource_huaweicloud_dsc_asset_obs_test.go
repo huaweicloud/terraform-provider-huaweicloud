@@ -104,8 +104,9 @@ func testAssetObs_basic(name, obsName string) string {
 %s
 
 resource "huaweicloud_obs_bucket" "test" {
-  bucket = "%s"
-  acl    = "private"
+  bucket        = "%s"
+  acl           = "private"
+  force_destroy = true
 
   lifecycle {
     ignore_changes = [
