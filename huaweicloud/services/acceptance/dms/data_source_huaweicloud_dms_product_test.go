@@ -1,6 +1,7 @@
 package dms
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -104,7 +105,9 @@ func TestAccDmsProductDataSource_rabbitmqCluster(t *testing.T) {
 	})
 }
 
-var testAccDmsProductDataSource_basic = `
+var testAccDmsProductDataSource_basic = fmt.Sprintf(`
+data "huaweicloud_availability_zones" "zones" {}
+
 data "huaweicloud_dms_product" "product1" {
   engine            = "kafka"
   version           = "1.1.0"
@@ -112,8 +115,10 @@ data "huaweicloud_dms_product" "product1" {
   partition_num     = 300
   storage           = 600
   storage_spec_code = "dms.physical.storage.high"
+
+  availability_zones = data.huaweicloud_availability_zones.zones.names
 }
-`
+`)
 
 var testAccDmsProductDataSource_kafkaVmSpec = `
 data "huaweicloud_dms_product" "test" {

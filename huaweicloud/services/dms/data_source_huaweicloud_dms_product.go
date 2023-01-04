@@ -7,10 +7,10 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/dms/v2/products"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
@@ -111,7 +111,7 @@ func getIOByType(d *schema.ResourceData, productIOs []products.IO) []products.IO
 	storageSpecCode := d.Get("storage_spec_code").(string)
 
 	if ioType != "" || storageSpecCode != "" {
-		matchedIOs := make([]products.IO,0)
+		matchedIOs := make([]products.IO, 0)
 		for _, io := range productIOs {
 			if ioType == io.IOType || storageSpecCode == io.StorageSpecCode {
 				matchedIOs = append(matchedIOs, io)
