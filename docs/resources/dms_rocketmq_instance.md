@@ -99,6 +99,9 @@ The following arguments are supported:
 * `broker_num` - (Optional, Int, ForceNew) Specifies the broker numbers. Defaults to 1.
   Changing this parameter will create a new resource.
 
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the instance.
+  Changing this parameter will create a new resource.
+
 * `enable_acl` - (Optional, Bool) Specifies whether access control is enabled.
 
 ## Attributes Reference
