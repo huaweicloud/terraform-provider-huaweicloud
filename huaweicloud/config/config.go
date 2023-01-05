@@ -6,6 +6,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -160,6 +161,12 @@ func retryBackoffFunc(ctx context.Context, respErr *golangsdk.ErrUnexpectedRespo
 
 func getObsEndpoint(c *Config, region string) string {
 	if endpoint, ok := c.Endpoints["obs"]; ok {
+		// replace the region in customizing OBS endpoint
+		subparts := strings.Split(endpoint, ".")
+		if len(subparts) >= 3 && subparts[1] != region {
+			subparts[1] = region
+			return strings.Join(subparts, ".")
+		}
 		return endpoint
 	}
 	return fmt.Sprintf("https://obs.%s.%s/", region, c.Cloud)
