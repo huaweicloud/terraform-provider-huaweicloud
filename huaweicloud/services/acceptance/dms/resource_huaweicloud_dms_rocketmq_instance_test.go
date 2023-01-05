@@ -62,21 +62,23 @@ func TestAccDmsRocketMQInstance_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testDmsRocketMQInstance_basic(rName, rName),
+				Config: testDmsRocketMQInstance_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "engine_version", "4.8.0"),
 					resource.TestCheckResourceAttr(resourceName, "enable_acl", "true"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 				),
 			},
 			{
-				Config: testDmsRocketMQInstance_update(rName, updateName),
+				Config: testDmsRocketMQInstance_update(updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "engine_version", "4.8.0"),
 					resource.TestCheckResourceAttr(resourceName, "enable_acl", "false"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 				),
 			},
 			{
@@ -88,7 +90,7 @@ func TestAccDmsRocketMQInstance_basic(t *testing.T) {
 	})
 }
 
-func testAccDmsRocketmqInstance_Base(rName string) string {
+func testAccDmsRocketmqInstance_Base(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name        = "%[1]s"
@@ -109,17 +111,17 @@ resource "huaweicloud_networking_secgroup" "test" {
 }
 
 data "huaweicloud_availability_zones" "test" {}
-`, rName)
+`, name)
 }
 
-func testDmsRocketMQInstance_basic(rName, updateName string) string {
+func testDmsRocketMQInstance_basic(name string) string {
 	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_dms_rocketmq_instance" "test" {
   name              = "%s"
   engine_version    = "4.8.0"
-  storage_space     = 600
+  storage_space     = 300
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
@@ -133,17 +135,17 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
   broker_num        = 1
   enable_acl        = true
 }
-`, testAccDmsRocketmqInstance_Base(rName), updateName)
+`, testAccDmsRocketmqInstance_Base(name), name)
 }
 
-func testDmsRocketMQInstance_update(rName, name string) string {
+func testDmsRocketMQInstance_update(name string) string {
 	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_dms_rocketmq_instance" "test" {
   name              = "%s"
   engine_version    = "4.8.0"
-  storage_space     = 600
+  storage_space     = 300
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
@@ -157,5 +159,5 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
   broker_num        = 1
   enable_acl        = false
 }
-`, testAccDmsRocketmqInstance_Base(rName), name)
+`, testAccDmsRocketmqInstance_Base(name), name)
 }

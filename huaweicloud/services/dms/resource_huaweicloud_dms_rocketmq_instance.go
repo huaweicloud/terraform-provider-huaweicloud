@@ -141,6 +141,13 @@ func ResourceDmsRocketMQInstance() *schema.Resource {
 				ForceNew:    true,
 				Description: `Specifies the broker numbers.`,
 			},
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Specifies the enterprise project id of the instance.`,
+			},
 			"enable_acl": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -281,16 +288,11 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 		},
 	}
 	var availableZones []string
-	zoneIDs, ok := d.GetOk("available_zones")
-	if ok {
-		availableZones = utils.ExpandToStringList(zoneIDs.([]interface{}))
-	} else {
-		// convert the codes of the availability zone into ids
-		azCodes := d.Get("availability_zones").([]interface{})
-		availableZones, err = getAvailableZoneIDByCode(config, region, azCodes)
-		if err != nil {
-			return diag.FromErr(err)
-		}
+	// convert the codes of the availability zone into ids
+	azCodes := d.Get("availability_zones").([]interface{})
+	availableZones, err = getAvailableZoneIDByCode(config, region, azCodes)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 	createRocketmqInstanceOpt.JSONBody = utils.RemoveNil(buildCreateRocketmqInstanceBodyParams(d, config, availableZones))
 	createRocketmqInstanceResp, err := createRocketmqInstanceClient.Request("POST", createRocketmqInstancePath,
@@ -298,7 +300,6 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 	if err != nil {
 		return diag.Errorf("error creating DmsRocketMQInstance: %s", err)
 	}
-
 	createRocketmqInstanceRespBody, err := utils.FlattenResponse(createRocketmqInstanceResp)
 	if err != nil {
 		return diag.FromErr(err)
@@ -326,9 +327,9 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 
 	d.SetId(id.(string))
 
-	if _, ok = d.GetOk("cross_vpc_accesses"); ok {
+	if _, ok := d.GetOk("cross_vpc_accesses"); ok {
 		if err = updateCrossVpcAccesses(createRocketmqInstanceClient, d); err != nil {
-			return diag.Errorf("Failed to update default advertised IP: %v", err)
+			return diag.Errorf("failed to update default advertised IP: %v", err)
 		}
 	}
 
@@ -338,23 +339,24 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 func buildCreateRocketmqInstanceBodyParams(d *schema.ResourceData, config *config.Config,
 	availableZones []string) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":              utils.ValueIngoreEmpty(d.Get("name")),
-		"enable_acl":        utils.ValueIngoreEmpty(d.Get("enable_acl")),
-		"description":       utils.ValueIngoreEmpty(d.Get("description")),
-		"engine":            "reliability",
-		"engine_version":    utils.ValueIngoreEmpty(d.Get("engine_version")),
-		"storage_space":     utils.ValueIngoreEmpty(d.Get("storage_space")),
-		"vpc_id":            utils.ValueIngoreEmpty(d.Get("vpc_id")),
-		"subnet_id":         utils.ValueIngoreEmpty(d.Get("subnet_id")),
-		"security_group_id": utils.ValueIngoreEmpty(d.Get("security_group_id")),
-		"available_zones":   availableZones,
-		"product_id":        utils.ValueIngoreEmpty(d.Get("flavor_id")),
-		"ssl_enable":        utils.ValueIngoreEmpty(d.Get("ssl_enable")),
-		"storage_spec_code": utils.ValueIngoreEmpty(d.Get("storage_spec_code")),
-		"ipv6_enable":       utils.ValueIngoreEmpty(d.Get("ipv6_enable")),
-		"enable_publicip":   utils.ValueIngoreEmpty(d.Get("enable_publicip")),
-		"publicip_id":       utils.ValueIngoreEmpty(d.Get("publicip_id")),
-		"broker_num":        utils.ValueIngoreEmpty(d.Get("broker_num")),
+		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
+		"enable_acl":            utils.ValueIngoreEmpty(d.Get("enable_acl")),
+		"description":           utils.ValueIngoreEmpty(d.Get("description")),
+		"engine":                "reliability",
+		"engine_version":        utils.ValueIngoreEmpty(d.Get("engine_version")),
+		"storage_space":         utils.ValueIngoreEmpty(d.Get("storage_space")),
+		"vpc_id":                utils.ValueIngoreEmpty(d.Get("vpc_id")),
+		"subnet_id":             utils.ValueIngoreEmpty(d.Get("subnet_id")),
+		"security_group_id":     utils.ValueIngoreEmpty(d.Get("security_group_id")),
+		"available_zones":       availableZones,
+		"product_id":            utils.ValueIngoreEmpty(d.Get("flavor_id")),
+		"ssl_enable":            utils.ValueIngoreEmpty(d.Get("ssl_enable")),
+		"storage_spec_code":     utils.ValueIngoreEmpty(d.Get("storage_spec_code")),
+		"ipv6_enable":           utils.ValueIngoreEmpty(d.Get("ipv6_enable")),
+		"enable_publicip":       utils.ValueIngoreEmpty(d.Get("enable_publicip")),
+		"publicip_id":           utils.ValueIngoreEmpty(d.Get("publicip_id")),
+		"broker_num":            utils.ValueIngoreEmpty(d.Get("broker_num")),
+		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, config)),
 	}
 	return bodyParams
 }
@@ -511,6 +513,7 @@ func resourceDmsRocketMQInstanceRead(ctx context.Context, d *schema.ResourceData
 		d.Set("node_num", utils.PathSearch("node_num", getRocketmqInstanceRespBody, nil)),
 		d.Set("new_spec_billing_enable", utils.PathSearch("new_spec_billing_enable", getRocketmqInstanceRespBody, nil)),
 		d.Set("enable_acl", utils.PathSearch("enable_acl", getRocketmqInstanceRespBody, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", getRocketmqInstanceRespBody, nil)),
 		d.Set("broker_num", utils.PathSearch("broker_num", getRocketmqInstanceRespBody, nil)),
 		d.Set("namesrv_address", utils.PathSearch("namesrv_address", getRocketmqInstanceRespBody, nil)),
 		d.Set("broker_address", utils.PathSearch("broker_address", getRocketmqInstanceRespBody, nil)),
