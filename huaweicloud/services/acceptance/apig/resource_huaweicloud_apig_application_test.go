@@ -127,7 +127,7 @@ resource "huaweicloud_apig_instance" "test" {
 }
 
 func testAccApplication_basic(name, description string) string {
-	code := utils.EncodeBase64String(acctest.RandString(64))
+	code := utils.Base64EncodeString(acctest.RandString(64))
 	return fmt.Sprintf(`
 %[1]s
 

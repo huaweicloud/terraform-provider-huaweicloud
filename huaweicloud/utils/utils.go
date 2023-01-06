@@ -3,7 +3,6 @@ package utils
 import (
 	"bytes"
 	"crypto/rand"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -295,20 +294,6 @@ func FormatUTCTimeStamp(utcTime string) (int64, error) {
 		return 0, fmt.Errorf("unable to prase the time: %s", utcTime)
 	}
 	return timestamp.Unix(), nil
-}
-
-// EncodeBase64String is used to encode a string by base64.
-func EncodeBase64String(str string) string {
-	strByte := []byte(str)
-	return base64.StdEncoding.EncodeToString(strByte)
-}
-
-// EncodeBase64IfNot is used to encode a string by base64 if it not a base64 string.
-func EncodeBase64IfNot(str string) string {
-	if _, err := base64.StdEncoding.DecodeString(str); err != nil {
-		return base64.StdEncoding.EncodeToString([]byte(str))
-	}
-	return str
 }
 
 // IsIPv4Address is used to check whether the addr string is IPv4 format
