@@ -16,7 +16,7 @@ import (
 func getELBResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.ElbV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("Error creating ELB v3 client: %s", err)
+		return nil, fmt.Errorf("error creating ELB client: %s", err)
 	}
 
 	eipID := state.Primary.Attributes["ipv4_eip_id"]
@@ -24,7 +24,7 @@ func getELBResourceFunc(c *config.Config, state *terraform.ResourceState) (inter
 	if eipType != "" && eipID != "" {
 		eipClient, err := c.NetworkingV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return nil, fmt.Errorf("Error creating VPC v1 client: %s", err)
+			return nil, fmt.Errorf("error creating VPC v1 client: %s", err)
 		}
 
 		if _, err := eips.Get(eipClient, eipID).Extract(); err != nil {

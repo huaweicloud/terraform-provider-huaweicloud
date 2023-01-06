@@ -11,7 +11,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/elb/v3/ipgroups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccElbV3IpGroup_basic(t *testing.T) {
@@ -76,7 +75,7 @@ func testAccCheckElbV3IpGroupDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	elbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmt.Errorf("error creating ELB client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -86,7 +85,7 @@ func testAccCheckElbV3IpGroupDestroy(s *terraform.State) error {
 
 		_, err := ipgroups.Get(elbClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("IpGroup still exists: %s", rs.Primary.ID)
+			return fmt.Errorf("ipGroup still exists: %s", rs.Primary.ID)
 		}
 	}
 
@@ -98,17 +97,17 @@ func testAccCheckElbV3IpGroupExists(
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		elbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+			return fmt.Errorf("error creating ELB client: %s", err)
 		}
 
 		found, err := ipgroups.Get(elbClient, rs.Primary.ID).Extract()
@@ -117,7 +116,7 @@ func testAccCheckElbV3IpGroupExists(
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("IpGroup not found")
+			return fmt.Errorf("ipGroup not found")
 		}
 
 		*c = *found

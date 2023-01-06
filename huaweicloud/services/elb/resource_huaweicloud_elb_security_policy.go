@@ -9,12 +9,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/jmespath/go-jmespath"
 )
 
 func ResourceSecurityPolicy() *schema.Resource {
@@ -97,15 +97,15 @@ func SecurityPoliciesV3ListenerRefSchema() *schema.Resource {
 }
 
 func resourceSecurityPoliciesV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createSecurityPolicy: create an ELB security policy
 	var (
 		createSecurityPolicyHttpUrl = "v3/{project_id}/elb/security-policies"
 		createSecurityPolicyProduct = "elb"
 	)
-	createSecurityPolicyClient, err := config.NewServiceClient(createSecurityPolicyProduct, region)
+	createSecurityPolicyClient, err := cfg.NewServiceClient(createSecurityPolicyProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating SecurityPoliciesV3 Client: %s", err)
 	}
@@ -119,7 +119,7 @@ func resourceSecurityPoliciesV3Create(ctx context.Context, d *schema.ResourceDat
 			201,
 		},
 	}
-	createSecurityPolicyOpt.JSONBody = utils.RemoveNil(buildCreateSecurityPolicyBodyParams(d, config))
+	createSecurityPolicyOpt.JSONBody = utils.RemoveNil(buildCreateSecurityPolicyBodyParams(d, cfg))
 	createSecurityPolicyResp, err := createSecurityPolicyClient.Request("POST", createSecurityPolicyPath, &createSecurityPolicyOpt)
 	if err != nil {
 		return diag.Errorf("error creating SecurityPoliciesV3: %s", err)
@@ -156,15 +156,15 @@ func buildCreateSecurityPolicyChildBodyParams(d *schema.ResourceData, config *co
 }
 
 func resourceSecurityPoliciesV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// deleteSecurityPolicy: missing operation notes
 	var (
 		deleteSecurityPolicyHttpUrl = "v3/{project_id}/elb/security-policies/{security_policy_id}"
 		deleteSecurityPolicyProduct = "elb"
 	)
-	deleteSecurityPolicyClient, err := config.NewServiceClient(deleteSecurityPolicyProduct, region)
+	deleteSecurityPolicyClient, err := cfg.NewServiceClient(deleteSecurityPolicyProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating SecurityPoliciesV3 Client: %s", err)
 	}
@@ -188,8 +188,8 @@ func resourceSecurityPoliciesV3Delete(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceSecurityPoliciesV3Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -198,7 +198,7 @@ func resourceSecurityPoliciesV3Read(ctx context.Context, d *schema.ResourceData,
 		getSecurityPolicyHttpUrl = "v3/{project_id}/elb/security-policies/{security_policy_id}"
 		getSecurityPolicyProduct = "elb"
 	)
-	getSecurityPolicyClient, err := config.NewServiceClient(getSecurityPolicyProduct, region)
+	getSecurityPolicyClient, err := cfg.NewServiceClient(getSecurityPolicyProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating SecurityPoliciesV3 Client: %s", err)
 	}
@@ -253,23 +253,23 @@ func flattenGetSecurityPolicyResponseBodyListenerRef(resp interface{}) []interfa
 }
 
 func resourceSecurityPoliciesV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
-	updateSecurityPolicyhasChanges := []string{
+	updateSecurityPolicyHasChanges := []string{
 		"name",
 		"description",
 		"protocols",
 		"ciphers",
 	}
 
-	if d.HasChanges(updateSecurityPolicyhasChanges...) {
+	if d.HasChanges(updateSecurityPolicyHasChanges...) {
 		// updateSecurityPolicy: update the ELB security policy
 		var (
 			updateSecurityPolicyHttpUrl = "v3/{project_id}/elb/security-policies/{security_policy_id}"
 			updateSecurityPolicyProduct = "elb"
 		)
-		updateSecurityPolicyClient, err := config.NewServiceClient(updateSecurityPolicyProduct, region)
+		updateSecurityPolicyClient, err := cfg.NewServiceClient(updateSecurityPolicyProduct, region)
 		if err != nil {
 			return diag.Errorf("error creating SecurityPoliciesV3 Client: %s", err)
 		}
@@ -284,7 +284,7 @@ func resourceSecurityPoliciesV3Update(ctx context.Context, d *schema.ResourceDat
 				200,
 			},
 		}
-		updateSecurityPolicyOpt.JSONBody = utils.RemoveNil(buildUpdateSecurityPolicyBodyParams(d, config))
+		updateSecurityPolicyOpt.JSONBody = utils.RemoveNil(buildUpdateSecurityPolicyBodyParams(d, cfg))
 		_, err = updateSecurityPolicyClient.Request("PUT", updateSecurityPolicyPath, &updateSecurityPolicyOpt)
 		if err != nil {
 			return diag.Errorf("error updating SecurityPoliciesV3: %s", err)

@@ -12,7 +12,6 @@ import (
 	l7rules "github.com/chnsz/golangsdk/openstack/elb/v3/l7policies"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccElbV3L7Rule_basic(t *testing.T) {
@@ -57,9 +56,9 @@ func TestAccElbV3L7Rule_basic(t *testing.T) {
 
 func testAccCheckElbV3L7RuleDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	lbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
+	elbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud load balancing client: %s", err)
+		return fmt.Errorf("error creating ELB client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -76,12 +75,12 @@ func testAccCheckElbV3L7RuleDestroy(s *terraform.State) error {
 		}
 
 		if l7policyID == "" {
-			return fmtp.Errorf("Unable to find l7policy_id")
+			return fmt.Errorf("unable to find l7policy_id")
 		}
 
-		_, err := l7rules.GetRule(lbClient, l7policyID, rs.Primary.ID).Extract()
+		_, err := l7rules.GetRule(elbClient, l7policyID, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("L7 Rule still exists: %s", rs.Primary.ID)
+			return fmt.Errorf("the L7 Rule still exists: %s", rs.Primary.ID)
 		}
 	}
 
@@ -92,17 +91,17 @@ func testAccCheckElbV3L7RuleExists(n string, l7rule *l7rules.Rule) resource.Test
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		lbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud load balancing client: %s", err)
+			return fmt.Errorf("error creating ELB client: %s", err)
 		}
 
 		l7policyID := ""
@@ -114,7 +113,7 @@ func testAccCheckElbV3L7RuleExists(n string, l7rule *l7rules.Rule) resource.Test
 		}
 
 		if l7policyID == "" {
-			return fmtp.Errorf("Unable to find l7policy_id")
+			return fmt.Errorf("unable to find l7policy_id")
 		}
 
 		found, err := l7rules.GetRule(lbClient, l7policyID, rs.Primary.ID).Extract()
@@ -123,7 +122,7 @@ func testAccCheckElbV3L7RuleExists(n string, l7rule *l7rules.Rule) resource.Test
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Policy not found")
+			return fmt.Errorf("policy not found")
 		}
 
 		*l7rule = *found
