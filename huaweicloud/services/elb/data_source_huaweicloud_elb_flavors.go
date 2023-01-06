@@ -91,10 +91,10 @@ func DataSourceElbFlavorsV3() *schema.Resource {
 }
 
 func dataSourceElbFlavorsV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating ELB client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	listOpts := flavors.ListOpts{}
@@ -104,27 +104,27 @@ func dataSourceElbFlavorsV3Read(_ context.Context, d *schema.ResourceData, meta 
 
 	pages, err := flavors.List(elbClient, listOpts).AllPages()
 	if err != nil {
-		return diag.Errorf("%s", err)
+		return diag.FromErr(err)
 	}
 
 	allFlavors, err := flavors.ExtractFlavors(pages)
 	if err != nil {
-		return diag.Errorf("Unable to retrieve flavors: %s", err)
+		return diag.Errorf("unable to retrieve flavors: %s", err)
 	}
 
-	max_connections := d.Get("max_connections").(int)
+	maxConnections := d.Get("max_connections").(int)
 	cps := d.Get("cps").(int)
 	qps := d.Get("qps").(int)
 	bandwidth := d.Get("bandwidth").(int)
 
 	var ids []string
-	var s []map[string]interface{}
+	var flavorInfos []map[string]interface{}
 	for _, flavor := range allFlavors {
 		if flavor.SoldOut {
 			continue
 		}
 
-		if max_connections > 0 && flavor.Info.Connection != max_connections {
+		if maxConnections > 0 && flavor.Info.Connection != maxConnections {
 			continue
 		}
 
@@ -141,31 +141,29 @@ func dataSourceElbFlavorsV3Read(_ context.Context, d *schema.ResourceData, meta 
 		}
 
 		ids = append(ids, flavor.ID)
-		mapping := map[string]interface{}{
+		flavorInfo := map[string]interface{}{
 			"id":              flavor.ID,
 			"name":            flavor.Name,
 			"type":            flavor.Type,
 			"max_connections": flavor.Info.Connection,
 			"cps":             flavor.Info.Cps,
 			"qps":             flavor.Info.Qps,
-			"bandwidth":       int(flavor.Info.Bandwidth / 1000),
+			"bandwidth":       flavor.Info.Bandwidth / 1000,
 		}
-		s = append(s, mapping)
+		flavorInfos = append(flavorInfos, flavorInfo)
 	}
 
 	if len(ids) < 1 {
-		return diag.Errorf("Your query returned no results. " +
+		return diag.Errorf("your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	d.SetId(hashcode.Strings(ids))
 
-	var mErr *multierror.Error
-	mErr = multierror.Append(
-		mErr,
-		d.Set("region", config.GetRegion(d)),
+	mErr := multierror.Append(
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("ids", ids),
-		d.Set("flavors", s),
+		d.Set("flavors", flavorInfos),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
