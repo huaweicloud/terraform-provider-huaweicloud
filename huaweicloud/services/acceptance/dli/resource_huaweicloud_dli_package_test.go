@@ -15,7 +15,7 @@ import (
 func getPackageResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	c, err := conf.DliV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HuaweiCloud DLI v2 client: %s", err)
+		return nil, fmt.Errorf("error creating DLI v2 client: %s", err)
 	}
 
 	return dli.GetDliDependentPackageInfo(c, state.Primary.ID)
