@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v3/monitors"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
@@ -78,10 +79,10 @@ func ResourceMonitorV3() *schema.Resource {
 }
 
 func resourceMonitorV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	createOpts := monitors.CreateOpts{
@@ -96,7 +97,7 @@ func resourceMonitorV3Create(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
-	monitor, err := monitors.Create(lbClient, createOpts).Extract()
+	monitor, err := monitors.Create(elbClient, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("unable to create monitor: %s", err)
 	}
@@ -107,13 +108,13 @@ func resourceMonitorV3Create(ctx context.Context, d *schema.ResourceData, meta i
 }
 
 func resourceMonitorV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	monitor, err := monitors.Get(lbClient, d.Id()).Extract()
+	monitor, err := monitors.Get(elbClient, d.Id()).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "monitor")
 	}
@@ -127,7 +128,7 @@ func resourceMonitorV3Read(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("max_retries", monitor.MaxRetries),
 		d.Set("url_path", monitor.URLPath),
 		d.Set("domain_name", monitor.DomainName),
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 	)
 
 	if len(monitor.Pools) != 0 {
@@ -146,8 +147,8 @@ func resourceMonitorV3Read(_ context.Context, d *schema.ResourceData, meta inter
 }
 
 func resourceMonitorV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating elb client: %s", err)
 	}
@@ -173,7 +174,7 @@ func resourceMonitorV3Update(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	log.Printf("[DEBUG] Updating monitor %s with options: %#v", d.Id(), updateOpts)
-	_, err = monitors.Update(lbClient, d.Id(), updateOpts).Extract()
+	_, err = monitors.Update(elbClient, d.Id(), updateOpts).Extract()
 	if err != nil {
 		return diag.Errorf("unable to update monitor %s: %s", d.Id(), err)
 	}
@@ -182,14 +183,14 @@ func resourceMonitorV3Update(ctx context.Context, d *schema.ResourceData, meta i
 }
 
 func resourceMonitorV3Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	log.Printf("[DEBUG] Deleting monitor %s", d.Id())
-	err = monitors.Delete(lbClient, d.Id()).ExtractErr()
+	err = monitors.Delete(elbClient, d.Id()).ExtractErr()
 	if err != nil {
 		return diag.Errorf("unable to delete monitor %s: %s", d.Id(), err)
 	}
