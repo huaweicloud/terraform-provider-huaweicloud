@@ -206,8 +206,8 @@ func poolsPoolPersistenceSchema() *schema.Resource {
 }
 
 func resourcePoolsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -216,16 +216,16 @@ func resourcePoolsRead(ctx context.Context, d *schema.ResourceData, meta interfa
 		listPoolsHttpUrl = "v3/{project_id}/elb/pools"
 		listPoolsProduct = "elb"
 	)
-	listPoolsClient, err := config.NewServiceClient(listPoolsProduct, region)
+	listPoolsClient, err := cfg.NewServiceClient(listPoolsProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Pools Client: %s", err)
 	}
 
 	listPoolsPath := listPoolsClient.Endpoint + listPoolsHttpUrl
-	listPoolsPath = strings.Replace(listPoolsPath, "{project_id}", listPoolsClient.ProjectID, -1)
+	listPoolsPath = strings.ReplaceAll(listPoolsPath, "{project_id}", listPoolsClient.ProjectID)
 
-	listPoolsqueryParams := buildListPoolsQueryParams(d)
-	listPoolsPath = listPoolsPath + listPoolsqueryParams
+	listPoolsQueryParams := buildListPoolsQueryParams(d)
+	listPoolsPath += listPoolsQueryParams
 
 	listPoolsResp, err := pagination.ListAllItems(
 		listPoolsClient,
@@ -247,11 +247,11 @@ func resourcePoolsRead(ctx context.Context, d *schema.ResourceData, meta interfa
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	dataSourceId, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(dataSourceId)
 
 	mErr = multierror.Append(
 		mErr,
@@ -282,7 +282,7 @@ func flattenListPoolsBodyPools(resp interface{}) []interface{} {
 			"lb_method":        utils.PathSearch("lb_algorithm", v, nil),
 			"healthmonitor_id": utils.PathSearch("healthmonitor_id", v, nil),
 			"listeners":        flattenPoolListeners(v),
-			"loadbalancers":    flattenPoolLoadbalancers(v),
+			"loadbalancers":    flattenPoolLoadBalancers(v),
 			"members":          flattenPoolMembers(v),
 			"persistence":      flattenPoolPersistence(v),
 		})
@@ -308,7 +308,7 @@ func flattenPoolListeners(resp interface{}) []interface{} {
 	return rst
 }
 
-func flattenPoolLoadbalancers(resp interface{}) []interface{} {
+func flattenPoolLoadBalancers(resp interface{}) []interface{} {
 	if resp == nil {
 		return nil
 	}

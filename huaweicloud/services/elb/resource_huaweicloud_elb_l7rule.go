@@ -80,13 +80,13 @@ func ResourceL7RuleV3() *schema.Resource {
 }
 
 func resourceL7RuleV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	l7policyID := d.Get("l7policy_id").(string)
+	l7PolicyID := d.Get("l7policy_id").(string)
 	ruleType := d.Get("type").(string)
 	compareType := d.Get("compare_type").(string)
 
@@ -97,14 +97,14 @@ func resourceL7RuleV3Create(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
-	l7Rule, err := l7policies.CreateRule(lbClient, l7policyID, createOpts).Extract()
+	l7Rule, err := l7policies.CreateRule(elbClient, l7PolicyID, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating L7 Rule: %s", err)
 	}
 
 	timeout := d.Timeout(schema.TimeoutCreate)
 	// Wait for L7 Rule to become active before continuing
-	err = waitForElbV3Rule(ctx, lbClient, l7policyID, l7Rule.ID, "ACTIVE", nil, timeout)
+	err = waitForElbV3Rule(ctx, elbClient, l7PolicyID, l7Rule.ID, "ACTIVE", nil, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -115,15 +115,15 @@ func resourceL7RuleV3Create(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceL7RuleV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	l7policyID := d.Get("l7policy_id").(string)
+	l7PolicyID := d.Get("l7policy_id").(string)
 
-	l7Rule, err := l7policies.GetRule(lbClient, l7policyID, d.Id()).Extract()
+	l7Rule, err := l7policies.GetRule(elbClient, l7PolicyID, d.Id()).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "L7 Rule")
 	}
@@ -131,7 +131,7 @@ func resourceL7RuleV3Read(_ context.Context, d *schema.ResourceData, meta interf
 	log.Printf("[DEBUG] Retrieved L7 Rule %s: %#v", d.Id(), l7Rule)
 
 	mErr := multierror.Append(nil,
-		d.Set("l7policy_id", l7policyID),
+		d.Set("l7policy_id", l7PolicyID),
 		d.Set("type", l7Rule.RuleType),
 		d.Set("compare_type", l7Rule.CompareType),
 		d.Set("value", l7Rule.Value),
@@ -144,13 +144,13 @@ func resourceL7RuleV3Read(_ context.Context, d *schema.ResourceData, meta interf
 }
 
 func resourceL7RuleV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	l7policyID := d.Get("l7policy_id").(string)
+	l7PolicyID := d.Get("l7policy_id").(string)
 	var updateOpts l7policies.UpdateRuleOpts
 
 	if d.HasChange("compare_type") {
@@ -161,14 +161,14 @@ func resourceL7RuleV3Update(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	log.Printf("[DEBUG] Updating L7 Rule %s with options: %#v", d.Id(), updateOpts)
-	_, err = l7policies.UpdateRule(lbClient, l7policyID, d.Id(), updateOpts).Extract()
+	_, err = l7policies.UpdateRule(elbClient, l7PolicyID, d.Id(), updateOpts).Extract()
 	if err != nil {
 		return diag.Errorf("unable to update L7 Rule %s: %s", d.Id(), err)
 	}
 
 	timeout := d.Timeout(schema.TimeoutUpdate)
 	// Wait for L7 Rule to become active before continuing
-	err = waitForElbV3Rule(ctx, lbClient, l7policyID, d.Id(), "ACTIVE", nil, timeout)
+	err = waitForElbV3Rule(ctx, elbClient, l7PolicyID, d.Id(), "ACTIVE", nil, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -177,21 +177,21 @@ func resourceL7RuleV3Update(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceL7RuleV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	l7policyID := d.Get("l7policy_id").(string)
+	l7PolicyID := d.Get("l7policy_id").(string)
 	log.Printf("[DEBUG] Attempting to delete L7 Rule %s", d.Id())
-	err = l7policies.DeleteRule(lbClient, l7policyID, d.Id()).ExtractErr()
+	err = l7policies.DeleteRule(elbClient, l7PolicyID, d.Id()).ExtractErr()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error deleting L7 Rule")
 	}
 
 	timeout := d.Timeout(schema.TimeoutDelete)
-	err = waitForElbV3Rule(ctx, lbClient, l7policyID, d.Id(), "DELETED", nil, timeout)
+	err = waitForElbV3Rule(ctx, elbClient, l7PolicyID, d.Id(), "DELETED", nil, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -230,10 +230,10 @@ func waitForElbV3Rule(ctx context.Context, elbClient *golangsdk.ServiceClient, l
 }
 
 func resourceElbV3RuleRefreshFunc(elbClient *golangsdk.ServiceClient,
-	l7policyID string, id string) resource.StateRefreshFunc {
+	l7PolicyID string, id string) resource.StateRefreshFunc {
 
 	return func() (interface{}, string, error) {
-		rule, err := l7policies.GetRule(elbClient, l7policyID, id).Extract()
+		rule, err := l7policies.GetRule(elbClient, l7PolicyID, id).Extract()
 		if err != nil {
 			return nil, "", err
 		}
@@ -249,11 +249,11 @@ func resourceELBL7RuleImport(_ context.Context, d *schema.ResourceData, meta int
 		return nil, err
 	}
 
-	l7policyID := parts[0]
-	l7ruleID := parts[1]
+	l7PolicyID := parts[0]
+	l7RuleID := parts[1]
 
-	d.SetId(l7ruleID)
-	d.Set("l7policy_id", l7policyID)
+	d.SetId(l7RuleID)
+	d.Set("l7policy_id", l7PolicyID)
 
 	return []*schema.ResourceData{d}, nil
 }

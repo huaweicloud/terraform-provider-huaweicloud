@@ -88,8 +88,8 @@ func DataSourceElbFlavorsV3() *schema.Resource {
 }
 
 func dataSourceElbFlavorsV3Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
 	}
@@ -145,7 +145,7 @@ func dataSourceElbFlavorsV3Read(d *schema.ResourceData, meta interface{}) error 
 			"max_connections": flavor.Info.Connection,
 			"cps":             flavor.Info.Cps,
 			"qps":             flavor.Info.Qps,
-			"bandwidth":       int(flavor.Info.Bandwidth / 1000),
+			"bandwidth":       flavor.Info.Bandwidth / 1000,
 		}
 		s = append(s, mapping)
 	}
@@ -160,7 +160,7 @@ func dataSourceElbFlavorsV3Read(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("flavors", s); err != nil {
 		return err
 	}
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	return nil
 }
