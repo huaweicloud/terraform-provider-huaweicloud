@@ -13,6 +13,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/elb/v3/l7policies"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
@@ -66,10 +67,10 @@ func ResourceL7PolicyV3() *schema.Resource {
 }
 
 func resourceL7PolicyV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	createOpts := l7policies.CreateOpts{
@@ -81,14 +82,14 @@ func resourceL7PolicyV3Create(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
-	l7Policy, err := l7policies.Create(lbClient, createOpts).Extract()
+	l7Policy, err := l7policies.Create(elbClient, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating L7 Policy: %s", err)
 	}
 
 	timeout := d.Timeout(schema.TimeoutCreate)
 	// Wait for L7 Policy to become active before continuing
-	err = waitForElbV3Policy(ctx, lbClient, l7Policy.ID, "ACTIVE", nil, timeout)
+	err = waitForElbV3Policy(ctx, elbClient, l7Policy.ID, "ACTIVE", nil, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -99,13 +100,13 @@ func resourceL7PolicyV3Create(ctx context.Context, d *schema.ResourceData, meta 
 }
 
 func resourceL7PolicyV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	l7Policy, err := l7policies.Get(lbClient, d.Id()).Extract()
+	l7Policy, err := l7policies.Get(elbClient, d.Id()).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "L7 Policy")
 	}
@@ -117,7 +118,7 @@ func resourceL7PolicyV3Read(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("name", l7Policy.Name),
 		d.Set("listener_id", l7Policy.ListenerID),
 		d.Set("redirect_pool_id", l7Policy.RedirectPoolID),
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting Dedicated ELB l7policy fields: %s", err)
@@ -127,10 +128,10 @@ func resourceL7PolicyV3Read(_ context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourceL7PolicyV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	var updateOpts l7policies.UpdateOpts
@@ -149,13 +150,13 @@ func resourceL7PolicyV3Update(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	log.Printf("[DEBUG] Updating L7 Policy %s with options: %#v", d.Id(), updateOpts)
-	_, err = l7policies.Update(lbClient, d.Id(), updateOpts).Extract()
+	_, err = l7policies.Update(elbClient, d.Id(), updateOpts).Extract()
 	if err != nil {
 		return diag.Errorf("unable to update L7 Policy %s: %s", d.Id(), err)
 	}
 
 	timeout := d.Timeout(schema.TimeoutUpdate)
-	err = waitForElbV3Policy(ctx, lbClient, d.Id(), "ACTIVE", nil, timeout)
+	err = waitForElbV3Policy(ctx, elbClient, d.Id(), "ACTIVE", nil, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -164,20 +165,20 @@ func resourceL7PolicyV3Update(ctx context.Context, d *schema.ResourceData, meta 
 }
 
 func resourceL7PolicyV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	log.Printf("[DEBUG] Attempting to delete L7 Policy %s", d.Id())
-	err = l7policies.Delete(lbClient, d.Id()).ExtractErr()
+	err = l7policies.Delete(elbClient, d.Id()).ExtractErr()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error deleting L7 Policy")
 	}
 
 	timeout := d.Timeout(schema.TimeoutDelete)
-	err = waitForElbV3Policy(ctx, lbClient, d.Id(), "DELETED", nil, timeout)
+	err = waitForElbV3Policy(ctx, elbClient, d.Id(), "DELETED", nil, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -187,7 +188,6 @@ func resourceL7PolicyV3Delete(ctx context.Context, d *schema.ResourceData, meta 
 
 func waitForElbV3Policy(ctx context.Context, elbClient *golangsdk.ServiceClient,
 	id string, target string, pending []string, timeout time.Duration) error {
-
 	log.Printf("[DEBUG] Waiting for policy %s to become %s", id, target)
 
 	stateConf := &resource.StateChangeConf{
@@ -215,9 +215,7 @@ func waitForElbV3Policy(ctx context.Context, elbClient *golangsdk.ServiceClient,
 	return nil
 }
 
-func resourceElbV3PolicyRefreshFunc(elbClient *golangsdk.ServiceClient,
-	id string) resource.StateRefreshFunc {
-
+func resourceElbV3PolicyRefreshFunc(elbClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		policy, err := l7policies.Get(elbClient, id).Extract()
 		if err != nil {
