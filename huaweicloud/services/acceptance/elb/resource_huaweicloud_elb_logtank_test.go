@@ -15,7 +15,7 @@ import (
 func getELBLogTankResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.ElbV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HuaweiCloud ELB v3 client: %s", err)
+		return nil, fmt.Errorf("error creating ELB client: %s", err)
 	}
 	return logtanks.Get(client, state.Primary.ID).Extract()
 }
