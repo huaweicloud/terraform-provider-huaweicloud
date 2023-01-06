@@ -5,13 +5,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
-	"net/url"
-
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"log"
+	"net/url"
+	"time"
 
 	"github.com/chnsz/golangsdk/openstack/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -315,7 +319,6 @@ func ResourceObsBucket() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 
 			"bucket_domain_name": {
@@ -444,6 +447,16 @@ func resourceObsBucketUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 	if d.HasChange("cors_rule") {
 		if err := resourceObsBucketCorsUpdate(obsClient, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") && !d.IsNewResource() {
+		epsClient, err := conf.EnterpriseProjectClient(region)
+		if err != nil {
+			return fmtp.DiagErrorf("Unable to create HuaweiCloud EPS client : %s", err)
+		}
+		if err := resourceObsBucketEnterpriseProjectIdUpdate(ctx, obsClient, epsClient, d, region); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -939,6 +952,70 @@ func resourceObsBucketCorsUpdate(obsClient *obs.ObsClient, d *schema.ResourceDat
 	return nil
 }
 
+func resourceObsBucketEnterpriseProjectIdUpdate(ctx context.Context, obsClient *obs.ObsClient,
+	serviceClient *golangsdk.ServiceClient, d *schema.ResourceData, region string) error {
+	bucket := d.Get("bucket").(string)
+	enterpriseProjectId := d.Get("enterprise_project_id").(string)
+
+	// check enterprise_project_id
+	if len(enterpriseProjectId) == 0 {
+		log.Printf("[DEBUG] epid was set empty")
+		enterpriseProjectId = "0"
+	}
+	if enterpriseProjectId != "0" {
+		// check enterpriseProjectId existed
+		if result := enterpriseprojects.Get(serviceClient, enterpriseProjectId); result.Err != nil {
+			return getObsError("Failed to get enterpriseProject detail", bucket, result.Err)
+		}
+	}
+
+	migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		RegionId:     region,
+		ProjectId:    serviceClient.ProjectID,
+		ResourceId:   bucket,
+		ResourceType: "bucket",
+	}
+	if err := common.MigrateEnterpriseProject(serviceClient, enterpriseProjectId, migrateOpts); err != nil {
+		return err
+	}
+
+	// WAIT FOR OBS EPID SUCCESS CHANGED
+	stateConf := &resource.StateChangeConf{
+		Delay:      5 * time.Second,
+		Pending:    []string{"Pending"},
+		Refresh:    waitForOBSEnterpriseProjectIdChanged(obsClient, bucket, enterpriseProjectId),
+		Target:     []string{"Success"},
+		Timeout:    d.Timeout(schema.TimeoutUpdate),
+		MinTimeout: 5 * time.Second,
+	}
+
+	obsMetadata, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return getObsError("Error waiting for obs epid changed", bucket, err)
+	}
+	log.Printf("Obs epid: %s success changed", obsMetadata.(*obs.GetBucketMetadataOutput).Epid)
+	return nil
+}
+
+func waitForOBSEnterpriseProjectIdChanged(obsClient *obs.ObsClient, bucket string, enterpriseProjectId string) resource.StateRefreshFunc {
+	return func() (result interface{}, state string, err error) {
+		log.Printf("[DEBUG] wait for obs epid changed. bucket: %s, epid: %s", bucket, enterpriseProjectId)
+		input := &obs.GetBucketMetadataInput{
+			Bucket: bucket,
+		}
+		output, err := obsClient.GetBucketMetadata(input)
+		if err != nil {
+			return nil, "Error", err
+		}
+		if output.Epid == enterpriseProjectId {
+			log.Printf("[DEBUG] epid success changed")
+			return output, "Success", nil
+		}
+		log.Printf("obs epid: %s unequal target: %s", output.Epid, enterpriseProjectId)
+		return nil, "Pending", nil
+	}
+}
+
 func resourceObsBucketWebsitePut(obsClient *obs.ObsClient, d *schema.ResourceData, website map[string]interface{}) error {
 	bucket := d.Get("bucket").(string)
 
@@ -1065,6 +1142,10 @@ func setObsBucketMetadata(obsClient *obs.ObsClient, d *schema.ResourceData) erro
 			d.Set("parallel_fs", false),
 			d.Set("bucket_version", output.Version),
 		)
+	}
+
+	if len(output.Epid) > 0 {
+		mErr = multierror.Append(mErr, d.Set("enterprise_project_id", output.Epid))
 	}
 	if mErr.ErrorOrNil() != nil {
 		return fmt.Errorf("error saving metadata of OBS bucket %s: %s", bucket, mErr)

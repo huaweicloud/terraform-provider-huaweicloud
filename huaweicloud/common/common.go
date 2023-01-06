@@ -21,6 +21,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/resources"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -64,6 +65,36 @@ func GetEnterpriseProjectID(d *schema.ResourceData, config *config.Config) strin
 	}
 
 	return config.EnterpriseProjectID
+}
+
+func MigrateEnterpriseProject(serviceClient *golangsdk.ServiceClient, enterpriseProjectId string,
+	migrateOpts enterpriseprojects.MigrateResourceOpts) error {
+	migrateResult := enterpriseprojects.Migrate(serviceClient, migrateOpts, enterpriseProjectId)
+	if err := migrateResult.Err; err != nil {
+		return fmt.Errorf("failed to migrate enterpriseProject: %s, err: %v", enterpriseProjectId, err)
+	}
+
+	filterOpts := enterpriseprojects.ResourceOpts{
+		Projects:      []string{migrateOpts.ProjectId},
+		ResourceTypes: []string{migrateOpts.ResourceType},
+		Matches: []enterpriseprojects.Match{
+			{
+				Key:   "resource_name",
+				Value: migrateOpts.ResourceId,
+			},
+		},
+	}
+	result := enterpriseprojects.ShowResource(serviceClient, filterOpts, enterpriseProjectId)
+
+	var filterResult enterpriseprojects.FilterResult
+	if err := result.ExtractInto(&filterResult); err != nil {
+		return fmt.Errorf("failed to extract enterpriseProject: %s, err: %v", enterpriseProjectId, err)
+	}
+	if filterResult.TotalCount == 0 {
+		return fmt.Errorf("enterpriseProject: %s resources is empty", enterpriseProjectId)
+	}
+	return nil
+
 }
 
 // GetEipIDbyAddress returns the EIP ID of address when success.

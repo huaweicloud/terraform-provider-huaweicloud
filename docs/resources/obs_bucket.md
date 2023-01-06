@@ -211,8 +211,8 @@ The following arguments are supported:
 * `kms_key_project_id` - (Optional, String) Specifies the project ID to which the KMS key belongs. If omitted, the ID
   of the provider-level project will be used.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the OBS bucket. Changing
-  this will create a new bucket.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project id of the OBS bucket.
+Default to `0`.
 
 The `logging` object supports the following:
 
