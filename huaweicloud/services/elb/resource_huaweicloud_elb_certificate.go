@@ -3,7 +3,6 @@ package elb
 import (
 	"context"
 	"log"
-	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -11,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v3/certificates"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -24,12 +24,6 @@ func ResourceCertificateV3() *schema.Resource {
 		DeleteContext: resourceCertificateV3Delete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
-		},
-
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -77,11 +71,6 @@ func ResourceCertificateV3() *schema.Resource {
 				DiffSuppressFunc: utils.SuppressNewLineDiffs,
 			},
 
-			"update_time": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -98,15 +87,20 @@ func ResourceCertificateV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"update_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
 
 func resourceCertificateV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	createOpts := certificates.CreateOpts{
@@ -116,45 +110,45 @@ func resourceCertificateV3Create(ctx context.Context, d *schema.ResourceData, me
 		Domain:              d.Get("domain").(string),
 		PrivateKey:          d.Get("private_key").(string),
 		Certificate:         d.Get("certificate").(string),
-		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
-	c, err := certificates.Create(elbClient, createOpts).Extract()
+	log.Printf("[DEBUG] Create ELB certificate options: %#v", createOpts)
+	certificate, err := certificates.Create(elbClient, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating Certificate: %s", err)
 	}
 
 	// If all has been successful, set the ID on the resource
-	d.SetId(c.ID)
+	d.SetId(certificate.ID)
 
 	return resourceCertificateV3Read(ctx, d, meta)
 }
 
 func resourceCertificateV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	c, err := certificates.Get(elbClient, d.Id()).Extract()
+	certificate, err := certificates.Get(elbClient, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "certificate")
+		return common.CheckDeletedDiag(d, err, "error querying certificate")
 	}
-	log.Printf("[DEBUG] Retrieved certificate %s: %#v", d.Id(), c)
+	log.Printf("[DEBUG] Retrieved certificate %s: %#v", d.Id(), certificate)
 
 	mErr := multierror.Append(nil,
-		d.Set("name", c.Name),
-		d.Set("description", c.Description),
-		d.Set("type", c.Type),
-		d.Set("domain", c.Domain),
-		d.Set("certificate", c.Certificate),
-		d.Set("private_key", c.PrivateKey),
-		d.Set("create_time", c.CreateTime),
-		d.Set("update_time", c.UpdateTime),
-		d.Set("expire_time", c.ExpireTime),
-		d.Set("region", config.GetRegion(d)),
+		d.Set("name", certificate.Name),
+		d.Set("description", certificate.Description),
+		d.Set("type", certificate.Type),
+		d.Set("domain", certificate.Domain),
+		d.Set("certificate", certificate.Certificate),
+		d.Set("private_key", certificate.PrivateKey),
+		d.Set("create_time", certificate.CreateTime),
+		d.Set("update_time", certificate.UpdateTime),
+		d.Set("expire_time", certificate.ExpireTime),
+		d.Set("region", cfg.GetRegion(d)),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting Dedicated ELB Certificate fields: %s", err)
@@ -164,10 +158,10 @@ func resourceCertificateV3Read(_ context.Context, d *schema.ResourceData, meta i
 }
 
 func resourceCertificateV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	var updateOpts certificates.UpdateOpts
@@ -199,10 +193,10 @@ func resourceCertificateV3Update(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceCertificateV3Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	log.Printf("[DEBUG] Deleting certificate %s", d.Id())
