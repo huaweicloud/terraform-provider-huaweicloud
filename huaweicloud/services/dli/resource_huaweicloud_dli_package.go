@@ -3,6 +3,7 @@ package dli
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -12,10 +13,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 const (
@@ -116,12 +116,12 @@ func ResourceDliDependentPackageV2Create(ctx context.Context, d *schema.Resource
 	config := meta.(*config.Config)
 	c, err := config.DliV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud DLI v2 client: %s", err)
+		return diag.Errorf("error creating DLI v2 client: %s", err)
 	}
 
 	resList, err := resources.List(c, resources.ListOpts{})
 	if err != nil {
-		return fmtp.DiagErrorf("Error getting group informations: %s", err)
+		return diag.Errorf("error getting group informations: %s", err)
 	}
 
 	// filter data by group name
@@ -138,7 +138,7 @@ func ResourceDliDependentPackageV2Create(ctx context.Context, d *schema.Resource
 		opt := buildDliDependentPackageCreateOpts(d)
 		resp, err = resources.CreateGroupAndUpload(c, opt)
 		if err != nil {
-			return fmtp.DiagErrorf("A error occurred when creating group and upload package: %s", err)
+			return diag.Errorf("error creating group and upload package: %s", err)
 		}
 	} else {
 		opt := buildDliDependentPackageUploadOpts(d)
@@ -146,14 +146,14 @@ func ResourceDliDependentPackageV2Create(ctx context.Context, d *schema.Resource
 
 		resp, err = resources.Upload(c, uploadPath[resType], opt)
 		if err != nil {
-			return fmtp.DiagErrorf("Error uploading %s package to OBS bucket: %s", resType, err)
+			return diag.Errorf("error uploading %s package to OBS bucket: %s", resType, err)
 		}
 	}
 
 	// If the object list of resources.Resources is not empty, it means that the object has been uploaded successfully,
 	// and the element with an index of zero is the object name.
 	if len(resp.Resources) < 1 {
-		return fmtp.DiagErrorf("Failed to upload package (%s).", d.Get("object_path").(string))
+		return diag.Errorf("failed to upload package (%s).", d.Get("object_path").(string))
 	}
 	// object_path is not unique and cannot be used for ID setting, because the object can exist in multiple groups.
 	d.SetId(fmt.Sprintf("%s/%s", d.Get("group_name").(string), resp.Resources[0]))
@@ -161,7 +161,7 @@ func ResourceDliDependentPackageV2Create(ctx context.Context, d *schema.Resource
 	// If the owner of the configuration is not the creator, update it.
 	pkg, err := GetDliDependentPackageInfo(c, d.Id())
 	if err != nil {
-		return fmtp.DiagErrorf("An error occurred while getting the package: %s", err)
+		return diag.Errorf("error getting the package: %s", err)
 	}
 	if owner, ok := d.GetOk("owner"); ok && owner.(string) != pkg.Owner {
 		return ResourceDliDependentPackageV2Update(ctx, d, meta)
@@ -170,26 +170,11 @@ func ResourceDliDependentPackageV2Create(ctx context.Context, d *schema.Resource
 	return ResourceDliDependentPackageV2Read(ctx, d, meta)
 }
 
-func setDliDependentPackageParameters(d *schema.ResourceData, resp *resources.Resource) error {
-	mErr := multierror.Append(nil,
-		d.Set("object_name", resp.ResourceName),
-		d.Set("type", resp.ResourceType),
-		d.Set("status", resp.Status),
-		d.Set("created_at", time.Unix(int64(resp.CreateTime)/1000, 0).Format("2006-01-02 15:04:05")),
-		d.Set("updated_at", time.Unix(int64(resp.CreateTime)/1000, 0).Format("2006-01-02 15:04:05")),
-		d.Set("owner", resp.Owner),
-	)
-	if mErr.ErrorOrNil() != nil {
-		return mErr
-	}
-	return nil
-}
-
 func getGroupNameAndPackageName(id string) (groupName, packageName string, err error) {
 	names := strings.Split(id, "/")
 	if len(names) < 2 {
-		logp.Printf("[DEBUG] The resource ID of the DLI package is: %s", id)
-		err = fmtp.Errorf("ID is incomplete, missing key information")
+		log.Printf("[DEBUG] The resource ID of the DLI package is: %s", id)
+		err = fmt.Errorf("ID is incomplete, missing key information")
 		return
 	}
 	return names[0], names[1], nil
@@ -215,19 +200,24 @@ func ResourceDliDependentPackageV2Read(_ context.Context, d *schema.ResourceData
 	config := meta.(*config.Config)
 	c, err := config.DliV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud DLI v2 client: %s", err)
+		return diag.Errorf("error creating DLI v2 client: %s", err)
 	}
 
 	resp, err := GetDliDependentPackageInfo(c, d.Id())
 	if err != nil {
-		return fmtp.DiagErrorf("An error occurred while getting the package: %s", err)
+		return common.CheckDeletedDiag(d, err, "DLI package")
 	}
 
-	err = setDliDependentPackageParameters(d, resp)
-	if err != nil {
-		return fmtp.DiagErrorf("An error occurred during package resource parameters setting: %s", err)
-	}
-	return nil
+	mErr := multierror.Append(nil,
+		d.Set("object_name", resp.ResourceName),
+		d.Set("type", resp.ResourceType),
+		d.Set("status", resp.Status),
+		d.Set("created_at", time.Unix(int64(resp.CreateTime)/1000, 0).Format("2006-01-02 15:04:05")),
+		d.Set("updated_at", time.Unix(int64(resp.CreateTime)/1000, 0).Format("2006-01-02 15:04:05")),
+		d.Set("owner", resp.Owner),
+	)
+
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func ResourceDliDependentPackageV2Update(ctx context.Context, d *schema.ResourceData,
@@ -235,7 +225,7 @@ func ResourceDliDependentPackageV2Update(ctx context.Context, d *schema.Resource
 	config := meta.(*config.Config)
 	c, err := config.DliV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud DLI v2 client: %s", err)
+		return diag.Errorf("error creating DLI v2 client: %s", err)
 	}
 
 	opt := resources.UpdateOpts{
@@ -245,7 +235,7 @@ func ResourceDliDependentPackageV2Update(ctx context.Context, d *schema.Resource
 	}
 	_, err = resources.UpdateOwner(c, opt)
 	if err != nil {
-		return fmtp.DiagErrorf("Error updating package owner: %s", err)
+		return diag.Errorf("error updating package owner: %s", err)
 	}
 
 	return ResourceDliDependentPackageV2Read(ctx, d, meta)
@@ -255,12 +245,12 @@ func ResourceDliDependentPackageV2Delete(_ context.Context, d *schema.ResourceDa
 	config := meta.(*config.Config)
 	c, err := config.DliV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud DLI v2 client: %s", err)
+		return diag.Errorf("error creating DLI v2 client: %s", err)
 	}
 
 	groupName, packageName, err := getGroupNameAndPackageName(d.Id())
 	if err != nil {
-		return fmtp.DiagErrorf("Error parsing resource ID (%s): %s", d.Id(), err)
+		return diag.Errorf("error parsing resource ID (%s): %s", d.Id(), err)
 	}
 
 	opt := resources.ResourceLocatedOpts{
@@ -268,9 +258,8 @@ func ResourceDliDependentPackageV2Delete(_ context.Context, d *schema.ResourceDa
 	}
 	err = resources.Delete(c, packageName, opt).ExtractErr()
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting DLI dependent package (%s): %s", packageName, err)
+		return diag.Errorf("error deleting DLI dependent package (%s): %s", packageName, err)
 	}
 
-	d.SetId("")
 	return nil
 }
