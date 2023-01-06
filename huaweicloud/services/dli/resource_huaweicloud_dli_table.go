@@ -3,18 +3,19 @@ package dli
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/dli/v1/tables"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceDliTable() *schema.Resource {
@@ -166,15 +167,15 @@ func resourceDliTableCreate(ctx context.Context, d *schema.ResourceData, meta in
 		opts.WithColumnHeader = utils.Bool(v.(bool))
 	}
 
-	logp.Printf("[DEBUG] Creating new DLI table opts: %#v", opts)
+	log.Printf("[DEBUG] Creating new DLI table opts: %#v", opts)
 
 	rst, createErr := tables.Create(client, databaseName, opts)
 	if createErr != nil {
-		return fmtp.DiagErrorf("Error creating DLI table: %s", createErr)
+		return diag.Errorf("error creating DLI table: %s", createErr)
 	}
 
 	if rst != nil && !rst.IsSuccess {
-		return fmtp.DiagErrorf("Error creating DLI table: %s", rst.Message)
+		return diag.Errorf("error creating DLI table: %s", rst.Message)
 	}
 
 	d.SetId(fmt.Sprintf("%s/%s", databaseName, tableName))
@@ -191,31 +192,31 @@ func resourceDliTableRead(_ context.Context, d *schema.ResourceData, meta interf
 
 	databaseName, tableName := ParseTableInfoFromId(d.Id())
 
-	detail, dErr := tables.Get(client, databaseName, tableName)
-	if dErr != nil {
-		return fmtp.DiagErrorf("Error query DLI Table %q:%s", d.Id(), dErr)
+	detail, err := tables.Get(client, databaseName, tableName)
+	if err != nil {
+		return common.CheckDeletedDiag(d, parseDliErrorToError404(err), "DLI table")
 	}
 
 	if detail != nil && !detail.IsSuccess {
-		return fmtp.DiagErrorf("Error query DLI Table: %s", detail.Message)
+		return diag.Errorf("error query DLI Table: %s", detail.Message)
 	}
 
-	tbList, tbErr := tables.List(client, databaseName, tables.ListOpts{
+	tbList, err := tables.List(client, databaseName, tables.ListOpts{
 		Keyword:    tableName,
 		WithDetail: utils.Bool(true),
 		WithPriv:   utils.Bool(true),
 	})
-	if tbErr != nil {
-		return fmtp.DiagErrorf("Error query DLI Table %q:%s", d.Id(), tbErr)
+	if err != nil {
+		return diag.Errorf("error query DLI Table %q:%s", d.Id(), err)
 	}
 
 	if tbList != nil && !tbList.IsSuccess {
-		return fmtp.DiagErrorf("Error query DLI Table: %s", tbList.Message)
+		return diag.Errorf("error query DLI Table: %s", tbList.Message)
 	}
 
-	tb, fErr := filterByTableName(tbList.Tables, tableName)
-	if fErr != nil {
-		return fmtp.DiagErrorf("Error query DLI Table: %s", tbList.Message)
+	tb, err := filterByTableName(tbList.Tables, tableName)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "DLI table")
 	}
 
 	mErr := multierror.Append(
@@ -228,11 +229,8 @@ func resourceDliTableRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("bucket_location", tb.Location),
 		setStoragePropertiesToState(d, detail.StorageProperties),
 	)
-	if setSdErr := mErr.ErrorOrNil(); setSdErr != nil {
-		return fmtp.DiagErrorf("Error setting vault fields: %s", setSdErr)
-	}
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func setColumnsToState(d *schema.ResourceData, columns []tables.Column) error {
@@ -275,10 +273,7 @@ func setStoragePropertiesToState(d *schema.ResourceData, storageProperties []map
 			mErr = multierror.Append(d.Set("with_column_header", properties["value"].(string) == "true"))
 		}
 	}
-	if setSdErr := mErr.ErrorOrNil(); setSdErr != nil {
-		return fmtp.Errorf("Error setting vault fields: %s", setSdErr)
-	}
-	return nil
+	return mErr.ErrorOrNil()
 }
 
 func resourceDliTableDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -293,14 +288,13 @@ func resourceDliTableDelete(ctx context.Context, d *schema.ResourceData, meta in
 
 	resp, dErr := tables.Delete(client, databaseName, tableName, false)
 	if dErr != nil {
-		return fmtp.DiagErrorf("Error delete DLI Table %q:%s", d.Id(), dErr)
+		return diag.Errorf("error delete DLI Table %q:%s", d.Id(), dErr)
 	}
 
 	if resp != nil && !resp.IsSuccess {
-		return fmtp.DiagErrorf("Error delete DLI Table: %s", resp.Message)
+		return diag.Errorf("error delete DLI Table: %s", resp.Message)
 	}
 
-	d.SetId("")
 	return nil
 }
 
@@ -332,12 +326,12 @@ func ParseTableInfoFromId(id string) (databaseName, tableName string) {
 }
 
 func filterByTableName(tablesResp []tables.Table4List, tableName string) (*tables.Table4List, error) {
-	logp.Printf("[DEBUG]The list of table from SDK:%+v", tablesResp)
+	log.Printf("[DEBUG]The list of table from SDK:%+v", tablesResp)
 	for _, v := range tablesResp {
 		if v.TableName == tableName {
 			return &v, nil
 		}
 	}
-	return &tables.Table4List{}, fmtp.Errorf("table (%s) does not existed.", tableName)
+	return &tables.Table4List{}, golangsdk.ErrDefault404{}
 
 }
