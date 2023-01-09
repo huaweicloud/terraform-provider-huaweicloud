@@ -6,7 +6,6 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/dli/v1/sqljob"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -16,7 +15,7 @@ import (
 func getDliSqlJobResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := config.DliV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("error creating Dli v1 client, err=%s", err)
+		return nil, fmt.Errorf("error creating Dli v1 client, err=%s", err)
 	}
 	return sqljob.Status(client, state.Primary.ID)
 }
@@ -199,7 +198,7 @@ func testAccCheckDliSqlJobDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	client, err := config.DliV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("error creating Dli client, err=%s", err)
+		return fmt.Errorf("error creating Dli client, err=%s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -210,7 +209,7 @@ func testAccCheckDliSqlJobDestroy(s *terraform.State) error {
 		res, err := sqljob.Status(client, rs.Primary.ID)
 		if err == nil && res != nil && (res.Status != sqljob.JobStatusCancelled &&
 			res.Status != sqljob.JobStatusFinished && res.Status != sqljob.JobStatusFailed) {
-			return fmtp.Errorf("huaweicloud_dli_sql_job still exists:%s,%+v,%+v", rs.Primary.ID, err, res)
+			return fmt.Errorf("huaweicloud_dli_sql_job still exists:%s,%+v,%+v", rs.Primary.ID, err, res)
 		}
 	}
 
