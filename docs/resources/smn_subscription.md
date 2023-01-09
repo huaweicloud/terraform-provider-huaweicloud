@@ -43,8 +43,8 @@ The following arguments are supported:
   https, functionstage and functiongraph are supported. Changing this parameter will create a new resource.
 
 * `endpoint` - (Required, String, ForceNew) Message endpoint. Changing this parameter will create a new resource.
-  + **For an HTTP subscription**, the endpoint starts with http://.
-  + **For an HTTPS subscription**, the endpoint starts with https://.
+  + **For an HTTP subscription**, the endpoint starts with `http://`.
+  + **For an HTTPS subscription**, the endpoint starts with `https://`.
   + **For an email subscription**, the endpoint is an mail address.
   + **For an SMS message subscription**, the endpoint is a phone number,
   the format is \[+\]\[country code\]\[phone number\], e.g. +86185xxxx0000.
