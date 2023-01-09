@@ -8,7 +8,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/dli/v1/auth"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dli"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -18,16 +17,16 @@ import (
 func getDliAuthResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := config.DliV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("error creating Dli v1 client, err=%s", err)
+		return nil, fmt.Errorf("error creating Dli v1 client, err=%s", err)
 	}
 	obj, userName := dli.ParseAuthInfoFromId(state.Primary.ID)
 
 	permission, pErr := dli.QueryPermission(client, obj, userName)
-	if pErr == nil {
-		return permission, nil
+	if pErr != nil {
+		return nil, fmt.Errorf("this resource is not exist. Id=%s", state.Primary.ID)
 	}
 
-	return nil, fmtp.Errorf("This resource is not exist. Id=%s", state.Primary.ID)
+	return permission, nil
 }
 
 // test database permissions
