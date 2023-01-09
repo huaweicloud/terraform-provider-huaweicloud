@@ -285,7 +285,7 @@ func resourceDmsRocketMQTopicRead(ctx context.Context, d *schema.ResourceData, m
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("name", utils.PathSearch("name", getRocketmqTopicRespBody, nil)),
+		d.Set("name", topic),
 		d.Set("total_read_queue_num", utils.PathSearch("total_read_queue_num",
 			getRocketmqTopicRespBody, nil)),
 		d.Set("total_write_queue_num", utils.PathSearch("total_write_queue_num",
