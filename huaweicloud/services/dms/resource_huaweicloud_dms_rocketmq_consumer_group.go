@@ -253,7 +253,7 @@ func resourceDmsRocketMQConsumerGroupRead(ctx context.Context, d *schema.Resourc
 		d.Set("enabled", utils.PathSearch("enabled", getRocketmqConsumerGroupRespBody, nil)),
 		d.Set("broadcast", utils.PathSearch("broadcast", getRocketmqConsumerGroupRespBody, nil)),
 		d.Set("brokers", utils.PathSearch("brokers", getRocketmqConsumerGroupRespBody, nil)),
-		d.Set("name", utils.PathSearch("name", getRocketmqConsumerGroupRespBody, nil)),
+		d.Set("name", name),
 		d.Set("retry_max_times", utils.PathSearch("retry_max_time", getRocketmqConsumerGroupRespBody, nil)),
 	)
 
