@@ -2,6 +2,7 @@ package dli
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 	"time"
 
@@ -12,9 +13,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func ResourceDliSparkJobV2() *schema.Resource {
@@ -242,12 +243,12 @@ func ResourceDliSparkJobV2Create(ctx context.Context, d *schema.ResourceData, me
 	config := meta.(*config.Config)
 	c, err := config.DliV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud DLI v2 client: %s", err)
+		return diag.Errorf("error creating DLI v2 client: %s", err)
 	}
 
 	resp, err := batches.Create(c, buildDliSaprkJobCreateOpts(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating spark job: %s", err)
+		return diag.Errorf("error creating spark job: %s", err)
 	}
 
 	d.SetId(resp.ID)
@@ -255,48 +256,37 @@ func ResourceDliSparkJobV2Create(ctx context.Context, d *schema.ResourceData, me
 	return ResourceDliSparkJobV2Read(ctx, d, meta)
 }
 
-func setDliSparkJobParameters(d *schema.ResourceData, resp *batches.CreateResp) error {
+func ResourceDliSparkJobV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config := meta.(*config.Config)
+	c, err := config.DliV2Client(config.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating DLI v2 client: %s", err)
+	}
+
+	resp, err := batches.Get(c, d.Id())
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "DLI spark job")
+	}
+
 	mErr := multierror.Append(nil,
 		d.Set("queue_name", resp.Queue),
 		d.Set("name", resp.Name),
 		d.Set("created_at", time.Unix(int64(resp.CreateTime)/1000, 0).Format("2006-01-02 15:04:05")),
 		d.Set("owner", resp.Owner),
 	)
-	if mErr.ErrorOrNil() != nil {
-		return mErr
-	}
-	return nil
-}
-
-func ResourceDliSparkJobV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	c, err := config.DliV2Client(config.GetRegion(d))
-	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud DLI v2 client: %s", err)
-	}
-
-	resp, err := batches.Get(c, d.Id())
-	if err != nil {
-		return fmtp.DiagErrorf("Error getting spark job: %s", err)
-	}
-
-	err = setDliSparkJobParameters(d, resp)
-	if err != nil {
-		return fmtp.DiagErrorf("An error occurred during spark job resource parameter setting: %s", err)
-	}
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func ResourceDliSparkJobV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	c, err := config.DliV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud DLI v2 client: %s", err)
+		return diag.Errorf("error creating DLI v2 client: %s", err)
 	}
 
 	resp, err := batches.GetState(c, d.Id())
 	if err != nil {
-		return fmtp.DiagErrorf("Error getting spark job status: %s", err)
+		return diag.Errorf("error getting spark job status: %s", err)
 	}
 
 	switch resp.State {
@@ -304,7 +294,7 @@ func ResourceDliSparkJobV2Delete(ctx context.Context, d *schema.ResourceData, me
 	case batches.StateStarting, batches.StateRunning, batches.StateRecovering:
 		err = batches.Delete(c, d.Id()).ExtractErr()
 		if err != nil {
-			return fmtp.DiagErrorf("Unable to cancel spark job: %s", err)
+			return diag.Errorf("unable to cancel spark job: %s", err)
 		}
 	}
 
@@ -313,7 +303,6 @@ func ResourceDliSparkJobV2Delete(ctx context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 
-	d.SetId("")
 	return nil
 }
 
@@ -342,7 +331,7 @@ func checkDliSparkJobCancelResult(ctx context.Context, client *golangsdk.Service
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("error waiting for DLI spark job (%s) to be canceled: %s", jobId, err)
+		return fmt.Errorf("error waiting for DLI spark job (%s) to be canceled: %s", jobId, err)
 	}
 	return nil
 }
