@@ -7,7 +7,6 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/dli/v1/flinkjob"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -17,7 +16,7 @@ import (
 func getDliFlinkSqlJobResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := config.DliV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("error creating Dli v1 client, err=%s", err)
+		return nil, fmt.Errorf("error creating Dli v1 client, err=%s", err)
 	}
 	jobId, _ := strconv.Atoi(state.Primary.ID)
 	return flinkjob.Get(client, jobId)
@@ -121,7 +120,6 @@ SELECT "2", "hanmeimei", "audia4", 27;
 EOF
 
 }
-
 
 resource "huaweicloud_dis_stream" "stream_input" {
   stream_name     = "%s_input"
