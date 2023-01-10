@@ -3,6 +3,7 @@ package dli
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"strconv"
 	"time"
 
@@ -15,8 +16,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceFlinkJarJob() *schema.Resource {
@@ -251,15 +250,15 @@ func resourceFlinkJarJobCreate(ctx context.Context, d *schema.ResourceData, meta
 		opts.DependencyFiles = dependencyArray
 	}
 
-	logp.Printf("[DEBUG] Creating new DLI flink jar job opts: %#v", opts)
+	log.Printf("[DEBUG] Creating new DLI flink jar job opts: %#v", opts)
 
 	rst, createErr := flinkjob.CreateJarJob(client, opts)
 	if createErr != nil {
-		return fmtp.DiagErrorf("Error creating DLI flink jar job: %s", createErr)
+		return diag.Errorf("error creating DLI flink jar job: %s", createErr)
 	}
 
 	if rst != nil && !rst.IsSuccess {
-		return fmtp.DiagErrorf("Error creating DLI flink jar job: %s", rst.Message)
+		return diag.Errorf("error creating DLI flink jar job: %s", rst.Message)
 	}
 
 	d.SetId(strconv.Itoa(rst.Job.JobId))
@@ -270,7 +269,7 @@ func resourceFlinkJarJobCreate(ctx context.Context, d *schema.ResourceData, meta
 		ResumeSavepoint: utils.Bool(false),
 	})
 	if runErr != nil {
-		return fmtp.DiagErrorf("Error run DLI flink jar job: %s", runErr)
+		return diag.Errorf("error run DLI flink jar job: %s", runErr)
 	}
 
 	checkCreateErr := checkFlinkJobRunResult(ctx, client, rst.Job.JobId, d.Timeout(schema.TimeoutCreate))
@@ -289,16 +288,16 @@ func resourceFlinkJarJobRead(_ context.Context, d *schema.ResourceData, meta int
 	}
 	id, aErr := strconv.Atoi(d.Id())
 	if aErr != nil {
-		return fmtp.DiagErrorf("the DLI flink job_id must be number. actual id=%s", d.Id())
+		return diag.Errorf("the DLI flink job_id must be number. actual id=%s", d.Id())
 	}
 
-	detailRsp, dErr := flinkjob.Get(client, id)
-	if dErr != nil {
-		return fmtp.DiagErrorf("Error query DLI flink jar job %q:%s", id, dErr)
+	detailRsp, err := flinkjob.Get(client, id)
+	if err != nil {
+		return common.CheckDeletedDiag(d, parseDliFlinkErrToError404(err), "DLI flink sql-job")
 	}
 
 	if detailRsp != nil && !detailRsp.IsSuccess {
-		return fmtp.DiagErrorf("Error query DLI flink jar job: %s", detailRsp.Message)
+		return diag.Errorf("error query DLI flink jar job: %s", detailRsp.Message)
 	}
 	detail := detailRsp.JobDetail
 	mErr := multierror.Append(
@@ -328,11 +327,7 @@ func resourceFlinkJarJobRead(_ context.Context, d *schema.ResourceData, meta int
 		setRuntimeConfigToState(d, detail.JobConfig.RuntimeConfig),
 		d.Set("status", detail.Status),
 	)
-	if setSdErr := mErr.ErrorOrNil(); setSdErr != nil {
-		return fmtp.DiagErrorf("Error setting vault fields: %s", setSdErr)
-	}
-
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceFlinkJarJobDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -345,18 +340,16 @@ func resourceFlinkJarJobDelete(_ context.Context, d *schema.ResourceData, meta i
 
 	jobId, aErr := strconv.Atoi(d.Id())
 	if aErr != nil {
-		return fmtp.DiagErrorf("the DLI flink job_id must be number. actual id=%s", d.Id())
+		return diag.Errorf("the DLI flink job_id must be number. actual id=%s", d.Id())
 	}
 
 	deleteRst, dErr := flinkjob.Delete(client, jobId)
 	if dErr != nil {
-		return fmtp.DiagErrorf("delete DLI flink jar job failed. %q:%s", jobId, dErr)
+		return diag.Errorf("delete DLI flink jar job failed. %q:%s", jobId, dErr)
 	}
 	if deleteRst != nil && !deleteRst.IsSuccess {
-		return fmtp.DiagErrorf("delete DLI flink jar job failed. %q:%s", jobId, dErr)
+		return diag.Errorf("delete DLI flink jar job failed. %q", jobId)
 	}
-
-	d.SetId("")
 
 	return nil
 }
@@ -371,27 +364,27 @@ func resourceFlinkJarJobUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 	jobId, iErr := strconv.Atoi(d.Id())
 	if iErr != nil {
-		return fmtp.DiagErrorf("the DLI flink job_id must be number. actual id=%s", d.Id())
+		return diag.Errorf("the DLI flink job_id must be number. actual id=%s", d.Id())
 	}
 
-	aErr := authorizeObsBucket(client, d)
-	if aErr != nil {
-		return aErr
+	diagErr := authorizeObsBucket(client, d)
+	if diagErr != nil {
+		return diagErr
 	}
 
-	uDiagErr := updateFlinkJarJobInRunning(client, jobId, d)
-	if uDiagErr != nil {
-		return uDiagErr
+	diagErr = updateFlinkJarJobInRunning(client, jobId, d)
+	if diagErr != nil {
+		return diagErr
 	}
 
-	uDiagErr = updateFlinkJarJobWithStop(ctx, client, jobId, d)
-	if uDiagErr != nil {
-		return uDiagErr
+	diagErr = updateFlinkJarJobWithStop(ctx, client, jobId, d)
+	if diagErr != nil {
+		return diagErr
 	}
 
-	checkCreateErr := checkFlinkJobRunResult(ctx, client, jobId, d.Timeout(schema.TimeoutCreate))
-	if checkCreateErr != nil {
-		return diag.FromErr(checkCreateErr)
+	err = checkFlinkJobRunResult(ctx, client, jobId, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return diag.FromErr(err)
 	}
 	return resourceFlinkJarJobRead(ctx, d, meta)
 }
@@ -409,15 +402,15 @@ func updateFlinkJarJobInRunning(client *golangsdk.ServiceClient, jobId int, d *s
 			CheckpointPath:       d.Get("checkpoint_path").(string),
 		}
 
-		logp.Printf("[DEBUG] update DLI flink jar job opts: %#v", opts)
+		log.Printf("[DEBUG] update DLI flink jar job opts: %#v", opts)
 
 		rst, uErr := flinkjob.UpdateJarJob(client, jobId, opts)
 		if uErr != nil {
-			return fmtp.DiagErrorf("Error update DLI flink jar job=%d: %s", jobId, uErr)
+			return diag.Errorf("error update DLI flink jar job=%d: %s", jobId, uErr)
 		}
 
 		if rst != nil && !rst.IsSuccess {
-			return fmtp.DiagErrorf("Error update DLI flink jar job=%d: %s", rst.Message)
+			return diag.Errorf("error update DLI flink jar job=%d: %s", jobId, rst.Message)
 		}
 	}
 
@@ -436,7 +429,7 @@ func updateFlinkJarJobWithStop(ctx context.Context, client *golangsdk.ServiceCli
 		})
 
 		if err != nil {
-			return fmtp.DiagErrorf("stop job exception during update DLI flink jar job=%d: %s", jobId, err)
+			return diag.Errorf("stop job exception during update DLI flink jar job=%d: %s", jobId, err)
 		}
 
 		checkStopErr := checkFlinkJobStopResult(ctx, client, jobId, d.Timeout(schema.TimeoutUpdate))
@@ -444,7 +437,7 @@ func updateFlinkJarJobWithStop(ctx context.Context, client *golangsdk.ServiceCli
 			return diag.FromErr(checkStopErr)
 		}
 
-		//2. update job
+		// 2. update job
 		opts := flinkjob.UpdateJarJobOpts{
 			Name:            d.Get("name").(string),
 			Desc:            d.Get("description").(string),
@@ -485,24 +478,24 @@ func updateFlinkJarJobWithStop(ctx context.Context, client *golangsdk.ServiceCli
 			opts.RuntimeConfig = string(configStr)
 		}
 
-		logp.Printf("[DEBUG] update DLI flink jar job opts: %#v", opts)
+		log.Printf("[DEBUG] update DLI flink jar job opts: %#v", opts)
 
 		rst, uErr := flinkjob.UpdateJarJob(client, jobId, opts)
 		if uErr != nil {
-			return fmtp.DiagErrorf("Error update DLI flink jar job=%d: %s", jobId, uErr)
+			return diag.Errorf("error update DLI flink jar job=%d: %s", jobId, uErr)
 		}
 
 		if rst != nil && !rst.IsSuccess {
-			return fmtp.DiagErrorf("Error update DLI flink jar job=%d: %s", rst.Message)
+			return diag.Errorf("error update DLI flink jar job=%d: %s", jobId, rst.Message)
 		}
 
-		//3. run the flink jar job
+		// 3. run the flink jar job
 		_, runErr := flinkjob.Run(client, flinkjob.RunJobOpts{
 			JobIds:          []int{jobId},
 			ResumeSavepoint: utils.Bool(d.Get("resume_checkpoint").(bool)),
 		})
 		if runErr != nil {
-			return fmtp.DiagErrorf("Error run DLI flink jar job: %s", runErr)
+			return diag.Errorf("error run DLI flink jar job: %s", runErr)
 		}
 	}
 
