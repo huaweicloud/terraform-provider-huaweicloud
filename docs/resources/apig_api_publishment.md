@@ -4,7 +4,7 @@ subcategory: "API Gateway (Dedicated APIG)"
 
 # huaweicloud_apig_api_publishment
 
-API publish Management within HuaweiCloud.
+Using this resource to publish an API to the environment or manage a historical publish version within HuaweiCloud.
 
 ~> If you republish on the same environment or switch versions through other ways (such as console) after the API is
 published through terraform, the current resource attributes will be affected, resulting in data inconsistency.
@@ -45,17 +45,19 @@ resource "huaweicloud_apig_api_publishment" "default" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to publish APIs.
-  If omitted, the provider-level region will be used. Changing this will create a new publishment resource.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to publish APIs.  
+  If omitted, the provider-level region will be used.  
+  Changing this will create a new resource.
 
 * `instance_id` - (Required, String, ForceNew) Specifies an ID of the APIG dedicated instance to which the API belongs
   to. Changing this will create a new publishment resource.
 
-* `env_id` - (Required, String, ForceNew) Specifies the environment ID to which the current version of the API will be
-  published or has been published. Changing this will create a new publishment resource.
+* `env_id` - (Required, String, ForceNew) Specifies the ID of the environmentto which the current version of the API
+  will be published or has been published.  
+  Changing this will create a new resource.
 
-* `api_id` - (Required, String, ForceNew) Specifies the API ID to be published or already published.
-  Changing this will create a new publishment resource.
+* `api_id` - (Required, String, ForceNew) Specifies the ID of the API to be published or already published.  
+  Changing this will create a new resource.
 
 * `description` - (Optional, String) Specifies the description of the current publishment.
 
@@ -65,27 +67,28 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Resource ID, which is constructed from the instance ID, environment ID, and API ID, separated by slashes.
+* `id` - The resource ID, which is constructed from the instance ID, environment ID, and API ID, separated by slashes.
 
-* `env_name` - Environment name to which the current version of the API is published.
+* `env_name` - The name of the environment to which the current version of the API is published.
 
-* `publish_time` - Time when the current version was published.
-
-* `histories` - All publish informations of the API. The structure is documented below.
+* `published_at` - Time when the current version was published.
 
 * `publish_id` - The publish ID of the API in current environment.
 
+* `histories` - All publish informations of the API.  
+  The [object](#publishment_histories) structure is documented below.
+
+<a name="publishment_histories"></a>
 The `histories` block supports:
 
-* `version_id` - Version ID of the API publishment.
+* `version_id` - The version ID of the API publishment.
 
-* `description` - Version description of the API publishment.
+* `description` - The version description of the API publishment.
 
 ## Import
 
-APIs can be imported using their `instance_id`, `env_id` and `api_id`, separated by slashes, e.g.
+The publishments can be imported using their related `instance_id`, `env_id` and `api_id`, separated by slashes, e.g.
 
-```
-$ terraform import huaweicloud_apig_api_publishment.test
-9b0a0a2f97aa43afbf7d852e3ba6a6f9/c5b32727186c4fe6b60408a8a297be09/9a3b3484c08545f9b9b0dcb2de0f5b8a
+```shell
+$ terraform import huaweicloud_apig_api_publishment.test <instance_id>/<env_id>/<api_id>
 ```
