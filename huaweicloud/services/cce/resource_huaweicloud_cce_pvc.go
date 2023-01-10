@@ -241,7 +241,7 @@ func GetCcePvcInfoById(c *golangsdk.ServiceClient, clusterId, namespace,
 		}
 	}
 	// PVC has not exist.
-	return nil, nil
+	return nil, golangsdk.ErrDefault404{}
 }
 
 func resourceCcePersistentVolumeClaimV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -321,7 +321,9 @@ func pvcStateRefreshFunc(c *golangsdk.ServiceClient, clusterId, namespace, id st
 	return func() (interface{}, string, error) {
 		resp, err := GetCcePvcInfoById(c, clusterId, namespace, id)
 		if err != nil {
-			return resp, "ERROR", nil
+			if _, ok := err.(golangsdk.ErrDefault404); !ok {
+				return resp, "ERROR", nil
+			}
 		}
 		if resp != nil {
 			return resp, resp.Status.Phase, nil
@@ -332,26 +334,17 @@ func pvcStateRefreshFunc(c *golangsdk.ServiceClient, clusterId, namespace, id st
 
 func resourceCcePvcResourceImportState(context context.Context, d *schema.ResourceData,
 	meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*config.Config)
-	c, err := config.CceV1Client(config.GetRegion(d))
-	if err != nil {
-		return []*schema.ResourceData{d}, fmtp.Errorf("Error creating HuaweiCloud CCE v1 client: %s", err)
-	}
-
 	parts := strings.SplitN(d.Id(), "/", 3)
 	if len(parts) != 3 {
-		return nil, fmtp.Errorf("Invalid format specified for import id, must be <cluster_id>/<namespace>/<name>")
+		return nil, fmtp.Errorf("Invalid format specified for import id, must be <cluster_id>/<namespace>/<id>")
 	}
 
 	clsuterId := parts[0]
 	namespace := parts[1]
-	resp, err := GetCcePvcInfoById(c, clsuterId, namespace, parts[2])
-	if err != nil {
-		return []*schema.ResourceData{d}, err
-	}
-	d.SetId(resp.Metadata.UID)
-	d.Set("cluster_id", parts[0])
-	d.Set("namespace", parts[1])
+	id := parts[2]
+	d.SetId(id)
+	d.Set("cluster_id", clsuterId)
+	d.Set("namespace", namespace)
 
 	return []*schema.ResourceData{d}, nil
 }
