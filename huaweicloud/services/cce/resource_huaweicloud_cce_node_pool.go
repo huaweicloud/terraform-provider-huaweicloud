@@ -278,6 +278,11 @@ func ResourceCCENodePool() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"ecs_group_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"current_node_count": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -372,6 +377,9 @@ func resourceCCENodePoolCreate(ctx context.Context, d *schema.ResourceData, meta
 			},
 			InitialNodeCount:  &initialNodeCount,
 			PodSecurityGroups: buildPodSecurityGroups(d.Get("pod_security_groups").([]interface{})),
+			NodeManagement: nodepools.NodeManagementSpec{
+				ServerGroupReference: d.Get("ecs_group_id").(string),
+			},
 		},
 	}
 
@@ -460,6 +468,7 @@ func resourceCCENodePoolRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("scale_down_cooldown_time", s.Spec.Autoscaling.ScaleDownCooldownTime),
 		d.Set("priority", s.Spec.Autoscaling.Priority),
 		d.Set("type", s.Spec.Type),
+		d.Set("ecs_group_id", s.Spec.NodeManagement.ServerGroupReference),
 	)
 
 	if s.Spec.NodeTemplate.BillingMode != 0 {
