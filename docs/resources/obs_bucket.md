@@ -212,7 +212,7 @@ The following arguments are supported:
   of the provider-level project will be used.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project id of the OBS bucket.
-Default to `0`.
+  Defaults to `0`.
 
 The `logging` object supports the following:
 

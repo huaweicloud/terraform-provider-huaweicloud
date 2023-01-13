@@ -71,16 +71,17 @@ func MigrateEnterpriseProject(serviceClient *golangsdk.ServiceClient, enterprise
 	migrateOpts enterpriseprojects.MigrateResourceOpts) error {
 	migrateResult := enterpriseprojects.Migrate(serviceClient, migrateOpts, enterpriseProjectId)
 	if err := migrateResult.Err; err != nil {
-		return fmt.Errorf("failed to migrate enterpriseProject: %s, err: %v", enterpriseProjectId, err)
+		return fmt.Errorf("failed to migrate enterprise project: %s, err: %s", enterpriseProjectId, err)
 	}
 
+	resourceID := migrateOpts.ResourceId
 	filterOpts := enterpriseprojects.ResourceOpts{
 		Projects:      []string{migrateOpts.ProjectId},
 		ResourceTypes: []string{migrateOpts.ResourceType},
 		Matches: []enterpriseprojects.Match{
 			{
 				Key:   "resource_name",
-				Value: migrateOpts.ResourceId,
+				Value: resourceID,
 			},
 		},
 	}
@@ -88,13 +89,13 @@ func MigrateEnterpriseProject(serviceClient *golangsdk.ServiceClient, enterprise
 
 	var filterResult enterpriseprojects.FilterResult
 	if err := result.ExtractInto(&filterResult); err != nil {
-		return fmt.Errorf("failed to extract enterpriseProject: %s, err: %v", enterpriseProjectId, err)
+		return fmt.Errorf("failed to extract enterprise project: %s, err: %s", enterpriseProjectId, err)
 	}
+
 	if filterResult.TotalCount == 0 {
-		return fmt.Errorf("enterpriseProject: %s resources is empty", enterpriseProjectId)
+		return fmt.Errorf("can not find the resource %s in inenterprise project %s", resourceID, enterpriseProjectId)
 	}
 	return nil
-
 }
 
 // GetEipIDbyAddress returns the EIP ID of address when success.
