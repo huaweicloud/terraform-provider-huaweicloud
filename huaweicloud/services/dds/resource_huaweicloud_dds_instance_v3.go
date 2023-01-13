@@ -531,11 +531,36 @@ func JobStateRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource
 	}
 }
 
+func waitForInstanceReady(ctx context.Context, client *golangsdk.ServiceClient, instanceId string, timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{"updating"},
+		Target:     []string{"normal"},
+		Refresh:    DdsInstanceStateRefreshFunc(client, instanceId),
+		Timeout:    timeout,
+		Delay:      15 * time.Second,
+		MinTimeout: 10 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmtp.Errorf(
+			"Error waiting for instance (%s) to become ready: %s ",
+			instanceId, err)
+	}
+
+	return nil
+}
+
 func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.DdsV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud DDS client: %s ", err)
+	}
+
+	err = waitForInstanceReady(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	var opts []instances.UpdateOpt
@@ -595,6 +620,28 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 		opts = append(opts, opt)
 	}
 
+	if len(opts) > 0 {
+		resp, err := instances.Update(client, d.Id(), opts).Extract()
+		if err != nil {
+			return fmtp.DiagErrorf("Error updating instance from result: %s ", err)
+		}
+		if resp.OrderId != "" {
+			bssClient, err := config.BssV2Client(config.GetRegion(d))
+			if err != nil {
+				return diag.Errorf("error creating BSS v2 client: %s", err)
+			}
+			err = common.WaitOrderComplete(ctx, bssClient, resp.OrderId, d.Timeout(schema.TimeoutCreate))
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		err = waitForInstanceReady(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	if d.HasChange("port") {
 		resp, err := instances.UpdatePort(client, d.Id(), d.Get("port").(int))
 		if err != nil {
@@ -612,38 +659,10 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 		if err != nil {
 			return fmtp.DiagErrorf("error waiting for the job (%s) completed: %s ", resp.JobId, err)
 		}
-	}
 
-	if len(opts) > 0 {
-		resp, err := instances.Update(client, d.Id(), opts).Extract()
+		err = waitForInstanceReady(ctx, client, d.Id(), d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return fmtp.DiagErrorf("Error updating instance from result: %s ", err)
-		}
-		if resp.OrderId != "" {
-			bssClient, err := config.BssV2Client(config.GetRegion(d))
-			if err != nil {
-				return diag.Errorf("error creating BSS v2 client: %s", err)
-			}
-			err = common.WaitOrderComplete(ctx, bssClient, resp.OrderId, d.Timeout(schema.TimeoutCreate))
-			if err != nil {
-				return diag.FromErr(err)
-			}
-		}
-
-		stateConf := &resource.StateChangeConf{
-			Pending:    []string{"updating"},
-			Target:     []string{"normal"},
-			Refresh:    DdsInstanceStateRefreshFunc(client, d.Id()),
-			Timeout:    d.Timeout(schema.TimeoutUpdate),
-			Delay:      15 * time.Second,
-			MinTimeout: 10 * time.Second,
-		}
-
-		_, err = stateConf.WaitForStateContext(ctx)
-		if err != nil {
-			return fmtp.DiagErrorf(
-				"Error waiting for instance (%s) to become ready: %s ",
-				d.Id(), err)
+			return diag.FromErr(err)
 		}
 	}
 
@@ -651,6 +670,11 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 		tagErr := utils.UpdateResourceTags(client, d, "instances", d.Id())
 		if tagErr != nil {
 			return fmtp.DiagErrorf("Error updating tags of DDS instance:%s, err:%s", d.Id(), tagErr)
+		}
+
+		err := waitForInstanceReady(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -837,18 +861,9 @@ func flavorUpdate(ctx context.Context, config *config.Config, client *golangsdk.
 		}
 	}
 
-	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"updating"},
-		Target:     []string{"normal"},
-		Refresh:    DdsInstanceStateRefreshFunc(client, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutUpdate),
-		Delay:      15 * time.Second,
-		MinTimeout: 10 * time.Second,
-	}
-
-	_, err = stateConf.WaitForStateContext(ctx)
+	err = waitForInstanceReady(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
-		return fmtp.Errorf("Error waiting for instance (%s) to become ready: %s ", d.Id(), err)
+		return err
 	}
 
 	return nil
