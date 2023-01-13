@@ -124,10 +124,10 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-CCE PVC can be imported using the cluster ID, namespace and name separated by a slash, e.g.
+CCE PVC can be imported using the cluster ID, namespace and ID separated by slashes, e.g.
 
 ```
-$ terraform import huaweicloud_cce_pvc.test 5c20fdad-7288-11eb-b817-0255ac10158b/default/pvc_name
+$ terraform import huaweicloud_cce_pvc.test 5c20fdad-7288-11eb-b817-0255ac10158b/default/fa540f3b-12d9-40e5-8268-04bcfed95a46
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
