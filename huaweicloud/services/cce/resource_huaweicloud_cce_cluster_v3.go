@@ -414,9 +414,9 @@ func resourceCCEClusterV3Create(ctx context.Context, d *schema.ResourceData, met
 
 	authenticating_proxy := make(map[string]string)
 	if common.HasFilledOpt(d, "authenticating_proxy_ca") {
-		authenticating_proxy["ca"] = utils.EncodeBase64IfNot(d.Get("authenticating_proxy_ca").(string))
-		authenticating_proxy["cert"] = utils.EncodeBase64IfNot(d.Get("authenticating_proxy_cert").(string))
-		authenticating_proxy["privateKey"] = utils.EncodeBase64IfNot(d.Get("authenticating_proxy_private_key").(string))
+		authenticating_proxy["ca"] = utils.TryBase64EncodeString(d.Get("authenticating_proxy_ca").(string))
+		authenticating_proxy["cert"] = utils.TryBase64EncodeString(d.Get("authenticating_proxy_cert").(string))
+		authenticating_proxy["privateKey"] = utils.TryBase64EncodeString(d.Get("authenticating_proxy_private_key").(string))
 	}
 
 	billingMode := 0

@@ -631,10 +631,10 @@ func resourceCCEExtendParam(d *schema.ResourceData) map[string]interface{} {
 		extendParam["publicKey"] = v.(string)
 	}
 	if v, ok := d.GetOk("preinstall"); ok {
-		extendParam["alpha.cce/preInstall"] = utils.TryBase64EncodeToString(v.(string))
+		extendParam["alpha.cce/preInstall"] = utils.TryBase64EncodeString(v.(string))
 	}
 	if v, ok := d.GetOk("postinstall"); ok {
-		extendParam["alpha.cce/postInstall"] = utils.TryBase64EncodeToString(v.(string))
+		extendParam["alpha.cce/postInstall"] = utils.TryBase64EncodeString(v.(string))
 	}
 
 	return extendParam

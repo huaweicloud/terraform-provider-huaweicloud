@@ -45,11 +45,16 @@ func installScriptHashSum(script string) string {
 	return hex.EncodeToString(hash[:])
 }
 
-// TryBase64EncodeToString will encode the script with base64.
-// If the script is already base64 encoded, returns it directly.
-func TryBase64EncodeToString(script string) string {
-	if _, err := base64.StdEncoding.DecodeString(script); err != nil {
-		return base64.StdEncoding.EncodeToString([]byte(script))
+// TryBase64EncodeString will encode a string with base64.
+// If the string is already base64 encoded, returns it directly.
+func TryBase64EncodeString(str string) string {
+	if _, err := base64.StdEncoding.DecodeString(str); err != nil {
+		return base64.StdEncoding.EncodeToString([]byte(str))
 	}
-	return script
+	return str
+}
+
+// Base64EncodeString is used to encode a string by base64.
+func Base64EncodeString(str string) string {
+	return base64.StdEncoding.EncodeToString([]byte(str))
 }
