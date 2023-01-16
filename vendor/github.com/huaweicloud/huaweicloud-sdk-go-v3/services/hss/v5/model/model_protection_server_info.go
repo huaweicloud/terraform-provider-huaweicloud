@@ -26,6 +26,9 @@ type ProtectionServerInfo struct {
 	// 操作系统类型，包含如下2种。   - Linux ：Linux。   - Windows ：Windows。
 	OsType *string `json:"os_type,omitempty"`
 
+	// 系统名称
+	OsName *string `json:"os_name,omitempty"`
+
 	// 服务器状态，包含如下2种。   - ACTIVE ：运行中。   - SHUTOFF ：关机。
 	HostStatus *string `json:"host_status,omitempty"`
 
@@ -57,6 +60,9 @@ type ProtectionServerInfo struct {
 
 	// 已有备份数
 	CountBackuped *int32 `json:"count_backuped,omitempty"`
+
+	// Agent状态
+	AgentStatus *string `json:"agent_status,omitempty"`
 }
 
 func (o ProtectionServerInfo) String() string {

@@ -16,21 +16,21 @@ type CreateOptsBuilder interface {
 
 // CreateOpts contains all the values needed to create a new instance.
 type CreateOpts struct {
-	Region              string `json:"regionId" required:"true"`
-	AvailabilityZone    string `json:"availabilityZone" required:"true"`
-	Name                string `json:"instanceName" required:"true"`
-	SpecCode            string `json:"resourceSpecCode" required:"true"`
-	VpcID               string `json:"vpcId" required:"true"`
-	SubnetID            string `json:"netId" required:"true"`
-	SecurityGroupID     string `json:"securityGroupId" required:"true"`
-	EnterpriseProjectID string `json:"epsId,omitempty"`
+	Region              string `json:"region_id" required:"true"`
+	AvailabilityZone    string `json:"availability_zone" required:"true"`
+	Name                string `json:"instance_name" required:"true"`
+	SpecCode            string `json:"resource_spec_code" required:"true"`
+	VpcID               string `json:"vpc_id" required:"true"`
+	SubnetID            string `json:"net_id" required:"true"`
+	SecurityGroupID     string `json:"security_group_id" required:"true"`
+	EnterpriseProjectID string `json:"eps_id,omitempty"`
 
 	// 2 - monthly; 3 - yearly
-	PeriodType int `json:"periodType" required:"true"`
+	PeriodType int `json:"period_type" required:"true"`
 	// monthly: 1-9; yearly: 1-3
-	PeriodNum int `json:"periodNum" required:"true"`
+	PeriodNum int `json:"period_num" required:"true"`
 	// 0 - false; 1 - true
-	IsAutoRenew *int `json:"isAutoRenew" required:"true"`
+	IsAutoRenew *int `json:"is_auto_renew" required:"true"`
 
 	Tags []tags.ResourceTag `json:"tags,omitempty"`
 

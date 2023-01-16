@@ -9,6 +9,9 @@ import (
 // 告警白名单详情
 type AlarmWhiteListResponseInfo struct {
 
+	// 企业项目名称
+	EnterpriseProjectName *string `json:"enterprise_project_name,omitempty"`
+
 	// SHA256
 	Hash *string `json:"hash,omitempty"`
 

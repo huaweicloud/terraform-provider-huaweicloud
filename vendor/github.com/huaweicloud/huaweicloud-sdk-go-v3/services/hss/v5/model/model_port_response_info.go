@@ -12,6 +12,9 @@ type PortResponseInfo struct {
 	// 主机id
 	HostId *string `json:"host_id,omitempty"`
 
+	// 监听ip
+	Laddr *string `json:"laddr,omitempty"`
+
 	// port status, normal, danger or unknow   - \"normal\" : 正常   - \"danger\" : 危险   - \"unknow\" : 未知
 	Status *string `json:"status,omitempty"`
 
