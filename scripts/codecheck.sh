@@ -19,6 +19,22 @@ function checkImporter() {
     done
 }
 
+function checkCheckDeleted() {
+    dir=$1
+    for f in $(ls $dir); do
+        if [[ $f =~ "resource_huaweicloud_" ]]; then
+            checkDeleted=$(grep "CheckDeleted" $dir/$f)
+             if [ "X$checkDeleted" == "X" ]; then
+                checkDeleted=$(grep "\"Resource not found\"" $dir/$f)
+            fi
+
+            if [ "X$checkDeleted" == "X" ]; then
+                echo -e "\033[31m  -> $f: please use common.CheckDeletedDiag in ReadContext\n\033[0m"
+            fi
+        fi
+    done
+}
+
 function checkMultierror() {
     dir=$1
     for f in $(ls $dir); do
@@ -141,6 +157,7 @@ if [ "X$service" != "X..." ] && [[ $package == ./huaweicloud/services/* ]]; then
 
     echo -e "\n==> Checking for TF features in $service..."
     checkImporter $packageDir
+    checkCheckDeleted $packageDir
     checkMultierror $packageDir
     checkHuaweiCloudKey $packageDir
 
