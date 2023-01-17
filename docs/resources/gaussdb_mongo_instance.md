@@ -55,8 +55,9 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the mongo instance resource. If omitted, the
   provider-level region will be used. Changing this creates a new mongo instance resource.
 
-* `availability_zone` - (Required, String, ForceNew) Specifies the AZ name. Changing this parameter will create a new
-  resource.
+* `availability_zone` - (Required, String, ForceNew) Specifies the AZ name. For a three-AZ deployment instance,
+  use commas (,) to separate the AZs, for example, `cn-north-4a,cn-north-4b,cn-north-4c`.
+  Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Specifies the instance name, which can be the same as an existing instance name. The
   value must be **4** to **64** characters in length and start with a letter. It is case-sensitive and can contain only
