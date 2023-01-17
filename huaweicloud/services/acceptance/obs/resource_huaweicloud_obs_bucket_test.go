@@ -80,13 +80,29 @@ func TestAccObsBucket_withEpsId(t *testing.T) {
 		CheckDestroy:      testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccObsBucket_epsId(rInt),
+				Config: testAccObsBucket_epsId(rInt, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckObsBucketExists(resourceName),
 					resource.TestCheckResourceAttr(
 						resourceName, "bucket", testAccObsBucketName(rInt)),
 					resource.TestCheckResourceAttr(
 						resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+			{
+				Config: testAccObsBucket_epsId(rInt, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckObsBucketExists(resourceName),
+					resource.TestCheckResourceAttr(
+						resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST),
+				),
+			},
+			{
+				Config: testAccObsBucket_epsId(rInt, "0"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckObsBucketExists(resourceName),
+					resource.TestCheckResourceAttr(
+						resourceName, "enterprise_project_id", "0"),
 				),
 			},
 		},
@@ -503,7 +519,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
 `, randInt, randInt)
 }
 
-func testAccObsBucket_epsId(randInt int) string {
+func testAccObsBucket_epsId(randInt int, enterpriseProjectId string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket                = "tf-test-bucket-%d"
@@ -511,7 +527,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
   acl                   = "private"
   enterprise_project_id = "%s"
 }
-`, randInt, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, randInt, enterpriseProjectId)
 }
 
 func testAccObsBucketConfigMultiAZ(randInt int) string {

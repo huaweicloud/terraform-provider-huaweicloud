@@ -7,12 +7,15 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -315,7 +318,6 @@ func ResourceObsBucket() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 
 			"bucket_domain_name": {
@@ -444,6 +446,17 @@ func resourceObsBucketUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 	if d.HasChange("cors_rule") {
 		if err := resourceObsBucketCorsUpdate(obsClient, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") && !d.IsNewResource() {
+		epsClient, err := conf.EnterpriseProjectClient(region)
+		if err != nil {
+			return diag.Errorf("error creating EPS client: %s", err)
+		}
+
+		if err := resourceObsBucketEnterpriseProjectIdUpdate(ctx, d, obsClient, epsClient, region); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -939,6 +952,52 @@ func resourceObsBucketCorsUpdate(obsClient *obs.ObsClient, d *schema.ResourceDat
 	return nil
 }
 
+func resourceObsBucketEnterpriseProjectIdUpdate(ctx context.Context, d *schema.ResourceData,
+	obsClient *obs.ObsClient, epsClient *golangsdk.ServiceClient, region string) error {
+	bucket := d.Get("bucket").(string)
+	targetEPSId := d.Get("enterprise_project_id").(string)
+
+	if err := common.MigrateEnterpriseProject(epsClient, region, targetEPSId, "bucket", bucket); err != nil {
+		return err
+	}
+
+	// wait for the Enterprise Project ID changed in OBS
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"Pending"},
+		Target:       []string{"Success"},
+		Refresh:      waitForOBSEnterpriseProjectIdChanged(obsClient, bucket, targetEPSId),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        10 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return getObsError("Error waiting for obs Enterprise Project ID changed", bucket, err)
+	}
+
+	return nil
+}
+
+func waitForOBSEnterpriseProjectIdChanged(obsClient *obs.ObsClient, bucket string, enterpriseProjectId string) resource.StateRefreshFunc {
+	return func() (result interface{}, state string, err error) {
+		input := &obs.GetBucketMetadataInput{
+			Bucket: bucket,
+		}
+		output, err := obsClient.GetBucketMetadata(input)
+		if err != nil {
+			return nil, "Error", err
+		}
+
+		if output.Epid == enterpriseProjectId {
+			log.Printf("[DEBUG] the Enterprise Project ID of bucket %s is migrated to %s", bucket, enterpriseProjectId)
+			return output, "Success", nil
+		}
+
+		return output, "Pending", nil
+	}
+}
+
 func resourceObsBucketWebsitePut(obsClient *obs.ObsClient, d *schema.ResourceData, website map[string]interface{}) error {
 	bucket := d.Get("bucket").(string)
 
@@ -1066,6 +1125,7 @@ func setObsBucketMetadata(obsClient *obs.ObsClient, d *schema.ResourceData) erro
 			d.Set("bucket_version", output.Version),
 		)
 	}
+
 	if mErr.ErrorOrNil() != nil {
 		return fmt.Errorf("error saving metadata of OBS bucket %s: %s", bucket, mErr)
 	}
