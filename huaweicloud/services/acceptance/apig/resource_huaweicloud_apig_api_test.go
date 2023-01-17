@@ -4,163 +4,135 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/apis"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/apis"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccApigAPIV2_basic(t *testing.T) {
+func getApiFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.ApigV2Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating APIG v2 client: %s", err)
+	}
+	return apis.Get(client, state.Primary.Attributes["instance_id"], state.Primary.ID).Extract()
+}
+
+func TestAccApi_basic(t *testing.T) {
 	var (
-		// The dedicated instance name only allow letters, digits and underscores (_).
-		rName        = fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
-		resourceName = "huaweicloud_apig_api.test"
-		api          apis.APIResp
+		api apis.APIResp
+
+		rName      = "huaweicloud_apig_api.test"
+		name       = acceptance.RandomAccResourceName()
+		updateName = acceptance.RandomAccResourceName()
+	)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&api,
+		getApiFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t) // The creation of APIG instance needs the enterprise project ID.
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckApigAPIDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccApigAPI_basic(rName),
+				Config: testAccApi_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApigAPIExists(resourceName, &api),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "type", "Public"),
-					resource.TestCheckResourceAttr(resourceName, "description", "Created by script"),
-					resource.TestCheckResourceAttr(resourceName, "request_protocol", "HTTP"),
-					resource.TestCheckResourceAttr(resourceName, "request_method", "GET"),
-					resource.TestCheckResourceAttr(resourceName, "request_path", "/user_info/{user_age}"),
-					resource.TestCheckResourceAttr(resourceName, "security_authentication", "APP"),
-					resource.TestCheckResourceAttr(resourceName, "matching", "Exact"),
-					resource.TestCheckResourceAttr(resourceName, "success_response", "Success response"),
-					resource.TestCheckResourceAttr(resourceName, "failure_response", "Failed response"),
-					resource.TestCheckResourceAttr(resourceName, "request_params.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "backend_params.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "web.0.path", "/getUserAge/{userAge}"),
-					resource.TestCheckResourceAttr(resourceName, "web.0.request_method", "GET"),
-					resource.TestCheckResourceAttr(resourceName, "web.0.request_protocol", "HTTP"),
-					resource.TestCheckResourceAttr(resourceName, "web.0.timeout", "30000"),
-					resource.TestCheckResourceAttr(resourceName, "web_policy.#", "1"),
-					resource.TestCheckNoResourceAttr(resourceName, "mock"),
-					resource.TestCheckNoResourceAttr(resourceName, "func_graph"),
-					resource.TestCheckNoResourceAttr(resourceName, "mock_policy"),
-					resource.TestCheckNoResourceAttr(resourceName, "func_graph_policy"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "type", "Public"),
+					resource.TestCheckResourceAttr(rName, "description", "Created by script"),
+					resource.TestCheckResourceAttr(rName, "request_protocol", "HTTP"),
+					resource.TestCheckResourceAttr(rName, "request_method", "GET"),
+					resource.TestCheckResourceAttr(rName, "request_path", "/user_info/{user_age}"),
+					resource.TestCheckResourceAttr(rName, "security_authentication", "APP"),
+					resource.TestCheckResourceAttr(rName, "matching", "Exact"),
+					resource.TestCheckResourceAttr(rName, "success_response", "Success response"),
+					resource.TestCheckResourceAttr(rName, "failure_response", "Failed response"),
+					resource.TestCheckResourceAttr(rName, "request_params.#", "1"),
+					resource.TestCheckResourceAttr(rName, "backend_params.#", "1"),
+					resource.TestCheckResourceAttr(rName, "web.0.path", "/getUserAge/{userAge}"),
+					resource.TestCheckResourceAttr(rName, "web.0.request_method", "GET"),
+					resource.TestCheckResourceAttr(rName, "web.0.request_protocol", "HTTP"),
+					resource.TestCheckResourceAttr(rName, "web.0.timeout", "30000"),
+					resource.TestCheckResourceAttr(rName, "web_policy.#", "1"),
+					resource.TestCheckResourceAttr(rName, "mock.#", "0"),
+					resource.TestCheckResourceAttr(rName, "func_graph.#", "0"),
+					resource.TestCheckResourceAttr(rName, "mock_policy.#", "0"),
+					resource.TestCheckResourceAttr(rName, "func_graph_policy.#", "0"),
 				),
 			},
 			{
-				Config: testAccApigAPI_update(rName),
+				Config: testAccApi_update(updateName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApigAPIExists(resourceName, &api),
-					resource.TestCheckResourceAttr(resourceName, "name", rName+"_update"),
-					resource.TestCheckResourceAttr(resourceName, "type", "Public"),
-					resource.TestCheckResourceAttr(resourceName, "description", "Updated by script"),
-					resource.TestCheckResourceAttr(resourceName, "request_protocol", "HTTP"),
-					resource.TestCheckResourceAttr(resourceName, "request_method", "GET"),
-					resource.TestCheckResourceAttr(resourceName, "request_path", "/user_info/{user_name}"),
-					resource.TestCheckResourceAttr(resourceName, "security_authentication", "APP"),
-					resource.TestCheckResourceAttr(resourceName, "matching", "Exact"),
-					resource.TestCheckResourceAttr(resourceName, "success_response", "Updated Success response"),
-					resource.TestCheckResourceAttr(resourceName, "failure_response", "Updated Failed response"),
-					resource.TestCheckResourceAttr(resourceName, "request_params.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "backend_params.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "web.0.path", "/getUserName/{userName}"),
-					resource.TestCheckResourceAttr(resourceName, "web.0.request_method", "GET"),
-					resource.TestCheckResourceAttr(resourceName, "web.0.request_protocol", "HTTP"),
-					resource.TestCheckResourceAttr(resourceName, "web.0.timeout", "60000"),
-					resource.TestCheckResourceAttr(resourceName, "web_policy.#", "1"),
-					resource.TestCheckNoResourceAttr(resourceName, "mock"),
-					resource.TestCheckNoResourceAttr(resourceName, "func_graph"),
-					resource.TestCheckNoResourceAttr(resourceName, "mock_policy"),
-					resource.TestCheckNoResourceAttr(resourceName, "func_graph_policy"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "type", "Public"),
+					resource.TestCheckResourceAttr(rName, "description", "Updated by script"),
+					resource.TestCheckResourceAttr(rName, "request_protocol", "HTTP"),
+					resource.TestCheckResourceAttr(rName, "request_method", "GET"),
+					resource.TestCheckResourceAttr(rName, "request_path", "/user_info/{user_name}"),
+					resource.TestCheckResourceAttr(rName, "security_authentication", "APP"),
+					resource.TestCheckResourceAttr(rName, "matching", "Exact"),
+					resource.TestCheckResourceAttr(rName, "success_response", "Updated Success response"),
+					resource.TestCheckResourceAttr(rName, "failure_response", "Updated Failed response"),
+					resource.TestCheckResourceAttr(rName, "request_params.#", "1"),
+					resource.TestCheckResourceAttr(rName, "backend_params.#", "1"),
+					resource.TestCheckResourceAttr(rName, "web.0.path", "/getUserName/{userName}"),
+					resource.TestCheckResourceAttr(rName, "web.0.request_method", "GET"),
+					resource.TestCheckResourceAttr(rName, "web.0.request_protocol", "HTTP"),
+					resource.TestCheckResourceAttr(rName, "web.0.timeout", "60000"),
+					resource.TestCheckResourceAttr(rName, "web_policy.#", "1"),
+					resource.TestCheckResourceAttr(rName, "mock.#", "0"),
+					resource.TestCheckResourceAttr(rName, "func_graph.#", "0"),
+					resource.TestCheckResourceAttr(rName, "mock_policy.#", "0"),
+					resource.TestCheckResourceAttr(rName, "func_graph_policy.#", "0"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccApigAPIResourceImportStateFunc(resourceName),
+				ImportStateIdFunc: testAccApiResourceImportStateFunc(),
 			},
 		},
 	})
 }
 
-func testAccCheckApigAPIDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	client, err := config.ApigV2Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
-	}
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_apig_api" {
-			continue
-		}
-		_, err := apis.Get(client, rs.Primary.Attributes["instance_id"], rs.Primary.ID).Extract()
-		if err == nil {
-			return fmt.Errorf("APIG v2 API (%s) is still exists", rs.Primary.ID)
-		}
-	}
-	return nil
-}
-
-func testAccCheckApigAPIExists(n string, app *apis.APIResp) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Resource %s not found", n)
-		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("Unable to find API ID")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		client, err := config.ApigV2Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
-		}
-		found, err := apis.Get(client, rs.Primary.Attributes["instance_id"], rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-		*app = *found
-		return nil
-	}
-}
-
-func testAccApigAPIResourceImportStateFunc(name string) resource.ImportStateIdFunc {
+func testAccApiResourceImportStateFunc() resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
-		rs, ok := s.RootModule().Resources[name]
+		rName := "huaweicloud_apig_api.test"
+		rs, ok := s.RootModule().Resources[rName]
 		if !ok {
-			return "", fmt.Errorf("Resource (%s) not found: %s", name, rs)
+			return "", fmt.Errorf("resource (%s) not found: %s", rName, rs)
 		}
-		if rs.Primary.ID == "" || rs.Primary.Attributes["instance_id"] == "" {
-			return "", fmt.Errorf("resource not found: %s/%s", rs.Primary.Attributes["instance_id"],
-				rs.Primary.Attributes["name"])
+		if rs.Primary.Attributes["instance_id"] == "" || rs.Primary.Attributes["name"] == "" {
+			return "", fmt.Errorf("missing some attributes, want '{instance_id}/{name}', but '%s/%s'",
+				rs.Primary.Attributes["instance_id"], rs.Primary.Attributes["name"])
 		}
 		return fmt.Sprintf("%s/%s", rs.Primary.Attributes["instance_id"], rs.Primary.Attributes["name"]), nil
 	}
 }
 
-func testAccApigAPI_base(rName string) string {
+func testAccApi_base(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_apig_group" "test" {
-  name        = "%s"
+  name        = "%[2]s"
   instance_id = huaweicloud_apig_instance.test.id
-  description = "Created by script"
 }
 
 resource "huaweicloud_apig_vpc_channel" "test" {
-  name        = "%s"
+  name        = "%[2]s"
   instance_id = huaweicloud_apig_instance.test.id
   port        = 80
   algorithm   = "WRR"
@@ -172,17 +144,17 @@ resource "huaweicloud_apig_vpc_channel" "test" {
     id = huaweicloud_compute_instance.test.id
   }
 }
-`, testAccVpcChannel_base(rName), rName, rName)
+`, testAccVpcChannel_base(name), name)
 }
 
-func testAccApigAPI_basic(rName string) string {
+func testAccApi_basic(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_apig_api" "test" {
   instance_id             = huaweicloud_apig_instance.test.id
   group_id                = huaweicloud_apig_group.test.id
-  name                    = "%s"
+  name                    = "%[2]s"
   type                    = "Public"
   request_protocol        = "HTTP"
   request_method          = "GET"
@@ -218,7 +190,7 @@ resource "huaweicloud_apig_api" "test" {
   }
 
   web_policy {
-    name             = "%s_policy1"
+    name             = "%[2]s_policy1"
     request_protocol = "HTTP"
     request_method   = "GET"
     effective_mode   = "ANY"
@@ -241,17 +213,17 @@ resource "huaweicloud_apig_api" "test" {
     }
   }
 }
-`, testAccApigAPI_base(rName), rName, rName)
+`, testAccApi_base(name), name)
 }
 
-func testAccApigAPI_update(rName string) string {
+func testAccApi_update(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_apig_api" "test" {
   instance_id             = huaweicloud_apig_instance.test.id
   group_id                = huaweicloud_apig_group.test.id
-  name                    = "%s_update"
+  name                    = "%[2]s"
   type                    = "Public"
   request_protocol        = "HTTP"
   request_method          = "GET"
@@ -287,7 +259,7 @@ resource "huaweicloud_apig_api" "test" {
   }
 
   web_policy {
-    name             = "%s_update_policy1"
+    name             = "%[2]s_policy1"
     request_protocol = "HTTP"
     request_method   = "GET"
     effective_mode   = "ANY"
@@ -310,5 +282,5 @@ resource "huaweicloud_apig_api" "test" {
     }
   }
 }
-`, testAccApigAPI_base(rName), rName, rName)
+`, testAccApi_base(name), name)
 }
