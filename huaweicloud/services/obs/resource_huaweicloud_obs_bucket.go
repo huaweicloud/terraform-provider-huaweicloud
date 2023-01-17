@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -457,7 +456,7 @@ func resourceObsBucketUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			return diag.Errorf("error creating EPS client: %s", err)
 		}
 
-		if err := resourceObsBucketEnterpriseProjectIdUpdate(ctx, obsClient, epsClient, d, region); err != nil {
+		if err := resourceObsBucketEnterpriseProjectIdUpdate(ctx, d, obsClient, epsClient, region); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -953,38 +952,23 @@ func resourceObsBucketCorsUpdate(obsClient *obs.ObsClient, d *schema.ResourceDat
 	return nil
 }
 
-func resourceObsBucketEnterpriseProjectIdUpdate(ctx context.Context, obsClient *obs.ObsClient,
-	epsClient *golangsdk.ServiceClient, d *schema.ResourceData, region string) error {
+func resourceObsBucketEnterpriseProjectIdUpdate(ctx context.Context, d *schema.ResourceData,
+	obsClient *obs.ObsClient, epsClient *golangsdk.ServiceClient, region string) error {
 	bucket := d.Get("bucket").(string)
 	targetEPSId := d.Get("enterprise_project_id").(string)
 
-	if len(targetEPSId) == 0 {
-		targetEPSId = "0"
-	} else {
-		// check enterprise_project_id existed
-		if result := enterpriseprojects.Get(epsClient, targetEPSId); result.Err != nil {
-			return getObsError("Failed to get enterpriseProject detail", bucket, result.Err)
-		}
-	}
-
-	migrateOpts := enterpriseprojects.MigrateResourceOpts{
-		RegionId:     region,
-		ProjectId:    epsClient.ProjectID,
-		ResourceId:   bucket,
-		ResourceType: "bucket",
-	}
-	if err := common.MigrateEnterpriseProject(epsClient, targetEPSId, migrateOpts); err != nil {
+	if err := common.MigrateEnterpriseProject(epsClient, region, targetEPSId, "bucket", bucket); err != nil {
 		return err
 	}
 
 	// wait for the Enterprise Project ID changed in OBS
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"Pending"},
-		Target:     []string{"Success"},
-		Refresh:    waitForOBSEnterpriseProjectIdChanged(obsClient, bucket, targetEPSId),
-		Timeout:    d.Timeout(schema.TimeoutUpdate),
-		Delay:      5 * time.Second,
-		MinTimeout: 5 * time.Second,
+		Pending:      []string{"Pending"},
+		Target:       []string{"Success"},
+		Refresh:      waitForOBSEnterpriseProjectIdChanged(obsClient, bucket, targetEPSId),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        10 * time.Second,
+		PollInterval: 5 * time.Second,
 	}
 
 	_, err := stateConf.WaitForStateContext(ctx)
@@ -1006,7 +990,7 @@ func waitForOBSEnterpriseProjectIdChanged(obsClient *obs.ObsClient, bucket strin
 		}
 
 		if output.Epid == enterpriseProjectId {
-			log.Printf("[DEBUG] the Enterprise Project ID of bucket %s is migrated to  %s", bucket, enterpriseProjectId)
+			log.Printf("[DEBUG] the Enterprise Project ID of bucket %s is migrated to %s", bucket, enterpriseProjectId)
 			return output, "Success", nil
 		}
 

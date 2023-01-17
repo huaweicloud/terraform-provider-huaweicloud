@@ -67,34 +67,27 @@ func GetEnterpriseProjectID(d *schema.ResourceData, config *config.Config) strin
 	return config.EnterpriseProjectID
 }
 
-func MigrateEnterpriseProject(serviceClient *golangsdk.ServiceClient, enterpriseProjectId string,
-	migrateOpts enterpriseprojects.MigrateResourceOpts) error {
-	migrateResult := enterpriseprojects.Migrate(serviceClient, migrateOpts, enterpriseProjectId)
+func MigrateEnterpriseProject(client *golangsdk.ServiceClient, region, targetEPSId, resourceType, resourceID string) error {
+	if targetEPSId == "" {
+		targetEPSId = "0"
+	} else {
+		// check enterprise_project_id existed
+		if result := enterpriseprojects.Get(client, targetEPSId); result.Err != nil {
+			return fmt.Errorf("failed to query the target enterprise project %s: %s", targetEPSId, result.Err)
+		}
+	}
+
+	migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		RegionId:     region,
+		ProjectId:    client.ProjectID,
+		ResourceType: resourceType,
+		ResourceId:   resourceID,
+	}
+	migrateResult := enterpriseprojects.Migrate(client, migrateOpts, targetEPSId)
 	if err := migrateResult.Err; err != nil {
-		return fmt.Errorf("failed to migrate enterprise project: %s, err: %s", enterpriseProjectId, err)
+		return fmt.Errorf("failed to migrate %s to enterprise project %s, err: %s", resourceID, targetEPSId, err)
 	}
 
-	resourceID := migrateOpts.ResourceId
-	filterOpts := enterpriseprojects.ResourceOpts{
-		Projects:      []string{migrateOpts.ProjectId},
-		ResourceTypes: []string{migrateOpts.ResourceType},
-		Matches: []enterpriseprojects.Match{
-			{
-				Key:   "resource_name",
-				Value: resourceID,
-			},
-		},
-	}
-	result := enterpriseprojects.ShowResource(serviceClient, filterOpts, enterpriseProjectId)
-
-	var filterResult enterpriseprojects.FilterResult
-	if err := result.ExtractInto(&filterResult); err != nil {
-		return fmt.Errorf("failed to extract enterprise project: %s, err: %s", enterpriseProjectId, err)
-	}
-
-	if filterResult.TotalCount == 0 {
-		return fmt.Errorf("can not find the resource %s in inenterprise project %s", resourceID, enterpriseProjectId)
-	}
 	return nil
 }
 
