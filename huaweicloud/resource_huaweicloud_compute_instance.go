@@ -1007,15 +1007,16 @@ func normalizeChargingMode(mode string) string {
 
 func resourceComputeInstanceV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
+	region := GetRegion(d, config)
+	computeClient, err := config.ComputeV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating compute V2 client: %s", err)
 	}
-	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
+	ecsClient, err := config.ComputeV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating compute V1 client: %s", err)
 	}
-	ecsV11Client, err := config.ComputeV11Client(GetRegion(d, config))
+	ecsV11Client, err := config.ComputeV11Client(region)
 	if err != nil {
 		return diag.Errorf("error creating compute V1.1 client: %s", err)
 	}
@@ -1149,7 +1150,7 @@ func resourceComputeInstanceV2Update(ctx context.Context, d *schema.ResourceData
 
 	if d.HasChange("network") {
 		var err error
-		nicClient, err := config.NetworkingV2Client(GetRegion(d, config))
+		nicClient, err := config.NetworkingV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating networking client: %s", err)
 		}
@@ -1160,7 +1161,7 @@ func resourceComputeInstanceV2Update(ctx context.Context, d *schema.ResourceData
 	}
 
 	if d.HasChange("tags") {
-		ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
+		ecsClient, err := config.ComputeV1Client(region)
 		if err != nil {
 			return diag.Errorf("error creating compute v1 client: %s", err)
 		}
@@ -1184,11 +1185,11 @@ func resourceComputeInstanceV2Update(ctx context.Context, d *schema.ResourceData
 			}
 		}
 
-		evsV2Client, err := config.BlockStorageV2Client(config.GetRegion(d))
+		evsV2Client, err := config.BlockStorageV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating evs V2 client: %s", err)
 		}
-		evsV21Client, err := config.BlockStorageV21Client(GetRegion(d, config))
+		evsV21Client, err := config.BlockStorageV21Client(region)
 		if err != nil {
 			return diag.Errorf("error creating evs V2.1 client: %s", err)
 		}
@@ -1201,7 +1202,7 @@ func resourceComputeInstanceV2Update(ctx context.Context, d *schema.ResourceData
 		}
 
 		if strings.EqualFold(d.Get("charging_mode").(string), "prePaid") {
-			bssClient, err := config.BssV2Client(config.GetRegion(d))
+			bssClient, err := config.BssV2Client(region)
 			if err != nil {
 				return diag.Errorf("error creating BSS v2 client: %s", err)
 			}
@@ -1230,7 +1231,21 @@ func resourceComputeInstanceV2Update(ctx context.Context, d *schema.ResourceData
 
 	// update the key_pair before power action
 	if d.HasChange("key_pair") {
-		if err := updateEcsInstanceKeyPair(ctx, d, config); err != nil {
+		kmsClient, err := config.KmsV3Client(region)
+		if err != nil {
+			return diag.Errorf("error creating KMS v3 client: %s", err)
+		}
+
+		o, n := d.GetChange("key_pair")
+		keyPairOpts := &common.KeypairAuthOpts{
+			InstanceID:       d.Id(),
+			InUsedKeyPair:    o.(string),
+			NewKeyPair:       n.(string),
+			InUsedPrivateKey: d.Get("private_key").(string),
+			Password:         d.Get("admin_pass").(string),
+			Timeout:          d.Timeout(schema.TimeoutUpdate),
+		}
+		if err := common.UpdateEcsInstanceKeyPair(ctx, ecsClient, kmsClient, keyPairOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

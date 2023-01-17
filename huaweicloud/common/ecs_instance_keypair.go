@@ -1,4 +1,4 @@
-package huaweicloud
+package common
 
 import (
 	"context"
@@ -8,76 +8,83 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/chnsz/golangsdk/openstack/kms/v3/keypairs"
 )
 
-func updateEcsInstanceKeyPair(ctx context.Context, d *schema.ResourceData, conf *config.Config) error {
+type KeypairAuthOpts struct {
+	// the ECS instance ID
+	InstanceID string
+	// the keypair name in used
+	InUsedKeyPair string
+	// the replaced keypair name
+	NewKeyPair string
+	// the private key of the keypair name in used, it's used to replace or unbind the keypair
+	InUsedPrivateKey string
+	// the root password of the ECS instance, it's used to bind a new keypair
+	Password string
+	// the timeout to wait for the task
+	Timeout time.Duration
+}
+
+func UpdateEcsInstanceKeyPair(ctx context.Context, ecsClient, kmsClient *golangsdk.ServiceClient, opts *KeypairAuthOpts) error {
 	var taskID string
-	serverID := d.Id()
-	region := GetRegion(d, conf)
-	kmsClient, err := conf.KmsV3Client(region)
 
-	if err != nil {
-		return fmt.Errorf("error creating KMS v3 client: %s", err)
-	}
-
-	authOpts, err := buildKeypairAuthOpts(d)
+	authOpts, err := buildKeypairAuthOpts(ecsClient, opts)
 	if err != nil {
 		return err
 	}
 
-	old, new := d.GetChange("key_pair")
-	oldKey := old.(string)
-	newKey := new.(string)
-
-	if newKey == "" {
-		log.Printf("[DEBUG] disassociate the keypair %s of instance %s", oldKey, serverID)
+	instanceID := opts.InstanceID
+	if opts.NewKeyPair == "" {
+		log.Printf("[DEBUG] disassociate the keypair %s of instance %s", opts.InUsedKeyPair, instanceID)
 		unbindOpts := keypairs.DisassociateOpts{
-			ServerID: serverID,
+			ServerID: instanceID,
 			Auth:     authOpts,
 		}
 
 		if taskID, err = keypairs.Disassociate(kmsClient, unbindOpts); err != nil {
-			return fmt.Errorf("error disassociate the keypair %s of instance %s: %s", oldKey, serverID, err)
+			return fmt.Errorf("error disassociate the keypair %s of instance %s: %s", opts.InUsedKeyPair, instanceID, err)
 		}
 	} else {
-		log.Printf("[DEBUG] associate the keypair %s with instance %s", newKey, serverID)
+		log.Printf("[DEBUG] associate the keypair %s with instance %s", opts.NewKeyPair, instanceID)
 		bindOpts := keypairs.AssociateOpts{
-			Name: newKey,
+			Name: opts.NewKeyPair,
 			Server: keypairs.EcsServerOpts{
-				ID:   serverID,
+				ID:   instanceID,
 				Auth: authOpts,
 			},
 		}
 
 		if taskID, err = keypairs.Associate(kmsClient, bindOpts); err != nil {
-			return fmt.Errorf("error associate the keypair %s with instance %s: %s", newKey, serverID, err)
+			return fmt.Errorf("error associate the keypair %s with instance %s: %s", opts.NewKeyPair, instanceID, err)
 		}
 	}
 
 	if taskID != "" {
-		return waitForKeyPairTaskState(ctx, kmsClient, taskID, d.Timeout(schema.TimeoutUpdate))
+		return waitForKeyPairTaskState(ctx, kmsClient, taskID, opts.Timeout)
 	}
 
 	return nil
 }
 
-func buildKeypairAuthOpts(d *schema.ResourceData) (*keypairs.AuthOpts, error) {
-	if isEcsInstanceShutDown(d) {
-		log.Printf("[DEBUG] authentication is not required because the ECS instance %s was shutdown", d.Id())
+func buildKeypairAuthOpts(ecsClient *golangsdk.ServiceClient, opts *KeypairAuthOpts) (*keypairs.AuthOpts, error) {
+	instanceID := opts.InstanceID
+	server, err := cloudservers.Get(ecsClient, instanceID).Extract()
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch the ECS instance %s: %s", instanceID, err)
+	}
+
+	if server.Status == "SHUTOFF" {
+		log.Printf("[DEBUG] authentication is not required because the ECS instance %s was shutdown", instanceID)
 		return nil, nil
 	}
 
-	old, _ := d.GetChange("key_pair")
-	oldKey := old.(string)
-
 	// bind a new keypair
-	if oldKey == "" {
-		passwd := d.Get("admin_pass").(string)
+	if opts.InUsedKeyPair == "" {
+		passwd := opts.Password
 		if passwd == "" {
 			return nil, fmt.Errorf("the root password is required when binding a new keypair")
 		}
@@ -90,10 +97,10 @@ func buildKeypairAuthOpts(d *schema.ResourceData) (*keypairs.AuthOpts, error) {
 		return &passwdAuth, nil
 	}
 
-	// replace or unbind an existing keypair
-	privateKey := d.Get("private_key").(string)
+	// replace or unbind the keypair in used
+	privateKey := opts.InUsedPrivateKey
 	if privateKey == "" {
-		return nil, fmt.Errorf("the private key of existing keypair must be specified when replacing or unbinding")
+		return nil, fmt.Errorf("the private key of keypair in used must be specified when replacing or unbinding")
 	}
 
 	log.Printf("[DEBUG] the authentication type is keypair")
@@ -102,11 +109,6 @@ func buildKeypairAuthOpts(d *schema.ResourceData) (*keypairs.AuthOpts, error) {
 		Key:  privateKey,
 	}
 	return &keypairAuth, nil
-}
-
-func isEcsInstanceShutDown(d *schema.ResourceData) bool {
-	status := d.Get("status").(string)
-	return status == "SHUTOFF"
 }
 
 func waitForKeyPairTaskState(ctx context.Context, client *golangsdk.ServiceClient, taskID string, timeout time.Duration) error {
