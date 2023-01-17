@@ -114,10 +114,9 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				Optional: true,
 			},
 			"private_key": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Sensitive:    true,
-				RequiredWith: []string{"key_pair"},
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
 			},
 			"security_groups": {
 				Type:          schema.TypeSet,
