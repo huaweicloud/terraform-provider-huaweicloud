@@ -12,9 +12,6 @@ type VulHostInfo struct {
 	// 主机id
 	HostId *string `json:"host_id,omitempty"`
 
-	// 修复紧急度   - Critical : 高危   - High : 中危   - Medium : 中危   - Low : 低危
-	RepairNecessity *string `json:"repair_necessity,omitempty"`
-
 	// 危险程度   - Critical : 高危   - High : 中危   - Medium : 中危   - Low : 低危
 	SeverityLevel *string `json:"severity_level,omitempty"`
 

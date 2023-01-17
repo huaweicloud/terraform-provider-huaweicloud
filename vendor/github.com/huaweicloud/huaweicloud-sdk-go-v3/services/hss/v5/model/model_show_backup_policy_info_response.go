@@ -23,11 +23,8 @@ type ShowBackupPolicyInfoResponse struct {
 
 	OperationDefinition *OperationDefinitionInfo `json:"operation_definition,omitempty"`
 
-	Trigger *BackupTriggerInfo `json:"trigger,omitempty"`
-
-	// 关联的存储库
-	AssociatedVaults *[]AssociatedVaultsInfo `json:"associated_vaults,omitempty"`
-	HttpStatusCode   int                     `json:"-"`
+	Trigger        *BackupTriggerInfo `json:"trigger,omitempty"`
+	HttpStatusCode int                `json:"-"`
 }
 
 func (o ShowBackupPolicyInfoResponse) String() string {
