@@ -42,6 +42,9 @@ type EventManagementResponseInfo struct {
 	// 弹性公网IP地址
 	PublicIp *string `json:"public_ip,omitempty"`
 
+	// 操作系统类型，包含如下2种。   - Linux ：Linux。   - Windows ：Windows。
+	OsType *string `json:"os_type,omitempty"`
+
 	// 攻击阶段，包含如下：   - reconnaissance : 侦查跟踪   - weaponization : 武器构建   - delivery : 载荷投递   - exploit : 漏洞利用   - installation : 安装植入   - command_and_control : 命令与控制   - actions : 目标达成
 	AttackPhase *string `json:"attack_phase,omitempty"`
 
@@ -103,6 +106,9 @@ type EventManagementResponseInfo struct {
 
 	// 文件信息列表
 	FileInfoList *[]EventFileResponseInfo `json:"file_info_list,omitempty"`
+
+	// 事件信息的简述
+	EventDetails *string `json:"event_details,omitempty"`
 }
 
 func (o EventManagementResponseInfo) String() string {

@@ -19,8 +19,8 @@ func (r CreateResult) Extract() (OrderInfo, error) {
 
 // OrderInfo is the response body of a Create operation.
 type OrderInfo struct {
-	ID      string `json:"resourceId"`
-	OrderID string `json:"orderId"`
+	ID      string `json:"resource_id"`
+	OrderID string `json:"order_id"`
 }
 
 // Instance represents a DataArts Studio instance.
