@@ -2,16 +2,15 @@ package dms
 
 import (
 	"context"
+	"fmt"
+	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
-
 	"github.com/chnsz/golangsdk/openstack/dms/v2/products"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
@@ -107,43 +106,44 @@ func DataSourceDmsProduct() *schema.Resource {
 	}
 }
 
-func getIObyIOtype(d *schema.ResourceData, IOs []products.IO) []products.IO {
-	io_type := d.Get("io_type").(string)
-	storage_spec_code := d.Get("storage_spec_code").(string)
+func getIOByType(d *schema.ResourceData, productIOs []products.IO) []products.IO {
+	ioType := d.Get("io_type").(string)
+	storageSpecCode := d.Get("storage_spec_code").(string)
 
-	if io_type != "" || storage_spec_code != "" {
-		var getIOs []products.IO
-		for _, io := range IOs {
-			if io_type == io.IOType || storage_spec_code == io.StorageSpecCode {
-				getIOs = append(getIOs, io)
+	if ioType != "" || storageSpecCode != "" {
+		matchedIOs := make([]products.IO, 0)
+		for _, io := range productIOs {
+			if ioType == io.IOType || storageSpecCode == io.StorageSpecCode {
+				matchedIOs = append(matchedIOs, io)
 			}
 		}
-		return getIOs
+		return matchedIOs
 	}
 
-	return IOs
+	return productIOs
 }
 
 func getProducts(config *config.Config, region, engine string) (*products.GetResponse, error) {
 	dmsV2Client, err := config.DmsV2Client(region)
 	if err != nil {
-		return nil, fmtp.Errorf("Error get HuaweiCloud DMS product client V2: %s", err)
+		return nil, fmt.Errorf("error getting DMS product client V2: %s", err)
 	}
-	v, err := products.Get(dmsV2Client, engine)
+	v, err := products.Get(dmsV2Client, engine) //nolint: staticcheck
 	return v, err
 }
 
-func dataSourceDmsProductRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
+// Currently the complex is 37 and will be repaired later.
+func dataSourceDmsProductRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { //nolint: gocyclo
+	cfg := meta.(*config.Config)
 
 	instanceEngine := d.Get("engine").(string)
-	r, err := getProducts(config, config.GetRegion(d), instanceEngine)
+	r, err := getProducts(cfg, cfg.GetRegion(d), instanceEngine)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	hourlyProducts := r.Hourly
-	logp.Printf("[DEBUG] Get a list of DMS products, engine:%s, list: %+v", instanceEngine, hourlyProducts)
+	log.Printf("[DEBUG] Get a list of DMS products, engine:%s, list: %+v", instanceEngine, hourlyProducts)
 
 	instanceType := d.Get("instance_type").(string)
 	vmSpecification := d.Get("vm_specification").(string)
@@ -189,11 +189,11 @@ func dataSourceDmsProductRead(_ context.Context, d *schema.ResourceData, meta in
 						continue
 					}
 
-					IOs := getIObyIOtype(d, detail.IOs)
-					if len(IOs) == 0 {
+					productIOs := getIOByType(d, detail.IOs)
+					if len(productIOs) == 0 {
 						continue
 					}
-					detail.IOs = IOs
+					detail.IOs = productIOs
 				} else {
 					productInfos := make([]products.ProductInfo, 0)
 					for _, productInfo := range detail.ProductInfos {
@@ -207,11 +207,11 @@ func dataSourceDmsProductRead(_ context.Context, d *schema.ResourceData, meta in
 							continue
 						}
 
-						IOs := getIObyIOtype(d, productInfo.IOs)
-						if len(IOs) == 0 {
+						productIOs := getIOByType(d, productInfo.IOs)
+						if len(productIOs) == 0 {
 							continue
 						}
-						productInfo.IOs = IOs
+						productInfo.IOs = productIOs
 						productInfos = append(productInfos, productInfo)
 					}
 					if len(productInfos) == 0 {
@@ -233,7 +233,7 @@ func dataSourceDmsProductRead(_ context.Context, d *schema.ResourceData, meta in
 	}
 
 	if len(filteredProducts) < 1 {
-		return fmtp.DiagErrorf("Your query returned no results. Please change your filters and try again.")
+		return diag.Errorf("your query returned no results. Please change your filters and try again.")
 	}
 
 	pd := filteredProducts[0]
@@ -258,7 +258,7 @@ func dataSourceDmsProductRead(_ context.Context, d *schema.ResourceData, meta in
 		)
 	} else {
 		if len(pd.ProductInfos) < 1 {
-			return fmtp.DiagErrorf("Your query returned no results. Please change your filters and try again.")
+			return diag.Errorf("your query returned no results. Please change your filters and try again.")
 		}
 		pdInfo := pd.ProductInfos[0]
 		d.SetId(pdInfo.ProductID)
@@ -277,9 +277,9 @@ func dataSourceDmsProductRead(_ context.Context, d *schema.ResourceData, meta in
 			d.Set("availability_zones", pdInfo.AvailableZones),
 		)
 	}
-	logp.Printf("[DEBUG] DMS product detail : %#v", pd)
+	log.Printf("[DEBUG] DMS product detail : %#v", pd)
 	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf("Error setting DMS product attributes: %s", mErr)
+		return diag.Errorf("error setting DMS product attributes: %s", mErr)
 	}
 
 	return nil
