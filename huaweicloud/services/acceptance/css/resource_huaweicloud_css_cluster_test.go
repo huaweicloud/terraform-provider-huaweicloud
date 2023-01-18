@@ -41,6 +41,8 @@ func TestAccCssCluster_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "security_mode", "true"),
+					resource.TestCheckResourceAttr(resourceName, "https_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.instance_number", "1"),
 					resource.TestCheckResourceAttr(resourceName, "engine_type", "elasticsearch"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "7"),
@@ -88,6 +90,7 @@ func TestAccCssCluster_prePaid(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "engine_type", "elasticsearch"),
 					resource.TestCheckResourceAttr(resourceName, "security_mode", "true"),
+					resource.TestCheckResourceAttr(resourceName, "https_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.instance_number", "1"),
 					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.instance_number", "3"),
 					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.instance_number", "1"),
@@ -145,8 +148,10 @@ func testAccCssCluster_basic(rName string, nodeNum int, keepDays int, tag string
 %s
 
 resource "huaweicloud_css_cluster" "test" {
-  name            = "%s"
-  engine_version  = "7.10.2"
+  name           = "%s"
+  engine_version = "7.10.2"
+  security_mode  = true
+  password       = "Test@passw0rd"
 
   ess_node_config {
     flavor          = "ess.spec-4u8g"
@@ -163,9 +168,9 @@ resource "huaweicloud_css_cluster" "test" {
   vpc_id            = huaweicloud_vpc.test.id
 
   backup_strategy {
-    keep_days  = %d
-    start_time = "00:00 GMT+08:00"
-    prefix     = "snapshot"
+    keep_days   = %d
+    start_time  = "00:00 GMT+08:00"
+    prefix      = "snapshot"
     bucket      = huaweicloud_obs_bucket.cssObs.bucket
     agency      = "css_obs_agency"
     backup_path = "css_repository/acctest"
