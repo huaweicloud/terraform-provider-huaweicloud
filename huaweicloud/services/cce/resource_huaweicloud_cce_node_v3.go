@@ -35,6 +35,7 @@ func ResourceCCENodeV3() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -74,7 +75,6 @@ func ResourceCCENodeV3() *schema.Resource {
 			"key_pair": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				ExactlyOneOf: []string{"password", "key_pair"},
 			},
 			"password": {
@@ -83,6 +83,11 @@ func ResourceCCENodeV3() *schema.Resource {
 				ForceNew:     true,
 				Sensitive:    true,
 				ExactlyOneOf: []string{"password", "key_pair"},
+			},
+			"private_key": {
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
 			},
 			"root_volume": {
 				Type:     schema.TypeList,
@@ -931,17 +936,24 @@ func resourceCCENodeV3Read(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("status", s.Status.Phase),
 	)
 
-	// fetch tags from ECS instance
 	computeClient, err := config.ComputeV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
+	// fetch key_pair from ECS instance
+	if server, err := cloudservers.Get(computeClient, serverId).Extract(); err == nil {
+		mErr = multierror.Append(mErr, d.Set("key_pair", server.KeyName))
+	} else {
+		logp.Printf("[WARN] Error fetching ECS instance (%s): %s", serverId, err)
+	}
+
+	// fetch tags from ECS instance
 	if resourceTags, err := tags.Get(computeClient, "cloudservers", serverId).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		mErr = multierror.Append(mErr, d.Set("tags", tagmap))
 	} else {
-		logp.Printf("[WARN] Error fetching tags of CCE Node (%s): %s", serverId, err)
+		logp.Printf("[WARN] Error fetching tags of ECS instance (%s): %s", serverId, err)
 	}
 
 	if err = mErr.ErrorOrNil(); err != nil {
@@ -952,9 +964,15 @@ func resourceCCENodeV3Read(_ context.Context, d *schema.ResourceData, meta inter
 
 func resourceCCENodeV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	nodeClient, err := config.CceV3Client(config.GetRegion(d))
+	region := config.GetRegion(d)
+
+	nodeClient, err := config.CceV3Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
+	}
+	computeClient, err := config.ComputeV1Client(config.GetRegion(d))
+	if err != nil {
+		return fmtp.DiagErrorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	if d.HasChange("name") {
@@ -968,17 +986,34 @@ func resourceCCENodeV3Update(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
-	//update tags
-	if d.HasChange("tags") {
-		computeClient, err := config.ComputeV1Client(config.GetRegion(d))
-		if err != nil {
-			return fmtp.DiagErrorf("Error creating HuaweiCloud compute client: %s", err)
-		}
+	serverId := d.Get("server_id").(string)
 
-		serverId := d.Get("server_id").(string)
+	// update node tags with ECS API
+	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(computeClient, d, "cloudservers", serverId)
 		if tagErr != nil {
 			return fmtp.DiagErrorf("Error updating tags of cce node %s: %s", d.Id(), tagErr)
+		}
+	}
+
+	// update node key_pair with DEW API
+	if d.HasChange("key_pair") {
+		kmsClient, err := config.KmsV3Client(region)
+		if err != nil {
+			return diag.Errorf("error creating KMS v3 client: %s", err)
+		}
+
+		o, n := d.GetChange("key_pair")
+		keyPairOpts := &common.KeypairAuthOpts{
+			InstanceID:       serverId,
+			InUsedKeyPair:    o.(string),
+			NewKeyPair:       n.(string),
+			InUsedPrivateKey: d.Get("private_key").(string),
+			Password:         d.Get("password").(string),
+			Timeout:          d.Timeout(schema.TimeoutUpdate),
+		}
+		if err := common.UpdateEcsInstanceKeyPair(ctx, computeClient, kmsClient, keyPairOpts); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 

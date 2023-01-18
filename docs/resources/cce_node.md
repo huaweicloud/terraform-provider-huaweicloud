@@ -203,12 +203,15 @@ The following arguments are supported:
   + For VM nodes, clusters of v1.13 and later support *EulerOS 2.5* and *CentOS 7.6*.
   + For BMS nodes purchased in the yearly/monthly billing mode, only *EulerOS 2.3* is supported.
 
-* `key_pair` - (Optional, String, ForceNew) Specifies the key pair name when logging in to select the key pair mode.
-  This parameter and `password` are alternative. Changing this parameter will create a new resource.
+* `key_pair` - (Optional, String) Specifies the key pair name when logging in to select the key pair mode.
+  This parameter and `password` are alternative.
 
 * `password` - (Optional, String, ForceNew) Specifies the root password when logging in to select the password mode.
   This parameter can be plain or salted and is alternative to `key_pair`.
   Changing this parameter will create a new resource.
+
+* `private_key` - (Optional, String) Specifies the private key of the in used `key_pair`. This parameter is mandatory
+  when replacing or unbinding a keypair if the CCE node is in **Active** state.
 
 * `root_volume` - (Required, List, ForceNew) Specifies the configuration of the system disk.
   Changing this parameter will create a new resource.
