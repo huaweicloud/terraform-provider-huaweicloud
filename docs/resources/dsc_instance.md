@@ -8,7 +8,7 @@ Manages a DSC instance resource within HuaweiCloud.
 
 ## Example Usage
 
-```HCL
+```hcl
 resource "huaweicloud_dsc_instance" "test" {
   edition                    = "base_standard"
   charging_mode              = "prePaid"

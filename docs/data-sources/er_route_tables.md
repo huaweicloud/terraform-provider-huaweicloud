@@ -10,7 +10,7 @@ Use this data source to query the route tables under the ER instance within Huaw
 
 ### Querying specified route tables under ER instance using name
 
-```HCL
+```hcl
 variable "instance_id" {}
 variable "route_table_name" {}
 
@@ -22,7 +22,7 @@ data "huaweicloud_er_route_tables" "test" {
 
 ### Querying specified route tables under ER instance using tags
 
-```HCL
+```hcl
 variable "instance_id" {}
 
 data "huaweicloud_er_route_tables" "test" {

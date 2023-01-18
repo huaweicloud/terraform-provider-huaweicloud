@@ -8,7 +8,7 @@ Manages a GA endpoint resource within HuaweiCloud.
 
 ## Example Usage
 
-```HCL
+```hcl
 variable "endpoint_group_id" {}
 variable "resource_id" {}
 variable "ip_address" {}

@@ -8,7 +8,7 @@ Manages a route table resource under the ER instance within HuaweiCloud.
 
 ## Example Usage
 
-```HCL
+```hcl
 variable "instance_id" {}
 variable "route_table_name" {}
 

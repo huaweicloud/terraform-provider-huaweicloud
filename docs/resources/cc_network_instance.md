@@ -13,7 +13,7 @@ Each network instance can be loaded onto only one cloud connection.
 
 ## Example Usage
 
-```HCL
+```hcl
 variable "cloud_connection_id" {}
 variable "vpc_instance_id" {}
 variable "vpc_project_id" {}

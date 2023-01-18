@@ -8,7 +8,7 @@ Manages an association resource under the route table for ER service within Huaw
 
 ## Example Usage
 
-```HCL
+```hcl
 variable "instance_id" {}
 variable "route_table_id" {}
 variable "attachment_id" {}

@@ -8,7 +8,7 @@ Manages an OBS asset resource of DSC within HuaweiCloud.
 
 ## Example Usage
 
-```HCL
+```hcl
 variable "name" {}
 variable "bucket_name" {}
 

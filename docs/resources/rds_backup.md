@@ -8,7 +8,7 @@ Manages a RDS manual backup resource within HuaweiCloud.
 
 ## Example Usage
 
-```HCL
+```hcl
 variable "instance_id" {}
 variable "backup_name" {}
 
