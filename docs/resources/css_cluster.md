@@ -102,6 +102,10 @@ The following arguments are supported:
   + The password must contain at least 3 of the following character types: uppercase letters, lowercase letters, digits,
     and special characters (~!@#$%^&*()-_=+\\|[{}];:,<.>/?).
 
+* `https_enabled` - (Optional, Bool, ForceNew) Specifies whether to enable HTTPS. Defaults to `false`.
+  When `https_enabled` is set to `true`, the `security_mode` needs to be set to `true`.
+  Changing this parameter will create a new resource.
+
 * `ess_node_config` - (Required, List, ForceNew) Specifies the config of data node.
   The [ess_node_config](#Css_ess_node_config) structure is documented below.
 
