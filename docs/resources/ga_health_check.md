@@ -8,7 +8,7 @@ Manages a GA health check resource within HuaweiCloud.
 
 ## Example Usage
 
-```HCL
+```hcl
 variable "endpoint_group_id" {}
 
 resource "huaweicloud_ga_health_check" "test" {

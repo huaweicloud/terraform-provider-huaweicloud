@@ -11,7 +11,7 @@ between VPCs across regions and between VPCs and on-premises data centers.
 
 ## Example Usage
 
-```HCL
+```hcl
 resource "huaweicloud_cc_connection" "test" {
    name = "connection_demo"
 }

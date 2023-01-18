@@ -10,7 +10,7 @@ Manages a VPN gateway resource within HuaweiCloud.
 
 ### Basic Usage
 
-```HCL
+```hcl
 variable "name" {}
 variable "vpc_id" {}
 variable "eip_id1" {}
@@ -35,7 +35,7 @@ resource "huaweicloud_vpn_gateway" "test" {
 
 ### Creating a VPN gateway with creating new EIPs
 
-```HCL
+```hcl
 variable "name" {}
 variable "vpc_id" {}
 variable "bandwidth_name1" {}

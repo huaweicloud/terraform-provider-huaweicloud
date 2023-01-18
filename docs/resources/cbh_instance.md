@@ -8,7 +8,7 @@ Manages CBH instance resources within HuaweiCloud.
 
 ## Example Usage
 
-```HCL
+```hcl
 variable "flavor_id" {}
 variable "vpc_id" {}
 variable "subnet_id" {}

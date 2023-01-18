@@ -8,7 +8,7 @@ Manages a VPN customer gateway resource within HuaweiCloud.
 
 ## Example Usage
 
-```HCL
+```hcl
 variable "name" {}
 variable "ip" {}
 

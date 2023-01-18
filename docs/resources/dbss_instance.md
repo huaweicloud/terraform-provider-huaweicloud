@@ -8,7 +8,7 @@ Manages a DBSS instance resource within HuaweiCloud.
 
 ## Example Usage
 
-```HCL
+```hcl
 variable "name" {}
 variable "availability_zone" {}
 variable "vpc_id" {}

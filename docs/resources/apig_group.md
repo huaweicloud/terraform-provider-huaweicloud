@@ -8,7 +8,7 @@ Manages an APIG (API) group resource within HuaweiCloud.
 
 ## Example Usage
 
-```HCL
+```hcl
 variable "instance_id" {}
 variable "group_name" {}
 variable "description" {}

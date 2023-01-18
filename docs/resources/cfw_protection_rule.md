@@ -8,7 +8,7 @@ Manages a CFW protection rule resource within HuaweiCloud.
 
 ## Example Usage
 
-```HCL
+```hcl
 variable "name" {}
 variable "description" {}
 variable "object_id" {}

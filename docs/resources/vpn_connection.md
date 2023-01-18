@@ -10,7 +10,7 @@ Manages a VPN connection resource within HuaweiCloud.
 
 ### Basic Usage
 
-```HCL
+```hcl
 variable "name" {}
 variable "peer_subnet" {}
 variable "gateway_id" {}
@@ -30,7 +30,7 @@ resource "huaweicloud_vpn_connection" "test" {
 
 ### VPN connection with policy
 
-```HCL
+```hcl
 variable "name" {}
 variable "peer_subnet" {}
 variable "gateway_id" {}
