@@ -206,9 +206,10 @@ The following arguments are supported:
 * `key_pair` - (Optional, String) Specifies the key pair name when logging in to select the key pair mode.
   This parameter and `password` are alternative.
 
-* `password` - (Optional, String, ForceNew) Specifies the root password when logging in to select the password mode.
+* `password` - (Optional, String) Specifies the root password when logging in to select the password mode.
   This parameter can be plain or salted and is alternative to `key_pair`.
-  Changing this parameter will create a new resource.
+
+  -> A new password is in plain text and takes effect after the node is started or restarted.
 
 * `private_key` - (Optional, String) Specifies the private key of the in used `key_pair`. This parameter is mandatory
   when replacing or unbinding a keypair if the CCE node is in **Active** state.

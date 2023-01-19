@@ -80,7 +80,6 @@ func ResourceCCENodeV3() *schema.Resource {
 			"password": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				Sensitive:    true,
 				ExactlyOneOf: []string{"password", "key_pair"},
 			},
@@ -1003,17 +1002,31 @@ func resourceCCENodeV3Update(ctx context.Context, d *schema.ResourceData, meta i
 			return diag.Errorf("error creating KMS v3 client: %s", err)
 		}
 
+		currentPwd, _ := d.GetChange("password")
 		o, n := d.GetChange("key_pair")
 		keyPairOpts := &common.KeypairAuthOpts{
 			InstanceID:       serverId,
 			InUsedKeyPair:    o.(string),
 			NewKeyPair:       n.(string),
 			InUsedPrivateKey: d.Get("private_key").(string),
-			Password:         d.Get("password").(string),
+			Password:         currentPwd.(string),
+			DisablePassword:  true,
 			Timeout:          d.Timeout(schema.TimeoutUpdate),
 		}
 		if err := common.UpdateEcsInstanceKeyPair(ctx, computeClient, kmsClient, keyPairOpts); err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	// update node password with ECS API
+	// A new password takes effect after the ECS is started or restarted.
+	if d.HasChange("password") {
+		// if the password is empty, it means that the ECS instance will bind a new keypair
+		if newPwd, ok := d.GetOk("password"); ok {
+			err := cloudservers.ChangeAdminPassword(computeClient, serverId, newPwd.(string)).ExtractErr()
+			if err != nil {
+				return diag.Errorf("error changing password of cce node %s: %s", d.Id(), err)
+			}
 		}
 	}
 

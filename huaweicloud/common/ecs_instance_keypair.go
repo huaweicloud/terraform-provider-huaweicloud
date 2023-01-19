@@ -25,6 +25,8 @@ type KeypairAuthOpts struct {
 	InUsedPrivateKey string
 	// the root password of the ECS instance, it's used to bind a new keypair
 	Password string
+	// whether to disable SSH login on the VM
+	DisablePassword bool
 	// the timeout to wait for the task
 	Timeout time.Duration
 }
@@ -53,8 +55,9 @@ func UpdateEcsInstanceKeyPair(ctx context.Context, ecsClient, kmsClient *golangs
 		bindOpts := keypairs.AssociateOpts{
 			Name: opts.NewKeyPair,
 			Server: keypairs.EcsServerOpts{
-				ID:   instanceID,
-				Auth: authOpts,
+				ID:              instanceID,
+				Auth:            authOpts,
+				DisablePassword: &opts.DisablePassword,
 			},
 		}
 
