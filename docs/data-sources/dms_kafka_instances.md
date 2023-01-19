@@ -121,7 +121,7 @@ The `instances` block supports:
 
 * `user_name` - The username who created the instance.
 
-* `manegement_connect_address` - The connection address of the Kafka manager of an instance.
+* `management_connect_address` - The connection address of the Kafka manager of an instance.
 
 * `tags` - The key/value pairs to associate with the instance.
 
@@ -129,7 +129,7 @@ The `instances` block supports:
 
 The `cross_vpc_accesses` block supports:
 
-* `lisenter_ip` - The listener IP address.
+* `listener_ip` - The listener IP address.
 
 * `advertised_ip` - The advertised IP Address.
 

@@ -3,6 +3,7 @@ package dms
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"regexp"
 	"sort"
@@ -24,8 +25,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceDmsKafkaInstance() *schema.Resource {
@@ -226,9 +225,15 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"manegement_connect_address": {
+			"management_connect_address": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			// Typo, it is only kept in the code, will not be shown in the docs.
+			"manegement_connect_address": {
+				Type:       schema.TypeString,
+				Computed:   true,
+				Deprecated: "typo in manegement_connect_address, please use \"management_connect_address\" instead.",
 			},
 			"type": {
 				Type:     schema.TypeString,
@@ -258,7 +263,7 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				MaxItems: 3,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"lisenter_ip": {
+						"listener_ip": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -274,6 +279,12 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 						"port_id": {
 							Type:     schema.TypeString,
 							Computed: true,
+						},
+						// Typo, it is only kept in the code, will not be shown in the docs.
+						"lisenter_ip": {
+							Type:       schema.TypeString,
+							Computed:   true,
+							Deprecated: "typo in lisenter_ip, please use \"listener_ip\" instead.",
 						},
 					},
 				},
@@ -292,7 +303,7 @@ func resourceDmsKafkaPublicIpIDs(d *schema.ResourceData, bandwidth string) (stri
 		"1200MB": 8,
 	}
 	if IdNumMap[bandwidth] != len(publicIpIDsRaw) {
-		return "", fmtp.Errorf("error creating HuaweiCloud DMS kafka instance: "+
+		return "", fmt.Errorf("error creating DMS kafka instance: "+
 			"%d public ip IDs needed when bandwidth is set to %s, but got %d",
 			IdNumMap[bandwidth], bandwidth, len(publicIpIDsRaw))
 	}
@@ -304,7 +315,7 @@ func resourceDmsKafkaPublicIpIDs(d *schema.ResourceData, bandwidth string) (stri
 func getKafkaProductDetail(config *config.Config, d *schema.ResourceData) (*products.Detail, error) {
 	productRsp, err := getProducts(config, config.GetRegion(d), "kafka")
 	if err != nil {
-		return nil, fmtp.Errorf("error querying product detail, please check product_id, error: %s", err)
+		return nil, fmt.Errorf("error querying product detail, please check product_id, error: %s", err)
 	}
 
 	productID := d.Get("product_id").(string)
@@ -322,7 +333,7 @@ func getKafkaProductDetail(config *config.Config, d *schema.ResourceData) (*prod
 			}
 		}
 	}
-	return nil, fmtp.Errorf("can not found product detail base on product_id: %s", productID)
+	return nil, fmt.Errorf("can not found product detail base on product_id: %s", productID)
 }
 
 func updateCrossVpcAccesses(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
@@ -331,11 +342,11 @@ func updateCrossVpcAccesses(client *golangsdk.ServiceClient, d *schema.ResourceD
 	if len(oldVal.([]interface{})) < 1 {
 		v, err := instances.Get(client, d.Id()).Extract()
 		if err != nil {
-			return fmtp.Errorf("error getting DMS instance: %v", err)
+			return fmt.Errorf("error getting DMS instance: %v", err)
 		}
 		crossVpcAccess, err = flattenConnectPorts(v.CrossVpcInfo)
 		if err != nil {
-			return fmtp.Errorf("[ERROR] error retrieving details of the cross-VPC information: %v", err)
+			return fmt.Errorf("[ERROR] error retrieving details of the cross-VPC information: %v", err)
 		}
 	} else {
 		oldAccesses := oldVal.([]interface{})
@@ -347,7 +358,10 @@ func updateCrossVpcAccesses(client *golangsdk.ServiceClient, d *schema.ResourceD
 	newAccesses := newVal.([]interface{})
 	contentMap := make(map[string]string)
 	for i, oldAccess := range crossVpcAccess {
-		lisIp := oldAccess["lisenter_ip"].(string)
+		lisIp := oldAccess["listener_ip"].(string)
+		if lisIp == "" {
+			lisIp = oldAccess["lisenter_ip"].(string)
+		}
 		// If we configure the advertised ip as ["192.168.0.19", "192.168.0.8"], the length of new accesses is 2, and
 		// the length of old accesses is always 3.
 		if len(newAccesses) > i {
@@ -367,7 +381,7 @@ func updateCrossVpcAccesses(client *golangsdk.ServiceClient, d *schema.ResourceD
 	}
 	result, err := instances.UpdateCrossVpc(client, d.Id(), opts)
 	if err != nil {
-		return fmtp.Errorf("error updating advertised IP: %v", err)
+		return fmt.Errorf("error updating advertised IP: %v", err)
 	}
 
 	if !result.Success {
@@ -377,7 +391,7 @@ func updateCrossVpcAccesses(client *golangsdk.ServiceClient, d *schema.ResourceD
 				failureIp = append(failureIp, val.ListenersIp)
 			}
 		}
-		return fmtp.Errorf("failed to update the advertised IPs corresponding to some listener IPs (%v)", failureIp)
+		return fmt.Errorf("failed to update the advertised IPs corresponding to some listener IPs (%v)", failureIp)
 	}
 	return nil
 }
@@ -401,7 +415,7 @@ func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData,
 		region := conf.GetRegion(d)
 		client, err := conf.DmsV2Client(region)
 		if err != nil {
-			return fmtp.DiagErrorf("error creating HuaweiCloud DMS instance client: %s", err)
+			return diag.Errorf("error creating DMS instance client: %s", err)
 		}
 		if err = updateCrossVpcAccesses(client, d); err != nil {
 			return diag.Errorf("Failed to update default advertised IP: %v", err)
@@ -416,7 +430,7 @@ func newKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 	region := conf.GetRegion(d)
 	client, err := conf.DmsV2Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud DMS instance client: %s", err)
+		return diag.Errorf("error creating DMS instance client: %s", err)
 	}
 
 	createOpts := &instances.CreateOps{
@@ -466,23 +480,23 @@ func newKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 	createOpts.AvailableZones = availableZones
 
-	//set tags
+	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		taglist := utils.ExpandResourceTags(tagRaw)
 		createOpts.Tags = taglist
 	}
 
-	logp.Printf("[DEBUG] Create DMS Kafka instance options: %#v", createOpts)
+	log.Printf("[DEBUG] Create DMS Kafka instance options: %#v", createOpts)
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.Password = d.Get("password").(string)
 	createOpts.KafkaManagerPassword = d.Get("manager_password").(string)
 
 	v, err := instances.Create(client, createOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud DMS kafka instance: %s", err)
+		return diag.Errorf("error creating DMS kafka instance: %s", err)
 	}
-	logp.Printf("[INFO] instance ID: %s", v.InstanceID)
+	log.Printf("[INFO] instance ID: %s", v.InstanceID)
 
 	// Store the instance ID now
 	d.SetId(v.InstanceID)
@@ -497,7 +511,7 @@ func newKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf("error waiting for instance (%s) to become ready: %s", v.InstanceID, err)
+		return diag.Errorf("error waiting for instance (%s) to become ready: %s", v.InstanceID, err)
 	}
 
 	// After the kafka instance is created, wait for the access port to complete the binding.
@@ -518,16 +532,16 @@ func newKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func oldKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	dmsV2Client, err := config.DmsV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	dmsV2Client, err := cfg.DmsV2Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud DMS instance client: %s", err)
+		return diag.Errorf("error creating DMS instance client: %s", err)
 	}
 
-	product, err := getKafkaProductDetail(config, d)
+	product, err := getKafkaProductDetail(cfg, d)
 	if err != nil {
-		return fmtp.DiagErrorf("Error querying product detail: %s", err)
+		return diag.Errorf("Error querying product detail: %s", err)
 	}
 
 	bandwidth := product.Bandwidth
@@ -537,7 +551,7 @@ func oldKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 	// check storage
 	storageSpace, ok := d.GetOk("storage_space")
 	if ok && storageSpace.(int) < int(defaultStorageSpace) {
-		return fmtp.DiagErrorf("The storage capacity is less than the default capacity of the product. "+
+		return diag.Errorf("The storage capacity is less than the default capacity of the product. "+
 			"The default storage capacity of product is %v, storage_space is %v.", defaultStorageSpace, storageSpace)
 	}
 
@@ -553,7 +567,7 @@ func oldKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 	} else {
 		// convert the codes of the availability zone into ids
 		azCodes := d.Get("availability_zones").(*schema.Set)
-		availableZones, err = getAvailableZoneIDByCode(config, region, azCodes.List())
+		availableZones, err = getAvailableZoneIDByCode(cfg, region, azCodes.List())
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -581,7 +595,7 @@ func oldKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 		ConnectorEnalbe:     d.Get("dumping").(bool),
 		EnableAutoTopic:     d.Get("enable_auto_topic").(bool),
 		StorageSpecCode:     d.Get("storage_spec_code").(string),
-		EnterpriseProjectID: common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID: common.GetEnterpriseProjectID(d, cfg),
 	}
 
 	if _, ok := d.GetOk("public_ip_ids"); ok {
@@ -593,23 +607,23 @@ func oldKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 		createOpts.PublicIpID = publicIpIDs
 	}
 
-	//set tags
+	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		taglist := utils.ExpandResourceTags(tagRaw)
 		createOpts.Tags = taglist
 	}
 
-	logp.Printf("[DEBUG] Create DMS Kafka instance options: %#v", createOpts)
+	log.Printf("[DEBUG] Create DMS Kafka instance options: %#v", createOpts)
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.Password = d.Get("password").(string)
 	createOpts.KafkaManagerPassword = d.Get("manager_password").(string)
 
 	v, err := instances.Create(dmsV2Client, createOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud DMS kafka instance: %s", err)
+		return diag.Errorf("error creating DMS kafka instance: %s", err)
 	}
-	logp.Printf("[INFO] instance ID: %s", v.InstanceID)
+	log.Printf("[INFO] instance ID: %s", v.InstanceID)
 
 	// Store the instance ID now
 	d.SetId(v.InstanceID)
@@ -624,14 +638,14 @@ func oldKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf("error waiting for instance (%s) to become ready: %s", v.InstanceID, err)
+		return diag.Errorf("error waiting for instance (%s) to become ready: %s", v.InstanceID, err)
 	}
 
 	// resize storage capacity of the instance
 	if ok && storageSpace.(int) != int(defaultStorageSpace) {
 		err = resizeInstance(ctx, d, meta, "kafka")
 		if err != nil {
-			dErrs := fmtp.DiagErrorf("Kafka instance has created, "+
+			dErrs := diag.Errorf("Kafka instance has created, "+
 				"but an error occurred while resizing the storage capacity. "+
 				"Current storage capacity are %vGB, expected storage_space=%vGB, error message: %s ",
 				defaultStorageSpace, storageSpace.(int), err)
@@ -683,6 +697,7 @@ func flattenConnectPorts(strInfos string) (result []map[string]interface{}, err 
 	for i, k := range keyList {
 		crossVpcInfo := crossVpcInfos[k].(map[string]interface{})
 		result[i] = map[string]interface{}{
+			"listener_ip":   k,
 			"lisenter_ip":   k,
 			"advertised_ip": crossVpcInfo["advertised_ip"],
 			"port":          crossVpcInfo["port"],
@@ -702,18 +717,18 @@ func setKafkaFlavorId(d *schema.ResourceData, flavorId string) error {
 }
 
 func resourceDmsKafkaInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
-	dmsV2Client, err := config.DmsV2Client(region)
+	dmsV2Client, err := cfg.DmsV2Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud DMS instance client: %s", err)
+		return diag.Errorf("error creating DMS instance client: %s", err)
 	}
 	v, err := instances.Get(dmsV2Client, d.Id()).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "DMS instance")
 	}
-	logp.Printf("[DEBUG] DMS kafka instance created success %s: %+v", d.Id(), v)
+	log.Printf("[DEBUG] DMS kafka instance created success %s: %+v", d.Id(), v)
 
 	crossVpcAccess, err := flattenConnectPorts(v.CrossVpcInfo)
 	if err != nil {
@@ -723,11 +738,11 @@ func resourceDmsKafkaInstanceRead(_ context.Context, d *schema.ResourceData, met
 	partitionNum, _ := strconv.ParseInt(v.PartitionNum, 10, 64)
 	// convert the ids of the availability zone into codes
 	availableZoneIDs := v.AvailableZones
-	availableZoneCodes, err := getAvailableZoneCodeByID(config, region, availableZoneIDs)
+	availableZoneCodes, err := getAvailableZoneCodeByID(cfg, region, availableZoneIDs)
 	mErr := multierror.Append(nil, err)
 
 	mErr = multierror.Append(mErr,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		setKafkaFlavorId(d, v.ProductID),
 		d.Set("name", v.Name),
 		d.Set("description", v.Description),
@@ -762,6 +777,7 @@ func resourceDmsKafkaInstanceRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("user_id", v.UserID),
 		d.Set("user_name", v.UserName),
 		d.Set("manegement_connect_address", v.ManagementConnectAddress),
+		d.Set("management_connect_address", v.ManagementConnectAddress),
 		d.Set("type", v.Type),
 		d.Set("access_user", v.AccessUser),
 		d.Set("cross_vpc_accesses", crossVpcAccess),
@@ -769,17 +785,17 @@ func resourceDmsKafkaInstanceRead(_ context.Context, d *schema.ResourceData, met
 	// set tags
 	engine := "kafka"
 	if resourceTags, err := tags.Get(dmsV2Client, engine, d.Id()).Extract(); err == nil {
-		tagmap := utils.TagsToMap(resourceTags.Tags)
-		if err := d.Set("tags", tagmap); err != nil {
-			e := fmtp.Errorf("error saving tags to state for DMS kafka instance (%s): %s", d.Id(), err)
+		tagMap := utils.TagsToMap(resourceTags.Tags)
+		if err := d.Set("tags", tagMap); err != nil {
+			e := fmt.Errorf("error saving tags to state for DMS kafka instance (%s): %s", d.Id(), err)
 			mErr = multierror.Append(mErr, e)
 		}
 	} else {
-		logp.Printf("[WARN] error fetching tags of DMS kafka instance (%s): %s", d.Id(), err)
+		log.Printf("[WARN] error fetching tags of DMS kafka instance (%s): %s", d.Id(), err)
 	}
 
 	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf("Error setting attributes for DMS kafka instance: %s", mErr)
+		return diag.Errorf("Error setting attributes for DMS kafka instance: %s", mErr)
 	}
 
 	return nil
@@ -789,10 +805,10 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 	config.MutexKV.Lock(lockKey)
 	defer config.MutexKV.Unlock(lockKey)
 
-	config := meta.(*config.Config)
-	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	dmsV2Client, err := cfg.DmsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud DMS instance client: %s", err)
+		return diag.Errorf("error creating DMS instance client: %s", err)
 	}
 
 	var mErr *multierror.Error
@@ -814,7 +830,7 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 
 		err = instances.Update(dmsV2Client, d.Id(), updateOpts).Err
 		if err != nil {
-			e := fmtp.Errorf("error updating HuaweiCloud DMS kafka Instance: %s", err)
+			e := fmt.Errorf("error updating DMS kafka Instance: %s", err)
 			mErr = multierror.Append(mErr, e)
 		}
 	}
@@ -822,7 +838,7 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 	if d.HasChanges("storage_space", "product_id", "flavor_id") {
 		err = resizeInstance(ctx, d, meta, "kafka")
 		if err != nil {
-			e := fmtp.Errorf("error resizing HuaweiCloud DMS kafka Instance: %s", err)
+			e := fmt.Errorf("error resizing DMS kafka Instance: %s", err)
 			mErr = multierror.Append(mErr, e)
 		}
 	}
@@ -832,7 +848,7 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		engine := "kafka"
 		tagErr := utils.UpdateResourceTags(dmsV2Client, d, engine, d.Id())
 		if tagErr != nil {
-			e := fmtp.Errorf("error updating tags of DMS kafka instance:%s, err:%s", d.Id(), tagErr)
+			e := fmt.Errorf("error updating tags of DMS kafka instance:%s, err:%s", d.Id(), tagErr)
 			mErr = multierror.Append(mErr, e)
 		}
 	}
@@ -844,30 +860,30 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf("error while updating DMS Kafka instances, there %s", mErr)
+		return diag.Errorf("error while updating DMS Kafka instances, there %s", mErr)
 	}
 	return resourceDmsKafkaInstanceRead(ctx, d, meta)
 }
 
 func resizeInstance(ctx context.Context, d *schema.ResourceData, meta interface{}, engineType string) error {
-	config := meta.(*config.Config)
-	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	dmsV2Client, err := cfg.DmsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud DMS instance client: %s", err)
+		return fmt.Errorf("error creating DMS instance client: %s", err)
 	}
 
 	opts := instances.ResizeInstanceOpts{}
 	if _, ok := d.GetOk("product_id"); ok {
 		if engineType == "kafka" {
-			product, err := getKafkaProductDetail(config, d)
+			product, err := getKafkaProductDetail(cfg, d)
 			if err != nil {
-				return fmtp.Errorf("change storage_space failed, error querying product detail: %s", err)
+				return fmt.Errorf("change storage_space failed, error querying product detail: %s", err)
 			}
 			opts.NewSpecCode = product.SpecCode
 		} else {
-			product, err := getRabbitMQProductDetail(config, d)
+			product, err := getRabbitMQProductDetail(cfg, d)
 			if err != nil {
-				return fmtp.Errorf("change storage_space failed, error querying product detail: %s", err)
+				return fmt.Errorf("change storage_space failed, error querying product detail: %s", err)
 			}
 			opts.NewSpecCode = product.SpecCode
 		}
@@ -877,11 +893,11 @@ func resizeInstance(ctx context.Context, d *schema.ResourceData, meta interface{
 		opts.NewStorageSpace = d.Get("storage_space").(int)
 	}
 
-	logp.Printf("[DEBUG] Resize DMS storage capacity option : %#v", opts)
+	log.Printf("[DEBUG] Resize DMS storage capacity option : %#v", opts)
 
 	_, err = instances.Resize(dmsV2Client, d.Id(), opts)
 	if err != nil {
-		return fmtp.Errorf("resize failed, error: %s", err)
+		return fmt.Errorf("resize failed, error: %s", err)
 	}
 
 	var flavorId string
@@ -900,25 +916,25 @@ func resizeInstance(ctx context.Context, d *schema.ResourceData, meta interface{
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("error waiting for instance (%s) to resized: %v", d.Id(), err)
+		return fmt.Errorf("error waiting for instance (%s) to resized: %v", d.Id(), err)
 	}
 	return nil
 }
 
 func resourceDmsKafkaInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	dmsV2Client, err := cfg.DmsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud DMS instance client: %s", err)
+		return diag.Errorf("error creating DMS instance client: %s", err)
 	}
 
 	err = instances.Delete(dmsV2Client, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.DiagErrorf("error deleting HuaweiCloud instance: %s", err)
+		return diag.Errorf("error deleting instance: %s", err)
 	}
 
 	// Wait for the instance to delete before moving on.
-	logp.Printf("[DEBUG] Waiting for instance (%s) to delete", d.Id())
+	log.Printf("[DEBUG] Waiting for instance (%s) to delete", d.Id())
 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"DELETING", "RUNNING", "ERROR"}, // Status may change to ERROR on deletion.
@@ -931,12 +947,12 @@ func resourceDmsKafkaInstanceDelete(ctx context.Context, d *schema.ResourceData,
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf(
+		return diag.Errorf(
 			"error waiting for instance (%s) to delete: %s",
 			d.Id(), err)
 	}
 
-	logp.Printf("[DEBUG] DMS instance %s deactivated", d.Id())
+	log.Printf("[DEBUG] DMS instance %s deactivated", d.Id())
 	d.SetId("")
 	return nil
 }
@@ -987,7 +1003,7 @@ func refreshResizeProductIDFunc(client *golangsdk.ServiceClient, instanceID,
 
 func getAvailableZoneIDByCode(config *config.Config, region string, azCodes []interface{}) ([]string, error) {
 	if len(azCodes) == 0 {
-		return nil, fmtp.Errorf("availability_zones is required")
+		return nil, fmt.Errorf("availability_zones is required")
 	}
 
 	availableZones, err := getAvailableZones(config, region)
@@ -1006,14 +1022,14 @@ func getAvailableZoneIDByCode(config *config.Config, region string, azCodes []in
 			azIDs = append(azIDs, az.ID)
 		}
 	}
-	logp.Printf("[DEBUG] DMS convert the codes of the availability zone into ids: \n%#v => \n%#v",
+	log.Printf("[DEBUG] DMS convert the codes of the availability zone into ids: \n%#v => \n%#v",
 		azCodes, azIDs)
 	return azIDs, nil
 }
 
 func getAvailableZoneCodeByID(config *config.Config, region string, azIDs []string) ([]string, error) {
 	if len(azIDs) == 0 {
-		return nil, fmtp.Errorf("availability_zones is required")
+		return nil, fmt.Errorf("availability_zones is required")
 	}
 
 	availableZones, err := getAvailableZones(config, region)
@@ -1032,7 +1048,7 @@ func getAvailableZoneCodeByID(config *config.Config, region string, azIDs []stri
 			azCodes = append(azCodes, az.Code)
 		}
 	}
-	logp.Printf("[DEBUG] DMS convert the ids of the availability zone into codes: \n%#v => \n%#v",
+	log.Printf("[DEBUG] DMS convert the ids of the availability zone into codes: \n%#v => \n%#v",
 		azIDs, azCodes)
 	return azCodes, nil
 }
@@ -1040,12 +1056,12 @@ func getAvailableZoneCodeByID(config *config.Config, region string, azIDs []stri
 func getAvailableZones(config *config.Config, region string) ([]availablezones.AvailableZone, error) {
 	dmsV2Client, err := config.DmsV2Client(region)
 	if err != nil {
-		return nil, fmtp.Errorf("Error creating HuaweiCloud DMS client V2 : %s", err)
+		return nil, fmt.Errorf("error creating DMS client V2: %s", err)
 	}
 
 	r, err := availablezones.Get(dmsV2Client)
 	if err != nil {
-		return nil, fmtp.Errorf("Error querying available Zones: %s", err)
+		return nil, fmt.Errorf("error querying available Zones: %s", err)
 	}
 
 	return r.AvailableZones, nil
