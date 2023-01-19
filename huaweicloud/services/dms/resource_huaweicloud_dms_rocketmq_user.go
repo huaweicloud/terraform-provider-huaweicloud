@@ -302,7 +302,7 @@ func resourceDmsRocketMQUserRead(ctx context.Context, d *schema.ResourceData, me
 	getRocketmqUserResp, err := getRocketmqUserClient.Request("GET", getRocketmqUserPath, &getRocketmqUserOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving DmsRocketMQUser")
+		return common.CheckDeletedDiag(d, parseRocketMqErrToError404(err), "error retrieving DmsRocketMQUser")
 	}
 
 	getRocketmqUserRespBody, err := utils.FlattenResponse(getRocketmqUserResp)
@@ -330,6 +330,16 @@ func resourceDmsRocketMQUserRead(ctx context.Context, d *schema.ResourceData, me
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func parseRocketMqErrToError404(respErr error) error {
+	if errCode, ok := respErr.(golangsdk.ErrDefault400); ok {
+		apiError, err := common.ParseErrorMsg(errCode.Body)
+		if err == nil && apiError.ErrorCode == "DMS.00500972" {
+			return golangsdk.ErrDefault404(errCode)
+		}
+	}
+	return respErr
 }
 
 func flattenGetRocketmqUserResponseBodyPermsRef(resp interface{}, expression string) []interface{} {

@@ -127,7 +127,9 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
   security_group_id = huaweicloud_networking_secgroup.test.id
 
   availability_zones = [
-    data.huaweicloud_availability_zones.test.names[0]
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[1],
+    data.huaweicloud_availability_zones.test.names[2],
   ]
 
   flavor_id         = "c6.4u8g.cluster"
@@ -151,7 +153,9 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
   security_group_id = huaweicloud_networking_secgroup.test.id
 
   availability_zones = [
-    data.huaweicloud_availability_zones.test.names[0]
+    data.huaweicloud_availability_zones.test.names[2],
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[1],
   ]
 
   flavor_id         = "c6.4u8g.cluster"

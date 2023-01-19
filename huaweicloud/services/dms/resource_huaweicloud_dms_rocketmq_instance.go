@@ -84,10 +84,11 @@ func ResourceDmsRocketMQInstance() *schema.Resource {
 				Description: `Specifies the ID of a security group`,
 			},
 			"availability_zones": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Required:    true,
 				ForceNew:    true,
+				Set:         schema.HashString,
 				Description: `Specifies the list of availability zone names`,
 			},
 			"flavor_id": {
@@ -289,8 +290,8 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 	}
 	var availableZones []string
 	// convert the codes of the availability zone into ids
-	azCodes := d.Get("availability_zones").([]interface{})
-	availableZones, err = getAvailableZoneIDByCode(config, region, azCodes)
+	azCodes := d.Get("availability_zones").(*schema.Set)
+	availableZones, err = getAvailableZoneIDByCode(config, region, azCodes.List())
 	if err != nil {
 		return diag.FromErr(err)
 	}
