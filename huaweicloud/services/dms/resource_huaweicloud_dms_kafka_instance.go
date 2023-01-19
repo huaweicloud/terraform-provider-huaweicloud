@@ -386,6 +386,8 @@ func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData,
 	config.MutexKV.Lock(lockKey)
 	defer config.MutexKV.Unlock(lockKey)
 
+	// Record the custom configuration of the cross_vpc_accesses parameter before override.
+	var accessesBeforeChanges = d.Get("cross_vpc_accesses").([]interface{})
 	var dErr diag.Diagnostics
 	if _, ok := d.GetOk("flavor_id"); ok {
 		dErr = newKafkaInstanceCreate(ctx, d, meta)
@@ -396,7 +398,10 @@ func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData,
 		return dErr
 	}
 
-	if _, ok := d.GetOk("cross_vpc_accesses"); ok {
+	// The update logic of the advertisd IP is based on the array index, and the request body needs to support all
+	// listening IPs and related advertisd IPs (whether they update or not). So, the API response value of
+	// cross_vpc_accesses is required.
+	if len(accessesBeforeChanges) > 0 {
 		conf := meta.(*config.Config)
 		region := conf.GetRegion(d)
 		client, err := conf.DmsV2Client(region)
@@ -404,7 +409,7 @@ func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData,
 			return fmtp.DiagErrorf("error creating HuaweiCloud DMS instance client: %s", err)
 		}
 		if err = updateCrossVpcAccesses(client, d); err != nil {
-			return diag.Errorf("Failed to update default advertised IP: %v", err)
+			return diag.Errorf("failed to update default advertised IP: %v", err)
 		}
 	}
 
