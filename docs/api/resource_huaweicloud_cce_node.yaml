@@ -8,6 +8,10 @@ host: huaweicloud.com
 tags:
   - name: CCE
 paths:
+  /v1/{project_id}/cloudservers/{id}/os-reset-password:
+    put:
+      tag: ECS
+      operationId: ChangeAdminPassword
   /v1/{project_id}/cloudservers/{id}/tags/action:
     POST:
       tag: ECS

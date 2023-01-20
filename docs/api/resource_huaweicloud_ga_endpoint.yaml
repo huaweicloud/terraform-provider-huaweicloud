@@ -4,6 +4,7 @@ info:
 host: myhuaweicloud.com
 tags:
     - name: GA
+    - name: ""
 servers:
     - url: https://ga.myhuaweicloud.com
 paths:

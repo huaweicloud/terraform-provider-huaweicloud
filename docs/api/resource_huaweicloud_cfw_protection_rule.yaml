@@ -4,6 +4,7 @@ info:
 host: myhuaweicloud.com
 tags:
     - name: CFW
+    - name: ""
 servers:
     - url: https://cfw.cn-north-4.myhuaweicloud.com
 paths:

@@ -1,0 +1,14 @@
+info:
+    title: data_source_huaweicloud_dms_rocketmq_instances
+    description: Use this data source to get the list of DMS RocketMQ instances.
+host: myhuaweicloud.com
+tags:
+    - name: RocketMQ
+servers:
+    - url: https://dms.cn-north-4.myhuaweicloud.com
+paths:
+    /v2/{project_id}/instances:
+        GET:
+            tag: RocketMQ
+            operationId: GetRocketmqInstances
+            x-ref-api: GET /v2/{project_id}/instances

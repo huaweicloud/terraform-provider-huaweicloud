@@ -4,13 +4,14 @@ info:
 host: myhuaweicloud.com
 tags:
     - name: RDS
+    - name: ""
 servers:
     - url: https://rds.cn-north-4.myhuaweicloud.com/
 paths:
     /v3/{project_id}/backups:
         GET:
             tag: RDS
-            operationId: GetBackup
+            operationId: CreateBackupWaiting
             x-ref-api: GET /v3/{project_id}/backups
         POST:
             tag: RDS
