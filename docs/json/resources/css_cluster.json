@@ -46,6 +46,12 @@
                 "computed": true,
                 "forcenew": true
               },
+              "https_enabled": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "id": {
                 "type": "string",
                 "computed": true

@@ -2,27 +2,21 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_dms_kafka_instances": {
+        "huaweicloud_dms_rocketmq_instances": {
           "block": {
             "attributes": {
-              "enterprise_project_id": {
+              "exact_match_name": {
                 "type": "string",
-                "optional": true
-              },
-              "fuzzy_match": {
-                "type": "bool",
+                "description": "Specifies whether to search for the instance that precisely matches a specified\ninstance name.",
                 "optional": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "include_failure": {
-                "type": "bool",
-                "optional": true
-              },
               "instance_id": {
                 "type": "string",
+                "description": "Specifies the ID of the rocketMQ instance.",
                 "optional": true
               },
               "instances": {
@@ -31,84 +25,79 @@
                   [
                     "object",
                     {
-                      "access_user": "string",
                       "availability_zones": [
                         "list",
                         "string"
                       ],
-                      "connect_address": "string",
+                      "broker_address": "string",
+                      "broker_num": "number",
                       "cross_vpc_accesses": [
                         "list",
                         [
                           "object",
                           {
                             "advertised_ip": "string",
-                            "listener_ip": "string",
+                            "lisenter_ip": "string",
                             "port": "number",
                             "port_id": "string"
                           }
                         ]
                       ],
                       "description": "string",
-                      "dumping": "bool",
-                      "enable_auto_topic": "bool",
-                      "enable_public_ip": "bool",
+                      "enable_acl": "bool",
+                      "enable_publicip": "bool",
                       "engine_version": "string",
-                      "enterprise_project_id": "string",
+                      "flavor_id": "string",
                       "id": "string",
+                      "ipv6_enable": "bool",
                       "maintain_begin": "string",
                       "maintain_end": "string",
-                      "management_connect_address": "string",
-                      "manager_user": "string",
                       "name": "string",
-                      "network_id": "string",
-                      "partition_num": "number",
-                      "port": "number",
-                      "product_id": "string",
-                      "public_conn_addresses": "string",
-                      "public_ip_ids": [
-                        "list",
-                        "string"
-                      ],
+                      "namesrv_address": "string",
+                      "new_spec_billing_enable": "bool",
+                      "node_num": "number",
+                      "public_broker_address": "string",
+                      "public_namesrv_address": "string",
+                      "publicip_address": "string",
+                      "publicip_id": "string",
                       "resource_spec_code": "string",
-                      "retention_policy": "string",
                       "security_group_id": "string",
+                      "specification": "string",
                       "ssl_enable": "bool",
                       "status": "string",
                       "storage_space": "number",
                       "storage_spec_code": "string",
-                      "tags": [
-                        "map",
-                        "string"
-                      ],
+                      "subnet_id": "string",
                       "type": "string",
                       "used_storage_space": "number",
-                      "user_id": "string",
-                      "user_name": "string",
                       "vpc_id": "string"
                     }
                   ]
                 ],
+                "description": "Indicates the list of DMS rocketMQ instances.",
                 "computed": true
               },
               "name": {
                 "type": "string",
+                "description": "Specifies the name of the DMS RocketMQ instance.",
                 "optional": true
               },
               "region": {
-                "type": "string"
+                "type": "string",
+                "computed": true
               },
               "status": {
                 "type": "string",
+                "description": "Specifies the status of the DMS RocketMQ instance.",
                 "optional": true
               }
             }
           },
           "product": {
-            "short": "Kafka",
-            "name": "Distributed Message Service for Kafka",
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
             "catalog": "Middleware",
-            "name_cn": "分布式消息服务 Kafka",
+            "name_cn": "分布式消息服务 RocketMQ",
             "catalog_cn": "应用中间件"
           }
         }

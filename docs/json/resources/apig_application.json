@@ -10,19 +10,25 @@
                   "set",
                   "string"
                 ],
+                "description": "The array of one or more application codes that the application has.",
                 "optional": true
               },
               "app_key": {
                 "type": "string",
+                "description": "The APP key.",
                 "computed": true
               },
               "app_secret": {
                 "type": "string",
-                "computed": true
+                "description": "The APP secret.",
+                "computed": true,
+                "sensitive": true
               },
               "description": {
                 "type": "string",
-                "optional": true
+                "description": "The application description.",
+                "optional": true,
+                "computed": true
               },
               "id": {
                 "type": "string",
@@ -30,27 +36,33 @@
               },
               "instance_id": {
                 "type": "string",
+                "description": "The ID of the dedicated instance to which the application belongs.",
                 "required": true,
                 "forcenew": true
               },
               "name": {
                 "type": "string",
+                "description": "The application name.",
                 "required": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the application is located.",
                 "computed": true
               },
-              "registraion_time": {
+              "registration_time": {
                 "type": "string",
+                "description": "The registration time.",
                 "computed": true
               },
               "secret_action": {
                 "type": "string",
+                "description": "The secret action to be done for the application.",
                 "optional": true
               },
-              "update_time": {
+              "updated_at": {
                 "type": "string",
+                "description": "The latest update time of the application.",
                 "computed": true
               }
             }

@@ -7,7 +7,7 @@
             "attributes": {
               "availability_zones": {
                 "type": [
-                  "list",
+                  "set",
                   "string"
                 ],
                 "description": "Specifies the list of availability zone names",
@@ -47,6 +47,13 @@
                 "type": "string",
                 "description": "Specifies the version of the RocketMQ engine.",
                 "required": true,
+                "forcenew": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project id of the instance.",
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "flavor_id": {

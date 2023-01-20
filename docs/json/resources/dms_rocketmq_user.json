@@ -1,0 +1,113 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dms_rocketmq_user": {
+          "block": {
+            "attributes": {
+              "access_key": {
+                "type": "string",
+                "description": "Specifies the access key of the user.",
+                "required": true,
+                "forcenew": true
+              },
+              "admin": {
+                "type": "bool",
+                "description": "Specifies whether the user is an administrator.",
+                "optional": true,
+                "computed": true
+              },
+              "default_group_perm": {
+                "type": "string",
+                "description": "Specifies the default consumer group permissions.\nValue options: **PUB|SUB**, **PUB**, **SUB**, **DENY**.",
+                "optional": true,
+                "computed": true
+              },
+              "default_topic_perm": {
+                "type": "string",
+                "description": "Specifies the default topic permissions.\nValue options: **PUB|SUB**, **PUB**, **SUB**, **DENY**.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the rocketMQ instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "secret_key": {
+                "type": "string",
+                "description": "Specifies the secret key of the user.",
+                "required": true,
+                "forcenew": true
+              },
+              "white_remote_address": {
+                "type": "string",
+                "description": "Specifies the IP address whitelist.",
+                "optional": true,
+                "computed": true
+              }
+            },
+            "block_types": {
+              "group_perms": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "Indicates the name of a topic or consumer group.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "perm": {
+                      "type": "string",
+                      "description": "Indicates the permissions of the topic or consumer group.\nValue options: **PUB|SUB**, **PUB**, **SUB**, **DENY**.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the special consumer group permissions."
+                },
+                "nesting_mode": "list"
+              },
+              "topic_perms": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "Indicates the name of a topic or consumer group.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "perm": {
+                      "type": "string",
+                      "description": "Indicates the permissions of the topic or consumer group.\nValue options: **PUB|SUB**, **PUB**, **SUB**, **DENY**.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the special topic permissions."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

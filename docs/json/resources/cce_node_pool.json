@@ -35,6 +35,11 @@
                 "type": "number",
                 "computed": true
               },
+              "ecs_group_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "extend_param": {
                 "type": [
                   "map",

@@ -81,6 +81,10 @@
                 "optional": true,
                 "computed": true
               },
+              "management_connect_address": {
+                "type": "string",
+                "computed": true
+              },
               "manager_password": {
                 "type": "string",
                 "required": true,
@@ -91,10 +95,6 @@
                 "type": "string",
                 "required": true,
                 "forcenew": true
-              },
-              "manegement_connect_address": {
-                "type": "string",
-                "computed": true
               },
               "name": {
                 "type": "string",
@@ -204,7 +204,7 @@
                       "optional": true,
                       "computed": true
                     },
-                    "lisenter_ip": {
+                    "listener_ip": {
                       "type": "string",
                       "computed": true
                     },
