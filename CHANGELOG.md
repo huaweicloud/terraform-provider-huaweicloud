@@ -1,6 +1,29 @@
 # CHANGELOG
 
-## 1.44.0 (December 30, 2021)
+## 1.44.1 (January 20, 2023)
+
+* **New Resurce:**
+  + `huaweicloud_dms_rocketmq_user` [GH-2576]
+
+* **New Data Source:**
+  + `huaweicloud_dms_rocketmq_broker` [GH-2574]
+  + `huaweicloud_dms_rocketmq_instances` [GH-2578]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_dms_rocketmq_instance: Add `enterprise_project_id` field [GH-2631]
+* resource/huaweicloud_bucket: Support migrating enterprise_project_id [GH-2638]
+* resource/huaweicloud_cce_node_pool: Support ECS group ID when creating [GH-2649]
+* resource/huaweicloud_css_cluster: Support enable or disable HTTPS [GH-2664]
+* resource/huaweicloud_cce_node: Support updating `key_pair` and `password` [GH-2667]
+
+BUG FIXES:
+
+* resource/huaweicloud_dds_instance: Wait for the instance be ready before update actions [GH-2651]
+* resource/huaweicloud_dms_rocketmq_instance: Fix ForceNew issue caused by the order of `availability_zones` [GH-2668]
+* resource/huaweicloud_dms_kafka_instance: Avoid overriding the accesses configuration when creating [GH-2669]
+
+## 1.44.0 (December 30, 2022)
 
 * **New Resurce:**
   + `huaweicloud_ga_accelerator` [GH-2545]
