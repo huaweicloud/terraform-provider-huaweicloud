@@ -6,7 +6,7 @@ schemes:
   - https
 host: huaweicloud.com
 tags:
-  - name: EIP
+  - name: ECS
 paths:
   /v1/{project_id}/cloudservers/{serverID}:
     get:

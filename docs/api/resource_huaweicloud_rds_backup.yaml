@@ -4,7 +4,6 @@ info:
 host: myhuaweicloud.com
 tags:
     - name: RDS
-    - name: ""
 servers:
     - url: https://rds.cn-north-4.myhuaweicloud.com/
 paths:
