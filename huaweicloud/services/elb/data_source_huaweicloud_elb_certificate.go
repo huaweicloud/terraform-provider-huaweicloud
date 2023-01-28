@@ -80,7 +80,7 @@ func dataSourceELbCertificateV3Read(_ context.Context, d *schema.ResourceData, m
 			return diag.FromErr(err)
 		}
 	} else {
-		return diag.Errorf("Your query returned no results. Please change your search criteria and try again.")
+		return diag.Errorf("your query returned no results. Please change your search criteria and try again.")
 	}
 
 	return nil

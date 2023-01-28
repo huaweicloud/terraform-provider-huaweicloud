@@ -348,7 +348,7 @@ func flattenPoolPersistence(resp interface{}) []interface{} {
 	var rst []interface{}
 	curJson, err := jmespath.Search("session_persistence", resp)
 	if err != nil {
-		log.Printf("[ERROR] error parsing persistence from response= %#v", resp)
+		log.Printf("[ERROR] Error parsing persistence from response= %#v", resp)
 		return rst
 	}
 	if curJson == nil {

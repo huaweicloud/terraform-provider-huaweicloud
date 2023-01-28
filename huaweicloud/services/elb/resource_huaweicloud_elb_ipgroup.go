@@ -76,26 +76,26 @@ func ResourceIpGroupV3() *schema.Resource {
 }
 
 func resourceIpGroupAddresses(d *schema.ResourceData) []ipgroups.IpListOpt {
-	var ipLists []ipgroups.IpListOpt
+	var IpList []ipgroups.IpListOpt
 	ipListRaw := d.Get("ip_list").([]interface{})
 
 	for _, v := range ipListRaw {
 		ipList := v.(map[string]interface{})
-		ipListOpt := ipgroups.IpListOpt{
+		ipListOpts := ipgroups.IpListOpt{
 			Ip:          ipList["ip"].(string),
 			Description: ipList["description"].(string),
 		}
-		ipLists = append(ipLists, ipListOpt)
+		IpList = append(IpList, ipListOpts)
 	}
 
-	return ipLists
+	return IpList
 }
 
 func resourceIpGroupV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	config := meta.(*config.Config)
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating ELB client: %s", err)
+		return diag.Errorf("error creating elb v3 client: %s", err)
 	}
 
 	ipList := resourceIpGroupAddresses(d)
@@ -104,41 +104,41 @@ func resourceIpGroupV3Create(ctx context.Context, d *schema.ResourceData, meta i
 		Name:                d.Get("name").(string),
 		Description:         &desc,
 		IpList:              &ipList,
-		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
+		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
-	ipGroup, err := ipgroups.Create(elbClient, createOpts).Extract()
+	ig, err := ipgroups.Create(elbClient, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating IpGroup: %s", err)
 	}
-	d.SetId(ipGroup.ID)
+	d.SetId(ig.ID)
 
 	return resourceIpGroupV3Read(ctx, d, meta)
 }
 
 func resourceIpGroupV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	config := meta.(*config.Config)
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating ELB client: %s", err)
+		return diag.Errorf("error creating elb v3 client: %s", err)
 	}
 
-	ipGroup, err := ipgroups.Get(elbClient, d.Id()).Extract()
+	ig, err := ipgroups.Get(elbClient, d.Id()).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "ipgroup")
 	}
 
-	log.Printf("[DEBUG] Retrieved ip group %s: %#v", d.Id(), ipGroup)
+	log.Printf("[DEBUG] Retrieved ip group %s: %#v", d.Id(), ig)
 
 	mErr := multierror.Append(nil,
-		d.Set("name", ipGroup.Name),
-		d.Set("description", ipGroup.Description),
-		d.Set("region", cfg.GetRegion(d)),
+		d.Set("name", ig.Name),
+		d.Set("description", ig.Description),
+		d.Set("region", config.GetRegion(d)),
 	)
 
-	ipList := make([]map[string]interface{}, len(ipGroup.IpList))
-	for i, ip := range ipGroup.IpList {
+	ipList := make([]map[string]interface{}, len(ig.IpList))
+	for i, ip := range ig.IpList {
 		ipList[i] = map[string]interface{}{
 			"ip":          ip.Ip,
 			"description": ip.Description,
@@ -156,10 +156,10 @@ func resourceIpGroupV3Read(_ context.Context, d *schema.ResourceData, meta inter
 }
 
 func resourceIpGroupV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	config := meta.(*config.Config)
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating ELB client: %s", err)
+		return diag.Errorf("error creating elb v3 client: %s", err)
 	}
 
 	var updateOpts ipgroups.UpdateOpts
@@ -178,22 +178,22 @@ func resourceIpGroupV3Update(ctx context.Context, d *schema.ResourceData, meta i
 	log.Printf("[DEBUG] Updating ipgroup %s with options: %#v", d.Id(), updateOpts)
 	_, err = ipgroups.Update(elbClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return diag.Errorf("error updating ELB ip group: %s", err)
+		return diag.Errorf("error updating elb ip group: %s", err)
 	}
 
 	return resourceIpGroupV3Read(ctx, d, meta)
 }
 
 func resourceIpGroupV3Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	config := meta.(*config.Config)
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating ELB client: %s", err)
+		return diag.Errorf("error creating elb v3 client: %s", err)
 	}
 
 	log.Printf("[DEBUG] Deleting ip group %s", d.Id())
 	if err = ipgroups.Delete(elbClient, d.Id()).ExtractErr(); err != nil {
-		return diag.Errorf("error deleting ELB ip group: %s", err)
+		return diag.Errorf("error deleting elb ip group: %s", err)
 	}
 
 	return nil

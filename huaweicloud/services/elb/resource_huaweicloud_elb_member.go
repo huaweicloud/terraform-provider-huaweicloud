@@ -88,10 +88,10 @@ func ResourceMemberV3() *schema.Resource {
 }
 
 func resourceMemberV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	config := meta.(*config.Config)
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating ELB client: %s", err)
+		return diag.Errorf("error creating elb client: %s", err)
 	}
 
 	createOpts := pools.CreateMemberOpts{
@@ -119,10 +119,10 @@ func resourceMemberV3Create(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceMemberV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	config := meta.(*config.Config)
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating ELB client: %s", err)
+		return diag.Errorf("error creating elb client: %s", err)
 	}
 
 	member, err := pools.GetMember(elbClient, d.Get("pool_id").(string), d.Id()).Extract()
@@ -138,7 +138,7 @@ func resourceMemberV3Read(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("subnet_id", member.SubnetID),
 		d.Set("address", member.Address),
 		d.Set("protocol_port", member.ProtocolPort),
-		d.Set("region", cfg.GetRegion(d)),
+		d.Set("region", config.GetRegion(d)),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting Dedicated ELB member fields: %s", err)
@@ -148,10 +148,10 @@ func resourceMemberV3Read(_ context.Context, d *schema.ResourceData, meta interf
 }
 
 func resourceMemberV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	config := meta.(*config.Config)
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating ELB client: %s", err)
+		return diag.Errorf("error creating elb client: %s", err)
 	}
 
 	var updateOpts pools.UpdateMemberOpts
@@ -173,8 +173,8 @@ func resourceMemberV3Update(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceMemberV3Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	config := meta.(*config.Config)
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating elb client: %s", err)
 	}
