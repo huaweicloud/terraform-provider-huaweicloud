@@ -357,7 +357,6 @@ func resourceListenerV3Update(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	return resourceListenerV3Read(ctx, d, meta)
-
 }
 
 func updateListener(ctx context.Context, d *schema.ResourceData, elbClient *golangsdk.ServiceClient) diag.Diagnostics {
@@ -486,7 +485,8 @@ func resourceListenerV3Delete(ctx context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-func waitForELBV3Listener(ctx context.Context, elbClient *golangsdk.ServiceClient, id string, target string, pending []string, timeout time.Duration) error {
+func waitForELBV3Listener(ctx context.Context, elbClient *golangsdk.ServiceClient, id string, target string,
+	pending []string, timeout time.Duration) error {
 	log.Printf("[DEBUG] Waiting for listener %s to become %s.", id, target)
 
 	stateConf := &resource.StateChangeConf{
