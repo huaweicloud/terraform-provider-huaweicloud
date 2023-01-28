@@ -162,7 +162,7 @@ func ResourceDmsRocketMQInstance() *schema.Resource {
 				MaxItems: 3,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"lisenter_ip": {
+						"listener_ip": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -178,6 +178,12 @@ func ResourceDmsRocketMQInstance() *schema.Resource {
 						"port_id": {
 							Type:     schema.TypeString,
 							Computed: true,
+						},
+						// Typo, it is only kept in the code, will not be shown in the docs.
+						"lisenter_ip": {
+							Type:       schema.TypeString,
+							Computed:   true,
+							Deprecated: "typo in lisenter_ip, please use \"listener_ip\" instead.",
 						},
 					},
 				},
