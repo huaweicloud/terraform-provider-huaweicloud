@@ -122,10 +122,10 @@ func ResourcePoolV3() *schema.Resource {
 }
 
 func resourcePoolV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	config := meta.(*config.Config)
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating ELB client: %s", err)
+		return diag.Errorf("error creating elb client: %s", err)
 	}
 
 	var persistence pools.SessionPersistence
@@ -168,10 +168,10 @@ func resourcePoolV3Create(ctx context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourcePoolV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	config := meta.(*config.Config)
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating ELB client: %s", err)
+		return diag.Errorf("error creating elb client: %s", err)
 	}
 
 	pool, err := pools.Get(elbClient, d.Id()).Extract()
@@ -186,7 +186,7 @@ func resourcePoolV3Read(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("protocol", pool.Protocol),
 		d.Set("description", pool.Description),
 		d.Set("name", pool.Name),
-		d.Set("region", cfg.GetRegion(d)),
+		d.Set("region", config.GetRegion(d)),
 	)
 
 	if len(pool.Loadbalancers) != 0 {
@@ -206,7 +206,7 @@ func resourcePoolV3Read(_ context.Context, d *schema.ResourceData, meta interfac
 	}
 
 	if pool.Persistence.Type != "" {
-		var persistence = make([]map[string]interface{}, 1)
+		var persistence []map[string]interface{} = make([]map[string]interface{}, 1)
 		params := make(map[string]interface{})
 		params["cookie_name"] = pool.Persistence.CookieName
 		params["type"] = pool.Persistence.Type
@@ -223,10 +223,10 @@ func resourcePoolV3Read(_ context.Context, d *schema.ResourceData, meta interfac
 }
 
 func resourcePoolV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	config := meta.(*config.Config)
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating ELB client: %s", err)
+		return diag.Errorf("error creating elb client: %s", err)
 	}
 
 	var updateOpts pools.UpdateOpts
@@ -265,10 +265,10 @@ func resourcePoolV3Update(ctx context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourcePoolV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	config := meta.(*config.Config)
+	elbClient, err := config.ElbV3Client(config.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating ELB client: %s", err)
+		return diag.Errorf("error creating elb client: %s", err)
 	}
 
 	log.Printf("[DEBUG] Attempting to delete pool %s", d.Id())

@@ -337,7 +337,7 @@ func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, m
 	if len(tagRaw) > 0 {
 		elbV2Client, err := cfg.ElbV2Client(cfg.GetRegion(d))
 		if err != nil {
-			return diag.Errorf("error creating elb v2.0 client: %s", err)
+			return diag.Errorf("error creating ELB 2.0 client: %s", err)
 		}
 		tagList := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(elbV2Client, "loadbalancers", d.Id(), tagList).ExtractErr(); tagErr != nil {
@@ -405,7 +405,7 @@ func resourceLoadBalancerV3Read(_ context.Context, d *schema.ResourceData, meta 
 		tagMap := utils.TagsToMap(resourceTags.Tags)
 		mErr = multierror.Append(mErr, d.Set("tags", tagMap))
 	} else {
-		log.Printf("[WARN] fetching tags of ELB LoadBalancer failed: %s", err)
+		log.Printf("[WARN] Fetching tags of ELB LoadBalancer failed: %s", err)
 	}
 
 	if err := mErr.ErrorOrNil(); err != nil {
@@ -422,10 +422,13 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	// lintignore:R019
-	if d.HasChanges("name", "description", "cross_vpc_backend", "ipv4_subnet_id", "ipv6_network_id",
-		"ipv6_bandwidth_id", "ipv4_address", "l4_flavor_id", "l7_flavor_id", "autoscaling_enabled", "min_l7_flavor_id") {
-		err := updateLoadBalancer(ctx, d, cfg, elbClient)
+	updateLoadBalancerChanges := []string{"name", "description", "cross_vpc_backend", "ipv4_subnet_id", "ipv6_network_id",
+		"ipv6_bandwidth_id", "ipv4_address", "l4_flavor_id", "l7_flavor_id", "autoscaling_enabled", "min_l7_flavor_id",
+	}
+
+	if d.HasChanges(updateLoadBalancerChanges...) {
+		updateOpts := buildUpdateLoadBalancerBodyParams(d)
+		err := updateLoadBalancer(ctx, d, cfg, updateOpts, elbClient)
 		if err != nil {
 			return err
 		}
@@ -437,26 +440,25 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
 		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
-			return diag.Errorf("error updating the auto-renew of the loadbalancer (%s): %s", d.Id(), err)
+			return diag.Errorf("error updating the auto-renew of the LoadBalancer (%s): %s", d.Id(), err)
 		}
 	}
 	// update tags
 	if d.HasChange("tags") {
 		elbV2Client, err := cfg.ElbV2Client(cfg.GetRegion(d))
 		if err != nil {
-			return diag.Errorf("error creating elb 2.0 client: %s", err)
+			return diag.Errorf("error creating ELB 2.0 client: %s", err)
 		}
 		tagErr := utils.UpdateResourceTags(elbV2Client, d, "loadbalancers", d.Id())
 		if tagErr != nil {
-			return diag.Errorf("error updating tags of load balancer:%s, err:%s", d.Id(), tagErr)
+			return diag.Errorf("error updating tags of LoadBalancer:%s, err:%s", d.Id(), tagErr)
 		}
 	}
 
 	return resourceLoadBalancerV3Read(ctx, d, meta)
 }
 
-func updateLoadBalancer(ctx context.Context, d *schema.ResourceData, config *config.Config,
-	elbClient *golangsdk.ServiceClient) diag.Diagnostics {
+func buildUpdateLoadBalancerBodyParams(d *schema.ResourceData) loadbalancers.UpdateOpts {
 	var updateOpts loadbalancers.UpdateOpts
 	if d.HasChange("name") {
 		updateOpts.Name = d.Get("name").(string)
@@ -517,12 +519,12 @@ func updateLoadBalancer(ctx context.Context, d *schema.ResourceData, config *con
 		}
 	}
 
-	log.Printf("[DEBUG] Updating loadbalancer %s with options: %#v", d.Id(), updateOpts)
+	log.Printf("[DEBUG] Updating LoadBalancer %s with options: %#v", d.Id(), updateOpts)
 
-	return waitForLoadBalancer(ctx, d, config, updateOpts, elbClient)
+	return updateOpts
 }
 
-func waitForLoadBalancer(ctx context.Context, d *schema.ResourceData, config *config.Config, updateOpts loadbalancers.UpdateOpts,
+func updateLoadBalancer(ctx context.Context, d *schema.ResourceData, cfg *config.Config, updateOpts loadbalancers.UpdateOpts,
 	elbClient *golangsdk.ServiceClient) diag.Diagnostics {
 	// Wait for LoadBalancer to become active before continuing
 	timeout := d.Timeout(schema.TimeoutUpdate)
@@ -547,7 +549,7 @@ func waitForLoadBalancer(ctx context.Context, d *schema.ResourceData, config *co
 		}
 
 		// wait for the order to be completed.
-		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 		if err != nil {
 			return diag.Errorf("error creating BSS v2 client: %s", err)
 		}
@@ -559,7 +561,7 @@ func waitForLoadBalancer(ctx context.Context, d *schema.ResourceData, config *co
 	} else {
 		_, err = loadbalancers.Update(elbClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return diag.Errorf("error updating elb loadbalancer: %s", err)
+			return diag.Errorf("error updating ELB LoadBalancer: %s", err)
 		}
 	}
 	// Wait for LoadBalancer to become active before continuing
@@ -631,7 +633,6 @@ func resourceLoadBalancerV3Delete(ctx context.Context, d *schema.ResourceData, m
 
 func waitForElbV3LoadBalancer(ctx context.Context, elbClient *golangsdk.ServiceClient,
 	id string, target string, pending []string, timeout time.Duration) error {
-
 	log.Printf("[DEBUG] Waiting for LoadBalancer %s to become %s", id, target)
 
 	stateConf := &resource.StateChangeConf{
@@ -660,13 +661,11 @@ func waitForElbV3LoadBalancer(ctx context.Context, elbClient *golangsdk.ServiceC
 }
 
 func resourceElbV3LoadBalancerRefreshFunc(elbClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
-
 	return func() (interface{}, string, error) {
 		lb, err := loadbalancers.Get(elbClient, id).Extract()
 		if err != nil {
 			return nil, "", err
 		}
-
 		return lb, lb.ProvisioningStatus, nil
 	}
 }
