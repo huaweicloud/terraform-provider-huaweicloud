@@ -167,6 +167,7 @@ func TestAccKafkaInstance_newFormat(t *testing.T) {
 				),
 			},
 			{
+				// todo: flavor_id argument does not support changes(#2675)
 				Config: testAccKafkaInstance_newFormatUpdate(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
@@ -177,7 +178,7 @@ func TestAccKafkaInstance_newFormat(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName, "flavor_id",
 						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.id"),
 					resource.TestCheckResourceAttrPair(resourceName, "storage_spec_code",
-						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.ios.1.storage_spec_code"),
+						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.ios.0.storage_spec_code"),
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.0.advertised_ip", "172.16.35.62"),
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.1.advertised_ip", "www.terraform-test-1.com"),
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.2.advertised_ip", "192.168.0.53"),
@@ -431,10 +432,10 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   security_group_id = huaweicloud_networking_secgroup.test.id
 
   flavor_id          = local.query_results.flavors[0].id
-  storage_spec_code  = local.query_results.flavors[0].ios[1].storage_spec_code
+  storage_spec_code  = local.query_results.flavors[0].ios[0].storage_spec_code
   availability_zones = local.query_results.flavors[0].ios[0].availability_zones
   engine_version     = element(local.query_results.versions, length(local.query_results.versions)-1)
-  storage_space      = local.query_results.flavors[0].properties[0].min_broker * local.query_results.flavors[0].properties[0].max_storage_per_node
+  storage_space      = local.query_results.flavors[0].properties[0].min_broker * local.query_results.flavors[0].properties[0].min_storage_per_node
   broker_num         = local.query_results.flavors[0].properties[0].min_broker
 
   access_user      = "user"

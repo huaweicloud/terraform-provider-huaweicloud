@@ -316,7 +316,7 @@ func flattenKafkaInstanceList(client *golangsdk.ServiceClient, conf *config.Conf
 			instance["public_conn_addresses"] = strings.TrimSpace(val.PublicConnectionAddress)
 		}
 
-		crossVpcAccess, err := flattenConnectPorts(val.CrossVpcInfo)
+		crossVpcAccess, err := flattenCrossVpcInfo(val.CrossVpcInfo)
 		if err != nil {
 			return nil, nil, fmt.Errorf("error retrieving details of the cross-VPC information: %v", err)
 		}
