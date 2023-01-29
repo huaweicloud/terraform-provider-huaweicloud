@@ -138,7 +138,7 @@ In addition to all arguments above, the following attributes are exported:
 * `user_id` - Indicates the ID of the user who created the DMS RabbitMQ instance
 * `user_name` - Indicates the name of the user who created the DMS RabbitMQ instance
 * `connect_address` - Indicates the IP address of the DMS RabbitMQ instance.
-* `manegement_connect_address` - Indicates the management address of the DMS RabbitMQ instance.
+* `management_connect_address` - Indicates the management address of the DMS RabbitMQ instance.
 
 ## Timeouts
 
