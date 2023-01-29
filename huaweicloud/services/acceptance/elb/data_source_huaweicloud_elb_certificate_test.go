@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccDataSourceELbCertificateV3_basic(t *testing.T) {
@@ -42,10 +41,10 @@ func testAccCheckELBCertDataSourceID(r string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[r]
 		if !ok {
-			return fmtp.Errorf("Can't find Dedicated ELB data source: %s ", r)
+			return fmt.Errorf("can't find Dedicated ELB data source: %s ", r)
 		}
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("The Dedicated ELB Certificate data source ID not set.")
+			return fmt.Errorf("the Dedicated ELB Certificate data source ID not set")
 		}
 		return nil
 	}
