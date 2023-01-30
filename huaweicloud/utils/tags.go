@@ -47,10 +47,10 @@ func SetResourceTagsToState(d *schema.ResourceData, client *golangsdk.ServiceCli
 	if resourceTags, err := tags.Get(client, resourceType, d.Id()).Extract(); err == nil {
 		tagmap := TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("error saving tags to state for CSS cluster (%s): %s", d.Id(), err)
+			return fmt.Errorf("error saving tags to state for %s (%s): %s", resourceType, d.Id(), err)
 		}
 	} else {
-		log.Printf("[WARN] Error fetching tags of CSS cluster (%s): %s", d.Id(), err)
+		log.Printf("[WARN] Error fetching tags of %s (%s): %s", resourceType, d.Id(), err)
 	}
 	return nil
 }
