@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
@@ -59,18 +60,20 @@ resource "huaweicloud_networking_secgroup" "test" {
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dms_rocketmq_instance" "test" {
-  name                = "%[1]s"
-  engine_version      = "4.8.0"
-  storage_space       = 600
-  vpc_id              = huaweicloud_vpc.test.id
-  subnet_id           = huaweicloud_vpc_subnet.test.id
-  security_group_id   = huaweicloud_networking_secgroup.test.id
-  availability_zones  = [
+  name              = "%[1]s"
+  engine_version    = "4.8.0"
+  storage_space     = 600
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  availability_zones = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
-  flavor_id           = "c6.4u8g.cluster.small"
-  storage_spec_code   = "dms.physical.storage.high.v2"
-  broker_num          = 1
+
+  flavor_id         = "c6.4u8g.cluster.small"
+  storage_spec_code = "dms.physical.storage.high.v2"
+  broker_num        = 1
 }
 `, name)
 }

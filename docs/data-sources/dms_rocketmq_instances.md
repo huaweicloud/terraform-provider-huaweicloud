@@ -114,7 +114,7 @@ The `instances` block supports:
 <a name="DmsRocketMQInstances_InstanceCrossVpc"></a>
 The `cross_vpc_accesses` block supports:
 
-* `lisenter_ip` - Indicates the IP of the listener.
+* `listener_ip` - Indicates the IP of the listener.
 
 * `advertised_ip` - Indicates the advertised IP.
 
