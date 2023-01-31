@@ -104,6 +104,14 @@ The following arguments are supported:
 
 * `enable_acl` - (Optional, Bool) Specifies whether access control is enabled.
 
+* `cross_vpc_accesses` - (Optional, List) Specifies the access information of cross-VPC.
+  The [object](#dms_cross_vpc_accesses) structure is documented below.
+
+<a name="dms_cross_vpc_accesses"></a>
+The `cross_vpc_accesses` block supports:
+
+* `advertised_ip` -(Optional, String) The advertised IP Address or domain name.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -140,6 +148,14 @@ In addition to all arguments above, the following attributes are exported:
 * `public_broker_address` - Indicates the public network service data address.
 
 * `resource_spec_code` - Indicates the resource specifications.
+
+* `cross_vpc_accesses` - Indicates the Access information of cross-VPC. The structure is documented below.
+
+The `cross_vpc_accesses` block supports:
+
+* `listener_ip` - The listener IP address.
+* `port` - The port number.
+* `port_id` - The port ID associated with the address.
 
 ## Import
 

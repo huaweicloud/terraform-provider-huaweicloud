@@ -277,7 +277,7 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 	// createRocketmqInstance: create DMS rocketmq instance
 	var (
 		createRocketmqInstanceHttpUrl = "v2/{project_id}/instances"
-		createRocketmqInstanceProduct = "dms"
+		createRocketmqInstanceProduct = "dmsv2"
 	)
 	createRocketmqInstanceClient, err := config.NewServiceClient(createRocketmqInstanceProduct, region)
 	if err != nil {
@@ -385,7 +385,7 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 		// updateRocketmqInstance: update DMS rocketmq instance
 		var (
 			updateRocketmqInstanceHttpUrl = "v2/{project_id}/instances/{instance_id}"
-			updateRocketmqInstanceProduct = "dms"
+			updateRocketmqInstanceProduct = "dmsv2"
 		)
 		updateRocketmqInstanceClient, err := config.NewServiceClient(updateRocketmqInstanceProduct, region)
 		if err != nil {
@@ -443,7 +443,7 @@ func resourceDmsRocketMQInstanceRead(ctx context.Context, d *schema.ResourceData
 	// getRocketmqInstance: Query DMS rocketmq instance
 	var (
 		getRocketmqInstanceHttpUrl = "v2/{project_id}/instances/{instance_id}"
-		getRocketmqInstanceProduct = "dms"
+		getRocketmqInstanceProduct = "dmsv2"
 	)
 	getRocketmqInstanceClient, err := config.NewServiceClient(getRocketmqInstanceProduct, region)
 	if err != nil {
@@ -539,7 +539,7 @@ func resourceDmsRocketMQInstanceDelete(ctx context.Context, d *schema.ResourceDa
 	// deleteRocketmqInstance: Delete DMS rocketmq instance
 	var (
 		deleteRocketmqInstanceHttpUrl = "v2/{project_id}/instances/{instance_id}"
-		deleteRocketmqInstanceProduct = "dms"
+		deleteRocketmqInstanceProduct = "dmsv2"
 	)
 	deleteRocketmqInstanceClient, err := config.NewServiceClient(deleteRocketmqInstanceProduct, region)
 	if err != nil {

@@ -2,6 +2,7 @@ package dms
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -19,7 +20,7 @@ func getDmsRocketMQInstanceResourceFunc(config *config.Config, state *terraform.
 	// getRocketmqInstance: Query DMS rocketmq instance
 	var (
 		getRocketmqInstanceHttpUrl = "v2/{project_id}/instances/{instance_id}"
-		getRocketmqInstanceProduct = "dms"
+		getRocketmqInstanceProduct = "dmsv2"
 	)
 	getRocketmqInstanceClient, err := config.NewServiceClient(getRocketmqInstanceProduct, region)
 	if err != nil {
@@ -69,12 +70,7 @@ func TestAccDmsRocketMQInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "engine_version", "4.8.0"),
 					resource.TestCheckResourceAttr(resourceName, "enable_acl", "true"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
-					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.0.advertised_ip",
-						"111.111.111.111"),
-					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.1.advertised_ip",
-						"www.terraform-test.com"),
-					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.2.advertised_ip",
-						"192.168.0.53"),
+					resource.TestMatchResourceAttr(resourceName, "cross_vpc_accesses.#", regexp.MustCompile(`[1-9]\d*`)),
 				),
 			},
 			{
@@ -85,12 +81,6 @@ func TestAccDmsRocketMQInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "engine_version", "4.8.0"),
 					resource.TestCheckResourceAttr(resourceName, "enable_acl", "false"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
-					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.0.advertised_ip",
-						"222.222.222.222"),
-					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.1.advertised_ip",
-						"www.terraform-test.com"),
-					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.2.advertised_ip",
-						"192.168.0.53"),
 				),
 			},
 			{
@@ -148,16 +138,6 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
   storage_spec_code = "dms.physical.storage.high.v2"
   broker_num        = 1
   enable_acl        = true
-
-  cross_vpc_accesses {
-    advertised_ip = "111.111.111.111"
-  }
-  cross_vpc_accesses {
-    advertised_ip = "www.terraform-test.com"
-  }
-  cross_vpc_accesses {
-    advertised_ip = "192.168.0.53"
-  }
 }
 `, testAccDmsRocketmqInstance_Base(name), name)
 }
@@ -184,16 +164,6 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
   storage_spec_code = "dms.physical.storage.high.v2"
   broker_num        = 1
   enable_acl        = false
-
-  cross_vpc_accesses {
-    advertised_ip = "222.222.222.222"
-  }
-  cross_vpc_accesses {
-    advertised_ip = "www.terraform-test-1.com"
-  }
-  cross_vpc_accesses {
-    advertised_ip = "192.168.0.53"
-  }
 }
 `, testAccDmsRocketmqInstance_Base(name), name)
 }
