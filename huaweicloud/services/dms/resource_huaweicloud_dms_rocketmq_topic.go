@@ -9,12 +9,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/jmespath/go-jmespath"
 )
 
 func ResourceDmsRocketMQTopic() *schema.Resource {
@@ -52,7 +53,7 @@ func ResourceDmsRocketMQTopic() *schema.Resource {
 			},
 			"brokers": {
 				Type:        schema.TypeList,
-				Elem:        DmsRocketMQTopicBrokerRefSchema(),
+				Elem:        rocketMQTopicBrokerRefSchema(),
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
@@ -91,7 +92,7 @@ func ResourceDmsRocketMQTopic() *schema.Resource {
 	}
 }
 
-func DmsRocketMQTopicBrokerRefSchema() *schema.Resource {
+func rocketMQTopicBrokerRefSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -116,15 +117,15 @@ func DmsRocketMQTopicBrokerRefSchema() *schema.Resource {
 }
 
 func resourceDmsRocketMQTopicCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createRocketmqTopic: create DMS rocketmq topic
 	var (
 		createRocketmqTopicHttpUrl = "v2/{project_id}/instances/{instance_id}/topics"
-		createRocketmqTopicProduct = "dms"
+		createRocketmqTopicProduct = "dmsv2"
 	)
-	createRocketmqTopicClient, err := config.NewServiceClient(createRocketmqTopicProduct, region)
+	createRocketmqTopicClient, err := cfg.NewServiceClient(createRocketmqTopicProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating DmsRocketMQTopic Client: %s", err)
 	}
@@ -140,7 +141,7 @@ func resourceDmsRocketMQTopicCreate(ctx context.Context, d *schema.ResourceData,
 			200,
 		},
 	}
-	createRocketmqTopicOpt.JSONBody = utils.RemoveNil(buildCreateRocketmqTopicBodyParams(d, config))
+	createRocketmqTopicOpt.JSONBody = utils.RemoveNil(buildCreateRocketmqTopicBodyParams(d))
 	createRocketmqTopicResp, err := createRocketmqTopicClient.Request("POST", createRocketmqTopicPath, &createRocketmqTopicOpt)
 	if err != nil {
 		return diag.Errorf("error creating DmsRocketMQTopic: %s", err)
@@ -160,7 +161,7 @@ func resourceDmsRocketMQTopicCreate(ctx context.Context, d *schema.ResourceData,
 	return resourceDmsRocketMQTopicUpdate(ctx, d, meta)
 }
 
-func buildCreateRocketmqTopicBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateRocketmqTopicBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name":       utils.ValueIngoreEmpty(d.Get("name")),
 		"brokers":    buildCreateRocketmqTopicBrokersChildBody(d),
@@ -183,22 +184,22 @@ func buildCreateRocketmqTopicBrokersChildBody(d *schema.ResourceData) []string {
 }
 
 func resourceDmsRocketMQTopicUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
-	updateRocketmqTopichasChanges := []string{
+	updateRocketmqTopicHasChanges := []string{
 		"total_read_queue_num",
 		"total_write_queue_num",
 		"permission",
 	}
 
-	if d.HasChanges(updateRocketmqTopichasChanges...) {
+	if d.HasChanges(updateRocketmqTopicHasChanges...) {
 		// updateRocketmqTopic: update DMS rocketmq topic
 		var (
 			updateRocketmqTopicHttpUrl = "v2/{project_id}/instances/{instance_id}/topics/{topic}"
-			updateRocketmqTopicProduct = "dms"
+			updateRocketmqTopicProduct = "dmsv2"
 		)
-		updateRocketmqTopicClient, err := config.NewServiceClient(updateRocketmqTopicProduct, region)
+		updateRocketmqTopicClient, err := cfg.NewServiceClient(updateRocketmqTopicProduct, region)
 		if err != nil {
 			return diag.Errorf("error creating DmsRocketMQTopic Client: %s", err)
 		}
@@ -220,7 +221,7 @@ func resourceDmsRocketMQTopicUpdate(ctx context.Context, d *schema.ResourceData,
 				204,
 			},
 		}
-		updateRocketmqTopicOpt.JSONBody = utils.RemoveNil(buildUpdateRocketmqTopicBodyParams(d, config))
+		updateRocketmqTopicOpt.JSONBody = utils.RemoveNil(buildUpdateRocketmqTopicBodyParams(d, cfg))
 		_, err = updateRocketmqTopicClient.Request("PUT", updateRocketmqTopicPath, &updateRocketmqTopicOpt)
 		if err != nil {
 			return diag.Errorf("error updating DmsRocketMQTopic: %s", err)
@@ -229,7 +230,7 @@ func resourceDmsRocketMQTopicUpdate(ctx context.Context, d *schema.ResourceData,
 	return resourceDmsRocketMQTopicRead(ctx, d, meta)
 }
 
-func buildUpdateRocketmqTopicBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildUpdateRocketmqTopicBodyParams(d *schema.ResourceData, _ *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"read_queue_num":  utils.ValueIngoreEmpty(d.Get("total_read_queue_num")),
 		"write_queue_num": utils.ValueIngoreEmpty(d.Get("total_write_queue_num")),
@@ -238,18 +239,18 @@ func buildUpdateRocketmqTopicBodyParams(d *schema.ResourceData, config *config.C
 	return bodyParams
 }
 
-func resourceDmsRocketMQTopicRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceDmsRocketMQTopicRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
 	// getRocketmqTopic: query DMS rocketmq topic
 	var (
 		getRocketmqTopicHttpUrl = "v2/{project_id}/instances/{instance_id}/topics/{topic}"
-		getRocketmqTopicProduct = "dms"
+		getRocketmqTopicProduct = "dmsv2"
 	)
-	getRocketmqTopicClient, err := config.NewServiceClient(getRocketmqTopicProduct, region)
+	getRocketmqTopicClient, err := cfg.NewServiceClient(getRocketmqTopicProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating DmsRocketMQTopic Client: %s", err)
 	}
@@ -314,16 +315,16 @@ func flattenGetRocketmqTopicResponseBodyBrokerRef(resp interface{}) []interface{
 	return rst
 }
 
-func resourceDmsRocketMQTopicDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceDmsRocketMQTopicDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// deleteRocketmqTopic: delete DMS rocketmq topic
 	var (
 		deleteRocketmqTopicHttpUrl = "v2/{project_id}/instances/{instance_id}/topics/{topic}"
-		deleteRocketmqTopicProduct = "dms"
+		deleteRocketmqTopicProduct = "dmsv2"
 	)
-	deleteRocketmqTopicClient, err := config.NewServiceClient(deleteRocketmqTopicProduct, region)
+	deleteRocketmqTopicClient, err := cfg.NewServiceClient(deleteRocketmqTopicProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating DmsRocketMQTopic Client: %s", err)
 	}
