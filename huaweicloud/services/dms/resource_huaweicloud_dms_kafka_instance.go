@@ -397,9 +397,6 @@ func updateCrossVpcAccess(client *golangsdk.ServiceClient, d *schema.ResourceDat
 }
 
 func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config.MutexKV.Lock(lockKey)
-	defer config.MutexKV.Unlock(lockKey)
-
 	cfg := meta.(*config.Config)
 	client, err := cfg.DmsV2Client(cfg.GetRegion(d))
 	if err != nil {
@@ -779,9 +776,6 @@ func resourceDmsKafkaInstanceRead(_ context.Context, d *schema.ResourceData, met
 }
 
 func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config.MutexKV.Lock(lockKey)
-	defer config.MutexKV.Unlock(lockKey)
-
 	cfg := meta.(*config.Config)
 	client, err := cfg.DmsV2Client(cfg.GetRegion(d))
 	if err != nil {

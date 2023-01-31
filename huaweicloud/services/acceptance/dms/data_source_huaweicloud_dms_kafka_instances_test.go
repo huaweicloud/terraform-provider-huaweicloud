@@ -17,7 +17,7 @@ func TestAccKafkaInstancesDataSource_basic(t *testing.T) {
 	dc3 := acceptance.InitDataSourceCheck("data.huaweicloud_dms_kafka_instances.query_3")
 	dc4 := acceptance.InitDataSourceCheck("data.huaweicloud_dms_kafka_instances.query_4")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
