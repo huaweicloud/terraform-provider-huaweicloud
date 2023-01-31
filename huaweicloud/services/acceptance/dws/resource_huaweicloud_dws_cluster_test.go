@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk/openstack/dws/v1/cluster"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -16,7 +15,7 @@ import (
 func getDwsResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := config.DwsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("error creating DWS v1 client, err=%s", err)
+		return nil, fmt.Errorf("error creating DWS v1 client, err=%s", err)
 	}
 	return cluster.Get(client, state.Primary.ID)
 }
@@ -38,19 +37,23 @@ func TestAccResourceDWS_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDwsCluster_basic(name, 3, cluster.PublicBindTypeAuto, "cluster123@!"),
+				Config: testAccDwsCluster_basic(name, 3, cluster.PublicBindTypeAuto, "cluster123@!", "bar"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "number_of_node", "3"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "val"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 				),
 			},
 			{
-				Config: testAccDwsCluster_basic(name, 6, cluster.PublicBindTypeAuto, "cluster123@!u"),
+				Config: testAccDwsCluster_basic(name, 6, cluster.PublicBindTypeAuto, "cluster123@!u", "cat"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "number_of_node", "6"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "val"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "cat"),
 				),
 			},
 			{
@@ -86,15 +89,21 @@ data "huaweicloud_availability_zones" "test" {}
 `, rName, rName, rName)
 }
 
-func testAccDwsCluster_basic(rName string, numberOfNode int, publicIpBindType string, password string) string {
+func testAccDwsCluster_basic(rName string, numberOfNode int, publicIpBindType, password, tag string) string {
 	baseResource := testAccBaseResource(rName)
 
 	return fmt.Sprintf(`
 %s
 
+data "huaweicloud_dws_flavors" "test" {
+  vcpus             = 8
+  memory            = 64
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+}
+
 resource "huaweicloud_dws_cluster" "test" {
   name              = "%s"
-  node_type         = "dws.m3.xlarge"
+  node_type         = data.huaweicloud_dws_flavors.test.flavors.0.flavor_id
   number_of_node    = %d
   vpc_id            = huaweicloud_vpc.test.id
   network_id        = huaweicloud_vpc_subnet.test.id
@@ -106,6 +115,11 @@ resource "huaweicloud_dws_cluster" "test" {
   public_ip {
     public_bind_type = "%s"
   }
+
+  tags = {
+    key = "val"
+    foo = "%s"
+  }
 }
-`, baseResource, rName, numberOfNode, password, publicIpBindType)
+`, baseResource, rName, numberOfNode, password, publicIpBindType, tag)
 }

@@ -45,22 +45,28 @@ The following arguments are supported:
 
 * `name` - (Required, String, ForceNew) Cluster name, which must be unique and contains 4 to 64 characters, which
   consist of letters, digits, hyphens(-), or underscores(_) only and must start with a letter.
+  Changing this creates a new cluster resource.
 
 * `network_id` - (Required, String, ForceNew) Network ID, which is used for configuring cluster network.
+  Changing this creates a new cluster resource.
 
 * `node_type` - (Required, String, ForceNew) Node type.
+  Changing this creates a new cluster resource.
 
 * `number_of_node` - (Required, Int) Number of nodes in a cluster. The value ranges from 3 to 32. When expanding,
   add at least 3 nodes.
 
 * `security_group_id` - (Required, String, ForceNew) ID of a security group. The ID is used for configuring cluster
   network.
+  Changing this creates a new cluster resource.
 
 * `user_name` - (Required, String, ForceNew) Administrator username for logging in to a data warehouse cluster The
   administrator username must:  Consist of lowercase letters, digits, or underscores. Start with a lowercase letter or
   an underscore. Contain 1 to 63 characters. Cannot be a keyword of the DWS database.
+  Changing this creates a new cluster resource.
 
 * `vpc_id` - (Required, String, ForceNew) VPC ID, which is used for configuring cluster network.
+  Changing this creates a new cluster resource.
 
 * `user_pwd` - (Required, String) Administrator password for logging in to a data warehouse cluster A password
   must conform to the following rules:  Contains 8 to 32 characters. Cannot be the same as the username or the username
@@ -68,27 +74,32 @@ The following arguments are supported:
   Lowercase letters Uppercase letters Digits Special characters
   ~!@#%^&*()-_=+|[{}];:,<.>/?
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the dws cluster,
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the dws cluster,
   Value 0 indicates the default enterprise project.
-  Changing this parameter will create a new resource.
+  Changing this creates a new cluster resource.
 
 * `availability_zone` - (Optional, String, ForceNew) AZ in a cluster.
+  Changing this creates a new cluster resource.
 
-* `port` - (Optional, Int) Service port of a cluster (8000 to 10000). The default value is 8000.
+* `port` - (Optional, Int, ForceNew) Service port of a cluster (8000 to 10000). The default value is 8000.
+  Changing this creates a new cluster resource.
 
 * `public_ip` - (Optional, List, ForceNew) A nested object resource Structure is documented below.
+  Changing this creates a new cluster resource.
 
 The `public_ip` block supports:
 
 * `eip_id` - (Optional, String, ForceNew) EIP ID.
+  Changing this creates a new cluster resource.
 
 * `public_bind_type` - (Optional, String, ForceNew) Binding type of an EIP. The value can be either of the following:
-  auto_assign not_use bind_existing The default value is not_use.
+  **auto_assign**, **not_use**, **bind_existing**. The default value is **not_use**.
+  Changing this creates a new cluster resource.
 
-* `number_of_cn` - (Optional, int, ForceNew) Specifies the number of CN. If you use a large-scale cluster, deploy
-  multiple CNs.
+* `number_of_cn` - (Optional, int, ForceNew) The number of CN. If you use a large-scale cluster, deploy multiple CNs.
+  Changing this creates a new cluster resource.
 
-* `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs to associate with the cluster.
+* `tags` - (Optional, Map) The key/value pairs to associate with the cluster.
 
 ## Attributes Reference
 
