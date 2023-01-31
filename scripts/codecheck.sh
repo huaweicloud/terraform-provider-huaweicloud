@@ -152,7 +152,7 @@ echo -e "\n==> Checking for Nolint directives..."
 grep -rn "nolint:" $packageDir | grep -v "/deprecated/"
 grep -rn "lintignore:" $packageDir | grep -v "/deprecated/"
 
-if [ "X$service" != "X..." ] && [[ $package == ./huaweicloud/services/* ]]; then
+if [ "X$service" != "X..." ] && [[ $package == ./huaweicloud/services/* ]] && [[ $package != ./huaweicloud/services/acceptance/* ]]; then
     grep -rn "markdownlint" ./docs | grep "/${service}_"
 
     echo -e "\n==> Checking for TF features in $service..."
