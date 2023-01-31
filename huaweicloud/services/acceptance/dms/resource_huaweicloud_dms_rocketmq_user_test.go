@@ -9,19 +9,20 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getDmsRocketMQUserResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getDmsRocketMQUserResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getRocketmqUser: query DMS rocketmq user
 	var (
 		getRocketmqUserHttpUrl = "v2/{project_id}/instances/{instance_id}/users/{user_name}"
 		getRocketmqUserProduct = "dms"
 	)
-	getRocketmqUserClient, err := config.NewServiceClient(getRocketmqUserProduct, region)
+	getRocketmqUserClient, err := cfg.NewServiceClient(getRocketmqUserProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DmsRocketMQUser Client: %s", err)
 	}
