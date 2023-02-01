@@ -14,6 +14,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+var PaidType = "prePaid"
+
 const (
 	PROTOCOL_HTTP  = "HTTP"
 	PROTOCOL_HTTPS = "HTTPS"
@@ -102,6 +104,16 @@ func ResourceWafDomainV1() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+			"charging_mode": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Default:     PaidType,
+				Description: "schema: Internal",
+				ValidateFunc: validation.StringInSlice([]string{
+					PaidType,
+				}, false),
+			},
 			"protect_status": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -151,6 +163,7 @@ func resourceWafDomainV1Create(d *schema.ResourceData, meta interface{}) error {
 		CertificateName: d.Get("certificate_name").(string),
 		Servers:         buildWafDomainServers(d),
 		Proxy:           &proxy,
+		PaidType:        d.Get("charging_mode").(string),
 	}
 	logp.Printf("[DEBUG] CreateOpts: %#v", createOpts)
 
@@ -197,6 +210,7 @@ func resourceWafDomainV1Read(d *schema.ResourceData, meta interface{}) error {
 		return common.CheckDeleted(d, err, "Error obtain WAF domain information")
 	}
 
+	// keep_policy and charging_mode not returned by API
 	mErr := multierror.Append(nil,
 		d.Set("region", config.GetRegion(d)),
 		d.Set("domain", n.HostName),
