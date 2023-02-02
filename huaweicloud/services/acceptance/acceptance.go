@@ -184,6 +184,13 @@ func TestAccPreCheckEpsID(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckMigrateEpsID(t *testing.T) {
+	if HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST == "" {
+		t.Skip("The environment variables does not support Migrate Enterprise Project ID for acc tests")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckBms(t *testing.T) {
 	if HW_USER_ID == "" {
 		t.Skip("HW_USER_ID must be set for BMS acceptance tests")

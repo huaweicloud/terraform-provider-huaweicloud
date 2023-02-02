@@ -2,6 +2,7 @@ package waf
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -44,7 +45,7 @@ func ResourceWafDedicatedInstance() *schema.Resource {
 		UpdateContext: resourceDedicatedInstanceUpdate,
 		DeleteContext: resourceDedicatedInstanceDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceWafDedicatedInstanceImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -105,6 +106,10 @@ func ResourceWafDedicatedInstance() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 
 			// The following are the attributes
 			"server_id": {
@@ -156,9 +161,9 @@ func buildCreateOpts(d *schema.ResourceData, region string) *instances.CreateIns
 	return &createOpts
 }
 
-func waitForInstanceCreated(c *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func waitForInstanceCreated(c *golangsdk.ServiceClient, id string, epsId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		r, err := instances.GetInstance(c, id)
+		r, err := instances.GetWithEpsId(c, id, epsId)
 		if err != nil {
 			return nil, "Error", err
 		}
@@ -184,7 +189,9 @@ func resourceDedicatedInstanceCreate(ctx context.Context, d *schema.ResourceData
 	}
 
 	createOpts := buildCreateOpts(d, conf.GetRegion(d))
-	r, err := instances.CreateInstance(client, *createOpts)
+	epsId := common.GetEnterpriseProjectID(d, conf)
+
+	r, err := instances.CreateWithEpsId(client, *createOpts, epsId)
 	if err != nil {
 		return fmtp.DiagErrorf("error creating WAF dedicated : %w", err)
 	}
@@ -194,14 +201,14 @@ func resourceDedicatedInstanceCreate(ctx context.Context, d *schema.ResourceData
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Creating"},
 		Target:       []string{"Created"},
-		Refresh:      waitForInstanceCreated(client, r.Instances[0].Id),
+		Refresh:      waitForInstanceCreated(client, r.Instances[0].Id, epsId),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        5 * time.Second,
 		PollInterval: 15 * time.Second,
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err == nil {
-		err = updateInstanceName(client, r.Instances[0].Id, d.Get("name").(string))
+		err = updateInstanceName(client, r.Instances[0].Id, d.Get("name").(string), epsId)
 	}
 	if err != nil {
 		logp.Printf("[DEBUG] Error while waiting to create  Waf dedicated instance. %s : %#v", d.Id(), err)
@@ -218,7 +225,8 @@ func resourceDedicatedInstanceRead(_ context.Context, d *schema.ResourceData, me
 		return fmtp.DiagErrorf("error creating HuaweiCloud WAF dedicated client: %s", err)
 	}
 
-	r, err := instances.GetInstance(client, d.Id())
+	epsId := common.GetEnterpriseProjectID(d, config)
+	r, err := instances.GetWithEpsId(client, d.Id(), epsId)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "Error obtain WAF dedicated instance information.")
 	}
@@ -250,11 +258,12 @@ func resourceDedicatedInstanceRead(_ context.Context, d *schema.ResourceData, me
 }
 
 // updateInstanceName call API to change the instance name.
-func updateInstanceName(c *golangsdk.ServiceClient, id, name string) error {
+func updateInstanceName(c *golangsdk.ServiceClient, id, name, epsId string) error {
 	opt := instances.UpdateInstanceOpts{
 		InstanceName: name,
 	}
-	_, err := instances.UpdateInstance(c, id, opt)
+
+	_, err := instances.UpdateWithEpsId(c, id, opt, epsId)
 	if err != nil {
 		return fmtp.Errorf("error update name of WAF dedicate instance %s: %s", id, err)
 	}
@@ -262,24 +271,51 @@ func updateInstanceName(c *golangsdk.ServiceClient, id, name string) error {
 }
 
 func resourceDedicatedInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	client, err := conf.WafDedicatedV1Client(conf.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating WAF dedicated client: %s", err)
+	}
+	epsId := common.GetEnterpriseProjectID(d, conf)
 	if d.HasChanges("name") {
-		config := meta.(*config.Config)
-		client, err := config.WafDedicatedV1Client(config.GetRegion(d))
+		err = updateInstanceName(client, d.Id(), d.Get("name").(string), epsId)
 		if err != nil {
-			return fmtp.DiagErrorf("error creating HuaweiCloud WAF dedicated client: %s", err)
+			return diag.FromErr(err)
+		}
+	}
+	if d.HasChange("enterprise_project_id") {
+		// migrate waf resource
+		region := conf.GetRegion(d)
+		epsClient, err := conf.EnterpriseProjectClient(region)
+		if err != nil {
+			return diag.Errorf("error creating EPS client: %s", err)
 		}
 
-		err = updateInstanceName(client, d.Id(), d.Get("name").(string))
-		if err != nil {
+		if err := resourceWafDedicatedEPSIdUpdate(d.Id(), epsId, client, epsClient, region); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 	return resourceDedicatedInstanceRead(ctx, d, meta)
 }
 
-func waitForInstanceDeleted(c *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func resourceWafDedicatedEPSIdUpdate(id string, targetEPSId string, c *golangsdk.ServiceClient,
+	epsClient *golangsdk.ServiceClient, region string) error {
+	err := common.MigrateEnterpriseProject(epsClient, region, targetEPSId, "waf-instance", id)
+	if err != nil {
+		return nil
+	}
+
+	// check waf with enterprise_project_id
+	_, err = instances.GetWithEpsId(c, id, targetEPSId)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func waitForInstanceDeleted(c *golangsdk.ServiceClient, id string, epsId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		r, err := instances.GetInstance(c, id)
+		r, err := instances.GetWithEpsId(c, id, epsId)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				logp.Printf("[DEBUG] The Waf dedicated instance has been deleted(ID:%s).", id)
@@ -308,7 +344,8 @@ func resourceDedicatedInstanceDelete(ctx context.Context, d *schema.ResourceData
 		return fmtp.DiagErrorf("error creating HuaweiCloud WAF dedicated client: %s", err)
 	}
 
-	_, err = instances.Delete(client, d.Id())
+	epsId := common.GetEnterpriseProjectID(d, config)
+	_, err = instances.DeleteWithEpsId(client, d.Id(), epsId)
 	if err != nil {
 		return fmtp.DiagErrorf("error deleting WAF dedicated : %w", err)
 	}
@@ -317,7 +354,7 @@ func resourceDedicatedInstanceDelete(ctx context.Context, d *schema.ResourceData
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Deleting"},
 		Target:       []string{"Deleted"},
-		Refresh:      waitForInstanceDeleted(client, d.Id()),
+		Refresh:      waitForInstanceDeleted(client, d.Id(), epsId),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        5 * time.Second,
 		PollInterval: 15 * time.Second,
@@ -329,4 +366,23 @@ func resourceDedicatedInstanceDelete(ctx context.Context, d *schema.ResourceData
 	}
 	d.SetId("")
 	return nil
+}
+
+func resourceWafDedicatedInstanceImport(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	if !strings.Contains(d.Id(), "/") {
+		return []*schema.ResourceData{d}, nil
+	}
+
+	parts := strings.SplitN(d.Id(), "/", 2)
+	if len(parts) != 2 {
+		err := fmtp.Errorf("Invalid format specified for WAF Dedicated. Format must be <instance id>/<eps id>")
+		return nil, err
+	}
+	instanceId := parts[0]
+	epsId := parts[1]
+
+	d.SetId(instanceId)
+	d.Set("enterprise_project_id", epsId)
+
+	return []*schema.ResourceData{d}, nil
 }

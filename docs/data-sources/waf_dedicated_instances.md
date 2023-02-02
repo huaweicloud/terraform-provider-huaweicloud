@@ -27,6 +27,8 @@ The following arguments are supported:
 
 * `name` - (Optional, String) The name of WAF dedicated instance.
 
+* `enterprise_project_id` - (Optional, String) The enterprise project ID of WAF dedicated instance.
+
 ## Attributes Reference
 
 * `id` - The data source ID in UUID format.

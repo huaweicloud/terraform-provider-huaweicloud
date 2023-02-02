@@ -14,14 +14,16 @@ variable ecs_flavor_id {}
 variable vpc_id {}
 variable subnet_id {}
 variable security_group_id {}
+variable enterprise_project_id {}
 
 resource "huaweicloud_waf_dedicated_instance" "instance_1" {
-  name               = "instance_1"
-  available_zone     = var.az_name
-  specification_code = "waf.instance.professional"
-  ecs_flavor         = var.ecs_flavor_id
-  vpc_id             = var.vpc_id
-  subnet_id          = var.subnet_id
+  name                  = "instance_1"
+  available_zone        = var.az_name
+  specification_code    = "waf.instance.professional"
+  ecs_flavor            = var.ecs_flavor_id
+  vpc_id                = var.vpc_id
+  subnet_id             = var.subnet_id
+  enterprise_project_id = var.enterprise_project_id
 
   security_group = [
     var.security_group_id
@@ -58,6 +60,9 @@ The following arguments are supported:
 
 * `subnet_id` - (Required, String, ForceNew) The subnet id of WAF dedicated instance VPC. Changing this will create a
   new instance.
+
+* `enterprise_project_id` - (Optional, String) The enterprise project ID of WAF dedicated instance. Changing this
+  will migrate the WAF instance to a new enterprise project.
 
 * `security_group` - (Required, List, ForceNew) The security group of the instance. This is an array of security group
   ids. Changing this will create a new instance.
@@ -98,8 +103,20 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
+There are two ways to import state, include `Without Enterprise Project ID` and `With Enterprise Project ID`.
+
+### Without Enterprise Project ID
+
 WAF dedicated instance can be imported using the `id`, e.g.
 
 ```sh
 terraform import huaweicloud_waf_dedicated_instance.instance_1 2f87641090206b821f07e0f6bd6
+```
+
+### With Enterprise Project ID
+
+WAF dedicated instance can be imported using the instance ID and Enterprise Project ID separated by a slash, e.g.:
+
+```sh
+terraform import huaweicloud_waf_dedicated_instance.instance_1 2003b024bee141bcb3aed2fc4142033c/3cf9c5a4-583e-4259-aba1-b7745690246f
 ```

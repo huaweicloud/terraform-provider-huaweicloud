@@ -34,6 +34,10 @@ func DataSourceWafDedicatedInstancesV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"instances": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -111,9 +115,10 @@ func dataSourceWafDedicatedInstanceRead(_ context.Context, d *schema.ResourceDat
 	}
 
 	instanceId, hasId := d.GetOk("id")
+	epsId := d.Get("enterprise_project_id").(string)
 	var items []instances.DedicatedInstance
 	if hasId {
-		instance, err := instances.GetInstance(client, instanceId.(string))
+		instance, err := instances.GetWithEpsId(client, instanceId.(string), epsId)
 		if err != nil {
 			return fmtp.DiagErrorf("Your query returned no results. " +
 				"Please change your search criteria and try again.")
@@ -130,7 +135,8 @@ func dataSourceWafDedicatedInstanceRead(_ context.Context, d *schema.ResourceDat
 	} else {
 		// If the instance id is not set, or the name value is not set, the query list can be used.
 		opts := instances.ListInstanceOpts{
-			InstanceName: d.Get("name").(string),
+			InstanceName:        d.Get("name").(string),
+			EnterpriseProjectId: epsId,
 		}
 
 		rst, err := instances.ListInstance(client, opts)
