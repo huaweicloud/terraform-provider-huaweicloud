@@ -462,6 +462,14 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 
 			// Deprecated
 			"metadata": {
@@ -870,6 +878,8 @@ func resourceComputeInstanceV2Read(_ context.Context, d *schema.ResourceData, me
 	d.Set("agency_name", server.Metadata.AgencyName)
 	d.Set("agent_list", server.Metadata.AgentList)
 	d.Set("charging_mode", normalizeChargingMode(server.Metadata.ChargingMode))
+	d.Set("created_at", server.Created.Format(time.RFC3339))
+	d.Set("updated_at", server.Updated.Format(time.RFC3339))
 
 	flavorInfo := server.Flavor
 	d.Set("flavor_id", flavorInfo.ID)
