@@ -9,19 +9,20 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getDmsRocketMQTopicResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getDmsRocketMQTopicResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getRocketmqTopic: query DMS rocketmq topic
 	var (
 		getRocketmqTopicHttpUrl = "v2/{project_id}/instances/{instance_id}/topics/{topic}"
-		getRocketmqTopicProduct = "dms"
+		getRocketmqTopicProduct = "dmsv2"
 	)
-	getRocketmqTopicClient, err := config.NewServiceClient(getRocketmqTopicProduct, region)
+	getRocketmqTopicClient, err := cfg.NewServiceClient(getRocketmqTopicProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DmsRocketMQTopic Client: %s", err)
 	}
@@ -122,18 +123,20 @@ resource "huaweicloud_networking_secgroup" "test" {
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dms_rocketmq_instance" "test" {
-  name                = "%[1]s"
-  engine_version      = "4.8.0"
-  storage_space       = 600
-  vpc_id              = huaweicloud_vpc.test.id
-  subnet_id           = huaweicloud_vpc_subnet.test.id
-  security_group_id   = huaweicloud_networking_secgroup.test.id
-  availability_zones  = [
+  name              = "%[1]s"
+  engine_version    = "4.8.0"
+  storage_space     = 600
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  availability_zones = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
-  flavor_id           = "c6.4u8g.cluster"
-  storage_spec_code   = "dms.physical.storage.high.v2"
-  broker_num          = 1
+
+  flavor_id         = "c6.4u8g.cluster"
+  storage_spec_code = "dms.physical.storage.high.v2"
+  broker_num        = 1
 }
 `, rName)
 }
@@ -145,6 +148,7 @@ func testDmsRocketMQTopic_basic(name string) string {
 resource "huaweicloud_dms_rocketmq_topic" "test" {
   instance_id = huaweicloud_dms_rocketmq_instance.test.id
   name        = "%s"
+
   brokers {
     name = "broker-0"
   }
