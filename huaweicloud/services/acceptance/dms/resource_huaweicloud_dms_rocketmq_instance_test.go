@@ -6,23 +6,24 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getDmsRocketMQInstanceResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getDmsRocketMQInstanceResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getRocketmqInstance: Query DMS rocketmq instance
 	var (
 		getRocketmqInstanceHttpUrl = "v2/{project_id}/instances/{instance_id}"
 		getRocketmqInstanceProduct = "dmsv2"
 	)
-	getRocketmqInstanceClient, err := config.NewServiceClient(getRocketmqInstanceProduct, region)
+	getRocketmqInstanceClient, err := cfg.NewServiceClient(getRocketmqInstanceProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DmsRocketMQInstance Client: %s", err)
 	}
