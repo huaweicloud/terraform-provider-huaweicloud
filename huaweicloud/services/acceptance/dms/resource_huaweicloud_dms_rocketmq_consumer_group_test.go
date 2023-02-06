@@ -9,19 +9,20 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getDmsRocketMQConsumerGroupResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getDmsRocketMQConsumerGroupResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getRocketmqConsumerGroup: query DMS rocketmq consumer group
 	var (
 		getRocketmqConsumerGroupHttpUrl = "v2/{project_id}/instances/{instance_id}/groups/{group}"
-		getRocketmqConsumerGroupProduct = "dms"
+		getRocketmqConsumerGroupProduct = "dmsv2"
 	)
-	getRocketmqConsumerGroupClient, err := config.NewServiceClient(getRocketmqConsumerGroupProduct, region)
+	getRocketmqConsumerGroupClient, err := cfg.NewServiceClient(getRocketmqConsumerGroupProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DmsRocketMQConsumerGroup Client: %s", err)
 	}
@@ -34,7 +35,8 @@ func getDmsRocketMQConsumerGroupResourceFunc(config *config.Config, state *terra
 	instanceID := parts[0]
 	name := parts[1]
 	getRocketmqConsumerGroupPath := getRocketmqConsumerGroupClient.Endpoint + getRocketmqConsumerGroupHttpUrl
-	getRocketmqConsumerGroupPath = strings.ReplaceAll(getRocketmqConsumerGroupPath, "{project_id}", getRocketmqConsumerGroupClient.ProjectID)
+	getRocketmqConsumerGroupPath = strings.ReplaceAll(getRocketmqConsumerGroupPath, "{project_id}",
+		getRocketmqConsumerGroupClient.ProjectID)
 	getRocketmqConsumerGroupPath = strings.ReplaceAll(getRocketmqConsumerGroupPath, "{instance_id}", instanceID)
 	getRocketmqConsumerGroupPath = strings.ReplaceAll(getRocketmqConsumerGroupPath, "{group}", name)
 
@@ -44,7 +46,8 @@ func getDmsRocketMQConsumerGroupResourceFunc(config *config.Config, state *terra
 			200,
 		},
 	}
-	getRocketmqConsumerGroupResp, err := getRocketmqConsumerGroupClient.Request("GET", getRocketmqConsumerGroupPath, &getRocketmqConsumerGroupOpt)
+	getRocketmqConsumerGroupResp, err := getRocketmqConsumerGroupClient.Request("GET", getRocketmqConsumerGroupPath,
+		&getRocketmqConsumerGroupOpt)
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving DmsRocketMQConsumerGroup: %s", err)
 	}
@@ -119,18 +122,20 @@ resource "huaweicloud_networking_secgroup" "test" {
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dms_rocketmq_instance" "test" {
-  name                = "%[1]s"
-  engine_version      = "4.8.0"
-  storage_space       = 600
-  vpc_id              = huaweicloud_vpc.test.id
-  subnet_id           = huaweicloud_vpc_subnet.test.id
-  security_group_id   = huaweicloud_networking_secgroup.test.id
-  availability_zones  = [
+  name              = "%[1]s"
+  engine_version    = "4.8.0"
+  storage_space     = 600
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  availability_zones = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
-  flavor_id           = "c6.4u8g.cluster"
-  storage_spec_code   = "dms.physical.storage.high.v2"
-  broker_num          = 1
+
+  flavor_id         = "c6.4u8g.cluster"
+  storage_spec_code = "dms.physical.storage.high.v2"
+  broker_num        = 1
 }
 `, rName)
 }
@@ -140,11 +145,13 @@ func testDmsRocketMQConsumerGroup_basic(name string) string {
 %s
 
 resource "huaweicloud_dms_rocketmq_consumer_group" "test" {
-  instance_id    = huaweicloud_dms_rocketmq_instance.test.id
-  broadcast      = true
-  brokers        = [
+  instance_id = huaweicloud_dms_rocketmq_instance.test.id
+  broadcast   = true
+
+  brokers = [
     "broker-0"
   ]
+
   name            = "%s"
   retry_max_times = "3"
 }
@@ -156,11 +163,13 @@ func testDmsRocketMQConsumerGroup_basic_update(name string) string {
 %s
 
 resource "huaweicloud_dms_rocketmq_consumer_group" "test" {
-  instance_id    = huaweicloud_dms_rocketmq_instance.test.id
-  broadcast      = false
-  brokers        = [
+  instance_id = huaweicloud_dms_rocketmq_instance.test.id
+  broadcast   = false
+
+  brokers = [
     "broker-0"
   ]
+
   name            = "%s"
   retry_max_times = "5"
   enabled         = false

@@ -9,12 +9,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/jmespath/go-jmespath"
 )
 
 func ResourceDmsRocketMQConsumerGroup() *schema.Resource {
@@ -82,22 +83,23 @@ func ResourceDmsRocketMQConsumerGroup() *schema.Resource {
 }
 
 func resourceDmsRocketMQConsumerGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createRocketmqConsumerGroup: create DMS rocketmq consumer group
 	var (
 		createRocketmqConsumerGroupHttpUrl = "v2/{project_id}/instances/{instance_id}/groups"
-		createRocketmqConsumerGroupProduct = "dms"
+		createRocketmqConsumerGroupProduct = "dmsv2"
 	)
-	createRocketmqConsumerGroupClient, err := config.NewServiceClient(createRocketmqConsumerGroupProduct, region)
+	createRocketmqConsumerGroupClient, err := cfg.NewServiceClient(createRocketmqConsumerGroupProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating DmsRocketMQConsumerGroup Client: %s", err)
 	}
 
 	instanceID := d.Get("instance_id").(string)
 	createRocketmqConsumerGroupPath := createRocketmqConsumerGroupClient.Endpoint + createRocketmqConsumerGroupHttpUrl
-	createRocketmqConsumerGroupPath = strings.ReplaceAll(createRocketmqConsumerGroupPath, "{project_id}", createRocketmqConsumerGroupClient.ProjectID)
+	createRocketmqConsumerGroupPath = strings.ReplaceAll(createRocketmqConsumerGroupPath, "{project_id}",
+		createRocketmqConsumerGroupClient.ProjectID)
 	createRocketmqConsumerGroupPath = strings.ReplaceAll(createRocketmqConsumerGroupPath, "{instance_id}", instanceID)
 
 	createRocketmqConsumerGroupOpt := golangsdk.RequestOpts{
@@ -106,8 +108,9 @@ func resourceDmsRocketMQConsumerGroupCreate(ctx context.Context, d *schema.Resou
 			200,
 		},
 	}
-	createRocketmqConsumerGroupOpt.JSONBody = utils.RemoveNil(buildCreateRocketmqConsumerGroupBodyParams(d, config))
-	createRocketmqConsumerGroupResp, err := createRocketmqConsumerGroupClient.Request("POST", createRocketmqConsumerGroupPath, &createRocketmqConsumerGroupOpt)
+	createRocketmqConsumerGroupOpt.JSONBody = utils.RemoveNil(buildCreateRocketmqConsumerGroupBodyParams(d, cfg))
+	createRocketmqConsumerGroupResp, err := createRocketmqConsumerGroupClient.Request("POST",
+		createRocketmqConsumerGroupPath, &createRocketmqConsumerGroupOpt)
 	if err != nil {
 		return diag.Errorf("error creating DmsRocketMQConsumerGroup: %s", err)
 	}
@@ -127,7 +130,7 @@ func resourceDmsRocketMQConsumerGroupCreate(ctx context.Context, d *schema.Resou
 	return resourceDmsRocketMQConsumerGroupRead(ctx, d, meta)
 }
 
-func buildCreateRocketmqConsumerGroupBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateRocketmqConsumerGroupBodyParams(d *schema.ResourceData, _ *config.Config) map[string]interface{} {
 	var enabled interface{} = true
 	if v, ok := d.GetOk("enabled"); ok {
 		enabled = v
@@ -143,22 +146,22 @@ func buildCreateRocketmqConsumerGroupBodyParams(d *schema.ResourceData, config *
 }
 
 func resourceDmsRocketMQConsumerGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
-	updateRocketmqConsumerGrouphasChanges := []string{
+	updateRocketmqConsumerGroupHasChanges := []string{
 		"enabled",
 		"broadcast",
 		"retry_max_times",
 	}
 
-	if d.HasChanges(updateRocketmqConsumerGrouphasChanges...) {
+	if d.HasChanges(updateRocketmqConsumerGroupHasChanges...) {
 		// updateRocketmqConsumerGroup: update DMS rocketmq consumer group
 		var (
 			updateRocketmqConsumerGroupHttpUrl = "v2/{project_id}/instances/{instance_id}/groups/{group}"
-			updateRocketmqConsumerGroupProduct = "dms"
+			updateRocketmqConsumerGroupProduct = "dmsv2"
 		)
-		updateRocketmqConsumerGroupClient, err := config.NewServiceClient(updateRocketmqConsumerGroupProduct, region)
+		updateRocketmqConsumerGroupClient, err := cfg.NewServiceClient(updateRocketmqConsumerGroupProduct, region)
 		if err != nil {
 			return diag.Errorf("error creating DmsRocketMQConsumerGroup Client: %s", err)
 		}
@@ -170,7 +173,8 @@ func resourceDmsRocketMQConsumerGroupUpdate(ctx context.Context, d *schema.Resou
 		instanceID := parts[0]
 		name := parts[1]
 		updateRocketmqConsumerGroupPath := updateRocketmqConsumerGroupClient.Endpoint + updateRocketmqConsumerGroupHttpUrl
-		updateRocketmqConsumerGroupPath = strings.ReplaceAll(updateRocketmqConsumerGroupPath, "{project_id}", updateRocketmqConsumerGroupClient.ProjectID)
+		updateRocketmqConsumerGroupPath = strings.ReplaceAll(updateRocketmqConsumerGroupPath, "{project_id}",
+			updateRocketmqConsumerGroupClient.ProjectID)
 		updateRocketmqConsumerGroupPath = strings.ReplaceAll(updateRocketmqConsumerGroupPath, "{instance_id}", instanceID)
 		updateRocketmqConsumerGroupPath = strings.ReplaceAll(updateRocketmqConsumerGroupPath, "{group}", name)
 
@@ -180,8 +184,9 @@ func resourceDmsRocketMQConsumerGroupUpdate(ctx context.Context, d *schema.Resou
 				204,
 			},
 		}
-		updateRocketmqConsumerGroupOpt.JSONBody = utils.RemoveNil(buildUpdateRocketmqConsumerGroupBodyParams(d, config))
-		_, err = updateRocketmqConsumerGroupClient.Request("PUT", updateRocketmqConsumerGroupPath, &updateRocketmqConsumerGroupOpt)
+		updateRocketmqConsumerGroupOpt.JSONBody = utils.RemoveNil(buildUpdateRocketmqConsumerGroupBodyParams(d))
+		_, err = updateRocketmqConsumerGroupClient.Request("PUT", updateRocketmqConsumerGroupPath,
+			&updateRocketmqConsumerGroupOpt)
 		if err != nil {
 			return diag.Errorf("error updating DmsRocketMQConsumerGroup: %s", err)
 		}
@@ -190,7 +195,7 @@ func resourceDmsRocketMQConsumerGroupUpdate(ctx context.Context, d *schema.Resou
 	return resourceDmsRocketMQConsumerGroupRead(ctx, d, meta)
 }
 
-func buildUpdateRocketmqConsumerGroupBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildUpdateRocketmqConsumerGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"broadcast":      utils.ValueIngoreEmpty(d.Get("broadcast")),
 		"retry_max_time": utils.ValueIngoreEmpty(d.Get("retry_max_times")),
@@ -202,18 +207,18 @@ func buildUpdateRocketmqConsumerGroupBodyParams(d *schema.ResourceData, config *
 	return bodyParams
 }
 
-func resourceDmsRocketMQConsumerGroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceDmsRocketMQConsumerGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
 	// getRocketmqConsumerGroup: query DMS rocketmq consumer group
 	var (
 		getRocketmqConsumerGroupHttpUrl = "v2/{project_id}/instances/{instance_id}/groups/{group}"
-		getRocketmqConsumerGroupProduct = "dms"
+		getRocketmqConsumerGroupProduct = "dmsv2"
 	)
-	getRocketmqConsumerGroupClient, err := config.NewServiceClient(getRocketmqConsumerGroupProduct, region)
+	getRocketmqConsumerGroupClient, err := cfg.NewServiceClient(getRocketmqConsumerGroupProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating DmsRocketMQConsumerGroup Client: %s", err)
 	}
@@ -225,7 +230,8 @@ func resourceDmsRocketMQConsumerGroupRead(ctx context.Context, d *schema.Resourc
 	instanceID := parts[0]
 	name := parts[1]
 	getRocketmqConsumerGroupPath := getRocketmqConsumerGroupClient.Endpoint + getRocketmqConsumerGroupHttpUrl
-	getRocketmqConsumerGroupPath = strings.ReplaceAll(getRocketmqConsumerGroupPath, "{project_id}", getRocketmqConsumerGroupClient.ProjectID)
+	getRocketmqConsumerGroupPath = strings.ReplaceAll(getRocketmqConsumerGroupPath, "{project_id}",
+		getRocketmqConsumerGroupClient.ProjectID)
 	getRocketmqConsumerGroupPath = strings.ReplaceAll(getRocketmqConsumerGroupPath, "{instance_id}", instanceID)
 	getRocketmqConsumerGroupPath = strings.ReplaceAll(getRocketmqConsumerGroupPath, "{group}", name)
 
@@ -235,7 +241,8 @@ func resourceDmsRocketMQConsumerGroupRead(ctx context.Context, d *schema.Resourc
 			200,
 		},
 	}
-	getRocketmqConsumerGroupResp, err := getRocketmqConsumerGroupClient.Request("GET", getRocketmqConsumerGroupPath, &getRocketmqConsumerGroupOpt)
+	getRocketmqConsumerGroupResp, err := getRocketmqConsumerGroupClient.Request("GET", getRocketmqConsumerGroupPath,
+		&getRocketmqConsumerGroupOpt)
 
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving DmsRocketMQConsumerGroup")
@@ -260,16 +267,16 @@ func resourceDmsRocketMQConsumerGroupRead(ctx context.Context, d *schema.Resourc
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceDmsRocketMQConsumerGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceDmsRocketMQConsumerGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// deleteRocketmqConsumerGroup: delete DMS rocketmq consumer group
 	var (
 		deleteRocketmqConsumerGroupHttpUrl = "v2/{project_id}/instances/{instance_id}/groups/{group}"
-		deleteRocketmqConsumerGroupProduct = "dms"
+		deleteRocketmqConsumerGroupProduct = "dmsv2"
 	)
-	deleteRocketmqConsumerGroupClient, err := config.NewServiceClient(deleteRocketmqConsumerGroupProduct, region)
+	deleteRocketmqConsumerGroupClient, err := cfg.NewServiceClient(deleteRocketmqConsumerGroupProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating DmsRocketMQConsumerGroup Client: %s", err)
 	}
@@ -281,7 +288,8 @@ func resourceDmsRocketMQConsumerGroupDelete(ctx context.Context, d *schema.Resou
 	instanceID := parts[0]
 	name := parts[1]
 	deleteRocketmqConsumerGroupPath := deleteRocketmqConsumerGroupClient.Endpoint + deleteRocketmqConsumerGroupHttpUrl
-	deleteRocketmqConsumerGroupPath = strings.ReplaceAll(deleteRocketmqConsumerGroupPath, "{project_id}", deleteRocketmqConsumerGroupClient.ProjectID)
+	deleteRocketmqConsumerGroupPath = strings.ReplaceAll(deleteRocketmqConsumerGroupPath, "{project_id}",
+		deleteRocketmqConsumerGroupClient.ProjectID)
 	deleteRocketmqConsumerGroupPath = strings.ReplaceAll(deleteRocketmqConsumerGroupPath, "{instance_id}", instanceID)
 	deleteRocketmqConsumerGroupPath = strings.ReplaceAll(deleteRocketmqConsumerGroupPath, "{group}", name)
 
