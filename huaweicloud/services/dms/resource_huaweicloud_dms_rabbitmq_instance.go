@@ -473,7 +473,7 @@ func resourceDmsRabbitmqInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	if d.HasChange("product_id") {
-		err = resizeInstance(ctx, d, meta, engineRabbitMQ)
+		err = resizeRabbitMQInstance(ctx, d, meta, engineRabbitMQ)
 		if err != nil {
 			mErr = multierror.Append(mErr, err)
 		}
@@ -483,6 +483,67 @@ func resourceDmsRabbitmqInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	return resourceDmsRabbitmqInstanceRead(ctx, d, meta)
+}
+
+func resizeRabbitMQInstance(ctx context.Context, d *schema.ResourceData, meta interface{}, engineType string) error {
+	cfg := meta.(*config.Config)
+	client, err := cfg.DmsV2Client(cfg.GetRegion(d))
+	if err != nil {
+		return fmt.Errorf("error initializing DMS(v2) client: %s", err)
+	}
+
+	product, err := getRabbitMQProductDetail(cfg, d)
+	if err != nil {
+		return fmt.Errorf("failed to resize RabbitMQ instance, query product details error: %s", err)
+	}
+
+	storage, err := strconv.Atoi(product.Storage)
+	if err != nil {
+		return fmt.Errorf("failed to resize RabbitMQ instance, error parsing storage_space to int %v: %s",
+			product.Storage, err)
+	}
+
+	resizeOpts := instances.ResizeInstanceOpts{
+		NewSpecCode:     product.SpecCode,
+		NewStorageSpace: storage,
+	}
+	log.Printf("[DEBUG] Resize DMS %s instance option : %#v", engineType, resizeOpts)
+
+	_, err = instances.Resize(client, d.Id(), resizeOpts)
+	if err != nil {
+		return fmt.Errorf("resize RabbitMQ instance failed: %s", err)
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"EXTENDING", "PENDING"},
+		Target:       []string{"RUNNING"},
+		Refresh:      rabbitMQResizeStateRefresh(client, d.Id(), product.ProductID),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        180 * time.Second,
+		PollInterval: 15 * time.Second,
+	}
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("error waiting for RabbitMQ instance (%s) to resize: %v", d.Id(), err)
+	}
+
+	return nil
+}
+
+func rabbitMQResizeStateRefresh(client *golangsdk.ServiceClient, instanceID, productID string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		v, err := instances.Get(client, instanceID).Extract()
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return v, "failed", fmt.Errorf("unable to resize RabbitMQ instance which has been deleted: %s",
+					instanceID)
+			}
+			return nil, "failed", err
+		}
+		if v.Status == "RUNNING" && v.ProductID != productID {
+			return v, "PENDING", nil
+		}
+		return v, v.Status, nil
+	}
 }
 
 func resourceDmsRabbitmqInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

@@ -6,6 +6,10 @@ import (
 	"github.com/chnsz/golangsdk/pagination"
 )
 
+var requestOpts = golangsdk.RequestOpts{
+	MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+}
+
 // CreateOpsBuilder is used for creating instance parameters.
 // any struct providing the parameters should implement this interface
 type CreateOpsBuilder interface {
@@ -119,12 +123,12 @@ func Delete(client *golangsdk.ServiceClient, id string) (r DeleteResult) {
 	return
 }
 
-//UpdateOptsBuilder is an interface which can build the map paramter of update function
+// UpdateOptsBuilder is an interface which can build the map paramter of update function
 type UpdateOptsBuilder interface {
 	ToInstanceUpdateMap() (map[string]interface{}, error)
 }
 
-//UpdateOpts is a struct which represents the parameters of update function
+// UpdateOpts is a struct which represents the parameters of update function
 type UpdateOpts struct {
 	// Indicates the name of an instance.
 	// An instance name starts with a letter,
@@ -221,4 +225,32 @@ func List(client *golangsdk.ServiceClient, opts ListOpsBuilder) pagination.Pager
 	})
 
 	return pageList
+}
+
+type ResizeInstanceOpts struct {
+	NewSpecCode     string `json:"new_spec_code" required:"true"`
+	NewStorageSpace int    `json:"new_storage_space" required:"true"`
+}
+
+func Resize(client *golangsdk.ServiceClient, id string, opts ResizeInstanceOpts) (string, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return "", err
+	}
+
+	var rst golangsdk.Result
+	_, err = client.Post(extend(client, id), b, &rst.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	if err == nil {
+		var r struct {
+			JobID string `json:"job_id"`
+		}
+		if err = rst.ExtractInto(&r); err != nil {
+			return "", err
+		}
+		return r.JobID, nil
+	}
+	return "", err
 }
