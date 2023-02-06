@@ -10,12 +10,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/jmespath/go-jmespath"
 )
 
 func ResourceDmsRocketMQUser() *schema.Resource {
@@ -87,14 +88,14 @@ Value options: **PUB|SUB**, **PUB**, **SUB**, **DENY**.`,
 			},
 			"topic_perms": {
 				Type:        schema.TypeList,
-				Elem:        DmsRocketMQUserPermsRefSchema(),
+				Elem:        rocketMQUserPermsRefSchema(),
 				Optional:    true,
 				Computed:    true,
 				Description: `Specifies the special topic permissions.`,
 			},
 			"group_perms": {
 				Type:        schema.TypeList,
-				Elem:        DmsRocketMQUserPermsRefSchema(),
+				Elem:        rocketMQUserPermsRefSchema(),
 				Optional:    true,
 				Computed:    true,
 				Description: `Specifies the special consumer group permissions.`,
@@ -103,7 +104,7 @@ Value options: **PUB|SUB**, **PUB**, **SUB**, **DENY**.`,
 	}
 }
 
-func DmsRocketMQUserPermsRefSchema() *schema.Resource {
+func rocketMQUserPermsRefSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -125,15 +126,15 @@ Value options: **PUB|SUB**, **PUB**, **SUB**, **DENY**.`,
 }
 
 func resourceDmsRocketMQUserCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createRocketmqUser: create DMS rocketmq user
 	var (
 		createRocketmqUserHttpUrl = "v2/{project_id}/instances/{instance_id}/users"
-		createRocketmqUserProduct = "dms"
+		createRocketmqUserProduct = "dmsv2"
 	)
-	createRocketmqUserClient, err := config.NewServiceClient(createRocketmqUserProduct, region)
+	createRocketmqUserClient, err := cfg.NewServiceClient(createRocketmqUserProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating DmsRocketMQUser Client: %s", err)
 	}
@@ -151,7 +152,7 @@ func resourceDmsRocketMQUserCreate(ctx context.Context, d *schema.ResourceData, 
 			200,
 		},
 	}
-	createRocketmqUserOpt.JSONBody = utils.RemoveNil(buildCreateRocketmqUserBodyParams(d, config))
+	createRocketmqUserOpt.JSONBody = utils.RemoveNil(buildCreateRocketmqUserBodyParams(d))
 	createRocketmqUserResp, err := createRocketmqUserClient.Request("POST", createRocketmqUserPath,
 		&createRocketmqUserOpt)
 	if err != nil {
@@ -172,7 +173,7 @@ func resourceDmsRocketMQUserCreate(ctx context.Context, d *schema.ResourceData, 
 	return resourceDmsRocketMQUserRead(ctx, d, meta)
 }
 
-func buildCreateRocketmqUserBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateRocketmqUserBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"access_key":           utils.ValueIngoreEmpty(d.Get("access_key")),
 		"secret_key":           utils.ValueIngoreEmpty(d.Get("secret_key")),
@@ -187,10 +188,10 @@ func buildCreateRocketmqUserBodyParams(d *schema.ResourceData, config *config.Co
 }
 
 func resourceDmsRocketMQUserUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
-	updateRocketmqUserhasChanges := []string{
+	updateRocketmqUserHasChanges := []string{
 		"white_remote_address",
 		"admin",
 		"default_topic_perm",
@@ -199,13 +200,13 @@ func resourceDmsRocketMQUserUpdate(ctx context.Context, d *schema.ResourceData, 
 		"group_perms",
 	}
 
-	if d.HasChanges(updateRocketmqUserhasChanges...) {
+	if d.HasChanges(updateRocketmqUserHasChanges...) {
 		// updateRocketmqUser: update DMS rocketmq user
 		var (
 			updateRocketmqUserHttpUrl = "v2/{project_id}/instances/{instance_id}/users/{user_name}"
-			updateRocketmqUserProduct = "dms"
+			updateRocketmqUserProduct = "dmsv2"
 		)
-		updateRocketmqUserClient, err := config.NewServiceClient(updateRocketmqUserProduct, region)
+		updateRocketmqUserClient, err := cfg.NewServiceClient(updateRocketmqUserProduct, region)
 		if err != nil {
 			return diag.Errorf("error creating DmsRocketMQUser Client: %s", err)
 		}
@@ -228,7 +229,7 @@ func resourceDmsRocketMQUserUpdate(ctx context.Context, d *schema.ResourceData, 
 				200,
 			},
 		}
-		updateRocketmqUserOpt.JSONBody = utils.RemoveNil(buildUpdateRocketmqUserBodyParams(d, config))
+		updateRocketmqUserOpt.JSONBody = utils.RemoveNil(buildUpdateRocketmqUserBodyParams(d))
 		_, err = updateRocketmqUserClient.Request("PUT", updateRocketmqUserPath, &updateRocketmqUserOpt)
 		if err != nil {
 			return diag.Errorf("error updating DmsRocketMQUser: %s", err)
@@ -237,7 +238,7 @@ func resourceDmsRocketMQUserUpdate(ctx context.Context, d *schema.ResourceData, 
 	return resourceDmsRocketMQUserRead(ctx, d, meta)
 }
 
-func buildUpdateRocketmqUserBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildUpdateRocketmqUserBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"access_key":           fmt.Sprintf("%v", d.Get("access_key")),
 		"secret_key":           fmt.Sprintf("%v", d.Get("secret_key")),
@@ -266,18 +267,18 @@ func buildRocketmqUserPermsChildBody(d *schema.ResourceData, key string) []map[s
 	return params
 }
 
-func resourceDmsRocketMQUserRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceDmsRocketMQUserRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
 	// getRocketmqUser: query DMS rocketmq user
 	var (
 		getRocketmqUserHttpUrl = "v2/{project_id}/instances/{instance_id}/users/{user_name}"
-		getRocketmqUserProduct = "dms"
+		getRocketmqUserProduct = "dmsv2"
 	)
-	getRocketmqUserClient, err := config.NewServiceClient(getRocketmqUserProduct, region)
+	getRocketmqUserClient, err := cfg.NewServiceClient(getRocketmqUserProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating DmsRocketMQUser Client: %s", err)
 	}
@@ -358,16 +359,16 @@ func flattenGetRocketmqUserResponseBodyPermsRef(resp interface{}, expression str
 	return rst
 }
 
-func resourceDmsRocketMQUserDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceDmsRocketMQUserDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// deleteRocketmqUser: delete DMS rocketmq user
 	var (
 		deleteRocketmqUserHttpUrl = "v2/{project_id}/instances/{instance_id}/users/{user_name}"
-		deleteRocketmqUserProduct = "dms"
+		deleteRocketmqUserProduct = "dmsv2"
 	)
-	deleteRocketmqUserClient, err := config.NewServiceClient(deleteRocketmqUserProduct, region)
+	deleteRocketmqUserClient, err := cfg.NewServiceClient(deleteRocketmqUserProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating DmsRocketMQUser Client: %s", err)
 	}
