@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -40,18 +41,18 @@ func DataSourceDmsRocketMQBroker() *schema.Resource {
 	}
 }
 
-func resourceDmsRocketMQBrokerRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceDmsRocketMQBrokerRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
 	// getRocketmqBroker: Query the List of rocketMQ broker
 	var (
 		getRocketmqBrokerHttpUrl = "v2/{project_id}/instances/{instance_id}/brokers"
-		getRocketmqBrokerProduct = "dms"
+		getRocketmqBrokerProduct = "dmsv2"
 	)
-	getRocketmqBrokerClient, err := config.NewServiceClient(getRocketmqBrokerProduct, region)
+	getRocketmqBrokerClient, err := cfg.NewServiceClient(getRocketmqBrokerProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating DmsRocketMQBroker Client: %s", err)
 	}
@@ -77,11 +78,11 @@ func resourceDmsRocketMQBrokerRead(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	dataSourceId, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(dataSourceId)
 
 	mErr = multierror.Append(
 		mErr,

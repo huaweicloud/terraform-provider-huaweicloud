@@ -51,7 +51,7 @@ instance name.`,
 			},
 			"instances": {
 				Type:        schema.TypeList,
-				Elem:        DmsRocketMQInstancesInstanceRefSchema(),
+				Elem:        rocketMQInstancesInstanceRefSchema(),
 				Computed:    true,
 				Description: `Indicates the list of DMS rocketMQ instances.`,
 			},
@@ -59,7 +59,7 @@ instance name.`,
 	}
 }
 
-func DmsRocketMQInstancesInstanceRefSchema() *schema.Resource {
+func rocketMQInstancesInstanceRefSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -166,7 +166,7 @@ func DmsRocketMQInstancesInstanceRefSchema() *schema.Resource {
 			},
 			"cross_vpc_accesses": {
 				Type:        schema.TypeList,
-				Elem:        DmsRocketMQInstancesInstanceRefCrossVpcInfoRefSchema(),
+				Elem:        rocketMQInstancesInstanceRefCrossVpcInfoRefSchema(),
 				Computed:    true,
 				Description: `Indicates the Cross-VPC access information.`,
 			},
@@ -230,14 +230,14 @@ func DmsRocketMQInstancesInstanceRefSchema() *schema.Resource {
 	return &sc
 }
 
-func DmsRocketMQInstancesInstanceRefCrossVpcInfoRefSchema() *schema.Resource {
+func rocketMQInstancesInstanceRefCrossVpcInfoRefSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"lisenter_ip": {
+			"advertised_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"advertised_ip": {
+			"listener_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -249,23 +249,29 @@ func DmsRocketMQInstancesInstanceRefCrossVpcInfoRefSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			// Typo, it is only kept in the code, will not be shown in the docs.
+			"lisenter_ip": {
+				Type:       schema.TypeString,
+				Computed:   true,
+				Deprecated: "typo in lisenter_ip, please use \"listener_ip\" instead.",
+			},
 		},
 	}
 	return &sc
 }
 
-func resourceDmsRocketMQInstancesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceDmsRocketMQInstancesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
 	// getRocketmqInstances: Query DMS rocketmq instances list
 	var (
 		getRocketmqInstancesHttpUrl = "v2/{project_id}/instances"
-		getRocketmqInstancesProduct = "dms"
+		getRocketmqInstancesProduct = "dmsv2"
 	)
-	getRocketmqInstancesClient, err := config.NewServiceClient(getRocketmqInstancesProduct, region)
+	getRocketmqInstancesClient, err := cfg.NewServiceClient(getRocketmqInstancesProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating DmsRocketMQInstances Client: %s", err)
 	}
@@ -295,13 +301,13 @@ func resourceDmsRocketMQInstancesRead(ctx context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	dataSourceId, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(dataSourceId)
 
-	instances, err := flattenGetRocketmqInstancesResponseBodyInstanceRef(getRocketmqInstancesRespBody, config, region)
+	instances, err := flattenGetRocketmqInstancesResponseBodyInstanceRef(getRocketmqInstancesRespBody, cfg, region)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -313,8 +319,7 @@ func resourceDmsRocketMQInstancesRead(ctx context.Context, d *schema.ResourceDat
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenGetRocketmqInstancesResponseBodyInstanceRef(resp interface{}, config *config.Config,
-	region string) ([]interface{}, error) {
+func flattenGetRocketmqInstancesResponseBodyInstanceRef(resp interface{}, cfg *config.Config, region string) ([]interface{}, error) {
 	if resp == nil {
 		return nil, nil
 	}
@@ -333,7 +338,7 @@ func flattenGetRocketmqInstancesResponseBodyInstanceRef(resp interface{}, config
 			for _, availableZoneID := range availableZoneIDs.([]interface{}) {
 				azIDs = append(azIDs, availableZoneID.(string))
 			}
-			availableZoneCodes, err = getAvailableZoneCodeByID(config, region, azIDs)
+			availableZoneCodes, err = getAvailableZoneCodeByID(cfg, region, azIDs)
 			if err != nil {
 				return nil, err
 			}
