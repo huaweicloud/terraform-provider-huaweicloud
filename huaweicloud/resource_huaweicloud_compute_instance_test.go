@@ -37,6 +37,8 @@ func TestAccComputeInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "network.#"),
 					resource.TestCheckResourceAttrSet(resourceName, "network.0.port"),
 					resource.TestCheckResourceAttrSet(resourceName, "availability_zone"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
 					resource.TestCheckResourceAttr(resourceName, "network.0.source_dest_check", "false"),
 					resource.TestCheckResourceAttr(resourceName, "stop_before_destroy", "true"),
 					resource.TestCheckResourceAttr(resourceName, "delete_eip_on_termination", "true"),
