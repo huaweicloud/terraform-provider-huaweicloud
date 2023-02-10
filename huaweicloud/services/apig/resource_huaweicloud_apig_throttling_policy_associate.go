@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/throttles"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -28,35 +29,31 @@ func ResourceThrottlingPolicyAssociate() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "The region where the dedicated instance and the throttling policy are located.",
 			},
 			"instance_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "The ID of the dedicated instance to which the APIs and the throttling policy belongs.",
 			},
 			"policy_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "The ID of the throttling policy.",
 			},
 			"publish_ids": {
-				Type:     schema.TypeSet,
-				Required: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeSet,
+				Required:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "The publish IDs corresponding to the APIs bound by the throttling policy.",
 			},
 		},
-	}
-}
-
-func buildPolicyAssociateOpts(instanceId, policyId string, publishIds *schema.Set) throttles.BindOpts {
-	return throttles.BindOpts{
-		InstanceId: instanceId,
-		ThrottleId: policyId,
-		PublishIds: utils.ExpandToStringListBySet(publishIds),
 	}
 }
 
@@ -68,15 +65,21 @@ func resourceThrottlingPolicyAssociateCreate(ctx context.Context, d *schema.Reso
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	instanceId := d.Get("instance_id").(string)
-	policyId := d.Get("policy_id").(string)
-	publishIds := d.Get("publish_ids").(*schema.Set)
-	opt := buildPolicyAssociateOpts(instanceId, policyId, publishIds)
+	var (
+		instanceId = d.Get("instance_id").(string)
+		policyId   = d.Get("policy_id").(string)
+		publishIds = d.Get("publish_ids").(*schema.Set)
+
+		opt = throttles.BindOpts{
+			InstanceId: instanceId,
+			ThrottleId: policyId,
+			PublishIds: utils.ExpandToStringListBySet(publishIds),
+		}
+	)
 	_, err = throttles.Bind(client, opt)
 	if err != nil {
 		return diag.Errorf("error binding policy to the API: %s", err)
 	}
-
 	d.SetId(fmt.Sprintf("%s/%s", instanceId, policyId))
 
 	return resourceThrottlingPolicyAssociateRead(ctx, d, meta)
@@ -110,10 +113,15 @@ func resourceThrottlingPolicyAssociateRead(_ context.Context, d *schema.Resource
 		return diag.Errorf("error creating APIG v2 client: %v", err)
 	}
 
-	opt := buildListOpts(d.Get("instance_id").(string), d.Get("policy_id").(string))
+	var (
+		instanceId = d.Get("instance_id").(string)
+		policyId   = d.Get("policy_id").(string)
+		opt        = buildListOpts(instanceId, policyId)
+	)
+
 	resp, err := throttles.ListBind(client, opt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error getting api information from server")
+		return common.CheckDeletedDiag(d, err, "error getting API information from server")
 	}
 	if len(resp) < 1 {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
@@ -126,8 +134,9 @@ func unbindPolicy(client *golangsdk.ServiceClient, instanceId, policyId string, 
 	opt := buildListOpts(instanceId, policyId)
 	resp, err := throttles.ListBind(client, opt)
 	if err != nil {
-		return fmt.Errorf("error getting api information from server: %s", err)
+		return fmt.Errorf("error getting API information from server: %s", err)
 	}
+
 	for _, rm := range unbindSet.List() {
 		for _, api := range resp {
 			// If the publish ID is not found, it means the policy has been unbound from the API by other ways.
@@ -151,11 +160,14 @@ func resourceThrottlingPolicyAssociateUpdate(ctx context.Context, d *schema.Reso
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	instanceId := d.Get("instance_id").(string)
-	policyId := d.Get("policy_id").(string)
-	oldRaw, newRaw := d.GetChange("publish_ids")
-	addSet := newRaw.(*schema.Set).Difference(oldRaw.(*schema.Set))
-	rmSet := oldRaw.(*schema.Set).Difference(newRaw.(*schema.Set))
+	var (
+		instanceId     = d.Get("instance_id").(string)
+		policyId       = d.Get("policy_id").(string)
+		oldRaw, newRaw = d.GetChange("publish_ids")
+
+		addSet = newRaw.(*schema.Set).Difference(oldRaw.(*schema.Set))
+		rmSet  = oldRaw.(*schema.Set).Difference(newRaw.(*schema.Set))
+	)
 
 	if rmSet.Len() > 0 {
 		err = unbindPolicy(client, instanceId, policyId, rmSet)
@@ -164,7 +176,11 @@ func resourceThrottlingPolicyAssociateUpdate(ctx context.Context, d *schema.Reso
 		}
 	}
 	if addSet.Len() > 0 {
-		opt := buildPolicyAssociateOpts(instanceId, policyId, addSet)
+		opt := throttles.BindOpts{
+			InstanceId: instanceId,
+			ThrottleId: policyId,
+			PublishIds: utils.ExpandToStringListBySet(addSet),
+		}
 		_, err = throttles.Bind(client, opt)
 		if err != nil {
 			return diag.Errorf("error binding policy to the API: %v", err)
@@ -182,17 +198,20 @@ func resourceThrottlingPolicyAssociateDelete(_ context.Context, d *schema.Resour
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	instanceId := d.Get("instance_id").(string)
-	policyId := d.Get("policy_id").(string)
-	return diag.FromErr(unbindPolicy(client, instanceId, policyId,
-		d.Get("publish_ids").(*schema.Set)))
+	var (
+		instanceId = d.Get("instance_id").(string)
+		policyId   = d.Get("policy_id").(string)
+		publishIds = d.Get("publish_ids").(*schema.Set)
+	)
+
+	return diag.FromErr(unbindPolicy(client, instanceId, policyId, publishIds))
 }
 
 func resourceThrottlingPolicyAssociateImportState(_ context.Context, d *schema.ResourceData,
 	_ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid format specified for import id, must be <instance_id>/<policy_id>")
+		return nil, fmt.Errorf("invalid format specified for import ID, must be <instance_id>/<policy_id>")
 	}
 
 	d.Set("instance_id", parts[0])
