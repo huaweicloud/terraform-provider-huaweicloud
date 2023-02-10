@@ -111,7 +111,6 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"product_id": {
 				Type:     schema.TypeString,
@@ -260,7 +259,7 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
-				MaxItems: 3,
+				MinItems: 3,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"advertised_ip": {
@@ -335,23 +334,17 @@ func getKafkaProductDetails(cfg *config.Config, d *schema.ResourceData) (*produc
 }
 
 func updateCrossVpcAccess(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	oldVal, newVal := d.GetChange("cross_vpc_accesses")
+	newVal := d.Get("cross_vpc_accesses")
 	var crossVpcAccessArr []map[string]interface{}
 
-	if len(oldVal.([]interface{})) < 1 {
-		instance, err := instances.Get(client, d.Id()).Extract()
-		if err != nil {
-			return fmt.Errorf("error getting DMS instance: %v", err)
-		}
+	instance, err := instances.Get(client, d.Id()).Extract()
+	if err != nil {
+		return fmt.Errorf("error getting DMS Kafka instance: %v", err)
+	}
 
-		crossVpcAccessArr, err = flattenCrossVpcInfo(instance.CrossVpcInfo)
-		if err != nil {
-			return fmt.Errorf("error retrieving details of the cross-VPC: %v", err)
-		}
-	} else {
-		for _, val := range oldVal.([]interface{}) {
-			crossVpcAccessArr = append(crossVpcAccessArr, val.(map[string]interface{}))
-		}
+	crossVpcAccessArr, err = flattenCrossVpcInfo(instance.CrossVpcInfo)
+	if err != nil {
+		return fmt.Errorf("error retrieving details of the cross-VPC: %v", err)
 	}
 
 	newAccessArr := newVal.([]interface{})
@@ -417,8 +410,8 @@ func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData,
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"BOUND"},
-		Refresh:      portBindStatusRefreshFunc(client, d.Id()),
-		Timeout:      5 * time.Minute,
+		Refresh:      portBindStatusRefreshFunc(client, d.Id(), 0),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
@@ -632,7 +625,7 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 
 	// resize storage capacity of the instance
 	if ok && storageSpace.(int) != int(defaultStorageSpace) {
-		err = resizeInstance(ctx, d, meta, engineKafka)
+		err = resizeKafkaInstanceStorage(ctx, d, client)
 		if err != nil {
 			dErrs := diag.Errorf("Kafka instance is created, but fails resize the storage capacity, "+
 				"expected %v GB, but got %v GB, error: %s ", storageSpace.(int), defaultStorageSpace, err)
@@ -785,7 +778,6 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 	var mErr *multierror.Error
 	if d.HasChanges("name", "description", "maintain_begin", "maintain_end",
 		"security_group_id", "retention_policy", "enterprise_project_id") {
-
 		description := d.Get("description").(string)
 		updateOpts := instances.UpdateOpts{
 			Description:         &description,
@@ -806,8 +798,8 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
-	if d.HasChanges("storage_space", "product_id", "flavor_id") {
-		err = resizeInstance(ctx, d, meta, engineKafka)
+	if d.HasChanges("product_id", "flavor_id", "storage_space", "broker_num") {
+		err = resizeKafkaInstance(ctx, d, meta)
 		if err != nil {
 			mErr = multierror.Append(mErr, err)
 		}
@@ -833,66 +825,133 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 	return resourceDmsKafkaInstanceRead(ctx, d, meta)
 }
 
-func resizeInstance(ctx context.Context, d *schema.ResourceData, meta interface{}, engineType string) error {
+func resizeKafkaInstance(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
 	cfg := meta.(*config.Config)
 	client, err := cfg.DmsV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error initializing DMS(v2) client: %s", err)
 	}
 
-	resizeOpts := instances.ResizeInstanceOpts{}
-	if _, ok := d.GetOk("product_id"); ok {
-		if engineType == engineKafka {
-			product, err := getKafkaProductDetails(cfg, d)
-			if err != nil {
-				return fmt.Errorf("failed to resize Kafka instance, query product details error: %s", err)
-			}
-			resizeOpts.NewSpecCode = product.SpecCode
-			resizeOpts.NewStorageSpace = d.Get("storage_space").(int)
-		} else {
-			product, err := getRabbitMQProductDetail(cfg, d)
-			if err != nil {
-				return fmt.Errorf("failed to resize RabbitMQ instance, query product details error: %s", err)
-			}
-			resizeOpts.NewSpecCode = product.SpecCode
-			storage, err := strconv.Atoi(product.Storage)
-			if err != nil {
-				return fmt.Errorf("failed to resize RabbitMQ instance, error parsing storage_space to int %v: %s",
-					product.Storage, err)
-			}
-			resizeOpts.NewStorageSpace = storage
+	if d.HasChanges("product_id") {
+		product, err := getKafkaProductDetails(cfg, d)
+		if err != nil {
+			return fmt.Errorf("failed to resize Kafka instance, query product details error: %s", err)
 		}
-	} else {
-		resizeOpts.NewSpecCode = d.Get("storage_spec_code").(string)
-		resizeOpts.NewStorageSpace = d.Get("storage_space").(int)
+		storageSpace := d.Get("storage_space").(int)
+		resizeOpts := instances.ResizeInstanceOpts{
+			NewSpecCode:     &product.SpecCode,
+			NewStorageSpace: &storageSpace,
+		}
+		log.Printf("[DEBUG] Resize Kafka instance storage space options: %s", utils.MarshalValue(resizeOpts))
+
+		if err := doKafkaInstanceResize(ctx, d, client, resizeOpts); err != nil {
+			return err
+		}
 	}
 
-	log.Printf("[DEBUG] Resize DMS %s instance option : %#v", engineType, resizeOpts)
+	if d.HasChanges("flavor_id") {
+		flavorID := d.Get("flavor_id").(string)
+		operType := "vertical"
+		resizeOpts := instances.ResizeInstanceOpts{
+			OperType:     &operType,
+			NewProductID: &flavorID,
+		}
+		log.Printf("[DEBUG] Resize Kafka instance flavor ID options: %s", utils.MarshalValue(resizeOpts))
 
-	_, err = instances.Resize(client, d.Id(), resizeOpts)
-	if err != nil {
-		return fmt.Errorf("resize instance failed: %s", err)
+		if err := doKafkaInstanceResize(ctx, d, client, resizeOpts); err != nil {
+			return err
+		}
 	}
 
-	var flavorId string
-	if productId, ok := d.GetOk("product_id"); ok {
-		flavorId = productId.(string)
-	} else {
-		flavorId = d.Get("flavor_id").(string)
+	if d.HasChanges("broker_num") {
+		operType := "horizontal"
+		brokerNum := d.Get("broker_num").(int)
+
+		resizeOpts := instances.ResizeInstanceOpts{
+			OperType:     &operType,
+			NewBrokerNum: &brokerNum,
+		}
+		log.Printf("[DEBUG] Resize Kafka instance broker number options: %s", utils.MarshalValue(resizeOpts))
+
+		if err := doKafkaInstanceResize(ctx, d, client, resizeOpts); err != nil {
+			return err
+		}
+
+		stateConf := &resource.StateChangeConf{
+			Pending:      []string{"PENDING"},
+			Target:       []string{"BOUND"},
+			Refresh:      portBindStatusRefreshFunc(client, d.Id(), brokerNum),
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			Delay:        10 * time.Second,
+			PollInterval: 10 * time.Second,
+		}
+		if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+			return err
+		}
 	}
+
+	if d.HasChanges("storage_space") {
+		if err = resizeKafkaInstanceStorage(ctx, d, client); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func resizeKafkaInstanceStorage(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	newStorageSpace := d.Get("storage_space").(int)
+	operType := "storage"
+	resizeOpts := instances.ResizeInstanceOpts{
+		OperType:        &operType,
+		NewStorageSpace: &newStorageSpace,
+	}
+	log.Printf("[DEBUG] Resize Kafka instance storage space options: %s", utils.MarshalValue(resizeOpts))
+
+	return doKafkaInstanceResize(ctx, d, client, resizeOpts)
+}
+
+func doKafkaInstanceResize(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, opts instances.ResizeInstanceOpts) error {
+	if _, err := instances.Resize(client, d.Id(), opts); err != nil {
+		return fmt.Errorf("resize Kafka instance failed: %s", err)
+	}
+
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"EXTENDING", "PENDING"},
+		Pending:      []string{"PENDING"},
 		Target:       []string{"RUNNING"},
-		Refresh:      productIDResizeStateRefresh(client, d.Id(), flavorId),
+		Refresh:      kafkaResizeStateRefresh(client, d, opts.OperType),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		Delay:        180 * time.Second,
 		PollInterval: 15 * time.Second,
 	}
-	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
 		return fmt.Errorf("error waiting for instance (%s) to resize: %v", d.Id(), err)
 	}
-
 	return nil
+}
+
+func kafkaResizeStateRefresh(client *golangsdk.ServiceClient, d *schema.ResourceData, operType *string) resource.StateRefreshFunc {
+	flavorID := d.Get("flavor_id").(string)
+	if flavorID == "" {
+		flavorID = d.Get("product_id").(string)
+	}
+	storageSpace := d.Get("storage_space").(int)
+	brokerNum := d.Get("broker_num").(int)
+
+	return func() (interface{}, string, error) {
+		v, err := instances.Get(client, d.Id()).Extract()
+		if err != nil {
+			return nil, "failed", err
+		}
+
+		if ((operType == nil || *operType == "vertical") && v.ProductID != flavorID) ||
+			(operType != nil && *operType == "storage" && v.TotalStorageSpace != storageSpace) ||
+			(operType != nil && *operType == "horizontal" && v.BrokerNum != brokerNum) {
+			return v, "PENDING", nil
+		}
+
+		return v, v.Status, nil
+	}
 }
 
 func resourceDmsKafkaInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -929,14 +988,24 @@ func resourceDmsKafkaInstanceDelete(ctx context.Context, d *schema.ResourceData,
 	return nil
 }
 
-func portBindStatusRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func portBindStatusRefreshFunc(client *golangsdk.ServiceClient, instanceID string, brokerNum int) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := instances.Get(client, instanceID).Extract()
 		if err != nil {
 			return nil, "QUERY ERROR", err
 		}
-		if resp.CrossVpcInfo != "" {
+		if brokerNum == 0 && resp.CrossVpcInfo != "" {
 			return resp, "BOUND", nil
+		}
+		if brokerNum != 0 && resp.CrossVpcInfo != "" {
+			crossVpcInfoMap, err := flattenCrossVpcInfo(resp.CrossVpcInfo)
+			if err != nil {
+				return resp, "ParseError", err
+			}
+
+			if len(crossVpcInfoMap) == brokerNum {
+				return resp, "BOUND", nil
+			}
 		}
 		return resp, "PENDING", nil
 	}
@@ -952,22 +1021,6 @@ func KafkaInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID s
 			return nil, "QUERY ERROR", err
 		}
 
-		return v, v.Status, nil
-	}
-}
-
-func productIDResizeStateRefresh(client *golangsdk.ServiceClient, instanceID, productID string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		v, err := instances.Get(client, instanceID).Extract()
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return v, "failed", fmt.Errorf("unable to resize Kafka, instance has been deleted: %s", instanceID)
-			}
-			return nil, "failed", err
-		}
-		if v.Status == "RUNNING" && v.ProductID != productID {
-			return v, "PENDING", nil
-		}
 		return v, v.Status, nil
 	}
 }
