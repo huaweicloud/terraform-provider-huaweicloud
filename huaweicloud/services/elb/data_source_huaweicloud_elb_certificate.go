@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v3/certificates"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -74,13 +75,12 @@ func dataSourceELbCertificateV3Read(_ context.Context, d *schema.ResourceData, m
 	}
 	log.Printf("[DEBUG] Get certificate list: %#v", certs)
 
-	if len(certs) > 0 {
-		err = setCertificateAttributes(d, certs[0])
-		if err != nil {
-			return diag.FromErr(err)
-		}
-	} else {
+	if len(certs) == 0 {
 		return diag.Errorf("your query returned no results. Please change your search criteria and try again.")
+	}
+	err = setCertificateAttributes(d, certs[0])
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	return nil
