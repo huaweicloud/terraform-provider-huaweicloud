@@ -7,7 +7,6 @@ schemes:
 host: huaweicloud.com
 tags:
   - name: ELB
-  - name: VPC
 paths:
   /v2/{project_id}/elb/loadbalancers/{id}:
     delete:
