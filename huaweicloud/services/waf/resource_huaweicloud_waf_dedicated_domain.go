@@ -118,15 +118,19 @@ func ResourceWafDedicatedDomainV1() *schema.Resource {
 				Computed: true,
 				Optional: true,
 			},
+			"tls": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"TLS v1.0", "TLS v1.1", "TLS v1.2",
+				}, false),
+			},
 			"access_status": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
 			"protocol": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"tls": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -234,6 +238,16 @@ func resourceWafDedicatedDomainV1Create(d *schema.ResourceData, meta interface{}
 			logp.Printf("[ERROR] error change the protection status of WAF dedicate domain %s: %s", d.Id(), err)
 		}
 	}
+	if v, ok := d.GetOk("tls"); ok {
+		updateOpts := domains.UpdatePremiumHostOpts{
+			Tls: v.(string),
+		}
+		logp.Printf("[DEBUG] Waf dedicated domain set TLS: %#v", updateOpts)
+		_, err = domains.Update(wafDedicatedClient, d.Id(), updateOpts)
+		if err != nil {
+			return fmtp.Errorf("error updating WAF dedicated domain TLS: %s", err)
+		}
+	}
 
 	return resourceWafDedicatedDomainV1Read(d, meta)
 }
@@ -338,7 +352,7 @@ func resourceWafDedicatedDomainV1Update(d *schema.ResourceData, meta interface{}
 		return fmtp.Errorf("error creating HuaweiCloud WAF Client: %s", err)
 	}
 
-	if d.HasChanges("certificate_id", "proxy") {
+	if d.HasChanges("certificate_id", "proxy", "tls") {
 		proxy := d.Get("proxy").(bool)
 
 		certName, err := getCertificateNameById(d, meta)
