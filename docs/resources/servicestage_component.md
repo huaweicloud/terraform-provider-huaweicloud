@@ -120,6 +120,9 @@ The `source` block supports:
 * `storage_type` - (Optional, String) Specifies the storage type, such as **obs**, **swr**.
   This parameter is conflict with `repo_ref` and `repo_namespace`.
 
+* `properties` - (Optional, List) Specifies the component builder's properties.
+  The [object](#servicestage_component_properties) structure is documented below.
+
 <a name="servicestage_component_builder"></a>
 The `builder` block supports:
 
@@ -128,6 +131,10 @@ The `builder` block supports:
 
 * `cluster_id` - (Required, String) Specifies the cluster ID.
 
+* `cluster_name` - (Optional, String) Specifies the cluster Name.
+
+* `cluster_type` - (Optional, String) Specifies the cluster type.
+
 * `cmd` - (Optional, String) Specifies the build command. If omitted, the default command will be used.
   + About the  default command or script: build.sh in the root directory will be preferentially executed.
     If build.sh does not exist, the code will be compiled using the common method of the selected language,
@@ -135,9 +142,22 @@ The `builder` block supports:
   + About the custom command: Commands will be customized using the selected language.
     Alternatively, the default command or script will be used after build.sh is modified.
 
-* `node_label` - (Optional, Map) Specifies the filter labels for CCE nodes.
+* `dockerfile_path` - (Optional, String) Specifies the file path for dockerfile.
+
+* `use_public_cluster` - (Optional, bool) Specifies whether to use the public cluster.
+
+* `node_label` - (Optional, String) Specifies the filter labels for CCE nodes.
 
 -> Before using the label, please make sure that the node is bound to the EIP and can access the public network.
+
+<a name="servicestage_component_properties"></a>
+The `properties` block supports:
+
+* `endpoint` - (Optional, String) Specifies the endpoint of obs.
+
+* `bucket` - (Optional, String) Specifies the bucket name of obs.
+
+* `key` - (Optional, String) Specifies the key of obs.
 
 ## Attributes Reference
 
