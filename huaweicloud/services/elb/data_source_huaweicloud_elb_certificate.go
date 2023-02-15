@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v3/certificates"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -55,10 +56,10 @@ func DataSourceELBCertificateV3() *schema.Resource {
 }
 
 func dataSourceELbCertificateV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating Dedicated ELB(V3) Client: %s", err)
+		return diag.Errorf("error creating Dedicated ELB Client: %s", err)
 	}
 
 	listOpts := certificates.ListOpts{
@@ -70,18 +71,16 @@ func dataSourceELbCertificateV3Read(_ context.Context, d *schema.ResourceData, m
 	}
 	certs, err := certificates.ExtractCertificates(r)
 	if err != nil {
-		return diag.Errorf("unable to retrieve certs from Dedicated ELB(V3): %s", err)
+		return diag.Errorf("unable to retrieve certs from Dedicated ELB: %s", err)
 	}
 	log.Printf("[DEBUG] Get certificate list: %#v", certs)
 
-	if len(certs) > 0 {
-		err = setCertificateAttributes(d, certs[0])
-		if err != nil {
-			return diag.FromErr(err)
-		}
-	} else {
-		return diag.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+	if len(certs) == 0 {
+		return diag.Errorf("your query returned no results. Please change your search criteria and try again.")
+	}
+	err = setCertificateAttributes(d, certs[0])
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	return nil

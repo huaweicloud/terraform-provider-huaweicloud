@@ -1,0 +1,101 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cbh_instances": {
+          "block": {
+            "attributes": {
+              "bastion_type": {
+                "type": "string",
+                "description": "Specifies the type of the bastion.",
+                "optional": true
+              },
+              "bastion_version": {
+                "type": "string",
+                "description": "Specifies the current version of the instance image",
+                "optional": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "description": "Specifies the specification of the instance.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "alter_permit": "string",
+                      "auto_renew": "string",
+                      "bastion_type": "string",
+                      "bastion_version": "string",
+                      "description": "string",
+                      "end_time": "string",
+                      "exp_time": "string",
+                      "flavor_id": "string",
+                      "instance_id": "string",
+                      "instance_key": "string",
+                      "instance_status": "string",
+                      "name": "string",
+                      "new_bastion_version": "string",
+                      "period": "string",
+                      "private_ip": "string",
+                      "publicip_id": "string",
+                      "release_time": "string",
+                      "resource_id": "string",
+                      "security_group_id": "string",
+                      "start_time": "string",
+                      "status": "string",
+                      "subnet_id": "string",
+                      "task_status": "string",
+                      "update": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of CBH instance.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the instance name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "description": "Specifies the ID of a security group.",
+                "optional": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "Specifies the ID of a subnet.",
+                "optional": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "Specifies the ID of a VPC.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBH",
+            "name": "Cloud Bastion Host",
+            "catalog": "Security & Compliance",
+            "name_cn": "云堡垒机",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

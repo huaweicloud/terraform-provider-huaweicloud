@@ -23,8 +23,7 @@ func RdsClientBuilder() *http_client.HcHttpClientBuilder {
 //
 // 应用参数模板。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ApplyConfigurationAsync(request *model.ApplyConfigurationAsyncRequest) (*model.ApplyConfigurationAsyncResponse, error) {
 	requestDef := GenReqDefForApplyConfigurationAsync()
 
@@ -45,8 +44,7 @@ func (c *RdsClient) ApplyConfigurationAsyncInvoker(request *model.ApplyConfigura
 //
 // 绑定和解绑弹性公网IP。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) AttachEip(request *model.AttachEipRequest) (*model.AttachEipResponse, error) {
 	requestDef := GenReqDefForAttachEip()
 
@@ -67,8 +65,7 @@ func (c *RdsClient) AttachEipInvoker(request *model.AttachEipRequest) *AttachEip
 //
 // 批量添加标签。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) BatchTagAddAction(request *model.BatchTagAddActionRequest) (*model.BatchTagAddActionResponse, error) {
 	requestDef := GenReqDefForBatchTagAddAction()
 
@@ -89,8 +86,7 @@ func (c *RdsClient) BatchTagAddActionInvoker(request *model.BatchTagAddActionReq
 //
 // 批量删除标签。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) BatchTagDelAction(request *model.BatchTagDelActionRequest) (*model.BatchTagDelActionResponse, error) {
 	requestDef := GenReqDefForBatchTagDelAction()
 
@@ -111,8 +107,7 @@ func (c *RdsClient) BatchTagDelActionInvoker(request *model.BatchTagDelActionReq
 //
 // 更改主备实例的数据同步方式。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ChangeFailoverMode(request *model.ChangeFailoverModeRequest) (*model.ChangeFailoverModeResponse, error) {
 	requestDef := GenReqDefForChangeFailoverMode()
 
@@ -133,8 +128,7 @@ func (c *RdsClient) ChangeFailoverModeInvoker(request *model.ChangeFailoverModeR
 //
 // 切换主备实例的倒换策略.
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ChangeFailoverStrategy(request *model.ChangeFailoverStrategyRequest) (*model.ChangeFailoverStrategyResponse, error) {
 	requestDef := GenReqDefForChangeFailoverStrategy()
 
@@ -155,8 +149,7 @@ func (c *RdsClient) ChangeFailoverStrategyInvoker(request *model.ChangeFailoverS
 //
 // 设置可维护时间段
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ChangeOpsWindow(request *model.ChangeOpsWindowRequest) (*model.ChangeOpsWindowResponse, error) {
 	requestDef := GenReqDefForChangeOpsWindow()
 
@@ -173,12 +166,32 @@ func (c *RdsClient) ChangeOpsWindowInvoker(request *model.ChangeOpsWindowRequest
 	return &ChangeOpsWindowInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// CopyConfiguration 复制参数模板
+//
+// 复制参数模板
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) CopyConfiguration(request *model.CopyConfigurationRequest) (*model.CopyConfigurationResponse, error) {
+	requestDef := GenReqDefForCopyConfiguration()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CopyConfigurationResponse), nil
+	}
+}
+
+// CopyConfigurationInvoker 复制参数模板
+func (c *RdsClient) CopyConfigurationInvoker(request *model.CopyConfigurationRequest) *CopyConfigurationInvoker {
+	requestDef := GenReqDefForCopyConfiguration()
+	return &CopyConfigurationInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // CreateConfiguration 创建参数模板
 //
 // 创建参数模板。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) CreateConfiguration(request *model.CreateConfigurationRequest) (*model.CreateConfigurationResponse, error) {
 	requestDef := GenReqDefForCreateConfiguration()
 
@@ -199,8 +212,7 @@ func (c *RdsClient) CreateConfigurationInvoker(request *model.CreateConfiguratio
 //
 // 申请域名
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) CreateDnsName(request *model.CreateDnsNameRequest) (*model.CreateDnsNameResponse, error) {
 	requestDef := GenReqDefForCreateDnsName()
 
@@ -221,8 +233,7 @@ func (c *RdsClient) CreateDnsNameInvoker(request *model.CreateDnsNameRequest) *C
 //
 // 创建数据库实例。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) CreateInstance(request *model.CreateInstanceRequest) (*model.CreateInstanceResponse, error) {
 	requestDef := GenReqDefForCreateInstance()
 
@@ -243,8 +254,7 @@ func (c *RdsClient) CreateInstanceInvoker(request *model.CreateInstanceRequest) 
 //
 // 创建手动备份。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) CreateManualBackup(request *model.CreateManualBackupRequest) (*model.CreateManualBackupResponse, error) {
 	requestDef := GenReqDefForCreateManualBackup()
 
@@ -265,8 +275,7 @@ func (c *RdsClient) CreateManualBackupInvoker(request *model.CreateManualBackupR
 //
 // 恢复到新实例。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) CreateRestoreInstance(request *model.CreateRestoreInstanceRequest) (*model.CreateRestoreInstanceResponse, error) {
 	requestDef := GenReqDefForCreateRestoreInstance()
 
@@ -287,8 +296,7 @@ func (c *RdsClient) CreateRestoreInstanceInvoker(request *model.CreateRestoreIns
 //
 // 删除参数模板。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) DeleteConfiguration(request *model.DeleteConfigurationRequest) (*model.DeleteConfigurationResponse, error) {
 	requestDef := GenReqDefForDeleteConfiguration()
 
@@ -309,8 +317,7 @@ func (c *RdsClient) DeleteConfigurationInvoker(request *model.DeleteConfiguratio
 //
 // 删除数据库实例。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) DeleteInstance(request *model.DeleteInstanceRequest) (*model.DeleteInstanceResponse, error) {
 	requestDef := GenReqDefForDeleteInstance()
 
@@ -331,8 +338,7 @@ func (c *RdsClient) DeleteInstanceInvoker(request *model.DeleteInstanceRequest) 
 //
 // 删除手动备份。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) DeleteManualBackup(request *model.DeleteManualBackupRequest) (*model.DeleteManualBackupResponse, error) {
 	requestDef := GenReqDefForDeleteManualBackup()
 
@@ -353,8 +359,7 @@ func (c *RdsClient) DeleteManualBackupInvoker(request *model.DeleteManualBackupR
 //
 // 获取慢日志下载链接。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) DownloadSlowlog(request *model.DownloadSlowlogRequest) (*model.DownloadSlowlogResponse, error) {
 	requestDef := GenReqDefForDownloadSlowlog()
 
@@ -375,8 +380,7 @@ func (c *RdsClient) DownloadSlowlogInvoker(request *model.DownloadSlowlogRequest
 //
 // 应用参数模板。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) EnableConfiguration(request *model.EnableConfigurationRequest) (*model.EnableConfigurationResponse, error) {
 	requestDef := GenReqDefForEnableConfiguration()
 
@@ -397,8 +401,7 @@ func (c *RdsClient) EnableConfigurationInvoker(request *model.EnableConfiguratio
 //
 // 获取审计日志列表。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListAuditlogs(request *model.ListAuditlogsRequest) (*model.ListAuditlogsResponse, error) {
 	requestDef := GenReqDefForListAuditlogs()
 
@@ -419,8 +422,7 @@ func (c *RdsClient) ListAuditlogsInvoker(request *model.ListAuditlogsRequest) *L
 //
 // 获取备份列表。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListBackups(request *model.ListBackupsRequest) (*model.ListBackupsResponse, error) {
 	requestDef := GenReqDefForListBackups()
 
@@ -441,8 +443,7 @@ func (c *RdsClient) ListBackupsInvoker(request *model.ListBackupsRequest) *ListB
 //
 // 查询SQLServer可用字符集
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListCollations(request *model.ListCollationsRequest) (*model.ListCollationsResponse, error) {
 	requestDef := GenReqDefForListCollations()
 
@@ -463,8 +464,7 @@ func (c *RdsClient) ListCollationsInvoker(request *model.ListCollationsRequest) 
 //
 // 获取参数模板列表，包括所有数据库的默认参数模板和用户创建的参数模板。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListConfigurations(request *model.ListConfigurationsRequest) (*model.ListConfigurationsResponse, error) {
 	requestDef := GenReqDefForListConfigurations()
 
@@ -485,8 +485,7 @@ func (c *RdsClient) ListConfigurationsInvoker(request *model.ListConfigurationsR
 //
 // 查询数据库引擎的版本。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListDatastores(request *model.ListDatastoresRequest) (*model.ListDatastoresResponse, error) {
 	requestDef := GenReqDefForListDatastores()
 
@@ -503,12 +502,32 @@ func (c *RdsClient) ListDatastoresInvoker(request *model.ListDatastoresRequest) 
 	return &ListDatastoresInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListDrRelations
+//
+// 批量查询容灾实例信息
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListDrRelations(request *model.ListDrRelationsRequest) (*model.ListDrRelationsResponse, error) {
+	requestDef := GenReqDefForListDrRelations()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListDrRelationsResponse), nil
+	}
+}
+
+// ListDrRelationsInvoker
+func (c *RdsClient) ListDrRelationsInvoker(request *model.ListDrRelationsRequest) *ListDrRelationsInvoker {
+	requestDef := GenReqDefForListDrRelations()
+	return &ListDrRelationsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListErrorLogs 查询数据库错误日志
 //
 // 查询数据库错误日志。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListErrorLogs(request *model.ListErrorLogsRequest) (*model.ListErrorLogsResponse, error) {
 	requestDef := GenReqDefForListErrorLogs()
 
@@ -529,8 +548,7 @@ func (c *RdsClient) ListErrorLogsInvoker(request *model.ListErrorLogsRequest) *L
 //
 // 查询数据库错误日志。(与原v3接口相比修改offset,符合华为云服务开放 API遵从性规范3.0)
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListErrorLogsNew(request *model.ListErrorLogsNewRequest) (*model.ListErrorLogsNewResponse, error) {
 	requestDef := GenReqDefForListErrorLogsNew()
 
@@ -551,8 +569,7 @@ func (c *RdsClient) ListErrorLogsNewInvoker(request *model.ListErrorLogsNewReque
 //
 // 查询数据库规格。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListFlavors(request *model.ListFlavorsRequest) (*model.ListFlavorsResponse, error) {
 	requestDef := GenReqDefForListFlavors()
 
@@ -569,12 +586,32 @@ func (c *RdsClient) ListFlavorsInvoker(request *model.ListFlavorsRequest) *ListF
 	return &ListFlavorsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListInstanceParamHistories 查询实例参数修改历史
+//
+// 实例参数修改历史。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListInstanceParamHistories(request *model.ListInstanceParamHistoriesRequest) (*model.ListInstanceParamHistoriesResponse, error) {
+	requestDef := GenReqDefForListInstanceParamHistories()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListInstanceParamHistoriesResponse), nil
+	}
+}
+
+// ListInstanceParamHistoriesInvoker 查询实例参数修改历史
+func (c *RdsClient) ListInstanceParamHistoriesInvoker(request *model.ListInstanceParamHistoriesRequest) *ListInstanceParamHistoriesInvoker {
+	requestDef := GenReqDefForListInstanceParamHistories()
+	return &ListInstanceParamHistoriesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListInstances 查询数据库实例列表
 //
 // 查询数据库实例列表。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListInstances(request *model.ListInstancesRequest) (*model.ListInstancesResponse, error) {
 	requestDef := GenReqDefForListInstances()
 
@@ -595,8 +632,7 @@ func (c *RdsClient) ListInstancesInvoker(request *model.ListInstancesRequest) *L
 //
 // 获取指定ID的任务信息。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListJobInfo(request *model.ListJobInfoRequest) (*model.ListJobInfoResponse, error) {
 	requestDef := GenReqDefForListJobInfo()
 
@@ -617,8 +653,7 @@ func (c *RdsClient) ListJobInfoInvoker(request *model.ListJobInfoRequest) *ListJ
 //
 // 获取指定实例和时间范围的任务信息（SQL Server）。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListJobInfoDetail(request *model.ListJobInfoDetailRequest) (*model.ListJobInfoDetailResponse, error) {
 	requestDef := GenReqDefForListJobInfoDetail()
 
@@ -639,8 +674,7 @@ func (c *RdsClient) ListJobInfoDetailInvoker(request *model.ListJobInfoDetailReq
 //
 // 查询跨区域备份列表。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListOffSiteBackups(request *model.ListOffSiteBackupsRequest) (*model.ListOffSiteBackupsResponse, error) {
 	requestDef := GenReqDefForListOffSiteBackups()
 
@@ -661,8 +695,7 @@ func (c *RdsClient) ListOffSiteBackupsInvoker(request *model.ListOffSiteBackupsR
 //
 // 查询跨区域备份实例列表。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListOffSiteInstances(request *model.ListOffSiteInstancesRequest) (*model.ListOffSiteInstancesResponse, error) {
 	requestDef := GenReqDefForListOffSiteInstances()
 
@@ -684,8 +717,7 @@ func (c *RdsClient) ListOffSiteInstancesInvoker(request *model.ListOffSiteInstan
 // 查询跨区域备份可恢复时间段。
 // 如果您备份策略中的保存天数设置较长，建议您传入查询日期“date”。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListOffSiteRestoreTimes(request *model.ListOffSiteRestoreTimesRequest) (*model.ListOffSiteRestoreTimesResponse, error) {
 	requestDef := GenReqDefForListOffSiteRestoreTimes()
 
@@ -706,8 +738,7 @@ func (c *RdsClient) ListOffSiteRestoreTimesInvoker(request *model.ListOffSiteRes
 //
 // 查询项目标签。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListProjectTags(request *model.ListProjectTagsRequest) (*model.ListProjectTagsResponse, error) {
 	requestDef := GenReqDefForListProjectTags()
 
@@ -729,8 +760,7 @@ func (c *RdsClient) ListProjectTagsInvoker(request *model.ListProjectTagsRequest
 // 查询可恢复时间段。
 // 如果您备份策略中的保存天数设置较长，建议您传入查询日期“date”。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListRestoreTimes(request *model.ListRestoreTimesRequest) (*model.ListRestoreTimesResponse, error) {
 	requestDef := GenReqDefForListRestoreTimes()
 
@@ -752,8 +782,7 @@ func (c *RdsClient) ListRestoreTimesInvoker(request *model.ListRestoreTimesReque
 // 查询慢日志文件列表。
 // 调用该接口取到慢日志文件名后，可以调用接口/v3/{project_id}/instances/{instance_id}/slowlog-download 获取慢日志文件下载链接
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListSlowLogFile(request *model.ListSlowLogFileRequest) (*model.ListSlowLogFileResponse, error) {
 	requestDef := GenReqDefForListSlowLogFile()
 
@@ -774,8 +803,7 @@ func (c *RdsClient) ListSlowLogFileInvoker(request *model.ListSlowLogFileRequest
 //
 // 查询数据库慢日志。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListSlowLogs(request *model.ListSlowLogsRequest) (*model.ListSlowLogsResponse, error) {
 	requestDef := GenReqDefForListSlowLogs()
 
@@ -796,8 +824,7 @@ func (c *RdsClient) ListSlowLogsInvoker(request *model.ListSlowLogsRequest) *Lis
 //
 // 查询数据库慢日志。(与原v3接口相比修改offset,符合华为云服务开放 API遵从性规范3.0)
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListSlowLogsNew(request *model.ListSlowLogsNewRequest) (*model.ListSlowLogsNewResponse, error) {
 	requestDef := GenReqDefForListSlowLogsNew()
 
@@ -818,8 +845,7 @@ func (c *RdsClient) ListSlowLogsNewInvoker(request *model.ListSlowLogsNewRequest
 //
 // 获取慢日志统计信息
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListSlowlogStatistics(request *model.ListSlowlogStatisticsRequest) (*model.ListSlowlogStatisticsResponse, error) {
 	requestDef := GenReqDefForListSlowlogStatistics()
 
@@ -840,8 +866,7 @@ func (c *RdsClient) ListSlowlogStatisticsInvoker(request *model.ListSlowlogStati
 //
 // 查询数据库磁盘类型。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListStorageTypes(request *model.ListStorageTypesRequest) (*model.ListStorageTypesResponse, error) {
 	requestDef := GenReqDefForListStorageTypes()
 
@@ -862,8 +887,7 @@ func (c *RdsClient) ListStorageTypesInvoker(request *model.ListStorageTypesReque
 //
 // 迁移主备实例的备机
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) MigrateFollower(request *model.MigrateFollowerRequest) (*model.MigrateFollowerResponse, error) {
 	requestDef := GenReqDefForMigrateFollower()
 
@@ -884,8 +908,7 @@ func (c *RdsClient) MigrateFollowerInvoker(request *model.MigrateFollowerRequest
 //
 // 恢复到已有实例。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) RestoreExistInstance(request *model.RestoreExistInstanceRequest) (*model.RestoreExistInstanceResponse, error) {
 	requestDef := GenReqDefForRestoreExistInstance()
 
@@ -906,8 +929,7 @@ func (c *RdsClient) RestoreExistInstanceInvoker(request *model.RestoreExistInsta
 //
 // 表级时间点恢复(MySQL)。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) RestoreTables(request *model.RestoreTablesRequest) (*model.RestoreTablesResponse, error) {
 	requestDef := GenReqDefForRestoreTables()
 
@@ -928,8 +950,7 @@ func (c *RdsClient) RestoreTablesInvoker(request *model.RestoreTablesRequest) *R
 //
 // 恢复到已有实例。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) RestoreToExistingInstance(request *model.RestoreToExistingInstanceRequest) (*model.RestoreToExistingInstanceResponse, error) {
 	requestDef := GenReqDefForRestoreToExistingInstance()
 
@@ -950,8 +971,7 @@ func (c *RdsClient) RestoreToExistingInstanceInvoker(request *model.RestoreToExi
 //
 // 设置审计日志策略。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) SetAuditlogPolicy(request *model.SetAuditlogPolicyRequest) (*model.SetAuditlogPolicyResponse, error) {
 	requestDef := GenReqDefForSetAuditlogPolicy()
 
@@ -968,12 +988,34 @@ func (c *RdsClient) SetAuditlogPolicyInvoker(request *model.SetAuditlogPolicyReq
 	return &SetAuditlogPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// SetAutoEnlargePolicy 设置自动扩容策略
+//
+// 设置实例存储空间自动扩容策略，按扩容量扣除存储费用。
+// 可用存储空间小于设置值或者10GB时，自动扩容当前存储空间的15%（非10倍数向上取整，账户余额不足，会导致自动扩容失败）。
+// 设置只读实例自动扩容与主实例自动扩容互不影响，对只读实例设置自动扩容时，可选择大于或等于主实例的存储空间。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) SetAutoEnlargePolicy(request *model.SetAutoEnlargePolicyRequest) (*model.SetAutoEnlargePolicyResponse, error) {
+	requestDef := GenReqDefForSetAutoEnlargePolicy()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.SetAutoEnlargePolicyResponse), nil
+	}
+}
+
+// SetAutoEnlargePolicyInvoker 设置自动扩容策略
+func (c *RdsClient) SetAutoEnlargePolicyInvoker(request *model.SetAutoEnlargePolicyRequest) *SetAutoEnlargePolicyInvoker {
+	requestDef := GenReqDefForSetAutoEnlargePolicy()
+	return &SetAutoEnlargePolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // SetBackupPolicy 设置自动备份策略
 //
 // 设置自动备份策略。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) SetBackupPolicy(request *model.SetBackupPolicyRequest) (*model.SetBackupPolicyResponse, error) {
 	requestDef := GenReqDefForSetBackupPolicy()
 
@@ -994,8 +1036,7 @@ func (c *RdsClient) SetBackupPolicyInvoker(request *model.SetBackupPolicyRequest
 //
 // 修改指定实例的binlog本地保留时长。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) SetBinlogClearPolicy(request *model.SetBinlogClearPolicyRequest) (*model.SetBinlogClearPolicyResponse, error) {
 	requestDef := GenReqDefForSetBinlogClearPolicy()
 
@@ -1016,8 +1057,7 @@ func (c *RdsClient) SetBinlogClearPolicyInvoker(request *model.SetBinlogClearPol
 //
 // 设置跨区域备份策略。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) SetOffSiteBackupPolicy(request *model.SetOffSiteBackupPolicyRequest) (*model.SetOffSiteBackupPolicyResponse, error) {
 	requestDef := GenReqDefForSetOffSiteBackupPolicy()
 
@@ -1034,12 +1074,34 @@ func (c *RdsClient) SetOffSiteBackupPolicyInvoker(request *model.SetOffSiteBacku
 	return &SetOffSiteBackupPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// SetSecondLevelMonitor 设置秒级监控策略
+//
+// 设置实例秒级监控策略，约五分钟后生效，对于1秒监控和5秒监控，计费方式为按需付费（每小时扣费一次）。
+// 设置只读实例秒级监控与主实例互不影响。
+// 规格变更到4U以下的实例，秒级监控功能会自动关闭。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) SetSecondLevelMonitor(request *model.SetSecondLevelMonitorRequest) (*model.SetSecondLevelMonitorResponse, error) {
+	requestDef := GenReqDefForSetSecondLevelMonitor()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.SetSecondLevelMonitorResponse), nil
+	}
+}
+
+// SetSecondLevelMonitorInvoker 设置秒级监控策略
+func (c *RdsClient) SetSecondLevelMonitorInvoker(request *model.SetSecondLevelMonitorRequest) *SetSecondLevelMonitorInvoker {
+	requestDef := GenReqDefForSetSecondLevelMonitor()
+	return &SetSecondLevelMonitorInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // SetSecurityGroup 修改安全组
 //
 // 修改安全组
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) SetSecurityGroup(request *model.SetSecurityGroupRequest) (*model.SetSecurityGroupResponse, error) {
 	requestDef := GenReqDefForSetSecurityGroup()
 
@@ -1060,8 +1122,7 @@ func (c *RdsClient) SetSecurityGroupInvoker(request *model.SetSecurityGroupReque
 //
 // V3慢日志敏感信息的开关
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) SetSensitiveSlowLog(request *model.SetSensitiveSlowLogRequest) (*model.SetSensitiveSlowLogResponse, error) {
 	requestDef := GenReqDefForSetSensitiveSlowLog()
 
@@ -1082,8 +1143,7 @@ func (c *RdsClient) SetSensitiveSlowLogInvoker(request *model.SetSensitiveSlowLo
 //
 // 生成审计日志下载链接。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ShowAuditlogDownloadLink(request *model.ShowAuditlogDownloadLinkRequest) (*model.ShowAuditlogDownloadLinkResponse, error) {
 	requestDef := GenReqDefForShowAuditlogDownloadLink()
 
@@ -1104,8 +1164,7 @@ func (c *RdsClient) ShowAuditlogDownloadLinkInvoker(request *model.ShowAuditlogD
 //
 // 查询审计日志策略。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ShowAuditlogPolicy(request *model.ShowAuditlogPolicyRequest) (*model.ShowAuditlogPolicyResponse, error) {
 	requestDef := GenReqDefForShowAuditlogPolicy()
 
@@ -1122,12 +1181,32 @@ func (c *RdsClient) ShowAuditlogPolicyInvoker(request *model.ShowAuditlogPolicyR
 	return &ShowAuditlogPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ShowAutoEnlargePolicy 查询自动扩容策略
+//
+// 查询实例存储空间自动扩容策略
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ShowAutoEnlargePolicy(request *model.ShowAutoEnlargePolicyRequest) (*model.ShowAutoEnlargePolicyResponse, error) {
+	requestDef := GenReqDefForShowAutoEnlargePolicy()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowAutoEnlargePolicyResponse), nil
+	}
+}
+
+// ShowAutoEnlargePolicyInvoker 查询自动扩容策略
+func (c *RdsClient) ShowAutoEnlargePolicyInvoker(request *model.ShowAutoEnlargePolicyRequest) *ShowAutoEnlargePolicyInvoker {
+	requestDef := GenReqDefForShowAutoEnlargePolicy()
+	return &ShowAutoEnlargePolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ShowBackupDownloadLink 获取备份下载链接
 //
 // 获取备份下载链接。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ShowBackupDownloadLink(request *model.ShowBackupDownloadLinkRequest) (*model.ShowBackupDownloadLinkResponse, error) {
 	requestDef := GenReqDefForShowBackupDownloadLink()
 
@@ -1148,8 +1227,7 @@ func (c *RdsClient) ShowBackupDownloadLinkInvoker(request *model.ShowBackupDownl
 //
 // 查询自动备份策略。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ShowBackupPolicy(request *model.ShowBackupPolicyRequest) (*model.ShowBackupPolicyResponse, error) {
 	requestDef := GenReqDefForShowBackupPolicy()
 
@@ -1170,8 +1248,7 @@ func (c *RdsClient) ShowBackupPolicyInvoker(request *model.ShowBackupPolicyReque
 //
 // 查寻指定实例的binlog本地保留时长。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ShowBinlogClearPolicy(request *model.ShowBinlogClearPolicyRequest) (*model.ShowBinlogClearPolicyResponse, error) {
 	requestDef := GenReqDefForShowBinlogClearPolicy()
 
@@ -1192,8 +1269,7 @@ func (c *RdsClient) ShowBinlogClearPolicyInvoker(request *model.ShowBinlogClearP
 //
 // 获取指定参数模板的参数。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ShowConfiguration(request *model.ShowConfigurationRequest) (*model.ShowConfigurationResponse, error) {
 	requestDef := GenReqDefForShowConfiguration()
 
@@ -1210,12 +1286,53 @@ func (c *RdsClient) ShowConfigurationInvoker(request *model.ShowConfigurationReq
 	return &ShowConfigurationInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ShowDnsName 查询实例ipv6域名。
+//
+// 查询实例ipv6域名。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ShowDnsName(request *model.ShowDnsNameRequest) (*model.ShowDnsNameResponse, error) {
+	requestDef := GenReqDefForShowDnsName()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowDnsNameResponse), nil
+	}
+}
+
+// ShowDnsNameInvoker 查询实例ipv6域名。
+func (c *RdsClient) ShowDnsNameInvoker(request *model.ShowDnsNameRequest) *ShowDnsNameInvoker {
+	requestDef := GenReqDefForShowDnsName()
+	return &ShowDnsNameInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowDomainName
+//
+// 查询实例ipv4域名
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ShowDomainName(request *model.ShowDomainNameRequest) (*model.ShowDomainNameResponse, error) {
+	requestDef := GenReqDefForShowDomainName()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowDomainNameResponse), nil
+	}
+}
+
+// ShowDomainNameInvoker
+func (c *RdsClient) ShowDomainNameInvoker(request *model.ShowDomainNameRequest) *ShowDomainNameInvoker {
+	requestDef := GenReqDefForShowDomainName()
+	return &ShowDomainNameInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ShowDrReplicaStatus 查询跨云容灾复制状态
 //
 // 建立跨云容灾关系后，查询主实例和灾备实例间的复制状态及延迟。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ShowDrReplicaStatus(request *model.ShowDrReplicaStatusRequest) (*model.ShowDrReplicaStatusResponse, error) {
 	requestDef := GenReqDefForShowDrReplicaStatus()
 
@@ -1236,8 +1353,7 @@ func (c *RdsClient) ShowDrReplicaStatusInvoker(request *model.ShowDrReplicaStatu
 //
 // 获取指定实例的参数模板。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ShowInstanceConfiguration(request *model.ShowInstanceConfigurationRequest) (*model.ShowInstanceConfigurationResponse, error) {
 	requestDef := GenReqDefForShowInstanceConfiguration()
 
@@ -1258,8 +1374,7 @@ func (c *RdsClient) ShowInstanceConfigurationInvoker(request *model.ShowInstance
 //
 // 查询跨区域备份策略。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ShowOffSiteBackupPolicy(request *model.ShowOffSiteBackupPolicyRequest) (*model.ShowOffSiteBackupPolicyResponse, error) {
 	requestDef := GenReqDefForShowOffSiteBackupPolicy()
 
@@ -1280,8 +1395,7 @@ func (c *RdsClient) ShowOffSiteBackupPolicyInvoker(request *model.ShowOffSiteBac
 //
 // 查询当前项目下资源配额情况。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ShowQuotas(request *model.ShowQuotasRequest) (*model.ShowQuotasResponse, error) {
 	requestDef := GenReqDefForShowQuotas()
 
@@ -1298,12 +1412,53 @@ func (c *RdsClient) ShowQuotasInvoker(request *model.ShowQuotasRequest) *ShowQuo
 	return &ShowQuotasInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ShowReplicationStatus 获取实例的复制状态。
+//
+// 获取实例的复制状态。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ShowReplicationStatus(request *model.ShowReplicationStatusRequest) (*model.ShowReplicationStatusResponse, error) {
+	requestDef := GenReqDefForShowReplicationStatus()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowReplicationStatusResponse), nil
+	}
+}
+
+// ShowReplicationStatusInvoker 获取实例的复制状态。
+func (c *RdsClient) ShowReplicationStatusInvoker(request *model.ShowReplicationStatusRequest) *ShowReplicationStatusInvoker {
+	requestDef := GenReqDefForShowReplicationStatus()
+	return &ShowReplicationStatusInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowSecondLevelMonitoring 查询秒级监控策略
+//
+// 查询实例秒级监控策略
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ShowSecondLevelMonitoring(request *model.ShowSecondLevelMonitoringRequest) (*model.ShowSecondLevelMonitoringResponse, error) {
+	requestDef := GenReqDefForShowSecondLevelMonitoring()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowSecondLevelMonitoringResponse), nil
+	}
+}
+
+// ShowSecondLevelMonitoringInvoker 查询秒级监控策略
+func (c *RdsClient) ShowSecondLevelMonitoringInvoker(request *model.ShowSecondLevelMonitoringRequest) *ShowSecondLevelMonitoringInvoker {
+	requestDef := GenReqDefForShowSecondLevelMonitoring()
+	return &ShowSecondLevelMonitoringInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // StartFailover 手动倒换主备
 //
 // 手动倒换主备.
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) StartFailover(request *model.StartFailoverRequest) (*model.StartFailoverResponse, error) {
 	requestDef := GenReqDefForStartFailover()
 
@@ -1324,8 +1479,7 @@ func (c *RdsClient) StartFailoverInvoker(request *model.StartFailoverRequest) *S
 //
 // 扩容数据库实例的磁盘空间。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) StartInstanceEnlargeVolumeAction(request *model.StartInstanceEnlargeVolumeActionRequest) (*model.StartInstanceEnlargeVolumeActionResponse, error) {
 	requestDef := GenReqDefForStartInstanceEnlargeVolumeAction()
 
@@ -1346,8 +1500,7 @@ func (c *RdsClient) StartInstanceEnlargeVolumeActionInvoker(request *model.Start
 //
 // 重启数据库实例。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) StartInstanceRestartAction(request *model.StartInstanceRestartActionRequest) (*model.StartInstanceRestartActionResponse, error) {
 	requestDef := GenReqDefForStartInstanceRestartAction()
 
@@ -1368,8 +1521,7 @@ func (c *RdsClient) StartInstanceRestartActionInvoker(request *model.StartInstan
 //
 // 单机转主备实例。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) StartInstanceSingleToHaAction(request *model.StartInstanceSingleToHaActionRequest) (*model.StartInstanceSingleToHaActionResponse, error) {
 	requestDef := GenReqDefForStartInstanceSingleToHaAction()
 
@@ -1390,8 +1542,7 @@ func (c *RdsClient) StartInstanceSingleToHaActionInvoker(request *model.StartIns
 //
 // 设置回收站策略。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) StartRecyclePolicy(request *model.StartRecyclePolicyRequest) (*model.StartRecyclePolicyResponse, error) {
 	requestDef := GenReqDefForStartRecyclePolicy()
 
@@ -1412,8 +1563,7 @@ func (c *RdsClient) StartRecyclePolicyInvoker(request *model.StartRecyclePolicyR
 //
 // 变更数据库实例的规格。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) StartResizeFlavorAction(request *model.StartResizeFlavorActionRequest) (*model.StartResizeFlavorActionResponse, error) {
 	requestDef := GenReqDefForStartResizeFlavorAction()
 
@@ -1434,8 +1584,7 @@ func (c *RdsClient) StartResizeFlavorActionInvoker(request *model.StartResizeFla
 //
 // 停止实例以节省费用，在停止数据库实例后，支持手动重新开启实例。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) StartupInstance(request *model.StartupInstanceRequest) (*model.StartupInstanceResponse, error) {
 	requestDef := GenReqDefForStartupInstance()
 
@@ -1456,8 +1605,7 @@ func (c *RdsClient) StartupInstanceInvoker(request *model.StartupInstanceRequest
 //
 // 实例进行关机，通过暂时停止按需实例以节省费用，实例默认停止七天。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) StopInstance(request *model.StopInstanceRequest) (*model.StopInstanceResponse, error) {
 	requestDef := GenReqDefForStopInstance()
 
@@ -1478,8 +1626,7 @@ func (c *RdsClient) StopInstanceInvoker(request *model.StopInstanceRequest) *Sto
 //
 // 设置SSL数据加密。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) SwitchSsl(request *model.SwitchSslRequest) (*model.SwitchSslResponse, error) {
 	requestDef := GenReqDefForSwitchSsl()
 
@@ -1500,8 +1647,7 @@ func (c *RdsClient) SwitchSslInvoker(request *model.SwitchSslRequest) *SwitchSsl
 //
 // 修改参数模板参数。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) UpdateConfiguration(request *model.UpdateConfigurationRequest) (*model.UpdateConfigurationResponse, error) {
 	requestDef := GenReqDefForUpdateConfiguration()
 
@@ -1522,8 +1668,7 @@ func (c *RdsClient) UpdateConfigurationInvoker(request *model.UpdateConfiguratio
 //
 // 修改内网地址
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) UpdateDataIp(request *model.UpdateDataIpRequest) (*model.UpdateDataIpResponse, error) {
 	requestDef := GenReqDefForUpdateDataIp()
 
@@ -1544,8 +1689,7 @@ func (c *RdsClient) UpdateDataIpInvoker(request *model.UpdateDataIpRequest) *Upd
 //
 // 修改域名
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) UpdateDnsName(request *model.UpdateDnsNameRequest) (*model.UpdateDnsNameResponse, error) {
 	requestDef := GenReqDefForUpdateDnsName()
 
@@ -1566,8 +1710,7 @@ func (c *RdsClient) UpdateDnsNameInvoker(request *model.UpdateDnsNameRequest) *U
 //
 // 修改指定实例的参数。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) UpdateInstanceConfiguration(request *model.UpdateInstanceConfigurationRequest) (*model.UpdateInstanceConfigurationResponse, error) {
 	requestDef := GenReqDefForUpdateInstanceConfiguration()
 
@@ -1588,8 +1731,7 @@ func (c *RdsClient) UpdateInstanceConfigurationInvoker(request *model.UpdateInst
 //
 // 修改指定实例的参数。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) UpdateInstanceConfigurationAsync(request *model.UpdateInstanceConfigurationAsyncRequest) (*model.UpdateInstanceConfigurationAsyncResponse, error) {
 	requestDef := GenReqDefForUpdateInstanceConfigurationAsync()
 
@@ -1610,8 +1752,7 @@ func (c *RdsClient) UpdateInstanceConfigurationAsyncInvoker(request *model.Updat
 //
 // 修改实例名称。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) UpdateInstanceName(request *model.UpdateInstanceNameRequest) (*model.UpdateInstanceNameResponse, error) {
 	requestDef := GenReqDefForUpdateInstanceName()
 
@@ -1632,8 +1773,7 @@ func (c *RdsClient) UpdateInstanceNameInvoker(request *model.UpdateInstanceNameR
 //
 // 修改数据库端口
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) UpdatePort(request *model.UpdatePortRequest) (*model.UpdatePortResponse, error) {
 	requestDef := GenReqDefForUpdatePort()
 
@@ -1654,8 +1794,7 @@ func (c *RdsClient) UpdatePortInvoker(request *model.UpdatePortRequest) *UpdateP
 //
 // 修改指定数据库实例的备注信息。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) UpdatePostgresqlInstanceAlias(request *model.UpdatePostgresqlInstanceAliasRequest) (*model.UpdatePostgresqlInstanceAliasResponse, error) {
 	requestDef := GenReqDefForUpdatePostgresqlInstanceAlias()
 
@@ -1676,8 +1815,7 @@ func (c *RdsClient) UpdatePostgresqlInstanceAliasInvoker(request *model.UpdatePo
 //
 // 对实例进行小版本升级。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) UpgradeDbVersion(request *model.UpgradeDbVersionRequest) (*model.UpgradeDbVersionResponse, error) {
 	requestDef := GenReqDefForUpgradeDbVersion()
 
@@ -1698,8 +1836,7 @@ func (c *RdsClient) UpgradeDbVersionInvoker(request *model.UpgradeDbVersionReque
 //
 // 查询API版本列表。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListApiVersion(request *model.ListApiVersionRequest) (*model.ListApiVersionResponse, error) {
 	requestDef := GenReqDefForListApiVersion()
 
@@ -1720,8 +1857,7 @@ func (c *RdsClient) ListApiVersionInvoker(request *model.ListApiVersionRequest) 
 //
 // 查询API版本列表。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListApiVersionNew(request *model.ListApiVersionNewRequest) (*model.ListApiVersionNewResponse, error) {
 	requestDef := GenReqDefForListApiVersionNew()
 
@@ -1742,8 +1878,7 @@ func (c *RdsClient) ListApiVersionNewInvoker(request *model.ListApiVersionNewReq
 //
 // 查询指定的API版本信息。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ShowApiVersion(request *model.ShowApiVersionRequest) (*model.ShowApiVersionResponse, error) {
 	requestDef := GenReqDefForShowApiVersion()
 
@@ -1764,8 +1899,7 @@ func (c *RdsClient) ShowApiVersionInvoker(request *model.ShowApiVersionRequest) 
 //
 // 授权数据库帐号。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) AllowDbUserPrivilege(request *model.AllowDbUserPrivilegeRequest) (*model.AllowDbUserPrivilegeResponse, error) {
 	requestDef := GenReqDefForAllowDbUserPrivilege()
 
@@ -1786,8 +1920,7 @@ func (c *RdsClient) AllowDbUserPrivilegeInvoker(request *model.AllowDbUserPrivil
 //
 // 创建数据库。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) CreateDatabase(request *model.CreateDatabaseRequest) (*model.CreateDatabaseResponse, error) {
 	requestDef := GenReqDefForCreateDatabase()
 
@@ -1806,10 +1939,9 @@ func (c *RdsClient) CreateDatabaseInvoker(request *model.CreateDatabaseRequest) 
 
 // CreateDbUser 创建数据库用户
 //
-// 创建数据库用户。
+// 在指定实例中创建数据库帐号。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) CreateDbUser(request *model.CreateDbUserRequest) (*model.CreateDbUserResponse, error) {
 	requestDef := GenReqDefForCreateDbUser()
 
@@ -1830,8 +1962,7 @@ func (c *RdsClient) CreateDbUserInvoker(request *model.CreateDbUserRequest) *Cre
 //
 // 删除数据库。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) DeleteDatabase(request *model.DeleteDatabaseRequest) (*model.DeleteDatabaseResponse, error) {
 	requestDef := GenReqDefForDeleteDatabase()
 
@@ -1852,8 +1983,7 @@ func (c *RdsClient) DeleteDatabaseInvoker(request *model.DeleteDatabaseRequest) 
 //
 // 删除数据库用户。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) DeleteDbUser(request *model.DeleteDbUserRequest) (*model.DeleteDbUserResponse, error) {
 	requestDef := GenReqDefForDeleteDbUser()
 
@@ -1874,8 +2004,7 @@ func (c *RdsClient) DeleteDbUserInvoker(request *model.DeleteDbUserRequest) *Del
 //
 // 查询指定用户的已授权数据库。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListAuthorizedDatabases(request *model.ListAuthorizedDatabasesRequest) (*model.ListAuthorizedDatabasesResponse, error) {
 	requestDef := GenReqDefForListAuthorizedDatabases()
 
@@ -1896,8 +2025,7 @@ func (c *RdsClient) ListAuthorizedDatabasesInvoker(request *model.ListAuthorized
 //
 // 查询指定数据库的已授权用户。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListAuthorizedDbUsers(request *model.ListAuthorizedDbUsersRequest) (*model.ListAuthorizedDbUsersResponse, error) {
 	requestDef := GenReqDefForListAuthorizedDbUsers()
 
@@ -1918,8 +2046,7 @@ func (c *RdsClient) ListAuthorizedDbUsersInvoker(request *model.ListAuthorizedDb
 //
 // 查询数据库列表。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListDatabases(request *model.ListDatabasesRequest) (*model.ListDatabasesResponse, error) {
 	requestDef := GenReqDefForListDatabases()
 
@@ -1940,8 +2067,7 @@ func (c *RdsClient) ListDatabasesInvoker(request *model.ListDatabasesRequest) *L
 //
 // 查询数据库用户列表。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListDbUsers(request *model.ListDbUsersRequest) (*model.ListDbUsersResponse, error) {
 	requestDef := GenReqDefForListDbUsers()
 
@@ -1962,8 +2088,7 @@ func (c *RdsClient) ListDbUsersInvoker(request *model.ListDbUsersRequest) *ListD
 //
 // 重置数据库密码.
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ResetPwd(request *model.ResetPwdRequest) (*model.ResetPwdResponse, error) {
 	requestDef := GenReqDefForResetPwd()
 
@@ -1984,8 +2109,7 @@ func (c *RdsClient) ResetPwdInvoker(request *model.ResetPwdRequest) *ResetPwdInv
 //
 // 解除数据库帐号权限。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) Revoke(request *model.RevokeRequest) (*model.RevokeResponse, error) {
 	requestDef := GenReqDefForRevoke()
 
@@ -2006,8 +2130,7 @@ func (c *RdsClient) RevokeInvoker(request *model.RevokeRequest) *RevokeInvoker {
 //
 // 设置数据库账号密码
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) SetDbUserPwd(request *model.SetDbUserPwdRequest) (*model.SetDbUserPwdResponse, error) {
 	requestDef := GenReqDefForSetDbUserPwd()
 
@@ -2028,8 +2151,7 @@ func (c *RdsClient) SetDbUserPwdInvoker(request *model.SetDbUserPwdRequest) *Set
 //
 // 根据业务需求，设置数据库用户只读
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) SetReadOnlySwitch(request *model.SetReadOnlySwitchRequest) (*model.SetReadOnlySwitchResponse, error) {
 	requestDef := GenReqDefForSetReadOnlySwitch()
 
@@ -2050,8 +2172,7 @@ func (c *RdsClient) SetReadOnlySwitchInvoker(request *model.SetReadOnlySwitchReq
 //
 // 修改指定实例中的数据库备注。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) UpdateDatabase(request *model.UpdateDatabaseRequest) (*model.UpdateDatabaseResponse, error) {
 	requestDef := GenReqDefForUpdateDatabase()
 
@@ -2072,8 +2193,7 @@ func (c *RdsClient) UpdateDatabaseInvoker(request *model.UpdateDatabaseRequest) 
 //
 // 修改数据库用户名备注
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) UpdateDbUserComment(request *model.UpdateDbUserCommentRequest) (*model.UpdateDbUserCommentResponse, error) {
 	requestDef := GenReqDefForUpdateDbUserComment()
 
@@ -2094,8 +2214,7 @@ func (c *RdsClient) UpdateDbUserCommentInvoker(request *model.UpdateDbUserCommen
 //
 // 在指定实例的数据库中, 设置帐号的权限。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) AllowDbPrivilege(request *model.AllowDbPrivilegeRequest) (*model.AllowDbPrivilegeResponse, error) {
 	requestDef := GenReqDefForAllowDbPrivilege()
 
@@ -2118,8 +2237,7 @@ func (c *RdsClient) AllowDbPrivilegeInvoker(request *model.AllowDbPrivilegeReque
 //
 // - 调用接口前，您需要了解API 认证鉴权。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ChangeProxyScale(request *model.ChangeProxyScaleRequest) (*model.ChangeProxyScaleResponse, error) {
 	requestDef := GenReqDefForChangeProxyScale()
 
@@ -2140,8 +2258,7 @@ func (c *RdsClient) ChangeProxyScaleInvoker(request *model.ChangeProxyScaleReque
 //
 // 修改指定实例的读写分离延时阈值。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ChangeTheDelayThreshold(request *model.ChangeTheDelayThresholdRequest) (*model.ChangeTheDelayThresholdResponse, error) {
 	requestDef := GenReqDefForChangeTheDelayThreshold()
 
@@ -2162,8 +2279,7 @@ func (c *RdsClient) ChangeTheDelayThresholdInvoker(request *model.ChangeTheDelay
 //
 // 在指定实例中创建数据库。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) CreatePostgresqlDatabase(request *model.CreatePostgresqlDatabaseRequest) (*model.CreatePostgresqlDatabaseResponse, error) {
 	requestDef := GenReqDefForCreatePostgresqlDatabase()
 
@@ -2184,8 +2300,7 @@ func (c *RdsClient) CreatePostgresqlDatabaseInvoker(request *model.CreatePostgre
 //
 // 在指定实例的数据库中, 创建数据库schema。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) CreatePostgresqlDatabaseSchema(request *model.CreatePostgresqlDatabaseSchemaRequest) (*model.CreatePostgresqlDatabaseSchemaResponse, error) {
 	requestDef := GenReqDefForCreatePostgresqlDatabaseSchema()
 
@@ -2206,8 +2321,7 @@ func (c *RdsClient) CreatePostgresqlDatabaseSchemaInvoker(request *model.CreateP
 //
 // 在指定实例中创建数据库用户。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) CreatePostgresqlDbUser(request *model.CreatePostgresqlDbUserRequest) (*model.CreatePostgresqlDbUserResponse, error) {
 	requestDef := GenReqDefForCreatePostgresqlDbUser()
 
@@ -2224,12 +2338,53 @@ func (c *RdsClient) CreatePostgresqlDbUserInvoker(request *model.CreatePostgresq
 	return &CreatePostgresqlDbUserInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// CreatePostgresqlExtension 创建插件
+//
+// 在指定数据库上创建插件。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) CreatePostgresqlExtension(request *model.CreatePostgresqlExtensionRequest) (*model.CreatePostgresqlExtensionResponse, error) {
+	requestDef := GenReqDefForCreatePostgresqlExtension()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreatePostgresqlExtensionResponse), nil
+	}
+}
+
+// CreatePostgresqlExtensionInvoker 创建插件
+func (c *RdsClient) CreatePostgresqlExtensionInvoker(request *model.CreatePostgresqlExtensionRequest) *CreatePostgresqlExtensionInvoker {
+	requestDef := GenReqDefForCreatePostgresqlExtension()
+	return &CreatePostgresqlExtensionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeletePostgresqlExtension 删除插件
+//
+// 在指定数据库上删除插件。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) DeletePostgresqlExtension(request *model.DeletePostgresqlExtensionRequest) (*model.DeletePostgresqlExtensionResponse, error) {
+	requestDef := GenReqDefForDeletePostgresqlExtension()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeletePostgresqlExtensionResponse), nil
+	}
+}
+
+// DeletePostgresqlExtensionInvoker 删除插件
+func (c *RdsClient) DeletePostgresqlExtensionInvoker(request *model.DeletePostgresqlExtensionRequest) *DeletePostgresqlExtensionInvoker {
+	requestDef := GenReqDefForDeletePostgresqlExtension()
+	return &DeletePostgresqlExtensionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListPostgresqlDatabaseSchemas 查询数据库SCHEMA列表
 //
 // 查询指定实例的数据库SCHEMA列表。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListPostgresqlDatabaseSchemas(request *model.ListPostgresqlDatabaseSchemasRequest) (*model.ListPostgresqlDatabaseSchemasResponse, error) {
 	requestDef := GenReqDefForListPostgresqlDatabaseSchemas()
 
@@ -2250,8 +2405,7 @@ func (c *RdsClient) ListPostgresqlDatabaseSchemasInvoker(request *model.ListPost
 //
 // 查询指定实例中的数据库列表。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListPostgresqlDatabases(request *model.ListPostgresqlDatabasesRequest) (*model.ListPostgresqlDatabasesResponse, error) {
 	requestDef := GenReqDefForListPostgresqlDatabases()
 
@@ -2272,8 +2426,7 @@ func (c *RdsClient) ListPostgresqlDatabasesInvoker(request *model.ListPostgresql
 //
 // 在指定实例中查询数据库用户列表。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListPostgresqlDbUserPaginated(request *model.ListPostgresqlDbUserPaginatedRequest) (*model.ListPostgresqlDbUserPaginatedResponse, error) {
 	requestDef := GenReqDefForListPostgresqlDbUserPaginated()
 
@@ -2290,14 +2443,34 @@ func (c *RdsClient) ListPostgresqlDbUserPaginatedInvoker(request *model.ListPost
 	return &ListPostgresqlDbUserPaginatedInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListPostgresqlExtension 查询插件
+//
+// 获取指定数据库的插件信息。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListPostgresqlExtension(request *model.ListPostgresqlExtensionRequest) (*model.ListPostgresqlExtensionResponse, error) {
+	requestDef := GenReqDefForListPostgresqlExtension()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListPostgresqlExtensionResponse), nil
+	}
+}
+
+// ListPostgresqlExtensionInvoker 查询插件
+func (c *RdsClient) ListPostgresqlExtensionInvoker(request *model.ListPostgresqlExtensionRequest) *ListPostgresqlExtensionInvoker {
+	requestDef := GenReqDefForListPostgresqlExtension()
+	return &ListPostgresqlExtensionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // SearchQueryScaleComputeFlavors 查询数据库代理可变更的规格
 //
 // 查询数据库代理可变更的规格信息。
 //
 // - 调用接口前，您需要了解API 认证鉴权。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) SearchQueryScaleComputeFlavors(request *model.SearchQueryScaleComputeFlavorsRequest) (*model.SearchQueryScaleComputeFlavorsResponse, error) {
 	requestDef := GenReqDefForSearchQueryScaleComputeFlavors()
 
@@ -2320,8 +2493,7 @@ func (c *RdsClient) SearchQueryScaleComputeFlavorsInvoker(request *model.SearchQ
 //
 // - 调用接口前，您需要了解API 认证鉴权。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) SearchQueryScaleFlavors(request *model.SearchQueryScaleFlavorsRequest) (*model.SearchQueryScaleFlavorsResponse, error) {
 	requestDef := GenReqDefForSearchQueryScaleFlavors()
 
@@ -2342,8 +2514,7 @@ func (c *RdsClient) SearchQueryScaleFlavorsInvoker(request *model.SearchQuerySca
 //
 // 设置数据库用户权限：只读或可读写。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) SetDatabaseUserPrivilege(request *model.SetDatabaseUserPrivilegeRequest) (*model.SetDatabaseUserPrivilegeResponse, error) {
 	requestDef := GenReqDefForSetDatabaseUserPrivilege()
 
@@ -2364,8 +2535,7 @@ func (c *RdsClient) SetDatabaseUserPrivilegeInvoker(request *model.SetDatabaseUs
 //
 // 重置指定数据库帐号的密码。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) SetPostgresqlDbUserPwd(request *model.SetPostgresqlDbUserPwdRequest) (*model.SetPostgresqlDbUserPwdResponse, error) {
 	requestDef := GenReqDefForSetPostgresqlDbUserPwd()
 
@@ -2386,8 +2556,7 @@ func (c *RdsClient) SetPostgresqlDbUserPwdInvoker(request *model.SetPostgresqlDb
 //
 // 查询指定实例的数据库代理详细信息。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ShowInformationAboutDatabaseProxy(request *model.ShowInformationAboutDatabaseProxyRequest) (*model.ShowInformationAboutDatabaseProxyResponse, error) {
 	requestDef := GenReqDefForShowInformationAboutDatabaseProxy()
 
@@ -2404,12 +2573,32 @@ func (c *RdsClient) ShowInformationAboutDatabaseProxyInvoker(request *model.Show
 	return &ShowInformationAboutDatabaseProxyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ShowPostgresqlParamValue 获取实例指定参数的值
+//
+// 获取实例指定参数的值。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ShowPostgresqlParamValue(request *model.ShowPostgresqlParamValueRequest) (*model.ShowPostgresqlParamValueResponse, error) {
+	requestDef := GenReqDefForShowPostgresqlParamValue()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowPostgresqlParamValueResponse), nil
+	}
+}
+
+// ShowPostgresqlParamValueInvoker 获取实例指定参数的值
+func (c *RdsClient) ShowPostgresqlParamValueInvoker(request *model.ShowPostgresqlParamValueRequest) *ShowPostgresqlParamValueInvoker {
+	requestDef := GenReqDefForShowPostgresqlParamValue()
+	return &ShowPostgresqlParamValueInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // StartDatabaseProxy 开启数据库代理
 //
 // 为指定实例开启数据库代理。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) StartDatabaseProxy(request *model.StartDatabaseProxyRequest) (*model.StartDatabaseProxyResponse, error) {
 	requestDef := GenReqDefForStartDatabaseProxy()
 
@@ -2430,8 +2619,7 @@ func (c *RdsClient) StartDatabaseProxyInvoker(request *model.StartDatabaseProxyR
 //
 // 为指定实例关闭数据库代理。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) StopDatabaseProxy(request *model.StopDatabaseProxyRequest) (*model.StopDatabaseProxyResponse, error) {
 	requestDef := GenReqDefForStopDatabaseProxy()
 
@@ -2448,12 +2636,32 @@ func (c *RdsClient) StopDatabaseProxyInvoker(request *model.StopDatabaseProxyReq
 	return &StopDatabaseProxyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// UpdatePostgresqlParameterValue 修改实例指定参数的值
+//
+// 修改实例指定参数的值。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) UpdatePostgresqlParameterValue(request *model.UpdatePostgresqlParameterValueRequest) (*model.UpdatePostgresqlParameterValueResponse, error) {
+	requestDef := GenReqDefForUpdatePostgresqlParameterValue()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdatePostgresqlParameterValueResponse), nil
+	}
+}
+
+// UpdatePostgresqlParameterValueInvoker 修改实例指定参数的值
+func (c *RdsClient) UpdatePostgresqlParameterValueInvoker(request *model.UpdatePostgresqlParameterValueRequest) *UpdatePostgresqlParameterValueInvoker {
+	requestDef := GenReqDefForUpdatePostgresqlParameterValue()
+	return &UpdatePostgresqlParameterValueInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // UpdateReadWeight 修改读写分离权重
 //
 // 修改指定实例的读写分离权重。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) UpdateReadWeight(request *model.UpdateReadWeightRequest) (*model.UpdateReadWeightResponse, error) {
 	requestDef := GenReqDefForUpdateReadWeight()
 
@@ -2474,8 +2682,7 @@ func (c *RdsClient) UpdateReadWeightInvoker(request *model.UpdateReadWeightReque
 //
 // 授权数据库帐号。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) AllowSqlserverDbUserPrivilege(request *model.AllowSqlserverDbUserPrivilegeRequest) (*model.AllowSqlserverDbUserPrivilegeResponse, error) {
 	requestDef := GenReqDefForAllowSqlserverDbUserPrivilege()
 
@@ -2492,12 +2699,32 @@ func (c *RdsClient) AllowSqlserverDbUserPrivilegeInvoker(request *model.AllowSql
 	return &AllowSqlserverDbUserPrivilegeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// BatchAddMsdtcs 添加MSDTC
+//
+// 添加MSDTC相关主机host地址
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) BatchAddMsdtcs(request *model.BatchAddMsdtcsRequest) (*model.BatchAddMsdtcsResponse, error) {
+	requestDef := GenReqDefForBatchAddMsdtcs()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.BatchAddMsdtcsResponse), nil
+	}
+}
+
+// BatchAddMsdtcsInvoker 添加MSDTC
+func (c *RdsClient) BatchAddMsdtcsInvoker(request *model.BatchAddMsdtcsRequest) *BatchAddMsdtcsInvoker {
+	requestDef := GenReqDefForBatchAddMsdtcs()
+	return &BatchAddMsdtcsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // CreateSqlserverDatabase 创建数据库
 //
 // 创建数据库。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) CreateSqlserverDatabase(request *model.CreateSqlserverDatabaseRequest) (*model.CreateSqlserverDatabaseResponse, error) {
 	requestDef := GenReqDefForCreateSqlserverDatabase()
 
@@ -2518,8 +2745,7 @@ func (c *RdsClient) CreateSqlserverDatabaseInvoker(request *model.CreateSqlserve
 //
 // 创建数据库用户。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) CreateSqlserverDbUser(request *model.CreateSqlserverDbUserRequest) (*model.CreateSqlserverDbUserResponse, error) {
 	requestDef := GenReqDefForCreateSqlserverDbUser()
 
@@ -2540,8 +2766,7 @@ func (c *RdsClient) CreateSqlserverDbUserInvoker(request *model.CreateSqlserverD
 //
 // 删除数据库。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) DeleteSqlserverDatabase(request *model.DeleteSqlserverDatabaseRequest) (*model.DeleteSqlserverDatabaseResponse, error) {
 	requestDef := GenReqDefForDeleteSqlserverDatabase()
 
@@ -2562,8 +2787,7 @@ func (c *RdsClient) DeleteSqlserverDatabaseInvoker(request *model.DeleteSqlserve
 //
 // 删除数据库。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) DeleteSqlserverDatabaseEx(request *model.DeleteSqlserverDatabaseExRequest) (*model.DeleteSqlserverDatabaseExResponse, error) {
 	requestDef := GenReqDefForDeleteSqlserverDatabaseEx()
 
@@ -2584,8 +2808,7 @@ func (c *RdsClient) DeleteSqlserverDatabaseExInvoker(request *model.DeleteSqlser
 //
 // 删除数据库用户。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) DeleteSqlserverDbUser(request *model.DeleteSqlserverDbUserRequest) (*model.DeleteSqlserverDbUserResponse, error) {
 	requestDef := GenReqDefForDeleteSqlserverDbUser()
 
@@ -2606,8 +2829,7 @@ func (c *RdsClient) DeleteSqlserverDbUserInvoker(request *model.DeleteSqlserverD
 //
 // 查询指定数据库的已授权用户。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListAuthorizedSqlserverDbUsers(request *model.ListAuthorizedSqlserverDbUsersRequest) (*model.ListAuthorizedSqlserverDbUsersResponse, error) {
 	requestDef := GenReqDefForListAuthorizedSqlserverDbUsers()
 
@@ -2624,12 +2846,32 @@ func (c *RdsClient) ListAuthorizedSqlserverDbUsersInvoker(request *model.ListAut
 	return &ListAuthorizedSqlserverDbUsersInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListMsdtcHosts 查询MSDTC的hosts信息
+//
+// 查询MSDTC的hosts信息
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListMsdtcHosts(request *model.ListMsdtcHostsRequest) (*model.ListMsdtcHostsResponse, error) {
+	requestDef := GenReqDefForListMsdtcHosts()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListMsdtcHostsResponse), nil
+	}
+}
+
+// ListMsdtcHostsInvoker 查询MSDTC的hosts信息
+func (c *RdsClient) ListMsdtcHostsInvoker(request *model.ListMsdtcHostsRequest) *ListMsdtcHostsInvoker {
+	requestDef := GenReqDefForListMsdtcHosts()
+	return &ListMsdtcHostsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListSqlserverDatabases 查询数据库列表
 //
 // 查询数据库列表。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListSqlserverDatabases(request *model.ListSqlserverDatabasesRequest) (*model.ListSqlserverDatabasesResponse, error) {
 	requestDef := GenReqDefForListSqlserverDatabases()
 
@@ -2650,8 +2892,7 @@ func (c *RdsClient) ListSqlserverDatabasesInvoker(request *model.ListSqlserverDa
 //
 // 查询数据库用户列表。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) ListSqlserverDbUsers(request *model.ListSqlserverDbUsersRequest) (*model.ListSqlserverDbUsersResponse, error) {
 	requestDef := GenReqDefForListSqlserverDbUsers()
 
@@ -2672,8 +2913,7 @@ func (c *RdsClient) ListSqlserverDbUsersInvoker(request *model.ListSqlserverDbUs
 //
 // 解除数据库帐号权限。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) RevokeSqlserverDbUserPrivilege(request *model.RevokeSqlserverDbUserPrivilegeRequest) (*model.RevokeSqlserverDbUserPrivilegeResponse, error) {
 	requestDef := GenReqDefForRevokeSqlserverDbUserPrivilege()
 

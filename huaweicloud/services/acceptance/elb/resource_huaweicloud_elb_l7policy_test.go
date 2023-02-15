@@ -10,9 +10,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v3/l7policies"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccElbV3L7Policy_basic(t *testing.T) {
@@ -45,10 +45,10 @@ func TestAccElbV3L7Policy_basic(t *testing.T) {
 }
 
 func testAccCheckElbV3L7PolicyDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	lbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	elbClient, err := cfg.ElbV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud load balancing client: %s", err)
+		return fmt.Errorf("error creating ELB client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -56,9 +56,9 @@ func testAccCheckElbV3L7PolicyDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := l7policies.Get(lbClient, rs.Primary.ID).Extract()
+		_, err := l7policies.Get(elbClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("L7 Policy still exists: %s", rs.Primary.ID)
+			return fmt.Errorf("the L7 Policy still exists: %s", rs.Primary.ID)
 		}
 	}
 
@@ -69,17 +69,17 @@ func testAccCheckElbV3L7PolicyExists(n string, l7Policy *l7policies.L7Policy) re
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		lbClient, err := config.ElbV3Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		lbClient, err := cfg.ElbV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud load balancing client: %s", err)
+			return fmt.Errorf("error creating ELB client: %s", err)
 		}
 
 		found, err := l7policies.Get(lbClient, rs.Primary.ID).Extract()
@@ -88,7 +88,7 @@ func testAccCheckElbV3L7PolicyExists(n string, l7Policy *l7policies.L7Policy) re
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Policy not found")
+			return fmt.Errorf("policy not found")
 		}
 
 		*l7Policy = *found
@@ -116,16 +116,14 @@ resource "huaweicloud_elb_loadbalancer" "test" {
 }
 
 resource "huaweicloud_elb_listener" "test" {
-  name            = "%s"
-  description     = "test description"
-  protocol        = "HTTP"
-  protocol_port   = 8080
-  loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
-
-  forward_eip = true
-
-  idle_timeout = 60
-  request_timeout = 60
+  name             = "%s"
+  description      = "test description"
+  protocol         = "HTTP"
+  protocol_port    = 8080
+  loadbalancer_id  = huaweicloud_elb_loadbalancer.test.id
+  forward_eip      = true
+  idle_timeout     = 60
+  request_timeout  = 60
   response_timeout = 60
 }
 
@@ -137,9 +135,9 @@ resource "huaweicloud_elb_pool" "test" {
 }
 
 resource "huaweicloud_elb_l7policy" "test" {
-  name         = "%s"
-  description  = "test description"
-  listener_id  = huaweicloud_elb_listener.test.id
+  name             = "%s"
+  description      = "test description"
+  listener_id      = huaweicloud_elb_listener.test.id
   redirect_pool_id = huaweicloud_elb_pool.test.id
 }
 `, rName, rName, rName, rName)

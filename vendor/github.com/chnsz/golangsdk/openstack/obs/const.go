@@ -13,8 +13,8 @@
 package obs
 
 const (
-	obsSdkVersion          = "3.21.12"
-	USER_AGENT             = "obs-sdk-go/" + obsSdkVersion
+	OBS_SDK_VERSION        = "3.22.11"
+	USER_AGENT             = "obs-sdk-go/" + OBS_SDK_VERSION
 	HEADER_PREFIX          = "x-amz-"
 	HEADER_PREFIX_META     = "x-amz-meta-"
 	HEADER_PREFIX_OBS      = "x-obs-"
@@ -37,7 +37,10 @@ const (
 	HEADER_RANGE                            = "Range"
 	HEADER_STORAGE_CLASS                    = "x-default-storage-class"
 	HEADER_STORAGE_CLASS_OBS                = "x-obs-storage-class"
+	HEADER_FS_FILE_INTERFACE_OBS            = "x-obs-fs-file-interface"
+	HEADER_MODE                             = "mode"
 	HEADER_VERSION_OBS                      = "version"
+	HEADER_REQUEST_PAYER                    = "x-amz-request-payer"
 	HEADER_GRANT_READ_OBS                   = "grant-read"
 	HEADER_GRANT_WRITE_OBS                  = "grant-write"
 	HEADER_GRANT_READ_ACP_OBS               = "grant-read-acp"
@@ -274,6 +277,8 @@ var (
 		"x-image-save-bucket":          true,
 		"x-image-save-object":          true,
 		"ignore-sign-in-query":         true,
+		"name":                         true,
+		"rename":                       true,
 	}
 
 	mimeTypes = map[string]string{
@@ -653,6 +658,13 @@ var (
 		"yaml":    "text/yaml",
 		"yml":     "text/yaml",
 		"zip":     "application/zip",
+		"dotx":    "application/vnd.openxmlformats-officedocument.wordprocessingml.template",
+		"wps":     "application/vnd.ms-works",
+		"wpt":     "x-lml/x-gps",
+		"pptm":    "application/vnd.ms-powerpoint.presentation.macroenabled.12",
+		"heic":    "image/heic",
+		"mkv":     "video/x-matroska",
+		"raw":     "image/x-panasonic-raw",
 	}
 )
 
@@ -743,6 +755,8 @@ const (
 
 	// SubResourceModify subResource value: modify
 	SubResourceModify SubResourceType = "modify"
+
+	SubResourceRename SubResourceType = "rename"
 )
 
 // objectKeyType defines the objectKey value

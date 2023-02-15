@@ -3,6 +3,7 @@ package dli
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/chnsz/golangsdk"
@@ -14,8 +15,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceSqlJob() *schema.Resource {
@@ -167,23 +166,23 @@ func resourceSqlJobCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		opts.Conf = buildConfParam(d)
 	}
 
-	logp.Printf("[DEBUG] Creating new DLI sql job opts: %#v", opts)
-	rst, createErr := sqljob.Submit(client, opts)
-	if createErr != nil {
-		return fmtp.DiagErrorf("Error creating DLI sql job: %s", createErr)
+	log.Printf("[DEBUG] Creating new DLI sql job opts: %#v", opts)
+	rst, err := sqljob.Submit(client, opts)
+	if err != nil {
+		return diag.Errorf("error creating DLI sql job: %s", err)
 	}
 
-	if rst != nil && !rst.IsSuccess {
-		return fmtp.DiagErrorf("Error creating DLI sql job: %s", rst.Message)
+	if rst == nil || !rst.IsSuccess {
+		return diag.Errorf("error creating DLI sql job")
 	}
 
 	d.SetId(rst.JobId)
 	d.Set("schema", rst.Schema)
 	d.Set("rows", rst.Rows)
 
-	errCheckRt := waitingforJobRunning(ctx, client, rst.JobId, d.Timeout(schema.TimeoutCreate))
-	if errCheckRt != nil {
-		return diag.FromErr(errCheckRt)
+	err = waitingforJobRunning(ctx, client, rst.JobId, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	return resourceSqlJobRead(ctx, d, meta)
@@ -197,19 +196,25 @@ func resourceSqlJobRead(_ context.Context, d *schema.ResourceData, meta interfac
 		return diag.Errorf("error creating DLI v1 client, err=%s", err)
 	}
 
-	listResp, lErr := sqljob.List(client, sqljob.ListJobsOpts{
+	listResp, err := sqljob.List(client, sqljob.ListJobsOpts{
 		JobId: d.Id(),
 	})
 
-	if lErr != nil {
-		return fmtp.DiagErrorf("Error query DLI sql job %q:%s", d.Id(), lErr)
+	if err != nil {
+		return diag.Errorf("error query DLI sql job %q:%s", d.Id(), err)
 	}
 
-	if listResp != nil && !listResp.IsSuccess && listResp.JobCount != 1 {
-		return fmtp.DiagErrorf("Error query DLI sql job: %s", listResp.Message)
+	if listResp == nil || !listResp.IsSuccess {
+		return diag.Errorf("error query DLI sql job")
 	}
+
+	if listResp.JobCount == 0 {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "DLI sql-job")
+	}
+
 	dt := listResp.Jobs[0]
 	mErr := multierror.Append(
+		d.Set("region", region),
 		d.Set("sql", dt.Statement),
 		d.Set("database_name", dt.DatabaseName),
 		d.Set("queue_name", dt.QueueName),
@@ -220,11 +225,8 @@ func resourceSqlJobRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("status", dt.Status),
 		d.Set("tags", utils.TagsToMap(dt.Tags)),
 	)
-	if setSdErr := mErr.ErrorOrNil(); setSdErr != nil {
-		return fmtp.DiagErrorf("Error setting vault fields: %s", setSdErr)
-	}
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 // This API is used to cancel a submitted job. If execution of a job completes or fails, this job cannot be canceled.
@@ -236,35 +238,34 @@ func resourceSqlJobDelete(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating DLI v1 client, err=%s", err)
 	}
 	jobId := d.Id()
-	detail, dErr := sqljob.Status(client, jobId)
-	if dErr != nil {
-		return fmtp.DiagErrorf("Error query DLI sql job %q:%s", jobId, dErr)
+	detail, err := sqljob.Status(client, jobId)
+	if err != nil {
+		return diag.Errorf("error query DLI sql job %q:%s", jobId, err)
 	}
 
-	if detail != nil && !detail.IsSuccess {
-		return fmtp.DiagErrorf("Error query DLI sql job: %s", detail.Message)
+	if detail == nil || !detail.IsSuccess {
+		return diag.Errorf("error query DLI sql job")
 	}
 
 	if detail.Status != sqljob.JobStatusFinished &&
 		detail.Status != sqljob.JobStatusFailed &&
 		detail.Status != sqljob.JobStatusCancelled {
 
-		cancelRst, cancelErr := sqljob.Cancel(client, jobId)
-		if cancelErr != nil {
-			return fmtp.DiagErrorf("cancel DLI sql job failed. %q:%s", jobId, dErr)
+		cancelRst, err := sqljob.Cancel(client, jobId)
+		if err != nil {
+			return diag.Errorf("cancel DLI sql job failed. %q:%s", jobId, err)
 		}
-		if cancelRst != nil && !cancelRst.IsSuccess {
-			return fmtp.DiagErrorf("cancel DLI sql job failed. %q:%s", jobId, dErr)
+		if cancelRst == nil || !cancelRst.IsSuccess {
+			return diag.Errorf("cancel DLI sql job failed. %q", jobId)
 		}
 
 	}
 
-	errCheckRt := checkSqlJobCancelledResult(ctx, client, jobId, d.Timeout(schema.TimeoutDelete))
-	if errCheckRt != nil {
-		return fmtp.DiagErrorf("Failed to check the result of deletion %s", errCheckRt)
+	err = checkSqlJobCancelledResult(ctx, client, jobId, d.Timeout(schema.TimeoutDelete))
+	if err != nil {
+		return diag.Errorf("failed to check the result of deletion %s", err)
 	}
 
-	d.SetId("")
 	return nil
 }
 
@@ -327,7 +328,7 @@ func checkSqlJobCancelledResult(ctx context.Context, client *golangsdk.ServiceCl
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("error waiting for Dli sql job (%s) to be canceled: %s", id, err)
+		return fmt.Errorf("error waiting for Dli sql job (%s) to be canceled: %s", id, err)
 	}
 	return nil
 }
@@ -347,7 +348,7 @@ func waitingforJobRunning(ctx context.Context, client *golangsdk.ServiceClient, 
 			}
 
 			if jobStatus.Status == sqljob.JobStatusCancelled || jobStatus.Status == sqljob.JobStatusFailed {
-				return true, "failed", fmtp.Errorf("current status is %s", jobStatus.Status)
+				return true, "failed", fmt.Errorf("current status is %s", jobStatus.Status)
 			}
 
 			return true, "Done", nil
@@ -358,7 +359,7 @@ func waitingforJobRunning(ctx context.Context, client *golangsdk.ServiceClient, 
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("error waiting for Dli sql job (%s) to be running: %s", id, err)
+		return fmt.Errorf("error waiting for Dli sql job (%s) to be running: %s", id, err)
 	}
 	return nil
 }

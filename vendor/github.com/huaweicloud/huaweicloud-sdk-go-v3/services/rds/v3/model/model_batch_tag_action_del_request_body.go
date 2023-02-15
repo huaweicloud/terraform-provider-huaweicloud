@@ -11,7 +11,7 @@ type BatchTagActionDelRequestBody struct {
 	// 操作标识（区分大小写）：删除时为“delete”。
 	Action string `json:"action"`
 
-	// 标签列表。单个实例总标签数上限10个。
+	// 标签列表。单个实例总标签数上限20个。
 	Tags []TagDelWithKeyValue `json:"tags"`
 }
 

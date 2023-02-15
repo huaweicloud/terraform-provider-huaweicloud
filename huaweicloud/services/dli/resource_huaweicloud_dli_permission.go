@@ -15,7 +15,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 const updateAction = "update"
@@ -66,7 +65,7 @@ func resourceDliPermissionCreate(ctx context.Context, d *schema.ResourceData, me
 	config := meta.(*config.Config)
 	client, err := config.DliV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud DLI v1 client: %s", err)
+		return diag.Errorf("error creating DLI v1 client: %s", err)
 	}
 
 	obj := d.Get("object").(string)
@@ -84,11 +83,11 @@ func resourceDliPermissionCreate(ctx context.Context, d *schema.ResourceData, me
 
 		rst, createErr := auth.GrantQueuePermission(client, opts)
 		if createErr != nil {
-			return fmtp.DiagErrorf("Error granting permission in DLI: %s", createErr)
+			return diag.Errorf("error granting permission in DLI: %s", createErr)
 		}
 
 		if rst != nil && !rst.IsSuccess {
-			return fmtp.DiagErrorf("Error granting permission in DLI: %s", rst.Message)
+			return diag.Errorf("error granting permission in DLI: %s", rst.Message)
 		}
 
 	} else {
@@ -105,11 +104,11 @@ func resourceDliPermissionCreate(ctx context.Context, d *schema.ResourceData, me
 
 		rst, createErr := auth.GrantDataPermission(client, opts)
 		if createErr != nil {
-			return fmtp.DiagErrorf("Error granting permission in DLI: %s", createErr)
+			return diag.Errorf("error granting permission in DLI: %s", createErr)
 		}
 
 		if rst != nil && !rst.IsSuccess {
-			return fmtp.DiagErrorf("Error granting permission in DLI: %s", rst.Message)
+			return diag.Errorf("error granting permission in DLI: %s", rst.Message)
 		}
 	}
 
@@ -123,7 +122,7 @@ func resourceDliPermissionRead(_ context.Context, d *schema.ResourceData, meta i
 	region := config.GetRegion(d)
 	client, err := config.DliV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud DLI v1 client: %s", err)
+		return diag.Errorf("error creating DLI v1 client: %s", err)
 	}
 
 	obj, userName := ParseAuthInfoFromId(d.Id())
@@ -140,10 +139,7 @@ func resourceDliPermissionRead(_ context.Context, d *schema.ResourceData, meta i
 		d.Set("privileges", permission.Privileges),
 		d.Set("is_admin", permission.IsAdmin),
 	)
-	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf("An error occurred during resource parameter setting for DLI permission: %s", mErr)
-	}
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceDliPermissionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -151,7 +147,9 @@ func resourceDliPermissionUpdate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func checkPrefixMatchDataPermession(obj string) bool {
-	if strings.HasPrefix(obj, "jobs.flink.") || strings.HasPrefix(obj, "groups.") || strings.HasPrefix(obj, "groups.") {
+	if strings.HasPrefix(obj, "jobs.flink.") ||
+		strings.HasPrefix(obj, "groups.") ||
+		strings.HasPrefix(obj, "resources.") {
 		return true
 	}
 	return false
@@ -165,7 +163,7 @@ func queryDatabaseRelatePermission(client *golangsdk.ServiceClient, obj, userNam
 			return nil, parseDliErrorToError404(err)
 		}
 		if rst != nil && !rst.IsSuccess {
-			return nil, fmtp.Errorf("Error query DLI permission of database: %s", err)
+			return nil, fmt.Errorf("error query DLI permission of database: %s", err)
 		}
 
 		for _, v := range rst.Privileges {
@@ -179,7 +177,7 @@ func queryDatabaseRelatePermission(client *golangsdk.ServiceClient, obj, userNam
 			return nil, parseDliErrorToError404(err)
 		}
 		if rst != nil && !rst.IsSuccess {
-			return nil, fmtp.Errorf("Error query DLI permission of table: %s", err)
+			return nil, fmt.Errorf("error query DLI permission of table: %s", err)
 		}
 		for _, v := range rst.Privileges {
 			if v.Object == obj && v.UserName == userName {
@@ -195,7 +193,7 @@ func queryDatabaseRelatePermission(client *golangsdk.ServiceClient, obj, userNam
 
 	return nil, golangsdk.ErrDefault404{
 		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-			Body: []byte("Error query DLI permission"),
+			Body: []byte("error query DLI permission"),
 		},
 	}
 }
@@ -207,7 +205,7 @@ func queryDataPermission(client *golangsdk.ServiceClient, obj, userName string) 
 	}
 
 	if rst != nil && !rst.IsSuccess {
-		return nil, fmtp.Errorf("Error query DLI permission: %s", rst.Message)
+		return nil, fmt.Errorf("error query DLI permission: %s", rst.Message)
 	}
 
 	for _, v := range rst.Privileges {
@@ -218,7 +216,7 @@ func queryDataPermission(client *golangsdk.ServiceClient, obj, userName string) 
 
 	return nil, golangsdk.ErrDefault404{
 		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-			Body: []byte("Error query DLI permission"),
+			Body: []byte("error query DLI permission"),
 		},
 	}
 }
@@ -231,7 +229,7 @@ func queryQueuePermission(client *golangsdk.ServiceClient, obj, userName string)
 	}
 
 	if rst != nil && !rst.IsSuccess {
-		return nil, fmtp.Errorf("Error query DLI permission: %s", rst.Message)
+		return nil, fmt.Errorf("error query DLI permission: %s", rst.Message)
 	}
 
 	for _, v := range rst.Privileges {
@@ -242,7 +240,7 @@ func queryQueuePermission(client *golangsdk.ServiceClient, obj, userName string)
 
 	return nil, golangsdk.ErrDefault404{
 		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-			Body: []byte("Error query DLI permission"),
+			Body: []byte("error query DLI permission"),
 		},
 	}
 }
@@ -251,7 +249,7 @@ func resourceDliPermissionDelete(_ context.Context, d *schema.ResourceData, meta
 	config := meta.(*config.Config)
 	client, err := config.DliV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud DLI v1 client: %s", err)
+		return diag.Errorf("error creating DLI v1 client: %s", err)
 	}
 
 	obj, userName := ParseTableInfoFromId(d.Id())
@@ -266,11 +264,11 @@ func resourceDliPermissionDelete(_ context.Context, d *schema.ResourceData, meta
 
 		rst, createErr := auth.GrantQueuePermission(client, opts)
 		if createErr != nil {
-			return fmtp.DiagErrorf("Error granting permission in DLI: %s", createErr)
+			return diag.Errorf("error granting permission in DLI: %s", createErr)
 		}
 
 		if rst != nil && !rst.IsSuccess {
-			return fmtp.DiagErrorf("Error granting permission in DLI: %s", rst.Message)
+			return diag.Errorf("error granting permission in DLI: %s", rst.Message)
 		}
 	} else {
 		opts := auth.GrantDataPermissionOpts{
@@ -285,11 +283,10 @@ func resourceDliPermissionDelete(_ context.Context, d *schema.ResourceData, meta
 		}
 
 		if rst != nil && !rst.IsSuccess {
-			return fmtp.DiagErrorf("Error delete DLI permission: %s", rst.Message)
+			return diag.Errorf("error delete DLI permission: %s", rst.Message)
 		}
 	}
 
-	d.SetId("")
 	return nil
 }
 
@@ -309,20 +306,19 @@ func ParseAuthInfoFromId(id string) (object, userName string) {
 // resources.PackageName
 // queues.queueName
 func QueryPermission(client *golangsdk.ServiceClient, obj, userName string) (*auth.Privilege, error) {
-	var permission *auth.Privilege
-	var err error
-
 	if strings.HasPrefix(obj, "databases") {
-		permission, err = queryDatabaseRelatePermission(client, obj, userName)
-	} else if checkPrefixMatchDataPermession(obj) {
-		permission, err = queryDataPermission(client, obj, userName)
-	} else if strings.HasPrefix(obj, "queues") {
-		permission, err = queryQueuePermission(client, obj, userName)
-	} else {
-		return nil, fmtp.Errorf("The object is illegal:object=%s,userName=%s, error=%s", obj, userName, err)
+		return queryDatabaseRelatePermission(client, obj, userName)
 	}
 
-	return permission, err
+	if checkPrefixMatchDataPermession(obj) {
+		return queryDataPermission(client, obj, userName)
+	}
+
+	if strings.HasPrefix(obj, "queues") {
+		return queryQueuePermission(client, obj, userName)
+	}
+
+	return nil, fmt.Errorf("the object is illegal:object=%s,userName=%s", obj, userName)
 }
 
 func parseDliErrorToError404(respErr error) error {

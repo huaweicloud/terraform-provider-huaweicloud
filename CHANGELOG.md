@@ -1,5 +1,59 @@
 # CHANGELOG
 
+## 1.44.1 (January 20, 2023)
+
+* **New Resurce:**
+  + `huaweicloud_dms_rocketmq_user` [GH-2576]
+
+* **New Data Source:**
+  + `huaweicloud_dms_rocketmq_broker` [GH-2574]
+  + `huaweicloud_dms_rocketmq_instances` [GH-2578]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_dms_rocketmq_instance: Add `enterprise_project_id` field [GH-2631]
+* resource/huaweicloud_bucket: Support migrating enterprise_project_id [GH-2638]
+* resource/huaweicloud_cce_node_pool: Support ECS group ID when creating [GH-2649]
+* resource/huaweicloud_css_cluster: Support enable or disable HTTPS [GH-2664]
+* resource/huaweicloud_cce_node: Support updating `key_pair` and `password` [GH-2667]
+
+BUG FIXES:
+
+* resource/huaweicloud_dds_instance: Wait for the instance be ready before update actions [GH-2651]
+* resource/huaweicloud_dms_rocketmq_instance: Fix ForceNew issue caused by the order of `availability_zones` [GH-2668]
+* resource/huaweicloud_dms_kafka_instance: Avoid overriding the accesses configuration when creating [GH-2669]
+
+## 1.44.0 (December 30, 2022)
+
+* **New Resurce:**
+  + `huaweicloud_ga_accelerator` [GH-2545]
+  + `huaweicloud_ga_listener` [GH-2571]
+  + `huaweicloud_ga_endpoint_group` [GH-2584]
+  + `huaweicloud_ga_health_check` [GH-2596]
+  + `huaweicloud_dms_rocketmq_consumer_group` [GH-2572]
+  + `huaweicloud_dms_rocketmq_topic` [GH-2573]
+  + `huaweicloud_dc_virtual_gateway` [GH-2575]
+  + `huaweicloud_dc_virtual_interface` [GH-2583]
+  + `huaweicloud_cfw_protection_rule` [GH-2585]
+  + `huaweicloud_dsc_instance` [GH-2587]
+  + `huaweicloud_dsc_asset_obs` [GH-2599]
+  + `huaweicloud_cbh_instance` [GH-2588]
+  + `huaweicloud_hss_host_group` [GH-2590]
+  + `huaweicloud_dbss_instance` [GH-2593]
+  + `huaweicloud_waf_cloud_instance` [GH-2601]
+
+* **New Data Source:**
+  + `huaweicloud_cfw_firewalls` [GH-2585]
+  + `huaweicloud_cbh_instances` [GH-2588]
+  + `huaweicloud_compute_servergroups` [GH-2591]
+  + `huaweicloud_dds_instances` [GH-2594]
+  + `huaweicloud_dcs_instances` [GH-2595]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_servicestage_component_instance: Add `secret_name` for the storage of the secret storge type [GH-2570]
+* resource/huaweicloud_cce_node: Support encrypt the root volume with kms key [GH-2602]
+
 ## 1.43.0 (November 30, 2022)
 
 * **New Resurce:**

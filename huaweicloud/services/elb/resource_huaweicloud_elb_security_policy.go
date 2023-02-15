@@ -12,6 +12,7 @@ import (
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -97,17 +98,17 @@ func SecurityPoliciesV3ListenerRefSchema() *schema.Resource {
 }
 
 func resourceSecurityPoliciesV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createSecurityPolicy: create an ELB security policy
 	var (
 		createSecurityPolicyHttpUrl = "v3/{project_id}/elb/security-policies"
-		createSecurityPolicyProduct = "elb"
+		createSecurityPolicyProduct = "elbv3"
 	)
-	createSecurityPolicyClient, err := config.NewServiceClient(createSecurityPolicyProduct, region)
+	createSecurityPolicyClient, err := cfg.NewServiceClient(createSecurityPolicyProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating SecurityPoliciesV3 Client: %s", err)
+		return diag.Errorf("error creating SecurityPolicies Client: %s", err)
 	}
 
 	createSecurityPolicyPath := createSecurityPolicyClient.Endpoint + createSecurityPolicyHttpUrl
@@ -119,10 +120,10 @@ func resourceSecurityPoliciesV3Create(ctx context.Context, d *schema.ResourceDat
 			201,
 		},
 	}
-	createSecurityPolicyOpt.JSONBody = utils.RemoveNil(buildCreateSecurityPolicyBodyParams(d, config))
+	createSecurityPolicyOpt.JSONBody = utils.RemoveNil(buildCreateSecurityPolicyBodyParams(d, cfg))
 	createSecurityPolicyResp, err := createSecurityPolicyClient.Request("POST", createSecurityPolicyPath, &createSecurityPolicyOpt)
 	if err != nil {
-		return diag.Errorf("error creating SecurityPoliciesV3: %s", err)
+		return diag.Errorf("error creating SecurityPolicies: %s", err)
 	}
 
 	createSecurityPolicyRespBody, err := utils.FlattenResponse(createSecurityPolicyResp)
@@ -132,41 +133,41 @@ func resourceSecurityPoliciesV3Create(ctx context.Context, d *schema.ResourceDat
 
 	id, err := jmespath.Search("security_policy.id", createSecurityPolicyRespBody)
 	if err != nil {
-		return diag.Errorf("error creating SecurityPoliciesV3: ID is not found in API response")
+		return diag.Errorf("error creating SecurityPolicies: ID is not found in API response")
 	}
 	d.SetId(id.(string))
 
 	return resourceSecurityPoliciesV3Read(ctx, d, meta)
 }
 
-func buildCreateSecurityPolicyBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateSecurityPolicyBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	return map[string]interface{}{
-		"security_policy": buildCreateSecurityPolicyChildBodyParams(d, config),
+		"security_policy": buildCreateSecurityPolicyChildBodyParams(d, cfg),
 	}
 }
 
-func buildCreateSecurityPolicyChildBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateSecurityPolicyChildBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	return map[string]interface{}{
 		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
 		"description":           utils.ValueIngoreEmpty(d.Get("description")),
-		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, config)),
+		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
 		"protocols":             utils.ValueIngoreEmpty(d.Get("protocols")),
 		"ciphers":               utils.ValueIngoreEmpty(d.Get("ciphers")),
 	}
 }
 
-func resourceSecurityPoliciesV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceSecurityPoliciesV3Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// deleteSecurityPolicy: missing operation notes
 	var (
 		deleteSecurityPolicyHttpUrl = "v3/{project_id}/elb/security-policies/{security_policy_id}"
-		deleteSecurityPolicyProduct = "elb"
+		deleteSecurityPolicyProduct = "elbv3"
 	)
-	deleteSecurityPolicyClient, err := config.NewServiceClient(deleteSecurityPolicyProduct, region)
+	deleteSecurityPolicyClient, err := cfg.NewServiceClient(deleteSecurityPolicyProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating SecurityPoliciesV3 Client: %s", err)
+		return diag.Errorf("error creating SecurityPolicies Client: %s", err)
 	}
 
 	deleteSecurityPolicyPath := deleteSecurityPolicyClient.Endpoint + deleteSecurityPolicyHttpUrl
@@ -181,26 +182,26 @@ func resourceSecurityPoliciesV3Delete(ctx context.Context, d *schema.ResourceDat
 	}
 	_, err = deleteSecurityPolicyClient.Request("DELETE", deleteSecurityPolicyPath, &deleteSecurityPolicyOpt)
 	if err != nil {
-		return diag.Errorf("error deleting SecurityPoliciesV3: %s", err)
+		return diag.Errorf("error deleting SecurityPolicies: %s", err)
 	}
 
 	return nil
 }
 
-func resourceSecurityPoliciesV3Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceSecurityPoliciesV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
 	// getSecurityPolicy: Query the ELB security policy
 	var (
 		getSecurityPolicyHttpUrl = "v3/{project_id}/elb/security-policies/{security_policy_id}"
-		getSecurityPolicyProduct = "elb"
+		getSecurityPolicyProduct = "elbv3"
 	)
-	getSecurityPolicyClient, err := config.NewServiceClient(getSecurityPolicyProduct, region)
+	getSecurityPolicyClient, err := cfg.NewServiceClient(getSecurityPolicyProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating SecurityPoliciesV3 Client: %s", err)
+		return diag.Errorf("error creating SecurityPolicies Client: %s", err)
 	}
 
 	getSecurityPolicyPath := getSecurityPolicyClient.Endpoint + getSecurityPolicyHttpUrl
@@ -216,7 +217,7 @@ func resourceSecurityPoliciesV3Read(ctx context.Context, d *schema.ResourceData,
 	getSecurityPolicyResp, err := getSecurityPolicyClient.Request("GET", getSecurityPolicyPath, &getSecurityPolicyOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving SecurityPoliciesV3")
+		return common.CheckDeletedDiag(d, err, "error retrieving SecurityPolicies")
 	}
 
 	getSecurityPolicyRespBody, err := utils.FlattenResponse(getSecurityPolicyResp)
@@ -253,25 +254,25 @@ func flattenGetSecurityPolicyResponseBodyListenerRef(resp interface{}) []interfa
 }
 
 func resourceSecurityPoliciesV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
-	updateSecurityPolicyhasChanges := []string{
+	updateSecurityPolicyHasChanges := []string{
 		"name",
 		"description",
 		"protocols",
 		"ciphers",
 	}
 
-	if d.HasChanges(updateSecurityPolicyhasChanges...) {
+	if d.HasChanges(updateSecurityPolicyHasChanges...) {
 		// updateSecurityPolicy: update the ELB security policy
 		var (
 			updateSecurityPolicyHttpUrl = "v3/{project_id}/elb/security-policies/{security_policy_id}"
-			updateSecurityPolicyProduct = "elb"
+			updateSecurityPolicyProduct = "elbv3"
 		)
-		updateSecurityPolicyClient, err := config.NewServiceClient(updateSecurityPolicyProduct, region)
+		updateSecurityPolicyClient, err := cfg.NewServiceClient(updateSecurityPolicyProduct, region)
 		if err != nil {
-			return diag.Errorf("error creating SecurityPoliciesV3 Client: %s", err)
+			return diag.Errorf("error creating SecurityPolicies Client: %s", err)
 		}
 
 		updateSecurityPolicyPath := updateSecurityPolicyClient.Endpoint + updateSecurityPolicyHttpUrl
@@ -284,22 +285,22 @@ func resourceSecurityPoliciesV3Update(ctx context.Context, d *schema.ResourceDat
 				200,
 			},
 		}
-		updateSecurityPolicyOpt.JSONBody = utils.RemoveNil(buildUpdateSecurityPolicyBodyParams(d, config))
+		updateSecurityPolicyOpt.JSONBody = utils.RemoveNil(buildUpdateSecurityPolicyBodyParams(d, cfg))
 		_, err = updateSecurityPolicyClient.Request("PUT", updateSecurityPolicyPath, &updateSecurityPolicyOpt)
 		if err != nil {
-			return diag.Errorf("error updating SecurityPoliciesV3: %s", err)
+			return diag.Errorf("error updating SecurityPolicies: %s", err)
 		}
 	}
 	return resourceSecurityPoliciesV3Read(ctx, d, meta)
 }
 
-func buildUpdateSecurityPolicyBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildUpdateSecurityPolicyBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	return map[string]interface{}{
-		"security_policy": buildUpdateSecurityPolicyChildBodyParams(d, config),
+		"security_policy": buildUpdateSecurityPolicyChildBodyParams(d, cfg),
 	}
 }
 
-func buildUpdateSecurityPolicyChildBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildUpdateSecurityPolicyChildBodyParams(d *schema.ResourceData, _ *config.Config) map[string]interface{} {
 	return map[string]interface{}{
 		"name":        utils.ValueIngoreEmpty(d.Get("name")),
 		"description": utils.ValueIngoreEmpty(d.Get("description")),

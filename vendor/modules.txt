@@ -13,7 +13,7 @@ github.com/apparentlymart/go-cidr/cidr
 # github.com/apparentlymart/go-textseg/v13 v13.0.0
 ## explicit; go 1.16
 github.com/apparentlymart/go-textseg/v13/textseg
-# github.com/chnsz/golangsdk v0.0.0-20221129090010-7d47da87e121
+# github.com/chnsz/golangsdk v0.0.0-20230202085751-3506a80f6cbf
 ## explicit; go 1.14
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/internal
@@ -88,6 +88,8 @@ github.com/chnsz/golangsdk/openstack/css/v1/snapshots
 github.com/chnsz/golangsdk/openstack/css/v1/thesaurus
 github.com/chnsz/golangsdk/openstack/cts/v1/tracker
 github.com/chnsz/golangsdk/openstack/dayu/v1/instances
+github.com/chnsz/golangsdk/openstack/dc/v3/gateways
+github.com/chnsz/golangsdk/openstack/dc/v3/interfaces
 github.com/chnsz/golangsdk/openstack/dcs/v1/availablezones
 github.com/chnsz/golangsdk/openstack/dcs/v1/products
 github.com/chnsz/golangsdk/openstack/dcs/v2/availablezones
@@ -124,7 +126,6 @@ github.com/chnsz/golangsdk/openstack/dns/v2/recordsets
 github.com/chnsz/golangsdk/openstack/dns/v2/zones
 github.com/chnsz/golangsdk/openstack/drs/v3/jobs
 github.com/chnsz/golangsdk/openstack/dws/v1/cluster
-github.com/chnsz/golangsdk/openstack/dws/v2/flavors
 github.com/chnsz/golangsdk/openstack/ecs/v1/auto_recovery
 github.com/chnsz/golangsdk/openstack/ecs/v1/block_devices
 github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers
@@ -290,6 +291,7 @@ github.com/chnsz/golangsdk/openstack/vbs/v2/tags
 github.com/chnsz/golangsdk/openstack/vpcep/v1/endpoints
 github.com/chnsz/golangsdk/openstack/vpcep/v1/services
 github.com/chnsz/golangsdk/openstack/waf/v1/certificates
+github.com/chnsz/golangsdk/openstack/waf/v1/clouds
 github.com/chnsz/golangsdk/openstack/waf_hw/v1/datamasking_rules
 github.com/chnsz/golangsdk/openstack/waf_hw/v1/domains
 github.com/chnsz/golangsdk/openstack/waf_hw/v1/policies
@@ -446,7 +448,7 @@ github.com/hashicorp/terraform-svchost
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 ## explicit
 github.com/hashicorp/yamux
-# github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.5
+# github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.20
 ## explicit; go 1.14
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth
@@ -482,6 +484,8 @@ github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v2
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v2/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3/model
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5
+github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5

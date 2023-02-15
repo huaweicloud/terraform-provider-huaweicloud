@@ -177,6 +177,16 @@ type GetObjectMetadataOutput struct {
 	Metadata                map[string]string
 }
 
+type GetAttributeInput struct {
+	GetObjectMetadataInput
+	RequestPayer string
+}
+
+type GetAttributeOutput struct {
+	GetObjectMetadataOutput
+	Mode int
+}
+
 // GetObjectInput is the input parameter of GetObject function
 type GetObjectInput struct {
 	GetObjectMetadataInput
@@ -226,15 +236,25 @@ type ObjectOperationInput struct {
 // PutObjectBasicInput defines the basic object operation properties
 type PutObjectBasicInput struct {
 	ObjectOperationInput
-	ContentType   string
-	ContentMD5    string
-	ContentLength int64
+	ContentType     string
+	ContentMD5      string
+	ContentLength   int64
+	ContentEncoding string
 }
 
 // PutObjectInput is the input parameter of PutObject function
 type PutObjectInput struct {
 	PutObjectBasicInput
 	Body io.Reader
+}
+
+type NewFolderInput struct {
+	ObjectOperationInput
+	RequestPayer string
+}
+
+type NewFolderOutput struct {
+	PutObjectOutput
 }
 
 // PutFileInput is the input parameter of PutFile function
@@ -250,6 +270,7 @@ type PutObjectOutput struct {
 	SseHeader    ISseHeader
 	StorageClass StorageClassType
 	ETag         string
+	ObjectUrl    string
 }
 
 // CopyObjectInput is the input parameter of CopyObject function
@@ -342,4 +363,26 @@ type HeadObjectInput struct {
 	Bucket    string
 	Key       string
 	VersionId string
+}
+
+type RenameFileInput struct {
+	Bucket       string
+	Key          string
+	NewObjectKey string
+	RequestPayer string
+}
+
+type RenameFileOutput struct {
+	BaseModel
+}
+
+type RenameFolderInput struct {
+	Bucket       string
+	Key          string
+	NewObjectKey string
+	RequestPayer string
+}
+
+type RenameFolderOutput struct {
+	BaseModel
 }

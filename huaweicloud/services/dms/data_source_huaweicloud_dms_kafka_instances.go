@@ -190,7 +190,7 @@ func DataSourceDmsKafkaInstances() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"manegement_connect_address": {
+						"management_connect_address": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -199,12 +199,18 @@ func DataSourceDmsKafkaInstances() *schema.Resource {
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
+						// Typo, it is only kept in the code, will not be shown in the docs.
+						"manegement_connect_address": {
+							Type:       schema.TypeString,
+							Computed:   true,
+							Deprecated: "typo in manegement_connect_address, please use \"management_connect_address\" instead.",
+						},
 						"cross_vpc_accesses": {
 							Type:     schema.TypeList,
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"lisenter_ip": {
+									"listener_ip": {
 										Type:     schema.TypeString,
 										Computed: true,
 									},
@@ -219,6 +225,12 @@ func DataSourceDmsKafkaInstances() *schema.Resource {
 									"port_id": {
 										Type:     schema.TypeString,
 										Computed: true,
+									},
+									// Typo, it is only kept in the code, will not be shown in the docs.
+									"lisenter_ip": {
+										Type:       schema.TypeString,
+										Computed:   true,
+										Deprecated: "typo in lisenter_ip, please use \"listener_ip\" instead.",
 									},
 								},
 							},
@@ -282,6 +294,7 @@ func flattenKafkaInstanceList(client *golangsdk.ServiceClient, conf *config.Conf
 			"resource_spec_code":         val.ResourceSpecCode,
 			"user_id":                    val.UserID,
 			"user_name":                  val.UserName,
+			"management_connect_address": val.ManagementConnectAddress,
 			"manegement_connect_address": val.ManagementConnectAddress,
 			"tags":                       utils.TagsToMap(val.Tags),
 		}
@@ -303,7 +316,7 @@ func flattenKafkaInstanceList(client *golangsdk.ServiceClient, conf *config.Conf
 			instance["public_conn_addresses"] = strings.TrimSpace(val.PublicConnectionAddress)
 		}
 
-		crossVpcAccess, err := flattenConnectPorts(val.CrossVpcInfo)
+		crossVpcAccess, err := flattenCrossVpcInfo(val.CrossVpcInfo)
 		if err != nil {
 			return nil, nil, fmt.Errorf("error retrieving details of the cross-VPC information: %v", err)
 		}

@@ -2,6 +2,7 @@ package dli
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 
 	"github.com/chnsz/golangsdk"
@@ -12,7 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func ResourceDliSqlDatabaseV1() *schema.Resource {
@@ -68,7 +68,7 @@ func ResourceDliSqlDatabaseV1Create(ctx context.Context, d *schema.ResourceData,
 	config := meta.(*config.Config)
 	c, err := config.DliV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud DLI v1 client: %s", err)
+		return diag.Errorf("error creating DLI v1 client: %s", err)
 	}
 
 	dbName := d.Get("name").(string)
@@ -79,24 +79,11 @@ func ResourceDliSqlDatabaseV1Create(ctx context.Context, d *schema.ResourceData,
 	}
 	_, err = databases.Create(c, opts)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "DLI database")
+		return diag.Errorf("error creating DLI database, %s", err)
 	}
 	d.SetId(dbName)
 
 	return ResourceDliSqlDatabaseV1Read(ctx, d, meta)
-}
-
-func setDliSqlDatabaseV1Parameters(d *schema.ResourceData, resp databases.Database) error {
-	mErr := multierror.Append(nil,
-		d.Set("name", resp.Name),
-		d.Set("description", resp.Description),
-		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
-		d.Set("owner", resp.Owner),
-	)
-	if mErr.ErrorOrNil() != nil {
-		return mErr
-	}
-	return nil
 }
 
 func GetDliSqlDatabaseByName(c *golangsdk.ServiceClient, dbName string) (databases.Database, error) {
@@ -104,11 +91,11 @@ func GetDliSqlDatabaseByName(c *golangsdk.ServiceClient, dbName string) (databas
 		Keyword: dbName, // Fuzzy matching.
 	})
 	if err != nil {
-		return databases.Database{}, fmtp.Errorf("Error getting database: %s", err)
+		return databases.Database{}, fmt.Errorf("error getting database: %s", err)
 	}
 
 	if len(resp.Databases) < 1 {
-		return databases.Database{}, fmtp.Errorf("Unable to find the specified database (%s): %s", dbName, err)
+		return databases.Database{}, golangsdk.ErrDefault404{}
 	}
 	for _, db := range resp.Databases {
 		if db.Name == dbName {
@@ -116,40 +103,42 @@ func GetDliSqlDatabaseByName(c *golangsdk.ServiceClient, dbName string) (databas
 		}
 	}
 
-	return databases.Database{}, fmtp.Errorf("Only find some databases with this character (%s) in the name", dbName)
+	return databases.Database{}, golangsdk.ErrDefault404{}
 }
 
 func ResourceDliSqlDatabaseV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	c, err := config.DliV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud DLI v1 client: %s", err)
+		return diag.Errorf("error creating DLI v1 client: %s", err)
 	}
 
 	db, err := GetDliSqlDatabaseByName(c, d.Id())
 	if err != nil {
-		return fmtp.DiagErrorf("Error getting SQL database: %s", err)
+		return common.CheckDeletedDiag(d, err, "DLI database")
 	}
 
-	err = setDliSqlDatabaseV1Parameters(d, db)
-	if err != nil {
-		return fmtp.DiagErrorf("An error occurred during resource parameter setting for SQL database: %s", err)
-	}
-	return nil
+	mErr := multierror.Append(nil,
+		d.Set("name", db.Name),
+		d.Set("description", db.Description),
+		d.Set("enterprise_project_id", db.EnterpriseProjectId),
+		d.Set("owner", db.Owner),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func ResourceDliSqlDatabaseV1Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	c, err := config.DliV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud DLI v1 client: %s", err)
+		return diag.Errorf("error creating DLI v1 client: %s", err)
 	}
 
 	_, err = databases.UpdateDBOwner(c, d.Id(), databases.UpdateDBOwnerOpts{
 		NewOwner: d.Get("owner").(string),
 	})
 	if err != nil {
-		return fmtp.DiagErrorf("Error updating SQL database owner: %s", err)
+		return diag.Errorf("error updating SQL database owner: %s", err)
 	}
 
 	return ResourceDliSqlDatabaseV1Read(ctx, d, meta)
@@ -159,12 +148,11 @@ func ResourceDliSqlDatabaseV1Delete(_ context.Context, d *schema.ResourceData, m
 	config := meta.(*config.Config)
 	c, err := config.DliV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud DLI v1 client: %s", err)
+		return diag.Errorf("error creating DLI v1 client: %s", err)
 	}
 	err = databases.Delete(c, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting SQL database: %s", err)
+		return diag.Errorf("error deleting SQL database: %s", err)
 	}
-	d.SetId("")
 	return nil
 }

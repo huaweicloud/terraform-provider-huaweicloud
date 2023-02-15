@@ -282,7 +282,7 @@ func buildFgsFunctionV2Parameters(d *schema.ResourceData, config *config.Config)
 	}
 	if v, ok := d.GetOk("func_code"); ok {
 		funcCode := function.FunctionCodeOpts{
-			File: utils.TryBase64EncodeToString(v.(string)),
+			File: utils.TryBase64EncodeString(v.(string)),
 		}
 		result.FuncCode = &funcCode
 	}
@@ -553,7 +553,7 @@ func resourceFgsFunctionV2CodeUpdate(fgsClient *golangsdk.ServiceClient, urn str
 
 	if v, ok := d.GetOk("func_code"); ok {
 		funcCode := function.FunctionCodeOpts{
-			File: utils.TryBase64EncodeToString(v.(string)),
+			File: utils.TryBase64EncodeString(v.(string)),
 		}
 		updateCodeOpts.FuncCode = funcCode
 	}

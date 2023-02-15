@@ -52,6 +52,8 @@ type config struct {
 	maxConnsPerHost   int
 	pemCerts          []byte
 	transport         *http.Transport
+	roundTripper      http.RoundTripper
+	httpClient        *http.Client
 	ctx               context.Context
 	maxRedirectCount  int
 	userAgent         string
@@ -183,6 +185,12 @@ func WithSecurityToken(securityToken string) configurer {
 func WithHttpTransport(transport *http.Transport) configurer {
 	return func(conf *config) {
 		conf.transport = transport
+	}
+}
+
+func WithHttpClient(httpClient *http.Client) configurer {
+	return func(conf *config) {
+		conf.httpClient = httpClient
 	}
 }
 

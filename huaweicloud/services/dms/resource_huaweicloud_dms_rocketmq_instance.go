@@ -3,22 +3,22 @@ package dms
 import (
 	"context"
 	"fmt"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"regexp"
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/jmespath/go-jmespath"
+
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/jmespath/go-jmespath"
 )
 
 func ResourceDmsRocketMQInstance() *schema.Resource {
@@ -85,10 +85,11 @@ func ResourceDmsRocketMQInstance() *schema.Resource {
 				Description: `Specifies the ID of a security group`,
 			},
 			"availability_zones": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Required:    true,
 				ForceNew:    true,
+				Set:         schema.HashString,
 				Description: `Specifies the list of availability zone names`,
 			},
 			"flavor_id": {
@@ -142,38 +143,18 @@ func ResourceDmsRocketMQInstance() *schema.Resource {
 				ForceNew:    true,
 				Description: `Specifies the broker numbers.`,
 			},
-			"retention_policy": {
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Specifies the enterprise project id of the instance.`,
+			},
+			"enable_acl": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Computed:    true,
-				Description: `Specifies the ACL access control.`,
-			},
-			"cross_vpc_accesses": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				MaxItems: 3,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"lisenter_ip": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"advertised_ip": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-						"port": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"port_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
+				Description: `Specifies whether access control is enabled.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
@@ -221,11 +202,6 @@ func ResourceDmsRocketMQInstance() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates whether billing based on new specifications is enabled.`,
 			},
-			"enable_acl": {
-				Type:        schema.TypeBool,
-				Computed:    true,
-				Description: `Indicates whether access control is enabled.`,
-			},
 			"namesrv_address": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -251,26 +227,64 @@ func ResourceDmsRocketMQInstance() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates the resource specifications.`,
 			},
+			"retention_policy": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies whether access control is enabled.`,
+				Deprecated:  "Use 'enable_acl' instead",
+			},
+			"cross_vpc_accesses": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"advertised_ip": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"listener_ip": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"port": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"port_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						// Typo, it is only kept in the code, will not be shown in the docs.
+						"lisenter_ip": {
+							Type:       schema.TypeString,
+							Computed:   true,
+							Deprecated: "typo in lisenter_ip, please use \"listener_ip\" instead.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
 
 func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createRocketmqInstance: create DMS rocketmq instance
 	var (
 		createRocketmqInstanceHttpUrl = "v2/{project_id}/instances"
-		createRocketmqInstanceProduct = "dms"
+		createRocketmqInstanceProduct = "dmsv2"
 	)
-	createRocketmqInstanceClient, err := config.NewServiceClient(createRocketmqInstanceProduct, region)
+	createRocketmqInstanceClient, err := cfg.NewServiceClient(createRocketmqInstanceProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating DmsRocketMQInstance Client: %s", err)
 	}
 
 	createRocketmqInstancePath := createRocketmqInstanceClient.Endpoint + createRocketmqInstanceHttpUrl
-	createRocketmqInstancePath = strings.ReplaceAll(createRocketmqInstancePath, "{project_id}", createRocketmqInstanceClient.ProjectID)
+	createRocketmqInstancePath = strings.ReplaceAll(createRocketmqInstancePath, "{project_id}",
+		createRocketmqInstanceClient.ProjectID)
 
 	createRocketmqInstanceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -279,23 +293,18 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 		},
 	}
 	var availableZones []string
-	zoneIDs, ok := d.GetOk("available_zones")
-	if ok {
-		availableZones = utils.ExpandToStringList(zoneIDs.([]interface{}))
-	} else {
-		// convert the codes of the availability zone into ids
-		azCodes := d.Get("availability_zones").([]interface{})
-		availableZones, err = getAvailableZoneIDByCode(config, region, azCodes)
-		if err != nil {
-			return diag.FromErr(err)
-		}
+	// convert the codes of the availability zone into ids
+	azCodes := d.Get("availability_zones").(*schema.Set)
+	availableZones, err = getAvailableZoneIDByCode(cfg, region, azCodes.List())
+	if err != nil {
+		return diag.FromErr(err)
 	}
-	createRocketmqInstanceOpt.JSONBody = utils.RemoveNil(buildCreateRocketmqInstanceBodyParams(d, config, availableZones))
-	createRocketmqInstanceResp, err := createRocketmqInstanceClient.Request("POST", createRocketmqInstancePath, &createRocketmqInstanceOpt)
+	createRocketmqInstanceOpt.JSONBody = utils.RemoveNil(buildCreateRocketmqInstanceBodyParams(d, cfg, availableZones))
+	createRocketmqInstanceResp, err := createRocketmqInstanceClient.Request("POST", createRocketmqInstancePath,
+		&createRocketmqInstanceOpt)
 	if err != nil {
 		return diag.Errorf("error creating DmsRocketMQInstance: %s", err)
 	}
-
 	createRocketmqInstanceRespBody, err := utils.FlattenResponse(createRocketmqInstanceResp)
 	if err != nil {
 		return diag.FromErr(err)
@@ -309,7 +318,7 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"CREATING"},
 		Target:       []string{"RUNNING"},
-		Refresh:      DmsRocketmqInstanceStateRefreshFunc(createRocketmqInstanceClient, id.(string)),
+		Refresh:      rocketmqInstanceStateRefreshFunc(createRocketmqInstanceClient, id.(string)),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        500 * time.Second,
 		PollInterval: 15 * time.Second,
@@ -317,69 +326,72 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf(
-			"error waiting for instance (%s) to create: %s", id.(string), err)
+		return diag.Errorf("error waiting for instance (%s) to create: %s", id.(string), err)
 	}
 
 	d.SetId(id.(string))
 
-	if _, ok = d.GetOk("cross_vpc_accesses"); ok {
-		if err = updateCrossVpcAccesses(createRocketmqInstanceClient, d); err != nil {
-			return diag.Errorf("Failed to update default advertised IP: %v", err)
+	if _, ok := d.GetOk("cross_vpc_accesses"); ok {
+		if err = updateCrossVpcAccess(createRocketmqInstanceClient, d); err != nil {
+			return diag.Errorf("failed to update default advertised IP: %v", err)
 		}
 	}
 
 	return resourceDmsRocketMQInstanceRead(ctx, d, meta)
 }
 
-func buildCreateRocketmqInstanceBodyParams(d *schema.ResourceData, config *config.Config,
+func buildCreateRocketmqInstanceBodyParams(d *schema.ResourceData, cfg *config.Config,
 	availableZones []string) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":              utils.ValueIngoreEmpty(d.Get("name")),
-		"description":       utils.ValueIngoreEmpty(d.Get("description")),
-		"engine":            "reliability",
-		"engine_version":    utils.ValueIngoreEmpty(d.Get("engine_version")),
-		"storage_space":     utils.ValueIngoreEmpty(d.Get("storage_space")),
-		"vpc_id":            utils.ValueIngoreEmpty(d.Get("vpc_id")),
-		"subnet_id":         utils.ValueIngoreEmpty(d.Get("subnet_id")),
-		"security_group_id": utils.ValueIngoreEmpty(d.Get("security_group_id")),
-		"available_zones":   availableZones,
-		"product_id":        utils.ValueIngoreEmpty(d.Get("flavor_id")),
-		"ssl_enable":        utils.ValueIngoreEmpty(d.Get("ssl_enable")),
-		"storage_spec_code": utils.ValueIngoreEmpty(d.Get("storage_spec_code")),
-		"ipv6_enable":       utils.ValueIngoreEmpty(d.Get("ipv6_enable")),
-		"enable_publicip":   utils.ValueIngoreEmpty(d.Get("enable_publicip")),
-		"publicip_id":       utils.ValueIngoreEmpty(d.Get("publicip_id")),
-		"broker_num":        utils.ValueIngoreEmpty(d.Get("broker_num")),
+		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
+		"enable_acl":            utils.ValueIngoreEmpty(d.Get("enable_acl")),
+		"description":           utils.ValueIngoreEmpty(d.Get("description")),
+		"engine":                "reliability",
+		"engine_version":        utils.ValueIngoreEmpty(d.Get("engine_version")),
+		"storage_space":         utils.ValueIngoreEmpty(d.Get("storage_space")),
+		"vpc_id":                utils.ValueIngoreEmpty(d.Get("vpc_id")),
+		"subnet_id":             utils.ValueIngoreEmpty(d.Get("subnet_id")),
+		"security_group_id":     utils.ValueIngoreEmpty(d.Get("security_group_id")),
+		"available_zones":       availableZones,
+		"product_id":            utils.ValueIngoreEmpty(d.Get("flavor_id")),
+		"ssl_enable":            utils.ValueIngoreEmpty(d.Get("ssl_enable")),
+		"storage_spec_code":     utils.ValueIngoreEmpty(d.Get("storage_spec_code")),
+		"ipv6_enable":           utils.ValueIngoreEmpty(d.Get("ipv6_enable")),
+		"enable_publicip":       utils.ValueIngoreEmpty(d.Get("enable_publicip")),
+		"publicip_id":           utils.ValueIngoreEmpty(d.Get("publicip_id")),
+		"broker_num":            utils.ValueIngoreEmpty(d.Get("broker_num")),
+		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
 	}
 	return bodyParams
 }
 
 func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
-	updateRocketmqInstancehasChanges := []string{
+	updateRocketmqInstanceHasChanges := []string{
 		"name",
 		"description",
 		"security_group_id",
 		"retention_policy",
+		"enable_acl",
 		"cross_vpc_accesses",
 	}
 
-	if d.HasChanges(updateRocketmqInstancehasChanges...) {
+	if d.HasChanges(updateRocketmqInstanceHasChanges...) {
 		// updateRocketmqInstance: update DMS rocketmq instance
 		var (
 			updateRocketmqInstanceHttpUrl = "v2/{project_id}/instances/{instance_id}"
-			updateRocketmqInstanceProduct = "dms"
+			updateRocketmqInstanceProduct = "dmsv2"
 		)
-		updateRocketmqInstanceClient, err := config.NewServiceClient(updateRocketmqInstanceProduct, region)
+		updateRocketmqInstanceClient, err := cfg.NewServiceClient(updateRocketmqInstanceProduct, region)
 		if err != nil {
 			return diag.Errorf("error creating DmsRocketMQInstance Client: %s", err)
 		}
 
 		updateRocketmqInstancePath := updateRocketmqInstanceClient.Endpoint + updateRocketmqInstanceHttpUrl
-		updateRocketmqInstancePath = strings.ReplaceAll(updateRocketmqInstancePath, "{project_id}", updateRocketmqInstanceClient.ProjectID)
+		updateRocketmqInstancePath = strings.ReplaceAll(updateRocketmqInstancePath, "{project_id}",
+			updateRocketmqInstanceClient.ProjectID)
 		updateRocketmqInstancePath = strings.ReplaceAll(updateRocketmqInstancePath, "{instance_id}", fmt.Sprintf("%v", d.Id()))
 
 		updateRocketmqInstanceOpt := golangsdk.RequestOpts{
@@ -388,13 +400,13 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 				204,
 			},
 		}
-		updateRocketmqInstanceOpt.JSONBody = utils.RemoveNil(buildUpdateRocketmqInstanceBodyParams(d, config))
+		updateRocketmqInstanceOpt.JSONBody = utils.RemoveNil(buildUpdateRocketmqInstanceBodyParams(d))
 		_, err = updateRocketmqInstanceClient.Request("PUT", updateRocketmqInstancePath, &updateRocketmqInstanceOpt)
 		if err != nil {
 			return diag.Errorf("error updating DmsRocketMQInstance: %s", err)
 		}
 		if d.HasChange("cross_vpc_accesses") {
-			if err = updateCrossVpcAccesses(updateRocketmqInstanceClient, d); err != nil {
+			if err = updateCrossVpcAccess(updateRocketmqInstanceClient, d); err != nil {
 				return diag.Errorf("error updating DMS rocketMQ Cross-VPC access information: %s", err)
 			}
 		}
@@ -402,36 +414,43 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 	return resourceDmsRocketMQInstanceRead(ctx, d, meta)
 }
 
-func buildUpdateRocketmqInstanceBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildUpdateRocketmqInstanceBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"description":       utils.ValueIngoreEmpty(d.Get("description")),
 		"security_group_id": utils.ValueIngoreEmpty(d.Get("security_group_id")),
-		"retention_policy":  utils.ValueIngoreEmpty(d.Get("retention_policy")),
 	}
+
+	if d.HasChange("enable_acl") {
+		bodyParams["enable_acl"] = utils.ValueIngoreEmpty(d.Get("enable_acl"))
+	} else if d.HasChange("retention_policy") {
+		bodyParams["enable_acl"] = utils.ValueIngoreEmpty(d.Get("retention_policy"))
+	}
+
 	if d.HasChange("name") {
 		bodyParams["name"] = utils.ValueIngoreEmpty(d.Get("name"))
 	}
 	return bodyParams
 }
 
-func resourceDmsRocketMQInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceDmsRocketMQInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
 	// getRocketmqInstance: Query DMS rocketmq instance
 	var (
 		getRocketmqInstanceHttpUrl = "v2/{project_id}/instances/{instance_id}"
-		getRocketmqInstanceProduct = "dms"
+		getRocketmqInstanceProduct = "dmsv2"
 	)
-	getRocketmqInstanceClient, err := config.NewServiceClient(getRocketmqInstanceProduct, region)
+	getRocketmqInstanceClient, err := cfg.NewServiceClient(getRocketmqInstanceProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating DmsRocketMQInstance Client: %s", err)
 	}
 
 	getRocketmqInstancePath := getRocketmqInstanceClient.Endpoint + getRocketmqInstanceHttpUrl
-	getRocketmqInstancePath = strings.ReplaceAll(getRocketmqInstancePath, "{project_id}", getRocketmqInstanceClient.ProjectID)
+	getRocketmqInstancePath = strings.ReplaceAll(getRocketmqInstancePath, "{project_id}",
+		getRocketmqInstanceClient.ProjectID)
 	getRocketmqInstancePath = strings.ReplaceAll(getRocketmqInstancePath, "{instance_id}", fmt.Sprintf("%v", d.Id()))
 
 	getRocketmqInstanceOpt := golangsdk.RequestOpts{
@@ -459,7 +478,7 @@ func resourceDmsRocketMQInstanceRead(ctx context.Context, d *schema.ResourceData
 		for _, v := range availableZoneIDs.([]interface{}) {
 			azIDs = append(azIDs, v.(string))
 		}
-		availableZoneCodes, err = getAvailableZoneCodeByID(config, region, azIDs)
+		availableZoneCodes, err = getAvailableZoneCodeByID(cfg, region, azIDs)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -467,7 +486,7 @@ func resourceDmsRocketMQInstanceRead(ctx context.Context, d *schema.ResourceData
 	crossVpcInfo := utils.PathSearch("cross_vpc_info", getRocketmqInstanceRespBody, nil)
 	var crossVpcAccess []map[string]interface{}
 	if crossVpcInfo != nil {
-		crossVpcAccess, err = flattenConnectPorts(crossVpcInfo.(string))
+		crossVpcAccess, err = flattenCrossVpcInfo(crossVpcInfo.(string))
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -500,6 +519,7 @@ func resourceDmsRocketMQInstanceRead(ctx context.Context, d *schema.ResourceData
 		d.Set("node_num", utils.PathSearch("node_num", getRocketmqInstanceRespBody, nil)),
 		d.Set("new_spec_billing_enable", utils.PathSearch("new_spec_billing_enable", getRocketmqInstanceRespBody, nil)),
 		d.Set("enable_acl", utils.PathSearch("enable_acl", getRocketmqInstanceRespBody, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", getRocketmqInstanceRespBody, nil)),
 		d.Set("broker_num", utils.PathSearch("broker_num", getRocketmqInstanceRespBody, nil)),
 		d.Set("namesrv_address", utils.PathSearch("namesrv_address", getRocketmqInstanceRespBody, nil)),
 		d.Set("broker_address", utils.PathSearch("broker_address", getRocketmqInstanceRespBody, nil)),
@@ -512,15 +532,15 @@ func resourceDmsRocketMQInstanceRead(ctx context.Context, d *schema.ResourceData
 }
 
 func resourceDmsRocketMQInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// deleteRocketmqInstance: Delete DMS rocketmq instance
 	var (
 		deleteRocketmqInstanceHttpUrl = "v2/{project_id}/instances/{instance_id}"
-		deleteRocketmqInstanceProduct = "dms"
+		deleteRocketmqInstanceProduct = "dmsv2"
 	)
-	deleteRocketmqInstanceClient, err := config.NewServiceClient(deleteRocketmqInstanceProduct, region)
+	deleteRocketmqInstanceClient, err := cfg.NewServiceClient(deleteRocketmqInstanceProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating DmsRocketMQInstance Client: %s", err)
 	}
@@ -543,7 +563,7 @@ func resourceDmsRocketMQInstanceDelete(ctx context.Context, d *schema.ResourceDa
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"DELETING", "RUNNING", "ERROR"},
 		Target:       []string{"DELETED"},
-		Refresh:      DmsRocketmqInstanceStateRefreshFunc(deleteRocketmqInstanceClient, d.Id()),
+		Refresh:      rocketmqInstanceStateRefreshFunc(deleteRocketmqInstanceClient, d.Id()),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        90 * time.Second,
 		PollInterval: 15 * time.Second,
@@ -551,8 +571,7 @@ func resourceDmsRocketMQInstanceDelete(ctx context.Context, d *schema.ResourceDa
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf(
-			"error waiting for instance (%s) to delete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for instance (%s) to delete: %s", d.Id(), err)
 	}
 
 	d.SetId("")
@@ -560,7 +579,7 @@ func resourceDmsRocketMQInstanceDelete(ctx context.Context, d *schema.ResourceDa
 	return nil
 }
 
-func DmsRocketmqInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func rocketmqInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getRocketmqInstancePath := client.Endpoint + "v2/{project_id}/instances/{instance_id}"
 		getRocketmqInstancePath = strings.ReplaceAll(getRocketmqInstancePath, "{project_id}", client.ProjectID)

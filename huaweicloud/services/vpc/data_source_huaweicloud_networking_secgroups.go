@@ -2,6 +2,7 @@ package vpc
 
 import (
 	"context"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -13,8 +14,6 @@ import (
 	v3groups "github.com/chnsz/golangsdk/openstack/networking/v3/security/groups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 type v1Group = v1groups.SecurityGroup
@@ -167,7 +166,7 @@ func dataSourceNetworkingSecGroupsRead(ctx context.Context, d *schema.ResourceDa
 	region := config.GetRegion(d)
 	v3Client, err := config.NetworkingV3Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v3 client: %s", err)
+		return diag.Errorf("error creating networking v3 client: %s", err)
 	}
 
 	// The List method currently does not support filtering by keyword in the description. Therefore, keyword filtering
@@ -185,7 +184,7 @@ func dataSourceNetworkingSecGroupsRead(ctx context.Context, d *schema.ResourceDa
 			// If the v3 API does not exist or has not been published in the specified region, set again using v1 API.
 			return dataSourceNetworkingSecGroupsReadV1(ctx, d, meta)
 		} else {
-			return fmtp.DiagErrorf("Error getting security groups list: %s", err)
+			return diag.Errorf("error getting security groups list: %s", err)
 		}
 	} else {
 		groupList, ids = filterAvailableSecGroupsV3(allSecGroups, d.Get("description").(string))
@@ -205,7 +204,7 @@ func dataSourceNetworkingSecGroupsReadV1(_ context.Context, d *schema.ResourceDa
 	region := config.GetRegion(d)
 	v1Client, err := config.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v1 client: %s", err)
+		return diag.Errorf("error creating networking v1 client: %s", err)
 	}
 
 	listOpts := v1groups.ListOpts{
@@ -213,13 +212,13 @@ func dataSourceNetworkingSecGroupsReadV1(_ context.Context, d *schema.ResourceDa
 	}
 	pages, err := v1groups.List(v1Client, listOpts).AllPages()
 	if err != nil {
-		return fmtp.DiagErrorf("Error getting security groups: %s", err)
+		return diag.Errorf("error getting security groups: %s", err)
 	}
 	allSecGroups, err := v1groups.ExtractSecurityGroups(pages)
 	if err != nil {
-		return fmtp.DiagErrorf("Error retrieving security groups list: %s", err)
+		return diag.Errorf("error retrieving security groups list: %s", err)
 	}
-	logp.Printf("[DEBUG] Retrieved Security Groups: %+v", allSecGroups)
+	log.Printf("[DEBUG] Retrieved Security Groups: %+v", allSecGroups)
 
 	groupList, ids := filterAvailableSecGroupsV1(allSecGroups, d.Get("name").(string), d.Get("description").(string))
 	d.SetId(hashcode.Strings(ids))

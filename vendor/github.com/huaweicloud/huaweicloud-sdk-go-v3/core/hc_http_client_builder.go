@@ -104,7 +104,6 @@ func (builder *HcHttpClientBuilder) Build() *HcHttpClient {
 			break
 		}
 	}
-
 	if !match {
 		panic(fmt.Sprintf("Need credential type is %s, actually is %s", builder.CredentialsType, givenCredentialsType))
 	}

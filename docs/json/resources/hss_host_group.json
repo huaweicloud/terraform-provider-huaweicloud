@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_hss_host_group": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the host group belongs.",
+                "optional": true,
+                "forcenew": true
+              },
+              "host_ids": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "The list of host IDs.",
+                "optional": true
+              },
+              "host_num": {
+                "type": "number",
+                "description": "The host number.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the host group.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the host group is located.",
+                "computed": true
+              },
+              "risk_host_num": {
+                "type": "number",
+                "description": "The current status of the virtual interface.",
+                "computed": true
+              },
+              "unprotect_host_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The ID list of the unprotect hosts.",
+                "optional": true
+              },
+              "unprotect_host_num": {
+                "type": "number",
+                "description": "The creation time of the virtual interface.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

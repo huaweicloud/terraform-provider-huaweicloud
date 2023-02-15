@@ -26,9 +26,6 @@ type VideoCommon struct {
 	// 编码质量等级。  取值如下： - 1：VIDEO_PRESET_HSPEED2 - 2：VIDEO_PRESET_HSPEED - 3：VIDEO_PRESET_NORMAL > 值越大，表示编码的质量越高，转码耗时也越长。
 	Preset *int32 `json:"preset,omitempty"`
 
-	// 最大参考帧数。  取值范围： - H264：[1，8]，默认值为4 。 - H265：固定值4。  单位：帧。
-	RefFramesCount *int32 `json:"ref_frames_count,omitempty"`
-
 	// I帧最大间隔  取值范围：[2，10]。  默认值：5。  单位：秒。
 	MaxIframesInterval *int32 `json:"max_iframes_interval,omitempty"`
 
@@ -37,9 +34,6 @@ type VideoCommon struct {
 
 	// 帧率  取值范围：0或[5,60]之间的整数，0表示自适应  单位：帧每秒
 	FrameRate *int32 `json:"frame_rate,omitempty"`
-
-	// 纵横比，图像缩放方式
-	AspectRatio *int32 `json:"aspect_ratio,omitempty"`
 
 	// 黑边剪裁类型  取值如下： - 0：不开启黑边剪裁 - 1：开启黑边剪裁，低复杂度算法，针对长视频（>5分钟） - 2：开启黑边剪裁，高复杂度算法，针对短视频（<=5分钟）
 	BlackCut *int32 `json:"black_cut,omitempty"`

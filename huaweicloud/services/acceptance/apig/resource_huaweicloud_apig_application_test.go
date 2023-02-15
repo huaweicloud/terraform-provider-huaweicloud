@@ -4,109 +4,87 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/applications"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/applications"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func TestAccApigApplicationV2_basic(t *testing.T) {
+func getApplicationFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := config.ApigV2Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating APIG v2 client: %s", err)
+	}
+	return applications.Get(client, state.Primary.Attributes["instance_id"], state.Primary.ID).Extract()
+}
+
+func TestAccApplication_basic(t *testing.T) {
 	var (
-		// Only letters, digits and underscores (_) are allowed in the application and dedicated instance name.
-		rName        = fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
-		resourceName = "huaweicloud_apig_application.test"
-		application  applications.Application
+		app applications.Application
+
+		rName = "huaweicloud_apig_application.test"
+		// Only letters, digits and underscores (_) are allowed in the environment name and dedicated instance name.
+		name       = acceptance.RandomAccResourceName()
+		updateName = acceptance.RandomAccResourceName()
+
+		description       = "Created by script"
+		updateDescription = "Updated by script"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&app,
+		getApplicationFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t) // The creation of APIG instance needs the enterprise project ID.
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckApigApplicationDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccApigApplication_basic(rName, acctest.RandString(64)),
+				Config: testAccApplication_basic(name, description),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApigApplicationExists(resourceName, &application),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "description", "Created by script"),
-					resource.TestCheckResourceAttrSet(resourceName, "app_key"),
-					resource.TestCheckResourceAttrSet(resourceName, "app_secret"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "description", description),
+					resource.TestCheckResourceAttrSet(rName, "app_key"),
+					resource.TestCheckResourceAttrSet(rName, "app_secret"),
 				),
 			},
 			{
 				// update name, description and app_code.
-				Config: testAccApigApplication_update(rName, acctest.RandString(64)),
+				Config: testAccApplication_basic(updateName, updateDescription),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApigApplicationExists(resourceName, &application),
-					resource.TestCheckResourceAttr(resourceName, "name", rName+"_update"),
-					resource.TestCheckResourceAttr(resourceName, "description", "Updated by script"),
-					resource.TestCheckResourceAttrSet(resourceName, "app_key"),
-					resource.TestCheckResourceAttrSet(resourceName, "app_secret"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "description", updateDescription),
+					resource.TestCheckResourceAttrSet(rName, "app_key"),
+					resource.TestCheckResourceAttrSet(rName, "app_secret"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccApigInstanceSubResourceImportStateIdFunc(resourceName),
+				ImportStateIdFunc: testAccApplicationImportIdFunc(),
 			},
 		},
 	})
 }
 
-func testAccCheckApigApplicationDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	client, err := config.ApigV2Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
-	}
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_apig_application" {
-			continue
-		}
-		_, err := applications.Get(client, rs.Primary.Attributes["instance_id"], rs.Primary.ID).Extract()
-		if err == nil {
-			return fmt.Errorf("APIG v2 application (%s) is still exists", rs.Primary.ID)
-		}
-	}
-	return nil
-}
-
-func testAccCheckApigApplicationExists(appName string, app *applications.Application) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[appName]
-		if !ok {
-			return fmt.Errorf("Resource %s not found", appName)
-		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No APIG V2 application Id")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		client, err := config.ApigV2Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
-		}
-		found, err := applications.Get(client, rs.Primary.Attributes["instance_id"], rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-		*app = *found
-		return nil
-	}
-}
-
-func testAccApigInstanceSubResourceImportStateIdFunc(name string) resource.ImportStateIdFunc {
+func testAccApplicationImportIdFunc() resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
-		rs, ok := s.RootModule().Resources[name]
+		rName := "huaweicloud_apig_application.test"
+		rs, ok := s.RootModule().Resources[rName]
 		if !ok {
-			return "", fmt.Errorf("Resource (%s) not found: %s", name, rs)
+			return "", fmt.Errorf("Resource (%s) not found: %s", rName, rs)
 		}
 		if rs.Primary.ID == "" || rs.Primary.Attributes["instance_id"] == "" {
 			return "", fmt.Errorf("resource not found: %s/%s", rs.Primary.Attributes["instance_id"], rs.Primary.ID)
@@ -115,49 +93,50 @@ func testAccApigInstanceSubResourceImportStateIdFunc(name string) resource.Impor
 	}
 }
 
-func testAccApigApplication_base(rName string) string {
+func testAccApigApplication_base(name string) string {
 	return fmt.Sprintf(`
-%s
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  vpc_id     = huaweicloud_vpc.test.id
+  name       = "%[1]s"
+  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1)
+  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1), 1)
+}
+
+resource "huaweicloud_networking_secgroup" "test" {
+  name = "%[1]s"
+}
 
 resource "huaweicloud_apig_instance" "test" {
-  name                  = "%s"
+  name                  = "%[1]s"
   edition               = "BASIC"
   vpc_id                = huaweicloud_vpc.test.id
   subnet_id             = huaweicloud_vpc_subnet.test.id
   security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "%s"
+  enterprise_project_id = "0"
 
-  available_zones = [
-    data.huaweicloud_availability_zones.test.names[0],
-  ]
+  availability_zones = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
 }
-`, testAccInstance_base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, name)
 }
 
-func testAccApigApplication_basic(rName, code string) string {
+func testAccApplication_basic(name, description string) string {
+	code := utils.Base64EncodeString(acctest.RandString(64))
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_apig_application" "test" {
-  name        = "%s"
+  name        = "%[2]s"
   instance_id = huaweicloud_apig_instance.test.id
-  description = "Created by script"
+  description = "%[3]s"
 
-  app_codes = ["%s"]
+  app_codes = ["%[4]s"]
 }
-`, testAccApigApplication_base(rName), rName, utils.EncodeBase64String(code))
-}
-
-func testAccApigApplication_update(rName, code string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_apig_application" "test" {
-  name        = "%s_update"
-  instance_id = huaweicloud_apig_instance.test.id
-  description = "Updated by script"
-
-  app_codes = ["%s"]
-}
-`, testAccApigApplication_base(rName), rName, utils.EncodeBase64String(code))
+`, testAccApigApplication_base(name), name, description, code)
 }

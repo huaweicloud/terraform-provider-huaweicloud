@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -16,13 +18,10 @@ import (
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/mutexkv"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 const (
-	obsLogFile         string = "./.obs-sdk.log"
-	obsLogFileSize10MB int64  = 1024 * 1024 * 10
+	providerUserAgent string = "terraform-provider-iac"
 )
 
 // MutexKV is a global lock on all resources, it can lock the specified shared string (such as resource ID, resource
@@ -162,6 +161,12 @@ func retryBackoffFunc(ctx context.Context, respErr *golangsdk.ErrUnexpectedRespo
 
 func getObsEndpoint(c *Config, region string) string {
 	if endpoint, ok := c.Endpoints["obs"]; ok {
+		// replace the region in customizing OBS endpoint
+		subparts := strings.Split(endpoint, ".")
+		if len(subparts) >= 3 && subparts[1] != region {
+			subparts[1] = region
+			return strings.Join(subparts, ".")
+		}
 		return endpoint
 	}
 	return fmt.Sprintf("https://obs.%s.%s/", region, c.Cloud)
@@ -172,31 +177,20 @@ func (c *Config) ObjectStorageClientWithSignature(region string) (*obs.ObsClient
 		return nil, fmt.Errorf("missing credentials for OBS, need access_key and secret_key values for provider")
 	}
 
-	// init log
-	if utils.IsDebugOrHigher() {
-		if err := obs.InitLog(obsLogFile, obsLogFileSize10MB, 10, obs.LEVEL_DEBUG, false); err != nil {
-			log.Printf("[WARN] initial obs sdk log failed: %s", err)
-		}
-	}
-
+	clientConfigure := obs.WithHttpClient(&c.DomainClient.HTTPClient)
+	userAgentConfigure := obs.WithUserAgent(buildObsUserAgent())
 	obsEndpoint := getObsEndpoint(c, region)
 	if c.SecurityToken != "" {
 		return obs.New(c.AccessKey, c.SecretKey, obsEndpoint,
-			obs.WithSignature("OBS"), obs.WithSecurityToken(c.SecurityToken))
+			obs.WithSignature("OBS"), obs.WithSecurityToken(c.SecurityToken), clientConfigure,
+			userAgentConfigure)
 	}
-	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSignature("OBS"))
+	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSignature("OBS"), clientConfigure, userAgentConfigure)
 }
 
 func (c *Config) ObjectStorageClient(region string) (*obs.ObsClient, error) {
 	if c.AccessKey == "" || c.SecretKey == "" {
 		return nil, fmt.Errorf("missing credentials for OBS, need access_key and secret_key values for provider")
-	}
-
-	// init log
-	if utils.IsDebugOrHigher() {
-		if err := obs.InitLog(obsLogFile, obsLogFileSize10MB, 10, obs.LEVEL_DEBUG, false); err != nil {
-			log.Printf("[WARN] initial obs sdk log failed: %s", err)
-		}
 	}
 
 	if !c.SecurityKeyExpiresAt.IsZero() {
@@ -212,11 +206,23 @@ func (c *Config) ObjectStorageClient(region string) (*obs.ObsClient, error) {
 		}
 	}
 
+	clientConfigure := obs.WithHttpClient(&c.DomainClient.HTTPClient)
+	userAgentConfigure := obs.WithUserAgent(buildObsUserAgent())
 	obsEndpoint := getObsEndpoint(c, region)
 	if c.SecurityToken != "" {
-		return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSecurityToken(c.SecurityToken))
+		return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSecurityToken(c.SecurityToken), clientConfigure,
+			userAgentConfigure)
 	}
-	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint)
+	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, clientConfigure, userAgentConfigure)
+}
+
+func buildObsUserAgent() string {
+	var agent string = providerUserAgent
+	if customUserAgent := os.Getenv("HW_TF_CUSTOM_UA"); customUserAgent != "" {
+		agent = fmt.Sprintf("%s %s", customUserAgent, providerUserAgent)
+	}
+
+	return agent
 }
 
 // NewServiceClient create a ServiceClient which was assembled from ServiceCatalog.
@@ -657,6 +663,10 @@ func (c *Config) DnsWithRegionClient(region string) (*golangsdk.ServiceClient, e
 
 func (c *Config) ErV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("er", region)
+}
+
+func (c *Config) DcV3Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("dc", region)
 }
 
 // ********** client for Management **********

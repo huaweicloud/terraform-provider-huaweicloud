@@ -5,6 +5,18 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2/model"
 )
 
+type AddActionRuleInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *AddActionRuleInvoker) Invoke() (*model.AddActionRuleResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.AddActionRuleResponse), nil
+	}
+}
+
 type AddAlarmRuleInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -17,6 +29,18 @@ func (i *AddAlarmRuleInvoker) Invoke() (*model.AddAlarmRuleResponse, error) {
 	}
 }
 
+type AddEvent2alarmRuleInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *AddEvent2alarmRuleInvoker) Invoke() (*model.AddEvent2alarmRuleResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.AddEvent2alarmRuleResponse), nil
+	}
+}
+
 type AddMetricDataInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -26,6 +50,18 @@ func (i *AddMetricDataInvoker) Invoke() (*model.AddMetricDataResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.AddMetricDataResponse), nil
+	}
+}
+
+type AddMuteRulesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *AddMuteRulesInvoker) Invoke() (*model.AddMuteRulesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.AddMuteRulesResponse), nil
 	}
 }
 
@@ -53,6 +89,18 @@ func (i *CountEventsInvoker) Invoke() (*model.CountEventsResponse, error) {
 	}
 }
 
+type DeleteActionRuleInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteActionRuleInvoker) Invoke() (*model.DeleteActionRuleResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteActionRuleResponse), nil
+	}
+}
+
 type DeleteAlarmRuleInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -77,6 +125,30 @@ func (i *DeleteAlarmRulesInvoker) Invoke() (*model.DeleteAlarmRulesResponse, err
 	}
 }
 
+type DeleteEvent2alarmRuleInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteEvent2alarmRuleInvoker) Invoke() (*model.DeleteEvent2alarmRuleResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteEvent2alarmRuleResponse), nil
+	}
+}
+
+type DeleteMuteRulesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteMuteRulesInvoker) Invoke() (*model.DeleteMuteRulesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteMuteRulesResponse), nil
+	}
+}
+
 type DeleteserviceDiscoveryRulesInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -89,6 +161,18 @@ func (i *DeleteserviceDiscoveryRulesInvoker) Invoke() (*model.DeleteserviceDisco
 	}
 }
 
+type ListActionRuleInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListActionRuleInvoker) Invoke() (*model.ListActionRuleResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListActionRuleResponse), nil
+	}
+}
+
 type ListAlarmRuleInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -98,6 +182,18 @@ func (i *ListAlarmRuleInvoker) Invoke() (*model.ListAlarmRuleResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.ListAlarmRuleResponse), nil
+	}
+}
+
+type ListEvent2alarmRuleInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListEvent2alarmRuleInvoker) Invoke() (*model.ListEvent2alarmRuleResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListEvent2alarmRuleResponse), nil
 	}
 }
 
@@ -134,6 +230,30 @@ func (i *ListMetricItemsInvoker) Invoke() (*model.ListMetricItemsResponse, error
 		return nil, err
 	} else {
 		return result.(*model.ListMetricItemsResponse), nil
+	}
+}
+
+type ListMuteRuleInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListMuteRuleInvoker) Invoke() (*model.ListMuteRuleResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListMuteRuleResponse), nil
+	}
+}
+
+type ListNotifiedHistoriesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListNotifiedHistoriesInvoker) Invoke() (*model.ListNotifiedHistoriesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListNotifiedHistoriesResponse), nil
 	}
 }
 
@@ -185,6 +305,18 @@ func (i *PushEventsInvoker) Invoke() (*model.PushEventsResponse, error) {
 	}
 }
 
+type ShowActionRuleInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowActionRuleInvoker) Invoke() (*model.ShowActionRuleResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowActionRuleResponse), nil
+	}
+}
+
 type ShowAlarmRuleInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -209,6 +341,18 @@ func (i *ShowMetricsDataInvoker) Invoke() (*model.ShowMetricsDataResponse, error
 	}
 }
 
+type UpdateActionRuleInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateActionRuleInvoker) Invoke() (*model.UpdateActionRuleResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateActionRuleResponse), nil
+	}
+}
+
 type UpdateAlarmRuleInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -218,6 +362,30 @@ func (i *UpdateAlarmRuleInvoker) Invoke() (*model.UpdateAlarmRuleResponse, error
 		return nil, err
 	} else {
 		return result.(*model.UpdateAlarmRuleResponse), nil
+	}
+}
+
+type UpdateEventRuleInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateEventRuleInvoker) Invoke() (*model.UpdateEventRuleResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateEventRuleResponse), nil
+	}
+}
+
+type UpdateMuteRuleInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateMuteRuleInvoker) Invoke() (*model.UpdateMuteRuleResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateMuteRuleResponse), nil
 	}
 }
 

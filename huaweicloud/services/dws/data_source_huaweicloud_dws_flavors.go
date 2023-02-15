@@ -1,24 +1,31 @@
+// ---------------------------------------------------------------
+// *** AUTO GENERATED CODE ***
+// @Product DWS
+// ---------------------------------------------------------------
+
 package dws
 
 import (
 	"context"
-	"strconv"
+	"fmt"
+	"log"
 	"strings"
 
-	"github.com/chnsz/golangsdk/openstack/dws/v2/flavors"
+	"github.com/chnsz/golangsdk"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+	"github.com/jmespath/go-jmespath"
 )
 
-func DataSourceDwsFlavlors() *schema.Resource {
+func DataSourceDwsFlavors() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceDwsFlavorsRead,
-
+		ReadContext: resourceDwsFlavorsRead,
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -26,163 +33,227 @@ func DataSourceDwsFlavlors() *schema.Resource {
 				Computed: true,
 			},
 			"availability_zone": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The availability zone name.`,
 			},
 			"vcpus": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `The vcpus of the dws node flavor.`,
 			},
 			"memory": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `The ram of the dws node flavor in GB.`,
+			},
+			"datastore_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The type of datastore.`,
+				ValidateFunc: validation.StringInSlice([]string{
+					"dws", "hybrid", "stream",
+				}, false),
 			},
 			"flavors": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"flavor_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"vcpus": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"memory": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"volumetype": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"size": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"availability_zone": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
+				Type:        schema.TypeList,
+				Elem:        dwsFlavorsFlavorsSchema(),
+				Computed:    true,
+				Description: `The list of flavor detail.`,
 			},
 		},
 	}
 }
 
-func dataSourceDwsFlavorsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dwsFlavorsFlavorsSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"flavor_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The name of the dws node flavor.`,
+			},
+			"datastore_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The type of datastore.`,
+			},
+			"vcpus": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The vcpus of the dws node flavor.`,
+			},
+			"memory": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The ram of the dws node flavor in GB.`,
+			},
+			"volumetype": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Disk type.`,
+			},
+			"size": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The default disk size in GB.`,
+			},
+			"availability_zones": {
+				Type:        schema.TypeList,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Computed:    true,
+				Description: `The list of availability zones.`,
+			},
+			"elastic_volume_specs": {
+				Type:        schema.TypeList,
+				Elem:        dwsFlavorsFlavorsElasticVolumeSpecSchema(),
+				Computed:    true,
+				Description: `The typical specification, If the volume specification is elastic.`,
+			},
+		},
+	}
+	return &sc
+}
+
+func dwsFlavorsFlavorsElasticVolumeSpecSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"step": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Disk size increment step.`,
+			},
+			"min_size": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Minimum disk size.`,
+			},
+			"max_size": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Maximum disk size.`,
+			},
+		},
+	}
+	return &sc
+}
+
+func resourceDwsFlavorsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	client, err := config.DwsV2Client(config.GetRegion(d))
+	region := config.GetRegion(d)
+
+	var mErr *multierror.Error
+
+	// listFlavors: Query the list of DWS cluster flavors
+	var (
+		listFlavorsHttpUrl = "v2/{project_id}/node-types"
+		listFlavorsProduct = "dws"
+	)
+	listFlavorsClient, err := config.NewServiceClient(listFlavorsProduct, region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating DWS V2 client: %s", err)
+		return diag.Errorf("error creating DwsFlavors Client: %s", err)
 	}
 
-	resp, rErr := flavors.ListNodeTypes(client)
+	listFlavorsPath := listFlavorsClient.Endpoint + listFlavorsHttpUrl
+	listFlavorsPath = strings.ReplaceAll(listFlavorsPath, "{project_id}", listFlavorsClient.ProjectID)
 
-	if rErr != nil {
-		return fmtp.DiagErrorf("query the node type of dws flavors failed: %s", err)
+	listFlavorsOpt := golangsdk.RequestOpts{
+		MoreHeaders:      map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+		KeepResponseBody: true,
+		OkCodes: []int{
+			200,
+		},
+	}
+	listFlavorsResp, err := listFlavorsClient.Request("GET", listFlavorsPath, &listFlavorsOpt)
+
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving DwsFlavors")
 	}
 
-	az := d.Get("availability_zone").(string)
-	cpu := d.Get("vcpus").(int)
-	mem := d.Get("memory").(int)
+	listFlavorsRespBody, err := utils.FlattenResponse(listFlavorsResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
-	flavors := []dwsFlavor{}
-	//filter flavors by arguments
-	for _, node := range resp.NodeTypes {
-		nodeTmp := parseNodeDetail(node)
+	uuid, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
+	d.SetId(uuid)
 
-		if cpu > 0 && nodeTmp.vcpus != cpu {
-			continue
-		}
+	mErr = multierror.Append(
+		mErr,
+		d.Set("region", region),
+		d.Set("flavors", filterListNodeTypesFlavors(
+			flattenListNodeTypesFlavors(listFlavorsRespBody), d)),
+	)
 
-		if mem > 0 && nodeTmp.memory != mem {
-			continue
-		}
+	return diag.FromErr(mErr.ErrorOrNil())
+}
 
-		if az != "" {
-			if !utils.StrSliceContains(nodeTmp.availabilityZones, az) {
+func flattenListNodeTypesFlavors(resp interface{}) []interface{} {
+	if resp == nil {
+		return nil
+	}
+	curJson := utils.PathSearch("node_types", resp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rst = append(rst, map[string]interface{}{
+			"flavor_id":            utils.PathSearch("spec_name", v, nil),
+			"datastore_type":       utils.PathSearch("datastore_type", v, nil),
+			"vcpus":                utils.PathSearch("vcpus", v, nil),
+			"memory":               utils.PathSearch("ram", v, nil),
+			"volumetype":           utils.PathSearch("detail[?type=='LOCAL_DISK' || type=='SSD' ].type|[0]", v, nil),
+			"size":                 utils.PathSearch("detail[?type=='LOCAL_DISK' || type=='SSD' ].value|[0]|to_number(@)", v, nil),
+			"availability_zones":   utils.PathSearch("availability_zones[?status=='normal'].code", v, nil),
+			"elastic_volume_specs": flattenFlavorsElasticVolumeSpecs(v),
+		})
+	}
+	return rst
+}
+
+func flattenFlavorsElasticVolumeSpecs(resp interface{}) []interface{} {
+	var rst []interface{}
+	curJson, err := jmespath.Search("elastic_volume_specs[0]", resp)
+	if err != nil {
+		log.Printf("[ERROR] error parsing elastic_volume_specs[0] from response= %#v", resp)
+		return rst
+	}
+
+	rst = []interface{}{
+		map[string]interface{}{
+			"step":     utils.PathSearch("step", curJson, nil),
+			"min_size": utils.PathSearch("min_size", curJson, nil),
+			"max_size": utils.PathSearch("max_size", curJson, nil),
+		},
+	}
+	return rst
+}
+
+func filterListNodeTypesFlavors(all []interface{}, d *schema.ResourceData) []interface{} {
+	rst := make([]interface{}, 0, len(all))
+	for _, v := range all {
+		if param, ok := d.GetOk("availability_zone"); ok {
+			availabilityZones := utils.ExpandToStringList(utils.PathSearch("availability_zones", v, []string{}).([]interface{}))
+			if !utils.StrSliceContains(availabilityZones, param.(string)) {
 				continue
 			}
-			nodeTmp.availabilityZones = []string{az}
+		}
+		if param, ok := d.GetOk("vcpus"); ok && fmt.Sprint(param) != fmt.Sprint(utils.PathSearch("vcpus", v, nil)) {
+			continue
+		}
+		if param, ok := d.GetOk("memory"); ok {
+			if fmt.Sprint(param) != fmt.Sprint(utils.PathSearch("memory", v, nil)) {
+				continue
+			}
+		}
+		if param, ok := d.GetOk("datastore_type"); ok &&
+			fmt.Sprint(param) != fmt.Sprint(utils.PathSearch("datastore_type", v, nil)) {
+			continue
 		}
 
-		flavors = append(flavors, nodeTmp)
+		rst = append(rst, v)
 	}
-
-	var ids []string
-	var resultFlavors []map[string]interface{}
-	for _, item := range flavors {
-		resultFlavors = append(resultFlavors, item.flattenDwsFlavor()...)
-		ids = append(ids, item.id)
-	}
-
-	if len(resultFlavors) < 1 {
-		return fmtp.DiagErrorf("Your query returned no results. Please change your search criteria and try again.")
-	}
-
-	logp.Printf("[DEBUG] Value of resultFlavors: %#v", resultFlavors)
-
-	d.SetId(hashcode.Strings(ids))
-	d.Set("region", config.GetRegion(d))
-	d.Set("flavors", resultFlavors)
-
-	return nil
-}
-
-type dwsFlavor struct {
-	id                string
-	specCode          string
-	vcpus             int
-	memory            int
-	volumetype        string
-	size              int
-	availabilityZones []string
-}
-
-func parseNodeDetail(node flavors.NodeType) dwsFlavor {
-	nodeTmp := dwsFlavor{
-		id:       node.Id,
-		specCode: node.SpecName,
-	}
-	for _, v := range node.Detail {
-		switch v.Type {
-		case "vCPU":
-			nodeTmp.vcpus, _ = strconv.Atoi(v.Value)
-		case "LOCAL_DISK", "SSD":
-			nodeTmp.size, _ = strconv.Atoi(v.Value)
-			nodeTmp.volumetype = v.Type
-		case "mem":
-			nodeTmp.memory, _ = strconv.Atoi(v.Value)
-		case "availableZones":
-			nodeTmp.availabilityZones = strings.Split(v.Value, ",")
-		}
-	}
-	return nodeTmp
-}
-
-func (flavor *dwsFlavor) flattenDwsFlavor() []map[string]interface{} {
-	if flavor == nil {
-		return nil
-	}
-	azLength := len(flavor.availabilityZones)
-	if azLength == 0 {
-		return nil
-	}
-	var rt []map[string]interface{}
-	for _, availableZone := range flavor.availabilityZones {
-		newFlavor := map[string]interface{}{
-			"flavor_id":         flavor.specCode,
-			"vcpus":             flavor.vcpus,
-			"memory":            flavor.memory,
-			"volumetype":        flavor.volumetype,
-			"size":              flavor.size,
-			"availability_zone": availableZone,
-		}
-		rt = append(rt, newFlavor)
-	}
-	return rt
+	return rst
 }

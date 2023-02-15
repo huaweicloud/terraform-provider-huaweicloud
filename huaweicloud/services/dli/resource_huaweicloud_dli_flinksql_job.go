@@ -3,6 +3,8 @@ package dli
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"log"
 	"strconv"
 	"time"
 
@@ -17,8 +19,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceFlinkSqlJob() *schema.Resource {
@@ -260,31 +260,31 @@ func resourceFlinkSqlJobCreate(ctx context.Context, d *schema.ResourceData, meta
 		opts.RuntimeConfig = string(configStr)
 	}
 
-	logp.Printf("[DEBUG] Creating new DLI flink job opts: %#v", opts)
+	log.Printf("[DEBUG] Creating new DLI flink job opts: %#v", opts)
 
-	rst, createErr := flinkjob.CreateSqlJob(client, opts)
-	if createErr != nil {
-		return fmtp.DiagErrorf("Error creating DLI flink job: %s", createErr)
+	rst, err := flinkjob.CreateSqlJob(client, opts)
+	if err != nil {
+		return diag.Errorf("error creating DLI flink job: %s", err)
 	}
 
 	if rst != nil && !rst.IsSuccess {
-		return fmtp.DiagErrorf("Error creating DLI flink job: %s", rst.Message)
+		return diag.Errorf("error creating DLI flink job: %s", rst.Message)
 	}
 
 	d.SetId(strconv.Itoa(rst.Job.JobId))
 
 	// run the flink job
-	_, runErr := flinkjob.Run(client, flinkjob.RunJobOpts{
+	_, err = flinkjob.Run(client, flinkjob.RunJobOpts{
 		JobIds:          []int{rst.Job.JobId},
 		ResumeSavepoint: utils.Bool(false),
 	})
-	if runErr != nil {
-		return fmtp.DiagErrorf("Error run DLI flink job: %s", runErr)
+	if err != nil {
+		return diag.Errorf("error run DLI flink job: %s", err)
 	}
 
-	checkCreateErr := checkFlinkJobRunResult(ctx, client, rst.Job.JobId, d.Timeout(schema.TimeoutCreate))
-	if checkCreateErr != nil {
-		return diag.FromErr(checkCreateErr)
+	err = checkFlinkJobRunResult(ctx, client, rst.Job.JobId, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return diag.FromErr(err)
 	}
 	return resourceFlinkSqlJobRead(ctx, d, meta)
 }
@@ -298,16 +298,16 @@ func resourceFlinkSqlJobRead(ctx context.Context, d *schema.ResourceData, meta i
 	}
 	id, aErr := strconv.Atoi(d.Id())
 	if aErr != nil {
-		return fmtp.DiagErrorf("the DLI flink job_id must be number. actual id=%s", d.Id())
+		return diag.Errorf("the DLI flink job_id must be number. actual id=%s", d.Id())
 	}
 
-	detailRsp, dErr := flinkjob.Get(client, id)
-	if dErr != nil {
-		return fmtp.DiagErrorf("Error query DLI flink job %q:%s", id, dErr)
+	detailRsp, err := flinkjob.Get(client, id)
+	if err != nil {
+		return common.CheckDeletedDiag(d, parseDliFlinkErrToError404(err), "DLI flink sql-job")
 	}
 
 	if detailRsp != nil && !detailRsp.IsSuccess {
-		return fmtp.DiagErrorf("Error query DLI flink job: %s", detailRsp.Message)
+		return diag.Errorf("error query DLI flink job: %s", detailRsp.Message)
 	}
 	detail := detailRsp.JobDetail
 	mErr := multierror.Append(
@@ -338,11 +338,8 @@ func resourceFlinkSqlJobRead(ctx context.Context, d *schema.ResourceData, meta i
 		setRuntimeConfigToState(d, detail.JobConfig.RuntimeConfig),
 		d.Set("status", detail.Status),
 	)
-	if setSdErr := mErr.ErrorOrNil(); setSdErr != nil {
-		return fmtp.DiagErrorf("Error setting vault fields: %s", setSdErr)
-	}
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 // This API is used to cancel a submitted job. If execution of a job completes or fails, this job cannot be canceled.
@@ -354,20 +351,18 @@ func resourceFlinkSqlJobDelete(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating DLI v1 client, err=%s", err)
 	}
 
-	jobId, aErr := strconv.Atoi(d.Id())
-	if aErr != nil {
-		return fmtp.DiagErrorf("the DLI flink job_id must be number. actual id=%s", d.Id())
+	jobId, err := strconv.Atoi(d.Id())
+	if err != nil {
+		return diag.Errorf("the DLI flink job_id must be number. actual id=%s", d.Id())
 	}
 
-	deleteRst, dErr := flinkjob.Delete(client, jobId)
-	if dErr != nil {
-		return fmtp.DiagErrorf("delete DLI flink job failed. %q:%s", jobId, dErr)
+	deleteRst, err := flinkjob.Delete(client, jobId)
+	if err != nil {
+		return diag.Errorf("delete DLI flink job failed. %q:%s", jobId, err)
 	}
 	if deleteRst != nil && !deleteRst.IsSuccess {
-		return fmtp.DiagErrorf("delete DLI flink job failed. %q:%s", jobId, dErr)
+		return diag.Errorf("delete DLI flink job failed. %q", jobId)
 	}
-
-	d.SetId("")
 
 	return nil
 }
@@ -380,29 +375,29 @@ func resourceFlinkSqlJobUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating DLI v1 client, err=%s", err)
 	}
 
-	jobId, iErr := strconv.Atoi(d.Id())
-	if iErr != nil {
-		return fmtp.DiagErrorf("the DLI flink job_id must be number. actual id=%s", d.Id())
+	jobId, err := strconv.Atoi(d.Id())
+	if err != nil {
+		return diag.Errorf("the DLI flink job_id must be number. actual id=%s", d.Id())
 	}
 
-	aErr := authorizeObsBucket(client, d)
-	if aErr != nil {
-		return aErr
+	diagErr := authorizeObsBucket(client, d)
+	if diagErr != nil {
+		return diagErr
 	}
 
-	uDiagErr := updateFlinkSqlJobInRunning(client, jobId, d)
-	if uDiagErr != nil {
-		return uDiagErr
+	diagErr = updateFlinkSqlJobInRunning(client, jobId, d)
+	if diagErr != nil {
+		return diagErr
 	}
 
-	uDiagErr = updateFlinkSqlJobWithStop(ctx, client, jobId, d)
-	if uDiagErr != nil {
-		return uDiagErr
+	diagErr = updateFlinkSqlJobWithStop(ctx, client, jobId, d)
+	if diagErr != nil {
+		return diagErr
 	}
 
-	checkCreateErr := checkFlinkJobRunResult(ctx, client, jobId, d.Timeout(schema.TimeoutCreate))
-	if checkCreateErr != nil {
-		return diag.FromErr(checkCreateErr)
+	err = checkFlinkJobRunResult(ctx, client, jobId, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return diag.FromErr(err)
 	}
 	return resourceFlinkSqlJobRead(ctx, d, meta)
 }
@@ -418,15 +413,15 @@ func updateFlinkSqlJobInRunning(client *golangsdk.ServiceClient, jobId int, d *s
 			ResumeMaxNum:         golangsdk.IntToPointer(d.Get("resume_max_num").(int)),
 		}
 
-		logp.Printf("[DEBUG] update DLI flink job opts: %#v", opts)
+		log.Printf("[DEBUG] update DLI flink job opts: %#v", opts)
 
 		rst, uErr := flinkjob.UpdateSqlJob(client, jobId, opts)
 		if uErr != nil {
-			return fmtp.DiagErrorf("Error update DLI flink job=%d: %s", jobId, uErr)
+			return diag.Errorf("error update DLI flink job=%d: %s", jobId, uErr)
 		}
 
 		if rst != nil && !rst.IsSuccess {
-			return fmtp.DiagErrorf("Error update DLI flink job=%d: %s", rst.Message)
+			return diag.Errorf("error update DLI flink job=%d: %s", jobId, rst.Message)
 		}
 	}
 
@@ -440,12 +435,12 @@ func checkFlinkJobRunResult(ctx context.Context, client *golangsdk.ServiceClient
 		Target:  []string{"job_running", "job_finish"},
 		Refresh: func() (interface{}, string, error) {
 			job, err := flinkjob.Get(client, id)
-			logp.Printf("[DEBUG] the flink job info in create check func: %#v,%s", job, err)
+			log.Printf("[DEBUG] the flink job info in create check func: %#v,%s", job, err)
 			if err != nil {
 				return nil, "", err
 			}
 			if job.JobDetail.Status == "job_submit_fail" {
-				return job, "failed", fmtp.Errorf("%s:%s", job.JobDetail.Status, job.JobDetail.StatusDesc)
+				return job, "failed", fmt.Errorf("%s:%s", job.JobDetail.Status, job.JobDetail.StatusDesc)
 			}
 			return job, job.JobDetail.Status, nil
 		},
@@ -455,7 +450,7 @@ func checkFlinkJobRunResult(ctx context.Context, client *golangsdk.ServiceClient
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("error waiting for DLI flink job (%s) to be created: %s", id, err)
+		return fmt.Errorf("error waiting for DLI flink job (%d) to be created: %s", id, err)
 	}
 	return nil
 }
@@ -468,7 +463,7 @@ func checkFlinkJobStopResult(ctx context.Context, client *golangsdk.ServiceClien
 		Target: []string{"job_init", "job_cancel_success"},
 		Refresh: func() (interface{}, string, error) {
 			job, err := flinkjob.Get(client, id)
-			logp.Printf("[DEBUG] the flink job info in stop check func: %#v,%s", job, err)
+			log.Printf("[DEBUG] the flink job info in stop check func: %#v,%s", job, err)
 			if err != nil {
 				return nil, "", err
 			}
@@ -480,7 +475,7 @@ func checkFlinkJobStopResult(ctx context.Context, client *golangsdk.ServiceClien
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("error waiting for DLI flink job (%s) to be stoped: %s", id, err)
+		return fmt.Errorf("error waiting for DLI flink job (%d) to be stoped: %s", id, err)
 	}
 	return nil
 }
@@ -491,15 +486,15 @@ func authorizeObsBucket(client *golangsdk.ServiceClient, d *schema.ResourceData)
 			Buckets: []string{value.(string)},
 		}
 
-		logp.Printf("[DEBUG] update DLI flink job opts: %#v", opts)
+		log.Printf("[DEBUG] update DLI flink job opts: %#v", opts)
 
 		rst, uErr := flinkjob.AuthorizeBucket(client, opts)
 		if uErr != nil {
-			return fmtp.DiagErrorf("DLI Authorization on the following OBS buckets failed= %s: %s", value, uErr)
+			return diag.Errorf("DLI Authorization on the following OBS buckets failed= %s: %s", value, uErr)
 		}
 
 		if rst != nil && !rst.IsSuccess {
-			return fmtp.DiagErrorf("DLI Authorization on the following OBS buckets failed= %s: %s", value, uErr)
+			return diag.Errorf("DLI Authorization on the following OBS buckets failed= %s", value)
 		}
 	}
 
@@ -519,7 +514,7 @@ func updateFlinkSqlJobWithStop(ctx context.Context, client *golangsdk.ServiceCli
 		})
 
 		if err != nil {
-			return fmtp.DiagErrorf("stop job exception during update DLI flink job=%d: %s", jobId, err)
+			return diag.Errorf("stop job exception during update DLI flink job=%d: %s", jobId, err)
 		}
 
 		checkStopErr := checkFlinkJobStopResult(ctx, client, jobId, d.Timeout(schema.TimeoutUpdate))
@@ -527,7 +522,7 @@ func updateFlinkSqlJobWithStop(ctx context.Context, client *golangsdk.ServiceCli
 			return diag.FromErr(checkStopErr)
 		}
 
-		//2. update job
+		// 2. update job
 		opts := flinkjob.UpdateSqlJobOpts{
 			Name:               d.Get("name").(string),
 			RunMode:            d.Get("run_mode").(string),
@@ -567,24 +562,24 @@ func updateFlinkSqlJobWithStop(ctx context.Context, client *golangsdk.ServiceCli
 			opts.EdgeGroupIds = ids
 		}
 
-		logp.Printf("[DEBUG] update DLI flink job opts: %#v", opts)
+		log.Printf("[DEBUG] update DLI flink job opts: %#v", opts)
 
 		rst, uErr := flinkjob.UpdateSqlJob(client, jobId, opts)
 		if uErr != nil {
-			return fmtp.DiagErrorf("Error update DLI flink job=%d: %s", jobId, uErr)
+			return diag.Errorf("error update DLI flink job=%d: %s", jobId, uErr)
 		}
 
 		if rst != nil && !rst.IsSuccess {
-			return fmtp.DiagErrorf("Error update DLI flink job=%d: %s", rst.Message)
+			return diag.Errorf("error update DLI flink job=%d: %s", jobId, rst.Message)
 		}
 
-		//3. run the flink job
+		// 3. run the flink job
 		_, runErr := flinkjob.Run(client, flinkjob.RunJobOpts{
 			JobIds:          []int{jobId},
 			ResumeSavepoint: utils.Bool(d.Get("resume_checkpoint").(bool)),
 		})
 		if runErr != nil {
-			return fmtp.DiagErrorf("Error run DLI flink job: %s", runErr)
+			return diag.Errorf("error run DLI flink job: %s", runErr)
 		}
 	}
 
@@ -598,8 +593,20 @@ func setRuntimeConfigToState(d *schema.ResourceData, configStr string) error {
 	var rst []tags.ResourceTag
 	err := json.Unmarshal([]byte(configStr), &rst)
 	if err != nil {
-		return fmtp.Errorf("error parse runtime_config from API response: %s", err)
+		return fmt.Errorf("error parse runtime_config from API response: %s", err)
 	}
 
 	return d.Set("runtime_config", utils.TagsToMap(rst))
+}
+
+func parseDliFlinkErrToError404(respErr error) error {
+	var apiError flinkjob.DliError
+
+	if errCode, ok := respErr.(golangsdk.ErrDefault400); ok {
+		pErr := json.Unmarshal(errCode.Body, &apiError)
+		if pErr == nil && apiError.ErrorCode == "DLI.16001" {
+			return golangsdk.ErrDefault404(errCode)
+		}
+	}
+	return respErr
 }

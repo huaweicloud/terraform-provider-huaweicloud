@@ -78,6 +78,9 @@ The following arguments are supported:
 * `max_pods` - (Optional, Int, ForceNew) Specifies the maximum number of instances a node is allowed to create.
   Changing this parameter will create a new resource.
 
+* `ecs_group_id` - (Optional, String, ForceNew) Specifies the ECS group ID. If specified, the node will be created under
+  the cloud server group. Changing this parameter will create a new resource.
+
 * `preinstall` - (Optional, String, ForceNew) Specifies the script to be executed before installation.
   The input value can be a Base64 encoded string or not. Changing this parameter will create a new resource.
 
@@ -149,6 +152,9 @@ The `root_volume` block supports:
 * `volumetype` - (Required, String, ForceNew) Specifies the disk type. Changing this parameter will create a new resource.
 
 * `extend_params` - (Optional, Map, ForceNew) Specifies the disk expansion parameters.
+  Changing this parameter will create a new resource.
+
+* `kms_key_id` - (Optional, String, ForceNew) Specifies the KMS key ID. This is used to encrypt the volume.
   Changing this parameter will create a new resource.
 
 The `data_volumes` block supports:

@@ -35,6 +35,11 @@
                 "type": "number",
                 "computed": true
               },
+              "ecs_group_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "extend_param": {
                 "type": [
                   "map",
@@ -225,6 +230,12 @@
                     "hw_passthrough": {
                       "type": "bool",
                       "optional": true,
+                      "forcenew": true
+                    },
+                    "kms_key_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
                       "forcenew": true
                     },
                     "size": {

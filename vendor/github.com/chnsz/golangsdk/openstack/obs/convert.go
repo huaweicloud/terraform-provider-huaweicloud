@@ -80,6 +80,18 @@ func ParseStringToStorageClassType(value string) (ret StorageClassType) {
 	return
 }
 
+func ParseStringToFSStatusType(value string) (ret FSStatusType) {
+	switch value {
+	case "Enabled":
+		ret = FSStatusEnabled
+	case "Disabled":
+		ret = FSStatusDisabled
+	default:
+		ret = ""
+	}
+	return
+}
+
 func prepareGrantURI(grant Grant) string {
 	if grant.Grantee.URI == GroupAllUsers || grant.Grantee.URI == GroupAuthenticatedUsers {
 		return fmt.Sprintf("<URI>%s%s</URI>", "http://acs.amazonaws.com/groups/global/", grant.Grantee.URI)
@@ -1158,4 +1170,25 @@ func ParseModifyObjectOutput(output *ModifyObjectOutput) {
 	if ret, ok := output.ResponseHeaders[HEADER_ETAG]; ok {
 		output.ETag = ret[0]
 	}
+}
+
+func ParseGetBucketFSStatusOutput(output *GetBucketFSStatusOutput) {
+	ParseGetBucketMetadataOutput(&output.GetBucketMetadataOutput)
+
+	if ret, ok := output.ResponseHeaders[HEADER_FS_FILE_INTERFACE_OBS]; ok {
+		output.FSStatus = ParseStringToFSStatusType(ret[0])
+	}
+}
+
+func ParseGetAttributeOutput(output *GetAttributeOutput) {
+	ParseGetObjectMetadataOutput(&output.GetObjectMetadataOutput)
+	if ret, ok := output.ResponseHeaders[HEADER_MODE]; ok {
+		output.Mode = StringToInt(ret[0], -1)
+	} else {
+		output.Mode = -1
+	}
+}
+
+func ParseNewFolderOutput(output *NewFolderOutput) {
+	ParsePutObjectOutput(&output.PutObjectOutput)
 }

@@ -8,7 +8,7 @@ Manages a VPC attachment resource under the ER instance within HuaweiCloud.
 
 ## Example Usage
 
-```HCL
+```hcl
 variable "instance_id" {}
 variable "vpc_id" {}
 variable "subnet_id" {}

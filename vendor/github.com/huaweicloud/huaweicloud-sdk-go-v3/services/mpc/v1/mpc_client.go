@@ -24,8 +24,7 @@ func MpcClientBuilder() *http_client.HcHttpClientBuilder {
 // 创建动图任务，用于将完整的视频文件或视频文件中的一部分转换为动态图文件，暂只支持输出GIF文件。
 // 待转动图的视频文件需要存储在与媒体处理服务同区域的OBS桶中，且该OBS桶已授权。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CreateAnimatedGraphicsTask(request *model.CreateAnimatedGraphicsTaskRequest) (*model.CreateAnimatedGraphicsTaskResponse, error) {
 	requestDef := GenReqDefForCreateAnimatedGraphicsTask()
 
@@ -46,8 +45,7 @@ func (c *MpcClient) CreateAnimatedGraphicsTaskInvoker(request *model.CreateAnima
 //
 // 取消已下发的生成动图任务，仅支持取消正在排队中的任务。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) DeleteAnimatedGraphicsTask(request *model.DeleteAnimatedGraphicsTaskRequest) (*model.DeleteAnimatedGraphicsTaskResponse, error) {
 	requestDef := GenReqDefForDeleteAnimatedGraphicsTask()
 
@@ -68,8 +66,7 @@ func (c *MpcClient) DeleteAnimatedGraphicsTaskInvoker(request *model.DeleteAnima
 //
 // 查询动图任务的状态。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) ListAnimatedGraphicsTask(request *model.ListAnimatedGraphicsTaskRequest) (*model.ListAnimatedGraphicsTaskResponse, error) {
 	requestDef := GenReqDefForListAnimatedGraphicsTask()
 
@@ -86,13 +83,180 @@ func (c *MpcClient) ListAnimatedGraphicsTaskInvoker(request *model.ListAnimatedG
 	return &ListAnimatedGraphicsTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// CreateAgenciesTask 请求委托任务
+//
+// 开启或关闭\&quot;委托授权\&quot;, 开启后，媒体处理服务将拥有您所有桶的读写权限，子账号不支持委托授权。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *MpcClient) CreateAgenciesTask(request *model.CreateAgenciesTaskRequest) (*model.CreateAgenciesTaskResponse, error) {
+	requestDef := GenReqDefForCreateAgenciesTask()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateAgenciesTaskResponse), nil
+	}
+}
+
+// CreateAgenciesTaskInvoker 请求委托任务
+func (c *MpcClient) CreateAgenciesTaskInvoker(request *model.CreateAgenciesTaskRequest) *CreateAgenciesTaskInvoker {
+	requestDef := GenReqDefForCreateAgenciesTask()
+	return &CreateAgenciesTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListAllBuckets 查询桶列表
+//
+// 请求查询自己创建的指定的桶区域位置的桶列表。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *MpcClient) ListAllBuckets(request *model.ListAllBucketsRequest) (*model.ListAllBucketsResponse, error) {
+	requestDef := GenReqDefForListAllBuckets()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListAllBucketsResponse), nil
+	}
+}
+
+// ListAllBucketsInvoker 查询桶列表
+func (c *MpcClient) ListAllBucketsInvoker(request *model.ListAllBucketsRequest) *ListAllBucketsInvoker {
+	requestDef := GenReqDefForListAllBuckets()
+	return &ListAllBucketsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListAllObsObjList 查询桶里的object
+//
+// 查询桶里的object。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *MpcClient) ListAllObsObjList(request *model.ListAllObsObjListRequest) (*model.ListAllObsObjListResponse, error) {
+	requestDef := GenReqDefForListAllObsObjList()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListAllObsObjListResponse), nil
+	}
+}
+
+// ListAllObsObjListInvoker 查询桶里的object
+func (c *MpcClient) ListAllObsObjListInvoker(request *model.ListAllObsObjListRequest) *ListAllObsObjListInvoker {
+	requestDef := GenReqDefForListAllObsObjList()
+	return &ListAllObsObjListInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListNotifyEvent 查询转码服务端所有事件
+//
+// 查询消息订阅功能板块, SMN主题的所有订阅事件。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *MpcClient) ListNotifyEvent(request *model.ListNotifyEventRequest) (*model.ListNotifyEventResponse, error) {
+	requestDef := GenReqDefForListNotifyEvent()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListNotifyEventResponse), nil
+	}
+}
+
+// ListNotifyEventInvoker 查询转码服务端所有事件
+func (c *MpcClient) ListNotifyEventInvoker(request *model.ListNotifyEventRequest) *ListNotifyEventInvoker {
+	requestDef := GenReqDefForListNotifyEvent()
+	return &ListNotifyEventInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListNotifySmnTopicConfig 查询转码服务端事件通知
+//
+// 查询消息订阅功能板块, SMN主题的订阅事件的启用状态和订阅消息的启用状态。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *MpcClient) ListNotifySmnTopicConfig(request *model.ListNotifySmnTopicConfigRequest) (*model.ListNotifySmnTopicConfigResponse, error) {
+	requestDef := GenReqDefForListNotifySmnTopicConfig()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListNotifySmnTopicConfigResponse), nil
+	}
+}
+
+// ListNotifySmnTopicConfigInvoker 查询转码服务端事件通知
+func (c *MpcClient) ListNotifySmnTopicConfigInvoker(request *model.ListNotifySmnTopicConfigRequest) *ListNotifySmnTopicConfigInvoker {
+	requestDef := GenReqDefForListNotifySmnTopicConfig()
+	return &ListNotifySmnTopicConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// NotifySmnTopicConfig 配置转码服务端事件通知
+//
+// 配置转码服务端事件通知。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *MpcClient) NotifySmnTopicConfig(request *model.NotifySmnTopicConfigRequest) (*model.NotifySmnTopicConfigResponse, error) {
+	requestDef := GenReqDefForNotifySmnTopicConfig()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.NotifySmnTopicConfigResponse), nil
+	}
+}
+
+// NotifySmnTopicConfigInvoker 配置转码服务端事件通知
+func (c *MpcClient) NotifySmnTopicConfigInvoker(request *model.NotifySmnTopicConfigRequest) *NotifySmnTopicConfigInvoker {
+	requestDef := GenReqDefForNotifySmnTopicConfig()
+	return &NotifySmnTopicConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowAgenciesTask 查询创建委托任务状态
+//
+// 查询创建委托任务状态。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *MpcClient) ShowAgenciesTask(request *model.ShowAgenciesTaskRequest) (*model.ShowAgenciesTaskResponse, error) {
+	requestDef := GenReqDefForShowAgenciesTask()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowAgenciesTaskResponse), nil
+	}
+}
+
+// ShowAgenciesTaskInvoker 查询创建委托任务状态
+func (c *MpcClient) ShowAgenciesTaskInvoker(request *model.ShowAgenciesTaskRequest) *ShowAgenciesTaskInvoker {
+	requestDef := GenReqDefForShowAgenciesTask()
+	return &ShowAgenciesTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateBucketAuthorized 桶授权或取消授权
+//
+// 对OBS桶进行授权或取消授权，媒体处理服务仅拥有已授权桶的读写权限。（暂不支持KMS加密桶的授权）
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *MpcClient) UpdateBucketAuthorized(request *model.UpdateBucketAuthorizedRequest) (*model.UpdateBucketAuthorizedResponse, error) {
+	requestDef := GenReqDefForUpdateBucketAuthorized()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateBucketAuthorizedResponse), nil
+	}
+}
+
+// UpdateBucketAuthorizedInvoker 桶授权或取消授权
+func (c *MpcClient) UpdateBucketAuthorizedInvoker(request *model.UpdateBucketAuthorizedRequest) *UpdateBucketAuthorizedInvoker {
+	requestDef := GenReqDefForUpdateBucketAuthorized()
+	return &UpdateBucketAuthorizedInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // CreateEditingJob 新建剪辑任务
 //
 // 创建剪辑任务，用于将多个视频文件进行裁剪成多个视频分段，并且可以把这些视频分段合并成一个视频，剪切和拼接功能可以单独使用。
 // 待剪辑的视频文件需要存储在与媒体处理服务同区域的OBS桶中，且该OBS桶已授权。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CreateEditingJob(request *model.CreateEditingJobRequest) (*model.CreateEditingJobResponse, error) {
 	requestDef := GenReqDefForCreateEditingJob()
 
@@ -113,8 +277,7 @@ func (c *MpcClient) CreateEditingJobInvoker(request *model.CreateEditingJobReque
 //
 // 取消已下发的生成剪辑任务，仅支持取消正在排队中的任务。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) DeleteEditingJob(request *model.DeleteEditingJobRequest) (*model.DeleteEditingJobResponse, error) {
 	requestDef := GenReqDefForDeleteEditingJob()
 
@@ -135,8 +298,7 @@ func (c *MpcClient) DeleteEditingJobInvoker(request *model.DeleteEditingJobReque
 //
 // 查询剪辑任务的状态。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) ListEditingJob(request *model.ListEditingJobRequest) (*model.ListEditingJobResponse, error) {
 	requestDef := GenReqDefForListEditingJob()
 
@@ -155,14 +317,13 @@ func (c *MpcClient) ListEditingJobInvoker(request *model.ListEditingJobRequest) 
 
 // CreateEncryptTask 新建独立加密任务
 //
-// 支持独立加密，包括创建、查询、删除独立加密任务。
+// 支持独立加密，包括创建、查询、删除独立加密任务。该API已废弃。
 //
 // 约束：
 //   - 只支持转码后的文件进行加密。
 //   - 加密的文件必须是m3u8或者mpd结尾的文件。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CreateEncryptTask(request *model.CreateEncryptTaskRequest) (*model.CreateEncryptTaskResponse, error) {
 	requestDef := GenReqDefForCreateEncryptTask()
 
@@ -181,14 +342,13 @@ func (c *MpcClient) CreateEncryptTaskInvoker(request *model.CreateEncryptTaskReq
 
 // DeleteEncryptTask 取消独立加密任务
 //
-// 取消独立加密任务。
+// 取消独立加密任务。该API已废弃。
 //
 // 约束：
 //
 //   只能取消正在任务队列中排队的任务。已开始加密或已完成的加密任务不能取消。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) DeleteEncryptTask(request *model.DeleteEncryptTaskRequest) (*model.DeleteEncryptTaskResponse, error) {
 	requestDef := GenReqDefForDeleteEncryptTask()
 
@@ -207,10 +367,9 @@ func (c *MpcClient) DeleteEncryptTaskInvoker(request *model.DeleteEncryptTaskReq
 
 // ListEncryptTask 查询独立加密任务
 //
-// 查询独立加密任务状态。返回任务执行结果或当前状态。
+// 查询独立加密任务状态。返回任务执行结果或当前状态。该API已废弃。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) ListEncryptTask(request *model.ListEncryptTaskRequest) (*model.ListEncryptTaskResponse, error) {
 	requestDef := GenReqDefForListEncryptTask()
 
@@ -231,8 +390,7 @@ func (c *MpcClient) ListEncryptTaskInvoker(request *model.ListEncryptTaskRequest
 //
 // 创建视频解析任务，解析视频元数据。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CreateExtractTask(request *model.CreateExtractTaskRequest) (*model.CreateExtractTaskResponse, error) {
 	requestDef := GenReqDefForCreateExtractTask()
 
@@ -253,8 +411,7 @@ func (c *MpcClient) CreateExtractTaskInvoker(request *model.CreateExtractTaskReq
 //
 // 取消已下发的视频解析任务，仅支持取消正在排队中的任务。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) DeleteExtractTask(request *model.DeleteExtractTaskRequest) (*model.DeleteExtractTaskResponse, error) {
 	requestDef := GenReqDefForDeleteExtractTask()
 
@@ -275,8 +432,7 @@ func (c *MpcClient) DeleteExtractTaskInvoker(request *model.DeleteExtractTaskReq
 //
 // 查询解析任务的状态和结果。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) ListExtractTask(request *model.ListExtractTaskRequest) (*model.ListExtractTaskResponse, error) {
 	requestDef := GenReqDefForListExtractTask()
 
@@ -302,8 +458,7 @@ func (c *MpcClient) ListExtractTaskInvoker(request *model.ListExtractTaskRequest
 // ## 接口约束 ##
 //   无。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CreateMbTasksReport(request *model.CreateMbTasksReportRequest) (*model.CreateMbTasksReportResponse, error) {
 	requestDef := GenReqDefForCreateMbTasksReport()
 
@@ -325,8 +480,7 @@ func (c *MpcClient) CreateMbTasksReportInvoker(request *model.CreateMbTasksRepor
 // 创建声道合并任务，合并声道任务支持将每个声道各放一个文件中的片源，合并为单个音频文件。
 // 执行合并声道的源音频文件需要存储在与媒体处理服务同区域的OBS桶中，且该OBS桶已授权。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CreateMergeChannelsTask(request *model.CreateMergeChannelsTaskRequest) (*model.CreateMergeChannelsTaskResponse, error) {
 	requestDef := GenReqDefForCreateMergeChannelsTask()
 
@@ -348,8 +502,7 @@ func (c *MpcClient) CreateMergeChannelsTaskInvoker(request *model.CreateMergeCha
 // 创建音轨重置任务，重置音轨任务支持按人工指定关系声道layout，语言标签，转封装片源，使其满足转码输入。
 // 执行音轨重置的源音频文件需要存储在与媒体处理服务同区域的OBS桶中，且该OBS桶已授权。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CreateResetTracksTask(request *model.CreateResetTracksTaskRequest) (*model.CreateResetTracksTaskResponse, error) {
 	requestDef := GenReqDefForCreateResetTracksTask()
 
@@ -370,8 +523,7 @@ func (c *MpcClient) CreateResetTracksTaskInvoker(request *model.CreateResetTrack
 //
 // 取消合并音频多声道文件。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) DeleteMergeChannelsTask(request *model.DeleteMergeChannelsTaskRequest) (*model.DeleteMergeChannelsTaskResponse, error) {
 	requestDef := GenReqDefForDeleteMergeChannelsTask()
 
@@ -392,8 +544,7 @@ func (c *MpcClient) DeleteMergeChannelsTaskInvoker(request *model.DeleteMergeCha
 //
 // 取消重置音频文件声轨任务。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) DeleteResetTracksTask(request *model.DeleteResetTracksTaskRequest) (*model.DeleteResetTracksTaskResponse, error) {
 	requestDef := GenReqDefForDeleteResetTracksTask()
 
@@ -414,8 +565,7 @@ func (c *MpcClient) DeleteResetTracksTaskInvoker(request *model.DeleteResetTrack
 //
 // 查询声道合并任务的状态。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) ListMergeChannelsTask(request *model.ListMergeChannelsTaskRequest) (*model.ListMergeChannelsTaskResponse, error) {
 	requestDef := GenReqDefForListMergeChannelsTask()
 
@@ -436,8 +586,7 @@ func (c *MpcClient) ListMergeChannelsTaskInvoker(request *model.ListMergeChannel
 //
 // 查询音轨重置任务的状态。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) ListResetTracksTask(request *model.ListResetTracksTaskRequest) (*model.ListResetTracksTaskResponse, error) {
 	requestDef := GenReqDefForListResetTracksTask()
 
@@ -465,8 +614,7 @@ func (c *MpcClient) ListResetTracksTaskInvoker(request *model.ListResetTracksTas
 // ## 接口约束 ##
 //   无。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CreateMediaProcessTask(request *model.CreateMediaProcessTaskRequest) (*model.CreateMediaProcessTaskResponse, error) {
 	requestDef := GenReqDefForCreateMediaProcessTask()
 
@@ -494,8 +642,7 @@ func (c *MpcClient) CreateMediaProcessTaskInvoker(request *model.CreateMediaProc
 // ## 接口约束 ##
 //   仅可删除正在排队中的任务。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) DeleteMediaProcessTask(request *model.DeleteMediaProcessTaskRequest) (*model.DeleteMediaProcessTaskResponse, error) {
 	requestDef := GenReqDefForDeleteMediaProcessTask()
 
@@ -523,8 +670,7 @@ func (c *MpcClient) DeleteMediaProcessTaskInvoker(request *model.DeleteMediaProc
 // ## 接口约束 ##
 //   无。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) ListMediaProcessTask(request *model.ListMediaProcessTaskRequest) (*model.ListMediaProcessTaskResponse, error) {
 	requestDef := GenReqDefForListMediaProcessTask()
 
@@ -550,8 +696,7 @@ func (c *MpcClient) ListMediaProcessTaskInvoker(request *model.ListMediaProcessT
 // ## 接口约束 ##
 //   无。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CreateMpeCallBack(request *model.CreateMpeCallBackRequest) (*model.CreateMpeCallBackResponse, error) {
 	requestDef := GenReqDefForCreateMpeCallBack()
 
@@ -572,8 +717,7 @@ func (c *MpcClient) CreateMpeCallBackInvoker(request *model.CreateMpeCallBackReq
 //
 // 创建视频增强模板
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CreateQualityEnhanceTemplate(request *model.CreateQualityEnhanceTemplateRequest) (*model.CreateQualityEnhanceTemplateResponse, error) {
 	requestDef := GenReqDefForCreateQualityEnhanceTemplate()
 
@@ -594,8 +738,7 @@ func (c *MpcClient) CreateQualityEnhanceTemplateInvoker(request *model.CreateQua
 //
 // 删除用户视频增强模板。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) DeleteQualityEnhanceTemplate(request *model.DeleteQualityEnhanceTemplateRequest) (*model.DeleteQualityEnhanceTemplateResponse, error) {
 	requestDef := GenReqDefForDeleteQualityEnhanceTemplate()
 
@@ -616,8 +759,7 @@ func (c *MpcClient) DeleteQualityEnhanceTemplateInvoker(request *model.DeleteQua
 //
 // 查询视频增强预置模板，返回所有结果。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) ListQualityEnhanceDefaultTemplate(request *model.ListQualityEnhanceDefaultTemplateRequest) (*model.ListQualityEnhanceDefaultTemplateResponse, error) {
 	requestDef := GenReqDefForListQualityEnhanceDefaultTemplate()
 
@@ -638,8 +780,7 @@ func (c *MpcClient) ListQualityEnhanceDefaultTemplateInvoker(request *model.List
 //
 // 更新视频增强模板。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) UpdateQualityEnhanceTemplate(request *model.UpdateQualityEnhanceTemplateRequest) (*model.UpdateQualityEnhanceTemplateResponse, error) {
 	requestDef := GenReqDefForUpdateQualityEnhanceTemplate()
 
@@ -660,8 +801,7 @@ func (c *MpcClient) UpdateQualityEnhanceTemplateInvoker(request *model.UpdateQua
 //
 // 查询媒资转码详情
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) ListTranscodeDetail(request *model.ListTranscodeDetailRequest) (*model.ListTranscodeDetailResponse, error) {
 	requestDef := GenReqDefForListTranscodeDetail()
 
@@ -682,8 +822,7 @@ func (c *MpcClient) ListTranscodeDetailInvoker(request *model.ListTranscodeDetai
 //
 // 取消已下发的转封装任务，仅支持取消正在排队中的任务。。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CancelRemuxTask(request *model.CancelRemuxTaskRequest) (*model.CancelRemuxTaskResponse, error) {
 	requestDef := GenReqDefForCancelRemuxTask()
 
@@ -705,8 +844,7 @@ func (c *MpcClient) CancelRemuxTaskInvoker(request *model.CancelRemuxTaskRequest
 // 创建转封装任务，转换音视频文件的格式，但不改变其分辨率和码率。
 // 待转封装的媒资文件需要存储在与媒体处理服务同区域的OBS桶中，且该OBS桶已授权。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CreateRemuxTask(request *model.CreateRemuxTaskRequest) (*model.CreateRemuxTaskResponse, error) {
 	requestDef := GenReqDefForCreateRemuxTask()
 
@@ -727,8 +865,7 @@ func (c *MpcClient) CreateRemuxTaskInvoker(request *model.CreateRemuxTaskRequest
 //
 // 对失败的转封装任务进行重试。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CreateRetryRemuxTask(request *model.CreateRetryRemuxTaskRequest) (*model.CreateRetryRemuxTaskResponse, error) {
 	requestDef := GenReqDefForCreateRetryRemuxTask()
 
@@ -745,12 +882,11 @@ func (c *MpcClient) CreateRetryRemuxTaskInvoker(request *model.CreateRetryRemuxT
 	return &CreateRetryRemuxTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// DeleteRemuxTask 删除转封装任务(仅供Console调用)
+// DeleteRemuxTask 删除转封装任务记录
 //
-// 删除转封装任务
+// 删除转封装任务记录，只能删除状态为“已取消”，“转码成功”，“转码失败”的任务记录。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) DeleteRemuxTask(request *model.DeleteRemuxTaskRequest) (*model.DeleteRemuxTaskResponse, error) {
 	requestDef := GenReqDefForDeleteRemuxTask()
 
@@ -761,7 +897,7 @@ func (c *MpcClient) DeleteRemuxTask(request *model.DeleteRemuxTaskRequest) (*mod
 	}
 }
 
-// DeleteRemuxTaskInvoker 删除转封装任务(仅供Console调用)
+// DeleteRemuxTaskInvoker 删除转封装任务记录
 func (c *MpcClient) DeleteRemuxTaskInvoker(request *model.DeleteRemuxTaskRequest) *DeleteRemuxTaskInvoker {
 	requestDef := GenReqDefForDeleteRemuxTask()
 	return &DeleteRemuxTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
@@ -771,8 +907,7 @@ func (c *MpcClient) DeleteRemuxTaskInvoker(request *model.DeleteRemuxTaskRequest
 //
 // 查询转封装任务状态。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) ListRemuxTask(request *model.ListRemuxTaskRequest) (*model.ListRemuxTaskResponse, error) {
 	requestDef := GenReqDefForListRemuxTask()
 
@@ -793,8 +928,7 @@ func (c *MpcClient) ListRemuxTaskInvoker(request *model.ListRemuxTaskRequest) *L
 //
 // 新建转码模板组，最多支持一进六出。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CreateTemplateGroup(request *model.CreateTemplateGroupRequest) (*model.CreateTemplateGroupResponse, error) {
 	requestDef := GenReqDefForCreateTemplateGroup()
 
@@ -815,8 +949,7 @@ func (c *MpcClient) CreateTemplateGroupInvoker(request *model.CreateTemplateGrou
 //
 // 删除转码模板组。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) DeleteTemplateGroup(request *model.DeleteTemplateGroupRequest) (*model.DeleteTemplateGroupResponse, error) {
 	requestDef := GenReqDefForDeleteTemplateGroup()
 
@@ -837,8 +970,7 @@ func (c *MpcClient) DeleteTemplateGroupInvoker(request *model.DeleteTemplateGrou
 //
 // 查询转码模板组列表。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) ListTemplateGroup(request *model.ListTemplateGroupRequest) (*model.ListTemplateGroupResponse, error) {
 	requestDef := GenReqDefForListTemplateGroup()
 
@@ -859,8 +991,7 @@ func (c *MpcClient) ListTemplateGroupInvoker(request *model.ListTemplateGroupReq
 //
 // 修改模板组接口。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) UpdateTemplateGroup(request *model.UpdateTemplateGroupRequest) (*model.UpdateTemplateGroupResponse, error) {
 	requestDef := GenReqDefForUpdateTemplateGroup()
 
@@ -885,8 +1016,7 @@ func (c *MpcClient) UpdateTemplateGroupInvoker(request *model.UpdateTemplateGrou
 // 约束：
 //   暂只支持生成JPG格式的图片文件。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CreateThumbnailsTask(request *model.CreateThumbnailsTaskRequest) (*model.CreateThumbnailsTaskResponse, error) {
 	requestDef := GenReqDefForCreateThumbnailsTask()
 
@@ -908,8 +1038,7 @@ func (c *MpcClient) CreateThumbnailsTaskInvoker(request *model.CreateThumbnailsT
 // 取消已下发截图任务。
 // 只能取消已接受尚在队列中等待处理的任务，已完成或正在执行阶段的任务不能取消。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) DeleteThumbnailsTask(request *model.DeleteThumbnailsTaskRequest) (*model.DeleteThumbnailsTaskResponse, error) {
 	requestDef := GenReqDefForDeleteThumbnailsTask()
 
@@ -930,8 +1059,7 @@ func (c *MpcClient) DeleteThumbnailsTaskInvoker(request *model.DeleteThumbnailsT
 //
 // 查询截图任务状态。返回任务执行结果，包括状态、输入、输出等信息。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) ListThumbnailsTask(request *model.ListThumbnailsTaskRequest) (*model.ListThumbnailsTaskResponse, error) {
 	requestDef := GenReqDefForListThumbnailsTask()
 
@@ -953,8 +1081,7 @@ func (c *MpcClient) ListThumbnailsTaskInvoker(request *model.ListThumbnailsTaskR
 // 新建转码任务可以将视频进行转码，并在转码过程中压制水印、视频截图等。视频转码前需要配置转码模板。
 // 待转码的音视频需要存储在与媒体处理服务同区域的OBS桶中，且该OBS桶已授权。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CreateTranscodingTask(request *model.CreateTranscodingTaskRequest) (*model.CreateTranscodingTaskResponse, error) {
 	requestDef := GenReqDefForCreateTranscodingTask()
 
@@ -976,8 +1103,7 @@ func (c *MpcClient) CreateTranscodingTaskInvoker(request *model.CreateTranscodin
 // 取消已下发转码任务。
 // 只能取消正在转码任务队列中排队的转码任务。已开始转码或已完成的转码任务不能取消。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) DeleteTranscodingTask(request *model.DeleteTranscodingTaskRequest) (*model.DeleteTranscodingTaskResponse, error) {
 	requestDef := GenReqDefForDeleteTranscodingTask()
 
@@ -994,12 +1120,53 @@ func (c *MpcClient) DeleteTranscodingTaskInvoker(request *model.DeleteTranscodin
 	return &DeleteTranscodingTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// DeleteTranscodingTaskByConsole 删除转码任务记录
+//
+// 删除转码任务记录，只能删除状态为“已取消”，“转码成功”，“转码失败”的转码任务记录。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *MpcClient) DeleteTranscodingTaskByConsole(request *model.DeleteTranscodingTaskByConsoleRequest) (*model.DeleteTranscodingTaskByConsoleResponse, error) {
+	requestDef := GenReqDefForDeleteTranscodingTaskByConsole()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteTranscodingTaskByConsoleResponse), nil
+	}
+}
+
+// DeleteTranscodingTaskByConsoleInvoker 删除转码任务记录
+func (c *MpcClient) DeleteTranscodingTaskByConsoleInvoker(request *model.DeleteTranscodingTaskByConsoleRequest) *DeleteTranscodingTaskByConsoleInvoker {
+	requestDef := GenReqDefForDeleteTranscodingTaskByConsole()
+	return &DeleteTranscodingTaskByConsoleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListStatSummary 查询点播概览信息
+//
+// 查询最近一周，最近一月或者自定义时间段的“转码时长”，“调用转码API次数”。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *MpcClient) ListStatSummary(request *model.ListStatSummaryRequest) (*model.ListStatSummaryResponse, error) {
+	requestDef := GenReqDefForListStatSummary()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListStatSummaryResponse), nil
+	}
+}
+
+// ListStatSummaryInvoker 查询点播概览信息
+func (c *MpcClient) ListStatSummaryInvoker(request *model.ListStatSummaryRequest) *ListStatSummaryInvoker {
+	requestDef := GenReqDefForListStatSummary()
+	return &ListStatSummaryInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListTranscodingTask 查询转码任务
 //
 // 查询转码任务状态。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) ListTranscodingTask(request *model.ListTranscodingTaskRequest) (*model.ListTranscodingTaskResponse, error) {
 	requestDef := GenReqDefForListTranscodingTask()
 
@@ -1020,8 +1187,7 @@ func (c *MpcClient) ListTranscodingTaskInvoker(request *model.ListTranscodingTas
 //
 // 新建转码模板，采用自定义的模板转码。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CreateTransTemplate(request *model.CreateTransTemplateRequest) (*model.CreateTransTemplateResponse, error) {
 	requestDef := GenReqDefForCreateTransTemplate()
 
@@ -1042,8 +1208,7 @@ func (c *MpcClient) CreateTransTemplateInvoker(request *model.CreateTransTemplat
 //
 // 删除转码模板。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) DeleteTemplate(request *model.DeleteTemplateRequest) (*model.DeleteTemplateResponse, error) {
 	requestDef := GenReqDefForDeleteTemplate()
 
@@ -1065,8 +1230,7 @@ func (c *MpcClient) DeleteTemplateInvoker(request *model.DeleteTemplateRequest) 
 // 查询用户自定义转码配置模板。
 // 支持指定模板ID查询，或分页全量查询。转码配置模板ID，最多10个。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) ListTemplate(request *model.ListTemplateRequest) (*model.ListTemplateResponse, error) {
 	requestDef := GenReqDefForListTemplate()
 
@@ -1087,8 +1251,7 @@ func (c *MpcClient) ListTemplateInvoker(request *model.ListTemplateRequest) *Lis
 //
 // 更新转码模板。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) UpdateTransTemplate(request *model.UpdateTransTemplateRequest) (*model.UpdateTransTemplateResponse, error) {
 	requestDef := GenReqDefForUpdateTransTemplate()
 
@@ -1109,8 +1272,7 @@ func (c *MpcClient) UpdateTransTemplateInvoker(request *model.UpdateTransTemplat
 //
 // 自定义水印模板。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CreateWatermarkTemplate(request *model.CreateWatermarkTemplateRequest) (*model.CreateWatermarkTemplateResponse, error) {
 	requestDef := GenReqDefForCreateWatermarkTemplate()
 
@@ -1131,8 +1293,7 @@ func (c *MpcClient) CreateWatermarkTemplateInvoker(request *model.CreateWatermar
 //
 // 删除自定义水印模板。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) DeleteWatermarkTemplate(request *model.DeleteWatermarkTemplateRequest) (*model.DeleteWatermarkTemplateResponse, error) {
 	requestDef := GenReqDefForDeleteWatermarkTemplate()
 
@@ -1153,8 +1314,7 @@ func (c *MpcClient) DeleteWatermarkTemplateInvoker(request *model.DeleteWatermar
 //
 // 查询自定义水印模板。支持指定模板ID查询，或分页全量查询。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) ListWatermarkTemplate(request *model.ListWatermarkTemplateRequest) (*model.ListWatermarkTemplateResponse, error) {
 	requestDef := GenReqDefForListWatermarkTemplate()
 
@@ -1175,8 +1335,7 @@ func (c *MpcClient) ListWatermarkTemplateInvoker(request *model.ListWatermarkTem
 //
 // 更新自定义水印模板。
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) UpdateWatermarkTemplate(request *model.UpdateWatermarkTemplateRequest) (*model.UpdateWatermarkTemplateResponse, error) {
 	requestDef := GenReqDefForUpdateWatermarkTemplate()
 

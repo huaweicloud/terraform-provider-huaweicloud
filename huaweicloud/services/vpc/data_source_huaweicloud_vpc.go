@@ -2,6 +2,7 @@ package vpc
 
 import (
 	"context"
+	"log"
 
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/vpcs"
@@ -9,8 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceVpcV1() *schema.Resource {
@@ -82,7 +81,7 @@ func dataSourceVpcV1Read(_ context.Context, d *schema.ResourceData, meta interfa
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	listOpts := vpcs.ListOpts{
@@ -95,22 +94,22 @@ func dataSourceVpcV1Read(_ context.Context, d *schema.ResourceData, meta interfa
 
 	refinedVpcs, err := vpcs.List(vpcClient, listOpts)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve vpcs: %s", err)
+		return diag.Errorf("unable to retrieve vpcs: %s", err)
 	}
 
 	if len(refinedVpcs) < 1 {
-		return fmtp.DiagErrorf("Your query returned no results. " +
+		return diag.Errorf("your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(refinedVpcs) > 1 {
-		return fmtp.DiagErrorf("Your query returned more than one result." +
+		return diag.Errorf("your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
 	Vpc := refinedVpcs[0]
 
-	logp.Printf("[INFO] Retrieved Vpc using given filter %s: %+v", Vpc.ID, Vpc)
+	log.Printf("[INFO] Retrieved Vpc using given filter %s: %+v", Vpc.ID, Vpc)
 	d.SetId(Vpc.ID)
 
 	d.Set("region", config.GetRegion(d))
@@ -135,10 +134,10 @@ func dataSourceVpcV1Read(_ context.Context, d *schema.ResourceData, meta interfa
 		if resourceTags, err := tags.Get(vpcV2Client, "vpcs", d.Id()).Extract(); err == nil {
 			tagmap := utils.TagsToMap(resourceTags.Tags)
 			if err := d.Set("tags", tagmap); err != nil {
-				return fmtp.DiagErrorf("Error saving tags to state for VPC (%s): %s", d.Id(), err)
+				return diag.Errorf("error saving tags to state for VPC (%s): %s", d.Id(), err)
 			}
 		} else {
-			logp.Printf("[WARN] Error fetching tags of VPC (%s): %s", d.Id(), err)
+			log.Printf("[WARN] Error fetching tags of VPC (%s): %s", d.Id(), err)
 		}
 	}
 

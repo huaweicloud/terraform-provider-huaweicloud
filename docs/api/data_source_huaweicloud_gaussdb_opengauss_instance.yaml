@@ -6,9 +6,9 @@ schemes:
   - https
 host: huaweicloud.com
 tags:
-  - name: GaussDBforopenGauss
+  - name: GaussDB
 paths:
   /v3/{project_id}/instances:
     get:
-      tag: GaussDBforopenGauss
+      tag: GaussDB
       operationId: List

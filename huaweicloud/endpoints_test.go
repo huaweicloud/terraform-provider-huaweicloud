@@ -880,6 +880,18 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 		t.Fatalf("ER endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
 	t.Logf("ER endpoint:\t %s", actualURL)
+
+	// Test the endpoint of DC endpoint (ver.3)
+	serviceClient, err = config.DcV3Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating DC v3 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://dcaas.%s.%s/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("DC endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("DC endpoint:\t %s", actualURL)
 }
 
 func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {

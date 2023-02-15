@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ga_endpoint": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "Specifies when the endpoint was created.",
+                "computed": true
+              },
+              "endpoint_group_id": {
+                "type": "string",
+                "description": "Specifies the ID of the endpoint group to which the endpoint belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "health_state": {
+                "type": "string",
+                "description": "Specifies the health check result of the endpoint.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_address": {
+                "type": "string",
+                "description": "Specifies the IP address of the endpoint.",
+                "required": true,
+                "forcenew": true
+              },
+              "resource_id": {
+                "type": "string",
+                "description": "Specifies the endpoint ID, for example, EIP ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "resource_type": {
+                "type": "string",
+                "description": "Specifies the endpoint type.",
+                "optional": true,
+                "forcenew": true,
+                "default": "EIP"
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the provisioning status.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Specifies when the endpoint was updated.",
+                "computed": true
+              },
+              "weight": {
+                "type": "number",
+                "description": "Specifies the weight of the endpoint based on which the listener distributes traffic.",
+                "optional": true,
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GA",
+            "name": "Global Accelerator",
+            "catalog": "Networking",
+            "name_cn": "全球加速",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

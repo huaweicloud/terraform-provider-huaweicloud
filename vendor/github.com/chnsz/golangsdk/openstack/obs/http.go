@@ -464,6 +464,7 @@ func prepareRetry(resp *http.Response, headers map[string][]string, _data io.Rea
 		if err != nil {
 			return nil, nil, err
 		}
+		r.readedCount = 0
 	}
 	return _data, resp, nil
 }

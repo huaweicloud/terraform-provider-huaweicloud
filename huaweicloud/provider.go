@@ -18,6 +18,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/as"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/bms"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbh"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cce"
@@ -25,6 +26,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cdm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cdn"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ces"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cfw"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cloudtable"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cmdb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/codehub"
@@ -33,6 +35,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/css"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dataarts"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dbss"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dds"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
@@ -41,6 +45,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dli"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/drs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dsc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dws"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ecs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/eip"
@@ -49,7 +54,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/er"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/evs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/fgs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ga"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/gaussdb"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/hss"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iotda"
@@ -368,6 +375,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_bms_flavors": bms.DataSourceBmsFlavors(),
 			"huaweicloud_cbr_vaults":  cbr.DataSourceCbrVaultsV3(),
 
+			"huaweicloud_cbh_instances": cbh.DataSourceCbhInstances(),
+
 			"huaweicloud_cce_addon_template": cce.DataSourceCCEAddonTemplateV3(),
 			"huaweicloud_cce_cluster":        cce.DataSourceCCEClusterV3(),
 			"huaweicloud_cce_clusters":       cce.DataSourceCCEClusters(),
@@ -380,9 +389,11 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cdn_domain_statistics": cdn.DataSourceStatistics(),
 
-			"huaweicloud_compute_flavors":   ecs.DataSourceEcsFlavors(),
-			"huaweicloud_compute_instance":  ecs.DataSourceComputeInstance(),
-			"huaweicloud_compute_instances": ecs.DataSourceComputeInstances(),
+			"huaweicloud_cfw_firewalls":        cfw.DataSourceFirewalls(),
+			"huaweicloud_compute_flavors":      ecs.DataSourceEcsFlavors(),
+			"huaweicloud_compute_instance":     ecs.DataSourceComputeInstance(),
+			"huaweicloud_compute_instances":    ecs.DataSourceComputeInstances(),
+			"huaweicloud_compute_servergroups": ecs.DataSourceComputeServerGroups(),
 
 			"huaweicloud_csbs_backup":        dataSourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy": dataSourceCSBSBackupPolicyV1(),
@@ -392,13 +403,18 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_dcs_flavors":        dcs.DataSourceDcsFlavorsV2(),
 			"huaweicloud_dcs_maintainwindow": dcs.DataSourceDcsMaintainWindow(),
+			"huaweicloud_dcs_instances":      dcs.DataSourceDcsInstance(),
 
-			"huaweicloud_dds_flavors": dds.DataSourceDDSFlavorV3(),
+			"huaweicloud_dds_flavors":   dds.DataSourceDDSFlavorV3(),
+			"huaweicloud_dds_instances": dds.DataSourceDdsInstance(),
 
 			"huaweicloud_dms_kafka_flavors":   dms.DataSourceKafkaFlavors(),
 			"huaweicloud_dms_kafka_instances": dms.DataSourceDmsKafkaInstances(),
 			"huaweicloud_dms_product":         dms.DataSourceDmsProduct(),
 			"huaweicloud_dms_maintainwindow":  dms.DataSourceDmsMaintainWindow(),
+
+			"huaweicloud_dms_rocketmq_broker":    dms.DataSourceDmsRocketMQBroker(),
+			"huaweicloud_dms_rocketmq_instances": dms.DataSourceDmsRocketMQInstances(),
 
 			"huaweicloud_enterprise_project": eps.DataSourceEnterpriseProject(),
 
@@ -508,7 +524,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_dedicated_instances": waf.DataSourceWafDedicatedInstancesV1(),
 			"huaweicloud_waf_reference_tables":    waf.DataSourceWafReferenceTablesV1(),
 			"huaweicloud_waf_instance_groups":     waf.DataSourceWafInstanceGroups(),
-			"huaweicloud_dws_flavors":             dws.DataSourceDwsFlavlors(),
+			"huaweicloud_dws_flavors":             dws.DataSourceDwsFlavors(),
 
 			// Legacy
 			"huaweicloud_images_image_v2":        ims.DataSourceImagesImageV2(),
@@ -603,6 +619,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_cbr_policy": cbr.ResourceCBRPolicyV3(),
 			"huaweicloud_cbr_vault":  cbr.ResourceVault(),
 
+			"huaweicloud_cbh_instance": cbh.ResourceCBHInstance(),
+
 			"huaweicloud_cc_connection":       cc.ResourceCloudConnection(),
 			"huaweicloud_cc_network_instance": cc.ResourceNetworkInstance(),
 
@@ -625,8 +643,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdm_job":     cdm.ResourceCdmJob(),
 			"huaweicloud_cdm_link":    cdm.ResourceCdmLink(),
 
-			"huaweicloud_cdn_domain":         resourceCdnDomainV1(),
-			"huaweicloud_ces_alarmrule":      ces.ResourceAlarmRule(),
+			"huaweicloud_cdn_domain":    resourceCdnDomainV1(),
+			"huaweicloud_ces_alarmrule": ces.ResourceAlarmRule(),
+
+			"huaweicloud_cfw_protection_rule": cfw.ResourceProtectionRule(),
+
 			"huaweicloud_cloudtable_cluster": cloudtable.ResourceCloudTableCluster(),
 
 			"huaweicloud_codehub_repository": codehub.ResourceRepository(),
@@ -650,6 +671,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_cluster":   css.ResourceCssCluster(),
 			"huaweicloud_css_snapshot":  css.ResourceCssSnapshot(),
 			"huaweicloud_css_thesaurus": css.ResourceCssthesaurus(),
+
+			"huaweicloud_dbss_instance": dbss.ResourceInstance(),
+
+			"huaweicloud_dc_virtual_gateway":   dc.ResourceVirtualGateway(),
+			"huaweicloud_dc_virtual_interface": dc.ResourceVirtualInterface(),
 
 			"huaweicloud_dcs_instance": dcs.ResourceDcsInstance(),
 
@@ -675,7 +701,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_kafka_topic":       dms.ResourceDmsKafkaTopic(),
 			"huaweicloud_dms_rabbitmq_instance": dms.ResourceDmsRabbitmqInstance(),
 
-			"huaweicloud_dms_rocketmq_instance": dms.ResourceDmsRocketMQInstance(),
+			"huaweicloud_dms_rocketmq_instance":       dms.ResourceDmsRocketMQInstance(),
+			"huaweicloud_dms_rocketmq_consumer_group": dms.ResourceDmsRocketMQConsumerGroup(),
+			"huaweicloud_dms_rocketmq_topic":          dms.ResourceDmsRocketMQTopic(),
+			"huaweicloud_dms_rocketmq_user":           dms.ResourceDmsRocketMQUser(),
 
 			"huaweicloud_dns_ptrrecord": ResourceDNSPtrRecordV2(),
 			"huaweicloud_dns_recordset": ResourceDNSRecordSetV2(),
@@ -711,6 +740,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_fgs_function":   fgs.ResourceFgsFunctionV2(),
 			"huaweicloud_fgs_trigger":    fgs.ResourceFunctionGraphTrigger(),
 
+			"huaweicloud_ga_accelerator":    ga.ResourceAccelerator(),
+			"huaweicloud_ga_listener":       ga.ResourceListener(),
+			"huaweicloud_ga_endpoint_group": ga.ResourceEndpointGroup(),
+			"huaweicloud_ga_endpoint":       ga.ResourceEndpoint(),
+			"huaweicloud_ga_health_check":   ga.ResourceHealthCheck(),
+
 			"huaweicloud_gaussdb_cassandra_instance": gaussdb.ResourceGeminiDBInstanceV3(),
 			"huaweicloud_gaussdb_mysql_instance":     gaussdb.ResourceGaussDBInstance(),
 			"huaweicloud_gaussdb_mysql_proxy":        gaussdb.ResourceGaussDBProxy(),
@@ -720,6 +755,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_mongo_instance":     gaussdb.ResourceGaussDBMongoInstanceV3(),
 
 			"huaweicloud_ges_graph": ResourceGesGraphV1(),
+
+			"huaweicloud_hss_host_group": hss.ResourceHostGroup(),
 
 			"huaweicloud_identity_access_key":       iam.ResourceIdentityKey(),
 			"huaweicloud_identity_acl":              iam.ResourceIdentityACL(),
@@ -876,6 +913,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_scm_certificate": scm.ResourceScmCertificate(),
 
 			"huaweicloud_waf_certificate":                waf.ResourceWafCertificateV1(),
+			"huaweicloud_waf_cloud_instance":             waf.ResourceCloudInstance(),
 			"huaweicloud_waf_domain":                     waf.ResourceWafDomainV1(),
 			"huaweicloud_waf_policy":                     waf.ResourceWafPolicyV1(),
 			"huaweicloud_waf_rule_blacklist":             waf.ResourceWafRuleBlackListV1(),
@@ -896,6 +934,9 @@ func Provider() *schema.Provider {
 
 			// devCloud
 			"huaweicloud_projectman_project": projectman.ResourceProject(),
+
+			"huaweicloud_dsc_instance":  dsc.ResourceDscInstance(),
+			"huaweicloud_dsc_asset_obs": dsc.ResourceAssetObs(),
 
 			// internal only
 			"huaweicloud_apm_aksk":                apm.ResourceApmAkSk(),

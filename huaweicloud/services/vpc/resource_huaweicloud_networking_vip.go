@@ -2,6 +2,7 @@ package vpc
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/chnsz/golangsdk"
@@ -15,8 +16,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceNetworkingVip() *schema.Resource {
@@ -97,26 +96,26 @@ func resourceNetworkingVipCreate(ctx context.Context, d *schema.ResourceData, me
 	config := meta.(*config.Config)
 	client, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud VPC network v1 client: %s", err)
+		return diag.Errorf("error creating VPC network v1 client: %s", err)
 	}
 
 	networkId := d.Get("network_id").(string)
 	n, err := subnets.Get(client, networkId).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error retrieving HuaweiCloud subnet by network ID (%s): %s", networkId, err)
+		return diag.Errorf("error retrieving subnet by network ID (%s): %s", networkId, err)
 	}
 
 	// Check whether the subnet ID entered by the user belongs to the same subnet as the network ID.
 	subnetId := d.Get("subnet_id").(string)
 	if subnetId != "" && subnetId != n.SubnetId && subnetId != n.IPv6SubnetId {
-		return fmtp.DiagErrorf("The subnet ID does not belong to the subnet where the network ID is located.")
+		return diag.Errorf("the subnet ID does not belong to the subnet where the network ID is located.")
 	}
 
 	// Pre-check for subnet network, the virtual IP of IPv6 must be established on the basis that the subnet supports
 	// IPv6.
 	if d.Get("ip_version").(int) == 6 {
 		if n.IPv6SubnetId == "" {
-			return fmtp.DiagErrorf("The subnet does not support IPv6, please enable IPv6 first.")
+			return diag.Errorf("the subnet does not support IPv6, please enable IPv6 first.")
 		}
 		subnetId = n.IPv6SubnetId
 	} else {
@@ -135,12 +134,12 @@ func resourceNetworkingVipCreate(ctx context.Context, d *schema.ResourceData, me
 		},
 	}
 
-	logp.Printf("[DEBUG] Updating network VIP (%s) with options: %#v", d.Id(), opts)
+	log.Printf("[DEBUG] Updating network VIP (%s) with options: %#v", d.Id(), opts)
 	vip, err := ports.Create(client, opts)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud network VIP: %s", err)
+		return diag.Errorf("error creating network VIP: %s", err)
 	}
-	logp.Printf("[DEBUG] Waiting for HuaweiCloud network VIP (%s) to become available.", vip.ID)
+	log.Printf("[DEBUG] Waiting for network VIP (%s) to become available.", vip.ID)
 	d.SetId(vip.ID)
 
 	stateConf := &resource.StateChangeConf{
@@ -192,7 +191,7 @@ func resourceNetworkingVipRead(_ context.Context, d *schema.ResourceData, meta i
 	region := config.GetRegion(d)
 	client, err := config.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud VPC network v1 client: %s", err)
+		return diag.Errorf("error creating VPC network v1 client: %s", err)
 	}
 
 	vip, err := ports.Get(client, d.Id())
@@ -200,7 +199,7 @@ func resourceNetworkingVipRead(_ context.Context, d *schema.ResourceData, meta i
 		return common.CheckDeletedDiag(d, err, "VPC network VIP")
 	}
 
-	logp.Printf("[DEBUG] Retrieved VIP %s: %+v", d.Id(), vip)
+	log.Printf("[DEBUG] Retrieved VIP %s: %+v", d.Id(), vip)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
@@ -219,17 +218,17 @@ func resourceNetworkingVipUpdate(ctx context.Context, d *schema.ResourceData, me
 	config := meta.(*config.Config)
 	client, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud VPC network v1 client: %s", err)
+		return diag.Errorf("error creating VPC network v1 client: %s", err)
 	}
 
 	opts := ports.UpdateOpts{
 		Name: d.Get("name").(string),
 	}
-	logp.Printf("[DEBUG] Updating network VIP (%s) with options: %#v", d.Id(), opts)
+	log.Printf("[DEBUG] Updating network VIP (%s) with options: %#v", d.Id(), opts)
 
 	_, err = ports.Update(client, d.Id(), opts)
 	if err != nil {
-		return fmtp.DiagErrorf("Error updating HuaweiCloud networking VIP: %s", err)
+		return diag.Errorf("error updating networking VIP: %s", err)
 	}
 
 	return resourceNetworkingVipRead(ctx, d, meta)
@@ -239,12 +238,12 @@ func resourceNetworkingVipDelete(ctx context.Context, d *schema.ResourceData, me
 	config := meta.(*config.Config)
 	client, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud VPC network v1 client: %s", err)
+		return diag.Errorf("error creating VPC network v1 client: %s", err)
 	}
 
 	err = ports.Delete(client, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting HuaweiCloud Network VIP: %s", err)
+		return diag.Errorf("error deleting Network VIP: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -258,7 +257,7 @@ func resourceNetworkingVipDelete(ctx context.Context, d *schema.ResourceData, me
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting HuaweiCloud Network VIP: %s", err)
+		return diag.Errorf("error deleting Network VIP: %s", err)
 	}
 
 	d.SetId("")
@@ -271,12 +270,12 @@ func waitForNetworkVipStateRefresh(networkingClient *golangsdk.ServiceClient, vi
 		resp, err := ports.Get(networkingClient, vipId)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[DEBUG] The network VIP (%s) has been deleted.", vipId)
+				log.Printf("[DEBUG] The network VIP (%s) has been deleted.", vipId)
 				return resp, "DELETED", nil
 			}
 			return nil, "ERROR", err
 		}
-		logp.Printf("[DEBUG] The status of the network VIP is: %s", resp.Status)
+		log.Printf("[DEBUG] The status of the network VIP is: %s", resp.Status)
 		return resp, resp.Status, nil
 	}
 }

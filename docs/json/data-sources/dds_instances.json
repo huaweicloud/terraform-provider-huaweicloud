@@ -1,0 +1,113 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dds_instances": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "backup_strategy": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "keep_days": "number",
+                            "start_time": "string"
+                          }
+                        ]
+                      ],
+                      "datastore": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "storage_engine": "string",
+                            "type": "string",
+                            "version": "string"
+                          }
+                        ]
+                      ],
+                      "db_username": "string",
+                      "disk_encryption_id": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "mode": "string",
+                      "name": "string",
+                      "nodes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "name": "string",
+                            "private_ip": "string",
+                            "public_ip": "string",
+                            "role": "string",
+                            "status": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "port": "number",
+                      "security_group_id": "string",
+                      "ssl": "bool",
+                      "status": "string",
+                      "subnet_id": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of DDS instances.",
+                "computed": true
+              },
+              "mode": {
+                "type": "string",
+                "description": "Specifies the mode of the database instance.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the DB instance name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "Specifies the subnet Network ID.",
+                "optional": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "Specifies the VPC ID.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

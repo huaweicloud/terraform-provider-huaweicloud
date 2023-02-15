@@ -1,0 +1,98 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ga_listener": {
+          "block": {
+            "attributes": {
+              "accelerator_id": {
+                "type": "string",
+                "description": "Specifies the ID of the global accelerator associated with the listener.",
+                "required": true,
+                "forcenew": true
+              },
+              "client_affinity": {
+                "type": "string",
+                "description": "|-\n                    Specifies the client affinity. The value can be one of the following:\n                      - **Source IP address**: Requests from the same IP address are forwarded to the same endpoint.\n                      - **NONE**: Requests are evenly forwarded across the endpoints.",
+                "optional": true,
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "Specifies when the listener was created.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "|-\n                    Specifies the information about the listener. The value can contain 0 to 255 characters.\n                    The following characters are not allowed: <>",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "|-\n                    Specifies the listener name. The name can contain 1 to 64 characters.\n                    Only letters, digits, and hyphens (-) are allowed.",
+                "required": true
+              },
+              "protocol": {
+                "type": "string",
+                "description": "Specifies the protocol used by the listener to forward requests.",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "description": "|-\n                    Specifies the provisioning status. The value can be one of the following:\n                      - **ACTIVE**: The resource is running.\n                      - **PENDING**: The status is to be determined.\n                      - **ERROR**: Failed to create the resource.\n                      - **DELETING**: The resource is being deleted.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Specifies when the listener was updated.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "port_ranges": {
+                "block": {
+                  "attributes": {
+                    "from_port": {
+                      "type": "number",
+                      "description": "Specifies the start port number.",
+                      "required": true
+                    },
+                    "to_port": {
+                      "type": "number",
+                      "description": "Specifies the end port number.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the port range used by the listener."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 10
+              }
+            }
+          },
+          "product": {
+            "short": "GA",
+            "name": "Global Accelerator",
+            "catalog": "Networking",
+            "name_cn": "全球加速",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

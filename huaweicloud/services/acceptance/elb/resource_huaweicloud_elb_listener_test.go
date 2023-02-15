@@ -4,19 +4,19 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/elb/v3/listeners"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/chnsz/golangsdk/openstack/elb/v3/listeners"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func getELBListenerResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.ElbV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return nil, fmt.Errorf("error creating ELB client: %s", err)
 	}
 	return listeners.Get(client, state.Primary.ID).Extract()
 }

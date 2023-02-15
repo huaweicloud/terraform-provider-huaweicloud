@@ -8,7 +8,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	act "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dli"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -18,7 +17,7 @@ import (
 func getDliQueueResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := config.DliV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("error creating Dli v1 client, err=%s", err)
+		return nil, fmt.Errorf("error creating Dli v1 client, err=%s", err)
 	}
 
 	result := queues.Get(client, state.Primary.ID)

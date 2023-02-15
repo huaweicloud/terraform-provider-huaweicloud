@@ -35,6 +35,7 @@ func ResourceCCENodeV3() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -74,15 +75,18 @@ func ResourceCCENodeV3() *schema.Resource {
 			"key_pair": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				ExactlyOneOf: []string{"password", "key_pair"},
 			},
 			"password": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				Sensitive:    true,
 				ExactlyOneOf: []string{"password", "key_pair"},
+			},
+			"private_key": {
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
 			},
 			"root_volume": {
 				Type:     schema.TypeList,
@@ -118,6 +122,12 @@ func ResourceCCENodeV3() *schema.Resource {
 							ForceNew: true,
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+						"kms_key_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
 						},
 					}},
 			},
@@ -507,7 +517,16 @@ func resourceCCERootVolume(d *schema.ResourceData) nodes.VolumeSpec {
 		root.VolumeType = rawMap["volumetype"].(string)
 		root.HwPassthrough = rawMap["hw_passthrough"].(bool)
 		root.ExtendParam = rawMap["extend_params"].(map[string]interface{})
+
+		if rawMap["kms_key_id"].(string) != "" {
+			metadata := nodes.VolumeMetadata{
+				SystemEncrypted: "1",
+				SystemCmkid:     rawMap["kms_key_id"].(string),
+			}
+			root.Metadata = &metadata
+		}
 	}
+
 	return root
 }
 
@@ -616,10 +635,10 @@ func resourceCCEExtendParam(d *schema.ResourceData) map[string]interface{} {
 		extendParam["publicKey"] = v.(string)
 	}
 	if v, ok := d.GetOk("preinstall"); ok {
-		extendParam["alpha.cce/preInstall"] = utils.TryBase64EncodeToString(v.(string))
+		extendParam["alpha.cce/preInstall"] = utils.TryBase64EncodeString(v.(string))
 	}
 	if v, ok := d.GetOk("postinstall"); ok {
-		extendParam["alpha.cce/postInstall"] = utils.TryBase64EncodeToString(v.(string))
+		extendParam["alpha.cce/postInstall"] = utils.TryBase64EncodeString(v.(string))
 	}
 
 	return extendParam
@@ -902,6 +921,9 @@ func resourceCCENodeV3Read(_ context.Context, d *schema.ResourceData, meta inter
 			"extend_param":   "",
 		},
 	}
+	if s.Spec.RootVolume.Metadata != nil {
+		rootVolume[0]["kms_key_id"] = s.Spec.RootVolume.Metadata.SystemCmkid
+	}
 	mErr = multierror.Append(mErr, d.Set("root_volume", rootVolume))
 
 	// set computed attributes
@@ -913,17 +935,24 @@ func resourceCCENodeV3Read(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("status", s.Status.Phase),
 	)
 
-	// fetch tags from ECS instance
 	computeClient, err := config.ComputeV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
+	// fetch key_pair from ECS instance
+	if server, err := cloudservers.Get(computeClient, serverId).Extract(); err == nil {
+		mErr = multierror.Append(mErr, d.Set("key_pair", server.KeyName))
+	} else {
+		logp.Printf("[WARN] Error fetching ECS instance (%s): %s", serverId, err)
+	}
+
+	// fetch tags from ECS instance
 	if resourceTags, err := tags.Get(computeClient, "cloudservers", serverId).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		mErr = multierror.Append(mErr, d.Set("tags", tagmap))
 	} else {
-		logp.Printf("[WARN] Error fetching tags of CCE Node (%s): %s", serverId, err)
+		logp.Printf("[WARN] Error fetching tags of ECS instance (%s): %s", serverId, err)
 	}
 
 	if err = mErr.ErrorOrNil(); err != nil {
@@ -934,9 +963,15 @@ func resourceCCENodeV3Read(_ context.Context, d *schema.ResourceData, meta inter
 
 func resourceCCENodeV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	nodeClient, err := config.CceV3Client(config.GetRegion(d))
+	region := config.GetRegion(d)
+
+	nodeClient, err := config.CceV3Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
+	}
+	computeClient, err := config.ComputeV1Client(config.GetRegion(d))
+	if err != nil {
+		return fmtp.DiagErrorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	if d.HasChange("name") {
@@ -950,17 +985,48 @@ func resourceCCENodeV3Update(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
-	//update tags
-	if d.HasChange("tags") {
-		computeClient, err := config.ComputeV1Client(config.GetRegion(d))
-		if err != nil {
-			return fmtp.DiagErrorf("Error creating HuaweiCloud compute client: %s", err)
-		}
+	serverId := d.Get("server_id").(string)
 
-		serverId := d.Get("server_id").(string)
+	// update node tags with ECS API
+	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(computeClient, d, "cloudservers", serverId)
 		if tagErr != nil {
 			return fmtp.DiagErrorf("Error updating tags of cce node %s: %s", d.Id(), tagErr)
+		}
+	}
+
+	// update node key_pair with DEW API
+	if d.HasChange("key_pair") {
+		kmsClient, err := config.KmsV3Client(region)
+		if err != nil {
+			return diag.Errorf("error creating KMS v3 client: %s", err)
+		}
+
+		currentPwd, _ := d.GetChange("password")
+		o, n := d.GetChange("key_pair")
+		keyPairOpts := &common.KeypairAuthOpts{
+			InstanceID:       serverId,
+			InUsedKeyPair:    o.(string),
+			NewKeyPair:       n.(string),
+			InUsedPrivateKey: d.Get("private_key").(string),
+			Password:         currentPwd.(string),
+			DisablePassword:  true,
+			Timeout:          d.Timeout(schema.TimeoutUpdate),
+		}
+		if err := common.UpdateEcsInstanceKeyPair(ctx, computeClient, kmsClient, keyPairOpts); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// update node password with ECS API
+	// A new password takes effect after the ECS is started or restarted.
+	if d.HasChange("password") {
+		// if the password is empty, it means that the ECS instance will bind a new keypair
+		if newPwd, ok := d.GetOk("password"); ok {
+			err := cloudservers.ChangeAdminPassword(computeClient, serverId, newPwd.(string)).ExtractErr()
+			if err != nil {
+				return diag.Errorf("error changing password of cce node %s: %s", d.Id(), err)
+			}
 		}
 	}
 

@@ -23,8 +23,7 @@ func CptsClientBuilder() *http_client.HcHttpClientBuilder {
 //
 // 创建用例
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) CreateCase(request *model.CreateCaseRequest) (*model.CreateCaseResponse, error) {
 	requestDef := GenReqDefForCreateCase()
 
@@ -45,8 +44,7 @@ func (c *CptsClient) CreateCaseInvoker(request *model.CreateCaseRequest) *Create
 //
 // 创建任务
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) CreateTask(request *model.CreateTaskRequest) (*model.CreateTaskResponse, error) {
 	requestDef := GenReqDefForCreateTask()
 
@@ -67,8 +65,7 @@ func (c *CptsClient) CreateTaskInvoker(request *model.CreateTaskRequest) *Create
 //
 // 创建事务
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) CreateTemp(request *model.CreateTempRequest) (*model.CreateTempResponse, error) {
 	requestDef := GenReqDefForCreateTemp()
 
@@ -89,8 +86,7 @@ func (c *CptsClient) CreateTempInvoker(request *model.CreateTempRequest) *Create
 //
 // 创建变量
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) CreateVariable(request *model.CreateVariableRequest) (*model.CreateVariableResponse, error) {
 	requestDef := GenReqDefForCreateVariable()
 
@@ -111,8 +107,7 @@ func (c *CptsClient) CreateVariableInvoker(request *model.CreateVariableRequest)
 //
 // 调试用例
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) DebugCase(request *model.DebugCaseRequest) (*model.DebugCaseResponse, error) {
 	requestDef := GenReqDefForDebugCase()
 
@@ -133,8 +128,7 @@ func (c *CptsClient) DebugCaseInvoker(request *model.DebugCaseRequest) *DebugCas
 //
 // 删除用例
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) DeleteCase(request *model.DeleteCaseRequest) (*model.DeleteCaseResponse, error) {
 	requestDef := GenReqDefForDeleteCase()
 
@@ -155,8 +149,7 @@ func (c *CptsClient) DeleteCaseInvoker(request *model.DeleteCaseRequest) *Delete
 //
 // 删除任务
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) DeleteTask(request *model.DeleteTaskRequest) (*model.DeleteTaskResponse, error) {
 	requestDef := GenReqDefForDeleteTask()
 
@@ -177,8 +170,7 @@ func (c *CptsClient) DeleteTaskInvoker(request *model.DeleteTaskRequest) *Delete
 //
 // 删除事务
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) DeleteTemp(request *model.DeleteTempRequest) (*model.DeleteTempResponse, error) {
 	requestDef := GenReqDefForDeleteTemp()
 
@@ -199,8 +191,7 @@ func (c *CptsClient) DeleteTempInvoker(request *model.DeleteTempRequest) *Delete
 //
 // 删除全局变量
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) DeleteVariable(request *model.DeleteVariableRequest) (*model.DeleteVariableResponse, error) {
 	requestDef := GenReqDefForDeleteVariable()
 
@@ -221,8 +212,7 @@ func (c *CptsClient) DeleteVariableInvoker(request *model.DeleteVariableRequest)
 //
 // 查询全局变量
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) ListVariables(request *model.ListVariablesRequest) (*model.ListVariablesResponse, error) {
 	requestDef := GenReqDefForListVariables()
 
@@ -243,8 +233,7 @@ func (c *CptsClient) ListVariablesInvoker(request *model.ListVariablesRequest) *
 //
 // 查询CPTS任务离线报告列表
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) ShowHistoryRunInfo(request *model.ShowHistoryRunInfoRequest) (*model.ShowHistoryRunInfoResponse, error) {
 	requestDef := GenReqDefForShowHistoryRunInfo()
 
@@ -265,8 +254,7 @@ func (c *CptsClient) ShowHistoryRunInfoInvoker(request *model.ShowHistoryRunInfo
 //
 // 查询报告
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) ShowReport(request *model.ShowReportRequest) (*model.ShowReportResponse, error) {
 	requestDef := GenReqDefForShowReport()
 
@@ -287,8 +275,7 @@ func (c *CptsClient) ShowReportInvoker(request *model.ShowReportRequest) *ShowRe
 //
 // 查询任务
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) ShowTask(request *model.ShowTaskRequest) (*model.ShowTaskResponse, error) {
 	requestDef := GenReqDefForShowTask()
 
@@ -309,8 +296,7 @@ func (c *CptsClient) ShowTaskInvoker(request *model.ShowTaskRequest) *ShowTaskIn
 //
 // 查询任务集
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) ShowTaskSet(request *model.ShowTaskSetRequest) (*model.ShowTaskSetResponse, error) {
 	requestDef := GenReqDefForShowTaskSet()
 
@@ -331,8 +317,7 @@ func (c *CptsClient) ShowTaskSetInvoker(request *model.ShowTaskSetRequest) *Show
 //
 // 查询事务
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) ShowTemp(request *model.ShowTempRequest) (*model.ShowTempResponse, error) {
 	requestDef := GenReqDefForShowTemp()
 
@@ -353,8 +338,7 @@ func (c *CptsClient) ShowTempInvoker(request *model.ShowTempRequest) *ShowTempIn
 //
 // 查询事务集
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) ShowTempSet(request *model.ShowTempSetRequest) (*model.ShowTempSetResponse, error) {
 	requestDef := GenReqDefForShowTempSet()
 
@@ -375,8 +359,7 @@ func (c *CptsClient) ShowTempSetInvoker(request *model.ShowTempSetRequest) *Show
 //
 // 修改用例
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) UpdateCase(request *model.UpdateCaseRequest) (*model.UpdateCaseResponse, error) {
 	requestDef := GenReqDefForUpdateCase()
 
@@ -397,8 +380,7 @@ func (c *CptsClient) UpdateCaseInvoker(request *model.UpdateCaseRequest) *Update
 //
 // 修改任务
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) UpdateTask(request *model.UpdateTaskRequest) (*model.UpdateTaskResponse, error) {
 	requestDef := GenReqDefForUpdateTask()
 
@@ -419,8 +401,7 @@ func (c *CptsClient) UpdateTaskInvoker(request *model.UpdateTaskRequest) *Update
 //
 // 修改任务关联用例
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) UpdateTaskRelatedTestCase(request *model.UpdateTaskRelatedTestCaseRequest) (*model.UpdateTaskRelatedTestCaseResponse, error) {
 	requestDef := GenReqDefForUpdateTaskRelatedTestCase()
 
@@ -441,8 +422,7 @@ func (c *CptsClient) UpdateTaskRelatedTestCaseInvoker(request *model.UpdateTaskR
 //
 // 更新任务状态
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) UpdateTaskStatus(request *model.UpdateTaskStatusRequest) (*model.UpdateTaskStatusResponse, error) {
 	requestDef := GenReqDefForUpdateTaskStatus()
 
@@ -463,8 +443,7 @@ func (c *CptsClient) UpdateTaskStatusInvoker(request *model.UpdateTaskStatusRequ
 //
 // 修改事务
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) UpdateTemp(request *model.UpdateTempRequest) (*model.UpdateTempResponse, error) {
 	requestDef := GenReqDefForUpdateTemp()
 
@@ -485,8 +464,7 @@ func (c *CptsClient) UpdateTempInvoker(request *model.UpdateTempRequest) *Update
 //
 // 修改变量
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) UpdateVariable(request *model.UpdateVariableRequest) (*model.UpdateVariableResponse, error) {
 	requestDef := GenReqDefForUpdateVariable()
 
@@ -507,8 +485,7 @@ func (c *CptsClient) UpdateVariableInvoker(request *model.UpdateVariableRequest)
 //
 // 创建工程
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) CreateProject(request *model.CreateProjectRequest) (*model.CreateProjectResponse, error) {
 	requestDef := GenReqDefForCreateProject()
 
@@ -529,8 +506,7 @@ func (c *CptsClient) CreateProjectInvoker(request *model.CreateProjectRequest) *
 //
 // 删除工程
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) DeleteProject(request *model.DeleteProjectRequest) (*model.DeleteProjectResponse, error) {
 	requestDef := GenReqDefForDeleteProject()
 
@@ -551,8 +527,7 @@ func (c *CptsClient) DeleteProjectInvoker(request *model.DeleteProjectRequest) *
 //
 // 查询工程集
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) ListProjectSets(request *model.ListProjectSetsRequest) (*model.ListProjectSetsResponse, error) {
 	requestDef := GenReqDefForListProjectSets()
 
@@ -573,8 +548,7 @@ func (c *CptsClient) ListProjectSetsInvoker(request *model.ListProjectSetsReques
 //
 // 查询用例树
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) ListProjectTestCase(request *model.ListProjectTestCaseRequest) (*model.ListProjectTestCaseResponse, error) {
 	requestDef := GenReqDefForListProjectTestCase()
 
@@ -595,8 +569,7 @@ func (c *CptsClient) ListProjectTestCaseInvoker(request *model.ListProjectTestCa
 //
 // 查询导入进度
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) ShowProcess(request *model.ShowProcessRequest) (*model.ShowProcessResponse, error) {
 	requestDef := GenReqDefForShowProcess()
 
@@ -617,8 +590,7 @@ func (c *CptsClient) ShowProcessInvoker(request *model.ShowProcessRequest) *Show
 //
 // 查询工程
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) ShowProject(request *model.ShowProjectRequest) (*model.ShowProjectResponse, error) {
 	requestDef := GenReqDefForShowProject()
 
@@ -639,8 +611,7 @@ func (c *CptsClient) ShowProjectInvoker(request *model.ShowProjectRequest) *Show
 //
 // 修改工程
 //
-// 详细说明请参考华为云API Explorer。
-// Please refer to Huawei cloud API Explorer for details.
+// Please refer to HUAWEI cloud API Explorer for details.
 func (c *CptsClient) UpdateProject(request *model.UpdateProjectRequest) (*model.UpdateProjectResponse, error) {
 	requestDef := GenReqDefForUpdateProject()
 

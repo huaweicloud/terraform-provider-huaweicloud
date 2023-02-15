@@ -4,199 +4,226 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/apigroups"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/apigroups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccApigGroupV2_basic(t *testing.T) {
+func getGroupFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := config.ApigV2Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating APIG v2 client: %s", err)
+	}
+	return apigroups.Get(client, state.Primary.Attributes["instance_id"], state.Primary.ID).Extract()
+}
+
+func TestAccGroup_basic(t *testing.T) {
 	var (
-		// Only letters, digits and underscores (_) are allowed in the name.
-		rName        = fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
-		resourceName = "huaweicloud_apig_group.test"
-		group        apigroups.Group
+		group apigroups.Group
+
+		rName      = "huaweicloud_apig_group.test"
+		name       = acceptance.RandomAccResourceName()
+		updateName = acceptance.RandomAccResourceName()
+	)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&group,
+		getGroupFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t) // The creation of APIG instance needs the enterprise project ID.
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckApigGroupDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccApigGroup_basic(rName),
+				Config: testAccGroup_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApigGroupExists(resourceName, &group),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "description", "Created by script"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "description", "Created by script"),
 				),
 			},
 			{
-				Config: testAccApigGroup_update(rName),
+				Config: testAccGroup_update(updateName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApigGroupExists(resourceName, &group),
-					resource.TestCheckResourceAttr(resourceName, "name", rName+"_update"),
-					resource.TestCheckResourceAttr(resourceName, "description", "Updated by script"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "description", ""),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccApigInstanceSubResourceImportStateIdFunc(resourceName),
+				ImportStateIdFunc: testAccGroupImportStateFunc(),
 			},
 		},
 	})
 }
 
-func TestAccApigGroupV2_variables(t *testing.T) {
+func TestAccGroup_variables(t *testing.T) {
 	var (
-		// Only letters, digits and underscores (_) are allowed in the name.
-		rName        = fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
-		resourceName = "huaweicloud_apig_group.test"
-		group        apigroups.Group
+		group apigroups.Group
+
+		rName = "huaweicloud_apig_group.test"
+		name  = acceptance.RandomAccResourceName()
+	)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&group,
+		getGroupFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t) // The creation of APIG instance needs the enterprise project ID.
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckApigGroupDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccApigGroup_basic(rName),
+				Config: testAccGroup_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApigGroupExists(resourceName, &group),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
 				),
 			},
 			{
 				// Bind two environment to group, and create some variables.
-				Config: testAccApigGroup_variables(rName),
+				Config: testAccGroup_variables(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApigGroupExists(resourceName, &group),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "environment.#", "2"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "environment.#", "2"),
 				),
 			},
 			{
 				// Update the variables for two environments.
-				Config: testAccApigGroup_variablesUpdate(rName),
+				Config: testAccGroup_variablesUpdate(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApigGroupExists(resourceName, &group),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "environment.#", "2"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "environment.#", "2"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccApigInstanceSubResourceImportStateIdFunc(resourceName),
+				ImportStateIdFunc: testAccGroupImportStateFunc(),
 			},
 		},
 	})
 }
 
-func testAccCheckApigGroupDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	client, err := config.ApigV2Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
-	}
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_apig_group" {
-			continue
-		}
-		_, err := apigroups.Get(client, rs.Primary.Attributes["instance_id"], rs.Primary.ID).Extract()
-		if err == nil {
-			return fmt.Errorf("APIG v2 API group (%s) is still exists", rs.Primary.ID)
-		}
-	}
-	return nil
-}
-
-func testAccCheckApigGroupExists(groupName string, app *apigroups.Group) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[groupName]
+func testAccGroupImportStateFunc() resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rName := "huaweicloud_apig_group.test"
+		rs, ok := s.RootModule().Resources[rName]
 		if !ok {
-			return fmt.Errorf("Resource %s not found", groupName)
+			return "", fmt.Errorf("resource (%s) not found: %s", rName, rs)
 		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No APIG V2 API group Id")
+		if rs.Primary.Attributes["instance_id"] == "" || rs.Primary.ID == "" {
+			return "", fmt.Errorf("missing some attributes, want '{instance_id}/{id}', but '%s/%s'",
+				rs.Primary.Attributes["instance_id"], rs.Primary.ID)
 		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		client, err := config.ApigV2Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
-		}
-		found, err := apigroups.Get(client, rs.Primary.Attributes["instance_id"], rs.Primary.ID).Extract()
-		if err != nil {
-			return fmt.Errorf("APIG v2 API group not exist: %s", err)
-		}
-		*app = *found
-		return nil
+		return fmt.Sprintf("%s/%s", rs.Primary.Attributes["instance_id"], rs.Primary.ID), nil
 	}
 }
 
-func testAccApigGroup_basic(rName string) string {
+func testAccGroup_base(name string) string {
 	return fmt.Sprintf(`
-%s
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  vpc_id = huaweicloud_vpc.test.id
+
+  name       = "%[1]s"
+  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1)
+  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1), 1)
+}
+
+resource "huaweicloud_networking_secgroup" "test" {
+  name = "%[1]s"
+}
+
+resource "huaweicloud_apig_instance" "test" {
+  name                  = "%[1]s"
+  edition               = "BASIC"
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  enterprise_project_id = "0"
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0],
+  ]
+}
+`, name)
+}
+
+func testAccGroup_basic(name string) string {
+	return fmt.Sprintf(`
+%[1]s
 
 resource "huaweicloud_apig_group" "test" {
-  name        = "%s"
+  name        = "%[2]s"
   instance_id = huaweicloud_apig_instance.test.id
   description = "Created by script"
 }
-`, testAccApigApplication_base(rName), rName)
+`, testAccGroup_base(name), name)
 }
 
-func testAccApigGroup_update(rName string) string {
+func testAccGroup_update(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_apig_group" "test" {
-  name        = "%s_update"
+  name        = "%[2]s"
   instance_id = huaweicloud_apig_instance.test.id
-  description = "Updated by script"
 }
-`, testAccApigApplication_base(rName), rName)
+`, testAccGroup_base(name), name)
 }
 
-func testAccApigGroup_variablesBase(rName string) string {
+func testAccGroup_variablesBase(name string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_apig_environment" "test1" {
-  name        = "%s_1"
+  name        = "%[2]s_1"
   instance_id = huaweicloud_apig_instance.test.id
   description = "Created by script"
 }
 
 resource "huaweicloud_apig_environment" "test2" {
-  name        = "%s_2"
+  name        = "%[2]s_2"
   instance_id = huaweicloud_apig_instance.test.id
   description = "Created by script"
 }
-`, rName, rName)
+`, testAccGroup_base(name), name)
 }
 
 // Create two environments for the group, and add a total of three variables to the two environments.
 // Each of the two environments has a variable with the same name and different value.
-func testAccApigGroup_variables(rName string) string {
+func testAccGroup_variables(rName string) string {
 	return fmt.Sprintf(`
-%s
-
-%s
+%[1]s
 
 resource "huaweicloud_apig_group" "test" {
-  name        = "%s"
+  name        = "%[2]s"
   instance_id = huaweicloud_apig_instance.test.id
   description = "Created by script"
 
@@ -221,17 +248,15 @@ resource "huaweicloud_apig_group" "test" {
     }
   }
 }
-`, testAccApigApplication_base(rName), testAccApigGroup_variablesBase(rName), rName)
+`, testAccGroup_variablesBase(rName), rName)
 }
 
-func testAccApigGroup_variablesUpdate(rName string) string {
+func testAccGroup_variablesUpdate(rName string) string {
 	return fmt.Sprintf(`
-%s
-
-%s
+%[1]s
 
 resource "huaweicloud_apig_group" "test" {
-  name        = "%s"
+  name        = "%[2]s"
   instance_id = huaweicloud_apig_instance.test.id
   description = "Created by script"
 
@@ -256,5 +281,5 @@ resource "huaweicloud_apig_group" "test" {
     }
   }
 }
-`, testAccApigApplication_base(rName), testAccApigGroup_variablesBase(rName), rName)
+`, testAccGroup_variablesBase(rName), rName)
 }

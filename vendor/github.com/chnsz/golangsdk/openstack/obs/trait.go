@@ -674,7 +674,9 @@ func (input PutObjectBasicInput) trans(isObs bool) (params map[string]string, he
 	if input.ContentType != "" {
 		headers[HEADER_CONTENT_TYPE_CAML] = []string{input.ContentType}
 	}
-
+	if input.ContentEncoding != "" {
+		headers[HEADER_CONTENT_ENCODING_CAMEL] = []string{input.ContentEncoding}
+	}
 	return
 }
 
@@ -971,5 +973,25 @@ func (input SetBucketFetchJobInput) trans(isObs bool) (params map[string]string,
 func (input GetBucketFetchJobInput) trans(isObs bool) (params map[string]string, headers map[string][]string, data interface{}, err error) {
 	headers = make(map[string][]string, 1)
 	setHeaders(headers, headerOefMarker, []string{"yes"}, isObs)
+	return
+}
+
+func (input RenameFileInput) trans(isObs bool) (params map[string]string, headers map[string][]string, data interface{}, err error) {
+	params = map[string]string{string(SubResourceRename): ""}
+	params["name"] = input.NewObjectKey
+	headers = make(map[string][]string)
+	if requestPayer := string(input.RequestPayer); requestPayer != "" {
+		headers[HEADER_REQUEST_PAYER] = []string{requestPayer}
+	}
+	return
+}
+
+func (input RenameFolderInput) trans(isObs bool) (params map[string]string, headers map[string][]string, data interface{}, err error) {
+	params = map[string]string{string(SubResourceRename): ""}
+	params["name"] = input.NewObjectKey
+	headers = make(map[string][]string)
+	if requestPayer := string(input.RequestPayer); requestPayer != "" {
+		headers[HEADER_REQUEST_PAYER] = []string{requestPayer}
+	}
 	return
 }

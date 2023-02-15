@@ -14,7 +14,7 @@ import (
 func getSparkJobResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	c, err := conf.DliV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HuaweiCloud DLI v2 client: %s", err)
+		return nil, fmt.Errorf("error creating DLI v2 client: %s", err)
 	}
 	return batches.Get(c, state.Primary.ID)
 }
@@ -56,7 +56,7 @@ func testAccCheckDliSparkJobDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	client, err := config.DliV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating Dli v2 client: %s", err)
+		return fmt.Errorf("error creating Dli v2 client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -67,7 +67,7 @@ func testAccCheckDliSparkJobDestroy(s *terraform.State) error {
 		resp, err := batches.GetState(client, rs.Primary.ID)
 		// If the status of the spark job is "dead" or "success", it means that the life cycle of the job has ended.
 		if err == nil && resp != nil && (resp.State != batches.StateDead && resp.State != batches.StateSuccess) {
-			return fmt.Errorf("Spark job (%s) still exists.", rs.Primary.ID)
+			return fmt.Errorf("spark job (%s) still exists.", rs.Primary.ID)
 		}
 	}
 

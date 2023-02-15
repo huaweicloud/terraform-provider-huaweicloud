@@ -1,0 +1,67 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dms_rocketmq_consumer_group": {
+          "block": {
+            "attributes": {
+              "broadcast": {
+                "type": "bool",
+                "description": "Specifies whether to broadcast of the consumer group.",
+                "optional": true,
+                "computed": true
+              },
+              "brokers": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of associated brokers of the consumer group.",
+                "required": true,
+                "forcenew": true
+              },
+              "enabled": {
+                "type": "bool",
+                "description": "Specifies the consumer group is enabled or not. Default to true.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the rocketMQ instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the consumer group.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "retry_max_times": {
+                "type": "number",
+                "description": "Specifies the maximum number of retry times.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

@@ -212,6 +212,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v1",
 		Product: "SFSTurbo",
 	},
+	"cbh": {
+		Name:    "cbh",
+		Version: "v1",
+		Product: "CBH",
+	},
 	"cbr": {
 		Name:    "cbr",
 		Version: "v3",
@@ -305,6 +310,23 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "vpn",
 		Version: "v5",
 		Product: "VPN",
+	},
+	"ga": {
+		Name:             "ga",
+		Version:          "v1",
+		WithOutProjectID: true,
+		Scope:            "global",
+		Product:          "GA",
+	},
+	"dc": {
+		Name:    "dcaas",
+		Version: "v3",
+		Product: "DC",
+	},
+	"cfw": {
+		Name:    "cfw",
+		Version: "v1",
+		Product: "CFW",
 	},
 
 	// catalog for database
@@ -445,6 +467,16 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:      "v1",
 		ResourceBase: "premium-waf",
 		Product:      "WAF",
+	},
+	"dbss": {
+		Name:    "dbss",
+		Version: "v2",
+		Product: "DBSS",
+	},
+	"hss": {
+		Name:    "hss",
+		Version: "v5",
+		Product: "HSS",
 	},
 
 	// catalog for Enterprise Intelligence
@@ -673,6 +705,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "projectman-ext",
 		Version: "v4",
 		Product: "ProjectMan",
+	},
+
+	// catalog for Data Security Center
+	"dsc": {
+		Name:    "sdg",
+		Product: "DSC",
 	},
 
 	// catalog for Joint-Operation Cloud only

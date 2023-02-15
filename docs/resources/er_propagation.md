@@ -8,7 +8,7 @@ Manages a propagation resource under the route table for ER service within Huawe
 
 ## Example Usage
 
-```HCL
+```hcl
 variable "instance_id" {}
 variable "route_table_id" {}
 variable "attachment_id" {}

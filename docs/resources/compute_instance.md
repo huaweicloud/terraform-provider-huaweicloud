@@ -403,6 +403,8 @@ In addition to all arguments above, the following attributes are exported:
 * `volume_attached/size` - The volume size on that attachment.
 * `volume_attached/type` - The volume type on that attachment.
 * `system_disk_id` - The system disk voume ID.
+* `created_at` - The creation time, in UTC format.
+* `updated_at` - The last update time, in UTC format.
 
 ## Import
 

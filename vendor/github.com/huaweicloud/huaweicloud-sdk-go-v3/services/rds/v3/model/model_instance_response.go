@@ -41,6 +41,9 @@ type InstanceResponse struct {
 	// 数据库切换策略。取值为“reliability”或“availability”，分别对应于可靠性优先和可用性优先。
 	SwitchStrategy string `json:"switch_strategy"`
 
+	// 客户设置实例只读API的状态信息。仅支持RDS for MySQL引擎。 - true，表示该实例为客户设置的只读状态 - false， 表示该实例未被客户设置只读
+	ReadOnlyByUser *bool `json:"read_only_by_user,omitempty"`
+
 	// 可维护时间窗，为UTC时间。
 	MaintenanceWindow string `json:"maintenance_window"`
 

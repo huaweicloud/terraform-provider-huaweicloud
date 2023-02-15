@@ -149,14 +149,12 @@ func TestAccVpcsDataSource_byAll(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceVpcs_byAll(randName, randCidr, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				Config: testAccDataSourceVpcs_byAll(randName, randCidr),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "name", randName),
 					resource.TestCheckResourceAttr(dataSourceName, "vpcs.0.cidr", randCidr),
 					resource.TestCheckResourceAttr(dataSourceName, "vpcs.0.name", randName),
-					resource.TestCheckResourceAttr(dataSourceName, "vpcs.0.enterprise_project_id",
-						acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(dataSourceName, "vpcs.0.status", "OK"),
 					acceptance.TestCheckResourceAttrWithVariable(dataSourceName, "vpcs.0.id",
 						"${huaweicloud_vpc.test.id}"),
@@ -166,7 +164,7 @@ func TestAccVpcsDataSource_byAll(t *testing.T) {
 	})
 }
 
-func testAccDataSourceVpcs_byAll(rName, cidr, enterpriseProjectID string) string {
+func testAccDataSourceVpcs_byAll(rName, cidr string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -174,14 +172,13 @@ data "huaweicloud_vpcs" "test" {
   id                    = huaweicloud_vpc.test.id
   name                  = huaweicloud_vpc.test.name
   cidr                  = huaweicloud_vpc.test.cidr
-  enterprise_project_id = "%s"
   status                = "OK"
 
   depends_on = [
     huaweicloud_vpc.test
   ]
 }
-`, testAccDataSourceVpcs_base(rName, cidr), enterpriseProjectID)
+`, testAccDataSourceVpcs_base(rName, cidr))
 }
 
 func TestAccVpcsDataSource_tags(t *testing.T) {

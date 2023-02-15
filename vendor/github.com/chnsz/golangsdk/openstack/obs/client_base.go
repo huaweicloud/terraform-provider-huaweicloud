@@ -46,7 +46,7 @@ func New(ak, sk, endpoint string, configurers ...configurer) (*ObsClient, error)
 
 	if isWarnLogEnabled() {
 		info := make([]string, 3)
-		info[0] = fmt.Sprintf("[OBS SDK Version=%s", obsSdkVersion)
+		info[0] = fmt.Sprintf("[OBS SDK Version=%s", OBS_SDK_VERSION)
 		info[1] = fmt.Sprintf("Endpoint=%s", conf.endpoint)
 		accessMode := "Virtual Hosting"
 		if conf.pathStyle {
@@ -55,6 +55,13 @@ func New(ak, sk, endpoint string, configurers ...configurer) (*ObsClient, error)
 		info[2] = fmt.Sprintf("Access Mode=%s]", accessMode)
 		doLog(LEVEL_WARN, strings.Join(info, "];["))
 	}
+
+	if conf.httpClient != nil {
+		doLog(LEVEL_DEBUG, "Create obsclient with config:\n%s\n", conf)
+		obsClient := &ObsClient{conf: conf, httpClient: conf.httpClient}
+		return obsClient, nil
+	}
+
 	doLog(LEVEL_DEBUG, "Create obsclient with config:\n%s\n", conf)
 	obsClient := &ObsClient{conf: conf, httpClient: &http.Client{Transport: conf.transport, CheckRedirect: checkRedirectFunc}}
 	return obsClient, nil

@@ -1,14 +1,14 @@
 info:
-  version: 
-  title: data_source_huaweicloud_dws_flavors
-  description: 
-schemes:
-  - https
-host: huaweicloud.com
+    title: data_source_huaweicloud_dws_flavors
+    description: Use this data source to get available flavors of DWS cluster node.
+host: myhuaweicloud.com
 tags:
-  - name: DWS
+    - name: DWS
+servers:
+    - url: https://dws.cn-north-4.myhuaweicloud.com
 paths:
-  /v2/{project_id}/node-types:
-    get:
-      tag: DWS
-      operationId: ListNodeTypes
+    /v2/{project_id}/node-types:
+        GET:
+            tag: DWS
+            operationId: ListFlavors
+            x-ref-api: GET /v2/{project_id}/node-types

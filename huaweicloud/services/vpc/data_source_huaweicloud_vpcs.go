@@ -2,6 +2,7 @@ package vpc
 
 import (
 	"context"
+	"log"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
@@ -11,8 +12,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceVpcs() *schema.Resource {
@@ -97,12 +96,12 @@ func dataSourceVpcsRead(_ context.Context, d *schema.ResourceData, meta interfac
 	region := config.GetRegion(d)
 	client, err := config.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	vpcV2Client, err := config.NetworkingV2Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud VPC V2 client: %s", err)
+		return diag.Errorf("error creating VPC V2 client: %s", err)
 	}
 
 	listOpts := vpcs.ListOpts{
@@ -115,10 +114,10 @@ func dataSourceVpcsRead(_ context.Context, d *schema.ResourceData, meta interfac
 
 	vpcList, err := vpcs.List(client, listOpts)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve vpcs: %s", err)
+		return diag.Errorf("unable to retrieve vpcs: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Retrieved Vpc using given filter: %+v", vpcList)
+	log.Printf("[DEBUG] Retrieved Vpc using given filter: %+v", vpcList)
 
 	var vpcs []map[string]interface{}
 	tagFilter := d.Get("tags").(map[string]interface{})
@@ -143,20 +142,20 @@ func dataSourceVpcsRead(_ context.Context, d *schema.ResourceData, meta interfac
 		} else {
 			// The tags api does not support eps authorization, so don't return 403 to avoid error
 			if _, ok := err.(golangsdk.ErrDefault403); ok {
-				logp.Printf("[WARN] Error query tags of VPC (%s): %s", vpcResource.ID, err)
+				log.Printf("[WARN] Error query tags of VPC (%s): %s", vpcResource.ID, err)
 			} else {
-				return fmtp.DiagErrorf("Error query tags of VPC (%s): %s", vpcResource.ID, err)
+				return diag.Errorf("error query tags of VPC (%s): %s", vpcResource.ID, err)
 			}
 		}
 
 		vpcs = append(vpcs, vpc)
 		ids = append(ids, vpcResource.ID)
 	}
-	logp.Printf("[DEBUG]Vpc List after filter, count=%d :%+v", len(vpcs), vpcs)
+	log.Printf("[DEBUG] Vpc List after filter, count=%d :%+v", len(vpcs), vpcs)
 
 	mErr := d.Set("vpcs", vpcs)
 	if mErr != nil {
-		return fmtp.DiagErrorf("set vpcs err:%s", mErr)
+		return diag.Errorf("set vpcs err:%s", mErr)
 	}
 
 	d.SetId(hashcode.Strings(ids))

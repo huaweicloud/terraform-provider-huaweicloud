@@ -15,7 +15,7 @@ type ActionDeviceAlarm struct {
 	// **参数说明**：告警状态。 **取值范围**： - fault：上报告警。 - recovery：恢复告警。
 	AlarmStatus string `json:"alarm_status"`
 
-	// **参数说明**：告警级别。 **取值范围**： - warning：警告。 - minor：一般。 - major：严重。 - critical：致命。
+	// **参数说明**：告警级别。 **取值范围**：warning（警告）、minor（一般）、major（严重）和critical（致命）。
 	Severity string `json:"severity"`
 
 	// **参数说明**：告警的描述信息。

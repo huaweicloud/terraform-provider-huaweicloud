@@ -21,7 +21,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 const (
@@ -31,7 +30,7 @@ const (
 	InstanceTypeEssMaster = "ess-master"
 	InstanceTypeEssClient = "ess-client"
 
-	ClusterStatusInProcess   = "100" //The operation, such as instance creation, is in progress.
+	ClusterStatusInProcess   = "100" // The operation, such as instance creation, is in progress.
 	ClusterStatusAvailable   = "200"
 	ClusterStatusUnavailable = "303"
 )
@@ -91,6 +90,14 @@ func ResourceCssCluster() *schema.Resource {
 				Sensitive: true,
 				Optional:  true,
 				ForceNew:  true,
+			},
+
+			"https_enabled": {
+				Type:         schema.TypeBool,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"security_mode"},
 			},
 
 			"ess_node_config": {
@@ -489,11 +496,11 @@ func resourceCssClusterCreate(ctx context.Context, d *schema.ResourceData, meta 
 	region := config.GetRegion(d)
 	cssV1Client, err := config.HcCssV1Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating CSS V1 client: %s", err)
+		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
 	cssV2Client, err := config.HcCssV2Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating CSS V2 client: %s", err)
+		return diag.Errorf("error creating CSS V2 client: %s", err)
 	}
 
 	createClusterOpts, paramErr := buildClusterCreateParameters(d, config)
@@ -506,11 +513,11 @@ func resourceCssClusterCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating CSS cluster, err=%s", err)
 	}
 
-	if (r.Cluster == nil || r.Cluster.Id == nil) && r.OrdeId == nil {
+	if (r.Cluster == nil || r.Cluster.Id == nil) && r.OrderId == nil {
 		return diag.Errorf("error creating CSS cluster: id is not found in API response,%#v", r)
 	}
 
-	if r.OrdeId == nil {
+	if r.OrderId == nil {
 		if r.Cluster == nil || r.Cluster.Id == nil {
 			return diag.Errorf("error creating CSS cluster: id is not found in API response,%#v", r)
 		}
@@ -523,13 +530,13 @@ func resourceCssClusterCreate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 
 		// 1. If charging mode is PrePaid, wait for the order to be completed.
-		err = common.WaitOrderComplete(ctx, bssClient, *r.OrdeId, d.Timeout(schema.TimeoutCreate))
+		err = common.WaitOrderComplete(ctx, bssClient, *r.OrderId, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
 		// 2. get the resource ID, must be after order success
-		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, *r.OrdeId, d.Timeout(schema.TimeoutCreate))
+		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, *r.OrderId, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -605,11 +612,12 @@ func buildClusterCreateParameters(d *schema.ResourceData, config *config.Config)
 	if securityMode {
 		adminPassword := d.Get("password").(string)
 		if adminPassword == "" {
-			return nil, fmtp.Errorf("administrator password is required in security mode")
+			return nil, fmt.Errorf("administrator password is required in security mode")
 		}
-		createOpts.HttpsEnable = utils.Bool(true)
 		createOpts.AuthorityEnable = utils.Bool(true)
 		createOpts.AdminPwd = utils.String(adminPassword)
+
+		createOpts.HttpsEnable = utils.Bool(d.Get("https_enabled").(bool))
 	}
 
 	if _, ok := d.GetOk("vpcep_endpoint"); ok {
@@ -619,7 +627,7 @@ func buildClusterCreateParameters(d *schema.ResourceData, config *config.Config)
 
 		vpcPermissions := utils.ExpandToStringList(d.Get("vpcep_endpoint.0.whitelist").([]interface{}))
 		if len(vpcPermissions) > 0 {
-			createOpts.LoadBalance.VpcPermisssions = &vpcPermissions
+			createOpts.LoadBalance.VpcPermissions = &vpcPermissions
 		}
 	}
 
@@ -724,7 +732,7 @@ func resourceCssClusterRead(ctx context.Context, d *schema.ResourceData, meta in
 
 	clusterDetail, err := cssV1Client.ShowClusterDetail(&model.ShowClusterDetailRequest{ClusterId: d.Id()})
 	if err != nil {
-		return diag.Errorf("query cluster detail failed, cluster_id=%s, err=%s", d.Id(), err)
+		return common.CheckDeletedDiag(d, err, "DLI cluster")
 	}
 
 	mErr := multierror.Append(
@@ -748,6 +756,7 @@ func resourceCssClusterRead(ctx context.Context, d *schema.ResourceData, meta in
 		d.Set("endpoint", clusterDetail.Endpoint),
 		d.Set("status", clusterDetail.Status),
 		d.Set("security_mode", flattenSecurity(clusterDetail.AuthorityEnable)),
+		d.Set("https_enabled", clusterDetail.HttpsEnable),
 		setClusterBackupStrategy(d, cssV1Client),
 	)
 
@@ -979,7 +988,7 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 	}
 
-	//update backup strategy
+	// update backup strategy
 	if d.HasChange("backup_strategy") {
 		value, ok := d.GetOk("backup_strategy")
 		if !ok {
@@ -1021,7 +1030,7 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 				// check backup strategy, if the policy was disabled, we should enable it
 				policy, err := cssV1Client.ShowAutoCreatePolicy(&model.ShowAutoCreatePolicyRequest{ClusterId: d.Id()})
 				if err != nil {
-					return diag.Errorf("Error extracting Cluster backup_strategy, err: %s", err)
+					return diag.Errorf("error extracting Cluster backup_strategy, err: %s", err)
 				}
 
 				if utils.StringValue(policy.Enable) == "false" && raw["bucket"] == nil {
@@ -1075,7 +1084,7 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 			_, err := cssV1Client.StartVpecp(&model.StartVpecpRequest{
 				ClusterId: d.Id(),
 				Body: &model.StartVpecpReq{
-					EndpointWithDnsName: d.Get("vpcep_endpoint.0.endpoint_with_dns_name").(bool),
+					EndpointWithDnsName: utils.Bool(d.Get("vpcep_endpoint.0.endpoint_with_dns_name").(bool)),
 				},
 			})
 			if err != nil {
@@ -1136,7 +1145,7 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 				return diag.FromErr(err)
 			}
 		} else {
-			//update bandwidth
+			// update bandwidth
 			if d.HasChange("kibana_public_access.0.bandwidth") {
 				_, err := cssV1Client.UpdateAlterKibana(&model.UpdateAlterKibanaRequest{
 					ClusterId: d.Id(),
@@ -1367,7 +1376,7 @@ func resourceCssClusterDelete(ctx context.Context, d *schema.ResourceData, meta 
 	region := config.GetRegion(d)
 	cssV1Client, err := config.HcCssV1Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating CSS V1 client: %s", err)
+		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
 
 	_, err = cssV1Client.DeleteCluster(&model.DeleteClusterRequest{ClusterId: d.Id()})
@@ -1474,7 +1483,7 @@ func checkCssClusterIsReady(detail *model.ShowClusterDetailResponse) bool {
 		return false
 	}
 
-	//actions --- the behaviors on a cluster
+	// actions --- the behaviors on a cluster
 	if detail.Actions != nil && len(*detail.Actions) > 0 {
 		return false
 	}

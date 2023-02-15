@@ -11,7 +11,7 @@ type BatchTagActionAddRequestBody struct {
 	// 操作标识（区分大小写）：创建时为“create”。
 	Action string `json:"action"`
 
-	// 标签列表。单个实例总标签数上限10个。
+	// 标签列表。单个实例总标签数上限20个。
 	Tags []TagWithKeyValue `json:"tags"`
 }
 

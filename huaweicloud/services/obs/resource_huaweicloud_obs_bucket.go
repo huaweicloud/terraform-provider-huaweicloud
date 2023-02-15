@@ -7,11 +7,15 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"time"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -230,8 +234,8 @@ func ResourceObsBucket() *schema.Resource {
 							Optional:     true,
 							ValidateFunc: utils.ValidateJsonString,
 							StateFunc: func(v interface{}) string {
-								json, _ := utils.NormalizeJsonString(v)
-								return json
+								jsonString, _ := utils.NormalizeJsonString(v)
+								return jsonString
 							},
 						},
 					},
@@ -314,7 +318,6 @@ func ResourceObsBucket() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 
 			"bucket_domain_name": {
@@ -447,6 +450,17 @@ func resourceObsBucketUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
+	if d.HasChange("enterprise_project_id") && !d.IsNewResource() {
+		epsClient, err := conf.EnterpriseProjectClient(region)
+		if err != nil {
+			return diag.Errorf("error creating EPS client: %s", err)
+		}
+
+		if err := resourceObsBucketEnterpriseProjectIdUpdate(ctx, d, obsClient, epsClient, region); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceObsBucketRead(ctx, d, meta)
 }
 
@@ -475,13 +489,19 @@ func resourceObsBucketRead(_ context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error reading OBS bucket %s: %s", bucket, err)
 	}
 
+	mErr := &multierror.Error{}
 	// for import case
 	if _, ok := d.GetOk("bucket"); !ok {
-		d.Set("bucket", bucket)
+		mErr = multierror.Append(mErr, d.Set("bucket", bucket))
 	}
 
-	d.Set("region", region)
-	d.Set("bucket_domain_name", bucketDomainNameWithCloud(d.Get("bucket").(string), region, conf.Cloud))
+	mErr = multierror.Append(mErr,
+		d.Set("region", region),
+		d.Set("bucket_domain_name", bucketDomainNameWithCloud(d.Get("bucket").(string), region, conf.Cloud)),
+	)
+	if mErr.ErrorOrNil() != nil {
+		return diag.Errorf("error setting OBS attributes: %s", mErr)
+	}
 
 	// Read storage class
 	if err := setObsBucketStorageClass(obsClient, d); err != nil {
@@ -584,9 +604,9 @@ func resourceObsBucketDelete(ctx context.Context, d *schema.ResourceData, meta i
 
 func resourceObsBucketTagsUpdate(obsClient *obs.ObsClient, d *schema.ResourceData) error {
 	bucket := d.Get("bucket").(string)
-	tagmap := d.Get("tags").(map[string]interface{})
-	tagList := []obs.Tag{}
-	for k, v := range tagmap {
+	tagMap := d.Get("tags").(map[string]interface{})
+	var tagList []obs.Tag
+	for k, v := range tagMap {
 		tag := obs.Tag{
 			Key:   k,
 			Value: v.(string),
@@ -610,19 +630,21 @@ func resourceObsBucketAclUpdate(obsClient *obs.ObsClient, d *schema.ResourceData
 	bucket := d.Get("bucket").(string)
 	acl := d.Get("acl").(string)
 
-	i := &obs.SetBucketAclInput{
+	input := &obs.SetBucketAclInput{
 		Bucket: bucket,
 		ACL:    obs.AclType(acl),
 	}
-	log.Printf("[DEBUG] set ACL of OBS bucket %s: %#v", bucket, i)
+	log.Printf("[DEBUG] set ACL of OBS bucket %s: %#v", bucket, input)
 
-	_, err := obsClient.SetBucketAcl(i)
+	_, err := obsClient.SetBucketAcl(input)
 	if err != nil {
 		return getObsError("Error updating acl of OBS bucket", bucket, err)
 	}
 
 	// acl policy can not be retrieved by obsClient.GetBucketAcl method
-	d.Set("acl", acl)
+	if err := d.Set("acl", acl); err != nil {
+		return fmt.Errorf("error saving acl of OBS bucket %s: %s", bucket, err)
+	}
 	return nil
 }
 
@@ -818,30 +840,30 @@ func resourceObsBucketLifecycleUpdate(obsClient *obs.ObsClient, d *schema.Resour
 		rules[i].Transitions = list
 
 		// NoncurrentVersionExpiration
-		nc_expiration := d.Get(fmt.Sprintf("lifecycle_rule.%d.noncurrent_version_expiration", i)).(*schema.Set).List()
-		if len(nc_expiration) > 0 {
-			raw := nc_expiration[0].(map[string]interface{})
-			nc_exp := &rules[i].NoncurrentVersionExpiration
+		ncExpiration := d.Get(fmt.Sprintf("lifecycle_rule.%d.noncurrent_version_expiration", i)).(*schema.Set).List()
+		if len(ncExpiration) > 0 {
+			raw := ncExpiration[0].(map[string]interface{})
+			ncExp := &rules[i].NoncurrentVersionExpiration
 
 			if val, ok := raw["days"].(int); ok && val > 0 {
-				nc_exp.NoncurrentDays = val
+				ncExp.NoncurrentDays = val
 			}
 		}
 
 		// NoncurrentVersionTransition
-		nc_transitions := d.Get(fmt.Sprintf("lifecycle_rule.%d.noncurrent_version_transition", i)).([]interface{})
-		nc_list := make([]obs.NoncurrentVersionTransition, len(nc_transitions))
-		for j, nc_tran := range nc_transitions {
-			raw := nc_tran.(map[string]interface{})
+		ncTransitions := d.Get(fmt.Sprintf("lifecycle_rule.%d.noncurrent_version_transition", i)).([]interface{})
+		ncList := make([]obs.NoncurrentVersionTransition, len(ncTransitions))
+		for j, ncTran := range ncTransitions {
+			raw := ncTran.(map[string]interface{})
 
 			if val, ok := raw["days"].(int); ok && val > 0 {
-				nc_list[j].NoncurrentDays = val
+				ncList[j].NoncurrentDays = val
 			}
 			if val, ok := raw["storage_class"].(string); ok {
-				nc_list[j].StorageClass = obs.StorageClassType(val)
+				ncList[j].StorageClass = obs.StorageClassType(val)
 			}
 		}
-		rules[i].NoncurrentVersionTransitions = nc_list
+		rules[i].NoncurrentVersionTransitions = ncList
 	}
 
 	opts := &obs.SetBucketLifecycleConfigurationInput{}
@@ -868,11 +890,11 @@ func resourceObsBucketWebsiteUpdate(obsClient *obs.ObsClient, d *schema.Resource
 			w = make(map[string]interface{})
 		}
 		return resourceObsBucketWebsitePut(obsClient, d, w)
-	} else if len(ws) == 0 {
-		return resourceObsBucketWebsiteDelete(obsClient, d)
-	} else {
-		return fmt.Errorf("cannot specify more than one website")
 	}
+	if len(ws) == 0 {
+		return resourceObsBucketWebsiteDelete(obsClient, d)
+	}
+	return fmt.Errorf("cannot specify more than one website")
 }
 
 func resourceObsBucketCorsUpdate(obsClient *obs.ObsClient, d *schema.ResourceData) error {
@@ -930,6 +952,52 @@ func resourceObsBucketCorsUpdate(obsClient *obs.ObsClient, d *schema.ResourceDat
 	return nil
 }
 
+func resourceObsBucketEnterpriseProjectIdUpdate(ctx context.Context, d *schema.ResourceData,
+	obsClient *obs.ObsClient, epsClient *golangsdk.ServiceClient, region string) error {
+	bucket := d.Get("bucket").(string)
+	targetEPSId := d.Get("enterprise_project_id").(string)
+
+	if err := common.MigrateEnterpriseProject(epsClient, region, targetEPSId, "bucket", bucket); err != nil {
+		return err
+	}
+
+	// wait for the Enterprise Project ID changed in OBS
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"Pending"},
+		Target:       []string{"Success"},
+		Refresh:      waitForOBSEnterpriseProjectIdChanged(obsClient, bucket, targetEPSId),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        10 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return getObsError("Error waiting for obs Enterprise Project ID changed", bucket, err)
+	}
+
+	return nil
+}
+
+func waitForOBSEnterpriseProjectIdChanged(obsClient *obs.ObsClient, bucket string, enterpriseProjectId string) resource.StateRefreshFunc {
+	return func() (result interface{}, state string, err error) {
+		input := &obs.GetBucketMetadataInput{
+			Bucket: bucket,
+		}
+		output, err := obsClient.GetBucketMetadata(input)
+		if err != nil {
+			return nil, "Error", err
+		}
+
+		if output.Epid == enterpriseProjectId {
+			log.Printf("[DEBUG] the Enterprise Project ID of bucket %s is migrated to %s", bucket, enterpriseProjectId)
+			return output, "Success", nil
+		}
+
+		return output, "Pending", nil
+	}
+}
+
 func resourceObsBucketWebsitePut(obsClient *obs.ObsClient, d *schema.ResourceData, website map[string]interface{}) error {
 	bucket := d.Get("bucket").(string)
 
@@ -948,7 +1016,7 @@ func resourceObsBucketWebsitePut(obsClient *obs.ObsClient, d *schema.ResourceDat
 	}
 
 	if indexDocument == "" && redirectAllRequestsTo == "" {
-		return fmt.Errorf("Must specify either index_document or redirect_all_requests_to")
+		return fmt.Errorf("must specify either index_document or redirect_all_requests_to")
 	}
 
 	websiteConfiguration := &obs.SetBucketWebsiteConfigurationInput{}
@@ -986,11 +1054,11 @@ func resourceObsBucketWebsitePut(obsClient *obs.ObsClient, d *schema.ResourceDat
 	}
 
 	if routingRules != "" {
-		var unmarshaledRules []obs.RoutingRule
-		if err := json.Unmarshal([]byte(routingRules), &unmarshaledRules); err != nil {
+		var unmarshalRules []obs.RoutingRule
+		if err := json.Unmarshal([]byte(routingRules), &unmarshalRules); err != nil {
 			return err
 		}
-		websiteConfiguration.RoutingRules = unmarshaledRules
+		websiteConfiguration.RoutingRules = unmarshalRules
 	}
 
 	log.Printf("[DEBUG] set website configuration of OBS bucket %s: %#v", bucket, websiteConfiguration)
@@ -1020,9 +1088,11 @@ func setObsBucketStorageClass(obsClient *obs.ObsClient, d *schema.ResourceData) 
 	if err != nil {
 		log.Printf("[WARN] Error getting storage class of OBS bucket %s: %s", bucket, err)
 	} else {
-		class := string(output.StorageClass)
+		class := output.StorageClass
 		log.Printf("[DEBUG] getting storage class of OBS bucket %s: %s", bucket, class)
-		d.Set("storage_class", normalizeStorageClass(class))
+		if err := d.Set("storage_class", normalizeStorageClass(class)); err != nil {
+			return fmt.Errorf("error saving storage class of OBS bucket %s: %s", bucket, err)
+		}
 	}
 
 	return nil
@@ -1039,19 +1109,25 @@ func setObsBucketMetadata(obsClient *obs.ObsClient, d *schema.ResourceData) erro
 	}
 	log.Printf("[DEBUG] getting metadata of OBS bucket %s: %#v", bucket, output)
 
-	d.Set("enterprise_project_id", output.Epid)
+	mErr := multierror.Append(nil, d.Set("enterprise_project_id", output.Epid))
 
 	if output.AZRedundancy == "3az" {
-		d.Set("multi_az", true)
+		mErr = multierror.Append(mErr, d.Set("multi_az", true))
 	} else {
-		d.Set("multi_az", false)
+		mErr = multierror.Append(mErr, d.Set("multi_az", false))
 	}
 
 	if output.FSStatus == "Enabled" {
-		d.Set("parallel_fs", true)
+		mErr = multierror.Append(mErr, d.Set("parallel_fs", true))
 	} else {
-		d.Set("parallel_fs", false)
-		d.Set("bucket_version", output.Version)
+		mErr = multierror.Append(mErr,
+			d.Set("parallel_fs", false),
+			d.Set("bucket_version", output.Version),
+		)
+	}
+
+	if mErr.ErrorOrNil() != nil {
+		return fmt.Errorf("error saving metadata of OBS bucket %s: %s", bucket, mErr)
 	}
 
 	return nil
@@ -1063,7 +1139,9 @@ func setObsBucketPolicy(obsClient *obs.ObsClient, d *schema.ResourceData) error 
 	if err != nil {
 		if obsError, ok := err.(obs.ObsError); ok {
 			if obsError.Code == "NoSuchBucketPolicy" {
-				d.Set("policy", nil)
+				if err := d.Set("policy", nil); err != nil {
+					return fmt.Errorf("error saving policy of OBS bucket %s: %s", bucket, err)
+				}
 				return nil
 			}
 			return fmt.Errorf("Error getting policy of OBS bucket %s: %s,\n Reason: %s",
@@ -1074,7 +1152,9 @@ func setObsBucketPolicy(obsClient *obs.ObsClient, d *schema.ResourceData) error 
 
 	pol := output.Policy
 	log.Printf("[DEBUG] getting policy of OBS bucket %s: %s", bucket, pol)
-	d.Set("policy", pol)
+	if err := d.Set("policy", pol); err != nil {
+		return fmt.Errorf("error saving policy of OBS bucket %s: %s", bucket, err)
+	}
 
 	return nil
 }
@@ -1087,10 +1167,14 @@ func setObsBucketVersioning(obsClient *obs.ObsClient, d *schema.ResourceData) er
 	}
 
 	log.Printf("[DEBUG] getting versioning status of OBS bucket %s: %s", bucket, output.Status)
+	mErr := &multierror.Error{}
 	if output.Status == obs.VersioningStatusEnabled {
-		d.Set("versioning", true)
+		mErr = multierror.Append(mErr, d.Set("versioning", true))
 	} else {
-		d.Set("versioning", false)
+		mErr = multierror.Append(mErr, d.Set("versioning", false))
+	}
+	if mErr.ErrorOrNil() != nil {
+		return fmt.Errorf("error saving version of OBS bucket %s: %s", bucket, mErr)
 	}
 
 	return nil
@@ -1102,9 +1186,14 @@ func setObsBucketEncryption(obsClient *obs.ObsClient, d *schema.ResourceData) er
 	if err != nil {
 		if obsError, ok := err.(obs.ObsError); ok {
 			if obsError.Code == "NoSuchEncryptionConfiguration" || obsError.Code == "FsNotSupport" {
-				d.Set("encryption", false)
-				d.Set("kms_key_id", nil)
-				d.Set("kms_key_project_id", nil)
+				mErr := multierror.Append(nil,
+					d.Set("encryption", false),
+					d.Set("kms_key_id", nil),
+					d.Set("kms_key_project_id", nil),
+				)
+				if mErr.ErrorOrNil() != nil {
+					return fmt.Errorf("error saving encryption of OBS bucket %s: %s", bucket, mErr)
+				}
 				return nil
 			}
 			return fmt.Errorf("Error getting encryption configuration of OBS bucket %s: %s,\n Reason: %s",
@@ -1114,14 +1203,22 @@ func setObsBucketEncryption(obsClient *obs.ObsClient, d *schema.ResourceData) er
 	}
 
 	log.Printf("[DEBUG] getting encryption configuration of OBS bucket %s: %+v", bucket, output.BucketEncryptionConfiguration)
+	mErr := &multierror.Error{}
 	if output.SSEAlgorithm != "" {
-		d.Set("encryption", true)
-		d.Set("kms_key_id", output.KMSMasterKeyID)
-		d.Set("kms_key_project_id", output.ProjectID)
+		mErr = multierror.Append(mErr,
+			d.Set("encryption", true),
+			d.Set("kms_key_id", output.KMSMasterKeyID),
+			d.Set("kms_key_project_id", output.ProjectID),
+		)
 	} else {
-		d.Set("encryption", false)
-		d.Set("kms_key_id", nil)
-		d.Set("kms_key_project_id", nil)
+		mErr = multierror.Append(mErr,
+			d.Set("encryption", false),
+			d.Set("kms_key_id", nil),
+			d.Set("kms_key_project_id", nil),
+		)
+	}
+	if mErr.ErrorOrNil() != nil {
+		return fmt.Errorf("error saving encryption of OBS bucket %s: %s", bucket, mErr)
 	}
 
 	return nil
@@ -1147,7 +1244,7 @@ func setObsBucketLogging(obsClient *obs.ObsClient, d *schema.ResourceData) error
 	log.Printf("[DEBUG] getting logging configuration of OBS bucket %s: %#v", bucket, lcList)
 
 	if err := d.Set("logging", lcList); err != nil {
-		return fmt.Errorf("Error saving logging configuration of OBS bucket %s: %s", bucket, err)
+		return fmt.Errorf("error saving logging configuration of OBS bucket %s: %s", bucket, err)
 	}
 
 	return nil
@@ -1162,7 +1259,9 @@ func setObsBucketQuota(obsClient *obs.ObsClient, d *schema.ResourceData) error {
 
 	log.Printf("[DEBUG] getting quota of OBS bucket %s: %d", bucket, output.Quota)
 
-	d.Set("quota", output.Quota)
+	if err := d.Set("quota", output.Quota); err != nil {
+		return fmt.Errorf("error saving quota of OBS bucket %s: %s", bucket, err)
+	}
 
 	return nil
 }
@@ -1173,7 +1272,9 @@ func setObsBucketLifecycleConfiguration(obsClient *obs.ObsClient, d *schema.Reso
 	if err != nil {
 		if obsError, ok := err.(obs.ObsError); ok {
 			if obsError.Code == "NoSuchLifecycleConfiguration" {
-				d.Set("lifecycle_rule", nil)
+				if err := d.Set("lifecycle_rule", nil); err != nil {
+					return fmt.Errorf("error saving lifecycle configuration of OBS bucket %s: %s", bucket, err)
+				}
 				return nil
 			}
 			return fmt.Errorf("Error getting lifecycle configuration of OBS bucket %s: %s,\n Reason: %s",
@@ -1243,7 +1344,7 @@ func setObsBucketLifecycleConfiguration(obsClient *obs.ObsClient, d *schema.Reso
 
 	log.Printf("[DEBUG] saving lifecycle configuration of OBS bucket %s, lifecycle: %#v", bucket, rules)
 	if err := d.Set("lifecycle_rule", rules); err != nil {
-		return fmt.Errorf("Error saving lifecycle configuration of OBS bucket %s: %s", bucket, err)
+		return fmt.Errorf("error saving lifecycle configuration of OBS bucket %s: %s", bucket, err)
 	}
 
 	return nil
@@ -1255,7 +1356,9 @@ func setObsBucketWebsiteConfiguration(obsClient *obs.ObsClient, d *schema.Resour
 	if err != nil {
 		if obsError, ok := err.(obs.ObsError); ok {
 			if obsError.Code == "NoSuchWebsiteConfiguration" {
-				d.Set("website", nil)
+				if err := d.Set("website", nil); err != nil {
+					return fmt.Errorf("error saving website configuration of OBS bucket %s: %s", bucket, err)
+				}
 				return nil
 			}
 			return fmt.Errorf("Error getting website configuration of OBS bucket %s: %s,\n Reason: %s",
@@ -1299,7 +1402,7 @@ func setObsBucketWebsiteConfiguration(obsClient *obs.ObsClient, d *schema.Resour
 	if len(rawRules) > 0 {
 		rr, err := normalizeWebsiteRoutingRules(rawRules)
 		if err != nil {
-			return fmt.Errorf("Error while marshaling website routing rules: %s", err)
+			return fmt.Errorf("error while marshaling website routing rules: %s", err)
 		}
 		w["routing_rules"] = rr
 	}
@@ -1307,7 +1410,7 @@ func setObsBucketWebsiteConfiguration(obsClient *obs.ObsClient, d *schema.Resour
 	websites = append(websites, w)
 	log.Printf("[DEBUG] saving website configuration of OBS bucket %s, website: %#v", bucket, websites)
 	if err := d.Set("website", websites); err != nil {
-		return fmt.Errorf("Error saving website configuration of OBS bucket %s: %s", bucket, err)
+		return fmt.Errorf("error saving website configuration of OBS bucket %s: %s", bucket, err)
 	}
 	return nil
 }
@@ -1318,7 +1421,9 @@ func setObsBucketCorsRules(obsClient *obs.ObsClient, d *schema.ResourceData) err
 	if err != nil {
 		if obsError, ok := err.(obs.ObsError); ok {
 			if obsError.Code == "NoSuchCORSConfiguration" {
-				d.Set("cors_rule", nil)
+				if err := d.Set("cors_rule", nil); err != nil {
+					return fmt.Errorf("error saving CORS rules of OBS bucket %s: %s", bucket, err)
+				}
 				return nil
 			}
 			return fmt.Errorf("Error getting CORS configuration of OBS bucket %s: %s,\n Reason: %s",
@@ -1348,7 +1453,7 @@ func setObsBucketCorsRules(obsClient *obs.ObsClient, d *schema.ResourceData) err
 
 	log.Printf("[DEBUG] saving CORS rules of OBS bucket %s, CORS: %#v", bucket, rules)
 	if err := d.Set("cors_rule", rules); err != nil {
-		return fmt.Errorf("Error saving CORS rules of OBS bucket %s: %s", bucket, err)
+		return fmt.Errorf("error saving CORS rules of OBS bucket %s: %s", bucket, err)
 	}
 
 	return nil
@@ -1360,7 +1465,9 @@ func setObsBucketTags(obsClient *obs.ObsClient, d *schema.ResourceData) error {
 	if err != nil {
 		if obsError, ok := err.(obs.ObsError); ok {
 			if obsError.Code == "NoSuchTagSet" {
-				d.Set("tags", nil)
+				if err := d.Set("tags", nil); err != nil {
+					return fmt.Errorf("error saving tags of OBS bucket %s: %s", bucket, err)
+				}
 				return nil
 			}
 			return fmt.Errorf("Error getting tags of OBS bucket %s: %s,\n Reason: %s",
@@ -1369,13 +1476,13 @@ func setObsBucketTags(obsClient *obs.ObsClient, d *schema.ResourceData) error {
 		return err
 	}
 
-	tagmap := make(map[string]string)
+	tagMap := make(map[string]string)
 	for _, tag := range output.Tags {
-		tagmap[tag.Key] = tag.Value
+		tagMap[tag.Key] = tag.Value
 	}
-	log.Printf("[DEBUG] getting tags of OBS bucket %s: %#v", bucket, tagmap)
-	if err := d.Set("tags", tagmap); err != nil {
-		return fmt.Errorf("Error saving tags of OBS bucket %s: %s", bucket, err)
+	log.Printf("[DEBUG] getting tags of OBS bucket %s: %#v", bucket, tagMap)
+	if err := d.Set("tags", tagMap); err != nil {
+		return fmt.Errorf("error saving tags of OBS bucket %s: %s", bucket, err)
 	}
 	return nil
 }
@@ -1429,7 +1536,7 @@ func deleteAllBucketObjects(obsClient *obs.ObsClient, bucket string) error {
 		return getObsError("Error deleting all objects of OBS bucket", bucket, err)
 	}
 	if len(output.Errors) > 0 {
-		return fmt.Errorf("Error some objects are still exist in %s: %#v", bucket, output.Errors)
+		return fmt.Errorf("error some objects are still exist in %s: %#v", bucket, output.Errors)
 	}
 	return nil
 }
@@ -1468,7 +1575,7 @@ func normalizeStorageClass(class string) string {
 
 func normalizeWebsiteRoutingRules(w []obs.RoutingRule) (string, error) {
 	// transform []obs.RoutingRule to []WebsiteRoutingRule
-	wrules := make([]WebsiteRoutingRule, 0, len(w))
+	websiteRules := make([]WebsiteRoutingRule, 0, len(w))
 	for _, rawRule := range w {
 		rule := WebsiteRoutingRule{
 			Condition: Condition{
@@ -1483,11 +1590,11 @@ func normalizeWebsiteRoutingRules(w []obs.RoutingRule) (string, error) {
 				ReplaceKeyPrefixWith: rawRule.Redirect.ReplaceKeyPrefixWith,
 			},
 		}
-		wrules = append(wrules, rule)
+		websiteRules = append(websiteRules, rule)
 	}
 
 	// normalize
-	withNulls, err := json.Marshal(wrules)
+	withNulls, err := json.Marshal(websiteRules)
 	if err != nil {
 		return "", err
 	}

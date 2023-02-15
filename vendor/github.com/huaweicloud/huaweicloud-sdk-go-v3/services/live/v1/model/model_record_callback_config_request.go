@@ -25,6 +25,9 @@ type RecordCallbackConfigRequest struct {
 
 	// 加密类型
 	SignType *RecordCallbackConfigRequestSignType `json:"sign_type,omitempty"`
+
+	// 回调秘钥，主要用于鉴权。为了保护用户数据信息安全，建议填写。
+	Key *string `json:"key,omitempty"`
 }
 
 func (o RecordCallbackConfigRequest) String() string {

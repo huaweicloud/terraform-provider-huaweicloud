@@ -29,7 +29,7 @@ func TestAccWafInsGroupAssociate_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccWafInsGroupAssoicate_conf(name),
+				Config: testAccWafInsGroupAssociate_conf(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "load_balancers.#", "1"),
@@ -48,7 +48,7 @@ func TestAccWafInsGroupAssociate_basic(t *testing.T) {
 	})
 }
 
-func testAccWafInsGroupAssoicate_conf(name string) string {
+func testAccWafInsGroupAssociate_conf(name string) string {
 	return fmt.Sprintf(`
 %s
 resource "huaweicloud_waf_instance_group" "group_1" {

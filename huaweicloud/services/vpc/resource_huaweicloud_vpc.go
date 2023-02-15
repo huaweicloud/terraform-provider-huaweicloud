@@ -2,7 +2,9 @@ package vpc
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"regexp"
 	"time"
 
 	"github.com/chnsz/golangsdk"
@@ -12,12 +14,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	client "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3"
 	v3vpc "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3/model"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func ResourceVirtualPrivateCloudV1() *schema.Resource {
@@ -35,7 +37,7 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 			Delete: schema.DefaultTimeout(3 * time.Minute),
 		},
 
-		Schema: map[string]*schema.Schema{ //request and response parameters
+		Schema: map[string]*schema.Schema{ // request and response parameters
 			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -43,9 +45,13 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 				Computed: true,
 			},
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: utils.ValidateString64WithChinese,
+				Type:     schema.TypeString,
+				Required: true,
+				ValidateFunc: validation.All(
+					validation.StringLenBetween(0, 64),
+					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa50-9a-zA-Z-_\\.]*$"),
+						"only letters, digits, underscores (_), hyphens (-), and dot (.) are allowed"),
+				),
 			},
 			"cidr": {
 				Type:         schema.TypeString,
@@ -55,6 +61,11 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ValidateFunc: validation.All(
+					validation.StringLenBetween(0, 255),
+					validation.StringMatch(regexp.MustCompile("^[^<>]*$"),
+						"The angle brackets (< and >) are not allowed."),
+				),
 			},
 			"secondary_cidr": {
 				Type:         schema.TypeString,
@@ -98,7 +109,7 @@ func resourceVirtualPrivateCloudCreate(ctx context.Context, d *schema.ResourceDa
 	region := config.GetRegion(d)
 	vpcClient, err := config.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	createOpts := vpcs.CreateOpts{
@@ -114,7 +125,7 @@ func resourceVirtualPrivateCloudCreate(ctx context.Context, d *schema.ResourceDa
 
 	n, err := vpcs.Create(vpcClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud VPC: %s", err)
+		return diag.Errorf("error creating VPC: %s", err)
 	}
 
 	d.SetId(n.ID)
@@ -131,21 +142,21 @@ func resourceVirtualPrivateCloudCreate(ctx context.Context, d *schema.ResourceDa
 
 	_, stateErr := stateConf.WaitForStateContext(ctx)
 	if stateErr != nil {
-		return fmtp.DiagErrorf(
-			"Error waiting for Vpc (%s) to become ACTIVE: %s",
+		return diag.Errorf(
+			"error waiting for Vpc (%s) to become ACTIVE: %s",
 			n.ID, stateErr)
 	}
 
-	//set tags
+	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		vpcV2Client, err := config.NetworkingV2Client(region)
 		if err != nil {
-			return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
+			return diag.Errorf("error creating VPC client: %s", err)
 		}
 		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(vpcV2Client, "vpcs", n.ID, taglist).ExtractErr(); tagErr != nil {
-			return fmtp.DiagErrorf("Error setting tags of VPC %q: %s", n.ID, tagErr)
+			return diag.Errorf("error setting tags of VPC %q: %s", n.ID, tagErr)
 		}
 	}
 
@@ -204,13 +215,13 @@ func resourceVirtualPrivateCloudRead(_ context.Context, d *schema.ResourceData, 
 		if resourceTags, err := tags.Get(vpcV2Client, "vpcs", d.Id()).Extract(); err == nil {
 			tagmap := utils.TagsToMap(resourceTags.Tags)
 			if err := d.Set("tags", tagmap); err != nil {
-				return fmtp.DiagErrorf("Error saving tags to state for VPC (%s): %s", d.Id(), err)
+				return diag.Errorf("error saving tags to state for VPC (%s): %s", d.Id(), err)
 			}
 		} else {
 			log.Printf("[WARN] Error fetching tags of VPC (%s): %s", d.Id(), err)
 		}
 	} else {
-		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	return nil
@@ -221,7 +232,7 @@ func resourceVirtualPrivateCloudUpdate(ctx context.Context, d *schema.ResourceDa
 	region := config.GetRegion(d)
 	vpcClient, err := config.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	vpcID := d.Id()
@@ -237,20 +248,20 @@ func resourceVirtualPrivateCloudUpdate(ctx context.Context, d *schema.ResourceDa
 
 		_, err = vpcs.Update(vpcClient, vpcID, updateOpts).Extract()
 		if err != nil {
-			return fmtp.DiagErrorf("Error updating Huaweicloud VPC: %s", err)
+			return diag.Errorf("error updating VPC: %s", err)
 		}
 	}
 
-	//update tags
+	// update tags
 	if d.HasChange("tags") {
 		vpcV2Client, err := config.NetworkingV2Client(region)
 		if err != nil {
-			return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
+			return diag.Errorf("error creating VPC client: %s", err)
 		}
 
 		tagErr := utils.UpdateResourceTags(vpcV2Client, d, "vpcs", vpcID)
 		if tagErr != nil {
-			return fmtp.DiagErrorf("Error updating tags of VPC %s: %s", vpcID, tagErr)
+			return diag.Errorf("error updating tags of VPC %s: %s", vpcID, tagErr)
 		}
 	}
 
@@ -284,7 +295,7 @@ func resourceVirtualPrivateCloudDelete(ctx context.Context, d *schema.ResourceDa
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -298,7 +309,7 @@ func resourceVirtualPrivateCloudDelete(ctx context.Context, d *schema.ResourceDa
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting Huaweicloud VPC %s: %s", d.Id(), err)
+		return diag.Errorf("error deleting VPC %s: %s", d.Id(), err)
 	}
 
 	d.SetId("")
@@ -316,9 +327,9 @@ func waitForVpcActive(vpcClient *golangsdk.ServiceClient, vpcId string) resource
 			return n, "ACTIVE", nil
 		}
 
-		//If vpc status is other than Ok, send error
+		// If vpc status is other than Ok, send error
 		if n.Status == "DOWN" {
-			return nil, "", fmtp.Errorf("Vpc status: '%s'", n.Status)
+			return nil, "", fmt.Errorf("VPC status: '%s'", n.Status)
 		}
 
 		return n, n.Status, nil
@@ -382,7 +393,7 @@ func removeSecondaryCIDR(client *client.VpcClient, vpcID, preCidr string) error 
 		Body:  &reqBody,
 	}
 
-	log.Printf("[DEBUG] remove secondary CIDR %s from VPC %s", preCidr, vpcID)
+	log.Printf("[DEBUG] Remove secondary CIDR %s from VPC %s", preCidr, vpcID)
 	_, err := client.RemoveVpcExtendCidr(&reqOpts)
 	return err
 }

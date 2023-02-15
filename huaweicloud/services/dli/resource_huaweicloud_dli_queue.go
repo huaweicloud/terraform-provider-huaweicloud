@@ -1,7 +1,9 @@
 package dli
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"math"
 	"regexp"
 	"time"
@@ -9,13 +11,14 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/dli/v1/queues"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 var regexp4Name = regexp.MustCompile(`^[a-z0-9_]{1,128}$`)
@@ -34,12 +37,12 @@ const (
 
 func ResourceDliQueue() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceDliQueueCreate,
-		Read:   resourceDliQueueRead,
-		Update: resourceDliQueueUpdate,
-		Delete: resourceDliQueueDelete,
+		CreateContext: resourceDliQueueCreate,
+		ReadContext:   resourceDliQueueRead,
+		UpdateContext: resourceDliQueueUpdate,
+		DeleteContext: resourceDliQueueDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -51,17 +54,18 @@ func ResourceDliQueue() *schema.Resource {
 			},
 
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringMatch(regexp4Name, " only contain digits, lower letters, and underscores (_)"),
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringMatch(regexp4Name,
+					"only contain digits, lower letters, and underscores (_)"),
 			},
 
 			"queue_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				Default:      "sql",
+				Default:      QUEUE_TYPE_SQL,
 				ValidateFunc: validation.StringInSlice([]string{QUEUE_TYPE_SQL, QUEUE_TYPE_GENERAL}, false),
 			},
 
@@ -148,16 +152,16 @@ func ResourceDliQueue() *schema.Resource {
 	}
 }
 
-func resourceDliQueueCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceDliQueueCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	dliClient, err := config.DliV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("creating dli client failed: %s", err)
+		return diag.Errorf("creating dli client failed: %s", err)
 	}
 
 	queueName := d.Get("name").(string)
 
-	logp.Printf("[DEBUG] create dli queues queueName: %s", queueName)
+	log.Printf("[DEBUG] create dli queues queueName: %s", queueName)
 	createOpts := queues.CreateOpts{
 		QueueName:           queueName,
 		QueueType:           d.Get("queue_type").(string),
@@ -170,10 +174,10 @@ func resourceDliQueueCreate(d *schema.ResourceData, meta interface{}) error {
 		Tags:                assembleTagsFromRecource("tags", d),
 	}
 
-	logp.Printf("[DEBUG] create dli queues using parameters: %+v", createOpts)
+	log.Printf("[DEBUG] create dli queues using parameters: %+v", createOpts)
 	createResult := queues.Create(dliClient, createOpts)
 	if createResult.Err != nil {
-		return fmtp.Errorf("create dli queues failed: %s", createResult.Err)
+		return diag.Errorf("create dli queues failed: %s", createResult.Err)
 	}
 
 	//query queue detail,trriger read to refresh the state
@@ -185,11 +189,11 @@ func resourceDliQueueCreate(d *schema.ResourceData, meta interface{}) error {
 	if v, ok := d.GetOk("vpc_cidr"); ok {
 		err = updateVpcCidrOfQueue(dliClient, queueName, v.(string))
 		if err != nil {
-			return fmtp.Errorf("update cidr failed when creating dli queues: %s", err)
+			return diag.Errorf("update cidr failed when creating dli queues: %s", err)
 		}
 	}
 
-	return resourceDliQueueRead(d, meta)
+	return resourceDliQueueRead(ctx, d, meta)
 }
 
 func assembleTagsFromRecource(key string, d *schema.ResourceData) []tags.ResourceTag {
@@ -202,12 +206,12 @@ func assembleTagsFromRecource(key string, d *schema.ResourceData) []tags.Resourc
 
 }
 
-func resourceDliQueueRead(d *schema.ResourceData, meta interface{}) error {
+func resourceDliQueueRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	dliClient, err := config.DliV1Client(config.GetRegion(d))
-
+	region := config.GetRegion(d)
+	client, err := config.DliV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("error creating DliV1Client, err=%s", err)
+		return diag.Errorf("error creating DliV1Client, err=%s", err)
 	}
 
 	queueName := d.Id()
@@ -216,70 +220,66 @@ func resourceDliQueueRead(d *schema.ResourceData, meta interface{}) error {
 		QueueType: d.Get("queue_type").(string),
 	}
 
-	logp.Printf("[DEBUG] query dli queues using parameters: %+v", queryOpts)
+	log.Printf("[DEBUG] query dli queues using parameters: %+v", queryOpts)
 
-	queryAllResult := queues.List(dliClient, queryOpts)
+	queryAllResult := queues.List(client, queryOpts)
 	if queryAllResult.Err != nil {
-		return fmtp.Errorf("query queues failed: %s", queryAllResult.Err)
+		return diag.Errorf("query queues failed: %s", queryAllResult.Err)
 	}
 
 	//filter by queue_name
 	queueDetail, err := filterByQueueName(queryAllResult.Body, queueName)
 	if err != nil {
-		return err
+		return common.CheckDeletedDiag(d, err, "DLI queue")
 	}
 
-	if queueDetail != nil {
-		logp.Printf("[DEBUG]The detail of queue from SDK:%+v", queueDetail)
+	log.Printf("[DEBUG]The detail of queue from SDK:%+v", queueDetail)
 
-		d.Set("name", queueDetail.QueueName)
-		d.Set("queue_type", queueDetail.QueueType)
-		d.Set("description", queueDetail.Description)
-		d.Set("cu_count", queueDetail.CuCount)
-		if queueDetail.EnterpriseProjectId != "" {
-			d.Set("enterprise_project_id", queueDetail.EnterpriseProjectId)
-		}
-		d.Set("platform", queueDetail.Platform)
-		d.Set("resource_mode", queueDetail.ResourceMode)
-		d.Set("feature", queueDetail.Feature)
-		d.Set("create_time", queueDetail.CreateTime)
-		d.Set("vpc_cidr", queueDetail.CidrInVpc)
+	mErr := multierror.Append(
+		d.Set("region", region),
+		d.Set("name", queueDetail.QueueName),
+		d.Set("queue_type", queueDetail.QueueType),
+		d.Set("description", queueDetail.Description),
+		d.Set("cu_count", queueDetail.CuCount),
+		d.Set("enterprise_project_id", utils.StringIgnoreEmpty(queueDetail.EnterpriseProjectId)),
+		d.Set("platform", queueDetail.Platform),
+		d.Set("resource_mode", queueDetail.ResourceMode),
+		d.Set("feature", queueDetail.Feature),
+		d.Set("create_time", queueDetail.CreateTime),
+		d.Set("vpc_cidr", queueDetail.CidrInVpc),
+	)
 
-	}
-
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func filterByQueueName(body interface{}, queueName string) (r *queues.Queue, err error) {
 	if queueList, ok := body.(*queues.ListResult); ok {
-		logp.Printf("[DEBUG]The list of queue from SDK:%+v", queueList)
+		log.Printf("[DEBUG]The list of queue from SDK:%+v", queueList)
 
 		for _, v := range queueList.Queues {
 			if v.QueueName == queueName {
 				return &v, nil
 			}
 		}
-		return nil, nil
+		return nil, golangsdk.ErrDefault404{}
 
-	} else {
-		return nil, fmtp.Errorf("sdk-client response type is wrong, expect type:*queues.ListResult,acutal Type:%T",
-			body)
 	}
-
+	return nil, fmt.Errorf("sdk-client response type is wrong, expect type:*queues.ListResult,acutal Type:%T",
+		body)
 }
 
-func resourceDliQueueDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceDliQueueDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.DliV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating DliV1Client, err=%s", err)
+		return diag.Errorf("error creating DliV1Client, err=%s", err)
 	}
 
-	logp.Printf("[DEBUG] Deleting dli Queue %q", d.Id())
+	log.Printf("[DEBUG] Deleting dli Queue %q", d.Id())
 
 	result := queues.Delete(client, d.Id())
 	if result.Err != nil {
-		return fmtp.Errorf("error deleting dli Queue %q, err=%s", d.Id(), result.Err)
+		return diag.Errorf("error deleting dli Queue %q, err=%s", d.Id(), result.Err)
 	}
 
 	return nil
@@ -288,11 +288,11 @@ func resourceDliQueueDelete(d *schema.ResourceData, meta interface{}) error {
 /*
 support cu_count scaling
 */
-func resourceDliQueueUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceDliQueueUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.DliV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating DliV1Client: %s", err)
+		return diag.Errorf("error creating DliV1Client: %s", err)
 	}
 	opt := queues.ActionOpts{
 		QueueName: d.Id(),
@@ -304,10 +304,10 @@ func resourceDliQueueUpdate(d *schema.ResourceData, meta interface{}) error {
 		opt.CuCount = int(math.Abs(float64(cuChange)))
 		opt.Action = buildScaleActionParam(oldValue.(int), newValue.(int))
 
-		logp.Printf("[DEBUG]DLI queue Update Option: %#v", opt)
+		log.Printf("[DEBUG]DLI queue Update Option: %#v", opt)
 		result := queues.ScaleOrRestart(client, opt)
 		if result.Err != nil {
-			return fmtp.Errorf("update dli queues failed,queueName=%s,error:%s", opt.QueueName, result.Err)
+			return diag.Errorf("update dli queues failed, queueName=%s, error:%s", opt.QueueName, result.Err)
 		}
 
 		updateStateConf := &resource.StateChangeConf{
@@ -322,9 +322,9 @@ func resourceDliQueueUpdate(d *schema.ResourceData, meta interface{}) error {
 			Delay:        30 * time.Second,
 			PollInterval: 20 * time.Second,
 		}
-		_, err = updateStateConf.WaitForState()
+		_, err = updateStateConf.WaitForStateContext(ctx)
 		if err != nil {
-			return fmtp.Errorf("error waiting for dli.queue (%s) to be scale: %s", d.Id(), err)
+			return diag.Errorf("error waiting for dli.queue (%s) to be scale: %s", d.Id(), err)
 		}
 
 	}
@@ -333,11 +333,11 @@ func resourceDliQueueUpdate(d *schema.ResourceData, meta interface{}) error {
 		cidr := d.Get("vpc_cidr").(string)
 		err = updateVpcCidrOfQueue(client, d.Id(), cidr)
 		if err != nil {
-			return fmtp.Errorf("update cidr failed when updating dli queues: %s", err)
+			return diag.Errorf("update cidr failed when updating dli queues: %s", err)
 		}
 	}
 
-	return resourceDliQueueRead(d, meta)
+	return resourceDliQueueRead(ctx, d, meta)
 }
 
 func buildScaleActionParam(oldValue, newValue int) string {

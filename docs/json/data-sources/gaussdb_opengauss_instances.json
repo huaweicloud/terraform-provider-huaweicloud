@@ -113,10 +113,10 @@
             }
           },
           "product": {
-            "short": "GaussDB",
-            "name": "GaussDB(for MySQL)",
+            "short": "GaussDBforopenGauss",
+            "name": "GaussDB(for openGauss)",
             "catalog": "Databases",
-            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "name_cn": "云数据库 GaussDB",
             "catalog_cn": "数据库"
           }
         }

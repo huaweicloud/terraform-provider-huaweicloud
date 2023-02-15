@@ -6,16 +6,16 @@ schemes:
   - https
 host: huaweicloud.com
 tags:
-  - name: GaussDB
+  - name: GaussDBforMySQL
 paths:
   /v3/{project_id}/instances/{instanceID}/proxy/enlarge:
     post:
-      tag: GaussDB
+      tag: GaussDBforMySQL
       operationId: EnlargeProxy
   /v3/{project_id}/instances/{instanceID}/proxy:
     delete:
-      tag: GaussDB
+      tag: GaussDBforMySQL
       operationId: DeleteProxy
     post:
-      tag: GaussDB
+      tag: GaussDBforMySQL
       operationId: EnableProxy

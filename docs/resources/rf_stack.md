@@ -10,7 +10,7 @@ Provides an RF resource stack.
 
 ### Create an RF resource stack with resource deployment (using OBS URIs)
 
-```HCL
+```hcl
 variable "stack_name" {}
 variable "agency_name" {}
 variable "template_obs_uri" {}
@@ -30,7 +30,7 @@ resource "huaweicloud_rf_stack" "test" {
 
 ### Create an RF resource stack with VPC deployment (using template and variable files)
 
-```HCL
+```hcl
 variable "stack_name" {}
 variable "agency_name" {}
 variable "template_path" {}
@@ -100,7 +100,7 @@ The content of the template file (in JSON format) is as follows:
 
 The content of the `.vars` file is as follows:
 
-```HCL
+```hcl
 region_name = "cn-north-4"
 vpc_name    = "tf-example-vpc"
 subnet_name = "tf-example-vpc-subnet"
@@ -180,7 +180,7 @@ This resource provides the following timeouts configuration options:
 For most HCL templates, the timeout parameters needs to be manually configured by the user to ensure that resources can
 be deployed successfully on the RF resource stack, e.g.
 
-```HCL
+```hcl
 resource "huaweicloud_rf_stack" "test" {
   ...
 
@@ -205,7 +205,7 @@ API response. The missing attributes include: `agency`, `template_body`, `vars_b
 importing a stack. You can keep the resource the same with its definition bo choosing any of them to update.
 Also you can ignore changes as below.
 
-```HCL
+```hcl
 resource "huaweicloud_rf_stack" "test" {
   ...
 

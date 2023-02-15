@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/elb/v3/loadbalancers"
-	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/elb/v3/loadbalancers"
+	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -16,7 +17,7 @@ import (
 func getELBResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.ElbV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("Error creating ELB v3 client: %s", err)
+		return nil, fmt.Errorf("error creating ELB client: %s", err)
 	}
 
 	eipID := state.Primary.Attributes["ipv4_eip_id"]
@@ -24,7 +25,7 @@ func getELBResourceFunc(c *config.Config, state *terraform.ResourceState) (inter
 	if eipType != "" && eipID != "" {
 		eipClient, err := c.NetworkingV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return nil, fmt.Errorf("Error creating VPC v1 client: %s", err)
+			return nil, fmt.Errorf("error creating VPC v1 client: %s", err)
 		}
 
 		if _, err := eips.Get(eipClient, eipID).Extract(); err != nil {
@@ -249,10 +250,11 @@ data "huaweicloud_availability_zones" "test" {}
 resource "huaweicloud_elb_loadbalancer" "test" {
   name                  = "%s"
   ipv4_subnet_id        = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  enterprise_project_id = "%s"
+
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
-  enterprise_project_id = "%s"
 
   tags = {
     key   = "value"
@@ -271,9 +273,12 @@ data "huaweicloud_vpc_subnet" "test" {
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_elb_loadbalancer" "test" {
-  name              = "%s"
-  ipv4_subnet_id    = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
-  availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
+  name           = "%s"
+  ipv4_subnet_id = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
 
   iptype                = "5_bgp"
   bandwidth_charge_mode = "traffic"

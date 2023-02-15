@@ -210,7 +210,7 @@ resource "huaweicloud_as_bandwidth_policy" "test" {
     recurrence_type  = "Weekly"
     recurrence_value = "1,3,5"
     start_time       = "2022-09-30T12:00Z"
-    end_time         = "2022-12-30T12:00Z"
+    end_time         = "2122-12-30T12:00Z"
   }
 }
 `, name)

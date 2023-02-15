@@ -12,15 +12,17 @@ import (
 	"log"
 	"strings"
 
-	"github.com/chnsz/golangsdk/pagination"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/jmespath/go-jmespath"
+
+	"github.com/chnsz/golangsdk/pagination"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/jmespath/go-jmespath"
 )
 
 func DataSourcePools() *schema.Resource {
@@ -205,9 +207,9 @@ func poolsPoolPersistenceSchema() *schema.Resource {
 	return &sc
 }
 
-func resourcePoolsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourcePoolsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -216,16 +218,16 @@ func resourcePoolsRead(ctx context.Context, d *schema.ResourceData, meta interfa
 		listPoolsHttpUrl = "v3/{project_id}/elb/pools"
 		listPoolsProduct = "elb"
 	)
-	listPoolsClient, err := config.NewServiceClient(listPoolsProduct, region)
+	listPoolsClient, err := cfg.NewServiceClient(listPoolsProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Pools Client: %s", err)
 	}
 
 	listPoolsPath := listPoolsClient.Endpoint + listPoolsHttpUrl
-	listPoolsPath = strings.Replace(listPoolsPath, "{project_id}", listPoolsClient.ProjectID, -1)
+	listPoolsPath = strings.ReplaceAll(listPoolsPath, "{project_id}", listPoolsClient.ProjectID)
 
-	listPoolsqueryParams := buildListPoolsQueryParams(d)
-	listPoolsPath = listPoolsPath + listPoolsqueryParams
+	listPoolsQueryParams := buildListPoolsQueryParams(d)
+	listPoolsPath += listPoolsQueryParams
 
 	listPoolsResp, err := pagination.ListAllItems(
 		listPoolsClient,
@@ -247,11 +249,11 @@ func resourcePoolsRead(ctx context.Context, d *schema.ResourceData, meta interfa
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	dataSourceId, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(dataSourceId)
 
 	mErr = multierror.Append(
 		mErr,
@@ -282,7 +284,7 @@ func flattenListPoolsBodyPools(resp interface{}) []interface{} {
 			"lb_method":        utils.PathSearch("lb_algorithm", v, nil),
 			"healthmonitor_id": utils.PathSearch("healthmonitor_id", v, nil),
 			"listeners":        flattenPoolListeners(v),
-			"loadbalancers":    flattenPoolLoadbalancers(v),
+			"loadbalancers":    flattenPoolLoadBalancers(v),
 			"members":          flattenPoolMembers(v),
 			"persistence":      flattenPoolPersistence(v),
 		})
@@ -308,7 +310,7 @@ func flattenPoolListeners(resp interface{}) []interface{} {
 	return rst
 }
 
-func flattenPoolLoadbalancers(resp interface{}) []interface{} {
+func flattenPoolLoadBalancers(resp interface{}) []interface{} {
 	if resp == nil {
 		return nil
 	}
@@ -348,7 +350,7 @@ func flattenPoolPersistence(resp interface{}) []interface{} {
 	var rst []interface{}
 	curJson, err := jmespath.Search("session_persistence", resp)
 	if err != nil {
-		log.Printf("[ERROR] error parsing persistence from response= %#v", resp)
+		log.Printf("[ERROR] Error parsing persistence from response= %#v", resp)
 		return rst
 	}
 	if curJson == nil {

@@ -35,7 +35,6 @@ resource "huaweicloud_mpc_transcoding_template" "test" {
     output_policy           = "transcode"
     quality                 = 1
     profile                 = 4
-    max_reference_frames    = 4
     height                  = 0
     width                   = 0
   }
@@ -151,9 +150,6 @@ The `video` block supports:
   + **3**: VIDEO_PRESET_NORMAL
 
   The default value is 1.
-
-* `max_reference_frames` - (Optional, Int) Specifies the maximum reference frames. When the `codec` is H.264,
-  the vaule rang is 1 to 8. When the `codec` is H.265, the value is fixed at 4. The default value is 4. The unit is frame.
 
 * `max_iframes_interval` - (Optional, Int) Specifies the mximum I-frame interval. The value ranges from 2 to 10.
   The default value is 5. The unit is second.

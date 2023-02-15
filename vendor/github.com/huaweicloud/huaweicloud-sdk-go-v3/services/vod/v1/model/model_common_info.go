@@ -15,7 +15,7 @@ type CommonInfo struct {
 	Pvc bool `json:"pvc"`
 
 	// 视频编码格式<br/>
-	VideoCodec *CommonInfoVideoCodec `json:"video_codec,omitempty"`
+	VideoCodec CommonInfoVideoCodec `json:"video_codec"`
 
 	// 音频编码格式<br/> AAC：AAC格式 (default)<br/> HEAAC1：HEAAC1格式<br/> HEAAC2：HEAAC2格式<br/> MP3：MP3格式<br/>
 	AudioCodec *CommonInfoAudioCodec `json:"audio_codec,omitempty"`
@@ -24,10 +24,10 @@ type CommonInfo struct {
 	IsBlackCut *bool `json:"is_black_cut,omitempty"`
 
 	// 格式<br/>
-	Format *CommonInfoFormat `json:"format,omitempty"`
+	Format CommonInfoFormat `json:"format"`
 
 	// 分片时长(默认为5秒)<br/>
-	HlsInterval *int32 `json:"hls_interval,omitempty"`
+	HlsInterval int32 `json:"hls_interval"`
 
 	// 上采样<br/>
 	Upsample *bool `json:"upsample,omitempty"`

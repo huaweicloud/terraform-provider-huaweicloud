@@ -1,0 +1,254 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cfw_protection_rule": {
+          "block": {
+            "attributes": {
+              "action_type": {
+                "type": "number",
+                "description": "The action type.",
+                "required": true
+              },
+              "address_type": {
+                "type": "number",
+                "description": "The address type.",
+                "required": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description.",
+                "optional": true,
+                "computed": true
+              },
+              "direction": {
+                "type": "number",
+                "description": "The direction.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "long_connect_enable": {
+                "type": "number",
+                "description": "Whether to support persistent connections.",
+                "required": true
+              },
+              "long_connect_time_hour": {
+                "type": "number",
+                "description": "The persistent connection duration (hour).",
+                "optional": true,
+                "computed": true
+              },
+              "long_connect_time_minute": {
+                "type": "number",
+                "description": "The persistent connection duration (minute).",
+                "optional": true,
+                "computed": true
+              },
+              "long_connect_time_second": {
+                "type": "number",
+                "description": "The persistent Connection Duration (second).",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The rule name.",
+                "required": true
+              },
+              "object_id": {
+                "type": "string",
+                "description": "The protected object ID",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "number",
+                "description": "The rule status.",
+                "required": true
+              },
+              "type": {
+                "type": "number",
+                "description": "The rule type.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "destination": {
+                "block": {
+                  "attributes": {
+                    "address": {
+                      "type": "string",
+                      "description": "The IP address.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "address_set_id": {
+                      "type": "string",
+                      "description": "The ID of the associated IP address group.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "address_set_name": {
+                      "type": "string",
+                      "description": "The IP address group name.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "address_type": {
+                      "type": "number",
+                      "description": "The address type.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "domain_address_name": {
+                      "type": "string",
+                      "description": "The name of the domain name address.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "number",
+                      "description": "The Source type.",
+                      "required": true
+                    }
+                  },
+                  "description": "The destination configuration."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "sequence": {
+                "block": {
+                  "attributes": {
+                    "dest_rule_id": {
+                      "type": "string",
+                      "description": "The ID of the rule that the added rule will follow.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "top": {
+                      "type": "number",
+                      "description": "Whether to pin on top.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The sequence configuration."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "service": {
+                "block": {
+                  "attributes": {
+                    "dest_port": {
+                      "type": "string",
+                      "description": "The destination port.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "protocol": {
+                      "type": "number",
+                      "description": "The protocol type.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "service_set_id": {
+                      "type": "string",
+                      "description": "The service group ID.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "service_set_name": {
+                      "type": "string",
+                      "description": "The service group name.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "source_port": {
+                      "type": "string",
+                      "description": "The source port.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "number",
+                      "description": "The service input type.",
+                      "required": true
+                    }
+                  },
+                  "description": "The service configuration."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "source": {
+                "block": {
+                  "attributes": {
+                    "address": {
+                      "type": "string",
+                      "description": "The IP address.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "address_set_id": {
+                      "type": "string",
+                      "description": "The ID of the associated IP address group.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "address_set_name": {
+                      "type": "string",
+                      "description": "The IP address group name.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "address_type": {
+                      "type": "number",
+                      "description": "The address type.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "domain_address_name": {
+                      "type": "string",
+                      "description": "The name of the domain name address.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "number",
+                      "description": "The Source type.",
+                      "required": true
+                    }
+                  },
+                  "description": "The source configuration."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

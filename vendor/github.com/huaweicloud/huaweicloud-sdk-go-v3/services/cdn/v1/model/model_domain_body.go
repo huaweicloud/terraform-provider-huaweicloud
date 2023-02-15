@@ -24,7 +24,7 @@ type DomainBody struct {
 	// 域名服务范围，若为mainland_china，则表示服务范围为中国大陆；若为outside_mainland_china，则表示服务范围为中国大陆境外；若为global，则表示服务范围为全球。
 	ServiceArea DomainBodyServiceArea `json:"service_area"`
 
-	// 当用户开启企业项目功能时，该参数生效，表示添加加速域名到该企业项目。注意：当使用子账号调用接口时，该参数必传。
+	// 当用户开启企业项目功能时，该参数生效，表示添加加速域名到该企业项目。注意：当使用子帐号调用接口时，该参数必传。  您可以通过调用企业项目管理服务（EPS）的查询企业项目列表接口（ListEnterpriseProject）查询企业项目id。
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 }
 

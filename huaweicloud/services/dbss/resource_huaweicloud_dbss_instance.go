@@ -1,0 +1,567 @@
+// ---------------------------------------------------------------
+// *** AUTO GENERATED CODE ***
+// @Product DBSS
+// ---------------------------------------------------------------
+
+package dbss
+
+import (
+	"context"
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/chnsz/golangsdk"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/jmespath/go-jmespath"
+)
+
+func ResourceInstance() *schema.Resource {
+	return &schema.Resource{
+		CreateContext: resourceInstanceCreate,
+		ReadContext:   resourceInstanceRead,
+		DeleteContext: resourceInstanceDelete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
+		},
+
+		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The instance name.`,
+			},
+			"availability_zone": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The availability zone to which the instnce belongs.`,
+			},
+			"flavor": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Specifies the flavor.`,
+			},
+			"product_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The product ID.`,
+			},
+			"resource_spec_code": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The resource specifications.`,
+			},
+			"vpc_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The VPC ID.`,
+			},
+			"subnet_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The subnet ID of the NIC.`,
+			},
+			"security_group_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The security group to which the instance belongs.`,
+			},
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "0",
+				ForceNew:    true,
+				Description: `Enterprise project ID.`,
+			},
+			"charging_mode": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Billing mode.`,
+				ValidateFunc: validation.StringInSlice([]string{
+					"prePaid",
+				}, false),
+			},
+			"period_unit": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The charging period unit.`,
+				ValidateFunc: validation.StringInSlice([]string{
+					"month", "year",
+				}, false),
+			},
+			"period": {
+				Type:         schema.TypeInt,
+				Required:     true,
+				ForceNew:     true,
+				Description:  `The charging period.`,
+				ValidateFunc: validation.IntBetween(1, 9),
+			},
+			"auto_renew": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Whether auto renew is enabled. Valid values are "true" and "false".`,
+				ValidateFunc: validation.StringInSlice([]string{
+					"true", "false",
+				}, false),
+			},
+
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The description of the instance.`,
+			},
+			"ip_address": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Specifies the IP address.`,
+			},
+			"tags": common.TagsForceNewSchema(),
+			"connect_ip": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The connection address.`,
+			},
+			"connect_ipv6": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The IPv6 address.`,
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time`,
+			},
+			"expired_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The expired time`,
+			},
+			"port_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The ID of the port that the EIP is bound to.`,
+			},
+			"status": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The instance status.`,
+			},
+		},
+	}
+}
+
+func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config := meta.(*config.Config)
+	region := config.GetRegion(d)
+
+	// createInstance: Create a DBSS instance.
+	var (
+		createInstanceHttpUrl = "v2/{project_id}/dbss/audit/charge/period/order"
+		createInstanceProduct = "dbss"
+	)
+	createInstanceClient, err := config.NewServiceClient(createInstanceProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating Instance Client: %s", err)
+	}
+
+	createInstancePath := createInstanceClient.Endpoint + createInstanceHttpUrl
+	createInstancePath = strings.ReplaceAll(createInstancePath, "{project_id}", createInstanceClient.ProjectID)
+
+	createInstanceOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			200,
+		},
+	}
+	createInstanceOpt.JSONBody = utils.RemoveNil(buildCreateInstanceBodyParams(d, config))
+	createInstanceResp, err := createInstanceClient.Request("POST", createInstancePath, &createInstanceOpt)
+	if err != nil {
+		return diag.Errorf("error creating Instance: %s", err)
+	}
+
+	createInstanceRespBody, err := utils.FlattenResponse(createInstanceResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	orderId, err := jmespath.Search("order_id", createInstanceRespBody)
+	if err != nil {
+		return diag.Errorf("error creating DBSS instance: ID is not found in API response")
+	}
+
+	// auto pay
+	var (
+		payOrderHttpUrl = "v3/orders/customer-orders/pay"
+		payOrderProduct = "bss"
+	)
+	payOrderClient, err := config.NewServiceClient(payOrderProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating BSS Client: %s", err)
+	}
+
+	payOrderPath := payOrderClient.Endpoint + payOrderHttpUrl
+
+	payOrderOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+	}
+	payOrderOpt.JSONBody = utils.RemoveNil(buildPayOrderBodyParams(orderId.(string)))
+	_, err = payOrderClient.Request("POST", payOrderPath, &payOrderOpt)
+	if err != nil {
+		return diag.Errorf("error pay order=%s: %s", d.Id(), err)
+	}
+
+	bssClient, err := config.BssV2Client(config.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating BSS v2 client: %s", err)
+	}
+	err = common.WaitOrderComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	d.SetId(resourceId)
+
+	err = createInstaceWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return diag.Errorf("error waiting for the create of instance (%s) to complete: %s", d.Id(), err)
+	}
+	return resourceInstanceRead(ctx, d, meta)
+}
+
+func buildPayOrderBodyParams(orderId string) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"order_id":     orderId,
+		"use_coupon":   "NO",
+		"use_discount": "NO",
+	}
+	return bodyParams
+}
+
+func buildCreateInstanceBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"region":                config.GetRegion(d),
+		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
+		"comment":               utils.ValueIngoreEmpty(d.Get("description")),
+		"availability_zone":     utils.ValueIngoreEmpty(d.Get("availability_zone")),
+		"cloud_service_type":    "hws.service.type.dbss",
+		"flavor_ref":            utils.ValueIngoreEmpty(d.Get("flavor")),
+		"vpc_id":                utils.ValueIngoreEmpty(d.Get("vpc_id")),
+		"nics":                  buildCreateInstanceRequestBodyCreateInstanceRequestBody_nics(d),
+		"security_groups":       buildCreateInstanceRequestBodyCreateInstanceRequestBody_security_groups(d),
+		"product_infos":         buildCreateInstanceRequestBodyCreateInstanceRequestBody_product_infos(d),
+		"subscription_num":      1,
+		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, config)),
+		"tags":                  utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
+		"period_num":            utils.ValueIngoreEmpty(d.Get("period")),
+	}
+
+	chargingMode := d.Get("charging_mode").(string)
+	if chargingMode == "prePaid" {
+		bodyParams["charging_mode"] = 0
+	}
+
+	periodUnit := d.Get("period_unit").(string)
+	if periodUnit == "month" {
+		bodyParams["period_type"] = 2
+	} else {
+		bodyParams["period_type"] = 3
+	}
+
+	autoRenew := d.Get("auto_renew").(string)
+	if autoRenew == "true" {
+		bodyParams["is_auto_renew"] = 1
+	} else {
+		bodyParams["is_auto_renew"] = 0
+	}
+	return bodyParams
+}
+
+func buildCreateInstanceRequestBodyCreateInstanceRequestBody_nics(d *schema.ResourceData) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"ip_address": utils.ValueIngoreEmpty(d.Get("ip_address")),
+			"subnet_id":  utils.ValueIngoreEmpty(d.Get("subnet_id")),
+		},
+	}
+}
+
+func buildCreateInstanceRequestBodyCreateInstanceRequestBody_security_groups(d *schema.ResourceData) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"id": utils.ValueIngoreEmpty(d.Get("security_group_id")),
+		},
+	}
+}
+
+func buildCreateInstanceRequestBodyCreateInstanceRequestBody_product_infos(d *schema.ResourceData) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"cloud_service_type": "hws.service.type.dbss",
+			"product_id":         utils.ValueIngoreEmpty(d.Get("product_id")),
+			"product_spec_desc":  utils.ValueIngoreEmpty(d.Get("resource_spec_code")),
+			"resource_spec_code": utils.ValueIngoreEmpty(d.Get("resource_spec_code")),
+			"resource_type":      "hws.resource.type.dbss",
+		},
+	}
+}
+
+func createInstaceWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			config := meta.(*config.Config)
+			region := config.GetRegion(d)
+			var (
+				createInstaceWaitingHttpUrl = "v1/{project_id}/dbss/audit/jobs/{resource_id}"
+				createInstaceWaitingProduct = "dbss"
+			)
+			createInstaceWaitingClient, err := config.NewServiceClient(createInstaceWaitingProduct, region)
+			if err != nil {
+				return nil, "ERROR", fmt.Errorf("error creating Instance Client: %s", err)
+			}
+
+			createInstaceWaitingPath := createInstaceWaitingClient.Endpoint + createInstaceWaitingHttpUrl
+			createInstaceWaitingPath = strings.ReplaceAll(createInstaceWaitingPath, "{project_id}", createInstaceWaitingClient.ProjectID)
+			createInstaceWaitingPath = strings.ReplaceAll(createInstaceWaitingPath, "{resource_id}", fmt.Sprintf("%v", d.Id()))
+
+			createInstaceWaitingOpt := golangsdk.RequestOpts{
+				KeepResponseBody: true,
+				OkCodes: []int{
+					200,
+				},
+			}
+			createInstaceWaitingResp, err := createInstaceWaitingClient.Request("GET", createInstaceWaitingPath, &createInstaceWaitingOpt)
+			if err != nil {
+				return nil, "ERROR", err
+			}
+
+			createInstaceWaitingRespBody, err := utils.FlattenResponse(createInstaceWaitingResp)
+			if err != nil {
+				return nil, "ERROR", err
+			}
+
+			statusRaw, err := jmespath.Search(`jobs[0].status`, createInstaceWaitingRespBody)
+			if err != nil {
+				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `jobs[0].status`)
+			}
+
+			status := fmt.Sprintf("%v", statusRaw)
+
+			targetStatus := []string{
+				"SUCCESS",
+			}
+			if utils.StrSliceContains(targetStatus, status) {
+				return createInstaceWaitingRespBody, "COMPLETED", nil
+			}
+
+			unexpectedStatus := []string{
+				"ERROR",
+			}
+			if utils.StrSliceContains(unexpectedStatus, status) {
+				return createInstaceWaitingRespBody, status, nil
+			}
+
+			return createInstaceWaitingRespBody, "PENDING", nil
+
+		},
+		Timeout:      t,
+		Delay:        10 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func resourceInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config := meta.(*config.Config)
+	region := config.GetRegion(d)
+
+	var mErr *multierror.Error
+
+	// getInstance: Query the DBSS instance detail
+	var (
+		getInstanceHttpUrl = "v1/{project_id}/dbss/audit/instances"
+		getInstanceProduct = "dbss"
+	)
+	getInstanceClient, err := config.NewServiceClient(getInstanceProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating Instance Client: %s", err)
+	}
+
+	getInstancePath := getInstanceClient.Endpoint + getInstanceHttpUrl
+	getInstancePath = strings.ReplaceAll(getInstancePath, "{project_id}", getInstanceClient.ProjectID)
+
+	getInstanceOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			200,
+		},
+	}
+	getInstanceResp, err := getInstanceClient.Request("GET", getInstancePath, &getInstanceOpt)
+
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving instance")
+	}
+
+	getInstanceRespBody, err := utils.FlattenResponse(getInstanceResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	instances, err := jmespath.Search("servers", getInstanceRespBody)
+	if err != nil {
+		diag.Errorf("error parsing servers from response= %#v", getInstanceRespBody)
+	}
+
+	instance, err := FilterInstances(instances.([]interface{}), d.Id())
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving instance")
+	}
+
+	mErr = multierror.Append(
+		mErr,
+		d.Set("region", region),
+		d.Set("description", utils.PathSearch("comment", instance, nil)),
+		d.Set("connect_ip", utils.PathSearch("connect_ip", instance, nil)),
+		d.Set("connect_ipv6", utils.PathSearch("connect_ipv6", instance, nil)),
+		d.Set("created_at", utils.PathSearch("created", instance, nil)),
+		d.Set("expired_at", utils.PathSearch("expired", instance, nil)),
+		d.Set("name", utils.PathSearch("name", instance, nil)),
+		d.Set("port_id", utils.PathSearch("port_id", instance, nil)),
+		d.Set("resource_spec_code", utils.PathSearch("resource_spec_code", instance, nil)),
+		d.Set("security_group_id", utils.PathSearch("security_group_id", instance, nil)),
+		d.Set("status", utils.PathSearch("status", instance, nil)),
+		d.Set("vpc_id", utils.PathSearch("vpc_id", instance, nil)),
+		d.Set("subnet_id", utils.PathSearch("subnetId", instance, nil)),
+		d.Set("availability_zone", utils.PathSearch("zone", instance, nil)),
+	)
+
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func FilterInstances(instances []interface{}, id string) (interface{}, error) {
+	if len(instances) != 0 {
+		for _, v := range instances {
+			instance := v.(map[string]interface{})
+			if instance["resource_id"] == id {
+				return v, nil
+			}
+		}
+	}
+
+	return nil, golangsdk.ErrDefault404{}
+}
+
+func resourceInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config := meta.(*config.Config)
+
+	if err := common.UnsubscribePrePaidResource(d, config, []string{d.Id()}); err != nil {
+		return diag.Errorf("Error unsubscribing DBSS order = %s: %s", d.Id(), err)
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETE"},
+		Refresh:      waitForInstanceDelete(ctx, d, meta),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        20 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return diag.Errorf("Error deleting DBSS instance: %s", err)
+	}
+
+	return nil
+}
+
+func waitForInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) resource.StateRefreshFunc {
+	config := meta.(*config.Config)
+	region := config.GetRegion(d)
+
+	return func() (interface{}, string, error) {
+		var (
+			getInstanceHttpUrl = "v1/{project_id}/dbss/audit/instances"
+			getInstanceProduct = "dbss"
+		)
+		getInstanceClient, err := config.NewServiceClient(getInstanceProduct, region)
+		if err != nil {
+			return nil, "error", fmt.Errorf("error creating Instance Client: %s", err)
+		}
+
+		getInstancePath := getInstanceClient.Endpoint + getInstanceHttpUrl
+		getInstancePath = strings.ReplaceAll(getInstancePath, "{project_id}", getInstanceClient.ProjectID)
+
+		getInstanceOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			OkCodes: []int{
+				200,
+			},
+		}
+		getInstanceResp, err := getInstanceClient.Request("GET", getInstancePath, &getInstanceOpt)
+
+		if err != nil {
+			return nil, "error", fmt.Errorf("error retrieving instance: %s", err)
+		}
+
+		getInstanceRespBody, err := utils.FlattenResponse(getInstanceResp)
+		if err != nil {
+			return nil, "error", err
+		}
+
+		instances, err := jmespath.Search("servers", getInstanceRespBody)
+		if err != nil {
+			diag.Errorf("error parsing servers from response= %#v", getInstanceRespBody)
+		}
+
+		instance, err := FilterInstances(instances.([]interface{}), d.Id())
+		if err != nil {
+			// "instance" is useless, just return it to make the WaitForState break
+			return "instance", "COMPLETE", nil
+		}
+
+		return instance, "PENDING", nil
+	}
+}

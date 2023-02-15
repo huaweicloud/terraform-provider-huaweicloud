@@ -6,27 +6,27 @@ schemes:
   - https
 host: huaweicloud.com
 tags:
-  - name: GaussDBforopenGauss
+  - name: GaussDB
 paths:
   /v3/{project_id}/instances/{id}/backups/policy:
     put:
-      tag: GaussDBforopenGauss
+      tag: GaussDB
       operationId: Update
   /v3/{project_id}/instances/{instanceID}/{updata}:
     post:
-      tag: GaussDBforopenGauss
+      tag: GaussDB
       operationId: Update
     put:
-      tag: GaussDBforopenGauss
+      tag: GaussDB
       operationId: Rename
   /v3/{project_id}/instances/{instanceID}:
     delete:
-      tag: GaussDBforopenGauss
+      tag: GaussDB
       operationId: Delete
   /v3/{project_id}/instances:
     get:
-      tag: GaussDBforopenGauss
+      tag: GaussDB
       operationId: GetInstanceByID
     post:
-      tag: GaussDBforopenGauss
+      tag: GaussDB
       operationId: Create

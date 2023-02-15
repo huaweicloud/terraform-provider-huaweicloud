@@ -1,0 +1,94 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dcs_instances": {
+          "block": {
+            "attributes": {
+              "capacity": {
+                "type": "number",
+                "description": "Specifies the cache capacity. Unit: GB.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_user": "string",
+                      "availability_zones": [
+                        "list",
+                        "string"
+                      ],
+                      "capacity": "number",
+                      "charging_mode": "string",
+                      "description": "string",
+                      "domain_name": "string",
+                      "engine": "string",
+                      "engine_version": "string",
+                      "enterprise_project_id": "string",
+                      "flavor": "string",
+                      "id": "string",
+                      "maintain_begin": "string",
+                      "maintain_end": "string",
+                      "max_memory": "number",
+                      "name": "string",
+                      "order_id": "string",
+                      "port": "number",
+                      "private_ip": "string",
+                      "security_group_id": "string",
+                      "security_group_name": "string",
+                      "status": "string",
+                      "subnet_id": "string",
+                      "subnet_name": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "used_memory": "number",
+                      "vpc_id": "string",
+                      "vpc_name": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of DCS instances.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of an instance.",
+                "optional": true
+              },
+              "private_ip": {
+                "type": "string",
+                "description": "Specifies the subnet Network ID.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the cache instance status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

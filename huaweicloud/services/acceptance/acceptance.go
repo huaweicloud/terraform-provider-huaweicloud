@@ -12,17 +12,18 @@ import (
 )
 
 var (
-	HW_REGION_NAME                = os.Getenv("HW_REGION_NAME")
-	HW_CUSTOM_REGION_NAME         = os.Getenv("HW_CUSTOM_REGION_NAME")
-	HW_AVAILABILITY_ZONE          = os.Getenv("HW_AVAILABILITY_ZONE")
-	HW_ACCESS_KEY                 = os.Getenv("HW_ACCESS_KEY")
-	HW_SECRET_KEY                 = os.Getenv("HW_SECRET_KEY")
-	HW_USER_ID                    = os.Getenv("HW_USER_ID")
-	HW_USER_NAME                  = os.Getenv("HW_USER_NAME")
-	HW_PROJECT_ID                 = os.Getenv("HW_PROJECT_ID")
-	HW_DOMAIN_ID                  = os.Getenv("HW_DOMAIN_ID")
-	HW_DOMAIN_NAME                = os.Getenv("HW_DOMAIN_NAME")
-	HW_ENTERPRISE_PROJECT_ID_TEST = os.Getenv("HW_ENTERPRISE_PROJECT_ID_TEST")
+	HW_REGION_NAME                        = os.Getenv("HW_REGION_NAME")
+	HW_CUSTOM_REGION_NAME                 = os.Getenv("HW_CUSTOM_REGION_NAME")
+	HW_AVAILABILITY_ZONE                  = os.Getenv("HW_AVAILABILITY_ZONE")
+	HW_ACCESS_KEY                         = os.Getenv("HW_ACCESS_KEY")
+	HW_SECRET_KEY                         = os.Getenv("HW_SECRET_KEY")
+	HW_USER_ID                            = os.Getenv("HW_USER_ID")
+	HW_USER_NAME                          = os.Getenv("HW_USER_NAME")
+	HW_PROJECT_ID                         = os.Getenv("HW_PROJECT_ID")
+	HW_DOMAIN_ID                          = os.Getenv("HW_DOMAIN_ID")
+	HW_DOMAIN_NAME                        = os.Getenv("HW_DOMAIN_NAME")
+	HW_ENTERPRISE_PROJECT_ID_TEST         = os.Getenv("HW_ENTERPRISE_PROJECT_ID_TEST")
+	HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST = os.Getenv("HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST")
 
 	HW_FLAVOR_ID             = os.Getenv("HW_FLAVOR_ID")
 	HW_FLAVOR_NAME           = os.Getenv("HW_FLAVOR_NAME")
@@ -56,6 +57,7 @@ var (
 	HW_CERTIFICATE_NAME             = os.Getenv("HW_CERTIFICATE_NAME")
 	HW_DMS_ENVIRONMENT              = os.Getenv("HW_DMS_ENVIRONMENT")
 	HW_SMS_SOURCE_SERVER            = os.Getenv("HW_SMS_SOURCE_SERVER")
+	HW_CFW_ENVIRONMENT              = os.Getenv("HW_CFW_ENVIRONMENT")
 
 	HW_DLI_FLINK_JAR_OBS_PATH = os.Getenv("HW_DLI_FLINK_JAR_OBS_PATH")
 
@@ -99,6 +101,9 @@ var (
 	HW_RF_TEMPLATE_ARCHIVE_URI = os.Getenv("HW_RF_TEMPLATE_ARCHIVE_URI")
 	// The OBS address where the variable archive corresponding to the HCL/JSON template is located.
 	HW_RF_VARIABLES_ARCHIVE_URI = os.Getenv("HW_RF_VARIABLES_ARCHIVE_URI")
+
+	// The direct connection ID (provider does not support direct connection resource).
+	HW_DC_DIRECT_CONNECT_ID = os.Getenv("HW_DC_DIRECT_CONNECT_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -438,5 +443,19 @@ func TestAccPreCheckRfArchives(t *testing.T) {
 	if HW_RF_TEMPLATE_ARCHIVE_NO_VARS_URI == "" || HW_RF_TEMPLATE_ARCHIVE_URI == "" ||
 		HW_RF_VARIABLES_ARCHIVE_URI == "" {
 		t.Skip("Skip the archive URI parameters acceptance test for RF resource stack.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDcDirectConnection(t *testing.T) {
+	if HW_DC_DIRECT_CONNECT_ID == "" {
+		t.Skip("Skip the interface acceptance test because of the direct connection ID is missing.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCfw(t *testing.T) {
+	if HW_CFW_ENVIRONMENT == "" {
+		t.Skip("This environment does not support CFW tests")
 	}
 }

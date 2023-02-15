@@ -15,7 +15,7 @@ type ShowInstanceExtendProductInfoRequest struct {
 	// 实例ID。
 	InstanceId string `json:"instance_id"`
 
-	// 产品的类型。 - advanced: 专享版 - platinum: 铂金版 - dec: 专属云版 - exp: 体验版
+	// 产品的类型。 [- advanced: 专享版 - platinum: 铂金版 - dec: 专属云版 - exp: 体验版](tag:hc,hk,hws,hws_hk,ctc,sbc,hk_sbc,cmcc,hws_eu)[- platinum: 铂金版](tag:otc)
 	Type ShowInstanceExtendProductInfoRequestType `json:"type"`
 
 	// 消息引擎的类型。当前支持的类型为kafka。

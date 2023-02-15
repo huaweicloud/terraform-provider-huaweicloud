@@ -10,11 +10,11 @@ tags:
 paths:
   /v1.0/apigw/api-groups/{id}:
     get:
-      tag: FunctionGraph
+      tag: APIG
       operationId: Get
   /v1.0/apigw/envs:
     get:
-      tag: FunctionGraph
+      tag: APIG
       operationId: List
   /v2/{project_id}/fgs/triggers/{functionUrn}/{triggerTypeCode}/{triggerId}:
     put:
@@ -29,9 +29,9 @@ paths:
       operationId: Create
   /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{groupId}:
     get:
-      tag: FunctionGraph
+      tag: APIG
       operationId: Get
   /v2/{project_id}/apigw/instances/{instanceId}/{path}:
     get:
-      tag: FunctionGraph
+      tag: APIG
       operationId: List

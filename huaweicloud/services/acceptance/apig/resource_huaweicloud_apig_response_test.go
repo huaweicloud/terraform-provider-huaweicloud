@@ -4,208 +4,190 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/responses"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/responses"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccApigResponseV2_basic(t *testing.T) {
+func getResponseFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.ApigV2Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating APIG v2 client: %s", err)
+	}
+	return responses.Get(client, state.Primary.Attributes["instance_id"], state.Primary.Attributes["group_id"],
+		state.Primary.ID).Extract()
+}
+
+func TestAccResponse_basic(t *testing.T) {
 	var (
-		// Only letters, digits and underscores (_) are allowed in the name.
-		rName        = fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
-		resourceName = "huaweicloud_apig_response.test"
-		resp         responses.Response
+		resp responses.Response
+
+		rName       = "huaweicloud_apig_response.test"
+		name        = acceptance.RandomAccResourceName()
+		updateName  = acceptance.RandomAccResourceName()
+		basicConfig = testAccResponse_base(name)
+	)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&resp,
+		getResponseFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t) // The creation of APIG instance needs the enterprise project ID.
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckApigResponseDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccApigResponse_basic(rName),
+				Config: testAccResponse_basic(basicConfig, name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApigResponseExists(resourceName, &resp),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
 				),
 			},
 			{
-				Config: testAccApigResponse_update(rName),
+				Config: testAccResponse_basic(basicConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApigResponseExists(resourceName, &resp),
-					resource.TestCheckResourceAttr(resourceName, "name", rName+"_update"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", updateName),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccApigGroupSubResourceImportStateIdFunc(resourceName),
+				ImportStateIdFunc: testAccResponseImportStateFunc(),
 			},
 		},
 	})
 }
 
-func TestAccApigResponseV2_customRules(t *testing.T) {
+func TestAccResponse_customRules(t *testing.T) {
 	var (
-		// Only letters, digits and underscores (_) are allowed in the name.
-		rName        = fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
-		resourceName = "huaweicloud_apig_response.test"
-		resp         responses.Response
+		resp responses.Response
+
+		rName       = "huaweicloud_apig_response.test"
+		name        = acceptance.RandomAccResourceName()
+		basicConfig = testAccResponse_base(name)
+	)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&resp,
+		getResponseFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t) // The creation of APIG instance needs the enterprise project ID.
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckApigResponseDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccApigResponse_basic(rName),
+				Config: testAccResponse_basic(basicConfig, name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApigResponseExists(resourceName, &resp),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
 				),
 			},
 			{
 				// Add two custom rule.
-				Config: testAccApigResponse_rules(rName),
+				Config: testAccResponse_rules(basicConfig, name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApigResponseExists(resourceName, &resp),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "rule.#", "2"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "rule.#", "2"),
 				),
 			},
 			{
 				// Remove one and update another.
-				Config: testAccApigResponse_rulesUpdate(rName),
+				Config: testAccResponse_rulesUpdate(basicConfig, name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApigResponseExists(resourceName, &resp),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "rule.#", "1"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "rule.#", "1"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccApigGroupSubResourceImportStateIdFunc(resourceName),
+				ImportStateIdFunc: testAccResponseImportStateFunc(),
 			},
 		},
 	})
 }
 
-func testAccCheckApigResponseDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	client, err := config.ApigV2Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
-	}
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_apig_response" {
-			continue
-		}
-		_, err := responses.Get(client, rs.Primary.Attributes["instance_id"], rs.Primary.Attributes["group_id"],
-			rs.Primary.ID).Extract()
-		if err == nil {
-			return fmt.Errorf("APIG v2 API custom response (%s) is still exists", rs.Primary.ID)
-		}
-	}
-	return nil
-}
-
-func testAccCheckApigResponseExists(n string, resp *responses.Response) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Resource %s not found", n)
-		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No APIG V2 API custom response Id")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		client, err := config.ApigV2Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
-		}
-		found, err := responses.Get(client, rs.Primary.Attributes["instance_id"], rs.Primary.Attributes["group_id"],
-			rs.Primary.ID).Extract()
-		if err != nil {
-			return fmt.Errorf("APIG v2 API custom response not exist: %s", err)
-		}
-		*resp = *found
-		return nil
-	}
-}
-
-func isResponseImportIdValid(rs *terraform.ResourceState) bool {
-	if rs.Primary.Attributes["instance_id"] == "" || rs.Primary.Attributes["group_id"] == "" ||
-		rs.Primary.Attributes["name"] == "" {
-		return false
-	}
-	return true
-}
-
-func testAccApigGroupSubResourceImportStateIdFunc(name string) resource.ImportStateIdFunc {
+func testAccResponseImportStateFunc() resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
-		rs, ok := s.RootModule().Resources[name]
+		rName := "huaweicloud_apig_response.test"
+		rs, ok := s.RootModule().Resources[rName]
 		if !ok {
-			return "", fmt.Errorf("Resource (%s) not found: %s", name, rs)
+			return "", fmt.Errorf("resource (%s) not found: %s", rName, rs)
 		}
-		if isResponseImportIdValid(rs) {
-			return fmt.Sprintf("%s/%s/%s", rs.Primary.Attributes["instance_id"], rs.Primary.Attributes["group_id"],
-				rs.Primary.Attributes["name"]), nil
+		if rs.Primary.Attributes["instance_id"] == "" || rs.Primary.Attributes["group_id"] == "" ||
+			rs.Primary.Attributes["name"] == "" {
+			return "", fmt.Errorf("missing some attributes, want '{instance_id}/{group_id}/{name}', but '%s/%s/%s'",
+				rs.Primary.Attributes["instance_id"], rs.Primary.Attributes["group_id"], rs.Primary.Attributes["name"])
 		}
-		return "", fmt.Errorf("resource not found: %s/%s/%s", rs.Primary.Attributes["instance_id"],
-			rs.Primary.Attributes["group_id"], rs.Primary.Attributes["name"])
+		return fmt.Sprintf("%s/%s/%s", rs.Primary.Attributes["instance_id"], rs.Primary.Attributes["group_id"],
+			rs.Primary.Attributes["name"]), nil
 	}
 }
 
-func testAccApigResponse_base(rName string) string {
+func testAccResponse_base(name string) string {
 	return fmt.Sprintf(`
-%s
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  vpc_id = huaweicloud_vpc.test.id
+
+  name       = "%[1]s"
+  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1)
+  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1), 1)
+}
+
+resource "huaweicloud_networking_secgroup" "test" {
+  name = "%[1]s"
+}
+
+resource "huaweicloud_apig_instance" "test" {
+  name                  = "%[1]s"
+  edition               = "BASIC"
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  enterprise_project_id = "0"
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0],
+  ]
+}
 
 resource "huaweicloud_apig_group" "test" {
-  name        = "%s"
+  name        = "%[1]s"
   instance_id = huaweicloud_apig_instance.test.id
-  description = "Created by script"
 }
-`, testAccApigApplication_base(rName), rName)
+`, name)
 }
 
-func testAccApigResponse_basic(rName string) string {
+func testAccResponse_basic(relatedConfig string, name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_apig_response" "test" {
-  name        = "%s"
-  instance_id = huaweicloud_apig_instance.test.id
-  group_id    = huaweicloud_apig_group.test.id
-
-  rule {
-    error_type  = "AUTHORIZER_FAILURE"
-    body        = "{\"code\":\"$context.authorizer.frontend.code\",\"message\":\"$context.authorizer.frontend.message\"}"
-    status_code = 401
-  }
-}
-`, testAccApigResponse_base(rName), rName)
-}
-
-func testAccApigResponse_update(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_apig_response" "test" {
-  name        = "%s_update"
+  name        = "%[2]s"
   instance_id = huaweicloud_apig_instance.test.id
   group_id    = huaweicloud_apig_group.test.id
 
@@ -215,15 +197,15 @@ resource "huaweicloud_apig_response" "test" {
     status_code = 401
   }
 }
-`, testAccApigResponse_base(rName), rName)
+`, relatedConfig, name)
 }
 
-func testAccApigResponse_rules(rName string) string {
+func testAccResponse_rules(relatedConfig string, name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_apig_response" "test" {
-  name        = "%s"
+  name        = "%[2]s"
   instance_id = huaweicloud_apig_instance.test.id
   group_id    = huaweicloud_apig_group.test.id
 
@@ -238,15 +220,15 @@ resource "huaweicloud_apig_response" "test" {
     status_code = 401
   }
 }
-`, testAccApigResponse_base(rName), rName)
+`, relatedConfig, name)
 }
 
-func testAccApigResponse_rulesUpdate(rName string) string {
+func testAccResponse_rulesUpdate(relatedConfig string, name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_apig_response" "test" {
-  name        = "%s"
+  name        = "%[2]s"
   instance_id = huaweicloud_apig_instance.test.id
   group_id    = huaweicloud_apig_group.test.id
 
@@ -256,5 +238,5 @@ resource "huaweicloud_apig_response" "test" {
     status_code = 403
   }
 }
-`, testAccApigResponse_base(rName), rName)
+`, relatedConfig, name)
 }

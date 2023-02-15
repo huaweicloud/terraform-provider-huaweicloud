@@ -22,6 +22,7 @@ type CreateOpts struct {
 	CertificateId   string       `json:"certificateid,omitempty"`
 	CertificateName string       `json:"certificatename,omitempty"`
 	Proxy           *bool        `json:"proxy,omitempty"`
+	PaidType        string       `json:"paid_type,omitempty"`
 }
 
 // ServerOpts contains the origin server information.

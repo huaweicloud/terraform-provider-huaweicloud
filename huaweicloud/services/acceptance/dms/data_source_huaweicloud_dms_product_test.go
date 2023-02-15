@@ -106,6 +106,8 @@ func TestAccDmsProductDataSource_rabbitmqCluster(t *testing.T) {
 }
 
 var testAccDmsProductDataSource_basic = fmt.Sprintf(`
+data "huaweicloud_availability_zones" "zones" {}
+
 data "huaweicloud_dms_product" "product1" {
   engine            = "kafka"
   version           = "1.1.0"
@@ -113,30 +115,32 @@ data "huaweicloud_dms_product" "product1" {
   partition_num     = 300
   storage           = 600
   storage_spec_code = "dms.physical.storage.high"
+
+  availability_zones = data.huaweicloud_availability_zones.zones.names
 }
 `)
 
-var testAccDmsProductDataSource_kafkaVmSpec = fmt.Sprintf(`
+var testAccDmsProductDataSource_kafkaVmSpec = `
 data "huaweicloud_dms_product" "test" {
   instance_type    = "cluster"
   version          = "2.3.0"
   engine           = "kafka"
   vm_specification = "c6.large.2"
 }
-`)
+`
 
-var testAccDmsProductDataSource_rabbitmqSingle = fmt.Sprintf(`
+var testAccDmsProductDataSource_rabbitmqSingle = `
 data "huaweicloud_dms_product" "product1" {
   engine            = "rabbitmq"
   instance_type     = "single"
   storage_spec_code = "dms.physical.storage.high"
 }
-`)
+`
 
-var testAccDmsProductDataSource_rabbitmqCluster = fmt.Sprintf(`
+var testAccDmsProductDataSource_rabbitmqCluster = `
 data "huaweicloud_dms_product" "product1" {
   engine            = "rabbitmq"
   instance_type     = "cluster"
   storage_spec_code = "dms.physical.storage.high"
 }
-`)
+`

@@ -34,8 +34,8 @@ type Application struct {
 	//     USER: The app is created by the API user.
 	//     MARKET: The app is allocated by the marketplace.
 	Creator string `json:"creator"`
-	// Registraion time.
-	RegistraionTime string `json:"register_time"`
+	// Registration time.
+	RegistrationTime string `json:"register_time"`
 	// Update time.
 	UpdateTime string `json:"update_time"`
 	// App key.

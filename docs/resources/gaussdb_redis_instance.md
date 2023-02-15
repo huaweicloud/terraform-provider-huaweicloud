@@ -58,6 +58,7 @@ The following arguments are supported:
 
 * `availability_zone` - (Required, String, ForceNew) Specifies the AZ name.
   See [Region and Endpoints](https://developer.huaweicloud.com/intl/en-us/endpoint?GaussDB%20NoSQL) for more detail.
+  For a three-AZ deployment instance, use commas (,) to separate the AZs, for example, `cn-north-4a,cn-north-4b,cn-north-4c`.
   Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Specifies the instance name, which can be the same as an existing instance name. The value

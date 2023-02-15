@@ -8,7 +8,7 @@ Manages an ER instance resource within HuaweiCloud.
 
 ## Example Usage
 
-```HCL
+```hcl
 variable "router_name" {}
 variable "bgp_as_number" {}
 variable "availability_zones" {

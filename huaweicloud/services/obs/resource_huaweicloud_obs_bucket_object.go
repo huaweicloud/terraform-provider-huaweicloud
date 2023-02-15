@@ -135,7 +135,7 @@ func resourceObsBucketObjectPut(ctx context.Context, d *schema.ResourceData, met
 	content := d.Get("content").(string)
 	if source != "" {
 		// check source file whether exist
-		_, err := os.Stat(source)
+		_, err = os.Stat(source)
 		if err != nil {
 			if os.IsNotExist(err) {
 				return diag.Errorf("source file %s is not exist", source)
@@ -160,10 +160,14 @@ func resourceObsBucketObjectPut(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	log.Printf("[DEBUG] Response of putting %s to OBS Bucket %s: %#v", key, bucket, resp)
+	mErr := &multierror.Error{}
 	if resp.VersionId != "null" {
-		d.Set("version_id", resp.VersionId)
+		mErr = multierror.Append(mErr, d.Set("version_id", resp.VersionId))
 	} else {
-		d.Set("version_id", "")
+		mErr = multierror.Append(mErr, d.Set("version_id", ""))
+	}
+	if mErr.ErrorOrNil() != nil {
+		return diag.Errorf("error saving versionId of OBS bucket %s: %s", bucket, mErr)
 	}
 	d.SetId(key)
 
@@ -309,18 +313,23 @@ func resourceObsBucketObjectDelete(_ context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func resourceObsBucketObjectImport(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceObsBucketObjectImport(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		err := fmt.Errorf("Invalid format specified for OBS bucket object. Format must be <bucket>/<key>")
+		err := fmt.Errorf("invalid format specified for OBS bucket object. Format must be <bucket>/<key>")
 		return nil, err
 	}
 
 	bucket := parts[0]
 	key := parts[1]
 
-	d.Set("bucket", bucket)
-	d.Set("key", key)
+	mErr := multierror.Append(nil,
+		d.Set("bucket", bucket),
+		d.Set("key", key),
+	)
+	if mErr.ErrorOrNil() != nil {
+		return nil, fmt.Errorf("error setting attributes of OBS bucket %s: %s", bucket, mErr)
+	}
 	d.SetId(key)
 
 	return []*schema.ResourceData{d}, nil

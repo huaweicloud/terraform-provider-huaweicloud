@@ -6,13 +6,13 @@ schemes:
   - https
 host: huaweicloud.com
 tags:
-  - name: DMS
+  - name: Kafka
 paths:
   /v1/{project_id}/instances/{instance_id}/topics/accesspolicy:
     post:
-      tag: DMS
+      tag: Kafka
       operationId: UpdateTopicAccessPolicy
   /v1/{project_id}/instances/{instance_id}/topics/{topic_name}/accesspolicy:
     get:
-      tag: DMS
+      tag: Kafka
       operationId: ShowTopicAccessPolicy

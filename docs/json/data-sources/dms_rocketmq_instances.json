@@ -1,0 +1,107 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_rocketmq_instances": {
+          "block": {
+            "attributes": {
+              "exact_match_name": {
+                "type": "string",
+                "description": "Specifies whether to search for the instance that precisely matches a specified\ninstance name.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the rocketMQ instance.",
+                "optional": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zones": [
+                        "list",
+                        "string"
+                      ],
+                      "broker_address": "string",
+                      "broker_num": "number",
+                      "cross_vpc_accesses": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "advertised_ip": "string",
+                            "lisenter_ip": "string",
+                            "port": "number",
+                            "port_id": "string"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "enable_acl": "bool",
+                      "enable_publicip": "bool",
+                      "engine_version": "string",
+                      "flavor_id": "string",
+                      "id": "string",
+                      "ipv6_enable": "bool",
+                      "maintain_begin": "string",
+                      "maintain_end": "string",
+                      "name": "string",
+                      "namesrv_address": "string",
+                      "new_spec_billing_enable": "bool",
+                      "node_num": "number",
+                      "public_broker_address": "string",
+                      "public_namesrv_address": "string",
+                      "publicip_address": "string",
+                      "publicip_id": "string",
+                      "resource_spec_code": "string",
+                      "security_group_id": "string",
+                      "specification": "string",
+                      "ssl_enable": "bool",
+                      "status": "string",
+                      "storage_space": "number",
+                      "storage_spec_code": "string",
+                      "subnet_id": "string",
+                      "type": "string",
+                      "used_storage_space": "number",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of DMS rocketMQ instances.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the DMS RocketMQ instance.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the DMS RocketMQ instance.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

@@ -548,7 +548,7 @@ func resourceBCSInstanceV2Delete(d *schema.ResourceData, meta interface{}) error
 		stateConf := &resource.StateChangeConf{
 			Pending:    []string{"DELETING", "RUNNING"},
 			Target:     []string{"DELETED"},
-			Refresh:    dms.DmsKafkaInstanceStateRefreshFunc(dmsClient, kafkaID),
+			Refresh:    dms.KafkaInstanceStateRefreshFunc(dmsClient, kafkaID),
 			Timeout:    d.Timeout(schema.TimeoutDelete),
 			Delay:      10 * time.Second,
 			MinTimeout: 3 * time.Second,

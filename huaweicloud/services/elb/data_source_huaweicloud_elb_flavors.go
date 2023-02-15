@@ -1,17 +1,21 @@
 package elb
 
 import (
+	"context"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v3/flavors"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func DataSourceElbFlavorsV3() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceElbFlavorsV3Read,
+		ReadContext: dataSourceElbFlavorsV3Read,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -87,11 +91,11 @@ func DataSourceElbFlavorsV3() *schema.Resource {
 	}
 }
 
-func dataSourceElbFlavorsV3Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(config.GetRegion(d))
+func dataSourceElbFlavorsV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	listOpts := flavors.ListOpts{}
@@ -101,27 +105,27 @@ func dataSourceElbFlavorsV3Read(d *schema.ResourceData, meta interface{}) error 
 
 	pages, err := flavors.List(elbClient, listOpts).AllPages()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	allFlavors, err := flavors.ExtractFlavors(pages)
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve flavors: %s", err)
+		return diag.Errorf("unable to retrieve flavors: %s", err)
 	}
 
-	max_connections := d.Get("max_connections").(int)
+	maxConnections := d.Get("max_connections").(int)
 	cps := d.Get("cps").(int)
 	qps := d.Get("qps").(int)
 	bandwidth := d.Get("bandwidth").(int)
 
 	var ids []string
-	var s []map[string]interface{}
+	var flavorInfos []map[string]interface{}
 	for _, flavor := range allFlavors {
 		if flavor.SoldOut {
 			continue
 		}
 
-		if max_connections > 0 && flavor.Info.Connection != max_connections {
+		if maxConnections > 0 && flavor.Info.Connection != maxConnections {
 			continue
 		}
 
@@ -138,29 +142,30 @@ func dataSourceElbFlavorsV3Read(d *schema.ResourceData, meta interface{}) error 
 		}
 
 		ids = append(ids, flavor.ID)
-		mapping := map[string]interface{}{
+		flavorInfo := map[string]interface{}{
 			"id":              flavor.ID,
 			"name":            flavor.Name,
 			"type":            flavor.Type,
 			"max_connections": flavor.Info.Connection,
 			"cps":             flavor.Info.Cps,
 			"qps":             flavor.Info.Qps,
-			"bandwidth":       int(flavor.Info.Bandwidth / 1000),
+			"bandwidth":       flavor.Info.Bandwidth / 1000,
 		}
-		s = append(s, mapping)
+		flavorInfos = append(flavorInfos, flavorInfo)
 	}
 
 	if len(ids) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
+		return diag.Errorf("your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	d.SetId(hashcode.Strings(ids))
-	d.Set("ids", ids)
-	if err := d.Set("flavors", s); err != nil {
-		return err
-	}
-	d.Set("region", config.GetRegion(d))
 
-	return nil
+	mErr := multierror.Append(
+		d.Set("region", cfg.GetRegion(d)),
+		d.Set("ids", ids),
+		d.Set("flavors", flavorInfos),
+	)
+
+	return diag.FromErr(mErr.ErrorOrNil())
 }

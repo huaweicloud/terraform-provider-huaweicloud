@@ -37,6 +37,8 @@ type NormalizeStatus string // The Normalized status value.
 const (
 	BgpTypeDynamic BgpType = "5_bgp"  // Dynamic BGP
 	BgpTypeStatic  BgpType = "5_sbgp" // Static BGP
+	BgpTypeBeta    BgpType = "5_g-vm" // Beta environment BGP
+	BgpTypeElb     BgpType = "5_gray" // ELB BGP
 
 	IpVersionV4 IpVersion = 4 // IPv4
 	IpVersionV6 IpVersion = 6 // IPv6
@@ -92,7 +94,10 @@ func ResourceVpcEIPV1() *schema.Resource {
 							Default:  string(BgpTypeDynamic),
 							ForceNew: true,
 							ValidateFunc: validation.StringInSlice([]string{
-								string(BgpTypeDynamic), string(BgpTypeStatic),
+								string(BgpTypeDynamic),
+								string(BgpTypeStatic),
+								string(BgpTypeBeta),
+								string(BgpTypeElb),
 							}, false),
 							Description: `The EIP type.`,
 						},

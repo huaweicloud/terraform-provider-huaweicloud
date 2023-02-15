@@ -229,10 +229,10 @@ func resourceElbV3AvailabilityZone(d *schema.ResourceData) []string {
 }
 
 func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb v3 client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	iPTargetEnable := d.Get("cross_vpc_backend").(bool)
@@ -247,7 +247,7 @@ func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, m
 		L7Flavor:             d.Get("l7_flavor_id").(string),
 		Name:                 d.Get("name").(string),
 		Description:          d.Get("description").(string),
-		EnterpriseProjectID:  common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID:  common.GetEnterpriseProjectID(d, cfg),
 	}
 
 	if v, ok := d.GetOk("ipv6_bandwidth_id"); ok {
@@ -297,13 +297,13 @@ func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, m
 		}
 
 		// wait for the order to be completed.
-		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 		if err != nil {
 			return diag.Errorf("error creating BSS v2 client: %s", err)
 		}
 		err = common.WaitOrderComplete(ctx, bssClient, resp.OrderID, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return diag.Errorf("the order is not completed while creating ELB loadbalancer (%s): %#v", resp.LoadBalancerID, err)
+			return diag.Errorf("the order is not completed while creating ELB LoadBalancer (%s): %#v", resp.LoadBalancerID, err)
 		}
 		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, resp.OrderID,
 			d.Timeout(schema.TimeoutCreate))
@@ -332,16 +332,16 @@ func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, m
 	// set the ID on the resource
 	d.SetId(loadBalancerID)
 
-	//set tags
+	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		elbV2Client, err := config.ElbV2Client(config.GetRegion(d))
+		elbV2Client, err := cfg.ElbV2Client(cfg.GetRegion(d))
 		if err != nil {
-			return diag.Errorf("error creating elb v2.0 client: %s", err)
+			return diag.Errorf("error creating ELB 2.0 client: %s", err)
 		}
-		taglist := utils.ExpandResourceTags(tagRaw)
-		if tagErr := tags.Create(elbV2Client, "loadbalancers", d.Id(), taglist).ExtractErr(); tagErr != nil {
-			return diag.Errorf("error setting tags of load balancer %s: %s", d.Id(), tagErr)
+		tagList := utils.ExpandResourceTags(tagRaw)
+		if tagErr := tags.Create(elbV2Client, "loadbalancers", d.Id(), tagList).ExtractErr(); tagErr != nil {
+			return diag.Errorf("error setting tags of LoadBalancer %s: %s", d.Id(), tagErr)
 		}
 	}
 
@@ -349,24 +349,24 @@ func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourceLoadBalancerV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb v3 client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	// client for fetching tags
-	elbV2Client, err := config.ElbV2Client(config.GetRegion(d))
+	elbV2Client, err := cfg.ElbV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb 2.0 client: %s", err)
+		return diag.Errorf("error creating ELB 2.0 client: %s", err)
 	}
 
 	lb, err := loadbalancers.Get(elbClient, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "loadbalancer")
+		return common.CheckDeletedDiag(d, err, "LoadBalancer")
 	}
 
-	log.Printf("[DEBUG] Retrieved loadbalancer %s: %#v", d.Id(), lb)
+	log.Printf("[DEBUG] Retrieved LoadBalancer %s: %#v", d.Id(), lb)
 
 	mErr := multierror.Append(nil,
 		d.Set("name", lb.Name),
@@ -380,7 +380,7 @@ func resourceLoadBalancerV3Read(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("ipv6_address", lb.Ipv6VipAddress),
 		d.Set("l4_flavor_id", lb.L4FlavorID),
 		d.Set("l7_flavor_id", lb.L7FlavorID),
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("enterprise_project_id", lb.EnterpriseProjectID),
 		d.Set("autoscaling_enabled", lb.AutoScaling.Enable),
 		d.Set("min_l7_flavor_id", lb.AutoScaling.MinL7Flavor),
@@ -402,178 +402,194 @@ func resourceLoadBalancerV3Read(_ context.Context, d *schema.ResourceData, meta 
 
 	// fetch tags
 	if resourceTags, err := tags.Get(elbV2Client, "loadbalancers", d.Id()).Extract(); err == nil {
-		tagmap := utils.TagsToMap(resourceTags.Tags)
-		mErr = multierror.Append(mErr, d.Set("tags", tagmap))
+		tagMap := utils.TagsToMap(resourceTags.Tags)
+		mErr = multierror.Append(mErr, d.Set("tags", tagMap))
 	} else {
-		log.Printf("[WARN] fetching tags of elb loadbalancer failed: %s", err)
+		log.Printf("[WARN] Fetching tags of ELB LoadBalancer failed: %s", err)
 	}
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting Dedicated ELB loadbalancer fields: %s", err)
+		return diag.Errorf("error setting Dedicated ELB LoadBalancer fields: %s", err)
 	}
 
 	return nil
 }
 
 func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	elbClient, err := config.ElbV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating elb v3 client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	//lintignore:R019
-	if d.HasChanges("name", "description", "cross_vpc_backend", "ipv4_subnet_id", "ipv6_network_id",
-		"ipv6_bandwidth_id", "ipv4_address", "l4_flavor_id", "l7_flavor_id", "autoscaling_enabled", "min_l7_flavor_id") {
-		var updateOpts loadbalancers.UpdateOpts
-		if d.HasChange("name") {
-			updateOpts.Name = d.Get("name").(string)
-		}
-		if d.HasChange("description") {
-			description := d.Get("description").(string)
-			updateOpts.Description = &description
-		}
-		if d.HasChange("cross_vpc_backend") {
-			iPTargetEnable := d.Get("cross_vpc_backend").(bool)
-			updateOpts.IPTargetEnable = &iPTargetEnable
-		}
-		if d.HasChange("ipv4_address") {
-			updateOpts.VipAddress = d.Get("ipv4_address").(string)
-		}
-		if d.HasChange("l4_flavor_id") {
-			updateOpts.L4Flavor = d.Get("l4_flavor_id").(string)
-		}
-		if d.HasChange("l7_flavor_id") {
-			updateOpts.L7Flavor = d.Get("l7_flavor_id").(string)
-		}
-		if d.HasChange("ipv6_bandwidth_id") {
-			if v, ok := d.GetOk("ipv6_bandwidth_id"); ok {
-				bw := v.(string)
-				updateOpts.IPV6Bandwidth = &loadbalancers.UBandwidthRef{
-					ID: &bw,
-				}
-			} else {
-				updateOpts.IPV6Bandwidth = &loadbalancers.UBandwidthRef{}
-			}
-		}
+	updateLoadBalancerChanges := []string{"name", "description", "cross_vpc_backend", "ipv4_subnet_id", "ipv6_network_id",
+		"ipv6_bandwidth_id", "ipv4_address", "l4_flavor_id", "l7_flavor_id", "autoscaling_enabled", "min_l7_flavor_id",
+	}
 
-		// always with below values as null is meaningful
-		if v, ok := d.GetOk("ipv4_subnet_id"); ok {
-			vipSubnetID := v.(string)
-			updateOpts.VipSubnetID = &vipSubnetID
-		}
-		if v, ok := d.GetOk("ipv6_network_id"); ok {
-			v6SubnetID := v.(string)
-			updateOpts.IpV6VipSubnetID = &v6SubnetID
-		}
-
-		if d.HasChange("autoscaling_enabled") {
-			autoscalingEnabled := d.Get("autoscaling_enabled").(bool)
-			updateOpts.AutoScaling = &loadbalancers.AutoScaling{
-				Enable: autoscalingEnabled,
-			}
-			if autoscalingEnabled {
-				updateOpts.AutoScaling.MinL7Flavor = d.Get("min_l7_flavor_id").(string)
-			} else {
-				updateOpts.L4Flavor = d.Get("l4_flavor_id").(string)
-				updateOpts.L7Flavor = d.Get("l7_flavor_id").(string)
-				updateOpts.AutoScaling.MinL7Flavor = ""
-			}
-		} else if d.HasChange("min_l7_flavor_id") {
-			if autoscalingEnabled := d.Get("autoscaling_enabled").(bool); autoscalingEnabled {
-				updateOpts.AutoScaling.MinL7Flavor = d.Get("min_l7_flavor_id").(string)
-			}
-		}
-
-		log.Printf("[DEBUG] Updating loadbalancer %s with options: %#v", d.Id(), updateOpts)
-
-		// Wait for LoadBalancer to become active before continuing
-		timeout := d.Timeout(schema.TimeoutUpdate)
-		err = waitForElbV3LoadBalancer(ctx, elbClient, d.Id(), "ACTIVE", nil, timeout)
+	if d.HasChanges(updateLoadBalancerChanges...) {
+		updateOpts := buildUpdateLoadBalancerBodyParams(d)
+		err := updateLoadBalancer(ctx, d, cfg, updateOpts, elbClient)
 		if err != nil {
-			return diag.FromErr(err)
-		}
-
-		if d.Get("charging_mode").(string) == "prePaid" && d.HasChanges("l4_flavor_id", "l7_flavor_id") {
-			prepaidOpts := loadbalancers.PrepaidOpts{
-				PeriodType: d.Get("period_unit").(string),
-				PeriodNum:  d.Get("period").(int),
-			}
-			if d.Get("auto_pay").(string) != "false" {
-				prepaidOpts.AutoPay = true
-			}
-			updateOpts.PrepaidOpts = &prepaidOpts
-
-			resp, err := loadbalancers.Update(elbClient, d.Id(), updateOpts).ExtractPrepaid()
-			if err != nil {
-				return diag.Errorf("error updating prepaid LoadBalancer: %s", err)
-			}
-
-			// wait for the order to be completed.
-			bssClient, err := config.BssV2Client(config.GetRegion(d))
-			if err != nil {
-				return diag.Errorf("error creating BSS v2 client: %s", err)
-			}
-			err = common.WaitOrderComplete(ctx, bssClient, resp.OrderID, d.Timeout(schema.TimeoutUpdate))
-			if err != nil {
-				return diag.Errorf("the order is not completed while updating ELB loadbalancer (%s): %#v", resp.LoadBalancerID, err)
-			}
-		} else {
-			_, err = loadbalancers.Update(elbClient, d.Id(), updateOpts).Extract()
-			if err != nil {
-				return diag.Errorf("error updating elb loadbalancer: %s", err)
-			}
-		}
-		// Wait for LoadBalancer to become active before continuing
-		err = waitForElbV3LoadBalancer(ctx, elbClient, d.Id(), "ACTIVE", nil, timeout)
-		if err != nil {
-			return diag.FromErr(err)
+			return err
 		}
 	}
 
 	if d.HasChange("auto_renew") {
-		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
 		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
-			return diag.Errorf("error updating the auto-renew of the loadbalancer (%s): %s", d.Id(), err)
+			return diag.Errorf("error updating the auto-renew of the LoadBalancer (%s): %s", d.Id(), err)
 		}
 	}
-
 	// update tags
 	if d.HasChange("tags") {
-		elbV2Client, err := config.ElbV2Client(config.GetRegion(d))
+		elbV2Client, err := cfg.ElbV2Client(cfg.GetRegion(d))
 		if err != nil {
-			return diag.Errorf("error creating elb 2.0 client: %s", err)
+			return diag.Errorf("error creating ELB 2.0 client: %s", err)
 		}
 		tagErr := utils.UpdateResourceTags(elbV2Client, d, "loadbalancers", d.Id())
 		if tagErr != nil {
-			return diag.Errorf("error updating tags of load balancer:%s, err:%s", d.Id(), tagErr)
+			return diag.Errorf("error updating tags of LoadBalancer:%s, err:%s", d.Id(), tagErr)
 		}
 	}
 
 	return resourceLoadBalancerV3Read(ctx, d, meta)
 }
 
-func resourceLoadBalancerV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	elbClient, err := config.ElbV3Client(region)
-	if err != nil {
-		return diag.Errorf("error creating elb v3 client: %s", err)
+func buildUpdateLoadBalancerBodyParams(d *schema.ResourceData) loadbalancers.UpdateOpts {
+	var updateOpts loadbalancers.UpdateOpts
+	if d.HasChange("name") {
+		updateOpts.Name = d.Get("name").(string)
+	}
+	if d.HasChange("description") {
+		description := d.Get("description").(string)
+		updateOpts.Description = &description
+	}
+	if d.HasChange("cross_vpc_backend") {
+		iPTargetEnable := d.Get("cross_vpc_backend").(bool)
+		updateOpts.IPTargetEnable = &iPTargetEnable
+	}
+	if d.HasChange("ipv4_address") {
+		updateOpts.VipAddress = d.Get("ipv4_address").(string)
+	}
+	if d.HasChange("l4_flavor_id") {
+		updateOpts.L4Flavor = d.Get("l4_flavor_id").(string)
+	}
+	if d.HasChange("l7_flavor_id") {
+		updateOpts.L7Flavor = d.Get("l7_flavor_id").(string)
+	}
+	if d.HasChange("ipv6_bandwidth_id") {
+		if v, ok := d.GetOk("ipv6_bandwidth_id"); ok {
+			bw := v.(string)
+			updateOpts.IPV6Bandwidth = &loadbalancers.UBandwidthRef{
+				ID: &bw,
+			}
+		} else {
+			updateOpts.IPV6Bandwidth = &loadbalancers.UBandwidthRef{}
+		}
 	}
 
-	log.Printf("[DEBUG] Deleting loadbalancer %s", d.Id())
+	// always with below values as null is meaningful
+	if v, ok := d.GetOk("ipv4_subnet_id"); ok {
+		vipSubnetID := v.(string)
+		updateOpts.VipSubnetID = &vipSubnetID
+	}
+	if v, ok := d.GetOk("ipv6_network_id"); ok {
+		v6SubnetID := v.(string)
+		updateOpts.IpV6VipSubnetID = &v6SubnetID
+	}
+
+	if d.HasChange("autoscaling_enabled") {
+		autoscalingEnabled := d.Get("autoscaling_enabled").(bool)
+		updateOpts.AutoScaling = &loadbalancers.AutoScaling{
+			Enable: autoscalingEnabled,
+		}
+		if autoscalingEnabled {
+			updateOpts.AutoScaling.MinL7Flavor = d.Get("min_l7_flavor_id").(string)
+		} else {
+			updateOpts.L4Flavor = d.Get("l4_flavor_id").(string)
+			updateOpts.L7Flavor = d.Get("l7_flavor_id").(string)
+			updateOpts.AutoScaling.MinL7Flavor = ""
+		}
+	} else if d.HasChange("min_l7_flavor_id") && d.Get("autoscaling_enabled").(bool) {
+		if autoscalingEnabled := d.Get("autoscaling_enabled").(bool); autoscalingEnabled {
+			updateOpts.AutoScaling.MinL7Flavor = d.Get("min_l7_flavor_id").(string)
+		}
+	}
+
+	log.Printf("[DEBUG] Updating LoadBalancer %s with options: %#v", d.Id(), updateOpts)
+
+	return updateOpts
+}
+
+func updateLoadBalancer(ctx context.Context, d *schema.ResourceData, cfg *config.Config, updateOpts loadbalancers.UpdateOpts,
+	elbClient *golangsdk.ServiceClient) diag.Diagnostics {
+	// Wait for LoadBalancer to become active before continuing
+	timeout := d.Timeout(schema.TimeoutUpdate)
+	err := waitForElbV3LoadBalancer(ctx, elbClient, d.Id(), "ACTIVE", nil, timeout)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	if d.Get("charging_mode").(string) == "prePaid" && d.HasChanges("l4_flavor_id", "l7_flavor_id") {
+		prepaidOpts := loadbalancers.PrepaidOpts{
+			PeriodType: d.Get("period_unit").(string),
+			PeriodNum:  d.Get("period").(int),
+		}
+		if d.Get("auto_pay").(string) != "false" {
+			prepaidOpts.AutoPay = true
+		}
+		updateOpts.PrepaidOpts = &prepaidOpts
+
+		resp, err := loadbalancers.Update(elbClient, d.Id(), updateOpts).ExtractPrepaid()
+		if err != nil {
+			return diag.Errorf("error updating prepaid LoadBalancer: %s", err)
+		}
+
+		// wait for the order to be completed.
+		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating BSS v2 client: %s", err)
+		}
+		err = common.WaitOrderComplete(ctx, bssClient, resp.OrderID, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return diag.Errorf("the order is not completed while updating ELB LoadBalancer (%s): %#v",
+				resp.LoadBalancerID, err)
+		}
+	} else {
+		_, err = loadbalancers.Update(elbClient, d.Id(), updateOpts).Extract()
+		if err != nil {
+			return diag.Errorf("error updating ELB LoadBalancer: %s", err)
+		}
+	}
+	// Wait for LoadBalancer to become active before continuing
+	err = waitForElbV3LoadBalancer(ctx, elbClient, d.Id(), "ACTIVE", nil, timeout)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	return nil
+}
+
+func resourceLoadBalancerV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	elbClient, err := cfg.ElbV3Client(region)
+	if err != nil {
+		return diag.Errorf("error creating ELB client: %s", err)
+	}
+
+	log.Printf("[DEBUG] Deleting LoadBalancer %s", d.Id())
 
 	if d.Get("charging_mode").(string) == "prePaid" {
-		// Unsubscribe the prepaid loadbalancer will automatically delete it
-		if err = common.UnsubscribePrePaidResource(d, config, []string{d.Id()}); err != nil {
-			return diag.Errorf("error unsubscribing ELB loadbalancer : %s", err)
+		// Unsubscribe the prepaid LoadBalancer will automatically delete it
+		if err = common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()}); err != nil {
+			return diag.Errorf("error unsubscribing ELB LoadBalancer : %s", err)
 		}
 	} else {
 		if err = loadbalancers.Delete(elbClient, d.Id()).ExtractErr(); err != nil {
-			return diag.Errorf("error deleting elb loadbalancer: %s", err)
+			return diag.Errorf("error deleting ELB LoadBalancer: %s", err)
 		}
 	}
 
@@ -590,7 +606,7 @@ func resourceLoadBalancerV3Delete(ctx context.Context, d *schema.ResourceData, m
 	// delete the EIP if necessary
 	eipID := d.Get("ipv4_eip_id").(string)
 	if _, ok := d.GetOk("iptype"); ok && eipID != "" {
-		eipClient, err := config.NetworkingV1Client(region)
+		eipClient, err := cfg.NetworkingV1Client(region)
 		if err == nil {
 			if eipErr := eips.Delete(eipClient, eipID).ExtractErr(); eipErr != nil {
 				if _, ok := err.(golangsdk.ErrDefault404); !ok {
@@ -617,8 +633,7 @@ func resourceLoadBalancerV3Delete(ctx context.Context, d *schema.ResourceData, m
 
 func waitForElbV3LoadBalancer(ctx context.Context, elbClient *golangsdk.ServiceClient,
 	id string, target string, pending []string, timeout time.Duration) error {
-
-	log.Printf("[DEBUG] Waiting for loadbalancer %s to become %s", id, target)
+	log.Printf("[DEBUG] Waiting for LoadBalancer %s to become %s", id, target)
 
 	stateConf := &resource.StateChangeConf{
 		Target:       []string{target},
@@ -636,24 +651,21 @@ func waitForElbV3LoadBalancer(ctx context.Context, elbClient *golangsdk.ServiceC
 			case "DELETED":
 				return nil
 			default:
-				return fmt.Errorf("error: loadbalancer %s not found: %s", id, err)
+				return fmt.Errorf("error: LoadBalancer %s not found: %s", id, err)
 			}
 		}
-		return fmt.Errorf("error waiting for loadbalancer %s to become %s: %s", id, target, err)
+		return fmt.Errorf("error waiting for LoadBalancer %s to become %s: %s", id, target, err)
 	}
 
 	return nil
 }
 
-func resourceElbV3LoadBalancerRefreshFunc(elbClient *golangsdk.ServiceClient,
-	id string) resource.StateRefreshFunc {
-
+func resourceElbV3LoadBalancerRefreshFunc(elbClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		lb, err := loadbalancers.Get(elbClient, id).Extract()
 		if err != nil {
 			return nil, "", err
 		}
-
 		return lb, lb.ProvisioningStatus, nil
 	}
 }

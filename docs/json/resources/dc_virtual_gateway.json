@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dc_virtual_gateway": {
+          "block": {
+            "attributes": {
+              "asn": {
+                "type": "number",
+                "description": "The local BGP ASN of the virtual gateway.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the virtual gateway.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The enterprise project ID to which the virtual gateway belongs.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "local_ep_group": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of IPv6 subnets from the virtual gateway to access cloud services, which is usually the CIDR block of the VPC.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the virtual gateway.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the virtual gateway is located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The current status of the virtual gateway.",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "The ID of the VPC connected to the virtual gateway.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DC",
+            "name": "Direct Connect",
+            "catalog": "Networking",
+            "name_cn": "云专线",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

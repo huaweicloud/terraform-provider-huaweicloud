@@ -9,7 +9,7 @@ import (
 type ModifyTransTemplateGroup struct {
 
 	// 模板组ID
-	GroupId *string `json:"group_id,omitempty"`
+	GroupId string `json:"group_id"`
 
 	// 模板组名称
 	Name *string `json:"name,omitempty"`

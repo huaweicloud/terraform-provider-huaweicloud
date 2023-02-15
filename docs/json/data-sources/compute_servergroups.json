@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_compute_servergroups": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "servergroups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "members": [
+                        "list",
+                        "string"
+                      ],
+                      "name": "string",
+                      "policies": [
+                        "list",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ECS",
+            "name": "Elastic Cloud Server",
+            "catalog": "Compute",
+            "name_cn": "弹性云服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

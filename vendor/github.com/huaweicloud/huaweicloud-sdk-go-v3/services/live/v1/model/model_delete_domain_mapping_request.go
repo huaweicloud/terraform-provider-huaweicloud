@@ -9,9 +9,6 @@ import (
 // Request Object
 type DeleteDomainMappingRequest struct {
 
-	// op账号需要携带的特定project_id，当使用op账号时该值为所操作租户的project_id
-	SpecifyProject *string `json:"specify_project,omitempty"`
-
 	// 直播播放域名
 	PullDomain string `json:"pull_domain"`
 

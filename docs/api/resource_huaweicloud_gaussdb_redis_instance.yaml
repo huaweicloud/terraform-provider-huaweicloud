@@ -36,7 +36,7 @@ paths:
     post:
       tag: GaussDBforNoSQL
       operationId: ReduceNode
-  /{project_id}/instances/{instanceID}/resize:
+  /v3/{project_id}/instances/{instanceID}/resize:
     put:
       tag: GaussDBforNoSQL
       operationId: Resize

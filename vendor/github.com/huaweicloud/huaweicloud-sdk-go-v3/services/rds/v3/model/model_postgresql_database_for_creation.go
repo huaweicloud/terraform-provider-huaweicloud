@@ -26,6 +26,9 @@ type PostgresqlDatabaseForCreation struct {
 
 	// 数据库分类集。默认en_US.UTF-8。
 	LcCtype *string `json:"lc_ctype,omitempty"`
+
+	// 是否回收public schema的PUBLIC CREATE权限。 true，表示回收该权限。 false，表示不回收该权限。 缺省时默认是false。
+	IsRevokePublicPrivilege *bool `json:"is_revoke_public_privilege,omitempty"`
 }
 
 func (o PostgresqlDatabaseForCreation) String() string {

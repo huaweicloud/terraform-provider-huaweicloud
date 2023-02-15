@@ -9,21 +9,22 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getSecurityPoliciesV3ResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getSecurityPoliciesV3ResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getSecurityPolicy: Query the ELB security policy
 	var (
 		getSecurityPolicyHttpUrl = "v3/{project_id}/elb/security-policies/{security_policy_id}"
 		getSecurityPolicyProduct = "elb"
 	)
-	getSecurityPolicyClient, err := config.NewServiceClient(getSecurityPolicyProduct, region)
+	getSecurityPolicyClient, err := cfg.NewServiceClient(getSecurityPolicyProduct, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating SecurityPoliciesV3 Client: %s", err)
+		return nil, fmt.Errorf("error creating SecurityPolicies Client: %s", err)
 	}
 
 	getSecurityPolicyPath := getSecurityPolicyClient.Endpoint + getSecurityPolicyHttpUrl
@@ -38,7 +39,7 @@ func getSecurityPoliciesV3ResourceFunc(config *config.Config, state *terraform.R
 	}
 	getSecurityPolicyResp, err := getSecurityPolicyClient.Request("GET", getSecurityPolicyPath, &getSecurityPolicyOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving SecurityPoliciesV3: %s", err)
+		return nil, fmt.Errorf("error retrieving SecurityPolicies: %s", err)
 	}
 	return utils.FlattenResponse(getSecurityPolicyResp)
 }

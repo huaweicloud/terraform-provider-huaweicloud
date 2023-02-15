@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dsc_instance": {
+          "block": {
+            "attributes": {
+              "auto_renew": {
+                "type": "string",
+                "description": "Whether auto renew is enabled. Valid values are \"true\" and \"false\".",
+                "optional": true,
+                "forcenew": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "description": "Billing mode.",
+                "required": true,
+                "forcenew": true
+              },
+              "database_expansion_package": {
+                "type": "number",
+                "description": "Purchase database expansion packages. One expansion package offers one database.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "edition": {
+                "type": "string",
+                "description": "The edition of DSC.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "obs_expansion_package": {
+                "type": "number",
+                "description": "Purchase OBS expansion packages. One OBS expansion package offers 1 TB of OBS storage.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "period": {
+                "type": "number",
+                "description": "The charging period.",
+                "required": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "description": "The charging period unit.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

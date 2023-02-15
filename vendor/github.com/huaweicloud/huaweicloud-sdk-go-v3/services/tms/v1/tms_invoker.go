@@ -17,6 +17,18 @@ func (i *CreatePredefineTagsInvoker) Invoke() (*model.CreatePredefineTagsRespons
 	}
 }
 
+type CreateResourceTagInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateResourceTagInvoker) Invoke() (*model.CreateResourceTagResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateResourceTagResponse), nil
+	}
+}
+
 type DeletePredefineTagsInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -26,6 +38,18 @@ func (i *DeletePredefineTagsInvoker) Invoke() (*model.DeletePredefineTagsRespons
 		return nil, err
 	} else {
 		return result.(*model.DeletePredefineTagsResponse), nil
+	}
+}
+
+type DeleteResourceTagInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteResourceTagInvoker) Invoke() (*model.DeleteResourceTagResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteResourceTagResponse), nil
 	}
 }
 
@@ -53,6 +77,54 @@ func (i *ListPredefineTagsInvoker) Invoke() (*model.ListPredefineTagsResponse, e
 	}
 }
 
+type ListProvidersInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListProvidersInvoker) Invoke() (*model.ListProvidersResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListProvidersResponse), nil
+	}
+}
+
+type ListResourceInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListResourceInvoker) Invoke() (*model.ListResourceResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListResourceResponse), nil
+	}
+}
+
+type ListTagKeysInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListTagKeysInvoker) Invoke() (*model.ListTagKeysResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListTagKeysResponse), nil
+	}
+}
+
+type ListTagValuesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListTagValuesInvoker) Invoke() (*model.ListTagValuesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListTagValuesResponse), nil
+	}
+}
+
 type ShowApiVersionInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -62,6 +134,18 @@ func (i *ShowApiVersionInvoker) Invoke() (*model.ShowApiVersionResponse, error) 
 		return nil, err
 	} else {
 		return result.(*model.ShowApiVersionResponse), nil
+	}
+}
+
+type ShowResourceTagInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowResourceTagInvoker) Invoke() (*model.ShowResourceTagResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowResourceTagResponse), nil
 	}
 }
 

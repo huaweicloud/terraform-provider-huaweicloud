@@ -8,7 +8,7 @@ Manages an ELB security policy resource within HuaweiCloud.
 
 ## Example Usage
 
-```HCL
+```hcl
 resource "huaweicloud_elb_security_policy" "test" {
   name        = "security_policy_test"
   description = "this is a security policy"

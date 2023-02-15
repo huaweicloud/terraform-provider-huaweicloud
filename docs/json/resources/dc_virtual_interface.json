@@ -1,0 +1,175 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dc_virtual_interface": {
+          "block": {
+            "attributes": {
+              "address_family": {
+                "type": "string",
+                "description": "The address family type of the virtual interface.",
+                "optional": true,
+                "forcenew": true
+              },
+              "asn": {
+                "type": "number",
+                "description": "The local BGP ASN in client side.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "bandwidth": {
+                "type": "number",
+                "description": "The ingress bandwidth size of the virtual interface.",
+                "required": true
+              },
+              "bgp_md5": {
+                "type": "string",
+                "description": "The (MD5) password for the local BGP.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the virtual interface.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the virtual interface.",
+                "optional": true
+              },
+              "device_id": {
+                "type": "string",
+                "description": "The attributed device ID.",
+                "computed": true
+              },
+              "direct_connect_id": {
+                "type": "string",
+                "description": "The ID of the direct connection associated with the virtual interface.",
+                "required": true,
+                "forcenew": true
+              },
+              "enable_bfd": {
+                "type": "bool",
+                "description": "Whether to enable the Bidirectional Forwarding Detection (BFD) function.",
+                "optional": true,
+                "computed": true
+              },
+              "enable_nqa": {
+                "type": "bool",
+                "description": "Whether to enable the Network Quality Analysis (NQA) function.",
+                "optional": true,
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The enterprise project ID to which the virtual interface belongs.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "lag_id": {
+                "type": "string",
+                "description": "The ID of the link aggregation group (LAG) associated with the virtual interface.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "local_gateway_v4_ip": {
+                "type": "string",
+                "description": "The IPv4 address of the virtual interface in cloud side.",
+                "optional": true,
+                "forcenew": true
+              },
+              "local_gateway_v6_ip": {
+                "type": "string",
+                "description": "The IPv6 address of the virtual interface in cloud side.",
+                "optional": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the virtual interface.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the virtual interface is located.",
+                "computed": true
+              },
+              "remote_ep_group": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The CIDR list of remote subnets.",
+                "required": true
+              },
+              "remote_gateway_v4_ip": {
+                "type": "string",
+                "description": "The IPv4 address of the virtual interface in client side.",
+                "optional": true,
+                "forcenew": true
+              },
+              "remote_gateway_v6_ip": {
+                "type": "string",
+                "description": "The IPv6 address of the virtual interface in client side.",
+                "optional": true,
+                "forcenew": true
+              },
+              "route_mode": {
+                "type": "string",
+                "description": "The route mode of the virtual interface.",
+                "required": true,
+                "forcenew": true
+              },
+              "service_type": {
+                "type": "string",
+                "description": "The service type of the virtual interface.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The current status of the virtual interface.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the virtual interface.",
+                "required": true,
+                "forcenew": true
+              },
+              "vgw_id": {
+                "type": "string",
+                "description": "The ID of the virtual gateway to which the virtual interface is connected.",
+                "required": true,
+                "forcenew": true
+              },
+              "vlan": {
+                "type": "number",
+                "description": "The VLAN for constom side.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DC",
+            "name": "Direct Connect",
+            "catalog": "Networking",
+            "name_cn": "云专线",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

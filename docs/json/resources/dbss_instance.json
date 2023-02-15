@@ -1,0 +1,160 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dbss_instance": {
+          "block": {
+            "attributes": {
+              "auto_renew": {
+                "type": "string",
+                "description": "Whether auto renew is enabled. Valid values are \"true\" and \"false\".",
+                "optional": true,
+                "forcenew": true
+              },
+              "availability_zone": {
+                "type": "string",
+                "description": "The availability zone to which the instnce belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "description": "Billing mode.",
+                "required": true,
+                "forcenew": true
+              },
+              "connect_ip": {
+                "type": "string",
+                "description": "The connection address.",
+                "computed": true
+              },
+              "connect_ipv6": {
+                "type": "string",
+                "description": "The IPv6 address.",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the instance.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Enterprise project ID.",
+                "optional": true,
+                "forcenew": true,
+                "default": "0"
+              },
+              "expired_at": {
+                "type": "string",
+                "description": "The expired time",
+                "computed": true
+              },
+              "flavor": {
+                "type": "string",
+                "description": "Specifies the flavor.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_address": {
+                "type": "string",
+                "description": "Specifies the IP address.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The instance name.",
+                "required": true,
+                "forcenew": true
+              },
+              "period": {
+                "type": "number",
+                "description": "The charging period.",
+                "required": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "description": "The charging period unit.",
+                "required": true,
+                "forcenew": true
+              },
+              "port_id": {
+                "type": "string",
+                "description": "The ID of the port that the EIP is bound to.",
+                "computed": true
+              },
+              "product_id": {
+                "type": "string",
+                "description": "The product ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_spec_code": {
+                "type": "string",
+                "description": "The resource specifications.",
+                "required": true,
+                "forcenew": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "description": "The security group to which the instance belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The instance status.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "The subnet ID of the NIC.",
+                "required": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "The VPC ID.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DBSS",
+            "name": "Database Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据库安全服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}
