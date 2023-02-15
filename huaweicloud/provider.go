@@ -459,7 +459,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_images_image":  ims.DataSourceImagesImageV2(),
 			"huaweicloud_images_images": ims.DataSourceImagesImages(),
 
-			"huaweicloud_kms_key":      DataSourceKmsKeyV1(),
+			"huaweicloud_kms_key":      dew.DataSourceKmsKey(),
 			"huaweicloud_kms_data_key": DataSourceKmsDataKeyV1(),
 			"huaweicloud_kps_keypairs": dew.DataSourceKeypairs(),
 
@@ -531,7 +531,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_networking_port_v2":     vpc.DataSourceNetworkingPortV2(),
 			"huaweicloud_networking_secgroup_v2": DataSourceNetworkingSecGroup(),
 
-			"huaweicloud_kms_key_v1":      DataSourceKmsKeyV1(),
+			"huaweicloud_kms_key_v1":      dew.DataSourceKmsKey(),
 			"huaweicloud_kms_data_key_v1": DataSourceKmsDataKeyV1(),
 
 			"huaweicloud_rds_flavors_v3":     rds.DataSourceRdsFlavor(),
@@ -791,7 +791,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_iotda_device_certificate":  iotda.ResourceDeviceCertificate(),
 			"huaweicloud_iotda_device_linkage_rule": iotda.ResourceDeviceLinkageRule(),
 
-			"huaweicloud_kms_key":     ResourceKmsKeyV1(),
+			"huaweicloud_kms_key":     dew.ResourceKmsKey(),
 			"huaweicloud_kps_keypair": dew.ResourceKeypair(),
 
 			"huaweicloud_lb_certificate":  lb.ResourceCertificateV2(),
@@ -973,7 +973,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_fw_policy_v2":         resourceFWPolicyV2(),
 			"huaweicloud_fw_rule_v2":           resourceFWRuleV2(),
 
-			"huaweicloud_kms_key_v1": ResourceKmsKeyV1(),
+			"huaweicloud_kms_key_v1": dew.ResourceKmsKey(),
 
 			"huaweicloud_lb_certificate_v2":  lb.ResourceCertificateV2(),
 			"huaweicloud_lb_loadbalancer_v2": lb.ResourceLoadBalancerV2(),

@@ -1,17 +1,23 @@
-package huaweicloud
+package dew
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/kms/v1/keys"
 	"github.com/chnsz/golangsdk/openstack/kms/v1/rotation"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -23,14 +29,14 @@ const (
 	PendingDeletionState  = "4"
 )
 
-func ResourceKmsKeyV1() *schema.Resource {
+func ResourceKmsKey() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceKmsKeyV1Create,
-		Read:   resourceKmsKeyV1Read,
-		Update: resourceKmsKeyV1Update,
-		Delete: resourceKmsKeyV1Delete,
+		CreateContext: ResourceKmsKeyCreate,
+		ReadContext:   ResourceKmsKeyRead,
+		UpdateContext: ResourceKmsKeyUpdate,
+		DeleteContext: ResourceKmsKeyDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -68,7 +74,6 @@ func ResourceKmsKeyV1() *schema.Resource {
 			"pending_days": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "7",
 			},
 			"rotation_enabled": {
 				Type:     schema.TypeBool,
@@ -129,28 +134,29 @@ func resourceKmsKeyValidation(d *schema.ResourceData) error {
 	return nil
 }
 
-func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
+func ResourceKmsKeyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	kmsKeyV1Client, err := config.KmsKeyV1Client(GetRegion(d, config))
+	region := config.GetRegion(d)
+	kmsKeyV1Client, err := config.KmsKeyV1Client(region)
 	if err != nil {
-		return fmt.Errorf("error creating KMS client: %s", err)
+		return diag.Errorf("error creating KMS client: %s", err)
 	}
 
 	if err := resourceKmsKeyValidation(d); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	createOpts := &keys.CreateOpts{
 		KeyAlias:            d.Get("key_alias").(string),
 		KeyDescription:      d.Get("key_description").(string),
 		KeySpec:             d.Get("key_algorithm").(string),
-		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID: common.GetEnterpriseProjectID(d, config),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	v, err := keys.Create(kmsKeyV1Client, createOpts).ExtractKeyInfo()
 	if err != nil {
-		return fmt.Errorf("error creating KMS key: %s", err)
+		return diag.Errorf("error creating KMS key: %s", err)
 	}
 
 	// Store the key ID
@@ -159,29 +165,27 @@ func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 	// Wait for the key to become enabled.
 	log.Printf("[DEBUG] Waiting for KMS key (%s) to become enabled", v.KeyID)
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{WaitingForEnableState, DisabledState},
-		Target:     []string{EnabledState},
-		Refresh:    keyV1StateRefreshFunc(kmsKeyV1Client, v.KeyID),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      10 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Pending:      []string{WaitingForEnableState, DisabledState},
+		Target:       []string{EnabledState},
+		Refresh:      keyV1StateRefreshFunc(kmsKeyV1Client, v.KeyID),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        10 * time.Second,
+		PollInterval: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmt.Errorf(
-			"error waiting for KMS key (%s) to become ready: %s",
-			v.KeyID, err)
+		return diag.Errorf("error waiting for KMS key (%s) to become ready: %s", v.KeyID, err)
 	}
 
 	if !d.Get("is_enabled").(bool) {
 		key, err := keys.DisableKey(kmsKeyV1Client, v.KeyID).ExtractKeyInfo()
 		if err != nil {
-			return fmt.Errorf("error disabling KMS key: %s", err)
+			return diag.Errorf("error disabling KMS key: %s", err)
 		}
 
 		if key.KeyState != DisabledState {
-			return fmt.Errorf("error disabling KMS key, the key state is: %s", key.KeyState)
+			return diag.Errorf("error disabling KMS key, the key state is: %s", key.KeyState)
 		}
 	}
 
@@ -190,7 +194,7 @@ func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 		taglist := utils.ExpandResourceTags(tagRaw)
 		tagErr := tags.Create(kmsKeyV1Client, "kms", v.KeyID, taglist).ExtractErr()
 		if tagErr != nil {
-			return fmt.Errorf("error creating tags of KMS key(%s): %s", v.KeyID, tagErr)
+			return diag.Errorf("error creating tags of KMS key(%s): %s", v.KeyID, tagErr)
 		}
 	}
 
@@ -201,7 +205,7 @@ func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 		}
 		err := rotation.Enable(kmsKeyV1Client, rotationOpts).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("failed to enable KMS key rotation: %s", err)
+			return diag.Errorf("failed to enable KMS key rotation: %s", err)
 		}
 
 		if i, ok := d.GetOk("rotation_interval"); ok {
@@ -211,25 +215,25 @@ func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 			}
 			err := rotation.Update(kmsKeyV1Client, intervalOpts).ExtractErr()
 			if err != nil {
-				return fmt.Errorf("failed to change KMS key rotation interval: %s", err)
+				return diag.Errorf("failed to change KMS key rotation interval: %s", err)
 			}
 		}
 	}
 
-	return resourceKmsKeyV1Read(d, meta)
+	return ResourceKmsKeyRead(ctx, d, meta)
 }
 
-func resourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
+func ResourceKmsKeyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	kmsRegion := GetRegion(d, config)
-	kmsKeyV1Client, err := config.KmsKeyV1Client(kmsRegion)
+	region := config.GetRegion(d)
+	kmsKeyV1Client, err := config.KmsKeyV1Client(region)
 	if err != nil {
-		return fmt.Errorf("error creating KMS key client: %s", err)
+		return diag.Errorf("error creating KMS key client: %s", err)
 	}
 
 	v, err := keys.Get(kmsKeyV1Client, d.Id()).ExtractKeyInfo()
 	if err != nil {
-		return CheckDeleted(d, err, "failed to retrieve key")
+		return common.CheckDeletedDiag(d, err, "KMS key")
 	}
 
 	log.Printf("[DEBUG] Kms key %s: %+v", d.Id(), v)
@@ -240,28 +244,21 @@ func resourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.SetId(v.KeyID)
-	d.Set("key_id", v.KeyID)
-	d.Set("domain_id", v.DomainID)
-	d.Set("key_alias", v.KeyAlias)
-	d.Set("region", kmsRegion)
-	d.Set("key_description", v.KeyDescription)
-	d.Set("key_algorithm", v.KeySpec)
-	d.Set("creation_date", v.CreationDate)
-	d.Set("scheduled_deletion_date", v.ScheduledDeletionDate)
-	d.Set("is_enabled", v.KeyState == EnabledState)
-	d.Set("default_key_flag", v.DefaultKeyFlag)
-	d.Set("expiration_time", v.ExpirationTime)
-	d.Set("enterprise_project_id", v.EnterpriseProjectID)
-
-	// Set kms tags
-	if resourceTags, err := tags.Get(kmsKeyV1Client, "kms", d.Id()).Extract(); err == nil {
-		tagmap := utils.TagsToMap(resourceTags.Tags)
-		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("error saving tags to state for KMS key(%s): %s", d.Id(), err)
-		}
-	} else {
-		log.Printf("[WARN] error fetching tags of KMS key(%s): %s", d.Id(), err)
-	}
+	mErr := multierror.Append(nil,
+		d.Set("key_id", v.KeyID),
+		d.Set("domain_id", v.DomainID),
+		d.Set("key_alias", v.KeyAlias),
+		d.Set("region", region),
+		d.Set("key_description", v.KeyDescription),
+		d.Set("key_algorithm", v.KeySpec),
+		d.Set("creation_date", v.CreationDate),
+		d.Set("scheduled_deletion_date", v.ScheduledDeletionDate),
+		d.Set("is_enabled", v.KeyState == EnabledState),
+		d.Set("default_key_flag", v.DefaultKeyFlag),
+		d.Set("expiration_time", v.ExpirationTime),
+		d.Set("enterprise_project_id", v.EnterpriseProjectID),
+		utils.SetResourceTagsToState(d, kmsKeyV1Client, "kms"),
+	)
 
 	// Set KMS rotation
 	rotationOpts := &rotation.RotationOpts{
@@ -269,25 +266,28 @@ func resourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 	r, err := rotation.Get(kmsKeyV1Client, rotationOpts).Extract()
 	if err == nil {
-		d.Set("rotation_enabled", r.Enabled)
-		d.Set("rotation_interval", r.Interval)
-		d.Set("rotation_number", r.NumberOfRotations)
+		mErr = multierror.Append(mErr,
+			d.Set("rotation_enabled", r.Enabled),
+			d.Set("rotation_interval", r.Interval),
+			d.Set("rotation_number", r.NumberOfRotations),
+		)
 	} else {
 		log.Printf("[WARN] error fetching details about KMS key rotation: %s", err)
 	}
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceKmsKeyV1Update(d *schema.ResourceData, meta interface{}) error {
+func ResourceKmsKeyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	kmsKeyV1Client, err := config.KmsKeyV1Client(GetRegion(d, config))
+	region := config.GetRegion(d)
+	kmsKeyV1Client, err := config.KmsKeyV1Client(region)
 	if err != nil {
-		return fmt.Errorf("error creating KMS key client: %s", err)
+		return diag.Errorf("error creating KMS key client: %s", err)
 	}
 
 	if err := resourceKmsKeyValidation(d); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	keyID := d.Id()
@@ -298,7 +298,7 @@ func resourceKmsKeyV1Update(d *schema.ResourceData, meta interface{}) error {
 		}
 		_, err = keys.UpdateAlias(kmsKeyV1Client, updateAliasOpts).ExtractKeyInfo()
 		if err != nil {
-			return fmt.Errorf("error updating KMS key: %s", err)
+			return diag.Errorf("error updating KMS key: %s", err)
 		}
 	}
 
@@ -309,58 +309,77 @@ func resourceKmsKeyV1Update(d *schema.ResourceData, meta interface{}) error {
 		}
 		_, err = keys.UpdateDes(kmsKeyV1Client, updateDesOpts).ExtractKeyInfo()
 		if err != nil {
-			return fmt.Errorf("error updating KMS key: %s", err)
+			return diag.Errorf("error updating KMS key: %s", err)
 		}
 	}
 
 	if d.HasChange("is_enabled") {
-		v, err := keys.Get(kmsKeyV1Client, keyID).ExtractKeyInfo()
+		err := updateKeyState(d, kmsKeyV1Client, keyID)
 		if err != nil {
-			return fmt.Errorf("describeKey got an error: %s", err)
-		}
-
-		if d.Get("is_enabled").(bool) && v.KeyState == DisabledState {
-			key, err := keys.EnableKey(kmsKeyV1Client, keyID).ExtractKeyInfo()
-			if err != nil {
-				return fmt.Errorf("error enabling key: %s", err)
-			}
-			if key.KeyState != EnabledState {
-				return fmt.Errorf("error enabling key, the key state is: %s", key.KeyState)
-			}
-		}
-
-		if !d.Get("is_enabled").(bool) && v.KeyState == EnabledState {
-			key, err := keys.DisableKey(kmsKeyV1Client, keyID).ExtractKeyInfo()
-			if err != nil {
-				return fmt.Errorf("error disabling key: %s", err)
-			}
-			if key.KeyState != DisabledState {
-				return fmt.Errorf("error disabling key, the key state is: %s", key.KeyState)
-			}
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(kmsKeyV1Client, d, "kms", keyID)
 		if tagErr != nil {
-			return fmt.Errorf("error updating tags of kms: %s, err: %s", keyID, err)
+			return diag.Errorf("error updating tags of kms: %s, err: %s", keyID, err)
 		}
 	}
 
-	_, rotationEnabled := d.GetOk("rotation_enabled")
+	err = updateRotation(d, kmsKeyV1Client, keyID)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	return ResourceKmsKeyRead(ctx, d, meta)
+}
+
+func updateKeyState(d *schema.ResourceData, client *golangsdk.ServiceClient, keyID string) error {
+	v, err := keys.Get(client, keyID).ExtractKeyInfo()
+	if err != nil {
+		return fmt.Errorf("error getting key: %s", err)
+	}
+
+	if d.Get("is_enabled").(bool) && v.KeyState == DisabledState {
+		key, err := keys.EnableKey(client, keyID).ExtractKeyInfo()
+		if err != nil {
+			return fmt.Errorf("error enabling key: %s", err)
+		}
+		if key.KeyState != EnabledState {
+			return fmt.Errorf("error enabling key, the key state is: %s", key.KeyState)
+		}
+	}
+
+	if !d.Get("is_enabled").(bool) && v.KeyState == EnabledState {
+		key, err := keys.DisableKey(client, keyID).ExtractKeyInfo()
+		if err != nil {
+			return fmt.Errorf("error disabling key: %s", err)
+		}
+		if key.KeyState != DisabledState {
+			return fmt.Errorf("error disabling key, the key state is: %s", key.KeyState)
+		}
+	}
+
+	return nil
+}
+
+func updateRotation(d *schema.ResourceData, client *golangsdk.ServiceClient, keyID string) error {
+	rotationEnabled := d.Get("rotation_enabled").(bool)
+
 	if d.HasChange("rotation_enabled") {
 		var rotationErr error
 		rotationOpts := &rotation.RotationOpts{
 			KeyID: keyID,
 		}
 		if rotationEnabled {
-			rotationErr = rotation.Enable(kmsKeyV1Client, rotationOpts).ExtractErr()
+			rotationErr = rotation.Enable(client, rotationOpts).ExtractErr()
 		} else {
-			rotationErr = rotation.Disable(kmsKeyV1Client, rotationOpts).ExtractErr()
+			rotationErr = rotation.Disable(client, rotationOpts).ExtractErr()
 		}
 
 		if rotationErr != nil {
-			return fmt.Errorf("failed to update key rotation status: %s", err)
+			return fmt.Errorf("failed to update key rotation status: %s", rotationErr)
 		}
 	}
 
@@ -369,29 +388,31 @@ func resourceKmsKeyV1Update(d *schema.ResourceData, meta interface{}) error {
 			KeyID:    keyID,
 			Interval: d.Get("rotation_interval").(int),
 		}
-		err := rotation.Update(kmsKeyV1Client, intervalOpts).ExtractErr()
+		err := rotation.Update(client, intervalOpts).ExtractErr()
 		if err != nil {
 			return fmt.Errorf("failed to change key rotation interval: %s", err)
 		}
 	}
 
-	return resourceKmsKeyV1Read(d, meta)
+	return nil
 }
 
-func resourceKmsKeyV1Delete(d *schema.ResourceData, meta interface{}) error {
+func ResourceKmsKeyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	kmsKeyV1Client, err := config.KmsKeyV1Client(GetRegion(d, config))
+	region := config.GetRegion(d)
+	kmsKeyV1Client, err := config.KmsKeyV1Client(region)
 	if err != nil {
-		return fmt.Errorf("error creating KMS key client: %s", err)
+		return diag.Errorf("error creating KMS key client: %s", err)
 	}
 
 	v, err := keys.Get(kmsKeyV1Client, d.Id()).ExtractKeyInfo()
 	if err != nil {
-		return CheckDeleted(d, err, "failed to retrieve key")
+		return common.CheckDeletedDiag(d, err, "failed to retrieve key")
 	}
 
 	deleteOpts := &keys.DeleteOpts{
-		KeyID: d.Id(),
+		KeyID:       d.Id(),
+		PendingDays: "7",
 	}
 	if v, ok := d.GetOk("pending_days"); ok {
 		deleteOpts.PendingDays = v.(string)
@@ -403,16 +424,15 @@ func resourceKmsKeyV1Delete(d *schema.ResourceData, meta interface{}) error {
 	if v.KeyState != PendingDeletionState {
 		v, err = keys.Delete(kmsKeyV1Client, deleteOpts).Extract()
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
 		if v.KeyState != PendingDeletionState {
-			return fmt.Errorf("failed to delete KMS key")
+			return diag.Errorf("failed to delete KMS key")
 		}
 	}
 
 	log.Printf("[DEBUG] KMS Key %s deactivated", d.Id())
-	d.SetId("")
 	return nil
 }
 

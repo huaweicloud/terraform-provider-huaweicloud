@@ -1,23 +1,24 @@
-package huaweicloud
+package dew
 
 import (
-	"reflect"
+	"context"
+	"log"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/kms/v1/keys"
 	"github.com/chnsz/golangsdk/openstack/kms/v1/rotation"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func DataSourceKmsKeyV1() *schema.Resource {
+func DataSourceKmsKey() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceKmsKeyV1Read,
+		ReadContext: dataSourceKmsKeyRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -97,12 +98,12 @@ func DataSourceKmsKeyV1() *schema.Resource {
 	}
 }
 
-func dataSourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
+func dataSourceKmsKeyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	kmsRegion := GetRegion(d, config)
-	kmsKeyV1Client, err := config.KmsKeyV1Client(kmsRegion)
+	region := config.GetRegion(d)
+	kmsKeyV1Client, err := config.KmsKeyV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud kms key client: %s", err)
+		return diag.Errorf("error creating kms key client: %s", err)
 	}
 
 	is_list_key := true
@@ -117,7 +118,7 @@ func dataSourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 
 		v, err := keys.List(kmsKeyV1Client, req).ExtractListKey()
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
 		is_list_key = v.Truncated == "true"
@@ -125,70 +126,37 @@ func dataSourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 		allKeys = append(allKeys, v.KeyDetails...)
 	}
 
-	keyProperties := map[string]string{}
-	if v, ok := d.GetOk("key_description"); ok {
-		keyProperties["KeyDescription"] = v.(string)
+	filter := map[string]interface{}{
+		"KeyDescription":      d.Get("key_description"),
+		"KeyID":               d.Get("key_id"),
+		"KeyAlias":            d.Get("key_alias"),
+		"DefaultKeyFlag":      d.Get("default_key_flag"),
+		"DomainID":            d.Get("domain_id"),
+		"EnterpriseProjectID": d.Get("enterprise_project_id"),
 	}
-	if v, ok := d.GetOk("key_id"); ok {
-		keyProperties["KeyID"] = v.(string)
-	}
-	if v, ok := d.GetOk("key_alias"); ok {
-		keyProperties["KeyAlias"] = v.(string)
-	}
-	if v, ok := d.GetOk("default_key_flag"); ok {
-		keyProperties["DefaultKeyFlag"] = v.(string)
-	}
-	if v, ok := d.GetOk("domain_id"); ok {
-		keyProperties["DomainID"] = v.(string)
-	}
-	if v, ok := d.GetOk("enterprise_project_id"); ok {
-		keyProperties["EnterpriseProjectID"] = v.(string)
+	rst, err := utils.FilterSliceWithField(allKeys, filter)
+	if err != nil {
+		return diag.Errorf("erroring filting kms keey list: %s", err)
 	}
 
-	if len(allKeys) > 1 && len(keyProperties) > 0 {
-		var filteredKeys []keys.Key
-		for _, key := range allKeys {
-			match := true
-			for searchKey, searchValue := range keyProperties {
-				r := reflect.ValueOf(&key)
-				f := reflect.Indirect(r).FieldByName(searchKey)
-				if !f.IsValid() {
-					match = false
-					break
-				}
-
-				keyValue := f.String()
-				if searchValue != keyValue {
-					match = false
-					break
-				}
-			}
-
-			if match {
-				filteredKeys = append(filteredKeys, key)
-			}
-		}
-		allKeys = filteredKeys
-	}
-
-	if len(allKeys) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
+	if len(rst) < 1 {
+		return diag.Errorf("your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
-	if len(allKeys) > 1 {
-		return fmtp.Errorf("Your query returned more than one result." +
+	if len(rst) > 1 {
+		return diag.Errorf("your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
-	key := allKeys[0]
-	logp.Printf("[DEBUG] Kms key : %+v", key)
+	key := rst[0].(keys.Key)
+	log.Printf("[DEBUG] Kms key : %+v", key)
 
 	d.SetId(key.KeyID)
 	d.Set("key_id", key.KeyID)
 	d.Set("domain_id", key.DomainID)
 	d.Set("key_alias", key.KeyAlias)
-	d.Set("region", kmsRegion)
+	d.Set("region", region)
 	d.Set("key_description", key.KeyDescription)
 	d.Set("creation_date", key.CreationDate)
 	d.Set("scheduled_deletion_date", key.ScheduledDeletionDate)
@@ -200,10 +168,10 @@ func dataSourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	if resourceTags, err := tags.Get(kmsKeyV1Client, "kms", key.KeyID).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmtp.Errorf("Error saving tags to state for kms key(%s): %s", key.KeyID, err)
+			return diag.Errorf("error saving tags to state for kms key(%s): %s", key.KeyID, err)
 		}
 	} else {
-		logp.Printf("[WARN] Error fetching tags of kms key(%s): %s", key.KeyID, err)
+		log.Printf("[WARN] Error fetching tags of kms key(%s): %s", key.KeyID, err)
 	}
 
 	// Set KMS rotation
@@ -218,7 +186,7 @@ func dataSourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 			d.Set("rotation_number", r.NumberOfRotations)
 		}
 	} else {
-		logp.Printf("[WARN] Error fetching details about key rotation: %s", err)
+		log.Printf("[WARN] Error fetching details about key rotation: %s", err)
 	}
 
 	return nil
