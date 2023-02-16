@@ -56,6 +56,9 @@ The following arguments are supported:
   and basically all other non-HTTP/S traffic. If a proxy such as public network ELB (or Nginx) has been used, set
   proxy `true` to ensure that the WAF security policy takes effect for the real source IP address.
 
+* `tls` - (Optional, String) Specifies the minimum required TLS version. The options include `TLS v1.0`, `TLS v1.1`,
+  `TLS v1.2`.
+
 * `keep_policy` - (Optional, Bool) Specifies whether to retain the policy when deleting a domain name.
   Defaults to `true`.
 
@@ -94,8 +97,6 @@ The following attributes are exported:
   + `1` - The domain name is connected to WAF.
 
 * `protocol` - The protocol type of the client. The options are `HTTP` and `HTTPS`.
-
-* `tls` - The TLS configuration of domain.
 
 * `cihper` - The cipher suite of domain.
 
