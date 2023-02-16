@@ -107,7 +107,9 @@ func resourceComputeVolumeAttachCreate(ctx context.Context, d *schema.ResourceDa
 		Refresh:      AttachmentJobRefreshFunc(computeClient, job.ID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        10 * time.Second,
-		PollInterval: 15 * time.Second,
+		PollInterval: 10 * time.Second,
+		// Sometime, the status on the EVS side is not complete yet, but the job status shows as "SUCCESS".
+		ContinuousTargetOccurence: 2,
 	}
 
 	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
@@ -177,7 +179,9 @@ func resourceComputeVolumeAttachDelete(ctx context.Context, d *schema.ResourceDa
 		Refresh:      AttachmentJobRefreshFunc(computeClient, job.ID),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        10 * time.Second,
-		PollInterval: 15 * time.Second,
+		PollInterval: 10 * time.Second,
+		// Sometime, the status on the EVS side is not complete yet, but the job status shows as "SUCCESS".
+		ContinuousTargetOccurence: 2,
 	}
 
 	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
