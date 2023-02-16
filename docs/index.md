@@ -108,6 +108,9 @@ to specify your credentials. You need to specify a location in the Terraform con
 `shared_configuration_file` argument or using the `HW_SHARED_CONFIGURATION_FILE` environment variable.
 This method also supports a `profile` configuration and matching `HW_PROFILE` environment variable:
 
+!> **NOTE:** The CLI configuration file can not be used directly by terraform, you need to copy it to another
+path and replace the AccessKey and SecretKey with yours as they are encrypted which terraform can not read.
+
 Usage:
 
 ```terraform
@@ -143,6 +146,10 @@ Usage:
 
 ```hcl
 provider "huaweicloud" {
+  region     = "cn-north-4"
+  access_key = "my-access-key"
+  secret_key = "my-secret-key"
+
   assume_role {
     agency_name = "agency"
     domain_name = "agency_domain"
