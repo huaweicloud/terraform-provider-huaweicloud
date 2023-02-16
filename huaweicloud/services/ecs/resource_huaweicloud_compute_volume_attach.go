@@ -177,7 +177,7 @@ func resourceComputeVolumeAttachDelete(ctx context.Context, d *schema.ResourceDa
 	}
 	job, err := block_devices.Detach(computeClient, volumeId, opts)
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, parseRequestError(err), "error detaching volume")
 	}
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"RUNNING"},
