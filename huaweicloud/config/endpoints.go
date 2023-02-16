@@ -433,7 +433,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:          "v1",
 		Scope:            "global",
 		WithOutProjectID: true,
-		Product:          "Advanced Anti-DDoS",
+		Product:          "AAD",
 	},
 	"anti-ddos": {
 		Name:    "antiddos",
