@@ -19,7 +19,7 @@ func getWafDedicatedInstanceFunc(c *config.Config, state *terraform.ResourceStat
 	if err != nil {
 		return nil, fmtp.Errorf("error creating HuaweiCloud WAF dedicated client : %s", err)
 	}
-	return instances.GetInstance(client, state.Primary.ID)
+	return instances.GetWithEpsId(client, state.Primary.ID, state.Primary.Attributes["enterprise_project_id"])
 }
 
 func TestAccWafDedicatedInstance_basic(t *testing.T) {
@@ -88,6 +88,53 @@ func TestAccWafDedicatedInstance_basic(t *testing.T) {
 	})
 }
 
+func TestAccWafDedicatedInstance_withEpsId(t *testing.T) {
+	var instance instances.DedicatedInstance
+	resourceName := "huaweicloud_waf_dedicated_instance.instance_1"
+	name := acceptance.RandomAccResourceName()
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getWafDedicatedInstanceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
+			acceptance.TestAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheckMigrateEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWafDedicatedInstance_epsId(name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(
+						resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+			{
+				Config: testAccWafDedicatedInstance_epsId(name, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(
+						resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccWafDedicatedInstanceImportStateIdFunc(resourceName),
+			},
+		},
+	})
+}
+
 func TestAccWafDedicatedInstance_elb_model(t *testing.T) {
 	var instance instances.DedicatedInstance
 	resourceName := "huaweicloud_waf_dedicated_instance.instance_1"
@@ -130,6 +177,18 @@ func TestAccWafDedicatedInstance_elb_model(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccWafDedicatedInstanceImportStateIdFunc(resourceName string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return "", fmtp.Errorf("resource not found")
+		}
+		instanceId := rs.Primary.ID
+		epsId := rs.Primary.Attributes["enterprise_project_id"]
+		return fmt.Sprintf("%s/%s", instanceId, epsId), nil
+	}
 }
 
 func baseDependResource(name string) string {
@@ -197,6 +256,26 @@ resource "huaweicloud_waf_dedicated_instance" "instance_1" {
   ]
 }
 `, baseDependResource(name), name)
+}
+
+func testAccWafDedicatedInstance_epsId(name, epsId string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_waf_dedicated_instance" "instance_1" {
+  name                  = "%s"
+  available_zone        = data.huaweicloud_availability_zones.zones.names[1]
+  specification_code    = "waf.instance.professional"
+  ecs_flavor            = data.huaweicloud_compute_flavors.flavors.ids[0]
+  enterprise_project_id = "%s"
+  vpc_id                = huaweicloud_vpc.vpc_1.id
+  subnet_id             = huaweicloud_vpc_subnet.vpc_subnet_1.id
+  
+  security_group = [
+    huaweicloud_networking_secgroup.secgroup.id
+  ]
+}
+`, baseDependResource(name), name, epsId)
 }
 
 func testAccWafDedicatedInstance_elb_model(name string) string {

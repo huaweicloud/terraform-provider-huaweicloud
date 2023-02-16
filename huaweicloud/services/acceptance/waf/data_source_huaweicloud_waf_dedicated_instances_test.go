@@ -50,6 +50,32 @@ func TestAccDataSourceWafDedicatedInstances_basic(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceWafDedicatedInstances_withEpsId(t *testing.T) {
+	name := acceptance.RandomAccResourceName()
+	resourceName := "data.huaweicloud_waf_dedicated_instances.instance_1"
+
+	dc := acceptance.InitDataSourceCheck(resourceName)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWafDedicatedInstances_epsId(name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(
+						resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+		},
+	})
+}
+
 func testAccWafDedicatedInstances_conf(name string) string {
 	return fmt.Sprintf(`
 %s
@@ -71,4 +97,20 @@ data "huaweicloud_waf_dedicated_instances" "instance_2" {
   ]
 }
 `, testAccWafDedicatedInstanceV1_conf(name))
+}
+
+func testAccWafDedicatedInstances_epsId(name string, epsId string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_waf_dedicated_instances" "instance_1" {
+  id                    = huaweicloud_waf_dedicated_instance.instance_1.id
+  name                  = huaweicloud_waf_dedicated_instance.instance_1.name
+  enterprise_project_id = "%s"
+
+  depends_on = [
+    huaweicloud_waf_dedicated_instance.instance_1
+  ]
+}
+`, testAccWafDedicatedInstance_epsId(name, epsId), epsId)
 }

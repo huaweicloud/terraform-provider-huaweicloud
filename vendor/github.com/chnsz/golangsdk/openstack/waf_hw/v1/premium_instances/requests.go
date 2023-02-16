@@ -4,7 +4,10 @@
 
 package premium_instances
 
-import "github.com/chnsz/golangsdk"
+import (
+	"fmt"
+	"github.com/chnsz/golangsdk"
+)
 
 // requestOpts defines the request header and language.
 var requestOpts = golangsdk.RequestOpts{
@@ -33,9 +36,10 @@ type CreateInstanceOpts struct {
 
 // ListInstanceOpts the parameters in the querying request.
 type ListInstanceOpts struct {
-	Page         int    `q:"page"`
-	PageSize     int    `q:"pagesize"`
-	InstanceName string `q:"instancename"`
+	EnterpriseProjectId string `q:"enterprise_project_id"`
+	Page                int    `q:"page"`
+	PageSize            int    `q:"pagesize"`
+	InstanceName        string `q:"instancename"`
 }
 
 // UpdateInstanceOpts the parameters in the updating request.
@@ -45,35 +49,52 @@ type UpdateInstanceOpts struct {
 
 // CreateInstance will create a dedicated waf instance based on the values in CreateOpts.
 func CreateInstance(c *golangsdk.ServiceClient, opts CreateInstanceOpts) (*CreationgRst, error) {
+	return CreateWithEpsId(c, opts, "")
+}
+
+func generateEpsIdQuery(epsId string) string {
+	if len(epsId) == 0 {
+		return ""
+	}
+	return fmt.Sprintf("?enterprise_project_id=%s", epsId)
+}
+
+func CreateWithEpsId(c *golangsdk.ServiceClient, opts CreateInstanceOpts, epsId string) (*CreationgRst, error) {
 	b, err := golangsdk.BuildRequestBody(opts, "")
 	if err != nil {
 		return nil, err
 	}
 
 	var rst golangsdk.Result
-	_, err = c.Post(rootURL(c), b, &rst.Body, &golangsdk.RequestOpts{
+	_, err = c.Post(rootURL(c)+generateEpsIdQuery(epsId), b, &rst.Body, &golangsdk.RequestOpts{
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 
 	if err == nil {
 		var r CreationgRst
-		rst.ExtractInto(&r)
-		return &r, nil
+		if err = rst.ExtractInto(&r); err == nil {
+			return &r, nil
+		}
 	}
 	return nil, err
 }
 
 // GetInstance get the waf instance detail.
 func GetInstance(c *golangsdk.ServiceClient, id string) (*DedicatedInstance, error) {
+	return GetWithEpsId(c, id, "")
+}
+
+func GetWithEpsId(c *golangsdk.ServiceClient, id string, epsId string) (*DedicatedInstance, error) {
 	var rst golangsdk.Result
-	_, err := c.Get(resourceURL(c, id), &rst.Body, &golangsdk.RequestOpts{
+	_, err := c.Get(resourceURL(c, id)+generateEpsIdQuery(epsId), &rst.Body, &golangsdk.RequestOpts{
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 
 	if err == nil {
 		var r DedicatedInstance
-		rst.ExtractInto(&r)
-		return &r, nil
+		if err = rst.ExtractInto(&r); err == nil {
+			return &r, nil
+		}
 	}
 	return nil, err
 }
@@ -94,45 +115,58 @@ func ListInstance(c *golangsdk.ServiceClient, opts ListInstanceOpts) (*Dedicated
 
 	if err == nil {
 		var r DedicatedInstanceList
-		rst.ExtractInto(&r)
-		return &r, nil
+		if err = rst.ExtractInto(&r); err == nil {
+			return &r, nil
+		}
 	}
 	return nil, err
 }
 
 // UpdateInstance query a list of waf instance base on UpdateInstanceOpts
 func UpdateInstance(c *golangsdk.ServiceClient, id string, opts UpdateInstanceOpts) (*DedicatedInstance, error) {
+	return UpdateWithEpsId(c, id, opts, "")
+}
+
+func UpdateWithEpsId(c *golangsdk.ServiceClient, id string, opts UpdateInstanceOpts, epsId string) (
+	*DedicatedInstance, error) {
 	b, err := golangsdk.BuildRequestBody(opts, "")
 	if err != nil {
 		return nil, err
 	}
 
 	var rst golangsdk.Result
-	_, err = c.Put(resourceURL(c, id), b, &rst.Body, &golangsdk.RequestOpts{
+	_, err = c.Put(resourceURL(c, id)+generateEpsIdQuery(epsId), b, &rst.Body, &golangsdk.RequestOpts{
 		OkCodes:     []int{200},
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 
 	if err == nil {
 		var r DedicatedInstance
-		rst.ExtractInto(&r)
-		return &r, nil
+		if err = rst.ExtractInto(&r); err == nil {
+			return &r, nil
+		}
 	}
 	return nil, err
+
 }
 
 // Delete will permanently delete a engine based on its unique ID.
 func Delete(c *golangsdk.ServiceClient, id string) (*DedicatedInstance, error) {
+	return DeleteWithEpsId(c, id, "")
+}
+
+func DeleteWithEpsId(c *golangsdk.ServiceClient, id string, epsId string) (*DedicatedInstance, error) {
 	var rst golangsdk.Result
-	_, err := c.DeleteWithResponse(resourceURL(c, id), &rst.Body, &golangsdk.RequestOpts{
+	_, err := c.DeleteWithResponse(resourceURL(c, id)+generateEpsIdQuery(epsId), &rst.Body, &golangsdk.RequestOpts{
 		OkCodes:     []int{200},
 		MoreHeaders: requestOpts.MoreHeaders},
 	)
 
 	if err == nil {
 		var r DedicatedInstance
-		rst.ExtractInto(&r)
-		return &r, nil
+		if err = rst.ExtractInto(&r); err == nil {
+			return &r, nil
+		}
 	}
 	return nil, err
 }
