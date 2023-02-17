@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## 1.44.2 (February 17, 2023)
+
+ENHANCEMENTS:
+
+* data/huaweicloud_dws_flavors: Support `datastore_type` filter [GH-2652]
+* resource/huaweicloud_compute_instance: Add created and updated attributes [GH-2694]
+* resource/huaweicloud_waf_dedicated_instance: Add `enterprise_project_id` field [GH-2697]
+* resource/huaweicloud_waf_dedicated_domain: Add TLS support [GH-2704]
+* resource/huaweicloud_servicestage_component: Add obs config and builder args [GH-2706]
+
+BUG FIXES:
+
+* resource/huaweicloud_dms_rocketmq_instance: Fix an invalid address to set error [GH-2698]
+* resource/huaweicloud_compute_servergroup: Add a lock by instance ID when resources are binding or unbinding [GH-2702]
+
 ## 1.44.1 (January 20, 2023)
 
 * **New Resurce:**
