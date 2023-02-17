@@ -25,6 +25,21 @@
                 "optional": true,
                 "forcenew": true
               },
+              "cross_vpc_accesses": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "advertised_ip": "string",
+                      "listener_ip": "string",
+                      "port": "number",
+                      "port_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
               "description": {
                 "type": "string",
                 "description": "Specifies the description of the DMS RocketMQ instance.",
@@ -188,33 +203,6 @@
                 "description": "Specifies the ID of a VPC",
                 "required": true,
                 "forcenew": true
-              }
-            },
-            "block_types": {
-              "cross_vpc_accesses": {
-                "block": {
-                  "attributes": {
-                    "advertised_ip": {
-                      "type": "string",
-                      "optional": true,
-                      "computed": true
-                    },
-                    "lisenter_ip": {
-                      "type": "string",
-                      "computed": true
-                    },
-                    "port": {
-                      "type": "number",
-                      "computed": true
-                    },
-                    "port_id": {
-                      "type": "string",
-                      "computed": true
-                    }
-                  }
-                },
-                "nesting_mode": "list",
-                "max_items": 3
               }
             }
           },

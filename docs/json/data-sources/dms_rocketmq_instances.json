@@ -37,7 +37,7 @@
                           "object",
                           {
                             "advertised_ip": "string",
-                            "lisenter_ip": "string",
+                            "listener_ip": "string",
                             "port": "number",
                             "port_id": "string"
                           }

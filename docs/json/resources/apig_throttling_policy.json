@@ -5,12 +5,14 @@
         "huaweicloud_apig_throttling_policy": {
           "block": {
             "attributes": {
-              "create_time": {
+              "created_at": {
                 "type": "string",
+                "description": "The creation time of the throttling policy.",
                 "computed": true
               },
               "description": {
                 "type": "string",
+                "description": "The description about the API throttling policy.",
                 "optional": true
               },
               "id": {
@@ -19,44 +21,54 @@
               },
               "instance_id": {
                 "type": "string",
+                "description": "The ID of the dedicated instance to which the throttling policy belongs.",
                 "required": true,
                 "forcenew": true
               },
               "max_api_requests": {
                 "type": "number",
+                "description": "The maximum number of times an API can be accessed within a specified period..",
                 "required": true
               },
               "max_app_requests": {
                 "type": "number",
+                "description": "The maximum number of times the API can be accessed by an app within the same period.",
                 "optional": true
               },
               "max_ip_requests": {
                 "type": "number",
+                "description": "The maximum number of times the API can be accessed by an IP address within the same period.",
                 "optional": true
               },
               "max_user_requests": {
                 "type": "number",
+                "description": "The maximum number of times the API can be accessed by a user within the same period.",
                 "optional": true
               },
               "name": {
                 "type": "string",
+                "description": "The name of the throttling policy.",
                 "required": true
               },
               "period": {
                 "type": "number",
+                "description": "The period of time for limiting the number of API calls.",
                 "required": true
               },
               "period_unit": {
                 "type": "string",
+                "description": "The time unit for limiting the number of API calls.",
                 "optional": true,
                 "default": "MINUTE"
               },
               "region": {
                 "type": "string",
+                "description": "The region where the throttling policy is located.",
                 "computed": true
               },
               "type": {
                 "type": "string",
+                "description": "The type of the request throttling policy.",
                 "optional": true,
                 "default": "API-based"
               }
@@ -67,21 +79,26 @@
                   "attributes": {
                     "id": {
                       "type": "string",
+                      "description": "The ID of the special user/application throttling policy.",
                       "computed": true
                     },
                     "max_api_requests": {
                       "type": "number",
+                      "description": "The maximum number of times an API can be accessed within a specified period.",
                       "required": true
                     },
                     "throttling_object_id": {
                       "type": "string",
+                      "description": "The object ID which the special throttling policy belongs.",
                       "required": true
                     },
                     "throttling_object_name": {
                       "type": "string",
+                      "description": "The object name which the special user/application throttling policy belongs.",
                       "computed": true
                     }
-                  }
+                  },
+                  "description": "The array of one or more special throttling policies for APP limit."
                 },
                 "nesting_mode": "set",
                 "max_items": 30
@@ -91,21 +108,26 @@
                   "attributes": {
                     "id": {
                       "type": "string",
+                      "description": "The ID of the special user/application throttling policy.",
                       "computed": true
                     },
                     "max_api_requests": {
                       "type": "number",
+                      "description": "The maximum number of times an API can be accessed within a specified period.",
                       "required": true
                     },
                     "throttling_object_id": {
                       "type": "string",
+                      "description": "The object ID which the special throttling policy belongs.",
                       "required": true
                     },
                     "throttling_object_name": {
                       "type": "string",
+                      "description": "The object name which the special user/application throttling policy belongs.",
                       "computed": true
                     }
-                  }
+                  },
+                  "description": "The array of one or more special throttling policies for IAM user limit."
                 },
                 "nesting_mode": "set",
                 "max_items": 30

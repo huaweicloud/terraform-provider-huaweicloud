@@ -11,11 +11,13 @@
               },
               "instance_id": {
                 "type": "string",
+                "description": "The ID of the dedicated instance to which the APIs and the throttling policy belongs.",
                 "required": true,
                 "forcenew": true
               },
               "policy_id": {
                 "type": "string",
+                "description": "The ID of the throttling policy.",
                 "required": true,
                 "forcenew": true
               },
@@ -24,10 +26,12 @@
                   "set",
                   "string"
                 ],
+                "description": "The publish IDs corresponding to the APIs bound by the throttling policy.",
                 "required": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the dedicated instance and the throttling policy are located.",
                 "computed": true
               }
             }

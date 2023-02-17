@@ -60,7 +60,7 @@
                 "optional": true,
                 "computed": true
               },
-              "manegement_connect_address": {
+              "management_connect_address": {
                 "type": "string",
                 "computed": true
               },

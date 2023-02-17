@@ -46,7 +46,22 @@
                       "type": "string",
                       "required": true
                     },
+                    "cluster_name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "cluster_type": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
                     "cmd": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "dockerfile_path": {
                       "type": "string",
                       "optional": true,
                       "computed": true
@@ -61,6 +76,11 @@
                     "organization": {
                       "type": "string",
                       "required": true
+                    },
+                    "use_public_cluster": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
                     }
                   }
                 },
@@ -95,6 +115,31 @@
                     "url": {
                       "type": "string",
                       "required": true
+                    }
+                  },
+                  "block_types": {
+                    "properties": {
+                      "block": {
+                        "attributes": {
+                          "bucket": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "endpoint": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "key": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
                     }
                   }
                 },

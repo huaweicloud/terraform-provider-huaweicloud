@@ -5,12 +5,14 @@
         "huaweicloud_apig_response": {
           "block": {
             "attributes": {
-              "create_time": {
+              "created_at": {
                 "type": "string",
+                "description": "The creation time of the API custom response.",
                 "computed": true
               },
               "group_id": {
                 "type": "string",
+                "description": "The ID of the API group to which the API custom response belongs.",
                 "required": true,
                 "forcenew": true
               },
@@ -20,19 +22,23 @@
               },
               "instance_id": {
                 "type": "string",
+                "description": "The ID of the dedicated instance to which the API group and the API custom response belongs.",
                 "required": true,
                 "forcenew": true
               },
               "name": {
                 "type": "string",
+                "description": "The name of the API custom response.",
                 "required": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the API custom response is located.",
                 "computed": true
               },
-              "update_time": {
+              "updated_at": {
                 "type": "string",
+                "description": "The latest update time of the API custom response.",
                 "computed": true
               }
             },
@@ -42,17 +48,22 @@
                   "attributes": {
                     "body": {
                       "type": "string",
+                      "description": "The body template of the API custom response rule.",
                       "required": true
                     },
                     "error_type": {
                       "type": "string",
+                      "description": "The error type of the API custom response rule.",
                       "required": true
                     },
                     "status_code": {
                       "type": "number",
-                      "optional": true
+                      "description": "The HTTP status code of the API custom response rule.",
+                      "optional": true,
+                      "computed": true
                     }
-                  }
+                  },
+                  "description": "The API custom response rules definition."
                 },
                 "nesting_mode": "set"
               }

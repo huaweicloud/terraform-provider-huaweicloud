@@ -56,8 +56,7 @@
               },
               "pending_days": {
                 "type": "string",
-                "optional": true,
-                "default": "7"
+                "optional": true
               },
               "region": {
                 "type": "string",

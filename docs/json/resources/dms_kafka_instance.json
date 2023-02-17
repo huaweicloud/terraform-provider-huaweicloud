@@ -22,8 +22,7 @@
               "broker_num": {
                 "type": "number",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "connect_address": {
                 "type": "string",
@@ -218,8 +217,7 @@
                     }
                   }
                 },
-                "nesting_mode": "list",
-                "max_items": 3
+                "nesting_mode": "list"
               }
             }
           },

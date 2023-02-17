@@ -44,6 +44,10 @@
                 "computed": true,
                 "forcenew": true
               },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
               "delete_disks_on_termination": {
                 "type": "bool",
                 "optional": true
@@ -193,6 +197,10 @@
                   "string"
                 ],
                 "optional": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
               },
               "user_data": {
                 "type": "string",

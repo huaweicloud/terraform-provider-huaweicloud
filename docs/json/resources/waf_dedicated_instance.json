@@ -25,6 +25,10 @@
                 "required": true,
                 "forcenew": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
               "group_id": {
                 "type": "string",
                 "optional": true,

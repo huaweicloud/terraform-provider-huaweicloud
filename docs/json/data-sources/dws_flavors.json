@@ -7,6 +7,12 @@
             "attributes": {
               "availability_zone": {
                 "type": "string",
+                "description": "The availability zone name.",
+                "optional": true
+              },
+              "datastore_type": {
+                "type": "string",
+                "description": "The type of datastore.",
                 "optional": true
               },
               "flavors": {
@@ -15,7 +21,22 @@
                   [
                     "object",
                     {
-                      "availability_zone": "string",
+                      "availability_zones": [
+                        "list",
+                        "string"
+                      ],
+                      "datastore_type": "string",
+                      "elastic_volume_specs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "max_size": "number",
+                            "min_size": "number",
+                            "step": "number"
+                          }
+                        ]
+                      ],
                       "flavor_id": "string",
                       "memory": "number",
                       "size": "number",
@@ -24,6 +45,7 @@
                     }
                   ]
                 ],
+                "description": "The list of flavor detail.",
                 "computed": true
               },
               "id": {
@@ -32,6 +54,7 @@
               },
               "memory": {
                 "type": "number",
+                "description": "The ram of the dws node flavor in GB.",
                 "optional": true
               },
               "region": {
@@ -40,6 +63,7 @@
               },
               "vcpus": {
                 "type": "number",
+                "description": "The vcpus of the dws node flavor.",
                 "optional": true
               }
             }

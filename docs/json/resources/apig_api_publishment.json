@@ -7,20 +7,24 @@
             "attributes": {
               "api_id": {
                 "type": "string",
+                "description": "The ID of the API to be published or already published.",
                 "required": true,
                 "forcenew": true
               },
               "description": {
                 "type": "string",
+                "description": "The description of the current publishment.",
                 "optional": true
               },
               "env_id": {
                 "type": "string",
+                "description": "The ID of the environment to which the current version of the API will be published or has been published.",
                 "required": true,
                 "forcenew": true
               },
               "env_name": {
                 "type": "string",
+                "description": "The name of the environment to which the current version of the API is published.",
                 "computed": true
               },
               "histories": {
@@ -34,6 +38,7 @@
                     }
                   ]
                 ],
+                "description": "All publish informations of the API.",
                 "computed": true
               },
               "id": {
@@ -42,23 +47,28 @@
               },
               "instance_id": {
                 "type": "string",
+                "description": "The ID of the dedicated instance to which the API and the environment belongs.",
                 "required": true,
                 "forcenew": true
               },
               "publish_id": {
                 "type": "string",
+                "description": "The publish ID of the API in current environment.",
                 "computed": true
               },
-              "publish_time": {
+              "published_at": {
                 "type": "string",
+                "description": "Time when the current version was published.",
                 "computed": true
               },
               "region": {
                 "type": "string",
+                "description": "The region in which to publish API.",
                 "computed": true
               },
               "version_id": {
                 "type": "string",
+                "description": "The version ID of the current publishment.",
                 "optional": true
               }
             }
