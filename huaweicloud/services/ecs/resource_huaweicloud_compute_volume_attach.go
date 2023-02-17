@@ -78,7 +78,11 @@ func resourceComputeVolumeAttachCreate(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("Error creating compute v1 client: %s", err)
 	}
 
+	// The ECS instances do not support mounting multiple volumes at the same time.
 	instanceId := d.Get("instance_id").(string)
+	config.MutexKV.Lock(instanceId)
+	defer config.MutexKV.Unlock(instanceId)
+	// The EVS volumes also do not support being mounted to multiple instances at the same time.
 	volumeId := d.Get("volume_id").(string)
 	config.MutexKV.Lock(volumeId)
 	defer config.MutexKV.Unlock(volumeId)
@@ -161,7 +165,11 @@ func resourceComputeVolumeAttachDelete(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("Error creating compute V1 client: %s", err)
 	}
 
+	// The ECS instances do not support unmounting multiple volumes at the same time.
 	instanceId := d.Get("instance_id").(string)
+	config.MutexKV.Lock(instanceId)
+	defer config.MutexKV.Unlock(instanceId)
+	// The EVS volumes also do not support being unmounted from multiple instances at the same time.
 	volumeId := d.Get("volume_id").(string)
 	config.MutexKV.Lock(volumeId)
 	defer config.MutexKV.Unlock(volumeId)
@@ -171,7 +179,7 @@ func resourceComputeVolumeAttachDelete(ctx context.Context, d *schema.ResourceDa
 	}
 	job, err := block_devices.Detach(computeClient, volumeId, opts)
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, parseRequestError(err), "error detaching volume")
 	}
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"RUNNING"},
