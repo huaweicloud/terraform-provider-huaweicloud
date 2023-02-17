@@ -1,5 +1,5 @@
 ---
-subcategory: "CFW"
+subcategory: "Cloud Firewall (CFW)"
 ---
 
 # huaweicloud_cfw_firewalls
