@@ -12,6 +12,12 @@ paths:
     delete:
       tag: Live
       operationId: DeleteTranscodingsTemplate
+    get:
+      tag: Live
+      operationId: ShowTranscodingsTemplate
     post:
       tag: Live
       operationId: CreateTranscodingsTemplate
+    put:
+      tag: Live
+      operationId: UpdateTranscodingsTemplate

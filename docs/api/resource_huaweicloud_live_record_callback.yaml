@@ -19,6 +19,9 @@ paths:
       tag: Live
       operationId: UpdateRecordCallbackConfig
   /v1/{project_id}/record/callbacks:
+    get:
+      tag: Live
+      operationId: ListRecordCallbackConfigs
     post:
       tag: Live
       operationId: CreateRecordCallbackConfig

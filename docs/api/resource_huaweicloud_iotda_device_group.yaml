@@ -8,6 +8,10 @@ host: huaweicloud.com
 tags:
   - name: IoTDA
 paths:
+  /v5/iot/{project_id}/device-group/{group_id}/action:
+    post:
+      tag: IoTDA
+      operationId: CreateOrDeleteDeviceInGroup
   /v5/iot/{project_id}/device-group/{group_id}/devices:
     get:
       tag: IoTDA

@@ -8,6 +8,10 @@ host: huaweicloud.com
 tags:
   - name: IoTDA
 paths:
+  /v5/iot/{project_id}/rules/{rule_id}/status:
+    put:
+      tag: IoTDA
+      operationId: ChangeRuleStatus
   /v5/iot/{project_id}/rules/{rule_id}:
     delete:
       tag: IoTDA
@@ -15,6 +19,9 @@ paths:
     get:
       tag: IoTDA
       operationId: ShowRule
+    put:
+      tag: IoTDA
+      operationId: UpdateRule
   /v5/iot/{project_id}/rules:
     post:
       tag: IoTDA

@@ -45,5 +45,5 @@ paths:
     /v3/orders/customer-orders/pay:
         POST:
             tag: CBH
-            operationId: PayOrder
+            operationId: DeleteInstance
             x-ref-api: POST /v3/orders/customer-orders/pay

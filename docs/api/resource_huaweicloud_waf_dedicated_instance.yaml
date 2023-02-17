@@ -11,14 +11,14 @@ paths:
   /v1/{project_id}/premium-waf/instance/{id}:
     delete:
       tag: WAF
-      operationId: Delete
+      operationId: DeleteWithEpsId
     get:
       tag: WAF
-      operationId: GetInstance
+      operationId: GetWithEpsId
     put:
       tag: WAF
-      operationId: UpdateInstance
+      operationId: UpdateWithEpsId
   /v1/{project_id}/premium-waf/instance:
     post:
       tag: WAF
-      operationId: CreateInstance
+      operationId: CreateWithEpsId

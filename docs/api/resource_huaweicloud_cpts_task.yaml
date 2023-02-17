@@ -15,6 +15,9 @@ paths:
     get:
       tag: CPTS
       operationId: ShowTask
+    put:
+      tag: CPTS
+      operationId: UpdateTask
   /v1/{project_id}/tasks:
     post:
       tag: CPTS

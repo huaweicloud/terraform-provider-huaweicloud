@@ -6,21 +6,21 @@ schemes:
   - https
 host: huaweicloud.com
 tags:
-  - name: Advanced Anti-DDoS
+  - name: AAD
 paths:
   /v1/aad/instances/{instanceId}/{ip}/rules/batch-create:
     post:
-      tag: Advanced Anti-DDoS
+      tag: AAD
       operationId: BatchCreate
   /v1/aad/instances/{instanceId}/{ip}/rules/batch-delete:
     post:
-      tag: Advanced Anti-DDoS
+      tag: AAD
       operationId: BatchDelete
   /v1/aad/instances/{instanceId}/{ip}/rules/{ruleId}:
     put:
-      tag: Advanced Anti-DDoS
+      tag: AAD
       operationId: Update
   /v1/aad/instances/{instanceId}/{ip}/rules:
     get:
-      tag: Advanced Anti-DDoS
+      tag: AAD
       operationId: List

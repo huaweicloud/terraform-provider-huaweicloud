@@ -12,6 +12,12 @@ paths:
     delete:
       tag: CPTS
       operationId: DeleteProject
+    get:
+      tag: CPTS
+      operationId: ShowProject
+    put:
+      tag: CPTS
+      operationId: UpdateProject
   /v1/{project_id}/test-suites:
     post:
       tag: CPTS

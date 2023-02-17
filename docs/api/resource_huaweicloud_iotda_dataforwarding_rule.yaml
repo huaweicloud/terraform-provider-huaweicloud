@@ -12,6 +12,9 @@ paths:
     delete:
       tag: IoTDA
       operationId: DeleteRuleAction
+    put:
+      tag: IoTDA
+      operationId: UpdateRuleAction
   /v5/iot/{project_id}/routing-rule/actions:
     get:
       tag: IoTDA
@@ -26,6 +29,9 @@ paths:
     get:
       tag: IoTDA
       operationId: ShowRoutingRule
+    put:
+      tag: IoTDA
+      operationId: UpdateRoutingRule
   /v5/iot/{project_id}/routing-rule/rules:
     post:
       tag: IoTDA

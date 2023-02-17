@@ -8,6 +8,22 @@ host: huaweicloud.com
 tags:
   - name: IoTDA
 paths:
+  /v5/iot/{project_id}/devices/{device_id}/action:
+    post:
+      tag: IoTDA
+      operationId: ResetDeviceSecret
+  /v5/iot/{project_id}/devices/{device_id}/freeze:
+    post:
+      tag: IoTDA
+      operationId: FreezeDevice
+  /v5/iot/{project_id}/devices/{device_id}/reset-fingerprint:
+    post:
+      tag: IoTDA
+      operationId: ResetFingerprint
+  /v5/iot/{project_id}/devices/{device_id}/unfreeze:
+    post:
+      tag: IoTDA
+      operationId: UnfreezeDevice
   /v5/iot/{project_id}/devices/{device_id}:
     delete:
       tag: IoTDA
@@ -22,3 +38,11 @@ paths:
     post:
       tag: IoTDA
       operationId: AddDevice
+  /v5/iot/{project_id}/tags/bind-resource:
+    post:
+      tag: IoTDA
+      operationId: TagDevice
+  /v5/iot/{project_id}/tags/unbind-resource:
+    post:
+      tag: IoTDA
+      operationId: UntagDevice

@@ -12,6 +12,9 @@ paths:
     delete:
       tag: DEW
       operationId: DeleteKeypair
+    get:
+      tag: DEW
+      operationId: ListKeypairDetail
     put:
       tag: DEW
       operationId: UpdateKeypairDescription

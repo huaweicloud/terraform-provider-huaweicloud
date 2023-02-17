@@ -3,7 +3,7 @@ info:
     description: Manages a CodeHub repository resource within HuaweiCloud.
 host: myhuaweicloud.com
 tags:
-    - name: codeHub
+    - name: CodeHub
 servers:
     - url: https://codehub-ext.cn-north-4.myhuaweicloud.com
 paths:

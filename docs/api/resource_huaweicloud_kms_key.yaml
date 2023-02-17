@@ -12,10 +12,6 @@ paths:
     post:
       tag: DEW
       operationId: Create
-  /v1.0/{project_id}/kms/{id}/tags:
-    get:
-      tag: DEW
-      operationId: Get
   /v1.0/{project_id}/kms/create-key:
     post:
       tag: DEW

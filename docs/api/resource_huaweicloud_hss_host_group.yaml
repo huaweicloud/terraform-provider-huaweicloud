@@ -12,6 +12,9 @@ paths:
     delete:
       tag: HSS
       operationId: DeleteHostsGroup
+    get:
+      tag: HSS
+      operationId: ListHostGroups
     post:
       tag: HSS
       operationId: AddHostsGroup

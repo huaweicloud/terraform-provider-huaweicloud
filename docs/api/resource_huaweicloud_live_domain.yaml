@@ -18,3 +18,13 @@ paths:
     post:
       tag: Live
       operationId: CreateDomain
+    put:
+      tag: Live
+      operationId: UpdateDomain
+  /v1/{project_id}/domains_mapping:
+    delete:
+      tag: Live
+      operationId: DeleteDomainMapping
+    put:
+      tag: Live
+      operationId: CreateDomainMapping

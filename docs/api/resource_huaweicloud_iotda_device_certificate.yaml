@@ -17,6 +17,9 @@ paths:
       tag: IoTDA
       operationId: DeleteCertificate
   /v5/iot/{project_id}/certificates:
+    get:
+      tag: IoTDA
+      operationId: ListCertificates
     post:
       tag: IoTDA
       operationId: AddCertificate
