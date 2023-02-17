@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Firewall (CRF)"
+subcategory: "Cloud Firewall (CFW)"
 ---
 
 # huaweicloud_cfw_protection_rule
