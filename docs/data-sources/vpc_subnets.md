@@ -14,8 +14,8 @@ An example filter by name and tag
 data "huaweicloud_vpc_subnets" "subnet" {
   name = var.subnet_name
 
-  tags {
-    foo = "bar,value"
+  tags = {
+    foo = "bar"
   }
 }
 

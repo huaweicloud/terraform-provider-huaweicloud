@@ -15,8 +15,9 @@ variable "vpc_name" {}
 
 data "huaweicloud_vpcs" "vpc" {
   name = var.vpc_name
-  tags {
-    foo = "bar,value"
+
+  tags = {
+    foo = "bar"
   }
 }
 
