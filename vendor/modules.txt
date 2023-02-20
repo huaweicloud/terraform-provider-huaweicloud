@@ -222,6 +222,7 @@ github.com/chnsz/golangsdk/openstack/mrs/v2/clusters
 github.com/chnsz/golangsdk/openstack/mrs/v2/jobs
 github.com/chnsz/golangsdk/openstack/networking/v1/bandwidths
 github.com/chnsz/golangsdk/openstack/networking/v1/eips
+github.com/chnsz/golangsdk/openstack/networking/v1/flowlogs
 github.com/chnsz/golangsdk/openstack/networking/v1/ports
 github.com/chnsz/golangsdk/openstack/networking/v1/routetables
 github.com/chnsz/golangsdk/openstack/networking/v1/security/rules
