@@ -15,8 +15,9 @@ variable "public_ip" {}
 
 data "huaweicloud_vpc_eips" "eip" {
   public_ips = [var.public_ip]
-  tags {
-    foo = "bar,value"
+
+  tags = {
+    foo = "bar"
   }
 }
 
