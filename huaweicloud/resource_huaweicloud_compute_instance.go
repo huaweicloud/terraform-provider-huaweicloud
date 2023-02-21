@@ -229,6 +229,11 @@ func ResourceComputeInstanceV2() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 						},
+						"kms_key_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
 					},
 				},
 			},
@@ -439,6 +444,10 @@ func ResourceComputeInstanceV2() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"kms_key_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -609,8 +618,8 @@ func resourceComputeInstanceV2Create(ctx context.Context, d *schema.ResourceData
 			VpcId:            vpcId,
 			SecurityGroups:   secGroups,
 			AvailabilityZone: d.Get("availability_zone").(string),
-			RootVolume:       resourceInstanceRootVolumeV1(d),
-			DataVolumes:      resourceInstanceDataVolumesV1(d),
+			RootVolume:       resourceInstanceRootVolume(d),
+			DataVolumes:      resourceInstanceDataVolumes(d),
 			Nics:             buildInstanceNicsRequest(d),
 			PublicIp:         buildInstancePublicIPRequest(d),
 			UserData:         []byte(d.Get("user_data").(string)),
@@ -971,6 +980,7 @@ func resourceComputeInstanceV2Read(_ context.Context, d *schema.ResourceData, me
 				"type":        volumeInfo.VolumeType,
 				"boot_index":  va.BootIndex,
 				"pci_address": va.PciAddress,
+				"kms_key_id":  volumeInfo.Metadata.SystemCmkID,
 			}
 
 			if va.BootIndex == 0 {
@@ -1934,4 +1944,46 @@ func flattenTagsToMap(tags []string) map[string]string {
 	}
 
 	return result
+}
+
+func resourceInstanceRootVolume(d *schema.ResourceData) cloudservers.RootVolume {
+	diskType := d.Get("system_disk_type").(string)
+	if diskType == "" {
+		diskType = "GPSSD"
+	}
+	volRequest := cloudservers.RootVolume{
+		VolumeType: diskType,
+		Size:       d.Get("system_disk_size").(int),
+	}
+	return volRequest
+}
+
+func resourceInstanceDataVolumes(d *schema.ResourceData) []cloudservers.DataVolume {
+	var volRequests []cloudservers.DataVolume
+
+	vols := d.Get("data_disks").([]interface{})
+	for i := range vols {
+		vol := vols[i].(map[string]interface{})
+		volRequest := cloudservers.DataVolume{
+			VolumeType: vol["type"].(string),
+			Size:       vol["size"].(int),
+		}
+		if vol["snapshot_id"] != "" {
+			extendparam := cloudservers.VolumeExtendParam{
+				SnapshotId: vol["snapshot_id"].(string),
+			}
+			volRequest.Extendparam = &extendparam
+		}
+
+		if vol["kms_key_id"] != "" {
+			matadata := cloudservers.VolumeMetadata{
+				SystemEncrypted: "1",
+				SystemCmkid:     vol["kms_key_id"].(string),
+			}
+			volRequest.Metadata = &matadata
+		}
+
+		volRequests = append(volRequests, volRequest)
+	}
+	return volRequests
 }
