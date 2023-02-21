@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -43,6 +42,19 @@ func TestAccComputeInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "stop_before_destroy", "true"),
 					resource.TestCheckResourceAttr(resourceName, "delete_eip_on_termination", "true"),
 					resource.TestCheckResourceAttr(resourceName, "agent_list", "hss"),
+					resource.TestCheckResourceAttr(resourceName, "system_disk_size", "50"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+				),
+			},
+			{
+				Config: testAccComputeInstance_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName+"-update"),
+					resource.TestCheckResourceAttr(resourceName, "system_disk_size", "60"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key2", "value2"),
 				),
 			},
 			{
@@ -50,39 +62,8 @@ func TestAccComputeInstance_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"stop_before_destroy", "delete_eip_on_termination",
+					"stop_before_destroy", "delete_eip_on_termination", "data_disks",
 				},
-			},
-		},
-	})
-}
-
-func TestAccComputeInstance_disks(t *testing.T) {
-	var instance cloudservers.CloudServer
-
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_compute_instance.test"
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeInstance_disks(rName, 50),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(resourceName, &instance),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "system_disk_size", "50"),
-				),
-			},
-			{
-				Config: testAccComputeInstance_disks(rName, 60),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(resourceName, &instance),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "system_disk_size", "60"),
-				),
 			},
 		},
 	})
@@ -149,52 +130,6 @@ func TestAccComputeInstance_spot(t *testing.T) {
 					"stop_before_destroy", "delete_eip_on_termination",
 					"spot_maximum_price", "spot_duration", "spot_duration_count",
 				},
-			},
-		},
-	})
-}
-
-func TestAccComputeInstance_tags(t *testing.T) {
-	var instance cloudservers.CloudServer
-
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_compute_instance.test"
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeInstance_tags(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(resourceName, &instance),
-					testAccCheckComputeInstanceTags(&instance, "foo", "bar"),
-					testAccCheckComputeInstanceTags(&instance, "key", "value"),
-				),
-			},
-			{
-				Config: testAccComputeInstance_tags2(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(resourceName, &instance),
-					testAccCheckComputeInstanceTags(&instance, "foo2", "bar2"),
-					testAccCheckComputeInstanceTags(&instance, "key", "value2"),
-				),
-			},
-			{
-				Config: testAccComputeInstance_notags(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(resourceName, &instance),
-					testAccCheckComputeInstanceNoTags(&instance),
-				),
-			},
-			{
-				Config: testAccComputeInstance_tags(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(resourceName, &instance),
-					testAccCheckComputeInstanceTags(&instance, "foo", "bar"),
-					testAccCheckComputeInstanceTags(&instance, "key", "value"),
-				),
 			},
 		},
 	})
@@ -325,54 +260,6 @@ func testAccCheckComputeInstanceExists(n string, instance *cloudservers.CloudSer
 	}
 }
 
-func testAccCheckComputeInstanceTags(
-	instance *cloudservers.CloudServer, k, v string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*config.Config)
-		client, err := config.ComputeV1Client(HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud compute v1 client: %s", err)
-		}
-
-		taglist, err := tags.Get(client, "cloudservers", instance.ID).Extract()
-		for _, val := range taglist.Tags {
-			if k != val.Key {
-				continue
-			}
-
-			if v == val.Value {
-				return nil
-			}
-
-			return fmtp.Errorf("Bad value for %s: %s", k, val.Value)
-		}
-
-		return fmtp.Errorf("Tag not found: %s", k)
-	}
-}
-
-func testAccCheckComputeInstanceNoTags(
-	instance *cloudservers.CloudServer) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*config.Config)
-		client, err := config.ComputeV1Client(HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud compute v1 client: %s", err)
-		}
-
-		taglist, err := tags.Get(client, "cloudservers", instance.ID).Extract()
-
-		if taglist.Tags == nil {
-			return nil
-		}
-		if len(taglist.Tags) == 0 {
-			return nil
-		}
-
-		return fmtp.Errorf("Expected no tags, but found %v", taglist.Tags)
-	}
-}
-
 const testAccCompute_data = `
 data "huaweicloud_availability_zones" "test" {}
 
@@ -413,35 +300,54 @@ resource "huaweicloud_compute_instance" "test" {
     uuid              = data.huaweicloud_vpc_subnet.test.id
     source_dest_check = false
   }
-}
-`, testAccCompute_data, rName)
-}
-
-func testAccComputeInstance_disks(rName string, systemDiskSize int) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_compute_instance" "test" {
-  name                        = "%s"
-  image_id                    = data.huaweicloud_images_image.test.id
-  flavor_id                   = data.huaweicloud_compute_flavors.test.ids[0]
-  security_group_ids          = [data.huaweicloud_networking_secgroup.test.id]
-  availability_zone           = data.huaweicloud_availability_zones.test.names[0]
-  delete_disks_on_termination = true
 
   system_disk_type = "SAS"
-  system_disk_size = %d
+  system_disk_size = 50
 
   data_disks {
     type = "SAS"
     size = "10"
   }
 
-  network {
-    uuid = data.huaweicloud_vpc_subnet.test.id
+  tags = {
+    foo = "bar"
+    key = "value"
   }
 }
-`, testAccCompute_data, rName, systemDiskSize)
+`, testAccCompute_data, rName)
+}
+
+func testAccComputeInstance_update(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_compute_instance" "test" {
+  name                = "%s-update"
+  image_id            = data.huaweicloud_images_image.test.id
+  flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]
+  stop_before_destroy = true
+  agent_list          = "hss"
+
+  network {
+    uuid              = data.huaweicloud_vpc_subnet.test.id
+    source_dest_check = false
+  }
+
+  system_disk_type = "SAS"
+  system_disk_size = 60
+
+  data_disks {
+    type = "SAS"
+    size = "10"
+  }
+
+  tags = {
+    foo = "bar2"
+    key2 = "value2"
+  }
+}
+`, testAccCompute_data, rName)
 }
 
 func testAccComputeInstance_prePaid(rName string) string {
@@ -516,70 +422,6 @@ resource "huaweicloud_compute_instance" "test" {
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
   charging_mode      = "spot"
   spot_duration      = 2
-
-  network {
-    uuid = data.huaweicloud_vpc_subnet.test.id
-  }
-}
-`, testAccCompute_data, rName)
-}
-
-func testAccComputeInstance_tags(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_compute_instance" "test" {
-  name               = "%s"
-  image_id           = data.huaweicloud_images_image.test.id
-  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
-  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
-  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-
-  network {
-    uuid = data.huaweicloud_vpc_subnet.test.id
-  }
-
-  tags = {
-    foo = "bar"
-    key = "value"
-  }
-}
-`, testAccCompute_data, rName)
-}
-
-func testAccComputeInstance_tags2(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_compute_instance" "test" {
-  name               = "%s"
-  image_id           = data.huaweicloud_images_image.test.id
-  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
-  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
-  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-
-  network {
-    uuid = data.huaweicloud_vpc_subnet.test.id
-  }
-
-  tags = {
-    foo2 = "bar2"
-    key = "value2"
-  }
-}
-`, testAccCompute_data, rName)
-}
-
-func testAccComputeInstance_notags(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_compute_instance" "test" {
-  name               = "%s"
-  image_id           = data.huaweicloud_images_image.test.id
-  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
-  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
-  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
 
   network {
     uuid = data.huaweicloud_vpc_subnet.test.id
