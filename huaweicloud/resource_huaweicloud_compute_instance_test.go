@@ -29,6 +29,7 @@ func TestAccComputeInstance_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "terraform test"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 					resource.TestCheckResourceAttrSet(resourceName, "system_disk_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "security_groups.#"),
@@ -52,6 +53,7 @@ func TestAccComputeInstance_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName+"-update"),
+					resource.TestCheckResourceAttr(resourceName, "description", "terraform test update"),
 					resource.TestCheckResourceAttr(resourceName, "system_disk_size", "60"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key2", "value2"),
@@ -290,6 +292,7 @@ func testAccComputeInstance_basic(rName string) string {
 
 resource "huaweicloud_compute_instance" "test" {
   name                = "%s"
+  description         = "terraform test"
   image_id            = data.huaweicloud_images_image.test.id
   flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]
@@ -323,6 +326,7 @@ func testAccComputeInstance_update(rName string) string {
 
 resource "huaweicloud_compute_instance" "test" {
   name                = "%s-update"
+  description         = "terraform test update"
   image_id            = data.huaweicloud_images_image.test.id
   flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]

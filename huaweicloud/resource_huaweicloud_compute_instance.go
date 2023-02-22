@@ -78,6 +78,11 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"image_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -603,6 +608,7 @@ func resourceComputeInstanceV2Create(ctx context.Context, d *schema.ResourceData
 
 		createOpts := &cloudservers.CreateOpts{
 			Name:             d.Get("name").(string),
+			Description:      d.Get("description").(string),
 			ImageRef:         imageId,
 			FlavorRef:        flavorId,
 			KeyName:          d.Get("key_pair").(string),
@@ -874,6 +880,7 @@ func resourceComputeInstanceV2Read(_ context.Context, d *schema.ResourceData, me
 	d.Set("enterprise_project_id", server.EnterpriseProjectID)
 	d.Set("availability_zone", server.AvailabilityZone)
 	d.Set("name", server.Name)
+	d.Set("description", server.Description)
 	d.Set("status", server.Status)
 	d.Set("agency_name", server.Metadata.AgencyName)
 	d.Set("agent_list", server.Metadata.AgentList)
@@ -1030,13 +1037,13 @@ func resourceComputeInstanceV2Update(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error creating compute V1.1 client: %s", err)
 	}
 
-	var updateOpts servers.UpdateOpts
-	if d.HasChange("name") {
+	if d.HasChanges("name", "description") {
+		var updateOpts cloudservers.UpdateOpts
 		updateOpts.Name = d.Get("name").(string)
-	}
+		description := d.Get("description").(string)
+		updateOpts.Description = &description
 
-	if updateOpts != (servers.UpdateOpts{}) {
-		_, err := servers.Update(computeClient, d.Id(), updateOpts).Extract()
+		err := cloudservers.Update(ecsClient, d.Id(), updateOpts).ExtractErr()
 		if err != nil {
 			return diag.Errorf("error updating server: %s", err)
 		}

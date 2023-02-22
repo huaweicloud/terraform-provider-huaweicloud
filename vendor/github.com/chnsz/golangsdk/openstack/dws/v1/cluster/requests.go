@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/common/tags"
 )
 
 const (
@@ -19,20 +18,19 @@ type PublicIpOpts struct {
 }
 
 type CreateOpts struct {
-	Name                string             `json:"name" required:"true"`
-	NumberOfNode        int                `json:"number_of_node" required:"true"`
-	AvailabilityZone    string             `json:"availability_zone,omitempty"`
-	SubnetID            string             `json:"subnet_id" required:"true"`
-	UserPwd             string             `json:"user_pwd" required:"true"`
-	SecurityGroupID     string             `json:"security_group_id" required:"true"`
-	PublicIp            *PublicIpOpts      `json:"public_ip,omitempty"`
-	NodeType            string             `json:"node_type" required:"true"`
-	VpcID               string             `json:"vpc_id" required:"true"`
-	UserName            string             `json:"user_name" required:"true"`
-	Port                int                `json:"port,omitempty"`         //default：8000
-	NumberOfCn          *int               `json:"number_of_cn,omitempty"` //default：2
-	EnterpriseProjectId string             `json:"enterprise_project_id,omitempty"`
-	Tags                []tags.ResourceTag `json:"tags,omitempty"`
+	Name                string        `json:"name" required:"true"`
+	NumberOfNode        int           `json:"number_of_node" required:"true"`
+	AvailabilityZone    string        `json:"availability_zone,omitempty"`
+	SubnetID            string        `json:"subnet_id" required:"true"`
+	UserPwd             string        `json:"user_pwd" required:"true"`
+	SecurityGroupID     string        `json:"security_group_id" required:"true"`
+	PublicIp            *PublicIpOpts `json:"public_ip,omitempty"`
+	NodeType            string        `json:"node_type" required:"true"`
+	VpcID               string        `json:"vpc_id" required:"true"`
+	UserName            string        `json:"user_name" required:"true"`
+	Port                int           `json:"port,omitempty"`         //default：8000
+	NumberOfCn          *int          `json:"number_of_cn,omitempty"` //default：2
+	EnterpriseProjectId string        `json:"enterprise_project_id,omitempty"`
 }
 
 type ListOpts struct {

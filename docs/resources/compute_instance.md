@@ -200,6 +200,9 @@ The following arguments are supported:
 * `name` - (Required, String) Specifies a unique name for the instance. The name consists of 1 to 64 characters,
   including letters, digits, underscores (_), hyphens (-), and periods (.).
 
+* `description` - (Optional, String) Specifies the description of the instance. The description consists of 0 to 85
+  characters, and can't contain '<' or '>'.
+
 * `image_id` - (Optional, String, ForceNew) Required if `image_name` is empty. Specifies the image ID of the desired
   image for the instance. Changing this creates a new instance.
 
