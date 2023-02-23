@@ -5,148 +5,124 @@ import (
 	"testing"
 
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/authorizers"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccApigCustomAuthorizerV2_basic(t *testing.T) {
-	var (
-		// Only letters, digits and underscores (_) are allowed in the authorizer name, environment name
-		// and dedicated instance name.
-		rName        = fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
-		resourceName = "huaweicloud_apig_custom_authorizer.test"
-		auth         authorizers.CustomAuthorizer
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t) // The creation of APIG instance needs the enterprise project ID.
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckApigCustomAuthorizerDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccApigCustomAuthorizer_front(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApigCustomAuthorizerExists(resourceName, &auth),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "type", "FRONTEND"),
-					resource.TestCheckResourceAttr(resourceName, "is_body_send", "true"),
-					resource.TestCheckResourceAttr(resourceName, "cache_age", "60"),
-					resource.TestCheckResourceAttr(resourceName, "identity.#", "1"),
-				),
-			},
-			{
-				Config: testAccApigCustomAuthorizer_frontUpdate(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApigCustomAuthorizerExists(resourceName, &auth),
-					resource.TestCheckResourceAttr(resourceName, "name", rName+"_update"),
-					resource.TestCheckResourceAttr(resourceName, "type", "FRONTEND"),
-					resource.TestCheckResourceAttr(resourceName, "is_body_send", "false"),
-					resource.TestCheckResourceAttr(resourceName, "cache_age", "0"),
-					resource.TestCheckResourceAttr(resourceName, "identity.#", "0"),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testAccCustomAuthorizerImportStateFunc(),
-			},
-		},
-	})
-}
-
-func TestAccApigCustomAuthorizerV2_backend(t *testing.T) {
-	var (
-		// Only letters, digits and underscores (_) are allowed in the environment name and dedicated instance name.
-		rName        = fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
-		resourceName = "huaweicloud_apig_custom_authorizer.test"
-		auth         authorizers.CustomAuthorizer
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t) // The creation of APIG instance needs the enterprise project ID.
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckApigCustomAuthorizerDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccApigCustomAuthorizer_backend(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApigCustomAuthorizerExists(resourceName, &auth),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "type", "BACKEND"),
-					resource.TestCheckResourceAttr(resourceName, "is_body_send", "false"),
-					resource.TestCheckResourceAttr(resourceName, "cache_age", "60"),
-				),
-			},
-			{
-				Config: testAccApigCustomAuthorizer_backendUpdate(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApigCustomAuthorizerExists(resourceName, &auth),
-					resource.TestCheckResourceAttr(resourceName, "name", rName+"_update"),
-					resource.TestCheckResourceAttr(resourceName, "type", "BACKEND"),
-					resource.TestCheckResourceAttr(resourceName, "is_body_send", "false"),
-					resource.TestCheckResourceAttr(resourceName, "cache_age", "45"),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testAccCustomAuthorizerImportStateFunc(),
-			},
-		},
-	})
-}
-
-func testAccCheckApigCustomAuthorizerDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	client, err := config.ApigV2Client(acceptance.HW_REGION_NAME)
+func getCustomAuthorizerFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.ApigV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return nil, fmt.Errorf("error creating APIG v2 client: %s", err)
 	}
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_apig_custom_authorizer" {
-			continue
-		}
-		_, err := authorizers.Get(client, rs.Primary.Attributes["instance_id"], rs.Primary.ID).Extract()
-		if err == nil {
-			return fmt.Errorf("APIG v2 API custom authorizer (%s) is still exists", rs.Primary.ID)
-		}
-	}
-	return nil
+	return authorizers.Get(client, state.Primary.Attributes["instance_id"], state.Primary.ID).Extract()
 }
 
-func testAccCheckApigCustomAuthorizerExists(name string, env *authorizers.CustomAuthorizer) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[name]
-		if !ok {
-			return fmt.Errorf("Resource %s not found", name)
-		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No custom authorizer Id")
-		}
+func TestAccCustomAuthorizer_basic(t *testing.T) {
+	var (
+		auth authorizers.CustomAuthorizer
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		client, err := config.ApigV2Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
-		}
-		found, err := authorizers.Get(client, rs.Primary.Attributes["instance_id"], rs.Primary.ID).Extract()
-		if err != nil {
-			return fmt.Errorf("Error getting custom authorizer (%s): %s", rs.Primary.ID, err)
-		}
-		*env = *found
-		return nil
-	}
+		name       = acceptance.RandomAccResourceName()
+		updateName = acceptance.RandomAccResourceName()
+		rName      = "huaweicloud_apig_custom_authorizer.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&auth,
+		getCustomAuthorizerFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCustomAuthorizer_front(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "type", "FRONTEND"),
+					resource.TestCheckResourceAttr(rName, "is_body_send", "true"),
+					resource.TestCheckResourceAttr(rName, "cache_age", "60"),
+					resource.TestCheckResourceAttr(rName, "identity.#", "1"),
+				),
+			},
+			{
+				Config: testAccCustomAuthorizer_frontUpdate(updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "type", "FRONTEND"),
+					resource.TestCheckResourceAttr(rName, "is_body_send", "false"),
+					resource.TestCheckResourceAttr(rName, "cache_age", "0"),
+					resource.TestCheckResourceAttr(rName, "identity.#", "0"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccCustomAuthorizerImportStateFunc(),
+			},
+		},
+	})
+}
+
+func TestAccCustomAuthorizer_backend(t *testing.T) {
+	var (
+		auth authorizers.CustomAuthorizer
+
+		name       = acceptance.RandomAccResourceName()
+		updateName = acceptance.RandomAccResourceName()
+		rName      = "huaweicloud_apig_custom_authorizer.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&auth,
+		getCustomAuthorizerFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCustomAuthorizer_backend(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "type", "BACKEND"),
+					resource.TestCheckResourceAttr(rName, "is_body_send", "false"),
+					resource.TestCheckResourceAttr(rName, "cache_age", "60"),
+				),
+			},
+			{
+				Config: testAccCustomAuthorizer_backendUpdate(updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "type", "BACKEND"),
+					resource.TestCheckResourceAttr(rName, "is_body_send", "false"),
+					resource.TestCheckResourceAttr(rName, "cache_age", "45"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccCustomAuthorizerImportStateFunc(),
+			},
+		},
+	})
 }
 
 func testAccCustomAuthorizerImportStateFunc() resource.ImportStateIdFunc {
@@ -154,22 +130,49 @@ func testAccCustomAuthorizerImportStateFunc() resource.ImportStateIdFunc {
 		rName := "huaweicloud_apig_custom_authorizer.test"
 		rs, ok := s.RootModule().Resources[rName]
 		if !ok {
-			return "", fmt.Errorf("Resource (%s) not found: %s", rName, rs)
+			return "", fmt.Errorf("resource (%s) not found: %s", rName, rs)
 		}
 		if rs.Primary.Attributes["instance_id"] == "" || rs.Primary.Attributes["name"] == "" {
-			return "", fmt.Errorf("resource not found: %s/%s", rs.Primary.Attributes["instance_id"],
-				rs.Primary.Attributes["name"])
+			return "", fmt.Errorf("missing some attributes, want '{instance_id}/{name}', but '%s/%s'",
+				rs.Primary.Attributes["instance_id"], rs.Primary.Attributes["name"])
 		}
 		return fmt.Sprintf("%s/%s", rs.Primary.Attributes["instance_id"], rs.Primary.Attributes["name"]), nil
 	}
 }
 
-func testAccApigCustomAuthorizer_base(rName string) string {
+func testAccCustomAuthorizer_base(name string) string {
 	return fmt.Sprintf(`
-%s
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  vpc_id     = huaweicloud_vpc.test.id
+  name       = "%[1]s"
+  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1)
+  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1), 1)
+}
+
+resource "huaweicloud_networking_secgroup" "test" {
+  name = "%[1]s"
+}
+
+resource "huaweicloud_apig_instance" "test" {
+  name                  = "%[1]s"
+  edition               = "BASIC"
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  enterprise_project_id = "0"
+
+  availability_zones = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
+}
 
 resource "huaweicloud_fgs_function" "test" {
-  name        = "%s"
+  name        = "%[1]s"
   app         = "default"
   description = "API custom authorization test"
   handler     = "index.handler"
@@ -205,16 +208,16 @@ def handler(event, context):
         }
 EOF
 }
-`, testAccApigApplication_base(rName), rName)
+`, name)
 }
 
-func testAccApigCustomAuthorizer_front(rName string) string {
+func testAccCustomAuthorizer_front(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_apig_custom_authorizer" "test" {
   instance_id  = huaweicloud_apig_instance.test.id
-  name         = "%s"
+  name         = "%[2]s"
   function_urn = huaweicloud_fgs_function.test.urn
   type         = "FRONTEND"
   is_body_send = true
@@ -225,46 +228,46 @@ resource "huaweicloud_apig_custom_authorizer" "test" {
     location = "QUERY"
   }
 }
-`, testAccApigCustomAuthorizer_base(rName), rName)
+`, testAccCustomAuthorizer_base(name), name)
 }
 
-func testAccApigCustomAuthorizer_frontUpdate(rName string) string {
+func testAccCustomAuthorizer_frontUpdate(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_apig_custom_authorizer" "test" {
   instance_id  = huaweicloud_apig_instance.test.id
-  name         = "%s_update"
+  name         = "%[2]s"
   function_urn = huaweicloud_fgs_function.test.urn
   type         = "FRONTEND"
 }
-`, testAccApigCustomAuthorizer_base(rName), rName)
+`, testAccCustomAuthorizer_base(name), name)
 }
 
-func testAccApigCustomAuthorizer_backend(rName string) string {
+func testAccCustomAuthorizer_backend(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_apig_custom_authorizer" "test" {
   instance_id  = huaweicloud_apig_instance.test.id
-  name         = "%s"
+  name         = "%[2]s"
   function_urn = huaweicloud_fgs_function.test.urn
   type         = "BACKEND"
   cache_age    = 60
 }
-`, testAccApigCustomAuthorizer_base(rName), rName)
+`, testAccCustomAuthorizer_base(name), name)
 }
 
-func testAccApigCustomAuthorizer_backendUpdate(rName string) string {
+func testAccCustomAuthorizer_backendUpdate(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_apig_custom_authorizer" "test" {
   instance_id  = huaweicloud_apig_instance.test.id
-  name         = "%s_update"
+  name         = "%[2]s"
   function_urn = huaweicloud_fgs_function.test.urn
   type         = "BACKEND"
   cache_age    = 45
 }
-`, testAccApigCustomAuthorizer_base(rName), rName)
+`, testAccCustomAuthorizer_base(name), name)
 }

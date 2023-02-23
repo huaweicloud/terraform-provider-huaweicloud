@@ -64,8 +64,9 @@ The following arguments are supported:
   -> **NOTE:** The user data will be displayed in plain text on the console.
 
 * `identity` - (Optional, List) Specifies an array of one or more parameter identities of the custom authorizer.
-  The object structure is documented below.
+  The [object](#authorizer_identity) structure is documented below.
 
+<a name="authorizer_identity"></a>
 The `identity` block supports:
 
 * `name` - (Required, String, ForceNew) Specifies the name of the parameter to be verified.
@@ -85,13 +86,14 @@ The `identity` block supports:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - ID of the custom authorizer.
-* `create_time` - Time when the APIG custom authorizer was created.
+
+* `created_at` - The creation time of the custom authorizer.
 
 ## Import
 
-Custom Authorizers of the APIG can be imported using their `name` and the ID of the APIG instance to which the group belongs,
-separated by a slash, e.g.
+Custom Authorizers of the APIG can be imported using their `name` and related dedicated instance IDs, separated by a
+slash, e.g.
 
-```
-$ terraform import huaweicloud_apig_custom_authorizer.test <instance id>/<name>
+```shell
+$ terraform import huaweicloud_apig_custom_authorizer.test <instance_id>/<name>
 ```
