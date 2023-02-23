@@ -726,6 +726,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "NAT",
 	},
+	"ddmv2": {
+		Name:             "ddm",
+		Version:          "v2",
+		WithOutProjectID: true,
+		Product:          "DDM",
+	},
 }
 
 // GetServiceEndpoint try to get the endpoint from customizing map
