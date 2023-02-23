@@ -28,7 +28,7 @@ The following arguments are supported:
 
 * `engine_id` - (Required, String) Specifies the ID of a engine.
 
-* `group_type` - (Optional, String) Specifies the compute resource architecture type. The options are **X86** and **ARM**.
+* `group_type` - (Required, String) Specifies the compute resource architecture type. The options are **X86** and **ARM**.
 
 * `type_code` - (Optional, String) Specifies the resource type code.
 
@@ -42,19 +42,11 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
-* `flavor_groups` - Indicates the list of DDM flavor.
-  The [FlavorGroup](#DdmFlavors_FlavorGroup) structure is documented below.
-
-<a name="DdmFlavors_FlavorGroup"></a>
-The `FlavorGroup` block supports:
-
-* `groupType` - Indicates the compute resource architecture type.
-
 * `flavors` - Indicates the list of DDM compute flavors.
-  The [Flavor](#DdmFlavors_FlavorGroupFlavor) structure is documented below.
+  The [Flavor](#DdmFlavors_Flavor) structure is documented below.
 
-<a name="DdmFlavors_FlavorGroupFlavor"></a>
-The `FlavorGroupFlavor` block supports:
+<a name="DdmFlavors_Flavor"></a>
+The `Flavor` block supports:
 
 * `id` - Indicates the compute resource architecture type.
 
