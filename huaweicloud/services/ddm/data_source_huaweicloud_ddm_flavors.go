@@ -124,38 +124,39 @@ func resourceDdmFlavorsRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	var mErr *multierror.Error
 
-	// getDmdFlavors: Query the List of DDM flavors
+	// getDdmFlavors: Query the List of DDM flavors
 	var (
-		getDmdFlavorsHttpUrl = "v2/{project_id}/flavors"
-		getDmdFlavorsProduct = "ddmv2"
+		getDdmFlavorsHttpUrl = "v2/{project_id}/flavors"
+		getDdmFlavorsProduct = "ddmv2"
 	)
-	getDmdFlavorsClient, err := cfg.NewServiceClient(getDmdFlavorsProduct, region)
+	getDdmFlavorsClient, err := cfg.NewServiceClient(getDdmFlavorsProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating DdmFlavors Client: %s", err)
 	}
 
-	getDmdFlavorsPath := getDmdFlavorsClient.Endpoint + getDmdFlavorsHttpUrl
-	getDmdFlavorsPath = strings.Replace(getDmdFlavorsPath, "{project_id}", getDmdFlavorsClient.ProjectID, -1)
+	getDdmFlavorsPath := getDdmFlavorsClient.Endpoint + getDdmFlavorsHttpUrl
+	getDdmFlavorsPath = strings.ReplaceAll(getDdmFlavorsPath, "{project_id}", getDdmFlavorsClient.ProjectID)
 
-	getDmdFlavorsQueryParams := buildGetDmdFlavorsQueryParams(d)
-	getDmdFlavorsPath += getDmdFlavorsQueryParams
+	getDdmFlavorsQueryParams := buildGetDdmFlavorsQueryParams(d)
+	getDdmFlavorsPath += getDdmFlavorsQueryParams
 
-	getDmdFlavorsResp, err := pagination.ListAllItems(
-		getDmdFlavorsClient,
+	getDdmFlavorsResp, err := pagination.ListAllItems(
+		getDdmFlavorsClient,
 		"offset",
-		getDmdFlavorsPath,
+		getDdmFlavorsPath,
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving DdmFlavors")
 	}
 
-	getDmdFlavorsRespJson, err := json.Marshal(getDmdFlavorsResp)
+	getDdmFlavorsRespJson, err := json.Marshal(getDdmFlavorsResp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	var getDmdFlavorsRespBody interface{}
-	err = json.Unmarshal(getDmdFlavorsRespJson, &getDmdFlavorsRespBody)
+	fmt.Println(string(getDdmFlavorsRespJson))
+	var getDdmFlavorsRespBody interface{}
+	err = json.Unmarshal(getDdmFlavorsRespJson, &getDdmFlavorsRespBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -168,13 +169,17 @@ func resourceDdmFlavorsRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	groupType := d.Get("group_type").(string)
 	typeCode := d.Get("type_code").(string)
-	code := d.Get("type_code").(string)
+	code := d.Get("code").(string)
 	iaasCode := d.Get("iaas_code").(string)
+
+	groups := flattenGetFlavorsResponseBodyFlavorGroup(getDdmFlavorsRespBody, groupType, typeCode, code, iaasCode)
+	bytes, err := json.Marshal(groups)
+	fmt.Println("groups info: ", string(bytes))
 
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("flavor_groups", flattenGetFlavorsResponseBodyFlavorGroup(getDmdFlavorsRespBody, groupType,
+		d.Set("flavor_groups", flattenGetFlavorsResponseBodyFlavorGroup(getDdmFlavorsRespBody, groupType,
 			typeCode, code, iaasCode)),
 	)
 
@@ -194,7 +199,7 @@ func flattenGetFlavorsResponseBodyFlavorGroup(resp interface{}, groupType, typeC
 			continue
 		}
 		rst = append(rst, map[string]interface{}{
-			"groupType": utils.PathSearch("groupType", v, nil),
+			"groupType": flavorGroupType,
 			"flavors":   flattenFlavorGroupFlavors(v, typeCode, code, iaasCode),
 		})
 	}
@@ -223,15 +228,15 @@ func flattenFlavorGroupFlavors(resp interface{}, typeCode, code, iaasCode string
 		}
 		rst = append(rst, map[string]interface{}{
 			"id":        utils.PathSearch("id", v, nil),
-			"type_code": utils.PathSearch("typeCode", v, nil),
-			"code":      utils.PathSearch("code", v, nil),
-			"iaas_code": utils.PathSearch("iaasCode", v, nil),
+			"type_code": flavorTypeCode,
+			"code":      flavorCode,
+			"iaas_code": flavorIaasCode,
 		})
 	}
 	return rst
 }
 
-func buildGetDmdFlavorsQueryParams(d *schema.ResourceData) string {
+func buildGetDdmFlavorsQueryParams(d *schema.ResourceData) string {
 	res := ""
 	if v, ok := d.GetOk("engine_id"); ok {
 		res = fmt.Sprintf("%s&engine_id=%v", res, v)
