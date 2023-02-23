@@ -48,6 +48,8 @@ The following arguments are supported:
   value can contains maximum of 36 characters which it is string "0" or in UUID format with hyphens (-). Changing this
   creates a new nat gateway.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the NAT geteway.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:

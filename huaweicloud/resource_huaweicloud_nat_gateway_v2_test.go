@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/natgateways"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -29,6 +30,8 @@ func TestAccNatGateway_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "test for terraform"),
 					resource.TestCheckResourceAttr(resourceName, "spec", "1"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
 			},
 			{
@@ -42,6 +45,8 @@ func TestAccNatGateway_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("nat-gateway-updated-%s", randSuffix)),
 					resource.TestCheckResourceAttr(resourceName, "description", "test for terraform updated"),
 					resource.TestCheckResourceAttr(resourceName, "spec", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "baaar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.newkey", "value"),
 				),
 			},
 		},
@@ -146,6 +151,11 @@ resource "huaweicloud_nat_gateway" "nat_1" {
   spec        = "1"
   vpc_id      = huaweicloud_vpc.vpc_1.id
   subnet_id   = huaweicloud_vpc_subnet.subnet_1.id
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 	`, testAccNatPreCondition(suffix), suffix)
 }
@@ -160,6 +170,11 @@ resource "huaweicloud_nat_gateway" "nat_1" {
   spec        = "2"
   vpc_id      = huaweicloud_vpc.vpc_1.id
   subnet_id   = huaweicloud_vpc_subnet.subnet_1.id
+
+  tags = {
+    foo    = "baaar"
+    newkey = "value"
+  }
 }
 	`, testAccNatPreCondition(suffix), suffix)
 }
