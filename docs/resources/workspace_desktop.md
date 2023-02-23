@@ -39,10 +39,11 @@ resource "huaweicloud_workspace_desktop" "test" {
     network_id = var.network_id
   }
 
-  name       = var.desktop_name
-  user_name  = "TestUser"
-  user_email = "terraform@example.com"
-  user_group = "administrators"
+  name               = var.desktop_name
+  user_name          = "TestUser"
+  user_email         = "terraform@example.com"
+  user_group         = "administrators"
+  email_notification = true
 
   root_volume {
     type = "SAS"
@@ -117,7 +118,8 @@ The following arguments are supported:
   Changing this will create a new resource.
 
 * `email_notification` - (Optional, Bool, ForceNew) Specifies whether to send emails to user mailbox during important
-  operations. Changing this will create a new resource.
+  operations.  
+  Defaults to **false**. Changing this will create a new resource.
 
 * `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs of the desktop.
   Changing this will create a new resource.
