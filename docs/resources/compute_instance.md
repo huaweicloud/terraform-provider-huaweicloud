@@ -357,6 +357,9 @@ The `data_disks` block supports:
 
 * `sanpshot_id` - (Optional, String, ForceNew) Specifies the snapshot id. Changing this creates a new instance.
 
+* `kms_key_id` - (Optional, String, ForceNew) Specifies the ID of a KMS key. This is used to encrypt the disk.
+  Changing this creates a new instance.
+
 The `bandwidth` block supports:
 
 * `share_type` - (Required, String, ForceNew) Specifies the bandwidth sharing type. Changing this creates a new instance.
@@ -402,6 +405,7 @@ In addition to all arguments above, the following attributes are exported:
 * `volume_attached/boot_index` - The volume boot index on that attachment.
 * `volume_attached/size` - The volume size on that attachment.
 * `volume_attached/type` - The volume type on that attachment.
+* `volume_attached/kms_key_id` - The ID of a KMS key. This is used to encrypt the disk.
 * `system_disk_id` - The system disk voume ID.
 * `created_at` - The creation time, in UTC format.
 * `updated_at` - The last update time, in UTC format.

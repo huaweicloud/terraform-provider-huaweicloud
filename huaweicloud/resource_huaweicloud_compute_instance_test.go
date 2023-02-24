@@ -205,6 +205,34 @@ func TestAccComputeInstance_powerAction(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_disk_encryption(t *testing.T) {
+	var instance cloudservers.CloudServer
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_compute_instance.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccPreCheckKms(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_disk_encryption(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttrPair(resourceName, "volume_attached.1.kms_key_id",
+						"huaweicloud_kms_key.test", "id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	computeClient, err := config.ComputeV1Client(HW_REGION_NAME)
@@ -447,4 +475,40 @@ resource "huaweicloud_compute_instance" "test" {
   }
 }
 `, testAccCompute_data, rName, powerAction)
+}
+
+func testAccComputeInstance_disk_encryption(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_kms_key" "test" {
+  key_alias       = "%s"
+  pending_days    = "7"
+  key_description = "first test key"
+  is_enabled      = true
+}
+
+resource "huaweicloud_compute_instance" "test" {
+  name                = "%s"
+  image_id            = data.huaweicloud_images_image.test.id
+  flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]
+  stop_before_destroy = true
+  agent_list          = "hss"
+
+  network {
+    uuid              = data.huaweicloud_vpc_subnet.test.id
+    source_dest_check = false
+  }
+
+  system_disk_type = "SAS"
+  system_disk_size = 50
+
+  data_disks {
+    type = "SAS"
+    size = "10"
+    kms_key_id = huaweicloud_kms_key.test.id
+  }
+}
+`, testAccCompute_data, rName, rName)
 }
