@@ -36,6 +36,7 @@ const (
 	ProtocolTypeTcp   ProtocolType = "TCP"
 	ProtocolTypeHttp  ProtocolType = "HTTP"
 	ProtocolTypeHttps ProtocolType = "HTTPS"
+	ProtocolTypeBoth  ProtocolType = "BOTH"
 
 	ChannelStatusNormal   ChannelStatus = 1
 	ChannelStatusAbnormal ChannelStatus = 2

@@ -81,5 +81,5 @@ resource "huaweicloud_apig_api_publishment" "test" {
   env_id      = huaweicloud_apig_environment.test.id
   api_id      = huaweicloud_apig_api.test.id
 }
-`, testAccApigAPI_basic(rName), rName)
+`, testAccApi_basic(rName), rName)
 }
