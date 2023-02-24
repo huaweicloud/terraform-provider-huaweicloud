@@ -105,13 +105,12 @@ func ResourceWafDomainV1() *schema.Resource {
 				Default:  false,
 			},
 			"charging_mode": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Default:     PaidType,
-				Description: "schema: Internal",
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  PaidType,
 				ValidateFunc: validation.StringInSlice([]string{
-					PaidType,
+					"prePaid", "postPaid",
 				}, false),
 			},
 			"protect_status": {
