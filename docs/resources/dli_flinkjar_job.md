@@ -134,6 +134,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The Job ID in Int format.
 
+* `status` - The Job status.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:

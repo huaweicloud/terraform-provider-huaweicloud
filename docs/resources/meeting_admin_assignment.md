@@ -43,7 +43,7 @@ The following arguments are supported:
 
 -> Exactly one of account authorization and application authorization you must select.
 
-* `account` - (Required, String) Specifies the user account to be assigned the administrator role.
+* `account` - (Required, String, ForceNew) Specifies the user account to be assigned the administrator role.
   The value can contain **1** to **64** characters.
 
 ## Attributes Reference

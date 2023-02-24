@@ -33,13 +33,13 @@ The following arguments are supported:
   maximum of 255 characters, which may consist of letters, digits, underscores (_), and hyphens (-). Changing this
   creates a new server group.
 
-* `policies` - (Required, List, ForceNew) Specifies the set of policies for the server group. Only *anti-affinity*
+* `policies` - (Optional, List, ForceNew) Specifies the set of policies for the server group. Only *anti-affinity*
   policies are supported.
 
   + `anti-affinity`: All ECS in this group must be deployed on different hosts. Changing this creates a new server
     group.
 
-* `members` - (Optional, Set) Specifies an array of one or more instance ID to attach server group.
+* `members` - (Optional, List) Specifies an array of one or more instance ID to attach server group.
 
 ## Attributes Reference
 

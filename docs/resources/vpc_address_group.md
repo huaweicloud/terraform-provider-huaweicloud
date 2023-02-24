@@ -38,7 +38,7 @@ resource "huaweicloud_vpc_address_group" "ipv6" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies tThe region in which to create the IP address group. If omitted, the
+* `region` - (Optional, String, ForceNew) Specifies tThe region in which to create the IP address group. If omitted, the
   provider-level region will be used. Changing this creates a new address group.
   
 * `name` - (Required, String) Specifies the IP address group name. The value is a string of 1 to 64 characters that can contain

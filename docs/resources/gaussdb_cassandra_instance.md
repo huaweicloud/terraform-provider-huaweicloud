@@ -126,11 +126,11 @@ The following arguments are supported:
 
 The `datastore` block supports:
 
-* `engine` - (Optional, String, ForceNew) Specifies the database engine. Only "GeminiDB-Cassandra" is supported now.
+* `engine` - (Required, String, ForceNew) Specifies the database engine. Only "GeminiDB-Cassandra" is supported now.
 
-* `version` - (Optional, String, ForceNew) Specifies the database version.
+* `version` - (Required, String, ForceNew) Specifies the database version.
 
-* `storage_engine` - (Optional, String, ForceNew) Specifies the storage engine. Only "rocksDB" is supported now.
+* `storage_engine` - (Required, String, ForceNew) Specifies the storage engine. Only "rocksDB" is supported now.
 
 The `backup_strategy` block supports:
 

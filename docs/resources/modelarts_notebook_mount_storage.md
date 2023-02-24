@@ -32,7 +32,7 @@ The following arguments are supported:
 * `storage_path` - (Required, String, ForceNew) Specifies the path of Parallel File System (PFS) or its folders in OBS.
  The format is : `obs://obs-bucket/folder/`. Changing this parameter will create a new resource.
 
-* `local_mount_directory` - (Required, String) Specifies the local mount directory. Only the sub directory of `/data/`
+* `local_mount_directory` - (Required, String, ForceNew) Specifies the local mount directory. Only the sub directory of `/data/`
  can be mounted. The format is : `/data/dir1/`. Changing this parameter will create a new resource.
 
 ## Attributes Reference

@@ -76,6 +76,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies a resource ID in UUID format.
 
+* `job_state` - Specifies the job state.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:

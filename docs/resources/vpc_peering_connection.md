@@ -27,16 +27,16 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the VPC peering connection. If omitted, the
   provider-level region will be used. Changing this creates a new VPC peering connection resource.
 
-* `name` (Required, String) - Specifies the name of the VPC peering connection. The value can contain 1 to 64
+* `name` - (Required, String) Specifies the name of the VPC peering connection. The value can contain 1 to 64
   characters.
 
-* `vpc_id` (Required, String, ForceNew) - Specifies the ID of a VPC involved in a VPC peering connection. Changing this
+* `vpc_id` - (Required, String, ForceNew) Specifies the ID of a VPC involved in a VPC peering connection. Changing this
   creates a new VPC peering connection.
 
-* `peer_vpc_id` (Required, String, ForceNew) - Specifies the VPC ID of the accepter tenant. Changing this creates a new
+* `peer_vpc_id` - (Required, String, ForceNew) Specifies the VPC ID of the accepter tenant. Changing this creates a new
   VPC peering connection.
 
-* `peer_tenant_id` (Optional, String, ForceNew) - Specified the Tenant Id of the accepter tenant. Changing this creates
+* `peer_tenant_id` - (Optional, String, ForceNew) Specified the Tenant Id of the accepter tenant. Changing this creates
   a new VPC peering connection.
 
 ## Attributes Reference

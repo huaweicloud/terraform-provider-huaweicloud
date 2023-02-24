@@ -173,7 +173,7 @@ The `config` block supports:
 * `throttling_dirty_write_to_directory` - (Optional, String) Specifies the directory in the OBS bucket or HDFS which
  dirty data is written to. For example, `/data/dirtydata/`.
 
-* `throttling_max_error_records` - (Optional, String) Specifies maximum number of error records in a single
+* `throttling_max_error_records` - (Optional, Int) Specifies maximum number of error records in a single
  shard. When the number of error records of a map exceeds the upper limit, the task automatically ends.
 
 * `scheduler_enabled` - (Optional, Bool) Specifies whether to enable a scheduled task.  Default value is `false`.

@@ -105,7 +105,7 @@ The following arguments are supported:
     Proxy cluster instance specifications support `64`, `128`, `256`, `512`, and `1024`.
   + **Memcached**: Stand-alone and active/standby type instance values: `2`, `4`, `8`, `16`, `32` and `64`.
 
-* `flavor` - (Required, String) The flavor of the cache instance, which including the total memory, available memory,
+* `flavor` - (Optional, String) The flavor of the cache instance, which including the total memory, available memory,
   maximum number of connections allowed, maximum/assured bandwidth and reference performance.
   It also includes the modes of Redis instances. You can query the *flavor* as follows:
   + It can be obtained through this data source `huaweicloud_dcs_flavors`.
@@ -113,7 +113,7 @@ The following arguments are supported:
     in [DCS Instance Specifications](https://support.huaweicloud.com/intl/en-us/productdesc-dcs/dcs-pd-200713003.html)
   + Log in to the DCS console, click *Buy DCS Instance*, and find the corresponding instance specification.
 
-* `availability_zones` - (Required, List, ForceNew) The code of the AZ where the cache node resides.
+* `availability_zones` - (Optional, List, ForceNew) The code of the AZ where the cache node resides.
   Master/Standby, Proxy Cluster, and Redis Cluster DCS instances support cross-AZ deployment.
   You can specify an AZ for the standby node. When specifying AZs for nodes, use commas (,) to separate AZs.
   Changing this creates a new instance.
@@ -223,7 +223,7 @@ The `backup_policy` block supports:
   + `auto`: automatic backup.
   + `manual`: manual backup.
 
-* `save_days` - (Required, Int) Retention time. Unit: day, the value ranges from 1 to 7.
+* `save_days` - (Optional, Int) Retention time. Unit: day, the value ranges from 1 to 7.
 
 * `period_type` - (Optional, String) Interval at which backup is performed. Default value is `weekly`.
   Currently, only weekly backup is supported.

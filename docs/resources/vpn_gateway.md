@@ -88,12 +88,12 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `master_eip` - (Required, String, ForceNew) The master EIP configurations.
+* `master_eip` - (Required, List, ForceNew) The master EIP configurations.
   The [object](#Gateway_CreateRequestEip) structure is documented below.
 
   Changing this parameter will create a new resource.
 
-* `slave_eip` - (Required, String, ForceNew) The slave EIP configurations.
+* `slave_eip` - (Required, List, ForceNew) The slave EIP configurations.
   The [object](#Gateway_CreateRequestEip) structure is documented below.
 
   Changing this parameter will create a new resource.

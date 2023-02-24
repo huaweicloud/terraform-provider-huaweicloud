@@ -54,10 +54,10 @@ The following arguments are supported:
 
 * `group_id` - (Required, String, ForceNew) Specifies the group to assign the role to.
 
-* `domain_id` - (Optional, String, ForceNew; Required if `project_id` is empty) Specifies the domain to assign the role
+* `domain_id` - (Optional, String, ForceNew) Required if `project_id` is empty. Specifies the domain to assign the role
   in.
 
-* `project_id` - (Optional, String, ForceNew; Required if `domain_id` is empty) Specifies the project to assign the role
+* `project_id` - (Optional, String, ForceNew) Required if `domain_id` is empty. Specifies the project to assign the role
   in.
 
 ## Attributes Reference

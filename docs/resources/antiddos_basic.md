@@ -24,7 +24,7 @@ resource "huaweicloud_antiddos_basic" "antiddos_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to manage the Cloud Native Anti-DDos Basic resource.
+* `region` - (Optional, String) Specifies the region in which to manage the Cloud Native Anti-DDos Basic resource.
   If omitted, the provider-level region will be used. Changing this creates a new resource.
 
 * `eip_id` - (Required, String, ForceNew) Specifies the ID of an EIP. Changing this creates a new resource.

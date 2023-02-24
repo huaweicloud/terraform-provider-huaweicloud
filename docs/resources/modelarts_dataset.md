@@ -76,7 +76,7 @@ The following arguments are supported:
 
 The `data_source` block supports:
 
-* `data_type` - (Required, Int, ForceNew) Specifies the type of data source. The options are as follows:
+* `data_type` - (Optional, Int, ForceNew) Specifies the type of data source. The options are as follows:
   + **0**: OBS.
   + **1**: GaussDB(DWS).
   + **2**: DLI.
@@ -111,7 +111,7 @@ The `data_source` block supports:
 
 The `schemas` block supports:
 
-* `type` - (Required, String, ForceNew) Specifies the field type. Valid values include: `String`, `Short`, `Int`,
+* `type` - (Required, String) Specifies the field type. Valid values include: `String`, `Short`, `Int`,
  `Long`, `Double`, `Float`, `Byte`, `Date`, `Timestamp`, `Bool`. Changing this parameter will create a new resource.
 
 * `name` - (Required, String, ForceNew) Specifies the field name. Changing this parameter will create a new resource.

@@ -32,7 +32,7 @@ resource "huaweicloud_dis_stream" "stream" {
 
 The following arguments are supported:
 
-* `stream_name` - (Required, String) Name of the DIS stream to be created.
+* `stream_name` - (Required, String, ForceNew) Name of the DIS stream to be created.
 
 * `partition_count` - (Required, Int) Number of the expect partitions. NOTE: Each stream can be scaled up and down a
   total of five times within one hour. After the stream is successfully scaled up or down, it cannot be scaled up or

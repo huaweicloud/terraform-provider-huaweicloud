@@ -122,7 +122,7 @@ The following arguments are supported:
   255 characters.  
   Change this parameter will create a new resource.
 
-* `agency` - (Optional, String, ForceNew) Specifies the configuration of the agencies authorized to IAC.  
+* `agency` - (Optional, List, ForceNew) Specifies the configuration of the agencies authorized to IAC.  
   Change this parameter will create a new resource.
   The [object](#stack_agency) structure is documented below.
 
@@ -151,10 +151,10 @@ The following arguments are supported:
 <a name="stack_agency"></a>
 The `agency` block supports:
 
-* `name` - (Required, String, ForceNew) Specifies the name of IAM agency authorized to IAC account.  
+* `name` - (Optional, String, ForceNew) Specifies the name of IAM agency authorized to IAC account.  
   Change this parameter will create a new resource.
 
-* `provider_name` - (Required, String, ForceNew) Specifies the name of the provider corresponding to the IAM agency.  
+* `provider_name` - (Optional, String, ForceNew) Specifies the name of the provider corresponding to the IAM agency.  
   Change this parameter will create a new resource.
 
 ## Attributes Reference

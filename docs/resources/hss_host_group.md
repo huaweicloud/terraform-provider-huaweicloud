@@ -35,7 +35,7 @@ The following arguments are supported:
   The Chinese characters must be in **UTF-8** or **Unicode**
   format.
 
-* `host_ids` - (Required, List) Specifies the list of host IDs.
+* `host_ids` - (Optional, List) Specifies the list of host IDs.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the ID of the enterprise project to which the host
   group belongs.
