@@ -50,6 +50,8 @@ type CreateOpts struct {
 	Tags []string `json:"tags,omitempty"`
 
 	ServerTags []tags.ResourceTag `json:"server_tags,omitempty"`
+
+	Description string `json:"description,omitempty"`
 }
 
 // CreateOptsBuilder allows extensions to add additional parameters to the
