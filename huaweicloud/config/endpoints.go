@@ -713,6 +713,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Product: "DSC",
 	},
 
+	// catalog for Cloud Phone
+	"cph": {
+		Name:    "cph",
+		Product: "CPH",
+	},
+
 	// catalog for Joint-Operation Cloud only
 	// it should be at the end of this map, and no necessary to put the key into allServiceCatalog
 	"mls": {

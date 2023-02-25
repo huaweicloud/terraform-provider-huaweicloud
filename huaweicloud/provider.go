@@ -30,6 +30,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cloudtable"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cmdb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/codehub"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cph"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cpts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cse"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/css"
@@ -394,6 +395,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_instance":     ecs.DataSourceComputeInstance(),
 			"huaweicloud_compute_instances":    ecs.DataSourceComputeInstances(),
 			"huaweicloud_compute_servergroups": ecs.DataSourceComputeServerGroups(),
+
+			"huaweicloud_cph_server_flavors": cph.DataSourceServerFlavors(),
 
 			"huaweicloud_csbs_backup":        dataSourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy": dataSourceCSBSBackupPolicyV1(),
