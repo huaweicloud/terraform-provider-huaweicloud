@@ -55,7 +55,7 @@ func PageResultFromParsed(resp *http.Response, body interface{}) PageResult {
 func Request(client *golangsdk.ServiceClient, headers map[string]string, url string) (*http.Response, error) {
 	return client.Get(url, nil, &golangsdk.RequestOpts{
 		MoreHeaders:      headers,
-		OkCodes:          []int{200, 204, 300},
+		OkCodes:          []int{200, 202, 204, 300},
 		KeepResponseBody: true,
 	})
 }

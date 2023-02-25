@@ -109,6 +109,6 @@ func (r ConfigurationPage) IsEmpty() (bool, error) {
 
 func (r ConfigurationPage) Extract() ([]Configuration, error) {
 	var cs []Configuration
-	err := r.Result.ExtractIntoSlicePtr(&cs, "scaling_groups")
+	err := r.Result.ExtractIntoSlicePtr(&cs, "scaling_configurations")
 	return cs, err
 }
