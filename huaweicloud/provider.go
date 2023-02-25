@@ -901,10 +901,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_peering_connection":          vpc.ResourceVpcPeeringConnectionV2(),
 			"huaweicloud_vpc_peering_connection_accepter": vpc.ResourceVpcPeeringConnectionAccepterV2(),
 			"huaweicloud_vpc_route_table":                 vpc.ResourceVPCRouteTable(),
-			"huaweicloud_vpc":                             vpc.ResourceVirtualPrivateCloudV1(),
 			"huaweicloud_vpc_route":                       vpc.ResourceVPCRouteTableRoute(),
+			"huaweicloud_vpc":                             vpc.ResourceVirtualPrivateCloudV1(),
 			"huaweicloud_vpc_subnet":                      vpc.ResourceVpcSubnetV1(),
 			"huaweicloud_vpc_address_group":               vpc.ResourceVpcAddressGroup(),
+			"huaweicloud_vpc_flow_log":                    vpc.ResourceVpcFlowLog(),
 
 			"huaweicloud_vpcep_approval": vpcep.ResourceVPCEndpointApproval(),
 			"huaweicloud_vpcep_endpoint": vpcep.ResourceVPCEndpoint(),
