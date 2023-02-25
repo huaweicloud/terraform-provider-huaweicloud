@@ -695,6 +695,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Product: "AOM",
 	},
 
+	"ddm": {
+		Name:             "ddm",
+		WithOutProjectID: true,
+		Product:          "DDM",
+	},
+
 	// catalog for Developer Services
 	"codehub": {
 		Name:    "codehub-ext",

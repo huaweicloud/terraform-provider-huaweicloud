@@ -39,6 +39,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dbss"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dcs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ddm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dds"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dew"
@@ -565,6 +566,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_flavors_v3":   dds.DataSourceDDSFlavorV3(),
 			"huaweicloud_identity_role_v3": iam.DataSourceIdentityRoleV3(),
 			"huaweicloud_cdm_flavors_v1":   DataSourceCdmFlavorV1(),
+
+			"huaweicloud_ddm_engines": ddm.DataSourceDdmEngines(),
 
 			// Deprecated ongoing (without DeprecationMessage), used by other providers
 			"huaweicloud_vpc_route":        vpc.DataSourceVpcRouteV2(),
