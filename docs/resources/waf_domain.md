@@ -74,6 +74,9 @@ The following arguments are supported:
 
 * `proxy` - (Optional, Bool) Specifies whether a proxy is configured.
 
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the domain. Valid values are *prePaid*
+  and *postPaid*, defaults to *prePaid*. Changing this creates a new instance.
+
 The `server` block supports:
 
 * `client_protocol` - (Required, String) Protocol type of the client. The options include `HTTP` and `HTTPS`.
