@@ -279,8 +279,7 @@ func resourceDatabaseRoleRead(_ context.Context, d *schema.ResourceData, meta in
 			name, instanceId))
 	}
 	if len(resp) < 1 {
-		return common.CheckDeletedDiag(d, err, fmt.Sprintf("unable to find database role (%s) from DDS instance (%s)",
-			name, instanceId))
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 	role := resp[0]
 	log.Printf("[DEBUG] The role response is: %#v", role)
