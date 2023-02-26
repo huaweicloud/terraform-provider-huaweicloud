@@ -42,37 +42,37 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies tThe region in which to create the vpc subnet. If omitted, the
   provider-level region will be used. Changing this creates a new Subnet.
 
-* `name` (Required, String) - Specifies the subnet name. The value is a string of 1 to 64 characters that can contain
+* `name` - (Required, String) Specifies the subnet name. The value is a string of 1 to 64 characters that can contain
   letters, digits, underscores (_), and hyphens (-).
 
-* `cidr` (Required, String, ForceNew) - Specifies the network segment on which the subnet resides. The value must be in
+* `cidr` - (Required, String, ForceNew) Specifies the network segment on which the subnet resides. The value must be in
   CIDR format and within the CIDR block of the VPC. The subnet mask cannot be greater than 28. Changing this creates a
   new Subnet.
 
-* `gateway_ip` (Required, String, ForceNew) - Specifies the gateway of the subnet. The value must be a valid IP address
+* `gateway_ip` - (Required, String, ForceNew) Specifies the gateway of the subnet. The value must be a valid IP address
   in the subnet segment. Changing this creates a new Subnet.
 
-* `vpc_id` (Required, String, ForceNew) - Specifies the ID of the VPC to which the subnet belongs. Changing this creates
+* `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC to which the subnet belongs. Changing this creates
   a new Subnet.
 
 * `description` - (Optional, String) Specifies supplementary information about the subnet. The value is a string of
   no more than 255 characters and cannot contain angle brackets (< or >).
 
-* `ipv6_enable` (Optional, Bool) - Specifies whether the IPv6 function is enabled for the subnet. Defaults to false.
+* `ipv6_enable` - (Optional, Bool) Specifies whether the IPv6 function is enabled for the subnet. Defaults to false.
 
-* `dhcp_enable` (Optional, Bool) - Specifies whether the DHCP function is enabled for the subnet. Defaults to true.
+* `dhcp_enable` - (Optional, Bool) Specifies whether the DHCP function is enabled for the subnet. Defaults to true.
 
-* `primary_dns` (Optional, String) - Specifies the IP address of DNS server 1 on the subnet. The value must be a valid
+* `primary_dns` - (Optional, String) Specifies the IP address of DNS server 1 on the subnet. The value must be a valid
   IP address.
 
-* `secondary_dns` (Optional, String) - Specifies the IP address of DNS server 2 on the subnet. The value must be a valid
+* `secondary_dns` - (Optional, String) Specifies the IP address of DNS server 2 on the subnet. The value must be a valid
   IP address.
 
-* `dns_list` (Optional, List) - Specifies the DNS server address list of a subnet. This field is required if you need to
+* `dns_list` - (Optional, List) Specifies the DNS server address list of a subnet. This field is required if you need to
   use more than two DNS servers. This parameter value is the superset of both DNS server address 1 and DNS server
   address 2.
 
-* `availability_zone` (Optional, String, ForceNew) - Specifies the availability zone (AZ) to which the subnet belongs.
+* `availability_zone` - (Optional, String, ForceNew) Specifies the availability zone (AZ) to which the subnet belongs.
   The value must be an existing AZ in the system. Changing this creates a new Subnet.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the subnet.

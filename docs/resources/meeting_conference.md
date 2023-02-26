@@ -161,7 +161,7 @@ The following arguments are supported:
 
 * `meeting_room_id` - (Required, String) Specifies the cloud meeting room ID.
 
-* `duration` - (Optional, Int) Specifies the duration of the conference, in minutes.
+* `duration` - (Required, Int) Specifies the duration of the conference, in minutes.
   The valid value is range from `15` to `1440`, defaults to `30`.
 
   -> After the conference starts, only support extend duration, shorten duration is not supported.

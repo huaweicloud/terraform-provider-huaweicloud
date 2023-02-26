@@ -172,7 +172,7 @@ The following arguments are supported:
   and the software package source of the component is inherited by default. Otherwise, this parameter is required.
 
 * `description` - (Optional, String) Specifies the description of the instance.
-  The description can contian a maximum of `128` characters.
+  The description can contain a maximum of `128` characters.
 
 * `configuration` - (Optional, List) Specifies the configuration parameters, such as environment variables,
   deployment configurations, and O&M monitoring.
@@ -332,13 +332,13 @@ The `strategy` block supports:
 <a name="servicestage_lifecycle"></a>
 The `lifecycle` block supports:
 
-* `entrypoint` - (Required, List) Specifies the startup commands.
+* `entrypoint` - (Optional, List) Specifies the startup commands.
   The [object](#servicestage_entrypoint) structure is documented below.
 
-* `post_start` - (Required, List) Specifies the post-start processing.
+* `post_start` - (Optional, List) Specifies the post-start processing.
   The [object](#servicestage_lifecycle_process) structure is documented below.
 
-* `pre_stop` - (Required, List) Specifies the pre-stop processing.
+* `pre_stop` - (Optional, List) Specifies the pre-stop processing.
   The [object](#servicestage_lifecycle_process) structure is documented below.
 
 <a name="servicestage_log_collection_policies"></a>
@@ -392,7 +392,7 @@ The `parameters` block supports:
 * `path` - (Required, String) Specifies the request URL.
   This parameter is applicable to **http** type.
 
-* `host` - (Optional, String) Specifies the custom IP address. The defualt address is pod IP address.
+* `host` - (Optional, String) Specifies the custom IP address. The default address is pod IP address.
   This parameter is applicable to **http** type.
 
 <a name="servicestage_scheduler"></a>
@@ -457,7 +457,7 @@ The `http_param` block supports:
 
 * `path` - (Required, String) Specifies the request path.
 
-* `host` - (Optional, String) Specifies the custom IP address. The defualt address is pod IP address.
+* `host` - (Optional, String) Specifies the custom IP address. The default address is pod IP address.
 
 <a name="servicestage_tcp_param"></a>
 The `tcp_param` block supports:

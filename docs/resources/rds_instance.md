@@ -231,8 +231,8 @@ The `volume` block supports:
   Changing this parameter will create a new resource. For details about volume types, see
   [DB Instance Storage Types](https://support.huaweicloud.com/intl/en-us/productdesc-rds/rds_01_0020.html).
 
-* `disk_encryption_id` - (Optional) Specifies the key ID for disk encryption. Changing this parameter will create a new
-  resource.
+* `disk_encryption_id` - (Optional, String, ForceNew) Specifies the key ID for disk encryption. Changing this parameter
+  will create a new resource.
 
 The `backup_strategy` block supports:
 

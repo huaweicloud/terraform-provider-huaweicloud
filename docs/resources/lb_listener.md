@@ -56,9 +56,6 @@ The following arguments are supported:
 * `sni_container_refs` - (Optional, List) Lists the IDs of SNI certificates (server certificates with a domain name)
   used by the listener. This parameter is valid when protocol is set to *TERMINATED_HTTPS*.
 
-* `admin_state_up` - (Optional, Bool) The administrative state of the listener. A valid value is true (UP) or false (
-  DOWN).
-
 * `tags` - (Optional, Map) The key/value pairs to associate with the listener.
 
 ## Attributes Reference

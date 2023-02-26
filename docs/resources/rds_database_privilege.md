@@ -41,7 +41,7 @@ The following arguments are supported:
 
 * `db_name` - (Required, String, ForceNew) Specifies the database name. Changing this creates a new resource.
 
-* `users` - (Required, String, ForceNew) Specifies the account that associated with the database. This parameter supports
+* `users` - (Required, List, ForceNew) Specifies the account that associated with the database. This parameter supports
   a maximum of 50 elements. Structure is documented below. Changing this creates a new resource.
 
 The `users` block supports:

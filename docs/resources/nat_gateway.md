@@ -34,10 +34,10 @@ The following arguments are supported:
   + `3`: large type, which supports up to 200,000 SNAT connections.
   + `4`: extra-large type, which supports up to 1,000,000 SNAT connections.
 
-* `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC this nat gateway belongs to. Changing this creates
+* `vpc_id` - (Optional, String, ForceNew) Specifies the ID of the VPC this nat gateway belongs to. Changing this creates
   a new nat gateway.
 
-* `subnet_id` - (Required, String, ForceNew) Specifies the subnet ID of the downstream interface (the next hop of the
+* `subnet_id` - (Optional, String, ForceNew) Specifies the subnet ID of the downstream interface (the next hop of the
   DVR) of the NAT gateway. Changing this creates a new nat gateway.
 
 * `description` - (Optional, String) Specifies the description of the nat gateway. The value contains 0 to 255

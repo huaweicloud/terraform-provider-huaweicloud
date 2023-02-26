@@ -369,7 +369,7 @@ The EIP must have been created and must be in the same region as the cluster.
   Default to true. If `log_collection` set true, the OBS buckets will be created and only used to collect logs that
   record MapReduce cluster creation failures. Changing this will create a new MapReduce cluster resource.
 
-* `manager_admin_pass` - (Optional, String, ForceNew) Specifies the administrator password, which is used to log in to
+* `manager_admin_pass` - (Required, String, ForceNew) Specifies the administrator password, which is used to log in to
   the cluster management page. The password can contain 8 to 26 characters and cannot be the username or the username
   spelled backwards. The password must contain lowercase letters, uppercase letters, digits, spaces and the special
   characters: `!?,.:-_{}[]@$^+=/`. Changing this will create a new MapReduce cluster resource.
@@ -391,7 +391,7 @@ The EIP must have been created and must be in the same region as the cluster.
 * `security_group_ids` - (Optional, List, ForceNew) Specifies an array of one or more security group ID to attach to the
   MapReduce cluster. If using the specified security group, the group need to open the specified port (9022) rules.
 
-* `template_id` - (Optional, List, ForceNew) Specifies the template used for node deployment when the cluster type is
+* `template_id` - (Optional, String, ForceNew) Specifies the template used for node deployment when the cluster type is
   CUSTOM.
   + mgmt_control_combined_v2: template for jointly deploying the management and control nodes. The management and
   control roles are co-deployed on the Master node, and data instances are deployed in the same node group. This
@@ -403,32 +403,32 @@ The EIP must have been created and must be in the same region as the cluster.
   and data instances are deployed in different node groups. This deployment mode is applicable to a cluster with more
   than 500 nodes. Components can be deployed separately, which can be used for a larger cluster scale.
 
-* `analysis_core_nodes` - (Optional, List) Specifies a list of the informations about the analysis core nodes in the
- MapReduce cluster.
+* `analysis_core_nodes` - (Optional, List, ForceNew) Specifies a list of the informations about the analysis core nodes
+  in the MapReduce cluster.
   The `nodes` object structure of the `analysis_core_nodes` is documented below.
 
-* `streaming_core_nodes` - (Optional, List) Specifies a list of the informations about the streaming core nodes in the
- MapReduce cluster.
+* `streaming_core_nodes` - (Optional, List, ForceNew) Specifies a list of the informations about the streaming core
+  nodes in the MapReduce cluster.
   The `nodes` object structure of the `streaming_core_nodes` is documented below.
 
-* `analysis_task_nodes` - (Optional, List) Specifies a list of the informations about the analysis task nodes in the
- MapReduce cluster.
+* `analysis_task_nodes` - (Optional, List, ForceNew) Specifies a list of the informations about the analysis task nodes
+  in the MapReduce cluster.
   The `nodes` object structure of the `analysis_task_nodes` is documented below.
 
-* `streaming_task_nodes` - (Optional, List) Specifies a list of the informations about the streaming task nodes in the
- MapReduce cluster.
+* `streaming_task_nodes` - (Optional, List, ForceNew) Specifies a list of the informations about the streaming task
+  nodes in the MapReduce cluster.
   The `nodes` object structure of the `streaming_task_nodes` is documented below.
 
-* `custom_nodes` - (Optional, List) Specifies a list of the informations about the custom nodes in the MapReduce
- cluster.
+* `custom_nodes` - (Optional, List, ForceNew) Specifies a list of the informations about the custom nodes in the
+  MapReduce cluster.
   The `nodes` object structure of the `custom_nodes` is documented below.
   `Unlike other nodes, it needs to specify group_name`
 
-* `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs to associate with the cluster.
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the cluster.
 
 The `nodes` block supports:
 
-* `group_name` - (Optional, String, ForceNew) Specifies the name of nodes for the node group.
+* `group_name` - (Required, String, ForceNew) Specifies the name of nodes for the node group.
 
   -> **NOTE:** Only the custom_nodes has this argument
 
@@ -455,7 +455,9 @@ The `nodes` block supports:
   + streaming_task_nodes: minimum is zero and the maximum is subject to the configuration of the corresponding flavor.
 
   Changing this will create a new MapReduce cluster resource.
-  
+
+* `host_ips` - (List) Specifies the host ips of nodes.
+
 * `data_volume_type` - (Optional, String, ForceNew) Specifies the data disk flavor of the nodes.
   Required if `data_volume_count` is greater than zero. Changing this will create a new MapReduce cluster resource.
    The following disk types are supported:

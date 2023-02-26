@@ -36,7 +36,7 @@ The following arguments are supported:
 * `type` - (Required, String, ForceNew) The type of the reference table, The options are `url`, `user-agent`, `ip`,
   `params`, `cookie`, `referer` and `header`. Changing this setting will push a new reference table.
 
-* `conditions` - (Required, List) The conditions of the reference table. The maximum length is 30. The maximum length of
+* `conditions` - (Optional, List) The conditions of the reference table. The maximum length is 30. The maximum length of
   condition is 2048 characters.
 
 * `description` - (Optional, String) The description of the reference table. The maximum length is 128 characters.
