@@ -124,6 +124,14 @@ The following arguments are supported:
 
 The `dependent_packages` block supports:
 
+* `group_name` - (Required, String, ForceNew) Specifies the group name.
+
+* `packages` - (Required, List, ForceNew) Specifies a list of group resource For details.
+  The object structure is documented below.
+  Changing this parameter will submit a new spark job.
+
+The `packages` block supports:
+
 * `type` - (Required, String, ForceNew) Specifies the resource type of the package.
   Changing this parameter will submit a new spark job.
 

@@ -93,6 +93,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `instance_limit` - The maximum number of the microservice instance resources.
 
+* `enterprise_project_id` - The Enterprise Project ID of the microservice instance resources.
+
 * `service_registry_addresses` - The connection address of service center.
   The [object](#engine_center_addresses) structure is documented below.
 

@@ -70,7 +70,7 @@ The following arguments are supported:
   + x86_64 : default value
   + aarch64
 
-* `resource_mode` - (Optional, String, ForceNew) Queue resource mode. Changing this parameter will create a new
+* `resource_mode` - (Optional, Int, ForceNew) Queue resource mode. Changing this parameter will create a new
   resource. The options are as follows:
   + 0: indicates the shared resource mode.
   + 1: indicates the exclusive resource mode.

@@ -65,7 +65,7 @@ The following arguments are supported:
   If `period_unit` is set to *year*, the value ranges from 1 to 3.
   Changing this creates a new instance.
 
-* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
+* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
   Valid values are `true` and `false`, defaults to `false`.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the instance.

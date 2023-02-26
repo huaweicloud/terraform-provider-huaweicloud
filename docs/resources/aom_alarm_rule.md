@@ -42,7 +42,7 @@ The following arguments are supported:
   characters that can consist of letters, digits, underscores (_), hyphens (-) and chinese characters,
   and it must start and end with letters, digits or chinese characters. Changing this creates a new resource.
 
-* `metric_name` - (Required, string, ForceNew) Specifies the alarm metric name. Changing this creates a new resource.
+* `metric_name` - (Required, String, ForceNew) Specifies the alarm metric name. Changing this creates a new resource.
 
 * `namespace` - (Required, String, ForceNew) Specifies the alarm namespace. Changing this creates a new resource.
 
@@ -58,7 +58,7 @@ The following arguments are supported:
 * `comparison_operator` - (Required, String) Specifies the comparison condition of alarm thresholds.
   The value can be **>**, **=**, **<**, **>=** or **<=**.
 
-* `threshold` - (Required, Int) Specifies the alarm threshold.
+* `threshold` - (Required, String) Specifies the alarm threshold.
 
 * `unit` - (Required, String, ForceNew) Specifies the data unit. Changing this creates a new resource.
 

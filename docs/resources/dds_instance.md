@@ -100,7 +100,7 @@ The following arguments are supported:
 
 * `password` - (Required, String) Specifies the Administrator password of the database instance.
 
-* `disk_encryption_id` - (Required, String, ForceNew) Specifies the disk encryption ID of the instance. Changing this
+* `disk_encryption_id` - (Optional, String, ForceNew) Specifies the disk encryption ID of the instance. Changing this
   creates a new instance.
 
 * `mode` - (Required, String, ForceNew) Specifies the mode of the database instance. Changing this creates a new
@@ -139,7 +139,7 @@ The following arguments are supported:
   This parameter is mandatory if `charging_mode` is set to *prePaid*.
   Changing this creates a new instance.
 
-* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
+* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
   Valid values are `true` and `false`, defaults to `false`.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the DDS instance.
@@ -191,7 +191,7 @@ The `backup_strategy` block supports:
   + The HH value must be 1 greater than the hh value.
   + The values from mm and MM must be the same and must be set to any of the following 00, 15, 30, or 45.
 
-* `keep_days` - (Optional, Int) Specifies the number of days to retain the generated backup files. The value range is
+* `keep_days` - (Required, Int) Specifies the number of days to retain the generated backup files. The value range is
   from 0 to 732.
   + If this parameter is set to 0, the automated backup policy is not set.
   + If this parameter is not transferred, the automated backup policy is enabled by default. Backup files are stored

@@ -243,10 +243,10 @@ The following arguments are supported:
   + `GPSSD`: general purpose SSD disk type.
   + `ESSD`: Extreme SSD type.
 
-* `system_disk_size` - (Optional, String) Specifies the system disk size in GB, The value range is 1 to 1024.
+* `system_disk_size` - (Optional, Int) Specifies the system disk size in GB, The value range is 1 to 1024.
   Shrinking the disk is not supported.
 
-* `data_disks` - (Optional, String, ForceNew) Specifies an array of one or more data disks to attach to the instance.
+* `data_disks` - (Optional, List, ForceNew) Specifies an array of one or more data disks to attach to the instance.
   The data_disks object structure is documented below. Changing this creates a new instance.
 
 * `eip_type` - (Optional, String, ForceNew) Specifies the type of an EIP that will be automatically assigned to the instance.

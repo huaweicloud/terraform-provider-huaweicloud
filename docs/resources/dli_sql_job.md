@@ -32,7 +32,7 @@ The following arguments are supported:
 * `sql` - (Required, String, ForceNew) Specifies SQL statement that you want to execute.
   Changing this parameter will create a new resource.
 
-* `database_name` - (Required, String, ForceNew) Specifies the database where the SQL is executed. This argument does
+* `database_name` - (Optional, String, ForceNew) Specifies the database where the SQL is executed. This argument does
  not need to be configured during database creation. Changing this parameter will create a new resource.
 
 * `queue_name` - (Optional, String, ForceNew) Specifies queue which this job to be submitted belongs.

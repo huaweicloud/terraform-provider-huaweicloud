@@ -43,7 +43,7 @@ The following arguments are supported:
 
   -> The description does not support updating to an empty value.
 
-* `app_codes` - (Required, List) Specifies an array of one or more application codes that the application has.  
+* `app_codes` - (Optional, List) Specifies an array of one or more application codes that the application has.  
   Up to five application codes can be created.  
   The valid length of each application code is limited from can contain `64` to `180`.  
   The application code must start with a letter, digit, plus sign (+) or slash (/).  
