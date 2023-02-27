@@ -8,64 +8,36 @@ Attaches a Network Interface to an Instance.
 
 ## Example Usage
 
-### Basic Attachment
+### Attach a port (under the specified network) to the ECS instance and generate a random IP address
 
 ```hcl
-variable "security_group_id" {}
+variable "instance_id" {}
+variable "network_id" {}
 
-data "huaweicloud_vpc_subnet" "mynet" {
-  name = "subnet-default"
-}
-
-resource "huaweicloud_compute_instance" "myinstance" {
-  name               = "instance"
-  image_id           = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id          = "s6.small.1"
-  key_pair           = "my_key_pair_name"
-  security_group_ids = [var.security_group_id]
-  availability_zone = "cn-north-4a"
-
-  network {
-    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
-  }
-}
-
-resource "huaweicloud_compute_interface_attach" "attached" {
-  instance_id = huaweicloud_compute_instance.myinstance.id
-  network_id  = data.huaweicloud_vpc_subnet.mynet.id
+resource "huaweicloud_compute_interface_attach" "test" {
+  instance_id = var.instance_id
+  network_id  = var.network_id
 }
 ```
 
-### Attachment Specifying a Fixed IP
+### Attach a port (under the specified network) to the ECS instance and use the custom security groups
 
 ```hcl
-variable "security_group_id" {}
-
-data "huaweicloud_vpc_subnet" "mynet" {
-  name = "subnet-default"
+variable "instance_id" {
+variable "network_id" {
+variable "security_group_ids" {
+  type = list(string)
 }
 
-resource "huaweicloud_compute_instance" "myinstance" {
-  name               = "instance"
-  image_id           = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id          = "s6.small.1"
-  key_pair           = "my_key_pair_name"
-  security_group_ids = [var.security_group_id]
-  availability_zone  = "cn-north-4a"
-
-  network {
-    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
-  }
-}
-
-resource "huaweicloud_compute_interface_attach" "attached" {
-  instance_id = huaweicloud_compute_instance.myinstance.id
-  network_id  = data.huaweicloud_vpc_subnet.mynet.id
-  fixed_ip    = "10.0.10.10"
+resource "huaweicloud_compute_interface_attach" "test" {
+  instance_id        = var.instance_id
+  network_id         = var.network_id
+  fixed_ip           = "192.168.10.199"
+  security_group_ids = var.security_group_ids
 }
 ```
 
-### Attachment Using an Existing Port
+### Attach a custom port to the ECS instance
 
 ```hcl
 variable "security_group_id" {}
@@ -122,6 +94,9 @@ The following arguments are supported:
 * `source_dest_check` - (Optional, Bool) Specifies whether the ECS processes only traffic that is destined specifically
   for it. This function is enabled by default but should be disabled if the ECS functions as a SNAT server or has a
   virtual IP address bound to it.
+
+* `security_group_ids` - (Optional, List) Specifies the list of security group IDs bound to the specified port.  
+  Defaults to the default security group.
 
 ## Attributes Reference
 

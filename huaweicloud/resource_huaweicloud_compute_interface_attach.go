@@ -7,9 +7,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/attachinterfaces"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -62,6 +65,12 @@ func ResourceComputeInterfaceAttachV2() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			"security_group_ids": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"source_dest_check": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -75,11 +84,36 @@ func ResourceComputeInterfaceAttachV2() *schema.Resource {
 	}
 }
 
+func updateInterfacePort(client *golangsdk.ServiceClient, portId string, securityGroupIds []string,
+	sourceDestCheckEnabled bool) error {
+	opts := ports.UpdateOpts{
+		AllowedAddressPairs: nil,
+		SecurityGroups:      &securityGroupIds,
+	}
+	if !sourceDestCheckEnabled {
+		// Update the allowed-address-pairs of the port to 1.1.1.1/0
+		// to disable the source/destination check
+		portpairs := []ports.AddressPair{
+			{
+				IPAddress: "1.1.1.1/0",
+			},
+		}
+		opts.AllowedAddressPairs = &portpairs
+	}
+
+	_, err := ports.Update(client, portId, opts).Extract()
+	return err
+}
+
 func resourceComputeInterfaceAttachV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+	}
+	nicClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	if err != nil {
+		return fmtp.Errorf("error creating VPC v2.0 client: %s", err)
 	}
 
 	instanceId := d.Get("instance_id").(string)
@@ -133,14 +167,13 @@ func resourceComputeInterfaceAttachV2Create(d *schema.ResourceData, meta interfa
 
 	d.SetId(id)
 
-	if sourceDestCheck := d.Get("source_dest_check").(bool); !sourceDestCheck {
-		nicClient, err := config.NetworkingV2Client(GetRegion(d, config))
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
-		}
-		if err := disableSourceDestCheck(nicClient, portID); err != nil {
-			return fmtp.Errorf("Error disable source dest check on port(%s) of instance(%s) failed: %s", portID, d.Id(), err)
-		}
+	var (
+		securityGroupIds       = d.Get("security_group_ids").([]interface{})
+		sourceDestCheckEnabled = d.Get("source_dest_check").(bool)
+	)
+	err = updateInterfacePort(nicClient, portID, utils.ExpandToStringList(securityGroupIds), sourceDestCheckEnabled)
+	if err != nil {
+		return fmtp.Errorf("error updating VPC port (%s): %s", portID, err)
 	}
 
 	return resourceComputeInterfaceAttachV2Read(d, meta)
@@ -180,6 +213,7 @@ func resourceComputeInterfaceAttachV2Read(d *schema.ResourceData, meta interface
 	}
 
 	if port, err := ports.Get(networkingClient, attachment.PortID).Extract(); err == nil {
+		d.Set("security_group_ids", port.SecurityGroups)
 		d.Set("source_dest_check", len(port.AllowedAddressPairs) == 0)
 		d.Set("mac", port.MACAddress)
 	}
@@ -196,15 +230,14 @@ func resourceComputeInterfaceAttachV2Update(d *schema.ResourceData, meta interfa
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
-	portID := d.Get("port_id").(string)
-	if sourceDestCheck := d.Get("source_dest_check").(bool); !sourceDestCheck {
-		err = disableSourceDestCheck(nicClient, portID)
-	} else {
-		err = enableSourceDestCheck(nicClient, portID)
-	}
-
+	var (
+		portId                 = d.Get("port_id").(string)
+		securityGroupIds       = d.Get("security_group_ids").([]interface{})
+		sourceDestCheckEnabled = d.Get("source_dest_check").(bool)
+	)
+	err = updateInterfacePort(nicClient, portId, utils.ExpandToStringList(securityGroupIds), sourceDestCheckEnabled)
 	if err != nil {
-		return fmtp.Errorf("Error updating source_dest_check on port(%s) of instance(%s) failed: %s", portID, d.Id(), err)
+		return fmtp.Errorf("error updating VPC port (%s): %s", portId, err)
 	}
 
 	return resourceComputeInterfaceAttachV2Read(d, meta)
