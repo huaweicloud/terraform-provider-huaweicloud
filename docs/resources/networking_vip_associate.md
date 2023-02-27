@@ -4,25 +4,21 @@ subcategory: "Virtual Private Cloud (VPC)"
 
 # huaweicloud_networking_vip_associate
 
-Manages a Vip associate resource within HuaweiCloud.
+Using this resource, one or more NICs (to which the ECS instance belongs) can be bound to the VIP.
+
+-> A VIP can only have one resource.
 
 ## Example Usage
 
 ```hcl
-data "huaweicloud_vpc_subnet" "mynet" {
-  name = "subnet-default"
-}
-
-resource "huaweicloud_networking_vip" "myvip" {
-  network_id = data.huaweicloud_vpc_subnet.mynet.id
+variable "vip_id" {}
+variable "nic_port_ids" {
+  type = list(string)
 }
 
 resource "huaweicloud_networking_vip_associate" "vip_associated" {
-  vip_id   = huaweicloud_networking_vip.myvip.id
-  port_ids = [
-    var.port_1,
-    var.port_2
-  ]
+  vip_id   = var.vip_id
+  port_ids = var.nic_port_ids
 }
 ```
 
