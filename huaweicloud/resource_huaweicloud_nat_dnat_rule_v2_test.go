@@ -79,6 +79,38 @@ func TestAccNatDnat_protocol(t *testing.T) {
 	})
 }
 
+func TestAccNatDnat_portRange(t *testing.T) {
+	randSuffix := acctest.RandString(5)
+	resourceName := "huaweicloud_nat_dnat_rule.dnat"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNatDnatDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNatV2DnatRule_portRange(randSuffix),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckNatDnatExists(),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "tcp"),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttr(resourceName, "internal_service_port_range", "23-823"),
+					resource.TestCheckResourceAttr(resourceName, "external_service_port_range", "8023-8823"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"internal_service_port_range",
+					"external_service_port_range",
+				},
+			},
+		},
+	})
+}
+
 func testAccCheckNatDnatDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	client, err := config.NatGatewayClient(HW_REGION_NAME)
@@ -222,6 +254,24 @@ resource "huaweicloud_nat_dnat_rule" "dnat" {
   description    = "created by terraform acc test"
   internal_service_port = 0
   external_service_port = 0
+}
+`, testAccNatV2Gateway_basic(suffix), testAccNatV2DnatRule_base(suffix))
+}
+
+func testAccNatV2DnatRule_portRange(suffix string) string {
+	return fmt.Sprintf(`
+%s
+
+%s
+
+resource "huaweicloud_nat_dnat_rule" "dnat" {
+  nat_gateway_id = huaweicloud_nat_gateway.nat_1.id
+  floating_ip_id = huaweicloud_vpc_eip.eip_1.id
+  private_ip     = huaweicloud_compute_instance.instance_1.network.0.fixed_ip_v4
+  protocol       = "tcp"
+
+  internal_service_port_range = "23-823"
+  external_service_port_range = "8023-8823"
 }
 `, testAccNatV2Gateway_basic(suffix), testAccNatV2DnatRule_base(suffix))
 }

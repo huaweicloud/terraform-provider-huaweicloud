@@ -11,17 +11,40 @@ Manages a DNAT rule resource within HuaweiCloud.
 ### DNAT rule in VPC scenario
 
 ```hcl
+variable "gateway_id" {}
+variable "publicip_id" {}
+
 resource "huaweicloud_compute_instance" "instance_1" {
   ...
 }
 
 resource "huaweicloud_nat_dnat_rule" "dnat_1" {
-  nat_gateway_id        = var.natgw_id
+  nat_gateway_id        = var.gateway_id
   floating_ip_id        = var.publicip_id
   port_id               = huaweicloud_compute_instance.instance_1.network[0].port
   protocol              = "tcp"
   internal_service_port = 23
   external_service_port = 8023
+}
+```
+
+### DNAT rule in VPC scenario and specify the port ranges
+
+```hcl
+variable "gateway_id" {}
+variable "publicip_id" {}
+
+resource "huaweicloud_compute_instance" "instance_1" {
+  ...
+}
+
+resource "huaweicloud_nat_dnat_rule" "dnat_1" {
+  nat_gateway_id              = var.gateway_id
+  floating_ip_id              = var.publicip_id
+  port_id                     = huaweicloud_compute_instance.instance_1.network[0].port
+  protocol                    = "tcp"
+  internal_service_port_range = "23-823"
+  external_service_port_range = "8023-8823"
 }
 ```
 
@@ -80,11 +103,27 @@ The following arguments are supported:
 * `protocol` - (Required, String, ForceNew) Specifies the protocol type. Currently, TCP, UDP, and ANY are supported.
   Changing this creates a new dnat rule.
 
-* `internal_service_port` - (Required, Int, ForceNew) Specifies port used by ECSs or BMSs to provide services for
-  external systems. Changing this creates a new dnat rule.
+* `internal_service_port` - (Optional, Int, ForceNew) Specifies port used by Floating IP provide services for external
+  systems.  
+  Exactly one of `internal_service_port` and `internal_service_port_range` must be set.  
+  Changing this creates a new dnat rule.
 
-* `external_service_port` - (Required, Int, ForceNew) Specifies port used by ECSs or BMSs to provide services for
-  external systems. Changing this creates a new dnat rule.
+* `external_service_port` - (Optional, Int, ForceNew) Specifies port used by ECSs or BMSs to provide services for
+  external systems.  
+  Exactly one of `external_service_port` and `external_service_port_range` must be set.  
+  Required if `internal_service_port` is set. Changing this creates a new dnat rule.
+
+* `internal_service_port_range` - (Optional, String, ForceNew) Specifies port range used by Floating IP provide services
+  for external systems.  
+  This parameter and `external_service_port_range` are mapped **1:1** in sequence(, ranges must have the same length).
+  The valid value for range is **1~65535** and the port ranges can only be concatenated with the `-` character.  
+  Changing this creates a new dnat rule.
+
+* `external_service_port_range` - (Optional, String, ForceNew) Specifies port range used by ECSs or BMSs to provide
+  services for external systems.  
+  This parameter and `internal_service_port_range` are mapped **1:1** in sequence(, ranges must have the same length).
+  The valid value for range is **1~65535** and the port ranges can only be concatenated with the `-` character.  
+  Required if `internal_service_port_range` is set. Changing this creates a new dnat rule.
 
 * `port_id` - (Optional, String, ForceNew) Specifies the port ID of network. This parameter is mandatory in VPC
  scenario. Use [huaweicloud_networking_port](../data-sources/networking_port) to get the port if just know a fixed IP

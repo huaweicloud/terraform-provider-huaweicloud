@@ -49,12 +49,6 @@ func ResourceNatDnatRuleV2() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"internal_service_port": {
-				Type:     schema.TypeInt,
-				Required: true,
-				ForceNew: true,
-			},
-
 			"nat_gateway_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -81,9 +75,31 @@ func ResourceNatDnatRuleV2() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"internal_service_port": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				ExactlyOneOf: []string{"internal_service_port_range"},
+				RequiredWith: []string{"external_service_port"},
+			},
+
+			"internal_service_port_range": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"external_service_port_range"},
+			},
+
 			"external_service_port": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				ExactlyOneOf: []string{"external_service_port_range"},
+			},
+
+			"external_service_port_range": {
+				Type:     schema.TypeString,
+				Optional: true,
 				ForceNew: true,
 			},
 
@@ -113,16 +129,19 @@ func ResourceNatDnatRuleV2() *schema.Resource {
 }
 
 func resourceNatDnatUserInputParams(d *schema.ResourceData) map[string]interface{} {
-	return map[string]interface{}{
-		"external_service_port": d.Get("external_service_port"),
-		"floating_ip_id":        d.Get("floating_ip_id"),
-		"internal_service_port": d.Get("internal_service_port"),
-		"nat_gateway_id":        d.Get("nat_gateway_id"),
-		"port_id":               d.Get("port_id"),
-		"private_ip":            d.Get("private_ip"),
-		"protocol":              d.Get("protocol"),
-		"description":           d.Get("description"),
+	result := map[string]interface{}{
+		"external_service_port":       d.Get("external_service_port"),
+		"external_service_port_range": d.Get("external_service_port_range"),
+		"floating_ip_id":              d.Get("floating_ip_id"),
+		"internal_service_port":       d.Get("internal_service_port"),
+		"internal_service_port_range": d.Get("internal_service_port_range"),
+		"nat_gateway_id":              d.Get("nat_gateway_id"),
+		"port_id":                     d.Get("port_id"),
+		"private_ip":                  d.Get("private_ip"),
+		"protocol":                    d.Get("protocol"),
+		"description":                 d.Get("description"),
 	}
+	return result
 }
 
 func resourceNatDnatRuleCreate(d *schema.ResourceData, meta interface{}) error {
@@ -134,7 +153,10 @@ func resourceNatDnatRuleCreate(d *schema.ResourceData, meta interface{}) error {
 
 	opts := resourceNatDnatUserInputParams(d)
 
-	params := make(map[string]interface{})
+	params := map[string]interface{}{
+		"internal_service_port": opts["internal_service_port"],
+		"external_service_port": opts["external_service_port"],
+	}
 
 	floatingIPIDProp, err := navigateValue(opts, []string{"floating_ip_id"}, nil)
 	if err != nil {
@@ -148,17 +170,17 @@ func resourceNatDnatRuleCreate(d *schema.ResourceData, meta interface{}) error {
 		params["floating_ip_id"] = floatingIPIDProp
 	}
 
-	internalServicePortProp, err := navigateValue(opts, []string{"internal_service_port"}, nil)
+	internalServicePortRangeProp, err := navigateValue(opts, []string{"internal_service_port_range"}, nil)
 	if err != nil {
 		return err
 	}
-	params["internal_service_port"] = internalServicePortProp
+	params["internal_service_port_range"] = internalServicePortRangeProp
 
-	externalServicePortProp, err := navigateValue(opts, []string{"external_service_port"}, nil)
+	externalServicePortRangeProp, err := navigateValue(opts, []string{"external_service_port_range"}, nil)
 	if err != nil {
 		return err
 	}
-	params["external_service_port"] = externalServicePortProp
+	params["external_service_port_range"] = externalServicePortRangeProp
 
 	natGatewayIDProp, err := navigateValue(opts, []string{"nat_gateway_id"}, nil)
 	if err != nil {
@@ -325,6 +347,18 @@ func resourceNatDnatRuleRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
+	_, ok = opts["internal_service_port_range"]
+	if !ok {
+		internalServicePortRangeProp, err := navigateValue(res, []string{"read", "dnat_rule",
+			"internal_service_port_range"}, nil)
+		if err != nil {
+			return fmtp.Errorf("Error reading Dnat:internal_service_port_range, err: %s", err)
+		}
+		if err = d.Set("internal_service_port_range", internalServicePortRangeProp); err != nil {
+			return fmtp.Errorf("Error setting Dnat:internal_service_port_range, err: %s", err)
+		}
+	}
+
 	externalServicePortProp, ok := opts["external_service_port"]
 	if externalServicePortProp != nil {
 		ok, _ = isEmptyValue(reflect.ValueOf(externalServicePortProp))
@@ -337,6 +371,17 @@ func resourceNatDnatRuleRead(d *schema.ResourceData, meta interface{}) error {
 		}
 		if err = d.Set("external_service_port", externalServicePortProp); err != nil {
 			return fmtp.Errorf("Error setting Dnat:external_service_port, err: %s", err)
+		}
+	}
+
+	_, ok = opts["external_service_port_range"]
+	if !ok {
+		externalServicePortRangeProp, err := navigateValue(res, []string{"read", "dnat_rule", "external_service_port_range"}, nil)
+		if err != nil {
+			return fmtp.Errorf("Error reading Dnat:external_service_port_range, err: %s", err)
+		}
+		if err = d.Set("external_service_port_range", externalServicePortRangeProp); err != nil {
+			return fmtp.Errorf("Error setting Dnat:external_service_port_range, err: %s", err)
 		}
 	}
 
