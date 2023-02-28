@@ -188,7 +188,7 @@ func resourceDatabaseUserRead(_ context.Context, d *schema.ResourceData, meta in
 		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error getting user (%s) from DDS instance (%s)", name, instanceId))
 	}
 	if len(resp) < 1 {
-		return common.CheckDeletedDiag(d, err, fmt.Sprintf("unable to find user (%s) from DDS instance (%s)", name, instanceId))
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 	user := resp[0]
 	log.Printf("[DEBUG] The user response is: %#v", user)
