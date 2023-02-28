@@ -2,6 +2,7 @@ package instances
 
 import (
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/pagination"
 )
 
@@ -104,6 +105,9 @@ type CreateOps struct {
 
 	// Indicates the action to be taken when the memory usage reaches the disk capacity threshold.
 	RetentionPolicy string `json:"retention_policy,omitempty"`
+
+	// Indicates the tags of the instance
+	Tags []tags.ResourceTag `json:"tags,omitempty"`
 }
 
 // ToInstanceCreateMap is used for type convert

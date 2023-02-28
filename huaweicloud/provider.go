@@ -774,6 +774,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_identity_role_assignment":  iam.ResourceIdentityRoleAssignmentV3(),
 			"huaweicloud_identity_user":             iam.ResourceIdentityUserV3(),
 			"huaweicloud_identity_provider":         iam.ResourceIdentityProvider(),
+			"huaweicloud_identity_password_policy":  iam.ResourceIdentityPasswordPolicy(),
 
 			"huaweicloud_iec_eip":                 resourceIecNetworkEip(),
 			"huaweicloud_iec_keypair":             resourceIecKeypair(),
