@@ -4,20 +4,20 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/attachinterfaces"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccComputeV2InterfaceAttach_Basic(t *testing.T) {
 	var ai attachinterfaces.Interface
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_compute_interface_attach.ai_1"
+	resourceName := "huaweicloud_compute_interface_attach.test"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -30,6 +30,8 @@ func TestAccComputeV2InterfaceAttach_Basic(t *testing.T) {
 					testAccCheckComputeV2InterfaceAttachExists(resourceName, &ai),
 					testAccCheckComputeV2InterfaceAttachIP(&ai, "192.168.0.199"),
 					resource.TestCheckResourceAttr(resourceName, "source_dest_check", "true"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_ids.0",
+						"huaweicloud_networking_secgroup.test", "id"),
 				),
 			},
 			{
@@ -120,23 +122,67 @@ func testAccCheckComputeV2InterfaceAttachIP(
 
 func testAccComputeV2InterfaceAttach_basic(rName string) string {
 	return fmt.Sprintf(`
-%s
+data "huaweicloud_availability_zones" "test" {}
 
-resource "huaweicloud_compute_instance" "instance_1" {
-  name               = "%s"
-  image_id           = data.huaweicloud_images_image.test.id
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  vpc_id     = huaweicloud_vpc.test.id
+  name       = "%[1]s"
+  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 0)
+  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 0), 1)
+}
+
+resource "huaweicloud_networking_secgroup" "test" {
+  name = "%[1]s"
+}
+
+resource "huaweicloud_apig_instance" "test" {
+  name                  = "%[1]s"
+  edition               = "BASIC"
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  enterprise_project_id = "0"
+
+  availability_zones = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
+}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
+data "huaweicloud_images_images" "test" {
+  flavor_id = data.huaweicloud_compute_flavors.test.ids[0]
+
+  os         = "Ubuntu"
+  visibility = "public"
+}
+
+resource "huaweicloud_compute_instance" "test" {
+  name               = "%[1]s"
+  image_id           = data.huaweicloud_images_images.test.images[0].id
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
-  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+  system_disk_type   = "SSD"
+
   network {
-    uuid = data.huaweicloud_vpc_subnet.test.id
+    uuid = huaweicloud_vpc_subnet.test.id
   }
 }
 
-resource "huaweicloud_compute_interface_attach" "ai_1" {
-  instance_id = huaweicloud_compute_instance.instance_1.id
-  network_id  = data.huaweicloud_vpc_subnet.test.id
-  fixed_ip    = "192.168.0.199"
+resource "huaweicloud_compute_interface_attach" "test" {
+  instance_id        = huaweicloud_compute_instance.test.id
+  network_id         = huaweicloud_vpc_subnet.test.id
+  fixed_ip           = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 0), 199)
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
 }
-`, testAccCompute_data, rName)
+`, rName)
 }
