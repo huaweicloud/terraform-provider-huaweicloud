@@ -373,6 +373,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_environments": apig.DataSourceEnvironments(),
 
 			"huaweicloud_as_configurations": as.DataSourceASConfigurations(),
+			"huaweicloud_as_groups":         as.DataSourceASGroups(),
 
 			"huaweicloud_availability_zones": DataSourceAvailabilityZones(),
 
