@@ -91,5 +91,9 @@ func ValueIngoreEmpty(v interface{}) interface{} {
 		return nil
 	}
 
+	if (vl.Kind() == reflect.Array || vl.Kind() == reflect.Slice) && vl.Len() == 0 {
+		return nil
+	}
+
 	return v
 }
