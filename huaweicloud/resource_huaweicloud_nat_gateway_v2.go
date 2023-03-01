@@ -8,8 +8,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/natgateways"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -72,6 +75,11 @@ func ResourceNatGatewayV2() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
+			},
+			"tags": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"status": {
 				Type:     schema.TypeString,
@@ -146,6 +154,17 @@ func resourceNatGatewayV2Create(d *schema.ResourceData, meta interface{}) error 
 
 	d.SetId(natGateway.ID)
 
+	if gatewayTags := d.Get("tags").(map[string]interface{}); len(gatewayTags) > 0 {
+		networkClient, err := config.NetworkingV2Client(GetRegion(d, config))
+		if err != nil {
+			return fmtp.Errorf("error creating VPC v2.0 client: %s", err)
+		}
+		taglist := utils.ExpandResourceTags(gatewayTags)
+		err = tags.Create(networkClient, "nat_gateways", d.Id(), taglist).ExtractErr()
+		if err != nil {
+			return fmtp.Errorf("error setting tags to the NAT gateway: %s", err)
+		}
+	}
 	return resourceNatGatewayV2Read(d, meta)
 }
 
@@ -155,8 +174,13 @@ func resourceNatGatewayV2Read(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
+	networkClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	if err != nil {
+		return fmtp.Errorf("error creating VPC v2.0 client: %s", err)
+	}
 
-	natGateway, err := natgateways.Get(natClient, d.Id()).Extract()
+	gatewayId := d.Id()
+	natGateway, err := natgateways.Get(natClient, gatewayId).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "Nat Gateway")
 	}
@@ -170,6 +194,12 @@ func resourceNatGatewayV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("region", GetRegion(d, config))
 	d.Set("enterprise_project_id", natGateway.EnterpriseProjectID)
 
+	gatewayTags, err := tags.Get(networkClient, "nat_gateways", d.Id()).Extract()
+	if err != nil {
+		logp.Printf("[WARN] Error getting gateway tags: %s", err)
+	}
+	d.Set("tags", utils.TagsToMap(gatewayTags.Tags))
+
 	return nil
 }
 
@@ -180,7 +210,10 @@ func resourceNatGatewayV2Update(d *schema.ResourceData, meta interface{}) error 
 		return fmtp.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
 
-	var updateOpts natgateways.UpdateOpts
+	var (
+		updateOpts natgateways.UpdateOpts
+		gatewayId  = d.Id()
+	)
 
 	if d.HasChange("name") {
 		updateOpts.Name = d.Get("name").(string)
@@ -197,6 +230,17 @@ func resourceNatGatewayV2Update(d *schema.ResourceData, meta interface{}) error 
 	_, err = natgateways.Update(natClient, d.Id(), updateOpts).Extract()
 	if err != nil {
 		return fmtp.Errorf("Error updating Nat Gateway: %s", err)
+	}
+
+	if d.HasChange("tags") {
+		networkClient, err := config.NetworkingV2Client(GetRegion(d, config))
+		if err != nil {
+			return fmtp.Errorf("error creating VPC v2.0 client: %s", err)
+		}
+		err = utils.UpdateResourceTags(networkClient, d, "nat_gateways", gatewayId)
+		if err != nil {
+			return fmtp.Errorf("error updating tags of the NAT gateway: %s", err)
+		}
 	}
 
 	return resourceNatGatewayV2Read(d, meta)
