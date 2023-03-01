@@ -945,6 +945,18 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	}
 	t.Logf("SMN endpoint:\t %s", actualURL)
 
+	// test the endpoint of RMS service
+	serviceClient, err = config.RmsV1Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud RMS v1 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://rms.%s.%s/v1/", HW_REGION_NAME, config.Cloud)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("RMS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("RMS endpoint:\t %s", actualURL)
+
 	serviceClient, err = config.CdmV11Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud cdm client: %s", err)
