@@ -25,9 +25,10 @@ func TestAccApi_basic(t *testing.T) {
 	var (
 		api apis.APIResp
 
-		rName      = "huaweicloud_apig_api.test"
-		name       = acceptance.RandomAccResourceName()
-		updateName = acceptance.RandomAccResourceName()
+		rName       = "huaweicloud_apig_api.test"
+		name        = acceptance.RandomAccResourceName()
+		updateName  = acceptance.RandomAccResourceName()
+		basicConfig = testAccApi_base(name)
 	)
 
 	rc := acceptance.InitResourceCheck(
@@ -44,7 +45,7 @@ func TestAccApi_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccApi_basic(name),
+				Config: testAccApi_basic(basicConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -58,7 +59,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "success_response", "Success response"),
 					resource.TestCheckResourceAttr(rName, "failure_response", "Failed response"),
 					resource.TestCheckResourceAttr(rName, "request_params.#", "1"),
-					resource.TestCheckResourceAttr(rName, "backend_params.#", "1"),
+					resource.TestCheckResourceAttr(rName, "backend_params.#", "2"),
 					resource.TestCheckResourceAttr(rName, "web.0.path", "/getUserAge/{userAge}"),
 					resource.TestCheckResourceAttr(rName, "web.0.request_method", "GET"),
 					resource.TestCheckResourceAttr(rName, "web.0.request_protocol", "HTTP"),
@@ -68,10 +69,13 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "func_graph.#", "0"),
 					resource.TestCheckResourceAttr(rName, "mock_policy.#", "0"),
 					resource.TestCheckResourceAttr(rName, "func_graph_policy.#", "0"),
+					resource.TestCheckResourceAttrPair(rName, "web.0.authorizer_id",
+						"huaweicloud_apig_custom_authorizer.test", "id"),
+					resource.TestCheckOutput("policy_backend_params", "3"),
 				),
 			},
 			{
-				Config: testAccApi_update(updateName),
+				Config: testAccApi_update(basicConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
@@ -85,7 +89,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "success_response", "Updated Success response"),
 					resource.TestCheckResourceAttr(rName, "failure_response", "Updated Failed response"),
 					resource.TestCheckResourceAttr(rName, "request_params.#", "1"),
-					resource.TestCheckResourceAttr(rName, "backend_params.#", "1"),
+					resource.TestCheckResourceAttr(rName, "backend_params.#", "3"),
 					resource.TestCheckResourceAttr(rName, "web.0.path", "/getUserName/{userName}"),
 					resource.TestCheckResourceAttr(rName, "web.0.request_method", "GET"),
 					resource.TestCheckResourceAttr(rName, "web.0.request_protocol", "HTTP"),
@@ -95,6 +99,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "func_graph.#", "0"),
 					resource.TestCheckResourceAttr(rName, "mock_policy.#", "0"),
 					resource.TestCheckResourceAttr(rName, "func_graph_policy.#", "0"),
+					resource.TestCheckOutput("policy_backend_params", "3"),
 				),
 			},
 			{
@@ -144,10 +149,56 @@ resource "huaweicloud_apig_vpc_channel" "test" {
     id = huaweicloud_compute_instance.test.id
   }
 }
+
+resource "huaweicloud_fgs_function" "test" {
+  name        = "%[2]s"
+  app         = "default"
+  description = "API custom authorization test"
+  handler     = "index.handler"
+  memory_size = 128
+  timeout     = 3
+  runtime     = "Python3.6"
+  code_type   = "inline"
+
+  func_code = <<EOF
+# -*- coding:utf-8 -*-
+import json
+def handler(event, context):
+    if event["headers"]["authorization"]=='Basic dXNlcjE6cGFzc3dvcmQ=':
+        return {
+            'statusCode': 200,
+            'body': json.dumps({
+                "status":"allow",
+                "context":{
+                    "user_name":"user1"
+                }
+            })
+        }
+    else:
+        return {
+            'statusCode': 200,
+            'body': json.dumps({
+                "status":"deny",
+                "context":{
+                    "code":"1001",
+                    "message":"incorrect username or password"
+                }
+            })
+        }
+EOF
+}
+
+resource "huaweicloud_apig_custom_authorizer" "test" {
+  instance_id  = huaweicloud_apig_instance.test.id
+  name         = "%[2]s"
+  function_urn = huaweicloud_fgs_function.test.urn
+  type         = "BACKEND"
+  cache_age    = 60
+}
 `, testAccVpcChannel_base(name), name)
 }
 
-func testAccApi_basic(name string) string {
+func testAccApi_basic(relatedConfig, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -173,12 +224,19 @@ resource "huaweicloud_apig_api" "test" {
     maximum  = 200
     minimum  = 0
   }
-  
+
   backend_params {
-	type     = "REQUEST"
+    type     = "REQUEST"
     name     = "userAge"
     location = "PATH"
     value    = "user_age"
+  }
+  backend_params {
+    type              = "SYSTEM"
+    name              = "x-test-id"
+    location          = "HEADER"
+    value             = "x-test-id"
+    system_param_type = "backend"
   }
 
   web {
@@ -187,6 +245,7 @@ resource "huaweicloud_apig_api" "test" {
     request_method   = "GET"
     request_protocol = "HTTP"
     timeout          = 30000
+    authorizer_id    = huaweicloud_apig_custom_authorizer.test.id
   }
 
   web_policy {
@@ -197,12 +256,27 @@ resource "huaweicloud_apig_api" "test" {
     path             = "/getUserAge/{userAge}"
     timeout          = 30000
     vpc_channel_id   = huaweicloud_apig_vpc_channel.test.id
+    authorizer_id    = huaweicloud_apig_custom_authorizer.test.id
 
     backend_params {
       type     = "REQUEST"
       name     = "userAge"
       location = "PATH"
       value    = "user_age"
+    }
+    backend_params {
+      type              = "SYSTEM"
+      name              = "x-test-policy-id"
+      location          = "HEADER"
+      value             = "x-test-policy-id"
+      system_param_type = "backend"
+    }
+    backend_params {
+      type              = "SYSTEM"
+      name              = "%[2]s"
+      location          = "HEADER"
+      value             = "serverName"
+      system_param_type = "internal"
     }
 
     conditions {
@@ -213,10 +287,14 @@ resource "huaweicloud_apig_api" "test" {
     }
   }
 }
-`, testAccApi_base(name), name)
+
+output "policy_backend_params" {
+  value = length(tolist(huaweicloud_apig_api.test.web_policy)[0].backend_params)
+}
+`, relatedConfig, name)
 }
 
-func testAccApi_update(name string) string {
+func testAccApi_update(relatedConfig, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -242,12 +320,26 @@ resource "huaweicloud_apig_api" "test" {
     maximum  = 64
     minimum  = 3
   }
-  
+
   backend_params {
     type     = "REQUEST"
     name     = "userName"
     location = "PATH"
     value    = "user_name"
+  }
+  backend_params {
+    type              = "SYSTEM"
+    name              = "x-update-policy-id"
+    location          = "HEADER"
+    value             = "x-update-policy-id"
+    system_param_type = "backend"
+  }
+  backend_params {
+    type              = "SYSTEM"
+    name              = "%[2]s"
+    location          = "HEADER"
+    value             = "serverName"
+    system_param_type = "internal"
   }
 
   web {
@@ -256,6 +348,7 @@ resource "huaweicloud_apig_api" "test" {
     request_method   = "GET"
     request_protocol = "HTTP"
     timeout          = 60000
+    authorizer_id    = huaweicloud_apig_custom_authorizer.test.id
   }
 
   web_policy {
@@ -266,12 +359,27 @@ resource "huaweicloud_apig_api" "test" {
     path             = "/getAdminName/{adminName}"
     timeout          = 60000
     vpc_channel_id   = huaweicloud_apig_vpc_channel.test.id
+    authorizer_id    = huaweicloud_apig_custom_authorizer.test.id
 
     backend_params {
       type     = "REQUEST"
       name     = "adminName"
       location = "PATH"
       value    = "user_name"
+    }
+    backend_params {
+      type              = "SYSTEM"
+      name              = "x-update-policy-id"
+      location          = "HEADER"
+      value             = "x-update-policy-id"
+      system_param_type = "backend"
+    }
+    backend_params {
+      type              = "SYSTEM"
+      name              = "%[2]s"
+      location          = "HEADER"
+      value             = "serverName"
+      system_param_type = "internal"
     }
 
     conditions {
@@ -282,5 +390,9 @@ resource "huaweicloud_apig_api" "test" {
     }
   }
 }
-`, testAccApi_base(name), name)
+
+output "policy_backend_params" {
+  value = length(tolist(huaweicloud_apig_api.test.web_policy)[0].backend_params)
+}
+`, relatedConfig, name)
 }

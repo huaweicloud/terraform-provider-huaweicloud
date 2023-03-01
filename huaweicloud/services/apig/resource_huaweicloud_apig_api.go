@@ -34,6 +34,7 @@ type (
 	ConditionSource string
 	ConditionType   string
 	ParameterType   string
+	SystemParamType string
 	BackendType     string
 	AppCodeAuthType string
 )
@@ -82,6 +83,10 @@ const (
 	ParameterTypeRequest  ParameterType = "REQUEST"
 	ParameterTypeConstant ParameterType = "CONSTANT"
 	ParameterTypeSystem   ParameterType = "SYSTEM"
+
+	SystemParamTypeFrontend SystemParamType = "frontend"
+	SystemParamTypeBackend  SystemParamType = "backend"
+	SystemParamTypeInternal SystemParamType = "internal"
 
 	BackendTypeHttp     BackendType = "HTTP"
 	BackendTypeFunction BackendType = "FUNCTION"
@@ -851,6 +856,15 @@ func backendParamSchemaResource() *schema.Resource {
 				),
 				Description: "The description of the parameter.",
 			},
+			"system_param_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					string(SystemParamTypeInternal),
+					string(SystemParamTypeFrontend),
+					string(SystemParamTypeBackend),
+				}, false),
+			},
 		},
 	}
 }
@@ -896,28 +910,30 @@ func buildWebStructure(webs []interface{}) *apis.Web {
 		return nil
 	}
 
-	webMap := webs[0].(map[string]interface{})
-	result := apis.Web{
-		ReqURI:          webMap["path"].(string),
-		ReqMethod:       webMap["request_method"].(string),
-		ReqProtocol:     webMap["request_protocol"].(string),
-		Timeout:         webMap["timeout"].(int),
-		ClientSslEnable: utils.Bool(webMap["ssl_enable"].(bool)),
-		AuthorizerId:    utils.String(webMap["authorizer_id"].(string)),
-	}
+	var (
+		webMap  = webs[0].(map[string]interface{})
+		webResp = apis.Web{
+			ReqURI:          webMap["path"].(string),
+			ReqMethod:       webMap["request_method"].(string),
+			ReqProtocol:     webMap["request_protocol"].(string),
+			Timeout:         webMap["timeout"].(int),
+			ClientSslEnable: utils.Bool(webMap["ssl_enable"].(bool)),
+			AuthorizerId:    utils.String(webMap["authorizer_id"].(string)),
+		}
+	)
 	// If vpc_channel_id is empty, the backend address is used.
 	if chanId, ok := webMap["vpc_channel_id"]; ok && chanId != "" {
-		result.VpcChannelStatus = 1
-		result.VpcChannelInfo = &apis.VpcChannel{
+		webResp.VpcChannelStatus = 1
+		webResp.VpcChannelInfo = &apis.VpcChannel{
 			VpcChannelId:        chanId.(string),
 			VpcChannelProxyHost: webMap["host_header"].(string),
 		}
 	} else {
-		result.VpcChannelStatus = 2
-		result.DomainURL = webMap["backend_address"].(string)
+		webResp.VpcChannelStatus = 2
+		webResp.DomainURL = webMap["backend_address"].(string)
 	}
 
-	return &result
+	return &webResp
 }
 
 func buildRequestParameters(requests *schema.Set) []apis.ReqParamBase {
@@ -954,41 +970,48 @@ func buildRequestParameters(requests *schema.Set) []apis.ReqParamBase {
 	return result
 }
 
-func buildBackendParameterValue(origin, value string) string {
+func buildBackendParameterValue(origin, value, paramAuthType string) string {
 	// The internal parameters of the system parameters include as below:
 	internalParams := []string{
-		"sourceIp", "stage", "apiId", "requestId", "serverAddr", "serverName", "handleTime", "providerAppId",
+		"sourceIp", "stage", "apiId", "appId", "requestId", "serverAddr", "serverName", "handleTime", "providerAppId",
 	}
-	if origin == string(ParameterTypeSystem) {
-		// If the system parameters are configured as internal parameters, the internal format is used to construct.
+
+	if origin == "SYSTEM" {
+		if paramAuthType == string(SystemParamTypeFrontend) || paramAuthType == string(SystemParamTypeBackend) {
+			// The fornt-end or backend format is used to construct.
+			return fmt.Sprintf("$context.authorizer.%s.%s", paramAuthType, value)
+		}
 		if utils.StrSliceContains(internalParams, value) {
+			// If the system parameters are configured as internal parameters, the internal format is used to construct.
 			return fmt.Sprintf("$context.%s", value)
 		}
-		// The fornt-end format is used to construct.
-		return fmt.Sprintf("$context.authorizer.frontend.%s", value)
 	}
 	return value
 }
 
 // For backend API, the parameters contains request parameters and constant parameters.
-func buildBackendParameters(backends *schema.Set) []apis.BackendParamBase {
+func buildBackendParameters(backends *schema.Set) ([]apis.BackendParamBase, error) {
 	result := make([]apis.BackendParamBase, backends.Len())
 	for i, v := range backends.List() {
-		paramMap := v.(map[string]interface{})
-		origin := paramMap["type"].(string)
+		pm := v.(map[string]interface{})
+		origin := pm["type"].(string)
+		if origin == string(ParameterTypeSystem) && pm["system_param_type"].(string) == "" {
+			return nil, fmt.Errorf("The 'system_param_type' must set if parameter type is 'SYSTEM'")
+		}
 		param := apis.BackendParamBase{
 			Origin:   origin,
-			Name:     paramMap["name"].(string),
-			Location: paramMap["location"].(string),
-			Value:    buildBackendParameterValue(origin, paramMap["value"].(string)),
+			Name:     pm["name"].(string),
+			Location: pm["location"].(string),
+			Value:    buildBackendParameterValue(origin, pm["value"].(string), pm["system_param_type"].(string)),
 		}
+
 		if origin != string(ParameterTypeRequest) {
-			param.Description = utils.String(paramMap["description"].(string))
+			param.Description = utils.String(pm["description"].(string))
 		}
 		result[i] = param
 	}
 
-	return result
+	return result, nil
 }
 
 func buildPolicyConditions(conditions *schema.Set) []apis.APIConditionBase {
@@ -1015,55 +1038,70 @@ func buildPolicyConditions(conditions *schema.Set) []apis.APIConditionBase {
 	return result
 }
 
-func buildMockPolicy(policies *schema.Set) []apis.PolicyMock {
+func buildMockPolicy(policies *schema.Set) ([]apis.PolicyMock, error) {
 	if policies.Len() < 1 {
-		return nil
+		return nil, nil
 	}
 
 	result := make([]apis.PolicyMock, policies.Len())
 	for i, policy := range policies.List() {
 		pm := policy.(map[string]interface{})
+		params, err := buildBackendParameters(pm["backend_params"].(*schema.Set))
+		if err != nil {
+			return nil, err
+		}
 		result[i] = apis.PolicyMock{
+			AuthorizerId:  utils.String(pm["authorizer_id"].(string)),
 			Name:          pm["name"].(string),
 			ResultContent: pm["response"].(string),
 			EffectMode:    pm["effective_mode"].(string),
 			Conditions:    buildPolicyConditions(pm["conditions"].(*schema.Set)),
-			BackendParams: buildBackendParameters(pm["backend_params"].(*schema.Set)),
+			BackendParams: params,
 		}
 	}
-	return result
+	return result, nil
 }
 
-func buildFuncGraphPolicy(policies *schema.Set) []apis.PolicyFuncGraph {
+func buildFuncGraphPolicy(policies *schema.Set) ([]apis.PolicyFuncGraph, error) {
 	if policies.Len() < 1 {
-		return nil
+		return nil, nil
 	}
 
 	result := make([]apis.PolicyFuncGraph, policies.Len())
 	for i, policy := range policies.List() {
 		pm := policy.(map[string]interface{})
+		params, err := buildBackendParameters(pm["backend_params"].(*schema.Set))
+		if err != nil {
+			return nil, err
+		}
 		result[i] = apis.PolicyFuncGraph{
+			AuthorizerId:   utils.String(pm["authorizer_id"].(string)),
 			Name:           pm["name"].(string),
 			FunctionUrn:    pm["function_urn"].(string),
 			InvocationType: pm["invocation_mode"].(string),
 			EffectMode:     pm["effective_mode"].(string),
 			Timeout:        pm["timeout"].(int),
 			Conditions:     buildPolicyConditions(pm["conditions"].(*schema.Set)),
-			BackendParams:  buildBackendParameters(pm["backend_params"].(*schema.Set)),
+			BackendParams:  params,
 		}
 	}
-	return result
+	return result, nil
 }
 
-func buildApigAPIWebPolicy(policies *schema.Set) []apis.PolicyWeb {
+func buildApigAPIWebPolicy(policies *schema.Set) ([]apis.PolicyWeb, error) {
 	if policies.Len() < 1 {
-		return nil
+		return nil, nil
 	}
 
 	result := make([]apis.PolicyWeb, policies.Len())
 	for i, policy := range policies.List() {
 		pm := policy.(map[string]interface{})
+		params, err := buildBackendParameters(pm["backend_params"].(*schema.Set))
+		if err != nil {
+			return nil, err
+		}
 		wp := apis.PolicyWeb{
+			AuthorizerId:  utils.String(pm["authorizer_id"].(string)),
 			Name:          pm["name"].(string),
 			ReqProtocol:   pm["request_protocol"].(string),
 			ReqMethod:     pm["request_method"].(string),
@@ -1072,7 +1110,7 @@ func buildApigAPIWebPolicy(policies *schema.Set) []apis.PolicyWeb {
 			Timeout:       pm["timeout"].(int),
 			DomainURL:     pm["host_header"].(string),
 			Conditions:    buildPolicyConditions(pm["conditions"].(*schema.Set)),
-			BackendParams: buildBackendParameters(pm["backend_params"].(*schema.Set)),
+			BackendParams: params,
 		}
 		if chanId, ok := pm["vpc_channel_id"]; ok {
 			if chanId != "" {
@@ -1087,7 +1125,7 @@ func buildApigAPIWebPolicy(policies *schema.Set) []apis.PolicyWeb {
 		}
 		result[i] = wp
 	}
-	return result
+	return result, nil
 }
 
 func buildApiCreateOpts(d *schema.ResourceData) (apis.APIOpts, error) {
@@ -1109,7 +1147,6 @@ func buildApiCreateOpts(d *schema.ResourceData) (apis.APIOpts, error) {
 		ResultFailureSample: utils.String(d.Get("failure_response").(string)),
 		ResponseId:          d.Get("response_id").(string),
 		ReqParams:           buildRequestParameters(d.Get("request_params").(*schema.Set)),
-		BackendParams:       buildBackendParameters(d.Get("backend_params").(*schema.Set)),
 	}
 	// build match mode
 	matchMode := d.Get("matching").(string)
@@ -1137,17 +1174,43 @@ func buildApiCreateOpts(d *schema.ResourceData) (apis.APIOpts, error) {
 	// build backend (one of the mock, function graph and web) server and related policies.
 	if m, ok := d.GetOk("mock"); ok {
 		opt.BackendType = string(BackendTypeMock)
+		params, err := buildBackendParameters(d.Get("backend_params").(*schema.Set))
+		if err != nil {
+			return opt, err
+		}
+		opt.BackendParams = params
 		opt.MockInfo = buildMockStructure(m.([]interface{}))
-		opt.PolicyMocks = buildMockPolicy(d.Get("mock_policy").(*schema.Set))
+		policy, err := buildMockPolicy(d.Get("mock_policy").(*schema.Set))
+		if err != nil {
+			return opt, err
+		}
+		opt.PolicyMocks = policy
 	} else if fg, ok := d.GetOk("func_graph"); ok {
 		opt.BackendType = string(BackendTypeFunction)
+		params, err := buildBackendParameters(d.Get("backend_params").(*schema.Set))
+		if err != nil {
+			return opt, err
+		}
+		opt.BackendParams = params
 		opt.FuncInfo = buildFuncGraphStructure(fg.([]interface{}))
-		opt.PolicyFunctions = buildFuncGraphPolicy(d.Get("func_graph_policy").(*schema.Set))
+		policy, err := buildFuncGraphPolicy(d.Get("func_graph_policy").(*schema.Set))
+		if err != nil {
+			return opt, err
+		}
+		opt.PolicyFunctions = policy
 	} else {
 		opt.BackendType = string(BackendTypeHttp)
-		web := d.Get("web").([]interface{})
-		opt.WebInfo = buildWebStructure(web)
-		opt.PolicyWebs = buildApigAPIWebPolicy(d.Get("web_policy").(*schema.Set))
+		params, err := buildBackendParameters(d.Get("backend_params").(*schema.Set))
+		if err != nil {
+			return opt, err
+		}
+		opt.BackendParams = params
+		opt.WebInfo = buildWebStructure(d.Get("web").([]interface{}))
+		policy, err := buildApigAPIWebPolicy(d.Get("web_policy").(*schema.Set))
+		if err != nil {
+			return opt, err
+		}
+		opt.PolicyWebs = policy
 	}
 
 	log.Printf("[DEBUG] The API Opts is : %+v", opt)
@@ -1175,43 +1238,33 @@ func resourceApiCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 	return resourceApiRead(ctx, d, meta)
 }
 
-func analyseBackendParameterValue(origin, value string) string {
+func analyseBackendParameterValue(origin, value string) (paramType, paramValue string) {
+	log.Printf("[ERROR] The value of the backend parameter is: %s", value)
 	if origin == string(ParameterTypeSystem) {
-		// The system parameters include gateway parameters and front-end parameters.
-		if ok, err := regexp.MatchString(`\$context\.authorizer\.frontend\.`, value); ok && err == nil {
-			regex, err := regexp.Compile(`\$context\.authorizer\.frontend\.(.*)`)
-			if err != nil {
-				log.Printf("[ERROR] The format of the system parameter value is invalid, want "+
-					"'$context.authorizer.frontend.xxx', but '%s'.", value)
-				return ""
-			}
-			result := regex.FindStringSubmatch(value)
-			if len(result) < 2 {
-				log.Printf("[ERROR] The match result (%#v) of the system parameter value is invalid, for length, want "+
-					"'2', but '%d'.", result, len(result))
-				return ""
-			}
-			return result[1]
+		// Backend parameter types include internal parameters and authorizer parameters, and the authorizer parameter
+		// types include front-end parameters and backend parameters.
+		regex := regexp.MustCompile(`\$context\.authorizer\.(frontend|backend)\.([\w-]+)`)
+		result := regex.FindStringSubmatch(value)
+		if len(result) == 3 {
+			paramType = result[1]
+			paramValue = result[2]
+			return
 		}
-		if ok, err := regexp.MatchString(`\$context\.`, value); ok && err == nil {
-			regex, err := regexp.Compile(`\$context\.(.*)`)
-			if err != nil {
-				log.Printf("[ERROR] The format of the system parameter value is invalid, want "+
-					"'$context.xxx', but '%s'.", value)
-				return ""
-			}
-			result := regex.FindStringSubmatch(value)
-			if len(result) < 2 {
-				log.Printf("[ERROR] The match result (%#v) of the system parameter value is invalid, for length, want "+
-					"'2', but '%d'.", result, len(result))
-			}
-			return result[1]
+
+		regex = regexp.MustCompile(`\$context\.([\w-]+)`)
+		result = regex.FindStringSubmatch(value)
+		if len(result) == 2 {
+			paramType = string(SystemParamTypeInternal)
+			paramValue = result[1]
+			return
 		}
-		log.Printf("[ERROR] The parameter %s is not in the format of a gateway or front-end", value)
-		return ""
+		log.Printf("[ERROR] The system parameter format is invalid, want '$context.xxx' (internal parameter), "+
+			"'$context.authorizer.frontend.xxx' or '$context.authorizer.frontend.xxx', but '%s'.", value)
+		return
 	}
 	// custom backend parameter
-	return value
+	paramValue = value
+	return
 }
 
 func flattenBackendParameters(backendParams []apis.BackendParamResp) []map[string]interface{} {
@@ -1222,11 +1275,15 @@ func flattenBackendParameters(backendParams []apis.BackendParamResp) []map[strin
 	result := make([]map[string]interface{}, len(backendParams))
 	for i, v := range backendParams {
 		origin := v.Origin
+		paramAuthType, paramValue := analyseBackendParameterValue(v.Origin, v.Value)
 		param := map[string]interface{}{
 			"type":     origin,
 			"name":     v.Name,
 			"location": v.Location,
-			"value":    analyseBackendParameterValue(v.Origin, v.Value),
+			"value":    paramValue,
+		}
+		if paramAuthType != "" {
+			param["system_param_type"] = paramAuthType
 		}
 		if origin != string(ParameterTypeRequest) {
 			param["description"] = v.Description
