@@ -53,16 +53,16 @@ The following arguments are supported:
      but **+04:30 Kabul** is not supported.
 
 * `password_never_expires` - (Optional, Bool) Specifies whether the password will never expires.
-  Defualts to **false**.
+  Defaults to **false**.
 
 * `enable_change_password` - (Optional, Bool) Specifies whether to allow password modification.
-  Defualts to **true**.
+  Defaults to **true**.
 
 * `next_login_change_password` - (Optional, Bool) Specifies whether the next login requires a password reset.
-  Defualts to **true**.
+  Defaults to **true**.
 
 * `disabled` - (Optional, Bool) Specifies whether the user is disabled.
-  Defualts to **false**.
+  Defaults to **false**.
 
 ## Attributes Reference
 

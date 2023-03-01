@@ -148,11 +148,11 @@ The following arguments are supported:
   Required if `app_id` is set. Changing this parameter will create a new resource.
 
 * `corp_id` - (Optional, String, ForceNew) Specifies the corporation ID.
-  Required if the application is used in multiple enterprises. Only availabe if `app_id` is set.
+  Required if the application is used in multiple enterprises. Only available if `app_id` is set.
   Changing this parameter will create a new resource.
 
 * `user_id` - (Optional, String, ForceNew) Specifies the user ID of the meeting initiator.
-  Only availabe if `app_id` is set. If omitted, the user ID of default administrator will be used.
+  Only available if `app_id` is set. If omitted, the user ID of default administrator will be used.
   Changing this parameter will create a new resource.
 
 -> Exactly one of account authorization and application authorization you must select.
@@ -219,23 +219,23 @@ The following arguments are supported:
   The default value is **0** (disabled).
 
 * `live_address` - (Optional, String) Specifies the mainstream live broadcast address, with a maximum of 255 characters.
-  Only availabe if `record_type` is **2** or **3**.
+  Only available if `record_type` is **2** or **3**.
 
 * `aux_address` - (Optional, String) Specifies the auxiliary streaming address, the maximum length is 255 characters.
-  Only availabe if `record_type` is **2** or **3**.
+  Only available if `record_type` is **2** or **3**.
 
 * `is_record_aux_stream` - (Optional, Int) Specifies whether to record auxiliary stream.
   + **0**: Do not record.
   + **1**: Record.
 
-  Only availabe if `record_type` is **2** or **3**, and the default value is **0**.
+  Only available if `record_type` is **2** or **3**, and the default value is **0**.
 
 * `record_auth_type` - (Optional, Int) Specifies the recording authentication method.
   **0**: Viewable/downloadable via link.
   **1**: Enterprise users can watch/download.
   **2**: Attendees can watch/download.
 
-  Only availabe if `record_type` is **2** or **3**.
+  Only available if `record_type` is **2** or **3**.
 
 * `participant_number` - (Optional, Int) Specifies the number of parties in the conference, the maximum number of
   participants in the conference. Defaults to **0** (Unlimited).

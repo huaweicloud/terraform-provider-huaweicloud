@@ -50,10 +50,10 @@ belongs.
   Changing this parameter will create a new resource.
 
 * `enable_default_propagation` - (Optional, Bool) Whether to enable the propagation of the default route table.  
-  The defualt value is **false**.
+  The default value is **false**.
 
 * `enable_default_association` - (Optional, Bool) Whether to enable the association of the default route table.  
-  The defualt value is **false**.
+  The default value is **false**.
 
 * `auto_accept_shared_attachments` - (Optional, Bool) Whether to automatically accept the creation of shared
 attachment.

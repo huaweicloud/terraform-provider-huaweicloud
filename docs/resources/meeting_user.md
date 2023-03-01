@@ -114,11 +114,11 @@ The following arguments are supported:
   Required if `app_id` is set. Changing this parameter will create a new resource.
 
 * `corp_id` - (Optional, String, ForceNew) Specifies the corporation ID.
-  Required if the application is used in multiple enterprises. Only availabe if `app_id` is set.
+  Required if the application is used in multiple enterprises. Only available if `app_id` is set.
   Changing this parameter will create a new resource.
 
 * `user_id` - (Optional, String, ForceNew) Specifies the user ID of the administrator.
-  Only availabe if `app_id` is set. If omitted, the user ID of default administrator will be used.
+  Only available if `app_id` is set. If omitted, the user ID of default administrator will be used.
   Changing this parameter will create a new resource.
 
 -> Exactly one of account authorization and application authorization you must select.

@@ -20,7 +20,7 @@ variable "app_name" {}
 resource "huaweicloud_cse_microservice" "test" {
   connect_address = var.engine_conn_addr
   name            = var.service_name
-  verison         = "1.0.0"
+  version         = "1.0.0"
   environment     = "development"
   app_name        = var.app_name
 }
@@ -36,7 +36,7 @@ variable "app_name" {}
 resource "huaweicloud_cse_microservice" "test" {
   connect_address = var.engine_conn_addr
   name            = var.service_name
-  verison         = "1.0.0"
+  version         = "1.0.0"
   environment     = "development"
   app_name        = var.app_name
 
@@ -73,7 +73,7 @@ The following arguments are supported:
   The valid values are **FRONT**, **MIDDLE**, and **BACK**. Changing this will create a new microservice.
 
 * `description` - (Optional, String, ForceNew) Specifies the description of the dedicated microservice.
-  The description can contian a maximum of `256` characters.
+  The description can contain a maximum of `256` characters.
   Changing this will create a new microservice.
 
 * `admin_user` - (Optional, String, ForceNew) Specifies the account name. The initial account name is **root**.

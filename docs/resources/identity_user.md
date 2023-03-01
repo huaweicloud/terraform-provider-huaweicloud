@@ -59,7 +59,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `create_time` - The time when the IAM user was created.
 
-* `last_login` - The tiem when the IAM user last login.
+* `last_login` - The time when the IAM user last login.
 
 ## Import
 

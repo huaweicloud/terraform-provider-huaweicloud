@@ -41,7 +41,7 @@ The following arguments are supported:
   The name must start with a letter and end with a letter or digit.
 
 * `description` - (Optional, String) Specifies the application description.
-  The description can contian a maximum of `128` characters.
+  The description can contain a maximum of `128` characters.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise projcet ID to which the application
   belongs. Changing this will create a new resource.
@@ -63,7 +63,7 @@ The `variable` block supports:
 * `name` - (Required, String) Specifies the variable name. The name can contain `1` to `64` characters, only letters,
   digits, underscores (_), hyphens (-) and dots (.) are allowed. The name cannot start with a digit or dot.
 
-* `value` - (Required, String) Specifies the variable value. The value can contian a maximum of `2,048` characters.
+* `value` - (Required, String) Specifies the variable value. The value can contain a maximum of `2,048` characters.
 
 ## Attributes Reference
 

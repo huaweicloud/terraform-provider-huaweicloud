@@ -52,7 +52,7 @@ The following arguments are supported:
 * `type` - (Required, String) Display mode. Valid options are *AX*: Account level and *XA*: Project level.
 
 * `policy` - (Required, String) Document of the custom policy in JSON format. For more details, please refer to the
-  [offical document](https://support.huaweicloud.com/intl/en-us/usermanual-iam/iam_01_0017.html).
+  [official document](https://support.huaweicloud.com/intl/en-us/usermanual-iam/iam_01_0017.html).
 
 ## Attributes Reference
 

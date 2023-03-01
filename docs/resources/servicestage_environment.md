@@ -55,7 +55,7 @@ The following arguments are supported:
   The [object](#servicestage_env_resources) structure is documented below.
 
 * `description` - (Optional, String) Specifies the environment description.
-  The description can contian a maximum of 128 characters.
+  The description can contain a maximum of 128 characters.
 
 <a name="servicestage_env_resources"></a>
 The `basic_resources` and `optional_resources` block supports:

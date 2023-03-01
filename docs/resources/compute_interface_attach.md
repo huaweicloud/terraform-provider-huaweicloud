@@ -88,7 +88,7 @@ The following arguments are supported:
 
 * `fixed_ip` - (Optional, String, ForceNew) An IP address to assosciate with the port.
 
-  ->This option cannot be used with port_id. You must specifiy a network_id. The IP address must lie in a range on
+  ->This option cannot be used with port_id. You must specify a network_id. The IP address must lie in a range on
   the supplied network.
 
 * `source_dest_check` - (Optional, Bool) Specifies whether the ECS processes only traffic that is destined specifically

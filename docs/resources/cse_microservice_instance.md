@@ -13,15 +13,15 @@ Manages a dedicated microservice instance resource within HuaweiCloud.
 ```hcl
 variable "engine_conn_addr" {}
 variable "microservice_id" {}
-varibale "region_name" {}
-varibale "az_name" {}
+variable "region_name" {}
+variable "az_name" {}
 
 resource "huaweicloud_cse_microservice_instance" "test" {
   connect_address = var.engine_conn_addr
   microservice_id = var.microservice_id
   host_name       = "localhost"
   endpoints       = ["grpc://127.0.1.132:9980", "rest://127.0.0.111:8081"]
-  verison         = "1.0.0"
+  version         = "1.0.0"
 
   properties = {
     "_TAGS"  = "A, B"
@@ -48,15 +48,15 @@ resource "huaweicloud_cse_microservice_instance" "test" {
 ```hcl
 variable "engine_conn_addr" {}
 variable "microservice_id" {}
-varibale "region_name" {}
-varibale "az_name" {}
+variable "region_name" {}
+variable "az_name" {}
 
 resource "huaweicloud_cse_microservice_instance" "test" {
   connect_address = var.engine_conn_addr
   microservice_id = var.microservice_id
   host_name       = "localhost"
   endpoints       = ["grpc://127.0.1.132:9980", "rest://127.0.0.111:8081"]
-  verison         = "1.0.0"
+  version         = "1.0.0"
 
   properties = {
     "_TAGS"  = "A, B"
@@ -99,7 +99,7 @@ The following arguments are supported:
 * `endpoints` - (Required, String, ForceNew) Specifies the access addresses information.
   Changing this will create a new microservice instance.
 
-* `version` - (Optional, String, ForceNew) Specifies the verison of the dedicated microservice instance.
+* `version` - (Optional, String, ForceNew) Specifies the version of the dedicated microservice instance.
   Changing this will create a new microservice instance.
 
 * `properties` - (Optional, String, ForceNew) Specifies the extended attributes.
