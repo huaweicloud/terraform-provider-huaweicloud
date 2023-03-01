@@ -8,12 +8,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/waf/v1/certificates"
 	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/policies"
 	domains "github.com/chnsz/golangsdk/openstack/waf_hw/v1/premium_domains"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -109,10 +111,6 @@ func ResourceWafDedicatedDomainV1() *schema.Resource {
 				Optional: true,
 				Default:  true,
 			},
-			"certificate_name": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"protect_status": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -126,6 +124,30 @@ func ResourceWafDedicatedDomainV1() *schema.Resource {
 					"TLS v1.0", "TLS v1.1", "TLS v1.2",
 				}, false),
 			},
+			"cipher": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"cipher_1",
+					"cipher_2",
+					"cipher_3",
+					"cipher_4",
+					"cipher_default",
+				}, false),
+			},
+			"pci_3ds": {
+				Type:         schema.TypeBool,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"tls", "cipher"},
+			},
+			"pci_dss": {
+				Type:         schema.TypeBool,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"tls", "cipher"},
+			},
 			"access_status": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -134,7 +156,7 @@ func ResourceWafDedicatedDomainV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"cipher": {
+			"certificate_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -238,18 +260,68 @@ func resourceWafDedicatedDomainV1Create(d *schema.ResourceData, meta interface{}
 			logp.Printf("[ERROR] error change the protection status of WAF dedicate domain %s: %s", d.Id(), err)
 		}
 	}
-	if v, ok := d.GetOk("tls"); ok {
-		updateOpts := domains.UpdatePremiumHostOpts{
-			Tls: v.(string),
-		}
-		logp.Printf("[DEBUG] Waf dedicated domain set TLS: %#v", updateOpts)
-		_, err = domains.Update(wafDedicatedClient, d.Id(), updateOpts)
-		if err != nil {
-			return fmtp.Errorf("error updating WAF dedicated domain TLS: %s", err)
+
+	if d.HasChanges("tls", "cipher", "pci_3ds", "pci_dss") {
+		if err := updateWafDedicatedDomain(wafDedicatedClient, meta, d); err != nil {
+			return fmtp.Errorf("error updating WAF dedicated domain: %s", err)
 		}
 	}
 
 	return resourceWafDedicatedDomainV1Read(d, meta)
+}
+
+func updateWafDedicatedDomain(client *golangsdk.ServiceClient, meta interface{}, d *schema.ResourceData) error {
+	updateOpts := domains.UpdatePremiumHostOpts{
+		Tls:    d.Get("tls").(string),
+		Cipher: d.Get("cipher").(string),
+	}
+
+	if d.HasChange("proxy") && !d.IsNewResource() {
+		updateOpts.Proxy = utils.Bool(d.Get("proxy").(bool))
+	}
+
+	if d.HasChange("certificate_id") && !d.IsNewResource() {
+		if v, ok := d.GetOk("certificate_id"); ok {
+			certName, err := getCertificateNameById(d, meta)
+			if err != nil {
+				return err
+			}
+			updateOpts.CertificateName = certName
+			updateOpts.CertificateId = v.(string)
+		}
+	}
+
+	if d.HasChanges("pci_3ds", "pci_dss") {
+		flag, err := getHostFlag(d)
+		if err != nil {
+			return err
+		}
+		updateOpts.Flag = flag
+	}
+	logp.Printf("[DEBUG] Waf dedicated domain update: %#v", updateOpts)
+	_, err := domains.Update(client, d.Id(), updateOpts)
+	if err != nil {
+		return fmtp.Errorf("error updating WAF dedicated domain: %s", err)
+	}
+	return nil
+}
+
+func getHostFlag(d *schema.ResourceData) (*domains.Flag, error) {
+	pci3ds := d.Get("pci_3ds").(bool)
+	pciDss := d.Get("pci_dss").(bool)
+	if !pci3ds && !pciDss {
+		return nil, nil
+	}
+
+	// required tls="TLS v1.2" && cipher="cipher_2"
+	if d.Get("tls").(string) != "TLS v1.2" || d.Get("cipher").(string) != "cipher_2" {
+		return nil, fmtp.Errorf("pci_3ds and pci_dss must be used together with tls and cipher. " +
+			"Tls must be set to TLS v1.2, and cipher must be set to cipher_2")
+	}
+	return &domains.Flag{
+		Pci3ds: strconv.FormatBool(pci3ds),
+		PciDss: strconv.FormatBool(pciDss),
+	}, nil
 }
 
 // buildDomainServerAttributes build the 'server' attribute after querying a domain.
@@ -328,6 +400,23 @@ func resourceWafDedicatedDomainV1Read(d *schema.ResourceData, meta interface{}) 
 		d.Set("tls", dm.Tls),
 		d.Set("cipher", dm.Cipher),
 	)
+
+	if dm.Flag["pci_3ds"] != "" {
+		pci3ds, err := strconv.ParseBool(dm.Flag["pci_3ds"])
+		if err != nil {
+			logp.Printf("[WARN] error parse bool pci 3ds, %s", err)
+		}
+		mErr = multierror.Append(mErr, d.Set("pci_3ds", pci3ds))
+	}
+
+	if dm.Flag["pci_dss"] != "" {
+		pciDss, err := strconv.ParseBool(dm.Flag["pci_dss"])
+		if err != nil {
+			logp.Printf("[WARN] error parse bool pci dss, %s", err)
+		}
+		mErr = multierror.Append(mErr, d.Set("pci_dss", pciDss))
+	}
+
 	if mErr.ErrorOrNil() != nil {
 		return fmtp.Errorf("error setting WAF fields: %s", err)
 	}
@@ -352,26 +441,9 @@ func resourceWafDedicatedDomainV1Update(d *schema.ResourceData, meta interface{}
 		return fmtp.Errorf("error creating HuaweiCloud WAF Client: %s", err)
 	}
 
-	if d.HasChanges("certificate_id", "proxy", "tls") {
-		proxy := d.Get("proxy").(bool)
-
-		certName, err := getCertificateNameById(d, meta)
-		if err != nil {
-			return err
-		}
-
-		updateOpts := domains.UpdatePremiumHostOpts{
-			CertificateId:   d.Get("certificate_id").(string),
-			CertificateName: certName,
-			Proxy:           &proxy,
-			Tls:             d.Get("tls").(string),
-			Cipher:          d.Get("cipher").(string),
-		}
-		logp.Printf("[DEBUG] The options of update dedicated domain: %#v", updateOpts)
-
-		_, err = domains.Update(wafDedicatedClient, d.Id(), updateOpts)
-		if err != nil {
-			return fmtp.Errorf("error updating WAF dedicated Domain: %s", err)
+	if d.HasChanges("tls", "cipher", "proxy", "certificate_id", "pci_3ds", "pci_dss") {
+		if err := updateWafDedicatedDomain(wafDedicatedClient, meta, d); err != nil {
+			return fmtp.Errorf("error updating WAF dedicated domain: %s", err)
 		}
 	}
 

@@ -56,14 +56,28 @@ The following arguments are supported:
   and basically all other non-HTTP/S traffic. If a proxy such as public network ELB (or Nginx) has been used, set
   proxy `true` to ensure that the WAF security policy takes effect for the real source IP address.
 
-* `tls` - (Optional, String) Specifies the minimum required TLS version. The options include `TLS v1.0`, `TLS v1.1`,
-  `TLS v1.2`.
-
 * `keep_policy` - (Optional, Bool) Specifies whether to retain the policy when deleting a domain name.
   Defaults to `true`.
 
 * `protect_status` - (Optional, Int) The protection status of domain, `0`: suspended, `1`: enabled.
   Default value is `1`.
+
+* `tls` - (Optional, String) Specifies the minimum required TLS version. The options include `TLS v1.0`, `TLS v1.1`,
+  `TLS v1.2`.
+
+* `cipher` - (Optional, String) Specifies the cipher suite of domain. The options include `cipher_1`, `cipher_2`,
+  `cipher_3`, `cipher_4`, `cipher_default`.
+
+* `pci_3ds` - (Optional, Bool) Specifies the status of the PCI 3DS compliance certification check. The options
+  include `true` and `false`. This parameter must be used together with tls and cipher.
+
+  -> **NOTE:** Tls must be set to TLS v1.2, and cipher must be set to cipher_2. The PCI 3DS compliance certification
+  check cannot be disabled after being enabled.
+
+* `pci_dss` - (Optional, Bool) Specifies the status of the PCI DSS compliance certification check. The options
+  include `true` and `false`. This parameter must be used together with tls and cipher.
+
+  -> **NOTE:** Tls must be set to TLS v1.2, and cipher must be set to cipher_2.
 
 The `server` block supports:
 
@@ -97,8 +111,6 @@ The following attributes are exported:
   + `1` - The domain name is connected to WAF.
 
 * `protocol` - The protocol type of the client. The options are `HTTP` and `HTTPS`.
-
-* `cihper` - The cipher suite of domain.
 
 * `compliance_certification` - The compliance certifications of the domain, values are:
   + `pci_dss` - The status of domain PCI DSS, `true`: enabled, `false`: disabled.

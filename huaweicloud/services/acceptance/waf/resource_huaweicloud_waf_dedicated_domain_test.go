@@ -31,7 +31,8 @@ func TestAccWafDedicateDomainV1_basic(t *testing.T) {
 					testAccCheckWafDedicatedDomainV1Exists(resourceName, &domain),
 					resource.TestCheckResourceAttr(resourceName, "domain", fmt.Sprintf("www.%s.com", randName)),
 					resource.TestCheckResourceAttr(resourceName, "proxy", "false"),
-					resource.TestCheckResourceAttr(resourceName, "tls", "TLS v1.2"),
+					resource.TestCheckResourceAttr(resourceName, "tls", "TLS v1.1"),
+					resource.TestCheckResourceAttr(resourceName, "cipher", "cipher_1"),
 					resource.TestCheckResourceAttr(resourceName, "server.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
@@ -56,7 +57,10 @@ func TestAccWafDedicateDomainV1_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckWafDedicatedDomainV1Exists(resourceName, &domain),
 					resource.TestCheckResourceAttr(resourceName, "proxy", "true"),
-					resource.TestCheckResourceAttr(resourceName, "tls", "TLS v1.1"),
+					resource.TestCheckResourceAttr(resourceName, "tls", "TLS v1.2"),
+					resource.TestCheckResourceAttr(resourceName, "cipher", "cipher_2"),
+					resource.TestCheckResourceAttr(resourceName, "pci_3ds", "true"),
+					resource.TestCheckResourceAttr(resourceName, "pci_dss", "true"),
 					resource.TestCheckResourceAttr(resourceName, "server.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
@@ -148,7 +152,8 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
   certificate_id = huaweicloud_waf_certificate.certificate_1.id
   keep_policy    = false
   proxy          = false
-  tls            = "TLS v1.2"
+  tls            = "TLS v1.1"
+  cipher         = "cipher_1"
 
   server {
     client_protocol = "HTTPS"
@@ -175,7 +180,10 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
   certificate_id = huaweicloud_waf_certificate.certificate_1.id
   keep_policy    = false
   proxy          = true
-  tls            = "TLS v1.1"
+  tls            = "TLS v1.2"
+  cipher         = "cipher_2"
+  pci_3ds        = true
+  pci_dss        = true
 
   server {
     client_protocol = "HTTPS"
