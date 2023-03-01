@@ -321,7 +321,9 @@ func resourceCCENodePoolCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	// validation
+	billingMode := 0
 	if d.Get("charging_mode").(string) == "prePaid" {
+		billingMode = 1
 		if err := common.ValidatePrePaidChargeInfo(d); err != nil {
 			return diag.FromErr(err)
 		}
@@ -357,7 +359,7 @@ func resourceCCENodePoolCreate(ctx context.Context, d *schema.ResourceData, meta
 				RootVolume:  resourceCCERootVolume(d),
 				DataVolumes: resourceCCEDataVolume(d),
 				K8sTags:     resourceCCENodeK8sTags(d),
-				BillingMode: 0,
+				BillingMode: billingMode,
 				Count:       1,
 				NodeNicSpec: nodes.NodeNicSpec{
 					PrimaryNic: nodes.PrimaryNic{

@@ -8,6 +8,8 @@ Add a node pool to a container cluster.
 
 ## Example Usage
 
+### Basic Usage
+
 ```hcl
 variable "cluster_id" {}
 variable "key_pair" {}
@@ -38,6 +40,44 @@ resource "huaweicloud_cce_node_pool" "node_pool" {
   }
 }
 ```
+
+### PrePaid node pool
+
+```hcl
+variable "cluster_id" {}
+variable "key_pair" {}
+variable "availability_zone" {}
+
+resource "huaweicloud_cce_node_pool" "node_pool" {
+  cluster_id               = var.cluster_id
+  name                     = "testpool"
+  os                       = "EulerOS 2.5"
+  initial_node_count       = 2
+  flavor_id                = "s3.large.4"
+  availability_zone        = var.availability_zone
+  key_pair                 = var.keypair
+  scall_enable             = true
+  min_node_count           = 1
+  max_node_count           = 10
+  scale_down_cooldown_time = 100
+  priority                 = 1
+  type                     = "vm"
+  charging_mode            = "prePaid"
+  period_unit              = "month"
+  period                   = 1
+
+  root_volume {
+    size       = 40
+    volumetype = "SAS"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SAS"
+  }
+}
+```
+
+  ~> You need to remove all nodes in the node pool on the console, before deleting a prepaid node pool.
 
 ## Argument Reference
 
