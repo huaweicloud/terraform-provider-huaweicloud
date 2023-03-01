@@ -189,6 +189,9 @@ The `backend_params` block supports:
 * `description` - (Optional, String) Specifies the description of the constant or system parameter.  
   The description contains a maximum of `255` characters and the angle brackets (< and >) are not allowed.
 
+* `system_param_type` - (Optional, String) Specifies the type of the system parameter.  
+  The valid values are **frontend**, **backend** and **internal**, defaults to **internal**.
+
 <a name="apig_api_mock"></a>
 The `mock` block supports:
 

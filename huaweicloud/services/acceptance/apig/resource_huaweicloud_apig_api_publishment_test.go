@@ -67,7 +67,9 @@ func TestAccApiPublishment_basic(t *testing.T) {
 	})
 }
 
-func testAccApiPublishment_basic(rName string) string {
+func testAccApiPublishment_basic(name string) string {
+	relatedConfig := testAccApi_basic(testAccApi_base(name), name)
+
 	return fmt.Sprintf(`
 %[1]s
 
@@ -81,5 +83,5 @@ resource "huaweicloud_apig_api_publishment" "test" {
   env_id      = huaweicloud_apig_environment.test.id
   api_id      = huaweicloud_apig_api.test.id
 }
-`, testAccApi_basic(rName), rName)
+`, relatedConfig, name)
 }
