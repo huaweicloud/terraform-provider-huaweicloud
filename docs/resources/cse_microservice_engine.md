@@ -69,7 +69,7 @@ The following arguments are supported:
   + The password can only start with a letter.
 
 * `description` - (Optional, String, ForceNew) Specifies the description of the dedicated microservice engine.
-  The description can contian a maximum of `255` characters.
+  The description can contain a maximum of `255` characters.
   Changing this will create a new engine.
 
 * `eip_id` - (Optional, String, ForceNew) Specifies the EIP ID to which the dedicated microservice engine assocated.

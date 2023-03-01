@@ -33,7 +33,7 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The ID of the category.
 
 * `children` - The json string of subcategory information. It supports up to 3 levels of categories,
-  and each catagory supports up to 128 subcategories.
+  and each category supports up to 128 subcategories.
 
 ## Import
 

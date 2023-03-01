@@ -122,9 +122,9 @@ The `label_format` block supports:
  The optional values are as follows:
 
   + **0**: Label and text are separated, distinguished by the suffix `_result`.
-   For example: the text file is `abc.txt`, and the label file is "`abc_result.txt`.
+   For example: the text file is *abc.txt*, and the label file is *abc_result.txt*.
   + **1**: Default, labels and text are in one file, separated by a delimiter. The separator between text and labels,
-   the separator between label and label can be specified by `label_separato` and `text_label_separator`.
+   the separator between label and label can be specified by `label_separator` and `text_label_separator`.
   
  Default value is `1`.
 

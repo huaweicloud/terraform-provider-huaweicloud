@@ -93,7 +93,7 @@ If omitted, the provider-level region will be used. Changing this parameter will
 * `name` - (Required, String) Specifies the product name. The name contains a maximum of 64 characters. Only letters,
 Chinese characters, digits, hyphens (-), underscores (_) and the following special characters are allowed: `?'#().,&%@!`.
 
-* `protocol` - (Required, String) Specifies the protocal.
+* `protocol` - (Required, String) Specifies the protocol.
 The valid values are **MQTT**, **CoAP**, **HTTP**, **HTTPS**, **Modbus**, **ONVIF**, **OPC-UA**, **OPC-DA**, **Other**.
 
 * `data_type` - (Required, String) Specifies the type of data.

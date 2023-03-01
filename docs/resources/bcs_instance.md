@@ -295,7 +295,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - A resource ID in UUID format.
 * `status` - The status of the BCS instance.
-* `version` - The service verison of the BCS instance.
+* `version` - The service version of the BCS instance.
 * `purchase_type` - The deployment type of the BCS instance.
 * `cross_region_support` - Whether the BCS instance is deployed across regions.
 * `rollback_support` - Whether rollback is supported when the BCS service fails to br upgraded.
