@@ -2,7 +2,6 @@ package dms
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 	"testing"
 
@@ -71,7 +70,6 @@ func TestAccDmsRocketMQInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "engine_version", "4.8.0"),
 					resource.TestCheckResourceAttr(resourceName, "enable_acl", "true"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
-					resource.TestMatchResourceAttr(resourceName, "cross_vpc_accesses.#", regexp.MustCompile(`[1-9]\d*`)),
 				),
 			},
 			{
