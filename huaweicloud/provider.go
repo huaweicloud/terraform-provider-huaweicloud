@@ -672,6 +672,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_eip_associate":    ResourceComputeFloatingIPAssociateV2(),
 			"huaweicloud_compute_volume_attach":    ecs.ResourceComputeVolumeAttach(),
 
+			"huaweicloud_cph_server": cph.ResourceCphServer(),
+
 			"huaweicloud_csbs_backup":        resourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy": resourceCSBSBackupPolicyV1(),
 
