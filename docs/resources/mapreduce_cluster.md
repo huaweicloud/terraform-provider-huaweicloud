@@ -391,7 +391,7 @@ The EIP must have been created and must be in the same region as the cluster.
 * `security_group_ids` - (Optional, List, ForceNew) Specifies an array of one or more security group ID to attach to the
   MapReduce cluster. If using the specified security group, the group need to open the specified port (9022) rules.
 
-* `template_id` - (Optional, List, ForceNew) Specifies the template used for node deployment when the cluster type is
+* `template_id` - (Optional, String, ForceNew) Specifies the template used for node deployment when the cluster type is
   CUSTOM.
   + mgmt_control_combined_v2: template for jointly deploying the management and control nodes. The management and
   control roles are co-deployed on the Master node, and data instances are deployed in the same node group. This

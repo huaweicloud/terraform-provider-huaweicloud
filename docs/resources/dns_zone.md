@@ -51,7 +51,7 @@ The following arguments are supported:
 * `zone_type` - (Optional, String, ForceNew) The type of zone. Can either be `public` or `private`. Changing this
   creates a new DNS zone.
 
-* `router` - (Optional, String, String) Router configuration block which is required if zone_type is private. The router
+* `router` - (Optional, List) Router configuration block which is required if zone_type is private. The router
   structure is documented below.
 
 * `ttl` - (Optional, Int) The time to live (TTL) of the zone.

@@ -122,7 +122,7 @@ The following arguments are supported:
   255 characters.  
   Change this parameter will create a new resource.
 
-* `agency` - (Optional, String, ForceNew) Specifies the configuration of the agencies authorized to IAC.  
+* `agency` - (Optional, List, ForceNew) Specifies the configuration of the agencies authorized to IAC.  
   Change this parameter will create a new resource.
   The [object](#stack_agency) structure is documented below.
 

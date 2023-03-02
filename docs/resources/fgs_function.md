@@ -119,7 +119,7 @@ The following arguments are supported:
 * `code_filename` - (Optional, String) Specifies the name of a function file, This field is mandatory only when coe_type
   is set to jar or zip.
 
-* `depend_list` - (Optional, String) Specifies the ID list of the dependencies.
+* `depend_list` - (Optional, List) Specifies the ID list of the dependencies.
 
 * `user_data` - (Optional, String) Specifies the Key/Value information defined for the function. Key/value data might be
   parsed with [Terraform `jsonencode()` function]('https://www.terraform.io/docs/language/functions/jsonencode.html').
@@ -149,9 +149,9 @@ The following arguments are supported:
 
 -> **NOTE:** An agency with VPC management permissions must be specified for the function.
 
-* `mount_user_id` - (Optional, String) Specifies the user ID, a non-0 integer from –1 to 65534. Default to -1.
+* `mount_user_id` - (Optional, Int) Specifies the user ID, a non-0 integer from –1 to 65534. Default to -1.
 
-* `mount_user_group_id` - (Optional, String) Specifies the user group ID, a non-0 integer from –1 to 65534. Default to
+* `mount_user_group_id` - (Optional, Int) Specifies the user group ID, a non-0 integer from –1 to 65534. Default to
   -1.
 
 * `func_mounts` - (Optional, List) Specifies the file system list. The `func_mounts` object structure is documented

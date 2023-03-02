@@ -168,9 +168,9 @@ The `simple_timer_condition` block supports:
 * `start_time` - (Required, String) Specifies the start time to trigger the rule, using the UTC time zone,
 in the format: yyyyMMdd'T'HHmmss'Z'. For example: `20220622T160000Z`.
 
-* `repeat_interval` - (Required, String) Specifies the interval of repetition, Unit is `minutes`.
+* `repeat_interval` - (Required, Int) Specifies the interval of repetition, Unit is `minutes`.
 
-* `repeat_count` - (Required, String) Specifies total number of repetition.
+* `repeat_count` - (Required, Int) Specifies total number of repetition.
 
 <a name="IoTDA_daily_timer_condition"></a>
 The `daily_timer_condition` block supports:

@@ -152,7 +152,7 @@ The `ApplicationPort` block supports:
 * `name` - (Required, String) The application port name, which can contain a maximum of 16 bytes.  
  The key service name cannot be **adb** or **vnc**.
 
-* `listen_port` - (Required, Integer) The port number, which ranges from 10000 to 50000.
+* `listen_port` - (Required, Int) The port number, which ranges from 10000 to 50000.
 
 * `internet_accessible` - (Required, String) Whether public network access is mapped.
   The options are as follows:

@@ -132,7 +132,7 @@ The following arguments are supported:
 * `add_jobs` - (Optional, List, ForceNew) Jobs can be submitted when a cluster is created. Currently, only one job can
   be created. Structure is documented below.
 
-* `tags` - (Optional) The key/value pairs to associate with the cluster.
+* `tags` - (Optional, Map) The key/value pairs to associate with the cluster.
 
 The `component_list` block supports:
 

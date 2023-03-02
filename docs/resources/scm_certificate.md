@@ -91,7 +91,7 @@ The `target` block supports:
 
 * `service` - (Required, String) Service to which the certificate is pushed. The options include `CDN`,`WAF`
   and `Enhance_ELB`.
-* `project` - (Optional, String) The project where the service you want to push a certificate to. The same certificate
+* `project` - (Optional, List) The project where the service you want to push a certificate to. The same certificate
   can be pushed repeatedly to the same WAF or ELB service in the same `project`, but the CDN service can only be pushed
   once.
 

@@ -66,16 +66,16 @@ The following arguments are supported:
 * `address_type` - (Required, Int) The address type.
   The value can be **0** (IPv4), **1** (IPv6), or **2** (domain).
 
-* `sequence` - (Required, String) The sequence configuration.
+* `sequence` - (Required, List) The sequence configuration.
 The [Order Rule](#ProtectionRule_OrderRuleAcl) structure is documented below.
 
-* `service` - (Required, String) The service configuration.
+* `service` - (Required, List) The service configuration.
 The [Rule Service](#ProtectionRule_RuleService) structure is documented below.
 
-* `source` - (Required, String) The source configuration.
+* `source` - (Required, List) The source configuration.
 The [Rule Source Address](#ProtectionRule_RuleSourceAddress) structure is documented below.
 
-* `destination` - (Required, String) The destination configuration.
+* `destination` - (Required, List) The destination configuration.
 The [Rule Destination Address](#ProtectionRule_RuleDestinationAddress) structure is documented below.
 
 * `status` - (Required, Int) The rule status. The options are as follows:

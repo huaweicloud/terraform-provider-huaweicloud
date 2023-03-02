@@ -144,9 +144,9 @@ The `builder` block supports:
 
 * `dockerfile_path` - (Optional, String) Specifies the file path for dockerfile.
 
-* `use_public_cluster` - (Optional, bool) Specifies whether to use the public cluster.
+* `use_public_cluster` - (Optional, Bool) Specifies whether to use the public cluster.
 
-* `node_label` - (Optional, String) Specifies the filter labels for CCE nodes.
+* `node_label` - (Optional, Map) Specifies the filter labels for CCE nodes.
 
 -> Before using the label, please make sure that the node is bound to the EIP and can access the public network.
 

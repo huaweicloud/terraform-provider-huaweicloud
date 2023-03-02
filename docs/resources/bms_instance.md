@@ -155,7 +155,7 @@ installed, the `admin_pass` field becomes invalid.
     + `GPSSD`: general purpose SSD disk type.
     + `SAS`: high I/O disk type.
 
-* `system_disk_size` - (Optional, int, ForceNew) Specifies the system disk size in GB. The value ranges from 40 to 1024.
+* `system_disk_size` - (Optional, Int, ForceNew) Specifies the system disk size in GB. The value ranges from 40 to 1024.
   The system disk size must be greater than or equal to the minimum system disk size of the image. Changing this creates
   a new instance.
 
