@@ -115,11 +115,11 @@ func dataSourceCssFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 		"Version": d.Get("version"),
 	}
 
-	if v, ok := d.GetOk("cpu"); ok {
+	if v, ok := d.GetOk("vcpus"); ok {
 		filter["Cpu"] = v
 	}
 
-	if v, ok := d.GetOk("ram"); ok {
+	if v, ok := d.GetOk("memory"); ok {
 		filter["Ram"] = v
 	}
 
@@ -128,10 +128,6 @@ func dataSourceCssFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 		return fmtp.DiagErrorf("filter CSS flavors failed: %s", err)
 	}
 	logp.Printf("filter %d CSS flavors from %d through options %v", len(filterFlavors), len(allFlavors), filter)
-
-	if len(filterFlavors) < 1 {
-		return fmtp.DiagErrorf("No data found. Please change your search criteria and try again.")
-	}
 
 	mErr := d.Set("flavors", buildFlavors(filterFlavors))
 	if mErr != nil {
@@ -170,6 +166,10 @@ func flatternFlavors(flavors *cluster.EsFlavorsResp) []flavor {
 }
 
 func buildFlavors(flavors []interface{}) []map[string]interface{} {
+	if len(flavors) < 1 {
+		return nil
+	}
+
 	var rst []map[string]interface{}
 	for _, v := range flavors {
 		f := v.(flavor)
