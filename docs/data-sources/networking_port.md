@@ -40,8 +40,6 @@ In addition to all arguments above, the following attributes are exported:
 
 * `name` - The name of the port.
 
-* `admin_state_up` - The administrative state of the port.
-
 * `device_owner` - The device owner of the port.
 
 * `device_id` - The ID of the device the port belongs to.

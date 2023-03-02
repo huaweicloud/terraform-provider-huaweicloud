@@ -32,10 +32,6 @@ The following arguments are supported:
 * `network_id` - (Required, String, ForceNew) The ID of the network to attach the port to. Changing this creates a new
   port.
 
-* `admin_state_up` - (Optional, Bool) Administrative up/down status for the port
-  (must be "true" or "false" if provided). Changing this updates the
-  `admin_state_up` of an existing port.
-
 * `mac_address` - (Optional, String, ForceNew) Specify a specific MAC address for the port. Changing this creates a new
   port.
 
