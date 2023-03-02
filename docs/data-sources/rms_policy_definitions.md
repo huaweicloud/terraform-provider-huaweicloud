@@ -20,9 +20,6 @@ data "huaweicloud_rms_policy_definitions" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region where the policy definitions are located.  
-  If omitted, the provider-level region will be used.
-
 * `name` - (Optional, String) Specifies the name of the policy definitions used to query definition list.
 
 * `policy_type` - (Optional, String) Specifies the policy type used to query definition list.  
