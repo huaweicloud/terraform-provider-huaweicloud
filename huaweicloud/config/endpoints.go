@@ -420,6 +420,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	},
 	"rms": {
 		Name:             "rms",
+		Scope:            "global",
 		Version:          "v1",
 		WithOutProjectID: true,
 		Product:          "RMS",
