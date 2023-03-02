@@ -21,11 +21,6 @@ func DataSourcePolicyDefinitions() *schema.Resource {
 		ReadContext: dataSourcePolicyDefinitionsRead,
 
 		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The region where the policy definitions are located.",
-			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
