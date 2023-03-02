@@ -115,11 +115,11 @@ func dataSourceCssFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 		"Version": d.Get("version"),
 	}
 
-	if v, ok := d.GetOk("cpu"); ok {
+	if v, ok := d.GetOk("vcpus"); ok {
 		filter["Cpu"] = v
 	}
 
-	if v, ok := d.GetOk("ram"); ok {
+	if v, ok := d.GetOk("memory"); ok {
 		filter["Ram"] = v
 	}
 

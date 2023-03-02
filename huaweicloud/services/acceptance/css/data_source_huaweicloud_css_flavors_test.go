@@ -9,9 +9,12 @@ import (
 )
 
 func TestAccCssFlavorsDataSource_basic(t *testing.T) {
-	dataSourceName := "data.huaweicloud_css_flavors.test"
-
-	dc := acceptance.InitDataSourceCheck(dataSourceName)
+	var (
+		typeFilter    = acceptance.InitDataSourceCheck("data.huaweicloud_css_flavors.type_filter")
+		versionFilter = acceptance.InitDataSourceCheck("data.huaweicloud_css_flavors.version_filter")
+		vcpusFilter   = acceptance.InitDataSourceCheck("data.huaweicloud_css_flavors.vcpus_filter")
+		memoryFilter  = acceptance.InitDataSourceCheck("data.huaweicloud_css_flavors.memory_filter")
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -20,15 +23,14 @@ func TestAccCssFlavorsDataSource_basic(t *testing.T) {
 			{
 				Config: testAccDataSourceCssFlavors_basic,
 				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "flavors.0.type", "ess"),
-					resource.TestCheckResourceAttr(dataSourceName, "flavors.0.version", "7.9.3"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "flavors.0.id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "flavors.0.region"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "flavors.0.name"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "flavors.0.memory"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "flavors.0.vcpus"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "flavors.0.disk_range"),
+					typeFilter.CheckResourceExists(),
+					resource.TestCheckOutput("is_type_filter_useful", "true"),
+					versionFilter.CheckResourceExists(),
+					resource.TestCheckOutput("is_version_filter_useful", "true"),
+					vcpusFilter.CheckResourceExists(),
+					resource.TestCheckOutput("is_vcpus_filter_useful", "true"),
+					memoryFilter.CheckResourceExists(),
+					resource.TestCheckOutput("is_memory_filter_useful", "true"),
 				),
 			},
 		},
@@ -36,9 +38,37 @@ func TestAccCssFlavorsDataSource_basic(t *testing.T) {
 }
 
 const testAccDataSourceCssFlavors_basic = `
-data "huaweicloud_css_flavors" "test" {
-  type    = "ess"
+
+data "huaweicloud_css_flavors" "type_filter" {
+  type = "ess"
+}
+
+output "is_type_filter_useful" {
+  value = !contains([for v in data.huaweicloud_css_flavors.type_filter.flavors[*].type : v == "ess"], "false")
+}
+
+data "huaweicloud_css_flavors" "version_filter" {
   version = "7.9.3"
+}
+
+output "is_version_filter_useful" {
+  value = !contains([for v in data.huaweicloud_css_flavors.version_filter.flavors[*].version : v == "7.9.3"], "false")
+}
+
+data "huaweicloud_css_flavors" "vcpus_filter" {
+  vcpus = 32
+}
+
+output "is_vcpus_filter_useful" {
+  value = !contains([for v in data.huaweicloud_css_flavors.vcpus_filter.flavors[*].vcpus : v == 32], "false")
+}
+
+data "huaweicloud_css_flavors" "memory_filter" {
+  memory = 256
+}
+
+output "is_memory_filter_useful" {
+  value = !contains([for v in data.huaweicloud_css_flavors.memory_filter.flavors[*].memory : v == 256], "false")
 }
 `
 
