@@ -852,7 +852,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_mrs_cluster": ResourceMRSClusterV1(),
 			"huaweicloud_mrs_job":     ResourceMRSJobV1(),
 
-			"huaweicloud_nat_dnat_rule": ResourceNatDnatRuleV2(),
+			"huaweicloud_nat_dnat_rule": nat.ResourcePublicDnatRule(),
 			"huaweicloud_nat_gateway":   nat.ResourcePublicGateway(),
 			"huaweicloud_nat_snat_rule": ResourceNatSnatRuleV2(),
 
@@ -1023,7 +1023,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_nat_gateway_v2":   nat.ResourcePublicGateway(),
 			"huaweicloud_nat_snat_rule_v2": ResourceNatSnatRuleV2(),
-			"huaweicloud_nat_dnat_rule_v2": ResourceNatDnatRuleV2(),
+			"huaweicloud_nat_dnat_rule_v2": nat.ResourcePublicDnatRule(),
 
 			"huaweicloud_sfs_access_rule_v2": ResourceSFSAccessRuleV2(),
 			"huaweicloud_sfs_file_system_v2": ResourceSFSFileSystemV2(),

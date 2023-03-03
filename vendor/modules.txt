@@ -221,6 +221,7 @@ github.com/chnsz/golangsdk/openstack/mrs/v1/cluster
 github.com/chnsz/golangsdk/openstack/mrs/v1/job
 github.com/chnsz/golangsdk/openstack/mrs/v2/clusters
 github.com/chnsz/golangsdk/openstack/mrs/v2/jobs
+github.com/chnsz/golangsdk/openstack/nat/v2/dnats
 github.com/chnsz/golangsdk/openstack/nat/v2/gateways
 github.com/chnsz/golangsdk/openstack/networking/v1/bandwidths
 github.com/chnsz/golangsdk/openstack/networking/v1/eips
