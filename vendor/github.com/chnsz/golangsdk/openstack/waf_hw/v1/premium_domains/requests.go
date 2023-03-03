@@ -101,6 +101,12 @@ type UpdatePremiumHostOpts struct {
 	CertificateName string `json:"certificatename,omitempty"`
 	Tls             string `json:"tls,omitempty"`
 	Cipher          string `json:"cipher,omitempty"`
+	Flag            *Flag  `json:"flag,omitempty"`
+}
+
+type Flag struct {
+	Pci3ds string `json:"pci_3ds,omitempty"`
+	PciDss string `json:"pci_dss,omitempty"`
 }
 
 // Update update premium domains according to UpdatePremiumHostOpts.
