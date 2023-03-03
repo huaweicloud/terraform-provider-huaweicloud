@@ -40,6 +40,9 @@ paths:
     get:
       tag: ECS
       operationId: Get
+    put:
+      tag: ECS
+      operationId: Update
   /v1.1/{project_id}/cloudservers:
     post:
       tag: ECS
@@ -67,10 +70,10 @@ paths:
     put:
       tag: VPC
       operationId: Update
-  /v2.1/{project_id}/servers/{id}/action:
+  /v1/{project_id}/servers/{id}/action:
     post:
       tag: ECS
-      operationId: RemoveServer
+      operationId: ChangeAdminPassword
   /v2.1/{project_id}/servers/{id}/metadata/{key}:
     delete:
       tag: ECS

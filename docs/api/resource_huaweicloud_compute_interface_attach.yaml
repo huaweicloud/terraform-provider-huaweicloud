@@ -12,6 +12,9 @@ paths:
     get:
       tag: VPC
       operationId: Get
+    put:
+      tag: VPC
+      operationId: Update
   /v2.1/{project_id}/servers/{serverID}/os-interface/{portID}:
     delete:
       tag: ECS

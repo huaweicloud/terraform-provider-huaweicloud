@@ -1,0 +1,32 @@
+info:
+  version: 
+  title: resource_huaweicloud_rms_policy_assignment
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: RMS
+paths:
+  /v1/resource-manager/domains/{domainId}/policy-assignments/{assignmentId}/disable:
+    post:
+      tag: RMS
+      operationId: Disable
+  /v1/resource-manager/domains/{domainId}/policy-assignments/{assignmentId}/enable:
+    post:
+      tag: RMS
+      operationId: Enable
+  /v1/resource-manager/domains/{domainId}/policy-assignments/{assignmentId}:
+    delete:
+      tag: RMS
+      operationId: Delete
+    get:
+      tag: RMS
+      operationId: Get
+    put:
+      tag: RMS
+      operationId: Update
+  /v1/resource-manager/domains/{domainId}/policy-assignments:
+    put:
+      tag: RMS
+      operationId: Create

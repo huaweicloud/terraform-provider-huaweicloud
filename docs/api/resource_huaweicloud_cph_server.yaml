@@ -1,0 +1,27 @@
+info:
+    title: resource_huaweicloud_cph_server
+    description: 'Manages a CPH server resource within HuaweiCloud.  '
+host: myhuaweicloud.com
+tags:
+    - name: CPH
+servers:
+    - url: https://sdg.myhuaweicloud.com
+paths:
+    /v1/{project_id}/cloud-phone/servers/{id}:
+        DELETE:
+            tag: CPH
+            operationId: DeleteCphServer
+            x-ref-api: DELETE /v1/{project_id}/cloud-phone/servers/{id}
+        GET:
+            tag: CPH
+            operationId: GetCphServer
+            x-ref-api: GET /v1/{project_id}/cloud-phone/servers/{id}
+        PUT:
+            tag: CPH
+            operationId: UpdateCphServerName
+            x-ref-api: PUT /v1/{project_id}/cloud-phone/servers/{id}
+    /v2/{project_id}/cloud-phone/servers:
+        POST:
+            tag: CPH
+            operationId: CreateCphServer
+            x-ref-api: POST /v2/{project_id}/cloud-phone/servers

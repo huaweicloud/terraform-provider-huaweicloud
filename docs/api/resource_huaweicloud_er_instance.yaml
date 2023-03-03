@@ -19,7 +19,7 @@ paths:
             x-ref-api: DELETE /v3/{project_id}/enterprise-router/instances/{id}
         GET:
             tag: ER
-            operationId: DeleteInstanceWaiting
+            operationId: UpdateInstanceWaiting
             x-ref-api: GET /v3/{project_id}/enterprise-router/instances/{id}
         PUT:
             tag: ER
