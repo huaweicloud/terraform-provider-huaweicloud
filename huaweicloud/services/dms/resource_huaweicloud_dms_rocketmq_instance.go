@@ -320,7 +320,7 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 		Target:       []string{"RUNNING"},
 		Refresh:      rocketmqInstanceStateRefreshFunc(createRocketmqInstanceClient, id.(string)),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        500 * time.Second,
+		Delay:        200 * time.Second,
 		PollInterval: 15 * time.Second,
 	}
 
