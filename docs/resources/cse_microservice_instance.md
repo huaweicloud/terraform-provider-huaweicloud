@@ -96,13 +96,13 @@ The following arguments are supported:
 * `host_name` - (Required, String, ForceNew) Specifies the host name, such as `localhost`.
   Changing this will create a new microservice instance.
 
-* `endpoints` - (Required, String, ForceNew) Specifies the access addresses information.
+* `endpoints` - (Required, List, ForceNew) Specifies the access addresses information.
   Changing this will create a new microservice instance.
 
 * `version` - (Optional, String, ForceNew) Specifies the version of the dedicated microservice instance.
   Changing this will create a new microservice instance.
 
-* `properties` - (Optional, String, ForceNew) Specifies the extended attributes.
+* `properties` - (Optional, Map, ForceNew) Specifies the extended attributes.
   Changing this will create a new microservice instance.
 
   -> The internal key-value pair cannot be configured or overwritten, such as **engineID** and **engineName**.

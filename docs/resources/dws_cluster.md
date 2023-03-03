@@ -96,7 +96,7 @@ The `public_ip` block supports:
   **auto_assign**, **not_use**, **bind_existing**. The default value is **not_use**.
   Changing this creates a new cluster resource.
 
-* `number_of_cn` - (Optional, int, ForceNew) The number of CN. If you use a large-scale cluster, deploy multiple CNs.
+* `number_of_cn` - (Optional, Int, ForceNew) The number of CN. If you use a large-scale cluster, deploy multiple CNs.
   Changing this creates a new cluster resource.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the cluster.

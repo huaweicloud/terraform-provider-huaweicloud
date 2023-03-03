@@ -102,10 +102,10 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies the description of the AS policy.
   The value can contain 0 to 256 characters.
 
-* `scaling_policy_action` - (Optional, String) Specifies the scaling action of the AS policy.
+* `scaling_policy_action` - (Optional, List) Specifies the scaling action of the AS policy.
   The [object](#ASBandWidthPolicy_ScalingPolicyAction) structure is documented below.
 
-* `scheduled_policy` - (Optional, String) Specifies the periodic or scheduled AS policy.
+* `scheduled_policy` - (Optional, List) Specifies the periodic or scheduled AS policy.
   This parameter is mandatory when `scaling_policy_type` is set to SCHEDULED or RECURRENCE.
   The [object](#ASBandWidthPolicy_ScheduledPolicy) structure is documented below.
 

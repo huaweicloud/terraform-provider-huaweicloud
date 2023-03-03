@@ -54,7 +54,7 @@ The following arguments are supported:
 * `is_body_send` - (Optional, Bool, ForceNew) Specifies whether to send the body.
   Changing this will create a new custom authorizer resource.
 
-* `cache_age` - (Optional, String) Specifies the maximum cache age.
+* `cache_age` - (Optional, Int) Specifies the maximum cache age.
   Changing this will create a new custom authorizer resource.
 
 * `user_data` - (Optional, String, ForceNew) Specifies the user data, which can contain a maximum of 2,048 characters.

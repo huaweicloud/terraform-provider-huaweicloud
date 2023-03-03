@@ -111,7 +111,7 @@ The following arguments are supported:
 * `system_disk_type` - (Required, String, ForceNew) Specifies the type of system disk for the IEC server binding. Valid
   value is *SAS*(high I/O disk type). Changing this parameter creates a new IEC server resource.
 
-* `system_disk_size` - (Required, String, ForceNew) Specifies the size of system disk for the IEC server binding. The
+* `system_disk_size` - (Required, Int, ForceNew) Specifies the size of system disk for the IEC server binding. The
   value range is 40 to 100 in GB. Changing this parameter creates a new IEC server resource.
 
 * `coverage_sites` - (Required, List, ForceNew) Specifies an array of site ID and operator for the IEC server. The
@@ -126,7 +126,7 @@ The following arguments are supported:
   already be created and associated with the tenant's account. This parameter and `admin_pass` are alternative. Changing
   this parameter creates a new IEC server resource.
 
-* `bind_eip` - (Optional, String, ForceNew) Specifies whether the IEC server is bound to EIP. Changing this parameter
+* `bind_eip` - (Optional, Bool, ForceNew) Specifies whether the IEC server is bound to EIP. Changing this parameter
   creates a new IEC server resource.
 
 * `coverage_level` - (Optional, String, ForceNew) Specifies the coverage level of IEC sites. Valid value is *SITE*.
@@ -152,7 +152,7 @@ The `data_disks` block supports:
 
 * `type` - (Required, String, ForceNew) Specifies the type of data disk for the IEC server binding. Valid value is
   *SAS*(high I/O disk type). Changing this parameter creates a new IEC server resource.
-* `size` - (Required, String, ForceNew) Specifies the size of data disk for the IEC server binding. The value range is
+* `size` - (Required, Int, ForceNew) Specifies the size of data disk for the IEC server binding. The value range is
   10 to 500 in GB. Changing this parameter creates a new IEC server resource.
 
 ## Attributes Reference
