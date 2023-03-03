@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -132,6 +133,8 @@ data "huaweicloud_images_images" "test" {
 
 func testAccImsImagesDataSource_base(rName string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_compute_flavors" "test" {
@@ -141,16 +144,8 @@ data "huaweicloud_compute_flavors" "test" {
   memory_size       = 4
 }
 
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%[1]s"
-}
-
 resource "huaweicloud_compute_instance" "test" {
-  name               = "%[1]s"
+  name               = "%[2]s"
   image_name         = "Ubuntu 18.04 server 64bit"
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids = [
@@ -163,7 +158,7 @@ resource "huaweicloud_compute_instance" "test" {
 }
 
 resource "huaweicloud_images_image" "test" {
-  name        = "%[1]s"
+  name        = "%[2]s"
   instance_id = huaweicloud_compute_instance.test.id
   description = "created by Terraform AccTest"
   tags = {
@@ -171,14 +166,15 @@ resource "huaweicloud_images_image" "test" {
     key = "value"
   }
 }
-`, rName)
+`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccImsImagesDataSource_queryName(rName string) string {
 	return fmt.Sprintf(`
 %s
+
 data "huaweicloud_images_images" "test" {
-  name        = huaweicloud_images_image.test.name
+  name = huaweicloud_images_image.test.name
 }
 `, testAccImsImagesDataSource_base(rName))
 }

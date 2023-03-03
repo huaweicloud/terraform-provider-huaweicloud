@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 
 	"github.com/chnsz/golangsdk/openstack/cloudeyeservice/alarmrule"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -131,30 +132,10 @@ func TestAccCESAlarmRule_sysEvent(t *testing.T) {
 
 func testCESAlarmRule_base(rName string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_compute_flavors" "test" {
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  performance_type  = "normal"
-  cpu_core_count    = 2
-  memory_size       = 4
-}
-
-data "huaweicloud_images_image" "test" {
-  name        = "Ubuntu 18.04 server 64bit"
-  most_recent = true
-}
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%[1]s"
-}
+%s
 
 resource "huaweicloud_compute_instance" "vm_1" {
-  name               = "ecs-%[1]s"
+  name               = "ecs-%[2]s"
   image_id           = data.huaweicloud_images_image.test.id
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids = [huaweicloud_networking_secgroup.test.id]
@@ -166,10 +147,10 @@ resource "huaweicloud_compute_instance" "vm_1" {
 }
 
 resource "huaweicloud_smn_topic" "topic_1" {
-  name         = "smn-%[1]s"
+  name         = "smn-%[2]s"
   display_name = "The display name of smn topic"
 }
-`, rName)
+`, common.TestBaseComputeResources(rName), rName)
 }
 
 func testCESAlarmRule_basic(rName string) string {

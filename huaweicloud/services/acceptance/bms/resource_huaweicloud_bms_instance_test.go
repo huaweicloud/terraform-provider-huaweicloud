@@ -11,6 +11,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccBmsInstance_basic(t *testing.T) {
@@ -108,38 +109,17 @@ func testAccCheckBmsInstanceExists(n string, instance *baremetalservers.CloudSer
 
 func testAccBmsInstance_base(rName string) string {
 	return fmt.Sprintf(`
+%s
+
 data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%[1]s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  vpc_id = huaweicloud_vpc.test.id
-
-  name       = "%[1]s"
-  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1)
-  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1), 1)
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%[1]s"
-}
 
 data "huaweicloud_bms_flavors" "test" {
   availability_zone = try(element(data.huaweicloud_availability_zones.test.names, 0), "")
 }
 
 resource "huaweicloud_kps_keypair" "test" {
-  name = "%[1]s"
-
-  lifecycle {
-    ignore_changes = [
-      public_key,
-    ]
-  }
-}`, rName)
+  name = "%s"
+}`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccBmsInstance_basic(rName string, isAutoRenew bool) string {

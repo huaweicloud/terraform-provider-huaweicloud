@@ -10,6 +10,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/channels"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getVpcChannelFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -150,26 +151,10 @@ func testAccVpcChannelImportStateFunc() resource.ImportStateIdFunc {
 
 func testAccVpcChannel_base(name string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%[1]s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  vpc_id     = huaweicloud_vpc.test.id
-  name       = "%[1]s"
-  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1)
-  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1), 1)
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%[1]s"
-}
+%[1]s
 
 resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[1]s"
+  name                  = "%[2]s"
   edition               = "BASIC"
   vpc_id                = huaweicloud_vpc.test.id
   subnet_id             = huaweicloud_vpc_subnet.test.id
@@ -179,20 +164,8 @@ resource "huaweicloud_apig_instance" "test" {
   availability_zones = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
 }
 
-data "huaweicloud_images_image" "test" {
-  name        = "Ubuntu 18.04 server 64bit"
-  most_recent = true
-}
-
-data "huaweicloud_compute_flavors" "test" {
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  performance_type  = "normal"
-  cpu_core_count    = 2
-  memory_size       = 4
-}
-
 resource "huaweicloud_compute_instance" "test" {
-  name               = "%[1]s"
+  name               = "%[2]s"
   image_id           = data.huaweicloud_images_image.test.id
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids = [huaweicloud_networking_secgroup.test.id]
@@ -203,7 +176,7 @@ resource "huaweicloud_compute_instance" "test" {
     uuid = huaweicloud_vpc_subnet.test.id
   }
 }
-`, name)
+`, common.TestBaseComputeResources(name), name)
 }
 
 func testAccVpcChannel_basic(name string) string {
@@ -266,26 +239,12 @@ resource "huaweicloud_apig_vpc_channel" "test" {
 
 func testAccVpcChannel_eipBase(name string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 data "huaweicloud_availability_zones" "test" {}
 
-resource "huaweicloud_vpc" "test" {
-  name = "%[1]s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  vpc_id     = huaweicloud_vpc.test.id
-  name       = "%[1]s"
-  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1)
-  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1), 1)
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%[1]s"
-}
-
 resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[1]s"
+  name                  = "%[2]s"
   edition               = "BASIC"
   vpc_id                = huaweicloud_vpc.test.id
   subnet_id             = huaweicloud_vpc_subnet.test.id
@@ -301,7 +260,7 @@ resource "huaweicloud_vpc_eip" "test" {
   }
 
   bandwidth {
-    name        = "%[1]s"
+    name        = "%[2]s"
     size        = 5
     share_type  = "PER"
     charge_mode = "traffic"
@@ -314,13 +273,13 @@ resource "huaweicloud_vpc_eip" "newone" {
   }
 
   bandwidth {
-    name        = "%[1]s_newone"
+    name        = "%[2]s_newone"
     size        = 5
     share_type  = "PER"
     charge_mode = "traffic"
   }
 }
-`, name)
+`, common.TestBaseNetwork(name), name)
 }
 
 func testAccVpcChannel_withEipMembers(rName string) string {

@@ -11,6 +11,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
@@ -191,52 +192,23 @@ func testAccWafDedicatedInstanceImportStateIdFunc(resourceName string) resource.
 	}
 }
 
-func baseDependResource(name string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "vpc_1" {
-  name = "%s_waf"
-  cidr = "192.168.0.0/24"
-}
-
-resource "huaweicloud_vpc_subnet" "vpc_subnet_1" {
-  name       = "%s_waf"
-  cidr       = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
-  vpc_id     = huaweicloud_vpc.vpc_1.id
-}
-
-resource "huaweicloud_networking_secgroup" "secgroup" {
-  name        = "%s_waf"
-  description = "terraform security group acceptance test"
-}
-
-data "huaweicloud_availability_zones" "zones" {}
-
-data "huaweicloud_compute_flavors" "flavors" {
-  availability_zone = data.huaweicloud_availability_zones.zones.names[1]
-  performance_type  = "normal"
-  cpu_core_count    = 2
-}
-`, name, name, name)
-}
-
 func testAccWafDedicatedInstanceV1_conf(name string) string {
 	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_waf_dedicated_instance" "instance_1" {
   name               = "%s"
-  available_zone     = data.huaweicloud_availability_zones.zones.names[1]
+  available_zone     = data.huaweicloud_availability_zones.test.names[1]
   specification_code = "waf.instance.professional"
-  ecs_flavor         = data.huaweicloud_compute_flavors.flavors.ids[0]
-  vpc_id             = huaweicloud_vpc.vpc_1.id
-  subnet_id          = huaweicloud_vpc_subnet.vpc_subnet_1.id
+  ecs_flavor         = data.huaweicloud_compute_flavors.test.ids[0]
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
   
   security_group = [
-    huaweicloud_networking_secgroup.secgroup.id
+    huaweicloud_networking_secgroup.test.id
   ]
 }
-`, baseDependResource(name), name)
+`, common.TestBaseComputeResources(name), name)
 }
 
 func testAccWafDedicatedInstance_update(name string) string {
@@ -245,17 +217,17 @@ func testAccWafDedicatedInstance_update(name string) string {
 
 resource "huaweicloud_waf_dedicated_instance" "instance_1" {
   name               = "%s_updated"
-  available_zone     = data.huaweicloud_availability_zones.zones.names[1]
+  available_zone     = data.huaweicloud_availability_zones.test.names[1]
   specification_code = "waf.instance.professional"
-  ecs_flavor         = data.huaweicloud_compute_flavors.flavors.ids[0]
-  vpc_id             = huaweicloud_vpc.vpc_1.id
-  subnet_id          = huaweicloud_vpc_subnet.vpc_subnet_1.id
+  ecs_flavor         = data.huaweicloud_compute_flavors.test.ids[0]
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
   
   security_group = [
-    huaweicloud_networking_secgroup.secgroup.id
+    huaweicloud_networking_secgroup.test.id
   ]
 }
-`, baseDependResource(name), name)
+`, common.TestBaseComputeResources(name), name)
 }
 
 func testAccWafDedicatedInstance_epsId(name, epsId string) string {
@@ -264,41 +236,41 @@ func testAccWafDedicatedInstance_epsId(name, epsId string) string {
 
 resource "huaweicloud_waf_dedicated_instance" "instance_1" {
   name                  = "%s"
-  available_zone        = data.huaweicloud_availability_zones.zones.names[1]
+  available_zone        = data.huaweicloud_availability_zones.test.names[1]
   specification_code    = "waf.instance.professional"
-  ecs_flavor            = data.huaweicloud_compute_flavors.flavors.ids[0]
+  ecs_flavor            = data.huaweicloud_compute_flavors.test.ids[0]
   enterprise_project_id = "%s"
-  vpc_id                = huaweicloud_vpc.vpc_1.id
-  subnet_id             = huaweicloud_vpc_subnet.vpc_subnet_1.id
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
   
   security_group = [
-    huaweicloud_networking_secgroup.secgroup.id
+    huaweicloud_networking_secgroup.test.id
   ]
 }
-`, baseDependResource(name), name, epsId)
+`, common.TestBaseComputeResources(name), name, epsId)
 }
 
 func testAccWafDedicatedInstance_elb_model(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_waf_instance_group" "group_1" {
-  name   = "%s"
-  vpc_id = huaweicloud_vpc.vpc_1.id
+  name   = "%[2]s"
+  vpc_id = huaweicloud_vpc.test.id
 }
 
 resource "huaweicloud_waf_dedicated_instance" "instance_1" {
-  name               = "%s"
-  available_zone     = data.huaweicloud_availability_zones.zones.names[1]
+  name               = "%[2]s"
+  available_zone     = data.huaweicloud_availability_zones.test.names[1]
   specification_code = "waf.instance.professional"
-  ecs_flavor         = data.huaweicloud_compute_flavors.flavors.ids[0]
-  vpc_id             = huaweicloud_vpc.vpc_1.id
-  subnet_id          = huaweicloud_vpc_subnet.vpc_subnet_1.id
+  ecs_flavor         = data.huaweicloud_compute_flavors.test.ids[0]
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
   group_id           = huaweicloud_waf_instance_group.group_1.id
   
   security_group = [
-    huaweicloud_networking_secgroup.secgroup.id
+    huaweicloud_networking_secgroup.test.id
   ]
 }
-`, baseDependResource(name), name, name)
+`, common.TestBaseComputeResources(name), name)
 }

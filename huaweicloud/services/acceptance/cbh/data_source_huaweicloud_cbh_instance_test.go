@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccDatasourceCbhInstances_basic(t *testing.T) {
@@ -32,34 +33,18 @@ func TestAccDatasourceCbhInstances_basic(t *testing.T) {
 
 func testAccDatasourceCbhInstances_base(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  name        = "%[1]s"
-  cidr        = "192.168.0.0/16"
-  description = "Test for CBH instance"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%[1]s"
-  cidr       = "192.168.0.0/20"
-  gateway_ip = "192.168.0.1"
-  vpc_id     = huaweicloud_vpc.test.id
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name        = "%[1]s"
-  description = "secgroup for CBH instance"
-}
+%s
 
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_cbh_instance" "test" {
   flavor_id          = "cbh.basic.50"
-  name               = "%[1]s"
+  name               = "%s"
   vpc_id             = huaweicloud_vpc.test.id
   subnet_id          = huaweicloud_vpc_subnet.test.id
   security_group_id  = huaweicloud_networking_secgroup.test.id
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-  region             = "%[2]s"
+  region             = "%s"
   hx_password        = "test_123456"
   bastion_type       = "OEM"
   charging_mode      = "prePaid"
@@ -72,7 +57,7 @@ resource "huaweicloud_cbh_instance" "test" {
     resource_size      = "1"
   }
 }
-`, name, acceptance.HW_REGION_NAME)
+`, common.TestBaseNetwork(name), name, acceptance.HW_REGION_NAME)
 }
 
 func testAccDatasourceCbhInstances_basic(name string) string {

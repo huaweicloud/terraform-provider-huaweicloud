@@ -10,6 +10,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/sms/v3/templates"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getServerTemplateResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -140,28 +141,6 @@ resource "huaweicloud_sms_server_template" "test" {
 `, name, name)
 }
 
-func testAccServerTemplate_network(name string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  name = "%[1]s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name        = "%[1]s"
-  cidr        = "192.168.0.0/24"
-  gateway_ip  = "192.168.0.1"
-  vpc_id      = huaweicloud_vpc.test.id
-  description = "created by acc test"
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name        = "%[1]s"
-  description = "created by acc test"
-}
-`, name)
-}
-
 func testAccServerTemplate_existing(name string) string {
 	return fmt.Sprintf(`
 %s
@@ -174,7 +153,7 @@ resource "huaweicloud_sms_server_template" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   subnet_ids        = [ huaweicloud_vpc_subnet.test.id ]
 }
-`, testAccServerTemplate_network(name), name)
+`, common.TestBaseNetwork(name), name)
 }
 
 func testAccServerTemplate_existing_update(name string) string {
@@ -190,5 +169,5 @@ resource "huaweicloud_sms_server_template" "test" {
   subnet_ids         = [ huaweicloud_vpc_subnet.test.id ]
   security_group_ids = [ huaweicloud_networking_secgroup.test.id ]
 }
-`, testAccServerTemplate_network(name), name)
+`, common.TestBaseNetwork(name), name)
 }

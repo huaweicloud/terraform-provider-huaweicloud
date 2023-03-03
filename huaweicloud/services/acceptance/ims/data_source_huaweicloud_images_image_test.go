@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -136,6 +137,8 @@ data "huaweicloud_images_image" "test" {
 
 func testAccImsImageDataSource_base(rName string) string {
 	return fmt.Sprintf(`
+%s
+
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_compute_flavors" "test" {
@@ -143,14 +146,6 @@ data "huaweicloud_compute_flavors" "test" {
   performance_type  = "normal"
   cpu_core_count    = 2
   memory_size       = 4
-}
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%[1]s"
 }
 
 resource "huaweicloud_compute_instance" "test" {
@@ -175,7 +170,7 @@ resource "huaweicloud_images_image" "test" {
     key = "value"
   }
 }
-`, rName)
+`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccImsImageDataSource_queryName(rName string) string {

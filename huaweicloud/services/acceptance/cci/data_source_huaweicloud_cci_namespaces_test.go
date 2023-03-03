@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccDataCciNamespaces_basic(t *testing.T) {
@@ -68,37 +69,23 @@ func TestAccDataCciNamespaces_noNetwork(t *testing.T) {
 
 func testAccDataCciNamespaces_base(rName string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 data "huaweicloud_availability_zones" "test" {}
 
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%s"
-  cidr       = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
-  vpc_id     = huaweicloud_vpc.test.id
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%s"
-}
-
 resource "huaweicloud_cci_namespace" "test" {
-  name = "%s"
+  name = "%[2]s"
   type = "general-computing"
 }
 
 resource "huaweicloud_cci_network" "test" {
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   namespace         = huaweicloud_cci_namespace.test.name
-  name              = "%s"
+  name              = "%[2]s"
   network_id        = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
 }
-`, rName, rName, rName, rName, rName)
+`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccDataCciNamespaces_basic(rName string) string {

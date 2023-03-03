@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getDatabaseRoleFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -89,27 +90,10 @@ func testAccDatabaseRoleImportStateIdFunc() resource.ImportStateIdFunc {
 }
 
 func testAccDatabaseRole_base(rName string) string {
-	randCidr := acceptance.RandomCidr()
-
 	return fmt.Sprintf(`
+%s
+
 data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%[1]s"
-  cidr = "%[2]s"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  vpc_id = huaweicloud_vpc.test.id
-
-  name       = "%[1]s"
-  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1)
-  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1), 1)
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%[1]s"
-}
 
 resource "huaweicloud_dds_instance" "test" {
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
@@ -117,7 +101,7 @@ resource "huaweicloud_dds_instance" "test" {
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
 
-  name     = "%[1]s"
+  name     = "%s"
   mode     = "Sharding"
   password = "Test@12345678"
 
@@ -147,7 +131,7 @@ resource "huaweicloud_dds_instance" "test" {
     spec_code = "dds.mongodb.c6.large.2.config"
   }
 }
-`, rName, randCidr)
+`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccDatabaseRole_basic(rName string) string {

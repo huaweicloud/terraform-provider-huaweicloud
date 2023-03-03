@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbr"
 )
 
@@ -448,54 +449,16 @@ variable "volume_configuration" {
 
 func testAccVaultBasicConfiguration(config, rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_compute_flavors" "test" {
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  performance_type  = "normal"
-  cpu_core_count    = 2
-  memory_size       = 4
-}
-
-data "huaweicloud_images_image" "test" {
-  name        = "Ubuntu 18.04 server 64bit"
-  most_recent = true
-}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/20"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%s"
-  cidr       = "192.168.0.0/24"
-  vpc_id     = huaweicloud_vpc.test.id
-  gateway_ip = "192.168.0.1"
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name                 = "%s"
-  delete_default_rules = true
-}
-
-resource "huaweicloud_compute_keypair" "test" {
-  name = "%s"
-  lifecycle {
-    ignore_changes = [
-      public_key,
-    ]
-  }
-}
+// base compute resources
+%[2]s
 
 resource "huaweicloud_compute_instance" "test" {
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  name              = "%s"
+  name              = "%[3]s"
   image_id          = data.huaweicloud_images_image.test.id
   flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
-  key_pair          = huaweicloud_compute_keypair.test.name
 
   system_disk_type = "SSD"
   system_disk_size = 50
@@ -514,7 +477,7 @@ resource "huaweicloud_evs_volume" "test" {
 
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   volume_type       = var.volume_configuration[count.index].volume_type
-  name              = "%s_${tostring(count.index)}"
+  name              = "%[3]s_${tostring(count.index)}"
   size              = var.volume_configuration[count.index].size
   device_type       = var.volume_configuration[count.index].device_type
 }
@@ -524,7 +487,7 @@ resource "huaweicloud_compute_volume_attach" "test" {
 
   instance_id = huaweicloud_compute_instance.test.id
   volume_id   = huaweicloud_evs_volume.test[count.index].id
-}`, config, rName, rName, rName, rName, rName, rName)
+}`, config, common.TestBaseComputeResources(rName), rName)
 }
 
 func testAccVault_serverBasic(rName string) string {
@@ -707,23 +670,9 @@ resource "huaweicloud_cbr_vault" "test" {
 // Vaults of type 'turbo'
 func testAccVault_turboBase(rName string) string {
 	return fmt.Sprintf(`
+%s
+
 data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/20"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%s"
-  cidr       = "192.168.0.0/22"
-  gateway_ip = "192.168.0.1"
-  vpc_id     = huaweicloud_vpc.test.id
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%s"
-}
 
 resource "huaweicloud_sfs_turbo" "test1" {
   name              = "%s-1"
@@ -733,7 +682,7 @@ resource "huaweicloud_sfs_turbo" "test1" {
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
-}`, rName, rName, rName, rName)
+}`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccVault_turboBasic(rName string) string {

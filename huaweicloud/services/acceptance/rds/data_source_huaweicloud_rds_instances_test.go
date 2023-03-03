@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -35,23 +36,9 @@ func TestAccRdsInstanceDataSource_basic(t *testing.T) {
 
 func testAccRdsInstanceDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
+%s
+
 data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name          = "%s"
-  cidr          = "192.168.0.0/24"
-  gateway_ip    = "192.168.0.1"
-  vpc_id        = huaweicloud_vpc.test.id
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%s"
-}
 
 resource "huaweicloud_rds_instance" "test" {
   name              = "%s"
@@ -89,5 +76,5 @@ data "huaweicloud_rds_instances" "test" {
     huaweicloud_rds_instance.test,
   ]
 }
-`, rName, rName, rName, rName)
+`, common.TestBaseNetwork(rName), rName)
 }

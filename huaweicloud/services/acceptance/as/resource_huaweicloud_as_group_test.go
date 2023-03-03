@@ -10,6 +10,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/groups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccASGroup_basic(t *testing.T) {
@@ -170,59 +171,34 @@ func testAccCheckASGroupExists(n string, group *groups.Group) resource.TestCheck
 
 func testASGroup_Base(rName string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_vpc" "test" {
-  name = "vpc-default"
-}
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_images_image" "test" {
-  name        = "Ubuntu 18.04 server 64bit"
-  most_recent = true
-}
-
-data "huaweicloud_compute_flavors" "test" {
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  performance_type  = "normal"
-  cpu_core_count    = 2
-  memory_size       = 4
-}
-
-resource "huaweicloud_networking_secgroup" "secgroup" {
-  name        = "%s"
-  description = "This is a terraform test security group"
-}
+%[1]s
 
 resource "huaweicloud_compute_keypair" "acc_key" {
-  name       = "%s"
+  name       = "%[2]s"
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
 }
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name          = "%s"
-  vip_subnet_id = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  name          = "%[2]s"
+  vip_subnet_id = huaweicloud_vpc_subnet.test.ipv4_subnet_id
 }
 
 resource "huaweicloud_lb_listener" "listener_1" {
-  name            = "%s"
+  name            = "%[2]s"
   protocol        = "HTTP"
   protocol_port   = 8080
   loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 }
 
 resource "huaweicloud_lb_pool" "pool_1" {
-  name        = "%s"
+  name        = "%[2]s"
   protocol    = "HTTP"
   lb_method   = "ROUND_ROBIN"
   listener_id = huaweicloud_lb_listener.listener_1.id
 }
 
 resource "huaweicloud_as_configuration" "acc_as_config"{
-  scaling_configuration_name = "%s"
+  scaling_configuration_name = "%[2]s"
   instance_config {
 	image    = data.huaweicloud_images_image.test.id
 	flavor   = data.huaweicloud_compute_flavors.test.ids[0]
@@ -233,7 +209,7 @@ resource "huaweicloud_as_configuration" "acc_as_config"{
       disk_type   = "SYS"
     }
   }
-}`, rName, rName, rName, rName, rName, rName)
+}`, common.TestBaseComputeResources(rName), rName)
 }
 
 func testASGroup_basic(rName string) string {

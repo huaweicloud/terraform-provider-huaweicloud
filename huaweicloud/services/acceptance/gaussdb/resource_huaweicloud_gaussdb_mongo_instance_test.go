@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 
 	"github.com/chnsz/golangsdk/openstack/geminidb/v3/instances"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -100,10 +101,6 @@ func testAccGaussMongoInstanceConfig_basic(rName, password string) string {
 
 data "huaweicloud_availability_zones" "test" {}
 
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
-
 data "huaweicloud_gaussdb_nosql_flavors" "test" {
   vcpus             = 4
   engine            = "mongodb"
@@ -119,7 +116,7 @@ resource "huaweicloud_gaussdb_mongo_instance" "test" {
   subnet_id   = huaweicloud_vpc_subnet.test.id
   node_num    = 3
 
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
 
   backup_strategy {
@@ -132,7 +129,7 @@ resource "huaweicloud_gaussdb_mongo_instance" "test" {
     key = "value"
   }
 }
-`, testAccVpcConfig_Base(rName), rName, password)
+`, common.TestBaseNetwork(rName), rName, password)
 }
 
 func testAccGaussMongoInstanceConfig_update(rName, password string) string {
@@ -140,10 +137,6 @@ func testAccGaussMongoInstanceConfig_update(rName, password string) string {
 %s
 
 data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
 
 data "huaweicloud_gaussdb_nosql_flavors" "test" {
   vcpus             = 4
@@ -160,7 +153,7 @@ resource "huaweicloud_gaussdb_mongo_instance" "test" {
   subnet_id   = huaweicloud_vpc_subnet.test.id
   node_num    = 3
 
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
 
   backup_strategy {
@@ -173,18 +166,14 @@ resource "huaweicloud_gaussdb_mongo_instance" "test" {
     key = "value"
   }
 }
-`, testAccVpcConfig_Base(rName), rName, password)
+`, common.TestBaseNetwork(rName), rName, password)
 }
 
 func testAccGaussMongoInstanceConfig_prePaid(rName, password string, isAutoRenew bool) string {
 	return fmt.Sprintf(`
-%[1]s
+%s
 
 data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
 
 data "huaweicloud_gaussdb_nosql_flavors" "test" {
   vcpus             = 4
@@ -193,21 +182,21 @@ data "huaweicloud_gaussdb_nosql_flavors" "test" {
 }
 
 resource "huaweicloud_gaussdb_mongo_instance" "test" {
-  name        = "%[2]s"
-  password    = "%[3]s"
+  name        = "%s"
+  password    = "%s"
   flavor      = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[1].name
   volume_size = 200
   vpc_id      = huaweicloud_vpc.test.id
   subnet_id   = huaweicloud_vpc_subnet.test.id
   node_num    = 3
 
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
 
   charging_mode = "prePaid"
   period_unit   = "month"
   period        = 1
-  auto_renew    = "%[4]v"
+  auto_renew    = "%v"
 }
-`, testAccVpcConfig_Base(rName), rName, password, isAutoRenew)
+`, common.TestBaseNetwork(rName), rName, password, isAutoRenew)
 }

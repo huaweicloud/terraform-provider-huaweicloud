@@ -10,6 +10,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getResourceProxy(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -61,25 +62,9 @@ func TestAccGaussDBProxy_basic(t *testing.T) {
 
 func testAccMysqlProxy_basic(rName string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
+%s
 
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%s"
-  vpc_id     = huaweicloud_vpc.test.id
-  gateway_ip = "192.168.0.1"
-  cidr       = "192.168.0.0/24"
-
-  timeouts {
-    delete = "20m"
-  }
-}
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_gaussdb_mysql_instance" "test" {
   name        = "%s"
@@ -88,7 +73,7 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   vpc_id      = huaweicloud_vpc.test.id
   subnet_id   = huaweicloud_vpc_subnet.test.id
 
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
 
   enterprise_project_id = "0"
 }
@@ -98,5 +83,5 @@ resource "huaweicloud_gaussdb_mysql_proxy" "test" {
   flavor      = "gaussdb.proxy.xlarge.arm.2"
   node_num    = 3
 }
-`, rName, rName, rName)
+`, common.TestBaseNetwork(rName), rName)
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccEvsVolumesDataSource_basic(t *testing.T) {
@@ -29,8 +30,6 @@ func TestAccEvsVolumesDataSource_basic(t *testing.T) {
 }
 
 func testAccEvsVolumesDataSource_base(rName string) string {
-	randCidr, randGatewayIp := acceptance.RandomCidrAndGatewayIp()
-
 	return fmt.Sprintf(`
 variable "volume_configuration" {
   type = list(object({
@@ -47,46 +46,13 @@ variable "volume_configuration" {
   ]
 }
 
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_images_image" "test" {
-  name        = "Ubuntu 18.04 server 64bit"
-  most_recent = true
-}
-
-data "huaweicloud_compute_flavors" "test" {
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  performance_type  = "normal"
-  cpu_core_count    = 2
-  memory_size       = 4
-}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "%s"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%s"
-  vpc_id     = huaweicloud_vpc.test.id
-  cidr       = "%s"
-  gateway_ip = "%s"
-}
-
-resource "huaweicloud_compute_keypair" "test" {
-  name = "%s"
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%s"
-}
+%[1]s
 
 resource "huaweicloud_compute_instance" "test" {
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  name              = "%s"
+  name              = "%[2]s"
   image_id          = data.huaweicloud_images_image.test.id
   flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
-  key_pair          = huaweicloud_compute_keypair.test.name
 
   system_disk_type = "SSD"
   system_disk_size = 50
@@ -105,7 +71,7 @@ resource "huaweicloud_evs_volume" "test" {
   
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   volume_type       = "SSD"
-  name              = "%s_${var.volume_configuration[count.index].suffix}"
+  name              = "%[2]s_${var.volume_configuration[count.index].suffix}"
   size              = var.volume_configuration[count.index].size
   device_type       = var.volume_configuration[count.index].device_type
   multiattach       = var.volume_configuration[count.index].multiattach
@@ -121,7 +87,7 @@ resource "huaweicloud_compute_volume_attach" "test" {
   instance_id = huaweicloud_compute_instance.test.id
   volume_id   = huaweicloud_evs_volume.test[count.index].id
 }
-`, rName, randCidr, rName, randCidr, randGatewayIp, rName, rName, rName, rName)
+`, common.TestBaseComputeResources(rName), rName)
 }
 
 func testAccEvsVolumesDataSource_basic(rName string) string {

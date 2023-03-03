@@ -6,6 +6,7 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/drs/v3/jobs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -111,30 +112,6 @@ func TestAccResourceDrsJob_basic(t *testing.T) {
 	})
 }
 
-func testAccDrsNet_base(name string) string {
-	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name          = "%s"
-  cidr          = "192.168.0.0/24"
-  gateway_ip    = "192.168.0.1"
-  primary_dns   = "100.125.1.250"
-  secondary_dns = "100.125.21.250"
-  vpc_id        = huaweicloud_vpc.test.id
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%s"
-}
-`, name, name, name)
-}
-
 func testAccDrsJob_mysql(index int, name, pwd, ip string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_rds_instance" "test%d" {
@@ -167,12 +144,15 @@ resource "huaweicloud_rds_instance" "test%d" {
 }
 
 func testAccDrsJob_migrate_mysql(name, dbName, pwd string) string {
-	netConfig := testAccDrsNet_base(name)
+	netConfig := common.TestBaseNetwork(name)
 	sourceDb := testAccDrsJob_mysql(1, dbName, pwd, "192.168.0.58")
 	destDb := testAccDrsJob_mysql(2, dbName, pwd, "192.168.0.59")
 
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
+
 %s
 %s
 

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances"
@@ -139,9 +140,7 @@ func testAccGaussDBInstanceConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_gaussdb_mysql_instance" "test" {
   name                  = "%s"
@@ -149,7 +148,7 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   flavor                = "gaussdb.mysql.4xlarge.x86.4"
   vpc_id                = huaweicloud_vpc.test.id
   subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = data.huaweicloud_networking_secgroup.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
   enterprise_project_id = "0"
 
   tags = {
@@ -157,16 +156,14 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
     key = "value"
   }
 }
-`, testAccVpcConfig_Base(rName), rName)
+`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccGaussDBInstanceConfig_basicUpdate(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_gaussdb_mysql_instance" "test" {
   name                  = "%s"
@@ -174,7 +171,7 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   flavor                = "gaussdb.mysql.4xlarge.x86.4"
   vpc_id                = huaweicloud_vpc.test.id
   subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = data.huaweicloud_networking_secgroup.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
   enterprise_project_id = "0"
   audit_log_enabled     = true
 
@@ -183,16 +180,14 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
     key        = "value_update"
   }
 }
-`, testAccVpcConfig_Base(rName), rName)
+`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccGaussDBInstanceConfig_prePaid(rName, password string, isAutoRenew bool) string {
 	return fmt.Sprintf(`
-%[1]s
+%s
 
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%[2]s"
-}
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_gaussdb_mysql_instance" "test" {
   vpc_id                = huaweicloud_vpc.test.id
@@ -200,15 +195,15 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   security_group_id     = huaweicloud_networking_secgroup.test.id
 
   flavor   = "gaussdb.mysql.4xlarge.x86.4"
-  name     = "%[2]s"
-  password = "%[3]s"
+  name     = "%s"
+  password = "%s"
 
   enterprise_project_id = "0"
 
   charging_mode = "prePaid"
   period_unit   = "month"
   period        = 1
-  auto_renew    = "%[4]v"
+  auto_renew    = "%v"
 }
-`, testAccVpcConfig_Base(rName), rName, password, isAutoRenew)
+`, common.TestBaseNetwork(rName), rName, password, isAutoRenew)
 }

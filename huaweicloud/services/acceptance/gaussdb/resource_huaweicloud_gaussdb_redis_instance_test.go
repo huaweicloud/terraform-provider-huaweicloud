@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk"
@@ -120,10 +121,6 @@ func testAccGaussRedisInstanceConfig_basic(rName, password string) string {
 
 data "huaweicloud_availability_zones" "test" {}
 
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
-
 data "huaweicloud_gaussdb_nosql_flavors" "test" {
   vcpus             = 2
   engine            = "redis"
@@ -139,7 +136,7 @@ resource "huaweicloud_gaussdb_redis_instance" "test" {
   subnet_id   = huaweicloud_vpc_subnet.test.id
   node_num    = 3
 
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
 
   backup_strategy {
@@ -152,7 +149,7 @@ resource "huaweicloud_gaussdb_redis_instance" "test" {
     key = "value"
   }
 }
-`, testAccVpcConfig_Base(rName), rName, password)
+`, common.TestBaseNetwork(rName), rName, password)
 }
 
 func testAccGaussRedisInstanceConfig_update(rName, password string) string {
@@ -160,10 +157,6 @@ func testAccGaussRedisInstanceConfig_update(rName, password string) string {
 %s
 
 data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
 
 data "huaweicloud_gaussdb_nosql_flavors" "test" {
   vcpus             = 4
@@ -180,7 +173,7 @@ resource "huaweicloud_gaussdb_redis_instance" "test" {
   subnet_id   = huaweicloud_vpc_subnet.test.id
   node_num    = 4
 
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
 
   backup_strategy {
@@ -193,5 +186,5 @@ resource "huaweicloud_gaussdb_redis_instance" "test" {
     key = "value"
   }
 }
-`, testAccVpcConfig_Base(rName), rName, password)
+`, common.TestBaseNetwork(rName), rName, password)
 }
