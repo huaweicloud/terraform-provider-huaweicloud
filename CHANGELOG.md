@@ -1,5 +1,38 @@
 # CHANGELOG
 
+## 1.45.0 (March 3, 2023)
+
+* **New Resurce:**
+  + `huaweicloud_kms_grant` [GH-2707]
+  + `huaweicloud_vpc_flow_log` [GH-2714]
+  + `huaweicloud_rms_policy_assignment` [GH-2721]
+  + `huaweicloud_identity_password_policy` [GH-2734]
+  + `huaweicloud_cph_server` [GH-2743]
+  + `huaweicloud_ddm_instance` [GH-2751]
+
+* **New Data Source:**
+  + `huaweicloud_cph_server_flavors` [GH-2716]
+  + `huaweicloud_rms_policy_definitions` [GH-2719]
+  + `huaweicloud_ddm_engines` [GH-2723]
+  + `huaweicloud_as_groups` [GH-2724]
+  + `huaweicloud_as_configurations` [GH-2729]
+  + `huaweicloud_ddm_flavors` [GH-2736]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_compute_instance: Support data_disk encryption [GH-2720]
+* resource/huaweicloud_compute_instance: Add `description` field [GH-2722]
+* resource/huaweicloud_nat_gateway: Add tags support [GH-2726]
+* resource/huaweicloud_waf_domain: Support both prePaid and postPaid charging mode [GH-2732]
+* resource/huaweicloud_compute_interface_attach: Support security groups parameter when attaching [GH-2739]
+* resource/huaweicloud_nat_dnat_rule: Support internal_service_port_range and external_service_port_range [GH-2742]
+* resource/huaweicloud_waf_dedicated_domain: Add pci_3ds and pci_dss support [GH-2752]
+
+BUG FIXES:
+
+* resource/huaweicloud_cce_node_pool: Fix prePaid charging mode issue [GH-2741]
+* data/huaweicloud_css_flavors: Fix not being able to filter by `vpcs` or `memory` [GH-2750]
+
 ## 1.44.2 (February 17, 2023)
 
 ENHANCEMENTS:
