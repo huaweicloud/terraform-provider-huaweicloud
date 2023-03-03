@@ -73,8 +73,6 @@ The following arguments are supported:
   + Can only be an HTTPS listener.
   + Can only be a listener of the same load balancer.
 
-* `admin_state_up` - (Optional, Bool) The administrative state of the L7 Policy. This value can only be true (UP).
-
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:

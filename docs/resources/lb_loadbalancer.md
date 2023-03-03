@@ -54,9 +54,6 @@ The following arguments are supported:
 * `vip_address` - (Optional, String, ForceNew) The ip address of the load balancer. Changing this creates a new
   loadbalancer.
 
-* `admin_state_up` - (Optional, Bool) The administrative state of the loadbalancer. A valid value is true (UP) or
-  false (DOWN).
-
 * `tags` - (Optional, Map) The key/value pairs to associate with the loadbalancer.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the loadbalancer. Changing this

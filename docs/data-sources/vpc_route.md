@@ -30,8 +30,6 @@ filters must match exactly one route whose data will be exported as attributes.
 
 * `destination` - (Optional, String) The route destination address (CIDR).
 
-* `tenant_id` - (Optional, String) Only the administrator can specify the tenant ID of other tenants.
-
 * `type` - (Optional, String) Route type for filtering.
 
 ## Attribute Reference

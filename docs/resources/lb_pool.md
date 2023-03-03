@@ -51,8 +51,6 @@ The following arguments are supported:
 * `persistence` - (Optional, List, ForceNew) Omit this field to prevent session persistence. Indicates whether
   connections in the same session will be processed by the same Pool member or not. Changing this creates a new pool.
 
-* `admin_state_up` - (Optional, Bool) The administrative state of the pool. A valid value is true (UP) or false (DOWN).
-
 The `persistence` argument supports:
 
 * `type` - (Required, String, ForceNew) The type of persistence mode. The current specification supports SOURCE_IP,
