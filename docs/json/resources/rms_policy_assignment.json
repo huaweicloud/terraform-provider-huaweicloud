@@ -1,0 +1,142 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rms_policy_assignment": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the policy assignment.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the policy assignment.",
+                "required": true
+              },
+              "parameters": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The rule definition of the policy assignment.",
+                "optional": true
+              },
+              "period": {
+                "type": "string",
+                "description": "The period of the policy rule check.",
+                "optional": true
+              },
+              "policy_definition_id": {
+                "type": "string",
+                "description": "The ID of the policy definition.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The expect status of the policy.",
+                "optional": true,
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the policy assignment.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "custom_policy": {
+                "block": {
+                  "attributes": {
+                    "auth_type": {
+                      "type": "string",
+                      "description": "The authorization type of the custom policy.",
+                      "required": true
+                    },
+                    "auth_value": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "The authorization value of the custom policy.",
+                      "optional": true
+                    },
+                    "function_urn": {
+                      "type": "string",
+                      "description": "The function URN used to create the custom policy.",
+                      "required": true
+                    }
+                  },
+                  "description": "The configuration of the custom policy."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "policy_filter": {
+                "block": {
+                  "attributes": {
+                    "region": {
+                      "type": "string",
+                      "description": "The name of the region to which the filtered resources belong.",
+                      "optional": true
+                    },
+                    "resource_id": {
+                      "type": "string",
+                      "description": "The resource ID used to filter a specified resources.",
+                      "optional": true
+                    },
+                    "resource_provider": {
+                      "type": "string",
+                      "description": "The service name to which the filtered resources belong.",
+                      "optional": true
+                    },
+                    "resource_type": {
+                      "type": "string",
+                      "description": "The resource type of the filtered resources.",
+                      "optional": true
+                    },
+                    "tag_key": {
+                      "type": "string",
+                      "description": "The tag name used to filter resources.",
+                      "optional": true
+                    },
+                    "tag_value": {
+                      "type": "string",
+                      "description": "The tag value used to filter resources.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The configuration used to filter resources."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "RMS",
+            "name": "Resource Management Service",
+            "catalog": "Management & Governance",
+            "name_cn": "资源管理服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

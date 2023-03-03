@@ -2,7 +2,7 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_nat_gateway": {
+        "huaweicloud_vpc_flow_log": {
           "block": {
             "attributes": {
               "description": {
@@ -10,15 +10,24 @@
                 "optional": true,
                 "computed": true
               },
-              "enterprise_project_id": {
-                "type": "string",
+              "enabled": {
+                "type": "bool",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "default": true
               },
               "id": {
                 "type": "string",
                 "computed": true
+              },
+              "log_group_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "log_stream_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
               },
               "name": {
                 "type": "string",
@@ -28,40 +37,33 @@
                 "type": "string",
                 "computed": true
               },
-              "spec": {
+              "resource_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
+              },
+              "resource_type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
               },
               "status": {
                 "type": "string",
                 "computed": true
               },
-              "subnet_id": {
+              "traffic_type": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
-              },
-              "tags": {
-                "type": [
-                  "map",
-                  "string"
-                ],
-                "optional": true
-              },
-              "vpc_id": {
-                "type": "string",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
+                "forcenew": true,
+                "default": "all"
               }
             }
           },
           "product": {
-            "short": "NAT",
-            "name": "NAT Gateway",
+            "short": "VPC",
+            "name": "Virtual Private Cloud",
             "catalog": "Networking",
-            "name_cn": "NAT网关",
+            "name_cn": "虚拟私有云",
             "catalog_cn": "网络"
           }
         }

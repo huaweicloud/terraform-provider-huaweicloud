@@ -26,6 +26,7 @@
               },
               "cipher": {
                 "type": "string",
+                "optional": true,
                 "computed": true
               },
               "compliance_certification": {
@@ -48,6 +49,16 @@
                 "type": "bool",
                 "optional": true,
                 "default": true
+              },
+              "pci_3ds": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "pci_dss": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
               },
               "policy_id": {
                 "type": "string",

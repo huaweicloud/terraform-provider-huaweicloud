@@ -1,0 +1,128 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_as_configurations": {
+          "block": {
+            "attributes": {
+              "configurations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "instance_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "charging_mode": "string",
+                            "disk": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "disk_type": "string",
+                                  "kms_id": "string",
+                                  "size": "number",
+                                  "volume_type": "string"
+                                }
+                              ]
+                            ],
+                            "ecs_group_id": "string",
+                            "flavor": "string",
+                            "flavor_priority_policy": "string",
+                            "image": "string",
+                            "instance_id": "string",
+                            "key_name": "string",
+                            "metadata": [
+                              "map",
+                              "string"
+                            ],
+                            "personality": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "content": "string",
+                                  "path": "string"
+                                }
+                              ]
+                            ],
+                            "public_ip": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "eip": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "bandwidth": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "charging_mode": "string",
+                                              "share_type": "string",
+                                              "size": "number"
+                                            }
+                                          ]
+                                        ],
+                                        "ip_type": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "security_group_ids": [
+                              "list",
+                              "string"
+                            ],
+                            "user_data": "string"
+                          }
+                        ]
+                      ],
+                      "scaling_configuration_name": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "The information about AS instance configurations.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_id": {
+                "type": "string",
+                "description": "The AS image id used to query configuration list.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The AS configuration name used to query configuration list.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the AS configurations are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AS",
+            "name": "Auto Scaling",
+            "catalog": "Compute",
+            "name_cn": "弹性伸缩",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

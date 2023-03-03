@@ -17,6 +17,12 @@
                 "type": "string",
                 "optional": true
               },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "default": "prePaid"
+              },
               "domain": {
                 "type": "string",
                 "required": true,

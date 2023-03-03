@@ -1,0 +1,206 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cph_server": {
+          "block": {
+            "attributes": {
+              "addresses": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "public_ip": "string",
+                      "server_ip": "string"
+                    }
+                  ]
+                ],
+                "description": "The IP addresses of the CPH server.",
+                "computed": true
+              },
+              "auto_renew": {
+                "type": "string",
+                "description": "Whether auto renew is enabled. Valid values are \"true\" and \"false\".",
+                "required": true,
+                "forcenew": true
+              },
+              "availability_zone": {
+                "type": "string",
+                "description": "The name of the AZ where the cloud server is located.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "eip_id": {
+                "type": "string",
+                "description": "The ID of an **existing** EIP assigned to the server.",
+                "optional": true,
+                "forcenew": true
+              },
+              "eip_type": {
+                "type": "string",
+                "description": "The type of an EIP that will be automatically assigned to the cloud server.",
+                "optional": true,
+                "forcenew": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "the enterprise project ID.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_id": {
+                "type": "string",
+                "description": "The cloud phone image ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "keypair_name": {
+                "type": "string",
+                "description": "The key pair name, which is used for logging in to the cloud phone through ADB.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Server name.",
+                "required": true
+              },
+              "order_id": {
+                "type": "string",
+                "description": "The order ID.",
+                "computed": true
+              },
+              "period": {
+                "type": "number",
+                "description": "The charging period.",
+                "required": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "description": "The charging period unit.",
+                "required": true,
+                "forcenew": true
+              },
+              "phone_flavor": {
+                "type": "string",
+                "description": "The cloud phone flavor.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_groups": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of the security groups bound to the extension NIC of the CPH server.",
+                "computed": true
+              },
+              "server_flavor": {
+                "type": "string",
+                "description": "The CPH server flavor.",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "number",
+                "description": "The CPH server status.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "The ID of subnet which the cloud server belongs to",
+                "required": true,
+                "forcenew": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "The ID of VPC which the cloud server belongs to",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "bandwidth": {
+                "block": {
+                  "attributes": {
+                    "charge_mode": {
+                      "type": "string",
+                      "description": "Which the bandwidth used by the CPH server is billed.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The bandwidth ID.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "share_type": {
+                      "type": "string",
+                      "description": "The bandwidth type.",
+                      "required": true
+                    },
+                    "size": {
+                      "type": "number",
+                      "description": "The bandwidth (Mbit/s).",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The bandwidth used by the cloud phone."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "ports": {
+                "block": {
+                  "attributes": {
+                    "internet_accessible": {
+                      "type": "string",
+                      "description": "Whether public network access is mapped.",
+                      "required": true
+                    },
+                    "listen_port": {
+                      "type": "number",
+                      "description": "The port number, which ranges from 10000 to 50000.",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The application port name, which can contain a maximum of 16 bytes.",
+                      "required": true
+                    }
+                  },
+                  "description": "The application port enabled by the cloud phone."
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "CPH",
+            "name": "Cloud Phone",
+            "catalog": "Compute",
+            "name_cn": "云手机",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

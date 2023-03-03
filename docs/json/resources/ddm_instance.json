@@ -1,0 +1,172 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ddm_instance": {
+          "block": {
+            "attributes": {
+              "access_ip": {
+                "type": "string",
+                "description": "Indicates the address for accessing the DDM instance.",
+                "computed": true
+              },
+              "access_port": {
+                "type": "string",
+                "description": "Indicates the port for accessing the DDM instance.",
+                "computed": true
+              },
+              "admin_password": {
+                "type": "string",
+                "description": "Specifies the password of the administrator.",
+                "optional": true,
+                "computed": true,
+                "sensitive": true
+              },
+              "admin_user": {
+                "type": "string",
+                "description": "Specifies the username of the administrator.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
+              "availability_zones": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of availability zones.",
+                "required": true,
+                "forcenew": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "delete_rds_data": {
+                "type": "string",
+                "description": "Specifies whether data stored on the associated DB instances is deleted",
+                "optional": true,
+                "computed": true
+              },
+              "engine_id": {
+                "type": "string",
+                "description": "Specifies the ID of an Engine.",
+                "required": true,
+                "forcenew": true
+              },
+              "engine_version": {
+                "type": "string",
+                "description": "Indicates the engine version.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project id.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "description": "Specifies the ID of a product.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the DDM instance.",
+                "required": true
+              },
+              "node_num": {
+                "type": "number",
+                "description": "Specifies the number of nodes.",
+                "required": true
+              },
+              "nodes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "ip": "string",
+                      "port": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the node information.",
+                "computed": true
+              },
+              "param_group_id": {
+                "type": "string",
+                "description": "Specifies the ID of parameter group.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "description": "Specifies the ID of a security group.",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the status of the DDM instance.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "Specifies the ID of a subnet.",
+                "required": true,
+                "forcenew": true
+              },
+              "time_zone": {
+                "type": "string",
+                "description": "Specifies the time zone.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "Specifies the ID of a VPC.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDM",
+            "name": "Distributed Database Middleware",
+            "catalog": "Databases",
+            "name_cn": "分布式数据库中间件",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

@@ -40,6 +40,14 @@
                 "type": "string",
                 "computed": true
               },
+              "security_group_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
               "source_dest_check": {
                 "type": "bool",
                 "optional": true,

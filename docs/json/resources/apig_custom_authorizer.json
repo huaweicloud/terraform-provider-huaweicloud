@@ -7,14 +7,17 @@
             "attributes": {
               "cache_age": {
                 "type": "number",
+                "description": "The maximum cache age.",
                 "optional": true
               },
-              "create_time": {
+              "created_at": {
                 "type": "string",
+                "description": "The creation time of the custom authorizer.",
                 "computed": true
               },
               "function_urn": {
                 "type": "string",
+                "description": "The URN of the FGS function.",
                 "required": true
               },
               "id": {
@@ -23,29 +26,35 @@
               },
               "instance_id": {
                 "type": "string",
+                "description": "The ID of the dedicated instance to which the custom authorizer belongs.",
                 "required": true,
                 "forcenew": true
               },
               "is_body_send": {
                 "type": "bool",
+                "description": "Whether to send the body.",
                 "optional": true
               },
               "name": {
                 "type": "string",
+                "description": "The name of the custom authorizer.",
                 "required": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the custom authorizer is located.",
                 "computed": true
               },
               "type": {
                 "type": "string",
+                "description": "The custom authorization type",
                 "optional": true,
                 "forcenew": true,
                 "default": "FRONTEND"
               },
               "user_data": {
                 "type": "string",
+                "description": "The user data for custom authorizer function.",
                 "optional": true
               }
             },
@@ -55,17 +64,21 @@
                   "attributes": {
                     "location": {
                       "type": "string",
+                      "description": "The parameter location.",
                       "required": true
                     },
                     "name": {
                       "type": "string",
+                      "description": "The name of the parameter to be verified.",
                       "required": true
                     },
                     "validation": {
                       "type": "string",
+                      "description": "The parameter verification expression.",
                       "optional": true
                     }
-                  }
+                  },
+                  "description": "The array of one or more parameter identities of the custom authorizer."
                 },
                 "nesting_mode": "set"
               }

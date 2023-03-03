@@ -1,0 +1,69 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_kms_grant": {
+          "block": {
+            "attributes": {
+              "creator": {
+                "type": "string",
+                "description": "The ID of the creator.",
+                "computed": true
+              },
+              "grantee_principal": {
+                "type": "string",
+                "description": "The ID of the authorized user or account.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key_id": {
+                "type": "string",
+                "description": "Key ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Grant name.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "operations": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "List of granted operations.\n",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Authorization type. The options are: **user**, **domain**. The default value is **user**.",
+                "optional": true,
+                "forcenew": true,
+                "default": "user"
+              }
+            }
+          },
+          "product": {
+            "short": "KMS",
+            "name": "Data Encryption Workshop KMS",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据加密服务-密钥管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

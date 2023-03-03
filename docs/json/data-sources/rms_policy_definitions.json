@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rms_policy_definitions": {
+          "block": {
+            "attributes": {
+              "definitions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "id": "string",
+                      "keywords": [
+                        "list",
+                        "string"
+                      ],
+                      "name": "string",
+                      "parameters": [
+                        "map",
+                        "string"
+                      ],
+                      "policy_rule": "string",
+                      "policy_rule_type": "string",
+                      "policy_type": "string",
+                      "trigger_type": "string"
+                    }
+                  ]
+                ],
+                "description": "The policy definition list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "keywords": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The keyword list used to query definition list.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the policy definitions used to query definition list.",
+                "optional": true
+              },
+              "policy_rule_type": {
+                "type": "string",
+                "description": "The policy rule type used to query definition list.",
+                "optional": true
+              },
+              "policy_type": {
+                "type": "string",
+                "description": "The policy type used to query definition list.",
+                "optional": true
+              },
+              "trigger_type": {
+                "type": "string",
+                "description": "The trigger type used to query definition list.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "RMS",
+            "name": "Resource Management Service",
+            "catalog": "Management & Governance",
+            "name_cn": "资源管理服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

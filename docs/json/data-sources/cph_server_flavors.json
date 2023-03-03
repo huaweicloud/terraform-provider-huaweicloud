@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cph_server_flavors": {
+          "block": {
+            "attributes": {
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "extend_spec": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "bms_flavor": "string",
+                            "disk": "string",
+                            "gpu": "string",
+                            "gpu_count": "number",
+                            "memory": "string",
+                            "network_interface": "string",
+                            "numa_count": "number",
+                            "vcpus": "string"
+                          }
+                        ]
+                      ],
+                      "flavor_id": "string",
+                      "memory": "number",
+                      "type": "string",
+                      "vcpus": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of flavor detail.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "memory": {
+                "type": "number",
+                "description": "The ram of the CPH server in GB.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the CPH server flavor.",
+                "optional": true
+              },
+              "vcpus": {
+                "type": "number",
+                "description": "The vcpus of the CPH server.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CPH",
+            "name": "Cloud Phone",
+            "catalog": "Compute",
+            "name_cn": "云手机",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

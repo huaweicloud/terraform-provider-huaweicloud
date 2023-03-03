@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ddm_flavors": {
+          "block": {
+            "attributes": {
+              "code": {
+                "type": "string",
+                "description": "Specifies the VM flavor types recorded in DDM.",
+                "optional": true
+              },
+              "cpu_arch": {
+                "type": "string",
+                "description": "Specifies the compute resource architecture type.",
+                "optional": true
+              },
+              "engine_id": {
+                "type": "string",
+                "description": "Specifies the ID of an engine.",
+                "required": true
+              },
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "code": "string",
+                      "cpu_arch": "string",
+                      "id": "string",
+                      "memory": "number",
+                      "vcpus": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of DDM compute flavors.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "memory": {
+                "type": "number",
+                "description": "Specifies the memory size. Unit GB.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "vcpus": {
+                "type": "number",
+                "description": "Specifies the number of CPUs.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDM",
+            "name": "Distributed Database Middleware",
+            "catalog": "Databases",
+            "name_cn": "分布式数据库中间件",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

@@ -57,6 +57,11 @@
                 "optional": true,
                 "default": true
               },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "eip_id": {
                 "type": "string",
                 "optional": true,
@@ -219,6 +224,7 @@
                     "object",
                     {
                       "boot_index": "number",
+                      "kms_key_id": "string",
                       "pci_address": "string",
                       "size": "number",
                       "type": "string",
@@ -262,6 +268,11 @@
               "data_disks": {
                 "block": {
                   "attributes": {
+                    "kms_key_id": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
                     "size": {
                       "type": "number",
                       "required": true,

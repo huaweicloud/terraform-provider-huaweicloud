@@ -17,7 +17,12 @@
               },
               "external_service_port": {
                 "type": "number",
-                "required": true,
+                "optional": true,
+                "forcenew": true
+              },
+              "external_service_port_range": {
+                "type": "string",
+                "optional": true,
                 "forcenew": true
               },
               "floating_ip_address": {
@@ -35,7 +40,12 @@
               },
               "internal_service_port": {
                 "type": "number",
-                "required": true,
+                "optional": true,
+                "forcenew": true
+              },
+              "internal_service_port_range": {
+                "type": "string",
+                "optional": true,
                 "forcenew": true
               },
               "nat_gateway_id": {

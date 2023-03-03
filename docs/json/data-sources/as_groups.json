@@ -1,0 +1,130 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_as_groups": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The Enterprise Project id used to query group list.",
+                "optional": true
+              },
+              "groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "activity_type": "string",
+                      "availability_zones": [
+                        "list",
+                        "string"
+                      ],
+                      "cool_down_time": "number",
+                      "created_at": "string",
+                      "current_instance_number": "number",
+                      "delete_publicip": "bool",
+                      "delete_volume": "bool",
+                      "description": "string",
+                      "desire_instance_number": "number",
+                      "detail": "string",
+                      "enterprise_project_id": "string",
+                      "health_periodic_audit_grace_period": "number",
+                      "health_periodic_audit_method": "string",
+                      "health_periodic_audit_time": "number",
+                      "iam_agency_name": "string",
+                      "instance_terminate_policy": "string",
+                      "instances": [
+                        "list",
+                        "string"
+                      ],
+                      "is_scaling": "bool",
+                      "lbaas_listeners": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "pool_id": "string",
+                            "protocol_port": "number",
+                            "weight": "number"
+                          }
+                        ]
+                      ],
+                      "max_instance_number": "number",
+                      "min_instance_number": "number",
+                      "multi_az_scaling_policy": "string",
+                      "networks": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "ipv6_bandwidth_id": "string",
+                            "ipv6_enable": "bool"
+                          }
+                        ]
+                      ],
+                      "scaling_configuration_id": "string",
+                      "scaling_configuration_name": "string",
+                      "scaling_group_id": "string",
+                      "scaling_group_name": "string",
+                      "security_groups": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "A list of AS groups",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The AS group name used to query group list.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the AS groups are located.",
+                "computed": true
+              },
+              "scaling_configuration_id": {
+                "type": "string",
+                "description": "The AS group configuration id used to query group list.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The AS group status used to query group list.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "AS",
+            "name": "Auto Scaling",
+            "catalog": "Compute",
+            "name_cn": "弹性伸缩",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}
