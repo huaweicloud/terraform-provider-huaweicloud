@@ -14,6 +14,7 @@ import (
 
 func TestAccOpenGaussInstancesDataSource_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	dataSourceName := "data.huaweicloud_gaussdb_opengauss_instances.test"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -22,8 +23,32 @@ func TestAccOpenGaussInstancesDataSource_basic(t *testing.T) {
 			{
 				Config: testAccOpenGaussInstancesDataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckOpenGaussInstancesDataSourceID("data.huaweicloud_gaussdb_opengauss_instances.test"),
-					resource.TestCheckResourceAttr("data.huaweicloud_gaussdb_opengauss_instances.test", "instances.#", "1"),
+					testAccCheckOpenGaussInstancesDataSourceID(dataSourceName),
+					resource.TestCheckResourceAttr(dataSourceName, "instances.#", "1"),
+					resource.TestCheckResourceAttr(dataSourceName, "instances.0.sharding_num", "1"),
+					resource.TestCheckResourceAttr(dataSourceName, "instances.0.coordinator_num", "2"),
+					resource.TestCheckResourceAttr(dataSourceName, "instances.0.volume.0.size", "40"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccOpenGaussInstancesDataSource_haModeCentralized(t *testing.T) {
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	dataSourceName := "data.huaweicloud_gaussdb_opengauss_instances.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccOpenGaussInstancesDataSource_haModeCentralized(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckOpenGaussInstancesDataSourceID(dataSourceName),
+					resource.TestCheckResourceAttr(dataSourceName, "instances.#", "1"),
+					resource.TestCheckResourceAttr(dataSourceName, "instances.0.replica_num", "3"),
+					resource.TestCheckResourceAttr(dataSourceName, "instances.0.volume.0.size", "40"),
 				),
 			},
 		},
@@ -47,10 +72,10 @@ func testAccCheckOpenGaussInstancesDataSourceID(n string) resource.TestCheckFunc
 
 func testAccOpenGaussInstancesDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_networking_secgroup" "test" {
-  name        = "%s"
+  name        = "%[2]s"
   description = "terraform security group rule acceptance test"
 }
 
@@ -63,7 +88,7 @@ resource "huaweicloud_networking_secgroup_rule" "test" {
 }
 
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {
-  name      = "%s"
+  name      = "%[2]s"
   password  = "Test@12345678"
   flavor    = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
   vpc_id    = huaweicloud_vpc.test.id
@@ -84,6 +109,55 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
 
   sharding_num    = 1
   coordinator_num = 2
+}
+
+data "huaweicloud_gaussdb_opengauss_instances" "test" {
+  name = huaweicloud_gaussdb_opengauss_instance.test.name
+  depends_on = [
+    huaweicloud_gaussdb_opengauss_instance.test,
+  ]
+}
+`, testAccVpcConfig_Base(rName), rName)
+}
+
+func testAccOpenGaussInstancesDataSource_haModeCentralized(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_networking_secgroup" "test" {
+  name        = "%[2]s"
+  description = "terraform security group rule acceptance test"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "test" {
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  remote_ip_prefix  = "0.0.0.0/0"
+}
+
+resource "huaweicloud_gaussdb_opengauss_instance" "test" {
+  name      = "%[2]s"
+  password  = "Test@12345678"
+  flavor    = "gaussdb.opengauss.ee.m6.2xlarge.x868.ha"
+  vpc_id    = huaweicloud_vpc.test.id
+  subnet_id = huaweicloud_vpc_subnet.test.id
+
+  availability_zone = "cn-north-4a,cn-north-4a,cn-north-4a"
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  ha {
+    mode             = "centralization_standard"
+    replication_mode = "sync"
+    consistency      = "strong"
+  }
+  volume {
+    type = "ULTRAHIGH"
+    size = 40
+  }
+
+  replica_num = 3
 }
 
 data "huaweicloud_gaussdb_opengauss_instances" "test" {
