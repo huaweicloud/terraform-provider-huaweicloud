@@ -85,10 +85,6 @@ The following arguments are supported:
 
 * `alarm_enabled` - (Optional, Bool) Specifies whether to enable the alarm. The default value is true.
 
-* `alarm_level` - (Optional, Int) Specifies the alarm severity. The value can be 1, 2, 3 or 4,
-  which indicates *critical*, *major*, *minor*, and *informational*, respectively.
-  The default value is 2.
-
 * `alarm_type` - (Optional, String) Specifies the alarm type. The value can be **EVENT.SYS**, **EVENT.CUSTOM**
   or **MULTI_INSTANCE**. Defaults to **MULTI_INSTANCE**.
 
@@ -100,6 +96,12 @@ The following arguments are supported:
 
 * `alarm_action_enabled` - (Optional, Bool) Specifies whether to enable the action to be triggered by an alarm. The
   default value is true.
+
+* `notification_begin_time` - (Optional, String, ForceNew) Specifies the alarm notification start time, for
+  example: **05:30**. Changing this creates a new resource.
+
+* `notification_end_time` - (Optional, String, ForceNew) Specifies the alarm notification stop time, for
+  example: **22:10**. Changing this creates a new resource.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the alarm rule. Changing
   this creates a new resource.
@@ -114,23 +116,15 @@ The `metric` block supports:
   Changing this creates a new resource.
   For details, see [Services Interconnected with Cloud Eye](https://support.huaweicloud.com/intl/en-us/api-ces/ces_03_0059.html).
 
-* `metric_name` - (Required, String, ForceNew) Specifies the metric name. The value can be a string of 1 to 64
-  characters that must start with a letter and contain only letters, digits, and underscores (_).
-  Changing this creates a new resource.
-  For details, see [Services Interconnected with Cloud Eye](https://support.huaweicloud.com/intl/en-us/api-ces/ces_03_0059.html).
-
-* `dimensions` - (Optional, List, ForceNew) Specifies the list of metric dimensions. The structure is described below.
-  Changing this creates a new resource.
+* `dimensions` - (Optional, List) Specifies the list of metric dimensions. The structure is described below.
 
 The `dimensions` block supports:
 
-* `name` - (Required, String, ForceNew) Specifies the dimension name. The value can be a string of 1 to 32 characters
+* `name` - (Required, String) Specifies the dimension name. The value can be a string of 1 to 32 characters
   that must start with a letter and contain only letters, digits, underscores (_), and hyphens (-).
-  Changing this creates a new resource.
 
-* `value` - (Required, String, ForceNew) Specifies the dimension value. The value can be a string of 1 to 64 characters
+* `value` - (Required, String) Specifies the dimension value. The value can be a string of 1 to 64 characters
   that must start with a letter or a number and contain only letters, digits, underscores (_), and hyphens (-).
-  Changing this creates a new resource.
 
 The `condition` block supports:
 
@@ -167,6 +161,14 @@ The `condition` block supports:
   + **86400**: Cloud Eye triggers the alarm every day.
 
   The default value is **0**.
+
+* `metric_name` - (Required, String) Specifies the metric name of the condition. The value can be a string of
+  1 to 64 characters that must start with a letter and contain only letters, digits, and underscores (_).
+  For details, see [Services Interconnected with Cloud Eye](https://support.huaweicloud.com/intl/en-us/api-ces/ces_03_0059.html).
+
+* `alarm_level` - (Optional, Int) Specifies the alarm severity of the condition. The value can be 1, 2, 3 or 4,
+  which indicates *critical*, *major*, *minor*, and *informational*, respectively.
+  The default value is 2.
 
 the `alarm_actions` block supports:
 

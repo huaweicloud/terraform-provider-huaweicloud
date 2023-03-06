@@ -678,6 +678,10 @@ func (c *Config) CesV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("ces", region)
 }
 
+func (c *Config) CesV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("cesv2", region)
+}
+
 func (c *Config) LtsV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("lts", region)
 }
