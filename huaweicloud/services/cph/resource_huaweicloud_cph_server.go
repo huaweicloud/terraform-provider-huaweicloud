@@ -504,7 +504,7 @@ func createCphServerWaitingForStateCompleted(ctx context.Context, d *schema.Reso
 			return createCphServerRespBody, "PENDING", nil
 		},
 		Timeout:      t,
-		Delay:        25 * time.Second,
+		Delay:        120 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
