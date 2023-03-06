@@ -402,6 +402,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_servergroups": ecs.DataSourceComputeServerGroups(),
 
 			"huaweicloud_cph_server_flavors": cph.DataSourceServerFlavors(),
+			"huaweicloud_cph_phone_flavors":  cph.DataSourcePhoneFlavors(),
 
 			"huaweicloud_csbs_backup":        dataSourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy": dataSourceCSBSBackupPolicyV1(),
