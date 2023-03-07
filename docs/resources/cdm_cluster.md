@@ -44,15 +44,14 @@ The following arguments are supported:
 
 * `flavor_id` - (Required, String, ForceNew) Specifies flavor id. Changing this parameter will create a new resource.
 
-* `version` - (Optional, String, ForceNew) Specifies cluster version. Default value is `2.8.6.2`.
- Changing this parameter will create a new resource.
-
 * `vpc_id` - (Required, String, ForceNew) Specifies VPC ID. Changing this parameter will create a new resource.
 
 * `subnet_id` - (Required, String, ForceNew) Specifies subnet ID. Changing this parameter will create a new resource.
 
 * `security_group_id` - (Required, String, ForceNew) Specifies security group ID.
  Changing this parameter will create a new resource.
+
+* `version` - (Optional, String, ForceNew) Specifies the cluster version. Changing this parameter will create a new resource.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id.
  Changing this parameter will create a new resource.

@@ -26,7 +26,7 @@ type ClusterRequest struct {
 	// Node list.
 	Instances []InstanceReq `json:"instances,omitempty"`
 	// Cluster information. For details, see the description of the datastore parameter.
-	Datastore Datastore `json:"datastore,omitempty"`
+	Datastore *Datastore `json:"datastore,omitempty"`
 	// Time for scheduled shutdown of a CDM cluster. The system shuts down directly at this time every day without waiting for unfinished jobs to complete.
 	ScheduleOffTime string `json:"scheduleOffTime,omitempty"`
 	// VPC ID, which is used for configuring a network for the cluster
