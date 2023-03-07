@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -53,6 +54,8 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "fuction test update"),
 					resource.TestCheckResourceAttrSet(resourceName, "urn"),
 					resource.TestCheckResourceAttrSet(resourceName, "version"),
+					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "network_id", "huaweicloud_vpc_subnet.test", "id"),
 				),
 			},
 			{
@@ -63,6 +66,8 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 					"app",
 					"package",
 					"func_code",
+					"xrole",
+					"agency",
 				},
 			},
 		},
@@ -166,13 +171,25 @@ func TestAccFgsV2Function_createByImage(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccFgsV2Function_createByImage(randName),
+				Config: testAccFgsV2Function_createByImage_step_1(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", randName),
 					resource.TestCheckResourceAttr(resourceName, "agency", "functiongraph_swr_trust"),
 					resource.TestCheckResourceAttr(resourceName, "runtime", "Custom Image"),
 					resource.TestCheckResourceAttr(resourceName, "custom_image.0.url", acceptance.HW_BUILD_IMAGE_URL),
+				),
+			},
+			{
+				Config: testAccFgsV2Function_createByImage_step_2(randName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "agency", "functiongraph_swr_trust"),
+					resource.TestCheckResourceAttr(resourceName, "runtime", "Custom Image"),
+					resource.TestCheckResourceAttr(resourceName, "custom_image.0.url", acceptance.HW_BUILD_IMAGE_URL),
+					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "network_id", "huaweicloud_vpc_subnet.test", "id"),
 				),
 			},
 			{
@@ -208,8 +225,10 @@ resource "huaweicloud_fgs_function" "test" {
 
 func testAccFgsV2Function_update(rName string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_fgs_function" "test" {
-  name        = "%s"
+  name        = "%[2]s"
   app         = "default"
   description = "fuction test update"
   handler     = "index.handler"
@@ -218,8 +237,11 @@ resource "huaweicloud_fgs_function" "test" {
   runtime     = "Python2.7"
   code_type   = "inline"
   func_code   = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
+  agency      = "function_vpc_trust"
+  vpc_id      = huaweicloud_vpc.test.id
+  network_id  = huaweicloud_vpc_subnet.test.id
 }
-`, rName)
+`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccFgsV2Function_text(rName string) string {
@@ -268,7 +290,7 @@ resource "huaweicloud_fgs_function" "test" {
 `, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccFgsV2Function_createByImage(rName string) string {
+func testAccFgsV2Function_createByImage_step_1(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
   name        = "%s"
@@ -283,4 +305,26 @@ resource "huaweicloud_fgs_function" "test" {
   }
 }
 `, rName, acceptance.HW_BUILD_IMAGE_URL)
+}
+
+func testAccFgsV2Function_createByImage_step_2(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_fgs_function" "test" {
+  name        = "%[2]s"
+  app         = "default"
+  memory_size = 128
+  runtime     = "Custom Image"
+  timeout     = 3
+  agency      = "functiongraph_swr_trust"
+
+  custom_image {
+    url = "%[3]s"
+  }
+
+  vpc_id     = huaweicloud_vpc.test.id
+  network_id = huaweicloud_vpc_subnet.test.id
+}
+`, common.TestBaseNetwork(rName), rName, acceptance.HW_BUILD_IMAGE_URL)
 }
