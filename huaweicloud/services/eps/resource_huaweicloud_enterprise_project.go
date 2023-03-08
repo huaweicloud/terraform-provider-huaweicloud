@@ -53,7 +53,7 @@ func ResourceEnterpriseProject() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validation.StringInSlice([]string{"poc", "proc"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"poc", "prod"}, false),
 			},
 			"enable": {
 				Type:     schema.TypeBool,
