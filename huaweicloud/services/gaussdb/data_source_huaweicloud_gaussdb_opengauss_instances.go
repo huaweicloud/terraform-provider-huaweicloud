@@ -159,6 +159,10 @@ func DataSourceOpenGaussInstances() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"replica_num": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 						"volume": {
 							Type:     schema.TypeList,
 							Computed: true,
@@ -176,6 +180,13 @@ func DataSourceOpenGaussInstances() *schema.Resource {
 							},
 						},
 						"private_ips": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"public_ips": {
 							Type:     schema.TypeList,
 							Computed: true,
 							Elem: &schema.Schema{
@@ -261,6 +272,7 @@ func dataSourceOpenGaussInstancesRead(ctx context.Context, d *schema.ResourceDat
 			"port":                  instanceInAll.Port,
 			"switch_strategy":       instanceInAll.SwitchStrategy,
 			"maintenance_window":    instanceInAll.MaintenanceWindow,
+			"public_ips":            instanceInAll.PublicIps,
 		}
 
 		instanceID := instanceInAll.Id
@@ -285,8 +297,9 @@ func dataSourceOpenGaussInstancesRead(ctx context.Context, d *schema.ResourceDat
 		instanceToSet["datastore"] = dbList
 
 		// set nodes
-		sharding_num := 0
-		coordinator_num := 0
+		var dnNum int
+		shardingNum := 0
+		coordinatorNum := 0
 		azList := []string{}
 		nodesList := make([]map[string]interface{}, 0, 1)
 		for _, raw := range instanceInAll.Nodes {
@@ -300,16 +313,23 @@ func dataSourceOpenGaussInstancesRead(ctx context.Context, d *schema.ResourceDat
 			nodesList = append(nodesList, node)
 			azList = append(azList, raw.AvailabilityZone)
 			if strings.Contains(raw.Name, "_gaussdbv5cn") {
-				coordinator_num += 1
+				coordinatorNum++
 			} else if strings.Contains(raw.Name, "_gaussdbv5dn") {
-				sharding_num += 1
+				shardingNum++
 			}
 		}
-		instanceToSet["nodes"] = nodesList
-		instanceToSet["coordinator_num"] = coordinator_num
 
-		dn_num := sharding_num / 3
-		instanceToSet["sharding_num"] = dn_num
+		if shardingNum > 0 && coordinatorNum > 0 {
+			dnNum = shardingNum / 3
+			instanceToSet["nodes"] = nodesList
+			instanceToSet["coordinator_num"] = coordinatorNum
+			instanceToSet["sharding_num"] = dnNum
+		} else {
+			// If the HA mode is centralized, the HA structure of API response is nil.
+			dnNum = instanceInAll.ReplicaNum + 1
+			instanceToSet["nodes"] = nodesList
+			instanceToSet["replica_num"] = instanceInAll.ReplicaNum
+		}
 
 		//remove duplicate az
 		azList = utils.RemoveDuplicateElem(azList)
@@ -334,12 +354,10 @@ func dataSourceOpenGaussInstancesRead(ctx context.Context, d *schema.ResourceDat
 		instanceToSet["ha"] = haList
 
 		// set volume
-		volume_size := instanceInAll.Volume.Size
-		dn_size := volume_size / dn_num
 		volumeList := make([]map[string]interface{}, 1)
 		volume := map[string]interface{}{
 			"type": instanceInAll.Volume.Type,
-			"size": dn_size,
+			"size": instanceInAll.Volume.Size / dnNum,
 		}
 		volumeList[0] = volume
 		instanceToSet["volume"] = volumeList

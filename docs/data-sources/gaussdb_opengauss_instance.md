@@ -57,7 +57,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `sharding_num` - Indicates the sharding num.
 
+* `replica_num` - Indicates the replica num.
+
 * `private_ips` - Indicates the list of private IP address of the nodes.
+* `public_ips` - Indicates the public IP address of the DB instance.
 
 * `volume` - Indicates the volume information. Structure is documented below.
 
