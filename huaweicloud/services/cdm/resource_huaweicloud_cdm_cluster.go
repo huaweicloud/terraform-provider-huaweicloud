@@ -48,13 +48,6 @@ func ResourceCdmCluster() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"version": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Default:  "2.8.6.2",
-			},
-
 			"flavor_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -77,6 +70,13 @@ func ResourceCdmCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+			},
+
+			"version": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
 			},
 
 			"enterprise_project_id": {
@@ -236,7 +236,6 @@ func buildClusterParamter(d *schema.ResourceData, opts *clusters.ClusterCreateOp
 
 	cluster := clusters.ClusterRequest{
 		Name:      d.Get("name").(string),
-		Datastore: clusters.Datastore{Type: "cdm", Version: d.Get("version").(string)},
 		VpcId:     d.Get("vpc_id").(string),
 		IsAutoOff: utils.Bool(d.Get("is_auto_off").(bool)),
 		Instances: []clusters.InstanceReq{
@@ -252,6 +251,13 @@ func buildClusterParamter(d *schema.ResourceData, opts *clusters.ClusterCreateOp
 				},
 			},
 		},
+	}
+
+	if v, ok := d.GetOk("version"); ok {
+		cluster.Datastore = &clusters.Datastore{
+			Type:    "cdm",
+			Version: v.(string),
+		}
 	}
 
 	// set Schedule boot/off

@@ -42,8 +42,9 @@ func TestAccResourceCdmCluster_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttrSet(resourceName, "created"),
 					resource.TestCheckResourceAttr(resourceName, "status", "Normal"),
+					resource.TestCheckResourceAttrSet(resourceName, "version"),
+					resource.TestCheckResourceAttrSet(resourceName, "created"),
 				),
 			},
 			{
