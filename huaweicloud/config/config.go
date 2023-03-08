@@ -634,6 +634,10 @@ func (c *Config) NatGatewayClient(region string) (*golangsdk.ServiceClient, erro
 	return c.NewServiceClient("nat", region)
 }
 
+func (c *Config) NatV3Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("natv3", region)
+}
+
 // ElbV2Client is the client for elb v2.0 (openstack) api
 func (c *Config) ElbV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("elbv2", region)
