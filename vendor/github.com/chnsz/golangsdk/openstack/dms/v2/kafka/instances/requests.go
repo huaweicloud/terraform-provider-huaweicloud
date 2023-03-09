@@ -132,6 +132,26 @@ type CreateOps struct {
 
 	// Indicates the tags of the instance
 	Tags []tags.ResourceTag `json:"tags,omitempty"`
+
+	// Indicates the parameter related to the yearly/monthly billing mode.
+	BssParam BssParam `json:"bss_param,omitempty"`
+}
+
+type BssParam struct {
+	// Indicates the charging mode of the instance.
+	ChargingMode string `json:"charging_mode" required:"true"`
+
+	// Indicates the charging period unit of the instance
+	PeriodType string `json:"period_type,omitempty"`
+
+	// Indicates the charging period of the instance.
+	PeriodNum int `json:"period_num,omitempty"`
+
+	// Indicates whether auto renew is enabled.
+	IsAutoRenew *bool `json:"is_auto_renew,omitempty"`
+
+	// Indicates whether the order is automatically or manually paid.
+	IsAutoPay *bool `json:"is_auto_pay,omitempty"`
 }
 
 // ToInstanceCreateMap is used for type convert

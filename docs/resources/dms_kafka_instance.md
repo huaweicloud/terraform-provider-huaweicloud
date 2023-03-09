@@ -232,6 +232,19 @@ The `cross_vpc_accesses` block supports:
 
 * `advertised_ip` -(Optional, String) The advertised IP Address or domain name.
 
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance. Valid values are *prePaid*
+  and *postPaid*, defaults to *postPaid*. Changing this creates a new resource.
+
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the instance.
+  Valid values are *month* and *year*. This parameter is mandatory if `charging_mode` is set to *prePaid*.
+  Changing this creates a new resource.
+
+* `period` - (Optional, Int, ForceNew) Specifies the charging period of the instance. If `period_unit` is set to *month*
+  , the value ranges from 1 to 9. If `period_unit` is set to *year*, the value ranges from 1 to 3. This parameter is
+  mandatory if `charging_mode` is set to *prePaid*. Changing this creates a new resource.
+
+* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled. Valid values are "true" and "false".
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -253,6 +266,7 @@ In addition to all arguments above, the following attributes are exported:
 * `connect_address` - Indicates the IP address of the DMS Kafka instance.
 * `management_connect_address` - Indicates the connection address of the Kafka Manager of a Kafka instance.
 * `cross_vpc_accesses` - Indicates the Access information of cross-VPC. The structure is documented below.
+* `charging_mode` - Indicates the charging mode of the instance.
 
 The `cross_vpc_accesses` block supports:
 

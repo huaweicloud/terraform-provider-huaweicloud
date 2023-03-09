@@ -11,16 +11,18 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/dms/v2/availablezones"
-	"github.com/chnsz/golangsdk/openstack/dms/v2/kafka/instances"
-	"github.com/chnsz/golangsdk/openstack/dms/v2/products"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/jmespath/go-jmespath"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/openstack/dms/v2/availablezones"
+	"github.com/chnsz/golangsdk/openstack/dms/v2/kafka/instances"
+	"github.com/chnsz/golangsdk/openstack/dms/v2/products"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -288,6 +290,10 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 					},
 				},
 			},
+			"charging_mode": common.SchemaChargingMode(nil),
+			"period_unit":   common.SchemaPeriodUnit(nil),
+			"period":        common.SchemaPeriod(nil),
+			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
 		},
 	}
 }
@@ -460,6 +466,21 @@ func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, 
 		EnterpriseProjectID: common.GetEnterpriseProjectID(d, conf),
 	}
 
+	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
+		var autoRenew bool
+		if d.Get("auto_renew").(string) == "true" {
+			autoRenew = true
+		}
+		isAutoPay := true
+		createOpts.BssParam = instances.BssParam{
+			ChargingMode: d.Get("charging_mode").(string),
+			PeriodType:   d.Get("period_unit").(string),
+			PeriodNum:    d.Get("period").(int),
+			IsAutoRenew:  &autoRenew,
+			IsAutoPay:    &isAutoPay,
+		}
+	}
+
 	if ids, ok := d.GetOk("public_ip_ids"); ok {
 		createOpts.EnablePublicIP = true
 		createOpts.PublicIpID = strings.Join(utils.ExpandToStringList(ids.([]interface{})), ",")
@@ -497,6 +518,16 @@ func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating Kafka instance: %s", err)
 	}
 	instanceID := kafkaInstance.InstanceID
+
+	var delayTime time.Duration = 300
+	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
+		err = waitForOrderComplete(ctx, d, conf, client, instanceID)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		delayTime = 5
+	}
+
 	log.Printf("[INFO] Creating Kafka instance, ID: %s", instanceID)
 	d.SetId(instanceID)
 
@@ -505,7 +536,7 @@ func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, 
 		Target:       []string{"RUNNING"},
 		Refresh:      KafkaInstanceStateRefreshFunc(client, instanceID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        300 * time.Second,
+		Delay:        delayTime * time.Second,
 		PollInterval: 15 * time.Second,
 	}
 	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
@@ -581,6 +612,21 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 		EnterpriseProjectID: common.GetEnterpriseProjectID(d, cfg),
 	}
 
+	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
+		var autoRenew bool
+		if d.Get("auto_renew").(string) == "true" {
+			autoRenew = true
+		}
+		isAutoPay := true
+		createOpts.BssParam = instances.BssParam{
+			ChargingMode: d.Get("charging_mode").(string),
+			PeriodType:   d.Get("period_unit").(string),
+			PeriodNum:    d.Get("period").(int),
+			IsAutoRenew:  &autoRenew,
+			IsAutoPay:    &isAutoPay,
+		}
+	}
+
 	if pubIpIDs, ok := d.GetOk("public_ip_ids"); ok {
 		publicIpIDs, err := validateAndBuildPublicIpIDParam(pubIpIDs.([]interface{}), bandwidth)
 		if err != nil {
@@ -605,6 +651,16 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error creating DMS kafka instance: %s", err)
 	}
 	instanceID := kafkaInstance.InstanceID
+
+	var delayTime time.Duration = 300
+	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
+		err = waitForOrderComplete(ctx, d, cfg, client, instanceID)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		delayTime = 5
+	}
+
 	log.Printf("[INFO] Creating Kafka instance, ID: %s", instanceID)
 
 	// Store the instance ID now
@@ -615,7 +671,7 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 		Target:       []string{"RUNNING"},
 		Refresh:      KafkaInstanceStateRefreshFunc(client, instanceID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        300 * time.Second,
+		Delay:        delayTime * time.Second,
 		PollInterval: 15 * time.Second,
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
@@ -635,6 +691,71 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 	}
 
 	return nil
+}
+
+func waitForOrderComplete(ctx context.Context, d *schema.ResourceData, conf *config.Config,
+	client *golangsdk.ServiceClient, instanceID string) error {
+	region := conf.GetRegion(d)
+	orderId, err := getInstanceOrderId(ctx, d, client, instanceID)
+	if err != nil {
+		return err
+	}
+	if orderId == "" {
+		log.Printf("[WARN] error get order id by instance ID: %s", instanceID)
+		return nil
+	}
+
+	bssClient, err := conf.BssV2Client(region)
+	if err != nil {
+		return fmt.Errorf("error creating BSS v2 client: %s", err)
+	}
+	// wait for order success
+	err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return err
+	}
+	_, err = common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return fmt.Errorf("error waiting for Kafka order resource %s complete: %s", orderId, err)
+	}
+	return nil
+}
+
+func getInstanceOrderId(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	instanceID string) (string, error) {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"EMPTY"},
+		Target:       []string{"CREATING"},
+		Refresh:      kafkaInstanceCreatingFunc(client, instanceID),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        500 * time.Millisecond,
+		PollInterval: 500 * time.Millisecond,
+	}
+	orderId, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return "", fmt.Errorf("error waiting for Kafka instance (%s) to creating: %s", instanceID, err)
+	}
+	return orderId.(string), nil
+}
+
+func kafkaInstanceCreatingFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		res := instances.Get(client, instanceID)
+		if res.Err != nil {
+			actualCode, err := jmespath.Search("Actual", res.Err)
+			if err != nil {
+				return nil, "", err
+			}
+			if actualCode == 404 {
+				return res, "EMPTY", nil
+			}
+		}
+		instance, err := res.Extract()
+		if err != nil {
+			return nil, "", err
+		}
+		return instance.OrderID, "CREATING", nil
+	}
 }
 
 func flattenCrossVpcInfo(crossVpcInfoStr string) ([]map[string]interface{}, error) {
@@ -708,6 +829,11 @@ func resourceDmsKafkaInstanceRead(_ context.Context, d *schema.ResourceData, met
 	availableZoneCodes, err := getAvailableZoneCodeByID(cfg, region, availableZoneIDs)
 	mErr := multierror.Append(nil, err)
 
+	var chargingMode = "postPaid"
+	if v.ChargingMode == 0 {
+		chargingMode = "prePaid"
+	}
+
 	mErr = multierror.Append(mErr,
 		d.Set("region", cfg.GetRegion(d)),
 		setKafkaFlavorId(d, v.ProductID), // Set flavor_id or product_id.
@@ -748,6 +874,7 @@ func resourceDmsKafkaInstanceRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("type", v.Type),
 		d.Set("access_user", v.AccessUser),
 		d.Set("cross_vpc_accesses", crossVpcAccess),
+		d.Set("charging_mode", chargingMode),
 	)
 
 	// set tags
@@ -816,6 +943,16 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 	if d.HasChange("cross_vpc_accesses") {
 		if err = updateCrossVpcAccess(client, d); err != nil {
 			mErr = multierror.Append(mErr, err)
+		}
+	}
+
+	if d.HasChange("auto_renew") {
+		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating BSS V2 client: %s", err)
+		}
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return diag.Errorf("error updating the auto-renew of the Kafka instance (%s): %s", d.Id(), err)
 		}
 	}
 
@@ -961,9 +1098,15 @@ func resourceDmsKafkaInstanceDelete(ctx context.Context, d *schema.ResourceData,
 		return diag.Errorf("error initializing DMS Kafka(v2) client: %s", err)
 	}
 
-	err = instances.Delete(client, d.Id()).ExtractErr()
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "failed to delete Kafka instance")
+	if d.Get("charging_mode") == "prePaid" {
+		if err = common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()}); err != nil {
+			return diag.Errorf("error unsubscribe Kafka instance: %s", err)
+		}
+	} else {
+		err = instances.Delete(client, d.Id()).ExtractErr()
+		if err != nil {
+			return common.CheckDeletedDiag(d, err, "failed to delete Kafka instance")
+		}
 	}
 
 	// Wait for the instance to delete before moving on.
