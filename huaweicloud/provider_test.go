@@ -100,12 +100,6 @@ func testAccPreCheckULB(t *testing.T) {
 	}
 }
 
-func testAccPreCheckMaas(t *testing.T) {
-	if HW_ACCESS_KEY == "" || HW_SECRET_KEY == "" || HW_SRC_ACCESS_KEY == "" || HW_SRC_SECRET_KEY == "" {
-		t.Skip("HW_ACCESS_KEY, HW_SECRET_KEY, HW_SRC_ACCESS_KEY, and HW_SRC_SECRET_KEY  must be set for MAAS acceptance tests")
-	}
-}
-
 func testAccPreCheckOBS(t *testing.T) {
 	if HW_ACCESS_KEY == "" || HW_SECRET_KEY == "" {
 		t.Skip("HW_ACCESS_KEY and HW_SECRET_KEY must be set for OBS acceptance tests")

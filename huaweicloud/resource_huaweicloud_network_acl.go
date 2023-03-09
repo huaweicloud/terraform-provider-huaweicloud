@@ -17,6 +17,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// FirewallGroup is an HuaweiCloud firewall group.
+type FirewallGroup struct {
+	firewall_groups.FirewallGroup
+	routerinsertion.FirewallGroupExt
+}
+
 func ResourceNetworkACL() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetworkACLCreate,
@@ -487,4 +493,34 @@ func updateNetworkACLPolicyRules(d *schema.ResourceData, client *golangsdk.Servi
 	}
 
 	return nil
+}
+
+func waitForFirewallGroupActive(fwClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		var fw FirewallGroup
+
+		err := firewall_groups.Get(fwClient, id).ExtractInto(&fw)
+		if err != nil {
+			return nil, "", err
+		}
+		return fw, fw.Status, nil
+	}
+}
+
+func waitForFirewallGroupDeletion(fwClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		fw, err := firewall_groups.Get(fwClient, id).Extract()
+		logp.Printf("[DEBUG] Got firewall group %s => %#v", id, fw)
+
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				logp.Printf("[DEBUG] Firewall group %s is actually deleted", id)
+				return "", "DELETED", nil
+			}
+			return nil, "", fmtp.Errorf("Unexpected error: %s", err)
+		}
+
+		logp.Printf("[DEBUG] Firewall group %s deletion is pending", id)
+		return fw, "DELETING", nil
+	}
 }

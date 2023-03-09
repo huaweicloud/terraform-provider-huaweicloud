@@ -407,9 +407,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_cph_phone_flavors":  cph.DataSourcePhoneFlavors(),
 			"huaweicloud_cph_phone_images":   cph.DataSourcePhoneImages(),
 
-			"huaweicloud_csbs_backup":        dataSourceCSBSBackupV1(),
-			"huaweicloud_csbs_backup_policy": dataSourceCSBSBackupPolicyV1(),
-
 			"huaweicloud_csms_secret_version": dew.DataSourceDewCsmsSecret(),
 			"huaweicloud_css_flavors":         css.DataSourceCssFlavors(),
 
@@ -516,9 +513,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_sfs_file_system": DataSourceSFSFileSystemV2(),
 			"huaweicloud_sfs_turbos":      sfs.DataSourceTurbos(),
 
-			"huaweicloud_vbs_backup_policy": dataSourceVBSBackupPolicyV2(),
-			"huaweicloud_vbs_backup":        dataSourceVBSBackupV2(),
-
 			"huaweicloud_vpc_bandwidth": eip.DataSourceBandWidth(),
 			"huaweicloud_vpc_eip":       eip.DataSourceVpcEip(),
 			"huaweicloud_vpc_eips":      eip.DataSourceVpcEips(),
@@ -561,14 +555,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_cluster_v3": cce.DataSourceCCEClusterV3(),
 			"huaweicloud_cce_node_v3":    cce.DataSourceCCENodeV3(),
 
-			"huaweicloud_csbs_backup_v1":        dataSourceCSBSBackupV1(),
-			"huaweicloud_csbs_backup_policy_v1": dataSourceCSBSBackupPolicyV1(),
-
 			"huaweicloud_dms_product_v1":        dms.DataSourceDmsProduct(),
 			"huaweicloud_dms_maintainwindow_v1": dms.DataSourceDmsMaintainWindow(),
-
-			"huaweicloud_vbs_backup_policy_v2": dataSourceVBSBackupPolicyV2(),
-			"huaweicloud_vbs_backup_v2":        dataSourceVBSBackupV2(),
 
 			"huaweicloud_antiddos_v1": dataSourceAntiDdosV1(),
 
@@ -590,9 +578,13 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_route_ids_v2": vpc.DataSourceVpcRouteIdsV2(),
 
 			// Deprecated
-			"huaweicloud_compute_availability_zones_v2": dataSourceComputeAvailabilityZonesV2(),
-			"huaweicloud_networking_network_v2":         dataSourceNetworkingNetworkV2(),
-			"huaweicloud_networking_subnet_v2":          dataSourceNetworkingSubnetV2(),
+			"huaweicloud_compute_availability_zones_v2": deprecated.DataSourceComputeAvailabilityZonesV2(),
+			"huaweicloud_csbs_backup":                   deprecated.DataSourceCSBSBackupV1(),
+			"huaweicloud_csbs_backup_policy":            deprecated.DataSourceCSBSBackupPolicyV1(),
+			"huaweicloud_csbs_backup_policy_v1":         deprecated.DataSourceCSBSBackupPolicyV1(),
+			"huaweicloud_csbs_backup_v1":                deprecated.DataSourceCSBSBackupV1(),
+			"huaweicloud_networking_network_v2":         deprecated.DataSourceNetworkingNetworkV2(),
+			"huaweicloud_networking_subnet_v2":          deprecated.DataSourceNetworkingSubnetV2(),
 			"huaweicloud_cts_tracker":                   deprecated.DataSourceCTSTrackerV1(),
 			"huaweicloud_dcs_az":                        deprecated.DataSourceDcsAZV1(),
 			"huaweicloud_dcs_az_v1":                     deprecated.DataSourceDcsAZV1(),
@@ -600,6 +592,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_product_v1":                deprecated.DataSourceDcsProductV1(),
 			"huaweicloud_dms_az":                        deprecated.DataSourceDmsAZ(),
 			"huaweicloud_dms_az_v1":                     deprecated.DataSourceDmsAZ(),
+			"huaweicloud_vbs_backup_policy":             deprecated.DataSourceVBSBackupPolicyV2(),
+			"huaweicloud_vbs_backup":                    deprecated.DataSourceVBSBackupV2(),
+			"huaweicloud_vbs_backup_policy_v2":          deprecated.DataSourceVBSBackupPolicyV2(),
+			"huaweicloud_vbs_backup_v2":                 deprecated.DataSourceVBSBackupV2(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -681,9 +677,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_volume_attach":    ecs.ResourceComputeVolumeAttach(),
 
 			"huaweicloud_cph_server": cph.ResourceCphServer(),
-
-			"huaweicloud_csbs_backup":        resourceCSBSBackupV1(),
-			"huaweicloud_csbs_backup_policy": resourceCSBSBackupPolicyV1(),
 
 			"huaweicloud_cse_microservice":          cse.ResourceMicroservice(),
 			"huaweicloud_cse_microservice_engine":   cse.ResourceMicroserviceEngine(),
@@ -866,7 +859,6 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_network_acl":              ResourceNetworkACL(),
 			"huaweicloud_network_acl_rule":         ResourceNetworkACLRule(),
-			"huaweicloud_networking_port":          ResourceNetworkingPortV2(),
 			"huaweicloud_networking_secgroup":      ResourceNetworkingSecGroup(),
 			"huaweicloud_networking_secgroup_rule": ResourceNetworkingSecGroupRule(),
 			"huaweicloud_networking_vip":           vpc.ResourceNetworkingVip(),
@@ -911,9 +903,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_repository_sharing":       swr.ResourceSWRRepositorySharing(),
 
 			"huaweicloud_tms_tags": tms.ResourceTmsTag(),
-
-			"huaweicloud_vbs_backup":        resourceVBSBackupV2(),
-			"huaweicloud_vbs_backup_policy": resourceVBSBackupPolicyV2(),
 
 			"huaweicloud_vod_media_asset":                vod.ResourceMediaAsset(),
 			"huaweicloud_vod_media_category":             vod.ResourceMediaCategory(),
@@ -987,11 +976,12 @@ func Provider() *schema.Provider {
 			// Legacy
 			"huaweicloud_networking_eip_associate": eip.ResourceEIPAssociate(),
 
-			"huaweicloud_compute_instance_v2":         ResourceComputeInstanceV2(),
-			"huaweicloud_compute_interface_attach_v2": ResourceComputeInterfaceAttachV2(),
-			"huaweicloud_compute_keypair_v2":          ResourceComputeKeypairV2(),
-			"huaweicloud_compute_servergroup_v2":      ResourceComputeServerGroupV2(),
-			"huaweicloud_compute_volume_attach_v2":    ecs.ResourceComputeVolumeAttach(),
+			"huaweicloud_compute_instance_v2":             ResourceComputeInstanceV2(),
+			"huaweicloud_compute_interface_attach_v2":     ResourceComputeInterfaceAttachV2(),
+			"huaweicloud_compute_keypair_v2":              ResourceComputeKeypairV2(),
+			"huaweicloud_compute_servergroup_v2":          ResourceComputeServerGroupV2(),
+			"huaweicloud_compute_volume_attach_v2":        ecs.ResourceComputeVolumeAttach(),
+			"huaweicloud_compute_floatingip_associate_v2": ResourceComputeFloatingIPAssociateV2(),
 
 			"huaweicloud_dns_ptrrecord_v2": dns.ResourceDNSPtrRecord(),
 			"huaweicloud_dns_recordset_v2": dns.ResourceDNSRecordSetV2(),
@@ -999,10 +989,6 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_dcs_instance_v1": dcs.ResourceDcsInstance(),
 			"huaweicloud_dds_instance_v3": dds.ResourceDdsInstanceV3(),
-
-			"huaweicloud_fw_firewall_group_v2": resourceFWFirewallGroupV2(),
-			"huaweicloud_fw_policy_v2":         resourceFWPolicyV2(),
-			"huaweicloud_fw_rule_v2":           resourceFWRuleV2(),
 
 			"huaweicloud_kms_key_v1": dew.ResourceKmsKey(),
 
@@ -1019,7 +1005,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_mrs_cluster_v1": ResourceMRSClusterV1(),
 			"huaweicloud_mrs_job_v1":     ResourceMRSJobV1(),
 
-			"huaweicloud_networking_port_v2":          ResourceNetworkingPortV2(),
 			"huaweicloud_networking_secgroup_v2":      ResourceNetworkingSecGroup(),
 			"huaweicloud_networking_secgroup_rule_v2": ResourceNetworkingSecGroupRule(),
 
@@ -1054,14 +1039,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_as_group_v1":         as.ResourceASGroup(),
 			"huaweicloud_as_policy_v1":        as.ResourceASPolicy(),
 
-			"huaweicloud_csbs_backup_v1":        resourceCSBSBackupV1(),
-			"huaweicloud_csbs_backup_policy_v1": resourceCSBSBackupPolicyV1(),
-			"huaweicloud_vbs_backup_policy_v2":  resourceVBSBackupPolicyV2(),
-			"huaweicloud_vbs_backup_v2":         resourceVBSBackupV2(),
-
-			"huaweicloud_maas_task":    resourceMaasTaskV1(),
-			"huaweicloud_maas_task_v1": resourceMaasTaskV1(),
-
 			"huaweicloud_identity_project_v3":          iam.ResourceIdentityProjectV3(),
 			"huaweicloud_identity_role_assignment_v3":  iam.ResourceIdentityRoleAssignmentV3(),
 			"huaweicloud_identity_user_v3":             iam.ResourceIdentityUserV3(),
@@ -1081,18 +1058,27 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdn_domain_v1":               resourceCdnDomainV1(),
 
 			// Deprecated
-			"huaweicloud_blockstorage_volume_v2":          resourceBlockStorageVolumeV2(),
-			"huaweicloud_networking_network_v2":           resourceNetworkingNetworkV2(),
-			"huaweicloud_networking_subnet_v2":            resourceNetworkingSubnetV2(),
-			"huaweicloud_networking_floatingip_v2":        resourceNetworkingFloatingIPV2(),
-			"huaweicloud_networking_router_v2":            resourceNetworkingRouterV2(),
-			"huaweicloud_networking_router_interface_v2":  resourceNetworkingRouterInterfaceV2(),
-			"huaweicloud_networking_router_route_v2":      resourceNetworkingRouterRouteV2(),
-			"huaweicloud_ecs_instance_v1":                 resourceEcsInstanceV1(),
-			"huaweicloud_compute_secgroup_v2":             ResourceComputeSecGroupV2(),
-			"huaweicloud_compute_floatingip_v2":           ResourceComputeFloatingIPV2(),
-			"huaweicloud_compute_floatingip_associate_v2": ResourceComputeFloatingIPAssociateV2(),
-			"huaweicloud_oms_task":                        resourceMaasTaskV1(),
+			"huaweicloud_blockstorage_volume_v2":         deprecated.ResourceBlockStorageVolumeV2(),
+			"huaweicloud_csbs_backup":                    deprecated.ResourceCSBSBackupV1(),
+			"huaweicloud_csbs_backup_policy":             deprecated.ResourceCSBSBackupPolicyV1(),
+			"huaweicloud_csbs_backup_policy_v1":          deprecated.ResourceCSBSBackupPolicyV1(),
+			"huaweicloud_csbs_backup_v1":                 deprecated.ResourceCSBSBackupV1(),
+			"huaweicloud_networking_network_v2":          deprecated.ResourceNetworkingNetworkV2(),
+			"huaweicloud_networking_subnet_v2":           deprecated.ResourceNetworkingSubnetV2(),
+			"huaweicloud_networking_floatingip_v2":       deprecated.ResourceNetworkingFloatingIPV2(),
+			"huaweicloud_networking_router_v2":           deprecated.ResourceNetworkingRouterV2(),
+			"huaweicloud_networking_router_interface_v2": deprecated.ResourceNetworkingRouterInterfaceV2(),
+			"huaweicloud_networking_router_route_v2":     deprecated.ResourceNetworkingRouterRouteV2(),
+			"huaweicloud_networking_port":                deprecated.ResourceNetworkingPortV2(),
+			"huaweicloud_networking_port_v2":             deprecated.ResourceNetworkingPortV2(),
+			"huaweicloud_ecs_instance_v1":                deprecated.ResourceEcsInstanceV1(),
+			"huaweicloud_compute_secgroup_v2":            deprecated.ResourceComputeSecGroupV2(),
+			"huaweicloud_compute_floatingip_v2":          deprecated.ResourceComputeFloatingIPV2(),
+			"huaweicloud_oms_task":                       deprecated.ResourceMaasTaskV1(),
+
+			"huaweicloud_fw_firewall_group_v2": deprecated.ResourceFWFirewallGroupV2(),
+			"huaweicloud_fw_policy_v2":         deprecated.ResourceFWPolicyV2(),
+			"huaweicloud_fw_rule_v2":           deprecated.ResourceFWRuleV2(),
 
 			"huaweicloud_images_image_v2": deprecated.ResourceImagesImageV2(),
 
@@ -1109,6 +1095,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_cs_route_v1":           deprecated.ResourceCsRouteV1(),
 			"huaweicloud_cs_peering_connect":    deprecated.ResourceCsPeeringConnectV1(),
 			"huaweicloud_cs_peering_connect_v1": deprecated.ResourceCsPeeringConnectV1(),
+
+			"huaweicloud_vbs_backup":           deprecated.ResourceVBSBackupV2(),
+			"huaweicloud_vbs_backup_policy":    deprecated.ResourceVBSBackupPolicyV2(),
+			"huaweicloud_vbs_backup_policy_v2": deprecated.ResourceVBSBackupPolicyV2(),
+			"huaweicloud_vbs_backup_v2":        deprecated.ResourceVBSBackupV2(),
 
 			"huaweicloud_vpnaas_ipsec_policy_v2":    deprecated.ResourceVpnIPSecPolicyV2(),
 			"huaweicloud_vpnaas_service_v2":         deprecated.ResourceVpnServiceV2(),
