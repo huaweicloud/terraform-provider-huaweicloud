@@ -10,6 +10,7 @@ import (
 	hssv5model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5/model"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/hss"
 )
 
@@ -71,46 +72,16 @@ func TestAccHostGroup_basic(t *testing.T) {
 
 func testAccHostGroup_base(name string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_compute_flavors" "test" {
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  performance_type  = "normal"
-  cpu_core_count    = 2
-  memory_size       = 4
-}
-
-data "huaweicloud_images_image" "test" {
-  name        = "Ubuntu 18.04 server 64bit"
-  most_recent = true
-}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%[1]s"
-  cidr = "192.168.192.0/20"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%[1]s"
-  vpc_id     = huaweicloud_vpc.test.id
-  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1)
-  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1), 1)
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%[1]s"
-
-  delete_default_rules = true
-}
+%[1]s
 
 resource "huaweicloud_kps_keypair" "test" {
-  name = "%[1]s"
+  name = "%[2]s"
 }
 
 resource "huaweicloud_compute_instance" "test" {
   count = 2
 
-  name               = "%[1]s"
+  name               = "%[2]s"
   image_id           = data.huaweicloud_images_image.test.id
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
   security_groups    = [huaweicloud_networking_secgroup.test.name]
@@ -123,7 +94,7 @@ resource "huaweicloud_compute_instance" "test" {
     uuid = huaweicloud_vpc_subnet.test.id
   }
 }
-`, name)
+`, common.TestBaseComputeResources(name), name)
 }
 
 func testAccHostGroup_basic(name string) string {

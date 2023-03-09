@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -50,10 +51,6 @@ func testAccGaussRedisInstanceDataSource_basic(rName string) string {
 
 data "huaweicloud_availability_zones" "test" {}
 
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
-
 data "huaweicloud_gaussdb_nosql_flavors" "test" {
   vcpus             = 4
   engine            = "redis"
@@ -69,7 +66,7 @@ resource "huaweicloud_gaussdb_redis_instance" "test" {
   subnet_id   = huaweicloud_vpc_subnet.test.id
   node_num    = 4
 
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
 
   backup_strategy {
@@ -89,5 +86,5 @@ data "huaweicloud_gaussdb_redis_instance" "test" {
     huaweicloud_gaussdb_redis_instance.test,
   ]
 }
-`, testAccVpcConfig_Base(rName), rName)
+`, common.TestBaseNetwork(rName), rName)
 }

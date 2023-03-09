@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccTurbosDataSource_basic(t *testing.T) {
@@ -43,6 +44,8 @@ func TestAccTurbosDataSource_basic(t *testing.T) {
 
 func testAccTurbosDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
+"%[1]s"
+
 variable "turbo_configuration" {
   type = list(object({
     size        = number
@@ -59,23 +62,6 @@ variable "turbo_configuration" {
 
 data "huaweicloud_availability_zones" "test" {}
 
-resource "huaweicloud_vpc" "test" {
-  name = "%[1]s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  vpc_id = huaweicloud_vpc.test.id
-
-  name       = "%[1]s"
-  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1)
-  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1), 1)
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%[1]s"
-}
-
 resource "huaweicloud_sfs_turbo" "test" {
   count = length(var.turbo_configuration)
 
@@ -84,11 +70,11 @@ resource "huaweicloud_sfs_turbo" "test" {
   security_group_id = huaweicloud_networking_secgroup.test.id
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
 
-  name                  = "%[1]s-${count.index}"
+  name                  = "%[2]s-${count.index}"
   size                  = var.turbo_configuration[count.index]["size"]
   share_proto           = "NFS"
   share_type            = var.turbo_configuration[count.index]["share_type"]
-  enterprise_project_id = var.turbo_configuration[count.index]["eps_enabled"] ? "%[2]s" : "0"
+  enterprise_project_id = var.turbo_configuration[count.index]["eps_enabled"] ? "%[3]s" : "0"
 }
 
 data "huaweicloud_sfs_turbos" "by_name" {
@@ -142,5 +128,5 @@ output "eps_id_query_result_validation" {
   huaweicloud_sfs_turbo.test[0].id) && !contains(data.huaweicloud_sfs_turbos.by_eps_id.turbos[*].id,
   huaweicloud_sfs_turbo.test[1].id)
 }
-`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

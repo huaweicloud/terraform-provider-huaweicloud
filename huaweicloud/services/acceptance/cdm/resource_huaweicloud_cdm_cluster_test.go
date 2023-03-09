@@ -6,6 +6,7 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/cdm/v1/clusters"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -58,26 +59,11 @@ func TestAccResourceCdmCluster_basic(t *testing.T) {
 
 func testAccCdmCluster_basic(name string) string {
 	return fmt.Sprintf(`
+%s
+
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_cdm_flavors" "test" {}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%s"
-  cidr       = "192.168.0.0/24"
-  vpc_id     = huaweicloud_vpc.test.id
-  gateway_ip = "192.168.0.1"
-}
-
-resource "huaweicloud_networking_secgroup" "secgroup" {
-  name        = "%s"
-  description = "terraform security group acceptance test"
-}
 
 resource "huaweicloud_cdm_cluster" "test" {
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
@@ -87,7 +73,7 @@ resource "huaweicloud_cdm_cluster" "test" {
   subnet_id         = huaweicloud_vpc_subnet.test.id
   vpc_id            = huaweicloud_vpc.test.id
 }
-`, name, name, name, name)
+`, common.TestBaseNetwork(name), name)
 }
 
 func TestAccResourceCdmCluster_all(t *testing.T) {
@@ -138,26 +124,11 @@ func TestAccResourceCdmCluster_all(t *testing.T) {
 
 func testAccCdmCluster_all(name string) string {
 	return fmt.Sprintf(`
+%s
+
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_cdm_flavors" "test" {}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%s"
-  cidr       = "192.168.0.0/24"
-  vpc_id     = huaweicloud_vpc.test.id
-  gateway_ip = "192.168.0.1"
-}
-
-resource "huaweicloud_networking_secgroup" "secgroup" {
-  name        = "%s"
-  description = "terraform security group acceptance test"
-}
 
 resource "huaweicloud_cdm_cluster" "test" {
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
@@ -170,31 +141,16 @@ resource "huaweicloud_cdm_cluster" "test" {
   email             = ["test@test.com"]
   phone_num         = ["12345678910"]
 }
-`, name, name, name, name)
+`, common.TestBaseNetwork(name), name)
 }
 
 func testAccCdmCluster_update(name string) string {
 	return fmt.Sprintf(`
+%s
+
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_cdm_flavors" "test" {}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%s"
-  cidr       = "192.168.0.0/24"
-  vpc_id     = huaweicloud_vpc.test.id
-  gateway_ip = "192.168.0.1"
-}
-
-resource "huaweicloud_networking_secgroup" "secgroup" {
-  name        = "%s"
-  description = "terraform security group acceptance test"
-}
 
 resource "huaweicloud_cdm_cluster" "test" {
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
@@ -208,5 +164,5 @@ resource "huaweicloud_cdm_cluster" "test" {
   schedule_boot_time = "00:00:00"
   schedule_off_time  = "10:00:00"
 }
-`, name, name, name, name)
+`, common.TestBaseNetwork(name), name)
 }

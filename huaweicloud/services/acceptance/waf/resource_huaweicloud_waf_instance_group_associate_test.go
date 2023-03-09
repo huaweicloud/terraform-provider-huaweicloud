@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccWafInsGroupAssociate_basic(t *testing.T) {
@@ -50,14 +51,15 @@ func TestAccWafInsGroupAssociate_basic(t *testing.T) {
 
 func testAccWafInsGroupAssociate_conf(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
+
 resource "huaweicloud_waf_instance_group" "group_1" {
-  name   = "%s"
+  name   = "%[2]s"
   vpc_id = huaweicloud_vpc.vpc_1.id
 }
 
 resource "huaweicloud_waf_dedicated_instance" "instance_1" {
-  name               = "%s"
+  name               = "%[2]s"
   available_zone     = data.huaweicloud_availability_zones.zones.names[1]
   specification_code = "waf.instance.professional"
   ecs_flavor         = data.huaweicloud_compute_flavors.flavors.ids[0]
@@ -70,9 +72,8 @@ resource "huaweicloud_waf_dedicated_instance" "instance_1" {
   ]
 }
 
-
 resource "huaweicloud_elb_loadbalancer" "elb" {
-  name              = "%s"
+  name              = "%[2]s"
   vpc_id            = huaweicloud_vpc.vpc_1.id
   cross_vpc_backend = true
   ipv4_subnet_id    = huaweicloud_vpc_subnet.vpc_subnet_1.ipv4_subnet_id
@@ -89,5 +90,5 @@ resource "huaweicloud_waf_instance_group_associate" "group_associate" {
 
   depends_on = [huaweicloud_waf_dedicated_instance.instance_1]
 }
-`, baseDependResource(name), name, name, name)
+`, common.TestBaseComputeResources(name), name)
 }

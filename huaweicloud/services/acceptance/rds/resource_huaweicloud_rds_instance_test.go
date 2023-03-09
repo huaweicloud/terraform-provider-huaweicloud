@@ -11,6 +11,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/rds/v3/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rds"
 )
 
@@ -293,41 +294,11 @@ func testAccCheckRdsInstanceExists(name string, instance *instances.RdsInstanceR
 	}
 }
 
-func testAccRdsInstance_base(name string) string {
-	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name          = "%s"
-  cidr          = "192.168.0.0/24"
-  gateway_ip    = "192.168.0.1"
-  primary_dns   = "100.125.1.250"
-  secondary_dns = "100.125.21.250"
-  vpc_id        = huaweicloud_vpc.test.id
-
-  timeouts {
-    delete = "30m"
-  }
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%s"
-
-  timeouts {
-    delete = "30m"
-  }
-}
-`, name, name, name)
-}
-
 func testAccRdsInstance_basic(name, password string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_rds_instance" "test" {
   name              = "%s"
@@ -359,13 +330,15 @@ resource "huaweicloud_rds_instance" "test" {
     foo = "bar"
   }
 }
-`, testAccRdsInstance_base(name), name, password)
+`, common.TestBaseNetwork(name), name, password)
 }
 
 // name, volume.size, backup_strategy, flavor, tags and password will be updated
 func testAccRdsInstance_update(name, password string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_rds_instance" "test" {
   name              = "%s-update"
@@ -396,12 +369,14 @@ resource "huaweicloud_rds_instance" "test" {
     foo  = "bar_updated"
   }
 }
-`, testAccRdsInstance_base(name), name, password)
+`, common.TestBaseNetwork(name), name, password)
 }
 
 func testAccRdsInstance_epsId(name string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_rds_instance" "test" {
   name                  = "%s"
@@ -427,12 +402,14 @@ resource "huaweicloud_rds_instance" "test" {
     keep_days  = 1
   }
 }
-`, testAccRdsInstance_base(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, common.TestBaseNetwork(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccRdsInstance_ha(name string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_rds_instance" "test" {
   name                = "%s"
@@ -468,12 +445,14 @@ resource "huaweicloud_rds_instance" "test" {
     foo = "bar"
   }
 }
-`, testAccRdsInstance_base(name), name)
+`, common.TestBaseNetwork(name), name)
 }
 
 func testAccRdsInstance_mysql(name, pwd string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_rds_instance" "test" {
   name                = "%s"
@@ -501,12 +480,14 @@ resource "huaweicloud_rds_instance" "test" {
     size = 40
   }
 }
-`, testAccRdsInstance_base(name), name, pwd)
+`, common.TestBaseNetwork(name), name, pwd)
 }
 
 func testAccRdsInstance_mysqlUpdate(name, pwd string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_rds_instance" "test" {
   name                = "%s"
@@ -534,12 +515,14 @@ resource "huaweicloud_rds_instance" "test" {
     size = 40
   }
 }
-`, testAccRdsInstance_base(name), name, pwd)
+`, common.TestBaseNetwork(name), name, pwd)
 }
 
 func testAccRdsInstance_sqlserver(name, pwd string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_vpc" "test" {
   name = "vpc-default"
@@ -573,12 +556,14 @@ resource "huaweicloud_rds_instance" "test" {
     size = 40
   }
 }
-`, testAccRdsInstance_base(name), name, pwd)
+`, common.TestBaseNetwork(name), name, pwd)
 }
 
 func testAccRdsInstance_prePaid(name, pwd string, isAutoRenew bool) string {
 	return fmt.Sprintf(`
 %[1]s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_rds_instance" "test" {
   vpc_id            = huaweicloud_vpc.test.id
@@ -607,5 +592,5 @@ resource "huaweicloud_rds_instance" "test" {
   period        = 1
   auto_renew    = "%[4]v"
 }
-`, testAccRdsInstance_base(name), name, pwd, isAutoRenew)
+`, common.TestBaseNetwork(name), name, pwd, isAutoRenew)
 }

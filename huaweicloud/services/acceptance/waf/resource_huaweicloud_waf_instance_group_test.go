@@ -10,6 +10,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getWafInstanceGroupFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -63,24 +64,9 @@ func TestAccWafInstanceGroup_basic(t *testing.T) {
 
 func testAccWafInstanceGroup_conf(baseName, groupName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "vpc_1" {
-  name = "%s_waf"
-  cidr = "192.168.0.0/24"
-}
+%s
 
-resource "huaweicloud_vpc_subnet" "vpc_subnet_1" {
-  name       = "%s_waf"
-  cidr       = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
-  vpc_id     = huaweicloud_vpc.vpc_1.id
-}
-
-resource "huaweicloud_networking_secgroup" "secgroup" {
-  name        = "%s_waf"
-  description = "terraform security group acceptance test"
-}
-
-data "huaweicloud_availability_zones" "zones" {}
+data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_compute_flavors" "flavors" {
   availability_zone = data.huaweicloud_availability_zones.zones.names[1]
@@ -90,22 +76,22 @@ data "huaweicloud_compute_flavors" "flavors" {
 
 resource "huaweicloud_waf_dedicated_instance" "instance_1" {
   name               = "%s"
-  available_zone     = data.huaweicloud_availability_zones.zones.names[1]
+  available_zone     = data.huaweicloud_availability_zones.test.names[1]
   specification_code = "waf.instance.professional"
   ecs_flavor         = data.huaweicloud_compute_flavors.flavors.ids[0]
-  vpc_id             = huaweicloud_vpc.vpc_1.id
-  subnet_id          = huaweicloud_vpc_subnet.vpc_subnet_1.id
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
   
   security_group = [
-    huaweicloud_networking_secgroup.secgroup.id
+    huaweicloud_networking_secgroup.test.id
   ]
 }
 
 resource "huaweicloud_waf_instance_group" "group_1" {
   name   = "%s"
-  vpc_id = huaweicloud_vpc.vpc_1.id
+  vpc_id = huaweicloud_vpc.test.id
 
   depends_on = [huaweicloud_waf_dedicated_instance.instance_1]
 }
-`, baseName, baseName, baseName, baseName, groupName)
+`, common.TestBaseNetwork(baseName), baseName, groupName)
 }

@@ -11,6 +11,7 @@ import (
 	model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3/model"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccRdsAccount_basic(t *testing.T) {
@@ -154,23 +155,9 @@ func testAccCheckRdsAccountExists(n string) resource.TestCheckFunc {
 
 func testRdsAccount_base(rName string) string {
 	return fmt.Sprintf(`
+%s
+
 data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%[1]s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%[1]s"
-  cidr       = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
-  vpc_id     = huaweicloud_vpc.test.id
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%[1]s"
-}
 
 resource "huaweicloud_rds_instance" "test" {
   name                = "%[1]s"
@@ -198,7 +185,7 @@ resource "huaweicloud_rds_instance" "test" {
     size = 50
   }
 }
-`, rName)
+`, common.TestBaseNetwork(rName), rName)
 }
 
 func testRdsAccount_basic(rName string) string {

@@ -11,6 +11,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/dayu/v1/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getInstanceResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -73,34 +74,13 @@ func TestAccResourceInstance_basic(t *testing.T) {
 	})
 }
 
-func testAccBaseResource(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%s"
-  cidr       = "192.168.0.0/24"
-  vpc_id     = huaweicloud_vpc.test.id
-  gateway_ip = "192.168.0.1"
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name        = "%s"
-  description = "terraform security group acceptance test"
-}
-
-data "huaweicloud_availability_zones" "test" {}
-`, rName, rName, rName)
-}
-
 func testAccInstance_basic(rName string) string {
-	baseResource := testAccBaseResource(rName)
+	baseNetwork := common.TestBaseNetwork(rName)
 
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dataarts_studio_instance" "test" {
   name                  = "%s"
@@ -118,5 +98,5 @@ resource "huaweicloud_dataarts_studio_instance" "test" {
     foo = "bar"
   }
 }
-`, baseResource, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, baseNetwork, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

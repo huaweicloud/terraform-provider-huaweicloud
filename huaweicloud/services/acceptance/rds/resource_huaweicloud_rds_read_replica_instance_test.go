@@ -8,6 +8,7 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/rds/v3/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccReadReplicaInstance_basic(t *testing.T) {
@@ -86,6 +87,8 @@ func testAccReadReplicaInstance_base(name string) string {
 	return fmt.Sprintf(`
 %s
 
+data "huaweicloud_availability_zones" "test" {}
+
 resource "huaweicloud_rds_instance" "test" {
   name              = "%s"
   flavor            = "rds.pg.n1.large.2"
@@ -105,12 +108,14 @@ resource "huaweicloud_rds_instance" "test" {
     size = 50
   }
 }
-`, testAccRdsInstance_base(name), name)
+`, common.TestBaseNetwork(name), name)
 }
 
 func testAccReadReplicaInstance_basic(name string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_rds_read_replica_instance" "test" {
   name                = "%s"
@@ -127,12 +132,14 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
     foo = "bar"
   }
 }
-`, testAccReadReplicaInstance_base(name), name)
+`, common.TestBaseNetwork(name), name)
 }
 
 func testAccReadReplicaInstance_update(name string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_rds_read_replica_instance" "test" {
   name                = "%s"
@@ -149,12 +156,14 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
     foo = "bar2"
   }
 }
-`, testAccReadReplicaInstance_base(name), name)
+`, common.TestBaseNetwork(name), name)
 }
 
 func testAccReadReplicaInstance_withEpsId(name string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_rds_read_replica_instance" "test" {
   name                  = "%s"
@@ -167,5 +176,5 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
     type = "CLOUDSSD"
   }
 }
-`, testAccReadReplicaInstance_base(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, common.TestBaseNetwork(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

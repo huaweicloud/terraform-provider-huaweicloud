@@ -12,6 +12,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getThrottlingPolicyFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -166,27 +167,12 @@ func testAccThrottlingPolicyImportStateFunc() resource.ImportStateIdFunc {
 
 func testAccApigThrottlingPolicy_base(name string) string {
 	return fmt.Sprintf(`
+%s
+
 data "huaweicloud_availability_zones" "test" {}
 
-resource "huaweicloud_vpc" "test" {
-  name = "%[1]s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  vpc_id = huaweicloud_vpc.test.id
-
-  name       = "%[1]s"
-  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1)
-  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1), 1)
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%[1]s"
-}
-
 resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[1]s"
+  name                  = "%s"
   edition               = "BASIC"
   vpc_id                = huaweicloud_vpc.test.id
   subnet_id             = huaweicloud_vpc_subnet.test.id
@@ -197,7 +183,7 @@ resource "huaweicloud_apig_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0],
   ]
 }
-`, name)
+`, common.TestBaseNetwork(name), name)
 }
 
 func testAccApigThrottlingPolicy_basic(name, appCode string) string {

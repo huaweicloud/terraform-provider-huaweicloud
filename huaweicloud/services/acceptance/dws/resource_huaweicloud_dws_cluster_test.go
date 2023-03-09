@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 
 	"github.com/chnsz/golangsdk/openstack/dws/v1/cluster"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -66,34 +67,13 @@ func TestAccResourceDWS_basic(t *testing.T) {
 	})
 }
 
-func testAccBaseResource(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%s"
-  cidr       = "192.168.0.0/24"
-  vpc_id     = huaweicloud_vpc.test.id
-  gateway_ip = "192.168.0.1"
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name        = "%s"
-  description = "terraform security group acceptance test"
-}
-
-data "huaweicloud_availability_zones" "test" {}
-`, rName, rName, rName)
-}
-
 func testAccDwsCluster_basic(rName string, numberOfNode int, publicIpBindType, password, tag string) string {
-	baseResource := testAccBaseResource(rName)
+	baseNetwork := common.TestBaseNetwork(rName)
 
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_dws_flavors" "test" {
   vcpus             = 8
@@ -121,5 +101,5 @@ resource "huaweicloud_dws_cluster" "test" {
     foo = "%s"
   }
 }
-`, baseResource, rName, numberOfNode, password, publicIpBindType, tag)
+`, baseNetwork, rName, numberOfNode, password, publicIpBindType, tag)
 }

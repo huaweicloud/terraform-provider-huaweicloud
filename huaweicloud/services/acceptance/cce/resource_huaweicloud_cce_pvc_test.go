@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cce"
 
 	"github.com/chnsz/golangsdk/openstack/cce/v1/persistentvolumeclaims"
@@ -154,27 +155,17 @@ func testAccCCEPVCImportStateIdFunc() resource.ImportStateIdFunc {
 
 func testAccCceCluster_config(rName string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 data "huaweicloud_availability_zones" "test" {}
 
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/20"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%s"
-  cidr       = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
-  vpc_id     = huaweicloud_vpc.test.id
-}
-
 resource "huaweicloud_compute_keypair" "test" {
-  name = "%s"
+  name = "%[2]s"
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
 }
 
 resource "huaweicloud_cce_cluster" "test" {
-  name                   = "%s"
+  name                   = "%[2]s"
   flavor_id              = "cce.s1.small"
   vpc_id                 = huaweicloud_vpc.test.id
   subnet_id              = huaweicloud_vpc_subnet.test.id
@@ -183,7 +174,7 @@ resource "huaweicloud_cce_cluster" "test" {
 
 resource "huaweicloud_cce_node" "test" {
   cluster_id        = huaweicloud_cce_cluster.test.id
-  name              = "%s"
+  name              = "%[2]s"
   flavor_id         = "s6.large.2"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   key_pair          = huaweicloud_compute_keypair.test.name
@@ -196,7 +187,7 @@ resource "huaweicloud_cce_node" "test" {
     size       = 100
     volumetype = "SSD"
   }
-}`, rName, rName, rName, rName, rName)
+}`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccCcePersistentVolumeClaimsV1_basic(rName string) string {

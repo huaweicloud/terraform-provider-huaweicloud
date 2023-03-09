@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk/openstack/dds/v3/instances"
@@ -256,32 +257,17 @@ func testAccCheckDDSV3InstanceFlavor(instance *instances.InstanceResponse, group
 	}
 }
 
-func testAccDDSInstanceV3Config_Base(rName string) string {
-	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_vpc" "test" {
-  name = "vpc-default"
-}
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-resource "huaweicloud_networking_secgroup" "secgroup_acc" {
-  name = "%s"
-}`, rName)
-}
-
 func testAccDDSInstanceV3Config_basic(rName string, port int) string {
 	return fmt.Sprintf(`
 %s
 
+data "huaweicloud_availability_zones" "test" {}
+
 resource "huaweicloud_dds_instance" "instance" {
   name              = "%s"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  vpc_id            = data.huaweicloud_vpc.test.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
   password          = "Terraform@123"
   mode              = "Sharding"
@@ -322,12 +308,14 @@ resource "huaweicloud_dds_instance" "instance" {
     foo   = "bar"
     owner = "terraform"
   }
-}`, testAccDDSInstanceV3Config_Base(rName), rName, port)
+}`, common.TestBaseNetwork(rName), rName, port)
 }
 
 func testAccDDSInstanceV3Config_updateBackupStrategy(rName string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dds_instance" "instance" {
   name              = "%s"
@@ -373,12 +361,14 @@ resource "huaweicloud_dds_instance" "instance" {
     foo   = "bar"
     owner = "terraform"
   }
-}`, testAccDDSInstanceV3Config_Base(rName), rName)
+}`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccDDSInstanceV3Config_updateFlavorNum(rName string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dds_instance" "instance" {
   name              = "%s"
@@ -424,12 +414,14 @@ resource "huaweicloud_dds_instance" "instance" {
     foo   = "bar"
     owner = "terraform"
   }
-}`, testAccDDSInstanceV3Config_Base(rName), rName)
+}`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccDDSInstanceV3Config_updateFlavorSize(rName string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dds_instance" "instance" {
   name              = "%s"
@@ -475,12 +467,14 @@ resource "huaweicloud_dds_instance" "instance" {
     foo   = "bar"
     owner = "terraform"
   }
-}`, testAccDDSInstanceV3Config_Base(rName), rName)
+}`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccDDSInstanceV3Config_updateFlavorSpecCode(rName string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dds_instance" "instance" {
   name              = "%s"
@@ -526,12 +520,14 @@ resource "huaweicloud_dds_instance" "instance" {
     foo   = "bar"
     owner = "terraform"
   }
-}`, testAccDDSInstanceV3Config_Base(rName), rName)
+}`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccDDSInstanceV3Config_withEpsId(rName string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dds_instance" "instance" {
   name                  = "%s"
@@ -578,12 +574,14 @@ resource "huaweicloud_dds_instance" "instance" {
     foo   = "bar"
     owner = "terraform"
   }
-}`, testAccDDSInstanceV3Config_Base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccDDSInstanceV3Config_prePaid(rName string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dds_instance" "instance" {
   name              = "%s"
@@ -629,12 +627,14 @@ resource "huaweicloud_dds_instance" "instance" {
     start_time = "08:00-09:00"
     keep_days  = 8
   }
-}`, testAccDDSInstanceV3Config_Base(rName), rName)
+}`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccDDSInstanceV3Config_prePaidUpdate(rName string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dds_instance" "instance" {
   name              = "%s"
@@ -680,5 +680,5 @@ resource "huaweicloud_dds_instance" "instance" {
     start_time = "00:00-01:00"
     keep_days  = 7
   }
-}`, testAccDDSInstanceV3Config_Base(rName), rName)
+}`, common.TestBaseNetwork(rName), rName)
 }

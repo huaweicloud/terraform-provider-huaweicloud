@@ -10,6 +10,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getNetworkResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -83,30 +84,14 @@ func testAccCciNetworkImportStateFunc(name string) resource.ImportStateIdFunc {
 }
 
 func testAccCciNetwork_base(rName string) string {
-	randCidr, randGatewayIp := acceptance.RandomCidrAndGatewayIp()
-
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "%s"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%s"
-  vpc_id     = huaweicloud_vpc.test.id
-  cidr       = "%s"
-  gateway_ip = "%s"
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%s"
-}
+%s
 
 resource "huaweicloud_cci_namespace" "test" {
   name = "%s"
   type = "gpu-accelerated"
 }
-`, rName, randCidr, rName, randCidr, randGatewayIp, rName, rName)
+`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccCciNetwork_basic(rName string) string {

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -72,11 +73,6 @@ func testAccOpenGaussInstanceDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_networking_secgroup" "test" {
-  name        = "%[2]s"
-  description = "terraform security group rule acceptance test"
-}
-
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   name        = "%[2]s"
   password    = "Test@12345678"
@@ -107,17 +103,12 @@ data "huaweicloud_gaussdb_opengauss_instance" "test" {
     huaweicloud_gaussdb_opengauss_instance.test,
   ]
 }
-`, testAccVpcConfig_Base(rName), rName)
+`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccOpenGaussInstanceDataSource_haModeCentralized(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name        = "%[2]s"
-  description = "terraform security group rule acceptance test"
-}
 
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   name        = "%[2]s"
@@ -148,5 +139,5 @@ data "huaweicloud_gaussdb_opengauss_instance" "test" {
     huaweicloud_gaussdb_opengauss_instance.test,
   ]
 }
-`, testAccVpcConfig_Base(rName), rName)
+`, common.TestBaseNetwork(rName), rName)
 }

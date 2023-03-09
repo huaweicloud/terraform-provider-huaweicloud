@@ -11,6 +11,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -108,33 +109,11 @@ func flattenGetInstancesResponseBodyInstanceTest(resp interface{}) map[string]in
 	return rst
 }
 
-func testCBHInstance_Base(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  name        = "%[1]s"
-  cidr        = "192.168.0.0/16"
-  description = "Test for CBH instance"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%[1]s"
-  cidr       = "192.168.0.0/20"
-  gateway_ip = "192.168.0.1"
-  vpc_id     = huaweicloud_vpc.test.id
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name        = "%[1]s"
-  description = "secgroup for CBH instance"
-}
-
-data "huaweicloud_availability_zones" "test" {}
-`, rName)
-}
-
 func testCBHInstance_basic(name string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_cbh_instance" "test" {
   flavor_id          = "cbh.basic.50"
@@ -150,21 +129,22 @@ resource "huaweicloud_cbh_instance" "test" {
   period_unit        = "month"
   auto_renew         = "false"
   period             = "1"
-  
+
   product_info {
     product_id         = "OFFI740586375358963717"
     resource_size      = "1"
   }
 }
-`, testCBHInstance_Base(name), name, acceptance.HW_REGION_NAME)
+`, common.TestBaseNetwork(name), name, acceptance.HW_REGION_NAME)
 }
 
 func testCBHInstance_basic_update(name string) string {
-	return fmt.Sprintf(
-		`
+	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_vpc_eip_v1" "test" {
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_vpc_eip" "test" {
   publicip {
     type = "5_bgp"
   }
@@ -204,5 +184,5 @@ resource "huaweicloud_cbh_instance" "test" {
     resource_size      = "1"
   }
 }
-`, testCBHInstance_Base(name), name, acceptance.HW_REGION_NAME)
+`, common.TestBaseNetwork(name), name, acceptance.HW_REGION_NAME)
 }

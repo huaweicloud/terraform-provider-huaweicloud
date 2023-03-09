@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getInstanceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -221,32 +222,11 @@ func TestAccInstance_ingress(t *testing.T) {
 	})
 }
 
-func testAccInstance_base(rName string) string {
-	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%[1]s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  vpc_id = huaweicloud_vpc.test.id
-
-  name       = "%[1]s"
-  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1)
-  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1), 1)
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%[1]s"
-}
-`, rName)
-}
-
 func testAccInstance_basic(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_apig_instance" "test" {
   vpc_id             = huaweicloud_vpc.test.id
@@ -260,12 +240,14 @@ resource "huaweicloud_apig_instance" "test" {
   maintain_begin        = "14:00:00"
   description           = "created by acc test"
 }
-`, testAccInstance_base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccInstance_update(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_networking_secgroup" "new" {
   name = "%[2]s_new"
@@ -282,12 +264,14 @@ resource "huaweicloud_apig_instance" "test" {
   enterprise_project_id = "%[3]s"
   maintain_begin        = "18:00:00"
 }
-`, testAccInstance_base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccInstance_egress(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_apig_instance" "test" {
   vpc_id             = huaweicloud_vpc.test.id
@@ -300,12 +284,14 @@ resource "huaweicloud_apig_instance" "test" {
   enterprise_project_id = "%[3]s"
   bandwidth_size        = 3
 }
-`, testAccInstance_base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccInstance_egressUpdate(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_apig_instance" "test" {
   vpc_id             = huaweicloud_vpc.test.id
@@ -318,12 +304,14 @@ resource "huaweicloud_apig_instance" "test" {
   enterprise_project_id = "%[3]s"
   bandwidth_size        = 5
 }
-`, testAccInstance_base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccInstance_ingress(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_vpc_eip" "test" {
   publicip {
@@ -349,12 +337,14 @@ resource "huaweicloud_apig_instance" "test" {
   enterprise_project_id = "%[3]s"
   eip_id                = huaweicloud_vpc_eip.test.id
 }
-`, testAccInstance_base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccInstance_ingressUpdate(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_vpc_eip" "update" {
   publicip {
@@ -380,5 +370,5 @@ resource "huaweicloud_apig_instance" "test" {
   maintain_begin        = "14:00:00"
   eip_id                = huaweicloud_vpc_eip.update.id
 }
-`, testAccInstance_base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

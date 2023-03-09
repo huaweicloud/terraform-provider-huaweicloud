@@ -6,6 +6,7 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/cloudtable/v2/clusters"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -66,30 +67,11 @@ func TestAccCloudtableCluster_basic(t *testing.T) {
 	})
 }
 
-func testAccCloudtableCluster_base(rName string) string {
-	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%s"
-  vpc_id     = huaweicloud_vpc.test.id
-  cidr       = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%s"
-}`, rName, rName, rName)
-}
-
 func testAccCloudtableCluster_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_cloudtable_cluster" "test" {
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
@@ -101,5 +83,5 @@ resource "huaweicloud_cloudtable_cluster" "test" {
   hbase_version     = "1.0.6"
   rs_num            = 4
 }
-`, testAccCloudtableCluster_base(rName), rName)
+`, common.TestBaseNetwork(rName), rName)
 }

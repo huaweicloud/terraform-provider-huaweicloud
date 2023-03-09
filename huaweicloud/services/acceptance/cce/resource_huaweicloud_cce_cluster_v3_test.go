@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -263,26 +264,6 @@ func testAccCheckCCEClusterV3Exists(n string, cluster *clusters.Clusters) resour
 	}
 }
 
-func testAccCCEClusterV3_Base(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name          = "%s"
-  cidr          = "192.168.0.0/24"
-  gateway_ip    = "192.168.0.1"
-
-  //dns is required for cce node installing
-  primary_dns   = "100.125.1.250"
-  secondary_dns = "100.125.21.250"
-  vpc_id        = huaweicloud_vpc.test.id
-}
-`, rName, rName)
-}
-
 func testAccCCEClusterV3_prePaid(rName string, isAutoRenew bool) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -305,7 +286,7 @@ resource "huaweicloud_cce_cluster" "test" {
     key = "value"
   }
 }
-`, testAccCCEClusterV3_Base(rName), rName, isAutoRenew)
+`, common.TestVpc(rName), rName, isAutoRenew)
 }
 
 func testAccCCEClusterV3_basic(rName string) string {
@@ -325,7 +306,7 @@ resource "huaweicloud_cce_cluster" "test" {
     key = "value"
   }
 }
-`, testAccCCEClusterV3_Base(rName), rName)
+`, common.TestVpc(rName), rName)
 }
 
 func testAccCCEClusterV3_update(rName string) string {
@@ -346,7 +327,7 @@ resource "huaweicloud_cce_cluster" "test" {
     key = "value"
   }
 }
-`, testAccCCEClusterV3_Base(rName), rName)
+`, common.TestVpc(rName), rName)
 }
 
 func testAccCCEClusterV3_withEip(rName string) string {
@@ -375,7 +356,7 @@ resource "huaweicloud_cce_cluster" "test" {
   authentication_mode    = "rbac"
   eip                    = huaweicloud_vpc_eip.test.address
 }
-`, testAccCCEClusterV3_Base(rName), rName)
+`, common.TestVpc(rName), rName)
 }
 
 func testAccCCEClusterV3_withEipUpdate(rName string) string {
@@ -416,7 +397,7 @@ resource "huaweicloud_cce_cluster" "test" {
   authentication_mode    = "rbac"
   eip                    = huaweicloud_vpc_eip.update.address
 }
-`, testAccCCEClusterV3_Base(rName), rName)
+`, common.TestVpc(rName), rName)
 }
 
 func testAccCCEClusterV3_withEpsId(rName string) string {
@@ -432,7 +413,7 @@ resource "huaweicloud_cce_cluster" "test" {
   enterprise_project_id  = "%s"
 }
 
-`, testAccCCEClusterV3_Base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, common.TestVpc(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccCCEClusterV3_turbo(rName string) string {
@@ -456,7 +437,7 @@ resource "huaweicloud_cce_cluster" "test" {
   eni_subnet_cidr        = huaweicloud_vpc_subnet.eni_test.cidr
 }
 
-`, testAccCCEClusterV3_Base(rName), rName, rName)
+`, common.TestVpc(rName), rName, rName)
 }
 
 func testAccCCEClusterV3_hibernate(rName string) string {
@@ -472,7 +453,7 @@ resource "huaweicloud_cce_cluster" "test" {
   service_network_cidr   = "10.248.0.0/16"
   hibernate              = true
 }
-`, testAccCCEClusterV3_Base(rName), rName)
+`, common.TestVpc(rName), rName)
 }
 
 func testAccCCEClusterV3_awake(rName string) string {
@@ -488,5 +469,5 @@ resource "huaweicloud_cce_cluster" "test" {
   service_network_cidr   = "10.248.0.0/16"
   hibernate              = false
 }
-`, testAccCCEClusterV3_Base(rName), rName)
+`, common.TestVpc(rName), rName)
 }

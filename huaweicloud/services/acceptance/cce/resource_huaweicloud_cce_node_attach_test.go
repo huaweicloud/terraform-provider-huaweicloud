@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccCCENodeAttachV3_basic(t *testing.T) {
@@ -91,7 +92,7 @@ func TestAccCCENodeAttachV3_prePaid(t *testing.T) {
 
 func testAccCCENodeAttachV3_Base(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 data "huaweicloud_availability_zones" "test" {}
 
@@ -101,12 +102,12 @@ data "huaweicloud_images_image" "test" {
 }
 
 resource "huaweicloud_compute_keypair" "test" {
-  name = "%s"
+  name = "%[2]s"
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
 }
 
 resource "huaweicloud_compute_instance" "test" {
-  name                        = "%s"
+  name                        = "%[2]s"
   image_id                    = data.huaweicloud_images_image.test.id
   flavor_id                   = "sn3.large.2"
   availability_zone           = data.huaweicloud_availability_zones.test.names[0]
@@ -133,14 +134,14 @@ resource "huaweicloud_compute_instance" "test" {
 }
 
 resource "huaweicloud_cce_cluster" "test" {
-  name                   = "%s"
+  name                   = "%[2]s"
   cluster_type           = "VirtualMachine"
   flavor_id              = "cce.s1.small"
   vpc_id                 = huaweicloud_vpc.test.id
   subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "overlay_l2"
 }
-`, testAccCCEClusterV3_Base(rName), rName, rName, rName)
+`, common.TestVpc(rName), rName)
 }
 
 func testAccCCENodeAttachV3_basic(rName string) string {
@@ -202,7 +203,7 @@ resource "huaweicloud_cce_node_attach" "test" {
 
 func testAccCCENodeAttachV3_prePaidBase(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 data "huaweicloud_availability_zones" "test" {}
 
@@ -212,7 +213,7 @@ data "huaweicloud_images_image" "test" {
 }
 
 resource "huaweicloud_compute_instance" "test" {
-  name                        = "%s"
+  name                        = "%[2]s"
   image_id                    = data.huaweicloud_images_image.test.id
   flavor_id                   = "sn3.large.2"
   availability_zone           = data.huaweicloud_availability_zones.test.names[0]
@@ -243,14 +244,14 @@ resource "huaweicloud_compute_instance" "test" {
 }
 
 resource "huaweicloud_cce_cluster" "test" {
-  name                   = "%s"
+  name                   = "%[2]s"
   cluster_type           = "VirtualMachine"
   flavor_id              = "cce.s1.small"
   vpc_id                 = huaweicloud_vpc.test.id
   subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "overlay_l2"
 }
-`, testAccCCEClusterV3_Base(rName), rName, rName)
+`, common.TestVpc(rName), rName)
 }
 
 func testAccCCENodeAttachV3_prePaid(rName string) string {

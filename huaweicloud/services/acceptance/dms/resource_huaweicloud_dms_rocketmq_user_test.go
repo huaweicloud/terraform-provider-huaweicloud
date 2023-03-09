@@ -12,6 +12,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -100,28 +101,12 @@ func TestAccDmsRocketMQUser_basic(t *testing.T) {
 
 func testAccDmsRocketmqUser_base(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  name        = "%[1]s"
-  cidr        = "192.168.0.0/24"
-  description = "Test for DMS RocketMQ"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%[1]s"
-  cidr       = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
-  vpc_id     = huaweicloud_vpc.test.id
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name        = "%[1]s"
-  description = "secgroup for rocketmq"
-}
+%s
 
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dms_rocketmq_instance" "test" {
-  name              = "%[1]s"
+  name              = "%s"
   engine_version    = "4.8.0"
   storage_space     = 600
   vpc_id            = huaweicloud_vpc.test.id
@@ -137,7 +122,7 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
   broker_num        = 1
   enable_acl        = true
 }
-`, rName)
+`, common.TestBaseNetwork(rName), rName)
 }
 
 func testDmsRocketMQUser_basic(name string) string {

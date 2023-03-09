@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getCssClusterFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -116,22 +117,7 @@ func TestAccCssCluster_prePaid(t *testing.T) {
 func testAccCssBase(rName string) string {
 	bucketName := acceptance.RandomAccResourceNameWithDash()
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%s"
-  cidr       = "192.168.0.0/24"
-  vpc_id     = huaweicloud_vpc.test.id
-  gateway_ip = "192.168.0.1"
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name        = "%s"
-  description = "terraform security group acceptance test"
-}
+%s
 
 data "huaweicloud_availability_zones" "test" {}
 
@@ -140,7 +126,7 @@ resource "huaweicloud_obs_bucket" "cssObs" {
   acl           = "private"
   force_destroy = true
 }
-`, rName, rName, rName, bucketName)
+`, common.TestBaseNetwork(rName), bucketName)
 }
 
 func testAccCssCluster_basic(rName string, nodeNum int, keepDays int, tag string) string {

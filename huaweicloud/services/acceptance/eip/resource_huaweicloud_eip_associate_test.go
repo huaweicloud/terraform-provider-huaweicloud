@@ -9,6 +9,7 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccEIPAssociate_basic(t *testing.T) {
@@ -129,17 +130,7 @@ func TestAccEIPAssociate_compatible(t *testing.T) {
 
 func testAccEIPAssociate_base(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  name = "%[1]s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%[1]s"
-  cidr       = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
-  vpc_id     = huaweicloud_vpc.test.id
-}
+%s
 
 resource "huaweicloud_vpc_eip" "test" {
   publicip {
@@ -152,7 +143,7 @@ resource "huaweicloud_vpc_eip" "test" {
     name        = "%[1]s"
     charge_mode = "traffic"
   }
-}`, rName)
+}`, common.TestVpc(rName), rName)
 }
 
 func testAccEIPAssociate_basic(rName string) string {

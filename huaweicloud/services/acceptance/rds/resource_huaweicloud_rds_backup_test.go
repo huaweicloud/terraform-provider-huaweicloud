@@ -11,6 +11,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -112,6 +113,8 @@ func testAccBackupRdsInstance(name string) string {
 	return fmt.Sprintf(`
 %s
 
+data "huaweicloud_availability_zones" "test" {}
+
 resource "huaweicloud_rds_instance" "test" {
   name              = "%s"
   flavor            = "rds.pg.n1.large.2"
@@ -148,7 +151,7 @@ resource "huaweicloud_rds_instance" "test" {
     ]
   }
 }
-`, testAccRdsInstance_base(name), name)
+`, common.TestBaseNetwork(name), name)
 }
 
 func testAccBackupImportStateFunc(name string) resource.ImportStateIdFunc {

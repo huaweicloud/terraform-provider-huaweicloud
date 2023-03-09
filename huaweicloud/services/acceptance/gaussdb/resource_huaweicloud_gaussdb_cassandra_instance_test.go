@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk"
@@ -131,38 +132,11 @@ func testAccCheckGeminiDBInstanceExists(n string, instance *instances.GeminiDBIn
 	}
 }
 
-func testAccVpcConfig_Base(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%s"
-  cidr       = "192.168.0.0/16"
-  gateway_ip = "192.168.0.1"
-
-  primary_dns   = "100.125.1.250"
-  secondary_dns = "100.125.21.250"
-  vpc_id        = huaweicloud_vpc.test.id
-
-  timeouts {
-    delete = "20m"
-  }
-}
-`, rName, rName)
-}
-
 func testAccGeminiDBInstanceConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
 
 resource "huaweicloud_gaussdb_cassandra_instance" "test" {
   name        = "%s"
@@ -174,7 +148,7 @@ resource "huaweicloud_gaussdb_cassandra_instance" "test" {
   ssl         = true
   node_num    = 4
 
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
 
   backup_strategy {
@@ -187,21 +161,17 @@ resource "huaweicloud_gaussdb_cassandra_instance" "test" {
     key = "value"
   }
 }
-`, testAccVpcConfig_Base(rName), rName)
+`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccGeminiDBInstanceConfig_prePaid(rName string, isAutoRenew bool) string {
 	return fmt.Sprintf(`
-%[1]s
+%s
 
 data "huaweicloud_availability_zones" "test" {}
 
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
-
 resource "huaweicloud_gaussdb_cassandra_instance" "test" {
-  name        = "%[2]s"
+  name        = "%s"
   password    = "Test@12345678"
   flavor      = "geminidb.cassandra.xlarge.4"
   volume_size = 100
@@ -210,13 +180,13 @@ resource "huaweicloud_gaussdb_cassandra_instance" "test" {
   ssl         = true
   node_num    = 4
 
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
 
   charging_mode = "prePaid"
   period_unit   = "month"
   period        = 1
-  auto_renew    = "%[3]v"
+  auto_renew    = "%v"
 }
-`, testAccVpcConfig_Base(rName), rName, isAutoRenew)
+`, common.TestBaseNetwork(rName), rName, isAutoRenew)
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccDatasourceDdsInstance_basic(t *testing.T) {
@@ -31,29 +32,19 @@ func TestAccDatasourceDdsInstance_basic(t *testing.T) {
 
 func testAccDatasourceDdsInstance_base(rName string, port int) string {
 	return fmt.Sprintf(`
+%s
+
 data "huaweicloud_availability_zones" "test" {}
 
-data "huaweicloud_vpc" "test" {
-  name = "vpc-default"
-}
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-resource "huaweicloud_networking_secgroup" "secgroup_acc" {
-  name = "%[1]s"
-}
-
 resource "huaweicloud_dds_instance" "test" {
-  name              = "%[1]s"
+  name              = "%s"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   vpc_id            = data.huaweicloud_vpc.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
   password          = "Terraform@123"
   mode              = "Sharding"
-  port              = %[2]d
+  port              = %d
 
   datastore {
     type           = "DDS-Community"
@@ -92,7 +83,7 @@ resource "huaweicloud_dds_instance" "test" {
     foo   = "bar"
     owner = "terraform"
   }
-}`, rName, port)
+}`, common.TestBaseNetwork(rName), rName, port)
 }
 
 func testAccDatasourceDdsInstance_basic(name string, port int) string {

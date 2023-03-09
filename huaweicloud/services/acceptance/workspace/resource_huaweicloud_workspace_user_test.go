@@ -11,6 +11,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/workspace/v2/users"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getUserFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -78,22 +79,9 @@ func TestAccUser_basic(t *testing.T) {
 
 func testAccUser_base(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  name = "%[1]s"
-  cidr = "192.168.128.0/18"
-}
+%s
 
-resource "huaweicloud_vpc_subnet" "test" {
-  vpc_id = huaweicloud_vpc.test.id
-
-  name       = "%[1]s"
-  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1)
-  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1), 1)
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%[1]s"
-}
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_workspace_service" "test" {
   access_mode = "INTERNET"
@@ -102,7 +90,7 @@ resource "huaweicloud_workspace_service" "test" {
     huaweicloud_vpc_subnet.test.id,
   ]
 }
-`, rName)
+`, common.TestBaseNetwork(rName))
 }
 
 func testAccUser_basic(rName, currentTime string) string {

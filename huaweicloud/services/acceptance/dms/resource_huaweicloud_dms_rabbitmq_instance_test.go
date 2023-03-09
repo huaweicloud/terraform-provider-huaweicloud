@@ -9,9 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getDmsRabitMqInstanceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -166,23 +166,9 @@ func TestAccDmsRabbitmqInstances_single(t *testing.T) {
 
 func testAccDmsRabbitmqInstance_Base(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  name        = "%[1]s"
-  cidr        = "192.168.0.0/24"
-  description = "Test for DMS RabbitMQ"
-}
+%s
 
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%[1]s"
-  cidr       = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
-  vpc_id     = huaweicloud_vpc.test.id
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name        = "%[1]s"
-  description = "secgroup for rabbitmq"
-}
+data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_dms_product" "test1" {
   engine        = "rabbitmq"
@@ -199,7 +185,7 @@ data "huaweicloud_dms_product" "test2" {
 }
 
 data "huaweicloud_availability_zones" "test" {}
-`, rName)
+`, common.TestBaseNetwork(rName))
 }
 
 func testAccDmsRabbitmqInstance_basic(rName string) string {

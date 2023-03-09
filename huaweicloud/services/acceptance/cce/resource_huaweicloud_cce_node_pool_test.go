@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -320,24 +321,24 @@ func testAccCheckCCENodePoolExists(n string, cluster string, nodePool *nodepools
 
 func testAccCCENodePool_Base(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_compute_keypair" "test" {
-  name = "%s"
+  name = "%[2]s"
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
 }
 
 resource "huaweicloud_cce_cluster" "test" {
-  name                   = "%s"
+  name                   = "%[2]s"
   cluster_type           = "VirtualMachine"
   flavor_id              = "cce.s1.small"
   vpc_id                 = huaweicloud_vpc.test.id
   subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "overlay_l2"
 }
-`, testAccCCEClusterV3_Base(rName), rName, rName)
+`, common.TestVpc(rName), rName)
 }
 
 func testAccCCENodePool_basic(rName string) string {
@@ -498,11 +499,13 @@ resource "huaweicloud_compute_keypair" "test" {
 }
 
 resource "huaweicloud_networking_secgroup" "test1" {
-  name = "%[2]s-secgroup1"
+  name                 = "%[2]s-secgroup1"
+  delete_default_rules = true
 }
 
 resource "huaweicloud_networking_secgroup" "test2" {
-  name = "%[2]s-secgroup2"
+  name                 = "%[2]s-secgroup2"
+  delete_default_rules = true
 }
 
 resource "huaweicloud_cce_node_pool" "test" {

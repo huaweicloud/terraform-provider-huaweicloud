@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -51,17 +52,13 @@ func testAccGaussdbMysqlInstancesDataSource_basic(rName string) string {
 
 data "huaweicloud_availability_zones" "test" {}
 
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
-
 resource "huaweicloud_gaussdb_mysql_instance" "test" {
   name                  = "%s"
   password              = "Test@12345678"
   flavor                = "gaussdb.mysql.2xlarge.x86.4"
   vpc_id                = huaweicloud_vpc.test.id
   subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = data.huaweicloud_networking_secgroup.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
   enterprise_project_id = "0"
 }
 
@@ -71,5 +68,5 @@ data "huaweicloud_gaussdb_mysql_instances" "test" {
     huaweicloud_gaussdb_mysql_instance.test,
   ]
 }
-`, testAccVpcConfig_Base(rName), rName)
+`, common.TestBaseNetwork(rName), rName)
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getTriggerResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -328,23 +329,9 @@ resource "huaweicloud_fgs_trigger" "test" {
 
 func testAccNetwork_config(rName string) string {
 	return fmt.Sprintf(`
+%s
+
 data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.128.0/20"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%s"
-  vpc_id     = huaweicloud_vpc.test.id
-  cidr       = "192.168.128.0/24"
-  gateway_ip = "192.168.128.1"
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%s"
-}
 
 resource "huaweicloud_networking_secgroup_rule" "test" {
   security_group_id = huaweicloud_networking_secgroup.test.id
@@ -354,7 +341,7 @@ resource "huaweicloud_networking_secgroup_rule" "test" {
   port_range_min    = 9092
   port_range_max    = 9092
   remote_ip_prefix  = "0.0.0.0/0"
-}`, rName, rName, rName)
+}`, common.TestBaseNetwork(rName))
 }
 
 func testAccDmsKafka_config(rName, password string) string {
