@@ -93,14 +93,10 @@ type RecordSet struct {
 	// Status is the status of the recordset.
 	Status string `json:"status"`
 
-	// Action is the current action in progress of the recordset.
-	Action string `json:"action"`
+	Default bool `json:"default"`
 
 	// Description is the description of the recordset.
 	Description string `json:"description"`
-
-	// Version is the revision of the recordset.
-	Version int `json:"version"`
 
 	// CreatedAt is the date when the recordset was created.
 	CreatedAt time.Time `json:"-"`
@@ -112,6 +108,14 @@ type RecordSet struct {
 	// useful for passing along to other APIs that might want a recordset
 	// reference.
 	Links []golangsdk.Link `json:"-"`
+
+	// Deprecated
+	// Action is the current action in progress of the recordset.
+	Action string `json:"action"`
+
+	// Deprecated
+	// Version is the revision of the recordset.
+	Version int `json:"version"`
 }
 
 func (r *RecordSet) UnmarshalJSON(b []byte) error {

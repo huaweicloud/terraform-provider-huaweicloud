@@ -95,19 +95,8 @@ type Zone struct {
 	// Status is the status of the resource.
 	Status string `json:"status"`
 
-	// Action is the current action in progress on the resource.
-	Action string `json:"action"`
+	RecordNum int `json:"record_num"`
 
-	// Version of the resource.
-	Version int `json:"version"`
-
-	// Attributes for the zone.
-	Attributes map[string]string `json:"attributes"`
-
-	// Type of zone. Primary is controlled by Designate.
-	// Secondary zones are slaved from another DNS Server.
-	// Defaults to Primary.
-	Type     string `json:"type"`
 	ZoneType string `json:"zone_type"`
 
 	// Masters is the servers for slave servers to get DNS information from.
@@ -119,10 +108,6 @@ type Zone struct {
 	// UpdatedAt is the date when the last change was made to the zone.
 	UpdatedAt time.Time `json:"-"`
 
-	// TransferredAt is the last time an update was retrieved from the
-	// master servers.
-	TransferredAt time.Time `json:"-"`
-
 	// Links includes HTTP references to the itself, useful for passing along
 	// to other APIs that might want a server reference.
 	Links map[string]interface{} `json:"links"`
@@ -132,6 +117,29 @@ type Zone struct {
 
 	// Enterprise project id
 	EnterpriseProjectID string `json:"enterprise_project_id"`
+
+	// Deprecated
+	// Action is the current action in progress on the resource.
+	Action string `json:"action"`
+
+	// Deprecated
+	// Attributes for the zone.
+	Attributes map[string]string `json:"attributes"`
+
+	// Deprecated
+	// TransferredAt is the last time an update was retrieved from the
+	// master servers.
+	TransferredAt time.Time `json:"-"`
+
+	// Deprecated
+	// Type of zone. Primary is controlled by Designate.
+	// Secondary zones are slaved from another DNS Server.
+	// Defaults to Primary.
+	Type string `json:"type"`
+
+	// Deprecated
+	// Version of the resource.
+	Version int `json:"version"`
 }
 
 type RouterResult struct {

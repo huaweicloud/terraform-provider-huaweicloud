@@ -54,8 +54,6 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the record set.
 
-* `value_specs` - (Optional, Map, ForceNew) Map of additional options. Changing this creates a new record set.
-
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
