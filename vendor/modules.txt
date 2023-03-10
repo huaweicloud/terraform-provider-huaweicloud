@@ -224,6 +224,7 @@ github.com/chnsz/golangsdk/openstack/mrs/v2/clusters
 github.com/chnsz/golangsdk/openstack/mrs/v2/jobs
 github.com/chnsz/golangsdk/openstack/nat/v2/dnats
 github.com/chnsz/golangsdk/openstack/nat/v2/gateways
+github.com/chnsz/golangsdk/openstack/nat/v2/snats
 github.com/chnsz/golangsdk/openstack/networking/v1/bandwidths
 github.com/chnsz/golangsdk/openstack/networking/v1/eips
 github.com/chnsz/golangsdk/openstack/networking/v1/flowlogs
@@ -239,7 +240,6 @@ github.com/chnsz/golangsdk/openstack/networking/v2/extensions/fwaas_v2/firewall_
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/fwaas_v2/policies
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/fwaas_v2/routerinsertion
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/fwaas_v2/rules
-github.com/chnsz/golangsdk/openstack/networking/v2/extensions/hw_snatrules
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/layer3/floatingips
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/layer3/routers
 github.com/chnsz/golangsdk/openstack/networking/v2/extensions/natgateways
