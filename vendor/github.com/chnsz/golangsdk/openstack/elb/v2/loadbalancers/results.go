@@ -58,6 +58,20 @@ type LoadBalancer struct {
 
 	// Enterprise project ID
 	EnterpriseProjectID string `json:"enterprise_project_id"`
+
+	// The public ip of the loadbalancer.
+	PublicIps []PublicIp `json:"publicips"`
+}
+
+type PublicIp struct {
+	// The ID of the public ip.
+	PublicIpId string `json:"publicip_id"`
+
+	// The IP address of the public IP.
+	PublicIpAddress string `json:"publicip_address"`
+
+	// The version of the IP.
+	IpVersion int `json:"ip_version"`
 }
 
 // StatusTree represents the status of a loadbalancer.
