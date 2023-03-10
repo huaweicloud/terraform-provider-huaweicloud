@@ -37,7 +37,7 @@ The following arguments are supported:
   Changing this will create a new resource.
 
 * `name` - (Required, String) Specifies the NAT gateway name.  
-The valid length is limited from `1` to `64`, only letters, digits, hyphens (-) and underscores (_) are allowed.
+  The valid length is limited from `1` to `64`, only letters, digits, hyphens (-) and underscores (_) are allowed.
 
 * `spec` - (Required, String) Specifies the specification of the NAT gateway. The valid values are as follows:
   + **1**: Small type, which supports up to `10,000` SNAT connections.

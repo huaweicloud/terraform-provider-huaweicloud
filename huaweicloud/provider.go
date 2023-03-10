@@ -481,7 +481,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_elb_flavors":     elb.DataSourceElbFlavorsV3(),
 			"huaweicloud_elb_pools":       elb.DataSourcePools(),
 
-			"huaweicloud_nat_gateway": nat.DataSourceNatGatewayV2(),
+			"huaweicloud_nat_gateway": nat.DataSourcePublicGateway(),
 
 			"huaweicloud_networking_port":      vpc.DataSourceNetworkingPortV2(),
 			"huaweicloud_networking_secgroup":  DataSourceNetworkingSecGroup(),

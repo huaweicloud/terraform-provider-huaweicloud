@@ -4,92 +4,62 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
-func TestAccNatGatewayDataSource_basic(t *testing.T) {
-	natgateway := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+func TestAccDataPublicGateway_basic(t *testing.T) {
+	var (
+		name            = acceptance.RandomAccResourceName()
+		nameFilter      = acceptance.InitDataSourceCheck("data.huaweicloud_nat_gateway.name_filter")
+		idFilter        = acceptance.InitDataSourceCheck("data.huaweicloud_nat_gateway.id_filter")
+		allParamsFilter = acceptance.InitDataSourceCheck("data.huaweicloud_nat_gateway.all_params_filter")
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNatGatewayV2DataSource_basic(natgateway),
+				Config: testAccDataPublicGateway_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNatGatewayV2DataSourceID("data.huaweicloud_nat_gateway.nat_by_name"),
-					testAccCheckNatGatewayV2DataSourceID("data.huaweicloud_nat_gateway.nat_by_id"),
-					testAccCheckNatGatewayV2DataSourceID("data.huaweicloud_nat_gateway.nat_by_epsId"),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_nat_gateway.nat_by_name", "name", natgateway),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_nat_gateway.nat_by_id", "name", natgateway),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_nat_gateway.nat_by_epsId", "name", natgateway),
+					nameFilter.CheckResourceExists(),
+					idFilter.CheckResourceExists(),
+					allParamsFilter.CheckResourceExists(),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckNatGatewayV2DataSourceID(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Can't find natgateway data source: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("NatGateway data source ID not set")
-		}
-
-		return nil
-	}
-}
-
-func testAccNatGatewayV2DataSource_basic(name string) string {
+func testAccDataPublicGateway_basic(name string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_enterprise_project" "enterprise_project_demo" {
-  name = "terraform"
-}
+%[1]s
 
-resource "huaweicloud_vpc" "vpc_1" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "subnet_1" {
-  name       = "%s"
-  cidr       = "192.168.199.0/24"
-  gateway_ip = "192.168.199.1"
-  vpc_id     = huaweicloud_vpc.vpc_1.id
-}
-
-resource "huaweicloud_nat_gateway" "nat_1" {
-  name                  = "%s"
-  description           = "test for terraform"
+resource "huaweicloud_nat_gateway" "test" {
+  name                  = "%[2]s"
   spec                  = "1"
-  subnet_id             = huaweicloud_vpc_subnet.subnet_1.id
-  vpc_id                = huaweicloud_vpc.vpc_1.id
-  enterprise_project_id = data.huaweicloud_enterprise_project.enterprise_project_demo.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  vpc_id                = huaweicloud_vpc.test.id
+  enterprise_project_id = "0"
 }
 
-data "huaweicloud_nat_gateway" "nat_by_name" {
-  name = huaweicloud_nat_gateway.nat_1.name
+data "huaweicloud_nat_gateway" "name_filter" {
+  name = huaweicloud_nat_gateway.test.name
 }
 
-data "huaweicloud_nat_gateway" "nat_by_id" {
-  id = huaweicloud_nat_gateway.nat_1.id
+data "huaweicloud_nat_gateway" "id_filter" {
+  id = huaweicloud_nat_gateway.test.id
 }
 
-data "huaweicloud_nat_gateway" "nat_by_epsId" {
-  id = huaweicloud_nat_gateway.nat_1.id
-  enterprise_project_id = data.huaweicloud_enterprise_project.enterprise_project_demo.id
+data "huaweicloud_nat_gateway" "all_params_filter" {
+  name                  = huaweicloud_nat_gateway.test.name
+  spec                  = huaweicloud_nat_gateway.test.spec
+  subnet_id             = huaweicloud_nat_gateway.test.subnet_id
+  vpc_id                = huaweicloud_nat_gateway.test.vpc_id
+  enterprise_project_id = huaweicloud_nat_gateway.test.enterprise_project_id
 }
-`, name, name, name)
+`, common.TestBaseNetwork(name), name)
 }
