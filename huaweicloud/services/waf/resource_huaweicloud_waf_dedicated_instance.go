@@ -15,6 +15,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -106,11 +107,16 @@ func ResourceWafDedicatedInstance() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"res_tenant": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "schema: Internal; Specifies whether this is resource tenant.",
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			// The following are the attributes
 			"server_id": {
 				Type:     schema.TypeString,
@@ -157,6 +163,7 @@ func buildCreateOpts(d *schema.ResourceData, region string) *instances.CreateIns
 		SecurityGroup: groups,
 		Count:         defaultCount,
 		PoolId:        d.Get("group_id").(string),
+		ResTenant:     utils.Bool(d.Get("res_tenant").(bool)),
 	}
 	return &createOpts
 }
