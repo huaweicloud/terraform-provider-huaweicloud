@@ -43,6 +43,7 @@ var multiCatalogKeys = map[string][]string{
 	"modelarts":    {"modelartsv2"},
 	"servicestage": {"servicestagev2"},
 	"smn":          {"smn-tag"},
+	"ces":          {"cesv2"},
 }
 
 // GetServiceDerivedCatalogKeys returns the derived catalog keys of a service.
@@ -375,6 +376,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"ces": {
 		Name:    "ces",
 		Version: "V1.0",
+		Product: "CES",
+	},
+	"cesv2": {
+		Name:    "ces",
+		Version: "v2",
 		Product: "CES",
 	},
 	"cts": {

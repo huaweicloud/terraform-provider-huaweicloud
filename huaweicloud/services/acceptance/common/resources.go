@@ -1,10 +1,6 @@
 package common
 
-import (
-	"fmt"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-)
+import "fmt"
 
 // TestSecGroup can be referred as `huaweicloud_networking_secgroup.test`
 func TestSecGroup(name string) string {
@@ -18,20 +14,19 @@ resource "huaweicloud_networking_secgroup" "test" {
 
 // TestVpc can be referred as `huaweicloud_vpc.test` and `huaweicloud_vpc_subnet.test`
 func TestVpc(name string) string {
-	randCidr, randGatewayIp := acceptance.RandomCidrAndGatewayIp()
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%[1]s"
-  cidr = "%[2]s"
+  cidr = "192.168.0.0/16"
 }
 
 resource "huaweicloud_vpc_subnet" "test" {
   name       = "%[1]s"
   vpc_id     = huaweicloud_vpc.test.id
-  cidr       = "%[2]s"
-  gateway_ip = "%[3]s"
+  cidr       = "192.168.0.0/24"
+  gateway_ip = "192.168.0.1"
 }
-`, name, randCidr, randGatewayIp)
+`, name)
 }
 
 // TestBaseNetwork vpc, subnet, security group
