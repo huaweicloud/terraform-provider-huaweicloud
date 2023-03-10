@@ -154,6 +154,7 @@ type UpdateMetadataOpts struct {
 	AppXrole           string       `json:"app_xrole,omitempty"`
 	InitializerHandler string       `json:"initializer_handler,omitempty"`
 	InitializerTimeout int          `json:"initializer_timeout,omitempty"`
+	CustomImage        *CustomImage `json:"custom_image,omitempty"`
 }
 
 func (opts UpdateMetadataOpts) ToUpdateMap() (map[string]interface{}, error) {

@@ -516,6 +516,7 @@ func resourceFgsFunctionV2MetadataUpdate(fgsClient *golangsdk.ServiceClient, urn
 		AppXrole:           d.Get("app_agency").(string),
 		InitializerHandler: d.Get("initializer_handler").(string),
 		InitializerTimeout: d.Get("initializer_timeout").(int),
+		CustomImage:        buildCustomImage(d.Get("custom_image").([]interface{})),
 	}
 
 	if _, ok := d.GetOk("vpc_id"); ok {
