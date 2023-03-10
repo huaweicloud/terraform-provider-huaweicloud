@@ -177,6 +177,17 @@ func testAccNatV2DnatRule_base(suffix string) string {
 data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
+resource "huaweicloud_vpc" "vpc_1" {
+  name = "nat-vpc-%[1]s"
+  cidr = "172.16.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "subnet_1" {
+  name       = "nat-sunnet-%[1]s"
+  cidr       = "172.16.10.0/24"
+  gateway_ip = "172.16.10.1"
+  vpc_id     = huaweicloud_vpc.vpc_1.id
+}
 
 resource "huaweicloud_vpc_eip" "eip_1" {
   publicip {
@@ -205,7 +216,7 @@ data "huaweicloud_images_image" "test" {
 }
 
 resource "huaweicloud_compute_instance" "instance_1" {
-  name               = "instance-acc-test-%s"
+  name               = "instance-acc-test-%[1]s"
   image_id           = data.huaweicloud_images_image.test.id
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
@@ -219,13 +230,23 @@ resource "huaweicloud_compute_instance" "instance_1" {
     foo = "bar"
   }
 }
+
+resource "huaweicloud_nat_gateway" "nat_1" {
+  name        = "nat-gateway-basic-%[1]s"
+  description = "test for terraform"
+  spec        = "1"
+  vpc_id      = huaweicloud_vpc.vpc_1.id
+  subnet_id   = huaweicloud_vpc_subnet.subnet_1.id
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
 `, suffix)
 }
 
 func testAccNatV2DnatRule_basic(suffix string) string {
 	return fmt.Sprintf(`
-%s
-
 %s
 
 resource "huaweicloud_nat_dnat_rule" "dnat" {
@@ -237,13 +258,11 @@ resource "huaweicloud_nat_dnat_rule" "dnat" {
   internal_service_port = 80
   external_service_port = 8080
 }
-`, testAccNatV2Gateway_basic(suffix), testAccNatV2DnatRule_base(suffix))
+`, testAccNatV2DnatRule_base(suffix))
 }
 
 func testAccNatV2DnatRule_protocol(suffix string) string {
 	return fmt.Sprintf(`
-%s
-
 %s
 
 resource "huaweicloud_nat_dnat_rule" "dnat" {
@@ -255,13 +274,11 @@ resource "huaweicloud_nat_dnat_rule" "dnat" {
   internal_service_port = 0
   external_service_port = 0
 }
-`, testAccNatV2Gateway_basic(suffix), testAccNatV2DnatRule_base(suffix))
+`, testAccNatV2DnatRule_base(suffix))
 }
 
 func testAccNatV2DnatRule_portRange(suffix string) string {
 	return fmt.Sprintf(`
-%s
-
 %s
 
 resource "huaweicloud_nat_dnat_rule" "dnat" {
@@ -273,5 +290,5 @@ resource "huaweicloud_nat_dnat_rule" "dnat" {
   internal_service_port_range = "23-823"
   external_service_port_range = "8023-8823"
 }
-`, testAccNatV2Gateway_basic(suffix), testAccNatV2DnatRule_base(suffix))
+`, testAccNatV2DnatRule_base(suffix))
 }

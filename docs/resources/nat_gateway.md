@@ -4,17 +4,21 @@ subcategory: "NAT Gateway (NAT)"
 
 # huaweicloud_nat_gateway
 
-Manages a Nat gateway resource within HuaweiCloud Nat.
+Manages a gateway resource of the **public** NAT within HuaweiCloud.
 
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_nat_gateway" "nat_1" {
-  name        = "test"
+variable "gateway_name" {}
+variable "vpc_id" {}
+variable "network_id" {}
+
+resource "huaweicloud_nat_gateway" "test" {
+  name        = var.gateway_name
   description = "test for terraform"
   spec        = "3"
-  vpc_id      = "2c1fe4bd-ebad-44ca-ae9d-e94e63847b75"
-  subnet_id   = "dc8632e2-d9ff-41b1-aa0c-d455557314a0"
+  vpc_id      = var.vpc_id
+  subnet_id   = var.network_id
 }
 ```
 
@@ -22,31 +26,30 @@ resource "huaweicloud_nat_gateway" "nat_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to create the Nat gateway resource. If omitted,
-  the provider-level region will be used. Changing this creates a new nat gateway.
+* `region` - (Optional, String, ForceNew) Specifies the region where the NAT gateway is located.  
+  If omitted, the provider-level region will be used. Changing this will create a new resource.
 
-* `name` - (Required, String) Specifies the nat gateway name. The name can contain only digits, letters, underscores (_)
-  , and hyphens(-).
-
-* `spec` - (Required, String) Specifies the nat gateway type. The value can be:
-  + `1`: small type, which supports up to 10,000 SNAT connections.
-  + `2`: medium type, which supports up to 50,000 SNAT connections.
-  + `3`: large type, which supports up to 200,000 SNAT connections.
-  + `4`: extra-large type, which supports up to 1,000,000 SNAT connections.
-
-* `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC this nat gateway belongs to. Changing this creates
-  a new nat gateway.
+* `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC to which the NAT gateway belongs.  
+  Changing this will create a new resource.
 
 * `subnet_id` - (Required, String, ForceNew) Specifies the subnet ID of the downstream interface (the next hop of the
-  DVR) of the NAT gateway. Changing this creates a new nat gateway.
+  DVR) of the NAT gateway.  
+  Changing this will create a new resource.
 
-* `description` - (Optional, String) Specifies the description of the nat gateway. The value contains 0 to 255
-  characters, and angle brackets (<)
-  and (>) are not allowed.
+* `name` - (Required, String) Specifies the NAT gateway name.  
+The valid length is limited from `1` to `64`, only letters, digits, hyphens (-) and underscores (_) are allowed.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the nat gateway. The
-  value can contains maximum of 36 characters which it is string "0" or in UUID format with hyphens (-). Changing this
-  creates a new nat gateway.
+* `spec` - (Required, String) Specifies the specification of the NAT gateway. The valid values are as follows:
+  + **1**: Small type, which supports up to `10,000` SNAT connections.
+  + **2**: Medium type, which supports up to `50,000` SNAT connections.
+  + **3**: Large type, which supports up to `200,000` SNAT connections.
+  + **4**: Extra-large type, which supports up to `1,000,000` SNAT connections.
+
+* `description` - (Optional, String) Specifies the description of the NAT gateway, which contain maximum of `512`
+  characters, and angle brackets (<) and (>) are not allowed.
+
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of the NAT gateway.  
+  Changing this will create a new resource.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the NAT geteway.
 
@@ -56,19 +59,20 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID in UUID format.
 
-* `status` - The status of the nat gateway.
+* `status` - The current status of the NAT gateway.
 
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 10 minute.
-* `delete` - Default is 10 minute.
+* `create` - Default is 5 minutes.
+* `update` - Default is 5 minutes.
+* `delete` - Default is 5 minutes.
 
 ## Import
 
-Nat gateway can be imported using the following format:
+NAT gateways can be imported using their `id`, e.g.
 
-```
-$ terraform import huaweicloud_nat_gateway.nat_1 d126fb87-43ce-4867-a2ff-cf34af3765d9
+```bash
+$ terraform import huaweicloud_nat_gateway.test d126fb87-43ce-4867-a2ff-cf34af3765d9
 ```

@@ -24,7 +24,6 @@ func TestAccNatSnatRule_basic(t *testing.T) {
 			{
 				Config: testAccNatV2SnatRule_basic(randSuffix),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNatV2GatewayExists("huaweicloud_nat_gateway.nat_1"),
 					testAccCheckNatV2SnatRuleExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "description", "created by terraform acc test"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
@@ -105,7 +104,17 @@ func testAccCheckNatV2SnatRuleExists(n string) resource.TestCheckFunc {
 
 func testAccNatV2SnatRule_base(suffix string) string {
 	return fmt.Sprintf(`
-%s
+resource "huaweicloud_vpc" "vpc_1" {
+  name = "nat-vpc-%[1]s"
+  cidr = "172.16.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "subnet_1" {
+  name       = "nat-sunnet-%[1]s"
+  cidr       = "172.16.10.0/24"
+  gateway_ip = "172.16.10.1"
+  vpc_id     = huaweicloud_vpc.vpc_1.id
+}
 
 resource "huaweicloud_vpc_eip" "eips" {
   count = 2
@@ -122,13 +131,13 @@ resource "huaweicloud_vpc_eip" "eips" {
 }
 
 resource "huaweicloud_nat_gateway" "nat_1" {
-  name        = "nat-gateway-basic-%s"
+  name        = "nat-gateway-basic-%[1]s"
   description = "created by terraform acc test"
   spec        = "1"
   vpc_id      = huaweicloud_vpc.vpc_1.id
   subnet_id   = huaweicloud_vpc_subnet.subnet_1.id
 }
-`, testAccNatPreCondition(suffix), suffix)
+`, suffix)
 }
 
 func testAccNatV2SnatRule_basic(suffix string) string {

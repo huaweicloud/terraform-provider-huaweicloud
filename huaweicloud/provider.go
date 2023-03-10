@@ -69,6 +69,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/modelarts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mpc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mrs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/nat"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/oms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/projectman"
@@ -852,7 +853,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_mrs_job":     ResourceMRSJobV1(),
 
 			"huaweicloud_nat_dnat_rule": ResourceNatDnatRuleV2(),
-			"huaweicloud_nat_gateway":   ResourceNatGatewayV2(),
+			"huaweicloud_nat_gateway":   nat.ResourcePublicGateway(),
 			"huaweicloud_nat_snat_rule": ResourceNatSnatRuleV2(),
 
 			"huaweicloud_network_acl":              ResourceNetworkACL(),
@@ -1020,7 +1021,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_instance_v3":       rds.ResourceRdsInstance(),
 			"huaweicloud_rds_parametergroup_v3": rds.ResourceRdsConfiguration(),
 
-			"huaweicloud_nat_gateway_v2":   ResourceNatGatewayV2(),
+			"huaweicloud_nat_gateway_v2":   nat.ResourcePublicGateway(),
 			"huaweicloud_nat_snat_rule_v2": ResourceNatSnatRuleV2(),
 			"huaweicloud_nat_dnat_rule_v2": ResourceNatDnatRuleV2(),
 
