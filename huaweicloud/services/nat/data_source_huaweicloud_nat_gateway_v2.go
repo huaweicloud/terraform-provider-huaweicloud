@@ -1,4 +1,4 @@
-package huaweicloud
+package nat
 
 import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -76,8 +76,8 @@ func DataSourceNatGatewayV2() *schema.Resource {
 }
 
 func dataSourceNatGatewayV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	natClient, err := config.NatGatewayClient(GetRegion(d, config))
+	cfg := meta.(*config.Config)
+	natClient, err := cfg.NatGatewayClient(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
