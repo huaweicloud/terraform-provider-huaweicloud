@@ -22,7 +22,7 @@
               "alarm_level": {
                 "type": "number",
                 "optional": true,
-                "default": 2
+                "computed": true
               },
               "alarm_name": {
                 "type": "string",
@@ -47,6 +47,18 @@
                 "type": "string",
                 "computed": true
               },
+              "notification_begin_time": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "notification_end_time": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "region": {
                 "type": "string",
                 "computed": true
@@ -65,22 +77,24 @@
                         "list",
                         "string"
                       ],
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "type": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     }
                   }
                 },
-                "nesting_mode": "list",
-                "forcenew": true
+                "nesting_mode": "list"
               },
               "condition": {
                 "block": {
                   "attributes": {
+                    "alarm_level": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
                     "comparison_operator": {
                       "type": "string",
                       "required": true
@@ -93,19 +107,22 @@
                       "type": "string",
                       "required": true
                     },
+                    "metric_name": {
+                      "type": "string",
+                      "description": "schema: Required",
+                      "required": true
+                    },
                     "period": {
                       "type": "number",
                       "required": true
                     },
                     "suppress_duration": {
                       "type": "number",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "unit": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "value": {
                       "type": "number",
@@ -113,18 +130,12 @@
                     }
                   }
                 },
-                "nesting_mode": "list",
-                "min_items": 1,
-                "max_items": 1
+                "nesting_mode": "set",
+                "min_items": 1
               },
               "metric": {
                 "block": {
                   "attributes": {
-                    "metric_name": {
-                      "type": "string",
-                      "required": true,
-                      "forcenew": true
-                    },
                     "namespace": {
                       "type": "string",
                       "required": true,
@@ -137,18 +148,15 @@
                         "attributes": {
                           "name": {
                             "type": "string",
-                            "required": true,
-                            "forcenew": true
+                            "required": true
                           },
                           "value": {
                             "type": "string",
-                            "required": true,
-                            "forcenew": true
+                            "required": true
                           }
                         }
                       },
-                      "nesting_mode": "list",
-                      "forcenew": true
+                      "nesting_mode": "set"
                     }
                   }
                 },
@@ -165,18 +173,15 @@
                         "list",
                         "string"
                       ],
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "type": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     }
                   }
                 },
-                "nesting_mode": "list",
-                "forcenew": true
+                "nesting_mode": "list"
               }
             }
           },

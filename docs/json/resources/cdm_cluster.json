@@ -115,8 +115,8 @@
               "version": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true,
-                "default": "2.8.6.2"
+                "computed": true,
+                "forcenew": true
               },
               "vpc_id": {
                 "type": "string",

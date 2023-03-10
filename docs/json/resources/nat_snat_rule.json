@@ -7,19 +7,23 @@
             "attributes": {
               "cidr": {
                 "type": "string",
+                "description": "The CIDR block connected by SNAT rule (DC side).",
                 "optional": true,
                 "forcenew": true
               },
               "description": {
                 "type": "string",
+                "description": "The description of the SNAT rule.",
                 "optional": true
               },
               "floating_ip_address": {
                 "type": "string",
+                "description": "The floating IP addresses (separated by commas) connected by SNAT rule.",
                 "computed": true
               },
               "floating_ip_id": {
                 "type": "string",
+                "description": "The IDs of floating IPs connected by SNAT rule.",
                 "required": true
               },
               "id": {
@@ -28,24 +32,29 @@
               },
               "nat_gateway_id": {
                 "type": "string",
+                "description": "schema: Required; The ID of the gateway to which the SNAT rule belongs.",
                 "required": true,
                 "forcenew": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the SNAT rule is located.",
                 "computed": true
               },
               "source_type": {
                 "type": "number",
+                "description": "The resource type of the SNAT rule.",
                 "optional": true,
                 "forcenew": true
               },
               "status": {
                 "type": "string",
+                "description": "The status of the SNAT rule.",
                 "computed": true
               },
               "subnet_id": {
                 "type": "string",
+                "description": "The network IDs of subnet connected by SNAT rule (VPC side).",
                 "optional": true,
                 "computed": true,
                 "forcenew": true

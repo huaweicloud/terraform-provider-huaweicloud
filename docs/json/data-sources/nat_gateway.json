@@ -7,45 +7,54 @@
             "attributes": {
               "description": {
                 "type": "string",
+                "description": "The description of the public NAT gateway.",
                 "optional": true,
                 "computed": true
               },
               "enterprise_project_id": {
                 "type": "string",
+                "description": "The enterprise project ID of the public NAT gateway.",
                 "optional": true,
                 "computed": true
               },
               "id": {
                 "type": "string",
+                "description": "The public NAT gateway ID.",
                 "optional": true,
                 "computed": true
               },
               "name": {
                 "type": "string",
+                "description": "The public NAT gateway name.",
                 "optional": true,
                 "computed": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the public NAT gateway is located.",
                 "computed": true
               },
               "spec": {
                 "type": "string",
+                "description": "The specification of the public NAT gateway.",
                 "optional": true,
                 "computed": true
               },
               "status": {
                 "type": "string",
+                "description": "The current status of the public NAT gateway.",
                 "optional": true,
                 "computed": true
               },
               "subnet_id": {
                 "type": "string",
+                "description": "The network ID of the downstream interface (the next hop of the DVR) of the public NAT gateway.",
                 "optional": true,
                 "computed": true
               },
               "vpc_id": {
                 "type": "string",
+                "description": "The ID of the VPC to which the public NAT gateway belongs.",
                 "optional": true,
                 "computed": true
               }

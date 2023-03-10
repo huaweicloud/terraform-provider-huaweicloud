@@ -7,11 +7,12 @@
             "attributes": {
               "description": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "description": "The description of the NAT gateway.",
+                "optional": true
               },
               "enterprise_project_id": {
                 "type": "string",
+                "description": "The enterprise project ID of the NAT gateway.",
                 "optional": true,
                 "computed": true,
                 "forcenew": true
@@ -22,24 +23,28 @@
               },
               "name": {
                 "type": "string",
+                "description": "The NAT gateway name.",
                 "required": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the NAT gateway is located.",
                 "computed": true
               },
               "spec": {
                 "type": "string",
+                "description": "The specification of the NAT gateway.",
                 "required": true
               },
               "status": {
                 "type": "string",
+                "description": "The current status of the NAT gateway.",
                 "computed": true
               },
               "subnet_id": {
                 "type": "string",
-                "optional": true,
-                "computed": true,
+                "description": "The network ID of the downstream interface (the next hop of the DVR) of the NAT gateway.",
+                "required": true,
                 "forcenew": true
               },
               "tags": {
@@ -51,8 +56,8 @@
               },
               "vpc_id": {
                 "type": "string",
-                "optional": true,
-                "computed": true,
+                "description": "The ID of the VPC to which the NAT gateway belongs.",
+                "required": true,
                 "forcenew": true
               }
             }

@@ -103,8 +103,19 @@
                 ],
                 "computed": true
               },
+              "public_ips": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
               "region": {
                 "type": "string",
+                "computed": true
+              },
+              "replica_num": {
+                "type": "number",
                 "computed": true
               },
               "security_group_id": {

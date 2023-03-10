@@ -70,7 +70,12 @@
                         "list",
                         "string"
                       ],
+                      "public_ips": [
+                        "list",
+                        "string"
+                      ],
                       "region": "string",
+                      "replica_num": "number",
                       "security_group_id": "string",
                       "sharding_num": "number",
                       "status": "string",

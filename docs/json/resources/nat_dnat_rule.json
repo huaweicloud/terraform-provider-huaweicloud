@@ -7,32 +7,33 @@
             "attributes": {
               "created_at": {
                 "type": "string",
+                "description": "The creation time of the DNAT rule.",
                 "computed": true
               },
               "description": {
                 "type": "string",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
+                "description": "The description of the DNAT rule.",
+                "optional": true
               },
               "external_service_port": {
                 "type": "number",
-                "optional": true,
-                "forcenew": true
+                "description": "The port range used by Floating IP provide services for external systems.",
+                "optional": true
               },
               "external_service_port_range": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "description": "The port range used by ECSs or BMSs to provide services for external systems.",
+                "optional": true
               },
               "floating_ip_address": {
                 "type": "string",
+                "description": "The floating IP address of the DNAT rule.",
                 "computed": true
               },
               "floating_ip_id": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "description": "The ID of the floating IP address.",
+                "required": true
               },
               "id": {
                 "type": "string",
@@ -40,40 +41,43 @@
               },
               "internal_service_port": {
                 "type": "number",
-                "optional": true,
-                "forcenew": true
+                "description": "The port used by Floating IP provide services for external systems.",
+                "optional": true
               },
               "internal_service_port_range": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "description": "The port used by ECSs or BMSs to provide services for external systems.",
+                "optional": true
               },
               "nat_gateway_id": {
                 "type": "string",
+                "description": "The ID of the NAT gateway to which the DNAT rule belongs.",
                 "required": true,
                 "forcenew": true
               },
               "port_id": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "description": "The port ID of network.",
+                "optional": true
               },
               "private_ip": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "description": "The private IP address of a user.",
+                "optional": true
               },
               "protocol": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "description": "The protocol type.",
+                "required": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the DNAT rule is located.",
                 "computed": true
               },
               "status": {
                 "type": "string",
+                "description": "The current status of the DNAT rule.",
                 "computed": true
               }
             }
