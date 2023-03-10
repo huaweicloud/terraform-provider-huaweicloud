@@ -38,8 +38,8 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the dedicated mode domain resource. If omitted,
   the provider-level region will be used. Changing this setting will push a new domain.
 
-* `domain` - (Required, String, ForceNew) Specifies the domain name to be protected. For example, www.example.com or
-  *.example.com. Changing this creates a new domain.
+* `domain` - (Required, String, ForceNew) Specifies the protected domain name or IP address (port allowed). For example,
+  www.example.com or *.example.com or www.example.com:89. Changing this creates a new domain.
 
 * `server` - (Required, List, ForceNew) The server configuration list of the domain. A maximum of 80 can be configured.
   The object structure is documented below.
