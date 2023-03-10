@@ -95,7 +95,7 @@ func ResourcePublicGateway() *schema.Resource {
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The description fo the NAT gateway.",
+				Description: "The description of the NAT gateway.",
 			},
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
