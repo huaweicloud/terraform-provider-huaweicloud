@@ -8,11 +8,11 @@ host: huaweicloud.com
 tags:
   - name: NAT
 paths:
-  /v2/{project_id}/nat_gateways/{natGatewayID}/snat_rules/{id}:
+  /v2/{project_id}/nat_gateways/{gatewayId}/snat_rules/{ruleId}:
     delete:
       tag: NAT
       operationId: Delete
-  /v2/{project_id}/snat_rules/{id}:
+  /v2/{project_id}/snat_rules/{ruleId}:
     get:
       tag: NAT
       operationId: Get

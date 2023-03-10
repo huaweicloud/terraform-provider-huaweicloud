@@ -1,0 +1,14 @@
+info:
+    title: data_source_huaweicloud_ddm_engines
+    description: Use this data source to get the list of DDM engines.
+host: myhuaweicloud.com
+tags:
+    - name: DDM
+servers:
+    - url: https://ddm.cn-north-4.myhuaweicloud.com
+paths:
+    /v2/{project_id}/engines:
+        GET:
+            tag: DDM
+            operationId: GetDdmEngines
+            x-ref-api: GET /v2/{project_id}/engines
