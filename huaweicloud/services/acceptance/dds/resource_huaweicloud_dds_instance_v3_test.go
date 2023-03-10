@@ -268,7 +268,7 @@ resource "huaweicloud_dds_instance" "instance" {
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
   password          = "Terraform@123"
   mode              = "Sharding"
   port              = %d
@@ -320,9 +320,9 @@ data "huaweicloud_availability_zones" "test" {}
 resource "huaweicloud_dds_instance" "instance" {
   name              = "%s"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  vpc_id            = data.huaweicloud_vpc.test.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
   password          = "Terraform@123"
   mode              = "Sharding"
 
@@ -373,9 +373,9 @@ data "huaweicloud_availability_zones" "test" {}
 resource "huaweicloud_dds_instance" "instance" {
   name              = "%s"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  vpc_id            = data.huaweicloud_vpc.test.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
   password          = "Terraform@123"
   mode              = "Sharding"
 
@@ -426,9 +426,9 @@ data "huaweicloud_availability_zones" "test" {}
 resource "huaweicloud_dds_instance" "instance" {
   name              = "%s"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  vpc_id            = data.huaweicloud_vpc.test.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
   password          = "Terraform@123"
   mode              = "Sharding"
 
@@ -479,9 +479,9 @@ data "huaweicloud_availability_zones" "test" {}
 resource "huaweicloud_dds_instance" "instance" {
   name              = "%s"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  vpc_id            = data.huaweicloud_vpc.test.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
   password          = "Terraform@123"
   mode              = "Sharding"
 
@@ -532,9 +532,9 @@ data "huaweicloud_availability_zones" "test" {}
 resource "huaweicloud_dds_instance" "instance" {
   name                  = "%s"
   availability_zone     = data.huaweicloud_availability_zones.test.names[0]
-  vpc_id                = data.huaweicloud_vpc.test.id
-  subnet_id             = data.huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.secgroup_acc.id
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
   password              = "Terraform@123"
   mode                  = "Sharding"
   enterprise_project_id = "%s"
@@ -586,9 +586,9 @@ data "huaweicloud_availability_zones" "test" {}
 resource "huaweicloud_dds_instance" "instance" {
   name              = "%s"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  vpc_id            = data.huaweicloud_vpc.test.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
   password          = "Terraform@123"
   mode              = "Sharding"
 
@@ -639,9 +639,9 @@ data "huaweicloud_availability_zones" "test" {}
 resource "huaweicloud_dds_instance" "instance" {
   name              = "%s"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  vpc_id            = data.huaweicloud_vpc.test.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
   password          = "Terraform@123"
   mode              = "Sharding"
 
