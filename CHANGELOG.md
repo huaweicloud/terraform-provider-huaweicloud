@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 1.45.1 (March 10, 2023)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_dms_kafka_instance: Support prePaid charging mode [GH-2777]
+* resource/huaweicloud_ces_alarmrule: Support more `condition` blocks with v2 API [GH-2776]
+
+BUG FIXES:
+
+* data/huaweicloud_gaussdb_opengauss_instances: Fix integer divide by zero dnNum issue [GH-1814]
+* resource/huaweicloud_fgs_function: Add CustomImage param when updating function created by mirror [GH-2770]
+
 ## 1.45.0 (March 3, 2023)
 
 * **New Resurce:**
