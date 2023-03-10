@@ -76,6 +76,65 @@ func TestAccKafkaInstance_basic(t *testing.T) {
 	})
 }
 
+func TestAccKafkaInstance_prePaid(t *testing.T) {
+	var instance instances.Instance
+	rName := acceptance.RandomAccResourceNameWithDash()
+	updateName := rName + "update"
+	resourceName := "huaweicloud_dms_kafka_instance.test"
+	baseNetwork := common.TestBaseNetwork(rName)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getKafkaInstanceFunc,
+	)
+
+	// DMS instances use the tenant-level shared lock, the instances cannot be created or modified in parallel.
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKafkaInstance_newFormat_prePaid(baseNetwork, rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "kafka"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+				),
+			},
+			{
+				Config: testAccKafkaInstance_newFormat_prePaid_update(baseNetwork, updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
+					resource.TestCheckResourceAttr(resourceName, "description", "kafka test update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"password",
+					"manager_password",
+					"used_storage_space",
+					"cross_vpc_accesses",
+					"auto_renew",
+					"period",
+					"period_unit",
+				},
+			},
+		},
+	})
+}
+
 func TestAccKafkaInstance_withEpsId(t *testing.T) {
 	var instance instances.Instance
 	rName := acceptance.RandomAccResourceNameWithDash()
@@ -452,4 +511,97 @@ resource "huaweicloud_dms_kafka_instance" "test" {
     advertised_ip = "192.168.0.54"
   }
 }`, common.TestBaseNetwork(rName), rName)
+}
+
+func testAccKafkaInstance_newFormat_prePaid(baseNetwork, rName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dms_kafka_flavors" "test" {
+  type = "cluster"
+}
+
+locals {
+  query_results = data.huaweicloud_dms_kafka_flavors.test
+  flavor = data.huaweicloud_dms_kafka_flavors.test.flavors[0]
+}
+
+resource "huaweicloud_dms_kafka_instance" "test" {
+  name              = "%s"
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  flavor_id         = local.flavor.id
+  storage_spec_code = local.flavor.ios[0].storage_spec_code
+  
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  engine_version = element(local.query_results.versions, length(local.query_results.versions)-1)
+  storage_space  = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
+  broker_num     = 3
+
+  manager_user     = "kafka-user"
+  manager_password = "Kafkatest@123"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = false
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+}`, baseNetwork, rName)
+}
+
+func testAccKafkaInstance_newFormat_prePaid_update(baseNetwork, updateName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dms_kafka_flavors" "test" {
+  type = "cluster"
+}
+
+locals {
+  query_results = data.huaweicloud_dms_kafka_flavors.test
+  flavor = data.huaweicloud_dms_kafka_flavors.test.flavors[0]
+}
+
+resource "huaweicloud_dms_kafka_instance" "test" {
+  name              = "%s"
+  description       = "kafka test update"
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  flavor_id         = local.flavor.id
+  storage_spec_code = local.flavor.ios[0].storage_spec_code
+  
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  engine_version = element(local.query_results.versions, length(local.query_results.versions)-1)
+  storage_space  = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
+  broker_num     = 3
+
+  manager_user     = "kafka-user"
+  manager_password = "Kafkatest@123"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = true
+
+  tags = {
+    key1  = "value"
+    owner = "terraform_update"
+  }
+}`, baseNetwork, updateName)
 }
