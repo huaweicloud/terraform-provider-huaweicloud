@@ -116,6 +116,11 @@ func ResourceLoadBalancerV2() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
+
+			"public_ip": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -212,6 +217,11 @@ func resourceLoadBalancerV2Read(_ context.Context, d *schema.ResourceData, meta 
 
 	logp.Printf("[DEBUG] Retrieved loadbalancer %s: %#v", d.Id(), lb)
 
+	var publicIp string
+	if len(lb.PublicIps) > 0 {
+		publicIp = lb.PublicIps[0].PublicIpAddress
+	}
+
 	mErr := multierror.Append(nil,
 		d.Set("region", config.GetRegion(d)),
 		d.Set("name", lb.Name),
@@ -224,6 +234,7 @@ func resourceLoadBalancerV2Read(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("flavor", lb.Flavor),
 		d.Set("loadbalancer_provider", lb.Provider),
 		d.Set("enterprise_project_id", lb.EnterpriseProjectID),
+		d.Set("public_ip", publicIp),
 	)
 
 	// Get any security groups on the VIP Port

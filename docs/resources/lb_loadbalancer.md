@@ -65,6 +65,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `vip_port_id` - The Port ID of the Load Balancer IP.
 
+* `public_ip` - The EIP address that is associated to the Load Balancer instance.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
