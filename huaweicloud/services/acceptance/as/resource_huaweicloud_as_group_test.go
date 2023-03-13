@@ -219,13 +219,13 @@ func testASGroup_basic(rName string) string {
 resource "huaweicloud_as_group" "acc_as_group"{
   scaling_group_name       = "%s"
   scaling_configuration_id = huaweicloud_as_configuration.acc_as_config.id
-  vpc_id                   = data.huaweicloud_vpc.test.id
+  vpc_id                   = huaweicloud_vpc.test.id
 
   networks {
-    id = data.huaweicloud_vpc_subnet.test.id
+    id = huaweicloud_vpc_subnet.test.id
   }
   security_groups {
-    id = huaweicloud_networking_secgroup.secgroup.id
+    id = huaweicloud_networking_secgroup.test.id
   }
   lbaas_listeners {
     pool_id       = huaweicloud_lb_pool.pool_1.id
@@ -246,14 +246,14 @@ func testASGroup_basic_disable(rName string) string {
 resource "huaweicloud_as_group" "acc_as_group"{
   scaling_group_name       = "%s"
   scaling_configuration_id = huaweicloud_as_configuration.acc_as_config.id
-  vpc_id                   = data.huaweicloud_vpc.test.id
+  vpc_id                   = huaweicloud_vpc.test.id
   enable                   = false
 
   networks {
-    id = data.huaweicloud_vpc_subnet.test.id
+    id = huaweicloud_vpc_subnet.test.id
   }
   security_groups {
-    id = huaweicloud_networking_secgroup.secgroup.id
+    id = huaweicloud_networking_secgroup.test.id
   }
   lbaas_listeners {
     pool_id       = huaweicloud_lb_pool.pool_1.id
@@ -274,7 +274,7 @@ func testASGroup_basic_enable(rName string) string {
 resource "huaweicloud_as_group" "acc_as_group"{
   scaling_group_name       = "%s"
   scaling_configuration_id = huaweicloud_as_configuration.acc_as_config.id
-  vpc_id                   = data.huaweicloud_vpc.test.id
+  vpc_id                   = huaweicloud_vpc.test.id
   enable                   = true
 
   multi_az_scaling_policy            = "PICK_FIRST"
@@ -283,10 +283,10 @@ resource "huaweicloud_as_group" "acc_as_group"{
   health_periodic_audit_grace_period = 900
 
   networks {
-    id = data.huaweicloud_vpc_subnet.test.id
+    id = huaweicloud_vpc_subnet.test.id
   }
   security_groups {
-    id = huaweicloud_networking_secgroup.secgroup.id
+    id = huaweicloud_networking_secgroup.test.id
   }
   lbaas_listeners {
     pool_id       = huaweicloud_lb_pool.pool_1.id
@@ -307,14 +307,14 @@ func testASGroup_withEpsId(rName string) string {
 resource "huaweicloud_as_group" "acc_as_group"{
   scaling_group_name       = "%s"
   scaling_configuration_id = huaweicloud_as_configuration.acc_as_config.id
-  vpc_id                   = data.huaweicloud_vpc.test.id
+  vpc_id                   = huaweicloud_vpc.test.id
   enterprise_project_id    = "%s"
 
   networks {
-    id = data.huaweicloud_vpc_subnet.test.id
+    id = huaweicloud_vpc_subnet.test.id
   }
   security_groups {
-    id = huaweicloud_networking_secgroup.secgroup.id
+    id = huaweicloud_networking_secgroup.test.id
   }
   lbaas_listeners {
     pool_id       = huaweicloud_lb_pool.pool_1.id
@@ -338,13 +338,13 @@ resource "huaweicloud_as_group" "acc_as_group"{
   min_instance_number      = 2
   max_instance_number      = 5
   force_delete             = true
-  vpc_id                   = data.huaweicloud_vpc.test.id
+  vpc_id                   = huaweicloud_vpc.test.id
 
   networks {
-    id = data.huaweicloud_vpc_subnet.test.id
+    id = huaweicloud_vpc_subnet.test.id
   }
   security_groups {
-    id = huaweicloud_networking_secgroup.secgroup.id
+    id = huaweicloud_networking_secgroup.test.id
   }
 }
 `, testASGroup_Base(rName), rName)

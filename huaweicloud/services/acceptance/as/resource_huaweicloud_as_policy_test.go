@@ -178,7 +178,7 @@ resource "huaweicloud_as_group" "acc_as_group"{
     id = huaweicloud_vpc_subnet.test.id
   }
   security_groups {
-    id = huaweicloud_networking_secgroup.secgroup.id
+    id = huaweicloud_networking_secgroup.test.id
   }
 }
 `, common.TestBaseComputeResources(rName), rName)
