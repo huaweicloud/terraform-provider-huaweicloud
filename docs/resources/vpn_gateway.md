@@ -13,6 +13,7 @@ Manages a VPN gateway resource within HuaweiCloud.
 ```hcl
 variable "name" {}
 variable "vpc_id" {}
+variable "subnet_id" {}
 variable "eip_id1" {}
 variable "eip_id2" {}
 
@@ -20,7 +21,7 @@ resource "huaweicloud_vpn_gateway" "test" {
   name               = var.name
   vpc_id             = var.vpc_id
   local_subnets      = ["192.168.0.0/24", "192.168.1.0/24"]
-  connect_subnet     = "192.168.2.0/24"
+  connect_subnet     = var.subnet_id
   availability_zones = ["cn-north-4a", "cn-north-4b"]
 
   master_eip {
@@ -38,6 +39,7 @@ resource "huaweicloud_vpn_gateway" "test" {
 ```hcl
 variable "name" {}
 variable "vpc_id" {}
+variable "subnet_id" {}
 variable "bandwidth_name1" {}
 variable "bandwidth_name2" {}
 
@@ -45,7 +47,7 @@ resource "huaweicloud_vpn_gateway" "test" {
   name               = var.name
   vpc_id             = var.vpc_id
   local_subnets      = ["192.168.0.0/24", "192.168.1.0/24"]
-  connect_subnet     = "192.168.2.0/24"
+  connect_subnet     = var.subnet_id
   availability_zones = ["cn-north-4a", "cn-north-4b"]
 
   master_eip {
@@ -79,8 +81,7 @@ The following arguments are supported:
 
 * `local_subnets` - (Required, List) The list of local subnets.
 
-* `connect_subnet` - (Required, String, ForceNew) The VPC network segment used by the VPN gateway needs to select an
-  independent network segment in the VPC for the VPN gateway to use, and cannot overlap with the existing subnet of the VPC.
+* `connect_subnet` - (Required, String, ForceNew) The Network ID of the VPC subnet used by the VPN gateway.
 
   Changing this parameter will create a new resource.
 
@@ -103,8 +104,8 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `flavor` - (Optional, String, ForceNew) The flavor of the VPN gateway. The value can be **V1G** and **V300**.
-  Defaults to **V300**
+* `flavor` - (Optional, String, ForceNew) The flavor of the VPN gateway.
+  The value can be **Basic**, **Professional1** and **Professional2**. Defaults to **Professional1**.
 
   Changing this parameter will create a new resource.
 

@@ -71,11 +71,10 @@ func ResourceGateway() *schema.Resource {
 				Description: `The local subnets.`,
 			},
 			"connect_subnet": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `The VPC network segment used by the VPN gateway needs to select an independent network segment in the VPC for the VPN gateway
-`,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The Network ID of the VPC subnet used by the VPN gateway.`,
 			},
 			"availability_zones": {
 				Type:        schema.TypeList,
@@ -111,11 +110,11 @@ func ResourceGateway() *schema.Resource {
 			"flavor": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "V300",
 				ForceNew:    true,
+				Computed:    true,
 				Description: `The flavor of the VPN gateway.`,
 				ValidateFunc: validation.StringInSlice([]string{
-					"V1G", "V300",
+					"V1G", "V300", "Basic", "Professional1", "Professional2",
 				}, false),
 			},
 			"asn": {
