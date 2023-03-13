@@ -579,6 +579,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ddm_engines":        ddm.DataSourceDdmEngines(),
 			"huaweicloud_ddm_flavors":        ddm.DataSourceDdmFlavors(),
 			"huaweicloud_ddm_instance_nodes": ddm.DataSourceDdmInstanceNodes(),
+			"huaweicloud_ddm_instances":      ddm.DataSourceDdmInstances(),
 
 			// Deprecated ongoing (without DeprecationMessage), used by other providers
 			"huaweicloud_vpc_route":        vpc.DataSourceVpcRouteV2(),
