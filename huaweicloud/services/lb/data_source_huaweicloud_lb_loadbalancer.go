@@ -70,6 +70,10 @@ func DataSourceELBV2Loadbalancer() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"public_ip": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -107,6 +111,11 @@ func dataSourceELBV2LoadbalancerRead(d *schema.ResourceData, meta interface{}) e
 
 	lb := lbList[0]
 	d.SetId(lb.ID)
+
+	var publicIp string
+	if len(lb.PublicIps) > 0 {
+		publicIp = lb.PublicIps[0].PublicIpAddress
+	}
 	mErr := multierror.Append(
 		d.Set("region", config.GetRegion(d)),
 		d.Set("name", lb.Name),
@@ -116,6 +125,7 @@ func dataSourceELBV2LoadbalancerRead(d *schema.ResourceData, meta interface{}) e
 		d.Set("vip_subnet_id", lb.VipSubnetID),
 		d.Set("enterprise_project_id", lb.EnterpriseProjectID),
 		d.Set("vip_port_id", lb.VipPortID),
+		d.Set("public_ip", publicIp),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return fmtp.Errorf("Error setting elb load balancer fields: %s", err)
