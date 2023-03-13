@@ -69,7 +69,7 @@ resource "huaweicloud_cdm_cluster" "test" {
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   flavor_id         = data.huaweicloud_cdm_flavors.test.flavors[0].id
   name              = "%s"
-  security_group_id = huaweicloud_networking_secgroup.secgroup.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   vpc_id            = huaweicloud_vpc.test.id
 }
@@ -134,7 +134,7 @@ resource "huaweicloud_cdm_cluster" "test" {
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   flavor_id         = data.huaweicloud_cdm_flavors.test.flavors[0].id
   name              = "%s"
-  security_group_id = huaweicloud_networking_secgroup.secgroup.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   vpc_id            = huaweicloud_vpc.test.id
   is_auto_off       = true
@@ -156,7 +156,7 @@ resource "huaweicloud_cdm_cluster" "test" {
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
   flavor_id          = data.huaweicloud_cdm_flavors.test.flavors[0].id
   name               = "%s"
-  security_group_id  = huaweicloud_networking_secgroup.secgroup.id
+  security_group_id  = huaweicloud_networking_secgroup.test.id
   subnet_id          = huaweicloud_vpc_subnet.test.id
   vpc_id             = huaweicloud_vpc.test.id
   email              = ["test@test.com"]

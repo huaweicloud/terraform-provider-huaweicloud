@@ -55,32 +55,32 @@ func testAccWafInsGroupAssociate_conf(name string) string {
 
 resource "huaweicloud_waf_instance_group" "group_1" {
   name   = "%[2]s"
-  vpc_id = huaweicloud_vpc.vpc_1.id
+  vpc_id = huaweicloud_vpc.test.id
 }
 
 resource "huaweicloud_waf_dedicated_instance" "instance_1" {
   name               = "%[2]s"
-  available_zone     = data.huaweicloud_availability_zones.zones.names[1]
+  available_zone     = data.huaweicloud_availability_zones.test.names[1]
   specification_code = "waf.instance.professional"
-  ecs_flavor         = data.huaweicloud_compute_flavors.flavors.ids[0]
-  vpc_id             = huaweicloud_vpc.vpc_1.id
-  subnet_id          = huaweicloud_vpc_subnet.vpc_subnet_1.id
+  ecs_flavor         = data.huaweicloud_compute_flavors.test.ids[0]
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
   group_id           = huaweicloud_waf_instance_group.group_1.id
   
   security_group = [
-    huaweicloud_networking_secgroup.secgroup.id
+    huaweicloud_networking_secgroup.test.id
   ]
 }
 
 resource "huaweicloud_elb_loadbalancer" "elb" {
   name              = "%[2]s"
-  vpc_id            = huaweicloud_vpc.vpc_1.id
+  vpc_id            = huaweicloud_vpc.test.id
   cross_vpc_backend = true
-  ipv4_subnet_id    = huaweicloud_vpc_subnet.vpc_subnet_1.ipv4_subnet_id
+  ipv4_subnet_id    = huaweicloud_vpc_subnet.test.ipv4_subnet_id
 
   availability_zone = [
-    data.huaweicloud_availability_zones.zones.names[0],
-    data.huaweicloud_availability_zones.zones.names[1]
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[1]
   ]
 }
 
