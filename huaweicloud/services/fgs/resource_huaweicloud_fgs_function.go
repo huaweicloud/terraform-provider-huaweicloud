@@ -62,9 +62,10 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				Computed: true,
 			},
 			"handler": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `schema: Required; The entry point of the function.`,
 			},
 			"functiongraph_version": {
 				Type:     schema.TypeString,
@@ -214,7 +215,7 @@ func ResourceFgsFunctionV2() *schema.Resource {
 					},
 				},
 				ConflictsWith: []string{
-					"code_type", "handler",
+					"code_type",
 				},
 			},
 			"version": {

@@ -64,6 +64,7 @@ variable "image_url" {}
 resource "huaweicloud_fgs_function" "by_swr_image" {
   name        = var.function_name
   agency      = var.agency_name
+  handler     = "-"
   app         = "default"
   runtime     = "Custom Image"
   memory_size = 128
@@ -90,7 +91,7 @@ The following arguments are supported:
 * `memory_size` - (Required, Int) Specifies the memory size(MB) allocated to the function.
 
 * `runtime` - (Required, String, ForceNew) Specifies the environment for executing the function.
-  If the function is created using a SWR image, set this parameter to `Custom Image`.
+  If the function is created using an SWR image, set this parameter to `Custom Image`.
   Changing this will create a new resource.
 
 * `timeout` - (Required, Int) Specifies the timeout interval of the function, ranges from 3s to 900s.
@@ -101,9 +102,9 @@ The following arguments are supported:
   + **jar**: JAR file or java functions.
   + **obs**: function code stored in an OBS bucket.
 
-* `handler` - (Optional, String) Specifies the entry point of the function.
+* `handler` - (Required, String) Specifies the entry point of the function.
 
--> If the function is created using a SWR image, keep `code_type` and `handler` empty.
+-> If the function is created using an SWR image, keep `code_type` empty and use **-** to set the handler.
 
 * `functiongraph_version` - (Optional, String, ForceNew) Specifies the FunctionGraph version, defaults to **v1**.
   + **v1**: Hosts event-driven functions in a serverless context.
