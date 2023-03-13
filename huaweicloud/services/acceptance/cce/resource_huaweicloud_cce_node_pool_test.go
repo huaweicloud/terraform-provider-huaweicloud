@@ -231,6 +231,34 @@ func TestAccCCENodePool_serverGroup(t *testing.T) {
 	})
 }
 
+func TestAccCCENodePool_storage(t *testing.T) {
+	var nodePool nodepools.NodePool
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_cce_node_pool.test"
+	// clusterName here is used to provide the cluster id to fetch cce node pool.
+	clusterName := "huaweicloud_cce_cluster.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckCCENodePoolDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCCENodePool_storage(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCCENodePoolExists(resourceName, clusterName, &nodePool),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttrSet(resourceName, "storage.0.selectors.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "storage.0.groups.#"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckCCENodePoolDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	cceClient, err := config.CceV3Client(acceptance.HW_REGION_NAME)
@@ -707,6 +735,97 @@ resource "huaweicloud_cce_node_pool" "test" {
   data_volumes {
     size       = 100
     volumetype = "SSD"
+  }
+}
+`, testAccCCENodePool_Base(rName), rName)
+}
+
+func testAccCCENodePool_storage(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_kms_key" "test" {
+  key_alias    = "%s"
+  pending_days = "7"
+}
+
+resource "huaweicloud_cce_node_pool" "test" {
+  cluster_id               = huaweicloud_cce_cluster.test.id
+  name                     = "%[2]s"
+  os                       = "EulerOS 2.5"
+  flavor_id                = "s6.large.2"
+  initial_node_count       = 1
+  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  key_pair                 = huaweicloud_compute_keypair.test.name
+  scall_enable             = false
+  min_node_count           = 0
+  max_node_count           = 0
+  scale_down_cooldown_time = 0
+  priority                 = 0
+  type                     = "vm"
+
+  root_volume {
+    size       = 40
+    volumetype = "SSD"
+  }
+  
+  data_volumes {
+    size       = 100
+    volumetype = "SSD"
+    kms_key_id = huaweicloud_kms_key.test.id
+  }
+
+  data_volumes {
+    size       = 100
+    volumetype = "SSD"
+    kms_key_id = huaweicloud_kms_key.test.id
+  }
+
+  storage {
+    selectors {
+      name              = "cceUse"
+      type              = "evs"
+      match_label_size  = "100"
+      match_label_count = "1"
+    }
+
+    selectors {
+      name                           = "user"
+      type                           = "evs"
+      match_label_size               = "100"
+      match_label_metadata_encrypted = "1"
+      match_label_metadata_cmkid     = huaweicloud_kms_key.test.id
+      match_label_count              = "1"
+    }
+
+    groups {
+      name           = "vgpaas"
+      selector_names = ["cceUse"]
+      cce_managed    = true
+
+      virtual_spaces {
+        name        = "kubernetes"
+        size        = "10%%"
+        lvm_lv_type = "linear"
+      }
+
+      virtual_spaces {
+        name        = "runtime"
+        size        = "90%%"
+      }
+    }
+
+    groups {
+      name           = "vguser"
+      selector_names = ["user"]
+
+      virtual_spaces {
+        name        = "user"
+        size        = "100%%"
+        lvm_lv_type = "linear"
+        lvm_path    = "/workspace"
+      }
+    }
   }
 }
 `, testAccCCENodePool_Base(rName), rName)
