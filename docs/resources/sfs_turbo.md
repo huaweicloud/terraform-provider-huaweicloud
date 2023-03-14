@@ -22,6 +22,11 @@ resource "huaweicloud_sfs_turbo" "sfs-turbo-1" {
   subnet_id         = var.subnet_id
   security_group_id = var.secgroup_id
   availability_zone = var.test_az
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 ```
 
@@ -63,6 +68,8 @@ The following arguments are supported:
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the file system. Changing this
   will create a new resource.
+
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the SFS Turbo.
 
 -> **NOTE:**
 SFS Turbo will create two private IP addresses and one virtual IP address under the subnet you specified. To ensure
