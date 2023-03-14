@@ -1,18 +1,19 @@
-package huaweicloud
+package dns
 
 import (
 	"fmt"
 	"regexp"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/dns/v2/zones"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccDNSV2Zone_basic(t *testing.T) {
@@ -21,8 +22,8 @@ func TestAccDNSV2Zone_basic(t *testing.T) {
 	resourceName := "huaweicloud_dns_zone.zone_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDNS(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDNS(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckDNSV2ZoneDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -63,8 +64,8 @@ func TestAccDNSV2Zone_private(t *testing.T) {
 	resourceName := "huaweicloud_dns_zone.zone_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDNS(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDNS(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckDNSV2ZoneDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -90,8 +91,8 @@ func TestAccDNSV2Zone_readTTL(t *testing.T) {
 	resourceName := "huaweicloud_dns_zone.zone_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDNS(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDNS(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckDNSV2ZoneDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -111,8 +112,8 @@ func TestAccDNSV2Zone_withEpsId(t *testing.T) {
 	resourceName := "huaweicloud_dns_zone.zone_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDNS(t); testAccPreCheckEpsID(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDNS(t); acceptance.TestAccPreCheckEpsID(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckDNSV2ZoneDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -121,7 +122,7 @@ func TestAccDNSV2Zone_withEpsId(t *testing.T) {
 					testAccCheckDNSV2ZoneExists(resourceName, &zone),
 					resource.TestCheckResourceAttr(resourceName, "name", zoneName),
 					resource.TestCheckResourceAttr(resourceName, "zone_type", "private"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -129,8 +130,8 @@ func TestAccDNSV2Zone_withEpsId(t *testing.T) {
 }
 
 func testAccCheckDNSV2ZoneDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	dnsClient, err := config.DnsV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	dnsClient, err := config.DnsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
@@ -160,8 +161,8 @@ func testAccCheckDNSV2ZoneExists(n string, zone *zones.Zone) resource.TestCheckF
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		dnsClient, err := config.DnsV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		dnsClient, err := config.DnsV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 		}
@@ -264,5 +265,5 @@ resource "huaweicloud_dns_zone" "zone_1" {
     owner     = "terraform"
   }
 }
-	`, zoneName, HW_ENTERPRISE_PROJECT_ID_TEST)
+	`, zoneName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

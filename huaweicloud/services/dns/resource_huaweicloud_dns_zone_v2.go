@@ -1,19 +1,21 @@
-package huaweicloud
+package dns
 
 import (
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/dns/v2/zones"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func ResourceDNSZoneV2() *schema.Resource {
@@ -94,7 +96,7 @@ func ResourceDNSZoneV2() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 		},
 	}
 }
@@ -119,11 +121,11 @@ func resourceDNSRouter(d *schema.ResourceData, region string) *zones.RouterOpts 
 }
 
 func resourceDNSZoneV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := GetRegion(d, config)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 	var dnsClient *golangsdk.ServiceClient
 
-	dnsClient, err := config.DnsV2Client(region)
+	dnsClient, err := conf.DnsV2Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
@@ -137,7 +139,7 @@ func resourceDNSZoneV2Create(d *schema.ResourceData, meta interface{}) error {
 			return fmtp.Errorf("The argument (router) is required when creating HuaweiCloud DNS private zone")
 		}
 		// update the endpoint with region when creating private zone
-		dnsClient, err = config.DnsWithRegionClient(GetRegion(d, config))
+		dnsClient, err = conf.DnsWithRegionClient(conf.GetRegion(d))
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud DNS region client: %s", err)
 		}
@@ -149,7 +151,7 @@ func resourceDNSZoneV2Create(d *schema.ResourceData, meta interface{}) error {
 		Email:               d.Get("email").(string),
 		Description:         d.Get("description").(string),
 		ZoneType:            zoneType,
-		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID: common.GetEnterpriseProjectID(d, conf),
 		Router:              resourceDNSRouter(d, region),
 	}
 
@@ -233,11 +235,11 @@ func resourceDNSZoneV2Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDNSZoneV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := GetRegion(d, config)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	// we can not get the corresponding client by zone type in import scene
-	dnsClient, err := config.DnsV2Client(region)
+	dnsClient, err := conf.DnsV2Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
@@ -249,15 +251,15 @@ func resourceDNSZoneV2Read(d *schema.ResourceData, meta interface{}) error {
 		// an error occurred while fetching the zone with DNS global endpoint
 		// try to fetch it again with DNS region endpoint
 		var clientErr error
-		dnsClient, clientErr = config.DnsWithRegionClient(GetRegion(d, config))
+		dnsClient, clientErr = conf.DnsWithRegionClient(conf.GetRegion(d))
 		if clientErr != nil {
 			// it looks tricky as we return the fetching error rather than clientErr
-			return CheckDeleted(d, err, "zone")
+			return common.CheckDeleted(d, err, "zone")
 		}
 
 		zoneInfo, err = zones.Get(dnsClient, d.Id()).Extract()
 		if err != nil {
-			return CheckDeleted(d, err, "zone")
+			return common.CheckDeleted(d, err, "zone")
 		}
 	}
 
@@ -289,11 +291,11 @@ func resourceDNSZoneV2Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDNSZoneV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := GetRegion(d, config)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 	var dnsClient *golangsdk.ServiceClient
 
-	dnsClient, err := config.DnsV2Client(region)
+	dnsClient, err := conf.DnsV2Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
@@ -307,7 +309,7 @@ func resourceDNSZoneV2Update(d *schema.ResourceData, meta interface{}) error {
 			return fmtp.Errorf("The argument (router) is required when updating HuaweiCloud DNS private zone")
 		}
 		// update the endpoint with region when creating private zone
-		dnsClient, err = config.DnsWithRegionClient(GetRegion(d, config))
+		dnsClient, err = conf.DnsWithRegionClient(conf.GetRegion(d))
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud DNS region client: %s", err)
 		}
@@ -428,16 +430,16 @@ func resourceDNSZoneV2Update(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDNSZoneV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
+	conf := meta.(*config.Config)
 	var dnsClient *golangsdk.ServiceClient
 	var err error
 
 	zoneType := d.Get("zone_type").(string)
 	// update the endpoint with region when creating private zone
 	if zoneType == "private" {
-		dnsClient, err = config.DnsWithRegionClient(GetRegion(d, config))
+		dnsClient, err = conf.DnsWithRegionClient(conf.GetRegion(d))
 	} else {
-		dnsClient, err = config.DnsV2Client(GetRegion(d, config))
+		dnsClient, err = conf.DnsV2Client(conf.GetRegion(d))
 	}
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
@@ -533,7 +535,7 @@ func resourceGetDNSRouters(dnsClient *golangsdk.ServiceClient, d *schema.Resourc
 	// get zone info from api
 	n, err := zones.Get(dnsClient, d.Id()).Extract()
 	if err != nil {
-		return nil, nil, CheckDeleted(d, err, "zone")
+		return nil, nil, common.CheckDeleted(d, err, "zone")
 	}
 	// get routers from local
 	localRouters := getDNSRouters(d, region)

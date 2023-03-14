@@ -46,6 +46,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dis"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dli"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dms"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dns"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/drs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dsc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dws"
@@ -731,9 +732,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_rocketmq_topic":          dms.ResourceDmsRocketMQTopic(),
 			"huaweicloud_dms_rocketmq_user":           dms.ResourceDmsRocketMQUser(),
 
-			"huaweicloud_dns_ptrrecord": ResourceDNSPtrRecordV2(),
-			"huaweicloud_dns_recordset": ResourceDNSRecordSetV2(),
-			"huaweicloud_dns_zone":      ResourceDNSZoneV2(),
+			"huaweicloud_dns_ptrrecord": dns.ResourceDNSPtrRecordV2(),
+			"huaweicloud_dns_recordset": dns.ResourceDNSRecordSetV2(),
+			"huaweicloud_dns_zone":      dns.ResourceDNSZoneV2(),
 
 			"huaweicloud_drs_job":     drs.ResourceDrsJob(),
 			"huaweicloud_dws_cluster": dws.ResourceDwsCluster(),
@@ -992,9 +993,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_servergroup_v2":      ResourceComputeServerGroupV2(),
 			"huaweicloud_compute_volume_attach_v2":    ecs.ResourceComputeVolumeAttach(),
 
-			"huaweicloud_dns_ptrrecord_v2": ResourceDNSPtrRecordV2(),
-			"huaweicloud_dns_recordset_v2": ResourceDNSRecordSetV2(),
-			"huaweicloud_dns_zone_v2":      ResourceDNSZoneV2(),
+			"huaweicloud_dns_ptrrecord_v2": dns.ResourceDNSPtrRecordV2(),
+			"huaweicloud_dns_recordset_v2": dns.ResourceDNSRecordSetV2(),
+			"huaweicloud_dns_zone_v2":      dns.ResourceDNSZoneV2(),
 
 			"huaweicloud_dcs_instance_v1": dcs.ResourceDcsInstance(),
 			"huaweicloud_dds_instance_v3": dds.ResourceDdsInstanceV3(),

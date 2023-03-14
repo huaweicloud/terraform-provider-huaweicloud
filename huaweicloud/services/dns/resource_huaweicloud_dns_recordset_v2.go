@@ -1,4 +1,4 @@
-package huaweicloud
+package dns
 
 import (
 	"fmt"
@@ -13,6 +13,8 @@ import (
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/dns/v2/recordsets"
 	"github.com/chnsz/golangsdk/openstack/dns/v2/zones"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -77,7 +79,7 @@ func ResourceDNSRecordSetV2() *schema.Resource {
 					"A", "AAAA", "MX", "CNAME", "TXT", "NS", "SRV", "PTR", "CAA",
 				}, false),
 			},
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 		},
 	}
 }
@@ -149,7 +151,7 @@ func resourceDNSRecordSetV2Create(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceDNSRecordSetV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
+	conf := meta.(*config.Config)
 	// Obtain relevant info from parsing the ID
 	zoneID, recordsetID, err := parseDNSV2RecordSetID(d.Id())
 	if err != nil {
@@ -163,7 +165,7 @@ func resourceDNSRecordSetV2Read(d *schema.ResourceData, meta interface{}) error 
 
 	n, err := recordsets.Get(dnsClient, zoneID, recordsetID).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "record_set")
+		return common.CheckDeleted(d, err, "record_set")
 	}
 
 	logp.Printf("[DEBUG] Retrieved  record set %s: %#v", recordsetID, n)
@@ -175,7 +177,7 @@ func resourceDNSRecordSetV2Read(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("records", n.Records); err != nil {
 		return fmtp.Errorf("[DEBUG] Error saving records to state for HuaweiCloud DNS record set (%s): %s", d.Id(), err)
 	}
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", conf.GetRegion(d))
 	d.Set("zone_id", zoneID)
 
 	// save tags
@@ -337,13 +339,13 @@ func parseDNSV2RecordSetID(id string) (string, string, error) {
 }
 
 func chooseDNSClientbyZoneID(d *schema.ResourceData, zoneID string, meta interface{}) (*golangsdk.ServiceClient, string, error) {
-	config := meta.(*config.Config)
-	region := GetRegion(d, config)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	var client *golangsdk.ServiceClient
 	var zoneInfo *zones.Zone
 	// Firstly, try to ues the DNS global endpoint
-	client, err := config.DnsV2Client(region)
+	client, err := conf.DnsV2Client(region)
 	if err != nil {
 		return nil, "", fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
@@ -355,7 +357,7 @@ func chooseDNSClientbyZoneID(d *schema.ResourceData, zoneID string, meta interfa
 
 		// try to ues the DNS region endpoint
 		var clientErr error
-		client, clientErr = config.DnsWithRegionClient(region)
+		client, clientErr = conf.DnsWithRegionClient(region)
 		if clientErr != nil {
 			// it looks tricky as we return the fetching error rather than clientErr
 			return nil, "", err

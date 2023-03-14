@@ -1,4 +1,4 @@
-package huaweicloud
+package dns
 
 import (
 	"strings"
@@ -11,6 +11,8 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/dns/v2/ptrrecords"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -64,7 +66,7 @@ func ResourceDNSPtrRecordV2() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 			"address": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -74,9 +76,9 @@ func ResourceDNSPtrRecordV2() *schema.Resource {
 }
 
 func resourceDNSPtrRecordV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := GetRegion(d, config)
-	dnsClient, err := config.DnsV2Client(region)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	dnsClient, err := conf.DnsV2Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
@@ -96,7 +98,7 @@ func resourceDNSPtrRecordV2Create(d *schema.ResourceData, meta interface{}) erro
 		Description:         d.Get("description").(string),
 		TTL:                 d.Get("ttl").(int),
 		Tags:                taglist,
-		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID: common.GetEnterpriseProjectID(d, conf),
 	}
 
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -130,15 +132,15 @@ func resourceDNSPtrRecordV2Create(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceDNSPtrRecordV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	dnsClient, err := config.DnsV2Client(GetRegion(d, config))
+	conf := meta.(*config.Config)
+	dnsClient, err := conf.DnsV2Client(conf.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
 	n, err := ptrrecords.Get(dnsClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "ptr_record")
+		return common.CheckDeleted(d, err, "ptr_record")
 	}
 
 	logp.Printf("[DEBUG] Retrieved PTR record %s: %#v", d.Id(), n)
@@ -170,9 +172,9 @@ func resourceDNSPtrRecordV2Read(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceDNSPtrRecordV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := GetRegion(d, config)
-	dnsClient, err := config.DnsV2Client(region)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	dnsClient, err := conf.DnsV2Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
@@ -222,8 +224,8 @@ func resourceDNSPtrRecordV2Update(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceDNSPtrRecordV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	dnsClient, err := config.DnsV2Client(GetRegion(d, config))
+	conf := meta.(*config.Config)
+	dnsClient, err := conf.DnsV2Client(conf.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}

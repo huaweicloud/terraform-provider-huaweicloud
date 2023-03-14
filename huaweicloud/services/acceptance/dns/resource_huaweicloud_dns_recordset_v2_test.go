@@ -1,18 +1,20 @@
-package huaweicloud
+package dns
 
 import (
 	"fmt"
 	"regexp"
+	"strings"
 	"testing"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/dns/v2/recordsets"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func randomZoneName() string {
@@ -25,8 +27,8 @@ func TestAccDNSV2RecordSet_basic(t *testing.T) {
 	resourceName := "huaweicloud_dns_recordset.recordset_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDNS(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDNS(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckDNSV2RecordSetDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -73,8 +75,8 @@ func TestAccDNSV2RecordSet_readTTL(t *testing.T) {
 	resourceName := "huaweicloud_dns_recordset.recordset_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDNS(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDNS(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckDNSV2RecordSetDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -95,8 +97,8 @@ func TestAccDNSV2RecordSet_private(t *testing.T) {
 	resourceName := "huaweicloud_dns_recordset.recordset_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDNS(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDNS(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckDNSV2RecordSetDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -116,8 +118,8 @@ func TestAccDNSV2RecordSet_private(t *testing.T) {
 }
 
 func testAccCheckDNSV2RecordSetDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	dnsClient, err := config.DnsV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	dnsClient, err := config.DnsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
@@ -141,6 +143,18 @@ func testAccCheckDNSV2RecordSetDestroy(s *terraform.State) error {
 	return nil
 }
 
+func parseDNSV2RecordSetID(id string) (string, string, error) {
+	idParts := strings.Split(id, "/")
+	if len(idParts) != 2 {
+		return "", "", fmtp.Errorf("Unable to determine DNS record set ID from raw ID: %s", id)
+	}
+
+	zoneID := idParts[0]
+	recordsetID := idParts[1]
+
+	return zoneID, recordsetID, nil
+}
+
 func testAccCheckDNSV2RecordSetExists(n string, recordset *recordsets.RecordSet) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -152,8 +166,8 @@ func testAccCheckDNSV2RecordSetExists(n string, recordset *recordsets.RecordSet)
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		dnsClient, err := config.DnsV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		dnsClient, err := config.DnsV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 		}

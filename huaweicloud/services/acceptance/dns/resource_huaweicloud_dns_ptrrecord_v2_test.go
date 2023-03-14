@@ -1,17 +1,18 @@
-package huaweicloud
+package dns
 
 import (
 	"fmt"
 	"testing"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/dns/v2/ptrrecords"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func randomPtrName() string {
@@ -24,8 +25,8 @@ func TestAccDNSV2PtrRecord_basic(t *testing.T) {
 	resourceName := "huaweicloud_dns_ptrrecord.ptr_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDNS(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDNS(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckDNSV2PtrRecordDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -53,15 +54,15 @@ func TestAccDNSV2PtrRecord_withEpsId(t *testing.T) {
 	resourceName := "huaweicloud_dns_ptrrecord.ptr_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDNS(t); testAccPreCheckEpsID(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDNS(t); acceptance.TestAccPreCheckEpsID(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckDNSV2PtrRecordDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDNSV2PtrRecord_withEpsId(ptrName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDNSV2PtrRecordExists(resourceName, &ptrrecord),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -69,8 +70,8 @@ func TestAccDNSV2PtrRecord_withEpsId(t *testing.T) {
 }
 
 func testAccCheckDNSV2PtrRecordDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	dnsClient, err := config.DnsV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	dnsClient, err := config.DnsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
@@ -100,8 +101,8 @@ func testAccCheckDNSV2PtrRecordExists(n string, ptrrecord *ptrrecords.Ptr) resou
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		dnsClient, err := config.DnsV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		dnsClient, err := config.DnsV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 		}
@@ -192,5 +193,5 @@ resource "huaweicloud_dns_ptrrecord" "ptr_1" {
   ttl                   = 6000
   enterprise_project_id = "%s"
 }
-`, ptrName, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, ptrName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

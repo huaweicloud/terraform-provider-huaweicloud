@@ -25,6 +25,8 @@ var (
 	HW_ENTERPRISE_PROJECT_ID_TEST         = os.Getenv("HW_ENTERPRISE_PROJECT_ID_TEST")
 	HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST = os.Getenv("HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST")
 
+	HW_DNS_ENVIRONMENT = os.Getenv("HW_DNS_ENVIRONMENT")
+
 	HW_FLAVOR_ID             = os.Getenv("HW_FLAVOR_ID")
 	HW_FLAVOR_NAME           = os.Getenv("HW_FLAVOR_NAME")
 	HW_IMAGE_ID              = os.Getenv("HW_IMAGE_ID")
@@ -194,6 +196,13 @@ func TestAccPreCheckEpsID(t *testing.T) {
 func TestAccPreCheckMigrateEpsID(t *testing.T) {
 	if HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST == "" {
 		t.Skip("The environment variables does not support Migrate Enterprise Project ID for acc tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDNS(t *testing.T) {
+	if HW_DNS_ENVIRONMENT == "" {
+		t.Skip("This environment does not support DNS tests")
 	}
 }
 
