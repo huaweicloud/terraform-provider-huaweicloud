@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -17,25 +16,52 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
-func randomZoneName() string {
-	return fmt.Sprintf("acpttest-zone-%s.com.", acctest.RandString(5))
+func getDNSRecordsetResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := c.DnsV2Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmtp.Errorf("Error creating DNS client: %s", err)
+	}
+
+	zoneID, recordsetID, err := parseDNSV2RecordSetID(state.Primary.ID)
+	if err != nil {
+		return nil, err
+	}
+	return recordsets.Get(client, zoneID, recordsetID).Extract()
+}
+
+func parseDNSV2RecordSetID(id string) (string, string, error) {
+	idParts := strings.Split(id, "/")
+	if len(idParts) != 2 {
+		return "", "", fmtp.Errorf("Unable to determine DNS record set ID from raw ID: %s", id)
+	}
+
+	zoneID := idParts[0]
+	recordsetID := idParts[1]
+
+	return zoneID, recordsetID, nil
 }
 
 func TestAccDNSV2RecordSet_basic(t *testing.T) {
 	var recordset recordsets.RecordSet
-	zoneName := randomZoneName()
 	resourceName := "huaweicloud_dns_recordset.recordset_1"
+	name := acceptance.RandomAccResourceName()
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&recordset,
+		getDNSRecordsetResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheckDNS(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckDNSV2RecordSetDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDNS(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDNSV2RecordSet_basic(zoneName),
+				Config: testAccDNSV2RecordSet_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSV2RecordSetExists(resourceName, &recordset),
-					resource.TestCheckResourceAttr(resourceName, "name", zoneName),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "description", "a record set"),
 					resource.TestCheckResourceAttr(resourceName, "type", "A"),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "3000"),
@@ -43,16 +69,16 @@ func TestAccDNSV2RecordSet_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDNSV2RecordSet_tags(zoneName),
+				Config: testAccDNSV2RecordSet_tags(name),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", zoneName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "description", "a record set"),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "3000"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
 			},
 			{
-				Config: testAccDNSV2RecordSet_update(zoneName),
+				Config: testAccDNSV2RecordSet_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "description", "an updated record set"),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "6000"),
@@ -71,18 +97,24 @@ func TestAccDNSV2RecordSet_basic(t *testing.T) {
 
 func TestAccDNSV2RecordSet_readTTL(t *testing.T) {
 	var recordset recordsets.RecordSet
-	zoneName := randomZoneName()
 	resourceName := "huaweicloud_dns_recordset.recordset_1"
+	name := acceptance.RandomAccResourceName()
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&recordset,
+		getDNSRecordsetResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheckDNS(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckDNSV2RecordSetDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDNS(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDNSV2RecordSet_readTTL(zoneName),
+				Config: testAccDNSV2RecordSet_readTTL(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSV2RecordSetExists(resourceName, &recordset),
+					rc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(resourceName, "ttl", regexp.MustCompile("^[0-9]+$")),
 					resource.TestCheckResourceAttr(resourceName, "records.0", "10.1.0.2"),
 				),
@@ -93,19 +125,25 @@ func TestAccDNSV2RecordSet_readTTL(t *testing.T) {
 
 func TestAccDNSV2RecordSet_private(t *testing.T) {
 	var recordset recordsets.RecordSet
-	zoneName := randomZoneName()
 	resourceName := "huaweicloud_dns_recordset.recordset_1"
+	name := acceptance.RandomAccResourceName()
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&recordset,
+		getDNSRecordsetResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheckDNS(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckDNSV2RecordSetDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDNS(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDNSV2RecordSet_private(zoneName),
+				Config: testAccDNSV2RecordSet_private(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSV2RecordSetExists(resourceName, &recordset),
-					resource.TestCheckResourceAttr(resourceName, "name", zoneName),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "description", "a private record set"),
 					resource.TestCheckResourceAttr(resourceName, "type", "A"),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "3000"),
@@ -115,81 +153,6 @@ func TestAccDNSV2RecordSet_private(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckDNSV2RecordSetDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	dnsClient, err := config.DnsV2Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_dns_recordset" {
-			continue
-		}
-
-		zoneID, recordsetID, err := parseDNSV2RecordSetID(rs.Primary.ID)
-		if err != nil {
-			return err
-		}
-
-		_, err = recordsets.Get(dnsClient, zoneID, recordsetID).Extract()
-		if err == nil {
-			return fmtp.Errorf("Record set still exists")
-		}
-	}
-
-	return nil
-}
-
-func parseDNSV2RecordSetID(id string) (string, string, error) {
-	idParts := strings.Split(id, "/")
-	if len(idParts) != 2 {
-		return "", "", fmtp.Errorf("Unable to determine DNS record set ID from raw ID: %s", id)
-	}
-
-	zoneID := idParts[0]
-	recordsetID := idParts[1]
-
-	return zoneID, recordsetID, nil
-}
-
-func testAccCheckDNSV2RecordSetExists(n string, recordset *recordsets.RecordSet) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		dnsClient, err := config.DnsV2Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
-		}
-
-		zoneID, recordsetID, err := parseDNSV2RecordSetID(rs.Primary.ID)
-		if err != nil {
-			return err
-		}
-
-		found, err := recordsets.Get(dnsClient, zoneID, recordsetID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != recordsetID {
-			return fmtp.Errorf("Record set not found")
-		}
-
-		*recordset = *found
-
-		return nil
-	}
 }
 
 func testAccDNSV2RecordSet_base(zoneName string) string {
