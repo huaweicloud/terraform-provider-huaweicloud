@@ -83,13 +83,6 @@ func ResourceDNSZoneV2() *schema.Resource {
 					},
 				},
 			},
-
-			"value_specs": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -106,22 +99,21 @@ func ResourceDNSZoneV2() *schema.Resource {
 	}
 }
 
-func resourceDNSRouter(d *schema.ResourceData, region string) map[string]string {
+func resourceDNSRouter(d *schema.ResourceData, region string) *zones.RouterOpts {
 	router := d.Get("router").(*schema.Set).List()
-
 	if len(router) > 0 {
-		mp := make(map[string]string)
-		c := router[0].(map[string]interface{})
+		routerOpts := zones.RouterOpts{}
 
+		c := router[0].(map[string]interface{})
 		if val, ok := c["router_id"]; ok {
-			mp["router_id"] = val.(string)
+			routerOpts.RouterID = val.(string)
 		}
 		if val, ok := c["router_region"]; ok {
-			mp["router_region"] = val.(string)
+			routerOpts.RouterRegion = val.(string)
 		} else {
-			mp["router_region"] = region
+			routerOpts.RouterRegion = region
 		}
-		return mp
+		return &routerOpts
 	}
 	return nil
 }
@@ -150,19 +142,15 @@ func resourceDNSZoneV2Create(d *schema.ResourceData, meta interface{}) error {
 			return fmtp.Errorf("Error creating HuaweiCloud DNS region client: %s", err)
 		}
 	}
-	vs := MapResourceProp(d, "value_specs")
-	// Add zone_type to the list
-	vs["zone_type"] = zoneType
-	vs["router"] = resourceDNSRouter(d, region)
-	createOpts := ZoneCreateOpts{
-		zones.CreateOpts{
-			Name:                d.Get("name").(string),
-			TTL:                 d.Get("ttl").(int),
-			Email:               d.Get("email").(string),
-			Description:         d.Get("description").(string),
-			EnterpriseProjectID: GetEnterpriseProjectID(d, config),
-		},
-		vs,
+
+	createOpts := zones.CreateOpts{
+		Name:                d.Get("name").(string),
+		TTL:                 d.Get("ttl").(int),
+		Email:               d.Get("email").(string),
+		Description:         d.Get("description").(string),
+		ZoneType:            zoneType,
+		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
+		Router:              resourceDNSRouter(d, region),
 	}
 
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)

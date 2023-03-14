@@ -60,8 +60,6 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the zone.
 
-* `value_specs` - (Optional, Map, ForceNew) Map of additional options. Changing this creates a new DNS zone.
-
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the zone. Changing this creates a
   new zone.
 

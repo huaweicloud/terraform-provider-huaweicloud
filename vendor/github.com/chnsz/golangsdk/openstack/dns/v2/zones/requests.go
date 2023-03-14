@@ -67,9 +67,6 @@ type CreateOptsBuilder interface {
 
 // CreateOpts specifies the attributes used to create a zone.
 type CreateOpts struct {
-	// Attributes are settings that supply hints and filters for the zone.
-	Attributes map[string]string `json:"attributes,omitempty"`
-
 	// Email contact of the zone.
 	Email string `json:"email,omitempty"`
 
@@ -79,17 +76,32 @@ type CreateOpts struct {
 	// Name of the zone.
 	Name string `json:"name" required:"true"`
 
-	// Masters specifies zone masters if this is a secondary zone.
-	Masters []string `json:"masters,omitempty"`
+	// TTL is the time to live of the zone. The value ranges from 300 to 2147483647
+	TTL int `json:"ttl,omitempty"`
 
-	// TTL is the time to live of the zone.
-	TTL int `json:"-"`
-
-	// Type specifies if this is a primary or secondary zone.
-	Type string `json:"type,omitempty"`
+	// ZoneType specifies if this is a private or public zone.
+	ZoneType string `json:"zone_type,omitempty"`
 
 	// Enterprise project id
 	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
+
+	// VPC to be disassociated
+	Router *RouterOpts `json:"router,omitempty"`
+
+	// Recursive resolution proxy mode for subdomain names of private zones.
+	ProxyPattern string `json:"proxy_pattern,omitempty"`
+
+	// Deprecated: This parameter has been deprecated.
+	// Attributes are settings that supply hints and filters for the zone.
+	Attributes map[string]string `json:"attributes,omitempty"`
+
+	// Deprecated
+	// Masters specifies zone masters if this is a secondary zone.
+	Masters []string `json:"masters,omitempty"`
+
+	// Deprecated: This parameter has been deprecated.
+	// Type specifies if this is a primary or secondary zone.
+	Type string `json:"type,omitempty"`
 }
 
 // ToZoneCreateMap formats an CreateOpts structure into a request body.
@@ -97,10 +109,6 @@ func (opts CreateOpts) ToZoneCreateMap() (map[string]interface{}, error) {
 	b, err := golangsdk.BuildRequestBody(opts, "")
 	if err != nil {
 		return nil, err
-	}
-
-	if opts.TTL > 0 {
-		b["ttl"] = opts.TTL
 	}
 
 	return b, nil
@@ -131,13 +139,14 @@ type UpdateOpts struct {
 	Email string `json:"email,omitempty"`
 
 	// TTL is the time to live of the zone.
-	TTL int `json:"-"`
-
-	// Masters specifies zone masters if this is a secondary zone.
-	Masters []string `json:"masters,omitempty"`
+	TTL int `json:"ttl,omitempty"`
 
 	// Description of the zone.
 	Description string `json:"description,omitempty"`
+
+	// Masters specifies zone masters if this is a secondary zone.
+	// Deprecated: This parameter has been deprecated.
+	Masters []string `json:"masters,omitempty"`
 }
 
 // ToZoneUpdateMap formats an UpdateOpts structure into a request body.
@@ -145,10 +154,6 @@ func (opts UpdateOpts) ToZoneUpdateMap() (map[string]interface{}, error) {
 	b, err := golangsdk.BuildRequestBody(opts, "")
 	if err != nil {
 		return nil, err
-	}
-
-	if opts.TTL > 0 {
-		b["ttl"] = opts.TTL
 	}
 
 	return b, nil

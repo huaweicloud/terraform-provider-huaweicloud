@@ -77,12 +77,6 @@ func ResourceDNSRecordSetV2() *schema.Resource {
 					"A", "AAAA", "MX", "CNAME", "TXT", "NS", "SRV", "PTR", "CAA",
 				}, false),
 			},
-			"value_specs": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
 			"tags": tagsSchema(),
 		},
 	}
@@ -101,15 +95,12 @@ func resourceDNSRecordSetV2Create(d *schema.ResourceData, meta interface{}) erro
 		records[i] = recordraw.(string)
 	}
 
-	createOpts := RecordSetCreateOpts{
-		recordsets.CreateOpts{
-			Name:        d.Get("name").(string),
-			Description: d.Get("description").(string),
-			Records:     records,
-			TTL:         d.Get("ttl").(int),
-			Type:        d.Get("type").(string),
-		},
-		MapValueSpecs(d),
+	createOpts := recordsets.CreateOpts{
+		Name:        d.Get("name").(string),
+		Description: d.Get("description").(string),
+		Records:     records,
+		TTL:         d.Get("ttl").(int),
+		Type:        d.Get("type").(string),
 	}
 
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)

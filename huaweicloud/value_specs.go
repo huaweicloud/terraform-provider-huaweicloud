@@ -1,9 +1,9 @@
 package huaweicloud
 
 import (
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/dns/v2/recordsets"
-	"github.com/chnsz/golangsdk/openstack/dns/v2/zones"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/fwaas_v2/firewall_groups"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/fwaas_v2/policies"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/fwaas_v2/routerinsertion"
@@ -13,8 +13,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v2/networks"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/subnets"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 // FirewallGroup is an HuaweiCloud firewall group.
@@ -93,27 +91,6 @@ func (opts PortCreateOpts) ToPortCreateMap() (map[string]interface{}, error) {
 	return BuildRequest(opts, "port")
 }
 
-// RecordSetCreateOpts represents the attributes used when creating a new DNS record set.
-type RecordSetCreateOpts struct {
-	recordsets.CreateOpts
-	ValueSpecs map[string]string `json:"value_specs,omitempty"`
-}
-
-// ToRecordSetCreateMap casts a CreateOpts struct to a map.
-// It overrides recordsets.ToRecordSetCreateMap to add the ValueSpecs field.
-func (opts RecordSetCreateOpts) ToRecordSetCreateMap() (map[string]interface{}, error) {
-	b, err := BuildRequest(opts, "")
-	if err != nil {
-		return nil, err
-	}
-
-	if m, ok := b[""].(map[string]interface{}); ok {
-		return m, nil
-	}
-
-	return nil, fmtp.Errorf("Expected map but got %T", b[""])
-}
-
 // RouterCreateOpts represents the attributes used when creating a new router.
 type RouterCreateOpts struct {
 	routers.CreateOpts
@@ -166,31 +143,6 @@ func (opts SubnetCreateOpts) ToSubnetCreateMap() (map[string]interface{}, error)
 	}
 
 	return b, nil
-}
-
-// ZoneCreateOpts represents the attributes used when creating a new DNS zone.
-type ZoneCreateOpts struct {
-	zones.CreateOpts
-	ValueSpecs map[string]interface{} `json:"value_specs,omitempty"`
-}
-
-// ToZoneCreateMap casts a CreateOpts struct to a map.
-// It overrides zones.ToZoneCreateMap to add the ValueSpecs field.
-func (opts ZoneCreateOpts) ToZoneCreateMap() (map[string]interface{}, error) {
-	b, err := BuildRequest(opts, "")
-	if err != nil {
-		return nil, err
-	}
-
-	if m, ok := b[""].(map[string]interface{}); ok {
-		if opts.TTL > 0 {
-			m["ttl"] = opts.TTL
-		}
-
-		return m, nil
-	}
-
-	return nil, fmtp.Errorf("Expected map but got %T", b[""])
 }
 
 // BuildRequest takes an opts struct and builds a request body for
