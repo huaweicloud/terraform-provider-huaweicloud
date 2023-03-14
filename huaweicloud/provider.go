@@ -330,7 +330,7 @@ func Provider() *schema.Provider {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: descriptions["cloud"],
-				DefaultFunc: schema.EnvDefaultFunc("HW_CLOUD", defaultCloud),
+				DefaultFunc: schema.EnvDefaultFunc("HW_CLOUD", ""),
 			},
 
 			"endpoints": {
@@ -1336,11 +1336,16 @@ func flattenProviderEndpoints(d *schema.ResourceData) (map[string]string, error)
 }
 
 func getCloudDomain(cloud, region string) string {
-	// the regions are named as eu-west-1xx in Europe
-	if cloud == defaultCloud && strings.HasPrefix(region, "eu-west-1") {
+	// first, use the specified value
+	if cloud != "" {
+		return cloud
+	}
+
+	// then check whether the region(eu-west-1xx) is located in Europe
+	if strings.HasPrefix(region, "eu-west-1") {
 		return defaultEuropeCloud
 	}
-	return cloud
+	return defaultCloud
 }
 
 func isDefaultHWCloudDomain(domain string) bool {
