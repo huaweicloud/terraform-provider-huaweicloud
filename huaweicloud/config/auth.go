@@ -236,12 +236,13 @@ func buildClientByAKSK(c *Config) error {
 		ao.IdentityEndpoint = c.IdentityEndpoint
 		ao.AccessKey = c.AccessKey
 		ao.SecretKey = c.SecretKey
+		ao.WithUserCatalog = true
+
 		if c.Region != "" {
 			ao.Region = c.Region
 		}
 		if c.SecurityToken != "" {
 			ao.SecurityToken = c.SecurityToken
-			ao.WithUserCatalog = true
 		}
 	}
 	return genClients(c, projectAuthOptions, domainAuthOptions)
