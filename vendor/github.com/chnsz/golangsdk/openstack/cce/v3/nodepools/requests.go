@@ -118,8 +118,10 @@ type CreateSpec struct {
 	Autoscaling AutoscalingSpec `json:"autoscaling"`
 	// Node management parameters
 	NodeManagement NodeManagementSpec `json:"nodeManagement"`
-	// Security group configurations
+	// Pod security group configurations
 	PodSecurityGroups []PodSecurityGroupSpec `json:"podSecurityGroups,omitempty"`
+	// Node security group configurations
+	CustomSecurityGroups []string `json:"customSecurityGroups,omitempty"`
 }
 
 type PodSecurityGroupSpec struct {
