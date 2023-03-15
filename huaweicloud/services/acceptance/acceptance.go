@@ -1,3 +1,4 @@
+//nolint:revive
 package acceptance
 
 import (
@@ -24,8 +25,7 @@ var (
 	HW_DOMAIN_NAME                        = os.Getenv("HW_DOMAIN_NAME")
 	HW_ENTERPRISE_PROJECT_ID_TEST         = os.Getenv("HW_ENTERPRISE_PROJECT_ID_TEST")
 	HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST = os.Getenv("HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST")
-
-	HW_DNS_ENVIRONMENT = os.Getenv("HW_DNS_ENVIRONMENT")
+	HW_DNS_ENVIRONMENT                    = os.Getenv("HW_DNS_ENVIRONMENT")
 
 	HW_FLAVOR_ID             = os.Getenv("HW_FLAVOR_ID")
 	HW_FLAVOR_NAME           = os.Getenv("HW_FLAVOR_NAME")

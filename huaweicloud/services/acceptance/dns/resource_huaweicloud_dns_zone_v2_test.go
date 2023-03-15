@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -26,7 +27,7 @@ func getDNSZoneResourceFunc(c *config.Config, state *terraform.ResourceState) (i
 func TestAccDNSV2Zone_basic(t *testing.T) {
 	var zone zones.Zone
 	resourceName := "huaweicloud_dns_zone.zone_1"
-	name := acceptance.RandomAccResourceName()
+	name := fmt.Sprintf("acpttest-zone-%s.com.", acctest.RandString(5))
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -74,7 +75,7 @@ func TestAccDNSV2Zone_basic(t *testing.T) {
 func TestAccDNSV2Zone_private(t *testing.T) {
 	var zone zones.Zone
 	resourceName := "huaweicloud_dns_zone.zone_1"
-	name := acceptance.RandomAccResourceName()
+	name := fmt.Sprintf("acpttest-zone-%s.com.", acctest.RandString(5))
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -107,7 +108,7 @@ func TestAccDNSV2Zone_private(t *testing.T) {
 func TestAccDNSV2Zone_readTTL(t *testing.T) {
 	var zone zones.Zone
 	resourceName := "huaweicloud_dns_zone.zone_1"
-	name := acceptance.RandomAccResourceName()
+	name := fmt.Sprintf("acpttest-zone-%s.com.", acctest.RandString(5))
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -134,7 +135,7 @@ func TestAccDNSV2Zone_readTTL(t *testing.T) {
 func TestAccDNSV2Zone_withEpsId(t *testing.T) {
 	var zone zones.Zone
 	resourceName := "huaweicloud_dns_zone.zone_1"
-	name := acceptance.RandomAccResourceName()
+	name := fmt.Sprintf("acpttest-zone-%s.com.", acctest.RandString(5))
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,

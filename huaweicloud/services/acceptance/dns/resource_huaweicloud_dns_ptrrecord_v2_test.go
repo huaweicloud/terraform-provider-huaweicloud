@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -25,7 +26,7 @@ func getDNSPtrRecordResourceFunc(c *config.Config, state *terraform.ResourceStat
 func TestAccDNSV2PtrRecord_basic(t *testing.T) {
 	var ptrrecord ptrrecords.Ptr
 	resourceName := "huaweicloud_dns_ptrrecord.ptr_1"
-	name := acceptance.RandomAccResourceName()
+	name := fmt.Sprintf("acpttest-ptr-%s.com.", acctest.RandString(5))
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -60,7 +61,7 @@ func TestAccDNSV2PtrRecord_basic(t *testing.T) {
 func TestAccDNSV2PtrRecord_withEpsId(t *testing.T) {
 	var ptrrecord ptrrecords.Ptr
 	resourceName := "huaweicloud_dns_ptrrecord.ptr_1"
-	name := acceptance.RandomAccResourceName()
+	name := fmt.Sprintf("acpttest-ptr-%s.com.", acctest.RandString(5))
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
