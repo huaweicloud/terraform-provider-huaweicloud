@@ -207,6 +207,8 @@ The following arguments are supported:
   at [EPS](https://registry.terraform.io/providers/huaweicloud/huaweicloud/latest/docs/data-sources/enterprise_project).
   If omitted, the `HW_ENTERPRISE_PROJECT_ID` environment variable is used.
 
+* `regional` - (Optional) Whether the service endpoints are regional. The default value is `false`.
+
 * `endpoints` - (Optional) Configuration block in key/value pairs for customizing service endpoints. The following
   endpoints support to be customized: autoscaling, ecs, ims, vpc, nat, evs, obs, sfs, cce, rds, dds, iam. An example
   provider configuration:

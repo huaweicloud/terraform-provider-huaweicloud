@@ -340,6 +340,12 @@ func Provider() *schema.Provider {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
+			"regional": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: descriptions["regional"],
+			},
+
 			"shared_config_file": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -1191,6 +1197,8 @@ func init() {
 
 		"endpoints": "The custom endpoints used to override the default endpoint URL.",
 
+		"regional": "Whether the service endpoints are regional",
+
 		"shared_config_file": "The path to the shared config file. If not set, the default is ~/.hcloud/config.json.",
 
 		"profile": "The profile name as set in the shared config file.",
@@ -1205,6 +1213,7 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 	diag.Diagnostics) {
 	var tenantName, tenantID, delegatedProject, identityEndpoint string
 	region := d.Get("region").(string)
+	isRegional := d.Get("regional").(bool)
 	cloud := getCloudDomain(d.Get("cloud").(string), region)
 
 	// project_name is prior to tenant_name
@@ -1231,12 +1240,12 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		delegatedProject = region
 	}
 
-	// use auth_url as identityEndpoint if provided
+	// use auth_url as identityEndpoint if specified
 	if v, ok := d.GetOk("auth_url"); ok {
 		identityEndpoint = v.(string)
 	} else {
 		// use cloud as basis for identityEndpoint
-		if isDefaultHWCloudDomain(cloud) {
+		if isGlobalIamEndpoint(cloud, region, isRegional) {
 			identityEndpoint = fmt.Sprintf("https://iam.%s:443/v3", cloud)
 		} else {
 			identityEndpoint = fmt.Sprintf("https://iam.%s.%s:443/v3", region, cloud)
@@ -1265,6 +1274,7 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		AgencyDomainName:    d.Get("agency_domain_name").(string),
 		DelegatedProject:    delegatedProject,
 		Cloud:               cloud,
+		RegionClient:        isRegional,
 		MaxRetries:          d.Get("max_retries").(int),
 		EnterpriseProjectID: d.Get("enterprise_project_id").(string),
 		SharedConfigFile:    d.Get("shared_config_file").(string),
@@ -1348,8 +1358,8 @@ func getCloudDomain(cloud, region string) string {
 	return defaultCloud
 }
 
-func isDefaultHWCloudDomain(domain string) bool {
-	if domain == defaultCloud || domain == defaultEuropeCloud {
+func isGlobalIamEndpoint(domain, region string, isRegional bool) bool {
+	if !isRegional && domain == defaultCloud && !strings.HasPrefix(region, "eu-west-1") {
 		return true
 	}
 
