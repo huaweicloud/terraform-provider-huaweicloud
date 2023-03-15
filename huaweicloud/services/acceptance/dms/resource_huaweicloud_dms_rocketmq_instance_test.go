@@ -92,6 +92,54 @@ func TestAccDmsRocketMQInstance_basic(t *testing.T) {
 	})
 }
 
+func TestAccDmsRocketMQInstance_prepaid_basic(t *testing.T) {
+	var obj interface{}
+
+	rName := acceptance.RandomAccResourceNameWithDash()
+	updateName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_dms_rocketmq_instance.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getDmsRocketMQInstanceResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testDmsRocketMQInstance_prepaid_basic(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "engine_version", "4.8.0"),
+					resource.TestCheckResourceAttr(resourceName, "enable_acl", "true"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+				),
+			},
+			{
+				Config: testDmsRocketMQInstance_prepaid_update(updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
+					resource.TestCheckResourceAttr(resourceName, "engine_version", "4.8.0"),
+					resource.TestCheckResourceAttr(resourceName, "enable_acl", "false"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_renew", "period", "period_unit"},
+			},
+		},
+	})
+}
+
 func testDmsRocketMQInstance_basic(name string) string {
 	return fmt.Sprintf(`
 %s
@@ -139,6 +187,72 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0],
     data.huaweicloud_availability_zones.test.names[1],
   ]
+
+  flavor_id         = "c6.4u8g.cluster"
+  storage_spec_code = "dms.physical.storage.high.v2"
+  broker_num        = 1
+  enable_acl        = false
+}
+`, common.TestBaseNetwork(name), name)
+}
+
+func testDmsRocketMQInstance_prepaid_basic(name string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_dms_rocketmq_instance" "test" {
+  name              = "%s"
+  engine_version    = "4.8.0"
+  storage_space     = 300
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[1],
+    data.huaweicloud_availability_zones.test.names[2],
+  ]
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = true
+
+  flavor_id         = "c6.4u8g.cluster"
+  storage_spec_code = "dms.physical.storage.high.v2"
+  broker_num        = 1
+  enable_acl        = true
+}
+`, common.TestBaseNetwork(name), name)
+}
+
+func testDmsRocketMQInstance_prepaid_update(name string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_dms_rocketmq_instance" "test" {
+  name              = "%s"
+  engine_version    = "4.8.0"
+  storage_space     = 300
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[2],
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[1],
+  ]
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = false
 
   flavor_id         = "c6.4u8g.cluster"
   storage_spec_code = "dms.physical.storage.high.v2"

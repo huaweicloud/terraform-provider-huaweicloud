@@ -2,7 +2,9 @@ package dms
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
 	"time"
@@ -20,6 +22,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+type dmsError struct {
+	ErrorCode string `json:"error_code"`
+	ErrorMsg  string `json:"error_msg"`
+}
 
 func ResourceDmsRocketMQInstance() *schema.Resource {
 	return &schema.Resource{
@@ -264,6 +271,10 @@ func ResourceDmsRocketMQInstance() *schema.Resource {
 					},
 				},
 			},
+			"charging_mode": common.SchemaChargingMode(nil),
+			"period_unit":   common.SchemaPeriodUnit(nil),
+			"period":        common.SchemaPeriod(nil),
+			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
 		},
 	}
 }
@@ -315,13 +326,22 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("error creating DmsRocketMQInstance: ID is not found in API response")
 	}
 
+	var delayTime time.Duration = 300
+	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
+		err = waitForRocketMQOrderComplete(ctx, d, cfg, createRocketmqInstanceClient, id.(string))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		delayTime = 5
+	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"CREATING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      rocketmqInstanceStateRefreshFunc(createRocketmqInstanceClient, id.(string)),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        200 * time.Second,
-		PollInterval: 15 * time.Second,
+		Delay:        delayTime * time.Second,
+		PollInterval: 10 * time.Second,
 	}
 
 	_, err = stateConf.WaitForStateContext(ctx)
@@ -338,6 +358,93 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	return resourceDmsRocketMQInstanceRead(ctx, d, meta)
+}
+
+func waitForRocketMQOrderComplete(ctx context.Context, d *schema.ResourceData, cfg *config.Config,
+	client *golangsdk.ServiceClient, instanceID string) error {
+	region := cfg.GetRegion(d)
+	orderId, err := getRocketMQInstanceOrderId(ctx, d, client, instanceID)
+	if err != nil {
+		return err
+	}
+
+	if orderId == "" {
+		log.Printf("[WARN] error get order id by instance ID: %s", instanceID)
+		return nil
+	}
+
+	bssClient, err := cfg.BssV2Client(region)
+	if err != nil {
+		return fmt.Errorf("error creating BSS v2 client: %s", err)
+	}
+	// wait for order success
+	err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return err
+	}
+	_, err = common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return fmt.Errorf("error waiting for RocketMQ order resource %s complete: %s", orderId, err)
+	}
+	return nil
+}
+
+func getRocketMQInstanceOrderId(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	instanceID string) (string, error) {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"EMPTY"},
+		Target:       []string{"CREATING"},
+		Refresh:      rocketMQInstanceCreatingFunc(client, instanceID),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        500 * time.Millisecond,
+		PollInterval: 500 * time.Millisecond,
+	}
+	orderId, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return "", fmt.Errorf("error waiting for RocketMQ instance (%s) to creating: %s", instanceID, err)
+	}
+	return orderId.(string), nil
+}
+
+func rocketMQInstanceCreatingFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		var (
+			getRocketmqInstanceHttpUrl = "v2/{project_id}/instances/{instance_id}"
+		)
+
+		getRocketmqInstancePath := client.Endpoint + getRocketmqInstanceHttpUrl
+		getRocketmqInstancePath = strings.ReplaceAll(getRocketmqInstancePath, "{project_id}", client.ProjectID)
+		getRocketmqInstancePath = strings.ReplaceAll(getRocketmqInstancePath, "{instance_id}", fmt.Sprintf("%v", instanceID))
+
+		getRocketmqInstanceOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			OkCodes: []int{
+				200,
+			},
+		}
+		getRocketmqInstanceResp, err := client.Request("GET", getRocketmqInstancePath, &getRocketmqInstanceOpt)
+
+		if err != nil {
+			if errCode, ok := err.(golangsdk.ErrDefault404); ok {
+				var rocketMQError dmsError
+				err = json.Unmarshal(errCode.Body, &rocketMQError)
+				if err != nil {
+					return nil, "", fmt.Errorf("error get DmsRocketMQInstance: error format error: %s", err)
+				}
+				if rocketMQError.ErrorCode == "DMS.00404022" {
+					return getRocketmqInstanceResp, "EMPTY", nil
+				}
+			}
+			return nil, "", fmt.Errorf("error retrieving DmsRocketMQInstance: %s", err)
+		}
+
+		res, err := utils.FlattenResponse(getRocketmqInstanceResp)
+		if err != nil {
+			return nil, "", err
+		}
+		orderID := utils.PathSearch("order_id", res, "")
+		return orderID, "CREATING", nil
+	}
 }
 
 func buildCreateRocketmqInstanceBodyParams(d *schema.ResourceData, cfg *config.Config,
@@ -362,6 +469,25 @@ func buildCreateRocketmqInstanceBodyParams(d *schema.ResourceData, cfg *config.C
 		"broker_num":            utils.ValueIngoreEmpty(d.Get("broker_num")),
 		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
 	}
+	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
+		bodyParams["bss_param"] = buildCreateRocketmqInstanceBodyBssParams(d)
+	}
+	return bodyParams
+}
+
+func buildCreateRocketmqInstanceBodyBssParams(d *schema.ResourceData) map[string]interface{} {
+	var autoRenew bool
+	if d.Get("auto_renew").(string) == "true" {
+		autoRenew = true
+	}
+	isAutoPay := true
+	bodyParams := map[string]interface{}{
+		"charging_mode": utils.ValueIngoreEmpty(d.Get("charging_mode")),
+		"period_type":   utils.ValueIngoreEmpty(d.Get("period_unit")),
+		"period_num":    utils.ValueIngoreEmpty(d.Get("period")),
+		"is_auto_renew": &autoRenew,
+		"is_auto_pay":   &isAutoPay,
+	}
 	return bodyParams
 }
 
@@ -376,6 +502,7 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 		"retention_policy",
 		"enable_acl",
 		"cross_vpc_accesses",
+		"auto_renew",
 	}
 
 	if d.HasChanges(updateRocketmqInstanceHasChanges...) {
@@ -405,9 +532,20 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 		if err != nil {
 			return diag.Errorf("error updating DmsRocketMQInstance: %s", err)
 		}
+
 		if d.HasChange("cross_vpc_accesses") {
 			if err = updateCrossVpcAccess(updateRocketmqInstanceClient, d); err != nil {
 				return diag.Errorf("error updating DMS rocketMQ Cross-VPC access information: %s", err)
+			}
+		}
+
+		if d.HasChange("auto_renew") {
+			bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+			if err != nil {
+				return diag.Errorf("error creating BSS V2 client: %s", err)
+			}
+			if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+				return diag.Errorf("error updating the auto-renew of the RocketMQ instance (%s): %s", d.Id(), err)
 			}
 		}
 	}
@@ -492,6 +630,11 @@ func resourceDmsRocketMQInstanceRead(_ context.Context, d *schema.ResourceData, 
 		}
 	}
 
+	var chargingMode = "postPaid"
+	if utils.PathSearch("charging_mode", getRocketmqInstanceRespBody, 1).(float64) == 0 {
+		chargingMode = "prePaid"
+	}
+
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
@@ -527,6 +670,7 @@ func resourceDmsRocketMQInstanceRead(_ context.Context, d *schema.ResourceData, 
 		d.Set("public_broker_address", utils.PathSearch("public_broker_address", getRocketmqInstanceRespBody, nil)),
 		d.Set("resource_spec_code", utils.PathSearch("resource_spec_code", getRocketmqInstanceRespBody, nil)),
 		d.Set("cross_vpc_accesses", crossVpcAccess),
+		d.Set("charging_mode", chargingMode),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }
@@ -545,19 +689,27 @@ func resourceDmsRocketMQInstanceDelete(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("error creating DmsRocketMQInstance Client: %s", err)
 	}
 
-	deleteRocketmqInstancePath := deleteRocketmqInstanceClient.Endpoint + deleteRocketmqInstanceHttpUrl
-	deleteRocketmqInstancePath = strings.ReplaceAll(deleteRocketmqInstancePath, "{project_id}", deleteRocketmqInstanceClient.ProjectID)
-	deleteRocketmqInstancePath = strings.ReplaceAll(deleteRocketmqInstancePath, "{instance_id}", fmt.Sprintf("%v", d.Id()))
+	if d.Get("charging_mode") == "prePaid" {
+		if err := common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()}); err != nil {
+			return diag.Errorf("error unsubscribe RocketMQ instance: %s", err)
+		}
+	} else {
+		deleteRocketmqInstancePath := deleteRocketmqInstanceClient.Endpoint + deleteRocketmqInstanceHttpUrl
+		deleteRocketmqInstancePath = strings.ReplaceAll(deleteRocketmqInstancePath, "{project_id}",
+			deleteRocketmqInstanceClient.ProjectID)
+		deleteRocketmqInstancePath = strings.ReplaceAll(deleteRocketmqInstancePath, "{instance_id}",
+			fmt.Sprintf("%v", d.Id()))
 
-	deleteRocketmqInstanceOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			204,
-		},
-	}
-	_, err = deleteRocketmqInstanceClient.Request("DELETE", deleteRocketmqInstancePath, &deleteRocketmqInstanceOpt)
-	if err != nil {
-		return diag.Errorf("error deleting DmsRocketMQInstance: %s", err)
+		deleteRocketmqInstanceOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			OkCodes: []int{
+				204,
+			},
+		}
+		_, err = deleteRocketmqInstanceClient.Request("DELETE", deleteRocketmqInstancePath, &deleteRocketmqInstanceOpt)
+		if err != nil {
+			return diag.Errorf("error deleting DmsRocketMQInstance: %s", err)
+		}
 	}
 
 	stateConf := &resource.StateChangeConf{
