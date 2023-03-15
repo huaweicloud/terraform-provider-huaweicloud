@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -13,38 +14,27 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func getDNSRecordsetResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.DnsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("Error creating DNS client: %s", err)
+		return nil, fmt.Errorf("error creating DNS client: %s", err)
 	}
 
-	zoneID, recordsetID, err := parseDNSV2RecordSetID(state.Primary.ID)
-	if err != nil {
-		return nil, err
-	}
-	return recordsets.Get(client, zoneID, recordsetID).Extract()
-}
-
-func parseDNSV2RecordSetID(id string) (string, string, error) {
-	idParts := strings.Split(id, "/")
+	idParts := strings.Split(state.Primary.ID, "/")
 	if len(idParts) != 2 {
-		return "", "", fmtp.Errorf("Unable to determine DNS record set ID from raw ID: %s", id)
+		return nil, fmt.Errorf("unable to determine DNS record set ID from raw ID: %s", state.Primary.ID)
 	}
-
 	zoneID := idParts[0]
 	recordsetID := idParts[1]
-
-	return zoneID, recordsetID, nil
+	return recordsets.Get(client, zoneID, recordsetID).Extract()
 }
 
 func TestAccDNSV2RecordSet_basic(t *testing.T) {
 	var recordset recordsets.RecordSet
 	resourceName := "huaweicloud_dns_recordset.recordset_1"
-	name := acceptance.RandomAccResourceName()
+	name := fmt.Sprintf("acpttest-recordset-%s.com.", acctest.RandString(5))
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -53,7 +43,7 @@ func TestAccDNSV2RecordSet_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckDNS(t) },
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -98,7 +88,7 @@ func TestAccDNSV2RecordSet_basic(t *testing.T) {
 func TestAccDNSV2RecordSet_readTTL(t *testing.T) {
 	var recordset recordsets.RecordSet
 	resourceName := "huaweicloud_dns_recordset.recordset_1"
-	name := acceptance.RandomAccResourceName()
+	name := fmt.Sprintf("acpttest-recordset-%s.com.", acctest.RandString(5))
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -107,7 +97,7 @@ func TestAccDNSV2RecordSet_readTTL(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckDNS(t) },
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -126,7 +116,7 @@ func TestAccDNSV2RecordSet_readTTL(t *testing.T) {
 func TestAccDNSV2RecordSet_private(t *testing.T) {
 	var recordset recordsets.RecordSet
 	resourceName := "huaweicloud_dns_recordset.recordset_1"
-	name := acceptance.RandomAccResourceName()
+	name := fmt.Sprintf("acpttest-recordset-%s.com.", acctest.RandString(5))
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -135,7 +125,7 @@ func TestAccDNSV2RecordSet_private(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckDNS(t) },
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{

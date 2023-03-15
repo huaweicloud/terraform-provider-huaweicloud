@@ -732,9 +732,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_rocketmq_topic":          dms.ResourceDmsRocketMQTopic(),
 			"huaweicloud_dms_rocketmq_user":           dms.ResourceDmsRocketMQUser(),
 
-			"huaweicloud_dns_ptrrecord": dns.ResourceDNSPtrRecordV2(),
+			"huaweicloud_dns_ptrrecord": dns.ResourceDNSPtrRecord(),
 			"huaweicloud_dns_recordset": dns.ResourceDNSRecordSetV2(),
-			"huaweicloud_dns_zone":      dns.ResourceDNSZoneV2(),
+			"huaweicloud_dns_zone":      dns.ResourceDNSZone(),
 
 			"huaweicloud_drs_job":     drs.ResourceDrsJob(),
 			"huaweicloud_dws_cluster": dws.ResourceDwsCluster(),
@@ -993,9 +993,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_servergroup_v2":      ResourceComputeServerGroupV2(),
 			"huaweicloud_compute_volume_attach_v2":    ecs.ResourceComputeVolumeAttach(),
 
-			"huaweicloud_dns_ptrrecord_v2": dns.ResourceDNSPtrRecordV2(),
+			"huaweicloud_dns_ptrrecord_v2": dns.ResourceDNSPtrRecord(),
 			"huaweicloud_dns_recordset_v2": dns.ResourceDNSRecordSetV2(),
-			"huaweicloud_dns_zone_v2":      dns.ResourceDNSZoneV2(),
+			"huaweicloud_dns_zone_v2":      dns.ResourceDNSZone(),
 
 			"huaweicloud_dcs_instance_v1": dcs.ResourceDcsInstance(),
 			"huaweicloud_dds_instance_v3": dds.ResourceDdsInstanceV3(),
