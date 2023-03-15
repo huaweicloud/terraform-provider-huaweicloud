@@ -233,7 +233,7 @@ func ResourceAlarmRule() *schema.Resource {
 			"alarm_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Computed:     true,
+				Default:      "MULTI_INSTANCE",
 				ValidateFunc: validation.StringInSlice([]string{"EVENT.SYS", "EVENT.CUSTOM", "MULTI_INSTANCE"}, false),
 			},
 
