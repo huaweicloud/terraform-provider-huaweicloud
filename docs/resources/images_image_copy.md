@@ -9,10 +9,16 @@ Manages IMS image copy resources within HuaweiCloud.
 ## Example Usage
 
 ```hcl
+variable "source_image_id" {}
 variable "name" {}
+variable "target_region" {}
+variable "agency_name" {}
 
 resource "huaweicloud_images_image_copy" "test" {
-  name = var.name
+  source_image_id = var.source_image_id
+  name            = var.name
+  target_region   = var.target_region
+  agency_name     = var.agency_name
 }
 ```
 
@@ -23,21 +29,31 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `image_id` - (Required, String, ForceNew) Special the ID of the copied image.
+* `source_image_id` - (Required, String, ForceNew) Special the ID of the copied image.
 
   Changing this parameter will create a new resource.
 
-* `name` - (Required, String) Specifies the name of the image.
+* `name` - (Required, String) Specifies the name of the copy image.
 
-* `description` - (Optional, String, ForceNew) Specifies the description of the image.
+* `description` - (Optional, String, ForceNew) Specifies the description of the copy image.
 
   Changing this parameter will create a new resource.
 
-* `cmk_id` - (Optional, String, ForceNew) Specifies the master key used for encrypting an image.
+* `kms_key_id` - (Optional, String, ForceNew) Specifies the master key used for encrypting an image.
+  Only copying scene within a region is supported.
 
   Changing this parameter will create a new resource.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the image.
+
+  Changing this parameter will create a new resource.
+
+* `agency_name` - (Optional, String, ForceNew) Specifies the agency name. It is required in the cross-region scene. 
+
+  Changing this parameter will create a new resource.
+
+* `vault_id` - (Optional, String, ForceNew) Specifies the ID of the vault. It is used in the cross-region scene,
+  and it is mandatory if you are replicating a full-ECS image.
 
   Changing this parameter will create a new resource.
 

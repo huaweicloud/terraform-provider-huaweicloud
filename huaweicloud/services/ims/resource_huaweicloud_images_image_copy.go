@@ -48,16 +48,16 @@ func ResourceImsImageCopy() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"image_id": {
+			"source_image_id": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Special the ID of the copied image.`,
+				Description: `Special the ID of the source image.`,
 			},
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
-				Description:  `Specifies the name of the image.`,
+				Description:  `Specifies the name of the copy image.`,
 				ValidateFunc: validation.StringLenBetween(1, 128),
 			},
 			"target_region": {
@@ -72,7 +72,7 @@ func ResourceImsImageCopy() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ForceNew:     true,
-				Description:  `Specifies the description of the image.`,
+				Description:  `Specifies the description of the copy image.`,
 				ValidateFunc: validation.StringLenBetween(0, 1024),
 			},
 			"kms_key_id": {

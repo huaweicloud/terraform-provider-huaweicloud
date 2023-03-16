@@ -111,80 +111,80 @@ func TestAccImsImageCopy_basic(t *testing.T) {
 	})
 }
 
-func testImsImageCopy_base(name string) string {
-	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
+func TestAccImsImageCrossRegionCopy_basic(t *testing.T) {
+	var obj interface{}
 
-data "huaweicloud_compute_flavors" "test" {
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  performance_type  = "normal"
-  cpu_core_count    = 2
-  memory_size       = 4
-}
+	name := acceptance.RandomAccResourceName()
+	updateName := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_images_image_copy.test"
 
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getImsImageCopyResourceFunc,
+	)
 
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
-
-resource "huaweicloud_compute_instance" "test" {
-  name               = "%[1]s"
-  image_name         = "Ubuntu 18.04 server 64bit"
-  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
-  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
-  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-
-  network {
-    uuid = data.huaweicloud_vpc_subnet.test.id
-  }
-}
-
-resource "huaweicloud_images_image" "test" {
-  name        = "%[1]s"
-  instance_id = huaweicloud_compute_instance.test.id
-  description = "created by Terraform AccTest"
-
-  tags = {
-    foo = "bar"
-    key = "value"
-  }
-}
-`, name)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testImsImageCrossRegionCopy_basic(name, name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "description", "it's a test"),
+					resource.TestCheckResourceAttr(rName, "tags.key1", "value1"),
+					resource.TestCheckResourceAttr(rName, "tags.key2", "value2"),
+				),
+			},
+			{
+				Config: testImsImageCrossRegionCopy_update(name, updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "description", "it's a test"),
+					resource.TestCheckResourceAttr(rName, "tags.key1", "value1_update"),
+					resource.TestCheckResourceAttr(rName, "tags.key3", "value3"),
+					resource.TestCheckResourceAttr(rName, "tags.key4", "value4"),
+				),
+			},
+			{
+				ResourceName:            rName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"image_id"},
+			},
+		},
+	})
 }
 
 func testImsImageCopy_basic(baseImageName, copyImageName string) string {
 	return fmt.Sprintf(`
-
+%s
 
 resource "huaweicloud_images_image_copy" "test" {
- //image_id = huaweicloud_images_image.test.id
- image_id = "b95678d3-9627-43f7-9f41-ef6778dde3f9"
- name     = "%s"
- description = "it's a test"
- target_region = "cn-north-9"
- agency_name = "ims_admin_agency"
+ source_image_id = huaweicloud_images_image.test.id
+ name            = "%s"
+ description     = "it's a test"
 
  tags = {
     key1 = "value1"
     key2 = "value2"
  }
 }
-`, copyImageName)
+`, testAccImsImage_basic(baseImageName), copyImageName)
 }
 
 func testImsImageCopy_update(baseImageName, copyImageName string) string {
 	return fmt.Sprintf(`
-
+%s
 
 resource "huaweicloud_images_image_copy" "test" {
- //image_id = huaweicloud_images_image.test.id
- image_id = "b95678d3-9627-43f7-9f41-ef6778dde3f9"
- name     = "%s"
- target_region = "cn-north-9"
- agency_name = "ims_admin_agency"
+ source_image_id = huaweicloud_images_image.test.id
+ name            = "%s"
+ description     = "it's a test"
 
  tags = {
     key1 = "value1_update"
@@ -192,5 +192,44 @@ resource "huaweicloud_images_image_copy" "test" {
     key4 = "value4"
  }
 }
-`, copyImageName)
+`, testAccImsImage_basic(baseImageName), copyImageName)
+}
+
+func testImsImageCrossRegionCopy_basic(baseImageName, copyImageName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_images_image_copy" "test" {
+ source_image_id = huaweicloud_images_image.test.id
+ name            = "%s"
+ description     = "it's a test"
+ target_region   = "cn-north-9"
+ agency_name     = "ims_admin_agency"
+
+ tags = {
+    key1 = "value1"
+    key2 = "value2"
+ }
+}
+`, testAccImsImage_basic(baseImageName), copyImageName)
+}
+
+func testImsImageCrossRegionCopy_update(baseImageName, copyImageName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_images_image_copy" "test" {
+ source_image_id = huaweicloud_images_image.test.id
+ name            = "%s"
+ description     = "it's a test"
+ target_region   = "cn-north-9"
+ agency_name     = "ims_admin_agency"
+
+ tags = {
+    key1 = "value1_update"
+    key3 = "value3"
+    key4 = "value4"
+ }
+}
+`, testAccImsImage_basic(baseImageName), copyImageName)
 }
