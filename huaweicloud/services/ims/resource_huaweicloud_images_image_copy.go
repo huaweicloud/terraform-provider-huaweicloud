@@ -141,7 +141,8 @@ func resourceImsImageCopyCreate(ctx context.Context, d *schema.ResourceData, met
 		createImageCopyOpt.JSONBody = utils.RemoveNil(buildCreateImageCrossRegionCopyBodyParams(d, cfg))
 	}
 
-	createImageCopyPath = strings.ReplaceAll(createImageCopyPath, "{image_id}", fmt.Sprintf("%v", d.Get("image_id")))
+	createImageCopyPath = strings.ReplaceAll(createImageCopyPath, "{image_id}", fmt.Sprintf("%v",
+		d.Get("source_image_id")))
 
 	createImageCopyResp, err := createImageCopyClient.Request("POST", createImageCopyPath, &createImageCopyOpt)
 	if err != nil {
