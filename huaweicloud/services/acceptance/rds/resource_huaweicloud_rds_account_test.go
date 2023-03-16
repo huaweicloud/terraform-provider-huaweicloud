@@ -160,7 +160,7 @@ func testRdsAccount_base(rName string) string {
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_rds_instance" "test" {
-  name                = "%[1]s"
+  name                = "%s"
   flavor              = "rds.mysql.sld4.large.ha"
   security_group_id   = huaweicloud_networking_secgroup.test.id
   subnet_id           = huaweicloud_vpc_subnet.test.id
