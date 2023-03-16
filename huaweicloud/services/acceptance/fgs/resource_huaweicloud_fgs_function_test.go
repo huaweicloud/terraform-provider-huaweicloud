@@ -154,10 +154,17 @@ func TestAccFgsV2Function_text(t *testing.T) {
 func TestAccFgsV2Function_createByImage(t *testing.T) {
 	var f function.Function
 	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_fgs_function.test"
+	rName1 := "huaweicloud_fgs_function.create_with_vpc_access"
+	rName2 := "huaweicloud_fgs_function.create_without_vpc_access"
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
+	rc1 := acceptance.InitResourceCheck(
+		rName1,
+		&f,
+		getResourceObj,
+	)
+
+	rc2 := acceptance.InitResourceCheck(
+		rName2,
 		&f,
 		getResourceObj,
 	)
@@ -168,32 +175,55 @@ func TestAccFgsV2Function_createByImage(t *testing.T) {
 			acceptance.TestAccPreCheckComponentDeployment(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy:      rc1.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFgsV2Function_createByImage_step_1(randName),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", randName),
-					resource.TestCheckResourceAttr(resourceName, "agency", "functiongraph_swr_trust"),
-					resource.TestCheckResourceAttr(resourceName, "runtime", "Custom Image"),
-					resource.TestCheckResourceAttr(resourceName, "custom_image.0.url", acceptance.HW_BUILD_IMAGE_URL),
+					rc1.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName1, "name", randName+"_1"),
+					resource.TestCheckResourceAttr(rName1, "agency", "functiongraph_swr_trust"),
+					resource.TestCheckResourceAttr(rName1, "runtime", "Custom Image"),
+					resource.TestCheckResourceAttr(rName1, "handler", "-"),
+					resource.TestCheckResourceAttr(rName1, "custom_image.0.url", acceptance.HW_BUILD_IMAGE_URL),
+					resource.TestCheckResourceAttrPair(rName1, "vpc_id", "huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(rName1, "network_id", "huaweicloud_vpc_subnet.test", "id"),
+					rc2.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName2, "name", randName+"_2"),
+					resource.TestCheckResourceAttr(rName2, "agency", "functiongraph_swr_trust"),
+					resource.TestCheckResourceAttr(rName2, "runtime", "Custom Image"),
+					resource.TestCheckResourceAttr(rName2, "handler", "-"),
+					resource.TestCheckResourceAttr(rName2, "custom_image.0.url", acceptance.HW_BUILD_IMAGE_URL),
+					resource.TestCheckResourceAttr(rName2, "vpc_id", ""),
+					resource.TestCheckResourceAttr(rName2, "network_id", ""),
 				),
 			},
 			{
 				Config: testAccFgsV2Function_createByImage_step_2(randName),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", randName),
-					resource.TestCheckResourceAttr(resourceName, "agency", "functiongraph_swr_trust"),
-					resource.TestCheckResourceAttr(resourceName, "runtime", "Custom Image"),
-					resource.TestCheckResourceAttr(resourceName, "custom_image.0.url", acceptance.HW_BUILD_IMAGE_URL),
-					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "huaweicloud_vpc.test", "id"),
-					resource.TestCheckResourceAttrPair(resourceName, "network_id", "huaweicloud_vpc_subnet.test", "id"),
+					rc1.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName1, "handler", "-"),
+					resource.TestCheckResourceAttr(rName1, "vpc_id", ""),
+					resource.TestCheckResourceAttr(rName1, "network_id", ""),
+					rc2.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName2, "handler", "-"),
+					resource.TestCheckResourceAttrPair(rName2, "vpc_id", "huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(rName2, "network_id", "huaweicloud_vpc_subnet.test", "id"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName1,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"app",
+					"package",
+					"xrole",
+					"agency",
+				},
+			},
+			{
+				ResourceName:      rName2,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
@@ -292,28 +322,65 @@ resource "huaweicloud_fgs_function" "test" {
 
 func testAccFgsV2Function_createByImage_step_1(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_fgs_function" "test" {
-  name        = "%s"
+%[1]s
+
+resource "huaweicloud_fgs_function" "create_with_vpc_access" {
+  name        = "%[2]s_1"
   app         = "default"
+  handler     = "-"
   memory_size = 128
   runtime     = "Custom Image"
   timeout     = 3
   agency      = "functiongraph_swr_trust"
 
   custom_image {
-    url = "%[2]s"
+    url = "%[3]s"
+  }
+
+  vpc_id     = huaweicloud_vpc.test.id
+  network_id = huaweicloud_vpc_subnet.test.id
+}
+
+resource "huaweicloud_fgs_function" "create_without_vpc_access" {
+  name        = "%[2]s_2"
+  app         = "default"
+  handler     = "-"
+  memory_size = 128
+  runtime     = "Custom Image"
+  timeout     = 3
+  agency      = "functiongraph_swr_trust"
+
+  custom_image {
+    url = "%[3]s"
   }
 }
-`, rName, acceptance.HW_BUILD_IMAGE_URL)
+`, common.TestBaseNetwork(rName), rName, acceptance.HW_BUILD_IMAGE_URL)
 }
 
 func testAccFgsV2Function_createByImage_step_2(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_fgs_function" "test" {
-  name        = "%[2]s"
+# Closs the VPC access
+resource "huaweicloud_fgs_function" "create_with_vpc_access" {
+  name        = "%[2]s_1"
   app         = "default"
+  handler     = "-"
+  memory_size = 128
+  runtime     = "Custom Image"
+  timeout     = 3
+  agency      = "functiongraph_swr_trust"
+
+  custom_image {
+    url = "%[3]s"
+  }
+}
+
+# Open the VPC access
+resource "huaweicloud_fgs_function" "create_without_vpc_access" {
+  name        = "%[2]s_2"
+  app         = "default"
+  handler     = "-"
   memory_size = 128
   runtime     = "Custom Image"
   timeout     = 3
