@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -199,9 +200,12 @@ func updateAntiDdosTrafficThreshold(ctx context.Context, d *schema.ResourceData,
 
 	if preProtection.TrafficPosId != threshold {
 		updateOpts := antiddossdk.UpdateOpts{
-			EnableL7:            preProtection.EnableL7,
-			HttpRequestPosId:    preProtection.HttpRequestPosId,
-			CleaningAccessPosId: preProtection.CleaningAccessPosId,
+			EnableL7:         preProtection.EnableL7,
+			HttpRequestPosId: preProtection.HttpRequestPosId,
+			// make sure the CleaningAccessPosId not larger than 8
+			// CleaningAccessPosId has no practical meaning in the request
+			// this will avoid error in partners cloud
+			CleaningAccessPosId: int(math.Min(float64(preProtection.CleaningAccessPosId), 8)),
 			AppTypeId:           preProtection.AppTypeId,
 			TrafficPosId:        threshold,
 		}
