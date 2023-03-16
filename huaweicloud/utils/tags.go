@@ -11,6 +11,16 @@ import (
 
 const SysTagKeyEnterpriseProjectId = "_sys_enterprise_project_id"
 
+// CreateResourceTags is a helper to create the tags for a resource.
+// It expects the schema name must be "tags"
+func CreateResourceTags(client *golangsdk.ServiceClient, d *schema.ResourceData, resourceType string) error {
+	if tagRaw := d.Get("tags").(map[string]interface{}); len(tagRaw) > 0 {
+		tagList := ExpandResourceTags(tagRaw)
+		return tags.Create(client, resourceType, d.Id(), tagList).ExtractErr()
+	}
+	return nil
+}
+
 // UpdateResourceTags is a helper to update the tags for a resource.
 // It expects the tags field to be named "tags"
 func UpdateResourceTags(conn *golangsdk.ServiceClient, d *schema.ResourceData, resourceType, id string) error {
@@ -38,6 +48,20 @@ func UpdateResourceTags(conn *golangsdk.ServiceClient, d *schema.ResourceData, r
 		}
 	}
 
+	return nil
+}
+
+// DeleteResourceTagsWithKeys is a helper to delete the tags with tagKeys for a resource.
+func DeleteResourceTagsWithKeys(client *golangsdk.ServiceClient, tagKeys []string, resourceType, id string) error {
+	for _, key := range tagKeys {
+		if err := tags.DeleteWithKey(client, resourceType, id, key).ExtractErr(); err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				log.Printf("[WARN] The tag key (%s) of resource (%s) not exist.", key, id)
+				continue
+			}
+			return err
+		}
+	}
 	return nil
 }
 

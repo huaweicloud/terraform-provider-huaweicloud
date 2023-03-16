@@ -23,6 +23,13 @@ func getURL(c *golangsdk.ServiceClient, resourceType, id string) string {
 	return c.ServiceURL(c.ProjectID, resourceType, id, "tags")
 }
 
+func deleteURL(c *golangsdk.ServiceClient, resourceType, id, key string) string {
+	if hasProjectID(c) {
+		return c.ServiceURL(resourceType, id, "tags", key)
+	}
+	return c.ServiceURL(c.ProjectID, resourceType, id, "tags", key)
+}
+
 func listURL(c *golangsdk.ServiceClient, resourceType string) string {
 	if hasProjectID(c) {
 		return c.ServiceURL(resourceType, "tags")

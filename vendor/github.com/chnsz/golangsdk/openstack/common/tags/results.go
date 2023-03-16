@@ -43,3 +43,7 @@ func (r ListResult) Extract() (ResourceTags, error) {
 	err := r.Result.ExtractInto(&tags)
 	return tags, err
 }
+
+type DeleteResult struct {
+	golangsdk.ErrResult
+}

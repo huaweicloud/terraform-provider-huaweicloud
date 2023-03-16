@@ -33,6 +33,8 @@ func TestAccSFSTurbo_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "enhanced", "false"),
 					resource.TestCheckResourceAttr(resourceName, "size", "500"),
 					resource.TestCheckResourceAttr(resourceName, "status", "200"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
 			},
 			{
@@ -46,6 +48,8 @@ func TestAccSFSTurbo_basic(t *testing.T) {
 					testAccCheckSFSTurboExists(resourceName, &turbo),
 					resource.TestCheckResourceAttr(resourceName, "size", "600"),
 					resource.TestCheckResourceAttr(resourceName, "status", "221"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 				),
 			},
 		},
@@ -189,6 +193,11 @@ resource "huaweicloud_sfs_turbo" "sfs-turbo1" {
   subnet_id   = huaweicloud_vpc_subnet_v1.test.id
   security_group_id = huaweicloud_networking_secgroup_v2.secgroup.id
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 `, testAccNetworkPreConditions(suffix), suffix)
 }
@@ -206,6 +215,11 @@ resource "huaweicloud_sfs_turbo" "sfs-turbo1" {
   subnet_id   = huaweicloud_vpc_subnet_v1.test.id
   security_group_id = huaweicloud_networking_secgroup_v2.secgroup.id
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+
+  tags = {
+    foo = "bar_update"
+    key = "value_update"
+  }
 }
 `, testAccNetworkPreConditions(suffix), suffix)
 }

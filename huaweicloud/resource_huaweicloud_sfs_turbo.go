@@ -1,15 +1,20 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/sfs_turbo/v1/shares"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/sfs_turbo/v1/shares"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -95,6 +100,7 @@ func ResourceSFSTurbo() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
+			"tags": common.TagsSchema(),
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -163,6 +169,11 @@ func resourceSFSTurboCreate(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf("Error waiting for SFS Turbo (%s) to become ready: %s ", d.Id(), StateErr)
 	}
 
+	// add tags
+	if err := utils.CreateResourceTags(sfsClient, d, "sfs-turbo"); err != nil {
+		return fmt.Errorf("error setting tags of SFS Turbo %s: %s", d.Id(), err)
+	}
+
 	return resourceSFSTurboRead(d, meta)
 }
 
@@ -212,7 +223,9 @@ func resourceSFSTurboRead(d *schema.ResourceData, meta interface{}) error {
 		status = n.Status
 	}
 	d.Set("status", status)
-	return nil
+
+	// set tags
+	return utils.SetResourceTagsToState(d, sfsClient, "sfs-turbo")
 }
 
 func resourceSFSTurboUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -251,7 +264,36 @@ func resourceSFSTurboUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
+	// update tags
+	if d.HasChange("tags") {
+		if err := updateSFSTurboTags(sfsClient, d); err != nil {
+			return fmt.Errorf("error updating tags of SFS Turbo %s: %s", d.Id(), err)
+		}
+	}
+
 	return resourceSFSTurboRead(d, meta)
+}
+
+func updateSFSTurboTags(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	// remove old tags
+	oldKeys := getOldTagKeys(d)
+	if err := utils.DeleteResourceTagsWithKeys(client, oldKeys, "sfs-turbo", d.Id()); err != nil {
+		return err
+	}
+
+	// set new tags
+	return utils.CreateResourceTags(client, d, "sfs-turbo")
+}
+
+func getOldTagKeys(d *schema.ResourceData) []string {
+	oRaw, _ := d.GetChange("tags")
+	var tagKeys []string
+	if oMap := oRaw.(map[string]interface{}); len(oMap) > 0 {
+		for k := range oMap {
+			tagKeys = append(tagKeys, k)
+		}
+	}
+	return tagKeys
 }
 
 func resourceSFSTurboDelete(d *schema.ResourceData, meta interface{}) error {

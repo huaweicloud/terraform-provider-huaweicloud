@@ -50,6 +50,12 @@ func Delete(client *golangsdk.ServiceClient, srvType, id string, tags []Resource
 	return doAction(client, srvType, id, opts)
 }
 
+//DeleteWithKey is a method of deleting tags by key
+func DeleteWithKey(client *golangsdk.ServiceClient, srvType, id, key string) (r DeleteResult) {
+	_, r.Err = client.Delete(deleteURL(client, srvType, id, key), nil)
+	return
+}
+
 //Get is a method of getting the tags by id
 func Get(client *golangsdk.ServiceClient, srvType, id string) (r GetResult) {
 	_, r.Err = client.Get(getURL(client, srvType, id), &r.Body, &golangsdk.RequestOpts{
