@@ -8,6 +8,8 @@ package ims
 import (
 	"context"
 	"fmt"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"log"
 	"strings"
 	"time"
 
@@ -172,6 +174,15 @@ func resourceImsImageCopyCreate(ctx context.Context, d *schema.ResourceData, met
 
 	d.SetId(imageId.(string))
 
+	// set tags
+	tagRaw := d.Get("tags").(map[string]interface{})
+	if len(tagRaw) > 0 {
+		tagList := utils.ExpandResourceTags(tagRaw)
+		if tagErr := tags.Create(createImageCopyClient, "images", d.Id(), tagList).ExtractErr(); tagErr != nil {
+			return diag.Errorf("error setting tags of images %s: %s", d.Id(), tagErr)
+		}
+	}
+
 	return resourceImsImageCopyRead(ctx, d, meta)
 }
 
@@ -243,31 +254,28 @@ func resourceImsImageCopyUpdate(ctx context.Context, d *schema.ResourceData, met
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
-	updateImageCopyHasChanges := []string{
-		"name",
+	// updateImageCopy: update IMS image copy
+	var (
+		updateImageCopyHttpUrl = "v2/cloudimages/{image_id}"
+		updateImageCopyProduct = "ims"
+	)
+
+	var updateImageCopyClient *golangsdk.ServiceClient
+	var err error
+	targetRegion := d.Get("target_region").(string)
+	if targetRegion == "" {
+		updateImageCopyClient, err = cfg.NewServiceClient(updateImageCopyProduct, region)
+		if err != nil {
+			return diag.Errorf("error creating ImsImageCopy Client: %s", err)
+		}
+	} else {
+		updateImageCopyClient, err = cfg.NewServiceClient(updateImageCopyProduct, targetRegion)
+		if err != nil {
+			return diag.Errorf("error creating ImsImageCopy Client: %s", err)
+		}
 	}
 
-	if d.HasChanges(updateImageCopyHasChanges...) {
-		// updateImageCopy: update IMS image copy
-		var (
-			updateImageCopyHttpUrl = "v2/cloudimages/{image_id}"
-			updateImageCopyProduct = "ims"
-		)
-
-		var updateImageCopyClient *golangsdk.ServiceClient
-		var err error
-		targetRegion := d.Get("target_region").(string)
-		if targetRegion == "" {
-			updateImageCopyClient, err = cfg.NewServiceClient(updateImageCopyProduct, region)
-			if err != nil {
-				return diag.Errorf("error creating ImsImageCopy Client: %s", err)
-			}
-		} else {
-			updateImageCopyClient, err = cfg.NewServiceClient(updateImageCopyProduct, targetRegion)
-			if err != nil {
-				return diag.Errorf("error creating ImsImageCopy Client: %s", err)
-			}
-		}
+	if d.HasChanges("name") {
 
 		updateImageCopyPath := updateImageCopyClient.Endpoint + updateImageCopyHttpUrl
 		updateImageCopyPath = strings.ReplaceAll(updateImageCopyPath, "{image_id}", fmt.Sprintf("%v", d.Id()))
@@ -284,6 +292,15 @@ func resourceImsImageCopyUpdate(ctx context.Context, d *schema.ResourceData, met
 			return diag.Errorf("error updating ImsImageCopy: %s", err)
 		}
 	}
+
+	// update tags
+	if d.HasChange("tags") {
+		tagErr := utils.UpdateResourceTags(updateImageCopyClient, d, "images", d.Id())
+		if tagErr != nil {
+			return diag.Errorf("error updating tags of IMS images :%s, err:%s", d.Id(), tagErr)
+		}
+	}
+
 	return resourceImsImageCopyRead(ctx, d, meta)
 }
 
@@ -358,6 +375,14 @@ func resourceImsImageCopyRead(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("kms_key_id", utils.PathSearch("cmk_id", images[0], nil)),
 		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", images[0], nil)),
 	)
+
+	// fetch tags
+	if resourceTags, err := tags.Get(getImageCopyClient, "image", d.Id()).Extract(); err == nil {
+		tagMap := utils.TagsToMap(resourceTags.Tags)
+		mErr = multierror.Append(mErr, d.Set("tags", tagMap))
+	} else {
+		log.Printf("[WARN] Fetching tags of IMS images failed: %s", err)
+	}
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
