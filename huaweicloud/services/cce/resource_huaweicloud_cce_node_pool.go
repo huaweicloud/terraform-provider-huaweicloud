@@ -181,6 +181,128 @@ func ResourceCCENodePool() *schema.Resource {
 				Sensitive:    true,
 				ExactlyOneOf: []string{"password", "key_pair"},
 			},
+			"storage": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"selectors": {
+							Type:     schema.TypeList,
+							Required: true,
+							ForceNew: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+									},
+									"type": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Default:  "evs",
+									},
+									"match_label_size": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Computed: true,
+									},
+									"match_label_volume_type": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Computed: true,
+									},
+									"match_label_metadata_encrypted": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Computed: true,
+									},
+									"match_label_metadata_cmkid": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Computed: true,
+									},
+									"match_label_count": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"groups": {
+							Type:     schema.TypeList,
+							Required: true,
+							ForceNew: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+									},
+									"cce_managed": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										ForceNew: true,
+										Computed: true,
+									},
+									"selector_names": {
+										Type:     schema.TypeList,
+										Required: true,
+										ForceNew: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+									"virtual_spaces": {
+										Type:     schema.TypeList,
+										Required: true,
+										ForceNew: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:     schema.TypeString,
+													Required: true,
+													ForceNew: true,
+												},
+												"size": {
+													Type:     schema.TypeString,
+													Required: true,
+													ForceNew: true,
+												},
+												"lvm_lv_type": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+													Computed: true,
+												},
+												"lvm_path": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+													Computed: true,
+												},
+												"runtime_lv_type": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+													Computed: true,
+												},
+											},
+										}},
+								},
+							},
+						},
+					}},
+			},
 			"taints": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -358,6 +480,7 @@ func resourceCCENodePoolCreate(ctx context.Context, d *schema.ResourceData, meta
 				Os:          d.Get("os").(string),
 				RootVolume:  resourceCCERootVolume(d),
 				DataVolumes: resourceCCEDataVolume(d),
+				Storage:     resourceCCEStorage(d),
 				K8sTags:     resourceCCENodeK8sTags(d),
 				BillingMode: billingMode,
 				Count:       1,
@@ -471,6 +594,7 @@ func resourceCCENodePoolRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("priority", s.Spec.Autoscaling.Priority),
 		d.Set("type", s.Spec.Type),
 		d.Set("ecs_group_id", s.Spec.NodeManagement.ServerGroupReference),
+		d.Set("storage", flattenStorage(s.Spec.NodeTemplate.Storage)),
 	)
 
 	if s.Spec.NodeTemplate.BillingMode != 0 {
@@ -555,6 +679,65 @@ func resourceCCENodePoolRead(_ context.Context, d *schema.ResourceData, meta int
 	}
 
 	return nil
+}
+
+func flattenStorage(storageRaw *nodes.StorageSpec) []map[string]interface{} {
+	if storageRaw == nil {
+		return nil
+	}
+
+	storageSelectorsRaw := storageRaw.StorageSelectors
+	storageSelectors := make([]map[string]interface{}, len(storageSelectorsRaw))
+	for i, s := range storageSelectorsRaw {
+		storageSelectors[i] = map[string]interface{}{
+			"name": s.Name,
+			"type": s.StorageType,
+		}
+
+		if s.MatchLabels != (nodes.MatchLabelsSpec{}) {
+			storageSelectors[i]["match_label_size"] = s.MatchLabels.Size
+			storageSelectors[i]["match_label_volume_type"] = s.MatchLabels.VolumeType
+			storageSelectors[i]["match_label_metadata_encrypted"] = s.MatchLabels.MetadataEncrypted
+			storageSelectors[i]["match_label_metadata_cmkid"] = s.MatchLabels.MetadataCmkid
+			storageSelectors[i]["match_label_count"] = s.MatchLabels.Count
+		}
+	}
+
+	storageGroupsRaw := storageRaw.StorageGroups
+	storageGroups := make([]map[string]interface{}, len(storageGroupsRaw))
+	for i, v := range storageGroupsRaw {
+		storageGroups[i] = map[string]interface{}{
+			"name":           v.Name,
+			"cce_managed":    v.CceManaged,
+			"selector_names": v.SelectorNames,
+		}
+
+		virtualSpaces := make([]map[string]interface{}, len(v.VirtualSpaces))
+		for k, s := range v.VirtualSpaces {
+			virtualSpaces[k] = map[string]interface{}{
+				"name": s.Name,
+				"size": s.Size,
+			}
+
+			if s.LVMConfig != nil {
+				virtualSpaces[k]["lvm_lv_type"] = s.LVMConfig.LvType
+				virtualSpaces[k]["lvm_path"] = s.LVMConfig.Path
+			}
+
+			if s.RuntimeConfig != nil {
+				virtualSpaces[k]["runtime_lv_type"] = s.RuntimeConfig.LvType
+			}
+		}
+
+		storageGroups[i]["virtual_spaces"] = virtualSpaces
+	}
+
+	return []map[string]interface{}{
+		{
+			"selectors": storageSelectors,
+			"groups":    storageGroups,
+		},
+	}
 }
 
 func resourceCCENodePoolUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
