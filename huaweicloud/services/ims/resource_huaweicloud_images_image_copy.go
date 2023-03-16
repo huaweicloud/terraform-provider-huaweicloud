@@ -177,6 +177,13 @@ func resourceImsImageCopyCreate(ctx context.Context, d *schema.ResourceData, met
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
+		// if the image is copied to new region, the new region client is needed when set tags
+		if targetRegion != "" {
+			createImageCopyClient, err = cfg.NewServiceClient(createImageCopyProduct, targetRegion)
+			if err != nil {
+				return diag.Errorf("error creating IMS Client: %s", err)
+			}
+		}
 		tagList := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(createImageCopyClient, "images", d.Id(), tagList).ExtractErr(); tagErr != nil {
 			return diag.Errorf("error setting tags of images %s: %s", d.Id(), tagErr)
