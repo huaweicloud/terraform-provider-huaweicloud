@@ -85,13 +85,20 @@ func TestAccImsImageCopy_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "description", "it's a test"),
+					resource.TestCheckResourceAttr(rName, "tags.key1", "value1"),
+					resource.TestCheckResourceAttr(rName, "tags.key2", "value2"),
 				),
 			},
 			{
-				Config: testImsImageCopy_basic(name, updateName),
+				Config: testImsImageCopy_update(name, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "description", "it's a test"),
+					resource.TestCheckResourceAttr(rName, "tags.key1", "value1_update"),
+					resource.TestCheckResourceAttr(rName, "tags.key3", "value3"),
+					resource.TestCheckResourceAttr(rName, "tags.key4", "value4"),
 				),
 			},
 			{
@@ -156,8 +163,34 @@ resource "huaweicloud_images_image_copy" "test" {
  //image_id = huaweicloud_images_image.test.id
  image_id = "b95678d3-9627-43f7-9f41-ef6778dde3f9"
  name     = "%s"
+ description = "it's a test"
  target_region = "cn-north-9"
  agency_name = "ims_admin_agency"
+
+ tags = {
+    key1 = "value1"
+    key2 = "value2"
+ }
+}
+`, copyImageName)
+}
+
+func testImsImageCopy_update(baseImageName, copyImageName string) string {
+	return fmt.Sprintf(`
+
+
+resource "huaweicloud_images_image_copy" "test" {
+ //image_id = huaweicloud_images_image.test.id
+ image_id = "b95678d3-9627-43f7-9f41-ef6778dde3f9"
+ name     = "%s"
+ target_region = "cn-north-9"
+ agency_name = "ims_admin_agency"
+
+ tags = {
+    key1 = "value1_update"
+    key3 = "value3"
+    key4 = "value4"
+ }
 }
 `, copyImageName)
 }
