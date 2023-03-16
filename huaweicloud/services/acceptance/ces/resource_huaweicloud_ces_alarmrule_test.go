@@ -43,6 +43,7 @@ func TestAccCESAlarmRule_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "alarm_name", fmt.Sprintf("rule-%s", rName)),
+					resource.TestCheckResourceAttr(resourceName, "alarm_type", "MULTI_INSTANCE"),
 					resource.TestCheckResourceAttr(resourceName, "alarm_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "alarm_action_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "alarm_level", "2"),
@@ -213,7 +214,6 @@ func testCESAlarmRule_basic(rName string) string {
 resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
   alarm_name           = "rule-%s"
   alarm_action_enabled = true
-  alarm_type           = "MULTI_INSTANCE"
 
   metric {
     namespace   = "SYS.ECS"
