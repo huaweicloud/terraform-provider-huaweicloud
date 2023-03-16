@@ -58,6 +58,13 @@ func ResourceImsImageCopy() *schema.Resource {
 				Description:  `Specifies the name of the image.`,
 				ValidateFunc: validation.StringLenBetween(1, 128),
 			},
+			"target_region": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Special the target region name.`,
+			},
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -66,7 +73,7 @@ func ResourceImsImageCopy() *schema.Resource {
 				Description:  `Specifies the description of the image.`,
 				ValidateFunc: validation.StringLenBetween(0, 1024),
 			},
-			"cmk_id": {
+			"kms_key_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
@@ -80,6 +87,21 @@ func ResourceImsImageCopy() *schema.Resource {
 				ForceNew:    true,
 				Description: `Specifies the enterprise project id of the image.`,
 			},
+			"agency_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Specifies the agency name.`,
+			},
+			"vault_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Specifies the ID of the vault.`,
+			},
+			"tags": common.TagsSchema(),
 		},
 	}
 }
@@ -90,16 +112,15 @@ func resourceImsImageCopyCreate(ctx context.Context, d *schema.ResourceData, met
 
 	// createImageCopy: create IMS image copy
 	var (
-		createImageCopyHttpUrl = "v1/cloudimages/{image_id}/copy"
-		createImageCopyProduct = "ims"
+		createImageCopyHttpUrl            = "v1/cloudimages/{image_id}/copy"
+		createImageCrossRegionCopyHttpUrl = "v1/cloudimages/{image_id}/cross_region_copy"
+		createImageCopyProduct            = "ims"
 	)
+
 	createImageCopyClient, err := cfg.NewServiceClient(createImageCopyProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating ImsImageCopy Client: %s", err)
+		return diag.Errorf("error creating IMS Client: %s", err)
 	}
-
-	createImageCopyPath := createImageCopyClient.Endpoint + createImageCopyHttpUrl
-	createImageCopyPath = strings.ReplaceAll(createImageCopyPath, "{image_id}", fmt.Sprintf("%v", d.Get("image_id")))
 
 	createImageCopyOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -107,7 +128,19 @@ func resourceImsImageCopyCreate(ctx context.Context, d *schema.ResourceData, met
 			200,
 		},
 	}
-	createImageCopyOpt.JSONBody = utils.RemoveNil(buildCreateImageCopyBodyParams(d, cfg))
+
+	var createImageCopyPath string
+	targetRegion := d.Get("target_region").(string)
+	if targetRegion == "" {
+		createImageCopyPath = createImageCopyClient.Endpoint + createImageCopyHttpUrl
+		createImageCopyOpt.JSONBody = utils.RemoveNil(buildCreateImageCopyBodyParams(d, cfg))
+	} else {
+		createImageCopyPath = createImageCopyClient.Endpoint + createImageCrossRegionCopyHttpUrl
+		createImageCopyOpt.JSONBody = utils.RemoveNil(buildCreateImageCrossRegionCopyBodyParams(d, cfg))
+	}
+
+	createImageCopyPath = strings.ReplaceAll(createImageCopyPath, "{image_id}", fmt.Sprintf("%v", d.Get("image_id")))
+
 	createImageCopyResp, err := createImageCopyClient.Request("POST", createImageCopyPath, &createImageCopyOpt)
 	if err != nil {
 		return diag.Errorf("error creating ImsImageCopy: %s", err)
@@ -147,6 +180,18 @@ func buildCreateImageCopyBodyParams(d *schema.ResourceData, cfg *config.Config) 
 		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
 		"description":           utils.ValueIngoreEmpty(d.Get("description")),
 		"cmk_id":                utils.ValueIngoreEmpty(d.Get("cmk_id")),
+		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+	}
+	return bodyParams
+}
+
+func buildCreateImageCrossRegionCopyBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
+		"description":           utils.ValueIngoreEmpty(d.Get("description")),
+		"region":                utils.ValueIngoreEmpty(d.Get("target_region")),
+		"project_name":          utils.ValueIngoreEmpty(d.Get("target_region")),
+		"agency_name":           utils.ValueIngoreEmpty(d.Get("agency_name")),
 		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
 	}
 	return bodyParams
@@ -208,9 +253,20 @@ func resourceImsImageCopyUpdate(ctx context.Context, d *schema.ResourceData, met
 			updateImageCopyHttpUrl = "v2/cloudimages/{image_id}"
 			updateImageCopyProduct = "ims"
 		)
-		updateImageCopyClient, err := cfg.NewServiceClient(updateImageCopyProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating ImsImageCopy Client: %s", err)
+
+		var updateImageCopyClient *golangsdk.ServiceClient
+		var err error
+		targetRegion := d.Get("target_region").(string)
+		if targetRegion == "" {
+			updateImageCopyClient, err = cfg.NewServiceClient(updateImageCopyProduct, region)
+			if err != nil {
+				return diag.Errorf("error creating ImsImageCopy Client: %s", err)
+			}
+		} else {
+			updateImageCopyClient, err = cfg.NewServiceClient(updateImageCopyProduct, targetRegion)
+			if err != nil {
+				return diag.Errorf("error creating ImsImageCopy Client: %s", err)
+			}
 		}
 
 		updateImageCopyPath := updateImageCopyClient.Endpoint + updateImageCopyHttpUrl
@@ -251,9 +307,20 @@ func resourceImsImageCopyRead(_ context.Context, d *schema.ResourceData, meta in
 		getImageCopyHttpUrl = "v2/cloudimages"
 		getImageCopyProduct = "ims"
 	)
-	getImageCopyClient, err := cfg.NewServiceClient(getImageCopyProduct, region)
-	if err != nil {
-		return diag.Errorf("error creating ImsImageCopy Client: %s", err)
+
+	var getImageCopyClient *golangsdk.ServiceClient
+	var err error
+	targetRegion := d.Get("target_region").(string)
+	if targetRegion == "" {
+		getImageCopyClient, err = cfg.NewServiceClient(getImageCopyProduct, region)
+		if err != nil {
+			return diag.Errorf("error creating ImsImageCopy Client: %s", err)
+		}
+	} else {
+		getImageCopyClient, err = cfg.NewServiceClient(getImageCopyProduct, targetRegion)
+		if err != nil {
+			return diag.Errorf("error creating ImsImageCopy Client: %s", err)
+		}
 	}
 
 	getImageCopyPath := getImageCopyClient.Endpoint + getImageCopyHttpUrl
@@ -314,9 +381,20 @@ func resourceImsImageCopyDelete(ctx context.Context, d *schema.ResourceData, met
 		deleteImageCopyHttpUrl = "v2/images/{image_id}"
 		deleteImageCopyProduct = "ims"
 	)
-	deleteImageCopyClient, err := cfg.NewServiceClient(deleteImageCopyProduct, region)
-	if err != nil {
-		return diag.Errorf("error creating ImsImageCopy Client: %s", err)
+
+	var deleteImageCopyClient *golangsdk.ServiceClient
+	var err error
+	targetRegion := d.Get("target_region").(string)
+	if targetRegion == "" {
+		deleteImageCopyClient, err = cfg.NewServiceClient(deleteImageCopyProduct, region)
+		if err != nil {
+			return diag.Errorf("error creating ImsImageCopy Client: %s", err)
+		}
+	} else {
+		deleteImageCopyClient, err = cfg.NewServiceClient(deleteImageCopyProduct, targetRegion)
+		if err != nil {
+			return diag.Errorf("error creating ImsImageCopy Client: %s", err)
+		}
 	}
 
 	deleteImageCopyPath := deleteImageCopyClient.Endpoint + deleteImageCopyHttpUrl

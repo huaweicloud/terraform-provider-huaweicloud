@@ -23,7 +23,7 @@ func getImsImageCopyResourceFunc(cfg *config.Config, state *terraform.ResourceSt
 	)
 	getImageCopyClient, err := cfg.NewServiceClient(getImageCopyProduct, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating ImsImageCopy Client: %s", err)
+		return nil, fmt.Errorf("error creating IMS Client: %s", err)
 	}
 
 	getImageCopyPath := getImageCopyClient.Endpoint + getImageCopyHttpUrl
@@ -150,11 +150,15 @@ resource "huaweicloud_images_image" "test" {
 
 func testImsImageCopy_basic(baseImageName, copyImageName string) string {
 	return fmt.Sprintf(`
-%s
+
 
 resource "huaweicloud_images_image_copy" "test" {
- image_id = huaweicloud_images_image.test.id
+ //image_id = huaweicloud_images_image.test.id
+ image_id = "b95678d3-9627-43f7-9f41-ef6778dde3f9"
  name     = "%s"
+ target_region = "cn-north-9a"
+ project_name = "cn-north-9"
+ agency_name = "ims_admin_agency"
 }
-`, testImsImageCopy_base(baseImageName), copyImageName)
+`, copyImageName)
 }
