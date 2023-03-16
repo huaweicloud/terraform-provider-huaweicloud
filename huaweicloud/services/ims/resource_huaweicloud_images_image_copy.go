@@ -179,7 +179,7 @@ func buildCreateImageCopyBodyParams(d *schema.ResourceData, cfg *config.Config) 
 	bodyParams := map[string]interface{}{
 		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
 		"description":           utils.ValueIngoreEmpty(d.Get("description")),
-		"cmk_id":                utils.ValueIngoreEmpty(d.Get("cmk_id")),
+		"cmk_id":                utils.ValueIngoreEmpty(d.Get("kms_key_id")),
 		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
 	}
 	return bodyParams
@@ -355,7 +355,7 @@ func resourceImsImageCopyRead(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("region", region),
 		d.Set("name", utils.PathSearch("name", images[0], nil)),
 		d.Set("description", utils.PathSearch("__description", images[0], nil)),
-		d.Set("cmk_id", utils.PathSearch("cmk_id", images[0], nil)),
+		d.Set("kms_key_id", utils.PathSearch("cmk_id", images[0], nil)),
 		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", images[0], nil)),
 	)
 
