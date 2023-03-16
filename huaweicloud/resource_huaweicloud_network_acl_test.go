@@ -166,6 +166,16 @@ func testAccCheckNetworkACLExists(n string, fwGroup *FirewallGroup) resource.Tes
 	}
 }
 
+func testAccCheckFWFirewallPortCount(firewall_group *FirewallGroup, expected int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if len(firewall_group.PortIDs) != expected {
+			return fmtp.Errorf("Expected %d Ports, got %d", expected, len(firewall_group.PortIDs))
+		}
+
+		return nil
+	}
+}
+
 func testAccNetworkACLRules(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "vpc_1" {

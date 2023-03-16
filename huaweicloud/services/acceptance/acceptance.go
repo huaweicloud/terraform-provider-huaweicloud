@@ -105,6 +105,12 @@ var (
 
 	// The direct connection ID (provider does not support direct connection resource).
 	HW_DC_DIRECT_CONNECT_ID = os.Getenv("HW_DC_DIRECT_CONNECT_ID")
+
+	// Deprecated
+	HW_SRC_ACCESS_KEY = os.Getenv("HW_SRC_ACCESS_KEY")
+	HW_SRC_SECRET_KEY = os.Getenv("HW_SRC_SECRET_KEY")
+	HW_EXTGW_ID       = os.Getenv("HW_EXTGW_ID")
+	HW_POOL_NAME      = os.Getenv("HW_POOL_NAME")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -223,6 +229,14 @@ func TestAccPreCheckMrsCustom(t *testing.T) {
 func TestAccPreCheckFgsTrigger(t *testing.T) {
 	if HW_FGS_TRIGGER_LTS_AGENCY == "" {
 		t.Skip("HW_FGS_TRIGGER_LTS_AGENCY must be set for FGS trigger acceptance tests")
+	}
+}
+
+// Deprecated
+// lintignore:AT003
+func TestAccPreCheckMaas(t *testing.T) {
+	if HW_ACCESS_KEY == "" || HW_SECRET_KEY == "" || HW_SRC_ACCESS_KEY == "" || HW_SRC_SECRET_KEY == "" {
+		t.Skip("HW_ACCESS_KEY, HW_SECRET_KEY, HW_SRC_ACCESS_KEY, and HW_SRC_SECRET_KEY  must be set for MAAS acceptance tests")
 	}
 }
 
