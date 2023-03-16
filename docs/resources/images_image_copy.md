@@ -4,7 +4,7 @@ subcategory: "Image Management Service (IMS)"
 
 # huaweicloud_images_image_copy
 
-Manages IMS image copy resources within HuaweiCloud.
+Manages a IMS image copy resources within HuaweiCloud.
 
 ## Example Usage
 
@@ -29,11 +29,13 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `source_image_id` - (Required, String, ForceNew) Special the ID of the copied image.
+* `source_image_id` - (Required, String, ForceNew) Specifies the ID of the copied image.
 
   Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Specifies the name of the copy image.
+
+* `target_region` - (Required, String) Specifies the target region name..
 
 * `description` - (Optional, String, ForceNew) Specifies the description of the copy image.
 
@@ -57,6 +59,8 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the copy image.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -65,7 +69,7 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-The ims image copy can be imported using the `id`, e.g.
+The IMS image copy can be imported using the `id`, e.g.
 
 ```
 $ terraform import huaweicloud_images_image_copy.test 7886e623-f1b3-473e-b882-67ba1c35887f

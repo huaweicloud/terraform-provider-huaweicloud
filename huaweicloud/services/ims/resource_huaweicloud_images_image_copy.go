@@ -8,7 +8,6 @@ package ims
 import (
 	"context"
 	"fmt"
-	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"log"
 	"strings"
 	"time"
@@ -20,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -32,9 +32,6 @@ func ResourceImsImageCopy() *schema.Resource {
 		UpdateContext: resourceImsImageCopyUpdate,
 		ReadContext:   resourceImsImageCopyRead,
 		DeleteContext: resourceImsImageCopyDelete,
-		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
-		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -52,7 +49,7 @@ func ResourceImsImageCopy() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Special the ID of the source image.`,
+				Description: `Specifies the ID of the source image.`,
 			},
 			"name": {
 				Type:         schema.TypeString,
@@ -65,7 +62,7 @@ func ResourceImsImageCopy() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
-				Description: `Special the target region name.`,
+				Description: `Specifies the target region name.`,
 			},
 			"description": {
 				Type:         schema.TypeString,
@@ -154,10 +151,7 @@ func resourceImsImageCopyCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 
-	jobId := utils.PathSearch("job_id", createImageCopyRespBody, nil)
-	if err != nil {
-		return diag.Errorf("error creating ImsImageCopy: ID is not found in API response")
-	}
+	jobId := utils.PathSearch("job_id", createImageCopyRespBody, "")
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"INIT", "RUNNING"},
@@ -178,7 +172,7 @@ func resourceImsImageCopyCreate(ctx context.Context, d *schema.ResourceData, met
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		// if the image is copied to new region, the new region client is needed when set tags
+		// if the image is copied to new region, the new client is needed
 		if targetRegion != "" {
 			createImageCopyClient, err = cfg.NewServiceClient(createImageCopyProduct, targetRegion)
 			if err != nil {
@@ -242,18 +236,12 @@ func imageCopyStatusRefreshFunc(client *golangsdk.ServiceClient, projectId, jobI
 			return nil, "", err
 		}
 
-		status := utils.PathSearch("status", getJobStatusRespBody, nil)
-		if err != nil {
-			return nil, "", err
-		}
+		status := utils.PathSearch("status", getJobStatusRespBody, "")
 		if status == "FAIL" {
 			return nil, "", fmt.Errorf("creating ImsImageCopy job run fail")
 		}
 		entities := utils.PathSearch("entities", getJobStatusRespBody, nil)
-		if err != nil {
-			return nil, "", err
-		}
-		imageId := utils.PathSearch("image_id", entities, nil)
+		imageId := utils.PathSearch("image_id", entities, "")
 		return imageId, status.(string), nil
 	}
 }
@@ -274,17 +262,16 @@ func resourceImsImageCopyUpdate(ctx context.Context, d *schema.ResourceData, met
 	if targetRegion == "" {
 		updateImageCopyClient, err = cfg.NewServiceClient(updateImageCopyProduct, region)
 		if err != nil {
-			return diag.Errorf("error creating ImsImageCopy Client: %s", err)
+			return diag.Errorf("error creating IMS Client: %s", err)
 		}
 	} else {
 		updateImageCopyClient, err = cfg.NewServiceClient(updateImageCopyProduct, targetRegion)
 		if err != nil {
-			return diag.Errorf("error creating ImsImageCopy Client: %s", err)
+			return diag.Errorf("error creating IMS Client: %s", err)
 		}
 	}
 
 	if d.HasChanges("name") {
-
 		updateImageCopyPath := updateImageCopyClient.Endpoint + updateImageCopyHttpUrl
 		updateImageCopyPath = strings.ReplaceAll(updateImageCopyPath, "{image_id}", fmt.Sprintf("%v", d.Id()))
 
@@ -339,12 +326,12 @@ func resourceImsImageCopyRead(_ context.Context, d *schema.ResourceData, meta in
 	if targetRegion == "" {
 		getImageCopyClient, err = cfg.NewServiceClient(getImageCopyProduct, region)
 		if err != nil {
-			return diag.Errorf("error creating ImsImageCopy Client: %s", err)
+			return diag.Errorf("error creating IMS Client: %s", err)
 		}
 	} else {
 		getImageCopyClient, err = cfg.NewServiceClient(getImageCopyProduct, targetRegion)
 		if err != nil {
-			return diag.Errorf("error creating ImsImageCopy Client: %s", err)
+			return diag.Errorf("error creating IMS Client: %s", err)
 		}
 	}
 
@@ -359,8 +346,8 @@ func resourceImsImageCopyRead(_ context.Context, d *schema.ResourceData, meta in
 			200,
 		},
 	}
-	getImageCopyResp, err := getImageCopyClient.Request("GET", getImageCopyPath, &getImageCopyOpt)
 
+	getImageCopyResp, err := getImageCopyClient.Request("GET", getImageCopyPath, &getImageCopyOpt)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving ImsImageCopy")
 	}
@@ -421,12 +408,12 @@ func resourceImsImageCopyDelete(ctx context.Context, d *schema.ResourceData, met
 	if targetRegion == "" {
 		deleteImageCopyClient, err = cfg.NewServiceClient(deleteImageCopyProduct, region)
 		if err != nil {
-			return diag.Errorf("error creating ImsImageCopy Client: %s", err)
+			return diag.Errorf("error creating IMS Client: %s", err)
 		}
 	} else {
 		deleteImageCopyClient, err = cfg.NewServiceClient(deleteImageCopyProduct, targetRegion)
 		if err != nil {
-			return diag.Errorf("error creating ImsImageCopy Client: %s", err)
+			return diag.Errorf("error creating IMS Client: %s", err)
 		}
 	}
 
@@ -439,6 +426,7 @@ func resourceImsImageCopyDelete(ctx context.Context, d *schema.ResourceData, met
 			204,
 		},
 	}
+
 	_, err = deleteImageCopyClient.Request("DELETE", deleteImageCopyPath, &deleteImageCopyOpt)
 	if err != nil {
 		return diag.Errorf("error deleting ImsImageCopy: %s", err)
@@ -487,6 +475,7 @@ func imageDeleteRefreshFunc(client *golangsdk.ServiceClient, id string) resource
 		if err != nil {
 			return nil, "", err
 		}
+
 		images := utils.PathSearch("images", getImageCopyRespBody, nil).([]interface{})
 		if len(images) == 0 {
 			return v, "DELETED", nil

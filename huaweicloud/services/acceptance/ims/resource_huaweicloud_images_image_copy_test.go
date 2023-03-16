@@ -21,9 +21,21 @@ func getImsImageCopyResourceFunc(cfg *config.Config, state *terraform.ResourceSt
 		getImageCopyHttpUrl = "v2/cloudimages"
 		getImageCopyProduct = "ims"
 	)
-	getImageCopyClient, err := cfg.NewServiceClient(getImageCopyProduct, region)
-	if err != nil {
-		return nil, fmt.Errorf("error creating IMS Client: %s", err)
+
+	var getImageCopyClient *golangsdk.ServiceClient
+	var err error
+
+	targetRegion := state.Primary.Attributes["target_region"]
+	if targetRegion == "" {
+		getImageCopyClient, err = cfg.NewServiceClient(getImageCopyProduct, region)
+		if err != nil {
+			return nil, fmt.Errorf("error creating IMS Client: %s", err)
+		}
+	} else {
+		getImageCopyClient, err = cfg.NewServiceClient(getImageCopyProduct, targetRegion)
+		if err != nil {
+			return nil, fmt.Errorf("error creating IMS Client: %s", err)
+		}
 	}
 
 	getImageCopyPath := getImageCopyClient.Endpoint + getImageCopyHttpUrl
@@ -65,6 +77,7 @@ func buildGetImageCopyQueryParams(state *terraform.ResourceState) string {
 func TestAccImsImageCopy_basic(t *testing.T) {
 	var obj interface{}
 
+	sourceImageName := acceptance.RandomAccResourceName()
 	name := acceptance.RandomAccResourceName()
 	updateName := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_images_image_copy.test"
@@ -81,7 +94,7 @@ func TestAccImsImageCopy_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testImsImageCopy_basic(name, name),
+				Config: testImsImageCopy_basic(sourceImageName, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -91,7 +104,7 @@ func TestAccImsImageCopy_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testImsImageCopy_update(name, updateName),
+				Config: testImsImageCopy_update(sourceImageName, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
@@ -100,12 +113,6 @@ func TestAccImsImageCopy_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "tags.key3", "value3"),
 					resource.TestCheckResourceAttr(rName, "tags.key4", "value4"),
 				),
-			},
-			{
-				ResourceName:            rName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"image_id"},
 			},
 		},
 	})
@@ -114,6 +121,7 @@ func TestAccImsImageCopy_basic(t *testing.T) {
 func TestAccImsImageCrossRegionCopy_basic(t *testing.T) {
 	var obj interface{}
 
+	sourceImageName := acceptance.RandomAccResourceName()
 	name := acceptance.RandomAccResourceName()
 	updateName := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_images_image_copy.test"
@@ -130,7 +138,7 @@ func TestAccImsImageCrossRegionCopy_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testImsImageCrossRegionCopy_basic(name, name),
+				Config: testImsImageCrossRegionCopy_basic(sourceImageName, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -140,7 +148,7 @@ func TestAccImsImageCrossRegionCopy_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testImsImageCrossRegionCopy_update(name, updateName),
+				Config: testImsImageCrossRegionCopy_update(sourceImageName, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
@@ -149,12 +157,6 @@ func TestAccImsImageCrossRegionCopy_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "tags.key3", "value3"),
 					resource.TestCheckResourceAttr(rName, "tags.key4", "value4"),
 				),
-			},
-			{
-				ResourceName:            rName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"image_id"},
 			},
 		},
 	})
