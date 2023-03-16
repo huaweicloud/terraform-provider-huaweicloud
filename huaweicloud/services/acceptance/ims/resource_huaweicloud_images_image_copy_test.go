@@ -207,12 +207,6 @@ resource "huaweicloud_images_image_copy" "test" {
  description     = "it's a test"
  target_region   = "cn-north-9"
  agency_name     = "ims_admin_agency"
-
- tags = {
-    key1 = "value1"
-    key2 = "value2"
- }
-}
 `, testAccImsImage_basic(baseImageName), copyImageName)
 }
 
@@ -233,5 +227,5 @@ resource "huaweicloud_images_image_copy" "test" {
     key4 = "value4"
  }
 }
-`, testAccImsImage_basic(baseImageName), copyImageName)
+`, copyImageName)
 }
