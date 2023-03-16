@@ -65,7 +65,7 @@ func TestAccGateway_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "connect_subnet", "192.168.1.0/24"),
+					resource.TestCheckResourceAttrPair(rName, "connect_subnet", "huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "vpc_id", "huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttr(rName, "availability_zones.0", "cn-north-4a"),
 					resource.TestCheckResourceAttr(rName, "availability_zones.1", "cn-north-4b"),
@@ -141,7 +141,7 @@ resource "huaweicloud_vpn_gateway" "test" {
   name               = "%s"
   vpc_id             = huaweicloud_vpc.test.id
   local_subnets      = [huaweicloud_vpc_subnet.test.cidr]
-  connect_subnet     = "192.168.1.0/24"
+  connect_subnet     = huaweicloud_vpc_subnet.test.id
   availability_zones = ["cn-north-4a", "cn-north-4b"]
 
   master_eip {
@@ -163,7 +163,7 @@ resource "huaweicloud_vpn_gateway" "test" {
   name               = "%s-update"
   vpc_id             = huaweicloud_vpc.test.id
   local_subnets      = [huaweicloud_vpc_subnet.test.cidr, "192.168.2.0/24"]
-  connect_subnet     = "192.168.1.0/24"
+  connect_subnet     = huaweicloud_vpc_subnet.test.id
   availability_zones = ["cn-north-4a", "cn-north-4b"]
 
   master_eip {
