@@ -392,6 +392,13 @@ func ResourceCCENodePool() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"security_groups": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"pod_security_groups": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -500,8 +507,9 @@ func resourceCCENodePoolCreate(ctx context.Context, d *schema.ResourceData, meta
 				ScaleDownCooldownTime: d.Get("scale_down_cooldown_time").(int),
 				Priority:              d.Get("priority").(int),
 			},
-			InitialNodeCount:  &initialNodeCount,
-			PodSecurityGroups: buildPodSecurityGroups(d.Get("pod_security_groups").([]interface{})),
+			InitialNodeCount:     &initialNodeCount,
+			PodSecurityGroups:    buildPodSecurityGroups(d.Get("pod_security_groups").([]interface{})),
+			CustomSecurityGroups: utils.ExpandToStringList(d.Get("security_groups").([]interface{})),
 			NodeManagement: nodepools.NodeManagementSpec{
 				ServerGroupReference: d.Get("ecs_group_id").(string),
 			},
@@ -595,6 +603,7 @@ func resourceCCENodePoolRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("type", s.Spec.Type),
 		d.Set("ecs_group_id", s.Spec.NodeManagement.ServerGroupReference),
 		d.Set("storage", flattenStorage(s.Spec.NodeTemplate.Storage)),
+		d.Set("security_groups", s.Spec.CustomSecurityGroups),
 	)
 
 	if s.Spec.NodeTemplate.BillingMode != 0 {

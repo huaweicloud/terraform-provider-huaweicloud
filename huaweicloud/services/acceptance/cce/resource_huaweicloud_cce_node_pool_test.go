@@ -177,7 +177,7 @@ func TestAccCCENodePool_prePaid(t *testing.T) {
 	})
 }
 
-func TestAccCCENodePool_podSecurityGroups(t *testing.T) {
+func TestAccCCENodePool_SecurityGroups(t *testing.T) {
 	var nodePool nodepools.NodePool
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -193,10 +193,14 @@ func TestAccCCENodePool_podSecurityGroups(t *testing.T) {
 		CheckDestroy:      testAccCheckCCENodePoolDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCENodePool_podSecurityGroups(rName),
+				Config: testAccCCENodePool_SecurityGroups(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCENodePoolExists(resourceName, clusterName, &nodePool),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttrPair(resourceName, "security_groups.0",
+						"huaweicloud_networking_secgroup.test.0", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_groups.1",
+						"huaweicloud_networking_secgroup.test.1", "id"),
 				),
 			},
 		},
@@ -515,7 +519,7 @@ resource "huaweicloud_cce_node_pool" "test" {
 `, testAccCCENodePool_Base(rName), rName, rName)
 }
 
-func testAccCCENodePool_podSecurityGroups(rName string) string {
+func testAccCCENodePool_SecurityGroups(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -526,21 +530,81 @@ resource "huaweicloud_compute_keypair" "test" {
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
 }
 
-resource "huaweicloud_networking_secgroup" "test1" {
-  name                 = "%[2]s-secgroup1"
+resource "huaweicloud_networking_secgroup" "test" {
+  count                 = 4
+  name                 = "%[2]s-secgroup-${count.index}"
   delete_default_rules = true
 }
 
-resource "huaweicloud_networking_secgroup" "test2" {
-  name                 = "%[2]s-secgroup2"
-  delete_default_rules = true
+resource "huaweicloud_networking_secgroup_rule" "rule1" {
+  security_group_id = huaweicloud_networking_secgroup.test[0].id
+  action            = "allow"
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  remote_ip_prefix  = huaweicloud_vpc_subnet.eni_test.cidr
+}
+
+resource "huaweicloud_networking_secgroup_rule" "rule2" {
+  security_group_id = huaweicloud_networking_secgroup.test[0].id
+  action            = "allow"
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  ports             = "10250"
+  protocol          = "tcp"
+  remote_ip_prefix  = huaweicloud_vpc_subnet.test.cidr
+}
+
+resource "huaweicloud_networking_secgroup_rule" "rule3" {
+  security_group_id = huaweicloud_networking_secgroup.test[0].id
+  action            = "allow"
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  ports             = "30000-32767"
+  protocol          = "udp"
+  remote_ip_prefix  = "0.0.0.0/0"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "rule4" {
+  security_group_id = huaweicloud_networking_secgroup.test[0].id
+  action            = "allow"
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  ports             = "30000-32767"
+  protocol          = "tcp"
+  remote_ip_prefix  = "0.0.0.0/0"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "rule5" {
+  security_group_id = huaweicloud_networking_secgroup.test[0].id
+  action            = "allow"
+  direction         = "egress"
+  ethertype         = "IPv4"
+  remote_ip_prefix  = "0.0.0.0/0"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "rule6" {
+  security_group_id = huaweicloud_networking_secgroup.test[0].id
+  action            = "allow"
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  remote_group_id   = huaweicloud_networking_secgroup.test[0].id
+}
+
+resource "huaweicloud_networking_secgroup_rule" "rule7" {
+  security_group_id = huaweicloud_networking_secgroup.test[0].id
+  action            = "allow"
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  ports             = "22"
+  protocol          = "tcp"
+  remote_ip_prefix  = "0.0.0.0/0"
 }
 
 resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
   name                     = "%[2]s"
   os                       = "CentOS 7.6"
-  flavor_id                = "s6.large.2"
+  flavor_id                = "c7.large.2"
   initial_node_count       = 1
   availability_zone        = data.huaweicloud_availability_zones.test.names[0]
   key_pair                 = huaweicloud_compute_keypair.test.name
@@ -550,9 +614,15 @@ resource "huaweicloud_cce_node_pool" "test" {
   scale_down_cooldown_time = 0
   priority                 = 0
   type                     = "vm"
-  pod_security_groups      = [
-    huaweicloud_networking_secgroup.test1.id,
-    huaweicloud_networking_secgroup.test2.id
+
+  security_groups = [
+    huaweicloud_networking_secgroup.test[0].id,
+    huaweicloud_networking_secgroup.test[1].id
+  ]
+
+  pod_security_groups = [
+    huaweicloud_networking_secgroup.test[2].id,
+    huaweicloud_networking_secgroup.test[3].id
   ]
 
   root_volume {

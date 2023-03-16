@@ -244,6 +244,11 @@ extend_param = {
 * `priority` - (Optional, Int) Specifies the weight of the node pool.
   A node pool with a higher weight has a higher priority during scaling.
 
+* `security_groups` - (Optional, List, ForceNew) Specifies the list of custom security group IDs for the node pool.
+  If specified, the nodes will be put in these security groups. When specifying a security group, do not modify
+  the rules of the port on which CCE running depends. For details, see
+  [documentation](https://support.huaweicloud.com/intl/en-us/cce_faq/cce_faq_00265.html).
+
 * `pod_security_groups` - (Optional, List, ForceNew) Specifies the list of security group IDs for the pod.
   Only supported in CCE Turbo clusters of v1.19 and above. Changing this parameter will create a new resource.
 

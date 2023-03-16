@@ -57,8 +57,10 @@ type Spec struct {
 	Autoscaling AutoscalingSpec `json:"autoscaling"`
 	// Node pool management parameters
 	NodeManagement NodeManagementSpec `json:"nodeManagement"`
-	// Security group configurations
+	// Pod security group configurations
 	PodSecurityGroups []PodSecurityGroupSpec `json:"podSecurityGroups"`
+	// Node security group configurations
+	CustomSecurityGroups []string `json:"customSecurityGroups"`
 }
 
 type AutoscalingSpec struct {
