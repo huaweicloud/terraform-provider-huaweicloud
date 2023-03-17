@@ -12,6 +12,10 @@ paths:
     put:
       tag: VPC
       operationId: RemoveRule
+  /v2.0/fwaas/firewall_policies:
+    get:
+      tag: VPC
+      operationId: List
   /v2.0/fwaas/firewall_rules/{id}:
     delete:
       tag: VPC
