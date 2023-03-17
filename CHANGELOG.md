@@ -1,5 +1,36 @@
 # CHANGELOG
 
+## 1.46.0 (March 17, 2023)
+
+* **New Resurce:**
+  + `huaweicloud_ddm_schema` [GH-2764]
+  + `huaweicloud_as_notification` [GH-2771]
+  + `huaweicloud_nat_private_gateway` [GH-2785]
+  + `huaweicloud_nat_private_transit_ip` [GH-2814]
+  + `huaweicloud_ddm_account` [GH-2794]
+  + `huaweicloud_dds_backup` [GH-2798]
+
+* **New Data Source:**
+  + `huaweicloud_cph_phone_flavors` [GH-2761]
+  + `huaweicloud_cph_phone_images` [GH-2769]
+  + `huaweicloud_ddm_instances` [GH-2765]
+  + `huaweicloud_ddm_instance_nodes` [GH-2766]
+
+ENHANCEMENTS:
+
+* provider: Support `regional` parameter for ally clouds [GH-2801]
+* resource/huaweicloud_lb_loadbalancer: Add `public_ip` attribute [GH-2786]
+* resource/huaweicloud_cce_node_pool: Support `storage` configuration [GH-2795]
+* resource/huaweicloud_cce_node_pool: Support custom security groups configuration [GH-2803]
+* resource/huaweicloud_dms_rocketmq_instance: Support prePaid charging mode [GH-2802]
+* resource/huaweicloud_sfs_turbo: Add tags support [GH-2804]
+* resource/huaweicloud_dms_rocketmq_instance: Add tags support [GH-2810]
+
+BUG FIXES:
+
+* resource/huaweicloud_vpn_gateway: Support more flavor values [GH-2788]
+* resource/huaweicloud_fgs_function: Unset conflicts between `custom_image` and `handler` [GH-2791]
+
 ## 1.45.1 (March 10, 2023)
 
 ENHANCEMENTS:
