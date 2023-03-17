@@ -76,7 +76,7 @@ func checkMarkdownSchemas(res *schema.Resource, parent string, mdContent *string
 	for name, schemaObject := range res.Schema {
 		fieldPath := buildFieldPath(parent, name)
 
-		reg := fmt.Sprintf("\\* `%s` - ", name)
+		reg := fmt.Sprintf("[\\*|+] `%s` - ", name)
 		isExist := checkArgumentExist(*mdContent, reg)
 
 		extentStr, deprecated := buildAttributeString(schemaObject)
