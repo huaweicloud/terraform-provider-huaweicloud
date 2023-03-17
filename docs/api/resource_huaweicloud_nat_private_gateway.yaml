@@ -1,0 +1,28 @@
+info:
+  version: 
+  title: resource_huaweicloud_nat_private_gateway
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: NAT
+paths:
+  /v3/{project_id}/private-nat-gateways/{id}/tags/action:
+    POST:
+      tag: NAT
+      operationId: batchUpdate
+  /v3/{project_id}/private-nat/gateways/{ruleId}:
+    delete:
+      tag: NAT
+      operationId: Delete
+    get:
+      tag: NAT
+      operationId: Get
+    put:
+      tag: NAT
+      operationId: Update
+  /v3/{project_id}/private-nat/gateways:
+    post:
+      tag: NAT
+      operationId: Create

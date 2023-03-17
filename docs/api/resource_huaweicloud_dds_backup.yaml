@@ -1,0 +1,23 @@
+info:
+    title: resource_huaweicloud_dds_backup
+    description: Manages a DDS backup resource within HuaweiCloud.
+host: myhuaweicloud.com
+tags:
+    - name: DDS
+servers:
+    - url: https://dds.cn-north-4.myhuaweicloud.com
+paths:
+    /v3/{project_id}/backups:
+        GET:
+            tag: DDS
+            operationId: GetBackup
+            x-ref-api: GET /v3/{project_id}/backups
+        POST:
+            tag: DDS
+            operationId: CreateBackup
+            x-ref-api: POST /v3/{project_id}/backups
+    /v3/{project_id}/backups/{backup_id}:
+        DELETE:
+            tag: DDS
+            operationId: DeleteBackup
+            x-ref-api: DELETE /v3/{project_id}/backups/{backup_id}
