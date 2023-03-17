@@ -71,11 +71,14 @@ The following arguments are supported:
   + 'MOCK': the Mock service backend
 
 * `http_backend` - (Optional, List) Specifies the configuration when backend_type selected 'HTTP' (documented below).
+
 * `function_backend` - (Optional, List) Specifies the configuration when backend_type selected 'FUNCTION' (documented
   below).
+
 * `mock_backend` - (Optional, List) Specifies the configuration when backend_type selected 'MOCK' (documented below).
 
 * `request_parameter` - (Optional, List) the request parameter list (documented below).
+
 * `backend_parameter` - (Optional, List) the backend parameter list (documented below).
 
 * `tags` - (Optional, List) the tags of API in format of string list.
@@ -93,26 +96,36 @@ The following arguments are supported:
 The `http_backend` object supports the following:
 
 * `protocol` - (Required, String) Specifies the backend request protocol. The value can be 'HTTP' and 'HTTPS'.
-* `method` - (Optional, String) Specifies the backend request method, including 'GET','POST','PUT' and etc..
+
+* `method` - (Required, String) Specifies the backend request method, including 'GET','POST','PUT' and etc..
+
 * `uri` - (Required, String) Specifies the backend request path. The value must comply with URI specifications.
+
 * `vpc_channel` - (Optional, String) Specifies the VPC channel ID. This parameter and `url_domain` are alternative.
+
 * `url_domain` - (Optional, String) Specifies the backend service address. An endpoint URL is in the format of
   "domain name (or IP address):port number", with up to 255 characters. This parameter and `vpc_channel` are
   alternative.
+
 * `timeout` - (Optional, Int) Timeout duration (in ms) for API Gateway to request for the backend service. Defaults to
   50000.
 
 The `function_backend` object supports the following:
 
 * `function_urn` - (Required, String) Specifies the function URN.
+
 * `invocation_type` - (Required, String) Specifies the invocation mode, which can be 'async' or 'sync'.
-* `version` - (Optional, String) Specifies the function version.
+
+* `version` - (Required, String) Specifies the function version.
+
 * `timeout` - (Optional, Int) Timeout duration (in ms) for API Gateway to request for FunctionGraph. Defaults to 50000.
 
 The `mock_backend` object supports the following:
 
 * `result_content` - (Optional, String) Specifies the return result.
+
 * `version` - (Optional, String) Specifies the version of the Mock backend.
+
 * `description` - (Optional, String) Specifies the description of the Mock backend. The description cannot exceed 255
   characters.
 
@@ -120,10 +133,15 @@ The `request_parameter` object supports the following:
 
 * `name` - (Required, String) Specifies the input parameter name. A parameter name consists of 1–32 characters, starting
   with a letter. Only letters, digits, periods (.), hyphens (-), and underscores (_) are allowed.
+
 * `location` - (Required, String) Specifies the input parameter location, which can be 'PATH', 'QUERY' or 'HEADER'.
+
 * `type` - (Required, String) Specifies the input parameter type, which can be 'STRING' or 'NUMBER'.
-* `required` - (Optional, Bool) Specifies whether the parameter is mandatory or not.
+
+* `required` - (Required, Bool) Specifies whether the parameter is mandatory or not.
+
 * `default` - (Optional, String) Specifies the default value when the parameter is optional.
+
 * `description` - (Optional, String) Specifies the description of the parameter. The description cannot exceed 255
   characters.
 
@@ -131,13 +149,16 @@ The `backend_parameter` object supports the following:
 
 * `name` - (Required, String) Specifies the parameter name. A parameter name consists of 1–32 characters, starting with
   a letter. Only letters, digits, periods (.), hyphens (-), and underscores (_) are allowed.
+
 * `location` - (Required, String) Specifies the parameter location, which can be 'PATH', 'QUERY' or 'HEADER'.
-* `type` - (Required, String) Specifies the parameter type, which can be 'REQUEST', 'CONSTANT', or 'SYSTEM'.
+
 * `value` - (Required, String) Specifies the parameter value, which is a string of not more than 255 characters. The
   value varies depending on the parameter type:
   + 'REQUEST': parameter name in `request_parameter`
   + 'CONSTANT': real value of the parameter
   + 'SYSTEM': gateway parameter name
+
+* `type` - (Optional, String) Specifies the parameter type, which can be 'REQUEST', 'CONSTANT', or 'SYSTEM'.
 
 * `description` - (Optional, String) Specifies the description of the parameter. The description cannot exceed 255
   characters.
@@ -147,6 +168,7 @@ The `backend_parameter` object supports the following:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The ID of the API.
+
 * `group_name` - The name of the API group to which the API belongs.
 
 ## Timeouts
