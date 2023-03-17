@@ -1,0 +1,126 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ddm_schema": {
+          "block": {
+            "attributes": {
+              "data_vips": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Indicates the IP address and port number for connecting to the schema.",
+                "computed": true
+              },
+              "delete_rds_data": {
+                "type": "string",
+                "description": "Specifies whether data stored on the associated DB instances is deleted",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of a DDM instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the DDM schema.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "shard_mode": {
+                "type": "string",
+                "description": "Specifies the sharding mode of the schema.",
+                "required": true,
+                "forcenew": true
+              },
+              "shard_number": {
+                "type": "number",
+                "description": "Specifies the number of shards in the same working mode.",
+                "required": true,
+                "forcenew": true
+              },
+              "shards": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "db_slot": "number",
+                      "id": "string",
+                      "name": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the sharding information of the schema.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the schema status.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "data_nodes": {
+                "block": {
+                  "attributes": {
+                    "admin_password": {
+                      "type": "string",
+                      "description": "Specifies the password for logging in to the associated RDS instance.",
+                      "required": true,
+                      "sensitive": true
+                    },
+                    "admin_user": {
+                      "type": "string",
+                      "description": "Specifies the username for logging in to the associated RDS instance.",
+                      "required": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "Specifies the ID of the RDS instance associated with the schema.",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Indicates the name of the associated RDS instance.",
+                      "computed": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Indicates the status of the associated RDS instance.",
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the RDS instances associated with the schema."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DDM",
+            "name": "Distributed Database Middleware",
+            "catalog": "Databases",
+            "name_cn": "分布式数据库中间件",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

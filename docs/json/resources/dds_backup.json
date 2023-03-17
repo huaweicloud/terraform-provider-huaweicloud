@@ -1,0 +1,92 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dds_backup": {
+          "block": {
+            "attributes": {
+              "begin_time": {
+                "type": "string",
+                "description": "Indicates the start time of the backup. The format is yyyy-mm-dd hh:mm:ss.\nThe value is in UTC format.",
+                "computed": true
+              },
+              "datastore": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "type": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the database version.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the manual backup description",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Indicates the end time of the backup. The format is yyyy-mm-dd hh:mm:ss.\nThe value is in UTC format.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of a DDS instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "instance_name": {
+                "type": "string",
+                "description": "Indicates the name of a DDS instance.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the manual backup name.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "size": {
+                "type": "number",
+                "description": "Indicates the backup size in KB.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the backup status.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Indicates the backup type.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

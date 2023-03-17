@@ -30,7 +30,7 @@
               },
               "connect_subnet": {
                 "type": "string",
-                "description": "The VPC network segment used by the VPN gateway needs to select an independent network segment in the VPC for the VPN gateway\n",
+                "description": "The Network ID of the VPC subnet used by the VPN gateway.",
                 "required": true,
                 "forcenew": true
               },
@@ -50,8 +50,8 @@
                 "type": "string",
                 "description": "The flavor of the VPN gateway.",
                 "optional": true,
-                "forcenew": true,
-                "default": "V300"
+                "computed": true,
+                "forcenew": true
               },
               "id": {
                 "type": "string",

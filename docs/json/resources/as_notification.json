@@ -1,0 +1,54 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_as_notification": {
+          "block": {
+            "attributes": {
+              "events": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the topic scene of AS group.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "scaling_group_id": {
+                "type": "string",
+                "description": "Specifies the AS group ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "topic_name": {
+                "type": "string",
+                "description": "The topic name in SMN.",
+                "computed": true
+              },
+              "topic_urn": {
+                "type": "string",
+                "description": "Specifies the unique topic URN of the SMN.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "AS",
+            "name": "Auto Scaling",
+            "catalog": "Compute",
+            "name_cn": "弹性伸缩",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

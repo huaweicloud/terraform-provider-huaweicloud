@@ -5,6 +5,10 @@
         "huaweicloud_dms_rocketmq_instance": {
           "block": {
             "attributes": {
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
               "availability_zones": {
                 "type": [
                   "set",
@@ -23,6 +27,12 @@
                 "type": "number",
                 "description": "Specifies the broker numbers.",
                 "optional": true,
+                "forcenew": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "cross_vpc_accesses": {
@@ -117,6 +127,16 @@
                 "description": "Indicates the node quantity.",
                 "computed": true
               },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "public_broker_address": {
                 "type": "string",
                 "description": "Indicates the public network service data address.",
@@ -187,6 +207,13 @@
                 "description": "Specifies the ID of a subnet",
                 "required": true,
                 "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
               },
               "type": {
                 "type": "string",

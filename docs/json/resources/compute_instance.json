@@ -353,11 +353,6 @@
                       "optional": true,
                       "forcenew": true
                     },
-                    "fault_domain": {
-                      "type": "string",
-                      "optional": true,
-                      "forcenew": true
-                    },
                     "group": {
                       "type": "string",
                       "optional": true,

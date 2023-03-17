@@ -1,0 +1,87 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ddm_account": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the DDM account.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of a DDM instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the DDM account.",
+                "required": true,
+                "forcenew": true
+              },
+              "password": {
+                "type": "string",
+                "description": "Specifies the DDM account password.",
+                "required": true,
+                "sensitive": true
+              },
+              "permissions": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the basic permissions of the DDM account.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the status of the DDM account.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "schemas": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "description": "Specifies the schema description.",
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the name of the associated schema.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the schemas that associated with the account."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "DDM",
+            "name": "Distributed Database Middleware",
+            "catalog": "Databases",
+            "name_cn": "分布式数据库中间件",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

@@ -77,6 +77,13 @@
                 "required": true,
                 "forcenew": true
               },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
               "version": {
                 "type": "string",
                 "computed": true

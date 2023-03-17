@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cph_phone_flavors": {
+          "block": {
+            "attributes": {
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "disk": "number",
+                      "extend_spec": "string",
+                      "flavor_id": "string",
+                      "image_label": "string",
+                      "memory": "number",
+                      "phone_capacity": "number",
+                      "resolution": "string",
+                      "server_flavor_id": "string",
+                      "status": "string",
+                      "type": "string",
+                      "vcpus": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of flavor detail.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_label": {
+                "type": "string",
+                "description": "The label of image.",
+                "computed": true
+              },
+              "memory": {
+                "type": "number",
+                "description": "The ram of the CPH phone in MB.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "server_flavor_id": {
+                "type": "string",
+                "description": "The CPH server flavor.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The flavor status.",
+                "optional": true,
+                "default": "1"
+              },
+              "type": {
+                "type": "string",
+                "description": "The cloud phone type.",
+                "optional": true
+              },
+              "vcpus": {
+                "type": "number",
+                "description": "The vcpus of the CPH phone.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CPH",
+            "name": "Cloud Phone",
+            "catalog": "Compute",
+            "name_cn": "云手机",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

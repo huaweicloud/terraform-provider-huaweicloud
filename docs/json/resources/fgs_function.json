@@ -67,8 +67,8 @@
               },
               "handler": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "description": "schema: Required; The entry point of the function.",
+                "required": true
               },
               "id": {
                 "type": "string",

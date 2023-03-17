@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ddm_instances": {
+          "block": {
+            "attributes": {
+              "engine_version": {
+                "type": "string",
+                "description": "Specifies the engine version.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project id.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_ip": "string",
+                      "access_port": "string",
+                      "availability_zones": [
+                        "list",
+                        "string"
+                      ],
+                      "engine_version": "string",
+                      "enterprise_project_id": "string",
+                      "name": "string",
+                      "node_num": "number",
+                      "security_group_id": "string",
+                      "status": "string",
+                      "subnet_id": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of DDM instance.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the instance.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the instance.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDM",
+            "name": "Distributed Database Middleware",
+            "catalog": "Databases",
+            "name_cn": "分布式数据库中间件",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

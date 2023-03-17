@@ -35,7 +35,7 @@
               "alarm_type": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "default": "MULTI_INSTANCE"
               },
               "enterprise_project_id": {
                 "type": "string",

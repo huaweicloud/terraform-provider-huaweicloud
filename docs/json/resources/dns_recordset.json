@@ -46,14 +46,6 @@
                 "required": true,
                 "forcenew": true
               },
-              "value_specs": {
-                "type": [
-                  "map",
-                  "string"
-                ],
-                "optional": true,
-                "forcenew": true
-              },
               "zone_id": {
                 "type": "string",
                 "required": true,

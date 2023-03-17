@@ -52,14 +52,6 @@
                 "optional": true,
                 "default": 300
               },
-              "value_specs": {
-                "type": [
-                  "map",
-                  "string"
-                ],
-                "optional": true,
-                "forcenew": true
-              },
               "zone_type": {
                 "type": "string",
                 "optional": true,

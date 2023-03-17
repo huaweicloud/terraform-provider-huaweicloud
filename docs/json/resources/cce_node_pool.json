@@ -154,6 +154,15 @@
                 "type": "bool",
                 "optional": true
               },
+              "security_groups": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "status": {
                 "type": "string",
                 "computed": true
@@ -253,6 +262,132 @@
                 "nesting_mode": "list",
                 "forcenew": true,
                 "min_items": 1,
+                "max_items": 1
+              },
+              "storage": {
+                "block": {
+                  "block_types": {
+                    "groups": {
+                      "block": {
+                        "attributes": {
+                          "cce_managed": {
+                            "type": "bool",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "selector_names": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "required": true,
+                            "forcenew": true
+                          }
+                        },
+                        "block_types": {
+                          "virtual_spaces": {
+                            "block": {
+                              "attributes": {
+                                "lvm_lv_type": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true,
+                                  "forcenew": true
+                                },
+                                "lvm_path": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true,
+                                  "forcenew": true
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "required": true,
+                                  "forcenew": true
+                                },
+                                "runtime_lv_type": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true,
+                                  "forcenew": true
+                                },
+                                "size": {
+                                  "type": "string",
+                                  "required": true,
+                                  "forcenew": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "forcenew": true,
+                            "min_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true,
+                      "min_items": 1
+                    },
+                    "selectors": {
+                      "block": {
+                        "attributes": {
+                          "match_label_count": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
+                          },
+                          "match_label_metadata_cmkid": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
+                          },
+                          "match_label_metadata_encrypted": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
+                          },
+                          "match_label_size": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
+                          },
+                          "match_label_volume_type": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true,
+                            "default": "evs"
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true,
+                      "min_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
                 "max_items": 1
               },
               "taints": {

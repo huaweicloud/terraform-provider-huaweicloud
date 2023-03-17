@@ -2,53 +2,52 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_lb_loadbalancer": {
+        "huaweicloud_nat_private_transit_ip": {
           "block": {
             "attributes": {
-              "description": {
+              "created_at": {
                 "type": "string",
-                "optional": true
+                "description": "The creation time of the transit IP for private NAT.",
+                "computed": true
               },
               "enterprise_project_id": {
                 "type": "string",
+                "description": "The ID of the enterprise project to which the transit IP belongs.",
                 "optional": true,
                 "computed": true,
                 "forcenew": true
               },
-              "flavor": {
+              "gateway_id": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "description": "The ID of the private NAT gateway to which the transit IP belongs.",
+                "computed": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "loadbalancer_provider": {
+              "ip_address": {
                 "type": "string",
+                "description": "The IP address of the transit subnet.",
                 "optional": true,
                 "computed": true,
                 "forcenew": true
               },
-              "name": {
+              "network_interface_id": {
                 "type": "string",
-                "optional": true
-              },
-              "public_ip": {
-                "type": "string",
+                "description": "The network interface ID of the transit IP for private NAT.",
                 "computed": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the transit IP is located.",
                 "computed": true
               },
-              "security_group_ids": {
-                "type": [
-                  "set",
-                  "string"
-                ],
-                "optional": true,
-                "computed": true
+              "subnet_id": {
+                "type": "string",
+                "description": "The ID of the transit subnet to which the transit IP belongs.",
+                "required": true,
+                "forcenew": true
               },
               "tags": {
                 "type": [
@@ -57,29 +56,18 @@
                 ],
                 "optional": true
               },
-              "vip_address": {
+              "updated_at": {
                 "type": "string",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
-              },
-              "vip_port_id": {
-                "type": "string",
+                "description": "The latest update time of the transit IP for private NAT.",
                 "computed": true
-              },
-              "vip_subnet_id": {
-                "type": "string",
-                "description": "the IPv4 subnet ID of the subnet where the load balancer works",
-                "required": true,
-                "forcenew": true
               }
             }
           },
           "product": {
-            "short": "ELB",
-            "name": "Elastic Load Balance",
+            "short": "NAT",
+            "name": "NAT Gateway",
             "catalog": "Networking",
-            "name_cn": "弹性负载均衡",
+            "name_cn": "NAT网关",
             "catalog_cn": "网络"
           }
         }
