@@ -46,6 +46,7 @@ In addition to all arguments above, the following attributes are exported:
 * `public_ip` - The EIP address that is associted to the instance.
 * `system_disk_id` - The system disk voume ID.
 * `user_data` - The user data (information after encoding) configured during instance creation.
+* `security_groups` - An array of one or more security groups to associate with the instance.
 * `security_group_ids` - An array of one or more security group IDs to associate with the instance.
 * `network` - An array of one or more networks to attach to the instance.
   The [network object](#compute_instance_network_object) structure is documented below.
