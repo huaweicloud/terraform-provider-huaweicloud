@@ -255,9 +255,10 @@ func ResourceComputeInstanceV2() *schema.Resource {
 							ForceNew: true,
 						},
 						"fault_domain": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "schema: Internal",
 						},
 						"tenancy": {
 							Type:     schema.TypeString,

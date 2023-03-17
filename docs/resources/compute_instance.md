@@ -243,10 +243,10 @@ The following arguments are supported:
   + `GPSSD`: general purpose SSD disk type.
   + `ESSD`: Extreme SSD type.
 
-* `system_disk_size` - (Optional, String) Specifies the system disk size in GB, The value range is 1 to 1024.
+* `system_disk_size` - (Optional, Int) Specifies the system disk size in GB, The value range is 1 to 1024.
   Shrinking the disk is not supported.
 
-* `data_disks` - (Optional, String, ForceNew) Specifies an array of one or more data disks to attach to the instance.
+* `data_disks` - (Optional, List, ForceNew) Specifies an array of one or more data disks to attach to the instance.
   The data_disks object structure is documented below. Changing this creates a new instance.
 
 * `eip_type` - (Optional, String, ForceNew) Specifies the type of an EIP that will be automatically assigned to the instance.
@@ -358,7 +358,7 @@ The `data_disks` block supports:
 * `size` - (Required, Int, ForceNew) Specifies the data disk size, in GB. The value ranges form 10 to 32768.
   Changing this creates a new instance.
 
-* `sanpshot_id` - (Optional, String, ForceNew) Specifies the snapshot id. Changing this creates a new instance.
+* `snapshot_id` - (Optional, String, ForceNew) Specifies the snapshot id. Changing this creates a new instance.
 
 * `kms_key_id` - (Optional, String, ForceNew) Specifies the ID of a KMS key. This is used to encrypt the disk.
   Changing this creates a new instance.
@@ -397,21 +397,37 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - A resource ID in UUID format.
 * `status` - The status of the instance.
+* `system_disk_id` - The system disk voume ID.
+* `security_groups` - An array of one or more security groups to associate with the instance.
 * `public_ip` - The EIP address that is associted to the instance.
 * `access_ip_v4` - The first detected Fixed IPv4 address or the Floating IP.
-* `network/fixed_ip_v4` - The Fixed IPv4 address of the Instance on that network.
-* `network/fixed_ip_v6` - The Fixed IPv6 address of the Instance on that network.
-* `network/mac` - The MAC address of the NIC on that network.
-* `network/port` - The port ID corresponding to the IP address on that network.
-* `volume_attached/volume_id` - The volume id on that attachment.
-* `volume_attached/pci_address` - The volume pci address on that attachment.
-* `volume_attached/boot_index` - The volume boot index on that attachment.
-* `volume_attached/size` - The volume size on that attachment.
-* `volume_attached/type` - The volume type on that attachment.
-* `volume_attached/kms_key_id` - The ID of a KMS key. This is used to encrypt the disk.
-* `system_disk_id` - The system disk voume ID.
+* `access_ip_v6` - The first detected Fixed IPv6 address.
 * `created_at` - The creation time, in UTC format.
 * `updated_at` - The last update time, in UTC format.
+
+* `network` - An array of one or more networks to attach to the instance.
+  The [network object](#compute_instance_network_object) structure is documented below.
+
+* `volume_attached` - An array of one or more disks to attach to the instance.
+  The [volume attached object](#compute_instance_volume_object) structure is documented below.
+
+<a name="compute_instance_network_object"></a>
+The `network` block supports:
+
+* `port` - The port ID corresponding to the IP address on that network.
+* `mac` - The MAC address of the NIC on that network.
+* `fixed_ip_v4` - The fixed IPv4 address of the instance on this network.
+* `fixed_ip_v6` - The Fixed IPv6 address of the instance on that network.
+
+<a name="compute_instance_volume_object"></a>
+The `volume_attached` block supports:
+
+* `volume_id` - The volume ID on that attachment.
+* `boot_index` - The volume boot index on that attachment.
+* `is_sys_volume` - Whether the volume is the system disk.
+* `size` - The volume size on that attachment.
+* `type` - The volume type on that attachment.
+* `pci_address` - The volume pci address on that attachment.
 
 ## Import
 

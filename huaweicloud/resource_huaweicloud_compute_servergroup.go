@@ -34,10 +34,11 @@ func ResourceComputeServerGroupV2() *schema.Resource {
 				ForceNew: true,
 			},
 			"policies": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "schema: Required",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"members": {
 				Type:     schema.TypeSet,
@@ -47,9 +48,10 @@ func ResourceComputeServerGroupV2() *schema.Resource {
 				Set:      schema.HashString,
 			},
 			"fault_domains": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "schema: Internal",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
