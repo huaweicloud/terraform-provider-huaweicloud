@@ -59,6 +59,11 @@ func ResourceApigCustomAuthorizerV2() *schema.Resource {
 				),
 				Description: "The name of the custom authorizer.",
 			},
+			"function_urn": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The URN of the FGS function.",
+			},
 			"type": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -68,11 +73,6 @@ func ResourceApigCustomAuthorizerV2() *schema.Resource {
 					string(AuthTypeFrontend), string(AuthTypeBackend),
 				}, false),
 				Description: "The custom authorization type",
-			},
-			"function_urn": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The URN of the FGS function.",
 			},
 			"is_body_send": {
 				Type:        schema.TypeBool,
