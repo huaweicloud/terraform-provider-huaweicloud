@@ -9,6 +9,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"regexp"
 	"strings"
@@ -400,6 +401,7 @@ func resourceDdmAccountRead(_ context.Context, d *schema.ResourceData, meta inte
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
 	var getAccountRespBody interface{}
 	err = json.Unmarshal(getAccountRespJson, &getAccountRespBody)
 	if err != nil {
@@ -408,8 +410,10 @@ func resourceDdmAccountRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	accounts := utils.PathSearch("users", getAccountRespBody, nil)
 	if accounts == nil {
-		return diag.Errorf("error getting DDM account, users is not found in API response %s", err)
+		log.Printf("[WARN] failed to get DDM account, user %s is not found in API response", accountName)
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
+
 	for _, account := range accounts.([]interface{}) {
 		name := utils.PathSearch("name", account, nil)
 		if accountName != name {
@@ -424,7 +428,7 @@ func resourceDdmAccountRead(_ context.Context, d *schema.ResourceData, meta inte
 			d.Set("description", utils.PathSearch("description", account, nil)),
 			d.Set("schemas", flattenGetAccountResponseBodyDatabase(account)),
 		)
-		return diag.FromErr(mErr)
+		return diag.FromErr(mErr.ErrorOrNil())
 	}
 
 	return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
