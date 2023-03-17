@@ -634,6 +634,7 @@ func (c *Config) NatGatewayClient(region string) (*golangsdk.ServiceClient, erro
 	return c.NewServiceClient("nat", region)
 }
 
+// NatV3Client has the endpoint: https://nat.{{region}}/{{cloud}}/v3/
 func (c *Config) NatV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("natv3", region)
 }
