@@ -17,6 +17,7 @@ import (
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -241,6 +242,7 @@ func ResourceDmsRocketMQInstance() *schema.Resource {
 				Description: `Specifies whether access control is enabled.`,
 				Deprecated:  "Use 'enable_acl' instead",
 			},
+			"tags": common.TagsSchema(),
 			"cross_vpc_accesses": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -354,6 +356,15 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 	if _, ok := d.GetOk("cross_vpc_accesses"); ok {
 		if err = updateCrossVpcAccess(createRocketmqInstanceClient, d); err != nil {
 			return diag.Errorf("failed to update default advertised IP: %v", err)
+		}
+	}
+
+	// set tags
+	tagRaw := d.Get("tags").(map[string]interface{})
+	if len(tagRaw) > 0 {
+		tagList := utils.ExpandResourceTags(tagRaw)
+		if tagErr := tags.Create(createRocketmqInstanceClient, "rocketmq", id.(string), tagList).ExtractErr(); tagErr != nil {
+			return diag.Errorf("error setting tags of RocketMQ %s: %s", id.(string), tagErr)
 		}
 	}
 
@@ -503,6 +514,7 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 		"enable_acl",
 		"cross_vpc_accesses",
 		"auto_renew",
+		"tags",
 	}
 
 	if d.HasChanges(updateRocketmqInstanceHasChanges...) {
@@ -548,7 +560,15 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 				return diag.Errorf("error updating the auto-renew of the RocketMQ instance (%s): %s", d.Id(), err)
 			}
 		}
+		// update tags
+		if d.HasChange("tags") {
+			tagErr := utils.UpdateResourceTags(updateRocketmqInstanceClient, d, "rocketmq", d.Id())
+			if tagErr != nil {
+				return diag.Errorf("error updating tags of RocketMQ:%s, err:%s", d.Id(), tagErr)
+			}
+		}
 	}
+
 	return resourceDmsRocketMQInstanceRead(ctx, d, meta)
 }
 
@@ -672,6 +692,15 @@ func resourceDmsRocketMQInstanceRead(_ context.Context, d *schema.ResourceData, 
 		d.Set("cross_vpc_accesses", crossVpcAccess),
 		d.Set("charging_mode", chargingMode),
 	)
+
+	// fetch tags
+	if resourceTags, err := tags.Get(getRocketmqInstanceClient, "rocketmq", d.Id()).Extract(); err == nil {
+		tagMap := utils.TagsToMap(resourceTags.Tags)
+		mErr = multierror.Append(mErr, d.Set("tags", tagMap))
+	} else {
+		fmt.Printf("[WARN] fetching tags of RocketMQ failed: %s", err)
+	}
+
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 

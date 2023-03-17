@@ -71,6 +71,8 @@ func TestAccDmsRocketMQInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "engine_version", "4.8.0"),
 					resource.TestCheckResourceAttr(resourceName, "enable_acl", "true"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key2", "value2"),
 				),
 			},
 			{
@@ -81,6 +83,9 @@ func TestAccDmsRocketMQInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "engine_version", "4.8.0"),
 					resource.TestCheckResourceAttr(resourceName, "enable_acl", "false"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value1_update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key2", "value2_update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key3", "value3_update"),
 				),
 			},
 			{
@@ -118,6 +123,8 @@ func TestAccDmsRocketMQInstance_prepaid_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "engine_version", "4.8.0"),
 					resource.TestCheckResourceAttr(resourceName, "enable_acl", "true"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key2", "value2"),
 				),
 			},
 			{
@@ -128,6 +135,9 @@ func TestAccDmsRocketMQInstance_prepaid_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "engine_version", "4.8.0"),
 					resource.TestCheckResourceAttr(resourceName, "enable_acl", "false"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value1_update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key2", "value2_update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key3", "value3_update"),
 				),
 			},
 			{
@@ -164,6 +174,11 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
   storage_spec_code = "dms.physical.storage.high.v2"
   broker_num        = 1
   enable_acl        = true
+
+  tags = {
+    key1 = "value1"
+    key2 = "value2"
+  }
 }
 `, common.TestBaseNetwork(name), name)
 }
@@ -192,6 +207,12 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
   storage_spec_code = "dms.physical.storage.high.v2"
   broker_num        = 1
   enable_acl        = false
+
+  tags = {
+    key1 = "value1_update"
+    key2 = "value2_update"
+    key3 = "value3_update"
+  }
 }
 `, common.TestBaseNetwork(name), name)
 }
@@ -225,6 +246,11 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
   storage_spec_code = "dms.physical.storage.high.v2"
   broker_num        = 1
   enable_acl        = true
+
+  tags = {
+    key1 = "value1"
+    key2 = "value2"
+  }
 }
 `, common.TestBaseNetwork(name), name)
 }
@@ -258,6 +284,12 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
   storage_spec_code = "dms.physical.storage.high.v2"
   broker_num        = 1
   enable_acl        = false
+
+  tags = {
+    key1 = "value1_update"
+    key2 = "value2_update"
+    key3 = "value3_update"
+  }
 }
 `, common.TestBaseNetwork(name), name)
 }
