@@ -31,6 +31,7 @@ var multiCatalogKeys = map[string][]string{
 	"dns":          {"dns_region"},
 	"kms":          {"kmsv1", "kmsv3"},
 	"mrs":          {"mrsv2"},
+	"nat":          {"natv3"},
 	"rds":          {"rdsv1"},
 	"waf":          {"waf-dedicated"},
 	"geminidb":     {"geminidbv31"},
@@ -750,6 +751,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:          "v2.0",
 		WithOutProjectID: true,
 		Product:          "NAT",
+	},
+	"natv3": {
+		Name:    "nat",
+		Version: "v3",
+		Product: "NAT",
 	},
 }
 
