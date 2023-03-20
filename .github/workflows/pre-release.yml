@@ -202,11 +202,11 @@ jobs:
             test_file=$path/${org_file/%.go/_test.go}
 
             if [ -f "./${test_file}" ]; then
-              basic_cases=$(grep "^func TestAcc" ./${test_file} | grep _basic | awk '{print $2}' | awk -F '(' '{print $1}')
-              if [ "X$basic_cases" != "X" ]; then
+              basic_case=$(grep "^func TestAcc" ./${test_file} | grep _basic | awk 'NR==1{print $2}' | awk -F '(' '{print $1}')
+              if [ "X$basic_case" != "X" ]; then
                 total=`expr $total + 1`
-                echo -e "\n[$total] `date` run acceptance basic tests: $basic_cases"
-                make testacc TEST="./$path" TESTARGS="-run ${basic_cases}"
+                echo -e "\n[$total] `date` run acceptance basic test: $basic_case"
+                make testacc TEST="./$path" TESTARGS="-run ${basic_case}"
                 if [ $? -ne 0 ]; then
                   result=`expr $result + 1`
                 fi
