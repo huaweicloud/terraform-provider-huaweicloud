@@ -26,7 +26,7 @@ The following arguments are supported:
 
 * `db_type` - (Required, String) DB engine. The valid values are **MySQL**, **PostgreSQL**, **SQLServer**.
 
-* `db_version` - (Optional, String) DB version number.
+* `db_version` - (Required, String) DB version number.
 
 * `instance_mode` - (Optional, String) HA mode. The valid values are **single**, **ha**, **replica**.
 

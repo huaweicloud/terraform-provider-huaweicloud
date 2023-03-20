@@ -71,11 +71,6 @@ func ResourceRdsReadReplicaInstance() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"size": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
-						},
 						"type": {
 							Type:     schema.TypeString,
 							Required: true,
@@ -85,6 +80,12 @@ func ResourceRdsReadReplicaInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
+						},
+						"size": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "schema: Computed",
 						},
 					},
 				},
