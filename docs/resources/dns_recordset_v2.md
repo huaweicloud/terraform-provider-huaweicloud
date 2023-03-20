@@ -2,7 +2,7 @@
 subcategory: "Domain Name Service (DNS)"
 ---
 
-# huaweicloud_dns_recordset
+# huaweicloud_dns_recordset_v2
 
 Manages a DNS record set in the HuaweiCloud DNS Service.
 
@@ -19,7 +19,7 @@ resource "huaweicloud_dns_zone" "example_zone" {
   zone_type   = "public"
 }
 
-resource "huaweicloud_dns_recordset" "rs_example_com" {
+resource "huaweicloud_dns_recordset_v2" "rs_example_com" {
   zone_id     = huaweicloud_dns_zone.example_zone.id
   name        = "rs.example.com."
   description = "An example record set"
@@ -73,5 +73,5 @@ This resource provides the following timeouts configuration options:
 This resource can be imported by specifying the zone ID and recordset ID, separated by a forward slash.
 
 ```
-$ terraform import huaweicloud_dns_recordset.recordset_1 < zone_id >/< recordset_id >
+$ terraform import huaweicloud_dns_recordset_v2.recordset_1 < zone_id >/< recordset_id >
 ```
