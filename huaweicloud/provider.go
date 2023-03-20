@@ -673,7 +673,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdn_domain":    resourceCdnDomainV1(),
 			"huaweicloud_ces_alarmrule": ces.ResourceAlarmRule(),
 
-			"huaweicloud_cfw_protection_rule": cfw.ResourceProtectionRule(),
+			"huaweicloud_cfw_protection_rule":      cfw.ResourceProtectionRule(),
+			"huaweicloud_cfw_address_group":        cfw.ResourceAddressGroup(),
+			"huaweicloud_cfw_address_group_member": cfw.ResourceAddressGroupMember(),
 
 			"huaweicloud_cloudtable_cluster": cloudtable.ResourceCloudTableCluster(),
 
