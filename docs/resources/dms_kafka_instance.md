@@ -227,11 +227,6 @@ The following arguments are supported:
 * `cross_vpc_accesses` - (Optional, List) Specifies the access information of cross-VPC.
   The [object](#dms_cross_vpc_accesses) structure is documented below.
 
-<a name="dms_cross_vpc_accesses"></a>
-The `cross_vpc_accesses` block supports:
-
-* `advertised_ip` -(Optional, String) The advertised IP Address or domain name.
-
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance. Valid values are *prePaid*
   and *postPaid*, defaults to *postPaid*. Changing this creates a new resource.
 
@@ -244,6 +239,11 @@ The `cross_vpc_accesses` block supports:
   mandatory if `charging_mode` is set to *prePaid*. Changing this creates a new resource.
 
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled. Valid values are "true" and "false".
+
+<a name="dms_cross_vpc_accesses"></a>
+The `cross_vpc_accesses` block supports:
+
+* `advertised_ip` -(Optional, String) The advertised IP Address or domain name.
 
 ## Attributes Reference
 
