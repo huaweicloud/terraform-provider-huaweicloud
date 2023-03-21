@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -33,7 +34,7 @@ func ResourceMicroserviceEngine() *schema.Resource {
 		DeleteContext: resourceMicroserviceEngineDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceEngineImportState,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -181,7 +182,7 @@ func resourceMicroserviceEngineCreate(ctx context.Context, d *schema.ResourceDat
 	}
 
 	authType := d.Get("auth_type").(string)
-	epsId := common.GetEnterpriseProjectID(d, conf)
+	epsId := conf.GetEnterpriseProjectID(d)
 	createOpts := engines.CreateOpts{
 		Payment:             "1",
 		SpecType:            d.Get("version").(string),
@@ -270,7 +271,7 @@ func resourceMicroserviceEngineRead(_ context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating CSE v2 client: %s", err)
 	}
 
-	resp, err := engines.Get(client, d.Id(), common.GetEnterpriseProjectID(d, conf))
+	resp, err := engines.Get(client, d.Id(), conf.GetEnterpriseProjectID(d))
 	if err != nil {
 		return common.CheckDeletedDiag(d, parseEngineJobError(err), "error retrieving Microservice engine")
 	}
@@ -393,4 +394,20 @@ func MicroserviceJobRefreshFunc(c *golangsdk.ServiceClient, engineId, jobId, eps
 		}
 		return resp, resp.Status, nil
 	}
+}
+
+func resourceEngineImportState(_ context.Context, d *schema.ResourceData,
+	_ interface{}) ([]*schema.ResourceData, error) {
+	importedId := d.Id()
+	parts := strings.SplitN(importedId, "/", 2)
+	switch len(parts) {
+	case 1:
+		d.SetId(parts[0])
+		return []*schema.ResourceData{d}, nil
+	case 2:
+		d.SetId(parts[0])
+		return []*schema.ResourceData{d}, d.Set("enterprise_project_id", parts[1])
+	}
+	return nil, fmt.Errorf("The imported ID specifies an invalid format: want '<id>' or "+
+		"'<id>/<enterprise_project_id>', but '%s'", importedId)
 }
