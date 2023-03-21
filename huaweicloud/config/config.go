@@ -523,6 +523,10 @@ func (c *Config) AutoscalingV1Client(region string) (*golangsdk.ServiceClient, e
 	return c.NewServiceClient("autoscaling", region)
 }
 
+func (c *Config) ImageV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("imsv1", region)
+}
+
 func (c *Config) ImageV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("ims", region)
 }
