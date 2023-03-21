@@ -1,4 +1,4 @@
-package rf
+package rfs
 
 import (
 	"context"
@@ -43,7 +43,7 @@ func ResourceStack() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 				Computed:    true,
-				Description: "The region where the RF resource stack is located.",
+				Description: "The region where the RFS resource stack is located.",
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -333,7 +333,7 @@ func resourceStackRead(_ context.Context, d *schema.ResourceData, meta interface
 	stackId := d.Id()
 	resp, err := QueryStackById(client, stackId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "RF resource stack")
+		return common.CheckDeletedDiag(d, err, "RFS resource stack")
 	}
 
 	mErr := multierror.Append(nil,
