@@ -12,6 +12,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -143,21 +144,7 @@ func TestAccDdmInstance_basic(t *testing.T) {
 
 func testDdmInstance_base(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  name = "%[1]s"
-  cidr = "192.168.0.0/24"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%[1]s"
-  cidr       = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
-  vpc_id     = huaweicloud_vpc.test.id
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "%[1]s"
-}
+%s
 
 data "huaweicloud_availability_zones" "test" {}
 
@@ -169,7 +156,7 @@ data "huaweicloud_ddm_flavors" test {
   engine_id = data.huaweicloud_ddm_engines.test.engines[0].id
   cpu_arch  = "X86"
 }
-`, name)
+`, common.TestBaseNetwork(name))
 }
 
 func testDdmInstance_basic(name string) string {
