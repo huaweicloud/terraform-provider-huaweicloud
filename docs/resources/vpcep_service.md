@@ -32,29 +32,28 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the VPC endpoint service. If omitted, the
   provider-level region will be used. Changing this creates a new VPC endpoint service resource.
 
-* `name` (Optional, String) - Specifies the name of the VPC endpoint service. The value contains a maximum of 16
+* `name` - (Optional, String) Specifies the name of the VPC endpoint service. The value contains a maximum of 16
   characters, including letters, digits, underscores (_), and hyphens (-).
 
-* `vpc_id` (Required, String, ForceNew) - Specifies the ID of the VPC to which the backend resource of the VPC endpoint
+* `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC to which the backend resource of the VPC endpoint
   service belongs. Changing this creates a new VPC endpoint service.
 
-* `server_type` (Required, String, ForceNew) - Specifies the backend resource type. The value can be **VM**, **VIP**
-  or **LB**.
+* `server_type` - (Required, String, ForceNew) Specifies the backend resource type. The value can be **VM**, **VIP**
+  or **LB**. Changing this creates a new VPC endpoint service.
 
-* `port_id` (Required, String, ForceNew) - Specifies the ID for identifying the backend resource of the VPC endpoint
-  service.
+* `port_id` - (Required, String) Specifies the ID for identifying the backend resource of the VPC endpoint service.
   + If the `server_type` is **VM**, the value is the NIC ID of the ECS where the VPC endpoint service is deployed.
   + If the `server_type` is **VIP**, the value is the NIC ID of the physical server where virtual resources are
       created.
   + If the `server_type` is **LB**, the value is the ID of the port bound to the private IP address of the load
       balancer.
 
-* `port_mapping` (Required, String) - Specified the port mappings opened to the VPC endpoint service. Structure is
+* `port_mapping` - (Required, List) Specifies the port mappings opened to the VPC endpoint service. Structure is
   documented below.
 
-* `approval` (Optional, Bool) - Specifies whether connection approval is required. The default value is false.
+* `approval` - (Optional, Bool) Specifies whether connection approval is required. The default value is false.
 
-* `permissions` (Optional, List) - Specifies the list of accounts to access the VPC endpoint service. The record is in
+* `permissions` - (Optional, List) Specifies the list of accounts to access the VPC endpoint service. The record is in
   the `iam:domain::domain_id` format, while `*` allows all users to access the VPC endpoint service.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the VPC endpoint service.

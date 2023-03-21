@@ -92,6 +92,7 @@ func ResourceVPCEndpointService() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "interface",
+				Description:  "schema: Computed",
 				ValidateFunc: validation.StringInSlice([]string{"interface"}, false),
 			},
 			"approval": {
