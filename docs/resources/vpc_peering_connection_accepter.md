@@ -60,10 +60,10 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the vpc peering connection accepter. If omitted,
   the provider-level region will be used. Changing this creates a new VPC peering connection accepter resource.
 
-* `vpc_peering_connection_id` (Required, String, ForceNew) - The VPC Peering Connection ID to manage. Changing this
+* `vpc_peering_connection_id` - (Required, String, ForceNew) The VPC Peering Connection ID to manage. Changing this
   creates a new VPC peering connection accepter.
 
-* `accept` (Optional, Bool)- Whether or not to accept the peering request. Defaults to `false`.
+* `accept` - (Optional, Bool) Whether or not to accept the peering request. Defaults to `false`.
 
 ## Removing huaweicloud_vpc_peering_connection_accepter from your configuration
 

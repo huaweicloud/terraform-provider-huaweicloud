@@ -57,16 +57,16 @@ The following arguments are supported:
 * `log_stream_id` - (Required, String, ForceNew) Specifies the LTS log stream ID.
   Changing this creates a new VPC flow log.
 
-* `traffic_type` - (Optinal, String, ForceNew) Specifies the type of traffic to log. The value can be:
+* `traffic_type` - (Optional, String, ForceNew) Specifies the type of traffic to log. The value can be:
   + *all*: Specifies that both accepted and rejected traffic of the specified resource will be logged.
   + *accept*: Specifies that only accepted inbound and outbound traffic of the specified resource will be logged.
   + *reject*: Specifies that only rejected inbound and outbound traffic of the specified resource will be logged.
 
   Defauts to *all*. Changing this creates a new VPC flow log.
 
-* `enabled` - (Optinal, Bool) Specifies whether to enable the flow log function, the default value is *true*.
+* `enabled` - (Optional, Bool) Specifies whether to enable the flow log function, the default value is *true*.
 
-* `description` - (Optinal, String) Specifies description about the VPC flow log.
+* `description` - (Optional, String) Specifies description about the VPC flow log.
   The value can contain no more than 255 characters and cannot contain angle brackets (< or >).
 
 ## Attributes Reference
