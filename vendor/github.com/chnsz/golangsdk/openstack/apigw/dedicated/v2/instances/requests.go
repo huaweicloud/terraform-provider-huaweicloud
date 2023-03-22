@@ -241,3 +241,60 @@ func DisableIngressAccess(client *golangsdk.ServiceClient, id string) (r Disable
 	})
 	return
 }
+
+// FeatureOpts allows to update the dedicated APIG instance features.
+type FeatureOpts struct {
+	// Feature name.
+	Name string `json:"name" required:"true"`
+	// Whether to enable the feature.
+	Enable *bool `json:"enable" required:"true"`
+	// Parameter configuration.
+	Config string `json:"config,omitempty"`
+}
+
+var requestOpts = golangsdk.RequestOpts{
+	MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+}
+
+// UpdateFeature is a method used to update the feature configuration.
+func UpdateFeature(c *golangsdk.ServiceClient, instanceId string, opts FeatureOpts) (*Feature, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r Feature
+	_, err = c.Post(featureURL(c, instanceId), b, &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return &r, err
+}
+
+type ListFeaturesOpts struct {
+	// Offset from which the query starts.
+	// If the offset is less than 0, the value is automatically converted to 0. Defaults to 0.
+	Offset int `q:"offset"`
+	// Number of items displayed on each page.
+	// Defaults to 20. The maximum value is 500.
+	Limit int `q:"limit"`
+}
+
+// ListFeatures is a method used to obtain the list of feature configuration details.
+func ListFeatures(c *golangsdk.ServiceClient, instanceId string, opts ListFeaturesOpts) ([]Feature, error) {
+	url := featureURL(c, instanceId)
+	query, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return nil, err
+	}
+	url += query.String()
+
+	pages, err := pagination.NewPager(c, url, func(r pagination.PageResult) pagination.Page {
+		p := FeaturePage{pagination.OffsetPageBase{PageResult: r}}
+		return p
+	}).AllPages()
+
+	if err != nil {
+		return nil, err
+	}
+	return ExtractFeatures(pages)
+}

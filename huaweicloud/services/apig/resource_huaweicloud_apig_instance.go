@@ -40,6 +40,9 @@ const (
 
 	ProviderTypeLvs ProviderType = "lvs" // Linux virtual server.
 	ProviderTypeElb ProviderType = "elb" // Elastic load balance.
+
+	enableFeature  bool = true
+	disableFeature bool = false
 )
 
 func ResourceApigInstanceV2() *schema.Resource {
@@ -175,6 +178,25 @@ func ResourceApigInstanceV2() *schema.Resource {
 						"the hour is not 02, 06, 10, 14, 18 or 22."),
 				Description: `The start time of the maintenance time window.`,
 			},
+			"feature": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The name of the instance feature.",
+						},
+						"config": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The configuration detail (JSON format) of the instance feature.",
+						},
+					},
+				},
+				Description: "The custom feature configuration.",
+			},
 			// Attributes
 			"maintain_end": {
 				Type:        schema.TypeString,
@@ -309,18 +331,25 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 	d.SetId(resp.Id)
 
+	instanceId := d.Id()
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
-		Refresh:      InstanceStateRefreshFunc(client, d.Id(), []string{"Running"}),
+		Refresh:      InstanceStateRefreshFunc(client, instanceId, []string{"Running"}),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        20 * time.Second,
 		PollInterval: 20 * time.Second,
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("error waiting for the dedicated instance (%s) to become running: %s", d.Id(), err)
+		return diag.Errorf("error waiting for the dedicated instance (%s) to become running: %s", instanceId, err)
 	}
+
+	err = updateInstanceFeatures(d, client)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	return resourceInstanceRead(ctx, d, meta)
 }
 
@@ -370,6 +399,28 @@ func parseInstanceIpv6Enable(ipv6Address string) bool {
 	return ipv6Address != ""
 }
 
+func parseInstanceFeatures(d *schema.ResourceData, features []instances.Feature) []map[string]interface{} {
+	featuresConfig := d.Get("feature").(*schema.Set)
+	if featuresConfig.Len() < 1 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, featuresConfig.Len())
+	for i, val := range featuresConfig.List() {
+		config := val.(map[string]interface{})
+		for _, feature := range features {
+			if config["name"] == feature.Name {
+				result[i] = map[string]interface{}{
+					"name":   feature.Name,
+					"config": feature.Config,
+				}
+			}
+		}
+	}
+
+	return result
+}
+
 func resourceInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
@@ -377,11 +428,13 @@ func resourceInstanceRead(ctx context.Context, d *schema.ResourceData, meta inte
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
-	resp, err := instances.Get(client, d.Id()).Extract()
+
+	instanceId := d.Id()
+	resp, err := instances.Get(client, instanceId).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error getting instance (%s) details form server", d.Id()))
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error getting instance (%s) details form server", instanceId))
 	}
-	log.Printf("[DEBUG] Retrieved the dedicated instance (%s): %#v", d.Id(), resp)
+	log.Printf("[DEBUG] Retrieved the dedicated instance (%s): %#v", instanceId, resp)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
@@ -413,6 +466,14 @@ func resourceInstanceRead(ctx context.Context, d *schema.ResourceData, meta inte
 		mErr = multierror.Append(mErr, err)
 	} else {
 		mErr = multierror.Append(d.Set("eip_id", eipId))
+	}
+
+	// Expand the limit value, because of the parameter offset does not take effect.
+	listOpts := instances.ListFeaturesOpts{Limit: 500}
+	if features, err := instances.ListFeatures(client, instanceId, listOpts); err != nil {
+		mErr = multierror.Append(mErr, err)
+	} else {
+		mErr = multierror.Append(mErr, d.Set("feature", parseInstanceFeatures(d, features)))
 	}
 
 	if mErr.ErrorOrNil() != nil {
@@ -503,6 +564,44 @@ func updateInstanceIngressAccess(d *schema.ResourceData, client *golangsdk.Servi
 	return
 }
 
+func updateInstanceFeatures(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		oldVal, newVal = d.GetChange("feature")
+		addRaws        = newVal.(*schema.Set).Difference(oldVal.(*schema.Set))
+		removeRaws     = oldVal.(*schema.Set).Difference(newVal.(*schema.Set))
+		instanceId     = d.Id()
+	)
+	// Disable the ingress access.
+	// The update logic is to disable first and then enable. Update means thar both oldVal and newVal exist.
+	for _, val := range removeRaws.List() {
+		feature := val.(map[string]interface{})
+		opts := instances.FeatureOpts{
+			Name:   feature["name"].(string),
+			Enable: utils.Bool(disableFeature),
+			Config: feature["config"].(string),
+		}
+		_, err := instances.UpdateFeature(client, instanceId, opts)
+		if err != nil {
+			return err
+		}
+	}
+	// Disable the ingress access.
+	// The update logic is to disable first and then enable. Update means thar both oldVal and newVal exist.
+	for _, val := range addRaws.List() {
+		feature := val.(map[string]interface{})
+		opts := instances.FeatureOpts{
+			Name:   feature["name"].(string),
+			Enable: utils.Bool(enableFeature),
+			Config: feature["config"].(string),
+		}
+		_, err := instances.UpdateFeature(client, instanceId, opts)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.ApigV2Client(config.GetRegion(d))
@@ -520,6 +619,12 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	if d.HasChange("eip_id") {
 		if err = updateInstanceIngressAccess(d, client); err != nil {
 			return diag.Errorf("update ingress access failed: %s", err)
+		}
+	}
+	// Update feature configuration
+	if d.HasChange("feature") {
+		if err = updateInstanceFeatures(d, client); err != nil {
+			return diag.Errorf("update feature configuration failed: %s", err)
 		}
 	}
 	// Update instance name, maintain window, description and security group ID.

@@ -15,6 +15,7 @@ variable "subnet_id" {}
 variable "security_group_id" {}
 variable "eip_id" {}
 variable "enterprise_project_id" {}
+variable "dest_cidrs" {}
 
 data "huaweicloud_availability_zones" "test" {}
 
@@ -34,6 +35,11 @@ resource "huaweicloud_apig_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0],
     data.huaweicloud_availability_zones.test.names[1],
   ]
+
+  feature {
+    name   = "route"
+    config = jsonencode({"user_routes":var.dest_cidrs})
+  }
 }
 ```
 
@@ -101,6 +107,18 @@ The following arguments are supported:
   + **elb**: Elastic load balance.
 
   Changing this will create a new resource.
+
+* `feature` - (Optional, List) Specifies the custom feature configuration.  
+  The [object](#instance_feature) structure is documented below.
+
+<a name="instance_feature"></a>
+The `feature` block supports:
+
+* `name` - (Required, String) - Specifies the name of the instance feature.
+  Please refer to the [documentation](https://support.huaweicloud.com/intl/en-us/api-apig/apig-api-20200402.html)
+  for supported features.
+
+* `config` - (Required, String) - Specifies the configuration detail (JSON format) of the instance feature.
 
 ## Attributes Reference
 

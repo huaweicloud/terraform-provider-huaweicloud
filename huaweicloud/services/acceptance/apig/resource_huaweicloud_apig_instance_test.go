@@ -74,6 +74,9 @@ func TestAccInstance_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"feature",
+				},
 			},
 		},
 	})
@@ -135,18 +138,18 @@ func TestAccInstance_egress(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccInstance_basic(rName), // Unbind egress nat
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
-					resource.TestCheckResourceAttr(resourceName, "bandwidth_size", "0"),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth_size", "5"),
 				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 		},
 	})
@@ -207,16 +210,16 @@ func TestAccInstance_ingress(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccInstance_basic(rName), // Unbind ingress eip
 				Check: resource.ComposeTestCheckFunc(rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
 				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 		},
 	})
@@ -239,6 +242,11 @@ resource "huaweicloud_apig_instance" "test" {
   enterprise_project_id = "%[3]s"
   maintain_begin        = "14:00:00"
   description           = "created by acc test"
+
+  feature {
+    name   = "route"
+    config = "{\"user_routes\":[\"172.16.128.0/20\",\"172.16.0.0/20\"]}"
+  }
 }
 `, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
@@ -263,6 +271,11 @@ resource "huaweicloud_apig_instance" "test" {
   name                  = "%[2]s"
   enterprise_project_id = "%[3]s"
   maintain_begin        = "18:00:00"
+
+  feature {
+    name   = "ratelimit"
+    config = "{\"api_limits\":500}"
+  }
 }
 `, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
