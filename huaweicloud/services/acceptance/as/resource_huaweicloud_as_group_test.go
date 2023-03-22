@@ -31,6 +31,7 @@ func TestAccASGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "min_instance_number", "0"),
 					resource.TestCheckResourceAttr(resourceName, "max_instance_number", "0"),
 					resource.TestCheckResourceAttr(resourceName, "lbaas_listeners.0.protocol_port", "8080"),
+					resource.TestCheckResourceAttr(resourceName, "networks.0.source_dest_check", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "multi_az_scaling_policy", "EQUILIBRIUM_DISTRIBUTE"),
@@ -110,6 +111,28 @@ func TestAccASGroup_forceDelete(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "min_instance_number", "2"),
 					resource.TestCheckResourceAttr(resourceName, "max_instance_number", "5"),
 					resource.TestCheckResourceAttr(resourceName, "instances.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccASGroup_sourceDestCheck(t *testing.T) {
+	var asGroup groups.Group
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_as_group.acc_as_group"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckASGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testASGroup_sourceDestCheck(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckASGroupExists(resourceName, &asGroup),
+					resource.TestCheckResourceAttr(resourceName, "networks.0.source_dest_check", "false"),
 					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
 				),
 			},
@@ -342,6 +365,26 @@ resource "huaweicloud_as_group" "acc_as_group"{
 
   networks {
     id = huaweicloud_vpc_subnet.test.id
+  }
+  security_groups {
+    id = huaweicloud_networking_secgroup.test.id
+  }
+}
+`, testASGroup_Base(rName), rName)
+}
+
+func testASGroup_sourceDestCheck(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_as_group" "acc_as_group"{
+  scaling_group_name       = "%s"
+  scaling_configuration_id = huaweicloud_as_configuration.acc_as_config.id
+  vpc_id                   = huaweicloud_vpc.test.id
+
+  networks {
+    id                = huaweicloud_vpc_subnet.test.id
+    source_dest_check = false
   }
   security_groups {
     id = huaweicloud_networking_secgroup.test.id

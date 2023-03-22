@@ -135,6 +135,11 @@ func ResourceASGroup() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
+						"source_dest_check": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  true,
+						},
 					},
 				},
 			},
@@ -271,6 +276,18 @@ func buildNetworksOpts(networks []interface{}) []groups.NetworkOpts {
 			res[i].IPv6BandWidth = &groups.BandWidthOpts{
 				ID: id.(string),
 			}
+		}
+
+		if item["source_dest_check"].(bool) {
+			// Cancle all allowed-address-pairs to enable the source/destination check
+			res[i].AllowedAddressPairs = make([]groups.AddressPairOpts, 0)
+		} else {
+			// Update the allowed-address-pairs to 1.1.1.1/0
+			// to disable the source/destination check
+			addressPairs := groups.AddressPairOpts{
+				IpAddress: "1.1.1.1/0",
+			}
+			res[i].AllowedAddressPairs = []groups.AddressPairOpts{addressPairs}
 		}
 	}
 
@@ -614,6 +631,7 @@ func flattenNetworks(networks []groups.Network) []map[string]interface{} {
 			"id":                item.ID,
 			"ipv6_enable":       item.IPv6Enable,
 			"ipv6_bandwidth_id": item.IPv6BandWidth.ID,
+			"source_dest_check": len(item.AllowedAddressPairs) == 0,
 		}
 	}
 	return res
