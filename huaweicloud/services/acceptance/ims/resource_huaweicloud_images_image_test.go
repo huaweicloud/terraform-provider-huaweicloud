@@ -149,7 +149,7 @@ data "huaweicloud_networking_secgroup" "test" {
 }
 
 resource "huaweicloud_compute_instance" "test" {
-  name               = "%s"
+  name               = "%[1]s"
   image_name         = "Ubuntu 18.04 server 64bit"
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
@@ -161,7 +161,7 @@ resource "huaweicloud_compute_instance" "test" {
 }
 
 resource "huaweicloud_images_image" "test" {
-  name        = "%s"
+  name        = "%[1]s"
   instance_id = huaweicloud_compute_instance.test.id
   description = "created by Terraform AccTest"
 
@@ -170,7 +170,7 @@ resource "huaweicloud_images_image" "test" {
     key = "value"
   }
 }
-`, rName, rName)
+`, rName)
 }
 
 func testAccImsImage_update(rName string) string {
@@ -193,7 +193,7 @@ data "huaweicloud_networking_secgroup" "test" {
 }
 
 resource "huaweicloud_compute_instance" "test" {
-  name               = "%s"
+  name               = "%[1]s"
   image_name         = "Ubuntu 18.04 server 64bit"
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
@@ -205,7 +205,7 @@ resource "huaweicloud_compute_instance" "test" {
 }
 
 resource "huaweicloud_images_image" "test" {
-  name        = "%s"
+  name        = "%[1]s"
   instance_id = huaweicloud_compute_instance.test.id
   description = "created by Terraform AccTest"
 
@@ -215,7 +215,7 @@ resource "huaweicloud_images_image" "test" {
     key2 = "value2"
   }
 }
-`, rName, rName)
+`, rName)
 }
 
 func testAccImsImage_withEpsId(rName string) string {
@@ -238,7 +238,7 @@ data "huaweicloud_networking_secgroup" "test" {
 }
 
 resource "huaweicloud_compute_instance" "test" {
-  name               = "%s"
+  name               = "%[1]s"
   image_name         = "Ubuntu 18.04 server 64bit"
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
@@ -250,15 +250,15 @@ resource "huaweicloud_compute_instance" "test" {
 }
 
 resource "huaweicloud_images_image" "test" {
-  name                  = "%s"
+  name                  = "%[1]s"
   instance_id           = huaweicloud_compute_instance.test.id
   description           = "created by Terraform AccTest"
-  enterprise_project_id = "%s"
+  enterprise_project_id = "%[2]s"
 
   tags = {
     foo = "bar"
     key = "value"
   }
 }
-`, rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
