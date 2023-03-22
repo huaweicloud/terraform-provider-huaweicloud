@@ -225,6 +225,7 @@ github.com/chnsz/golangsdk/openstack/mrs/v2/jobs
 github.com/chnsz/golangsdk/openstack/nat/v2/dnats
 github.com/chnsz/golangsdk/openstack/nat/v2/gateways
 github.com/chnsz/golangsdk/openstack/nat/v2/snats
+github.com/chnsz/golangsdk/openstack/nat/v3/dnats
 github.com/chnsz/golangsdk/openstack/nat/v3/gateways
 github.com/chnsz/golangsdk/openstack/nat/v3/snats
 github.com/chnsz/golangsdk/openstack/nat/v3/transitips
