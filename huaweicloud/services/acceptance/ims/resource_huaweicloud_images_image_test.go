@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
 )
 
 func TestAccImsImage_basic(t *testing.T) {
@@ -82,10 +82,10 @@ func TestAccImsImage_withEpsId(t *testing.T) {
 }
 
 func testAccCheckImsImageDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	imageClient, err := config.ImageV2Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	imageClient, err := cfg.ImageV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud Image: %s", err)
+		return fmt.Errorf("error creating Image: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -93,9 +93,9 @@ func testAccCheckImsImageDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := ims.GetCloudimage(imageClient, rs.Primary.ID)
+		_, err := ims.GetCloudImage(imageClient, rs.Primary.ID)
 		if err == nil {
-			return fmtp.Errorf("Image still exists")
+			return fmt.Errorf("image still exists")
 		}
 	}
 
@@ -106,20 +106,20 @@ func testAccCheckImsImageExists(n string, image *cloudimages.Image) resource.Tes
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("IMS Resource not found: %s", n)
+			return fmt.Errorf("IMS Resource not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		imageClient, err := config.ImageV2Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		imageClient, err := cfg.ImageV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud Image: %s", err)
+			return fmt.Errorf("error creating Image: %s", err)
 		}
 
-		found, err := ims.GetCloudimage(imageClient, rs.Primary.ID)
+		found, err := ims.GetCloudImage(imageClient, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -131,6 +131,8 @@ func testAccCheckImsImageExists(n string, image *cloudimages.Image) resource.Tes
 
 func testAccImsImage_basic(rName string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_compute_flavors" "test" {
@@ -140,28 +142,20 @@ data "huaweicloud_compute_flavors" "test" {
   memory_size       = 4
 }
 
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
-
 resource "huaweicloud_compute_instance" "test" {
-  name               = "%[1]s"
+  name               = "%[2]s"
   image_name         = "Ubuntu 18.04 server 64bit"
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
-  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
 
   network {
-    uuid = data.huaweicloud_vpc_subnet.test.id
+    uuid = huaweicloud_vpc_subnet.test.id
   }
 }
 
 resource "huaweicloud_images_image" "test" {
-  name        = "%[1]s"
+  name        = "%[2]s"
   instance_id = huaweicloud_compute_instance.test.id
   description = "created by Terraform AccTest"
 
@@ -170,11 +164,13 @@ resource "huaweicloud_images_image" "test" {
     key = "value"
   }
 }
-`, rName)
+`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccImsImage_update(rName string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_compute_flavors" "test" {
@@ -184,28 +180,20 @@ data "huaweicloud_compute_flavors" "test" {
   memory_size       = 4
 }
 
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
-
 resource "huaweicloud_compute_instance" "test" {
-  name               = "%[1]s"
+  name               = "%[2]s"
   image_name         = "Ubuntu 18.04 server 64bit"
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
-  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
 
   network {
-    uuid = data.huaweicloud_vpc_subnet.test.id
+    uuid = huaweicloud_vpc_subnet.test.id
   }
 }
 
 resource "huaweicloud_images_image" "test" {
-  name        = "%[1]s"
+  name        = "%[2]s"
   instance_id = huaweicloud_compute_instance.test.id
   description = "created by Terraform AccTest"
 
@@ -215,11 +203,13 @@ resource "huaweicloud_images_image" "test" {
     key2 = "value2"
   }
 }
-`, rName)
+`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccImsImage_withEpsId(rName string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_compute_flavors" "test" {
@@ -229,36 +219,28 @@ data "huaweicloud_compute_flavors" "test" {
   memory_size       = 4
 }
 
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
-
 resource "huaweicloud_compute_instance" "test" {
-  name               = "%[1]s"
+  name               = "%[2]s"
   image_name         = "Ubuntu 18.04 server 64bit"
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
-  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
 
   network {
-    uuid = data.huaweicloud_vpc_subnet.test.id
+    uuid = huaweicloud_vpc_subnet.test.id
   }
 }
 
 resource "huaweicloud_images_image" "test" {
-  name                  = "%[1]s"
+  name                  = "%[2]s"
   instance_id           = huaweicloud_compute_instance.test.id
   description           = "created by Terraform AccTest"
-  enterprise_project_id = "%[2]s"
+  enterprise_project_id = "%[3]s"
 
   tags = {
     foo = "bar"
     key = "value"
   }
 }
-`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
