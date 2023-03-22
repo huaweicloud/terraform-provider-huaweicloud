@@ -194,14 +194,16 @@ func ResourceGaussDBInstance() *schema.Resource {
 				},
 			},
 			"proxy_flavor": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:       schema.TypeString,
+				Optional:   true,
+				Computed:   true,
+				Deprecated: "use huaweicloud_gaussdb_mysql_proxy instead",
 			},
 			"proxy_node_num": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
+				Type:       schema.TypeInt,
+				Optional:   true,
+				Computed:   true,
+				Deprecated: "use huaweicloud_gaussdb_mysql_proxy instead",
 			},
 			"force_import": {
 				Type:     schema.TypeBool,
@@ -211,12 +213,14 @@ func ResourceGaussDBInstance() *schema.Resource {
 			"tags": common.TagsSchema(),
 
 			"proxy_address": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:       schema.TypeString,
+				Computed:   true,
+				Deprecated: "use huaweicloud_gaussdb_mysql_proxy instead",
 			},
 			"proxy_port": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:       schema.TypeInt,
+				Computed:   true,
+				Deprecated: "use huaweicloud_gaussdb_mysql_proxy instead",
 			},
 			"status": {
 				Type:     schema.TypeString,
