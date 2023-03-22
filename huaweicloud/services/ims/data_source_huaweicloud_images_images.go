@@ -7,14 +7,16 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-
-	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
 func DataSourceImagesImages() *schema.Resource {
@@ -41,10 +43,9 @@ func DataSourceImagesImages() *schema.Resource {
 			},
 
 			"visibility": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.StringInSlice(imageValidVisibilities, false),
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 
 			"owner": {
@@ -54,19 +55,15 @@ func DataSourceImagesImages() *schema.Resource {
 			},
 
 			"sort_key": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "name",
-				ValidateFunc: validation.StringInSlice(imageValidSortKeys, false),
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "name",
 			},
 
 			"sort_direction": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "asc",
-				ValidateFunc: validation.StringInSlice([]string{
-					"asc", "desc",
-				}, false),
 			},
 
 			"tag": {
@@ -77,9 +74,6 @@ func DataSourceImagesImages() *schema.Resource {
 			"architecture": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"x86", "arm",
-				}, false),
 			},
 			"os": {
 				Type:     schema.TypeString,
@@ -194,11 +188,13 @@ func ImagesImageRefSchema() *schema.Resource {
 }
 
 // dataSourceImagesImagesRead performs the image lookup.
-func dataSourceImagesImagesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	imageClient, err := config.ImageV2Client(config.GetRegion(d))
+func dataSourceImagesImagesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	imageClient, err := cfg.ImageV2Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating IMS v2 client: %s", err)
+		return diag.Errorf("error creating IMS client: %s", err)
 	}
 
 	imageType := d.Get("visibility").(string)
@@ -221,7 +217,7 @@ func dataSourceImagesImagesRead(ctx context.Context, d *schema.ResourceData, met
 		Status:         "active",
 	}
 
-	if epsId := common.GetEnterpriseProjectID(d, config); epsId != "" {
+	if epsId := common.GetEnterpriseProjectID(d, cfg); epsId != "" {
 		listOpts.EnterpriseProjectID = epsId
 	} else {
 		listOpts.EnterpriseProjectID = "all_granted_eps"
@@ -231,12 +227,12 @@ func dataSourceImagesImagesRead(ctx context.Context, d *schema.ResourceData, met
 
 	allPages, err := cloudimages.List(imageClient, listOpts).AllPages()
 	if err != nil {
-		return diag.Errorf("Unable to query images: %s", err)
+		return diag.Errorf("unable to query images: %s", err)
 	}
 
 	allImages, err := cloudimages.ExtractImages(allPages)
 	if err != nil {
-		return diag.Errorf("Unable to retrieve images: %s", err)
+		return diag.Errorf("unable to retrieve images: %s", err)
 	}
 
 	var nameRegexRes *regexp.Regexp
@@ -256,14 +252,11 @@ func dataSourceImagesImagesRead(ctx context.Context, d *schema.ResourceData, met
 		ids = append(ids, image.ID)
 		resultImages = append(resultImages, flattenImage(&image))
 	}
-	mErr := d.Set("images", resultImages)
-	if mErr != nil {
-		return diag.Errorf("set images err:%s", mErr)
-	}
+	mErr := multierror.Append(d.Set("images", resultImages))
 
 	d.SetId(hashcode.Strings(ids))
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func flattenImage(image *cloudimages.Image) map[string]interface{} {
