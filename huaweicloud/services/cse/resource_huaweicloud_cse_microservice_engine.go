@@ -65,7 +65,7 @@ func ResourceMicroserviceEngine() *schema.Resource {
 				ForceNew: true,
 			},
 			"availability_zones": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -188,7 +188,7 @@ func resourceMicroserviceEngineCreate(ctx context.Context, d *schema.ResourceDat
 		Name:                d.Get("name").(string),
 		Description:         d.Get("description").(string),
 		Flavor:              d.Get("flavor").(string),
-		AvailabilityZones:   utils.ExpandToStringList(d.Get("availability_zones").([]interface{})),
+		AvailabilityZones:   utils.ExpandToStringListBySet(d.Get("availability_zones").(*schema.Set)),
 		AuthType:            authType,
 		VpcName:             vpcResp.Name,
 		VpcId:               vpcResp.ID,
