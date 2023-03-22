@@ -116,10 +116,6 @@ The following arguments are supported:
 
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy. Structure is documented below.
 
-* `proxy_flavor` - (Optional, String) Specifies the flavor of the proxy.
-
-* `proxy_node_num` - (Optional, Int) Specifies the node count of the proxy.
-
 * `force_import` - (Optional, Bool) If specified, try to import the instance instead of creating if the name already
   existed.
 
@@ -156,8 +152,6 @@ In addition to all arguments above, the following attributes are exported:
 * `db_user_name` - Indicates the default username.
 * `private_write_ip` - Indicates the private IP address of the DB instance.
 * `nodes` - Indicates the instance nodes information. Structure is documented below.
-* `proxy_address` - Indicates the address of the proxy.
-* `proxy_port` - Indicates the port of the proxy.
 
 The `nodes` block contains:
 
