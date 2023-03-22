@@ -866,6 +866,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_nat_snat_rule": nat.ResourcePublicSnatRule(),
 
 			"huaweicloud_nat_private_gateway":    nat.ResourcePrivateGateway(),
+			"huaweicloud_nat_private_snat_rule":  nat.ResourcePrivateSnatRule(),
 			"huaweicloud_nat_private_transit_ip": nat.ResourcePrivateTransitIp(),
 
 			"huaweicloud_network_acl":              ResourceNetworkACL(),
