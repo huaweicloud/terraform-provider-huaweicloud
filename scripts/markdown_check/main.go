@@ -88,6 +88,13 @@ func checkMarkdownSchemas(res *schema.Resource, parent string, mdContent *string
 			continue
 		}
 
+		// (computed only) nested attributes can have another format:
+		// * `<parent>/<attr name>` - The description ...
+		if !isExist && parent != "" && extentStr == "" {
+			reg1 := fmt.Sprintf("[\\*|+] `%s` - ", strings.ReplaceAll(fieldPath, ".", "/"))
+			isExist = checkArgumentExist(*mdContent, reg1)
+		}
+
 		if !isExist {
 			fmt.Printf("can not find `%s`, please check it\n", fieldPath)
 		} else if extentStr != "" {
