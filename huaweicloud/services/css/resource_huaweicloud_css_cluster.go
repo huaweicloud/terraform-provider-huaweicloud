@@ -103,18 +103,17 @@ func ResourceCssCluster() *schema.Resource {
 			"ess_node_config": {
 				Type:          schema.TypeList,
 				Optional:      true,
-				ForceNew:      true,
 				MaxItems:      1,
 				ExactlyOneOf:  []string{"node_config", "ess_node_config"},
 				ConflictsWith: []string{"expect_node_num"},
 				Computed:      true,
 				Elem:          cssNodeSchema(1, 200, true),
+				Description:   "schema: Required",
 			},
 
 			"master_node_config": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem:     cssNodeSchema(3, 10, false),
 			},
@@ -122,7 +121,6 @@ func ResourceCssCluster() *schema.Resource {
 			"client_node_config": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem:     cssNodeSchema(1, 32, false),
 			},
@@ -130,7 +128,6 @@ func ResourceCssCluster() *schema.Resource {
 			"cold_node_config": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem:     cssNodeSchema(1, 32, true),
 			},
@@ -144,24 +141,27 @@ func ResourceCssCluster() *schema.Resource {
 			},
 
 			"vpc_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: "schema: Required",
 			},
 
 			"subnet_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: "schema: Required",
 			},
 
 			"security_group_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: "schema: Required",
 			},
 
 			"backup_strategy": {
@@ -722,7 +722,7 @@ func resourceCssClusterCreateBackupStrategy(backupRaw []interface{}) *cssv2model
 	return &opts
 }
 
-func resourceCssClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCssClusterRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
 	cssV1Client, err := config.HcCssV1Client(region)
@@ -837,8 +837,8 @@ func flattenKibana(publicKibana *model.PublicKibanaRespBody) []interface{} {
 	return []interface{}{result}
 }
 
-func flattenPublicAccess(resp *model.ElbWhiteListResp, bandwidth *int32, public_ip *string) []interface{} {
-	if resp == nil || public_ip == nil {
+func flattenPublicAccess(resp *model.ElbWhiteListResp, bandwidth *int32, publicIp *string) []interface{} {
+	if resp == nil || publicIp == nil {
 		return nil
 	}
 
@@ -846,7 +846,7 @@ func flattenPublicAccess(resp *model.ElbWhiteListResp, bandwidth *int32, public_
 		"bandwidth":         int(*bandwidth),
 		"whitelist_enabled": resp.EnableWhiteList,
 		"whitelist":         resp.WhiteList,
-		"public_ip":         public_ip,
+		"public_ip":         publicIp,
 	}
 	return []interface{}{result}
 }
@@ -864,7 +864,6 @@ func setVpcEndpointIdToState(d *schema.ResourceData, cssV1Client *v1.CssClient) 
 					return nil
 				}
 			}
-
 		}
 		return err
 	}
@@ -957,7 +956,6 @@ func setNodeConfigsAndAzToState(d *schema.ResourceData, detail *model.ShowCluste
 		default:
 			log.Printf("[ERROR] Does not support to set the %s node config to state", k)
 		}
-
 	}
 	return mErr.ErrorOrNil()
 }
