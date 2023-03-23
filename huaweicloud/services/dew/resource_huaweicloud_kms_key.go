@@ -257,7 +257,7 @@ func ResourceKmsKeyRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("default_key_flag", v.DefaultKeyFlag),
 		d.Set("expiration_time", v.ExpirationTime),
 		d.Set("enterprise_project_id", v.EnterpriseProjectID),
-		utils.SetResourceTagsToState(d, kmsKeyV1Client, "kms"),
+		utils.SetResourceTagsToState(d, kmsKeyV1Client, "kms", d.Id()),
 	)
 
 	// Set KMS rotation
