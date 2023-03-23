@@ -122,6 +122,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `db` - Indicates the database information. Structure is documented below.
 
+* `volume/size` - Indicates the volume size which is the same as that of the primary DB instance.
+
 * `private_ips` - Indicates the private IP address list.
 
 * `public_ips` - Indicates the public IP address list.
@@ -134,13 +136,10 @@ In addition to all arguments above, the following attributes are exported:
 
 The `db` block supports:
 
-* `port` - Indicates the database port information.
-
 * `type` - Indicates the DB engine. Value: MySQL, PostgreSQL, SQLServer.
-
-* `user_name` - Indicates the default user name of database.
-
 * `version` - Indicates the database version.
+* `port` - Indicates the database port information.
+* `user_name` - Indicates the default user name of database.
 
 ## Timeouts
 

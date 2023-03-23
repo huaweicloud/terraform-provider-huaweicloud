@@ -27,6 +27,9 @@ resource "huaweicloud_rds_parametergroup" "pg_1" {
 
 The following arguments are supported:
 
+* `region` - (Optional, String, ForceNew) The region in which to create the RDS parameter group. If omitted, the
+  provider-level region will be used. Changing this creates a new parameter group.
+
 * `name` - (Required, String) The parameter group name. It contains a maximum of 64 characters.
 
 * `description` - (Optional, String) The parameter group description. It contains a maximum of 256 characters and cannot

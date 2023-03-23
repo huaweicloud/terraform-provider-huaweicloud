@@ -33,6 +33,8 @@ filters must match exactly one VPC whose data will be exported as attributes.
 
 * `cidr` - (Optional, String) Specifies the cidr block of the desired VPC.
 
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID which the desired VPC belongs to.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:

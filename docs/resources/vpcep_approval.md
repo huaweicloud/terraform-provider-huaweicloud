@@ -55,10 +55,10 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to obtain the VPC endpoint service. If omitted, the
   provider-level region will be used. Changing this creates a new resource.
 
-* `service_id` (Required, String, ForceNew) - Specifies the ID of the VPC endpoint service. Changing this creates a new
+* `service_id` - (Required, String, ForceNew) Specifies the ID of the VPC endpoint service. Changing this creates a new
   resource.
 
-* `endpoints` (Required, List) - Specifies the list of VPC endpoint IDs which accepted to connect to VPC endpoint
+* `endpoints` - (Required, List) Specifies the list of VPC endpoint IDs which accepted to connect to VPC endpoint
   service. The VPC endpoints will be rejected when the resource was destroyed.
 
 ## Attributes Reference
