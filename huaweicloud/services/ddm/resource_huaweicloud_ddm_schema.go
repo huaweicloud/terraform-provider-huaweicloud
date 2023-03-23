@@ -207,29 +207,19 @@ func resourceDdmSchemaCreate(ctx context.Context, d *schema.ResourceData, meta i
 	createSchemaOpt.JSONBody = utils.RemoveNil(buildCreateSchemaBodyParams(d))
 
 	var createSchemaResp *http.Response
-	for {
+	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
 		createSchemaResp, err = createSchemaClient.Request("POST", createSchemaPath, &createSchemaOpt)
-		if err == nil {
-			break
+		isRetry, err := handleOperationError(err, "creating", "schema")
+		if isRetry {
+			return resource.RetryableError(err)
 		}
-		// if the HTTP response code is 409 and the error code is DBS.200019, then it indicates that other operation
-		// is being executed and need to wait
-		if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok && errCode.Actual == 409 {
-			var apiError ddmError
-			err = json.Unmarshal(errCode.Body, &apiError)
-			if err != nil {
-				return diag.Errorf("error creating DdmSchema: error format error: %s", err)
-			}
-			if apiError.ErrorCode == "DBS.200019" {
-				err = waitForInstanceRunning(ctx, d, cfg, instanceID,
-					[]string{"DROP_DATABASE", "CREATE_DATABASE", "BACKUP"}, schema.TimeoutCreate)
-				if err != nil {
-					return diag.FromErr(err)
-				}
-				continue
-			}
+		if err != nil {
+			return resource.NonRetryableError(err)
 		}
-		return diag.Errorf("error creating DdmSchema: %s", err)
+		return nil
+	})
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	createSchemaRespBody, err := utils.FlattenResponse(createSchemaResp)
@@ -419,26 +409,20 @@ func resourceDdmSchemaDelete(ctx context.Context, d *schema.ResourceData, meta i
 			"Content-Type": "application/json",
 		},
 	}
-	for {
-		_, err := deleteSchemaClient.Request("DELETE", deleteSchemaPath, &deleteSchemaOpt)
-		if err == nil {
-			break
+
+	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
+		_, err = deleteSchemaClient.Request("DELETE", deleteSchemaPath, &deleteSchemaOpt)
+		isRetry, err := handleOperationError(err, "deleting", "schema")
+		if isRetry {
+			return resource.RetryableError(err)
 		}
-		if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok && errCode.Actual == 409 {
-			var apiError ddmError
-			err := json.Unmarshal(errCode.Body, &apiError)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			if apiError.ErrorCode == "DBS.200019" {
-				err = waitForInstanceRunning(ctx, d, cfg, instanceID, []string{"DROP_DATABASE", "CREATE_DATABASE", "BACKUP"}, schema.TimeoutDelete)
-				if err != nil {
-					return diag.FromErr(err)
-				}
-				continue
-			}
+		if err != nil {
+			return resource.NonRetryableError(err)
 		}
-		return diag.Errorf("error deleting DdmSchema: %s", err)
+		return nil
+	})
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	err = waitForInstanceRunning(ctx, d, cfg, instanceID, []string{"DROP_DATABASE", "BACKUP"}, schema.TimeoutDelete)
@@ -458,6 +442,24 @@ func buildDeleteSchemaQueryParams(d *schema.ResourceData) string {
 		res = "?" + res[1:]
 	}
 	return res
+}
+
+func handleOperationError(err error, operateType string, operateObj string) (bool, error) {
+	if err == nil {
+		return false, nil
+	}
+	if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok && errCode.Actual == 409 {
+		var apiError ddmError
+		jsonErr := json.Unmarshal(errCode.Body, &apiError)
+		if jsonErr != nil {
+			return false, fmt.Errorf("error %s DDM %s: error format error: %s", operateType,
+				operateObj, jsonErr)
+		}
+		if apiError.ErrorCode == "DBS.200019" {
+			return true, err
+		}
+	}
+	return false, fmt.Errorf("error %s DDM %s: %s", operateType, operateObj, err)
 }
 
 func waitForInstanceRunning(ctx context.Context, d *schema.ResourceData, cfg *config.Config, instanceID string,

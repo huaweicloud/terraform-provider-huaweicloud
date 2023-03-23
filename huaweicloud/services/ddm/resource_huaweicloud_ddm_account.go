@@ -17,6 +17,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
@@ -155,15 +156,19 @@ func resourceDdmAccountCreate(ctx context.Context, d *schema.ResourceData, meta 
 	createAccountOpt.JSONBody = utils.RemoveNil(buildCreateAccountBodyParams(d))
 
 	var createAccountResp *http.Response
-	for {
+	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
 		createAccountResp, err = createAccountClient.Request("POST", createAccountPath, &createAccountOpt)
-		if err == nil {
-			break
+		isRetry, err := handleOperationError(err, "creating", "account")
+		if isRetry {
+			return resource.RetryableError(err)
 		}
-		err = handleOperationError(ctx, d, cfg, err, instanceID, schema.TimeoutCreate)
 		if err != nil {
-			return diag.Errorf("error creating DDM account: %s", err)
+			return resource.NonRetryableError(err)
 		}
+		return nil
+	})
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	createAccountRespBody, err := utils.FlattenResponse(createAccountResp)
@@ -270,17 +275,19 @@ func updateAccount(ctx context.Context, d *schema.ResourceData, cfg *config.Conf
 	}
 	updateAccountOpt.JSONBody = utils.RemoveNil(buildUpdateAccountBodyParams(d))
 
-	for {
+	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
 		_, err = updateAccountClient.Request("PUT", updateAccountPath, &updateAccountOpt)
-		if err == nil {
-			break
+		isRetry, err := handleOperationError(err, "updating", "account")
+		if isRetry {
+			return resource.RetryableError(err)
 		}
-		err = handleOperationError(ctx, d, cfg, err, instanceID, schema.TimeoutUpdate)
 		if err != nil {
-			return fmt.Errorf("error updating DDM account: %s", err)
+			return resource.NonRetryableError(err)
 		}
-	}
-	return nil
+		return nil
+	})
+
+	return err
 }
 
 func updateAccountPassword(ctx context.Context, d *schema.ResourceData, cfg *config.Config, region string) error {
@@ -315,17 +322,19 @@ func updateAccountPassword(ctx context.Context, d *schema.ResourceData, cfg *con
 	}
 	updateAccountPasswordOpt.JSONBody = utils.RemoveNil(buildUpdateAccountPasswordBodyParams(d))
 
-	for {
+	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
 		_, err = updateAccountPasswordClient.Request("POST", updateAccountPasswordPath, &updateAccountPasswordOpt)
-		if err == nil {
-			break
+		isRetry, err := handleOperationError(err, "updating", "account password")
+		if isRetry {
+			return resource.RetryableError(err)
 		}
-		err = handleOperationError(ctx, d, cfg, err, instanceID, schema.TimeoutUpdate)
 		if err != nil {
-			return fmt.Errorf("error updating DDM account password: %s", err)
+			return resource.NonRetryableError(err)
 		}
-	}
-	return nil
+		return nil
+	})
+
+	return err
 }
 
 func buildUpdateAccountBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -485,38 +494,20 @@ func resourceDdmAccountDelete(ctx context.Context, d *schema.ResourceData, meta 
 		},
 	}
 
-	for {
+	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
 		_, err = deleteAccountClient.Request("DELETE", deleteAccountPath, &deleteAccountOpt)
-		if err == nil {
-			break
+		isRetry, err := handleOperationError(err, "deleting", "account")
+		if isRetry {
+			return resource.RetryableError(err)
 		}
-		err = handleOperationError(ctx, d, cfg, err, instanceID, schema.TimeoutDelete)
 		if err != nil {
-			return diag.Errorf("error deleting DDM account: %s", err)
+			return resource.NonRetryableError(err)
 		}
+		return nil
+	})
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	return nil
-}
-
-func handleOperationError(ctx context.Context, d *schema.ResourceData, cfg *config.Config, respErr error,
-	instanceID string, timeout string) error {
-	// if the HTTP response code is 409 and the error code is DBS.200019, then it indicates that other operation
-	// is being executed and need to wait
-	if errCode, ok := respErr.(golangsdk.ErrUnexpectedResponseCode); ok && errCode.Actual == 409 {
-		var apiError ddmError
-		err := json.Unmarshal(errCode.Body, &apiError)
-		if err != nil {
-			return fmt.Errorf("error format error: %s", err)
-		}
-		if apiError.ErrorCode == "DBS.200019" {
-			err = waitForInstanceRunning(ctx, d, cfg, instanceID,
-				[]string{"DROP_DATABASE", "CREATE_DATABASE", "BACKUP"}, timeout)
-			if err != nil {
-				return err
-			}
-			return nil
-		}
-	}
-	return respErr
 }
