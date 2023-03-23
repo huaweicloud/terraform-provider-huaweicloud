@@ -170,7 +170,7 @@ func resourceSFSTurboCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// add tags
-	if err := utils.CreateResourceTags(sfsClient, d, "sfs-turbo"); err != nil {
+	if err := utils.CreateResourceTags(sfsClient, d, "sfs-turbo", d.Id()); err != nil {
 		return fmt.Errorf("error setting tags of SFS Turbo %s: %s", d.Id(), err)
 	}
 
@@ -225,7 +225,7 @@ func resourceSFSTurboRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("status", status)
 
 	// set tags
-	return utils.SetResourceTagsToState(d, sfsClient, "sfs-turbo")
+	return utils.SetResourceTagsToState(d, sfsClient, "sfs-turbo", d.Id())
 }
 
 func resourceSFSTurboUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -282,7 +282,7 @@ func updateSFSTurboTags(client *golangsdk.ServiceClient, d *schema.ResourceData)
 	}
 
 	// set new tags
-	return utils.CreateResourceTags(client, d, "sfs-turbo")
+	return utils.CreateResourceTags(client, d, "sfs-turbo", d.Id())
 }
 
 func getOldTagKeys(d *schema.ResourceData) []string {

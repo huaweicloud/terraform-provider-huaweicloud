@@ -13,10 +13,10 @@ const SysTagKeyEnterpriseProjectId = "_sys_enterprise_project_id"
 
 // CreateResourceTags is a helper to create the tags for a resource.
 // It expects the schema name must be "tags"
-func CreateResourceTags(client *golangsdk.ServiceClient, d *schema.ResourceData, resourceType string) error {
+func CreateResourceTags(client *golangsdk.ServiceClient, d *schema.ResourceData, resourceType, id string) error {
 	if tagRaw := d.Get("tags").(map[string]interface{}); len(tagRaw) > 0 {
 		tagList := ExpandResourceTags(tagRaw)
-		return tags.Create(client, resourceType, d.Id(), tagList).ExtractErr()
+		return tags.Create(client, resourceType, id, tagList).ExtractErr()
 	}
 	return nil
 }
@@ -65,16 +65,17 @@ func DeleteResourceTagsWithKeys(client *golangsdk.ServiceClient, tagKeys []strin
 	return nil
 }
 
-// This is a help to query tags of resource, then set to state. The schema argument name must be: tags
-func SetResourceTagsToState(d *schema.ResourceData, client *golangsdk.ServiceClient, resourceType string) error {
+// SetResourceTagsToState is a helper to query tags of resource, then set to state.
+// The schema argument name must be: tags
+func SetResourceTagsToState(d *schema.ResourceData, client *golangsdk.ServiceClient, resourceType, id string) error {
 	// set tags
-	if resourceTags, err := tags.Get(client, resourceType, d.Id()).Extract(); err == nil {
+	if resourceTags, err := tags.Get(client, resourceType, id).Extract(); err == nil {
 		tagmap := TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("error saving tags to state for %s (%s): %s", resourceType, d.Id(), err)
+			return fmt.Errorf("error saving tags to state for %s (%s): %s", resourceType, id, err)
 		}
 	} else {
-		log.Printf("[WARN] Error fetching tags of %s (%s): %s", resourceType, d.Id(), err)
+		log.Printf("[WARN] Error fetching tags of %s (%s): %s", resourceType, id, err)
 	}
 	return nil
 }
