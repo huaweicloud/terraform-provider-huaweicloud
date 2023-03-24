@@ -41,14 +41,6 @@ var securityGroupRuleSchema = &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"port_range_min": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"port_range_max": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
 			"ports": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -80,6 +72,16 @@ var securityGroupRuleSchema = &schema.Schema{
 			"priority": {
 				Type:     schema.TypeInt,
 				Computed: true,
+			},
+			"port_range_min": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "schema: Deprecated",
+			},
+			"port_range_max": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "schema: Deprecated",
 			},
 		},
 	},

@@ -48,8 +48,6 @@ In addition to all arguments above, the following attributes are exported:
 
 * `device_owner` - The device owner of the VIP.
 
-* `subnet_id` - The subnet ID in which to allocate IP address for this VIP.
-
 ## Timeouts
 
 This resource provides the following timeouts configuration options:

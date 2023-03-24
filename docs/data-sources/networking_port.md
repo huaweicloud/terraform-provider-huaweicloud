@@ -30,7 +30,7 @@ data "huaweicloud_networking_port" "port_1" {
 
 * `status` - (Optional, String) Specifies the status of the port.
 
-* `security_group_ids` - (Optional, String) The list of port security group IDs to filter.
+* `security_group_ids` - (Optional, List) The list of port security group IDs to filter.
 
 ## Attributes Reference
 
