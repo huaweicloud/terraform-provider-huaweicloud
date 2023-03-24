@@ -60,7 +60,12 @@ var (
 	HW_SMS_SOURCE_SERVER            = os.Getenv("HW_SMS_SOURCE_SERVER")
 	HW_CFW_ENVIRONMENT              = os.Getenv("HW_CFW_ENVIRONMENT")
 
-	HW_DLI_FLINK_JAR_OBS_PATH = os.Getenv("HW_DLI_FLINK_JAR_OBS_PATH")
+	HW_DLI_FLINK_JAR_OBS_PATH           = os.Getenv("HW_DLI_FLINK_JAR_OBS_PATH")
+	HW_DLI_DS_AUTH_CSS_OBS_PATH         = os.Getenv("HW_DLI_DS_AUTH_CSS_OBS_PATH")
+	HW_DLI_DS_AUTH_KAFKA_TRUST_OBS_PATH = os.Getenv("HW_DLI_DS_AUTH_KAFKA_TRUST_OBS_PATH")
+	HW_DLI_DS_AUTH_KAFKA_KEY_OBS_PATH   = os.Getenv("HW_DLI_DS_AUTH_KAFKA_KEY_OBS_PATH")
+	HW_DLI_DS_AUTH_KRB_CONF_OBS_PATH    = os.Getenv("HW_DLI_DS_AUTH_KRB_CONF_OBS_PATH")
+	HW_DLI_DS_AUTH_KRB_TAB_OBS_PATH     = os.Getenv("HW_DLI_DS_AUTH_KRB_TAB_OBS_PATH")
 
 	HW_GITHUB_REPO_HOST      = os.Getenv("HW_GITHUB_REPO_HOST")      // Repository host (Github, Gitlab, Gitee)
 	HW_GITHUB_PERSONAL_TOKEN = os.Getenv("HW_GITHUB_PERSONAL_TOKEN") // Personal access token (Github, Gitlab, Gitee)
@@ -348,6 +353,27 @@ func TestAccPreCheckDms(t *testing.T) {
 func TestAccPreCheckDliJarPath(t *testing.T) {
 	if HW_DLI_FLINK_JAR_OBS_PATH == "" {
 		t.Skip("HW_DLI_FLINK_JAR_OBS_PATH must be set for DLI Flink Jar job acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDliDsAuthCss(t *testing.T) {
+	if HW_DLI_DS_AUTH_CSS_OBS_PATH == "" {
+		t.Skip("HW_DLI_DS_AUTH_CSS_OBS_PATH must be set for DLI datasource CSS Auth acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDliDsAuthKafka(t *testing.T) {
+	if HW_DLI_DS_AUTH_KAFKA_TRUST_OBS_PATH == "" || HW_DLI_DS_AUTH_KAFKA_KEY_OBS_PATH == "" {
+		t.Skip("HW_DLI_DS_AUTH_KAFKA_TRUST_OBS_PATH,HW_DLI_DS_AUTH_KAFKA_KEY_OBS_PATH must be set for DLI datasource Kafka Auth acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDliDsAuthKrb(t *testing.T) {
+	if HW_DLI_DS_AUTH_KRB_CONF_OBS_PATH == "" || HW_DLI_DS_AUTH_KRB_TAB_OBS_PATH == "" {
+		t.Skip("HW_DLI_DS_AUTH_KRB_CONF_OBS_PATH,HW_DLI_DS_AUTH_KRB_TAB_OBS_PATH must be set for DLI datasource Kafka Auth acceptance tests.")
 	}
 }
 
