@@ -736,7 +736,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_rocketmq_user":           dms.ResourceDmsRocketMQUser(),
 
 			"huaweicloud_dns_ptrrecord": dns.ResourceDNSPtrRecord(),
-			"huaweicloud_dns_recordset": dns.ResourceDNSRecordSetV2(),
+			"huaweicloud_dns_recordset": dns.ResourceDNSRecordset(),
 			"huaweicloud_dns_zone":      dns.ResourceDNSZone(),
 
 			"huaweicloud_drs_job":     drs.ResourceDrsJob(),

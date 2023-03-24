@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func getDNSRecordsetResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getDNSV2RecordsetResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.DnsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DNS client: %s", err)
@@ -33,13 +33,13 @@ func getDNSRecordsetResourceFunc(c *config.Config, state *terraform.ResourceStat
 
 func TestAccDNSV2RecordSet_basic(t *testing.T) {
 	var recordset recordsets.RecordSet
-	resourceName := "huaweicloud_dns_recordset.recordset_1"
+	resourceName := "huaweicloud_dns_recordset_v2.recordset_1"
 	name := fmt.Sprintf("acpttest-recordset-%s.com.", acctest.RandString(5))
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&recordset,
-		getDNSRecordsetResourceFunc,
+		getDNSV2RecordsetResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -87,13 +87,13 @@ func TestAccDNSV2RecordSet_basic(t *testing.T) {
 
 func TestAccDNSV2RecordSet_readTTL(t *testing.T) {
 	var recordset recordsets.RecordSet
-	resourceName := "huaweicloud_dns_recordset.recordset_1"
+	resourceName := "huaweicloud_dns_recordset_v2.recordset_1"
 	name := fmt.Sprintf("acpttest-recordset-%s.com.", acctest.RandString(5))
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&recordset,
-		getDNSRecordsetResourceFunc,
+		getDNSV2RecordsetResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -115,13 +115,13 @@ func TestAccDNSV2RecordSet_readTTL(t *testing.T) {
 
 func TestAccDNSV2RecordSet_private(t *testing.T) {
 	var recordset recordsets.RecordSet
-	resourceName := "huaweicloud_dns_recordset.recordset_1"
+	resourceName := "huaweicloud_dns_recordset_v2.recordset_1"
 	name := fmt.Sprintf("acpttest-recordset-%s.com.", acctest.RandString(5))
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&recordset,
-		getDNSRecordsetResourceFunc,
+		getDNSV2RecordsetResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -160,7 +160,7 @@ func testAccDNSV2RecordSet_basic(zoneName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_dns_recordset" "recordset_1" {
+resource "huaweicloud_dns_recordset_v2" "recordset_1" {
   zone_id     = huaweicloud_dns_zone.zone_1.id
   name        = "%s"
   type        = "A"
@@ -175,7 +175,7 @@ func testAccDNSV2RecordSet_tags(zoneName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_dns_recordset" "recordset_1" {
+resource "huaweicloud_dns_recordset_v2" "recordset_1" {
   zone_id     = huaweicloud_dns_zone.zone_1.id
   name        = "%s"
   type        = "A"
@@ -195,7 +195,7 @@ func testAccDNSV2RecordSet_update(zoneName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_dns_recordset" "recordset_1" {
+resource "huaweicloud_dns_recordset_v2" "recordset_1" {
   zone_id     = huaweicloud_dns_zone.zone_1.id
   name        = "%s"
   type        = "A"
@@ -215,7 +215,7 @@ func testAccDNSV2RecordSet_readTTL(zoneName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_dns_recordset" "recordset_1" {
+resource "huaweicloud_dns_recordset_v2" "recordset_1" {
   zone_id = huaweicloud_dns_zone.zone_1.id
   name    = "%s"
   type    = "A"
@@ -241,7 +241,7 @@ resource "huaweicloud_dns_zone" "zone_1" {
   }
 }
 
-resource "huaweicloud_dns_recordset" "recordset_1" {
+resource "huaweicloud_dns_recordset_v2" "recordset_1" {
   zone_id     = huaweicloud_dns_zone.zone_1.id
   name        = "%s"
   type        = "A"
