@@ -724,6 +724,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dli_flinkjar_job":          dli.ResourceFlinkJarJob(),
 			"huaweicloud_dli_permission":            dli.ResourceDliPermission(),
 			"huaweicloud_dli_datasource_connection": dli.ResourceDatasourceConnection(),
+			"huaweicloud_dli_datasource_auth":       dli.ResourceDatasourceAuth(),
 
 			"huaweicloud_dms_kafka_user":        dms.ResourceDmsKafkaUser(),
 			"huaweicloud_dms_kafka_permissions": dms.ResourceDmsKafkaPermissions(),
