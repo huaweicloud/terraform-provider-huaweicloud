@@ -106,16 +106,16 @@ The following arguments are supported:
   When `https_enabled` is set to `true`, the `security_mode` needs to be set to `true`.
   Changing this parameter will create a new resource.
 
-* `ess_node_config` - (Required, List, ForceNew) Specifies the config of data node.
+* `ess_node_config` - (Required, List) Specifies the config of data node.
   The [ess_node_config](#Css_ess_node_config) structure is documented below.
 
-* `master_node_config` - (Optional, List, ForceNew) Specifies the config of master node.
-  The [master_node_config](#Css_ess_node_config) structure is documented below.
+* `master_node_config` - (Optional, List) Specifies the config of master node.
+  The [master_node_config](#Css_ess_node_config_volume_forceNew) structure is documented below.
 
-* `client_node_config` - (Optional, List, ForceNew) Specifies the config of client node.
-  The [client_node_config](#Css_ess_node_config) structure is documented below.
+* `client_node_config` - (Optional, List) Specifies the config of client node.
+  The [client_node_config](#Css_ess_node_config_volume_forceNew) structure is documented below.
 
-* `cold_node_config` - (Optional, List, ForceNew) Specifies the config of cold data node.
+* `cold_node_config` - (Optional, List) Specifies the config of cold data node.
   The [cold_node_config](#Css_ess_node_config) structure is documented below.
 
 * `vpc_id` - (Required, String, ForceNew) Specifies the VPC ID. Changing this parameter will create a new resource.
@@ -142,10 +142,10 @@ The following arguments are supported:
 * `public_access` - (Optional, List) Specifies the public network access information.
   The [public_access](#Css_public_access) structure is documented below.
 
-* `vpcep_endpoint` - (Optional, List, ForceNew) Specifies the VPC endpoint service information.
+* `vpcep_endpoint` - (Optional, List) Specifies the VPC endpoint service information.
   The [vpcep_endpoint](#Css_vpcep_endpoint) structure is documented below.
 
-* `kibana_public_access` - (Optional, List, ForceNew) Specifies Kibana public network access information.
+* `kibana_public_access` - (Optional, List) Specifies Kibana public network access information.
   This parameter is valid only when security_mode is set to true.
   The [kibana_public_access](#Css_kibana_public_access) structure is documented below.
 
@@ -166,7 +166,7 @@ The following arguments are supported:
   Valid values are `true` and `false`, defaults to `false`.
 
 <a name="Css_ess_node_config"></a>
-The `ess_node_config`, `master_node_config`, `client_node_config` and `cold_node_config` block supports:
+The `ess_node_config` and `cold_node_config` block supports:
 
 * `flavor` - (Required, String, ForceNew) Specifies the flavor name. For example: value range of flavor ess.spec-2u8g:
   40 GB to 800 GB, value range of flavor ess.spec-4u16g: 40 GB to 1600 GB, value range of flavor ess.spec-8u32g: 80 GB
@@ -175,11 +175,9 @@ The `ess_node_config`, `master_node_config`, `client_node_config` and `cold_node
 
 * `instance_number` - (Required, Int) Specifies the number of cluster instances.
   + When it is `ess_node_config`, The value range is 1 to 200.
-  + When it is `master_node_config`, The value range is 3 to 10.
-  + When it is `client_node_config`, The value range is 1 to 32.
   + When it is `cold_node_config`, The value range is 1 to 32.
 
-* `volume` - (Required, List, ForceNew) Specifies the information about the volume.
+* `volume` - (Required, List) Specifies the information about the volume.
   The [volume](#Css_volume) structure is documented below.
 
 <a name="Css_volume"></a>
@@ -191,14 +189,39 @@ The `volume` block supports:
   HIGH: High I/O. The SAS disk is used. ULTRAHIGH: Ultra-high I/O. The solid-state drive (SSD) is used. Changing this
   parameter will create a new resource.
 
+<a name="Css_ess_node_config_volume_forceNew"></a>
+The `master_node_config` and `client_node_config` block supports:
+
+* `flavor` - (Required, String, ForceNew) Specifies the flavor name. For example: value range of flavor ess.spec-2u8g:
+  40 GB to 800 GB, value range of flavor ess.spec-4u16g: 40 GB to 1600 GB, value range of flavor ess.spec-8u32g: 80 GB
+  to 3200 GB, value range of flavor ess.spec-16u64g: 100 GB to 6400 GB, value range of flavor ess.spec-32u128g: 100 GB
+  to 10240 GB. Changing this parameter will create a new resource.
+
+* `instance_number` - (Required, Int) Specifies the number of cluster instances.
+  + When it is `master_node_config`, The value range is 3 to 10.
+  + When it is `client_node_config`, The value range is 1 to 32.
+
+* `volume` - (Required, List, ForceNew) Specifies the information about the volume.
+  The [volume](#Css_volume_forceNew) structure is documented below.
+
+<a name="Css_volume_forceNew"></a>
+The `volume` block supports:
+
+* `size` - (Required, Int, ForceNew) Specifies the volume size in GB, which must be a multiple of 10.
+  Changing this parameter will create a new resource.
+
+* `volume_type` - (Required, String, ForceNew) Specifies the volume type. COMMON: Common I/O. The SATA disk is used.
+  HIGH: High I/O. The SAS disk is used. ULTRAHIGH: Ultra-high I/O. The solid-state drive (SSD) is used. Changing this
+  parameter will create a new resource.
+
 <a name="Css_public_access"></a>
 The `public_access` block supports:
 
 * `bandwidth` - (Required, Int) Specifies the public network bandwidth.
 
-* `whitelist_enabled` - (Required, Bool, ForceNew) Specifies whether to enable the Kibana access control.
+* `whitelist_enabled` - (Required, Bool) Specifies whether to enable the Kibana access control.
 
-* `whitelist` - (Required, String, ForceNew) Specifies the whitelist of Kibana access control.
+* `whitelist` - (Optional, String) Specifies the whitelist of Kibana access control.
   Separate the whitelisted network segments or IP addresses with commas (,), and each of them must be unique.
 
 <a name="Css_kibana_public_access"></a>
@@ -206,17 +229,17 @@ The `kibana_public_access` block supports:
 
 * `bandwidth` - (Required, Int) Specifies the public network bandwidth.
 
-* `whitelist_enabled` - (Required, Bool, ForceNew) Specifies whether to enable the public network access control.
+* `whitelist_enabled` - (Required, Bool) Specifies whether to enable the public network access control.
 
-* `whitelist` - (Required, String, ForceNew) Specifies the whitelist of public network access control.
+* `whitelist` - (Required, String) Specifies the whitelist of public network access control.
   Separate the whitelisted network segments or IP addresses with commas (,), and each of them must be unique.
 
 <a name="Css_vpcep_endpoint"></a>
 The `vpcep_endpoint` block supports:
 
-* `endpoint_with_dns_name` - (Required, Bool, ForceNew) Specifies whether to enable the private domain name.
+* `endpoint_with_dns_name` - (Required, Bool) Specifies whether to enable the private domain name.
 
-* `whitelist` - (Optional, String, ForceNew) Specifies the whitelist of access control.
+* `whitelist` - (Optional, String) Specifies the whitelist of access control.
   Separate the whitelisted Account IDs with commas (,), and each of them must be unique.
 
 The `backup_strategy` block supports:
@@ -272,6 +295,12 @@ In addition to all arguments above, the following attributes are exported:
     - `ess-client`: indicates a client node.
     - `ess-cold`: indicates a cold data node.
     - `ess indicates`: indicates a data node.
+
+  + `availability_zone` - The availability zone where the instance resides.
+
+  + `status` - Instance status.
+
+  + `spec_code` - Instance specification code.
 
 * `vpcep_endpoint_id` - The VPC endpoint service ID.
 

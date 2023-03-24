@@ -103,18 +103,17 @@ func ResourceCssCluster() *schema.Resource {
 			"ess_node_config": {
 				Type:          schema.TypeList,
 				Optional:      true,
-				ForceNew:      true,
 				MaxItems:      1,
 				ExactlyOneOf:  []string{"node_config", "ess_node_config"},
 				ConflictsWith: []string{"expect_node_num"},
 				Computed:      true,
 				Elem:          cssNodeSchema(1, 200, true),
+				Description:   "schema: Required",
 			},
 
 			"master_node_config": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem:     cssNodeSchema(3, 10, false),
 			},
@@ -122,7 +121,6 @@ func ResourceCssCluster() *schema.Resource {
 			"client_node_config": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem:     cssNodeSchema(1, 32, false),
 			},
@@ -130,7 +128,6 @@ func ResourceCssCluster() *schema.Resource {
 			"cold_node_config": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem:     cssNodeSchema(1, 32, true),
 			},
@@ -144,24 +141,27 @@ func ResourceCssCluster() *schema.Resource {
 			},
 
 			"vpc_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: "schema: Required",
 			},
 
 			"subnet_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: "schema: Required",
 			},
 
 			"security_group_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: "schema: Required",
 			},
 
 			"backup_strategy": {
@@ -522,7 +522,6 @@ func resourceCssClusterCreate(ctx context.Context, d *schema.ResourceData, meta 
 			return diag.Errorf("error creating CSS cluster: id is not found in API response,%#v", r)
 		}
 		d.SetId(*r.Cluster.Id)
-
 	} else {
 		bssClient, err := config.BssV2Client(config.GetRegion(d))
 		if err != nil {
@@ -586,7 +585,6 @@ func buildClusterCreateParameters(d *schema.ResourceData, config *config.Config)
 			NetId:           d.Get("subnet_id").(string),
 			SecurityGroupId: d.Get("security_group_id").(string),
 		}
-
 	} else {
 		// Compatible with previous version
 		createOpts.AvailabilityZone = utils.StringIgnoreEmpty(d.Get("node_config.0.availability_zone").(string))
@@ -722,7 +720,7 @@ func resourceCssClusterCreateBackupStrategy(backupRaw []interface{}) *cssv2model
 	return &opts
 }
 
-func resourceCssClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCssClusterRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
 	cssV1Client, err := config.HcCssV1Client(region)
@@ -837,8 +835,8 @@ func flattenKibana(publicKibana *model.PublicKibanaRespBody) []interface{} {
 	return []interface{}{result}
 }
 
-func flattenPublicAccess(resp *model.ElbWhiteListResp, bandwidth *int32, public_ip *string) []interface{} {
-	if resp == nil || public_ip == nil {
+func flattenPublicAccess(resp *model.ElbWhiteListResp, bandwidth *int32, publicIp *string) []interface{} {
+	if resp == nil || publicIp == nil {
 		return nil
 	}
 
@@ -846,7 +844,7 @@ func flattenPublicAccess(resp *model.ElbWhiteListResp, bandwidth *int32, public_
 		"bandwidth":         int(*bandwidth),
 		"whitelist_enabled": resp.EnableWhiteList,
 		"whitelist":         resp.WhiteList,
-		"public_ip":         public_ip,
+		"public_ip":         publicIp,
 	}
 	return []interface{}{result}
 }
@@ -858,13 +856,12 @@ func setVpcEndpointIdToState(d *schema.ResourceData, cssV1Client *v1.CssClient) 
 			errCode := err.ErrorCode
 			// CSS.5182 : The VPC endpoint service is not enabled.
 			if errCode == "" {
-				var apiError CssError
+				var apiError ResponseError
 				pErr := json.Unmarshal([]byte(err.ErrorMessage), &apiError)
 				if pErr == nil && apiError.ErrorCode == "CSS.5182" {
 					return nil
 				}
 			}
-
 		}
 		return err
 	}
@@ -957,7 +954,6 @@ func setNodeConfigsAndAzToState(d *schema.ResourceData, detail *model.ShowCluste
 		default:
 			log.Printf("[ERROR] Does not support to set the %s node config to state", k)
 		}
-
 	}
 	return mErr.ErrorOrNil()
 }
@@ -973,16 +969,7 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	// extend cluster
 	if d.HasChanges("ess_node_config", "master_node_config", "client_node_config",
 		"cold_node_config", "expect_node_num") {
-		opts, err := buildCssClusterV1ExtendClusterParameters(d)
-		if err != nil {
-			return diag.Errorf("error building the request body of api(extend_cluster), err=%s", err)
-		}
-		_, err = cssV1Client.UpdateExtendInstanceStorage(opts)
-		if err != nil {
-			return diag.Errorf("extend CSS cluster instance storage failed, cluster_id=%s, error=%s", d.Id(), err)
-		}
-
-		err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		err = extendCluster(ctx, d, cssV1Client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -990,75 +977,9 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 	// update backup strategy
 	if d.HasChange("backup_strategy") {
-		value, ok := d.GetOk("backup_strategy")
-		if !ok {
-			// stop auto backup strategy
-			_, err := cssV1Client.CreateAutoCreatePolicy(&model.CreateAutoCreatePolicyRequest{
-				ClusterId: d.Id(),
-				Body: &model.SetRdsBackupCnfReq{
-					Prefix:  "snapshot",
-					Period:  "00:00 GMT+08:00",
-					Keepday: 7,
-					Enable:  "false",
-				},
-			})
-
-			if err != nil {
-				return diag.Errorf("error updating backup strategy: %s", err)
-			}
-		} else {
-			rawList := value.([]interface{})
-			if len(rawList) == 1 {
-				raw := rawList[0].(map[string]interface{})
-
-				if d.HasChanges("backup_strategy.0.bucket", "backup_strategy.0.backup_path",
-					"backup_strategy.0.agency") {
-					// If obs is specified, update basic configurations
-					_, err = cssV1Client.UpdateSnapshotSetting(&model.UpdateSnapshotSettingRequest{
-						ClusterId: d.Id(),
-						Body: &model.UpdateSnapshotSettingReq{
-							Bucket:   raw["bucket"].(string),
-							BasePath: raw["backup_path"].(string),
-							Agency:   raw["agency"].(string),
-						},
-					})
-					if err != nil {
-						return diag.Errorf("error Modifying Basic Configurations of a Cluster Snapshot: %s", err)
-					}
-				}
-
-				// check backup strategy, if the policy was disabled, we should enable it
-				policy, err := cssV1Client.ShowAutoCreatePolicy(&model.ShowAutoCreatePolicyRequest{ClusterId: d.Id()})
-				if err != nil {
-					return diag.Errorf("error extracting Cluster backup_strategy, err: %s", err)
-				}
-
-				if utils.StringValue(policy.Enable) == "false" && raw["bucket"] == nil {
-					// If obs is not specified,  create  basic configurations automatically
-					_, err = cssV1Client.StartAutoSetting(&model.StartAutoSettingRequest{ClusterId: d.Id()})
-					if err != nil {
-						return diag.Errorf("error enable snapshot function: %s", err)
-					}
-				}
-
-				// update policy
-				if d.HasChanges("backup_strategy.0.prefix", "backup_strategy.0.start_time",
-					"backup_strategy.0.keep_days") {
-					opts := &model.CreateAutoCreatePolicyRequest{
-						ClusterId: d.Id(),
-						Body: &model.SetRdsBackupCnfReq{
-							Prefix:  raw["prefix"].(string),
-							Period:  raw["start_time"].(string),
-							Keepday: int32(raw["keep_days"].(int)),
-							Enable:  "true",
-						},
-					}
-					_, err = cssV1Client.CreateAutoCreatePolicy(opts)
-					if err != nil {
-						return diag.Errorf("error updating backup strategy: %s", err)
-					}
-				}
-			}
+		err = updateBackupStrategy(d, cssV1Client)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -1072,192 +993,25 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 	// update vpc endpoint
 	if d.HasChange("vpcep_endpoint") {
-		o, n := d.GetChange("vpcep_endpoint")
-		oValue := o.([]interface{})
-		nValue := n.([]interface{})
-		if len(nValue) == 0 { // delete vpc endpoint
-			_, err := cssV1Client.StopVpecp(&model.StopVpecpRequest{ClusterId: d.Id()})
-			if err != nil {
-				return diag.Errorf("error deleting the VPC endpoint of CSS cluster= %s, err: %s", d.Id(), err)
-			}
-		} else if len(oValue) == 0 { // start vpc endpoint
-			_, err := cssV1Client.StartVpecp(&model.StartVpecpRequest{
-				ClusterId: d.Id(),
-				Body: &model.StartVpecpReq{
-					EndpointWithDnsName: utils.Bool(d.Get("vpcep_endpoint.0.endpoint_with_dns_name").(bool)),
-				},
-			})
-			if err != nil {
-				return diag.Errorf("error creating the VPC endpoint of CSS cluster= %s, err: %s", d.Id(), err)
-			}
-		}
-
-		err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		err = updateVpcepEndpoint(ctx, d, cssV1Client)
 		if err != nil {
 			return diag.FromErr(err)
-		}
-
-		// update whitelist
-		if len(nValue) > 0 && d.HasChange("vpcep_endpoint.0.whitelist") {
-			_, err = cssV1Client.UpdateVpcepWhitelist(&model.UpdateVpcepWhitelistRequest{
-				ClusterId: d.Id(),
-				Body: &model.UpdateVpcepWhitelistReq{
-					VpcPermissions: utils.ExpandToStringList(d.Get("vpcep_endpoint.0.whitelist").([]interface{})),
-				},
-			})
-			if err != nil {
-				return diag.Errorf("error updating the VPC endpoint whitelist of CSS cluster= %s, err: %s", d.Id(), err)
-			}
 		}
 	}
 
 	// update kibana
 	if d.Get("security_mode").(bool) && d.HasChange("kibana_public_access") {
-		o, n := d.GetChange("kibana_public_access")
-		oValue := o.([]interface{})
-		nValue := n.([]interface{})
-		if len(nValue) == 0 { // delete kibana_public_access
-			_, err := cssV1Client.UpdateCloseKibana(&model.UpdateCloseKibanaRequest{ClusterId: d.Id()})
-			if err != nil {
-				return diag.Errorf("error diabling the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
-			}
-			err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
-			if err != nil {
-				return diag.FromErr(err)
-			}
-		} else if len(oValue) == 0 {
-			// enable kibana_public_access
-			_, err := cssV1Client.StartKibanaPublic(&model.StartKibanaPublicRequest{
-				ClusterId: d.Id(),
-				Body: &model.StartKibanaPublicReq{
-					EipSize: int32(d.Get("kibana_public_access.0.bandwidth").(int)),
-					ElbWhiteList: &model.StartKibanaPublicReqElbWhitelist{
-						EnableWhiteList: d.Get("kibana_public_access.0.whitelist_enabled").(bool),
-						WhiteList:       d.Get("kibana_public_access.0.whitelist").(string),
-					},
-				},
-			})
-			if err != nil {
-				return diag.Errorf("error enabling the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
-			}
-			err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
-			if err != nil {
-				return diag.FromErr(err)
-			}
-		} else {
-			// update bandwidth
-			if d.HasChange("kibana_public_access.0.bandwidth") {
-				_, err := cssV1Client.UpdateAlterKibana(&model.UpdateAlterKibanaRequest{
-					ClusterId: d.Id(),
-					Body: &model.UpdatePublicKibanaBandwidthReq{
-						BandWidth: &model.UpdatePublicKibanaBandwidthReqBandWidth{
-							Size: int32(d.Get("kibana_public_access.0.bandwidth").(int)),
-						},
-						IsAutoPay: utils.Int32(1),
-					},
-				})
-				if err != nil {
-					return diag.Errorf("error modifing bandwidth of the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
-				}
-			}
-
-			// update whitelist
-			if d.HasChanges("kibana_public_access.0.whitelist", "kibana_public_access.0.whitelist_enabled") {
-				// disable whitelist
-				if !d.Get("kibana_public_access.0.whitelist_enabled").(bool) {
-					_, err := cssV1Client.StopPublicKibanaWhitelist(&model.StopPublicKibanaWhitelistRequest{
-						ClusterId: d.Id(),
-					})
-					if err != nil {
-						return diag.Errorf("error disabing the whitelist of the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
-					}
-				} else {
-					_, err := cssV1Client.UpdatePublicKibanaWhitelist(&model.UpdatePublicKibanaWhitelistRequest{
-						ClusterId: d.Id(),
-						Body: &model.UpdatePublicKibanaWhitelistReq{
-							WhiteList: d.Get("kibana_public_access.0.whitelist").(string),
-						},
-					})
-					if err != nil {
-						return diag.Errorf("error modifing whitelist of the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
-					}
-				}
-			}
+		err = updateKibanaPublicAccess(ctx, d, cssV1Client)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
 	// update public_access
 	if d.Get("security_mode").(bool) && d.HasChange("public_access") {
-		o, n := d.GetChange("public_access")
-		oValue := o.([]interface{})
-		nValue := n.([]interface{})
-		if len(nValue) == 0 { // delete public_access
-			_, err := cssV1Client.UpdateUnbindPublic(&model.UpdateUnbindPublicRequest{ClusterId: d.Id()})
-			if err != nil {
-				return diag.Errorf("error diabling public access of CSS cluster= %s, err: %s", d.Id(), err)
-			}
-			err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
-			if err != nil {
-				return diag.FromErr(err)
-			}
-		} else if len(oValue) == 0 {
-			// enable public_access
-			_, err := cssV1Client.CreateBindPublic(&model.CreateBindPublicRequest{
-				ClusterId: d.Id(),
-				Body: &model.BindPublicReq{
-					Eip: &model.BindPublicReqEip{
-						BandWidth: &model.BindPublicReqEipBandWidth{
-							Size: int32(d.Get("public_access.0.bandwidth").(int)),
-						},
-					},
-					IsAutoPay: utils.Int32(1),
-				},
-			})
-
-			if err != nil {
-				return diag.Errorf("error enabling public access of CSS cluster= %s, err: %s", d.Id(), err)
-			}
-
-			err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
-			if err != nil {
-				return diag.FromErr(err)
-			}
-		}
-
-		if len(nValue) > 0 && d.HasChanges("public_access.0.whitelist", "public_access.0.whitelist_enabled") {
-			// disable whitelist
-			if !d.Get("kibana_public_access.0.whitelist_enabled").(bool) {
-				_, err := cssV1Client.StopPublicWhitelist(&model.StopPublicWhitelistRequest{ClusterId: d.Id()})
-				if err != nil {
-					return diag.Errorf("error disabling whitelist of public access of CSS cluster= %s, err: %s", d.Id(), err)
-				}
-			} else {
-				_, err := cssV1Client.StartPublicWhitelist(&model.StartPublicWhitelistRequest{
-					ClusterId: d.Id(),
-					Body: &model.StartPublicWhitelistReq{
-						WhiteList: d.Get("kibana_public_access.0.whitelist").(string),
-					},
-				})
-				if err != nil {
-					return diag.Errorf("error modifing whitelist of public access of CSS cluster= %s, err: %s", d.Id(), err)
-				}
-			}
-		}
-
-		// update bandwidth
-		if len(nValue) > 0 && d.HasChange("public_access.0.bandwidth") {
-			_, err := cssV1Client.UpdatePublicBandWidth(&model.UpdatePublicBandWidthRequest{
-				ClusterId: d.Id(),
-				Body: &model.BindPublicReqEipReq{
-					BandWidth: &model.BindPublicReqEipBandWidth{
-						Size: int32(d.Get("public_access.0.bandwidth").(int)),
-					},
-					IsAutoPay: utils.Int32(1),
-				},
-			})
-			if err != nil {
-				return diag.Errorf("error disabling the whitelist of the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
-			}
+		err = updatePublicAccess(ctx, d, cssV1Client)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -1272,6 +1026,301 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	return resourceCssClusterRead(ctx, d, meta)
+}
+
+func extendCluster(ctx context.Context, d *schema.ResourceData, cssV1Client *v1.CssClient) error {
+	opts, err := buildCssClusterV1ExtendClusterParameters(d)
+	if err != nil {
+		return fmt.Errorf("error building the request body of api(extend_cluster), err=%s", err)
+	}
+	_, err = cssV1Client.UpdateExtendInstanceStorage(opts)
+	if err != nil {
+		return fmt.Errorf("extend CSS cluster instance storage failed, cluster_id=%s, error=%s", d.Id(), err)
+	}
+
+	err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func updateBackupStrategy(d *schema.ResourceData, cssV1Client *v1.CssClient) error {
+	rawList := d.Get("backup_strategy").([]interface{})
+
+	if len(rawList) == 0 {
+		// stop auto backup strategy
+		_, err := cssV1Client.CreateAutoCreatePolicy(&model.CreateAutoCreatePolicyRequest{
+			ClusterId: d.Id(),
+			Body: &model.SetRdsBackupCnfReq{
+				Prefix:  "snapshot",
+				Period:  "00:00 GMT+08:00",
+				Keepday: 7,
+				Enable:  "false",
+			},
+		})
+
+		if err != nil {
+			return fmt.Errorf("error updating backup strategy: %s", err)
+		}
+	} else {
+		raw := rawList[0].(map[string]interface{})
+
+		if d.HasChanges("backup_strategy.0.bucket", "backup_strategy.0.backup_path",
+			"backup_strategy.0.agency") {
+			// If obs is specified, update basic configurations
+			_, err := cssV1Client.UpdateSnapshotSetting(&model.UpdateSnapshotSettingRequest{
+				ClusterId: d.Id(),
+				Body: &model.UpdateSnapshotSettingReq{
+					Bucket:   raw["bucket"].(string),
+					BasePath: raw["backup_path"].(string),
+					Agency:   raw["agency"].(string),
+				},
+			})
+			if err != nil {
+				return fmt.Errorf("error Modifying Basic Configurations of a Cluster Snapshot: %s", err)
+			}
+		}
+
+		// check backup strategy, if the policy was disabled, we should enable it
+		policy, err := cssV1Client.ShowAutoCreatePolicy(&model.ShowAutoCreatePolicyRequest{ClusterId: d.Id()})
+		if err != nil {
+			return fmt.Errorf("error extracting Cluster backup_strategy, err: %s", err)
+		}
+
+		if utils.StringValue(policy.Enable) == "false" && raw["bucket"] == nil {
+			// If obs is not specified,  create  basic configurations automatically
+			_, err = cssV1Client.StartAutoSetting(&model.StartAutoSettingRequest{ClusterId: d.Id()})
+			if err != nil {
+				return fmt.Errorf("error enable snapshot function: %s", err)
+			}
+		}
+
+		// update policy
+		if d.HasChanges("backup_strategy.0.prefix", "backup_strategy.0.start_time",
+			"backup_strategy.0.keep_days") {
+			opts := &model.CreateAutoCreatePolicyRequest{
+				ClusterId: d.Id(),
+				Body: &model.SetRdsBackupCnfReq{
+					Prefix:  raw["prefix"].(string),
+					Period:  raw["start_time"].(string),
+					Keepday: int32(raw["keep_days"].(int)),
+					Enable:  "true",
+				},
+			}
+			_, err = cssV1Client.CreateAutoCreatePolicy(opts)
+			if err != nil {
+				return fmt.Errorf("error updating backup strategy: %s", err)
+			}
+		}
+	}
+	return nil
+}
+
+func updateVpcepEndpoint(ctx context.Context, d *schema.ResourceData, cssV1Client *v1.CssClient) error {
+	o, n := d.GetChange("vpcep_endpoint")
+	oValue := o.([]interface{})
+	nValue := n.([]interface{})
+	switch len(nValue) - len(oValue) {
+	case -1: // delete vpc endpoint
+		_, err := cssV1Client.StopVpecp(&model.StopVpecpRequest{ClusterId: d.Id()})
+		if err != nil {
+			return fmt.Errorf("error deleting the VPC endpoint of CSS cluster= %s, err: %s", d.Id(), err)
+		}
+		err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+
+	case 1: // start vpc endpoint
+		_, err := cssV1Client.StartVpecp(&model.StartVpecpRequest{
+			ClusterId: d.Id(),
+			Body: &model.StartVpecpReq{
+				EndpointWithDnsName: utils.Bool(d.Get("vpcep_endpoint.0.endpoint_with_dns_name").(bool)),
+			},
+		})
+		if err != nil {
+			return fmt.Errorf("error creating the VPC endpoint of CSS cluster= %s, err: %s", d.Id(), err)
+		}
+		err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+
+	case 0: // update vpc endpoint
+		// update whitelist
+		if d.HasChange("vpcep_endpoint.0.whitelist") {
+			_, err := cssV1Client.UpdateVpcepWhitelist(&model.UpdateVpcepWhitelistRequest{
+				ClusterId: d.Id(),
+				Body: &model.UpdateVpcepWhitelistReq{
+					VpcPermissions: utils.ExpandToStringList(d.Get("vpcep_endpoint.0.whitelist").([]interface{})),
+				},
+			})
+			if err != nil {
+				return fmt.Errorf("error updating the VPC endpoint whitelist of CSS cluster= %s, err: %s", d.Id(), err)
+			}
+		}
+	}
+	return nil
+}
+
+func updateKibanaPublicAccess(ctx context.Context, d *schema.ResourceData, cssV1Client *v1.CssClient) error {
+	o, n := d.GetChange("kibana_public_access")
+	oValue := o.([]interface{})
+	nValue := n.([]interface{})
+
+	switch len(nValue) - len(oValue) {
+	case -1: // delete kibana_public_access
+		_, err := cssV1Client.UpdateCloseKibana(&model.UpdateCloseKibanaRequest{ClusterId: d.Id()})
+		if err != nil {
+			return fmt.Errorf("error diabling the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
+		}
+		err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+
+	case 1: // enable kibana_public_access
+		_, err := cssV1Client.StartKibanaPublic(&model.StartKibanaPublicRequest{
+			ClusterId: d.Id(),
+			Body: &model.StartKibanaPublicReq{
+				EipSize: int32(d.Get("kibana_public_access.0.bandwidth").(int)),
+				ElbWhiteList: &model.StartKibanaPublicReqElbWhitelist{
+					EnableWhiteList: d.Get("kibana_public_access.0.whitelist_enabled").(bool),
+					WhiteList:       d.Get("kibana_public_access.0.whitelist").(string),
+				},
+			},
+		})
+		if err != nil {
+			return fmt.Errorf("error enabling the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
+		}
+		err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+
+	case 0:
+		// update bandwidth
+		if d.HasChange("kibana_public_access.0.bandwidth") {
+			_, err := cssV1Client.UpdateAlterKibana(&model.UpdateAlterKibanaRequest{
+				ClusterId: d.Id(),
+				Body: &model.UpdatePublicKibanaBandwidthReq{
+					BandWidth: &model.UpdatePublicKibanaBandwidthReqBandWidth{
+						Size: int32(d.Get("kibana_public_access.0.bandwidth").(int)),
+					},
+					IsAutoPay: utils.Int32(1),
+				},
+			})
+			if err != nil {
+				return fmt.Errorf("error modifing bandwidth of the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
+			}
+		}
+
+		// update whitelist
+		if d.HasChanges("kibana_public_access.0.whitelist", "kibana_public_access.0.whitelist_enabled") {
+			// disable whitelist
+			if !d.Get("kibana_public_access.0.whitelist_enabled").(bool) {
+				_, err := cssV1Client.StopPublicKibanaWhitelist(&model.StopPublicKibanaWhitelistRequest{
+					ClusterId: d.Id(),
+				})
+				if err != nil {
+					return fmt.Errorf("error disabing the whitelist of the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
+				}
+			} else {
+				_, err := cssV1Client.UpdatePublicKibanaWhitelist(&model.UpdatePublicKibanaWhitelistRequest{
+					ClusterId: d.Id(),
+					Body: &model.UpdatePublicKibanaWhitelistReq{
+						WhiteList: d.Get("kibana_public_access.0.whitelist").(string),
+					},
+				})
+				if err != nil {
+					return fmt.Errorf("error modifing whitelist of the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func updatePublicAccess(ctx context.Context, d *schema.ResourceData, cssV1Client *v1.CssClient) error {
+	o, n := d.GetChange("public_access")
+	oValue := o.([]interface{})
+	nValue := n.([]interface{})
+
+	switch len(nValue) - len(oValue) {
+	case -1: // delete public_access
+		_, err := cssV1Client.UpdateUnbindPublic(&model.UpdateUnbindPublicRequest{ClusterId: d.Id()})
+		if err != nil {
+			return fmt.Errorf("error diabling public access of CSS cluster= %s, err: %s", d.Id(), err)
+		}
+		err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+
+	case 1:
+		// enable public_access
+		_, err := cssV1Client.CreateBindPublic(&model.CreateBindPublicRequest{
+			ClusterId: d.Id(),
+			Body: &model.BindPublicReq{
+				Eip: &model.BindPublicReqEip{
+					BandWidth: &model.BindPublicReqEipBandWidth{
+						Size: int32(d.Get("public_access.0.bandwidth").(int)),
+					},
+				},
+				IsAutoPay: utils.Int32(1),
+			},
+		})
+
+		if err != nil {
+			return fmt.Errorf("error enabling public access of CSS cluster= %s, err: %s", d.Id(), err)
+		}
+
+		err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+
+	case 0:
+		// disable whitelist
+		if d.HasChanges("public_access.0.whitelist", "public_access.0.whitelist_enabled") {
+			if !d.Get("kibana_public_access.0.whitelist_enabled").(bool) {
+				_, err := cssV1Client.StopPublicWhitelist(&model.StopPublicWhitelistRequest{ClusterId: d.Id()})
+				if err != nil {
+					return fmt.Errorf("error disabling whitelist of public access of CSS cluster= %s, err: %s", d.Id(), err)
+				}
+			} else {
+				_, err := cssV1Client.StartPublicWhitelist(&model.StartPublicWhitelistRequest{
+					ClusterId: d.Id(),
+					Body: &model.StartPublicWhitelistReq{
+						WhiteList: d.Get("kibana_public_access.0.whitelist").(string),
+					},
+				})
+				if err != nil {
+					return fmt.Errorf("error modifing whitelist of public access of CSS cluster= %s, err: %s", d.Id(), err)
+				}
+			}
+		}
+
+		// update bandwidth
+		if d.HasChange("public_access.0.bandwidth") {
+			_, err := cssV1Client.UpdatePublicBandWidth(&model.UpdatePublicBandWidthRequest{
+				ClusterId: d.Id(),
+				Body: &model.BindPublicReqEipReq{
+					BandWidth: &model.BindPublicReqEipBandWidth{
+						Size: int32(d.Get("public_access.0.bandwidth").(int)),
+					},
+					IsAutoPay: utils.Int32(1),
+				},
+			})
+			if err != nil {
+				return fmt.Errorf("error disabling the whitelist of the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
+			}
+		}
+	}
+
+	return nil
 }
 
 func buildCssClusterV1ExtendClusterParameters(d *schema.ResourceData) (*model.UpdateExtendInstanceStorageRequest, error) {
@@ -1429,7 +1478,7 @@ func checkClusterDeleteResult(ctx context.Context, cssV1Client *v1.CssClient, cl
 					}
 
 					if err.StatusCode == 403 {
-						var apiError CssError
+						var apiError ResponseError
 						pErr := json.Unmarshal([]byte(err.ErrorMessage), &apiError)
 						if pErr == nil && apiError.ErrorCode == "CSS.0015" {
 							return true, "Done", nil
@@ -1532,7 +1581,7 @@ func updateCssTags(cssV1Client *v1.CssClient, id string, old, new map[string]int
 	return nil
 }
 
-type CssError struct {
+type ResponseError struct {
 	ErrorCode string `json:"errCode"`
 	ErrorMsg  string `json:"externalMessage"`
 }
