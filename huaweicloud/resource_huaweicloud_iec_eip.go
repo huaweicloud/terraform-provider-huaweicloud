@@ -53,6 +53,7 @@ func resourceIecNetworkEip() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.IntInSlice([]int{4}),
+				Description:  "schema: Computed",
 			},
 			"port_id": {
 				Type:     schema.TypeString,

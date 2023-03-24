@@ -125,15 +125,16 @@ The following arguments are supported:
 
 * `name` - (Required, String) Specifies the user name. The value can contain **1** to **64** characters.
 
-* `password` - (Required, Int) Specifies the user password.
+* `password` - (Required, String) Specifies the user password.
   The following conditions must be met:
   + **8** to **32** characters
   + It cannot be consistent with the positive and reverse order of the `account` parameter.
   + Contains at least two character types: lowercase letters, uppercase letters, numbers, special characters
     (**`~!@#$%^&*()-_=+|[{}];:",'<.>/?**).
 
-* `account` - (Optional, String) Specifies the user account. The value can contain **1** to **64** characters.
+* `account` - (Optional, String, ForceNew) Specifies the user account. The value can contain **1** to **64** characters.
   If omitted, the service will automatically generate a value.
+  Changing this parameter will create a new resource.
 
 * `third_account` - (Optional, String) Specifies the third-party account name.
 

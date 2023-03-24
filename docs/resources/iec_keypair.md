@@ -18,6 +18,9 @@ resource "huaweicloud_iec_keypair" "test_keypair" {
 
 The following arguments are supported:
 
+* `region` - (Optional, String, ForceNew) The region in which to create the keypair resource. If omitted, the
+  provider-level region will be used. Changing this creates a new resource.
+
 * `name` - (Required, String, ForceNew) Specifies a unique name for the keypair. This parameter can contain a maximum of
   64 characters, which may consist of letters, digits, underscores (_), and hyphens (-). Changing this parameter creates
   a new keypair resource.

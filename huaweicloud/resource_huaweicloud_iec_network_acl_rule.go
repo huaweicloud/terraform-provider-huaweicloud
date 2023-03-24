@@ -50,9 +50,10 @@ func resourceIecNetworkACLRule() *schema.Resource {
 				}, true),
 			},
 			"ip_version": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  4,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     4,
+				Description: "schema: Computed",
 			},
 			"source_ip_address": {
 				Type:     schema.TypeString,

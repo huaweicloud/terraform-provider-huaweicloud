@@ -65,4 +65,4 @@ In addition to all arguments above, the following attributes are exported:
 
 * `ip_version` - The version of elastic IP address. IEC services only support IPv4(4) now.
 
-* `poilicy_id` - The ID of the firewall policy for the iec network ACL.
+* `policy_id` - The ID of the firewall policy for the iec network ACL.

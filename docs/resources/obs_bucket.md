@@ -172,7 +172,7 @@ The following arguments are supported:
 * `versioning` - (Optional, Bool) Whether enable versioning. Once you version-enable a bucket, it can never return to an
   unversioned state. You can, however, suspend versioning on that bucket.
 
-* `logging` - (Optional, Map) A settings of bucket logging (documented below).
+* `logging` - (Optional, List) A settings of bucket logging (documented below).
 
 <!-- markdownlint-disable MD033 -->
 

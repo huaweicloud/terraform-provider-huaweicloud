@@ -20,6 +20,9 @@ resource "huaweicloud_iec_eip" "eip_test" {
 
 The following arguments are supported:
 
+* `region` - (Optional, String, ForceNew) The region in which to create the resource. If omitted, the
+  provider-level region will be used. Changing this creates a new resource.
+
 * `site_id` - (Required, String, ForceNew) Specifies the ID of IEC service site. Changing this parameter creates a new
   resource.
 
@@ -37,9 +40,10 @@ In addition to all arguments above, the following attributes are exported:
 * `status` - The status of elastic IP.
 * `public_ip` - The address of elastic IP.
 * `private_ip` - The address of private IP.
-* `bandwitch_name` - The name of bandwidth.
-* `bandwitch_size` - The size of bandwidth.
-* `bandwitch_share_type` - Whether the bandwidth is shared or exclusive.
+* `bandwidth_id` - The id of bandwidth.
+* `bandwidth_name` - The name of bandwidth.
+* `bandwidth_size` - The size of bandwidth.
+* `bandwidth_share_type` - Whether the bandwidth is shared or exclusive.
 * `site_info` - The located information of the IEC site. It contains area, province and city.
 
 ## Timeouts

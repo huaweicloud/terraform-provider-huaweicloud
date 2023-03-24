@@ -68,6 +68,9 @@ The following arguments are supported:
   + Cannot be the account name or account name spelled backwards.
   + The password can only start with a letter.
 
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id. Changing this will create
+  a new engine.
+
 * `description` - (Optional, String, ForceNew) Specifies the description of the dedicated microservice engine.
   The description can contain a maximum of `255` characters.
   Changing this will create a new engine.

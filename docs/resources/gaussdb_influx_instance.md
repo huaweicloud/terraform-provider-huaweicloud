@@ -127,11 +127,14 @@ The following arguments are supported:
 
 The `datastore` block supports:
 
-* `engine` - (Optional, String, ForceNew) Specifies the database engine. Only **influxdb** is supported now.
+* `engine` - (Required, String, ForceNew) Specifies the database engine. Only **influxdb** is supported now.
+  Changing this parameter will create a new resource.
 
-* `version` - (Optional, String, ForceNew) Specifies the database version.
+* `version` - (Required, String, ForceNew) Specifies the database version.
+  Changing this parameter will create a new resource.
 
-* `storage_engine` - (Optional, String, ForceNew) Specifies the storage engine. Only **rocksDB** is supported now.
+* `storage_engine` - (Required, String, ForceNew) Specifies the storage engine. Only **rocksDB** is supported now.
+  Changing this parameter will create a new resource.
 
 The `backup_strategy` block supports:
 

@@ -53,12 +53,14 @@ func ResourceIAMAgencyV3() *schema.Resource {
 				ExactlyOneOf: []string{"delegated_service_name"},
 				ValidateFunc: validation.StringDoesNotMatch(regexp.MustCompile("^op_svc_[A-Za-z]+"),
 					"the value can not start with op_svc_, use `delegated_service_name` instead"),
+				Description: "schema: Required",
 			},
 			"delegated_service_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: validation.StringMatch(regexp.MustCompile("^op_svc_[A-Za-z]+"),
 					"the value must start with op_svc_."),
+				Description: "schema: Internal",
 			},
 			"description": {
 				Type:     schema.TypeString,

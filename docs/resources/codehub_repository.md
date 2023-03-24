@@ -52,7 +52,7 @@ The following arguments are supported:
 * `import_url` - (Optional, String, ForceNew) The HTTPS address of the template repository encrypted using Base64.
   Changing this parameter will create a new resource.
 
-* `gitignore_language` - (Optional, String, ForceNew) The program language type for generating `.gitignore` files.
+* `gitignore_id` - (Optional, String, ForceNew) The program language type for generating `.gitignore` files.
   Changing this parameter will create a new resource.
 
 * `license_id` - (Optional, Int, ForceNew) The license ID for public repository. The valid values are as follows:

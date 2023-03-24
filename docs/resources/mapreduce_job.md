@@ -43,7 +43,8 @@ The following arguments are supported:
   MapReduce job resource.
 
 <!-- Placing the html block above list will lead to improperly rendered content -->
-* <a name="mapreduce_job_type">`type`</a> - (Required, String, ForceNew) Specifies the job type.
+* `type` - (Required, String, ForceNew) Specifies the job type.
+<a name="mapreduce_job_type"></a>
   The valid values are as follows:
   + [Flink](https://support.huaweicloud.com/intl/en-us/usermanual-mrs/mrs_01_0527.html)
   + [HiveSql](https://support.huaweicloud.com/intl/en-us/usermanual-mrs/mrs_01_0525.html)

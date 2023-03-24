@@ -47,7 +47,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `instance_name` - Indicates the name of a DDS instance.
 
-* `datastore` -
+* `datastore` - Indicates the database version.
   The [GetBackupResponseBody_datastore](#DdsBackup_GetBackupResponseBody_datastore) structure is documented below.
 
 * `type` - Indicates the backup type. Valid value:

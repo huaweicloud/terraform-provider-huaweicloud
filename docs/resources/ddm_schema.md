@@ -123,6 +123,8 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
   The [DataNode](#DdmSchema_DataNode) structure is documented below.
 
+* `delete_rds_data` - (Optional, String) Specifies whether data stored on the associated DB instances is deleted.
+
 <a name="DdmSchema_DataNode"></a>
 The `DataNode` block supports:
 

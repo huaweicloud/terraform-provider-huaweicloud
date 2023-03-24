@@ -60,13 +60,13 @@ If omitted, the provider-level region will be used. Changing this parameter will
 * `obs` - (Required, List) Specifies the obs for storing recordings.
 The [obs](#recording_obs) structure is documented below.
 
-* `hls` - (Required, List) Specifies the HLS configuration rule for storing recording as HLS.
+* `hls` - (Optional, List) Specifies the HLS configuration rule for storing recording as HLS.
 The [hls](#recording_HLS) structure is documented below.
 
-* `flv` - (Required, List) Specifies the FLV configuration rule for storing recording as FLV.
+* `flv` - (Optional, List) Specifies the FLV configuration rule for storing recording as FLV.
 The [flv](#recording_FLV_MP4) structure is documented below.
 
-* `mp4` - (Required, List) Specifies the MP4 configuration rule for storing recording as MP4.
+* `mp4` - (Optional, List) Specifies the MP4 configuration rule for storing recording as MP4.
 The [mp4](#recording_FLV_MP4) structure is documented below.
 
 -> At least one of `hls`, `flv`, `mp4` must be specified.
