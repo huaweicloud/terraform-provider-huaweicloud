@@ -34,7 +34,7 @@ The following arguments are supported:
 * `name` - (Required, String) Specifies the global accelerator name. The name can contain 1 to 64 characters.
   Only letters, digits, and hyphens (-) are allowed.
 
-* `ip_sets` - (Required, String, ForceNew) Specifies the IP addresses assigned to the global accelerator.
+* `ip_sets` - (Required, List, ForceNew) Specifies the IP addresses assigned to the global accelerator.
   The [AccelerateIp](#Accelerator_AccelerateIp) structure is documented below.
 
   Changing this parameter will create a new resource.

@@ -34,8 +34,11 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies the supplementary information about the agency. The value is a string of
   0 to 255 characters, excluding these characters: '**@#$%^&*<>\\**'.
 
-* `delegated_domain_name` - (Optional, String) Specifies the name of delegated user domain. This parameter
-  and `delegated_service_name` are alternative.
+* `delegated_domain_name` - (Optional, String) Specifies the name of delegated user domain.
+  The value can not start with `op_svc_`. This parameter and `delegated_service_name` are alternative.
+
+* `delegated_service_name` - (Optional, String) Specifies the name of delegated user domain.
+  The value must start with `op_svc_`. This parameter will be used if `delegated_domain_name` not specified.
 
 * `duration` - (Optional, String) Specifies the validity period of an agency. The valid value are *ONEDAY* and *FOREVER*
   , defaults to *FOREVER*.
@@ -43,7 +46,7 @@ The following arguments are supported:
 * `project_role` - (Optional, List) Specifies an array of one or more roles and projects which are used to grant
   permissions to agency on project. The structure is documented below.
 
-* `domain_roles` - (optional, List) Specifies an array of one or more role names which stand for the permissionis to be
+* `domain_roles` - (Optional, List) Specifies an array of one or more role names which stand for the permissionis to be
   granted to agency on domain.
 
 The `project_role` block supports:

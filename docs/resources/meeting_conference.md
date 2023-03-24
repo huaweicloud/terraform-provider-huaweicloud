@@ -35,7 +35,7 @@ resource "huaweicloud_meeting_conference" "test" {
 
   participants {
     account_id = var.account_id
-    role       = 1   
+    role       = 1
     phone      = "+99123456789876432"
     email      = "email@example.com"
   }
@@ -161,7 +161,7 @@ The following arguments are supported:
 
 * `meeting_room_id` - (Required, String) Specifies the cloud meeting room ID.
 
-* `duration` - (Optional, Int) Specifies the duration of the conference, in minutes.
+* `duration` - (Required, Int) Specifies the duration of the conference, in minutes.
   The valid value is range from `15` to `1440`, defaults to `30`.
 
   -> After the conference starts, only support extend duration, shorten duration is not supported.
@@ -381,6 +381,9 @@ In addition to all arguments above, the following attributes are exported:
 * `subconferences` - The list of periodic sub-conferences.
   The [object](#conference_subconferences) structure is documented below.
 
+* `join_password` - The meeting password.
+  The [join_password](#join_password) structure is documented below.
+
 <a name="conference_subconferences"></a>
 The `subconferences` block supports:
 
@@ -399,6 +402,13 @@ The `subconferences` block supports:
 * `subconfiguration` - The other configuration information of periodic subconferences.
   The [object](#conference_subconfiguration) structure is documented below.
 
+<a name="join_password"></a>
+The `join_password` block supports:
+
+* `host` - The password of the meeting host.
+
+* `guest` - The password of the common participant.
+
 <a name="conference_subconfiguration"></a>
 The `subconfiguration` block supports:
 
@@ -413,7 +423,7 @@ The `subconfiguration` block supports:
 
 * `waiting_room_enabled` - Whether to open the waiting room (only valid for RTC enterprises).
 
-* `show_audience_policy` - The webinar Audience Display Strategy.
+* `show_audience_policies` - The webinar Audience Display Strategy.
   The [object](#conference_show_audience_policy) structure is documented below.
 
 <a name="conference_show_audience_policy"></a>

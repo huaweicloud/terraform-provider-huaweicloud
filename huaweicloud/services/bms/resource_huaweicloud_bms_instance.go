@@ -123,6 +123,7 @@ func ResourceBmsInstance() *schema.Resource {
 			"security_groups": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				ForceNew: true,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,

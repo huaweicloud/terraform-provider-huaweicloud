@@ -51,14 +51,16 @@ resource "huaweicloud_identity_role_assignment" "role_assignment_1" {
 The following arguments are supported:
 
 * `role_id` - (Required, String, ForceNew) Specifies the role to assign.
+  Changing this parameter will create a new resource.
 
 * `group_id` - (Required, String, ForceNew) Specifies the group to assign the role to.
+  Changing this parameter will create a new resource.
 
-* `domain_id` - (Optional, String, ForceNew; Required if `project_id` is empty) Specifies the domain to assign the role
-  in.
+* `domain_id` - (Optional, String, ForceNew) Specifies the domain to assign the role in.
+  Required if `project_id` is empty. Changing this parameter will create a new resource.
 
-* `project_id` - (Optional, String, ForceNew; Required if `domain_id` is empty) Specifies the project to assign the role
-  in.
+* `project_id` - (Optional, String, ForceNew) Specifies the project to assign the role in.
+  Required if `domain_id` is empty. Changing this parameter will create a new resource.
 
 ## Attributes Reference
 

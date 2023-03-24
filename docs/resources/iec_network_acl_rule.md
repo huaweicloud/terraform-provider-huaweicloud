@@ -42,6 +42,8 @@ The following arguments are supported:
 * `action` - (Optional, String) Specifies the action in the iec network ACL rule. Currently, the value can be *allow*
   or *deny*.
 
+* `ip_version` - (Optional, Int) Specifies the version of elastic IP address. IEC services only support IPv4(4) now.
+
 * `source_ip_address` - (Optional, String) Specifies the source IP address that the traffic is allowed from. The default
   value is *0.0.0.0/0*. For example:
   xxx.xxx.xxx.xxx (IP address), xxx.xxx.xxx.0/24 (CIDR block).
@@ -63,6 +65,4 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID in UUID format.
 
-* `ip_version` - The version of elastic IP address. IEC services only support IPv4(4) now.
-
-* `poilicy_id` - The ID of the firewall policy for the iec network ACL.
+* `policy_id` - The ID of the firewall policy for the iec network ACL.

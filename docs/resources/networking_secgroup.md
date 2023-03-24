@@ -89,6 +89,8 @@ The `rules` block supports:
 * `ethertype` - The IP protocol version. The value can be *IPv4* or *IPv6*.
 * `protocol` - The protocol type.
 * `ports` - The port value range.
+* `port_range_min` - The start port number.
+* `port_range_max` - The end port number.
 * `remote_ip_prefix` - The remote IP address. The value can be in the CIDR format or IP addresses.
 * `remote_group_id` - The ID of the peer security group.
 * `remote_address_group_id` - The ID of the remote address group.

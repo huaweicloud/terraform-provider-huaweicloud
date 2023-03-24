@@ -90,12 +90,10 @@ The following arguments are supported:
   + **non-dbs**: self-built database.
   
 * `source_db` - (Required, List, ForceNew) Specifies the source database configuration.
- The `db_info` object structure of the `source_db` is documented below.
- Changing this parameter will create a new resource.
+  The [object](#db_info) structure is documented below.
 
 * `destination_db` - (Required, List, ForceNew) Specifies the destination database configuration.
- The `db_info` object structure of the `destination_db` is documented below.
- Changing this parameter will create a new resource.
+  The [object](#db_info) structure is documented below.
 
 * `net_type` - (Optional, String, ForceNew) Specifies the network type.
  Changing this parameter will create a new resource. The options are as follows:
@@ -153,6 +151,7 @@ The following arguments are supported:
 * `force_destroy` - (Optional, Bool) Specifies whether to forcibly destroy the job even if it is running.
  The default value is `false`.
 
+<a name="db_info"></a>
 The `db_info` block supports:
 
 * `engine_type` - (Required, String, ForceNew) Specifies the engine type of database. Changing this parameter will
@@ -160,7 +159,7 @@ The `db_info` block supports:
 
 * `ip` - (Required, String, ForceNew) Specifies the IP of database. Changing this parameter will create a new resource.
 
-* `port` - (Required, String, ForceNew) Specifies the port of database. Changing this parameter will create a new resource.
+* `port` - (Required, Int, ForceNew) Specifies the port of database. Changing this parameter will create a new resource.
 
 * `user` - (Required, String, ForceNew) Specifies the user name of database.
  Changing this parameter will create a new resource.
@@ -177,7 +176,10 @@ The `db_info` block supports:
 * `region` - (Optional, String, ForceNew) Specifies the region which the database belongs when it is a RDS database.
  Changing this parameter will create a new resource.
 
-* `ssl_enabled` - (Optional, String, ForceNew) Specifies whether to enable SSL connection.
+* `name` - (Optional, String, ForceNew) Specifies the name of database.
+  Changing this parameter will create a new resource.
+
+* `ssl_enabled` - (Optional, Bool, ForceNew) Specifies whether to enable SSL connection.
  Changing this parameter will create a new resource.
 
 * `ssl_cert_key` - (Optional, String, ForceNew) Specifies the SSL certificate content, encrypted with base64.

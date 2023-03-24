@@ -42,7 +42,8 @@ resource "huaweicloud_identity_provider_conversion" "conversion" {
 
 The following arguments are supported:
 
-* `provider_id` - (Required, String) The ID of the identity provider used to manage the conversion rules.
+* `provider_id` - (Required, String, ForceNew) The ID of the identity provider used to manage the conversion rules.
+  Changing this parameter will create a new resource.
 
 * `conversion_rules` - (Required, List) Specifies the identity conversion rules of the identity provider.
   You can use identity conversion rules to map the identities of existing users to Huawei Cloud and manage their access

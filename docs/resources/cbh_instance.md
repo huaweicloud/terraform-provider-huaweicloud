@@ -73,7 +73,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `period` - (Required, String, ForceNew) Specifies the charging period of the read replica instance.
+* `period` - (Required, Int, ForceNew) Specifies the charging period of the read replica instance.
   If `period_unit` is set to **month**, the value ranges from 1 to 9.
   If `period_unit` is set to **year**, the value ranges from 1 to 3.
   This parameter is mandatory if `charging_mode` is set to **prePaid**.

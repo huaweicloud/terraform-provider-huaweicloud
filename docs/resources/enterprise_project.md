@@ -20,7 +20,7 @@ resource "huaweicloud_enterprise_project" "test" {
 
 ## Argument Reference
 
-* `name` - (Optional, String) Specifies the name of the enterprise project.
+* `name` - (Required, String) Specifies the name of the enterprise project.
   This parameter can contain `1` to `64` characters. Only letters, digits, underscores (_), and hyphens (-) are allowed.
   The name must be unique in the domain and cannot include any form of the word "default" ("deFaulT", for instance).
 

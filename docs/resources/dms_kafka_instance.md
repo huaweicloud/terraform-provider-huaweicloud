@@ -243,7 +243,7 @@ The following arguments are supported:
 <a name="dms_cross_vpc_accesses"></a>
 The `cross_vpc_accesses` block supports:
 
-* `advertised_ip` -(Optional, String) The advertised IP Address or domain name.
+* `advertised_ip` - (Optional, String) The advertised IP Address or domain name.
 
 ## Attributes Reference
 
@@ -251,8 +251,6 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies a resource ID in UUID format.
 * `engine` - Indicates the message engine.
-* `bandwidth` - The Bandwidth of a Kafka instance, that is the maximum amount of data transferred per unit time.
-  Unit: MB.
 * `partition_num` - Indicates the maximum number of topics in the DMS Kafka instance.
 * `used_storage_space` - Indicates the used message storage space. Unit: GB
 * `port` - Indicates the port number of the DMS Kafka instance.

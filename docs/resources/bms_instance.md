@@ -212,9 +212,15 @@ In addition to all arguments above, the following attributes are exported:
 * `description` - The description of the instance.
 * `image_name` - The image_name of the instance.
 * `public_ip` - The EIP address that is associted to the instance.
-* `nics/mac_address` - The MAC address of the nic.
-* `nics/port_id` - The port ID corresponding to the IP address.
+* `nics` - An array of one or more networks to attach to the instance.
+  The [nics_struct](#BMS_Response_nics_struct) structure is documented below.
 * `disk_ids` - The ID of disks attached.
+
+<a name="BMS_Response_nics_struct"></a>
+The `nics_struct` block supports:
+
+* `mac_address` - The MAC address of the nic.
+* `port_id` - The port ID corresponding to the IP address.
 
 ## Timeouts
 

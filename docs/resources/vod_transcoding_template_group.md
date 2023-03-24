@@ -47,7 +47,7 @@ The following arguments are supported:
 * `name` - (Required, String) Specifies the name of the template group. The value can be a string of 1 to 128
   characters that can consist of letters, digits and underscores (_).
 
-* `quality_info`- (Required, List) Specifies the quality info list of the template group.
+* `quality_info` - (Required, List) Specifies the quality info list of the template group.
   The [object](#quality_info_object) structure is documented below.
 
 * `low_bitrate_hd` - (Optional, Bool) Specifies whether to enable low bitrate HD. Defaults to: **false**.

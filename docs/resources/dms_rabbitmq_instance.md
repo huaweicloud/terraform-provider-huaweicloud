@@ -111,7 +111,7 @@ The following arguments are supported:
   If parameter `maintain_end` is left  blank, parameter `maintain_begin` is also blank.
   In this case, the system automatically allocates the default end time 06:00.
 
-* `ssl_enable` - (Optional, String, ForceNew) Specifies whether to enable public access for the DMS RabbitMQ instance.
+* `ssl_enable` - (Optional, Bool, ForceNew) Specifies whether to enable public access for the DMS RabbitMQ instance.
   Changing this creates a new instance resource.
 
 * `public_ip_id` - (Optional, String) Specifies the ID of the elastic IP address (EIP)
