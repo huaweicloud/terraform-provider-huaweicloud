@@ -44,18 +44,12 @@ func ResourceObsBucket() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "STANDARD",
-				ValidateFunc: validation.StringInSlice([]string{
-					"STANDARD", "WARM", "COLD",
-				}, true),
 			},
 
 			"acl": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "private",
-				ValidateFunc: validation.StringInSlice([]string{
-					"private", "public-read", "public-read-write", "log-delivery-write",
-				}, true),
 			},
 
 			"policy": {
@@ -161,9 +155,6 @@ func ResourceObsBucket() *schema.Resource {
 									"storage_class": {
 										Type:     schema.TypeString,
 										Required: true,
-										ValidateFunc: validation.StringInSlice([]string{
-											"WARM", "COLD",
-										}, true),
 									},
 								},
 							},
@@ -192,9 +183,6 @@ func ResourceObsBucket() *schema.Resource {
 									"storage_class": {
 										Type:     schema.TypeString,
 										Required: true,
-										ValidateFunc: validation.StringInSlice([]string{
-											"WARM", "COLD",
-										}, true),
 									},
 								},
 							},
