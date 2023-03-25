@@ -83,6 +83,10 @@ The following arguments are supported:
   This parameter will be affected by these parameters and will appear when `terraform plan` or `terraform apply`.
   If it is inconsistent with the script configuration, it can be ignored by `ignore_changes` in non-change scenarios.
 
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID to which the dedicated
+  microservice engine belongs.  
+  Changing this will create a new engine.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -117,7 +121,7 @@ This resource provides the following timeouts configuration options:
 
 Engines can be imported using their `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_cse_microservice_engine.test eddc5d42-f9d5-4f8e-984b-d6f3e088561c
 ```
 
@@ -137,4 +141,11 @@ resource "huaweicloud_cse_microservice_engine" "test" {
     ]
   }
 }
+```
+
+For the engine created with the `enterprise_project_id`, its enterprise project ID needs to be specified additionally
+when importing, the format is `<id>/<enterprise_project_id>`, e.g.
+
+```bash
+$ terraform import huaweicloud_cse_microservice_engine.test eddc5d42-f9d5-4f8e-984b-d6f3e088561c/ef101e1a-990c-42cd-bb99-a4474e41e461
 ```

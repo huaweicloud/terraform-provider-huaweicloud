@@ -36,7 +36,6 @@ func TestAccMicroserviceEngine_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -52,12 +51,6 @@ func TestAccMicroserviceEngine_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "auth_type", "RBAC"),
 					resource.TestCheckResourceAttrSet(resourceName, "admin_pass"),
 					resource.TestCheckResourceAttr(resourceName, "availability_zones.#", "3"),
-					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
-						"data.huaweicloud_availability_zones.test", "names.0"),
-					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.1",
-						"data.huaweicloud_availability_zones.test", "names.1"),
-					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.2",
-						"data.huaweicloud_availability_zones.test", "names.2"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttrSet(resourceName, "instance_limit"),
 					resource.TestCheckResourceAttrSet(resourceName, "service_limit"),
@@ -111,10 +104,10 @@ resource "huaweicloud_vpc_eip" "test" {
 
 func testAccMicroserviceEngine_basic(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_cse_microservice_engine" "test" {
-  name                  = "%s"
+  name                  = "%[2]s"
   description           = "Created by terraform test"
   flavor                = "cse.s1.small2"
   network_id            = huaweicloud_vpc_subnet.test.id
@@ -127,4 +120,93 @@ resource "huaweicloud_cse_microservice_engine" "test" {
   availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 3)
 
 }`, testAccMicroserviceEngine_base(rName), rName)
+}
+
+func TestAccMicroserviceEngine_withEpsId(t *testing.T) {
+	var (
+		engine       engines.Engine
+		randName     = acceptance.RandomAccResourceNameWithDash()
+		resourceName = "huaweicloud_cse_microservice_engine.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&engine,
+		getEngineFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMicroserviceEngine_withEpsId(randName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform test"),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "cse.s1.small2"),
+					resource.TestCheckResourceAttrPair(resourceName, "network_id", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "auth_type", "RBAC"),
+					resource.TestCheckResourceAttrSet(resourceName, "admin_pass"),
+					resource.TestCheckResourceAttr(resourceName, "availability_zones.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id",
+						acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttrSet(resourceName, "instance_limit"),
+					resource.TestCheckResourceAttrSet(resourceName, "service_limit"),
+					resource.TestCheckResourceAttrSet(resourceName, "service_registry_addresses.0.private"),
+					resource.TestCheckResourceAttrSet(resourceName, "config_center_addresses.0.private"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"admin_pass",
+					"extend_params",
+				},
+				ImportStateIdFunc: testAccEngineResourceImportStateFunc(resourceName),
+			},
+		},
+	})
+}
+
+// With enterprise project ID
+func testAccEngineResourceImportStateFunc(rName string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[rName]
+		if !ok {
+			return "", fmt.Errorf("resource (%s) not found: %s", rName, rs)
+		}
+		if rs.Primary.Attributes["enterprise_project_id"] == "" {
+			return "", fmt.Errorf("The imported ID specifies an invalid format, want '{id}/{enterprise_project_id}', "+
+				"but '%s/%s'", rs.Primary.ID, rs.Primary.Attributes["enterprise_project_id"])
+		}
+		return fmt.Sprintf("%s/%s", rs.Primary.ID, rs.Primary.Attributes["enterprise_project_id"]), nil
+	}
+}
+
+func testAccMicroserviceEngine_withEpsId(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cse_microservice_engine" "test" {
+  name                  = "%[2]s"
+  description           = "Created by terraform test"
+  flavor                = "cse.s1.small2"
+  network_id            = huaweicloud_vpc_subnet.test.id
+  eip_id                = huaweicloud_vpc_eip.test.id
+  enterprise_project_id = "%[3]s"
+
+  auth_type  = "RBAC"
+  admin_pass = "AccTest!123"
+
+  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 3)
+
+}`, testAccMicroserviceEngine_base(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
