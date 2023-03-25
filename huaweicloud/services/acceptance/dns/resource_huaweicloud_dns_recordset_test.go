@@ -2,6 +2,7 @@ package dns
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -214,6 +215,14 @@ func TestAccDNSRecordset_privateZone(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "tags.key", "value_private_update"),
 				),
 			},
+			{
+				Config:      testDNSRecordset_privateZone_updateWeight(name),
+				ExpectError: regexp.MustCompile(`private zone do not support.`),
+			},
+			{
+				Config:      testDNSRecordset_privateZone_updateLineID(name),
+				ExpectError: regexp.MustCompile(`private zone do not support.`),
+			},
 		},
 	})
 }
@@ -339,6 +348,50 @@ resource "huaweicloud_dns_recordset" "test" {
   status      = "ENABLE"
   ttl         = 900
   records     = ["\"test records\""]
+
+  tags = {
+    foo = "bar_private_update"
+    key = "value_private_update"
+  }
+}
+`, testAccDNSZone_private(name), name)
+}
+
+func testDNSRecordset_privateZone_updateWeight(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_dns_recordset" "test" {
+  zone_id     = huaweicloud_dns_zone.zone_1.id
+  name        = "update.%s"
+  type        = "TXT"
+  description = "a private record set update"
+  status      = "ENABLE"
+  ttl         = 900
+  records     = ["\"test records\""]
+  weight      = 3
+
+  tags = {
+    foo = "bar_private_update"
+    key = "value_private_update"
+  }
+}
+`, testAccDNSZone_private(name), name)
+}
+
+func testDNSRecordset_privateZone_updateLineID(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_dns_recordset" "test" {
+  zone_id     = huaweicloud_dns_zone.zone_1.id
+  name        = "update.%s"
+  type        = "TXT"
+  description = "a private record set update"
+  status      = "ENABLE"
+  ttl         = 900
+  records     = ["\"test records\""]
+  line_id     = "Dianxin_Shanxi"
 
   tags = {
     foo = "bar_private_update"
