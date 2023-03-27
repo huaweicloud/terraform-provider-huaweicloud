@@ -104,14 +104,14 @@ func resourceDNSPtrRecordCreate(ctx context.Context, d *schema.ResourceData, met
 		EnterpriseProjectID: common.GetEnterpriseProjectID(d, conf),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
-	fip_id := d.Get("floatingip_id").(string)
-	n, err := ptrrecords.Create(dnsClient, region, fip_id, createOpts).Extract()
+	log.Printf("[DEBUG] Create options: %#v", createOpts)
+	fipId := d.Get("floatingip_id").(string)
+	n, err := ptrrecords.Create(dnsClient, region, fipId, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating DNS PTR record: %s", err)
 	}
 
-	log.Printf("[DEBUG] Waiting for DNS PTR record (%s) to become available", n.ID)
+	log.Printf("[DEBUG] Waiting for DNS PTR record (%s) to become ACTIVE", n.ID)
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE"},
 		Pending:    []string{"PENDING_CREATE"},
@@ -170,10 +170,10 @@ func resourceDNSPtrRecordRead(_ context.Context, d *schema.ResourceData, meta in
 	if resourceTags, err := tags.Get(dnsClient, "DNS-ptr_record", d.Id()).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return diag.Errorf("error saving tags to state for DNS ptr record (%s): %s", d.Id(), err)
+			return diag.Errorf("error saving tags to state for DNS PTR record (%s): %s", d.Id(), err)
 		}
 	} else {
-		log.Printf("[WARN] Error fetching tags of DNS ptr record (%s): %s", d.Id(), err)
+		log.Printf("[WARN] Error fetching tags of DNS PTR record (%s): %s", d.Id(), err)
 	}
 
 	return nil
@@ -194,14 +194,14 @@ func resourceDNSPtrRecordUpdate(ctx context.Context, d *schema.ResourceData, met
 			TTL:         d.Get("ttl").(int),
 		}
 
-		log.Printf("[DEBUG] Update Options: %#v", updateOpts)
-		fip_id := d.Get("floatingip_id").(string)
-		n, err := ptrrecords.Create(dnsClient, region, fip_id, updateOpts).Extract()
+		log.Printf("[DEBUG] Update options: %#v", updateOpts)
+		fipId := d.Get("floatingip_id").(string)
+		n, err := ptrrecords.Create(dnsClient, region, fipId, updateOpts).Extract()
 		if err != nil {
 			return diag.Errorf("error updating DNS PTR record: %s", err)
 		}
 
-		log.Printf("[DEBUG] Waiting for DNS PTR record (%s) to become available", n.ID)
+		log.Printf("[DEBUG] Waiting for DNS PTR record (%s) to become ACTIVE", n.ID)
 		stateConf := &resource.StateChangeConf{
 			Target:     []string{"ACTIVE"},
 			Pending:    []string{"PENDING_CREATE"},

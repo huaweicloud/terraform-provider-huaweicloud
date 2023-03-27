@@ -107,7 +107,7 @@ func resourceDNSRecordSetV2Create(ctx context.Context, d *schema.ResourceData, m
 		Type:        d.Get("type").(string),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create options: %#v", createOpts)
 	n, err := recordsets.Create(dnsClient, zoneID, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating DNS record set: %s", err)
@@ -116,7 +116,7 @@ func resourceDNSRecordSetV2Create(ctx context.Context, d *schema.ResourceData, m
 	id := fmt.Sprintf("%s/%s", zoneID, n.ID)
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Waiting for DNS record set (%s) to become available", n.ID)
+	log.Printf("[DEBUG] Waiting for DNS record set (%s) to become ACTIVE", n.ID)
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE"},
 		Pending:    []string{"PENDING"},
@@ -331,16 +331,16 @@ func waitForDNSRecordSet(dnsClient *golangsdk.ServiceClient, zoneID, recordsetId
 	}
 }
 
-func parseDNSV2RecordSetID(id string) (string, string, error) {
+func parseDNSV2RecordSetID(id string) (zoneID string, recordsetID string, err error) {
 	idParts := strings.Split(id, "/")
 	if len(idParts) != 2 {
-		return "", "", fmt.Errorf("unable to determine DNS record set ID from raw ID: %s", id)
+		err = fmt.Errorf("unable to determine DNS record set ID from raw ID: %s", id)
+		return
 	}
 
-	zoneID := idParts[0]
-	recordsetID := idParts[1]
-
-	return zoneID, recordsetID, nil
+	zoneID = idParts[0]
+	recordsetID = idParts[1]
+	return
 }
 
 func chooseDNSClientbyZoneID(d *schema.ResourceData, zoneID string, meta interface{}) (*golangsdk.ServiceClient, string, error) {
