@@ -75,7 +75,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/oms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/projectman"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rds"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rf"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rfs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/scm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/servicestage"
@@ -614,7 +614,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aom_alarm_rule":             aom.ResourceAlarmRule(),
 			"huaweicloud_aom_service_discovery_rule": aom.ResourceServiceDiscoveryRule(),
 
-			"huaweicloud_rf_stack": rf.ResourceStack(),
+			"huaweicloud_rfs_stack": rfs.ResourceStack(),
 
 			"huaweicloud_api_gateway_api":   ResourceAPIGatewayAPI(),
 			"huaweicloud_api_gateway_group": ResourceAPIGatewayGroup(),
@@ -1032,6 +1032,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_rds_instance_v3":       rds.ResourceRdsInstance(),
 			"huaweicloud_rds_parametergroup_v3": rds.ResourceRdsConfiguration(),
+
+			"huaweicloud_rf_stack": rfs.ResourceStack(),
 
 			"huaweicloud_nat_dnat_rule_v2": nat.ResourcePublicDnatRule(),
 			"huaweicloud_nat_gateway_v2":   nat.ResourcePublicGateway(),

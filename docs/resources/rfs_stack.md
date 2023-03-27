@@ -2,13 +2,13 @@
 subcategory: "Application Orchestration Service (AOS)"
 ---
 
-# huaweicloud_rf_stack
+# huaweicloud_rfs_stack
 
-Provides an RF resource stack.
+Provides an RFS resource stack.
 
 ## Example Usage
 
-### Create an RF resource stack with resource deployment (using OBS URIs)
+### Create an RFS resource stack with resource deployment (using OBS URIs)
 
 ```hcl
 variable "stack_name" {}
@@ -16,7 +16,7 @@ variable "agency_name" {}
 variable "template_obs_uri" {}
 variable "variable_obs_uri" {}
 
-resource "huaweicloud_rf_stack" "test" {
+resource "huaweicloud_rfs_stack" "test" {
   name = var.stack_name
 
   agency {
@@ -28,7 +28,7 @@ resource "huaweicloud_rf_stack" "test" {
   vars_uri     = var.variable_obs_uri
 ```
 
-### Create an RF resource stack with VPC deployment (using template and variable files)
+### Create an RFS resource stack with VPC deployment (using template and variable files)
 
 ```hcl
 variable "stack_name" {}
@@ -36,7 +36,7 @@ variable "agency_name" {}
 variable "template_path" {}
 variable "variable_path" {}
 
-resource "huaweicloud_rf_stack" "test" {
+resource "huaweicloud_rfs_stack" "test" {
   name = var.stack_name
 
   agency {
@@ -110,7 +110,7 @@ subnet_name = "tf-example-vpc-subnet"
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region where the RF resource stack is located.  
+* `region` - (Optional, String, ForceNew) Specifies the region where the RFS resource stack is located.  
   If omitted, the provider-level region will be used. Change this parameter will create a new resource.
 
 * `name` - (Required, String, ForceNew) Specifies the name of the resource stack.  
@@ -178,10 +178,10 @@ This resource provides the following timeouts configuration options:
 * `delete` - Default is 5 minutes.
 
 For most HCL templates, the timeout parameters needs to be manually configured by the user to ensure that resources can
-be deployed successfully on the RF resource stack, e.g.
+be deployed successfully on the RFS resource stack, e.g.
 
 ```hcl
-resource "huaweicloud_rf_stack" "test" {
+resource "huaweicloud_rfs_stack" "test" {
   ...
 
   timeouts {
@@ -196,7 +196,7 @@ resource "huaweicloud_rf_stack" "test" {
 Stacks can be imported using their `id`, e.g.
 
 ```
-$ terraform import huaweicloud_rf_stack.test edd2f099-e1ac-4bd0-be32-8b2185620a90
+$ terraform import huaweicloud_rfs_stack.test edd2f099-e1ac-4bd0-be32-8b2185620a90
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
@@ -206,7 +206,7 @@ importing a stack. You can keep the resource the same with its definition bo cho
 Also you can ignore changes as below.
 
 ```hcl
-resource "huaweicloud_rf_stack" "test" {
+resource "huaweicloud_rfs_stack" "test" {
   ...
 
   lifecycle {

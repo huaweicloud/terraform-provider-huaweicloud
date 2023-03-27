@@ -1,4 +1,4 @@
-package rf
+package rfs
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rf"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rfs"
 )
 
 func getStackesourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -19,14 +19,14 @@ func getStackesourceFunc(config *config.Config, state *terraform.ResourceState) 
 		return nil, fmt.Errorf("error creating AOS v3 client: %s", err)
 	}
 
-	return rf.QueryStackById(client, state.Primary.ID)
+	return rfs.QueryStackById(client, state.Primary.ID)
 }
 
 func TestAccStack_basic(t *testing.T) { // the template file is json format.
 	var (
 		obj stacks.Stack
 
-		rName = "huaweicloud_rf_stack.test"
+		rName = "huaweicloud_rfs_stack.test"
 		name  = acceptance.RandomAccResourceNameWithDash()
 	)
 
@@ -82,7 +82,7 @@ func TestAccStack_basic(t *testing.T) { // the template file is json format.
 
 func testAccStack_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_rf_stack" "test" {
+resource "huaweicloud_rfs_stack" "test" {
   name        = "%[1]s"
   description = "Create by acc test"
 }
@@ -91,7 +91,7 @@ resource "huaweicloud_rf_stack" "test" {
 
 func testAccStack_withBody_step1(name, template string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_rf_stack" "test" {
+resource "huaweicloud_rfs_stack" "test" {
   name        = "%[1]s"
   description = "Create by acc test"
 
@@ -107,7 +107,7 @@ resource "huaweicloud_rf_stack" "test" {
 
 func testAccStack_withBody_step2(name, template, vars string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_rf_stack" "test" {
+resource "huaweicloud_rfs_stack" "test" {
   name        = "%[1]s"
   description = "Create by acc test"
 
@@ -126,7 +126,7 @@ func TestAccStack_withBody_HCL(t *testing.T) {
 	var (
 		obj stacks.Stack
 
-		rName = "huaweicloud_rf_stack.test"
+		rName = "huaweicloud_rfs_stack.test"
 		name  = acceptance.RandomAccResourceNameWithDash()
 	)
 
@@ -184,7 +184,7 @@ func TestAccStack_withUri_JSON(t *testing.T) {
 	var (
 		obj stacks.Stack
 
-		rName = "huaweicloud_rf_stack.test"
+		rName = "huaweicloud_rfs_stack.test"
 		name  = acceptance.RandomAccResourceNameWithDash()
 	)
 
@@ -288,7 +288,7 @@ func testAccStack_withUri_step1(name, template, vars string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_rf_stack" "test" {
+resource "huaweicloud_rfs_stack" "test" {
   name = "%[2]s"
 
   agency {
@@ -305,7 +305,7 @@ func testAccStack_withUri_step2(name, template, vars string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_rf_stack" "test" {
+resource "huaweicloud_rfs_stack" "test" {
   name = "%[2]s"
 
   agency {
@@ -323,7 +323,7 @@ func TestAccStack_withUri_HCL(t *testing.T) {
 	var (
 		obj stacks.Stack
 
-		rName = "huaweicloud_rf_stack.test"
+		rName = "huaweicloud_rfs_stack.test"
 		name  = acceptance.RandomAccResourceNameWithDash()
 	)
 
@@ -380,7 +380,7 @@ func TestAccStack_archive(t *testing.T) {
 	var (
 		obj stacks.Stack
 
-		rName = "huaweicloud_rf_stack.test"
+		rName = "huaweicloud_rfs_stack.test"
 		name  = acceptance.RandomAccResourceNameWithDash()
 	)
 
@@ -436,7 +436,7 @@ func TestAccStack_archive(t *testing.T) {
 
 func testAccStack_archive_step1(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_rf_stack" "test" {
+resource "huaweicloud_rfs_stack" "test" {
   name = "%[1]s"
 
   agency {
@@ -451,7 +451,7 @@ resource "huaweicloud_rf_stack" "test" {
 
 func testAccStack_archive_step2(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_rf_stack" "test" {
+resource "huaweicloud_rfs_stack" "test" {
   name = "%[1]s"
 
   agency {
