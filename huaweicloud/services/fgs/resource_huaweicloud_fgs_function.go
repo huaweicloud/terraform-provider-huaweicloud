@@ -90,6 +90,7 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ConflictsWith: []string{"package"},
+				Description:   "schema: Required",
 			},
 			"code_url": {
 				Type:     schema.TypeString,
@@ -455,7 +456,7 @@ func resourceFgsFunctionV2Update(d *schema.ResourceData, meta interface{}) error
 	//lintignore:R019
 	if d.HasChanges("app", "handler", "depend_list", "memory_size", "timeout", "encrypted_user_data",
 		"user_data", "agency", "app_agency", "description", "initializer_handler", "initializer_timeout",
-		"vpc_id", "network_id", "mount_user_id", "mount_user_group_id", "func_mounts") {
+		"vpc_id", "network_id", "mount_user_id", "mount_user_group_id", "func_mounts", "custom_image") {
 		err := resourceFgsFunctionV2MetadataUpdate(fgsClient, urn, d)
 		if err != nil {
 			return err

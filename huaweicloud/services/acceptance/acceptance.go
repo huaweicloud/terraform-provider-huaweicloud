@@ -67,12 +67,13 @@ var (
 	HW_DLI_DS_AUTH_KRB_CONF_OBS_PATH    = os.Getenv("HW_DLI_DS_AUTH_KRB_CONF_OBS_PATH")
 	HW_DLI_DS_AUTH_KRB_TAB_OBS_PATH     = os.Getenv("HW_DLI_DS_AUTH_KRB_TAB_OBS_PATH")
 
-	HW_GITHUB_REPO_HOST      = os.Getenv("HW_GITHUB_REPO_HOST")      // Repository host (Github, Gitlab, Gitee)
-	HW_GITHUB_PERSONAL_TOKEN = os.Getenv("HW_GITHUB_PERSONAL_TOKEN") // Personal access token (Github, Gitlab, Gitee)
-	HW_GITHUB_REPO_PWD       = os.Getenv("HW_GITHUB_REPO_PWD")       // Repository password (DevCloud, BitBucket)
-	HW_GITHUB_REPO_URL       = os.Getenv("HW_GITHUB_REPO_URL")       // Repository URL (Github, Gitlab, Gitee)
-	HW_OBS_STORAGE_URL       = os.Getenv("HW_OBS_STORAGE_URL")       // OBS storage URL where ZIP file is located
-	HW_BUILD_IMAGE_URL       = os.Getenv("HW_BUILD_IMAGE_URL")       // SWR Image URL for component deployment
+	HW_GITHUB_REPO_HOST        = os.Getenv("HW_GITHUB_REPO_HOST")        // Repository host (Github, Gitlab, Gitee)
+	HW_GITHUB_PERSONAL_TOKEN   = os.Getenv("HW_GITHUB_PERSONAL_TOKEN")   // Personal access token (Github, Gitlab, Gitee)
+	HW_GITHUB_REPO_PWD         = os.Getenv("HW_GITHUB_REPO_PWD")         // Repository password (DevCloud, BitBucket)
+	HW_GITHUB_REPO_URL         = os.Getenv("HW_GITHUB_REPO_URL")         // Repository URL (Github, Gitlab, Gitee)
+	HW_OBS_STORAGE_URL         = os.Getenv("HW_OBS_STORAGE_URL")         // OBS storage URL where ZIP file is located
+	HW_BUILD_IMAGE_URL         = os.Getenv("HW_BUILD_IMAGE_URL")         // SWR Image URL for component deployment
+	HW_BUILD_IMAGE_URL_UPDATED = os.Getenv("HW_BUILD_IMAGE_URL_UPDATED") // SWR Image URL for component deployment update
 
 	HW_VOD_WATERMARK_FILE   = os.Getenv("HW_VOD_WATERMARK_FILE")
 	HW_VOD_MEDIA_ASSET_FILE = os.Getenv("HW_VOD_MEDIA_ASSET_FILE")
@@ -402,6 +403,13 @@ func TestAccPreCheckComponent(t *testing.T) {
 func TestAccPreCheckComponentDeployment(t *testing.T) {
 	if HW_BUILD_IMAGE_URL == "" {
 		t.Skip("SWR image URL configuration is not completed for acceptance test of component deployment.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckImageUrlUpdated(t *testing.T) {
+	if HW_BUILD_IMAGE_URL_UPDATED == "" {
+		t.Skip("SWR image update URL configuration is not completed for acceptance test of component deployment.")
 	}
 }
 

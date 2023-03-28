@@ -207,6 +207,7 @@ In addition to all arguments above, the following attributes are exported:
 * `master_node_ip` - IP address of a Master node.
 * `externalIp` - Internal IP address.
 * `private_ip_first` - Primary private IP address.
+* `internal_ip` - Internal IP address.
 * `external_ip` - External IP address.
 * `slave_security_groups_id` - Standby security group ID.
 * `security_groups_id` - Security group ID.
