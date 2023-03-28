@@ -87,6 +87,7 @@ complete host name ended with a dot.`,
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
+				ForceNew:    true,
 				Description: `Specifies the resolution line ID.`,
 			},
 			"status": {
@@ -341,6 +342,12 @@ func resourceDNSRecordsetUpdate(ctx context.Context, d *schema.ResourceData, met
 	zoneType, err := getDNSZoneType(recordsetClient, zoneID)
 	if err != nil {
 		return diag.FromErr(err)
+	}
+
+	if zoneType == "private" {
+		if _, ok := d.GetOk("weight"); ok {
+			return diag.Errorf("private zone do not support weight.")
+		}
 	}
 
 	updateDNSRecordsetChanges := []string{

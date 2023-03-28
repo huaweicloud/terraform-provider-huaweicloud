@@ -107,7 +107,7 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the record set.
 
-* `line_id` - (Optional, String) Specifies the resolution line ID.
+* `line_id` - (Optional, String, ForceNew) Specifies the resolution line ID.
   Changing this parameter will create a new resource.
 
 -> **NOTE:** Only public zone support. You can use custom line or get more information about default resolution lines
