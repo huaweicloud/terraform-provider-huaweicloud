@@ -24,11 +24,11 @@ func getResourceObj(conf *config.Config, state *terraform.ResourceState) (interf
 
 func TestAccFgsV2Function_basic(t *testing.T) {
 	var f function.Function
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_fgs_function.test"
+	name := acceptance.RandomAccResourceNameWithDash()
+	rName := "huaweicloud_fgs_function.test"
 
 	rc := acceptance.InitResourceCheck(
-		resourceName,
+		rName,
 		&f,
 		getResourceObj,
 	)
@@ -39,27 +39,41 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccFgsV2Function_basic(randName),
+				Config: testAccFunction_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "functiongraph_version", "v1"),
-					resource.TestCheckResourceAttrSet(resourceName, "urn"),
-					resource.TestCheckResourceAttrSet(resourceName, "version"),
+					resource.TestCheckResourceAttr(rName, "functiongraph_version", "v1"),
+					resource.TestCheckResourceAttrSet(rName, "urn"),
+					resource.TestCheckResourceAttrSet(rName, "version"),
+					resource.TestCheckResourceAttr(rName, "async_invoke.0.max_async_event_age_in_seconds", "3500"),
+					resource.TestCheckResourceAttr(rName, "async_invoke.0.max_async_retry_attempts", "2"),
+					resource.TestCheckResourceAttr(rName, "async_invoke.0.on_success.0.destination", "OBS"),
+					resource.TestCheckResourceAttrSet(rName, "async_invoke.0.on_success.0.param"),
+					resource.TestCheckResourceAttr(rName, "async_invoke.0.on_failure.0.destination", "SMN"),
+					resource.TestCheckResourceAttrSet(rName, "async_invoke.0.on_failure.0.param"),
+					resource.TestCheckResourceAttr(rName, "async_invoke.0.enable_async_status_log", "true"),
 				),
 			},
 			{
-				Config: testAccFgsV2Function_update(randName),
+				Config: testAccFunction_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "description", "fuction test update"),
-					resource.TestCheckResourceAttrSet(resourceName, "urn"),
-					resource.TestCheckResourceAttrSet(resourceName, "version"),
-					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "huaweicloud_vpc.test", "id"),
-					resource.TestCheckResourceAttrPair(resourceName, "network_id", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttr(rName, "description", "fuction test update"),
+					resource.TestCheckResourceAttrSet(rName, "urn"),
+					resource.TestCheckResourceAttrSet(rName, "version"),
+					resource.TestCheckResourceAttrPair(rName, "vpc_id", "huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "network_id", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttr(rName, "async_invoke.0.max_async_event_age_in_seconds", "4000"),
+					resource.TestCheckResourceAttr(rName, "async_invoke.0.max_async_retry_attempts", "3"),
+					resource.TestCheckResourceAttr(rName, "async_invoke.0.on_success.0.destination", "DIS"),
+					resource.TestCheckResourceAttrSet(rName, "async_invoke.0.on_success.0.param"),
+					resource.TestCheckResourceAttr(rName, "async_invoke.0.on_failure.0.destination", "FunctionGraph"),
+					resource.TestCheckResourceAttrSet(rName, "async_invoke.0.on_failure.0.param"),
+					resource.TestCheckResourceAttr(rName, "async_invoke.0.enable_async_status_log", "false"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
@@ -72,6 +86,111 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccFunction_basic_step1(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_obs_bucket" "test" {
+  bucket        = "%[1]s"
+  acl           = "private"
+  force_destroy = true
+}
+
+resource "huaweicloud_smn_topic" "test" {
+  name = "%[1]s"
+}
+
+resource "huaweicloud_fgs_function" "test" {
+  name        = "%[1]s"
+  app         = "default"
+  description = "fuction test"
+  handler     = "index.handler"
+  memory_size = 128
+  timeout     = 3
+  runtime     = "Python2.7"
+  code_type   = "inline"
+  func_code   = "e42a37a22f4988ba7a681e3042e5c7d13c04e6c1"
+  agency      = "function_test_trust"
+
+  async_invoke {
+    max_async_event_age_in_seconds = 3500
+    max_async_retry_attempts       = 2
+    enable_async_status_log        = true
+
+    on_success {
+      destination = "OBS"
+      param = jsonencode({
+        bucket  = huaweicloud_obs_bucket.test.bucket
+        prefix  = "/success"
+        expires = 5
+      })
+    }
+
+    on_failure {
+      destination = "SMN"
+      param       = jsonencode({
+        topic_urn = huaweicloud_smn_topic.test.topic_urn
+      })
+    }
+  }
+}
+`, rName)
+}
+
+func testAccFunction_basic_step2(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_dis_stream" "test" {
+  stream_name     = "%[2]s"
+  partition_count = 1
+}
+
+resource "huaweicloud_fgs_function" "failure_transport" {
+  name        = "%[2]s-failure-transport"
+  app         = "default"
+  handler     = "index.handler"
+  memory_size = 128
+  timeout     = 3
+  runtime     = "Python2.7"
+  code_type   = "inline"
+  func_code   = "e42a37a22f4988ba7a681e3042e5c7d13c04e6c1"
+}
+
+resource "huaweicloud_fgs_function" "test" {
+  name        = "%[2]s"
+  app         = "default"
+  description = "fuction test update"
+  handler     = "index.handler"
+  memory_size = 128
+  timeout     = 3
+  runtime     = "Python2.7"
+  code_type   = "inline"
+  func_code   = "e42a37a22f4988ba7a681e3042e5c7d13c04e6c1"
+  agency      = "function_test_trust"
+  vpc_id      = huaweicloud_vpc.test.id
+  network_id  = huaweicloud_vpc_subnet.test.id
+
+  async_invoke {
+    max_async_event_age_in_seconds = 4000
+    max_async_retry_attempts       = 3
+
+    on_success {
+      destination = "DIS"
+      param = jsonencode({
+        stream_name = huaweicloud_dis_stream.test.stream_name
+      })
+    }
+
+    on_failure {
+      destination = "FunctionGraph"
+      param       = jsonencode({
+        func_urn = huaweicloud_fgs_function.failure_transport.id
+      })
+    }
+  }
+}
+`, common.TestBaseNetwork(rName), rName)
 }
 
 func TestAccFgsV2Function_withEpsId(t *testing.T) {
@@ -235,43 +354,6 @@ func TestAccFgsV2Function_createByImage(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccFgsV2Function_basic(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_fgs_function" "test" {
-  name        = "%s"
-  app         = "default"
-  description = "fuction test"
-  handler     = "index.handler"
-  memory_size = 128
-  timeout     = 3
-  runtime     = "Python2.7"
-  code_type   = "inline"
-  func_code   = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
-}
-`, rName)
-}
-
-func testAccFgsV2Function_update(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_fgs_function" "test" {
-  name        = "%[2]s"
-  app         = "default"
-  description = "fuction test update"
-  handler     = "index.handler"
-  memory_size = 128
-  timeout     = 3
-  runtime     = "Python2.7"
-  code_type   = "inline"
-  func_code   = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
-  agency      = "function_vpc_trust"
-  vpc_id      = huaweicloud_vpc.test.id
-  network_id  = huaweicloud_vpc_subnet.test.id
-}
-`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccFgsV2Function_text(rName string) string {

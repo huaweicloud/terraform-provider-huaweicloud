@@ -290,3 +290,67 @@ func AsyncInvoke(c *golangsdk.ServiceClient, m map[string]interface{}, functionU
 	_, r.Err = c.Post(asyncInvokeURL(c, functionUrn), m, &r.Body, &golangsdk.RequestOpts{OkCodes: []int{202}})
 	return
 }
+
+// AsyncInvokeConfigOpts is the structure that used to modify the asynchronous invocation configuration.
+type AsyncInvokeConfigOpts struct {
+	// The maximum validity period of a message.
+	MaxAsyncEventAgeInSeconds int `json:"max_async_event_age_in_seconds,omitempty"`
+	// The maximum number of retry attempts to be made if asynchronous invocation fails.
+	MaxAsyncRetryAttempts int `json:"max_async_retry_attempts,omitempty"`
+	// Asynchronous invocation target.
+	DestinationConfig DestinationConfig `json:"destination_config,omitempty"`
+	// Whether to enable asynchronous invocation status persistence.
+	EnableAsyncStatusLog *bool `json:"enable_async_status_log,omitempty"`
+}
+
+// DestinationConfig is the structure that represents the asynchronous invocation target.
+type DestinationConfig struct {
+	// The target to be invoked when a function is successfully executed.
+	OnSuccess DestinationConfigDetails `json:"on_success,omitempty"`
+	// The target to be invoked when a function fails to be executed due to a  system error or an internal error.
+	OnFailure DestinationConfigDetails `json:"on_failure,omitempty"`
+}
+
+// DestinationConfigDetails is the structure that represents the configuration details of the asynchronous invocation.
+type DestinationConfigDetails struct {
+	// The object type.
+	Destination string `json:"destination,omitempty"`
+	// The parameters (in JSON format) corresponding to the target service.
+	Param string `json:"param,omitempty"`
+}
+
+var requestOpts = golangsdk.RequestOpts{
+	MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+}
+
+// UpdateAsyncInvokeConfig is the method that used to enable or modify the asynchronous invocation.
+func UpdateAsyncInvokeConfig(c *golangsdk.ServiceClient, functionUrn string,
+	opts AsyncInvokeConfigOpts) (*AsyncInvokeConfig, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r AsyncInvokeConfig
+	_, err = c.Put(asyncInvokeConfigURL(c, functionUrn), b, &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return &r, err
+}
+
+// GetAsyncInvokeConfig is the method that used to query the configuration details of the asynchronous invocation.
+func GetAsyncInvokeConfig(c *golangsdk.ServiceClient, functionUrn string) (*AsyncInvokeConfig, error) {
+	var r AsyncInvokeConfig
+	_, err := c.Get(asyncInvokeConfigURL(c, functionUrn), &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return &r, err
+}
+
+// DeleteAsyncInvokeConfig is the method that used to delete the asynchronous invocation.
+func DeleteAsyncInvokeConfig(c *golangsdk.ServiceClient, functionUrn string) error {
+	_, err := c.Delete(asyncInvokeConfigURL(c, functionUrn), &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return err
+}

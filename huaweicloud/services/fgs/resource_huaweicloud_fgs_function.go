@@ -1,6 +1,7 @@
 package fgs
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -218,6 +219,50 @@ func ResourceFgsFunctionV2() *schema.Resource {
 					"code_type",
 				},
 			},
+			"async_invoke": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"max_async_event_age_in_seconds": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "The maximum validity period of a message.",
+						},
+						"max_async_retry_attempts": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+							Description: "The maximum number of retry attempts to be made if asynchronous invocation " +
+								"fails.",
+						},
+						"on_success": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Elem:        destinationConfigSchemaResource(),
+							Description: "The target to be invoked when a function is successfully executed.",
+						},
+						"on_failure": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem:     destinationConfigSchemaResource(),
+							Description: "The target to be invoked when a function fails to be executed due to a " +
+								"system error or an internal error.",
+						},
+						"enable_async_status_log": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Whether to enable asynchronous invocation status persistence.",
+						},
+					},
+				},
+				Description: "The configuration of the asynchronous execution notification.",
+			},
 			"version": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -225,6 +270,25 @@ func ResourceFgsFunctionV2() *schema.Resource {
 			"urn": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+		},
+	}
+}
+
+func destinationConfigSchemaResource() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"destination": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The object type.",
+			},
+			"param": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The parameters (in JSON format) corresponding to the target service.",
 			},
 		},
 	}
@@ -290,6 +354,50 @@ func buildFgsFunctionV2Parameters(d *schema.ResourceData, config *config.Config)
 	return result, nil
 }
 
+func updateAsyncInvokeConfiguration(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	functionUrn := d.Id()
+	oldVal, newVal := d.GetChange("async_invoke")
+	if len(oldVal.([]interface{})) > 0 {
+		err := function.DisableAsyncInvokeConfig(client, functionUrn)
+		if err != nil {
+			return fmt.Errorf("error disable the async invoke configuration: %s", err)
+		}
+	}
+
+	newConfig := newVal.([]interface{})
+	if len(newConfig) > 0 {
+		asyncInvokeConfig := newConfig[0].(map[string]interface{})
+		opts := function.AsyncInvokeConfigOpts{
+			MaxAsyncEventAgeInSeconds: asyncInvokeConfig["max_async_event_age_in_seconds"].(int),
+			MaxAsyncRetryAttempts:     asyncInvokeConfig["max_async_retry_attempts"].(int),
+			EnableAsyncStatusLog:      utils.Bool(asyncInvokeConfig["enable_async_status_log"].(bool)),
+		}
+		destinationConfig := function.DestinationConfig{}
+		if successConfig := asyncInvokeConfig["on_success"].([]interface{}); len(successConfig) > 0 {
+			cfg := successConfig[0].(map[string]interface{})
+			destinationConfig.OnSuccess = function.DestinationConfigDetails{
+				Destination: cfg["destination"].(string),
+				Param:       cfg["param"].(string),
+			}
+		}
+		if failureConfig := asyncInvokeConfig["on_failure"].([]interface{}); len(failureConfig) > 0 {
+			cfg := failureConfig[0].(map[string]interface{})
+			destinationConfig.OnFailure = function.DestinationConfigDetails{
+				Destination: cfg["destination"].(string),
+				Param:       cfg["param"].(string),
+			}
+		}
+		if destinationConfig != (function.DestinationConfig{}) {
+			opts.DestinationConfig = destinationConfig
+		}
+		_, err := function.EnableAsyncInvokeConfig(client, functionUrn, opts)
+		if err != nil {
+			return fmt.Errorf("error updating the async invoke configuration: %s", err)
+		}
+	}
+	return nil
+}
+
 func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	fgsClient, err := config.FgsV2Client(config.GetRegion(d))
@@ -320,6 +428,12 @@ func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error
 	}
 	if d.HasChange("depend_list") {
 		err := resourceFgsFunctionV2CodeUpdate(fgsClient, urn, d)
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("async_invoke") {
+		err := updateAsyncInvokeConfiguration(fgsClient, d)
 		if err != nil {
 			return err
 		}
@@ -390,6 +504,36 @@ func flattenFgsCustomImage(imageConfig function.CustomImage) []map[string]interf
 	return nil
 }
 
+func queryAsyncInvokeConfig(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]map[string]interface{}, error) {
+	functionUrn := d.Id()
+	resp, err := function.GetAsyncInvokeConfig(client, functionUrn)
+	if err != nil {
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return []map[string]interface{}{
+		{
+			"max_async_event_age_in_seconds": resp.MaxAsyncEventAgeInSeconds,
+			"max_async_retry_attempts":       resp.MaxAsyncRetryAttempts,
+			"on_success": []map[string]interface{}{
+				{
+					"destination": resp.DestinationConfig.OnSuccess.Destination,
+					"param":       resp.DestinationConfig.OnSuccess.Param,
+				},
+			},
+			"on_failure": []map[string]interface{}{
+				{
+					"destination": resp.DestinationConfig.OnFailure.Destination,
+					"param":       resp.DestinationConfig.OnFailure.Param,
+				},
+			},
+			"enable_async_status_log": resp.EnableAsyncStatusLog,
+		},
+	}, nil
+}
+
 func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	fgsClient, err := config.FgsV2Client(config.GetRegion(d))
@@ -429,6 +573,11 @@ func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 		setFgsFunctionVpcAccess(d, f.FuncVpc),
 		setFuncionMountConfig(d, f.MountConfig),
 	)
+	if asyncInvokeConfig, err := queryAsyncInvokeConfig(fgsClient, d); err != nil {
+		mErr = multierror.Append(mErr, err)
+	} else {
+		mErr = multierror.Append(mErr, d.Set("async_invoke", asyncInvokeConfig))
+	}
 	if err := mErr.ErrorOrNil(); err != nil {
 		return fmtp.Errorf("Error setting vault fields: %s", err)
 	}
@@ -457,6 +606,12 @@ func resourceFgsFunctionV2Update(d *schema.ResourceData, meta interface{}) error
 		"user_data", "agency", "app_agency", "description", "initializer_handler", "initializer_timeout",
 		"vpc_id", "network_id", "mount_user_id", "mount_user_group_id", "func_mounts") {
 		err := resourceFgsFunctionV2MetadataUpdate(fgsClient, urn, d)
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("async_invoke") {
+		err := updateAsyncInvokeConfiguration(fgsClient, d)
 		if err != nil {
 			return err
 		}
