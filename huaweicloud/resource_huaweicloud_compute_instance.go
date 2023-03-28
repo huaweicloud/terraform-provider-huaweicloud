@@ -312,12 +312,9 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				ConflictsWith: []string{"eip_type", "bandwidth"},
 			},
 			"eip_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"5_bgp", "5_sbgp",
-				}, true),
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
 				ConflictsWith: []string{"eip_id"},
 				RequiredWith:  []string{"bandwidth"},
 			},

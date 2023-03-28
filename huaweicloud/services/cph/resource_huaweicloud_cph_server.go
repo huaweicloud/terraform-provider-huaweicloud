@@ -98,12 +98,9 @@ func ResourceCphServer() *schema.Resource {
 				Description:   `The ID of an **existing** EIP assigned to the server.`,
 			},
 			"eip_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"5_bgp", "5_sbgp", "5_telcom", "5_union",
-				}, true),
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
 				ConflictsWith: []string{"eip_id"},
 				RequiredWith:  []string{"bandwidth"},
 				Description:   `The type of an EIP that will be automatically assigned to the cloud server.`,

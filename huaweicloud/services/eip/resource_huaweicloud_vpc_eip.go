@@ -35,10 +35,7 @@ type EipStatus string       // The current status of the EIP.
 type NormalizeStatus string // The Normalized status value.
 
 const (
-	BgpTypeDynamic BgpType = "5_bgp"  // Dynamic BGP
-	BgpTypeStatic  BgpType = "5_sbgp" // Static BGP
-	BgpTypeBeta    BgpType = "5_g-vm" // Beta environment BGP
-	BgpTypeElb     BgpType = "5_gray" // ELB BGP
+	BgpTypeDynamic BgpType = "5_bgp" // Dynamic BGP
 
 	IpVersionV4 IpVersion = 4 // IPv4
 	IpVersionV6 IpVersion = 6 // IPv6
@@ -89,16 +86,10 @@ func ResourceVpcEIPV1() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  string(BgpTypeDynamic),
-							ForceNew: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								string(BgpTypeDynamic),
-								string(BgpTypeStatic),
-								string(BgpTypeBeta),
-								string(BgpTypeElb),
-							}, false),
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     string(BgpTypeDynamic),
+							ForceNew:    true,
 							Description: `The EIP type.`,
 						},
 						"ip_address": {
