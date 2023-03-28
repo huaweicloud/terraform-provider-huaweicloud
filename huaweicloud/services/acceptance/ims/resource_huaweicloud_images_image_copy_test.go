@@ -25,7 +25,7 @@ func getImsImageCopyResourceFunc(cfg *config.Config, state *terraform.ResourceSt
 		return nil, fmt.Errorf("error creating IMS client: %s", err)
 	}
 
-	img, err := ims.GetCloudimage(imsClient, state.Primary.ID)
+	img, err := ims.GetCloudImage(imsClient, state.Primary.ID)
 	if err != nil {
 		return nil, fmt.Errorf("image %s not found: %s", state.Primary.ID, err)
 	}

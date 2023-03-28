@@ -250,7 +250,7 @@ func resourceImsImageCopyRead(_ context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	img, err := GetCloudimage(imsClient, d.Id())
+	img, err := GetCloudImage(imsClient, d.Id())
 	if err != nil {
 		return diag.Errorf("image %s not found: %s", d.Id(), err)
 	}
