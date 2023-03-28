@@ -23,6 +23,8 @@ data "huaweicloud_networking_secgroups" "test" {
 * `region` - (Optional, String) Specifies the region in which to obtain the security group list.
   If omitted, the provider-level region will be used.
 
+* `id` - (Optional, String) Specifies the id of the desired security group.
+
 * `name` - (Optional, String) Specifies the name of the security group.
 
 * `description` - (Optional, String) Specifies the description of the security group. The security groups can be

@@ -27,6 +27,12 @@ func DataSourceNetworkingSecGroups() *schema.Resource {
 			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
+			},
+			"id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -172,6 +178,7 @@ func dataSourceNetworkingSecGroupsRead(ctx context.Context, d *schema.ResourceDa
 	// The List method currently does not support filtering by keyword in the description. Therefore, keyword filtering
 	// is implemented by manually filtering the description value of the List method return.
 	listOpts := v3groups.ListOpts{
+		ID:                  d.Get("id").(string),
 		Name:                d.Get("name").(string),
 		EnterpriseProjectId: config.DataGetEnterpriseProjectID(d),
 	}
