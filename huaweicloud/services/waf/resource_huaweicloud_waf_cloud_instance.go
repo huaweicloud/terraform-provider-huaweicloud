@@ -97,14 +97,23 @@ func ResourceCloudInstance() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"prePaid",
 				}, false),
-				RequiredWith: []string{
-					"period_unit", "auto_renew",
-				},
 				Description: "The charging mode of the cloud WAF.",
 			},
-			"period_unit": common.SchemaPeriodUnit(nil),
-			"period":      common.SchemaPeriod(nil),
-			"auto_renew":  common.SchemaAutoRenewUpdatable(nil),
+			"period_unit": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"month", "year",
+				}, false),
+			},
+			"period": {
+				Type:         schema.TypeInt,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.IntBetween(1, 9),
+			},
+			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
 			"bandwidth_expack_product": {
 				Type:        schema.TypeList,
 				Optional:    true,

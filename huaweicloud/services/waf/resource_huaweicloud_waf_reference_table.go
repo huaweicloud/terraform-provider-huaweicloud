@@ -56,6 +56,7 @@ func ResourceWafReferenceTableV1() *schema.Resource {
 					Type:         schema.TypeString,
 					ValidateFunc: validation.StringLenBetween(1, 2048),
 				},
+				Description: "schema: Required",
 			},
 			"description": {
 				Type:         schema.TypeString,

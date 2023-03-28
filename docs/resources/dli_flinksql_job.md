@@ -60,11 +60,11 @@ The following arguments are supported:
 
   Default value: false
 
-* `checkpoint_mode` - (Optional, Int) Specifies snapshot mode. There are two options:
+* `checkpoint_mode` - (Optional, String) Specifies snapshot mode. There are two options:
   + **exactly_once**: indicates that data is processed only once.
   + **at_least_once**: indicates that data is processed at least once.
 
-  The default value is 1.
+  The default value is `exactly_once`.
 
 * `checkpoint_interval` - (Optional, Int) Specifies snapshot interval. The unit is second.
   The default value is 10.
@@ -82,7 +82,7 @@ The following arguments are supported:
 * `restart_when_exception` - (Optional, Bool) Specifies whether to enable the function of automatically
  restarting a job upon job exceptions. The default value is false.
   
-* `idle_state_retention` - (Optional, String) Specifies retention time of the idle state. The unit is hour.
+* `idle_state_retention` - (Optional, Int) Specifies retention time of the idle state. The unit is hour.
  The default value is 1.
 
 * `edge_group_ids` - (Optional, List) Specifies edge computing group IDs.
@@ -122,6 +122,8 @@ The following arguments are supported:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The Job ID in Int format.
+
+* `status` - The Job status.
 
 ## Timeouts
 
