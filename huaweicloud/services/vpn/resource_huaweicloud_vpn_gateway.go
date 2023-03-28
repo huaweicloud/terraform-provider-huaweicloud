@@ -183,9 +183,6 @@ func GatewayEipSchema() *schema.Resource {
 				Computed:    true,
 				ForceNew:    true,
 				Description: `The EIP type. The value can be **5_bgp** and **5_sbgp**.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"5_bgp", "5_sbgp",
-				}, false),
 			},
 			"bandwidth_name": {
 				Type:        schema.TypeString,

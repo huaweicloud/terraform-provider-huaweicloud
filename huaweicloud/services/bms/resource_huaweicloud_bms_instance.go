@@ -136,12 +136,9 @@ func ResourceBmsInstance() *schema.Resource {
 				},
 			},
 			"iptype": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"5_bgp", "5_sbgp",
-				}, true),
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
 				ConflictsWith: []string{"eip_id"},
 				RequiredWith: []string{
 					"eip_charge_mode", "sharetype", "bandwidth_size",

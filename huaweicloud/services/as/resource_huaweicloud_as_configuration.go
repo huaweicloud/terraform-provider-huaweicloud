@@ -22,7 +22,6 @@ import (
 var (
 	ValidDiskTypes     = []string{"SYS", "DATA"}
 	ValidVolumeTypes   = []string{"SAS", "SSD", "GPSSD", "ESSD", "SATA"}
-	ValidEipTypes      = []string{"5_bgp", "5_sbgp"}
 	ValidShareTypes    = []string{"PER", "WHOLE"}
 	ValidChargingModes = []string{"traffic", "bandwidth"}
 )
@@ -192,10 +191,9 @@ func ResourceASConfiguration() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"ip_type": {
-													Type:         schema.TypeString,
-													Required:     true,
-													ForceNew:     true,
-													ValidateFunc: validation.StringInSlice(ValidEipTypes, false),
+													Type:     schema.TypeString,
+													Required: true,
+													ForceNew: true,
 												},
 												"bandwidth": {
 													Type:     schema.TypeList,
