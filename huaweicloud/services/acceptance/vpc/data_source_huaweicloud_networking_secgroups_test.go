@@ -48,7 +48,7 @@ func TestAccNetworkingSecGroupsDataSource_description(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkingSecGroupsDataSource_basic(rName),
+				Config: testAccNetworkingSecGroupsDataSource_description(rName),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "security_groups.#", "1"),
@@ -114,12 +114,12 @@ data "huaweicloud_networking_secgroups" "test" {
 `, testAccNetworkingSecGroupsDataSource_base(rName))
 }
 
-func testAccNetworkingSecGroupV3DataSource_description(rName string) string {
+func testAccNetworkingSecGroupsDataSource_description(rName string) string {
 	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_networking_secgroups" "test" {
-  description = "[Acc Test]"
+  description = huaweicloud_networking_secgroup.test.description
 }
 `, testAccNetworkingSecGroupsDataSource_base(rName))
 }
