@@ -49,41 +49,31 @@ func DataSourceNetworkingPortV2() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-
-			// will be deprecated or change to computed
-			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"admin_state_up": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
-			},
-			"tenant_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"project_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"device_owner": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"device_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
 			"security_group_ids": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
+			},
+
+			// marked as computed
+			"name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "schema: Computed",
+			},
+			"device_owner": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "schema: Computed",
+			},
+			"device_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "schema: Computed",
 			},
 
 			// Computed
@@ -101,6 +91,24 @@ func DataSourceNetworkingPortV2() *schema.Resource {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
+			// marked as deprecated
+			"admin_state_up": {
+				Type:       schema.TypeBool,
+				Optional:   true,
+				Computed:   true,
+				Deprecated: "this field is deprecated",
+			},
+			"tenant_id": {
+				Type:       schema.TypeString,
+				Optional:   true,
+				Deprecated: "this field is deprecated",
+			},
+			"project_id": {
+				Type:       schema.TypeString,
+				Optional:   true,
+				Deprecated: "this field is deprecated",
 			},
 		},
 	}

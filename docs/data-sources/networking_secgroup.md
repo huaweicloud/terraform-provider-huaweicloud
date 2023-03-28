@@ -23,6 +23,8 @@ data "huaweicloud_networking_secgroup" "secgroup" {
 
 * `name` - (Optional, String) Specifies the name of the security group.
 
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the security group.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
