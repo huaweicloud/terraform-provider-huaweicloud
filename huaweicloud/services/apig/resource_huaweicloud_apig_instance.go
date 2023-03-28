@@ -277,7 +277,7 @@ func buildInstanceAvailabilityZones(d *schema.ResourceData) ([]string, error) {
 	return nil, fmt.Errorf("the parameter 'availability_zones' must be specified.")
 }
 
-func buildInstanceCreateOpts(d *schema.ResourceData, config *config.Config) (instances.CreateOpts, error) {
+func buildInstanceCreateOpts(d *schema.ResourceData, cfg *config.Config) (instances.CreateOpts, error) {
 	result := instances.CreateOpts{
 		Name:                 d.Get("name").(string),
 		Edition:              d.Get("edition").(string),
@@ -287,7 +287,7 @@ func buildInstanceCreateOpts(d *schema.ResourceData, config *config.Config) (ins
 		Description:          d.Get("description").(string),
 		EipId:                d.Get("eip_id").(string),
 		BandwidthSize:        d.Get("bandwidth_size").(int), // Bandwidth 0 means turn off the egress access.
-		EnterpriseProjectId:  common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId:  cfg.GetEnterpriseProjectID(d),
 		Ipv6Enable:           d.Get("ipv6_enable").(bool),
 		LoadbalancerProvider: d.Get("loadbalancer_provider").(string),
 	}
@@ -313,13 +313,13 @@ func buildInstanceCreateOpts(d *schema.ResourceData, config *config.Config) (ins
 }
 
 func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	opts, err := buildInstanceCreateOpts(d, config)
+	opts, err := buildInstanceCreateOpts(d, cfg)
 	if err != nil {
 		return diag.Errorf("error creating the dedicated instance options: %s", err)
 	}
@@ -364,12 +364,12 @@ func parseInstanceAvailabilityZones(azStr string) []string {
 }
 
 // The response of ingress acess does not contain EIP ID, just the IP address.
-func parseInstanceIngressAccess(config *config.Config, region, publicAddress string) (*string, error) {
+func parseInstanceIngressAccess(cfg *config.Config, region, publicAddress string) (*string, error) {
 	if publicAddress == "" {
 		return nil, nil
 	}
 
-	client, err := config.NetworkingV1Client(region)
+	client, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating VPC v1 client: %s", err)
 	}
@@ -422,9 +422,9 @@ func parseInstanceFeatures(d *schema.ResourceData, features []instances.Feature)
 }
 
 func resourceInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ApigV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ApigV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -462,7 +462,7 @@ func resourceInstanceRead(ctx context.Context, d *schema.ResourceData, meta inte
 		d.Set("create_time", utils.FormatTimeStampRFC3339(resp.CreateTimestamp, false)),
 	)
 
-	if eipId, err := parseInstanceIngressAccess(config, region, resp.Ipv4IngressEipAddress); err != nil {
+	if eipId, err := parseInstanceIngressAccess(cfg, region, resp.Ipv4IngressEipAddress); err != nil {
 		mErr = multierror.Append(mErr, err)
 	} else {
 		mErr = multierror.Append(d.Set("eip_id", eipId))
@@ -603,8 +603,8 @@ func updateInstanceFeatures(d *schema.ResourceData, client *golangsdk.ServiceCli
 }
 
 func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -655,8 +655,8 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
