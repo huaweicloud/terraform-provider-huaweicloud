@@ -54,6 +54,7 @@ func ResourceSFSTurbo() *schema.Resource {
 			"share_proto": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				ForceNew:     true,
 				Default:      "NFS",
 				ValidateFunc: validation.StringInSlice([]string{"NFS"}, false),
 			},
