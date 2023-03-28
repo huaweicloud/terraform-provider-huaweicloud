@@ -428,6 +428,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_product":         dms.DataSourceDmsProduct(),
 			"huaweicloud_dms_maintainwindow":  dms.DataSourceDmsMaintainWindow(),
 
+			"huaweicloud_dms_rabbitmq_flavors": dms.DataSourceRabbitMQFlavors(),
+
 			"huaweicloud_dms_rocketmq_broker":    dms.DataSourceDmsRocketMQBroker(),
 			"huaweicloud_dms_rocketmq_instances": dms.DataSourceDmsRocketMQInstances(),
 
