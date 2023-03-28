@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccImsImageDataSource_basic(t *testing.T) {
@@ -156,7 +156,7 @@ resource "huaweicloud_compute_instance" "test" {
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
 
   network {
-    uuid = data.huaweicloud_vpc_subnet.test.id
+    uuid = huaweicloud_vpc_subnet.test.id
   }
 }
 

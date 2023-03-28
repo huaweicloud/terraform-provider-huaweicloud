@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccImsImagesDataSource_basic(t *testing.T) {
@@ -96,8 +96,8 @@ func TestAccImsImagesDataSource_testQueries(t *testing.T) {
 func testAccImsImagesDataSource_publicName(imageName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_images_images" "test" {
-  name        = "%s"
-  visibility  = "public"
+  name       = "%s"
+  visibility = "public"
 }
 `, imageName)
 }
@@ -125,8 +125,8 @@ data "huaweicloud_images_images" "test" {
 func testAccImsImagesDataSource_market() string {
 	return `
 data "huaweicloud_images_images" "test" {
-  os          = "CentOS"
-  visibility  = "market"
+  os         = "CentOS"
+  visibility = "market"
 }
 `
 }
@@ -145,15 +145,18 @@ data "huaweicloud_compute_flavors" "test" {
 }
 
 resource "huaweicloud_compute_instance" "test" {
-  name               = "%[2]s"
-  image_name         = "Ubuntu 18.04 server 64bit"
-  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  name       = "%[2]s"
+  image_name = "Ubuntu 18.04 server 64bit"
+  flavor_id  = data.huaweicloud_compute_flavors.test.ids[0]
+
   security_group_ids = [
     huaweicloud_networking_secgroup.test.id
   ]
-  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+
   network {
-    uuid = data.huaweicloud_vpc_subnet.test.id
+    uuid = huaweicloud_vpc_subnet.test.id
   }
 }
 
@@ -161,6 +164,7 @@ resource "huaweicloud_images_image" "test" {
   name        = "%[2]s"
   instance_id = huaweicloud_compute_instance.test.id
   description = "created by Terraform AccTest"
+
   tags = {
     foo = "bar"
     key = "value"
@@ -183,8 +187,8 @@ func testAccImsImagesDataSource_queryTag(rName string) string {
 	return fmt.Sprintf(`
 %s
 data "huaweicloud_images_images" "test" {
-  visibility  = "private"
-  tag         = "foo=bar"
+  visibility = "private"
+  tag        = "foo=bar"
 }
 `, testAccImsImagesDataSource_base(rName))
 }
