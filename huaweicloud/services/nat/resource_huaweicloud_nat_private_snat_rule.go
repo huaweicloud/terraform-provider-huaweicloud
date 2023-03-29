@@ -126,7 +126,7 @@ func resourcePrivateSnatRuleRead(_ context.Context, d *schema.ResourceData, meta
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("gateway_id", resp.GatewayId),
-		d.Set("transit_ip_id", utils.PathSearch("[0].TransitIpId", resp.TransitIpAssociations, nil)),
+		d.Set("transit_ip_id", utils.PathSearch("[0].ID", resp.TransitIpAssociations, nil)),
 		d.Set("description", resp.Description),
 		d.Set("subnet_id", resp.SubnetId),
 		d.Set("cidr", resp.Cidr),
