@@ -91,8 +91,8 @@ func TestAccProtectionRule_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "action_type", "0"),
 					resource.TestCheckResourceAttr(rName, "long_connect_enable", "0"),
 					resource.TestCheckResourceAttr(rName, "status", "1"),
-					resource.TestCheckResourceAttr(rName, "source.0.address", "192.168.0.1"),
-					resource.TestCheckResourceAttr(rName, "destination.0.address", "192.168.0.2"),
+					resource.TestCheckResourceAttr(rName, "source.0.address", "1.1.1.1"),
+					resource.TestCheckResourceAttr(rName, "destination.0.address", "1.1.1.2"),
 				),
 			},
 			{
@@ -102,8 +102,8 @@ func TestAccProtectionRule_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "name", name+"-update"),
 					resource.TestCheckResourceAttr(rName, "description", "terraform test update"),
 					resource.TestCheckResourceAttr(rName, "action_type", "1"),
-					resource.TestCheckResourceAttr(rName, "source.0.address", "192.168.1.1"),
-					resource.TestCheckResourceAttr(rName, "destination.0.address", "192.168.1.2"),
+					resource.TestCheckResourceAttr(rName, "source.0.address", "2.2.2.1"),
+					resource.TestCheckResourceAttr(rName, "destination.0.address", "2.2.2.2"),
 				),
 			},
 			{
@@ -135,12 +135,12 @@ resource "huaweicloud_cfw_protection_rule" "test" {
 
   source {
     type    = 0
-    address = "192.168.0.1"
+    address = "1.1.1.1"
   }
 
   destination {
     type    = 0
-    address = "192.168.0.2"
+    address = "1.1.1.2"
   }
 
   service {
@@ -173,12 +173,12 @@ resource "huaweicloud_cfw_protection_rule" "test" {
 
   source {
     type    = 0
-    address = "192.168.1.1"
+    address = "2.2.2.1"
   }
 
   destination {
     type    = 0
-    address = "192.168.1.2"
+    address = "2.2.2.2"
   }
 
   service {
