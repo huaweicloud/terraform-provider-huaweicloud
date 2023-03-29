@@ -774,9 +774,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_evs_snapshot": ResourceEvsSnapshotV2(),
 			"huaweicloud_evs_volume":   evs.ResourceEvsVolume(),
 
-			"huaweicloud_fgs_dependency": fgs.ResourceFgsDependency(),
-			"huaweicloud_fgs_function":   fgs.ResourceFgsFunctionV2(),
-			"huaweicloud_fgs_trigger":    fgs.ResourceFunctionGraphTrigger(),
+			"huaweicloud_fgs_async_invoke_configuration": fgs.ResourceAsyncInvokeConfiguration(),
+			"huaweicloud_fgs_dependency":                 fgs.ResourceFgsDependency(),
+			"huaweicloud_fgs_function":                   fgs.ResourceFgsFunctionV2(),
+			"huaweicloud_fgs_trigger":                    fgs.ResourceFunctionGraphTrigger(),
 
 			"huaweicloud_ga_accelerator":    ga.ResourceAccelerator(),
 			"huaweicloud_ga_listener":       ga.ResourceListener(),

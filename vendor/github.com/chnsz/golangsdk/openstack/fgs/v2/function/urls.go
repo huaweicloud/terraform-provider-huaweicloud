@@ -81,3 +81,7 @@ func getAliasURL(c *golangsdk.ServiceClient, functionUrn, aliasName string) stri
 func listAliasURL(c *golangsdk.ServiceClient, functionUrn string) string {
 	return createAliasURL(c, functionUrn)
 }
+
+func asyncInvokeConfigURL(c *golangsdk.ServiceClient, functionUrn string) string {
+	return c.ServiceURL("fgs/functions", functionUrn, "async-invoke-config")
+}
