@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -32,14 +31,19 @@ func DataSourceFirewalls() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"fw_instance_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `|-
+                    The firewall instance ID.`,
+			},
 			"service_type": {
 				Type:     schema.TypeInt,
-				Required: true,
+				Optional: true,
 				Description: `|-
                     Service type
                       0. North-south firewall
                       1. East-west firewall`,
-				ValidateFunc: validation.IntInSlice([]int{0, 1}),
 			},
 			"records": {
 				Type:        schema.TypeList,
@@ -363,6 +367,10 @@ func flattenGetFirewallInstanceResponseRecordResources(resp interface{}) []inter
 func buildListFirewallsQueryParams(d *schema.ResourceData) string {
 	res := "?offset=0&limit=10"
 	res = fmt.Sprintf("%s&service_type=%v", res, d.Get("service_type"))
+
+	if v, ok := d.GetOk("fw_instance_id"); ok {
+		res = fmt.Sprintf("%s&fw_instance_id=%v", res, v)
+	}
 
 	return res
 }

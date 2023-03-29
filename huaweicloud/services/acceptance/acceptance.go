@@ -58,7 +58,6 @@ var (
 	HW_CERTIFICATE_NAME             = os.Getenv("HW_CERTIFICATE_NAME")
 	HW_DMS_ENVIRONMENT              = os.Getenv("HW_DMS_ENVIRONMENT")
 	HW_SMS_SOURCE_SERVER            = os.Getenv("HW_SMS_SOURCE_SERVER")
-	HW_CFW_ENVIRONMENT              = os.Getenv("HW_CFW_ENVIRONMENT")
 
 	HW_DLI_FLINK_JAR_OBS_PATH           = os.Getenv("HW_DLI_FLINK_JAR_OBS_PATH")
 	HW_DLI_DS_AUTH_CSS_OBS_PATH         = os.Getenv("HW_DLI_DS_AUTH_CSS_OBS_PATH")
@@ -110,6 +109,9 @@ var (
 
 	// The direct connection ID (provider does not support direct connection resource).
 	HW_DC_DIRECT_CONNECT_ID = os.Getenv("HW_DC_DIRECT_CONNECT_ID")
+
+	// The CFW instance ID
+	HW_CFW_INSTANCE_ID = os.Getenv("HW_CFW_INSTANCE_ID")
 
 	// Deprecated
 	HW_SRC_ACCESS_KEY = os.Getenv("HW_SRC_ACCESS_KEY")
@@ -510,7 +512,7 @@ func TestAccPreCheckDcDirectConnection(t *testing.T) {
 
 // lintignore:AT003
 func TestAccPreCheckCfw(t *testing.T) {
-	if HW_CFW_ENVIRONMENT == "" {
-		t.Skip("This environment does not support CFW tests")
+	if HW_CFW_INSTANCE_ID == "" {
+		t.Skip("HW_CFW_INSTANCE_ID must be set for CFW acceptance tests")
 	}
 }
