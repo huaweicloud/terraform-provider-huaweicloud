@@ -360,7 +360,7 @@ The `groups` block supports:
 
 * `name` - (Required, String, ForceNew) Specifies the name of a virtual storage group. Each group name must be unique.
   Changing this parameter will create a new resource.
-* `cce_managed`  - (Optional, Bool, ForceNew) Specifies the whether the storage space is for **kubernetes** and
+* `cce_managed` - (Optional, Bool, ForceNew) Specifies the whether the storage space is for **kubernetes** and
   **runtime** components. Only one group can be set to true. The default value is **false**.
   Changing this parameter will create a new resource.
 * `selector_names` - (Required, List, ForceNew) Specifies the list of names of seletors to match.
@@ -390,6 +390,7 @@ In addition to all arguments above, the following attributes are exported:
 * `server_id` - ID of the ECS instance associated with the node.
 * `private_ip` - Private IP of the CCE node.
 * `public_ip` - Public IP of the CCE node.
+* `status` - The status of the CCE node.
 
 ## Timeouts
 

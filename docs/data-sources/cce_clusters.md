@@ -76,7 +76,7 @@ The `clusters` block supports:
 
 * `authentication_mode` - The authentication mode of the cluster, possible values are x509 and rbac. Defaults to **rbac**.
 
-* `masters` - The advanced configuration of master nodes.
+* `masters` - The advanced configuration of master nodes. Structure is documented below.
 
 * `security_group_id` - The security group ID of the cluster.
 
@@ -95,6 +95,10 @@ The `clusters` block supports:
 * `certificate_users` - The certificate users. Structure is documented below.
 
 * `kube_config_raw` - The raw Kubernetes config to be used by kubectl and other compatible tools.
+
+The `masters` block supports:
+
+* `availability_zone` - The availability zone (AZ) of the master node.
 
 The `endpoints` block supports:
 
