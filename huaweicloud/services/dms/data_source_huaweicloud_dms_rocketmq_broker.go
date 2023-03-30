@@ -29,7 +29,6 @@ func DataSourceDmsRocketMQBroker() *schema.Resource {
 			"instance_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"brokers": {
 				Type:        schema.TypeList,

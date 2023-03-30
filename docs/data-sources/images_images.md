@@ -47,7 +47,7 @@ data "huaweicloud_images_images" "bms_image" {
 * `visibility` - (Optional, String) The visibility of the image. Must be one of
   **public**, **private**, **market** or **shared**.
 
-* `architecture` (Optional, String) Specifies the image architecture type. The value can be **x86** and **arm**.
+* `architecture` - (Optional, String) Specifies the image architecture type. The value can be **x86** and **arm**.
 
 * `os` - (Optional, String) Specifies the image OS type. The value can be **Windows**, **Ubuntu**,
   **RedHat**, **SUSE**, **CentOS**, **Debian**, **OpenSUSE**, **Oracle Linux**, **Fedora**, **Other**,
@@ -55,7 +55,7 @@ data "huaweicloud_images_images" "bms_image" {
 
 * `os_version` - (Optional, String) Specifies the OS version. For example, *CentOS 7.4 64bit* or *Ubuntu 18.04 server 64bit*.
 
-* `image_type` (Optional, String) Specifies the environment where the image is used. For a BMS image, the value is **Ironic**.
+* `image_type` - (Optional, String) Specifies the environment where the image is used. For a BMS image, the value is **Ironic**.
 
 * `owner` - (Optional, String) The owner (UUID) of the image.
 
@@ -87,6 +87,8 @@ The `images` block contains:
 
 * `visibility` - The visibility of the image.
 
+* `checksum` - The checksum of the data associated with the image.
+
 * `container_format` - The format of the image's container.
 
 * `disk_format` - The format of the image's disk.
@@ -99,7 +101,7 @@ The `images` block contains:
 
 * `protected` - Whether or not the image is protected.
 
-* `image_type` The environment where the image is used. For a BMS image, the value is **Ironic**.
+* `image_type` - The environment where the image is used. For a BMS image, the value is **Ironic**.
 
 * `os` - Specifies the image OS type.
 
@@ -111,6 +113,6 @@ The `images` block contains:
 
 * `created_at` - The date when the image was created.
 
-* `update_at` - The date when the image was last updated.
+* `updated_at` - The date when the image was last updated.
 
 * `size_bytes` - The size of the image (in bytes).

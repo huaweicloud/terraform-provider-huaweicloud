@@ -23,7 +23,7 @@ The following arguments are supported:
 * `region` - (Optional, String) Specifies the region in which to query the data source.
   If omitted, the provider-level region will be used.
 
-* `instance_id` - (Optional, String) Specifies the ID of the rocketMQ instance.
+* `instance_id` - (Required, String) Specifies the ID of the rocketMQ instance.
 
 ## Attributes Reference
 

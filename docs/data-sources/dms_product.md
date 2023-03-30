@@ -4,7 +4,7 @@ subcategory: "Distributed Message Service (DMS)"
 
 # huaweicloud_dms_product
 
-Use this data source to get the ID of an available HuaweiCloud dms product.
+Use this data source to get the ID of an available HuaweiCloud DMS product.
 
 ## Example Usage
 
@@ -66,3 +66,5 @@ data "huaweicloud_dms_product" "product2" {
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
+
+* `storage_spec_codes` - The available I/O specifications.

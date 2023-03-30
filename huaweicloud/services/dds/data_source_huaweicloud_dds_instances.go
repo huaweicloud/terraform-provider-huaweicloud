@@ -149,7 +149,7 @@ func DdsInstanceInstanceSchema() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates the instance nodes information.`,
 			},
-			"tags": common.TagsSchema(),
+			"tags": common.TagsComputedSchema(),
 		},
 	}
 	return &sc

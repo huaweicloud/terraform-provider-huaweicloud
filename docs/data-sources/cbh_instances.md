@@ -86,6 +86,8 @@ The `Instance` block supports:
 
 * `instance_key` - Indicates the ID of the instance.
 
+* `resource_id` - Indicates the ID of the resource.
+
 * `period` - Indicates the duration of tenant purchase.
 
 * `bastion_type` - Indicates the type of the bastion.

@@ -24,7 +24,7 @@ The following arguments are supported:
 
 * `name` - (Optional, String) Specifies the name of the source server.
 
-* `status` - (Optional, String) Specifies the status of the source server.
+* `state` - (Optional, String) Specifies the status of the source server.
 
 * `ip` - (Optional, String) Specifies the IP address of the source server.
 
@@ -44,7 +44,7 @@ The `servers` block supports:
 
 * `ip` - The IP address of the source server.
 
-* `status` - The status of the source server.
+* `state` - The status of the source server.
 
 * `connected` - Whether the source server is properly connected to SMS.
 

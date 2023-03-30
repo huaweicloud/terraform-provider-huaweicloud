@@ -59,7 +59,7 @@ func DataSourceWafDedicatedInstancesV1() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"cpu_flavor": {
+						"ecs_flavor": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -160,7 +160,7 @@ func dataSourceWafDedicatedInstanceRead(_ context.Context, d *schema.ResourceDat
 			"name":             r.InstanceName,
 			"available_zone":   r.Zone,
 			"cpu_architecture": r.Arch,
-			"cpu_flavor":       r.CupFlavor,
+			"ecs_flavor":       r.CupFlavor,
 			"vpc_id":           r.VpcId,
 			"subnet_id":        r.SubnetId,
 			"security_group":   r.SecurityGroupIds,

@@ -85,16 +85,15 @@ func DataSourceDmsProduct() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"storage_spec_codes": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
 			"node_num": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+			},
+			"storage_spec_codes": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"io_type": {
 				Type:       schema.TypeString,

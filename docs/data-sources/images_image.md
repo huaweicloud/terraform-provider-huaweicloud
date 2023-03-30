@@ -53,7 +53,7 @@ data "huaweicloud_images_image" "bms_image" {
 * `visibility` - (Optional, String) The visibility of the image. Must be one of
   **public**, **private**, **market** or **shared**.
 
-* `architecture` (Optional, String) Specifies the image architecture type. The value can be **x86** and **arm**.
+* `architecture` - (Optional, String) Specifies the image architecture type. The value can be **x86** and **arm**.
 
 * `os` - (Optional, String) Specifies the image OS type. The value can be **Windows**, **Ubuntu**,
   **RedHat**, **SUSE**, **CentOS**, **Debian**, **OpenSUSE**, **Oracle Linux**, **Fedora**, **Other**,
@@ -61,7 +61,7 @@ data "huaweicloud_images_image" "bms_image" {
 
 * `os_version` - (Optional, String) Specifies the OS version. For example, *CentOS 7.4 64bit* or *Ubuntu 18.04 server 64bit*.
 
-* `image_type` (Optional, String) Specifies the environment where the image is used. For a BMS image, the value is **Ironic**.
+* `image_type` - (Optional, String) Specifies the environment where the image is used. For a BMS image, the value is **Ironic**.
 
 * `owner` - (Optional, String) The owner (UUID) of the image.
 
@@ -96,4 +96,4 @@ In addition to all arguments above, the following attributes are exported:
 * `size_bytes` - The size of the image (in bytes).
 * `status` - The status of the image.
 * `created_at` - The date when the image was created.
-* `update_at` - The date when the image was last updated.
+* `updated_at` - The date when the image was last updated.

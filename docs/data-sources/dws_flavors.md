@@ -69,8 +69,7 @@ The `Flavors` block supports:
 
 * `availability_zones` - The list of availability zones.
 
-* `elastic_volume_specs` -
-  The [ElasticVolumeSpec](#dwsFlavors_FlavorsElasticVolumeSpec) structure is documented below.
+* `elastic_volume_specs` - The [ElasticVolumeSpec](#dwsFlavors_FlavorsElasticVolumeSpec) structure is documented below.
 
 <a name="dwsFlavors_FlavorsElasticVolumeSpec"></a>
 The `FlavorsElasticVolumeSpec` block supports:

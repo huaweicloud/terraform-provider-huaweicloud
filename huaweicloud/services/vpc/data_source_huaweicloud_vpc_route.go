@@ -23,11 +23,6 @@ func DataSourceVpcRouteV2() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"nexthop": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
 			"destination": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -46,6 +41,10 @@ func DataSourceVpcRouteV2() *schema.Resource {
 			"id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
+			},
+			"nexthop": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
