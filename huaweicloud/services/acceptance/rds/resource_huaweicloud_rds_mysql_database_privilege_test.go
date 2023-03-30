@@ -32,7 +32,7 @@ func getRdsDatabasePrivilegeFunc(conf *config.Config, state *terraform.ResourceS
 
 func TestAccRdsDatabasePrivilege_basic(t *testing.T) {
 	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_rds_database_privilege.test"
+	resourceName := "huaweicloud_rds_mysql_database_privilege.test"
 	var users []model.UserWithPrivilege
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -50,7 +50,7 @@ func TestAccRdsDatabasePrivilege_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "users.0.name",
-						"huaweicloud_rds_account.test", "name"),
+						"huaweicloud_rds_mysql_account.test", "name"),
 					resource.TestCheckResourceAttr(resourceName, "users.0.readonly", "false"),
 				),
 			},
@@ -67,18 +67,18 @@ func testAccRdsDatabasePrivilege_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_rds_account" "test" {
+resource "huaweicloud_rds_mysql_account" "test" {
   instance_id = huaweicloud_rds_instance.test.id
   name        = "%s"
   password    = "Test@12345678"
 }
 
-resource "huaweicloud_rds_database_privilege" "test" {
+resource "huaweicloud_rds_mysql_database_privilege" "test" {
   instance_id = huaweicloud_rds_instance.test.id
-  db_name     = huaweicloud_rds_database.test.name
+  db_name     = huaweicloud_rds_mysql_database.test.name
 
   users {
-    name = huaweicloud_rds_account.test.name
+    name = huaweicloud_rds_mysql_account.test.name
   }
 }
 `, testRdsDatabase_basic(rName, rName), rName)

@@ -16,7 +16,7 @@ import (
 
 func TestAccRdsAccount_basic(t *testing.T) {
 	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_rds_account.test"
+	resourceName := "huaweicloud_rds_mysql_account.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -57,7 +57,7 @@ func testAccCheckRdsAccountDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_rds_account" {
+		if rs.Type != "huaweicloud_rds_mysql_account" {
 			continue
 		}
 
@@ -192,7 +192,7 @@ func testRdsAccount_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_rds_account" "test" {
+resource "huaweicloud_rds_mysql_account" "test" {
   instance_id = huaweicloud_rds_instance.test.id
   name        = "%s"
   password    = "Test@12345678"
@@ -204,7 +204,7 @@ func testRdsAccount_update(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_rds_account" "test" {
+resource "huaweicloud_rds_mysql_account" "test" {
   instance_id = huaweicloud_rds_instance.test.id
   name        = "%s"
   password    = "Test@123456789"
