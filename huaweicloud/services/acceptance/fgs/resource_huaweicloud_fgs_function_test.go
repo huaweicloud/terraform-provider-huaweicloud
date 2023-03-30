@@ -173,6 +173,7 @@ func TestAccFgsV2Function_createByImage(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckComponentDeployment(t)
+			acceptance.TestAccPreCheckImageUrlUpdated(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc1.CheckResourceDestroy(),
@@ -205,10 +206,12 @@ func TestAccFgsV2Function_createByImage(t *testing.T) {
 					resource.TestCheckResourceAttr(rName1, "handler", "-"),
 					resource.TestCheckResourceAttr(rName1, "vpc_id", ""),
 					resource.TestCheckResourceAttr(rName1, "network_id", ""),
+					resource.TestCheckResourceAttr(rName1, "custom_image.0.url", acceptance.HW_BUILD_IMAGE_URL_UPDATED),
 					rc2.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName2, "handler", "-"),
 					resource.TestCheckResourceAttrPair(rName2, "vpc_id", "huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttrPair(rName2, "network_id", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttr(rName2, "custom_image.0.url", acceptance.HW_BUILD_IMAGE_URL_UPDATED),
 				),
 			},
 			{
@@ -393,5 +396,5 @@ resource "huaweicloud_fgs_function" "create_without_vpc_access" {
   vpc_id     = huaweicloud_vpc.test.id
   network_id = huaweicloud_vpc_subnet.test.id
 }
-`, common.TestBaseNetwork(rName), rName, acceptance.HW_BUILD_IMAGE_URL)
+`, common.TestBaseNetwork(rName), rName, acceptance.HW_BUILD_IMAGE_URL_UPDATED)
 }

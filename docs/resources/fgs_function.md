@@ -144,9 +144,9 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the function.
   Changing this will create a new resource.
 
-* `vpc_id`  - (Optional, String) Specifies the ID of VPC.
+* `vpc_id` - (Optional, String) Specifies the ID of VPC.
 
-* `network_id`  - (Optional, String) Specifies the network ID of subnet.
+* `network_id` - (Optional, String) Specifies the network ID of subnet.
 
 -> **NOTE:** An agency with VPC management permissions must be specified for the function.
 
@@ -158,9 +158,8 @@ The following arguments are supported:
 * `func_mounts` - (Optional, List) Specifies the file system list. The `func_mounts` object structure is documented
   below.
 
-* `custom_image` - (Optional, List, ForceNew) Specifies the custom image configuration for creating function.
+* `custom_image` - (Optional, List) Specifies the custom image configuration for creating function.
   The [object](#functiongraph_custom_image) structure is documented below.
-  Changing this will create a new resource.
 
 The `func_mounts` block supports:
 
@@ -175,8 +174,7 @@ The `func_mounts` block supports:
 <a name="functiongraph_custom_image"></a>
 The `custom_image` block supports:
 
-* `url` - (Required, String, ForceNew) Specifies the URL of SWR image, the URL must start with `swr.`.
-  Changing this will create a new resource.
+* `url` - (Required, String) Specifies the URL of SWR image, the URL must start with `swr.`.
 
 ## Attributes Reference
 
