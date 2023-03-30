@@ -95,12 +95,22 @@ In addition to all arguments above, the following attributes are exported:
 * `public_ip` - Public IP of the CCE node.
 * `flavor_id` - The flavor ID of the CCE node.
 * `availability_zone` - The name of the available partition (AZ).
-* `root_volume` - The system disk related configuration.
-* `data_volumes` - The data disks related configuration.
 * `runtime` - The runtime of the CCE node.
 * `ecs_group_id` - The Ecs group ID.
 * `subnet_id` - The ID of the subnet to which the NIC belongs.
 * `charging_mode` - The charging mode of the CCE node. Valid values are *prePaid* and *postPaid*.
+
+* `root_volume` - The configuration of the system disk.
+  + `size` - The disk size in GB.
+  + `volumetype` - The disk type.
+  + `extend_params` - The disk expansion parameters.
+  + `kms_key_id` - The ID of a KMS key. This is used to encrypt the volume.
+
+* `data_volumes` - The configurations of the data disk.
+  + `size` - The disk size in GB.
+  + `volumetype` - The disk type.
+  + `extend_params` - The disk expansion parameters.
+  + `kms_key_id` - The ID of a KMS key. This is used to encrypt the volume.
 
 ## Timeouts
 

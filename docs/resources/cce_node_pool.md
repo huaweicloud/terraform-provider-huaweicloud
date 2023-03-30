@@ -276,6 +276,9 @@ extend_param = {
 * `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled. Valid values are "true" and "false".
   Changing this parameter will create a new resource.
 
+* `runtime` - (Optional, String, ForceNew) Specifies the runtime of the CCE node pool. Valid values are *docker* and
+  *containerd*. Changing this creates a new resource.
+
 * `taints` - (Optional, List) Specifies the taints configuration of the nodes to set anti-affinity.
   The structure is described below.
 
@@ -350,7 +353,7 @@ The `groups` block supports:
 
 * `name` - (Required, String, ForceNew) Specifies the name of a virtual storage group. Each group name must be unique.
   Changing this parameter will create a new resource.
-* `cce_managed`  - (Optional, Bool, ForceNew) Specifies the whether the storage space is for **kubernetes** and
+* `cce_managed` - (Optional, Bool, ForceNew) Specifies the whether the storage space is for **kubernetes** and
   **runtime** components. Only one group can be set to true. The default value is **false**.
   Changing this parameter will create a new resource.
 * `selector_names` - (Required, List, ForceNew) Specifies the list of names of seletors to match.

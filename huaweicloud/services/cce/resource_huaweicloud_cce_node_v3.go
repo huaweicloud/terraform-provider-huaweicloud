@@ -106,9 +106,10 @@ func ResourceCCENodeV3() *schema.Resource {
 							ForceNew: true,
 						},
 						"hw_passthrough": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							ForceNew: true,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "schema: Internal",
 						},
 						"extend_param": {
 							Type:       schema.TypeString,
@@ -148,9 +149,10 @@ func ResourceCCENodeV3() *schema.Resource {
 							ForceNew: true,
 						},
 						"hw_passthrough": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							ForceNew: true,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "schema: Internal",
 						},
 						"extend_param": {
 							Type:       schema.TypeString,
@@ -361,14 +363,16 @@ func ResourceCCENodeV3() *schema.Resource {
 				ForceNew: true,
 			},
 			"ecs_performance_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "schema: Internal",
 			},
 			"product_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "schema: Internal",
 			},
 			"max_pods": {
 				Type:     schema.TypeInt,
@@ -376,9 +380,10 @@ func ResourceCCENodeV3() *schema.Resource {
 				ForceNew: true,
 			},
 			"public_key": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "schema: Internal",
 			},
 			"preinstall": {
 				Type:      schema.TypeString,
@@ -401,10 +406,11 @@ func ResourceCCENodeV3() *schema.Resource {
 			//(node/ecs_tags)
 			"tags": common.TagsSchema(),
 			"annotations": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "schema: Internal",
 			},
 
 			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
@@ -432,8 +438,9 @@ func ResourceCCENodeV3() *schema.Resource {
 				ForceNew: true,
 			},
 			"keep_ecs": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "schema: Internal",
 			},
 			"private_ip": {
 				Type:     schema.TypeString,

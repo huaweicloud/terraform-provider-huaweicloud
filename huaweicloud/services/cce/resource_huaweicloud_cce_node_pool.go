@@ -91,9 +91,10 @@ func ResourceCCENodePool() *schema.Resource {
 							ForceNew: true,
 						},
 						"hw_passthrough": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							ForceNew: true,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "schema: Internal",
 						},
 						"extend_param": {
 							Type:       schema.TypeString,
@@ -132,9 +133,10 @@ func ResourceCCENodePool() *schema.Resource {
 							ForceNew: true,
 						},
 						"hw_passthrough": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							ForceNew: true,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "schema: Internal",
 						},
 						"extend_param": {
 							Type:       schema.TypeString,

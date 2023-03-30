@@ -47,6 +47,6 @@ In addition to all arguments above, the following attributes are exported:
 
 * `stable` - Whether the add-on template is a stable version.
 
-* `support_version/virtual_machine` - The cluster (Virtual Machine) version that the add-on template supported.
-
-* `support_version/bare_metal` - The cluster (Bare Metal) version that the add-on template supported.
+* `support_version` - The cluster information.
+  + `virtual_machine` - The cluster (Virtual Machine) version that the add-on template supported.
+  + `bare_metal` - The cluster (Bare Metal) version that the add-on template supported.

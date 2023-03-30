@@ -32,6 +32,16 @@ var associateDeleteSchema *schema.Schema = &schema.Schema{
 	ConflictsWith: []string{"delete_all"},
 }
 
+var associateDeleteSchemaInternal *schema.Schema = &schema.Schema{
+	Type:     schema.TypeString,
+	Optional: true,
+	ValidateFunc: validation.StringInSlice([]string{
+		"true", "try", "false",
+	}, true),
+	ConflictsWith: []string{"delete_all"},
+	Description:   "schema: Internal",
+}
+
 func ResourceCCEClusterV3() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCCEClusterV3Create,
@@ -85,16 +95,18 @@ func ResourceCCEClusterV3() *schema.Resource {
 				Computed: true,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "schema: Internal",
 			},
 			"annotations": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "schema: Internal",
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,
@@ -107,10 +119,11 @@ func ResourceCCEClusterV3() *schema.Resource {
 				ForceNew: true,
 			},
 			"highway_subnet_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "schema: Internal",
 			},
 			"container_network_type": {
 				Type:     schema.TypeString,
@@ -228,9 +241,9 @@ func ResourceCCEClusterV3() *schema.Resource {
 			"auto_pay":      common.SchemaAutoPay(nil),
 
 			"delete_efs": associateDeleteSchema,
-			"delete_eni": associateDeleteSchema,
+			"delete_eni": associateDeleteSchemaInternal,
 			"delete_evs": associateDeleteSchema,
-			"delete_net": associateDeleteSchema,
+			"delete_net": associateDeleteSchemaInternal,
 			"delete_obs": associateDeleteSchema,
 			"delete_sfs": associateDeleteSchema,
 			"delete_all": {

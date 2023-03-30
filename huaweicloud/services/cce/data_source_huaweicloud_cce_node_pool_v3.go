@@ -128,7 +128,7 @@ func DataSourceCCENodePoolV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"tags": common.TagsSchema(),
+			"tags": common.TagsComputedSchema(),
 			"subnet_id": {
 				Type:     schema.TypeString,
 				Computed: true,
