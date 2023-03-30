@@ -87,27 +87,23 @@ func ResourceLoadBalancerV2() *schema.Resource {
 				Optional: true,
 			},
 
-			"flavor": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-
 			"tags": common.TagsSchema(),
 
 			"loadbalancer_provider": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "schema: Deprecated",
 			},
 
 			"security_group_ids": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Description: "schema: Deprecated",
 			},
 
 			"enterprise_project_id": {
@@ -120,6 +116,14 @@ func ResourceLoadBalancerV2() *schema.Resource {
 			"public_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+
+			// Deprecated
+			"flavor": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "schema: Deprecated",
 			},
 		},
 	}

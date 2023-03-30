@@ -332,13 +332,13 @@ The `strategy` block supports:
 <a name="servicestage_lifecycle"></a>
 The `lifecycle` block supports:
 
-* `entrypoint` - (Required, List) Specifies the startup commands.
+* `entrypoint` - (Optional, List) Specifies the startup commands.
   The [object](#servicestage_entrypoint) structure is documented below.
 
-* `post_start` - (Required, List) Specifies the post-start processing.
+* `post_start` - (Optional, List) Specifies the post-start processing.
   The [object](#servicestage_lifecycle_process) structure is documented below.
 
-* `pre_stop` - (Required, List) Specifies the pre-stop processing.
+* `pre_stop` - (Optional, List) Specifies the pre-stop processing.
   The [object](#servicestage_lifecycle_process) structure is documented below.
 
 <a name="servicestage_log_collection_policies"></a>
