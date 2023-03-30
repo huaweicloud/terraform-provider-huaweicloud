@@ -107,8 +107,9 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `ip_address` - (Optional, String) Specifies the IP address.
+* `ip_address` - (Optional, String, ForceNew) Specifies the IP address.
   If the value of this parameter is left blank or is set to an empty string, the IP address is automatically assigned.
+  Changing this parameter will create a new resource.
 
 * `description` - (Optional, String, ForceNew) The description of the instance.
 

@@ -88,11 +88,11 @@ The following arguments are supported:
 * `alarm_type` - (Optional, String) Specifies the alarm type. The value can be **EVENT.SYS**, **EVENT.CUSTOM**
   or **MULTI_INSTANCE**. Defaults to **MULTI_INSTANCE**.
 
-* `alarm_actions` - (Optional, List, ForceNew) Specifies the action triggered by an alarm. The structure is described
-  below. Changing this creates a new resource.
+* `alarm_actions` - (Optional, List) Specifies the action triggered by an alarm. The structure is described
+  below.
 
-* `ok_actions` - (Optional, List, ForceNew) Specifies the action triggered by the clearing of an alarm. The structure is
-  described below. Changing this creates a new resource.
+* `ok_actions` - (Optional, List) Specifies the action triggered by the clearing of an alarm. The structure is
+  described below.
 
 * `alarm_action_enabled` - (Optional, Bool) Specifies whether to enable the action to be triggered by an alarm. The
   default value is true.
@@ -144,11 +144,11 @@ The `condition` block supports:
 
 * `count` - (Required, Int) Specifies the number of consecutive occurrence times. The value ranges from 1 to 5.
 
-* `unit` - (Optional, String, ForceNew) Specifies the data unit. Changing this creates a new resource.
+* `unit` - (Optional, String) Specifies the data unit.
   For details, see [Services Interconnected with Cloud Eye](https://support.huaweicloud.com/intl/en-us/api-ces/ces_03_0059.html).
 
-* `suppress_duration` - (Optional, Int, ForceNew) Specifies the interval for triggering an alarm if the alarm persists.
-  Changing this creates a new resource. Possible values are as follows:
+* `suppress_duration` - (Optional, Int) Specifies the interval for triggering an alarm if the alarm persists.
+  Possible values are as follows:
   + **0**: Cloud Eye triggers the alarm only once;
   + **300**: Cloud Eye triggers the alarm every 5 minutes;
   + **600**: Cloud Eye triggers the alarm every 10 minutes;
@@ -172,7 +172,7 @@ The `condition` block supports:
 
 the `alarm_actions` block supports:
 
-* `type` - (Optional, String) specifies the type of action triggered by an alarm. the
+* `type` - (Required, String) Specifies the type of action triggered by an alarm. the
   value can be *notification* or *autoscaling*.
     + notification: indicates that a notification will be sent to the user.
     + autoscaling: indicates that a scaling action will be triggered.
@@ -186,7 +186,7 @@ the `alarm_actions` block supports:
 
 the `ok_actions` block supports:
 
-* `type` - (Optional, String) specifies the type of action triggered by an alarm. the value is notification.
+* `type` - (Required, String) Specifies the type of action triggered by an alarm. the value is notification.
   notification: indicates that a notification will be sent to the user.
 
 * `notification_list` - (Required, List) specifies the list of objects to be notified if the alarm status changes, the

@@ -223,7 +223,8 @@ The `backup_policy` block supports:
   + `auto`: automatic backup.
   + `manual`: manual backup.
 
-* `save_days` - (Required, Int) Retention time. Unit: day, the value ranges from 1 to 7.
+* `save_days` - (Optional, Int) Retention time. Unit: day, the value ranges from 1 to 7.
+  This parameter is required if the backup_type is **auto**.
 
 * `period_type` - (Optional, String) Interval at which backup is performed. Default value is `weekly`.
   Currently, only weekly backup is supported.

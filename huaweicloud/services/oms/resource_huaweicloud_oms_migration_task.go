@@ -175,7 +175,6 @@ func ResourceMigrationTask() *schema.Resource {
 			"start_task": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: true,
 				Default:  true,
 			},
 			"enable_kms": {

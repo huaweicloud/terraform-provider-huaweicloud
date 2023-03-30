@@ -30,6 +30,9 @@ resource "huaweicloud_iec_vpc_subnet" "subnet_test" {
 
 The following arguments are supported:
 
+* `region` - (Optional, String, ForceNew) The region in which to create the iec vpc subnet resource. If omitted, the
+  provider-level region will be used. Changing this creates a new resource.
+
 * `name` - (Required, String) Specifies the name of the iec vpc subnet. The value is a string of 1 to 64 characters that
   can contain letters, digits, underscores(_), and hyphens(-).
 
@@ -45,6 +48,9 @@ The following arguments are supported:
 * `gateway_ip` - (Required, String, ForceNew)  Specifies the gateway of the subnet. The value must be a valid IP address
   and in the subnet segment. Changing this parameter creates a new subnet resource.
 
+* `dhcp_enable` - (Optional, Bool)  Specifies the status of subnet DHCP is enabled or not.
+  Valid values are **true** and **false**, defaults to **true**.
+
 * `dns_list` - (Optional, List) Specifies the DNS server address list of a subnet. These DNS server address must be
   valid IP addresses.
 
@@ -53,8 +59,6 @@ The following arguments are supported:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID in UUID format.
-
-* `dhcp_enable` - The status of subnet DHCP is enabled or not.
 
 * `site_info` - The located information of the iec site. It contains area, province and city.
 

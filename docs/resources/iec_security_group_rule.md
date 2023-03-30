@@ -29,7 +29,7 @@ The following arguments are supported:
 * `direction` - (Required, String, ForceNew) Specifies the direction of the rule, valid values are **ingress** or
   **egress**. Changing this parameter creates a new security group rule resource.
 
-* `ethertype` - (Required, String, ForceNew) Specifies the layer 3 protocol type, valid values are **IPv4**(IPv4 is
+* `ethertype` - (Optional, String, ForceNew) Specifies the layer 3 protocol type, valid values are **IPv4**(IPv4 is
   default) or **IPv6**. Changing this parameter creates a new security group rule resource.
 
 * `protocol` - (Required, String, ForceNew) Specifies the layer 4 protocol type, valid values are following. The valid

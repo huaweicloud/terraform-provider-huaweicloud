@@ -88,7 +88,7 @@ The following arguments are supported:
 * `enable_restore` - (Optional, Bool, ForceNew) Specifies whether to automatically restore the archive data. If enabled,
   archive data is automatically restored and migrated. Default value: **false**. Changing this creates a new resource.
 
-* `enable_failed_object_recording` - (Optional, String, ForceNew) Specifies whether to record failed objects. If this
+* `enable_failed_object_recording` - (Optional, Bool, ForceNew) Specifies whether to record failed objects. If this
   function is enabled, information about objects that fail to be migrated will be stored in the destination bucket.
   Default value: **true**. Changing this creates a new resource.
 
