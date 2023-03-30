@@ -148,7 +148,7 @@ func ResourceDwsCluster() *schema.Resource {
 				Computed: true,
 			},
 
-			"tags": common.TagsForceNewSchema(),
+			"tags": common.TagsSchema(),
 
 			"created": {
 				Type:     schema.TypeString,
