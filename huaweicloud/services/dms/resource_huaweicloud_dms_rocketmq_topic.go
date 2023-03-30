@@ -57,7 +57,7 @@ func ResourceDmsRocketMQTopic() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
-				Description: `Specifies the list of associated brokers of the topic.`,
+				Description: "schema: Required; Specifies the list of associated brokers of the topic.",
 			},
 			"queue_num": {
 				Type:         schema.TypeInt,

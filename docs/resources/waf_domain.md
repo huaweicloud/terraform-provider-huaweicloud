@@ -60,10 +60,10 @@ The following arguments are supported:
 
 * `server` - (Required, List) Specifies an array of origin web servers. The object structure is documented below.
 
-* `certificate_id` - (Required, String) Specifies the certificate ID. This parameter is mandatory when `client_protocol`
+* `certificate_id` - (Optional, String) Specifies the certificate ID. This parameter is mandatory when `client_protocol`
   is set to HTTPS.
 
-* `certificate_name` - (Required, String) Specifies the certificate name. This parameter is mandatory
+* `certificate_name` - (Optional, String) Specifies the certificate name. This parameter is mandatory
   when `client_protocol` is set to HTTPS.
 
 * `policy_id` - (Optional, String, ForceNew) Specifies the policy ID associated with the domain. If not specified, a new

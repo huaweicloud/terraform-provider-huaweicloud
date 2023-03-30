@@ -98,7 +98,7 @@ The `column` block supports:
    resource.
   * `description` - (Required, String, ForceNew) Specifies the description of column. Changing this parameter will
    create a new resource.
-  * `is_partition` - (Required, Bool, ForceNew) Specifies whether the column is a partition column. The value
+  * `is_partition` - (Optional, Bool, ForceNew) Specifies whether the column is a partition column. The value
     `true` indicates a partition column, and the value false indicates a non-partition column. The default value
      is false. Changing this parameter will create a new resource.
   

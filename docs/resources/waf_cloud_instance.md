@@ -57,7 +57,7 @@ The following arguments are supported:
   If `period_unit` is set to **year**, the value ranges from `1` to `3`.  
   Changing this will create a new resource.
 
-* `auto_renew` - (Required, String) Specifies whether auto renew is enabled.
+* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
   Valid values are **true** and **false**.
 
 * `bandwidth_expack_product` - (Optional, List) Specifies the configuration of the bandwidth extended packages.
