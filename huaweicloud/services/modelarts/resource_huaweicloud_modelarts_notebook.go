@@ -83,9 +83,10 @@ func ResourceNotebook() *schema.Resource {
 							ForceNew: true,
 						},
 						"mount_path": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "schema: Computed",
 						},
 					},
 				},

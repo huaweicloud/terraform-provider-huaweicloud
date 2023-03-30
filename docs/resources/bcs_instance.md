@@ -185,8 +185,8 @@ The following arguments are supported:
   instance. The channels object structure is documented below.
 
 * `couchdb` - (Optional, List, ForceNew) Specifies the NoSQL database used by BCS instance. If omitted, the bcs instance
-  will create a `goleveldb`(File Database) database by default. Changing this will create a new instance. The couchdb
-  object structure is documented below.
+  will create a `goleveldb`(File Database) database by default. This field is required when database_type is `couchdb`.
+  Changing this will create a new instance. The couchdb object structure is documented below.
 
 * `delete_storage` - (Optional, Bool) Specified whether to delete the associated SFS resources when deleting BCS
   instance. Default is false.
@@ -218,6 +218,10 @@ The following arguments are supported:
   values are `ECDSA` and `SM2`(Chinese cryptographic algorithms, The basic and professional don't support this
   algorithm). Default is `ECDSA`. Changing this will create a new instance.
 
+* `database_type` - (Optional, String, ForceNew) Specifies the type of the database used by the BCS service.
+  Valid values are `goleveldb` and `couchdb`. The default value is `goleveldb`.
+  If `couchdb` is used, specify the couchdb field. Changing this will create a new instance.
+
 * `tc3_need` - (Optional, Bool, ForceNew) Specified whether to add Trusted computing platform. Changing this will create
   a new instance.
 
@@ -233,7 +237,7 @@ The `channels` block supports:
 
 * `name` - (Required, String, ForceNew) Specifies the name of the channel. Changing this creates a new instance.
 
-* `org_name` - (Optional, List, ForceNew) Specifies the name of the peer organization. Changing this creates a new
+* `org_names` - (Optional, List, ForceNew) Specifies the name of the peer organization. Changing this creates a new
   instance.
 
 The `couchdb` block supports:
@@ -271,18 +275,18 @@ The `block_info` block supports:
 
 The `kafka` block supports:
 
-* `availability_zone` - (Optional, List, ForceNew)  Specifies the availability zone in which to create the kafka. The
+* `availability_zone` - (Required, List, ForceNew)  Specifies the availability zone in which to create the kafka. The
   list must contain one or more than three availability zone. Please
   following [reference](https://developer.huaweicloud.com/en-us/endpoint/?all) for the values. Changing this creates a
   new instance.
 
-* `flavor` - (Optional, String, ForceNew) Specifies the kafka flavor type. Changing this creates a new instance.
+* `flavor` - (Required, String, ForceNew) Specifies the kafka flavor type. Changing this creates a new instance.
   + `c3.mini` : Mini type, the reference bandwidth is 100MB/s.
   + `c3.small.2` : Small type, the reference bandwidth is 300MB/s.
   + `c3.middle.2` : Middle type, the reference bandwidth is 600MB/s.
   + `c3.high.2` : High type, the reference bandwidth is 1200MB/s.
 
-* `storage_size` - (Optional, Int, ForceNew) Specifies the kafka storage capacity. The storage capacity must be an
+* `storage_size` - (Required, Int, ForceNew) Specifies the kafka storage capacity. The storage capacity must be an
   integral multiple of 100 and the maximum is 90000GB. Changing this creates a new instance.
   + The minimum storage capacity of mini type is 600GB.
   + The minimum storage capacity of small type is 1200GB.
@@ -294,6 +298,7 @@ The `kafka` block supports:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - A resource ID in UUID format.
+* `cluster_type` - The type of the cluster where the BCS service is deployed.
 * `status` - The status of the BCS instance.
 * `version` - The service version of the BCS instance.
 * `purchase_type` - The deployment type of the BCS instance.
@@ -306,6 +311,7 @@ In addition to all arguments above, the following attributes are exported:
   `Isdeleting`, `Normal`, `AbNormal` and `Unknown`.
 * `peer_orgs/status_detail` - The peer status in the format like `1/1`. The denominator is the total number of peers in
   the organization, and the numerator is the number of normal peers.
+* `peer_orgs/address` - The peer domain name or IP address of the cluster.
 * `peer_orgs/address/domain_port` - The domain name address.
 * `peer_orgs/address/ip_port` - The IP address.
 * `kafka/name` - The Kafka instance name.

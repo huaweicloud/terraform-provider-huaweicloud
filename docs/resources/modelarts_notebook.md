@@ -61,13 +61,13 @@ The following arguments are supported:
 * `key_pair` - (Optional, String, ForceNew) Specifies the key pair name for remote SSH access.
  Changing this parameter will create a new resource.
 
-* `allowed_access_ips` - (Optional, String) Specifies public IP addresses that are allowed for remote SSH access.
+* `allowed_access_ips` - (Optional, List) Specifies public IP addresses that are allowed for remote SSH access.
  If the parameter is not specified, all IP addresses will be allowed for remote SSH access.
 
 * `pool_id` - (Optional, String, ForceNew) Specifies the ID of Dedicated resource pool which the notebook used.
  Changing this parameter will create a new resource.
 
-* `workspace_id` - (Optional, Bool, ForceNew) Specifies the workspace ID which the notebook belongs to.
+* `workspace_id` - (Optional, String, ForceNew) Specifies the workspace ID which the notebook belongs to.
  The default value is `0`. Changing this parameter will create a new resource.
 
 The `volume` block supports:

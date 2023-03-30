@@ -76,13 +76,13 @@ The following arguments are supported:
 
 The `data_source` block supports:
 
-* `data_type` - (Required, Int, ForceNew) Specifies the type of data source. The options are as follows:
+* `data_type` - (Optional, Int, ForceNew) Specifies the type of data source. The options are as follows:
   + **0**: OBS.
   + **1**: GaussDB(DWS).
   + **2**: DLI.
   + **4**: MRS.
   
- Changing this parameter will create a new resource.
+ Default value is 0. Changing this parameter will create a new resource.
 
 * `path` - (Optional, String, ForceNew) Specifies the OBS path when `data_type` is `0`
  or the hdsf path when `data_type` is `4`. All the file in this directory and subdirectories will be which be imported

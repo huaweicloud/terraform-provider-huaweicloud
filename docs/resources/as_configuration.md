@@ -153,6 +153,10 @@ The `instance_config` block supports:
 * `security_group_ids` - (Required, List, ForceNew) Specifies an array of one or more security group IDs.
   Changing this will create a new resource.
 
+* `charging_mode` - (Optional, String, ForceNew) Specifies a billing mode for an ECS.
+  The value can be `postPaid` and `spot`. The default value is `postPaid`.
+  Changing this will create a new resource.
+
 * `flavor_priority_policy` - (Optional, String, ForceNew) Specifies the priority policy used when there are multiple flavors
   and instances to be created using an AS configuration. The value can be `PICK_FIRST` and `COST_FIRST`.
 
@@ -229,7 +233,7 @@ The `personality` block supports:
 
 * `path` - (Required, String, ForceNew) Specifies the path of the injected file. Changing this creates a new resource.
 
-* `contents` - (Required, String, ForceNew) Specifies the content of the injected file, which must be encoded with base64.
+* `content` - (Required, String, ForceNew) Specifies the content of the injected file, which must be encoded with base64.
   Changing this creates a new resource.
 
 ## Attributes Reference

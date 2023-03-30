@@ -119,14 +119,18 @@ The following arguments are supported:
 * `force_import` - (Optional, Bool) If specified, try to import the instance instead of creating if the name already
   existed.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the GaussDB Mysql instance.
+
 * `volume_size` - (Optional, Int) Specifies the volume size of the instance. The new storage space must be greater than
   the current storage and must be a multiple of 10 GB. Only valid when in prePaid mode.
 
 The `datastore` block supports:
 
-* `engine` - (Optional, String, ForceNew) Specifies the database engine. Only "gauss-mysql" is supported now.
+* `engine` - (Required, String, ForceNew) Specifies the database engine. Only "gaussdb-mysql" is supported now.
+  Changing this parameter will create a new resource.
 
-* `version` - (Optional, String, ForceNew) Specifies the database version. Only "8.0" is supported now.
+* `version` - (Required, String, ForceNew) Specifies the database version. Only "8.0" is supported now.
+  Changing this parameter will create a new resource.
 
 The `backup_strategy` block supports:
 

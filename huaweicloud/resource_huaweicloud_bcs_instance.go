@@ -150,11 +150,11 @@ func resourceBCSInstanceV2() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"domain_port": {
 										Type:     schema.TypeString,
-										Required: true,
+										Computed: true,
 									},
 									"ip_port": {
 										Type:     schema.TypeString,
-										Required: true,
+										Computed: true,
 									},
 								},
 							},
@@ -178,6 +178,7 @@ func resourceBCSInstanceV2() *schema.Resource {
 						"org_names": {
 							Type:     schema.TypeList,
 							Optional: true,
+							ForceNew: true,
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},

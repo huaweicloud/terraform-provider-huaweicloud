@@ -33,8 +33,9 @@ The following arguments are supported:
 * `scaling_group_id` - (Required, String, ForceNew) Specifies the ID of the AS group in UUID format.
   Changing this creates a new AS lifecycle hook.
 
-* `name` - (Required, String) Specifies the lifecycle hook name. This parameter can contain a maximum of 32 characters,
-  which may consist of letters, digits, underscores (_) and hyphens (-).
+* `name` - (Required, String, ForceNew) Specifies the lifecycle hook name. This parameter can contain a maximum of
+  32 characters, which may consist of letters, digits, underscores (_) and hyphens (-).
+  Changing this creates a new AS lifecycle hook.
 
 * `type` - (Required, String) Specifies the lifecycle hook type. The valid values are following strings:
   + `ADD`: The hook suspends the instance when the instance is started.
