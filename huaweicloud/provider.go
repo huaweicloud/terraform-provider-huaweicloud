@@ -78,6 +78,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/scm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/servicestage"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/servicestagev3"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/sfs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/smn"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/sms"
@@ -893,6 +894,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_servicestage_environment":                 servicestage.ResourceEnvironment(),
 			"huaweicloud_servicestage_repo_token_authorization":    servicestage.ResourceRepoTokenAuth(),
 			"huaweicloud_servicestage_repo_password_authorization": servicestage.ResourceRepoPwdAuth(),
+
+			"huaweicloud_servicestage_v3_application":                 servicestagev3.ResourceApplication(),
+			"huaweicloud_servicestage_v3_component":                   servicestagev3.ResourceComponent(),
+			"huaweicloud_servicestage_v3_environment":                 servicestagev3.ResourceEnvironment(),
+			"huaweicloud_servicestage_v3_repo_token_authorization":    servicestagev3.ResourceRepoTokenAuth(),
+			"huaweicloud_servicestage_v3_repo_password_authorization": servicestagev3.ResourceRepoPwdAuth(),
 
 			"huaweicloud_sfs_access_rule": ResourceSFSAccessRuleV2(),
 			"huaweicloud_sfs_file_system": ResourceSFSFileSystemV2(),

@@ -41,7 +41,7 @@ var multiCatalogKeys = map[string][]string{
 	"dws":          {"dwsv2"},
 	"apig":         {"apigv2"},
 	"modelarts":    {"modelartsv2"},
-	"servicestage": {"servicestagev2"},
+	"servicestage": {"servicestage", "servicestagev2", "servicestagev3"},
 	"smn":          {"smn-tag"},
 	"ces":          {"cesv2"},
 }
@@ -631,6 +631,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"servicestagev2": {
 		Name:    "servicestage",
 		Version: "v2",
+		Product: "ServiceStage",
+	},
+	"servicestagev3": {
+		Name:    "servicestagev3",
+		Version: "v3",
 		Product: "ServiceStage",
 	},
 
