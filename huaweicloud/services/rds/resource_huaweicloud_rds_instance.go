@@ -928,7 +928,7 @@ func configRdsInstanceSSL(d *schema.ResourceData, client *golangsdk.ServiceClien
 func checkRDSInstanceJobFinish(client *golangsdk.ServiceClient, jobID string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Running"},
-		Target:       []string{"Completed", "Failed"},
+		Target:       []string{"Completed"},
 		Refresh:      rdsInstanceJobRefreshFunc(client, jobID),
 		Timeout:      timeout,
 		Delay:        20 * time.Second,
