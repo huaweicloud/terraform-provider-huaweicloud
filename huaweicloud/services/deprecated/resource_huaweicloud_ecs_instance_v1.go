@@ -107,9 +107,6 @@ func ResourceEcsInstanceV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"SATA", "SAS", "SSD", "co-p1", "uh-l1",
-				}, true),
 			},
 			"system_disk_size": {
 				Type:     schema.TypeInt,

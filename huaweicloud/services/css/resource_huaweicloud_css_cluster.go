@@ -481,8 +481,6 @@ func cssNodeSchema(min, max int, canExtendsVolume bool) *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
-							ValidateFunc: validation.StringInSlice([]string{"COMMON", "HIGH", "ULTRAHIGH"},
-								false),
 						},
 					},
 				},

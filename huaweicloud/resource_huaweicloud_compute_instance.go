@@ -201,9 +201,6 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				ForceNew:      true,
 				Computed:      true,
 				ConflictsWith: novaConflicts,
-				ValidateFunc: validation.StringInSlice([]string{
-					"SAS", "SSD", "GPSSD", "ESSD", "SATA",
-				}, true),
 			},
 			"system_disk_size": {
 				Type:          schema.TypeInt,
