@@ -89,9 +89,8 @@ resource "huaweicloud_iec_server" "server_test" {
 
 The following arguments are supported:
 
-* `name` - (Required, String, ForceNew) Specifies the IEC server name. This parameter can contain a maximum of 64
-  characters, which may consist of letters, digits, dot(.), underscores (_), and hyphens (-). Changing this parameter
-  creates a new IEC server resource.
+* `name` - (Required, String) Specifies the IEC server name. This parameter can contain a maximum of 64
+  characters, which may consist of letters, digits, dot(.), underscores (_), and hyphens (-).
 
 * `flavor_id` - (Required, String, ForceNew) Specifies the flavor ID of the desired flavor for the IEC server. Changing
   this parameter creates a new IEC server resource.

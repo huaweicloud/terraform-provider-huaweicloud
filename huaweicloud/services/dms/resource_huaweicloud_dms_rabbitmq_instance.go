@@ -104,6 +104,7 @@ func ResourceDmsRabbitmqInstance() *schema.Resource {
 				ConflictsWith: []string{"available_zones"},
 				Elem:          &schema.Schema{Type: schema.TypeString},
 				Set:           schema.HashString,
+				Description:   "schema: Required",
 			},
 			"product_id": {
 				Type:     schema.TypeString,
