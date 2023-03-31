@@ -140,7 +140,7 @@ resource "huaweicloud_vpc_eip" "test" {
   bandwidth {
     share_type  = "PER"
     size        = 5
-    name        = "%[1]s"
+    name        = "%s"
     charge_mode = "traffic"
   }
 }`, common.TestVpc(rName), rName)

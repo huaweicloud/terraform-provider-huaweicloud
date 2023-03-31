@@ -37,7 +37,7 @@ func testAccWafInstanceGroups_conf(name string) string {
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_compute_flavors" "flavors" {
-  availability_zone = data.huaweicloud_availability_zones.zones.names[1]
+  availability_zone = data.huaweicloud_availability_zones.test.names[1]
   performance_type  = "normal"
   cpu_core_count    = 2
 }
