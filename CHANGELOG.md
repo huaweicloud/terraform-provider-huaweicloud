@@ -1,5 +1,38 @@
 # CHANGELOG
 
+## 1.47.0 (March 31, 2023)
+
+* **New Resurce:**
+  + `huaweicloud_nat_private_dnat_rule` [GH-2817]
+  + `huaweicloud_nat_private_snat_rule` [GH-2821]
+  + `huaweicloud_dli_datasource_connection` [GH-2809]
+  + `huaweicloud_dli_datasource_auth` [GH-2830]
+  + `huaweicloud_dns_custom_line` [GH-2833]
+  + `huaweicloud_images_image_copy` [GH-2836]
+  + `huaweicloud_cfw_address_group` [GH-2832]
+  + `huaweicloud_cfw_address_group_member` [GH-2832]
+  + `huaweicloud_cfw_service_group` [GH-2841]
+  + `huaweicloud_cfw_service_group_member` [GH-2841]
+  + `huaweicloud_cfw_black_white_list` [GH-2846]
+  + `huaweicloud_apig_acl_policy` [GH-2859]
+  + `huaweicloud_fgs_async_invoke_configuration` [GH-2875]
+  + `huaweicloud_apig_instance_routes` [GH-2879]
+
+* **New Data Source:**
+  + `huaweicloud_ddm_schemas` [GH-2793]
+  + `huaweicloud_ddm_accounts` [GH-2823]
+  + `huaweicloud_dms_rabbitmq_flavors` [GH-2834]
+  + `huaweicloud_modelarts_notebook_flavors` [GH-2842]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_as_group: Add `source_dest_check` parameter [GH-2827]
+* resource/huaweicloud_dns_recordset: Support multi-line record set configuration [GH-2825]
+* resource/huaweicloud_cse_microservice_engine: Add `enterprise_project_id` field [GH-2835]
+* resource/huaweicloud_ddm_instance: Support updating `auto_renew` parameter [GH-2853]
+* data/huaweicloud_networking_secgroups: Support filter security groups by id [GH-2850]
+* data/huaweicloud_cfw_firewalls: Support filter CFW instances by id [GH-2871]
+
 ## 1.46.0 (March 17, 2023)
 
 * **New Resurce:**
