@@ -43,11 +43,12 @@ var (
 
 	HW_WAF_ENABLE_FLAG = os.Getenv("HW_WAF_ENABLE_FLAG")
 
-	HW_DEST_REGION         = os.Getenv("HW_DEST_REGION")
-	HW_DEST_PROJECT_ID     = os.Getenv("HW_DEST_PROJECT_ID")
-	HW_CHARGING_MODE       = os.Getenv("HW_CHARGING_MODE")
-	HW_HIGH_COST_ALLOW     = os.Getenv("HW_HIGH_COST_ALLOW")
-	HW_SWR_SHARING_ACCOUNT = os.Getenv("HW_SWR_SHARING_ACCOUNT")
+	HW_DEST_REGION          = os.Getenv("HW_DEST_REGION")
+	HW_DEST_PROJECT_ID      = os.Getenv("HW_DEST_PROJECT_ID")
+	HW_DEST_PROJECT_ID_TEST = os.Getenv("HW_DEST_PROJECT_ID_TEST")
+	HW_CHARGING_MODE        = os.Getenv("HW_CHARGING_MODE")
+	HW_HIGH_COST_ALLOW      = os.Getenv("HW_HIGH_COST_ALLOW")
+	HW_SWR_SHARING_ACCOUNT  = os.Getenv("HW_SWR_SHARING_ACCOUNT")
 
 	HW_CERTIFICATE_KEY_PATH         = os.Getenv("HW_CERTIFICATE_KEY_PATH")
 	HW_CERTIFICATE_CHAIN_PATH       = os.Getenv("HW_CERTIFICATE_CHAIN_PATH")
@@ -119,6 +120,8 @@ var (
 	HW_SRC_SECRET_KEY = os.Getenv("HW_SRC_SECRET_KEY")
 	HW_EXTGW_ID       = os.Getenv("HW_EXTGW_ID")
 	HW_POOL_NAME      = os.Getenv("HW_POOL_NAME")
+
+	HW_IMAGE_SHARE_SOURCE_IMAGE_ID = os.Getenv("HW_IMAGE_SHARE_SOURCE_IMAGE_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -288,6 +291,13 @@ func TestAccPreCheckAdminOnly(t *testing.T) {
 func TestAccPreCheckReplication(t *testing.T) {
 	if HW_DEST_REGION == "" || HW_DEST_PROJECT_ID == "" {
 		t.Skip("Jump the replication policy acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckProjectId(t *testing.T) {
+	if HW_DEST_PROJECT_ID_TEST == "" {
+		t.Skip("Skipping test because it requires the test project id.")
 	}
 }
 
@@ -522,5 +532,12 @@ func TestAccPreCheckDcDirectConnection(t *testing.T) {
 func TestAccPreCheckCfw(t *testing.T) {
 	if HW_CFW_INSTANCE_ID == "" {
 		t.Skip("HW_CFW_INSTANCE_ID must be set for CFW acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSourceImage(t *testing.T) {
+	if HW_IMAGE_SHARE_SOURCE_IMAGE_ID == "" {
+		t.Skip("Skip the interface acceptance test because of the source image ID is missing.")
 	}
 }
