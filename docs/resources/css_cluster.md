@@ -239,8 +239,7 @@ The `vpcep_endpoint` block supports:
 
 * `endpoint_with_dns_name` - (Required, Bool) Specifies whether to enable the private domain name.
 
-* `whitelist` - (Optional, String) Specifies the whitelist of access control.
-  Separate the whitelisted Account IDs with commas (,), and each of them must be unique.
+* `whitelist` - (Optional, List) Specifies the whitelist of access control. The whitelisted account id must be unique.
 
 The `backup_strategy` block supports:
 
