@@ -184,7 +184,41 @@ func TestAccCESAlarmRule_multiConditions(t *testing.T) {
 	})
 }
 
-func testCESAlarmRule_base(rName string) string {
+func TestAccCESAlarmRule_allInstance(t *testing.T) {
+	var ar alarmrule.AlarmRule
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_ces_alarmrule.alarmrule_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&ar,
+		getAlarmRuleResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testCESAlarmRule_allInstance(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "alarm_name", fmt.Sprintf("rule-%s", rName)),
+					resource.TestCheckResourceAttr(resourceName, "alarm_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "alarm_action_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "alarm_type", "ALL_INSTANCE"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.alarm_level", "2"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.value", "80"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.period", "1"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.metric_name", "disk_usedPercent"),
+				),
+			},
+		},
+	})
+}
+
+func testCESAlarmRule_instanceBase(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -199,16 +233,22 @@ resource "huaweicloud_compute_instance" "vm_1" {
     uuid = huaweicloud_vpc_subnet.test.id
   }
 }
+`, common.TestBaseComputeResources(rName), rName)
+}
 
+func testCESAlarmRule_topicBase(rName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_smn_topic" "topic_1" {
-  name         = "smn-%[2]s"
+  name         = "smn-%s"
   display_name = "The display name of smn topic"
 }
-`, common.TestBaseComputeResources(rName), rName)
+`, rName)
 }
 
 func testCESAlarmRule_basic(rName string) string {
 	return fmt.Sprintf(`
+%s
+
 %s
 
 resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
@@ -242,11 +282,13 @@ resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
     ]
   }
 }
-`, testCESAlarmRule_base(rName), rName)
+`, testCESAlarmRule_instanceBase(rName), testCESAlarmRule_topicBase(rName), rName)
 }
 
 func testCESAlarmRule_update(rName string) string {
 	return fmt.Sprintf(`
+%s
+
 %s
 
 resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
@@ -282,11 +324,13 @@ resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
     ]
   }
 }
-`, testCESAlarmRule_base(rName), rName)
+`, testCESAlarmRule_instanceBase(rName), testCESAlarmRule_topicBase(rName), rName)
 }
 
 func testCESAlarmRule_withEpsId(rName string) string {
 	return fmt.Sprintf(`
+%s
+
 %s
 
 resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
@@ -321,7 +365,7 @@ resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
     ]
   }
 }
-`, testCESAlarmRule_base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testCESAlarmRule_instanceBase(rName), testCESAlarmRule_topicBase(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testCESAlarmRule_sysEvent(rName string) string {
@@ -355,11 +399,13 @@ resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
     ]
   }
 }
-`, testCESAlarmRule_base(rName), rName)
+`, testCESAlarmRule_topicBase(rName), rName)
 }
 
 func testCESAlarmRule_multiConditions(rName string) string {
 	return fmt.Sprintf(`
+%s
+
 %s
 
 resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
@@ -407,11 +453,13 @@ resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
     ]
   }
 }
-`, testCESAlarmRule_base(rName), rName)
+`, testCESAlarmRule_instanceBase(rName), testCESAlarmRule_topicBase(rName), rName)
 }
 
 func testCESAlarmRule_multiConditions_update(rName string) string {
 	return fmt.Sprintf(`
+%s
+
 %s
 
 resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
@@ -460,5 +508,49 @@ resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
     ]
   }
 }
-`, testCESAlarmRule_base(rName), rName)
+`, testCESAlarmRule_instanceBase(rName), testCESAlarmRule_topicBase(rName), rName)
+}
+
+func testCESAlarmRule_allInstance(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
+  alarm_name           = "rule-%s"
+  alarm_action_enabled = true
+  alarm_type           = "ALL_INSTANCE"
+
+  metric {
+    namespace   = "AGT.ECS"
+  }
+
+  resources {
+    dimensions {
+      name = "instance_id"
+    }
+
+    dimensions {
+      name = "mount_point"
+    }
+  }
+
+  condition  {
+    alarm_level         = 2
+    suppress_duration   = 0
+    period              = 1
+    filter              = "average"
+    comparison_operator = ">"
+    value               = 80
+    count               = 1
+    metric_name         = "disk_usedPercent"
+  }
+
+  alarm_actions {
+    type              = "notification"
+    notification_list = [
+      huaweicloud_smn_topic.topic_1.topic_urn
+    ]
+  }
+}
+`, testCESAlarmRule_topicBase(rName), rName)
 }
