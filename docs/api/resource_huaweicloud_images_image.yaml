@@ -26,6 +26,10 @@ paths:
     patch:
       tag: IMS
       operationId: Update
+  /v2/images:
+    get:
+      tag: IMS
+      operationId: List
   /v2/{project_id}/{project_id}/images/{id}/tags/action:
     post:
       tag: IMS

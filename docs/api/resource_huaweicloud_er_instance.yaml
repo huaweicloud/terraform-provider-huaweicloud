@@ -19,11 +19,11 @@ paths:
             x-ref-api: DELETE /v3/{project_id}/enterprise-router/instances/{id}
         GET:
             tag: ER
-            operationId: DeleteInstanceWaiting
+            operationId: CreateInstanceWaiting
             x-ref-api: GET /v3/{project_id}/enterprise-router/instances/{id}
         PUT:
             tag: ER
-            operationId: UpdateInstance
+            operationId: UpdateInstanceDefaultRouteTables
             x-ref-api: PUT /v3/{project_id}/enterprise-router/instances/{id}
     /v3/{project_id}/enterprise-router/instances/{id}/change-availability-zone-ids:
         POST:

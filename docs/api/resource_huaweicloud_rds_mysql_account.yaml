@@ -1,6 +1,6 @@
 info:
   version: 
-  title: resource_huaweicloud_rds_account
+  title: resource_huaweicloud_rds_mysql_account
   description: 
 schemes:
   - https

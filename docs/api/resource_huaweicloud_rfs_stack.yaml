@@ -1,6 +1,6 @@
 info:
   version: 
-  title: resource_huaweicloud_rf_stack
+  title: resource_huaweicloud_rfs_stack
   description: 
 schemes:
   - https

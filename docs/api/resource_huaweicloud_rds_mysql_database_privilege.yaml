@@ -1,6 +1,6 @@
 info:
   version: 
-  title: resource_huaweicloud_rds_database_privilege
+  title: resource_huaweicloud_rds_mysql_database_privilege
   description: 
 schemes:
   - https
