@@ -96,12 +96,13 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 			},
 			"availability_zones": {
 				// There is a problem with order of elements in Availability Zone list returned by Kafka API.
-				Type:     schema.TypeSet,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Description: "schema: Required",
 			},
 			"flavor_id": {
 				Type:         schema.TypeString,
