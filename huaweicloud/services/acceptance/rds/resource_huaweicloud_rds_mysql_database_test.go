@@ -35,7 +35,7 @@ func TestAccRdsDatabase_basic(t *testing.T) {
 	rName := acceptance.RandomAccResourceName()
 	description := "test database"
 	descriptionUpdate := "test database update"
-	resourceName := "huaweicloud_rds_database.test"
+	resourceName := "huaweicloud_rds_mysql_database.test"
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -74,7 +74,7 @@ func testRdsDatabase_basic(rName, description string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_rds_database" "test" {
+resource "huaweicloud_rds_mysql_database" "test" {
   instance_id   = huaweicloud_rds_instance.test.id
   name          = "%s"
   character_set = "utf8"

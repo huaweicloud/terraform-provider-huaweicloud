@@ -2,7 +2,7 @@
 subcategory: "Relational Database Service (RDS)"
 ---
 
-# huaweicloud_rds_database
+# huaweicloud_rds_mysql_database
 
 Manages RDS Mysql database resource within HuaweiCloud.
 
@@ -11,7 +11,7 @@ Manages RDS Mysql database resource within HuaweiCloud.
 ```hcl
 variable "instance_id" {}
 
-resource "huaweicloud_rds_database" "test" {
+resource "huaweicloud_rds_mysql_database" "test" {
   instance_id   = var.instance_id
   name          = "test"
   character_set = "utf8"
@@ -51,5 +51,5 @@ In addition to all arguments above, the following attributes are exported:
 RDS database can be imported using the `instance id` and `database name`, e.g.
 
 ```
-$ terraform import huaweicloud_rds_database.database_1 instance_id/database_name
+$ terraform import huaweicloud_rds_mysql_database.database_1 instance_id/database_name
 ```

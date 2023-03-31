@@ -2,7 +2,7 @@
 subcategory: "Relational Database Service (RDS)"
 ---
 
-# huaweicloud_rds_account
+# huaweicloud_rds_mysql_account
 
 Manages RDS Mysql account resource within HuaweiCloud.
 
@@ -11,7 +11,7 @@ Manages RDS Mysql account resource within HuaweiCloud.
 ```hcl
 variable "instance_id" {}
 
-resource "huaweicloud_rds_account" "test" {
+resource "huaweicloud_rds_mysql_account" "test" {
   instance_id = var.instance_id
   name        = "test"
   password    = "Test@12345678"
@@ -47,5 +47,5 @@ In addition to all arguments above, the following attributes are exported:
 RDS account can be imported using the `instance id` and `account name`, e.g.:
 
 ```
-$ terraform import huaweicloud_rds_account.user_1 instance_id/account_name
+$ terraform import huaweicloud_rds_mysql_account.user_1 instance_id/account_name
 ```

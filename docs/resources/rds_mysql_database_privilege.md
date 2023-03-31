@@ -2,7 +2,7 @@
 subcategory: "Relational Database Service (RDS)"
 ---
 
-# huaweicloud_rds_database_privilege
+# huaweicloud_rds_mysql_database_privilege
 
 Manages RDS Mysql database privilege resource within HuaweiCloud.
 
@@ -14,7 +14,7 @@ variable "db_name" {}
 variable "user_name_1" {}
 variable "user_name_2" {}
 
-resource "huaweicloud_rds_database_privilege" "test" {
+resource "huaweicloud_rds_mysql_database_privilege" "test" {
   instance_id = var.instance_id
   db_name     = var.db_name
 
@@ -65,5 +65,5 @@ In addition to all arguments above, the following attributes are exported:
 RDS database privilege can be imported using the `instance id` and `database name`, e.g.
 
 ```
-$ terraform import huaweicloud_rds_database_privilege.test instance_id/database_name
+$ terraform import huaweicloud_rds_mysql_database_privilege.test instance_id/database_name
 ```
