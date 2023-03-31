@@ -5,7 +5,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 )
 
-//Describes the Node Structure of cluster
+// Describes the Node Structure of cluster
 type ListNode struct {
 	// API type, fixed value "List"
 	Kind string `json:"kind"`
@@ -216,7 +216,7 @@ type MatchLabelsSpec struct {
 	// Matched disk size if left unspecified, the disk size is not limited
 	Size string `json:"size,omitempty"`
 	// EVS disk type
-	VolumeType string `json:"volume,omitempty"`
+	VolumeType string `json:"volumeType,omitempty"`
 	// Disk encryption identifier
 	// 0 indicates that the disk is not encrypted, and 1 indicates that the disk is encrypted
 	MetadataEncrypted string `json:"metadataEncrypted,omitempty"`

@@ -1,6 +1,8 @@
 package acls
 
 import (
+	"fmt"
+
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
 )
@@ -90,7 +92,7 @@ type ListOpts struct {
 	PreciseSearch string `q:"precise_search"`
 }
 
-// List is a method to obtain all ACL policy under a specified instance.
+// List is a method to obtain all ACL policies under a specified instance.
 func List(c *golangsdk.ServiceClient, opts ListOpts) ([]Policy, error) {
 	url := rootURL(c, opts.InstanceId)
 	query, err := golangsdk.BuildQueryString(opts)
@@ -130,4 +132,92 @@ func Delete(c *golangsdk.ServiceClient, instanceId, policyId string) error {
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 	return err
+}
+
+// BindOpts is the structure that used to bind a policy to the published APIs.
+type BindOpts struct {
+	// Instnace ID to which the API belongs.
+	InstanceId string `json:"-" required:"true"`
+	// ACL policy ID.
+	PolicyId string `json:"acl_id,omitempty"`
+	// The IDs of the API publish record.
+	PublishIds []string `json:"publish_ids,omitempty"`
+}
+
+// Bind is a method to bind the policy to one or more APIs.
+func Bind(c *golangsdk.ServiceClient, opts BindOpts) ([]BindResp, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r struct {
+		BindList []BindResp `json:"acl_bindings"`
+	}
+	_, err = c.Post(bindURL(c, opts.InstanceId), b, &r, nil)
+	return r.BindList, err
+}
+
+// ListBindOpts is the structure used to querying published API list that ACL policy associated.
+type ListBindOpts struct {
+	// The instnace ID to which the API belongs.
+	InstanceId string `json:"-" required:"true"`
+	// Offset from which the query starts.
+	// If the offset is less than 0, the value is automatically converted to 0. Default to 0.
+	Offset int `q:"offset"`
+	// Number of items displayed on each page. The valid values are range form 1 to 500, default to 20.
+	Limit int `q:"limit"`
+	// The ACL policy ID.
+	PolicyId string `q:"acl_id"`
+	// The API ID.
+	ApiId string `q:"api_id"`
+	// The API name.
+	ApiName string `q:"api_name"`
+	// The environment ID where the API is published.
+	EnvId string `q:"env_id"`
+	// The group ID where the API is located.
+	GroupId string `q:"group_id"`
+}
+
+// ListBind is a method to obtain all API to which the ACL policy bound.
+func ListBind(c *golangsdk.ServiceClient, opts ListBindOpts) ([]AclBindApiInfo, error) {
+	url := listBindURL(c, opts.InstanceId)
+	query, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return nil, err
+	}
+	url += query.String()
+
+	pages, err := pagination.NewPager(c, url, func(r pagination.PageResult) pagination.Page {
+		p := BindPage{pagination.OffsetPageBase{PageResult: r}}
+		return p
+	}).AllPages()
+
+	if err != nil {
+		return nil, err
+	}
+	return ExtractBindInfos(pages)
+}
+
+// BatchUnbindOpts is the structure that used to unbinding policy from the published APIs.
+type BatchUnbindOpts struct {
+	// Instance ID.
+	InstanceId string `json:"-" required:"true"`
+	// List of API and ACL policy binding relationship IDs that need to be unbound.
+	AclBindings []string `json:"acl_bindings,omitempty"`
+}
+
+// BatchUnbind is an API to unbind all ACL policies associated with the list.
+func BatchUnbind(c *golangsdk.ServiceClient, unbindOpt BatchUnbindOpts, action string) (*BatchUnbindResp, error) {
+	b, err := golangsdk.BuildRequestBody(unbindOpt, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var (
+		url = fmt.Sprintf("%v?action=%v", bindURL(c, unbindOpt.InstanceId), action)
+		r   BatchUnbindResp
+	)
+	_, err = c.Put(url, b, &r, nil)
+	return &r, err
 }
