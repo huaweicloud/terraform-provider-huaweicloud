@@ -21,7 +21,6 @@ import (
 
 var (
 	ValidDiskTypes     = []string{"SYS", "DATA"}
-	ValidVolumeTypes   = []string{"SAS", "SSD", "GPSSD", "ESSD", "SATA"}
 	ValidShareTypes    = []string{"PER", "WHOLE"}
 	ValidChargingModes = []string{"traffic", "bandwidth"}
 )
@@ -134,10 +133,9 @@ func ResourceASConfiguration() *schema.Resource {
 										ForceNew: true,
 									},
 									"volume_type": {
-										Type:         schema.TypeString,
-										Required:     true,
-										ForceNew:     true,
-										ValidateFunc: validation.StringInSlice(ValidVolumeTypes, false),
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
 									},
 									"disk_type": {
 										Type:         schema.TypeString,

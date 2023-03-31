@@ -58,9 +58,6 @@ func ResourceEvsVolume() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"GPSSD", "SSD", "ESSD", "SAS",
-				}, true),
 			},
 			"device_type": {
 				Type:         schema.TypeString,

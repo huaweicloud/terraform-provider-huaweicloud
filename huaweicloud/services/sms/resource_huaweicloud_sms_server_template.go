@@ -83,9 +83,6 @@ func ResourceServerTemplate() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "SAS",
-				ValidateFunc: validation.StringInSlice([]string{
-					"SAS", "SSD", "GPSSD", "ESSD",
-				}, true),
 			},
 			"flavor": {
 				Type:     schema.TypeString,
