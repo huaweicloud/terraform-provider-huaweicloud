@@ -232,3 +232,21 @@ func ExtractAliasList(r pagination.Page) ([]AliasResult, error) {
 	err := (r.(FunctionPage)).ExtractInto(&s)
 	return s, err
 }
+
+// AsyncInvokeConfig is the structure that represents the asynchronous invocation.
+type AsyncInvokeConfig struct {
+	// Function URN.
+	FunctionUrn string `json:"func_urn"`
+	// Maximum validity period of a message. Value range: 60–86,400. Unit: second.
+	MaxAsyncEventAgeInSeconds int `json:"max_async_event_age_in_seconds"`
+	// Maximum number of retry attempts to be made if asynchronous invocation fails. Default value: 3. Value range: 0–8.
+	MaxAsyncRetryAttempts int `json:"max_async_retry_attempts"`
+	// Asynchronous invocation target.
+	DestinationConfig DestinationConfig `json:"destination_config"`
+	// Time when asynchronous execution notification was configured.
+	CreatedAt string `json:"created_time"`
+	// Time when the asynchronous execution notification settings were last modified.
+	UpdatedAt string `json:"last_modified"`
+	// Whether to enable asynchronous invocation status persistence.
+	EnableAsyncStatusLog bool `json:"enable_async_status_log"`
+}
