@@ -138,6 +138,7 @@ func ResourceCssCluster() *schema.Resource {
 				ForceNew:     true,
 				RequiredWith: []string{"vpc_id", "subnet_id", "security_group_id"},
 				Computed:     true,
+				Description:  "schema: Required",
 			},
 
 			"vpc_id": {
