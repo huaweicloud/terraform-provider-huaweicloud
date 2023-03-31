@@ -9,10 +9,10 @@ Use this data source to get the details of a specific IEC subnet port.
 ## Example Usage
 
 ```hcl
-variable "subent_id" {}
+variable "subnet_id" {}
 
 data "huaweicloud_iec_port" "port_1" {
-  subnet_id = var.subent_id
+  subnet_id = var.subnet_id
   fixed_ip  = "192.168.1.123"
 }
 ```

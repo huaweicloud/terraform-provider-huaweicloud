@@ -99,6 +99,8 @@ The `instances` block supports:
 * `public_conn_addresses` - The instance public access address.
   The format of each connection address is `{IP address}:{port}`.
 
+* `retention_policy` - The action to be taken when the memory usage reaches the disk capacity threshold.
+
 * `dumping` - Whether to dumping is enabled.
 
 * `enable_auto_topic` - Whether to enable automatic topic creation.

@@ -31,13 +31,15 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-* `id` - The data source ID in UUID format.
+In addition to all arguments above, the following attributes are exported:
 
-The following attributes are exported:
+* `id` - The data source ID.
+
+* `instances` - An array of available WAF dedicated instances.
 
 The `instances` block supports:
 
-* `id` - The id of WAF dedicated instance.
+* `id` - The ID of WAF dedicated instance.
 
 * `name` - The name of WAF dedicated instance.
 

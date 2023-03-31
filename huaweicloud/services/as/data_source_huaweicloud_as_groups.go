@@ -152,6 +152,10 @@ func DataSourceASGroups() *schema.Resource {
 										Computed:    true,
 										Description: "The ID of the shared bandwidth of an IPv6 address.",
 									},
+									"source_dest_check": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
 								},
 							},
 							Description: "The network information of the AS group.",
@@ -247,7 +251,7 @@ func DataSourceASGroups() *schema.Resource {
 							Computed:    true,
 							Description: "The agency name.",
 						},
-						"tags": common.TagsSchema(),
+						"tags": common.TagsComputedSchema(),
 						"instances": {
 							Type:        schema.TypeList,
 							Computed:    true,

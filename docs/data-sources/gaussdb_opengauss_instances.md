@@ -31,6 +31,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - Indicates the ID of the data source.
 
+* `instances` - An array of available instances.
+
 The `instances` block supports:
 
 * `region` - The region of the instance.

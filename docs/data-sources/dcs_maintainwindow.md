@@ -19,16 +19,16 @@ data "huaweicloud_dcs_maintainwindow" "maintainwindow1" {
 * `region` - (Optional, String) The region in which to obtain the dcs maintainwindows. If omitted, the provider-level
   region will be used.
 
-* `seq` - (Required, Int) Indicates the sequential number of a maintenance time window.
+* `seq` - (Optional, Int) Specifies the sequential number of a maintenance time window.
 
-* `begin` - (Optional, String) Indicates the time at which a maintenance time window starts.
+* `begin` - (Optional, String) Specifies the time at which a maintenance time window starts.
 
-* `end` - (Required, String) Indicates the time at which a maintenance time window ends.
+* `end` - (Optional, String) Specifies the time at which a maintenance time window ends.
 
-* `default` - (Required, Bool) Indicates whether a maintenance time window is set to the default time segment.
+* `default` - (Optional, Bool) Specifies whether a maintenance time window is set to the default time segment.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a data source ID in UUID format.
+* `id` - The data source ID in UUID format.

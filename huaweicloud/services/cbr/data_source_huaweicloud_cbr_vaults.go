@@ -76,7 +76,7 @@ func DataSourceCbrVaultsV3() *schema.Resource {
 			},
 			"vaults": {
 				Type:     schema.TypeList,
-				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {

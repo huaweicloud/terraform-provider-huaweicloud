@@ -41,6 +41,7 @@ The `eips` block supports:
 * `ip_version` - The version of elastic IP address.
 * `public_ip` - The address of elastic IP.
 * `private_ip` - The address of private IP.
-* `bandwitch_name` - The name of bandwidth.
-* `bandwitch_size` - The size of bandwidth.
-* `bandwitch_share_type` - Whether the bandwidth is shared or exclusive.
+* `bandwidth_id` - The ID of bandwidth.
+* `bandwidth_name` - The name of bandwidth.
+* `bandwidth_size` - The size of bandwidth.
+* `bandwidth_share_type` - Whether the bandwidth is shared or exclusive.

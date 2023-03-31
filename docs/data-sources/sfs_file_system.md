@@ -20,6 +20,9 @@ data "huaweicloud_sfs_file_system" "shared_file" {
 
 The following arguments are supported:
 
+* `region` - (Optional, String) Specifies the region in which to obtain the shared file system.
+  If omitted, the provider-level region will be used.
+
 * `name` - (Optional, String) The name of the shared file system.
 
 * `id` - (Optional, String) The UUID of the shared file system.
@@ -31,6 +34,10 @@ The following arguments are supported:
 In addition to all arguments above, the following attributes are exported:
 
 * `availability_zone` - The availability zone name.
+
+* `description` - The description of the shared file system.
+
+* `state` - The state of the shared file system.
 
 * `size` - The size (GB) of the shared file system.
 

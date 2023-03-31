@@ -35,12 +35,10 @@ func DataSourceKmsDataKeyV1() *schema.Resource {
 			},
 			"plain_text": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 			"cipher_text": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 		},

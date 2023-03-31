@@ -30,3 +30,5 @@ In addition to all arguments above, the following attributes are exported:
 
 * `description` - The description of the IEC network ACL.
 * `status` - The status of the IEC network ACL.
+* `inbound_rules` - A list of the IDs of ingress rules associated with the IEC network ACL.
+* `outbound_rules` - A list of the IDs of egress rules associated with the IEC network ACL.
