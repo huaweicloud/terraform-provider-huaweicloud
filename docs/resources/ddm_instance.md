@@ -124,10 +124,8 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
+* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
   Valid values are **true** and **false**. Defaults to **false**.
-
-  Changing this parameter will create a new resource.
 
 * `delete_rds_data` - (Optional, String) Specifies whether data stored on the associated DB instances is deleted.
 

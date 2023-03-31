@@ -325,7 +325,7 @@ func buildCreateInstanceExtendParamChildBody(d *schema.ResourceData) map[string]
 		"charge_mode":   utils.ValueIngoreEmpty(d.Get("charging_mode")),
 		"period_type":   utils.ValueIngoreEmpty(d.Get("period_unit")),
 		"period_num":    utils.ValueIngoreEmpty(d.Get("period")),
-		"is_auto_renew": utils.ValueIngoreEmpty(d.Get("auto_renew")),
+		"is_auto_renew": d.Get("auto_renew"),
 		"is_auto_pay":   "true",
 	}
 
@@ -368,6 +368,16 @@ func resourceDdmInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		err := updateInstanceAdminPassword(ctx, d, cfg, region)
 		if err != nil {
 			return err
+		}
+	}
+
+	if d.HasChange("auto_renew") {
+		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating BSS V2 client: %s", err)
+		}
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return diag.Errorf("error updating the auto-renew of the DDM instance (%s): %s", d.Id(), err)
 		}
 	}
 	return resourceDdmInstanceRead(ctx, d, meta)
