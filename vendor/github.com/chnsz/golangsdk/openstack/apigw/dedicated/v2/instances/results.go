@@ -286,3 +286,37 @@ func (r EnableIngressResult) Extract() (*Ingress, error) {
 type DisableIngressResult struct {
 	golangsdk.ErrResult
 }
+
+// Feature represents the result of a feature configuration.
+type Feature struct {
+	// Feature ID.
+	ID string `json:"id"`
+	// Feature name.
+	Name string `json:"name"`
+	// Whether to enable the feature.
+	Enable bool `json:"enable"`
+	// Parameter configuration.
+	Config string `json:"config"`
+	// Dedicated APIG instance ID.
+	InstanceId string `json:"instance_id"`
+	// Feature update time.
+	UpdatedAt string `json:"update_time"`
+}
+
+// FeaturePage is a single page maximum result representing a query by offset page.
+type FeaturePage struct {
+	pagination.OffsetPageBase
+}
+
+// IsEmpty checks whether a FeaturePage struct is empty.
+func (b FeaturePage) IsEmpty() (bool, error) {
+	arr, err := ExtractFeatures(b)
+	return len(arr) == 0, err
+}
+
+// ExtractFeatures is a method to extract the list of feature configuration details for APIG instance.
+func ExtractFeatures(r pagination.Page) ([]Feature, error) {
+	var s []Feature
+	err := r.(FeaturePage).Result.ExtractIntoSlicePtr(&s, "features")
+	return s, err
+}
