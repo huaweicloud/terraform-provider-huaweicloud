@@ -65,14 +65,14 @@ func TestAccInstanceRoutes_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id", "huaweicloud_apig_instance.test", "id"),
-					resource.TestCheckResourceAttr(rName, "next_hops.#", "2"),
+					resource.TestCheckResourceAttr(rName, "nexthops.#", "2"),
 				),
 			},
 			{
 				Config: testAccInstanceRoutes_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "next_hops.#", "2"),
+					resource.TestCheckResourceAttr(rName, "nexthops.#", "2"),
 				),
 			},
 			{
@@ -110,7 +110,7 @@ func testAccInstanceRoutes_basic_step1(name string) string {
 
 resource "huaweicloud_apig_instance_routes" "test" {
   instance_id = huaweicloud_apig_instance.test.id
-  next_hops   = ["172.16.128.0/20","172.16.0.0/20"]
+  nexthops    = ["172.16.128.0/20","172.16.0.0/20"]
 }
 `, testAccInstanceRoutes_base(name))
 }
@@ -121,7 +121,7 @@ func testAccInstanceRoutes_basic_step2(name string) string {
 
 resource "huaweicloud_apig_instance_routes" "test" {
   instance_id = huaweicloud_apig_instance.test.id
-  next_hops   = ["172.16.64.0/20","172.16.192.0/20"]
+  nexthops    = ["172.16.64.0/20","172.16.192.0/20"]
 }
 `, testAccInstanceRoutes_base(name))
 }
