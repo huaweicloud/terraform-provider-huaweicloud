@@ -46,7 +46,7 @@ func ResourceInstanceRoutes() *schema.Resource {
 				ForceNew:    true,
 				Description: "The ID of the dedicated instance to which the routes belong.",
 			},
-			"next_hops": {
+			"nexthops": {
 				Type:        schema.TypeSet,
 				Required:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
@@ -86,7 +86,7 @@ func resourceInstanceRoutesCreate(ctx context.Context, d *schema.ResourceData, m
 
 	var (
 		instanceId = d.Get("instance_id").(string)
-		routes     = d.Get("next_hops").(*schema.Set)
+		routes     = d.Get("nexthops").(*schema.Set)
 	)
 	if err := modifyInstanceRoutes(client, instanceId, routes.List()); err != nil {
 		return diag.Errorf("error creating instance routes: %v", err)
@@ -131,7 +131,7 @@ func resourceInstanceRoutesRead(_ context.Context, d *schema.ResourceData, meta 
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "Instance routes")
 	}
 
-	return diag.FromErr(d.Set("next_hops", result.UserRoutes))
+	return diag.FromErr(d.Set("nexthops", result.UserRoutes))
 }
 
 func resourceInstanceRoutesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -143,7 +143,7 @@ func resourceInstanceRoutesUpdate(ctx context.Context, d *schema.ResourceData, m
 
 	var (
 		instanceId = d.Get("instance_id").(string)
-		routes     = d.Get("next_hops").(*schema.Set)
+		routes     = d.Get("nexthops").(*schema.Set)
 	)
 	if err := modifyInstanceRoutes(client, instanceId, routes.List()); err != nil {
 		return diag.Errorf("error updating instance routes: %v", err)

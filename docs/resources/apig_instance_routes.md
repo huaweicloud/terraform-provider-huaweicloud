@@ -13,7 +13,7 @@ variable "instance_id" {}
 
 resource "huaweicloud_apig_instance_routes" "test" {
   instance_id = var.instance_id
-  next_hops   = ["172.16.3.0/24", "172.16.7.0/24"]
+  nexthops    = ["172.16.3.0/24", "172.16.7.0/24"]
 }
 ```
 
@@ -27,7 +27,7 @@ The following arguments are supported:
 * `instance_id` - (Required, String, ForceNew) Specifies the ID of the dedicated instance to which the routes belong.
   Changing this will create a new resource.
 
-* `next_hops` - (Required, List) Specifies the configuration of the next hop routes.
+* `nexthops` - (Required, List) Specifies the configuration of the next-hop routes.
 
 -> The network segment of the next hop cannot overlap with the network segment of the APIG instance.
 
