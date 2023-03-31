@@ -1,0 +1,111 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dli_datasource_auth": {
+          "block": {
+            "attributes": {
+              "certificate_location": {
+                "type": "string",
+                "description": "The OBS path of the security cluster certificate.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key_password": {
+                "type": "string",
+                "description": "The key password.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "keystore_location": {
+                "type": "string",
+                "description": "The OBS path of the **keystore** configuration file.",
+                "optional": true,
+                "computed": true
+              },
+              "keystore_password": {
+                "type": "string",
+                "description": "The password of the **keystore ** configuration file.",
+                "optional": true,
+                "computed": true,
+                "sensitive": true
+              },
+              "keytab": {
+                "type": "string",
+                "description": "The OBS path of the **keytab** configuration file.",
+                "optional": true,
+                "computed": true
+              },
+              "krb5_conf": {
+                "type": "string",
+                "description": "The OBS path of the **krb5** configuration file.",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of a datasource authentication.",
+                "required": true
+              },
+              "owner": {
+                "type": "string",
+                "description": "The user name of owner.",
+                "computed": true
+              },
+              "password": {
+                "type": "string",
+                "description": "The password for accessing the security cluster or datasource.",
+                "optional": true,
+                "computed": true,
+                "sensitive": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "truststore_location": {
+                "type": "string",
+                "description": "The OBS path of the **truststore** configuration file.",
+                "optional": true,
+                "computed": true
+              },
+              "truststore_password": {
+                "type": "string",
+                "description": "The password of the **truststore** configuration file.",
+                "optional": true,
+                "computed": true,
+                "sensitive": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Data source type.",
+                "required": true,
+                "forcenew": true
+              },
+              "username": {
+                "type": "string",
+                "description": "Username for accessing the security cluster or datasource.",
+                "optional": true,
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Analytics",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

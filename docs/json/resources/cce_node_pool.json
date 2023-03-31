@@ -198,11 +198,6 @@
                       "optional": true,
                       "forcenew": true
                     },
-                    "hw_passthrough": {
-                      "type": "bool",
-                      "optional": true,
-                      "forcenew": true
-                    },
                     "kms_key_id": {
                       "type": "string",
                       "optional": true,
@@ -233,11 +228,6 @@
                         "map",
                         "string"
                       ],
-                      "optional": true,
-                      "forcenew": true
-                    },
-                    "hw_passthrough": {
-                      "type": "bool",
                       "optional": true,
                       "forcenew": true
                     },

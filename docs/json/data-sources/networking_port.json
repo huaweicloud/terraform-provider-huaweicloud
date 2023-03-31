@@ -28,12 +28,12 @@
               },
               "device_id": {
                 "type": "string",
-                "optional": true,
+                "description": "schema: Computed",
                 "computed": true
               },
               "device_owner": {
                 "type": "string",
-                "optional": true,
+                "description": "schema: Computed",
                 "computed": true
               },
               "fixed_ip": {
@@ -51,7 +51,7 @@
               },
               "name": {
                 "type": "string",
-                "optional": true,
+                "description": "schema: Computed",
                 "computed": true
               },
               "network_id": {
@@ -63,10 +63,6 @@
                 "type": "string",
                 "optional": true,
                 "computed": true
-              },
-              "project_id": {
-                "type": "string",
-                "optional": true
               },
               "region": {
                 "type": "string",

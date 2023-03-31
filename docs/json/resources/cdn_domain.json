@@ -30,7 +30,8 @@
               "service_area": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "tags": {
                 "type": [
@@ -64,8 +65,8 @@
                           },
                           "priority": {
                             "type": "number",
-                            "optional": true,
-                            "computed": true
+                            "description": "schema: Required",
+                            "required": true
                           },
                           "rule_type": {
                             "type": "number",
@@ -73,13 +74,13 @@
                           },
                           "ttl": {
                             "type": "number",
-                            "optional": true,
-                            "computed": true
+                            "description": "schema: Required",
+                            "required": true
                           },
                           "ttl_type": {
                             "type": "number",
-                            "optional": true,
-                            "computed": true
+                            "description": "schema: Required",
+                            "required": true
                           }
                         }
                       },

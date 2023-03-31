@@ -126,7 +126,7 @@
                     },
                     "size": {
                       "type": "number",
-                      "optional": true,
+                      "description": "schema: Computed",
                       "computed": true
                     },
                     "type": {

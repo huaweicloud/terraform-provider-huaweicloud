@@ -40,7 +40,7 @@
               },
               "region": {
                 "type": "string",
-                "description": "The region where the RF resource stack is located.",
+                "description": "The region where the RFS resource stack is located.",
                 "computed": true
               },
               "status": {
@@ -80,14 +80,14 @@
                   "attributes": {
                     "name": {
                       "type": "string",
-                      "description": "The name of IAM agency authorized to IAC account for resources modification.",
-                      "optional": true,
+                      "description": "schema: Required; The name of IAM agency authorized to IAC account for resources modification.",
+                      "required": true,
                       "forcenew": true
                     },
                     "provider_name": {
                       "type": "string",
-                      "description": "The name of the provider corresponding to the IAM agency.",
-                      "optional": true,
+                      "description": "schema: Required; The name of the provider corresponding to the IAM agency.",
+                      "required": true,
                       "forcenew": true
                     }
                   },

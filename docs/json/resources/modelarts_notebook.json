@@ -115,7 +115,7 @@
                   "attributes": {
                     "mount_path": {
                       "type": "string",
-                      "optional": true,
+                      "description": "schema: Computed",
                       "computed": true
                     },
                     "ownership": {

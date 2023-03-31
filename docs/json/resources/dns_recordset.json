@@ -7,27 +7,43 @@
             "attributes": {
               "description": {
                 "type": "string",
-                "optional": true
+                "description": "Specifies the description of the record set.",
+                "optional": true,
+                "computed": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
+              "line_id": {
+                "type": "string",
+                "description": "Specifies the resolution line ID.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "name": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "description": "Specifies the name of the record set. The name suffixed with a zone name, which is a\ncomplete host name ended with a dot.",
+                "required": true
               },
               "records": {
                 "type": [
                   "list",
                   "string"
                 ],
+                "description": "Specifies an array of DNS records. The value rules vary depending on the record set type.",
                 "required": true
               },
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the record set.",
+                "optional": true,
+                "default": "ENABLE"
               },
               "tags": {
                 "type": [
@@ -38,18 +54,31 @@
               },
               "ttl": {
                 "type": "number",
+                "description": "Specifies the time to live (TTL) of the record set (in seconds).",
                 "optional": true,
                 "default": 300
               },
               "type": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "description": "Specifies the type of the record set.",
+                "required": true
+              },
+              "weight": {
+                "type": "number",
+                "description": "Specifies the weight of the record set.",
+                "optional": true,
+                "computed": true
               },
               "zone_id": {
                 "type": "string",
+                "description": "Specifies the zone ID.",
                 "required": true,
                 "forcenew": true
+              },
+              "zone_name": {
+                "type": "string",
+                "description": "The zone name of the record set.",
+                "computed": true
               }
             }
           },

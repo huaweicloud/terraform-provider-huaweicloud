@@ -18,7 +18,7 @@
               },
               "availability_zones": {
                 "type": [
-                  "list",
+                  "set",
                   "string"
                 ],
                 "required": true,

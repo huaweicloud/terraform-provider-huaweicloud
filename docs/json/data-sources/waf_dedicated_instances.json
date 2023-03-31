@@ -23,7 +23,7 @@
                       "access_status": "number",
                       "available_zone": "string",
                       "cpu_architecture": "string",
-                      "cpu_flavor": "string",
+                      "ecs_flavor": "string",
                       "group_id": "string",
                       "id": "string",
                       "name": "string",

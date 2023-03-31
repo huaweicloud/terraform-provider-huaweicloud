@@ -114,8 +114,7 @@
                   "map",
                   "string"
                 ],
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "task_status": {
                 "type": "string",

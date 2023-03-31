@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ddm_accounts": {
+          "block": {
+            "attributes": {
+              "accounts": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "name": "string",
+                      "permissions": [
+                        "list",
+                        "string"
+                      ],
+                      "schemas": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "description": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of DDM account.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of DDM instance.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the DDM account.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the DDM account.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDM",
+            "name": "Distributed Database Middleware",
+            "catalog": "Databases",
+            "name_cn": "分布式数据库中间件",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

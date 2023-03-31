@@ -183,7 +183,8 @@
                         "string"
                       ],
                       "optional": true,
-                      "computed": true
+                      "computed": true,
+                      "forcenew": true
                     }
                   }
                 },

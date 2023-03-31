@@ -1,0 +1,91 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_fgs_async_invoke_configuration": {
+          "block": {
+            "attributes": {
+              "enable_async_status_log": {
+                "type": "bool",
+                "description": "Whether to enable asynchronous invocation status persistence.",
+                "optional": true
+              },
+              "function_urn": {
+                "type": "string",
+                "description": "The function URN to which the asynchronous invocation belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "max_async_event_age_in_seconds": {
+                "type": "number",
+                "description": "The maximum validity period of a message.",
+                "required": true
+              },
+              "max_async_retry_attempts": {
+                "type": "number",
+                "description": "The maximum number of retry attempts to be made if asynchronous invocation fails.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to configure the asynchronous invocation.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "on_failure": {
+                "block": {
+                  "attributes": {
+                    "destination": {
+                      "type": "string",
+                      "description": "The object type.",
+                      "required": true
+                    },
+                    "param": {
+                      "type": "string",
+                      "description": "The parameters (in JSON format) corresponding to the target service.",
+                      "required": true
+                    }
+                  },
+                  "description": "The target to be invoked when a function fails to be executed due to a system error or an internal error."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "on_success": {
+                "block": {
+                  "attributes": {
+                    "destination": {
+                      "type": "string",
+                      "description": "The object type.",
+                      "required": true
+                    },
+                    "param": {
+                      "type": "string",
+                      "description": "The parameters (in JSON format) corresponding to the target service.",
+                      "required": true
+                    }
+                  },
+                  "description": "The target to be invoked when a function is successfully executed."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "FunctionGraph",
+            "name": "FunctionGraph",
+            "catalog": "Compute",
+            "name_cn": "函数工作流",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

@@ -47,7 +47,6 @@
               "start_task": {
                 "type": "bool",
                 "optional": true,
-                "forcenew": true,
                 "default": true
               },
               "status": {

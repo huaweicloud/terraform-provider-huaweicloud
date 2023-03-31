@@ -1,0 +1,61 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cfw_address_group_member": {
+          "block": {
+            "attributes": {
+              "address": {
+                "type": "string",
+                "description": "Specifies the IP address.",
+                "required": true,
+                "forcenew": true
+              },
+              "address_type": {
+                "type": "number",
+                "description": "Specifies the address type.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies address description.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "Specifies the ID of the IP address group.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the address name.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -26,19 +26,6 @@
                 "optional": true,
                 "computed": true
               },
-              "networks": {
-                "type": [
-                  "list",
-                  [
-                    "object",
-                    {
-                      "subnet_id": "string",
-                      "vpc_id": "string"
-                    }
-                  ]
-                ],
-                "computed": true
-              },
               "outbound_rules": {
                 "type": [
                   "list",

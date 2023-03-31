@@ -27,7 +27,7 @@
               },
               "ip_version": {
                 "type": "number",
-                "optional": true,
+                "description": "schema: Computed",
                 "computed": true
               },
               "line_id": {

@@ -1,0 +1,121 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_images_image_copy": {
+          "block": {
+            "attributes": {
+              "agency_name": {
+                "type": "string",
+                "description": "Specifies the agency name.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "checksum": {
+                "type": "string",
+                "computed": true
+              },
+              "data_origin": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the copy image.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "disk_format": {
+                "type": "string",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project id of the image.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_size": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "computed": true
+              },
+              "kms_key_id": {
+                "type": "string",
+                "description": "Specifies the master key used for encrypting an image.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the copy image.",
+                "required": true
+              },
+              "os_version": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source_image_id": {
+                "type": "string",
+                "description": "Specifies the ID of the source image.",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "target_region": {
+                "type": "string",
+                "description": "Specifies the target region name.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "vault_id": {
+                "type": "string",
+                "description": "Specifies the ID of the vault.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "visibility": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "IMS",
+            "name": "Image Management Service",
+            "catalog": "Compute",
+            "name_cn": "镜像服务",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

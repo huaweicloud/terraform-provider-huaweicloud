@@ -1,0 +1,44 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_instance_routes": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the routes belong.",
+                "required": true,
+                "forcenew": true
+              },
+              "nexthops": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "The configuration of the next hop routes.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the dedicated instance and routes are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

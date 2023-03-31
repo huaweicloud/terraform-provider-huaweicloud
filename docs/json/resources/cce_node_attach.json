@@ -24,12 +24,10 @@
                   [
                     "object",
                     {
-                      "extend_param": "string",
                       "extend_params": [
                         "map",
                         "string"
                       ],
-                      "hw_passthrough": "bool",
                       "kms_key_id": "string",
                       "size": "number",
                       "volumetype": "string"
@@ -54,11 +52,6 @@
               "id": {
                 "type": "string",
                 "computed": true
-              },
-              "image_id": {
-                "type": "string",
-                "optional": true,
-                "forcenew": true
               },
               "key_pair": {
                 "type": "string",
@@ -86,16 +79,6 @@
                 "type": "string",
                 "optional": true,
                 "computed": true
-              },
-              "nic_multi_queue": {
-                "type": "string",
-                "optional": true,
-                "forcenew": true
-              },
-              "nic_threshold": {
-                "type": "string",
-                "optional": true,
-                "forcenew": true
               },
               "os": {
                 "type": "string",
@@ -134,12 +117,11 @@
                   [
                     "object",
                     {
-                      "extend_param": "string",
                       "extend_params": [
                         "map",
                         "string"
                       ],
-                      "hw_passthrough": "bool",
+                      "kms_key_id": "string",
                       "size": "number",
                       "volumetype": "string"
                     }

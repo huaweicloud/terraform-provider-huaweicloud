@@ -56,6 +56,7 @@
               "share_proto": {
                 "type": "string",
                 "optional": true,
+                "forcenew": true,
                 "default": "NFS"
               },
               "share_type": {

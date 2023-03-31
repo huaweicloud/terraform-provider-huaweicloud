@@ -59,7 +59,8 @@
               },
               "service_type": {
                 "type": "string",
-                "optional": true,
+                "description": "schema: Computed",
+                "computed": true,
                 "default": "interface"
               },
               "status": {

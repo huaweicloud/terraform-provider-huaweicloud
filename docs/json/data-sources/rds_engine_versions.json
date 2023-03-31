@@ -16,23 +16,19 @@
                 "type": "string",
                 "optional": true,
                 "default": "MySQL"
-              }
-            },
-            "block_types": {
+              },
               "versions": {
-                "block": {
-                  "attributes": {
-                    "id": {
-                      "type": "string",
-                      "computed": true
-                    },
-                    "name": {
-                      "type": "string",
-                      "computed": true
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "name": "string"
                     }
-                  }
-                },
-                "nesting_mode": "list"
+                  ]
+                ],
+                "computed": true
               }
             }
           },
