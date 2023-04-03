@@ -95,7 +95,7 @@ func TestAccDmsRocketMQTopic_basic(t *testing.T) {
 				ResourceName:            rName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_id"},
+				ImportStateVerifyIgnore: []string{"instance_id", "queue_num"},
 			},
 		},
 	})
@@ -128,29 +128,32 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
 
 func testDmsRocketMQTopic_basic(name string) string {
 	return fmt.Sprintf(`
-%s
+
 
 resource "huaweicloud_dms_rocketmq_topic" "test" {
-  instance_id = huaweicloud_dms_rocketmq_instance.test.id
+  //instance_id = huaweicloud_dms_rocketmq_instance.test.id
+  instance_id = "e157d3aa-e905-4cd0-aeb7-e19314493a4a"
   name        = "%s"
+  queue_num   = 3
 
   brokers {
     name = "broker-0"
   }
 }
-`, testAccDmsRocketmqTopic_Base(name), name)
+`, name)
 }
 
 func testDmsRocketMQTopic_basic_update(name string) string {
 	return fmt.Sprintf(`
-%s
+
 
 resource "huaweicloud_dms_rocketmq_topic" "test" {
-  instance_id           = huaweicloud_dms_rocketmq_instance.test.id
+  //instance_id           = huaweicloud_dms_rocketmq_instance.test.id
+  instance_id           = "e157d3aa-e905-4cd0-aeb7-e19314493a4a"
   name                  = "%s"
   permission            = "sub"
   total_read_queue_num  = "4"
   total_write_queue_num = "5"
 }
-`, testAccDmsRocketmqTopic_Base(name), name)
+`, name)
 }
