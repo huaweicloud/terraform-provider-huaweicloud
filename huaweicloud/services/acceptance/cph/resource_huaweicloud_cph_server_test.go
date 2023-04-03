@@ -120,6 +120,10 @@ resource "huaweicloud_kps_keypair" "test" {
   name        = "%s"
   description = "%s"
 }
+
+data "huaweicloud_cph_phone_images" "test" {
+  image_label = "cloud_phone"
+}
 `, name, name, name, name)
 }
 
@@ -131,7 +135,7 @@ resource "huaweicloud_cph_server" "test" {
   name          = "%s"
   server_flavor = "physical.rx1.xlarge"
   phone_flavor  = "rx1.cp.c15.d46.e1v1"
-  image_id      = "22110120221209e101210a3000000b02"
+  image_id      = data.huaweicloud_cph_phone_images.test.images[0].id
   keypair_name  = huaweicloud_kps_keypair.test.name
 
   vpc_id    = huaweicloud_vpc.test.id
@@ -165,7 +169,7 @@ resource "huaweicloud_cph_server" "test" {
   name          = "%s"
   server_flavor = "physical.rx1.xlarge"
   phone_flavor  = "rx1.cp.c15.d46.e1v1"
-  image_id      = "22110120221209e101210a3000000b02"
+  image_id      = data.huaweicloud_cph_phone_images.test.images[0].id
   keypair_name  = huaweicloud_kps_keypair.test.name
 
   vpc_id    = huaweicloud_vpc.test.id
