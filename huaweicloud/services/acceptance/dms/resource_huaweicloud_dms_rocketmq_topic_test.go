@@ -128,11 +128,10 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
 
 func testDmsRocketMQTopic_basic(name string) string {
 	return fmt.Sprintf(`
-
+%s
 
 resource "huaweicloud_dms_rocketmq_topic" "test" {
-  //instance_id = huaweicloud_dms_rocketmq_instance.test.id
-  instance_id = "e157d3aa-e905-4cd0-aeb7-e19314493a4a"
+  instance_id = huaweicloud_dms_rocketmq_instance.test.id
   name        = "%s"
   queue_num   = 3
 
@@ -140,20 +139,19 @@ resource "huaweicloud_dms_rocketmq_topic" "test" {
     name = "broker-0"
   }
 }
-`, name)
+`, testAccDmsRocketmqTopic_Base(name), name)
 }
 
 func testDmsRocketMQTopic_basic_update(name string) string {
 	return fmt.Sprintf(`
-
+%s
 
 resource "huaweicloud_dms_rocketmq_topic" "test" {
-  //instance_id           = huaweicloud_dms_rocketmq_instance.test.id
-  instance_id           = "e157d3aa-e905-4cd0-aeb7-e19314493a4a"
+  instance_id           = huaweicloud_dms_rocketmq_instance.test.id
   name                  = "%s"
   permission            = "sub"
   total_read_queue_num  = "4"
   total_write_queue_num = "5"
 }
-`, name)
+`, testAccDmsRocketmqTopic_Base(name), name)
 }
