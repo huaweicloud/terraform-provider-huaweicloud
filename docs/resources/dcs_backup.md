@@ -32,7 +32,7 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `backup_format` - (Optional, String, ForceNew) Specifies the format of the DCS instance backup.
-  Value options: **aof**, **rdb**.
+  Value options: **aof**, **rdb**. Default to rdb.
 
   Changing this parameter will create a new resource.
 
@@ -70,8 +70,8 @@ In addition to all arguments above, the following attributes are exported:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 30 minute.
-* `delete` - Default is 10 minute.
+* `create` - Default is 30 minutes.
+* `delete` - Default is 10 minutes.
 
 ## Import
 

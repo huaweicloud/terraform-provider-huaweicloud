@@ -407,7 +407,7 @@ func dcsBackupStatusRefreshFunc(instanceId, backupId string, client *golangsdk.S
 }
 
 func buildGetDcsBackupQueryParams(offset int) string {
-	return fmt.Sprintf("?offset=%v", offset)
+	return fmt.Sprintf("?limit=10&offset=%v", offset)
 }
 
 func updatePathOffset(path string, offset int) string {

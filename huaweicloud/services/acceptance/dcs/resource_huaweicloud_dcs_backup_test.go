@@ -79,7 +79,7 @@ func getDcsBackupResourceFunc(cfg *config.Config, state *terraform.ResourceState
 }
 
 func buildGetDcsBackupQueryParams(offset int) string {
-	return fmt.Sprintf("?offset=%v", offset)
+	return fmt.Sprintf("?limit=10&offset=%v", offset)
 }
 
 func updatePathOffset(path string, offset int) string {
