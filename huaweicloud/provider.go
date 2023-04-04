@@ -718,6 +718,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_instance":           dds.ResourceDdsInstanceV3(),
 			"huaweicloud_dds_backup":             dds.ResourceDdsBackup(),
 			"huaweicloud_dds_parameter_template": dds.ResourceDdsParameterTemplate(),
+			"huaweicloud_dds_audit_log_policy":   dds.ResourceDdsAuditLogPolicy(),
 
 			"huaweicloud_ddm_instance": ddm.ResourceDdmInstance(),
 			"huaweicloud_ddm_schema":   ddm.ResourceDdmSchema(),
