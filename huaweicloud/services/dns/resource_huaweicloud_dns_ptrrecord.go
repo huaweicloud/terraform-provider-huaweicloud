@@ -126,12 +126,12 @@ func waitForDNSPtrRecordCreateOrUpdate(ctx context.Context, dnsClient *golangsdk
 	timeout time.Duration) error {
 	log.Printf("[DEBUG] Waiting for DNS PTR record (%s) to become ACTIVE", id)
 	stateConf := &resource.StateChangeConf{
-		Target:     []string{"ACTIVE"},
-		Pending:    []string{"PENDING_CREATE"},
-		Refresh:    waitForDNSPtrRecord(dnsClient, id),
-		Timeout:    timeout,
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Target:       []string{"ACTIVE"},
+		Pending:      []string{"PENDING_CREATE"},
+		Refresh:      waitForDNSPtrRecord(dnsClient, id),
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 3 * time.Second,
 	}
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
 		return fmt.Errorf(
@@ -234,12 +234,12 @@ func resourceDNSPtrRecordDelete(ctx context.Context, d *schema.ResourceData, met
 
 	log.Printf("[DEBUG] Waiting for DNS PTR record (%s) to be deleted", d.Id())
 	stateConf := &resource.StateChangeConf{
-		Target:     []string{"DELETED"},
-		Pending:    []string{"ACTIVE", "PENDING_DELETE", "ERROR"},
-		Refresh:    waitForDNSPtrRecord(dnsClient, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Target:       []string{"DELETED"},
+		Pending:      []string{"ACTIVE", "PENDING_DELETE", "ERROR"},
+		Refresh:      waitForDNSPtrRecord(dnsClient, d.Id()),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        5 * time.Second,
+		PollInterval: 3 * time.Second,
 	}
 
 	_, err = stateConf.WaitForStateContext(ctx)
