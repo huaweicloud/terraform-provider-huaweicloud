@@ -23,13 +23,14 @@ func getDNSPtrRecordResourceFunc(c *config.Config, state *terraform.ResourceStat
 }
 
 func TestAccDNSPtrRecord_basic(t *testing.T) {
-	var ptrrecord ptrrecords.Ptr
+	var ptrRecord ptrrecords.Ptr
 	resourceName := "huaweicloud_dns_ptrrecord.ptr_1"
+	eipResourceName := "huaweicloud_vpc_eip.eip_1"
 	name := fmt.Sprintf("acpttest-ptr-%s.com.", acctest.RandString(5))
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
-		&ptrrecord,
+		&ptrRecord,
 		getDNSPtrRecordResourceFunc,
 	)
 
@@ -42,16 +43,30 @@ func TestAccDNSPtrRecord_basic(t *testing.T) {
 				Config: testAccDNSPtrRecord_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "description", "a ptr record"),
+					resource.TestCheckResourceAttr(resourceName, "ttl", "6000"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttrPair(resourceName, "floatingip_id", eipResourceName, "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "address"),
 				),
 			},
 			{
 				Config: testAccDNSPtrRecord_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("update-%s", name)),
 					resource.TestCheckResourceAttr(resourceName, "description", "ptr record updated"),
+					resource.TestCheckResourceAttr(resourceName, "ttl", "7000"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttrPair(resourceName, "floatingip_id", eipResourceName, "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "address"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -60,6 +75,7 @@ func TestAccDNSPtrRecord_basic(t *testing.T) {
 func TestAccDNSPtrRecord_withEpsId(t *testing.T) {
 	var ptrrecord ptrrecords.Ptr
 	resourceName := "huaweicloud_dns_ptrrecord.ptr_1"
+	eipResourceName := "huaweicloud_vpc_eip.eip_1"
 	name := fmt.Sprintf("acpttest-ptr-%s.com.", acctest.RandString(5))
 
 	rc := acceptance.InitResourceCheck(
@@ -77,14 +93,19 @@ func TestAccDNSPtrRecord_withEpsId(t *testing.T) {
 				Config: testAccDNSPtrRecord_withEpsId(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "description", "a ptr record"),
+					resource.TestCheckResourceAttr(resourceName, "ttl", "6000"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttrPair(resourceName, "floatingip_id", eipResourceName, "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "address"),
 				),
 			},
 		},
 	})
 }
 
-func testAccDNSPtrRecord_basic(ptrName string) string {
+func testAccDNSPtrRecord_base() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc_eip" "eip_1" {
   publicip {
@@ -96,57 +117,46 @@ resource "huaweicloud_vpc_eip" "eip_1" {
     share_type  = "PER"
     charge_mode = "traffic"
   }
+}`)
 }
+
+func testAccDNSPtrRecord_basic(ptrName string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_dns_ptrrecord" "ptr_1" {
   name          = "%s"
   description   = "a ptr record"
   floatingip_id = huaweicloud_vpc_eip.eip_1.id
   ttl           = 6000
+
+  tags = {
+    key = "value"
+  }
 }
-`, ptrName)
+`, testAccDNSPtrRecord_base(), ptrName)
 }
 
 func testAccDNSPtrRecord_update(ptrName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc_eip" "eip_1" {
-  publicip {
-    type = "5_bgp"
-  }
-  bandwidth {
-    name        = "test"
-    size        = 5
-    share_type  = "PER"
-    charge_mode = "traffic"
-  }
-}
+%s
 
 resource "huaweicloud_dns_ptrrecord" "ptr_1" {
-  name          = "%s"
+  name          = "update-%s"
   description   = "ptr record updated"
   floatingip_id = huaweicloud_vpc_eip.eip_1.id
-  ttl           = 6000
+  ttl           = 7000
 
   tags = {
     foo = "bar"
   }
 }
-`, ptrName)
+`, testAccDNSPtrRecord_base(), ptrName)
 }
 
 func testAccDNSPtrRecord_withEpsId(ptrName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc_eip" "eip_1" {
-  publicip {
-    type = "5_bgp"
-  }
-  bandwidth {
-    name        = "test"
-    size        = 5
-    share_type  = "PER"
-    charge_mode = "traffic"
-  }
-}
+%s
 
 resource "huaweicloud_dns_ptrrecord" "ptr_1" {
   name                  = "%s"
@@ -155,5 +165,5 @@ resource "huaweicloud_dns_ptrrecord" "ptr_1" {
   ttl                   = 6000
   enterprise_project_id = "%s"
 }
-`, ptrName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccDNSPtrRecord_base(), ptrName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
