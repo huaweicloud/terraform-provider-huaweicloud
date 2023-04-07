@@ -43,7 +43,7 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
   The [BrokerRef](#DmsRocketMQTopic_BrokerRef) structure is documented below.
 
-* `queue_num` - (Optional, Int, ForceNew) Specifies the number of queues. Default to 3.
+* `queue_num` - (Optional, Int, ForceNew) Specifies the number of queues. Default to 8.
 
   Changing this parameter will create a new resource.
 
