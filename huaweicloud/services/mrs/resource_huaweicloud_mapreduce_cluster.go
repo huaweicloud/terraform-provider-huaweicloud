@@ -219,6 +219,12 @@ func ResourceMRSClusterV2() *schema.Resource {
 				ForceNew: true,
 				Elem:     nodeGroupSchemaResource("", false, 1, 500),
 			},
+			"component_configs": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Elem:     componentConfigsSchemaResource(),
+			},
 
 			"tags": {
 				Type:     schema.TypeMap,
@@ -344,6 +350,42 @@ func nodeGroupSchemaResource(groupName string, nodeScalable bool, minNodeNum, ma
 	return &nodeResource
 }
 
+func componentConfigsSchemaResource() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"configs": {
+				Type:     schema.TypeList,
+				Required: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"key": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"value": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"config_file_name": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 // The 'component_list' type of the request body is string, before body build, it should be conversation from set to string.
 func buildMrsComponents(d *schema.ResourceData) string {
 	components := d.Get("component_list").(*schema.Set)
@@ -447,6 +489,37 @@ func buildNodeGroupOpts(d *schema.ResourceData, optsRaw []interface{}, defaultNa
 	return result
 }
 
+func buildComponentConfigOpts(d *schema.ResourceData) []clusterV2.ComponentConfigOpts {
+	v, ok := d.GetOk("component_configs")
+	if !ok {
+		return nil
+	}
+
+	optsRaw := v.([]interface{})
+	var result = make([]clusterV2.ComponentConfigOpts, len(optsRaw))
+	for i, v := range optsRaw {
+		opts := v.(map[string]interface{})
+		configOptsRaw := opts["configs"].([]interface{})
+
+		var configOpts = make([]clusterV2.ConfigOpts, len(configOptsRaw))
+		for j, item := range configOptsRaw {
+			opt := item.(map[string]interface{})
+			configOpts[j] = clusterV2.ConfigOpts{
+				Key:            opt["key"].(string),
+				Value:          opt["value"].(string),
+				ConfigFileName: opt["config_file_name"].(string),
+			}
+		}
+
+		result[i] = clusterV2.ComponentConfigOpts{
+			Name:    opts["name"].(string),
+			Configs: configOpts,
+		}
+	}
+
+	return result
+}
+
 func clusterV2StateRefreshFunc(client *golangsdk.ServiceClient, clusterId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		clusterGet, err := cluster.Get(client, clusterId).Extract()
@@ -547,6 +620,7 @@ func resourceMRSClusterV2Create(d *schema.ResourceData, meta interface{}) error 
 		NodeGroups:           buildMrsClusterNodeGroups(d),
 		SafeMode:             buildMrsSafeMode(d),
 		SecurityGroupsIds:    buildMrsSecurityGroupIds(d),
+		ComponentConfigs:     buildComponentConfigOpts(d),
 		TemplateId:           d.Get("template_id").(string),
 	}
 	if v, ok := d.GetOk("node_key_pair"); ok {
@@ -769,14 +843,15 @@ func setClsuterTags(d *schema.ResourceData, client *golangsdk.ServiceClient) err
 	return d.Set("tags", tagmap)
 }
 
-func getMrsClusterFromServer(d *schema.ResourceData, client *golangsdk.ServiceClient) (*cluster.Cluster, error) {
-	resp, err := cluster.Get(client, d.Id()).Extract()
+func getMrsClusterFromServer(client *golangsdk.ServiceClient, clusterID string) (*cluster.Cluster, error) {
+	resp, err := cluster.Get(client, clusterID).Extract()
 	if err != nil {
-		return nil, common.CheckDeleted(d, err, "MapReduce cluster is not exist")
+		return nil, err
 	}
+
 	if resp.Clusterstate == "terminated" {
-		d.SetId("")
-		return resp, fmtp.Errorf("Retrieved Cluster %s, but it was terminated, abort it", d.Id())
+		logp.Printf("[WARN] Retrieved Cluster %s, but it was terminated, abort it", clusterID)
+		return nil, golangsdk.ErrDefault404{}
 	}
 	return resp, nil
 }
@@ -787,12 +862,14 @@ func resourceMRSClusterV2Read(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud MRS client: %s", err)
 	}
-	resp, err := getMrsClusterFromServer(d, client)
+
+	clusterID := d.Id()
+	resp, err := getMrsClusterFromServer(client, clusterID)
 	if err != nil {
-		return fmtp.Errorf("Error getting MapReduce form server: %s", err)
+		return common.CheckDeleted(d, err, "error getting MapReduce cluster:")
 	}
 
-	logp.Printf("[DEBUG] Retrieved Cluster %s: %#v", d.Id(), resp)
+	logp.Printf("[DEBUG] Retrieved Cluster %s: %#v", clusterID, resp)
 	d.SetId(resp.Clusterid)
 	mErr := multierror.Append(
 		d.Set("region", resp.Datacenter),

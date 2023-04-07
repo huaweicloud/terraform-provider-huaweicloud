@@ -116,6 +116,8 @@ type CreateOpts struct {
 	// Cluster tag For more parameter description, see Table 4.
 	// A maximum of 10 tags can be added to a cluster.
 	Tags []tags.ResourceTag `json:"tags,omitempty"`
+	// the component configurations of MRS cluster.
+	ComponentConfigs []ComponentConfigOpts `json:"component_configs,omitempty"`
 }
 
 // ChargeInfo is a structure representing billing information.
@@ -268,6 +270,20 @@ type ScriptOpts struct {
 	// Time when the bootstrap action script is executed. Currently, the following two options are available: Before component start and After component start
 	// The default value is false, indicating that the bootstrap action script is executed after the component is started.
 	BeforeComponentStart *bool `json:"before_component_start,omitempty"`
+}
+
+type ComponentConfigOpts struct {
+	// The component name of MRS cluster which has installed.
+	Name    string       `json:"component_name" required:"true"`
+	Configs []ConfigOpts `json:"configs" required:"true"`
+}
+type ConfigOpts struct {
+	// The configuration item key of component installed.
+	Key string `json:"key" required:"true"`
+	// The configuration item value of component installed.
+	Value string `json:"value" required:"true"`
+	// The configuration file name of component installed.
+	ConfigFileName string `json:"config_file_name" required:"true"`
 }
 
 // JobOpts is a structure representing the job which to execution.

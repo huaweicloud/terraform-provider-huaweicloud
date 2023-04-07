@@ -424,6 +424,10 @@ The EIP must have been created and must be in the same region as the cluster.
   The `nodes` object structure of the `custom_nodes` is documented below.
   `Unlike other nodes, it needs to specify group_name`
 
+* `component_configs` - (Optional, List, ForceNew) Specifies the component configurations of the cluster.
+  The [object](#component_configurations) structure is documented below.
+  Changing this will create a new MapReduce cluster resource.
+
 * `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs to associate with the cluster.
 
 The `nodes` block supports:
@@ -485,6 +489,27 @@ The `nodes` block supports:
   -> `DBService` is a basic component of a cluster. Components such as Hive, Hue, Oozie, Loader, and Redis, and Loader
    store their metadata in DBService, and provide the metadata backup and restoration functions by using DBService.
 
+<a name="component_configurations"></a>
+The `component_configs` block supports:
+
+* `name` - (Required, String, ForceNew) Specifies the component name of the cluster which has installed.
+  Changing this will create a new MapReduce cluster resource.
+
+* `configs` - (Required, List, ForceNew) Specifies the configuration of component installed.
+  The [object](#component_configuration) structure is documented below.
+
+<a name="component_configuration"></a>
+The `configs` block supports:
+
+* `key` - (Required, String, ForceNew) Specifies the configuration item key of component installed.
+  Changing this will create a new MapReduce cluster resource.
+
+* `value` - (Required, String, ForceNew) Specifies the configuration item value of component installed.
+  Changing this will create a new MapReduce cluster resource.
+
+* `config_file_name` - (Required, String, ForceNew) Specifies the configuration file name of component installed.
+  Changing this will create a new MapReduce cluster resource.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -519,7 +544,7 @@ terraform import huaweicloud_mapreduce_cluster.test b11b407c-e604-4e8d-8bc4-9239
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
-`manager_admin_pass`, `node_admin_pass`,`template_id` and `assigned_roles`.
+`manager_admin_pass`, `node_admin_pass`,`template_id`, `assigned_roles` and `component_configs`.
 It is generally recommended running `terraform plan` after importing a cluster.
 You can then decide if changes should be applied to the cluster, or the resource definition
 should be updated to align with the cluster. Also you can ignore changes as below.

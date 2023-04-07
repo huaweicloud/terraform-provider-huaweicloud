@@ -17,6 +17,17 @@ type WhiteBlackIP struct {
 	White int `json:"white"`
 	// Policy ID
 	PolicyID string `json:"policyid"`
+
+	Name        string   `json:"name"`
+	Status      int      `json:"status"`
+	Description string   `json:"description"`
+	IPGroup     *IPGroup `json:"ip_group"`
+}
+
+type IPGroup struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	Size int    `json:"size"`
 }
 
 type commonResult struct {
