@@ -10,7 +10,7 @@ paths:
     /v3/{project_id}/backups:
         GET:
             tag: RDS
-            operationId: GetBackup
+            operationId: DeleteBackupWaiting
             x-ref-api: GET /v3/{project_id}/backups
         POST:
             tag: RDS

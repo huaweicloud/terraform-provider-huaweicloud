@@ -20,7 +20,6 @@ paths:
     get:
       tag: EIP
       operationId: Get
-  /v2.0/{project_id}/bandwidths/{ID}:
     put:
       tag: EIP
       operationId: Update
