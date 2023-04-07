@@ -713,10 +713,11 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_dcs_instance": dcs.ResourceDcsInstance(),
 
-			"huaweicloud_dds_database_role": dds.ResourceDatabaseRole(),
-			"huaweicloud_dds_database_user": dds.ResourceDatabaseUser(),
-			"huaweicloud_dds_instance":      dds.ResourceDdsInstanceV3(),
-			"huaweicloud_dds_backup":        dds.ResourceDdsBackup(),
+			"huaweicloud_dds_database_role":      dds.ResourceDatabaseRole(),
+			"huaweicloud_dds_database_user":      dds.ResourceDatabaseUser(),
+			"huaweicloud_dds_instance":           dds.ResourceDdsInstanceV3(),
+			"huaweicloud_dds_backup":             dds.ResourceDdsBackup(),
+			"huaweicloud_dds_parameter_template": dds.ResourceDdsParameterTemplate(),
 
 			"huaweicloud_ddm_instance": ddm.ResourceDdmInstance(),
 			"huaweicloud_ddm_schema":   ddm.ResourceDdmSchema(),
