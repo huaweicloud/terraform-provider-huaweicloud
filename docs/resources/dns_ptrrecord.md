@@ -37,18 +37,19 @@ resource "huaweicloud_dns_ptrrecord" "ptr_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the PTR record. If omitted, the `region`
-  argument of the provider will be used. Changing this creates a new PTR record.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the PTR record. If omitted,
+  the `region` argument of the provider will be used. Changing this creates a new PTR record.
 
-* `name` - (Required, String) Domain name of the PTR record. A domain name is case insensitive. Uppercase letters will
-  also be converted into lowercase letters.
+* `name` - (Required, String) Specifies the domain name of the PTR record. A domain name is case-insensitive.
+  Uppercase letters will also be converted into lowercase letters.
 
-* `description` - (Optional, String) Description of the PTR record.
+* `floatingip_id` - (Required, String, ForceNew) Specifies the ID of the FloatingIP/EIP.
+  Changing this creates a new PTR record.
 
-* `floatingip_id` - (Required, String, ForceNew) The ID of the FloatingIP/EIP.
+* `description` - (Optional, String) Specifies the description of the PTR record.
 
-* `ttl` - (Optional, Int) The time to live (TTL) of the record set (in seconds). The value range is 300–2147483647. The
-  default value is 300.
+* `ttl` - (Optional, Int) Specifies the time to live (TTL) of the record set (in seconds).
+  The value range is 300–2147483647. The default value is 300.
 
 * `tags` - (Optional, Map) Tags key/value pairs to associate with the PTR record.
 
