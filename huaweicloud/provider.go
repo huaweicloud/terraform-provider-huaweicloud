@@ -843,8 +843,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_lb_certificate":  lb.ResourceCertificateV2(),
 			"huaweicloud_lb_l7policy":     lb.ResourceL7PolicyV2(),
 			"huaweicloud_lb_l7rule":       lb.ResourceL7RuleV2(),
-			"huaweicloud_lb_listener":     lb.ResourceListenerV2(),
 			"huaweicloud_lb_loadbalancer": lb.ResourceLoadBalancer(),
+			"huaweicloud_lb_listener":     lb.ResourceListener(),
 			"huaweicloud_lb_member":       lb.ResourceMemberV2(),
 			"huaweicloud_lb_monitor":      lb.ResourceMonitorV2(),
 			"huaweicloud_lb_pool":         lb.ResourcePoolV2(),
@@ -1024,7 +1024,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_lb_certificate_v2":  lb.ResourceCertificateV2(),
 			"huaweicloud_lb_loadbalancer_v2": lb.ResourceLoadBalancer(),
-			"huaweicloud_lb_listener_v2":     lb.ResourceListenerV2(),
+			"huaweicloud_lb_listener_v2":     lb.ResourceListener(),
 			"huaweicloud_lb_pool_v2":         lb.ResourcePoolV2(),
 			"huaweicloud_lb_member_v2":       lb.ResourceMemberV2(),
 			"huaweicloud_lb_monitor_v2":      lb.ResourceMonitorV2(),
