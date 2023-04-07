@@ -55,7 +55,7 @@ resource "huaweicloud_dds_instance" "test" {
   flavor {
     type      = "mongos"
     num       = 2
-    spec_code = "dds.mongodb.c6.large.2.mongos"
+    spec_code = "dds.mongodb.s6.large.2.mongos"
   }
 
   flavor {
@@ -63,7 +63,7 @@ resource "huaweicloud_dds_instance" "test" {
     num       = 2
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.c6.large.2.shard"
+    spec_code = "dds.mongodb.s6.large.2.shard"
   }
 
   flavor {
@@ -71,7 +71,7 @@ resource "huaweicloud_dds_instance" "test" {
     num       = 1
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.c6.large.2.config"
+    spec_code = "dds.mongodb.s6.large.2.config"
   }
 
   backup_strategy {

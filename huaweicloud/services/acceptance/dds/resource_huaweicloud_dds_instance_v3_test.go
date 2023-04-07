@@ -107,7 +107,7 @@ func TestAccDDSV3Instance_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					testAccCheckDDSV3InstanceFlavor(&instance, "mongos", "spec_code", "dds.mongodb.c6.large.4.mongos"),
+					testAccCheckDDSV3InstanceFlavor(&instance, "mongos", "spec_code", "dds.mongodb.s6.large.4.mongos"),
 				),
 			},
 			{
@@ -188,7 +188,7 @@ func TestAccDDSV3Instance_prePaid(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "7"),
 					testAccCheckDDSV3InstanceFlavor(&instance, "shard", "num", 3),
 					testAccCheckDDSV3InstanceFlavor(&instance, "shard", "size", "30"),
-					testAccCheckDDSV3InstanceFlavor(&instance, "mongos", "spec_code", "dds.mongodb.c6.large.4.mongos"),
+					testAccCheckDDSV3InstanceFlavor(&instance, "mongos", "spec_code", "dds.mongodb.s6.large.4.mongos"),
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
 				),
 			},
@@ -282,21 +282,21 @@ resource "huaweicloud_dds_instance" "instance" {
   flavor {
     type      = "mongos"
     num       = 2
-    spec_code = "dds.mongodb.c6.large.2.mongos"
+    spec_code = "dds.mongodb.s6.large.2.mongos"
   }
   flavor {
     type      = "shard"
     num       = 2
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.c6.large.2.shard"
+    spec_code = "dds.mongodb.s6.large.2.shard"
   }
   flavor {
     type      = "config"
     num       = 1
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.c6.large.2.config"
+    spec_code = "dds.mongodb.s6.large.2.config"
   }
 
   backup_strategy {
@@ -335,21 +335,21 @@ resource "huaweicloud_dds_instance" "instance" {
   flavor {
     type      = "mongos"
     num       = 2
-    spec_code = "dds.mongodb.c6.large.2.mongos"
+    spec_code = "dds.mongodb.s6.large.2.mongos"
   }
   flavor {
     type      = "shard"
     num       = 2
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.c6.large.2.shard"
+    spec_code = "dds.mongodb.s6.large.2.shard"
   }
   flavor {
     type      = "config"
     num       = 1
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.c6.large.2.config"
+    spec_code = "dds.mongodb.s6.large.2.config"
   }
 
   backup_strategy {
@@ -388,21 +388,21 @@ resource "huaweicloud_dds_instance" "instance" {
   flavor {
     type      = "mongos"
     num       = 2
-    spec_code = "dds.mongodb.c6.large.2.mongos"
+    spec_code = "dds.mongodb.s6.large.2.mongos"
   }
   flavor {
     type      = "shard"
     num       = 3
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.c6.large.2.shard"
+    spec_code = "dds.mongodb.s6.large.2.shard"
   }
   flavor {
     type      = "config"
     num       = 1
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.c6.large.2.config"
+    spec_code = "dds.mongodb.s6.large.2.config"
   }
 
   backup_strategy {
@@ -441,21 +441,21 @@ resource "huaweicloud_dds_instance" "instance" {
   flavor {
     type      = "mongos"
     num       = 2
-    spec_code = "dds.mongodb.c6.large.2.mongos"
+    spec_code = "dds.mongodb.s6.large.2.mongos"
   }
   flavor {
     type      = "shard"
     num       = 3
     storage   = "ULTRAHIGH"
     size      = 30
-    spec_code = "dds.mongodb.c6.large.2.shard"
+    spec_code = "dds.mongodb.s6.large.2.shard"
   }
   flavor {
     type      = "config"
     num       = 1
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.c6.large.2.config"
+    spec_code = "dds.mongodb.s6.large.2.config"
   }
 
   backup_strategy {
@@ -494,21 +494,21 @@ resource "huaweicloud_dds_instance" "instance" {
   flavor {
     type      = "mongos"
     num       = 2
-    spec_code = "dds.mongodb.c6.large.4.mongos"
+    spec_code = "dds.mongodb.s6.large.4.mongos"
   }
   flavor {
     type      = "shard"
     num       = 3
     storage   = "ULTRAHIGH"
     size      = 30
-    spec_code = "dds.mongodb.c6.large.2.shard"
+    spec_code = "dds.mongodb.s6.large.2.shard"
   }
   flavor {
     type      = "config"
     num       = 1
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.c6.large.2.config"
+    spec_code = "dds.mongodb.s6.large.2.config"
   }
 
   backup_strategy {
@@ -548,21 +548,21 @@ resource "huaweicloud_dds_instance" "instance" {
   flavor {
     type      = "mongos"
     num       = 2
-    spec_code = "dds.mongodb.c6.large.2.mongos"
+    spec_code = "dds.mongodb.s6.large.2.mongos"
   }
   flavor {
     type      = "shard"
     num       = 2
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.c6.large.2.shard"
+    spec_code = "dds.mongodb.s6.large.2.shard"
   }
   flavor {
     type      = "config"
     num       = 1
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.c6.large.2.config"
+    spec_code = "dds.mongodb.s6.large.2.config"
   }
 
   backup_strategy {
@@ -606,21 +606,21 @@ resource "huaweicloud_dds_instance" "instance" {
   flavor {
     type      = "mongos"
     num       = 2
-    spec_code = "dds.mongodb.c6.large.2.mongos"
+    spec_code = "dds.mongodb.s6.large.2.mongos"
   }
   flavor {
     type      = "shard"
     num       = 2
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.c6.large.2.shard"
+    spec_code = "dds.mongodb.s6.large.2.shard"
   }
   flavor {
     type      = "config"
     num       = 1
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.c6.large.2.config"
+    spec_code = "dds.mongodb.s6.large.2.config"
   }
 
   backup_strategy {
@@ -659,21 +659,21 @@ resource "huaweicloud_dds_instance" "instance" {
   flavor {
     type      = "mongos"
     num       = 2
-    spec_code = "dds.mongodb.c6.large.4.mongos"
+    spec_code = "dds.mongodb.s6.large.4.mongos"
   }
   flavor {
     type      = "shard"
     num       = 3
     storage   = "ULTRAHIGH"
     size      = 30
-    spec_code = "dds.mongodb.c6.large.2.shard"
+    spec_code = "dds.mongodb.s6.large.2.shard"
   }
   flavor {
     type      = "config"
     num       = 1
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.c6.large.2.config"
+    spec_code = "dds.mongodb.s6.large.2.config"
   }
 
   backup_strategy {
