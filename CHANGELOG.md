@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.47.1 (April 7, 2023)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_ces_alarmrule: Support `ALL_INSTANCE` alarm type and add new `resources` param [GH-2896]
+* resource/huaweicloud_mapreduce_cluster: Support setting component configurations during cluster creation [GH-2912]
+
 ## 1.47.0 (March 31, 2023)
 
 * **New Resurce:**
