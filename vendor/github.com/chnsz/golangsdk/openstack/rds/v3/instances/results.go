@@ -46,6 +46,10 @@ type GetConfigurationResult struct {
 	commonResult
 }
 
+type RebootResult struct {
+	commonResult
+}
+
 type Instance struct {
 	Id                  string         `json:"id"`
 	Name                string         `json:"name"`
@@ -141,6 +145,16 @@ type ModifyConfigurationResp struct {
 
 func (r ModifyConfigurationResult) Extract() (*ModifyConfigurationResp, error) {
 	var response ModifyConfigurationResp
+	err := r.ExtractInto(&response)
+	return &response, err
+}
+
+type RebootResp struct {
+	JobId string `json:"job_id"`
+}
+
+func (r RebootResult) Extract() (*RebootResp, error) {
+	var response RebootResp
 	err := r.ExtractInto(&response)
 	return &response, err
 }

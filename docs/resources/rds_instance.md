@@ -11,18 +11,18 @@ Manage RDS instance resource within HuaweiCloud.
 ### create a single db instance
 
 ```hcl
-resource "huaweicloud_networking_secgroup" "secgroup" {
-  name        = "terraform_test_security_group"
-  description = "terraform security group acceptance test"
-}
+variable "vpc_id" {}
+variable "subnet_id" {}
+variable "secgroup_id" {}
+variable "availability_zone" {}
 
 resource "huaweicloud_rds_instance" "instance" {
   name              = "terraform_test_rds_instance"
   flavor            = "rds.pg.n1.large.2"
-  vpc_id            = "{{ vpc_id }}"
-  subnet_id         = "{{ subnet_id }}"
-  security_group_id = huaweicloud_networking_secgroup.secgroup.id
-  availability_zone = ["{{ availability_zone }}"]
+  vpc_id            = var.vpc_id
+  subnet_id         = var.subnet_id
+  security_group_id = var.secgroup_id
+  availability_zone = [var.availability_zone]
 
   db {
     type     = "PostgreSQL"
@@ -45,21 +45,22 @@ resource "huaweicloud_rds_instance" "instance" {
 ### create a primary/standby db instance
 
 ```hcl
-resource "huaweicloud_networking_secgroup" "secgroup" {
-  name        = "terraform_test_security_group"
-  description = "terraform security group acceptance test"
-}
+variable "vpc_id" {}
+variable "subnet_id" {}
+variable "secgroup_id" {}
+variable "availability_zone1" {}
+variable "availability_zone2" {}
 
 resource "huaweicloud_rds_instance" "instance" {
   name                = "terraform_test_rds_instance"
   flavor              = "rds.pg.n1.large.2.ha"
   ha_replication_mode = "async"
-  vpc_id              = "{{ vpc_id }}"
-  subnet_id           = "{{ subnet_id }}"
-  security_group_id   = huaweicloud_networking_secgroup.secgroup.id
+  vpc_id              = var.vpc_id
+  subnet_id           = var.subnet_id
+  security_group_id   = var.secgroup_id
   availability_zone   = [
-    "{{ availability_zone_1 }}",
-    "{{ availability_zone_2 }}"]
+    var.availability_zone_1,
+    var.availability_zone_2]
 
   db {
     type     = "PostgreSQL"
@@ -80,24 +81,19 @@ resource "huaweicloud_rds_instance" "instance" {
 ### create a single db instance with encrypted volume
 
 ```hcl
-resource "huaweicloud_kms_key" "key" {
-  key_alias       = "key_1"
-  key_description = "first test key"
-  is_enabled      = true
-}
-
-resource "huaweicloud_networking_secgroup" "secgroup" {
-  name        = "test_security_group"
-  description = "security group acceptance test"
-}
+variable "vpc_id" {}
+variable "subnet_id" {}
+variable "secgroup_id" {}
+variable "availability_zone" {}
+variable "kms_id" {}
 
 resource "huaweicloud_rds_instance" "instance" {
   name              = "terraform_test_rds_instance"
   flavor            = "rds.pg.n1.large.2"
-  vpc_id            = "{{ vpc_id }}"
-  subnet_id         = "{{ subnet_id }}"
-  security_group_id = huaweicloud_networking_secgroup.secgroup.id
-  availability_zone = ["{{ availability_zone }}"]
+  vpc_id            = var.vpc_id
+  subnet_id         = var.subnet_id
+  security_group_id = var.secgroup_id
+  availability_zone = [var.availability_zone]
 
   db {
     type     = "PostgreSQL"
@@ -107,11 +103,55 @@ resource "huaweicloud_rds_instance" "instance" {
   volume {
     type               = "ULTRAHIGH"
     size               = 100
-    disk_encryption_id = huaweicloud_kms_key.key.id
+    disk_encryption_id = var.kms_id
   }
   backup_strategy {
     start_time = "08:00-09:00"
     keep_days  = 1
+  }
+}
+```
+
+### create db instance with customized parameters
+
+```hcl
+variable "vpc_id" {}
+variable "subnet_id" {}
+variable "secgroup_id" {}
+variable "availability_zone" {}
+
+resource "huaweicloud_rds_instance" "instance" {
+  name              = "terraform_test_rds_instance"
+  flavor            = "rds.pg.n1.large.2"
+  vpc_id            = var.vpc_id
+  subnet_id         = var.subnet_id
+  security_group_id = var.secgroup_id
+  availability_zone = [var.availability_zone]
+
+  db {
+    type     = "PostgreSQL"
+    version  = "12"
+    password = "Huangwei!120521"
+  }
+
+  volume {
+    type = "ULTRAHIGH"
+    size = 100
+  }
+
+  backup_strategy {
+    start_time = "08:00-09:00"
+    keep_days  = 1
+  }
+
+  parameters {
+    name  = "div_precision_increment"
+    value = "12"
+  }
+
+  parameters {
+    name  = "connect_timeout"
+    value = "13"
   }
 }
 ```
@@ -194,6 +234,9 @@ The following arguments are supported:
 * `tags` - (Optional, Map) A mapping of tags to assign to the RDS instance. Each tag is represented by one key-value
   pair.
 
+* `parameters` - (Optional, List) Specify an array of one or more parameters to be set to the RDS instance after
+  launched. You can check on console to see which parameters supported. Structure is documented below.
+
 The `db` block supports:
 
 * `type` - (Required, String, ForceNew) Specifies the DB engine. Available value are *MySQL*, *PostgreSQL* and
@@ -247,6 +290,13 @@ The `backup_strategy` block supports:
   format. The current time is in the UTC format. The HH value must be 1 greater than the hh value. The values of mm and
   MM must be the same and must be set to any of the following: 00, 15, 30, or 45. Example value: 08:15-09:15 23:00-00:
   00.
+
+The `parameters` block supports:
+
+* `name` - (Required, String) Specifies the parameter name. Some of them needs the instance to be restarted
+  to take effect.
+
+* `value` - (Required, String) Specifies the parameter value.
 
 ## Attributes Reference
 

@@ -237,6 +237,39 @@ func TestAccRdsInstance_prePaid(t *testing.T) {
 	})
 }
 
+func TestAccRdsInstance_withParameters(t *testing.T) {
+	var instance instances.RdsInstanceResponse
+	name := acceptance.RandomAccResourceName()
+	resourceType := "huaweicloud_rds_instance"
+	resourceName := "huaweicloud_rds_instance.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRdsInstance_parameters(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "div_precision_increment"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "12"),
+				),
+			},
+			{
+				Config: testAccRdsInstance_newParameters(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "connect_timeout"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "14"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckRdsInstanceDestroy(rsType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
@@ -593,4 +626,84 @@ resource "huaweicloud_rds_instance" "test" {
   auto_renew    = "%[4]v"
 }
 `, common.TestBaseNetwork(name), name, pwd, isAutoRenew)
+}
+
+func testAccRdsInstance_parameters(name string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_rds_instance" "test" {
+  name                = "%s"
+  flavor              = "rds.mysql.sld4.large.ha"
+  security_group_id   = huaweicloud_networking_secgroup.test.id
+  subnet_id           = huaweicloud_vpc_subnet.test.id
+  vpc_id              = huaweicloud_vpc.test.id
+  fixed_ip            = "192.168.0.58"
+  ha_replication_mode = "semisync"
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[3],
+  ]
+
+  db {
+    password = "Huangwei!120521"
+    type     = "MySQL"
+    version  = "5.7"
+    port     = 3306
+  }
+
+  volume {
+    type = "LOCALSSD"
+    size = 40
+  }
+
+  parameters {
+    name  = "div_precision_increment"
+    value = "12"
+  }
+}
+`, common.TestBaseNetwork(name), name)
+}
+
+func testAccRdsInstance_newParameters(name string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_rds_instance" "test" {
+  name                = "%s"
+  flavor              = "rds.mysql.sld4.large.ha"
+  security_group_id   = huaweicloud_networking_secgroup.test.id
+  subnet_id           = huaweicloud_vpc_subnet.test.id
+  vpc_id              = huaweicloud_vpc.test.id
+  fixed_ip            = "192.168.0.58"
+  ha_replication_mode = "semisync"
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[3],
+  ]
+
+  db {
+    password = "Huangwei!120521"
+    type     = "MySQL"
+    version  = "5.7"
+    port     = 3306
+  }
+
+  volume {
+    type = "LOCALSSD"
+    size = 40
+  }
+
+  parameters {
+    name  = "connect_timeout"
+    value = "14"
+  }
+}
+`, common.TestBaseNetwork(name), name)
 }

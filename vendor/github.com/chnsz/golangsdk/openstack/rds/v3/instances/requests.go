@@ -482,3 +482,16 @@ func GetConfigurations(c *golangsdk.ServiceClient, instanceID string) (r GetConf
 	})
 	return
 }
+
+func RebootInstance(c *golangsdk.ServiceClient, instanceID string) (r RebootResult) {
+	b, err := golangsdk.BuildRequestBody(struct{}{}, "restart")
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = c.Post(actionURL(c, instanceID), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes: []int{200, 202},
+	})
+	return
+}
