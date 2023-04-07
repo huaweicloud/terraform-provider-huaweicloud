@@ -81,12 +81,15 @@ The following arguments are supported:
 
 * `condition` - (Required, List) Specifies the alarm triggering condition. The structure is described below.
 
+* `resources` - (Optional, List) Specifies the list of the resources to add into the alarm rule.
+  The structure is described below.
+
 * `alarm_description` - (Optional, String) The value can be a string of 0 to 256 characters.
 
 * `alarm_enabled` - (Optional, Bool) Specifies whether to enable the alarm. The default value is true.
 
-* `alarm_type` - (Optional, String) Specifies the alarm type. The value can be **EVENT.SYS**, **EVENT.CUSTOM**
-  or **MULTI_INSTANCE**. Defaults to **MULTI_INSTANCE**.
+* `alarm_type` - (Optional, String) Specifies the alarm type. The value can be **EVENT.SYS**, **EVENT.CUSTOM**,
+  **MULTI_INSTANCE** and **ALL_INSTANCE**. Defaults to **MULTI_INSTANCE**.
 
 * `alarm_actions` - (Optional, List) Specifies the action triggered by an alarm. The structure is described
   below.
@@ -109,6 +112,10 @@ The following arguments are supported:
 -> **Note** If alarm_action_enabled is set to true, either alarm_actions or ok_actions cannot be empty. If alarm_actions
 and ok_actions coexist, their corresponding notification_list must be of the **same value**.
 
+The `resources` block supports:
+
+* `dimensions` - (Optional, List) Specifies the list of metric dimensions. The structure is described below.
+
 The `metric` block supports:
 
 * `namespace` - (Required, String, ForceNew) Specifies the namespace in **service.item** format. **service** and **item**
@@ -123,7 +130,7 @@ The `dimensions` block supports:
 * `name` - (Required, String) Specifies the dimension name. The value can be a string of 1 to 32 characters
   that must start with a letter and contain only letters, digits, underscores (_), and hyphens (-).
 
-* `value` - (Required, String) Specifies the dimension value. The value can be a string of 1 to 64 characters
+* `value` - (Optional, String) Specifies the dimension value. The value can be a string of 1 to 64 characters
   that must start with a letter or a number and contain only letters, digits, underscores (_), and hyphens (-).
 
 The `condition` block supports:

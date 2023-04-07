@@ -32,9 +32,6 @@ var cesAlarmActions = schema.Schema{
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"notification", "autoscaling",
-				}, false),
 			},
 
 			"notification_list": {
@@ -109,9 +106,11 @@ func ResourceAlarmRule() *schema.Resource {
 						},
 
 						"dimensions": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Set:      resourceDimensionsHash,
+							Type:          schema.TypeSet,
+							Optional:      true,
+							Computed:      true,
+							Set:           resourceDimensionsHash,
+							ConflictsWith: []string{"resources"},
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": {
@@ -121,7 +120,34 @@ func ResourceAlarmRule() *schema.Resource {
 
 									"value": {
 										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+
+			"resources": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"dimensions": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:     schema.TypeString,
 										Required: true,
+									},
+
+									"value": {
+										Type:     schema.TypeString,
+										Optional: true,
 									},
 								},
 							},
@@ -137,25 +163,18 @@ func ResourceAlarmRule() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"period": {
-							Type:         schema.TypeInt,
-							Required:     true,
-							ValidateFunc: validation.IntInSlice([]int{0, 1, 300, 1200, 3600, 14400, 86400}),
+							Type:     schema.TypeInt,
+							Required: true,
 						},
 
 						"filter": {
 							Type:     schema.TypeString,
 							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"max", "min", "average", "sum", "variance",
-							}, false),
 						},
 
 						"comparison_operator": {
 							Type:     schema.TypeString,
 							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								">=", ">", "<=", "<", "=",
-							}, false),
 						},
 
 						"value": {
@@ -164,23 +183,18 @@ func ResourceAlarmRule() *schema.Resource {
 						},
 
 						"count": {
-							Type:         schema.TypeInt,
-							Required:     true,
-							ValidateFunc: validation.IntBetween(1, 5),
+							Type:     schema.TypeInt,
+							Required: true,
 						},
 
 						"unit": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringLenBetween(1, 32),
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 
 						"suppress_duration": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							ValidateFunc: validation.IntInSlice([]int{
-								0, 300, 600, 900, 1800, 3600, 10800, 21600, 43200, 86400,
-							}),
 						},
 
 						"metric_name": {
@@ -191,10 +205,9 @@ func ResourceAlarmRule() *schema.Resource {
 						},
 
 						"alarm_level": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Computed:     true,
-							ValidateFunc: validation.IntBetween(1, 4),
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
 						},
 					},
 				},
@@ -224,17 +237,15 @@ func ResourceAlarmRule() *schema.Resource {
 			},
 
 			"alarm_level": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.IntBetween(1, 4),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
 			},
 
 			"alarm_type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "MULTI_INSTANCE",
-				ValidateFunc: validation.StringInSlice([]string{"EVENT.SYS", "EVENT.CUSTOM", "MULTI_INSTANCE"}, false),
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "MULTI_INSTANCE",
 			},
 
 			"alarm_action_enabled": {
@@ -383,6 +394,28 @@ func buildDimensionsOpts(dimensionsRaw []interface{}) [][]alarmrulev2.DimensionO
 	return resources
 }
 
+func buildDimensionsOptsV2(resourcesRaw []interface{}) [][]alarmrulev2.DimensionOpts {
+	if len(resourcesRaw) < 1 {
+		return [][]alarmrulev2.DimensionOpts{}
+	}
+	resources := make([][]alarmrulev2.DimensionOpts, len(resourcesRaw))
+	for i, resourceRaw := range resourcesRaw {
+		resource := resourceRaw.(map[string]interface{})
+		dimensionRaw := resource["dimensions"].([]interface{})
+		res := make([]alarmrulev2.DimensionOpts, len(dimensionRaw))
+		for j, dimension := range dimensionRaw {
+			dim := dimension.(map[string]interface{})
+			res[j] = alarmrulev2.DimensionOpts{
+				Name:  dim["name"].(string),
+				Value: dim["value"].(string),
+			}
+		}
+		resources[i] = res
+	}
+
+	return resources
+}
+
 func buildResourcesOpts(d *schema.ResourceData) ([][]alarmrulev2.DimensionOpts, string, string) {
 	metricRaw := d.Get("metric").([]interface{})
 	if len(metricRaw) != 1 {
@@ -392,7 +425,14 @@ func buildResourcesOpts(d *schema.ResourceData) ([][]alarmrulev2.DimensionOpts, 
 	metric := metricRaw[0].(map[string]interface{})
 	dimensionsRaw := metric["dimensions"].(*schema.Set).List()
 
-	return buildDimensionsOpts(dimensionsRaw), metric["namespace"].(string), metric["metric_name"].(string)
+	var resources [][]alarmrulev2.DimensionOpts
+	if v, ok := d.GetOk("resources"); ok {
+		resources = buildDimensionsOptsV2(v.(*schema.Set).List())
+	} else {
+		resources = buildDimensionsOpts(dimensionsRaw)
+	}
+
+	return resources, metric["namespace"].(string), metric["metric_name"].(string)
 }
 
 func buildNotificationsOpts(d *schema.ResourceData, name string) []alarmrulev2.NotificationOpts {
@@ -547,7 +587,9 @@ func resourceAlarmRuleRead(_ context.Context, d *schema.ResourceData, meta inter
 		return common.CheckDeletedDiag(d, err, "error retrieving CES alarm resources")
 	}
 
+	// set resources and dimensions
 	dimensions := make([]map[string]interface{}, 0, len(*resources))
+	resourcesToSet := make([]map[string]interface{}, len(*resources))
 	if len(*resources) > 0 {
 		for _, v := range *resources {
 			if len(v) > 0 {
@@ -555,6 +597,19 @@ func resourceAlarmRuleRead(_ context.Context, d *schema.ResourceData, meta inter
 					"name":  v[0].Name,
 					"value": v[0].Value,
 				})
+			}
+		}
+
+		for i, r := range *resources {
+			resource := make([]map[string]interface{}, len(r))
+			for j, v := range r {
+				resource[j] = map[string]interface{}{
+					"name":  v.Name,
+					"value": v.Value,
+				}
+			}
+			resourcesToSet[i] = map[string]interface{}{
+				"dimensions": resource,
 			}
 		}
 	}
@@ -565,6 +620,7 @@ func resourceAlarmRuleRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("condition", conditions),
 		d.Set("metric", flattenMetric(dimensions, metricName, rV2.Namespace)),
 		d.Set("alarm_level", alarmLevel),
+		d.Set("resources", resourcesToSet),
 	)
 
 	if mErr.ErrorOrNil() != nil {
@@ -727,13 +783,38 @@ func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			}
 		}
 
-		if len(oldDimensions.(*schema.Set).List()) > 0 {
+		if len(newDimensions.(*schema.Set).List()) > 0 {
 			updateDimensionsOpts := alarmrulev2.UpdateResourcesOpts{
 				Resources: buildDimensionsOpts(newDimensions.(*schema.Set).List()),
 			}
 			err := alarmrulev2.BatchResources(clientV2, arId, "batch-create", updateDimensionsOpts).ExtractErr()
 			if err != nil {
 				return diag.Errorf("error creating new dimensions of %s %s: %s", nameCESAR, arId, err)
+			}
+		}
+	}
+
+	if d.HasChange("resources") {
+		oldDimensions, newDimensions := d.GetChange("resources")
+
+		if len(oldDimensions.(*schema.Set).List()) > 0 {
+			updateDimensionsOpts := alarmrulev2.UpdateResourcesOpts{
+				Resources: buildDimensionsOptsV2(oldDimensions.(*schema.Set).List()),
+			}
+
+			err := alarmrulev2.BatchResources(clientV2, arId, "batch-delete", updateDimensionsOpts).ExtractErr()
+			if err != nil {
+				return diag.Errorf("error deleting old resources of %s %s: %s", nameCESAR, arId, err)
+			}
+		}
+
+		if len(newDimensions.(*schema.Set).List()) > 0 {
+			updateDimensionsOpts := alarmrulev2.UpdateResourcesOpts{
+				Resources: buildDimensionsOptsV2(newDimensions.(*schema.Set).List()),
+			}
+			err := alarmrulev2.BatchResources(clientV2, arId, "batch-create", updateDimensionsOpts).ExtractErr()
+			if err != nil {
+				return diag.Errorf("error creating new resources of %s %s: %s", nameCESAR, arId, err)
 			}
 		}
 	}
