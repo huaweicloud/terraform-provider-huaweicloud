@@ -451,8 +451,8 @@ The `nodes` block supports:
   + master_nodes: 1.
   + analysis_core_nodes: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
   + streaming_core_nodes: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
-  + analysis_task_nodes: minimum is zero and the maximum is subject to the configuration of the corresponding flavor.
-  + streaming_task_nodes: minimum is zero and the maximum is subject to the configuration of the corresponding flavor.
+  + analysis_task_nodes: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
+  + streaming_task_nodes: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
 
   Changing this will create a new MapReduce cluster resource.
   
