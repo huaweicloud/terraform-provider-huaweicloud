@@ -5,26 +5,26 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v2/loadbalancers"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 	"github.com/chnsz/golangsdk/openstack/networking/v3/security/groups"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getLoadBalancerResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	c, err := conf.LoadBalancerClient(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HuaweiCloud LB v2 client: %s", err)
+		return nil, fmt.Errorf("error creating ELB v2 Client: %s", err)
 	}
 	resp, err := loadbalancers.Get(c, state.Primary.ID).Extract()
 	if resp == nil && err == nil {
-		return resp, fmt.Errorf("Unable to find the loadbalancer (%s)", state.Primary.ID)
+		return resp, fmt.Errorf("unable to find the LoadBalancer (%s)", state.Primary.ID)
 	}
 	return resp, err
 }
@@ -59,7 +59,7 @@ func TestAccLBV2LoadBalancer_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccLBV2LoadBalancerConfig_update(rNameUpdate),
+				Config: testAccLBV2LoadBalancerConfig_update(rName, rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
@@ -78,10 +78,10 @@ func TestAccLBV2LoadBalancer_basic(t *testing.T) {
 
 func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
-	var sg_1, sg_2 groups.SecurityGroup
+	var sg1, sg2 groups.SecurityGroup
 	rName := acceptance.RandomAccResourceNameWithDash()
-	rNameSecg1 := acceptance.RandomAccResourceNameWithDash()
-	rNameSecg2 := acceptance.RandomAccResourceNameWithDash()
+	rNameSg1 := acceptance.RandomAccResourceNameWithDash()
+	rNameSg2 := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_lb_loadbalancer.loadbalancer_1"
 
 	rc := acceptance.InitResourceCheck(
@@ -96,40 +96,40 @@ func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLBV2LoadBalancer_secGroup(rName, rNameSecg1, rNameSecg2),
+				Config: testAccLBV2LoadBalancer_secGroup(rName, rNameSg1, rNameSg2),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "security_group_ids.#", "1"),
 					testAccCheckNetworkingV3SecGroupExists(
-						"huaweicloud_networking_secgroup.secgroup_1", &sg_1),
+						"huaweicloud_networking_secgroup.secgroup_1", &sg1),
 					testAccCheckNetworkingV3SecGroupExists(
-						"huaweicloud_networking_secgroup.secgroup_1", &sg_2),
-					testAccCheckLBV2LoadBalancerHasSecGroup(&lb, &sg_1),
+						"huaweicloud_networking_secgroup.secgroup_1", &sg2),
+					testAccCheckLBV2LoadBalancerHasSecGroup(&lb, &sg1),
 				),
 			},
 			{
-				Config: testAccLBV2LoadBalancer_secGroup_update1(rName, rNameSecg1, rNameSecg2),
+				Config: testAccLBV2LoadBalancer_secGroup_update1(rName, rNameSg1, rNameSg2),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "security_group_ids.#", "2"),
 					testAccCheckNetworkingV3SecGroupExists(
-						"huaweicloud_networking_secgroup.secgroup_2", &sg_1),
+						"huaweicloud_networking_secgroup.secgroup_2", &sg1),
 					testAccCheckNetworkingV3SecGroupExists(
-						"huaweicloud_networking_secgroup.secgroup_2", &sg_2),
-					testAccCheckLBV2LoadBalancerHasSecGroup(&lb, &sg_1),
-					testAccCheckLBV2LoadBalancerHasSecGroup(&lb, &sg_2),
+						"huaweicloud_networking_secgroup.secgroup_2", &sg2),
+					testAccCheckLBV2LoadBalancerHasSecGroup(&lb, &sg1),
+					testAccCheckLBV2LoadBalancerHasSecGroup(&lb, &sg2),
 				),
 			},
 			{
-				Config: testAccLBV2LoadBalancer_secGroup_update2(rName, rNameSecg1, rNameSecg2),
+				Config: testAccLBV2LoadBalancer_secGroup_update2(rName, rNameSg1, rNameSg2),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "security_group_ids.#", "1"),
 					testAccCheckNetworkingV3SecGroupExists(
-						"huaweicloud_networking_secgroup.secgroup_2", &sg_1),
+						"huaweicloud_networking_secgroup.secgroup_2", &sg1),
 					testAccCheckNetworkingV3SecGroupExists(
-						"huaweicloud_networking_secgroup.secgroup_2", &sg_2),
-					testAccCheckLBV2LoadBalancerHasSecGroup(&lb, &sg_2),
+						"huaweicloud_networking_secgroup.secgroup_2", &sg2),
+					testAccCheckLBV2LoadBalancerHasSecGroup(&lb, &sg2),
 				),
 			},
 			{
@@ -162,7 +162,8 @@ func TestAccLBV2LoadBalancer_withEpsId(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id",
+						acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 			{
@@ -177,10 +178,10 @@ func TestAccLBV2LoadBalancer_withEpsId(t *testing.T) {
 func testAccCheckLBV2LoadBalancerHasSecGroup(
 	lb *loadbalancers.LoadBalancer, sg *groups.SecurityGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		networkingClient, err := cfg.NetworkingV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return fmt.Errorf("error creating VPC v2.0 Client: %s", err)
 		}
 
 		port, err := ports.Get(networkingClient, lb.VipPortID).Extract()
@@ -194,7 +195,7 @@ func testAccCheckLBV2LoadBalancerHasSecGroup(
 			}
 		}
 
-		return fmtp.Errorf("LoadBalancer does not have the security group")
+		return fmt.Errorf("LoadBalancer does not have the security group")
 	}
 }
 
@@ -202,17 +203,17 @@ func testAccCheckNetworkingV3SecGroupExists(n string, secGroup *groups.SecurityG
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		networkingClient, err := config.NetworkingV3Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		networkingClient, err := cfg.NetworkingV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return fmt.Errorf("error creating VPC Client: %s", err)
 		}
 
 		found, err := groups.Get(networkingClient, rs.Primary.ID)
@@ -221,7 +222,7 @@ func testAccCheckNetworkingV3SecGroupExists(n string, secGroup *groups.SecurityG
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Security group not found")
+			return fmt.Errorf("security group not found")
 		}
 
 		*secGroup = *found
@@ -232,47 +233,41 @@ func testAccCheckNetworkingV3SecGroupExists(n string, secGroup *groups.SecurityG
 
 func testAccLBV2LoadBalancerConfig_basic(rName string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
+%s
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
   name          = "%s"
   description   = "created by acceptance test"
-  vip_subnet_id = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  vip_subnet_id = huaweicloud_vpc_subnet.test.ipv4_subnet_id
 
   tags = {
     key   = "value"
     owner = "terraform"
   }
 }
-`, rName)
+`, common.TestVpc(rName), rName)
 }
 
-func testAccLBV2LoadBalancerConfig_update(rNameUpdate string) string {
+func testAccLBV2LoadBalancerConfig_update(rName, rNameUpdate string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
+%s
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
   name           = "%s"
   admin_state_up = "true"
-  vip_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  vip_subnet_id  = huaweicloud_vpc_subnet.test.ipv4_subnet_id
 
   tags = {
     key1  = "value1"
     owner = "terraform_update"
   }
 }
-`, rNameUpdate)
+`, common.TestVpc(rName), rNameUpdate)
 }
 
-func testAccLBV2LoadBalancer_secGroup(rName, rNameSecg1, rNameSecg2 string) string {
+func testAccLBV2LoadBalancer_secGroup(rName, rNameSg1, rNameSg2 string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
+%s
 
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
   name        = "%s"
@@ -285,20 +280,19 @@ resource "huaweicloud_networking_secgroup" "secgroup_2" {
 }
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name               = "%s"
-  vip_subnet_id      = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  name          = "%s"
+  vip_subnet_id = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+
   security_group_ids = [
     huaweicloud_networking_secgroup.secgroup_1.id
   ]
 }
-`, rNameSecg1, rNameSecg2, rName)
+`, common.TestVpc(rName), rNameSg1, rNameSg2, rName)
 }
 
-func testAccLBV2LoadBalancer_secGroup_update1(rName, rNameSecg1, rNameSecg2 string) string {
+func testAccLBV2LoadBalancer_secGroup_update1(rName, rNameSg1, rNameSg2 string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
+%s
 
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
   name        = "%s"
@@ -311,21 +305,20 @@ resource "huaweicloud_networking_secgroup" "secgroup_2" {
 }
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name               = "%s"
-  vip_subnet_id      = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  name          = "%s"
+  vip_subnet_id = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+
   security_group_ids = [
     huaweicloud_networking_secgroup.secgroup_1.id,
     huaweicloud_networking_secgroup.secgroup_2.id
   ]
 }
-`, rNameSecg1, rNameSecg2, rName)
+`, common.TestVpc(rName), rNameSg1, rNameSg2, rName)
 }
 
-func testAccLBV2LoadBalancer_secGroup_update2(rName, rNameSecg1, rNameSecg2 string) string {
+func testAccLBV2LoadBalancer_secGroup_update2(rName, rNameSg1, rNameSg2 string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
+%s
 
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
   name        = "%s"
@@ -338,24 +331,23 @@ resource "huaweicloud_networking_secgroup" "secgroup_2" {
 }
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name               = "%s"
-  vip_subnet_id      = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  name          = "%s"
+  vip_subnet_id = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+
   security_group_ids = [
     huaweicloud_networking_secgroup.secgroup_2.id
   ]
 }
-`, rNameSecg1, rNameSecg2, rName)
+`, common.TestVpc(rName), rNameSg1, rNameSg2, rName)
 }
 
 func testAccLBV2LoadBalancerConfig_withEpsId(rName string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
+%s
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
   name                  = "%s"
-  vip_subnet_id         = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  vip_subnet_id         = huaweicloud_vpc_subnet.test.ipv4_subnet_id
   enterprise_project_id = "%s"
 
   tags = {
@@ -363,5 +355,5 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
     owner = "terraform"
   }
 }
-`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, common.TestVpc(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
