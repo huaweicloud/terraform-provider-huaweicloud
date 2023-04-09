@@ -736,6 +736,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dli_permission":            dli.ResourceDliPermission(),
 			"huaweicloud_dli_datasource_connection": dli.ResourceDatasourceConnection(),
 			"huaweicloud_dli_datasource_auth":       dli.ResourceDatasourceAuth(),
+			"huaweicloud_dli_template_sql":          dli.ResourceSQLTemplate(),
 
 			"huaweicloud_dms_kafka_user":        dms.ResourceDmsKafkaUser(),
 			"huaweicloud_dms_kafka_permissions": dms.ResourceDmsKafkaPermissions(),
