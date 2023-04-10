@@ -926,8 +926,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_sfs_file_system": ResourceSFSFileSystemV2(),
 			"huaweicloud_sfs_turbo":       ResourceSFSTurbo(),
 
-			"huaweicloud_smn_topic":        smn.ResourceTopic(),
-			"huaweicloud_smn_subscription": smn.ResourceSubscription(),
+			"huaweicloud_smn_topic":            smn.ResourceTopic(),
+			"huaweicloud_smn_subscription":     smn.ResourceSubscription(),
+			"huaweicloud_smn_message_template": smn.ResourceSmnMessageTemplate(),
 
 			"huaweicloud_sms_server_template": sms.ResourceServerTemplate(),
 			"huaweicloud_sms_task":            sms.ResourceMigrateTask(),
