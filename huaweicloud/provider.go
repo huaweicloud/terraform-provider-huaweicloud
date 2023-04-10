@@ -967,6 +967,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_scm_certificate": scm.ResourceScmCertificate(),
 
+			"huaweicloud_waf_address_group":              waf.ResourceWafAddressGroup(),
 			"huaweicloud_waf_certificate":                waf.ResourceWafCertificateV1(),
 			"huaweicloud_waf_cloud_instance":             waf.ResourceCloudInstance(),
 			"huaweicloud_waf_domain":                     waf.ResourceWafDomainV1(),
