@@ -18,11 +18,12 @@ func TestAccWafRuleBlackList_basic(t *testing.T) {
 	randName := acceptance.RandomAccResourceName()
 	rName1 := "huaweicloud_waf_rule_blacklist.rule_1"
 	rName2 := "huaweicloud_waf_rule_blacklist.rule_2"
+	rName3 := "huaweicloud_waf_rule_blacklist.rule_3"
+	addressGroupResourceName := "huaweicloud_waf_address_group.test"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPrecheckWafInstance(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      testAccCheckWafRuleBlackListDestroy,
@@ -37,6 +38,12 @@ func TestAccWafRuleBlackList_basic(t *testing.T) {
 					testAccCheckWafRuleBlackListExists(rName2, &rule),
 					resource.TestCheckResourceAttr(rName2, "ip_address", "192.165.0.0/24"),
 					resource.TestCheckResourceAttr(rName2, "action", "1"),
+
+					testAccCheckWafRuleBlackListExists(rName3, &rule),
+					resource.TestCheckResourceAttr(rName3, "ip_address", "192.160.0.0/24"),
+					resource.TestCheckResourceAttr(rName3, "action", "0"),
+					resource.TestCheckResourceAttr(rName3, "name", randName),
+					resource.TestCheckResourceAttr(rName3, "description", "test description"),
 				),
 			},
 			{
@@ -49,6 +56,14 @@ func TestAccWafRuleBlackList_basic(t *testing.T) {
 					testAccCheckWafRuleBlackListExists(rName2, &rule),
 					resource.TestCheckResourceAttr(rName2, "ip_address", "192.150.0.0/24"),
 					resource.TestCheckResourceAttr(rName2, "action", "0"),
+
+					testAccCheckWafRuleBlackListExists(rName3, &rule),
+					resource.TestCheckResourceAttrPair(rName3, "address_group_id", addressGroupResourceName, "id"),
+					resource.TestCheckResourceAttr(rName3, "action", "2"),
+					resource.TestCheckResourceAttr(rName3, "name", fmt.Sprintf("%s_update", randName)),
+					resource.TestCheckResourceAttr(rName3, "description", ""),
+					resource.TestCheckResourceAttrSet(rName3, "address_group_name"),
+					resource.TestCheckResourceAttrSet(rName3, "address_group_size"),
 				),
 			},
 			{
@@ -150,12 +165,27 @@ resource "huaweicloud_waf_rule_blacklist" "rule_2" {
   ip_address = "192.165.0.0/24"
   action     = 1
 }
-`, testAccWafPolicyV1_basic(name))
+
+resource "huaweicloud_waf_rule_blacklist" "rule_3" {
+  policy_id   = huaweicloud_waf_policy.policy_1.id
+  ip_address  = "192.160.0.0/24"
+  name        = "%s"
+  description = "test description"
+}
+`, testAccWafPolicyV1_basic(name), name)
 }
 
 func testAccWafRuleBlackList_update(name string) string {
 	return fmt.Sprintf(`
 %s
+
+resource "huaweicloud_waf_address_group" "test" {
+  name         = "%s"
+  description  = "example_description"
+  ip_addresses = ["192.168.1.0/24"]
+
+  depends_on   = [huaweicloud_waf_dedicated_instance.instance_1]
+}
 
 resource "huaweicloud_waf_rule_blacklist" "rule_1" {
   policy_id  = huaweicloud_waf_policy.policy_1.id
@@ -168,5 +198,13 @@ resource "huaweicloud_waf_rule_blacklist" "rule_2" {
   ip_address = "192.150.0.0/24"
   action     = 0
 }
-`, testAccWafPolicyV1_basic(name))
+
+resource "huaweicloud_waf_rule_blacklist" "rule_3" {
+  policy_id        = huaweicloud_waf_policy.policy_1.id
+  address_group_id = huaweicloud_waf_address_group.test.id
+  action           = 2
+  name             = "%s_update"
+  description      = ""
+}
+`, testAccWafPolicyV1_basic(name), name, name)
 }
