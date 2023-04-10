@@ -383,17 +383,17 @@ The `post_start` and `pre_stop` block supports:
 <a name="servicestage_process_param"></a>
 The `parameters` block supports:
 
-* `commands` - (Required, List) Specifies the commands, such as **["sleep", "1"]**.
-  This parameter is applicable to **command** type.
-
-* `port` - (Required, Int) Specifies the port number.
-  This parameter is applicable to **http** type.
-
-* `path` - (Required, String) Specifies the request URL.
-  This parameter is applicable to **http** type.
+* `commands` - (Optional, List) Specifies the commands, such as **["sleep", "1"]**.
+  This parameter is required if process type is **command**, and it is applicable to **command** type.
 
 * `host` - (Optional, String) Specifies the custom IP address. The default address is pod IP address.
-  This parameter is applicable to **http** type.
+  This parameter is required if process type is **http**, and it is applicable to **http** type.
+
+* `port` - (Optional, Int) Specifies the port number.
+  This parameter is required if process type is **http**, and it is applicable to **http** type.
+
+* `path` - (Optional, String) Specifies the request URL.
+  This parameter is required if process type is **http**, and it is applicable to **http** type.
 
 <a name="servicestage_scheduler"></a>
 The `scheduler` block supports:

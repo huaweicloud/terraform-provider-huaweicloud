@@ -308,6 +308,23 @@ resource "huaweicloud_servicestage_component_instance" "test" {
         subpath  = "./store/01"
       }
     }
+
+    lifecycle {
+      post_start {
+        type = "command"
+        parameters {
+          commands = ["touch", "/tmp/poststart"]
+        }
+      }
+      pre_stop {
+        type = "http"
+        parameters {
+          host = "127.0.0.1"
+          port = 8080
+          path = "/servicestagetest/demo"
+        }
+      }
+    }
   }
 }
 `, testAccComponentInstance_base(rName), rName, acceptance.HW_BUILD_IMAGE_URL)
@@ -360,6 +377,23 @@ resource "huaweicloud_servicestage_component_instance" "test" {
       container_mounting {
         path         = "/tmp"
         aging_period = "Hourly"
+      }
+    }
+
+    lifecycle {
+      post_start {
+        type = "command"
+        parameters {
+          commands = ["touch", "/tmp/poststart"]
+        }
+      }
+      pre_stop {
+        type = "http"
+        parameters {
+          host = "127.0.0.1"
+          port = 8080
+          path = "/servicestagetest/demo"
+        }
       }
     }
   }

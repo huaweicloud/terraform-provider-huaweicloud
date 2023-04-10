@@ -42,18 +42,21 @@ func lifecycleProcessSchemaResource() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"commands": {
 							Type:     schema.TypeList,
-							Required: true,
+							Optional: true,
+							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+						"host": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
 						},
 						"port": {
 							Type:     schema.TypeInt,
-							Required: true,
+							Optional: true,
+							Computed: true,
 						},
 						"path": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"host": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
@@ -769,14 +772,17 @@ func buildLifecycleProcess(processes []interface{}) *instances.Process {
 	}
 
 	process := processes[0].(map[string]interface{})
+	// The configuration structure of the process parameters is required.
+	parameters := process["parameters"].([]interface{})
+	param := parameters[0].(map[string]interface{})
 
 	return &instances.Process{
 		Type: process["type"].(string),
 		Parameters: &instances.ProcessParams{
-			Commands: utils.ExpandToStringList(process["commands"].([]interface{})),
-			Port:     process["port"].(int),
-			Path:     process["path"].(string),
-			Host:     process["host"].(string),
+			Commands: utils.ExpandToStringList(param["commands"].([]interface{})),
+			Port:     param["port"].(int),
+			Path:     param["path"].(string),
+			Host:     param["host"].(string),
 		},
 	}
 }
