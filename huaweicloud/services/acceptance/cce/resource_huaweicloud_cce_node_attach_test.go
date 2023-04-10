@@ -155,6 +155,20 @@ resource "huaweicloud_cce_node_attach" "test" {
   os         = "EulerOS 2.5"
   name       = "%s"
 
+  max_pods         = 20
+  docker_base_size = 10
+  lvm_config       = "dockerThinpool=vgpaas/90%%VG;kubernetesLV=vgpaas/10%%VG"
+
+  labels = {
+    test_key = "test_value"
+  }
+
+  taints {
+    key    = "test_key"
+    value  = "test_value"
+    effect = "NoSchedule"
+  }
+
   tags = {
     foo = "bar"
     key = "value"
@@ -174,6 +188,20 @@ resource "huaweicloud_cce_node_attach" "test" {
   os         = "EulerOS 2.5"
   name       = "%s"
 
+  max_pods         = 20
+  docker_base_size = 10
+  lvm_config       = "dockerThinpool=vgpaas/90%%VG;kubernetesLV=vgpaas/10%%VG"
+
+  labels = {
+    test_key = "test_value"
+  }
+
+  taints {
+    key    = "test_key"
+    value  = "test_value"
+    effect = "NoSchedule"
+  }
+
   tags = {
     foo        = "bar_update"
     key_update = "value_update"
@@ -192,6 +220,20 @@ resource "huaweicloud_cce_node_attach" "test" {
   key_pair   = huaweicloud_compute_keypair.test.name
   os         = "CentOS 7.6"
   name       = "%s"
+
+  max_pods         = 20
+  docker_base_size = 10
+  lvm_config       = "dockerThinpool=vgpaas/90%%VG;kubernetesLV=vgpaas/10%%VG"
+
+  labels = {
+    test_key = "test_value"
+  }
+
+  taints {
+    key    = "test_key"
+    value  = "test_value"
+    effect = "NoSchedule"
+  }
 
   tags = {
     foo        = "bar_update"
