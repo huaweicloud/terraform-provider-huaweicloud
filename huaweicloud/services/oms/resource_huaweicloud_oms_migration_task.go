@@ -7,18 +7,18 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
 	v2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/oms/v2"
 	oms "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/oms/v2/model"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-
-	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func ResourceMigrationTask() *schema.Resource {
@@ -30,6 +30,7 @@ func ResourceMigrationTask() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -344,43 +345,61 @@ func buildSrcNodeOpts(rawSrcNode []interface{}) *oms.SrcNodeReq {
 	return &srcNodeOpts
 }
 
-func buildDstNodeOpts(config *config.Config, rawDstNode []interface{}) (*oms.DstNodeReq, error) {
+func buildDstNodeOpts(conf *config.Config, rawDstNode []interface{}) (*oms.DstNodeReq, error) {
 	if len(rawDstNode) != 1 {
 		return nil, nil
 	}
 	dstNode := rawDstNode[0].(map[string]interface{})
+	ak, err := getDstAccessKey(conf, dstNode)
+	if err != nil {
+		return nil, err
+	}
+	sk, err := getDstSecretKey(conf, dstNode)
+	if err != nil {
+		return nil, err
+	}
+	securityToken := getDstSecurityToken(conf, dstNode)
 
 	dstNodeOpts := oms.DstNodeReq{
-		Region:     dstNode["region"].(string),
-		Ak:         dstNode["access_key"].(string),
-		Sk:         dstNode["secret_key"].(string),
-		Bucket:     dstNode["bucket"].(string),
-		SavePrefix: utils.StringIgnoreEmpty(dstNode["save_prefix"].(string)),
-	}
-
-	if dstNode["access_key"].(string) != "" {
-		dstNodeOpts.Ak = dstNode["access_key"].(string)
-	} else if config.AccessKey != "" {
-		dstNodeOpts.Ak = config.AccessKey
-	} else {
-		return nil, fmt.Errorf("unable to find access_key")
-	}
-
-	if dstNode["secret_key"].(string) != "" {
-		dstNodeOpts.Sk = dstNode["secret_key"].(string)
-	} else if config.SecretKey != "" {
-		dstNodeOpts.Sk = config.SecretKey
-	} else {
-		return nil, fmt.Errorf("unable to find secret_key")
-	}
-
-	if dstNode["security_token"].(string) != "" {
-		dstNodeOpts.SecurityToken = utils.String(dstNode["security_token"].(string))
-	} else if config.SecurityToken != "" {
-		dstNodeOpts.SecurityToken = utils.String(config.SecurityToken)
+		Region:        dstNode["region"].(string),
+		Ak:            ak,
+		Sk:            sk,
+		SecurityToken: securityToken,
+		Bucket:        dstNode["bucket"].(string),
+		SavePrefix:    utils.StringIgnoreEmpty(dstNode["save_prefix"].(string)),
 	}
 
 	return &dstNodeOpts, nil
+}
+
+func getDstAccessKey(conf *config.Config, dstNode map[string]interface{}) (string, error) {
+	if ak := dstNode["access_key"].(string); ak != "" {
+		return ak, nil
+	}
+	if ak := conf.AccessKey; ak != "" {
+		return ak, nil
+	}
+	return "", fmt.Errorf("unable to find access_key")
+}
+
+func getDstSecretKey(conf *config.Config, dstNode map[string]interface{}) (string, error) {
+	if sk := dstNode["secret_key"].(string); sk != "" {
+		return sk, nil
+	}
+	if sk := conf.SecretKey; sk != "" {
+		return sk, nil
+	}
+	return "", fmt.Errorf("unable to find secret_key")
+}
+
+func getDstSecurityToken(conf *config.Config, dstNode map[string]interface{}) *string {
+	if securityToken := dstNode["security_token"].(string); securityToken != "" {
+		return utils.String(securityToken)
+	}
+	if securityToken := conf.SecurityToken; securityToken != "" {
+		return utils.String(securityToken)
+	}
+	return nil
 }
 
 func buildBandwidthPolicyOpts(rawBandwidthPolicy []interface{}) *[]oms.BandwidthPolicyDto {
@@ -448,8 +467,8 @@ func buildSmnConfigOpts(rawSmnConfig []interface{}) *oms.SmnConfig {
 }
 
 func resourceMigrationTaskCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcOmsV2Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	client, err := conf.HcOmsV2Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating OMS client: %s", err)
 	}
@@ -484,7 +503,7 @@ func resourceMigrationTaskCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 	createOpts.SourceCdn = sourceCdn
 
-	dstNodeOpts, err := buildDstNodeOpts(config, d.Get("destination_object").([]interface{}))
+	dstNodeOpts, err := buildDstNodeOpts(conf, d.Get("destination_object").([]interface{}))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -514,14 +533,19 @@ func resourceMigrationTaskCreate(ctx context.Context, d *schema.ResourceData, me
 		if err != nil {
 			return diag.Errorf("error stopping OMS migration task: %s", err)
 		}
+
+		err = waitForTaskStopped(ctx, client, taskID, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return diag.Errorf("error waiting for task (%s) stopped: %s", taskID, err)
+		}
 	}
 
 	return resourceMigrationTaskRead(ctx, d, meta)
 }
 
 func resourceMigrationTaskRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcOmsV2Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	client, err := conf.HcOmsV2Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating OMS client: %s", err)
 	}
@@ -560,8 +584,8 @@ func resourceMigrationTaskRead(_ context.Context, d *schema.ResourceData, meta i
 }
 
 func resourceMigrationTaskUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcOmsV2Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	client, err := conf.HcOmsV2Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating OMS client: %s", err)
 	}
@@ -578,20 +602,39 @@ func resourceMigrationTaskUpdate(ctx context.Context, d *schema.ResourceData, me
 		}
 		_, err = client.UpdateBandwidthPolicy(&updateBandwidthPolicyReq)
 		if err != nil {
-			diag.Errorf("error retrieving OMS migration task: %s", err)
+			return diag.Errorf("error retrieving OMS migration task: %s", err)
 		}
 	}
 
 	if d.HasChange("start_task") {
 		if d.Get("start_task").(bool) {
-			_, err := client.StartTask(&oms.StartTaskRequest{TaskId: taskID})
+			startTaskReqOpt, err := buildStartTaskReqOpt(conf, d)
 			if err != nil {
-				diag.Errorf("error starting OMS migration task: %s", err)
+				return diag.FromErr(err)
+			}
+			startTaskRequestOpt := &oms.StartTaskRequest{
+				TaskId: taskID,
+				Body:   startTaskReqOpt,
+			}
+
+			_, err = client.StartTask(startTaskRequestOpt)
+			if err != nil {
+				return diag.Errorf("error starting OMS migration task: %s", err)
+			}
+
+			err = waitForTaskStartedORCompleted(ctx, client, taskID, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return diag.Errorf("error waiting for task (%s) started: %s", taskID, err)
 			}
 		} else {
 			_, err := client.StopTask(&oms.StopTaskRequest{TaskId: taskID})
 			if err != nil {
-				diag.Errorf("error stopping OMS migration task: %s", err)
+				return diag.Errorf("error stopping OMS migration task: %s", err)
+			}
+
+			err = waitForTaskStopped(ctx, client, taskID, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return diag.Errorf("error waiting for task (%s) stopped: %s", taskID, err)
 			}
 		}
 	}
@@ -599,9 +642,58 @@ func resourceMigrationTaskUpdate(ctx context.Context, d *schema.ResourceData, me
 	return resourceMigrationTaskRead(ctx, d, meta)
 }
 
-func resourceMigrationTaskDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcOmsV2Client(config.GetRegion(d))
+func waitForTaskStopped(ctx context.Context, client *v2.OmsClient, taskID string, timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{"0", "7"},
+		Target:     []string{"3"},
+		Refresh:    getTaskStatus(client, taskID),
+		Timeout:    timeout,
+		Delay:      5 * time.Second,
+		MinTimeout: 3 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func buildStartTaskReqOpt(conf *config.Config, d *schema.ResourceData) (*oms.StartTaskReq, error) {
+	srcNode := make(map[string]interface{})
+	dstNode := make(map[string]interface{})
+	if sourceObjects := d.Get("source_object").([]interface{}); len(sourceObjects) > 0 {
+		srcNode = sourceObjects[0].(map[string]interface{})
+	}
+	if destinationObjects := d.Get("destination_object").([]interface{}); len(destinationObjects) > 0 {
+		dstNode = destinationObjects[0].(map[string]interface{})
+	}
+
+	dstAk, err := getDstAccessKey(conf, dstNode)
+	if err != nil {
+		return nil, err
+	}
+	dstSk, err := getDstSecretKey(conf, dstNode)
+	if err != nil {
+		return nil, err
+	}
+	dstSecurityToken := getDstSecurityToken(conf, dstNode)
+
+	startTaskReqOpt := &oms.StartTaskReq{
+		SrcAk:            utils.StringIgnoreEmpty(srcNode["access_key"].(string)),
+		SrcSk:            utils.StringIgnoreEmpty(srcNode["secret_key"].(string)),
+		SrcSecurityToken: utils.StringIgnoreEmpty(srcNode["security_token"].(string)),
+		DstAk:            dstAk,
+		DstSk:            dstSk,
+		DstSecurityToken: dstSecurityToken,
+	}
+	if sourceCDNs := d.Get("source_cdn").([]interface{}); len(sourceCDNs) > 0 {
+		sourceCdn := sourceCDNs[0].(map[string]interface{})
+		startTaskReqOpt.SourceCdnAuthenticationKey = utils.String(sourceCdn["authentication_key"].(string))
+	}
+	return startTaskReqOpt, nil
+}
+
+func resourceMigrationTaskDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	client, err := conf.HcOmsV2Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating OMS client: %s", err)
 	}
@@ -615,20 +707,47 @@ func resourceMigrationTaskDelete(_ context.Context, d *schema.ResourceData, meta
 	}
 
 	if resp.Status == nil {
-		diag.Errorf("unable to find the status OMS migration task: %s", taskID)
+		return diag.Errorf("unable to find the status OMS migration task: %s", taskID)
 	}
 
 	if *resp.Status == 2 {
 		_, err = client.StopTask(&oms.StopTaskRequest{TaskId: taskID})
 		if err != nil {
-			// ErrorCode "OMS.0066" means the task is not running, don't need top stop it before deleting
+			// ErrorCode "OMS.0066" means the task is not running, don't need to stop it before deleting
 			if responseErr, ok := err.(*sdkerr.ServiceResponseError); !ok || responseErr.ErrorCode != "OMS.0066" {
 				return diag.Errorf("error stopping OMS migration task: %s", err)
+			}
+		} else {
+			err := waitForTaskStopped(ctx, client, taskID, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return diag.Errorf("error waiting for task (%s) stopped: %s", taskID, err)
 			}
 		}
 	}
 
-	_, err = client.DeleteTask(&oms.DeleteTaskRequest{TaskId: taskID})
+	if *resp.Status == 7 {
+		err := waitForTaskStopped(ctx, client, taskID, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return diag.Errorf("error waiting for task (%s) stopped: %s", taskID, err)
+		}
+	}
+
+	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+		_, err = client.DeleteTask(&oms.DeleteTaskRequest{TaskId: taskID})
+		if err == nil {
+			return nil
+		}
+		responseErr, ok := err.(*sdkerr.ServiceResponseError)
+		if !ok {
+			return resource.NonRetryableError(err)
+		}
+
+		// ErrorCode "OMS.0063" means the task is in progress. This ErrorCode is not accurate, we need retry it.
+		if responseErr.ErrorCode == "OMS.0063" {
+			return resource.RetryableError(err)
+		}
+		return resource.NonRetryableError(err)
+	})
 	if err != nil {
 		return diag.Errorf("error deleting OMS migration task: %s", err)
 	}
