@@ -73,13 +73,13 @@ func checkMarkdown(resources map[string]*schema.Resource, parentDir, rType strin
 		}
 
 		mdStr := string(mdBytes)
-		totalCount += checkMarkdownSchemas(v, "", &mdStr)
+		totalCount += checkMarkdownSchemas(v, v, "", &mdStr)
 	}
 
 	return totalCount
 }
 
-func checkMarkdownSchemas(res *schema.Resource, parent string, mdContent *string) int {
+func checkMarkdownSchemas(res, rootRes *schema.Resource, parent string, mdContent *string) int {
 	if len(res.Schema) == 0 {
 		return 0
 	}
@@ -93,7 +93,7 @@ func checkMarkdownSchemas(res *schema.Resource, parent string, mdContent *string
 
 		extentStr, deprecated := buildAttributeString(schemaObject)
 		// check deprecated field
-		if deprecated || isDeprecatedField(name) {
+		if (deprecated || isDeprecatedField(name)) && !hasIdenticalSchemaField(rootRes, name) {
 			if isExist {
 				count++
 				fmt.Printf("`%s` was deprecated, should be deleted in Markdown\n", fieldPath)
@@ -123,11 +123,39 @@ func checkMarkdownSchemas(res *schema.Resource, parent string, mdContent *string
 		// check nested block
 		if schemaObject.Elem != nil {
 			if nestedRes, ok := schemaObject.Elem.(*schema.Resource); ok {
-				count += checkMarkdownSchemas(nestedRes, fieldPath, mdContent)
+				count += checkMarkdownSchemas(nestedRes, rootRes, fieldPath, mdContent)
 			}
 		}
 	}
 	return count
+}
+
+// check the identical field which is not deprecated
+func hasIdenticalSchemaField(res *schema.Resource, key string) bool {
+	if len(res.Schema) == 0 {
+		return false
+	}
+
+	for name, schemaObject := range res.Schema {
+		if _, deprecated := buildAttributeString(schemaObject); deprecated || isDeprecatedField(name) {
+			continue
+		}
+
+		if name == key {
+			return true
+		}
+
+		// find key in nested block
+		if schemaObject.Elem != nil {
+			if nestedRes, ok := schemaObject.Elem.(*schema.Resource); ok {
+				if ret := hasIdenticalSchemaField(nestedRes, key); ret {
+					return true
+				}
+			}
+		}
+	}
+
+	return false
 }
 
 func checkArgumentExist(mdStr, regStr string) bool {
