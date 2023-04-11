@@ -103,7 +103,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `resources` - (Required, List) Specifies the list of resources to add into the group.
+* `resources` - (Optional, List) Specifies the list of resources to add into the group.
   The [ResourcesOpts](#ResourceGroup_ResourcesOpts) structure is documented below.
 
 <a name="ResourceGroup_ResourcesOpts"></a>
