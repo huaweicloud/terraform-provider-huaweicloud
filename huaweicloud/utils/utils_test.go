@@ -55,3 +55,16 @@ func TestAccFunction_RemoveNil(t *testing.T) {
 	}
 	t.Logf("The processing result of RemoveNil method meets expectation: %s", green(expected))
 }
+
+func TestAccFunction_reverse(t *testing.T) {
+	var (
+		testInput = "abcdefg"
+		expected  = "gfedcba"
+	)
+
+	if !reflect.DeepEqual(Reverse(testInput), expected) {
+		t.Fatalf("The processing result of the function 'Reverse' is not as expected, want '%s', but got '%s'",
+			green(expected), yellow(testInput))
+	}
+	t.Logf("The processing result of function 'Reverse' meets expectation: %s", green(expected))
+}
