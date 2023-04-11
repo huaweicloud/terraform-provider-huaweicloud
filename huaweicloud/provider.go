@@ -831,8 +831,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_iec_vpc":                 ResourceIecVpc(),
 			"huaweicloud_iec_vpc_subnet":          resourceIecSubnet(),
 
-			"huaweicloud_images_image":      ims.ResourceImsImage(),
-			"huaweicloud_images_image_copy": ims.ResourceImsImageCopy(),
+			"huaweicloud_images_image":                ims.ResourceImsImage(),
+			"huaweicloud_images_image_copy":           ims.ResourceImsImageCopy(),
+			"huaweicloud_images_image_share":          ims.ResourceImsImageShare(),
+			"huaweicloud_images_image_share_accepter": ims.ResourceImsImageShareAccepter(),
 
 			"huaweicloud_iotda_space":               iotda.ResourceSpace(),
 			"huaweicloud_iotda_product":             iotda.ResourceProduct(),
