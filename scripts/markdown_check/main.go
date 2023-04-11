@@ -96,7 +96,7 @@ func checkMarkdownSchemas(res, rootRes *schema.Resource, parent string, mdConten
 		if (deprecated || isDeprecatedField(name)) && !hasIdenticalSchemaField(rootRes, name) {
 			if isExist {
 				count++
-				fmt.Printf("`%s` was deprecated, should be deleted in Markdown\n", fieldPath)
+				fmt.Printf("[ERROR] `%s` was deprecated, should be deleted in Markdown\n", fieldPath)
 			}
 			continue
 		}
@@ -110,13 +110,13 @@ func checkMarkdownSchemas(res, rootRes *schema.Resource, parent string, mdConten
 
 		if !isExist {
 			count++
-			fmt.Printf("can not find `%s`, please check it\n", fieldPath)
+			fmt.Printf("[ERROR] can not find `%s`, please check it\n", fieldPath)
 		} else if extentStr != "" {
 			// check the format of field
 			reg += fmt.Sprintf("\\(%s\\)", extentStr)
 			if !checkArgumentExist(*mdContent, reg) {
 				count++
-				fmt.Printf("the format of `%s` is not correct, should be (%s)\n", fieldPath, extentStr)
+				fmt.Printf("[ERROR] the format of `%s` is not correct, should be (%s)\n", fieldPath, extentStr)
 			}
 		}
 
