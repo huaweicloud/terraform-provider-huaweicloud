@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -237,7 +238,7 @@ func resourceCbhInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	instances := flattenGetInstancesResponseBodyInstance(getCbhInstancesRespBody)
+	instances := utils.PathSearch("instance", getCbhInstancesRespBody, make([]interface{}, 0)).([]interface{})
 
 	name := d.Get("name").(string)
 	vpcId := d.Get("vpc_id").(string)
@@ -287,48 +288,4 @@ func resourceCbhInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
-}
-
-func flattenGetInstancesResponseBodyInstance(resp interface{}) []interface{} {
-	if resp == nil {
-		return nil
-	}
-	curJson := utils.PathSearch("instance", resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	rst := make([]interface{}, 0, len(curArray))
-	for _, v := range curArray {
-		autoRenew := utils.PathSearch("is_auto_renew", v, nil)
-		if autoRenew == "0" {
-			autoRenew = "true"
-		} else {
-			autoRenew = "false"
-		}
-		rst = append(rst, map[string]interface{}{
-			"publicip_id":         utils.PathSearch("publicId", v, nil),
-			"exp_time":            utils.PathSearch("expTime", v, nil),
-			"start_time":          utils.PathSearch("startTime", v, nil),
-			"end_time":            utils.PathSearch("endTime", v, nil),
-			"release_time":        utils.PathSearch("releaseTime", v, nil),
-			"name":                utils.PathSearch("name", v, nil),
-			"instance_id":         utils.PathSearch("instanceId", v, nil),
-			"private_ip":          utils.PathSearch("privateIp", v, nil),
-			"task_status":         utils.PathSearch("taskStatus", v, nil),
-			"status":              utils.PathSearch("status", v, nil),
-			"vpc_id":              utils.PathSearch("vpcId", v, nil),
-			"subnet_id":           utils.PathSearch("subnetId", v, nil),
-			"security_group_id":   utils.PathSearch("securityGroupId", v, nil),
-			"flavor_id":           utils.PathSearch("specification", v, nil),
-			"update":              utils.PathSearch("update", v, nil),
-			"instance_key":        utils.PathSearch("instanceKey", v, nil),
-			"resource_id":         utils.PathSearch("resourceId", v, nil),
-			"bastion_type":        utils.PathSearch("bastion_type", v, nil),
-			"alter_permit":        utils.PathSearch("alterPermit", v, nil),
-			"bastion_version":     utils.PathSearch("bastionVersion", v, nil),
-			"new_bastion_version": utils.PathSearch("newBastionVersion", v, nil),
-			"instance_status":     utils.PathSearch("instanceStatus", v, nil),
-			"description":         utils.PathSearch("instance_description", v, nil),
-			"auto_renew":          autoRenew,
-		})
-	}
-	return rst
 }
