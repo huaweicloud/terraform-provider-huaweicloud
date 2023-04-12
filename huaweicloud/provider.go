@@ -908,7 +908,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_obs_bucket_object": obs.ResourceObsBucketObject(),
 			"huaweicloud_obs_bucket_policy": obs.ResourceObsBucketPolicy(),
 
-			"huaweicloud_oms_migration_task": oms.ResourceMigrationTask(),
+			"huaweicloud_oms_migration_task":       oms.ResourceMigrationTask(),
+			"huaweicloud_oms_migration_task_group": oms.ResourceMigrationTaskGroup(),
 
 			"huaweicloud_rds_mysql_account":            rds.ResourceRdsAccount(),
 			"huaweicloud_rds_mysql_database":           rds.ResourceRdsDatabase(),
