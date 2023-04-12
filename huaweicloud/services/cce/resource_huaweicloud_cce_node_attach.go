@@ -269,7 +269,7 @@ func resourceCCENodeAttachV3ServerConfig(d *schema.ResourceData) *nodes.ServerCo
 }
 
 func resourceCCENodeAttachV3VolumeConfig(d *schema.ResourceData) *nodes.VolumeConfig {
-	if v, ok := d.GetOk("lmv_config"); ok {
+	if v, ok := d.GetOk("lvm_config"); ok {
 		volumeConfig := nodes.VolumeConfig{
 			LvmConfig: v.(string),
 		}
