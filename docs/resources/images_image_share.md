@@ -29,7 +29,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `target_project_ids` - (Optional, List) Specifies the IDs of the target projects.
+* `target_project_ids` - (Required, List) Specifies the IDs of the target projects.
 
 ## Attributes Reference
 

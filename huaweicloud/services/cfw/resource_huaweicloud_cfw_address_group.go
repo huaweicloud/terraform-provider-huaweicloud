@@ -56,7 +56,7 @@ func ResourceAddressGroup() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
-				Description: `Specifies the Address type.`,
+				Description: `schema: Computed; Specifies the Address type.`,
 			},
 			"description": {
 				Type:        schema.TypeString,

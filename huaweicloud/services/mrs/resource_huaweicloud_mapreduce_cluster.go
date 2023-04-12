@@ -299,13 +299,6 @@ func nodeGroupSchemaResource(groupName string, nodeScalable bool, minNodeNum, ma
 				Required: true,
 				ForceNew: true,
 			},
-			"host_ips": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
 			"assigned_roles": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -318,6 +311,13 @@ func nodeGroupSchemaResource(groupName string, nodeScalable bool, minNodeNum, ma
 						return true
 					}
 					return false
+				},
+			},
+			"host_ips": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
 				},
 			},
 		},

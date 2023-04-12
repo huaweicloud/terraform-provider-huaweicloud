@@ -340,10 +340,14 @@ The following arguments are supported:
   the cluster, please following [reference](https://support.huaweicloud.com/intl/en-us/productdesc-mrs/mrs_08_0005.html)
   Changing this will create a new MapReduce cluster resource.
 
-* `master_nodes` - (Required, List, ForceNew) Specifies a list of the informations about the master nodes in the
-  MapReduce cluster.
+* `master_nodes` - (Required, List, ForceNew) Specifies the informations about master nodes in the MapReduce cluster.
   The `nodes` object structure of the `master_nodes` is documented below.
   Changing this will create a new MapReduce cluster resource.
+
+* `manager_admin_pass` - (Required, String, ForceNew) Specifies the administrator password, which is used to log in to
+  the cluster management page. The password can contain 8 to 26 characters and cannot be the username or the username
+  spelled backwards. The password must contain lowercase letters, uppercase letters, digits, spaces and the special
+  characters: `!?,.:-_{}[]@$^+=/`. Changing this will create a new MapReduce cluster resource.
 
 * `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC which bound to the MapReduce cluster. Changing
   this will create a new MapReduce cluster resource.
@@ -368,11 +372,6 @@ The EIP must have been created and must be in the same region as the cluster.
 * `log_collection` - (Optional, Bool, ForceNew) Specifies whether logs are collected when cluster installation fails.
   Default to true. If `log_collection` set true, the OBS buckets will be created and only used to collect logs that
   record MapReduce cluster creation failures. Changing this will create a new MapReduce cluster resource.
-
-* `manager_admin_pass` - (Optional, String, ForceNew) Specifies the administrator password, which is used to log in to
-  the cluster management page. The password can contain 8 to 26 characters and cannot be the username or the username
-  spelled backwards. The password must contain lowercase letters, uppercase letters, digits, spaces and the special
-  characters: `!?,.:-_{}[]@$^+=/`. Changing this will create a new MapReduce cluster resource.
 
 * `node_admin_pass` - (Optional, String, ForceNew) Specifies the administrator password, which is used to log in to the
   each nodes(/ECSs). The password can contain 8 to 26 characters and cannot be the username or the username spelled
@@ -403,46 +402,49 @@ The EIP must have been created and must be in the same region as the cluster.
   and data instances are deployed in different node groups. This deployment mode is applicable to a cluster with more
   than 500 nodes. Components can be deployed separately, which can be used for a larger cluster scale.
 
-* `analysis_core_nodes` - (Optional, List) Specifies a list of the informations about the analysis core nodes in the
- MapReduce cluster.
+* `analysis_core_nodes` - (Optional, List, ForceNew) Specifies the informations about analysis core nodes in the
+  MapReduce cluster.
   The `nodes` object structure of the `analysis_core_nodes` is documented below.
+  Changing this will create a new MapReduce cluster resource.
 
-* `streaming_core_nodes` - (Optional, List) Specifies a list of the informations about the streaming core nodes in the
- MapReduce cluster.
+* `streaming_core_nodes` - (Optional, List, ForceNew) Specifies the informations about streaming core nodes in the
+  MapReduce cluster.
   The `nodes` object structure of the `streaming_core_nodes` is documented below.
+  Changing this will create a new MapReduce cluster resource.
 
-* `analysis_task_nodes` - (Optional, List) Specifies a list of the informations about the analysis task nodes in the
- MapReduce cluster.
+* `analysis_task_nodes` - (Optional, List, ForceNew) Specifies the informations about analysis task nodes in the
+  MapReduce cluster.
   The `nodes` object structure of the `analysis_task_nodes` is documented below.
+  Changing this will create a new MapReduce cluster resource.
 
-* `streaming_task_nodes` - (Optional, List) Specifies a list of the informations about the streaming task nodes in the
- MapReduce cluster.
+* `streaming_task_nodes` - (Optional, List, ForceNew) Specifies the informations about streaming task nodes in the
+  MapReduce cluster.
   The `nodes` object structure of the `streaming_task_nodes` is documented below.
+  Changing this will create a new MapReduce cluster resource.
 
-* `custom_nodes` - (Optional, List) Specifies a list of the informations about the custom nodes in the MapReduce
- cluster.
+* `custom_nodes` - (Optional, List, ForceNew) Specifies the informations about custom nodes in the MapReduce cluster.
   The `nodes` object structure of the `custom_nodes` is documented below.
-  `Unlike other nodes, it needs to specify group_name`
+  Changing this will create a new MapReduce cluster resource.
 
 * `component_configs` - (Optional, List, ForceNew) Specifies the component configurations of the cluster.
   The [object](#component_configurations) structure is documented below.
   Changing this will create a new MapReduce cluster resource.
 
-* `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs to associate with the cluster.
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the cluster.
 
 The `nodes` block supports:
 
 * `group_name` - (Optional, String, ForceNew) Specifies the name of nodes for the node group.
 
-  -> **NOTE:** Only the custom_nodes has this argument
+  -> **NOTE:** This parameter is only valid and mandatory for `custom_nodes`.
 
 * `flavor` - (Required, String, ForceNew) Specifies the instance specifications for each nodes in node group.
   Changing this will create a new MapReduce cluster resource.
 
 * `node_number` - (Required, Int) Specifies the number of nodes for the node group.
 
-  -> **NOTE:** Only the core group and task group updations are allowed. The number of nodes after scaling cannot be
-  less than the number of nodes originally created.
+  -> **NOTE:** Only the core node group and task node group are allowed to be updated. The number of nodes after scaling
+  cannot be less than the number of nodes originally created.
 
 * `root_volume_type` - (Required, String, ForceNew) Specifies the system disk flavor of the nodes. Changing this will
   create a new MapReduce cluster resource.
