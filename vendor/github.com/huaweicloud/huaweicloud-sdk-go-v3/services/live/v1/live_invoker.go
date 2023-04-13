@@ -65,6 +65,18 @@ func (i *CreateRecordRuleInvoker) Invoke() (*model.CreateRecordRuleResponse, err
 	}
 }
 
+type CreateSnapshotConfigInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateSnapshotConfigInvoker) Invoke() (*model.CreateSnapshotConfigResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateSnapshotConfigResponse), nil
+	}
+}
+
 type CreateStreamForbiddenInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -101,6 +113,18 @@ func (i *DeleteDomainInvoker) Invoke() (*model.DeleteDomainResponse, error) {
 	}
 }
 
+type DeleteDomainKeyChainInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteDomainKeyChainInvoker) Invoke() (*model.DeleteDomainKeyChainResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteDomainKeyChainResponse), nil
+	}
+}
+
 type DeleteDomainMappingInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -134,6 +158,18 @@ func (i *DeleteRecordRuleInvoker) Invoke() (*model.DeleteRecordRuleResponse, err
 		return nil, err
 	} else {
 		return result.(*model.DeleteRecordRuleResponse), nil
+	}
+}
+
+type DeleteSnapshotConfigInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteSnapshotConfigInvoker) Invoke() (*model.DeleteSnapshotConfigResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteSnapshotConfigResponse), nil
 	}
 }
 
@@ -221,6 +257,18 @@ func (i *ListRecordRulesInvoker) Invoke() (*model.ListRecordRulesResponse, error
 	}
 }
 
+type ListSnapshotConfigsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListSnapshotConfigsInvoker) Invoke() (*model.ListSnapshotConfigsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListSnapshotConfigsResponse), nil
+	}
+}
+
 type ListStreamForbiddenInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -254,6 +302,18 @@ func (i *ShowDomainInvoker) Invoke() (*model.ShowDomainResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.ShowDomainResponse), nil
+	}
+}
+
+type ShowDomainKeyChainInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowDomainKeyChainInvoker) Invoke() (*model.ShowDomainKeyChainResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowDomainKeyChainResponse), nil
 	}
 }
 
@@ -317,6 +377,18 @@ func (i *UpdateDomainIp6SwitchInvoker) Invoke() (*model.UpdateDomainIp6SwitchRes
 	}
 }
 
+type UpdateDomainKeyChainInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateDomainKeyChainInvoker) Invoke() (*model.UpdateDomainKeyChainResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateDomainKeyChainResponse), nil
+	}
+}
+
 type UpdateRecordCallbackConfigInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -341,6 +413,18 @@ func (i *UpdateRecordRuleInvoker) Invoke() (*model.UpdateRecordRuleResponse, err
 	}
 }
 
+type UpdateSnapshotConfigInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateSnapshotConfigInvoker) Invoke() (*model.UpdateSnapshotConfigResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateSnapshotConfigResponse), nil
+	}
+}
+
 type UpdateStreamForbiddenInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -362,5 +446,53 @@ func (i *UpdateTranscodingsTemplateInvoker) Invoke() (*model.UpdateTranscodingsT
 		return nil, err
 	} else {
 		return result.(*model.UpdateTranscodingsTemplateResponse), nil
+	}
+}
+
+type DeleteDomainHttpsCertInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteDomainHttpsCertInvoker) Invoke() (*model.DeleteDomainHttpsCertResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteDomainHttpsCertResponse), nil
+	}
+}
+
+type ShowDomainHttpsCertInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowDomainHttpsCertInvoker) Invoke() (*model.ShowDomainHttpsCertResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowDomainHttpsCertResponse), nil
+	}
+}
+
+type UpdateDomainHttpsCertInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateDomainHttpsCertInvoker) Invoke() (*model.UpdateDomainHttpsCertResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateDomainHttpsCertResponse), nil
+	}
+}
+
+type UpdateObsBucketAuthorityPublicInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateObsBucketAuthorityPublicInvoker) Invoke() (*model.UpdateObsBucketAuthorityPublicResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateObsBucketAuthorityPublicResponse), nil
 	}
 }

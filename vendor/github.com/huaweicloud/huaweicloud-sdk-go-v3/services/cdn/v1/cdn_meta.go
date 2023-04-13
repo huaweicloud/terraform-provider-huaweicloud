@@ -187,6 +187,14 @@ func GenReqDefForListDomains() *def.HttpRequestDef {
 		WithJsonTag("page_number").
 		WithLocationType(def.Query))
 	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("ShowTags").
+		WithJsonTag("show_tags").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("ExactMatch").
+		WithJsonTag("exact_match").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
 		WithName("EnterpriseProjectId").
 		WithJsonTag("enterprise_project_id").
 		WithLocationType(def.Query))

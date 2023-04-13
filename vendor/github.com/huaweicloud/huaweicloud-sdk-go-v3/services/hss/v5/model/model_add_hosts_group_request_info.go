@@ -9,10 +9,10 @@ import (
 type AddHostsGroupRequestInfo struct {
 
 	// 服务器组名称
-	GroupName *string `json:"group_name,omitempty"`
+	GroupName string `json:"group_name"`
 
 	// 服务器ID列表
-	HostIdList *[]string `json:"host_id_list,omitempty"`
+	HostIdList []string `json:"host_id_list"`
 }
 
 func (o AddHostsGroupRequestInfo) String() string {

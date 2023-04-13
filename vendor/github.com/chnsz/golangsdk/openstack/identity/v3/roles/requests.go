@@ -365,3 +365,20 @@ func Unassign(client *golangsdk.ServiceClient, roleID string, opts UnassignOpts)
 	})
 	return
 }
+
+// AssignAllResources is the operation responsible for granting a user group permissions for all resources,
+// including those in enterprise projects, region-specific projects, and global services.
+func AssignAllResources(client *golangsdk.ServiceClient, domainID, groupID, roleID string) (r AssignmentResult) {
+	_, r.Err = client.Put(assignInheritedURL(client, domainID, groupID, roleID), nil, nil, &golangsdk.RequestOpts{
+		OkCodes: []int{204},
+	})
+	return
+}
+
+// UnassignAllResources is the operation responsible for unassigning a user group permissions for all resources.
+func UnassignAllResources(client *golangsdk.ServiceClient, domainID, groupID, roleID string) (r AssignmentResult) {
+	_, r.Err = client.Delete(assignInheritedURL(client, domainID, groupID, roleID), &golangsdk.RequestOpts{
+		OkCodes: []int{204},
+	})
+	return
+}

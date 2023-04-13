@@ -8,6 +8,7 @@ package signer
 import (
 	"crypto/hmac"
 	"crypto/sha256"
+	"errors"
 	"fmt"
 	"net/url"
 	"reflect"
@@ -213,6 +214,13 @@ func AuthHeaderValue(signature, accessKey string, signedHeaders []string) string
 
 // SignRequest set Authorization header
 func Sign(r *request.DefaultHttpRequest, ak string, sk string) (map[string]string, error) {
+	if ak == "" {
+		return nil, errors.New("ak is required in credentials")
+	}
+	if sk == "" {
+		return nil, errors.New("sk is required in credentials")
+	}
+
 	var err error
 	var t time.Time
 	var headerParams = make(map[string]string)

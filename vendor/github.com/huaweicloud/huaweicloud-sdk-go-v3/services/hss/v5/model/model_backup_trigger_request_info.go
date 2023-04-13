@@ -8,7 +8,7 @@ import (
 
 // 策略时间调度规则
 type BackupTriggerRequestInfo struct {
-	Properties *BackupTriggerPropertiesRequestInfo `json:"properties,omitempty"`
+	Properties *BackupTriggerPropertiesRequestInfo `json:"properties"`
 }
 
 func (o BackupTriggerRequestInfo) String() string {

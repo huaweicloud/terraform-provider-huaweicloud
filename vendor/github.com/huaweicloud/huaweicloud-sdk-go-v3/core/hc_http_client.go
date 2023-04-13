@@ -34,32 +34,37 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/response"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
 	jsoniter "github.com/json-iterator/go"
+	"go.mongodb.org/mongo-driver/bson"
 	"io/ioutil"
+	"net"
 	"net/url"
 	"reflect"
 	"strings"
+	"sync/atomic"
 )
 
 const (
-	userAgent      = "User-Agent"
-	xRequestId     = "X-Request-Id"
-	contentType    = "Content-Type"
-	applicationXml = "application/xml"
+	userAgent       = "User-Agent"
+	xRequestId      = "X-Request-Id"
+	contentType     = "Content-Type"
+	applicationXml  = "application/xml"
+	applicationBson = "application/bson"
 )
 
 type HcHttpClient struct {
-	endpoint    string
-	credential  auth.ICredential
-	extraHeader map[string]string
-	httpClient  *impl.DefaultHttpClient
+	endpoints     []string
+	endpointIndex int32
+	credential    auth.ICredential
+	extraHeader   map[string]string
+	httpClient    *impl.DefaultHttpClient
 }
 
 func NewHcHttpClient(httpClient *impl.DefaultHttpClient) *HcHttpClient {
 	return &HcHttpClient{httpClient: httpClient}
 }
 
-func (hc *HcHttpClient) WithEndpoint(endpoint string) *HcHttpClient {
-	hc.endpoint = endpoint
+func (hc *HcHttpClient) WithEndpoints(endpoints []string) *HcHttpClient {
+	hc.endpoints = endpoints
 	return hc
 }
 
@@ -87,14 +92,23 @@ func (hc *HcHttpClient) Sync(req interface{}, reqDef *def.HttpRequestDef) (inter
 
 func (hc *HcHttpClient) SyncInvoke(req interface{}, reqDef *def.HttpRequestDef,
 	exchange *exchange.SdkExchange) (interface{}, error) {
-	httpRequest, err := hc.buildRequest(req, reqDef)
-	if err != nil {
-		return nil, err
-	}
+	var resp *response.DefaultHttpResponse
+	for {
+		httpRequest, err := hc.buildRequest(req, reqDef)
+		if err != nil {
+			return nil, err
+		}
 
-	resp, err := hc.httpClient.SyncInvokeHttpWithExchange(httpRequest, exchange)
-	if err != nil {
-		return nil, err
+		resp, err = hc.httpClient.SyncInvokeHttpWithExchange(httpRequest, exchange)
+		if err == nil {
+			break
+		}
+
+		if isNoSuchHostErr(err) && atomic.LoadInt32(&hc.endpointIndex) < int32(len(hc.endpoints)-1) {
+			atomic.AddInt32(&hc.endpointIndex, 1)
+		} else {
+			return nil, err
+		}
 	}
 
 	return hc.extractResponse(resp, reqDef)
@@ -104,7 +118,7 @@ func (hc *HcHttpClient) extractEndpoint(req interface{}, reqDef *def.HttpRequest
 	var endpoint string
 	for _, v := range reqDef.RequestFields {
 		if v.LocationType == def.Cname {
-			u, err := url.Parse(hc.endpoint)
+			u, err := url.Parse(hc.endpoints[atomic.LoadInt32(&hc.endpointIndex)])
 			if err != nil {
 				return "", err
 			}
@@ -117,7 +131,7 @@ func (hc *HcHttpClient) extractEndpoint(req interface{}, reqDef *def.HttpRequest
 	}
 
 	if endpoint == "" {
-		endpoint = hc.endpoint
+		endpoint = hc.endpoints[hc.endpointIndex]
 	}
 
 	return endpoint, nil
@@ -342,7 +356,7 @@ func (hc *HcHttpClient) deserializeResponseFields(resp *response.DefaultHttpResp
 
 			bodyErr := hc.deserializeResponseBody(reqDef, data)
 			if bodyErr != nil {
-				return processError(err)
+				return processError(bodyErr)
 			}
 		}
 	}
@@ -350,6 +364,8 @@ func (hc *HcHttpClient) deserializeResponseFields(resp *response.DefaultHttpResp
 	if len(data) != 0 && !hasBody {
 		if strings.Contains(resp.Response.Header.Get(contentType), applicationXml) {
 			err = xml.Unmarshal(data, &reqDef.Response)
+		} else if strings.Contains(resp.Response.Header.Get(contentType), applicationBson) {
+			err = bson.Unmarshal(data, reqDef.Response)
 		} else {
 			err = jsoniter.Unmarshal(data, &reqDef.Response)
 		}
@@ -387,8 +403,12 @@ func (hc *HcHttpClient) deserializeResponseBody(reqDef *def.HttpRequestDef, data
 			} else {
 				bodyIns = reflect.New(body.Type).Interface()
 			}
-
-			err := json.Unmarshal(data, bodyIns)
+			var err error
+			if reqDef.ContentType == applicationBson {
+				err = bson.Unmarshal(data, bodyIns)
+			} else {
+				err = json.Unmarshal(data, bodyIns)
+			}
 			if err != nil {
 				return err
 			}
@@ -450,4 +470,28 @@ func (hc *HcHttpClient) getFieldInfo(reqDef *def.HttpRequestDef, item *def.Field
 	}
 
 	return isPtr, fieldKind
+}
+
+func isNoSuchHostErr(err error) bool {
+	if err == nil {
+		return false
+	}
+	var errInterface interface{} = err
+	if innerErr, ok := errInterface.(*url.Error); !ok {
+		return false
+	} else {
+		errInterface = innerErr.Err
+	}
+
+	if innerErr, ok := errInterface.(*net.OpError); !ok {
+		return false
+	} else {
+		errInterface = innerErr.Err
+	}
+
+	if innerErr, ok := errInterface.(*net.DNSError); !ok {
+		return false
+	} else {
+		return innerErr.Err == "no such host"
+	}
 }

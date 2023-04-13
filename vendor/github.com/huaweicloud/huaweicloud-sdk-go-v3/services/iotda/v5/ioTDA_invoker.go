@@ -197,6 +197,18 @@ func (i *ListBatchTaskFilesInvoker) Invoke() (*model.ListBatchTaskFilesResponse,
 	}
 }
 
+type UploadBatchTaskFileInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UploadBatchTaskFileInvoker) Invoke() (*model.UploadBatchTaskFileResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UploadBatchTaskFileResponse), nil
+	}
+}
+
 type AddCertificateInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -518,6 +530,54 @@ func (i *ShowDeviceMessageInvoker) Invoke() (*model.ShowDeviceMessageResponse, e
 		return nil, err
 	} else {
 		return result.(*model.ShowDeviceMessageResponse), nil
+	}
+}
+
+type CreateOtaPackageInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateOtaPackageInvoker) Invoke() (*model.CreateOtaPackageResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateOtaPackageResponse), nil
+	}
+}
+
+type DeleteOtaPackageInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteOtaPackageInvoker) Invoke() (*model.DeleteOtaPackageResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteOtaPackageResponse), nil
+	}
+}
+
+type ListOtaPackageInfoInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListOtaPackageInfoInvoker) Invoke() (*model.ListOtaPackageInfoResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListOtaPackageInfoResponse), nil
+	}
+}
+
+type ShowOtaPackageInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowOtaPackageInvoker) Invoke() (*model.ShowOtaPackageResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowOtaPackageResponse), nil
 	}
 }
 

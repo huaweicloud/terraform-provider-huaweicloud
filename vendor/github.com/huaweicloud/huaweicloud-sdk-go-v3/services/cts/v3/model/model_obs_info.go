@@ -3,6 +3,9 @@ package model
 import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/utils"
 
+	"errors"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/converter"
+
 	"strings"
 )
 
@@ -23,6 +26,12 @@ type ObsInfo struct {
 
 	// 标识配置桶内对象存储周期。 当\"tracker_type\"参数值为\"data\"时该参数值有效。
 	BucketLifecycle *int64 `json:"bucket_lifecycle,omitempty"`
+
+	// 压缩类型。包括不压缩（json），压缩（gzip）两种状态。默认为gzip格式。
+	CompressType *ObsInfoCompressType `json:"compress_type,omitempty"`
+
+	// 路径按云服务划分，打开后转储文件路径中将增加云服务名。默认为true。
+	IsSortByService *bool `json:"is_sort_by_service,omitempty"`
 }
 
 func (o ObsInfo) String() string {
@@ -32,4 +41,46 @@ func (o ObsInfo) String() string {
 	}
 
 	return strings.Join([]string{"ObsInfo", string(data)}, " ")
+}
+
+type ObsInfoCompressType struct {
+	value string
+}
+
+type ObsInfoCompressTypeEnum struct {
+	GZIP ObsInfoCompressType
+	JSON ObsInfoCompressType
+}
+
+func GetObsInfoCompressTypeEnum() ObsInfoCompressTypeEnum {
+	return ObsInfoCompressTypeEnum{
+		GZIP: ObsInfoCompressType{
+			value: "gzip",
+		},
+		JSON: ObsInfoCompressType{
+			value: "json",
+		},
+	}
+}
+
+func (c ObsInfoCompressType) Value() string {
+	return c.value
+}
+
+func (c ObsInfoCompressType) MarshalJSON() ([]byte, error) {
+	return utils.Marshal(c.value)
+}
+
+func (c *ObsInfoCompressType) UnmarshalJSON(b []byte) error {
+	myConverter := converter.StringConverterFactory("string")
+	if myConverter != nil {
+		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+		if err == nil {
+			c.value = val.(string)
+			return nil
+		}
+		return err
+	} else {
+		return errors.New("convert enum data to string error")
+	}
 }

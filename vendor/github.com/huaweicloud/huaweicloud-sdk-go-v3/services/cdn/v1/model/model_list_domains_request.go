@@ -30,6 +30,12 @@ type ListDomainsRequest struct {
 	// 查询的页码。取值范围1-65535，不设值时默认值为1。
 	PageNumber *int32 `json:"page_number,omitempty"`
 
+	// 展示标签标识 true：不展示 false：展示。
+	ShowTags *bool `json:"show_tags,omitempty"`
+
+	// 精准匹配 on：开启 off：关闭。
+	ExactMatch *bool `json:"exact_match,omitempty"`
+
 	// 当用户开启企业项目功能时，该参数生效，表示查询资源所属项目，\"all\"表示所有项目。注意：当使用子帐号调用接口时，该参数必传。  您可以通过调用企业项目管理服务（EPS）的查询企业项目列表接口（ListEnterpriseProject）查询企业项目id。
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 }

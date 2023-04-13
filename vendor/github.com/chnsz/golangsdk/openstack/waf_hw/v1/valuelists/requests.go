@@ -4,7 +4,10 @@
 
 package valuelists
 
-import "github.com/chnsz/golangsdk"
+import (
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/utils"
+)
 
 var requestOpts = golangsdk.RequestOpts{
 	MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
@@ -12,10 +15,11 @@ var requestOpts = golangsdk.RequestOpts{
 
 // CreateOpts the options to create reference table.
 type CreateOpts struct {
-	Name        string   `json:"name" required:"true"`
-	Type        string   `json:"type" required:"true"`
-	Values      []string `json:"values,omitempty"`
-	Description string   `json:"description,omitempty"`
+	Name                string   `json:"name" required:"true"`
+	Type                string   `json:"type" required:"true"`
+	Values              []string `json:"values,omitempty"`
+	Description         string   `json:"description,omitempty"`
+	EnterpriseProjectId string   `q:"enterprise_project_id" json:"-"`
 }
 
 // Create a reference table.
@@ -24,9 +28,13 @@ func Create(c *golangsdk.ServiceClient, opts CreateOpts) (*WafValueList, error) 
 	if err != nil {
 		return nil, err
 	}
+	query, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return nil, err
+	}
 
 	var rst golangsdk.Result
-	_, err = c.Post(rootURL(c), b, &rst.Body, &golangsdk.RequestOpts{
+	_, err = c.Post(rootURL(c)+query.String(), b, &rst.Body, &golangsdk.RequestOpts{
 		OkCodes:     []int{200},
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
@@ -40,10 +48,11 @@ func Create(c *golangsdk.ServiceClient, opts CreateOpts) (*WafValueList, error) 
 
 //UpdateValueListOpts the options to update reference table.
 type UpdateValueListOpts struct {
-	Name        string   `json:"name" required:"true"`
-	Values      []string `json:"values,omitempty"`
-	Type        string   `json:"type,omitempty"`
-	Description *string  `json:"description,omitempty"`
+	Name                string   `json:"name" required:"true"`
+	Values              []string `json:"values,omitempty"`
+	Type                string   `json:"type,omitempty"`
+	Description         *string  `json:"description,omitempty"`
+	EnterpriseProjectId string   `q:"enterprise_project_id" json:"-"`
 }
 
 // Update reference table according options and id.
@@ -52,9 +61,13 @@ func Update(c *golangsdk.ServiceClient, id string, opts UpdateValueListOpts) (*W
 	if err != nil {
 		return nil, err
 	}
+	query, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return nil, err
+	}
 
 	var rst golangsdk.Result
-	_, err = c.Put(resourceURL(c, id), b, &rst.Body, &golangsdk.RequestOpts{
+	_, err = c.Put(resourceURL(c, id)+query.String(), b, &rst.Body, &golangsdk.RequestOpts{
 		OkCodes:     []int{200},
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
@@ -68,8 +81,12 @@ func Update(c *golangsdk.ServiceClient, id string, opts UpdateValueListOpts) (*W
 
 // Get a reference table by id.
 func Get(c *golangsdk.ServiceClient, id string) (*WafValueList, error) {
+	return GetWithEpsID(c, id, "")
+}
+
+func GetWithEpsID(c *golangsdk.ServiceClient, id, epsID string) (*WafValueList, error) {
 	var rst golangsdk.Result
-	_, err := c.Get(resourceURL(c, id), &rst.Body, &golangsdk.RequestOpts{
+	_, err := c.Get(resourceURL(c, id)+utils.GenerateEpsIDQuery(epsID), &rst.Body, &golangsdk.RequestOpts{
 		OkCodes:     []int{200},
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
@@ -83,8 +100,9 @@ func Get(c *golangsdk.ServiceClient, id string) (*WafValueList, error) {
 
 // ListValueListOpts the options to query a list of reference tables.
 type ListValueListOpts struct {
-	Page     int `q:"page"`
-	Pagesize int `q:"pagesize"`
+	Page                int    `q:"page"`
+	Pagesize            int    `q:"pagesize"`
+	EnterpriseProjectId string `q:"enterprise_project_id"`
 }
 
 // List : Query a list of reference tables according to the options.
@@ -111,8 +129,12 @@ func List(c *golangsdk.ServiceClient, opts ListValueListOpts) (*ListValueListRst
 
 // Delete reference table by id.
 func Delete(c *golangsdk.ServiceClient, id string) (*WafValueList, error) {
+	return DeleteWithEpsID(c, id, "")
+}
+
+func DeleteWithEpsID(c *golangsdk.ServiceClient, id, epsID string) (*WafValueList, error) {
 	var rst golangsdk.Result
-	_, err := c.DeleteWithResponse(resourceURL(c, id), &rst.Body, &golangsdk.RequestOpts{
+	_, err := c.DeleteWithResponse(resourceURL(c, id)+utils.GenerateEpsIDQuery(epsID), &rst.Body, &golangsdk.RequestOpts{
 		OkCodes:     []int{200},
 		MoreHeaders: requestOpts.MoreHeaders,
 	})

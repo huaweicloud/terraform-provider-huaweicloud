@@ -23,10 +23,10 @@ type AddRuleReq struct {
 	// **参数说明**：资源空间ID。。 **取值范围**：长度不超过36，只允许字母、数字、下划线（_）、连接符（-）的组合。
 	AppId *string `json:"app_id,omitempty"`
 
-	// **参数说明**：用户自定义sql select语句，最大长度500，该参数仅供标准版和企业版用户使用。
+	// **参数说明**：用户自定义sql select语句，最大长度2500，该参数仅供标准版和企业版用户使用。
 	Select *string `json:"select,omitempty"`
 
-	// **参数说明**：用户自定义sql where语句，最大长度500，该参数仅供标准版和企业版用户使用。
+	// **参数说明**：用户自定义sql where语句，最大长度2500，该参数仅供标准版和企业版用户使用。
 	Where *string `json:"where,omitempty"`
 }
 

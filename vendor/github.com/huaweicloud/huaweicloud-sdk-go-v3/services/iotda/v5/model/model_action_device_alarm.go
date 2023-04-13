@@ -18,6 +18,9 @@ type ActionDeviceAlarm struct {
 	// **参数说明**：告警级别。 **取值范围**：warning（警告）、minor（一般）、major（严重）和critical（致命）。
 	Severity string `json:"severity"`
 
+	// **参数说明**：告警维度，与告警名称和告警级别组合起来共同标识一条告警，默认不携带该字段为用户维度告警，支持设备维度和资源空间维度告警。 **取值范围**： - device：设备维度。 - app：资源空间维度。
+	Dimension *string `json:"dimension,omitempty"`
+
 	// **参数说明**：告警的描述信息。
 	Description *string `json:"description,omitempty"`
 }

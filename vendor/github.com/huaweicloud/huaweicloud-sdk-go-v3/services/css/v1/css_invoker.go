@@ -29,6 +29,18 @@ func (i *ChangeModeInvoker) Invoke() (*model.ChangeModeResponse, error) {
 	}
 }
 
+type ChangeSecurityGroupInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ChangeSecurityGroupInvoker) Invoke() (*model.ChangeSecurityGroupResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ChangeSecurityGroupResponse), nil
+	}
+}
+
 type CreateAutoCreatePolicyInvoker struct {
 	*invoker.BaseInvoker
 }

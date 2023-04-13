@@ -9,31 +9,31 @@ import (
 type UpdateProtectionPolicyInfoRequestInfo struct {
 
 	// 策略ID
-	PolicyId *string `json:"policy_id,omitempty"`
+	PolicyId string `json:"policy_id"`
 
 	// 策略名称
-	PolicyName *string `json:"policy_name,omitempty"`
+	PolicyName string `json:"policy_name"`
 
 	// 防护动作，包含如下2种。   - alarm_and_isolation ：告警并自动隔离。   - alarm_only ：仅告警。
-	ProtectionMode *string `json:"protection_mode,omitempty"`
+	ProtectionMode string `json:"protection_mode"`
 
 	// 是否开启诱饵防护，包含如下1种, 默认为开启防护诱饵防护。   - opened ：开启。   - closed ：关闭。
-	BaitProtectionStatus *string `json:"bait_protection_status,omitempty"`
+	BaitProtectionStatus string `json:"bait_protection_status"`
 
-	// 防护目录
-	ProtectionDirectory *string `json:"protection_directory,omitempty"`
+	// 防护目录,多个目录请用英文分号隔开，最多支持填写20个防护目录
+	ProtectionDirectory string `json:"protection_directory"`
 
 	// 防护文件类型
-	ProtectionType *string `json:"protection_type,omitempty"`
+	ProtectionType string `json:"protection_type"`
 
-	// 排除目录
+	// 排除目录(选填)，多个目录请用英文分号隔开，最多支持填写20个排除目录
 	ExcludeDirectory *string `json:"exclude_directory,omitempty"`
 
 	// 关联server
 	AgentIdList *[]string `json:"agent_id_list,omitempty"`
 
-	// 操作系统，包含如下：   - Windows : 无需处理   - Linux : 已忽略
-	OperatingSystem *string `json:"operating_system,omitempty"`
+	// 操作系统，包含如下：   - Windows : Windows系统   - Linux : Linux系统
+	OperatingSystem string `json:"operating_system"`
 
 	// 是否运行时检测，包含如下2种，暂时只有关闭一种状态，为保留字段。   - opened ：开启。   - closed ：关闭。
 	RuntimeDetectionStatus *string `json:"runtime_detection_status,omitempty"`

@@ -45,6 +45,18 @@ type EventManagementResponseInfo struct {
 	// 操作系统类型，包含如下2种。   - Linux ：Linux。   - Windows ：Windows。
 	OsType *string `json:"os_type,omitempty"`
 
+	// 服务器状态，包含如下4种。   - ACTIVE ：运行中。   - SHUTOFF ：关机。   - BUILDING ：创建中。   - ERROR ：故障。
+	HostStatus *string `json:"host_status,omitempty"`
+
+	// Agent状态，包含如下5种。   - installed ：已安装。   - not_installed ：未安装。   - online ：在线。   - offline ：离线。   - install_failed ：安装失败。   - installing ：安装中。
+	AgentStatus *string `json:"agent_status,omitempty"`
+
+	// 防护状态，包含如下2种。 - closed ：未防护。 - opened ：防护中。
+	ProtectStatus *string `json:"protect_status,omitempty"`
+
+	// 资产重要性，包含如下4种   - important ：重要资产   - common ：一般资产   - test ：测试资产
+	AssetValue *string `json:"asset_value,omitempty"`
+
 	// 攻击阶段，包含如下：   - reconnaissance : 侦查跟踪   - weaponization : 武器构建   - delivery : 载荷投递   - exploit : 漏洞利用   - installation : 安装植入   - command_and_control : 命令与控制   - actions : 目标达成
 	AttackPhase *string `json:"attack_phase,omitempty"`
 

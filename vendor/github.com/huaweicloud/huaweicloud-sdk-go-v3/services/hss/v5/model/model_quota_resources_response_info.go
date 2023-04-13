@@ -38,6 +38,12 @@ type QuotaResourcesResponseInfo struct {
 
 	// 是否共享配额   - shared：共享的   - unshared：非共享的
 	SharedQuota *string `json:"shared_quota,omitempty"`
+
+	// 企业项目ID
+	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
+
+	// 所属企业项目名称
+	EnterpriseProjectName *string `json:"enterprise_project_name,omitempty"`
 }
 
 func (o QuotaResourcesResponseInfo) String() string {

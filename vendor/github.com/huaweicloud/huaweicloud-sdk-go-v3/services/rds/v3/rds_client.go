@@ -565,6 +565,27 @@ func (c *RdsClient) ListErrorLogsNewInvoker(request *model.ListErrorLogsNewReque
 	return &ListErrorLogsNewInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListErrorlogForLts
+//
+// 查询实例的错误日志数据。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListErrorlogForLts(request *model.ListErrorlogForLtsRequest) (*model.ListErrorlogForLtsResponse, error) {
+	requestDef := GenReqDefForListErrorlogForLts()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListErrorlogForLtsResponse), nil
+	}
+}
+
+// ListErrorlogForLtsInvoker
+func (c *RdsClient) ListErrorlogForLtsInvoker(request *model.ListErrorlogForLtsRequest) *ListErrorlogForLtsInvoker {
+	requestDef := GenReqDefForListErrorlogForLts()
+	return &ListErrorlogForLtsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListFlavors 查询数据库规格
 //
 // 查询数据库规格。
@@ -755,6 +776,27 @@ func (c *RdsClient) ListProjectTagsInvoker(request *model.ListProjectTagsRequest
 	return &ListProjectTagsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListRecycleInstances 查询回收站
+//
+// 查询回收站实例信息
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListRecycleInstances(request *model.ListRecycleInstancesRequest) (*model.ListRecycleInstancesResponse, error) {
+	requestDef := GenReqDefForListRecycleInstances()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListRecycleInstancesResponse), nil
+	}
+}
+
+// ListRecycleInstancesInvoker 查询回收站
+func (c *RdsClient) ListRecycleInstancesInvoker(request *model.ListRecycleInstancesRequest) *ListRecycleInstancesInvoker {
+	requestDef := GenReqDefForListRecycleInstances()
+	return &ListRecycleInstancesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListRestoreTimes 查询可恢复时间段
 //
 // 查询可恢复时间段。
@@ -799,6 +841,27 @@ func (c *RdsClient) ListSlowLogFileInvoker(request *model.ListSlowLogFileRequest
 	return &ListSlowLogFileInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListSlowLogStatisticsForLts
+//
+// 查询实例慢日志的统计数据。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListSlowLogStatisticsForLts(request *model.ListSlowLogStatisticsForLtsRequest) (*model.ListSlowLogStatisticsForLtsResponse, error) {
+	requestDef := GenReqDefForListSlowLogStatisticsForLts()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListSlowLogStatisticsForLtsResponse), nil
+	}
+}
+
+// ListSlowLogStatisticsForLtsInvoker
+func (c *RdsClient) ListSlowLogStatisticsForLtsInvoker(request *model.ListSlowLogStatisticsForLtsRequest) *ListSlowLogStatisticsForLtsInvoker {
+	requestDef := GenReqDefForListSlowLogStatisticsForLts()
+	return &ListSlowLogStatisticsForLtsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListSlowLogs 查询数据库慢日志
 //
 // 查询数据库慢日志。
@@ -841,6 +904,27 @@ func (c *RdsClient) ListSlowLogsNewInvoker(request *model.ListSlowLogsNewRequest
 	return &ListSlowLogsNewInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListSlowlogForLts
+//
+// 查询实例的慢日志数据。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListSlowlogForLts(request *model.ListSlowlogForLtsRequest) (*model.ListSlowlogForLtsResponse, error) {
+	requestDef := GenReqDefForListSlowlogForLts()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListSlowlogForLtsResponse), nil
+	}
+}
+
+// ListSlowlogForLtsInvoker
+func (c *RdsClient) ListSlowlogForLtsInvoker(request *model.ListSlowlogForLtsRequest) *ListSlowlogForLtsInvoker {
+	requestDef := GenReqDefForListSlowlogForLts()
+	return &ListSlowlogForLtsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListSlowlogStatistics 获取慢日志统计信息
 //
 // 获取慢日志统计信息
@@ -860,6 +944,27 @@ func (c *RdsClient) ListSlowlogStatistics(request *model.ListSlowlogStatisticsRe
 func (c *RdsClient) ListSlowlogStatisticsInvoker(request *model.ListSlowlogStatisticsRequest) *ListSlowlogStatisticsInvoker {
 	requestDef := GenReqDefForListSlowlogStatistics()
 	return &ListSlowlogStatisticsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListSslCertDownloadLink 获取SSL证书下载地址
+//
+// 获取SSL证书下载地址
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListSslCertDownloadLink(request *model.ListSslCertDownloadLinkRequest) (*model.ListSslCertDownloadLinkResponse, error) {
+	requestDef := GenReqDefForListSslCertDownloadLink()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListSslCertDownloadLinkResponse), nil
+	}
+}
+
+// ListSslCertDownloadLinkInvoker 获取SSL证书下载地址
+func (c *RdsClient) ListSslCertDownloadLinkInvoker(request *model.ListSslCertDownloadLinkRequest) *ListSslCertDownloadLinkInvoker {
+	requestDef := GenReqDefForListSslCertDownloadLink()
+	return &ListSslCertDownloadLinkInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListStorageTypes 查询数据库磁盘类型
@@ -1410,6 +1515,27 @@ func (c *RdsClient) ShowQuotas(request *model.ShowQuotasRequest) (*model.ShowQuo
 func (c *RdsClient) ShowQuotasInvoker(request *model.ShowQuotasRequest) *ShowQuotasInvoker {
 	requestDef := GenReqDefForShowQuotas()
 	return &ShowQuotasInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowRecyclePolicy 查询回收站的回收策略。
+//
+// 查询回收站的回收策略。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ShowRecyclePolicy(request *model.ShowRecyclePolicyRequest) (*model.ShowRecyclePolicyResponse, error) {
+	requestDef := GenReqDefForShowRecyclePolicy()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowRecyclePolicyResponse), nil
+	}
+}
+
+// ShowRecyclePolicyInvoker 查询回收站的回收策略。
+func (c *RdsClient) ShowRecyclePolicyInvoker(request *model.ShowRecyclePolicyRequest) *ShowRecyclePolicyInvoker {
+	requestDef := GenReqDefForShowRecyclePolicy()
+	return &ShowRecyclePolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ShowReplicationStatus 获取实例的复制状态。
@@ -2634,6 +2760,27 @@ func (c *RdsClient) StopDatabaseProxy(request *model.StopDatabaseProxyRequest) (
 func (c *RdsClient) StopDatabaseProxyInvoker(request *model.StopDatabaseProxyRequest) *StopDatabaseProxyInvoker {
 	requestDef := GenReqDefForStopDatabaseProxy()
 	return &StopDatabaseProxyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateDbUserPrivilege
+//
+// 数据库帐号授权。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) UpdateDbUserPrivilege(request *model.UpdateDbUserPrivilegeRequest) (*model.UpdateDbUserPrivilegeResponse, error) {
+	requestDef := GenReqDefForUpdateDbUserPrivilege()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateDbUserPrivilegeResponse), nil
+	}
+}
+
+// UpdateDbUserPrivilegeInvoker
+func (c *RdsClient) UpdateDbUserPrivilegeInvoker(request *model.UpdateDbUserPrivilegeRequest) *UpdateDbUserPrivilegeInvoker {
+	requestDef := GenReqDefForUpdateDbUserPrivilege()
+	return &UpdateDbUserPrivilegeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // UpdatePostgresqlParameterValue 修改实例指定参数的值

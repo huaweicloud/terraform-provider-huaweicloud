@@ -17,6 +17,18 @@ func (i *BatchCreateOrDeleteKafkaTagInvoker) Invoke() (*model.BatchCreateOrDelet
 	}
 }
 
+type BatchDeleteGroupInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *BatchDeleteGroupInvoker) Invoke() (*model.BatchDeleteGroupResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.BatchDeleteGroupResponse), nil
+	}
+}
+
 type BatchDeleteInstanceTopicInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -65,6 +77,18 @@ func (i *CreateConnectorInvoker) Invoke() (*model.CreateConnectorResponse, error
 	}
 }
 
+type CreateInstanceByEngineInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateInstanceByEngineInvoker) Invoke() (*model.CreateInstanceByEngineResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateInstanceByEngineResponse), nil
+	}
+}
+
 type CreateInstanceTopicInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -110,6 +134,18 @@ func (i *CreatePostPaidInstanceInvoker) Invoke() (*model.CreatePostPaidInstanceR
 		return nil, err
 	} else {
 		return result.(*model.CreatePostPaidInstanceResponse), nil
+	}
+}
+
+type CreateReassignmentTaskInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateReassignmentTaskInvoker) Invoke() (*model.CreateReassignmentTaskResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateReassignmentTaskResponse), nil
 	}
 }
 
@@ -305,6 +341,18 @@ func (i *ResetUserPasswrodInvoker) Invoke() (*model.ResetUserPasswrodResponse, e
 	}
 }
 
+type ResizeEngineInstanceInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ResizeEngineInstanceInvoker) Invoke() (*model.ResizeEngineInstanceResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ResizeEngineInstanceResponse), nil
+	}
+}
+
 type ResizeInstanceInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -374,6 +422,18 @@ func (i *ShowCoordinatorsInvoker) Invoke() (*model.ShowCoordinatorsResponse, err
 		return nil, err
 	} else {
 		return result.(*model.ShowCoordinatorsResponse), nil
+	}
+}
+
+type ShowEngineInstanceExtendProductInfoInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowEngineInstanceExtendProductInfoInvoker) Invoke() (*model.ShowEngineInstanceExtendProductInfoResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowEngineInstanceExtendProductInfoResponse), nil
 	}
 }
 

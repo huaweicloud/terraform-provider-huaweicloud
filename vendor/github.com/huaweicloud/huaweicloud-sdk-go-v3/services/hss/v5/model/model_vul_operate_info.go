@@ -10,10 +10,10 @@ import (
 type VulOperateInfo struct {
 
 	// 漏洞ID
-	VulId *string `json:"vul_id,omitempty"`
+	VulId string `json:"vul_id"`
 
 	// 主机列表
-	HostIdList *[]string `json:"host_id_list,omitempty"`
+	HostIdList []string `json:"host_id_list"`
 }
 
 func (o VulOperateInfo) String() string {

@@ -1700,6 +1700,10 @@ func GenReqDefForShowCheckRuleDetail() *def.HttpRequestDef {
 		WithJsonTag("check_name").
 		WithLocationType(def.Query))
 	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("CheckType").
+		WithJsonTag("check_type").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
 		WithName("CheckRuleId").
 		WithJsonTag("check_rule_id").
 		WithLocationType(def.Query))

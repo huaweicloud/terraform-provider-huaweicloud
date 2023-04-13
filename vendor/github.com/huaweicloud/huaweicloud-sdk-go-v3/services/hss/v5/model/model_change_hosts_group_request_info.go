@@ -12,7 +12,7 @@ type ChangeHostsGroupRequestInfo struct {
 	GroupName *string `json:"group_name,omitempty"`
 
 	// 服务器组ID
-	GroupId *string `json:"group_id,omitempty"`
+	GroupId string `json:"group_id"`
 
 	// 服务器ID列表
 	HostIdList *[]string `json:"host_id_list,omitempty"`

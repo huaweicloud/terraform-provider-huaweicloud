@@ -12,7 +12,8 @@ type RulesLocal struct {
 
 	Group *RulesLocalGroup `json:"group,omitempty"`
 
-	Groups *RulesLocalGroups `json:"groups,omitempty"`
+	// 联邦用户在本系统中所属用户组列表
+	Groups *string `json:"groups,omitempty"`
 }
 
 func (o RulesLocal) String() string {

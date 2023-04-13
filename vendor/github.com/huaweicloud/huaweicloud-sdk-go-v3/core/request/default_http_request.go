@@ -27,6 +27,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/converter"
+	"go.mongodb.org/mongo-driver/bson"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -114,12 +115,17 @@ func (httpRequest *DefaultHttpRequest) GetBodyToBytes() (*bytes.Buffer, error) {
 			if httpRequest.headerParams["Content-Type"] == "application/xml" {
 				encoder := xml.NewEncoder(buf)
 				err = encoder.Encode(httpRequest.body)
+			} else if httpRequest.headerParams["Content-Type"] == "application/bson" {
+				buffer, err := bson.Marshal(httpRequest.body)
+				if err != nil {
+					return nil, err
+				}
+				buf.Write(buffer)
 			} else {
 				encoder := json.NewEncoder(buf)
 				encoder.SetEscapeHTML(false)
 				err = encoder.Encode(httpRequest.body)
 			}
-
 			if err != nil {
 				return nil, err
 			}

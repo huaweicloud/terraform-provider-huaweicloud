@@ -70,3 +70,61 @@ func ExtractSignatures(r pagination.Page) ([]Signature, error) {
 	err := r.(SignaturePage).Result.ExtractIntoSlicePtr(&s, "signs")
 	return s, err
 }
+
+// BindResp is the structure that represents the API response of the signature binding.
+type BindResp struct {
+	// The published APIs of the binding relationship.
+	Bindings []SignBindApiInfo `json:"bindings"`
+}
+
+// BindPage is a single page maximum result representing a query by offset page.
+type BindPage struct {
+	pagination.OffsetPageBase
+}
+
+// IsEmpty checks whether a BindPage struct is empty.
+func (b BindPage) IsEmpty() (bool, error) {
+	arr, err := ExtractBindInfos(b)
+	return len(arr) == 0, err
+}
+
+// ExtractBindInfos is a method to extract the list of binding details for signature.
+func ExtractBindInfos(r pagination.Page) ([]SignBindApiInfo, error) {
+	var s []SignBindApiInfo
+	err := r.(BindPage).Result.ExtractIntoSlicePtr(&s, "bindings")
+	return s, err
+}
+
+// SignBindApiInfo is the structure that represents the binding details.
+type SignBindApiInfo struct {
+	// API publish record ID.
+	PublishId string `json:"publish_id"`
+	// The API ID.
+	ID string `json:"api_id"`
+	// Group name to which the API belongs.
+	GroupName string `json:"group_name"`
+	// The time when the API and the signature were bound.
+	BoundAt string `json:"binding_time"`
+	// The environment ID where the API is published.
+	EnvId string `json:"env_id"`
+	// The name of the environment published by the API.
+	EnvName string `json:"env_name"`
+	// The API type.
+	Type int `json:"api_type"`
+	// The API Name.
+	Name string `json:"api_name"`
+	// The binding ID.
+	BindId string `json:"id"`
+	// The API type.
+	Description string `json:"api_remark"`
+	// Signature ID.
+	SignId string `json:"sign_id"`
+	// Signature name.
+	SignName string `json:"sign_name"`
+	// Signature key.
+	SignKey string `json:"sign_key"`
+	// Signature secret.
+	SignSecret string `json:"sign_secret"`
+	// Signature type.
+	SignType string `json:"sign_type"`
+}

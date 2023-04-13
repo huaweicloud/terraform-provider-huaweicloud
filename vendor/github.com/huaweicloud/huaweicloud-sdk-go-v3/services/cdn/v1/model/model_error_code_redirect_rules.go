@@ -10,10 +10,10 @@ import (
 type ErrorCodeRedirectRules struct {
 
 	// 重定向的错误码，当前支持以下状态码 4xx:400, 403, 404, 405, 414, 416, 451 5xx:500, 501, 502, 503, 504
-	ErrorCode string `json:"error_code"`
+	ErrorCode int32 `json:"error_code"`
 
 	// 重定向状态码，取值为301或302
-	TargetCode string `json:"target_code"`
+	TargetCode int32 `json:"target_code"`
 
 	// 重定向的目标链接
 	TargetLink string `json:"target_link"`

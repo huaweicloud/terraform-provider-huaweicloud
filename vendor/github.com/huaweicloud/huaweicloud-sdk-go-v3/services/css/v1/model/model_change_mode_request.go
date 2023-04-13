@@ -12,7 +12,7 @@ type ChangeModeRequest struct {
 	// 指定修改的集群ID。
 	ClusterId string `json:"cluster_id"`
 
-	Body *ChangeModeRequestBody `json:"body,omitempty"`
+	Body *ChangeModeReq `json:"body,omitempty"`
 }
 
 func (o ChangeModeRequest) String() string {

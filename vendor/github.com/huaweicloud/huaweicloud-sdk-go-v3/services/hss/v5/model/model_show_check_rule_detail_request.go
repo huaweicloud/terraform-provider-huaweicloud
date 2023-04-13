@@ -15,6 +15,9 @@ type ShowCheckRuleDetailRequest struct {
 	// 基线名称
 	CheckName string `json:"check_name"`
 
+	// 基线类型
+	CheckType string `json:"check_type"`
+
 	// 检查项ID
 	CheckRuleId string `json:"check_rule_id"`
 

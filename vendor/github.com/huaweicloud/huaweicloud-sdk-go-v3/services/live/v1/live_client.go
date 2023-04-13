@@ -124,6 +124,27 @@ func (c *LiveClient) CreateRecordRuleInvoker(request *model.CreateRecordRuleRequ
 	return &CreateRecordRuleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// CreateSnapshotConfig 创建直播截图配置
+//
+// 创建直播截图配置接口
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) CreateSnapshotConfig(request *model.CreateSnapshotConfigRequest) (*model.CreateSnapshotConfigResponse, error) {
+	requestDef := GenReqDefForCreateSnapshotConfig()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateSnapshotConfigResponse), nil
+	}
+}
+
+// CreateSnapshotConfigInvoker 创建直播截图配置
+func (c *LiveClient) CreateSnapshotConfigInvoker(request *model.CreateSnapshotConfigRequest) *CreateSnapshotConfigInvoker {
+	requestDef := GenReqDefForCreateSnapshotConfig()
+	return &CreateSnapshotConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // CreateStreamForbidden 禁止直播推流
 //
 // 禁止直播推流
@@ -187,6 +208,27 @@ func (c *LiveClient) DeleteDomainInvoker(request *model.DeleteDomainRequest) *De
 	return &DeleteDomainInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// DeleteDomainKeyChain 删除指定域名的Key防盗链配置
+//
+// 删除指定域名的Key防盗链配置
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) DeleteDomainKeyChain(request *model.DeleteDomainKeyChainRequest) (*model.DeleteDomainKeyChainResponse, error) {
+	requestDef := GenReqDefForDeleteDomainKeyChain()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteDomainKeyChainResponse), nil
+	}
+}
+
+// DeleteDomainKeyChainInvoker 删除指定域名的Key防盗链配置
+func (c *LiveClient) DeleteDomainKeyChainInvoker(request *model.DeleteDomainKeyChainRequest) *DeleteDomainKeyChainInvoker {
+	requestDef := GenReqDefForDeleteDomainKeyChain()
+	return &DeleteDomainKeyChainInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // DeleteDomainMapping 删除直播域名映射关系
 //
 // 将播放域名和推流域名的域名映射关系删除
@@ -248,6 +290,27 @@ func (c *LiveClient) DeleteRecordRule(request *model.DeleteRecordRuleRequest) (*
 func (c *LiveClient) DeleteRecordRuleInvoker(request *model.DeleteRecordRuleRequest) *DeleteRecordRuleInvoker {
 	requestDef := GenReqDefForDeleteRecordRule()
 	return &DeleteRecordRuleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteSnapshotConfig 删除直播截图配置
+//
+// 删除直播截图配置接口
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) DeleteSnapshotConfig(request *model.DeleteSnapshotConfigRequest) (*model.DeleteSnapshotConfigResponse, error) {
+	requestDef := GenReqDefForDeleteSnapshotConfig()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteSnapshotConfigResponse), nil
+	}
+}
+
+// DeleteSnapshotConfigInvoker 删除直播截图配置
+func (c *LiveClient) DeleteSnapshotConfigInvoker(request *model.DeleteSnapshotConfigRequest) *DeleteSnapshotConfigInvoker {
+	requestDef := GenReqDefForDeleteSnapshotConfig()
+	return &DeleteSnapshotConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // DeleteStreamForbidden 禁推恢复
@@ -397,6 +460,27 @@ func (c *LiveClient) ListRecordRulesInvoker(request *model.ListRecordRulesReques
 	return &ListRecordRulesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListSnapshotConfigs 查询直播截图配置
+//
+// 查询直播截图配置接口
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) ListSnapshotConfigs(request *model.ListSnapshotConfigsRequest) (*model.ListSnapshotConfigsResponse, error) {
+	requestDef := GenReqDefForListSnapshotConfigs()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListSnapshotConfigsResponse), nil
+	}
+}
+
+// ListSnapshotConfigsInvoker 查询直播截图配置
+func (c *LiveClient) ListSnapshotConfigsInvoker(request *model.ListSnapshotConfigsRequest) *ListSnapshotConfigsInvoker {
+	requestDef := GenReqDefForListSnapshotConfigs()
+	return &ListSnapshotConfigsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListStreamForbidden 查询禁止直播推流列表
 //
 // 查询禁播黑名单列表
@@ -458,6 +542,27 @@ func (c *LiveClient) ShowDomain(request *model.ShowDomainRequest) (*model.ShowDo
 func (c *LiveClient) ShowDomainInvoker(request *model.ShowDomainRequest) *ShowDomainInvoker {
 	requestDef := GenReqDefForShowDomain()
 	return &ShowDomainInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowDomainKeyChain 查询指定域名的Key防盗链配置
+//
+// 查询指定域名的Key防盗链配置
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) ShowDomainKeyChain(request *model.ShowDomainKeyChainRequest) (*model.ShowDomainKeyChainResponse, error) {
+	requestDef := GenReqDefForShowDomainKeyChain()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowDomainKeyChainResponse), nil
+	}
+}
+
+// ShowDomainKeyChainInvoker 查询指定域名的Key防盗链配置
+func (c *LiveClient) ShowDomainKeyChainInvoker(request *model.ShowDomainKeyChainRequest) *ShowDomainKeyChainInvoker {
+	requestDef := GenReqDefForShowDomainKeyChain()
+	return &ShowDomainKeyChainInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ShowRecordCallbackConfig 查询录制回调配置
@@ -565,6 +670,27 @@ func (c *LiveClient) UpdateDomainIp6SwitchInvoker(request *model.UpdateDomainIp6
 	return &UpdateDomainIp6SwitchInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// UpdateDomainKeyChain 更新指定域名的Key防盗链配置
+//
+// 更新指定域名的Key防盗链配置
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) UpdateDomainKeyChain(request *model.UpdateDomainKeyChainRequest) (*model.UpdateDomainKeyChainResponse, error) {
+	requestDef := GenReqDefForUpdateDomainKeyChain()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateDomainKeyChainResponse), nil
+	}
+}
+
+// UpdateDomainKeyChainInvoker 更新指定域名的Key防盗链配置
+func (c *LiveClient) UpdateDomainKeyChainInvoker(request *model.UpdateDomainKeyChainRequest) *UpdateDomainKeyChainInvoker {
+	requestDef := GenReqDefForUpdateDomainKeyChain()
+	return &UpdateDomainKeyChainInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // UpdateRecordCallbackConfig 修改录制回调配置
 //
 // 修改录制回调配置接口
@@ -607,6 +733,27 @@ func (c *LiveClient) UpdateRecordRuleInvoker(request *model.UpdateRecordRuleRequ
 	return &UpdateRecordRuleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// UpdateSnapshotConfig 修改直播截图配置
+//
+// 修改直播截图配置接口
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) UpdateSnapshotConfig(request *model.UpdateSnapshotConfigRequest) (*model.UpdateSnapshotConfigResponse, error) {
+	requestDef := GenReqDefForUpdateSnapshotConfig()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateSnapshotConfigResponse), nil
+	}
+}
+
+// UpdateSnapshotConfigInvoker 修改直播截图配置
+func (c *LiveClient) UpdateSnapshotConfigInvoker(request *model.UpdateSnapshotConfigRequest) *UpdateSnapshotConfigInvoker {
+	requestDef := GenReqDefForUpdateSnapshotConfig()
+	return &UpdateSnapshotConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // UpdateStreamForbidden 修改禁推属性
 //
 // 修改禁推属性
@@ -647,4 +794,88 @@ func (c *LiveClient) UpdateTranscodingsTemplate(request *model.UpdateTranscoding
 func (c *LiveClient) UpdateTranscodingsTemplateInvoker(request *model.UpdateTranscodingsTemplateRequest) *UpdateTranscodingsTemplateInvoker {
 	requestDef := GenReqDefForUpdateTranscodingsTemplate()
 	return &UpdateTranscodingsTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteDomainHttpsCert 删除指定域名的https证书配置
+//
+// 删除指定域名的https证书配置
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) DeleteDomainHttpsCert(request *model.DeleteDomainHttpsCertRequest) (*model.DeleteDomainHttpsCertResponse, error) {
+	requestDef := GenReqDefForDeleteDomainHttpsCert()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteDomainHttpsCertResponse), nil
+	}
+}
+
+// DeleteDomainHttpsCertInvoker 删除指定域名的https证书配置
+func (c *LiveClient) DeleteDomainHttpsCertInvoker(request *model.DeleteDomainHttpsCertRequest) *DeleteDomainHttpsCertInvoker {
+	requestDef := GenReqDefForDeleteDomainHttpsCert()
+	return &DeleteDomainHttpsCertInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowDomainHttpsCert 查询指定域名的https证书配置
+//
+// 查询指定域名的https证书配置
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) ShowDomainHttpsCert(request *model.ShowDomainHttpsCertRequest) (*model.ShowDomainHttpsCertResponse, error) {
+	requestDef := GenReqDefForShowDomainHttpsCert()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowDomainHttpsCertResponse), nil
+	}
+}
+
+// ShowDomainHttpsCertInvoker 查询指定域名的https证书配置
+func (c *LiveClient) ShowDomainHttpsCertInvoker(request *model.ShowDomainHttpsCertRequest) *ShowDomainHttpsCertInvoker {
+	requestDef := GenReqDefForShowDomainHttpsCert()
+	return &ShowDomainHttpsCertInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateDomainHttpsCert 修改指定域名的https证书配置
+//
+// 修改指定域名的https证书配置
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) UpdateDomainHttpsCert(request *model.UpdateDomainHttpsCertRequest) (*model.UpdateDomainHttpsCertResponse, error) {
+	requestDef := GenReqDefForUpdateDomainHttpsCert()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateDomainHttpsCertResponse), nil
+	}
+}
+
+// UpdateDomainHttpsCertInvoker 修改指定域名的https证书配置
+func (c *LiveClient) UpdateDomainHttpsCertInvoker(request *model.UpdateDomainHttpsCertRequest) *UpdateDomainHttpsCertInvoker {
+	requestDef := GenReqDefForUpdateDomainHttpsCert()
+	return &UpdateDomainHttpsCertInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateObsBucketAuthorityPublic OBS桶授权及取消授权
+//
+// OBS桶授权及取消授权
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) UpdateObsBucketAuthorityPublic(request *model.UpdateObsBucketAuthorityPublicRequest) (*model.UpdateObsBucketAuthorityPublicResponse, error) {
+	requestDef := GenReqDefForUpdateObsBucketAuthorityPublic()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateObsBucketAuthorityPublicResponse), nil
+	}
+}
+
+// UpdateObsBucketAuthorityPublicInvoker OBS桶授权及取消授权
+func (c *LiveClient) UpdateObsBucketAuthorityPublicInvoker(request *model.UpdateObsBucketAuthorityPublicRequest) *UpdateObsBucketAuthorityPublicInvoker {
+	requestDef := GenReqDefForUpdateObsBucketAuthorityPublic()
+	return &UpdateObsBucketAuthorityPublicInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }

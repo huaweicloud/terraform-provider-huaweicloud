@@ -229,6 +229,27 @@ func (c *CptsClient) ListVariablesInvoker(request *model.ListVariablesRequest) *
 	return &ListVariablesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ShowAgentConfig 全链路压测探针获取配置信息
+//
+// 全链路压测探针获取配置信息
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CptsClient) ShowAgentConfig(request *model.ShowAgentConfigRequest) (*model.ShowAgentConfigResponse, error) {
+	requestDef := GenReqDefForShowAgentConfig()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowAgentConfigResponse), nil
+	}
+}
+
+// ShowAgentConfigInvoker 全链路压测探针获取配置信息
+func (c *CptsClient) ShowAgentConfigInvoker(request *model.ShowAgentConfigRequest) *ShowAgentConfigInvoker {
+	requestDef := GenReqDefForShowAgentConfig()
+	return &ShowAgentConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ShowHistoryRunInfo 查询CPTS任务离线报告列表
 //
 // 查询CPTS任务离线报告列表
@@ -353,6 +374,27 @@ func (c *CptsClient) ShowTempSet(request *model.ShowTempSetRequest) (*model.Show
 func (c *CptsClient) ShowTempSetInvoker(request *model.ShowTempSetRequest) *ShowTempSetInvoker {
 	requestDef := GenReqDefForShowTempSet()
 	return &ShowTempSetInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateAgentHealthStatus 全链路压测探针上报健康状态
+//
+// 全链路压测探针上报健康状态
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CptsClient) UpdateAgentHealthStatus(request *model.UpdateAgentHealthStatusRequest) (*model.UpdateAgentHealthStatusResponse, error) {
+	requestDef := GenReqDefForUpdateAgentHealthStatus()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateAgentHealthStatusResponse), nil
+	}
+}
+
+// UpdateAgentHealthStatusInvoker 全链路压测探针上报健康状态
+func (c *CptsClient) UpdateAgentHealthStatusInvoker(request *model.UpdateAgentHealthStatusRequest) *UpdateAgentHealthStatusInvoker {
+	requestDef := GenReqDefForUpdateAgentHealthStatus()
+	return &UpdateAgentHealthStatusInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // UpdateCase 修改用例

@@ -101,6 +101,8 @@ type PublishAssetFromObsReqVideoTypeEnum struct {
 	M4_R   PublishAssetFromObsReqVideoType
 	WV     PublishAssetFromObsReqVideoType
 	MP2    PublishAssetFromObsReqVideoType
+	RMVB   PublishAssetFromObsReqVideoType
+	WEBM   PublishAssetFromObsReqVideoType
 }
 
 func GetPublishAssetFromObsReqVideoTypeEnum() PublishAssetFromObsReqVideoTypeEnum {
@@ -191,6 +193,12 @@ func GetPublishAssetFromObsReqVideoTypeEnum() PublishAssetFromObsReqVideoTypeEnu
 		},
 		MP2: PublishAssetFromObsReqVideoType{
 			value: "MP2",
+		},
+		RMVB: PublishAssetFromObsReqVideoType{
+			value: "RMVB",
+		},
+		WEBM: PublishAssetFromObsReqVideoType{
+			value: "WEBM",
 		},
 	}
 }

@@ -16,7 +16,7 @@ type DeleteHostsGroupRequest struct {
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 
 	// 服务器组ID
-	GroupId *string `json:"group_id,omitempty"`
+	GroupId string `json:"group_id"`
 }
 
 func (o DeleteHostsGroupRequest) String() string {

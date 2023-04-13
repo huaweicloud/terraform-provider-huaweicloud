@@ -89,6 +89,8 @@ type VideoTypeRefVideoTypeEnum struct {
 	M4_R   VideoTypeRefVideoType
 	WV     VideoTypeRefVideoType
 	MP2    VideoTypeRefVideoType
+	RMVB   VideoTypeRefVideoType
+	WEBM   VideoTypeRefVideoType
 }
 
 func GetVideoTypeRefVideoTypeEnum() VideoTypeRefVideoTypeEnum {
@@ -179,6 +181,12 @@ func GetVideoTypeRefVideoTypeEnum() VideoTypeRefVideoTypeEnum {
 		},
 		MP2: VideoTypeRefVideoType{
 			value: "MP2",
+		},
+		RMVB: VideoTypeRefVideoType{
+			value: "RMVB",
+		},
+		WEBM: VideoTypeRefVideoType{
+			value: "WEBM",
 		},
 	}
 }

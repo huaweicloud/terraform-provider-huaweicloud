@@ -125,6 +125,18 @@ func (i *ListVariablesInvoker) Invoke() (*model.ListVariablesResponse, error) {
 	}
 }
 
+type ShowAgentConfigInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowAgentConfigInvoker) Invoke() (*model.ShowAgentConfigResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowAgentConfigResponse), nil
+	}
+}
+
 type ShowHistoryRunInfoInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -194,6 +206,18 @@ func (i *ShowTempSetInvoker) Invoke() (*model.ShowTempSetResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.ShowTempSetResponse), nil
+	}
+}
+
+type UpdateAgentHealthStatusInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateAgentHealthStatusInvoker) Invoke() (*model.UpdateAgentHealthStatusResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateAgentHealthStatusResponse), nil
 	}
 }
 

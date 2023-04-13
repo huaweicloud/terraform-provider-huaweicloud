@@ -33,3 +33,8 @@ func listAssignmentsURL(client *golangsdk.ServiceClient, targetType, targetID, a
 func assignURL(client *golangsdk.ServiceClient, targetType, targetID, actorType, actorID, roleID string) string {
 	return client.ServiceURL(targetType, targetID, actorType, actorID, rolePath, roleID)
 }
+
+func assignInheritedURL(client *golangsdk.ServiceClient, domainID, groupID, roleID string) string {
+	return client.ServiceURL("OS-INHERIT", "domains", domainID, "groups", groupID,
+		"roles", roleID, "inherited_to_projects")
+}

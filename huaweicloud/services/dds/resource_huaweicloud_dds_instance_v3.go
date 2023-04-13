@@ -129,6 +129,25 @@ func ResourceDdsInstanceV3() *schema.Resource {
 					"Sharding", "ReplicaSet", "Single",
 				}, true),
 			},
+			"configuration": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"id": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
 			"flavor": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -262,6 +281,22 @@ func resourceDdsDataStore(d *schema.ResourceData) instances.DataStore {
 	return dataStore
 }
 
+func resourceDdsConfiguration(d *schema.ResourceData) []instances.Configuration {
+	var configurations []instances.Configuration
+	configurationRaw := d.Get("configuration").([]interface{})
+	logp.Printf("[DEBUG] configurationRaw: %+v", configurationRaw)
+	for i := range configurationRaw {
+		configuration := configurationRaw[i].(map[string]interface{})
+		flavorReq := instances.Configuration{
+			Type: configuration["type"].(string),
+			Id:   configuration["id"].(string),
+		}
+		configurations = append(configurations, flavorReq)
+	}
+	logp.Printf("[DEBUG] flavors: %+v", configurations)
+	return configurations
+}
+
 func resourceDdsFlavors(d *schema.ResourceData) []instances.Flavor {
 	var flavors []instances.Flavor
 	flavorRaw := d.Get("flavor").([]interface{})
@@ -358,6 +393,7 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 		SecurityGroupId:     d.Get("security_group_id").(string),
 		DiskEncryptionId:    d.Get("disk_encryption_id").(string),
 		Mode:                d.Get("mode").(string),
+		Configuration:       resourceDdsConfiguration(d),
 		Flavor:              resourceDdsFlavors(d),
 		BackupStrategy:      resourceDdsBackupStrategy(d),
 		EnterpriseProjectID: config.GetEnterpriseProjectID(d),

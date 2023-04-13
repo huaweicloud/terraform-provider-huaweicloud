@@ -9,7 +9,7 @@ import (
 // Response Object
 type ShowInstanceExtendProductInfoResponse struct {
 
-	// 表示按需付费的产品列表。
+	// 表示[按需付费的](tag:hc,hk,hws,hws_hk,hws_ocb,ctc,sbc,hk_sbc,cmcc,g42,tm)产品列表。
 	Hourly *[]ShowInstanceExtendProductInfoRespHourly `json:"hourly,omitempty"`
 
 	// 表示包年包月的产品列表。当前暂不支持通过API创建包年包月的Kafka实例。

@@ -9,17 +9,11 @@ import (
 // Response Object
 type ListInstanceConsumerGroupsResponse struct {
 
-	// 所有的消费组ID
-	GroupIds *[]string `json:"group_ids,omitempty"`
+	// 所有的消费组。
+	Groups *[]GroupInfoSimple `json:"groups,omitempty"`
 
-	// 所有的消费组总数
-	Total *int32 `json:"total,omitempty"`
-
-	// 下一个消费组序号
-	NextOffset *int32 `json:"next_offset,omitempty"`
-
-	// 上一个消费组序号
-	PreviousOffset *int32 `json:"previous_offset,omitempty"`
+	// 所有的消费组总数。
+	Total          *int32 `json:"total,omitempty"`
 	HttpStatusCode int    `json:"-"`
 }
 

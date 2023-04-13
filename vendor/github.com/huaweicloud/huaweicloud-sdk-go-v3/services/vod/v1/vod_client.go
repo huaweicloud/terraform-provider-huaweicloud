@@ -1149,3 +1149,24 @@ func (c *VodClient) ShowTakeOverTaskDetailsInvoker(request *model.ShowTakeOverTa
 	requestDef := GenReqDefForShowTakeOverTaskDetails()
 	return &ShowTakeOverTaskDetailsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
+
+// ModifySubtitle 多字幕封装
+//
+// 多字幕封装，仅支持 HLS VTT格式
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VodClient) ModifySubtitle(request *model.ModifySubtitleRequest) (*model.ModifySubtitleResponse, error) {
+	requestDef := GenReqDefForModifySubtitle()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ModifySubtitleResponse), nil
+	}
+}
+
+// ModifySubtitleInvoker 多字幕封装
+func (c *VodClient) ModifySubtitleInvoker(request *model.ModifySubtitleRequest) *ModifySubtitleInvoker {
+	requestDef := GenReqDefForModifySubtitle()
+	return &ModifySubtitleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}

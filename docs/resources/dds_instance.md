@@ -9,6 +9,10 @@ Manages dds instance resource within HuaweiCloud.
 ## Example Usage: Creating a Cluster Community Edition
 
 ```hcl
+variable "mongos_template_id" {}
+variable "shard_template_id" {}
+variable "config_template_id" {}
+
 resource "huaweicloud_dds_instance" "instance" {
   name = "dds-instance"
   datastore {
@@ -23,6 +27,20 @@ resource "huaweicloud_dds_instance" "instance" {
   security_group_id = "{{ security_group_id }}"
   password          = "Test@123"
   mode              = "Sharding"
+  
+  configuration {
+    type = "mongos"
+    id   = var.mongos_template_id
+  }
+  configuration {
+    type = "shard"
+    id   = var.shard_template_id
+  }
+  configuration {
+    type = "config"
+    id   = var.config_template_id
+  }
+  
   flavor {
     type      = "mongos"
     num       = 2
@@ -49,9 +67,11 @@ resource "huaweicloud_dds_instance" "instance" {
 }
 ```
 
-## Example Usage: Creating a Replica Set
+## Example Usage: Creating a Replica Set Community Edition
 
 ```hcl
+variable "replica_template_id" {}
+
 resource "huaweicloud_dds_instance" "instance" {
   name = "dds-instance"
   datastore {
@@ -66,12 +86,53 @@ resource "huaweicloud_dds_instance" "instance" {
   security_group_id = "{{ security_group_id }}"
   password          = "Test@123"
   mode              = "ReplicaSet"
+  
+  configuration {
+    type = "replica"
+    id   = var.replica_template_id
+  }
+  
   flavor {
     type      = "replica"
     num       = 1
     storage   = "ULTRAHIGH"
     size      = 30
     spec_code = "dds.mongodb.c3.medium.4.repset"
+  }
+}
+```
+
+## Example Usage: Creating a Single Community Edition
+
+```hcl
+variable "single_template_id" {}
+
+resource "huaweicloud_dds_instance" "instance" {
+  name = "dds-instance"
+  datastore {
+    type           = "DDS-Community"
+    version        = "3.4"
+    storage_engine = "wiredTiger"
+  }
+
+  availability_zone = "{{ availability_zone }}"
+  vpc_id            = "{{ vpc_id }}"
+  subnet_id         = "{{ subnet_network_id }}}"
+  security_group_id = "{{ security_group_id }}"
+  password          = "Test@123"
+  mode              = "Single"
+  
+  configuration {
+    type = "single"
+    id   = var.single_template_id
+  }
+  
+  flavor {
+    type      = "single"
+    num       = 1
+    storage   = "ULTRAHIGH"
+    size      = 30
+    spec_code = "dds.mongodb.s6.large.2.single"
   }
 }
 ```
@@ -105,6 +166,9 @@ The following arguments are supported:
 
 * `mode` - (Required, String, ForceNew) Specifies the mode of the database instance. Changing this creates a new
   instance.
+
+* `configuration` - (Optional, List, ForceNew) Specifies the configuration information. The structure is described below.
+  Changing this creates a new instance.
 
 * `flavor` - (Required, List, ForceNew) Specifies the flavors information. The structure is described below. Changing
   this creates a new instance.
@@ -154,6 +218,17 @@ The `datastore` block supports:
 
 * `storage_engine` - (Optional, String, ForceNew) Specifies the storage engine of the DB instance. DDS Community Edition
   supports wiredTiger engine, and the Enhanced Edition supports rocksDB engine.
+
+The `configuration` block supports:
+
+* `type` - (Required, String, ForceNew) Specifies the node type. Valid value:
+  + For a Community Edition cluster instance, the value can be **mongos**, **shard** or **config**.
+  + For a Community Edition replica set instance, the value is **replica**.
+  + For a Community Edition single node instance, the value is **single**.
+  Changing this creates a new instance.
+
+* `id` - (Required, String, ForceNew) Specifies the ID of the template.
+  Changing this creates a new instance.
 
 The `flavor` block supports:
 

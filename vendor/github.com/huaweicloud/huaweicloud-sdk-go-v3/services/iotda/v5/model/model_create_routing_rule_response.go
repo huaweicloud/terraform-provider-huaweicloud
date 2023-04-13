@@ -26,10 +26,10 @@ type CreateRoutingRuleResponse struct {
 	// 资源空间ID
 	AppId *string `json:"app_id,omitempty"`
 
-	// 用户自定义sql select语句，最大长度500，该参数仅供标准版和企业版用户使用。
+	// 用户自定义sql select语句，最大长度2500，该参数仅供标准版和企业版用户使用。
 	Select *string `json:"select,omitempty"`
 
-	// 用户自定义sql where语句，最大长度500，该参数仅供标准版和企业版用户使用。
+	// 用户自定义sql where语句，最大长度2500，该参数仅供标准版和企业版用户使用。
 	Where *string `json:"where,omitempty"`
 
 	// 规则条件的状态是否为激活。

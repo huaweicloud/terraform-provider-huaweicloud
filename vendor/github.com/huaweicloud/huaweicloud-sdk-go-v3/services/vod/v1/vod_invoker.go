@@ -640,3 +640,15 @@ func (i *ShowTakeOverTaskDetailsInvoker) Invoke() (*model.ShowTakeOverTaskDetail
 		return result.(*model.ShowTakeOverTaskDetailsResponse), nil
 	}
 }
+
+type ModifySubtitleInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ModifySubtitleInvoker) Invoke() (*model.ModifySubtitleResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ModifySubtitleResponse), nil
+	}
+}

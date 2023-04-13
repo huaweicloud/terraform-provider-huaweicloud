@@ -2,6 +2,7 @@ package domains
 
 import (
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/utils"
 )
 
 var RequestOpts golangsdk.RequestOpts = golangsdk.RequestOpts{
@@ -16,13 +17,14 @@ type CreateOptsBuilder interface {
 
 // CreateOpts contains all the values needed to create a new backup.
 type CreateOpts struct {
-	HostName        string       `json:"hostname" required:"true"`
-	Servers         []ServerOpts `json:"server" required:"true"`
-	PolicyId        string       `json:"policyid,omitempty"`
-	CertificateId   string       `json:"certificateid,omitempty"`
-	CertificateName string       `json:"certificatename,omitempty"`
-	Proxy           *bool        `json:"proxy,omitempty"`
-	PaidType        string       `json:"paid_type,omitempty"`
+	HostName            string       `json:"hostname" required:"true"`
+	Servers             []ServerOpts `json:"server" required:"true"`
+	PolicyId            string       `json:"policyid,omitempty"`
+	CertificateId       string       `json:"certificateid,omitempty"`
+	CertificateName     string       `json:"certificatename,omitempty"`
+	Proxy               *bool        `json:"proxy,omitempty"`
+	PaidType            string       `json:"paid_type,omitempty"`
+	EnterpriseProjectId string       `q:"enterprise_project_id" json:"-"`
 }
 
 // ServerOpts contains the origin server information.
@@ -47,8 +49,14 @@ func Create(c *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateResult)
 		r.Err = err
 		return
 	}
+	query, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		r.Err = err
+		return
+	}
+
 	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{200}}
-	_, r.Err = c.Post(rootURL(c), b, &r.Body, reqOpt)
+	_, r.Err = c.Post(rootURL(c)+query.String(), b, &r.Body, reqOpt)
 	return
 }
 
@@ -60,16 +68,17 @@ type UpdateOptsBuilder interface {
 
 // UpdateOpts contains all the values needed to update a Domain.
 type UpdateOpts struct {
-	Proxy           *bool             `json:"proxy,omitempty"`
-	CertificateId   string            `json:"certificateid,omitempty"`
-	CertificateName string            `json:"certificatename,omitempty"`
-	Servers         []ServerOpts      `json:"server,omitempty"`
-	Tls             string            `json:"tls,omitempty"`
-	Cipher          string            `json:"cipher,omitempty"`
-	BlockPages      []BlockPage       `json:"block_page,omitempty"`
-	TrafficMarks    []TrafficMark     `json:"traffic_mark,omitempty"`
-	Flag            map[string]string `json:"flag,omitempty"`
-	Extend          map[string]string `json:"extend,omitempty"`
+	Proxy               *bool             `json:"proxy,omitempty"`
+	CertificateId       string            `json:"certificateid,omitempty"`
+	CertificateName     string            `json:"certificatename,omitempty"`
+	Servers             []ServerOpts      `json:"server,omitempty"`
+	Tls                 string            `json:"tls,omitempty"`
+	Cipher              string            `json:"cipher,omitempty"`
+	BlockPages          []BlockPage       `json:"block_page,omitempty"`
+	TrafficMarks        []TrafficMark     `json:"traffic_mark,omitempty"`
+	Flag                map[string]string `json:"flag,omitempty"`
+	Extend              map[string]string `json:"extend,omitempty"`
+	EnterpriseProjectId string            `q:"enterprise_project_id" json:"-"`
 }
 
 // BlockPage contains the alarm page information
@@ -105,18 +114,28 @@ func Update(c *golangsdk.ServiceClient, domainID string, opts UpdateOptsBuilder)
 		r.Err = err
 		return
 	}
+	query, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		r.Err = err
+		return
+	}
+
 	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{200}}
-	_, r.Err = c.Put(resourceURL(c, domainID), b, nil, reqOpt)
+	_, r.Err = c.Put(resourceURL(c, domainID)+query.String(), b, nil, reqOpt)
 	return
 }
 
 // Get retrieves a particular Domain based on its unique ID.
 func Get(c *golangsdk.ServiceClient, id string) (r GetResult) {
+	return GetWithEpsID(c, id, "")
+}
+
+func GetWithEpsID(c *golangsdk.ServiceClient, id, epsID string) (r GetResult) {
 	reqOpt := &golangsdk.RequestOpts{
 		OkCodes:     []int{200},
 		MoreHeaders: RequestOpts.MoreHeaders,
 	}
-	_, r.Err = c.Get(resourceURL(c, id), &r.Body, reqOpt)
+	_, r.Err = c.Get(resourceURL(c, id)+utils.GenerateEpsIDQuery(epsID), &r.Body, reqOpt)
 	return
 }
 
@@ -130,7 +149,8 @@ type DeleteOptsBuilder interface {
 type DeleteOpts struct {
 	// KeepPolicy specifies whether to retain the policy when deleting a domain name
 	// the default value is false
-	KeepPolicy bool `q:"keepPolicy"`
+	KeepPolicy          bool   `q:"keepPolicy"`
+	EnterpriseProjectId string `q:"enterprise_project_id"`
 }
 
 // ToDeleteQuery builds a delete request body from DeleteOpts.

@@ -33,14 +33,14 @@ type CheckRuleRiskInfoResponseInfo struct {
 	// 检测结果，包含如下：   - pass   - failed
 	ScanResult *string `json:"scan_result,omitempty"`
 
-	// 状态，包含如下：   - safe : 无需处理   - ignored : 已忽略   - unhandled : 未处理
+	// 状态，包含如下：   - safe : 无需处理   - ignored : 已忽略   - unhandled : 未处理   - fixing : 修复中   - fix-failed : 修复失败   - verifying : 验证中
 	Status *string `json:"status,omitempty"`
 
-	// 修复状态，包含如下：   - fixing :正在修复中   - fix_failed :修复失败   - fix_success :修复成功
-	FixStatus *string `json:"fix_status,omitempty"`
+	// 是否支持一键修复,1:支持一键修复,0:不支持
+	EnableFix *int32 `json:"enable_fix,omitempty"`
 
-	// 是否支持一键修复
-	EnableAutoFix *bool `json:"enable_auto_fix,omitempty"`
+	// 该检查项的修复&忽略&验证按钮是否可点击,true:按钮可点击,false:按钮不可点击
+	EnableClick *bool `json:"enable_click,omitempty"`
 
 	// 支持传递参数修复的检查项可传递参数的范围
 	RuleParams *[]CheckRuleFixParamInfo `json:"rule_params,omitempty"`

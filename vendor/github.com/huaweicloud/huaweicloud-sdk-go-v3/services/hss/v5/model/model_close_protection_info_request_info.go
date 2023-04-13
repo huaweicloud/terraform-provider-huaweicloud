@@ -9,13 +9,13 @@ import (
 type CloseProtectionInfoRequestInfo struct {
 
 	// 需要关闭勒索防护的主机ID列表
-	HostIdList *[]string `json:"host_id_list,omitempty"`
+	HostIdList []string `json:"host_id_list"`
 
 	// 需要关闭勒索防护的agentID列表
-	AgentIdList *[]string `json:"agent_id_list,omitempty"`
+	AgentIdList []string `json:"agent_id_list"`
 
 	// 关闭防护类型，包含如下：   - close_all : 关闭所有防护   - close_anti : 关闭勒索防护   - close_backup : 关闭备份功能
-	CloseProtectionType *string `json:"close_protection_type,omitempty"`
+	CloseProtectionType string `json:"close_protection_type"`
 }
 
 func (o CloseProtectionInfoRequestInfo) String() string {

@@ -24,8 +24,11 @@ type EventDetailRequestInfo struct {
 	// 文件属性
 	FileAttr *string `json:"file_attr,omitempty"`
 
-	// 描述信息
-	Description *string `json:"description,omitempty"`
+	// 告警事件关键字，仅用于告警白名单
+	Keyword *string `json:"keyword,omitempty"`
+
+	// 告警事件hash，仅用于告警白名单
+	Hash *string `json:"hash,omitempty"`
 
 	// 服务器私有IP
 	PrivateIp *string `json:"private_ip,omitempty"`

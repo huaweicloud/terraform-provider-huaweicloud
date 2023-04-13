@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 策略属性
+// 调度参数
 type OperationDefinitionRequestInfo struct {
 
 	// 保留日备个数，该备份不受保留最大备份数限制。取值为0到100。若选择该参数，则timezone 也必选。最小值：0,最大值：100

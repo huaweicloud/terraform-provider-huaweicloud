@@ -8,6 +8,9 @@ import (
 
 type SetRdsBackupCnfReq struct {
 
+	// 需要备份的索引名。*代表所有索引。
+	Indices *string `json:"indices,omitempty"`
+
 	// 自动创建快照的名称前缀，需要用户自己手动输入。只能包含1~32位小写字母、数字、中划线或者下划线，并且以小写字母开头。
 	Prefix string `json:"prefix"`
 
