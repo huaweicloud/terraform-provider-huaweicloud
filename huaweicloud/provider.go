@@ -389,6 +389,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_bms_flavors": bms.DataSourceBmsFlavors(),
 			"huaweicloud_cbr_vaults":  cbr.DataSourceCbrVaultsV3(),
 
+			"huaweicloud_cbh_flavors":   cbh.DataSourceCbhFlavors(),
 			"huaweicloud_cbh_instances": cbh.DataSourceCbhInstances(),
 
 			"huaweicloud_cce_addon_template": cce.DataSourceCCEAddonTemplateV3(),
