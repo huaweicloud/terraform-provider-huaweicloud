@@ -43,7 +43,7 @@ func ResourceRdsDatabasePrivilege() *schema.Resource {
 				ForceNew: true,
 			},
 			"users": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
 				ForceNew: true,
 				MaxItems: 50,
@@ -57,6 +57,7 @@ func ResourceRdsDatabasePrivilege() *schema.Resource {
 						"readonly": {
 							Type:     schema.TypeBool,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 						},
 					},
@@ -108,7 +109,7 @@ func resourceRdsDatabasePrivilegeCreate(ctx context.Context, d *schema.ResourceD
 	dbName := d.Get("db_name").(string)
 	createOpts := rds.GrantRequest{
 		DbName: d.Get("db_name").(string),
-		Users:  buildUserOpts(d.Get("users").([]interface{})),
+		Users:  buildUserOpts(d.Get("users").(*schema.Set).List()),
 	}
 	log.Printf("[DEBUG] Create RDS database privilege options: %#v", createOpts)
 
@@ -168,7 +169,7 @@ func resourceRdsDatabasePrivilegeDelete(_ context.Context, d *schema.ResourceDat
 
 	deleteOpts := rds.RevokeRequestBody{
 		DbName: d.Get("db_name").(string),
-		Users:  buildRevokeUserOpts(d.Get("users").([]interface{})),
+		Users:  buildRevokeUserOpts(d.Get("users").(*schema.Set).List()),
 	}
 	log.Printf("[DEBUG] Delete RDS database privilege options: %#v", deleteOpts)
 
