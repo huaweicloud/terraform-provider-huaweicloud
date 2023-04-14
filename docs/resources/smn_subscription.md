@@ -47,12 +47,12 @@ The following arguments are supported:
   + **For an HTTPS subscription**, the endpoint starts with `https://`.
   + **For an email subscription**, the endpoint is an mail address.
   + **For an SMS message subscription**, the endpoint is a phone number,
-  the format is \[+\]\[country code\]\[phone number\], e.g. +86185xxxx0000.
+    the format is \[+\]\[country code\]\[phone number\], e.g. +86185xxxx0000.
   + **For a functionstage subscription**, the endpoint is a function urn.
   + **For a functiongraph subscription**, the endpoint is a workflow ID.
 
 * `remark` - (Optional, String, ForceNew) Remark information. The remarks must be a UTF-8-coded character string
-  containing 128 bytes.
+  containing 128 bytes. Changing this parameter will create a new resource.
 
 ## Attributes Reference
 
@@ -64,8 +64,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `owner` - Project ID of the topic creator.
 
-* `status` - Subscription status. 0 indicates that the subscription is not confirmed. 1 indicates that the subscription
-  is confirmed. 3 indicates that the subscription is canceled.
+* `status` - Subscription status.
+  + **0**: indicates that the subscription is not confirmed.
+  + **1**: indicates that the subscription is confirmed.
+  + **3**: indicates that the subscription is canceled.
 
 ## Import
 

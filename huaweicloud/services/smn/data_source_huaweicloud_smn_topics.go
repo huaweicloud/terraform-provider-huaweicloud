@@ -4,12 +4,14 @@ import (
 	"context"
 	"log"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/smn/v2/topics"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -23,6 +25,7 @@ func DataSourceTopics() *schema.Resource {
 			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -83,14 +86,14 @@ func DataSourceTopics() *schema.Resource {
 }
 
 func dataSourceTopicsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.SmnV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.SmnV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating SMN client: %s", err)
 	}
 	// create tagClient to fetch tags
-	tagClient, err := config.SmnV2TagClient(region)
+	tagClient, err := cfg.SmnV2TagClient(region)
 	if err != nil {
 		return diag.Errorf("error creating SMN tag client: %s", err)
 	}
@@ -103,8 +106,7 @@ func dataSourceTopicsRead(_ context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("unable to list topics: %s ", err)
 	}
 
-	log.Printf("[DEBUG] Retrieved SMN topics: %#v", allTopics)
-
+	log.Printf("[DEBUG] retrieved SMN topics: %#v", allTopics)
 	filter := map[string]interface{}{
 		"TopicUrn":            d.Get("topic_urn"),
 		"Name":                d.Get("name"),
@@ -132,11 +134,12 @@ func dataSourceTopicsRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.SetId(hashcode.Strings(ids))
 	}
 
-	if err := d.Set("topics", stateTopics); err != nil {
-		diag.Errorf("error setting SMN topics: %s", err)
-	}
+	mErr := multierror.Append(
+		d.Set("region", region),
+		d.Set("topics", stateTopics),
+	)
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func flattenSourceTopic(tagClient *golangsdk.ServiceClient, topic topics.TopicGet) map[string]interface{} {

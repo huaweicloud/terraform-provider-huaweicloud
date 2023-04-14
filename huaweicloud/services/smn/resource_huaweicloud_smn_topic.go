@@ -15,6 +15,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/smn/v2/topics"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -82,8 +83,9 @@ func ResourceTopic() *schema.Resource {
 }
 
 func resourceTopicCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.SmnV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.SmnV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating SMN client: %s", err)
 	}
@@ -91,23 +93,23 @@ func resourceTopicCreate(ctx context.Context, d *schema.ResourceData, meta inter
 	createOpts := topics.CreateOps{
 		Name:                d.Get("name").(string),
 		DisplayName:         d.Get("display_name").(string),
-		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 
+	log.Printf("[DEBUG] create Options: %#v", createOpts)
 	topic, err := topics.Create(client, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error getting SMN topic from result: %s", err)
 	}
-	log.Printf("[DEBUG] Successfully created SMN topic: %s", topic.TopicUrn)
 
+	log.Printf("[DEBUG] successfully created SMN topic: %s", topic.TopicUrn)
 	d.SetId(topic.TopicUrn)
 
-	//set tags
+	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		taglist := utils.ExpandResourceTags(tagRaw)
-		tagClient, err := config.SmnV2TagClient(config.GetRegion(d))
+		tagClient, err := cfg.SmnV2TagClient(region)
 		if err != nil {
 			return diag.Errorf("error creating SMN tag client: %s", err)
 		}
@@ -123,8 +125,9 @@ func resourceTopicCreate(ctx context.Context, d *schema.ResourceData, meta inter
 }
 
 func resourceTopicRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.SmnV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.SmnV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating SMN client: %s", err)
 	}
@@ -135,10 +138,9 @@ func resourceTopicRead(_ context.Context, d *schema.ResourceData, meta interface
 		return common.CheckDeletedDiag(d, err, "error retrieving SMN topic")
 	}
 
-	log.Printf("[DEBUG] Retrieved SMN topic %s: %#v", topicUrn, topicGet)
-
+	log.Printf("[DEBUG] retrieved SMN topic %s: %#v", topicUrn, topicGet)
 	mErr := multierror.Append(
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", region),
 		d.Set("topic_urn", topicGet.TopicUrn),
 		d.Set("display_name", topicGet.DisplayName),
 		d.Set("name", topicGet.Name),
@@ -149,7 +151,7 @@ func resourceTopicRead(_ context.Context, d *schema.ResourceData, meta interface
 	)
 
 	// fetch tags
-	tagClient, err := config.SmnV2TagClient(config.GetRegion(d))
+	tagClient, err := cfg.SmnV2TagClient(region)
 	if err != nil {
 		return diag.Errorf("error creating SMN tag client: %s", err)
 	}
@@ -171,27 +173,26 @@ func resourceTopicRead(_ context.Context, d *schema.ResourceData, meta interface
 }
 
 func resourceTopicUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.SmnV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.SmnV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating SMN client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Updating SMN topic %s", d.Id())
 	id := d.Id()
-
-	var updateOpts topics.UpdateOps
 	if d.HasChange("display_name") {
-		updateOpts.DisplayName = d.Get("display_name").(string)
+		updateOpts := topics.UpdateOps{
+			DisplayName: d.Get("display_name").(string),
+		}
+		if _, err = topics.Update(client, updateOpts, id).Extract(); err != nil {
+			return diag.Errorf("error updating SMN topic %s: %s", id, err)
+		}
 	}
 
-	_, err = topics.Update(client, updateOpts, id).Extract()
-	if err != nil {
-		return diag.Errorf("error updating SMN topic from result: %s", err)
-	}
 	// update tags
 	if d.HasChange("tags") {
-		tagClient, err := config.SmnV2TagClient(config.GetRegion(d))
+		tagClient, err := cfg.SmnV2TagClient(region)
 		if err != nil {
 			return diag.Errorf("error creating SMN tag client: %s", err)
 		}
@@ -200,22 +201,20 @@ func resourceTopicUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 		}
 		tagErr := utils.UpdateResourceTags(tagClient, d, "smn_topic", d.Get("name").(string))
 		if tagErr != nil {
-			return diag.Errorf("error updating tags of SMN topic:%s, err:%s", id, tagErr)
+			return diag.Errorf("error updating tags of SMN topic %s: %s", id, tagErr)
 		}
 	}
 
-	log.Printf("[DEBUG] Successfully updated SMN topic: %s", id)
 	return resourceTopicRead(ctx, d, meta)
 }
 
 func resourceTopicDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.SmnV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.SmnV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating SMN client: %s", err)
 	}
-
-	log.Printf("[DEBUG] Deleting SMN topic %s", d.Id())
 
 	result := topics.Delete(client, d.Id())
 	if result.Err != nil {
@@ -236,7 +235,6 @@ func resourceTopicDelete(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error deleting SMN topic %s: %s", d.Id(), err)
 	}
 
-	d.SetId("")
 	return nil
 }
 
@@ -245,7 +243,7 @@ func waitForTopicDelete(client *golangsdk.ServiceClient, id string) resource.Sta
 		r, err := topics.Get(client, id).ExtractGet()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[INFO] Successfully deleted topic %s", id)
+				log.Printf("[DEBUG] successfully deleted topic %s", id)
 				return r, "DELETED", nil
 			}
 			return r, "ACTIVE", err

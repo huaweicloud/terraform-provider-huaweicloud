@@ -2,6 +2,7 @@ package smn
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strings"
 
@@ -10,7 +11,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/smn/v2/subscriptions"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -70,10 +74,11 @@ func ResourceSubscription() *schema.Resource {
 }
 
 func resourceSubscriptionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.SmnV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.SmnV2Client(region)
 	if err != nil {
-		return diag.Errorf("error creating smn client: %s", err)
+		return diag.Errorf("error creating SMN client: %s", err)
 	}
 
 	topicUrn := d.Get("topic_urn").(string)
@@ -82,73 +87,71 @@ func resourceSubscriptionCreate(ctx context.Context, d *schema.ResourceData, met
 		Protocol: d.Get("protocol").(string),
 		Remark:   d.Get("remark").(string),
 	}
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 
+	log.Printf("[DEBUG] create Options: %#v", createOpts)
 	subscription, err := subscriptions.Create(client, createOpts, topicUrn).Extract()
 	if err != nil {
 		return diag.Errorf("error getting subscription from result: %s", err)
 	}
-	log.Printf("[DEBUG] Create: subscription.SubscriptionUrn %s", subscription.SubscriptionUrn)
 
+	log.Printf("[DEBUG] create SMN subscription: %s", subscription.SubscriptionUrn)
 	d.SetId(subscription.SubscriptionUrn)
 	return resourceSubscriptionRead(ctx, d, meta)
 }
 
 func resourceSubscriptionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.SmnV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.SmnV2Client(region)
 	if err != nil {
-		return diag.Errorf("error creating smn client: %s", err)
+		return diag.Errorf("error creating SMN client: %s", err)
 	}
+
 	id := d.Id()
 	topicUrn := d.Get("topic_urn").(string)
 
-	log.Printf("[DEBUG] Getting subscription %s", id)
-
+	log.Printf("[DEBUG] fetching subscription: %s", id)
 	subscriptionslist, err := subscriptions.ListFromTopic(client, topicUrn).Extract()
 	if err != nil {
-		return diag.Errorf("error Get subscriptionslist: %s", err)
+		return diag.Errorf("error fetching the list of subscriptions: %s", err)
 	}
-	log.Printf("[DEBUG] list: subscriptionslist %#v", subscriptionslist)
 
-	var subscriptionToSet subscriptions.SubscriptionGet
-	for _, subscription := range subscriptionslist {
-		if subscription.SubscriptionUrn == id {
-			subscriptionToSet = subscription
+	var targetSubscription *subscriptions.SubscriptionGet
+	for i := range subscriptionslist {
+		if subscriptionslist[i].SubscriptionUrn == id {
+			targetSubscription = &subscriptionslist[i]
 			break
 		}
 	}
 
-	if (subscriptionToSet == subscriptions.SubscriptionGet{}) {
-		return diag.Errorf("can't find subscription: %s", id)
+	if targetSubscription == nil {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 
 	mErr := multierror.Append(
-		d.Set("region", config.GetRegion(d)),
-		d.Set("topic_urn", subscriptionToSet.TopicUrn),
-		d.Set("endpoint", subscriptionToSet.Endpoint),
-		d.Set("protocol", subscriptionToSet.Protocol),
-		d.Set("subscription_urn", subscriptionToSet.SubscriptionUrn),
-		d.Set("owner", subscriptionToSet.Owner),
-		d.Set("remark", subscriptionToSet.Remark),
-		d.Set("status", subscriptionToSet.Status),
+		d.Set("region", region),
+		d.Set("topic_urn", targetSubscription.TopicUrn),
+		d.Set("endpoint", targetSubscription.Endpoint),
+		d.Set("protocol", targetSubscription.Protocol),
+		d.Set("subscription_urn", targetSubscription.SubscriptionUrn),
+		d.Set("owner", targetSubscription.Owner),
+		d.Set("remark", targetSubscription.Remark),
+		d.Set("status", targetSubscription.Status),
 	)
+
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting SMN topic fields: %s", err)
 	}
-
-	log.Printf("[DEBUG] Successfully get subscription %s", id)
 	return nil
 }
 
-func resourceSubscriptionDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.SmnV2Client(config.GetRegion(d))
+func resourceSubscriptionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.SmnV2Client(region)
 	if err != nil {
-		return diag.Errorf("error creating smn client: %s", err)
+		return diag.Errorf("error creating SMN client: %s", err)
 	}
-
-	log.Printf("[DEBUG] Deleting subscription %s", d.Id())
 
 	id := d.Id()
 	result := subscriptions.Delete(client, id)
@@ -156,23 +159,20 @@ func resourceSubscriptionDelete(ctx context.Context, d *schema.ResourceData, met
 		return diag.FromErr(result.Err)
 	}
 
-	log.Printf("[DEBUG] Successfully deleted subscription %s", id)
+	log.Printf("[DEBUG] successfully delete subscription %s", id)
 	return nil
 }
 
-func resourceSubscriptionImport(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.Split(d.Id(), ":")
+func resourceSubscriptionImport(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	subscriptionUrn := d.Id()
+	index := strings.LastIndex(subscriptionUrn, ":")
+	if index == -1 {
+		return nil, fmt.Errorf("invalid format: the subscription URN is invalid")
+	}
+	topicUrn := subscriptionUrn[:index]
 
-	topicUrn := strings.Join(parts[:len(parts)-1], ":")
-
-	d.SetId(d.Id())
+	d.SetId(subscriptionUrn)
 	d.Set("topic_urn", topicUrn)
 
 	return []*schema.ResourceData{d}, nil
 }
-
-// urn:smn:cn-north-4:0970dd7a1300f5672ff2c003c60ae115:AUTO_ALARM_NOTIFY_TOPIC_MYSQL_mysql_0970dd7a1300f5672ff2c003c60ae115
-// urn:smn:cn-north-4:0970dd7a1300f5672ff2c003c60ae115:AUTO_ALARM_NOTIFY_TOPIC_MYSQL_mysql_0970dd7a1300f5672ff2c003c60ae115:a3ee64b608334ef2a47deef3b8454b14
-// urn:smn:cn-north-4:0970dd7a1300f5672ff2c003c60ae115:topic_2
-// urn:smn:cn-north-4:0970dd7a1300f5672ff2c003c60ae115:topic_2:a2aa5a1f66df494184f4e108398de1a6
-// urn:smn:cn-north-4:0970dd7a1300f5672ff2c003c60ae115:topic_2:a2aa5a1f66df494184f4e108398de1a6
