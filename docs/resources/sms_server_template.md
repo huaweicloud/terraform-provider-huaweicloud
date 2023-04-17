@@ -61,7 +61,7 @@ The following arguments are supported:
   the target server. If omitted or set to ["autoCreate"], a new security group will be created automatically during migration.
 
 * `volume_type` - (Optional, String) Specifies the disk type of the target server. Available values are: **SAS**, **SSD**,
-  **GPSSD** and **ESSD**, defaults to **SAS**.
+  defaults to **SAS**.
 
 * `flavor` - (Optional, String) Specifies the flavor ID for the target server.
 
