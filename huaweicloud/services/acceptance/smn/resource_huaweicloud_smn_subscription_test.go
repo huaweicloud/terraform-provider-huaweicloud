@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/smn/v2/subscriptions"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/smn/v2/subscriptions"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
@@ -14,18 +16,24 @@ import (
 func getResourceSMNSubscription(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	smnClient, err := conf.SmnV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating smn: %s", err)
+		return nil, fmt.Errorf("error creating SMN client: %s", err)
 	}
 
-	var subscription *subscriptions.SubscriptionGet
 	foundList, err := subscriptions.List(smnClient).Extract()
 	if err != nil {
 		return nil, err
 	}
-	for _, subObject := range foundList {
-		if subObject.SubscriptionUrn == state.Primary.ID {
-			subscription = &subObject
+
+	var subscription *subscriptions.SubscriptionGet
+	urn := state.Primary.ID
+	for i := range foundList {
+		if foundList[i].SubscriptionUrn == urn {
+			subscription = &foundList[i]
 		}
+	}
+
+	if subscription == nil {
+		return nil, fmt.Errorf("the subscription does not exist")
 	}
 
 	return subscription, nil
@@ -95,10 +103,10 @@ func TestAccSMNV2Subscription_basic(t *testing.T) {
 }
 
 func testAccCheckSMNSubscriptionV2Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	smnClient, err := config.SmnV2Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	smnClient, err := cfg.SmnV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("error creating SMN: %s", err)
+		return fmt.Errorf("error creating SMN client: %s", err)
 	}
 
 	foundList, err := subscriptions.List(smnClient).Extract()
@@ -112,9 +120,10 @@ func testAccCheckSMNSubscriptionV2Destroy(s *terraform.State) error {
 			continue
 		}
 
-		for _, subObject := range foundList {
-			if subObject.SubscriptionUrn == rs.Primary.ID {
-				subscription = &subObject
+		urn := rs.Primary.ID
+		for i := range foundList {
+			if foundList[i].SubscriptionUrn == urn {
+				subscription = &foundList[i]
 			}
 		}
 		if subscription != nil {

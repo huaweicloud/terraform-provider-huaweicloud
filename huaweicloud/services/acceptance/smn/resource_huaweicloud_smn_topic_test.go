@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/smn/v2/topics"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/smn/v2/topics"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
@@ -14,7 +16,7 @@ import (
 func getResourceSMNTopic(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	smnClient, err := conf.SmnV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating smn: %s", err)
+		return nil, fmt.Errorf("error creating SMN client: %s", err)
 	}
 
 	return topics.Get(smnClient, state.Primary.ID).Extract()

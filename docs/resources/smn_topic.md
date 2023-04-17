@@ -4,7 +4,7 @@ subcategory: "Simple Message Notification (SMN)"
 
 # huaweicloud_smn_topic
 
-Manages an SMN Topic resource within HuaweiCloud.
+Manages an SMN topic resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -42,8 +42,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `topic_urn` - Resource identifier of a topic, which is unique.
 
-* `push_policy` - Message pushing policy. 0 indicates that the message sending fails and the message is cached in the
-  queue. 1 indicates that the failed message is discarded.
+* `push_policy` - Message pushing policy.
+  + **0**: indicates that the message sending fails and the message is cached in the queue.
+  + **1**: indicates that the failed message is discarded.
 
 * `create_time` - Time when the topic was created.
 
