@@ -640,6 +640,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_as_configuration":    as.ResourceASConfiguration(),
 			"huaweicloud_as_group":            as.ResourceASGroup(),
 			"huaweicloud_as_lifecycle_hook":   as.ResourceASLifecycleHook(),
+			"huaweicloud_as_instance_attach":  as.ResourceASInstanceAttach(),
 			"huaweicloud_as_notification":     as.ResourceAsNotification(),
 			"huaweicloud_as_policy":           as.ResourceASPolicy(),
 			"huaweicloud_as_bandwidth_policy": as.ResourceASBandWidthPolicy(),
