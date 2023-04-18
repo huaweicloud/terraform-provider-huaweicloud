@@ -4,8 +4,10 @@ import (
 	"context"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3/model"
@@ -22,6 +24,12 @@ func ResourceRdsAccount() *schema.Resource {
 		ReadContext:   resourceRdsAccountRead,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -71,9 +79,19 @@ func resourceRdsAccountCreate(ctx context.Context, d *schema.ResourceData, meta 
 		},
 	}
 
-	_, err = client.CreateDbUser(createOpts)
+	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+		_, err = client.CreateDbUser(createOpts)
+		retryable, err := handleMultiOperationsError(err)
+		if retryable {
+			return resource.RetryableError(err)
+		}
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
 	if err != nil {
-		return fmtp.DiagErrorf("error creating RDS db user: %s", err)
+		return diag.Errorf("error creating RDS database user: %s", err)
 	}
 
 	id := instanceId + "/" + dbUser
@@ -150,10 +168,19 @@ func resourceRdsAccountUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		},
 	}
 
-	log.Printf("[DEBUG] Update RDS db user options: %#v", updateOpts)
-	_, err = client.SetDbUserPwd(updateOpts)
+	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+		_, err = client.SetDbUserPwd(updateOpts)
+		retryable, err := handleMultiOperationsError(err)
+		if retryable {
+			return resource.RetryableError(err)
+		}
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
 	if err != nil {
-		return fmtp.DiagErrorf("error updating RDS db user: %s", err)
+		return diag.Errorf("error updating RDS database user: %s", err)
 	}
 
 	return resourceRdsAccountRead(ctx, d, meta)
@@ -176,9 +203,19 @@ func resourceRdsAccountDelete(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	log.Printf("[DEBUG] Delete RDS db user options: %#v", deleteOpts)
-	_, err = client.DeleteDbUser(deleteOpts)
+	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
+		_, err = client.DeleteDbUser(deleteOpts)
+		retryable, err := handleMultiOperationsError(err)
+		if retryable {
+			return resource.RetryableError(err)
+		}
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
 	if err != nil {
-		return fmtp.DiagErrorf("error deleting RDS db user: %s", err)
+		return diag.Errorf("error deleting RDS database user: %s", err)
 	}
 
 	return nil

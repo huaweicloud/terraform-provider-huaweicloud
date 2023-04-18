@@ -46,6 +46,14 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID of database which is formatted `<instance_id>/<database_name>`.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 10 minutes.
+* `update` - Default is 10 minutes.
+* `delete` - Default is 10 minutes.
+
 ## Import
 
 RDS database can be imported using the `instance id` and `database name`, e.g.

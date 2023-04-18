@@ -8,6 +8,7 @@ package rds
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"regexp"
 	"strings"
 	"time"
@@ -150,9 +151,20 @@ func resourceBackupCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		},
 	}
 	createBackupOpt.JSONBody = utils.RemoveNil(buildCreateBackupBodyParams(d, config))
-	createBackupResp, err := createBackupClient.Request("POST", createBackupPath, &createBackupOpt)
+	var createBackupResp *http.Response
+	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+		createBackupResp, err = createBackupClient.Request("POST", createBackupPath, &createBackupOpt)
+		retryable, err := handleMultiOperationsError(err)
+		if retryable {
+			return resource.RetryableError(err)
+		}
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
 	if err != nil {
-		return diag.Errorf("error creating Backup: %s", err)
+		return diag.Errorf("error creating RDS database backup: %s", err)
 	}
 
 	createBackupRespBody, err := utils.FlattenResponse(createBackupResp)
@@ -384,9 +396,19 @@ func resourceBackupDelete(ctx context.Context, d *schema.ResourceData, meta inte
 			200,
 		},
 	}
-	_, err = deleteBackupClient.Request("DELETE", deleteBackupPath, &deleteBackupOpt)
+	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
+		_, err = deleteBackupClient.Request("DELETE", deleteBackupPath, &deleteBackupOpt)
+		retryable, err := handleMultiOperationsError(err)
+		if retryable {
+			return resource.RetryableError(err)
+		}
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
 	if err != nil {
-		return diag.Errorf("error deleting Backup: %s", err)
+		return diag.Errorf("error deleting RDS database backup: %s", err)
 	}
 
 	err = deleteBackupWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))
