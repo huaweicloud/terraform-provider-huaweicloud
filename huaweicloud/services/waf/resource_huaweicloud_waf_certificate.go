@@ -5,9 +5,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk/openstack/waf/v1/certificates"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk/openstack/waf/v1/certificates"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -52,6 +54,11 @@ func ResourceWafCertificateV1() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"expiration": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -68,9 +75,10 @@ func resourceWafCertificateV1Create(d *schema.ResourceData, meta interface{}) er
 	}
 
 	createOpts := certificates.CreateOpts{
-		Name:    d.Get("name").(string),
-		Content: strings.TrimSpace(d.Get("certificate").(string)),
-		Key:     strings.TrimSpace(d.Get("private_key").(string)),
+		Name:                d.Get("name").(string),
+		Content:             strings.TrimSpace(d.Get("certificate").(string)),
+		Key:                 strings.TrimSpace(d.Get("private_key").(string)),
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 	}
 
 	certificate, err := certificates.Create(wafClient, createOpts).Extract()
@@ -91,7 +99,8 @@ func resourceWafCertificateV1Read(d *schema.ResourceData, meta interface{}) erro
 		return fmtp.Errorf("error creating HuaweiCloud WAF Client: %s", err)
 	}
 
-	n, err := certificates.Get(wafClient, d.Id()).Extract()
+	epsID := config.GetEnterpriseProjectID(d)
+	n, err := certificates.GetWithEpsID(wafClient, d.Id(), epsID).Extract()
 	if err != nil {
 		return common.CheckDeleted(d, err, "Error obtain WAF certificate information")
 	}
@@ -113,7 +122,8 @@ func resourceWafCertificateV1Update(d *schema.ResourceData, meta interface{}) er
 	}
 
 	updateOpts := certificates.UpdateOpts{
-		Name: d.Get("name").(string),
+		Name:                d.Get("name").(string),
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 	}
 
 	_, err = certificates.Update(wafClient, d.Id(), updateOpts).Extract()
@@ -130,7 +140,8 @@ func resourceWafCertificateV1Delete(d *schema.ResourceData, meta interface{}) er
 		return fmtp.Errorf("error creating HuaweiCloud WAF Client: %s", err)
 	}
 
-	err = certificates.Delete(wafClient, d.Id()).ExtractErr()
+	epsID := config.GetEnterpriseProjectID(d)
+	err = certificates.DeleteWithEpsID(wafClient, d.Id(), epsID).ExtractErr()
 	if err != nil {
 		return fmtp.Errorf("error deleting WAF Certificate: %s", err)
 	}

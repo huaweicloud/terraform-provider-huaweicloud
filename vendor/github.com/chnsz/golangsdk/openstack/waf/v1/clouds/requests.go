@@ -23,7 +23,7 @@ type CreateOpts struct {
 	// The configuration of the rule extended packages.
 	RuleExpackProductInfo *ExpackProductInfo `json:"rule_expack_product_info,omitempty"`
 	// The ID of the enterprise project to which the cloud WAF belongs.
-	EnterpriseProjectId string `q:"enterprise_project_id"`
+	EnterpriseProjectId string `q:"enterprise_project_id" json:"-"`
 }
 
 // ProductInfo is an object that represents the configuration of the cloud WAF.
@@ -90,7 +90,7 @@ type UpdateOpts struct {
 	// The configuration of the rule extended packages.
 	RuleExpackProductInfo *ExpackProductInfo `json:"rule_expack_product_info,omitempty"`
 	// The ID of the enterprise project to which the cloud WAF belongs.
-	EnterpriseProjectId string `q:"enterprise_project_id"`
+	EnterpriseProjectId string `q:"enterprise_project_id" json:"-"`
 }
 
 // UpdateProductInfo is an object that represents the update configuration of the cloud WAF.
