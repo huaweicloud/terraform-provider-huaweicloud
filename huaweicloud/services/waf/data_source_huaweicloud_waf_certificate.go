@@ -1,6 +1,7 @@
 package waf
 
 import (
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"time"
 
 	"github.com/chnsz/golangsdk/openstack/waf/v1/certificates"
@@ -46,6 +47,10 @@ func DataSourceWafCertificateV1() *schema.Resource {
 					EXP_STATUS_NOT_EXPIRED, EXP_STATUS_EXPIRED, EXP_STATUS_EXPIRED_SOON,
 				}),
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"expiration": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -63,10 +68,11 @@ func dataSourceWafCertificateV1Read(d *schema.ResourceData, meta interface{}) er
 
 	expStatus := d.Get("expire_status").(int)
 	listOpts := certificates.ListOpts{
-		Page:      DEFAULT_PAGE_NUM,
-		Pagesize:  DEFAULT_PAGE_SIZE,
-		Name:      d.Get("name").(string),
-		ExpStatus: &expStatus,
+		Page:                DEFAULT_PAGE_NUM,
+		Pagesize:            DEFAULT_PAGE_SIZE,
+		Name:                d.Get("name").(string),
+		ExpStatus:           &expStatus,
+		EnterpriseProjectID: common.GetEnterpriseProjectID(d, config),
 	}
 
 	page, err := certificates.List(wafClient, listOpts).AllPages()

@@ -4,7 +4,10 @@
 
 package premium_domains
 
-import "github.com/chnsz/golangsdk"
+import (
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/utils"
+)
 
 var RequestOpts = golangsdk.RequestOpts{
 	MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
@@ -12,12 +15,13 @@ var RequestOpts = golangsdk.RequestOpts{
 
 // CreatePremiumHostOpts the options for creating premium domains.
 type CreateOpts struct {
-	CertificateId   string   `json:"certificateid,omitempty"`
-	CertificateName string   `json:"certificatename,omitempty"`
-	HostName        string   `json:"hostname" required:"true"`
-	Proxy           *bool    `json:"proxy,omitempty"`
-	PolicyId        string   `json:"policyid,omitempty"`
-	Servers         []Server `json:"server,omitempty"`
+	CertificateId       string   `json:"certificateid,omitempty"`
+	CertificateName     string   `json:"certificatename,omitempty"`
+	HostName            string   `json:"hostname" required:"true"`
+	Proxy               *bool    `json:"proxy,omitempty"`
+	PolicyId            string   `json:"policyid,omitempty"`
+	Servers             []Server `json:"server,omitempty"`
+	EnterpriseProjectID string   `q:"enterprise_project_id" json:"-"`
 }
 
 // PremiumDomainServer the options of domain server for creating premium domains.
@@ -36,9 +40,13 @@ func Create(c *golangsdk.ServiceClient, opts CreateOpts) (*CreatePremiumHostRst,
 	if err != nil {
 		return nil, err
 	}
+	query, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return nil, err
+	}
 
 	var rst golangsdk.Result
-	_, err = c.Post(rootURL(c), b, &rst.Body, &golangsdk.RequestOpts{
+	_, err = c.Post(rootURL(c)+query.String(), b, &rst.Body, &golangsdk.RequestOpts{
 		OkCodes:     []int{200},
 		MoreHeaders: RequestOpts.MoreHeaders,
 	})
@@ -52,8 +60,12 @@ func Create(c *golangsdk.ServiceClient, opts CreateOpts) (*CreatePremiumHostRst,
 
 // Get get a premium domain by id.
 func Get(c *golangsdk.ServiceClient, hostId string) (*PremiumHost, error) {
+	return GetWithEpsID(c, hostId, "")
+}
+
+func GetWithEpsID(c *golangsdk.ServiceClient, hostId, epsID string) (*PremiumHost, error) {
 	var rst golangsdk.Result
-	_, err := c.Get(resourceURL(c, hostId), &rst.Body, &golangsdk.RequestOpts{
+	_, err := c.Get(resourceURL(c, hostId)+utils.GenerateEpsIDQuery(epsID), &rst.Body, &golangsdk.RequestOpts{
 		MoreHeaders: RequestOpts.MoreHeaders,
 	})
 	if err == nil {
@@ -66,11 +78,12 @@ func Get(c *golangsdk.ServiceClient, hostId string) (*PremiumHost, error) {
 
 // ListPremiumHostOpts the options for querying a list of premium domains.
 type ListPremiumHostOpts struct {
-	Page          string `q:"page"`
-	PageSize      string `q:"pagesize"`
-	HostName      string `q:"hostname"`
-	PolicyName    string `q:"policyname"`
-	ProtectStatus int    `q:"protect_status"`
+	Page                string `q:"page"`
+	PageSize            string `q:"pagesize"`
+	HostName            string `q:"hostname"`
+	PolicyName          string `q:"policyname"`
+	ProtectStatus       int    `q:"protect_status"`
+	EnterpriseProjectID string `q:"enterprise_project_id"`
 }
 
 // List query a list of premium domains.
@@ -96,12 +109,13 @@ func List(c *golangsdk.ServiceClient, opts ListPremiumHostOpts) (*PremiumHostLis
 
 // UpdatePremiumHostOpts the options for updating premium domains.
 type UpdatePremiumHostOpts struct {
-	Proxy           *bool  `json:"proxy,omitempty"`
-	CertificateId   string `json:"certificateid,omitempty"`
-	CertificateName string `json:"certificatename,omitempty"`
-	Tls             string `json:"tls,omitempty"`
-	Cipher          string `json:"cipher,omitempty"`
-	Flag            *Flag  `json:"flag,omitempty"`
+	Proxy               *bool  `json:"proxy,omitempty"`
+	CertificateId       string `json:"certificateid,omitempty"`
+	CertificateName     string `json:"certificatename,omitempty"`
+	Tls                 string `json:"tls,omitempty"`
+	Cipher              string `json:"cipher,omitempty"`
+	Flag                *Flag  `json:"flag,omitempty"`
+	EnterpriseProjectID string `q:"enterprise_project_id" json:"-"`
 }
 
 type Flag struct {
@@ -115,9 +129,13 @@ func Update(c *golangsdk.ServiceClient, hostId string, opts UpdatePremiumHostOpt
 	if err != nil {
 		return nil, err
 	}
+	query, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return nil, err
+	}
 
 	var rst golangsdk.Result
-	_, err = c.Put(resourceURL(c, hostId), b, &rst.Body, &golangsdk.RequestOpts{
+	_, err = c.Put(resourceURL(c, hostId)+query.String(), b, &rst.Body, &golangsdk.RequestOpts{
 		OkCodes:     []int{200},
 		MoreHeaders: RequestOpts.MoreHeaders,
 	})
@@ -137,6 +155,11 @@ type updateProtectStatusOpts struct {
 
 // UpdateProtectStatus update the protect status of premium domain.
 func UpdateProtectStatus(c *golangsdk.ServiceClient, hostId string, protectStatus int) (*PremiumHostProtectStatus, error) {
+	return UpdateProtectStatusWithWpsID(c, protectStatus, hostId, "")
+}
+
+func UpdateProtectStatusWithWpsID(c *golangsdk.ServiceClient, protectStatus int,
+	hostId, epsID string) (*PremiumHostProtectStatus, error) {
 	opts := updateProtectStatusOpts{
 		ProtectStatus: &protectStatus,
 	}
@@ -147,7 +170,7 @@ func UpdateProtectStatus(c *golangsdk.ServiceClient, hostId string, protectStatu
 	}
 
 	var rst golangsdk.Result
-	_, err = c.Put(protectStatusURL(c, hostId), b, &rst.Body, &golangsdk.RequestOpts{
+	_, err = c.Put(protectStatusURL(c, hostId)+utils.GenerateEpsIDQuery(epsID), b, &rst.Body, &golangsdk.RequestOpts{
 		OkCodes:     []int{200},
 		MoreHeaders: RequestOpts.MoreHeaders,
 	})
@@ -162,13 +185,19 @@ func UpdateProtectStatus(c *golangsdk.ServiceClient, hostId string, protectStatu
 // deleteOpts whether to keep the premium domain policy when deleting the premium domain.
 // Only used in the package.
 type deleteOpts struct {
-	KeepPolicy bool `q:"keepPolicy"`
+	KeepPolicy          bool   `q:"keepPolicy"`
+	EnterpriseProjectID string `q:"enterprise_project_id"`
 }
 
 // Delete a premium domain by id.
 func Delete(c *golangsdk.ServiceClient, hostId string, keepPolicy bool) (*SimplePremiumHost, error) {
+	return DeleteWithEpsID(c, keepPolicy, hostId, "")
+}
+
+func DeleteWithEpsID(c *golangsdk.ServiceClient, keepPolicy bool, hostId, epsID string) (*SimplePremiumHost, error) {
 	opts := deleteOpts{
-		KeepPolicy: keepPolicy,
+		KeepPolicy:          keepPolicy,
+		EnterpriseProjectID: epsID,
 	}
 
 	url := resourceURL(c, hostId)

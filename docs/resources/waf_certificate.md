@@ -12,8 +12,11 @@ used. The certificate resource can be used in Cloud Mode, Dedicated Mode and ELB
 ## Example Usage
 
 ```hcl
+variable enterprise_project_id {}
+
 resource "huaweicloud_waf_certificate" "certificate_1" {
-  name        = "cert_1"
+  name                  = "cert_1"
+  enterprise_project_id = var.enterprise_project_id
   certificate = <<EOT
 -----BEGIN CERTIFICATE-----
 MIIFmQl5dh2QUAeo39TIKtadgAgh4zHx09kSgayS9Wph9LEqq7MA+2042L3J9aOa
@@ -48,6 +51,9 @@ The following arguments are supported:
   certificate.
 
 * `private_key` - (Required, String, ForceNew) Specifies the private key. Changing this creates a new certificate.
+
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project ID of WAF certificate.
+  Changing this parameter will create a new resource.
 
 ## Attributes Reference
 

@@ -9,23 +9,11 @@ Get the certificate in the WAF, including the one pushed from SCM.
 ## Example Usage
 
 ```hcl
+variable enterprise_project_id {}
+
 data "huaweicloud_waf_certificate" "certificate_1" {
-  name = "certificate name"
-}
-
-resource "huaweicloud_waf_domain" "domain_1" {
-  domain           = "www.domainname.com"
-  certificate_id   = data.huaweicloud_waf_certificate.certificate_1.id
-  certificate_name = data.huaweicloud_waf_certificate.certificate_1.name
-  keep_policy      = false
-  proxy            = false
-
-  server {
-    client_protocol = "HTTPS"
-    server_protocol = "HTTP"
-    address         = "192.168.10.1"
-    port            = 8080
-  }
+  name                  = "certificate name"
+  enterprise_project_id = var.enterprise_project_id
 }
 ```
 
@@ -44,6 +32,8 @@ The following arguments are supported:
   + `0`: not expire
   + `1`: has expired
   + `2`: wil expired soon
+
+* `enterprise_project_id` - (Optional, String) The enterprise project ID of WAF certificate.
 
 ## Attributes Reference
 
