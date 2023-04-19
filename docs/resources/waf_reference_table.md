@@ -12,9 +12,12 @@ used. The reference table resource can be used in Cloud Mode (professional versi
 ## Example Usage
 
 ```hcl
+variable enterprise_project_id {}
+
 resource "huaweicloud_waf_reference_table" "ref_table" {
-  name = "tf_ref_table_demo"
-  type = "url"
+  name                  = "tf_ref_table_demo"
+  type                  = "url"
+  enterprise_project_id = var.enterprise_project_id
 
   conditions = [
     "/admin",
@@ -40,6 +43,9 @@ The following arguments are supported:
   condition is 2048 characters.
 
 * `description` - (Optional, String) The description of the reference table. The maximum length is 128 characters.
+
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project ID of WAF reference table.
+  Changing this parameter will create a new resource.
 
 ## Attributes Reference
 

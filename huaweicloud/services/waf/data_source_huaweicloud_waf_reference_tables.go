@@ -28,6 +28,10 @@ func DataSourceWafReferenceTablesV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"tables": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -72,7 +76,10 @@ func dataSourceWafReferenceTablesRead(d *schema.ResourceData, meta interface{}) 
 		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
 	}
 
-	r, err := valuelists.List(client, valuelists.ListValueListOpts{})
+	opts := valuelists.ListValueListOpts{
+		EnterpriseProjectId: common.GetEnterpriseProjectID(d, config),
+	}
+	r, err := valuelists.List(client, opts)
 	if err != nil {
 		return common.CheckDeleted(d, err, "Error obtain WAF reference table information")
 	}

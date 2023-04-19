@@ -9,8 +9,11 @@ Use this data source to get a list of WAF reference tables.
 ## Example Usage
 
 ```hcl
+variable enterprise_project_id {}
+
 data "huaweicloud_waf_reference_tables" "reftables" {
-  name = "reference_table_name"
+  name                  = "reference_table_name"
+  enterprise_project_id = var.enterprise_project_id
 }
 ```
 
@@ -22,6 +25,8 @@ The following arguments are supported:
   If omitted, the provider-level region will be used.
 
 * `name` - (Optional, String) The name of the reference table. The value is case sensitive and matches exactly.
+
+* `enterprise_project_id` - (Optional, String) The enterprise project ID of WAF reference tables.
 
 ## Attributes Reference
 
