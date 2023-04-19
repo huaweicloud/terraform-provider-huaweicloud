@@ -4,15 +4,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/policies"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
-
-	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/policies"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 const (
@@ -59,6 +60,11 @@ func ResourceWafPolicyV1() *schema.Resource {
 				Computed:     true,
 				Optional:     true,
 				ValidateFunc: validation.IntBetween(0, 3),
+			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 			},
 			"options": {
 				Type:     schema.TypeList,
@@ -140,7 +146,8 @@ func resourceWafPolicyV1Create(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	createOpts := policies.CreateOpts{
-		Name: d.Get("name").(string),
+		Name:                d.Get("name").(string),
+		EnterpriseProjectId: common.GetEnterpriseProjectID(d, config),
 	}
 	policy, err := policies.Create(wafClient, createOpts).Extract()
 	if err != nil {
@@ -159,7 +166,7 @@ func resourceWafPolicyV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	// If the vlaue of 'protection_mode' or 'level' is not equal to the value returned by the server,
 	// then update the policy.
-	err = checkAndUpdateDefaultVal(wafClient, d, protectionMode, level)
+	err = checkAndUpdateDefaultVal(wafClient, d, protectionMode, level, config)
 	if err != nil {
 		return fmtp.Errorf("the Waf Policy was created successfully, "+
 			"but failed to update protection_mode or level : %s", err)
@@ -175,10 +182,11 @@ func resourceWafPolicyV1Create(d *schema.ResourceData, meta interface{}) error {
 // the value returned by the server.
 // If the value is not equal to the value returned by the server, call the update API to make changes.
 func checkAndUpdateDefaultVal(wafClient *golangsdk.ServiceClient, d *schema.ResourceData,
-	protectionMode string, level int) error {
-
+	protectionMode string, level int, conf *config.Config) error {
 	needUpdate := false
-	updateOpts := policies.UpdateOpts{}
+	updateOpts := policies.UpdateOpts{
+		EnterpriseProjectId: common.GetEnterpriseProjectID(d, conf),
+	}
 
 	if strings.Compare(d.Get("protection_mode").(string), protectionMode) != 0 && len(protectionMode) != 0 {
 		needUpdate = true
@@ -206,7 +214,7 @@ func resourceWafPolicyV1Read(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
 	}
 
-	n, err := policies.Get(wafClient, d.Id()).Extract()
+	n, err := policies.GetWithEpsID(wafClient, d.Id(), common.GetEnterpriseProjectID(d, config)).Extract()
 	if err != nil {
 		return common.CheckDeleted(d, err, "Waf Policy")
 	}
@@ -253,6 +261,7 @@ func resourceWafPolicyV1Update(d *schema.ResourceData, meta interface{}) error {
 			Action: &policies.Action{
 				Category: d.Get("protection_mode").(string),
 			},
+			EnterpriseProjectId: common.GetEnterpriseProjectID(d, config),
 		}
 
 		logp.Printf("[DEBUG] updateOpts: %#v", updateOpts)
@@ -271,7 +280,7 @@ func resourceWafPolicyV1Delete(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
 	}
 
-	err = policies.Delete(wafClient, d.Id()).ExtractErr()
+	err = policies.DeleteWithEpsID(wafClient, d.Id(), common.GetEnterpriseProjectID(d, config)).ExtractErr()
 	if err != nil {
 		return fmtp.Errorf("error deleting WAF Policy: %s", err)
 	}
