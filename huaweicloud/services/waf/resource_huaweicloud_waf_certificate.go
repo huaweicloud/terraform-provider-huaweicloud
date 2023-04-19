@@ -76,7 +76,7 @@ func resourceWafCertificateV1Create(d *schema.ResourceData, meta interface{}) er
 		Name:                d.Get("name").(string),
 		Content:             strings.TrimSpace(d.Get("certificate").(string)),
 		Key:                 strings.TrimSpace(d.Get("private_key").(string)),
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 	}
 
 	certificate, err := certificates.Create(wafClient, createOpts).Extract()
@@ -97,7 +97,7 @@ func resourceWafCertificateV1Read(d *schema.ResourceData, meta interface{}) erro
 		return fmtp.Errorf("error creating HuaweiCloud WAF Client: %s", err)
 	}
 
-	epsID := common.GetEnterpriseProjectID(d, config)
+	epsID := config.GetEnterpriseProjectID(d)
 	n, err := certificates.GetWithEpsID(wafClient, d.Id(), epsID).Extract()
 	if err != nil {
 		return common.CheckDeleted(d, err, "Error obtain WAF certificate information")
@@ -121,7 +121,7 @@ func resourceWafCertificateV1Update(d *schema.ResourceData, meta interface{}) er
 
 	updateOpts := certificates.UpdateOpts{
 		Name:                d.Get("name").(string),
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 	}
 
 	_, err = certificates.Update(wafClient, d.Id(), updateOpts).Extract()
@@ -138,7 +138,7 @@ func resourceWafCertificateV1Delete(d *schema.ResourceData, meta interface{}) er
 		return fmtp.Errorf("error creating HuaweiCloud WAF Client: %s", err)
 	}
 
-	epsID := common.GetEnterpriseProjectID(d, config)
+	epsID := config.GetEnterpriseProjectID(d)
 	err = certificates.DeleteWithEpsID(wafClient, d.Id(), epsID).ExtractErr()
 	if err != nil {
 		return fmtp.Errorf("error deleting WAF Certificate: %s", err)

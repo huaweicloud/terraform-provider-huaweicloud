@@ -245,10 +245,6 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
     type            = "ipv4"
     vpc_id          = huaweicloud_vpc.test.id
   }
-
-  depends_on = [
-    huaweicloud_waf_certificate.certificate_1
-  ]
 }
 `, testAccWafCertificateV1_conf(name), name)
 }
@@ -284,10 +280,6 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
     type            = "ipv4"
     vpc_id          = huaweicloud_vpc.test.id
   }
-
-  depends_on = [
-    huaweicloud_waf_certificate.certificate_1
-  ]
 }
 `, testAccWafCertificateV1_conf(name), name)
 }
@@ -317,10 +309,6 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
     type            = "ipv4"
     vpc_id          = huaweicloud_vpc.test.id
   }
-
-  depends_on = [
-    huaweicloud_waf_certificate.certificate_1
-  ]
 }
 `, testAccWafCertificateV1_conf(name), name, name)
 }
@@ -346,10 +334,6 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
     type            = "ipv4"
     vpc_id          = huaweicloud_vpc.test.id
   }
-
-  depends_on = [
-    huaweicloud_waf_certificate.certificate_1
-  ]
 }
 `, testAccWafCertificateV1_conf_withEpsID(name, epsID), name, epsID)
 }
@@ -386,10 +370,6 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
     type            = "ipv4"
     vpc_id          = huaweicloud_vpc.test.id
   }
-
-  depends_on = [
-    huaweicloud_waf_certificate.certificate_1
-  ]
 }
 `, testAccWafCertificateV1_conf_withEpsID(name, epsID), name, epsID)
 }
@@ -421,10 +401,6 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
     type            = "ipv4"
     vpc_id          = huaweicloud_vpc.test.id
   }
-
-  depends_on = [
-    huaweicloud_waf_certificate.certificate_1
-  ]
 }
 `, testAccWafCertificateV1_conf_withEpsID(name, epsID), name, epsID)
 }

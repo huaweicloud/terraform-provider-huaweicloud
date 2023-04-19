@@ -89,7 +89,7 @@ func resourceWafReferenceTableCreate(d *schema.ResourceData, meta interface{}) e
 		Type:                d.Get("type").(string),
 		Values:              utils.ExpandToStringList(d.Get("conditions").([]interface{})),
 		Description:         d.Get("description").(string),
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 	}
 	logp.Printf("[DEBUG] Create WAF reference table options: %#v", opt)
 
@@ -111,7 +111,7 @@ func resourceWafReferenceTableRead(d *schema.ResourceData, meta interface{}) err
 		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
 	}
 
-	r, err := valuelists.GetWithEpsID(client, d.Id(), common.GetEnterpriseProjectID(d, config))
+	r, err := valuelists.GetWithEpsID(client, d.Id(), config.GetEnterpriseProjectID(d))
 	if err != nil {
 		return common.CheckDeleted(d, err, "Error obtain WAF reference table information")
 	}
@@ -147,7 +147,7 @@ func resourceWafReferenceTableUpdate(d *schema.ResourceData, meta interface{}) e
 		Type:                d.Get("type").(string),
 		Values:              utils.ExpandToStringList(d.Get("conditions").([]interface{})),
 		Description:         &desc,
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 	}
 	logp.Printf("[DEBUG] Update WAF reference table options: %#v", opt)
 
@@ -167,7 +167,7 @@ func resourceWafReferenceTableDelete(d *schema.ResourceData, meta interface{}) e
 		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
 	}
 
-	_, err = valuelists.DeleteWithEpsID(client, d.Id(), common.GetEnterpriseProjectID(d, config))
+	_, err = valuelists.DeleteWithEpsID(client, d.Id(), config.GetEnterpriseProjectID(d))
 	if err != nil {
 		return fmtp.Errorf("error deleting WAF reference table: %s", err)
 	}

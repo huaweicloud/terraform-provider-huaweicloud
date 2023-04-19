@@ -2,9 +2,9 @@ package waf
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 
 	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/policies"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -135,7 +135,7 @@ func dataSourceWafPoliciesV1Read(d *schema.ResourceData, meta interface{}) error
 
 	listOpts := policies.ListPolicyOpts{
 		Name:                d.Get("name").(string),
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 	}
 	rst, err := policies.ListPolicy(wafClient, listOpts)
 	if err != nil {

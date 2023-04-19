@@ -146,7 +146,7 @@ func resourceWafPolicyV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	createOpts := policies.CreateOpts{
 		Name:                d.Get("name").(string),
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 	}
 	policy, err := policies.Create(wafClient, createOpts).Extract()
 	if err != nil {
@@ -185,7 +185,7 @@ func checkAndUpdateDefaultVal(wafClient *golangsdk.ServiceClient, d *schema.Reso
 
 	needUpdate := false
 	updateOpts := policies.UpdateOpts{
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, conf),
+		EnterpriseProjectId: conf.GetEnterpriseProjectID(d),
 	}
 
 	if strings.Compare(d.Get("protection_mode").(string), protectionMode) != 0 && len(protectionMode) != 0 {
@@ -214,7 +214,7 @@ func resourceWafPolicyV1Read(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
 	}
 
-	n, err := policies.GetWithEpsID(wafClient, d.Id(), common.GetEnterpriseProjectID(d, config)).Extract()
+	n, err := policies.GetWithEpsID(wafClient, d.Id(), config.GetEnterpriseProjectID(d)).Extract()
 	if err != nil {
 		return common.CheckDeleted(d, err, "Waf Policy")
 	}
@@ -261,7 +261,7 @@ func resourceWafPolicyV1Update(d *schema.ResourceData, meta interface{}) error {
 			Action: &policies.Action{
 				Category: d.Get("protection_mode").(string),
 			},
-			EnterpriseProjectId: common.GetEnterpriseProjectID(d, config),
+			EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 		}
 
 		logp.Printf("[DEBUG] updateOpts: %#v", updateOpts)
@@ -280,7 +280,7 @@ func resourceWafPolicyV1Delete(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
 	}
 
-	err = policies.DeleteWithEpsID(wafClient, d.Id(), common.GetEnterpriseProjectID(d, config)).ExtractErr()
+	err = policies.DeleteWithEpsID(wafClient, d.Id(), config.GetEnterpriseProjectID(d)).ExtractErr()
 	if err != nil {
 		return fmtp.Errorf("error deleting WAF Policy: %s", err)
 	}

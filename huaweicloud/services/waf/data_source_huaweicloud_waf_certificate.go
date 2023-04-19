@@ -1,7 +1,6 @@
 package waf
 
 import (
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"time"
 
 	"github.com/chnsz/golangsdk/openstack/waf/v1/certificates"
@@ -72,7 +71,7 @@ func dataSourceWafCertificateV1Read(d *schema.ResourceData, meta interface{}) er
 		Pagesize:            DEFAULT_PAGE_SIZE,
 		Name:                d.Get("name").(string),
 		ExpStatus:           &expStatus,
-		EnterpriseProjectID: common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
 	}
 
 	page, err := certificates.List(wafClient, listOpts).AllPages()

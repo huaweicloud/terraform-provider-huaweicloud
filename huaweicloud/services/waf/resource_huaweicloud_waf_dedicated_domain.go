@@ -192,7 +192,7 @@ func getCertificateNameById(d *schema.ResourceData, meta interface{}) (string, e
 		return "", fmtp.Errorf("error creating HuaweiCloud WAF Client: %s", err)
 	}
 	if _, ok := d.GetOk("certificate_id"); ok {
-		epsID := common.GetEnterpriseProjectID(d, config)
+		epsID := config.GetEnterpriseProjectID(d)
 		certificateId := d.Get("certificate_id").(string)
 		r, err := certificates.GetWithEpsID(c, certificateId, epsID).Extract()
 		if err != nil {
@@ -248,7 +248,7 @@ func resourceWafDedicatedDomainV1Create(d *schema.ResourceData, meta interface{}
 	}
 
 	createOpts, err := buildCreatePremiumHostOpts(d, meta)
-	epsID := common.GetEnterpriseProjectID(d, config)
+	epsID := config.GetEnterpriseProjectID(d)
 	createOpts.EnterpriseProjectID = epsID
 	if err != nil {
 		return err
@@ -285,7 +285,7 @@ func updateWafDedicatedDomain(client *golangsdk.ServiceClient, meta interface{},
 	updateOpts := domains.UpdatePremiumHostOpts{
 		Tls:                 d.Get("tls").(string),
 		Cipher:              d.Get("cipher").(string),
-		EnterpriseProjectID: common.GetEnterpriseProjectID(d, conf),
+		EnterpriseProjectID: conf.GetEnterpriseProjectID(d),
 	}
 
 	if d.HasChange("proxy") && !d.IsNewResource() {
@@ -391,7 +391,7 @@ func resourceWafDedicatedDomainV1Read(d *schema.ResourceData, meta interface{}) 
 		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
 	}
 
-	epsID := common.GetEnterpriseProjectID(d, config)
+	epsID := config.GetEnterpriseProjectID(d)
 	dm, err := domains.GetWithEpsID(wafClient, d.Id(), epsID)
 	if err != nil {
 		return common.CheckDeleted(d, err, "Error obtain WAF dedicated domain information")
@@ -462,7 +462,7 @@ func resourceWafDedicatedDomainV1Update(d *schema.ResourceData, meta interface{}
 
 	if d.HasChanges("protect_status") {
 		protectStatus := d.Get("protect_status").(int)
-		epsID := common.GetEnterpriseProjectID(d, config)
+		epsID := config.GetEnterpriseProjectID(d)
 		_, err = domains.UpdateProtectStatusWithWpsID(wafDedicatedClient, protectStatus, d.Id(), epsID)
 		if err != nil {
 			return fmtp.Errorf("[ERROR] error change the protection status of WAF dedicate domain %s: %s",
@@ -473,7 +473,7 @@ func resourceWafDedicatedDomainV1Update(d *schema.ResourceData, meta interface{}
 	if d.HasChanges("policy_id") {
 		oVal, nVal := d.GetChange("policy_id")
 		policyId := nVal.(string)
-		epsID := common.GetEnterpriseProjectID(d, config)
+		epsID := config.GetEnterpriseProjectID(d)
 		updateHostsOpts := policies.UpdateHostsOpts{
 			Hosts:               []string{d.Id()},
 			EnterpriseProjectId: epsID,
@@ -505,7 +505,7 @@ func resourceWafDedicatedDomainV1Delete(d *schema.ResourceData, meta interface{}
 
 	logp.Printf("[DEBUG] Delete WAF dedicated domain(keep_policy: %v).", d.Get("keep_policy"))
 	keepPolicy := d.Get("keep_policy").(bool)
-	epsID := common.GetEnterpriseProjectID(d, config)
+	epsID := config.GetEnterpriseProjectID(d)
 	_, err = domains.DeleteWithEpsID(wafDedicatedClient, keepPolicy, d.Id(), epsID)
 	if err != nil {
 		return fmtp.Errorf("error deleting WAF dedicated domain: %s", err)

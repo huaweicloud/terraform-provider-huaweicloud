@@ -12,7 +12,8 @@ Using this resource to manage a cloud WAF in HuaweiCloud.
 variable enterprise_project_id {}
 
 resource "huaweicloud_waf_cloud_instance" "test" {
-  resource_spec_code = "professional"
+  resource_spec_code    = "professional"
+  enterprise_project_id = var.enterprise_project_id
 
   bandwidth_expack_product {
     resource_size = 1
@@ -24,11 +25,10 @@ resource "huaweicloud_waf_cloud_instance" "test" {
     resource_size = 1
   }
 
-  charging_mode         = "prePaid"
-  period_unit           = "month"
-  period                = 1
-  auto_renew            = "true"
-  enterprise_project_id = var.enterprise_project_id
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "true"
 }
 ```
 

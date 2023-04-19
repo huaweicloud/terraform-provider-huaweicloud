@@ -83,7 +83,7 @@ func resourceWafRuleDataMaskingCreate(d *schema.ResourceData, meta interface{}) 
 		Path:                d.Get("path").(string),
 		Category:            d.Get("field").(string),
 		Index:               d.Get("subfield").(string),
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 	}
 
 	logp.Printf("[DEBUG] WAF Data Masking Rule creating opts: %#v", createOpts)
@@ -107,7 +107,7 @@ func resourceWafRuleDataMaskingRead(d *schema.ResourceData, meta interface{}) er
 	}
 
 	policyID := d.Get("policy_id").(string)
-	epsID := common.GetEnterpriseProjectID(d, config)
+	epsID := config.GetEnterpriseProjectID(d)
 	n, err := rules.GetWithEpsID(wafClient, policyID, d.Id(), epsID).Extract()
 	if err != nil {
 		return common.CheckDeleted(d, err, "WAF Data Masking Rule")
@@ -137,7 +137,7 @@ func resourceWafRuleDataMaskingUpdate(d *schema.ResourceData, meta interface{}) 
 			Path:                d.Get("path").(string),
 			Category:            d.Get("field").(string),
 			Index:               d.Get("subfield").(string),
-			EnterpriseProjectId: common.GetEnterpriseProjectID(d, config),
+			EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 		}
 
 		logp.Printf("[DEBUG] WAF Data Masking Rule updating opts: %#v", updateOpts)
@@ -159,7 +159,7 @@ func resourceWafRuleDataMaskingDelete(d *schema.ResourceData, meta interface{}) 
 	}
 
 	policyID := d.Get("policy_id").(string)
-	err = rules.DeleteWithEpsID(wafClient, policyID, d.Id(), common.GetEnterpriseProjectID(d, config)).ExtractErr()
+	err = rules.DeleteWithEpsID(wafClient, policyID, d.Id(), config.GetEnterpriseProjectID(d)).ExtractErr()
 	if err != nil {
 		return fmtp.Errorf("error deleting HuaweiCloud WAF Data Masking Rule: %s", err)
 	}

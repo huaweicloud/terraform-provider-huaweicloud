@@ -410,7 +410,7 @@ func resourceCloudInstanceUpdate(ctx context.Context, d *schema.ResourceData, me
 			opts = clouds.UpdateOpts{
 				ProjectId:           cfg.GetProjectID(region),
 				IsAutoPay:           utils.Bool(true),
-				EnterpriseProjectId: common.GetEnterpriseProjectID(d, cfg),
+				EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 			}
 		)
 

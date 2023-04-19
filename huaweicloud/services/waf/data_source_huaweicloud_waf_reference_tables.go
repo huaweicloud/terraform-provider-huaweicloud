@@ -77,7 +77,7 @@ func dataSourceWafReferenceTablesRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	opts := valuelists.ListValueListOpts{
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 	}
 	r, err := valuelists.List(client, opts)
 	if err != nil {
