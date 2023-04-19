@@ -136,15 +136,13 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `sharding_num` - (Optional, Int) Specifies the sharding number. The valid value is range form `1` to `9`.
-  The default value is 3. This parameter is valid only when the HA mode is set to **enterprise**.
+  The default value is 3.
 
 * `coordinator_num` - (Optional, Int) Specifies the coordinator number. Values: 1~9. The default value is 3.
   The value must not be greater than twice value of `sharding_num`.
-  This parameter is valid only when the HA mode is set to **enterprise**.
 
 * `replica_num` - (Optional, Int, ForceNew) The replica number. The valid values are **2** and **3**, defaults to **3**.
   Double replicas are only available for specific users and supports only instance versions are v1.3.0 or later.
-  This parameter is valid only when the HA mode is set to **centralization_standard**.
   Changing this parameter will create a new resource.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID.
