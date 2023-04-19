@@ -9,6 +9,8 @@ Using this resource to manage a cloud WAF in HuaweiCloud.
 ## Example Usage
 
 ```hcl
+variable "enterprise_project_id" {}
+
 resource "huaweicloud_waf_cloud_instance" "test" {
   resource_spec_code = "professional"
 
@@ -22,10 +24,11 @@ resource "huaweicloud_waf_cloud_instance" "test" {
     resource_size = 1
   }
 
-  charging_mode = "prePaid"
-  period_unit   = "month"
-  period        = 1
-  auto_renew    = "true"
+  charging_mode         = "prePaid"
+  period_unit           = "month"
+  period                = 1
+  auto_renew            = "true"
+  enterprise_project_id = var.enterprise_project_id
 }
 ```
 
