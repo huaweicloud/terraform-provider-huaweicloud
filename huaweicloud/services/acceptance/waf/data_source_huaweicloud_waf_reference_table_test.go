@@ -34,6 +34,33 @@ func TestAccDataSourceReferenceTablesV1_basic(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceReferenceTablesV1_withEpsID(t *testing.T) {
+	name := acceptance.RandomAccResourceName()
+	dataSourceName := "data.huaweicloud_waf_reference_tables.ref_table"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccReferenceTablesV1_conf_epsID(name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckReferenceTablesId(dataSourceName),
+					resource.TestCheckResourceAttr(dataSourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttrSet(dataSourceName, "tables.0.name"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "tables.0.id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "tables.0.type"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "tables.0.conditions.0"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "tables.0.creation_time"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckReferenceTablesId(r string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[r]
@@ -55,4 +82,15 @@ data "huaweicloud_waf_reference_tables" "ref_table" {
   depends_on = [huaweicloud_waf_reference_table.ref_table]
 }
 `, testAccWafReferenceTableV1_conf(name))
+}
+
+func testAccReferenceTablesV1_conf_epsID(name, epsID string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_waf_reference_tables" "ref_table" {
+  depends_on            = [huaweicloud_waf_reference_table.ref_table]
+  enterprise_project_id = "%s"
+}
+`, testAccWafReferenceTableV1_conf_withEpsID(name, epsID), epsID)
 }
