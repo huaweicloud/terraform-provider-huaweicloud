@@ -12,14 +12,14 @@ used. The web tamper protection rule resource can be used in Cloud Mode, Dedicat
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_waf_policy" "policy_1" {
-  name = "policy_1"
-}
+variable enterprise_project_id {}
+variable policy_id {}
 
 resource "huaweicloud_waf_rule_web_tamper_protection" "rule_1" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
-  domain    = "www.your-domain.com"
-  path      = "/payment"
+  policy_id             = var.policy_id
+  domain                = "www.your-domain.com"
+  path                  = "/payment"
+  enterprise_project_id = var.enterprise_project_id
 }
 ```
 
@@ -36,6 +36,9 @@ The following arguments are supported:
 
 * `path` - (Required, String, ForceNew) Specifies the URL protected by the web tamper protection rule, excluding a
   domain name. Changing this creates a new rule.
+
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project ID of WAF tamper protection rule.
+  Changing this parameter will create a new resource.
 
 ## Attributes Reference
 

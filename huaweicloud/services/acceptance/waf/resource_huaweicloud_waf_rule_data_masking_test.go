@@ -67,6 +67,44 @@ func TestAccWafRuleDataMasking_basic(t *testing.T) {
 	})
 }
 
+func TestAccWafRuleDataMasking_withEpsID(t *testing.T) {
+	var rule rules.DataMasking
+	policyName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_waf_rule_data_masking.rule"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckWafRuleDataMaskingDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWafRuleDataMasking_basic_withEpsID(policyName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckWafRuleDataMaskingExists(resourceName, &rule),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "path", "/login"),
+					resource.TestCheckResourceAttr(resourceName, "subfield", "password"),
+					resource.TestCheckResourceAttr(resourceName, "field", "params"),
+				),
+			},
+			{
+				Config: testAccWafRuleDataMasking_update_withEpsID(policyName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckWafRuleDataMaskingExists(resourceName, &rule),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "path", "/login_new"),
+					resource.TestCheckResourceAttr(resourceName, "subfield", "secret"),
+					resource.TestCheckResourceAttr(resourceName, "field", "params"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckWafRuleDataMaskingDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	wafClient, err := config.WafV1Client(acceptance.HW_REGION_NAME)
@@ -79,7 +117,7 @@ func testAccCheckWafRuleDataMaskingDestroy(s *terraform.State) error {
 		}
 
 		policyID := rs.Primary.Attributes["policy_id"]
-		_, err := rules.Get(wafClient, policyID, rs.Primary.ID).Extract()
+		_, err := rules.GetWithEpsID(wafClient, policyID, rs.Primary.ID, rs.Primary.Attributes["enterprise_project_id"]).Extract()
 		if err == nil {
 			return fmt.Errorf("WAF data masking rule still exists")
 		}
@@ -106,7 +144,7 @@ func testAccCheckWafRuleDataMaskingExists(n string, rule *rules.DataMasking) res
 		}
 
 		policyID := rs.Primary.Attributes["policy_id"]
-		found, err := rules.Get(wafClient, policyID, rs.Primary.ID).Extract()
+		found, err := rules.GetWithEpsID(wafClient, policyID, rs.Primary.ID, rs.Primary.Attributes["enterprise_project_id"]).Extract()
 		if err != nil {
 			return err
 		}
@@ -181,4 +219,32 @@ resource "huaweicloud_waf_rule_data_masking" "rule_4" {
   subfield  = "secret"
 }
 `, testAccWafPolicyV1_basic(name))
+}
+
+func testAccWafRuleDataMasking_basic_withEpsID(name, epsID string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_waf_rule_data_masking" "rule" {
+  policy_id             = huaweicloud_waf_policy.policy_1.id
+  path                  = "/login"
+  field                 = "params"
+  subfield              = "password"
+  enterprise_project_id = "%s"
+}
+`, testAccWafPolicyV1_basic_withEpsID(name, epsID), epsID)
+}
+
+func testAccWafRuleDataMasking_update_withEpsID(name, epsID string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_waf_rule_data_masking" "rule" {
+  policy_id             = huaweicloud_waf_policy.policy_1.id
+  path                  = "/login_new"
+  field                 = "params"
+  subfield              = "secret"
+  enterprise_project_id = "%s"
+}
+`, testAccWafPolicyV1_basic_withEpsID(name, epsID), epsID)
 }

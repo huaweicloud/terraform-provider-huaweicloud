@@ -12,15 +12,15 @@ used. The data masking rule resource can be used in Cloud Mode, Dedicated Mode a
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_waf_policy" "policy_1" {
-  name = "policy_1"
-}
+variable enterprise_project_id {}
+variable policy_id {}
 
 resource "huaweicloud_waf_rule_data_masking" "rule_1" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
-  path      = "/login"
-  field     = "params"
-  subfield  = "password"
+  policy_id             = var.policy_id
+  path                  = "/login"
+  field                 = "params"
+  subfield              = "password"
+  enterprise_project_id = var.enterprise_project_id
 }
 ```
 
@@ -42,6 +42,9 @@ The following arguments are supported:
   + `cookie`: The field in the cookie.
 
 * `subfield` - (Required, String) Specifies the name of the masked field, e.g.: password.
+
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project ID of WAF data masking rule.
+  Changing this parameter will create a new resource.
 
 ## Attributes Reference
 

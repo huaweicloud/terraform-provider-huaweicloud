@@ -80,6 +80,11 @@ func ResourceWafRuleBlackListV1() *schema.Resource {
 					PROTECTION_ACTION_BLOCK, PROTECTION_ACTION_ALLOW, PROTECTION_ACTION_LOG,
 				}),
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"address_group_name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -100,6 +105,7 @@ func resourceWafRuleBlackListCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	policyID := d.Get("policy_id").(string)
+	epsID := common.GetEnterpriseProjectID(d, config)
 	createOpts := rules.CreateOpts{
 		White: d.Get("action").(int),
 	}
@@ -117,7 +123,7 @@ func resourceWafRuleBlackListCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	logp.Printf("[DEBUG] WAF black list rule creating opts: %#v", createOpts)
-	rule, err := rules.Create(wafClient, policyID, createOpts).Extract()
+	rule, err := rules.CreateWithEpsId(wafClient, createOpts, policyID, epsID).Extract()
 	if err != nil {
 		return fmtp.Errorf("error creating WAF black list rule: %s", err)
 	}
@@ -136,7 +142,7 @@ func resourceWafRuleBlackListRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	policyID := d.Get("policy_id").(string)
-	n, err := rules.Get(wafClient, policyID, d.Id()).Extract()
+	n, err := rules.GetWithEpsId(wafClient, policyID, d.Id(), common.GetEnterpriseProjectID(d, config)).Extract()
 	if err != nil {
 		return common.CheckDeleted(d, err, "WAF Black List Rule")
 	}
@@ -194,7 +200,8 @@ func resourceWafRuleBlackListUpdate(d *schema.ResourceData, meta interface{}) er
 		logp.Printf("[DEBUG] updating blacklist and whitelist rule, updateOpts: %#v", updateOpts)
 
 		policyID := d.Get("policy_id").(string)
-		_, err = rules.Update(wafClient, policyID, d.Id(), updateOpts).Extract()
+		epsID := common.GetEnterpriseProjectID(d, config)
+		_, err = rules.UpdateWithEpsId(wafClient, updateOpts, policyID, d.Id(), epsID).Extract()
 		if err != nil {
 			return fmtp.Errorf("error updating HuaweiCloud WAF Blacklist and Whitelist Rule: %s", err)
 		}
@@ -211,7 +218,7 @@ func resourceWafRuleBlackListDelete(d *schema.ResourceData, meta interface{}) er
 	}
 
 	policyID := d.Get("policy_id").(string)
-	err = rules.Delete(wafClient, policyID, d.Id()).ExtractErr()
+	err = rules.DeleteWithEpsId(wafClient, policyID, d.Id(), common.GetEnterpriseProjectID(d, config)).ExtractErr()
 	if err != nil {
 		return fmtp.Errorf("error deleting HuaweiCloud WAF Blacklist and Whitelist Rule: %s", err)
 	}
