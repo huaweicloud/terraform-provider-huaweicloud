@@ -54,6 +54,44 @@ func TestAccWafPolicyV1_basic(t *testing.T) {
 	})
 }
 
+func TestAccWafPolicyV1_withEpsID(t *testing.T) {
+	var policy policies.Policy
+	randName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_waf_policy.policy_1"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckWafPolicyV1Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWafPolicyV1_basic_withEpsID(randName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckWafPolicyV1Exists(resourceName, &policy),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "level", "1"),
+					resource.TestCheckResourceAttr(resourceName, "full_detection", "false"),
+				),
+			},
+			{
+				Config: testAccWafPolicyV1_update_withEpsID(randName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckWafPolicyV1Exists(resourceName, &policy),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "name", randName+"_updated"),
+					resource.TestCheckResourceAttr(resourceName, "protection_mode", "block"),
+					resource.TestCheckResourceAttr(resourceName, "level", "3"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckWafPolicyV1Destroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	wafClient, err := config.WafV1Client(acceptance.HW_REGION_NAME)
@@ -65,7 +103,7 @@ func testAccCheckWafPolicyV1Destroy(s *terraform.State) error {
 		if rs.Type != "huaweicloud_waf_policy" {
 			continue
 		}
-		_, err := policies.Get(wafClient, rs.Primary.ID).Extract()
+		_, err := policies.GetWithEpsID(wafClient, rs.Primary.ID, rs.Primary.Attributes["enterprise_project_id"]).Extract()
 		if err == nil {
 			return fmtp.Errorf("Waf policy still exists")
 		}
@@ -90,7 +128,7 @@ func testAccCheckWafPolicyV1Exists(n string, policy *policies.Policy) resource.T
 			return fmtp.Errorf("error creating huaweicloud WAF client: %s", err)
 		}
 
-		found, err := policies.Get(wafClient, rs.Primary.ID).Extract()
+		found, err := policies.GetWithEpsID(wafClient, rs.Primary.ID, rs.Primary.Attributes["enterprise_project_id"]).Extract()
 		if err != nil {
 			return err
 		}
@@ -133,4 +171,37 @@ resource "huaweicloud_waf_policy" "policy_1" {
   ]
 }
 `, testAccWafDedicatedInstanceV1_conf(name), name)
+}
+
+func testAccWafPolicyV1_basic_withEpsID(name, epsID string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_waf_policy" "policy_1" {
+  name                  = "%s"
+  level                 = 1
+  enterprise_project_id = "%s"
+
+  depends_on = [
+    huaweicloud_waf_dedicated_instance.instance_1
+  ]
+}
+`, testAccWafDedicatedInstance_epsId(name, epsID), name, epsID)
+}
+
+func testAccWafPolicyV1_update_withEpsID(name, epsID string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_waf_policy" "policy_1" {
+  name                  = "%s_updated"
+  protection_mode       = "block"
+  level                 = 3
+  enterprise_project_id = "%s"
+
+  depends_on = [
+    huaweicloud_waf_dedicated_instance.instance_1
+  ]
+}
+`, testAccWafDedicatedInstance_epsId(name, epsID), name, epsID)
 }

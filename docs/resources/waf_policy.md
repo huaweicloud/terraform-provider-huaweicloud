@@ -12,10 +12,13 @@ used. The policy resource can be used in Cloud Mode, Dedicated Mode and ELB Mode
 ## Example Usage
 
 ```hcl
+variable enterprise_project_id {}
+
 resource "huaweicloud_waf_policy" "policy_1" {
-  name            = "policy_1"
-  protection_mode = "log"
-  level           = 2
+  name                  = "policy_1"
+  protection_mode       = "log"
+  level                 = 2
+  enterprise_project_id = var.enterprise_project_id
 }
 ```
 
@@ -38,6 +41,9 @@ The following arguments are supported:
   + `1`: low
   + `2`: medium
   + `3`: high
+
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project ID of WAF policy.
+  Changing this parameter will create a new resource.
 
 ## Attributes Reference
 

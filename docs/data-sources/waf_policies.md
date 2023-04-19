@@ -10,8 +10,11 @@ Use this data source to get a list of WAF policies.
 
 ```hcl
 variable "policy_name" {}
+variable enterprise_project_id {}
+
 data "huaweicloud_waf_policies" "policies" {
-  name = var.policy_name
+  name                  = var.policy_name
+  enterprise_project_id = var.enterprise_project_id
 }
 ```
 
@@ -23,6 +26,8 @@ The following arguments are supported:
   will be used.
 
 * `name` - (Optional, String) Policy name used for matching. The value is case sensitive and supports fuzzy matching.
+
+* `enterprise_project_id` - (Optional, String) The enterprise project ID of WAF policies.
 
 ## Attributes Reference
 
