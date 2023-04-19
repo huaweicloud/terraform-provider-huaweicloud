@@ -4,20 +4,20 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/cdm/v1/link"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cdm"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/cdm/v1/link"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cdm"
 )
 
-func getCdmLinkResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := config.CdmV11Client(acceptance.HW_REGION_NAME)
+func getCdmLinkResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.CdmV11Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("error creating CDM v1 client, err=%s", err)
+		return nil, fmt.Errorf("error creating CDM v1 client, err=%s", err)
 	}
 	clusterId, linkName, err := cdm.ParseLinkInfoFromId(state.Primary.ID)
 	if err != nil {
