@@ -6,13 +6,14 @@ package waf
 
 import (
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	rules "github.com/chnsz/golangsdk/openstack/waf_hw/v1/webtamperprotection_rules"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
-
-	rules "github.com/chnsz/golangsdk/openstack/waf_hw/v1/webtamperprotection_rules"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // ResourceWafRuleWebTamperProtectionV1 manages the resources for web tamper protection rules
@@ -47,6 +48,11 @@ func ResourceWafRuleWebTamperProtectionV1() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 		},
 	}
 }
@@ -60,8 +66,9 @@ func resourceWafRuleWebTamperProtectionCreate(d *schema.ResourceData, meta inter
 	}
 	// create options
 	createOpts := rules.CreateOpts{
-		Hostname: d.Get("domain").(string),
-		Url:      d.Get("path").(string),
+		Hostname:            d.Get("domain").(string),
+		Url:                 d.Get("path").(string),
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 	}
 
 	policyID := d.Get("policy_id").(string)
@@ -85,7 +92,8 @@ func resourceWafRuleWebTamperProtectionRead(d *schema.ResourceData, meta interfa
 	}
 
 	policyID := d.Get("policy_id").(string)
-	n, err := rules.Get(wafClient, policyID, d.Id()).Extract()
+	epsID := config.GetEnterpriseProjectID(d)
+	n, err := rules.GetWithEpsID(wafClient, policyID, d.Id(), epsID).Extract()
 	if err != nil {
 		return common.CheckDeleted(d, err, "WAF Web Tamper Protection Rule")
 	}
@@ -112,7 +120,8 @@ func resourceWafRuleWebTamperProtectionDelete(d *schema.ResourceData, meta inter
 	}
 
 	policyID := d.Get("policy_id").(string)
-	err = rules.Delete(wafClient, policyID, d.Id()).ExtractErr()
+	epsID := config.GetEnterpriseProjectID(d)
+	err = rules.DeleteWithEpsID(wafClient, policyID, d.Id(), epsID).ExtractErr()
 	if err != nil {
 		return fmtp.Errorf("error deleting HuaweiCloud WAF Web Tamper Protection Rule: %s", err)
 	}

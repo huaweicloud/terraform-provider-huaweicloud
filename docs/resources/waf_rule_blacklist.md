@@ -30,13 +30,15 @@ resource "huaweicloud_waf_rule_blacklist" "rule" {
 ```hcl
 variable "policy_id" {}
 variable "address_group_id" {}
+variable "enterprise_project_id" {}
 
 resource "huaweicloud_waf_rule_blacklist" "rule" {
-  policy_id        = var.policy_id
-  address_group_id = var.address_group_id
-  action           = 1
-  name             = "test_name"
-  description      = "test description"
+  policy_id             = var.policy_id
+  address_group_id      = var.address_group_id
+  enterprise_project_id = var.enterprise_project_id
+  action                = 1
+  name                  = "test_name"
+  description           = "test description"
 }
 ```
 
@@ -52,6 +54,9 @@ The following arguments are supported:
 
 * `name` - (Required, String) Specifies the Rule name. The value can contain a maximum of 64 characters.
   Only letters, digits, hyphens (-), underscores (_) and periods (.) are allowed.
+
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF rule blacklist
+  and whitelist. Changing this parameter will create a new resource.
 
 * `ip_address` - (Optional, String) Specifies the IP address or range. For example, 192.168.0.125 or 192.168.0.0/24.
   This parameter is required when `address_group_id` is not specified. The parameter `address_group_id` and `ip_address`
