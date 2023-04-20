@@ -132,6 +132,9 @@ var (
 	// The target organization of SWR image auto sync
 	HW_SWR_TARGET_ORGANIZATION = os.Getenv("HW_SWR_TARGET_ORGANIZATION")
 
+	// The SecMaster workspace ID
+	HW_SECMASTER_WORKSPACE_ID = os.Getenv("HW_SECMASTER_WORKSPACE_ID")
+
 	// Deprecated
 	HW_SRC_ACCESS_KEY = os.Getenv("HW_SRC_ACCESS_KEY")
 	HW_SRC_SECRET_KEY = os.Getenv("HW_SRC_SECRET_KEY")
@@ -612,5 +615,12 @@ func TestAccPreCheckSwrTargetOrigination(t *testing.T) {
 func TestAccPreCheckSourceImage(t *testing.T) {
 	if HW_IMAGE_SHARE_SOURCE_IMAGE_ID == "" {
 		t.Skip("Skip the interface acceptance test because of the source image ID is missing.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSecMaster(t *testing.T) {
+	if HW_SECMASTER_WORKSPACE_ID == "" {
+		t.Skip("HW_SECMASTER_WORKSPACE_ID must be set for SecMaster acceptance tests")
 	}
 }
