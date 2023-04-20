@@ -195,7 +195,7 @@ resource "huaweicloud_apig_custom_authorizer" "test" {
   type         = "BACKEND"
   cache_age    = 60
 }
-`, testAccVpcChannel_base(name), name)
+`, testAccChannel_base(name), name)
 }
 
 func testAccApi_basic(relatedConfig, name string) string {
