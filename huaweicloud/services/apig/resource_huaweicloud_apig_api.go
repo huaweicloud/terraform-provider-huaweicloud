@@ -37,6 +37,7 @@ type (
 	SystemParamType string
 	BackendType     string
 	AppCodeAuthType string
+	ProtocolType    string
 )
 
 const (
@@ -94,6 +95,11 @@ const (
 
 	AppCodeAuthTypeDisable AppCodeAuthType = "DISABLE"
 	AppCodeAuthTypeEnable  AppCodeAuthType = "HEADER"
+
+	ProtocolTypeTCP   ProtocolType = "TCP"
+	ProtocolTypeHTTP  ProtocolType = "HTTP"
+	ProtocolTypeHTTPS ProtocolType = "HTTPS"
+	ProtocolTypeBoth  ProtocolType = "BOTH"
 )
 
 var (
@@ -182,8 +188,8 @@ func ResourceApigAPIV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					string(ProtocolTypeHttp),
-					string(ProtocolTypeHttps),
+					string(ProtocolTypeHTTP),
+					string(ProtocolTypeHTTPS),
 					string(ProtocolTypeBoth),
 				}, false),
 				Description: "The request protocol of the API request.",
@@ -473,10 +479,10 @@ func ResourceApigAPIV2() *schema.Resource {
 						"request_protocol": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Default:  string(ProtocolTypeHttps),
+							Default:  string(ProtocolTypeHTTPS),
 							ValidateFunc: validation.StringInSlice([]string{
-								string(ProtocolTypeHttp),
-								string(ProtocolTypeHttps),
+								string(ProtocolTypeHTTP),
+								string(ProtocolTypeHTTPS),
 							}, false),
 							Description: "The web protocol type of the API request.",
 						},
@@ -698,8 +704,8 @@ func ResourceApigAPIV2() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							ValidateFunc: validation.StringInSlice([]string{
-								string(ProtocolTypeHttp),
-								string(ProtocolTypeHttps),
+								string(ProtocolTypeHTTP),
+								string(ProtocolTypeHTTPS),
 							}, false),
 							Description: "The backend request protocol.",
 						},

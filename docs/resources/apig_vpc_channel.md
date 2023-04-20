@@ -1,8 +1,10 @@
 ---
-subcategory: "API Gateway (Dedicated APIG)"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud_apig_vpc_channel
+
+!> **WARNING:** It has been deprecated.
 
 Manages a VPC channel resource within HuaweiCloud.
 
