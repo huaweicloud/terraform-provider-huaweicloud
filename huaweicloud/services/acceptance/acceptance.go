@@ -38,6 +38,8 @@ var (
 	HW_ADMIN                 = os.Getenv("HW_ADMIN")
 	HW_OBS_BUCKET_NAME       = os.Getenv("HW_OBS_BUCKET_NAME")
 
+	HW_OMS_ENABLE_FLAG = os.Getenv("HW_OMS_ENABLE_FLAG")
+
 	HW_DEPRECATED_ENVIRONMENT = os.Getenv("HW_DEPRECATED_ENVIRONMENT")
 	HW_INTERNAL_USED          = os.Getenv("HW_INTERNAL_USED")
 
@@ -277,6 +279,13 @@ func RandomPassword() string {
 func TestAccPrecheckWafInstance(t *testing.T) {
 	if HW_WAF_ENABLE_FLAG == "" {
 		t.Skip("Jump the WAF acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckOmsInstance(t *testing.T) {
+	if HW_OMS_ENABLE_FLAG == "" {
+		t.Skip("Jump the OMS acceptance tests.")
 	}
 }
 
