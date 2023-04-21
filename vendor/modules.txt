@@ -176,6 +176,7 @@ github.com/chnsz/golangsdk/openstack/identity/v2/tenants
 github.com/chnsz/golangsdk/openstack/identity/v2/tokens
 github.com/chnsz/golangsdk/openstack/identity/v3.0/acl
 github.com/chnsz/golangsdk/openstack/identity/v3.0/credentials
+github.com/chnsz/golangsdk/openstack/identity/v3.0/eps_permissions
 github.com/chnsz/golangsdk/openstack/identity/v3.0/policies
 github.com/chnsz/golangsdk/openstack/identity/v3.0/security
 github.com/chnsz/golangsdk/openstack/identity/v3.0/users
