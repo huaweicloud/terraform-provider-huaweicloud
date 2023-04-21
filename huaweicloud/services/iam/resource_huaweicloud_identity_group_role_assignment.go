@@ -73,52 +73,44 @@ func resourceIdentityGroupRoleAssignmentCreate(ctx context.Context, d *schema.Re
 		return diag.Errorf("error creating IAM v3.0 client: %s", err)
 	}
 
+	var resourceID string
 	roleID := d.Get("role_id").(string)
 	groupID := d.Get("group_id").(string)
 
 	if v, ok := d.GetOk("domain_id"); ok {
 		domainID := v.(string)
+		resourceID = fmt.Sprintf("%s/%s/%s", groupID, roleID, domainID)
 
 		opts := roles.AssignOpts{
 			GroupID:  groupID,
 			DomainID: domainID,
 		}
-
 		err = roles.Assign(identityClient, roleID, opts).ExtractErr()
-		if err != nil {
-			return diag.Errorf("error assigning role: %s", err)
-		}
-
-		d.SetId(fmt.Sprintf("%s/%s/%s", groupID, roleID, domainID))
 	}
 
 	if v, ok := d.GetOk("project_id"); ok {
 		projectID := v.(string)
+		resourceID = fmt.Sprintf("%s/%s/%s", groupID, roleID, projectID)
 
 		opts := roles.AssignOpts{
 			GroupID:   groupID,
 			ProjectID: projectID,
 		}
-
 		err = roles.Assign(identityClient, roleID, opts).ExtractErr()
-		if err != nil {
-			return diag.Errorf("error assigning role: %s", err)
-		}
-
-		d.SetId(fmt.Sprintf("%s/%s/%s", groupID, roleID, projectID))
 	}
 
 	if v, ok := d.GetOk("enterprise_project_id"); ok {
 		enterpriseProjectID := v.(string)
+		resourceID = fmt.Sprintf("%s/%s/%s", groupID, roleID, enterpriseProjectID)
 
-		err := eps_permissions.UserGroupPermissionsCreate(iamClient, enterpriseProjectID, groupID, roleID).ExtractErr()
-		if err != nil {
-			return diag.Errorf("error assigning role: %s", err)
-		}
-
-		d.SetId(fmt.Sprintf("%s/%s/%s", enterpriseProjectID, roleID, groupID))
+		err = eps_permissions.UserGroupPermissionsCreate(iamClient, enterpriseProjectID, groupID, roleID).ExtractErr()
 	}
 
+	if err != nil {
+		return diag.Errorf("error assigning role: %s", err)
+	}
+
+	d.SetId(resourceID)
 	return resourceIdentityGroupRoleAssignmentRead(ctx, d, meta)
 }
 
@@ -134,55 +126,51 @@ func resourceIdentityGroupRoleAssignmentRead(_ context.Context, d *schema.Resour
 		return diag.Errorf("error creating IAM v3.0 client: %s", err)
 	}
 
+	var resourceID, respRoleID string
 	roleID := d.Get("role_id").(string)
 	groupID := d.Get("group_id").(string)
 
-	var mErr *multierror.Error
-
 	if v, ok := d.GetOk("domain_id"); ok {
 		domainID := v.(string)
+		resourceID = fmt.Sprintf("%s/%s/%s", groupID, roleID, domainID)
 
 		roleAssignment, err := GetGroupRoleAssignmentWithDomainID(identityClient, groupID, roleID, domainID)
 		if err != nil {
 			return common.CheckDeletedDiag(d, err, "error getting role assignment")
 		}
 
-		d.SetId(fmt.Sprintf("%s/%s/%s", groupID, roleID, domainID))
-
-		mErr = multierror.Append(nil,
-			d.Set("role_id", roleAssignment.ID),
-		)
+		respRoleID = roleAssignment.ID
 	}
 
 	if v, ok := d.GetOk("project_id"); ok {
 		projectID := v.(string)
+		resourceID = fmt.Sprintf("%s/%s/%s", groupID, roleID, projectID)
 
 		roleAssignment, err := GetGroupRoleAssignmentWithProjectID(identityClient, groupID, roleID, projectID)
 		if err != nil {
 			return common.CheckDeletedDiag(d, err, "error getting role assignment")
 		}
 
-		d.SetId(fmt.Sprintf("%s/%s/%s", groupID, roleID, projectID))
-
-		mErr = multierror.Append(nil,
-			d.Set("role_id", roleAssignment.ID),
-		)
+		respRoleID = roleAssignment.ID
 	}
 
 	if v, ok := d.GetOk("enterprise_project_id"); ok {
 		enterpriseProjectID := v.(string)
+		resourceID = fmt.Sprintf("%s/%s/%s", groupID, roleID, enterpriseProjectID)
 
 		role, err := GetGroupRoleAssignmentWithEpsID(iamClient, groupID, roleID, enterpriseProjectID)
 		if err != nil {
 			return common.CheckDeletedDiag(d, err, "error getting role assignment")
 		}
 
-		d.SetId(fmt.Sprintf("%s/%s/%s", groupID, roleID, enterpriseProjectID))
-
-		mErr = multierror.Append(nil,
-			d.Set("role_id", role.ID),
-		)
+		respRoleID = role.ID
 	}
+
+	// update the resource ID for `huaweicloud_identity_role_assignment`
+	d.SetId(resourceID)
+	mErr := multierror.Append(nil,
+		d.Set("role_id", respRoleID),
+	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting role assignment fields: %s", err)
@@ -288,9 +276,6 @@ func resourceIdentityGroupRoleAssignmentDelete(_ context.Context, d *schema.Reso
 			DomainID: domainID,
 		}
 		err = roles.Unassign(identityClient, roleID, opts).ExtractErr()
-		if err != nil {
-			return common.CheckDeletedDiag(d, err, "error unassigning role")
-		}
 	}
 
 	if v, ok := d.GetOk("project_id"); ok {
@@ -301,19 +286,16 @@ func resourceIdentityGroupRoleAssignmentDelete(_ context.Context, d *schema.Reso
 			ProjectID: projectID,
 		}
 		err = roles.Unassign(identityClient, roleID, opts).ExtractErr()
-		if err != nil {
-			return common.CheckDeletedDiag(d, err, "error unassigning role")
-		}
 	}
 
 	if v, ok := d.GetOk("enterprise_project_id"); ok {
 		enterpriseProjectID := v.(string)
-		err := eps_permissions.UserGroupPermissionsDelete(iamClient, enterpriseProjectID, groupID, roleID).ExtractErr()
-		if err != nil {
-			return common.CheckDeletedDiag(d, err, "error unassigning role")
-		}
+		err = eps_permissions.UserGroupPermissionsDelete(iamClient, enterpriseProjectID, groupID, roleID).ExtractErr()
 	}
 
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error unassigning role")
+	}
 	return nil
 }
 
@@ -353,5 +335,5 @@ func resourceIdentityGroupRoleAssignmentImportState(_ context.Context, d *schema
 		return []*schema.ResourceData{d}, nil
 	}
 
-	return nil, fmt.Errorf("error importing role assignment")
+	return nil, fmt.Errorf("error importing role assignment: %s", err)
 }

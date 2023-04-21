@@ -169,3 +169,72 @@ func Delete(c *golangsdk.ServiceClient, instanceId, signatureId string) error {
 	})
 	return err
 }
+
+// BindOpts is the structure that used to bind a signature to the published APIs.
+type BindOpts struct {
+	// The instnace ID to which the signature belongs.
+	InstanceId string `json:"-" required:"true"`
+	// Signature ID.
+	SignatureId string `json:"sign_id" required:"true"`
+	// The IDs of the API publish record.
+	PublishIds []string `json:"publish_ids" required:"true"`
+}
+
+// Bind is a method to bind a signature to one or more APIs.
+func Bind(c *golangsdk.ServiceClient, opts BindOpts) ([]SignBindApiInfo, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r BindResp
+	_, err = c.Post(bindURL(c, opts.InstanceId), b, &r, nil)
+	return r.Bindings, err
+}
+
+// ListBindOpts is the structure used to querying published API list that signature associated.
+type ListBindOpts struct {
+	// The instnace ID to which the API belongs.
+	InstanceId string `json:"-" required:"true"`
+	// Offset from which the query starts.
+	// If the offset is less than 0, the value is automatically converted to 0. Default to 0.
+	Offset int `q:"offset"`
+	// Number of items displayed on each page. The valid values are range form 1 to 500, default to 20.
+	Limit int `q:"limit"`
+	// The signature ID.
+	SignatureId string `q:"sign_id"`
+	// The environment ID where the API is published.
+	EnvId string `q:"env_id"`
+	// The API ID.
+	ApiId string `q:"api_id"`
+	// The API name.
+	ApiName string `q:"api_name"`
+	// The group ID where the API is located.
+	GroupId string `q:"group_id"`
+}
+
+// ListBind is a method to obtain all API to which the signature bound.
+func ListBind(c *golangsdk.ServiceClient, opts ListBindOpts) ([]SignBindApiInfo, error) {
+	url := listBindURL(c, opts.InstanceId)
+	query, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return nil, err
+	}
+	url += query.String()
+
+	pages, err := pagination.NewPager(c, url, func(r pagination.PageResult) pagination.Page {
+		p := BindPage{pagination.OffsetPageBase{PageResult: r}}
+		return p
+	}).AllPages()
+
+	if err != nil {
+		return nil, err
+	}
+	return ExtractBindInfos(pages)
+}
+
+// Unbind is an method used to unbind a specified API from the signature.
+func Unbind(c *golangsdk.ServiceClient, instanceId, bindId string) error {
+	_, err := c.Delete(unbindURL(c, instanceId, bindId), nil)
+	return err
+}
