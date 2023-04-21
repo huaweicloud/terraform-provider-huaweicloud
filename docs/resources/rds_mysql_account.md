@@ -42,6 +42,14 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID of account which is formatted `<instance_id>/<account_name>`.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 10 minutes.
+* `update` - Default is 10 minutes.
+* `delete` - Default is 10 minutes.
+
 ## Import
 
 RDS account can be imported using the `instance id` and `account name`, e.g.:

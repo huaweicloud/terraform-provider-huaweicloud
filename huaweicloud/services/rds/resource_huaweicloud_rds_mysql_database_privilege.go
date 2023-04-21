@@ -4,10 +4,12 @@ import (
 	"context"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	v3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3"
 	rds "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3/model"
@@ -23,6 +25,11 @@ func ResourceRdsDatabasePrivilege() *schema.Resource {
 		ReadContext:   resourceRdsDatabasePrivilegeRead,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -118,7 +125,21 @@ func resourceRdsDatabasePrivilegeCreate(ctx context.Context, d *schema.ResourceD
 		Body:       &createOpts,
 	}
 
-	_, err = client.AllowDbUserPrivilege(&privilegeReq)
+	config.MutexKV.Lock(instanceId)
+	defer config.MutexKV.Unlock(instanceId)
+	config.MutexKV.Lock(dbName)
+	defer config.MutexKV.Unlock(dbName)
+	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+		_, err = client.AllowDbUserPrivilege(&privilegeReq)
+		retryable, err := handleMultiOperationsError(err)
+		if retryable {
+			return resource.RetryableError(err)
+		}
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
 	if err != nil {
 		return diag.Errorf("error creating RDS database privilege: %s", err)
 	}
@@ -160,25 +181,43 @@ func resourceRdsDatabasePrivilegeRead(_ context.Context, d *schema.ResourceData,
 	return nil
 }
 
-func resourceRdsDatabasePrivilegeDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceRdsDatabasePrivilegeDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	client, err := c.HcRdsV3Client(c.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
-	deleteOpts := rds.RevokeRequestBody{
-		DbName: d.Get("db_name").(string),
-		Users:  buildRevokeUserOpts(d.Get("users").(*schema.Set).List()),
-	}
-	log.Printf("[DEBUG] Delete RDS database privilege options: %#v", deleteOpts)
+	var (
+		instanceId = d.Get("instance_id").(string)
+		dbName     = d.Get("db_name").(string)
+		opts       = rds.RevokeRequestBody{
+			DbName: dbName,
+			Users:  buildRevokeUserOpts(d.Get("users").(*schema.Set).List()),
+		}
+		deleteReq = rds.RevokeRequest{
+			InstanceId: instanceId,
+			Body:       &opts,
+		}
+	)
+	log.Printf("[DEBUG] Delete RDS database privilege options: %#v", opts)
 
-	deleteReq := rds.RevokeRequest{
-		InstanceId: d.Get("instance_id").(string),
-		Body:       &deleteOpts,
-	}
+	config.MutexKV.Lock(instanceId)
+	defer config.MutexKV.Unlock(instanceId)
+	config.MutexKV.Lock(dbName)
+	defer config.MutexKV.Unlock(dbName)
 
-	_, err = client.Revoke(&deleteReq)
+	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
+		_, err = client.Revoke(&deleteReq)
+		retryable, err := handleMultiOperationsError(err)
+		if retryable {
+			return resource.RetryableError(err)
+		}
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
 	if err != nil {
 		return diag.Errorf("error deleting RDS database privilege: %s", err)
 	}

@@ -6,10 +6,12 @@ import (
 	"log"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	v3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3"
@@ -28,6 +30,12 @@ func ResourceRdsDatabase() *schema.Resource {
 		ReadContext:   resourceRdsDatabaseRead,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -97,7 +105,17 @@ func resourceRdsDatabaseCreate(ctx context.Context, d *schema.ResourceData, meta
 		Body:       &createOpts,
 	}
 
-	_, err = client.CreateDatabase(&createDatabaseReq)
+	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+		_, err = client.CreateDatabase(&createDatabaseReq)
+		retryable, err := handleMultiOperationsError(err)
+		if retryable {
+			return resource.RetryableError(err)
+		}
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
 	if err != nil {
 		return diag.Errorf("error creating RDS database: %s", err)
 	}
@@ -160,7 +178,17 @@ func resourceRdsDatabaseUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	log.Printf("[DEBUG] Update RDS database options: %#v", updateOpts)
-	_, err = client.UpdateDatabase(&updateOpts)
+	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+		_, err = client.UpdateDatabase(&updateOpts)
+		retryable, err := handleMultiOperationsError(err)
+		if retryable {
+			return resource.RetryableError(err)
+		}
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
 	if err != nil {
 		return diag.Errorf("error updating RDS database: %s", err)
 	}
@@ -185,7 +213,17 @@ func resourceRdsDatabaseDelete(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	log.Printf("[DEBUG] Delete RDS database options: %#v", deleteOpts)
-	_, err = client.DeleteDatabase(&deleteOpts)
+	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
+		_, err = client.DeleteDatabase(&deleteOpts)
+		retryable, err := handleMultiOperationsError(err)
+		if retryable {
+			return resource.RetryableError(err)
+		}
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
 	if err != nil {
 		return diag.Errorf("error deleting RDS database: %s", err)
 	}
