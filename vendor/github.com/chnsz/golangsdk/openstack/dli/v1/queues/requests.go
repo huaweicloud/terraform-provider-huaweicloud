@@ -159,7 +159,7 @@ func List(c *golangsdk.ServiceClient, listOpts ListOptsBuilder) (r GetResult) {
 	}
 
 	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{200}}
-	_, r.Err = c.Get(queryAllURL(c), &listResult, reqOpt)
+	_, r.Err = c.Get(url, &listResult, reqOpt)
 	r.Body = listResult
 	return r
 }

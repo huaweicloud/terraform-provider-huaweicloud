@@ -63,11 +63,56 @@ func TestAccDliQueue_basic(t *testing.T) {
 	})
 }
 
+func TestAccDliQueue_withGeneral(t *testing.T) {
+	rName := act.RandomAccResourceName()
+	resourceName := "huaweicloud_dli_queue.test"
+
+	var obj queues.CreateOpts
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getDliQueueResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { act.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDliQueue_withGeneral(rName, dli.CU_16),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QUEUE_TYPE_GENERAL),
+					resource.TestCheckResourceAttr(resourceName, "cu_count", fmt.Sprintf("%d", dli.CU_16)),
+					resource.TestCheckResourceAttrSet(resourceName, "resource_mode"),
+					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
+				),
+			},
+		},
+	})
+}
+
 func testAccDliQueue_basic(rName string, cuCount int) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dli_queue" "test" {
   name     = "%s"
   cu_count = %d
+
+  tags = {
+    foo = "bar"
+  }
+}
+`, rName, cuCount)
+}
+
+func testAccDliQueue_withGeneral(rName string, cuCount int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_dli_queue" "test" {
+  name       = "%s"
+  cu_count   = %d
+  queue_type = "general"
 
   tags = {
     foo = "bar"
