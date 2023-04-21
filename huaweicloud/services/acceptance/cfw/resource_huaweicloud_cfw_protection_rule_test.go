@@ -196,7 +196,7 @@ resource "huaweicloud_cfw_protection_rule" "test" {
 }
 
 func buildGetProtectionRuleQueryParams(state *terraform.ResourceState) string {
-	res := "?offset=0&limit=10"
+	res := "?offset=0&limit=1024"
 	res = fmt.Sprintf("%s&object_id=%v", res, state.Primary.Attributes["object_id"])
 
 	return res
