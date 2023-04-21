@@ -49,7 +49,7 @@ resource "huaweicloud_dds_instance" "instance" {
 }
 ```
 
-## Example Usage: Creating a Replica Set
+## Example Usage: Creating a Replica Set Community Edition
 
 ```hcl
 resource "huaweicloud_dds_instance" "instance" {
@@ -72,6 +72,33 @@ resource "huaweicloud_dds_instance" "instance" {
     storage   = "ULTRAHIGH"
     size      = 30
     spec_code = "dds.mongodb.c3.medium.4.repset"
+  }
+}
+```
+
+## Example Usage: Creating a Single Community Edition
+
+```hcl
+resource "huaweicloud_dds_instance" "instance" {
+  name = "dds-instance"
+  datastore {
+    type           = "DDS-Community"
+    version        = "3.4"
+    storage_engine = "wiredTiger"
+  }
+  availability_zone = "{{ availability_zone }}"
+  vpc_id            = "{{ vpc_id }}"
+  subnet_id         = "{{ subnet_network_id }}}"
+  security_group_id = "{{ security_group_id }}"
+  password          = "Test@123"
+  mode              = "Single"
+  
+  flavor {
+    type      = "single"
+    num       = 1
+    storage   = "ULTRAHIGH"
+    size      = 30
+    spec_code = "dds.mongodb.s6.large.2.single"
   }
 }
 ```
@@ -105,6 +132,9 @@ The following arguments are supported:
 
 * `mode` - (Required, String, ForceNew) Specifies the mode of the database instance. Changing this creates a new
   instance.
+
+* `configuration` - (Optional, List, ForceNew) Specifies the configuration information.
+  The structure is described below. Changing this creates a new instance.
 
 * `flavor` - (Required, List, ForceNew) Specifies the flavors information. The structure is described below. Changing
   this creates a new instance.
@@ -154,6 +184,17 @@ The `datastore` block supports:
 
 * `storage_engine` - (Optional, String, ForceNew) Specifies the storage engine of the DB instance. DDS Community Edition
   supports wiredTiger engine, and the Enhanced Edition supports rocksDB engine.
+
+The `configuration` block supports:
+
+* `type` - (Required, String, ForceNew) Specifies the node type. Valid value:
+  + For a Community Edition cluster instance, the value can be **mongos**, **shard** or **config**.
+  + For a Community Edition replica set instance, the value is **replica**.
+  + For a Community Edition single node instance, the value is **single**.
+    Changing this creates a new instance.
+
+* `id` - (Required, String, ForceNew) Specifies the ID of the template.
+  Changing this creates a new instance.
 
 The `flavor` block supports:
 
@@ -237,7 +278,7 @@ terraform import huaweicloud_dds_instance.instance 9c6d6ff2cba3434293fd479571517
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason.
-The missing attributes include: `password`, `availability_zone`, `flavor`.
+The missing attributes include: `password`, `availability_zone`, `flavor`, configuration.
 It is generally recommended running `terraform plan` after importing an instance.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to
 align with the instance. Also you can ignore changes as below.
@@ -248,7 +289,7 @@ resource "huaweicloud_dds_instance" "instance" {
 
   lifecycle {
     ignore_changes = [
-      password, availability_zone, flavor,
+      password, availability_zone, flavor, configuration,
     ]
   }
 }
