@@ -34,6 +34,27 @@ resource "huaweicloud_identity_group_role_assignment" "test" {
 }
 ```
 
+### Assign role with all projects
+
+```hcl
+variable "project_id" {}
+
+data "huaweicloud_identity_role" "test" {
+  # RDS Administrator
+  name = "rds_adm"
+}
+
+resource "huaweicloud_identity_group" "test" {
+  name = "group_1"
+}
+
+resource "huaweicloud_identity_group_role_assignment" "all" {
+  group_id   = huaweicloud_identity_group.test.id
+  role_id    = data.huaweicloud_identity_role.test.id
+  project_id = "all"
+}
+```
+
 ### Assign role with domain
 
 ```hcl
@@ -90,6 +111,9 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `project_id` - (Optional, String, ForceNew) Specifies the project to assign the role in.
+  If `project_id` is set to **all**, it means that the specified user group will be able to use all projects,
+  including existing and future projects.
+
   Changing this parameter will create a new resource.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project to assign the role in.
@@ -118,6 +142,12 @@ or
 
 ```bash
 $ terraform import huaweicloud_identity_group_role_assignment.test <group_id>/<role_id>/<project_id>
+```
+
+or
+
+```bash
+$ terraform import huaweicloud_identity_group_role_assignment.test <group_id>/<role_id>/all
 ```
 
 or

@@ -92,11 +92,20 @@ func resourceIdentityGroupRoleAssignmentCreate(ctx context.Context, d *schema.Re
 		projectID := v.(string)
 		resourceID = fmt.Sprintf("%s/%s/%s", groupID, roleID, projectID)
 
-		opts := roles.AssignOpts{
-			GroupID:   groupID,
-			ProjectID: projectID,
+		if projectID == "all" {
+			// "all" means that the specified user group will be able to use all projects,
+			// including existing and future projects.
+			if conf.DomainID == "" {
+				return diag.Errorf("the domain_id must be specified in the provider configuration")
+			}
+			err = roles.AssignAllResources(identityClient, conf.DomainID, groupID, roleID).ExtractErr()
+		} else {
+			opts := roles.AssignOpts{
+				GroupID:   groupID,
+				ProjectID: projectID,
+			}
+			err = roles.Assign(identityClient, roleID, opts).ExtractErr()
 		}
-		err = roles.Assign(identityClient, roleID, opts).ExtractErr()
 	}
 
 	if v, ok := d.GetOk("enterprise_project_id"); ok {
@@ -146,11 +155,20 @@ func resourceIdentityGroupRoleAssignmentRead(_ context.Context, d *schema.Resour
 		projectID := v.(string)
 		resourceID = fmt.Sprintf("%s/%s/%s", groupID, roleID, projectID)
 
-		roleAssignment, err := GetGroupRoleAssignmentWithProjectID(identityClient, groupID, roleID, projectID)
+		var roleAssignment roles.RoleAssignment
+		if projectID == "all" {
+			if conf.DomainID == "" {
+				return diag.Errorf("the domain_id must be specified in the provider configuration")
+			}
+			roleAssignment.ID = roleID
+			err = roles.CheckAllResourcesPermission(identityClient, conf.DomainID, groupID, roleID).ExtractErr()
+		} else {
+			roleAssignment, err = GetGroupRoleAssignmentWithProjectID(identityClient, groupID, roleID, projectID)
+		}
+
 		if err != nil {
 			return common.CheckDeletedDiag(d, err, "error getting role assignment")
 		}
-
 		respRoleID = roleAssignment.ID
 	}
 
@@ -281,11 +299,19 @@ func resourceIdentityGroupRoleAssignmentDelete(_ context.Context, d *schema.Reso
 	if v, ok := d.GetOk("project_id"); ok {
 		projectID := v.(string)
 
-		opts := roles.UnassignOpts{
-			GroupID:   groupID,
-			ProjectID: projectID,
+		if projectID == "all" {
+			if conf.DomainID == "" {
+				return diag.Errorf("the domain_id must be specified in the provider configuration")
+			}
+
+			err = roles.UnassignAllResources(identityClient, conf.DomainID, groupID, roleID).ExtractErr()
+		} else {
+			opts := roles.UnassignOpts{
+				GroupID:   groupID,
+				ProjectID: projectID,
+			}
+			err = roles.Unassign(identityClient, roleID, opts).ExtractErr()
 		}
-		err = roles.Unassign(identityClient, roleID, opts).ExtractErr()
 	}
 
 	if v, ok := d.GetOk("enterprise_project_id"); ok {
@@ -311,7 +337,7 @@ func resourceIdentityGroupRoleAssignmentImportState(_ context.Context, d *schema
 		return nil, fmt.Errorf("error creating IAM v3.0 client: %s", err)
 	}
 
-	parts := strings.SplitN(d.Id(), "/", 3)
+	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 3 {
 		return nil, fmt.Errorf("invalid format specified for import id," +
 			" must be <group_id>/<role_id>/<domain_id>, <group_id>/<role_id>/<project_id> or <group_id>/<role_id>/<enterprise_project_id>")
@@ -319,6 +345,11 @@ func resourceIdentityGroupRoleAssignmentImportState(_ context.Context, d *schema
 
 	d.Set("group_id", parts[0])
 	d.Set("role_id", parts[1])
+
+	if parts[2] == "all" {
+		d.Set("project_id", parts[2])
+		return []*schema.ResourceData{d}, nil
+	}
 
 	if _, err = GetGroupRoleAssignmentWithDomainID(identityClient, parts[0], parts[1], parts[2]); err == nil {
 		d.Set("domain_id", parts[2])
