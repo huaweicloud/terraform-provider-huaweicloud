@@ -159,11 +159,11 @@ The following arguments are supported:
 
 * `storage_space` - (Optional, Int) Specifies the message storage capacity, the unit is GB.
   The storage spaces corresponding to the product IDs are as follows:
-  + **c6.2u4g.cluster** (100MB bandwidth): `600` to `90,000` GB
-  + **c6.4u8g.cluster** (300MB bandwidth): `1,200` to `90,000` GB
-  + **c6.8u16g.cluster** (600MB bandwidth): `2,400` to `90,000` GB
-  + **c6.12u12g.cluster**: `3,600` to `90,000` GB
-  + **c6.16u32g.cluster** (1,200MB bandwidth): `4,800` to `90,000` GB
+  + **c6.2u4g.cluster** (100MB bandwidth): `300` to `300,000` GB
+  + **c6.4u8g.cluster** (300MB bandwidth): `300` to `600,000` GB
+  + **c6.8u16g.cluster** (600MB bandwidth): `300` to `900,000` GB
+  + **c6.12u12g.cluster**: `300` to `900,000` GB
+  + **c6.16u32g.cluster** (1,200MB bandwidth): `300` to `900,000` GB
 
   It is required when creating an instance with `flavor_id`.
 
