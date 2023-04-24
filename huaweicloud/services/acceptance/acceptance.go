@@ -125,6 +125,10 @@ var (
 	HW_WORKLOAD_TYPE = os.Getenv("HW_WORKLOAD_TYPE")
 	// The workload name deployed in CCE/CCI
 	HW_WORKLOAD_NAME = os.Getenv("HW_WORKLOAD_NAME")
+	// The target region of SWR image auto sync
+	HW_SWR_TARGET_REGION = os.Getenv("HW_SWR_TARGET_REGION")
+	// The target organization of SWR image auto sync
+	HW_SWR_TARGET_ORGANIZATION = os.Getenv("HW_SWR_TARGET_ORGANIZATION")
 
 	// Deprecated
 	HW_SRC_ACCESS_KEY = os.Getenv("HW_SRC_ACCESS_KEY")
@@ -578,6 +582,20 @@ func TestAccPreCheckCceClusterId(t *testing.T) {
 func TestAccPreCheckWorkloadNameSpace(t *testing.T) {
 	if HW_WORKLOAD_NAMESPACE == "" {
 		t.Skip("HW_WORKLOAD_NAMESPACE must be set for SWR image trigger acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSwrTargetRegion(t *testing.T) {
+	if HW_SWR_TARGET_REGION == "" {
+		t.Skip("HW_SWR_TARGET_REGION must be set for SWR image auto sync tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSwrTargetOrigination(t *testing.T) {
+	if HW_SWR_TARGET_ORGANIZATION == "" {
+		t.Skip("HW_SWR_TARGET_ORGANIZATION must be set for SWR image auto sync tests")
 	}
 }
 
