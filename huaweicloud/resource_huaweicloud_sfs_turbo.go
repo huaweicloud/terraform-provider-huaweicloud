@@ -19,6 +19,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+const (
+	prepaidUnitMonth int = 2
+	prepaidUnitYear  int = 3
+
+	autoRenewDisabled int = 0
+	autoRenewEnabled  int = 1
+)
+
 func ResourceSFSTurbo() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSFSTurboCreate,
@@ -31,8 +39,8 @@ func ResourceSFSTurbo() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(15 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
@@ -103,7 +111,11 @@ func ResourceSFSTurbo() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
-			"tags": common.TagsSchema(),
+			"tags":          common.TagsSchema(),
+			"charging_mode": common.SchemaChargingMode(nil),
+			"period_unit":   common.SchemaPeriodUnit(nil),
+			"period":        common.SchemaPeriod(nil),
+			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -124,25 +136,7 @@ func ResourceSFSTurbo() *schema.Resource {
 	}
 }
 
-func resourceSFSTurboCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	sfsClient, err := config.SfsV1Client(GetRegion(d, config))
-	if err != nil {
-		return diag.Errorf("error creating SFS v1 client: %s", err)
-	}
-
-	createOpts := shares.CreateOpts{
-		Name:                d.Get("name").(string),
-		Size:                d.Get("size").(int),
-		ShareProto:          d.Get("share_proto").(string),
-		ShareType:           d.Get("share_type").(string),
-		VpcID:               d.Get("vpc_id").(string),
-		SubnetID:            d.Get("subnet_id").(string),
-		SecurityGroupID:     d.Get("security_group_id").(string),
-		AvailabilityZone:    d.Get("availability_zone").(string),
-		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
-	}
-
+func buildTurboCreateOpts(cfg *config.Config, d *schema.ResourceData) shares.CreateOpts {
 	metaOpts := shares.Metadata{}
 	if v, ok := d.GetOk("crypt_key_id"); ok {
 		metaOpts.CryptKeyID = v.(string)
@@ -150,22 +144,84 @@ func resourceSFSTurboCreate(ctx context.Context, d *schema.ResourceData, meta in
 	if _, ok := d.GetOk("enhanced"); ok {
 		metaOpts.ExpandType = "bandwidth"
 	}
-	createOpts.Metadata = metaOpts
 
+	result := shares.CreateOpts{
+		Share: shares.Share{
+			Name:                d.Get("name").(string),
+			Size:                d.Get("size").(int),
+			ShareProto:          d.Get("share_proto").(string),
+			ShareType:           d.Get("share_type").(string),
+			VpcID:               d.Get("vpc_id").(string),
+			SubnetID:            d.Get("subnet_id").(string),
+			SecurityGroupID:     d.Get("security_group_id").(string),
+			AvailabilityZone:    d.Get("availability_zone").(string),
+			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+			Metadata:            metaOpts,
+		},
+	}
+	if d.Get("charging_mode") == "prePaid" {
+		billing := shares.BssParam{
+			PeriodNum: d.Get("period").(int),
+			IsAutoPay: utils.Int(1), // Always enable auto-pay.
+		}
+		if d.Get("period_unit").(string) == "month" {
+			billing.PeriodType = prepaidUnitMonth
+		} else {
+			billing.PeriodType = prepaidUnitYear
+		}
+		if d.Get("auto_renew").(string) == "true" {
+			billing.IsAutoRenew = utils.Int(autoRenewEnabled)
+		} else {
+			billing.IsAutoRenew = utils.Int(autoRenewDisabled)
+		}
+		result.BssParam = &billing
+	}
+	return result
+}
+
+func resourceSFSTurboCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	sfsClient, err := cfg.SfsV1Client(GetRegion(d, cfg))
+	if err != nil {
+		return diag.Errorf("error creating SFS v1 client: %s", err)
+	}
+
+	createOpts := buildTurboCreateOpts(cfg, d)
 	logp.Printf("[DEBUG] create sfs turbo with option: %+v", createOpts)
-	create, err := shares.Create(sfsClient, createOpts).Extract()
+	resp, err := shares.Create(sfsClient, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating SFS Turbo: %s", err)
 	}
-	d.SetId(create.ID)
+
+	if d.Get("charging_mode").(string) == "prePaid" {
+		orderId := resp.OrderId
+		if orderId == "" {
+			return diag.Errorf("unable to find the order ID, this is a COM (Cloud Order Management) error, " +
+				"please contact service for help and check your order status on the console.")
+		}
+		bssClient, err := cfg.BssV2Client(GetRegion(d, cfg))
+		if err != nil {
+			return diag.Errorf("error creating BSS v2 client: %s", err)
+		}
+		err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		d.SetId(resourceId)
+	} else {
+		d.SetId(resp.ID)
+	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"100"},
-		Target:     []string{"200"},
-		Refresh:    waitForSFSTurboStatus(sfsClient, create.ID),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      20 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Pending:      []string{"100"},
+		Target:       []string{"200"},
+		Refresh:      waitForSFSTurboStatus(sfsClient, resp.ID),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		PollInterval: 3 * time.Second,
 	}
 	_, StateErr := stateConf.WaitForState()
 	if StateErr != nil {
@@ -180,7 +236,7 @@ func resourceSFSTurboCreate(ctx context.Context, d *schema.ResourceData, meta in
 	return resourceSFSTurboRead(ctx, d, meta)
 }
 
-func resourceSFSTurboRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSFSTurboRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	sfsClient, err := config.SfsV1Client(GetRegion(d, config))
 	if err != nil {
@@ -205,6 +261,7 @@ func resourceSFSTurboRead(ctx context.Context, d *schema.ResourceData, meta inte
 	d.Set("export_location", n.ExportLocation)
 	d.Set("crypt_key_id", n.CryptKeyID)
 	d.Set("enterprise_project_id", n.EnterpriseProjectId)
+	// Cannot obtain the billing parameters for pre-paid.
 
 	// n.Size is a string of float64, should convert it to int
 	if fsize, err := strconv.ParseFloat(n.Size, 64); err == nil {
@@ -235,46 +292,88 @@ func resourceSFSTurboRead(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
+func buildTurboUpdateOpts(newSize int, isPrePaid bool) shares.ExpandOpts {
+	expandOpts := shares.ExtendOpts{
+		NewSize: newSize,
+	}
+	if isPrePaid {
+		expandOpts.BssParam = &shares.BssParamExtend{
+			IsAutoPay: utils.Int(1),
+		}
+	}
+	return shares.ExpandOpts{
+		Extend: expandOpts,
+	}
+}
+
 func resourceSFSTurboUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	sfsClient, err := config.SfsV1Client(GetRegion(d, config))
+	cfg := meta.(*config.Config)
+	region := GetRegion(d, cfg)
+	sfsClient, err := cfg.SfsV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating SFS v1 client: %s", err)
 	}
 
+	resourceId := d.Id()
 	if d.HasChange("size") {
-		old, newsize := d.GetChange("size")
-		if old.(int) > newsize.(int) {
+		old, newSize := d.GetChange("size")
+		if old.(int) > newSize.(int) {
 			return diag.Errorf("shrinking SFS Turbo size is not supported")
 		}
 
-		expandOpts := shares.ExpandOpts{
-			Extend: shares.ExtendOpts{NewSize: newsize.(int)},
-		}
-		expand := shares.Expand(sfsClient, d.Id(), expandOpts)
-		if expand.Err != nil {
-			return diag.Errorf("error expanding SFS Turbo size: %s", expand.Err)
+		isPrePaid := d.Get("charging_mode").(string) == "prePaid"
+		updateOpts := buildTurboUpdateOpts(newSize.(int), isPrePaid)
+		resp, err := shares.Expand(sfsClient, d.Id(), updateOpts).Extract()
+		if err != nil {
+			return diag.Errorf("error expanding SFS Turbo size: %s", err)
 		}
 
+		if isPrePaid {
+			orderId := resp.OrderId
+			if orderId == "" {
+				return diag.Errorf("unable to find the order ID, this is a COM (Cloud Order Management) error, " +
+					"please contact service for help and check your order status on the console.")
+			}
+			bssClient, err := cfg.BssV2Client(region)
+			if err != nil {
+				return diag.Errorf("error creating BSS v2 client: %s", err)
+			}
+			err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			_, err = common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
 		stateConf := &resource.StateChangeConf{
-			Pending:    []string{"121"},
-			Target:     []string{"221", "200"},
-			Refresh:    waitForSFSTurboSubStatus(sfsClient, d.Id()),
-			Timeout:    d.Timeout(schema.TimeoutUpdate),
-			Delay:      10 * time.Second,
-			MinTimeout: 5 * time.Second,
+			Pending:      []string{"121"},
+			Target:       []string{"221", "200"},
+			Refresh:      waitForSFSTurboSubStatus(sfsClient, resourceId),
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			PollInterval: 5 * time.Second,
 		}
-
 		_, err = stateConf.WaitForStateContext(ctx)
 		if err != nil {
-			return diag.Errorf("error deleting SFS Turbo: %s", err)
+			return diag.Errorf("Error updating HuaweiCloud SFS Turbo: %s", err)
 		}
 	}
 
 	// update tags
 	if d.HasChange("tags") {
 		if err := updateSFSTurboTags(sfsClient, d); err != nil {
-			return diag.Errorf("error updating tags of SFS Turbo %s: %s", d.Id(), err)
+			return diag.Errorf("error updating tags of SFS Turbo %s: %s", resourceId, err)
+		}
+	}
+
+	if d.HasChange("auto_renew") {
+		bssClient, err := cfg.BssV2Client(region)
+		if err != nil {
+			return diag.Errorf("error creating BSS V2 client: %s", err)
+		}
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), resourceId); err != nil {
+			return diag.Errorf("error updating the auto-renew of the SFS Turbo (%s): %s", resourceId, err)
 		}
 	}
 
@@ -310,15 +409,24 @@ func resourceSFSTurboDelete(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error creating SFS v1 client: %s", err)
 	}
 
-	err = shares.Delete(sfsClient, d.Id()).ExtractErr()
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "SFS Turbo")
+	resourceId := d.Id()
+	// for prePaid mode, we should unsubscribe the resource
+	if d.Get("charging_mode").(string) == "prePaid" {
+		err := common.UnsubscribePrePaidResource(d, config, []string{resourceId})
+		if err != nil {
+			return diag.Errorf("error unsubscribing SFS Turbo: %s", err)
+		}
+	} else {
+		err = shares.Delete(sfsClient, resourceId).ExtractErr()
+		if err != nil {
+			return common.CheckDeletedDiag(d, err, "SFS Turbo")
+		}
 	}
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"100", "200"},
 		Target:     []string{"deleted"},
-		Refresh:    waitForSFSTurboStatus(sfsClient, d.Id()),
+		Refresh:    waitForSFSTurboStatus(sfsClient, resourceId),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
