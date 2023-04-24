@@ -244,3 +244,7 @@ type AssignmentResult struct {
 type UnassignmentResult struct {
 	golangsdk.ErrResult
 }
+
+type CheckResult struct {
+	golangsdk.ErrResult
+}
