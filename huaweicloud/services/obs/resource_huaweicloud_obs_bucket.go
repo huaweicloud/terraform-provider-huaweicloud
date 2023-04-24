@@ -369,7 +369,7 @@ func resourceObsBucketUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 	log.Printf("[DEBUG] Update OBS bucket %s", d.Id())
 	if d.HasChange("acl") && !d.IsNewResource() {
-		if err := resourceObsBucketAclUpdate(obsClient, d); err != nil {
+		if err := updateObsBucketAcl(obsClient, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -614,7 +614,7 @@ func resourceObsBucketTagsUpdate(obsClient *obs.ObsClient, d *schema.ResourceDat
 	return nil
 }
 
-func resourceObsBucketAclUpdate(obsClient *obs.ObsClient, d *schema.ResourceData) error {
+func updateObsBucketAcl(obsClient *obs.ObsClient, d *schema.ResourceData) error {
 	bucket := d.Get("bucket").(string)
 	acl := d.Get("acl").(string)
 
