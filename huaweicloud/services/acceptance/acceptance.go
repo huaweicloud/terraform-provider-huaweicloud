@@ -36,7 +36,9 @@ var (
 	HW_ENTERPRISE_PROJECT_ID = os.Getenv("HW_ENTERPRISE_PROJECT_ID")
 	HW_MAPREDUCE_CUSTOM      = os.Getenv("HW_MAPREDUCE_CUSTOM")
 	HW_ADMIN                 = os.Getenv("HW_ADMIN")
-	HW_OBS_BUCKET_NAME       = os.Getenv("HW_OBS_BUCKET_NAME")
+
+	HW_OBS_BUCKET_NAME        = os.Getenv("HW_OBS_BUCKET_NAME")
+	HW_OBS_DESTINATION_BUCKET = os.Getenv("HW_OBS_DESTINATION_BUCKET")
 
 	HW_OMS_ENABLE_FLAG = os.Getenv("HW_OMS_ENABLE_FLAG")
 
@@ -328,6 +330,13 @@ func TestAccPreCheckOBS(t *testing.T) {
 func TestAccPreCheckOBSBucket(t *testing.T) {
 	if HW_OBS_BUCKET_NAME == "" {
 		t.Skip("HW_OBS_BUCKET_NAME must be set for OBS object acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckOBSDestinationBucket(t *testing.T) {
+	if HW_OBS_DESTINATION_BUCKET == "" {
+		t.Skip("HW_OBS_DESTINATION_BUCKET must be set for OBS destination tests")
 	}
 }
 
