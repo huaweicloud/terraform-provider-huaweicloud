@@ -692,7 +692,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_codehub_repository": codehub.ResourceRepository(),
 
-			"huaweicloud_compute_instance":         ResourceComputeInstanceV2(),
+			"huaweicloud_compute_instance":         ecs.ResourceComputeInstance(),
 			"huaweicloud_compute_interface_attach": ResourceComputeInterfaceAttachV2(),
 			"huaweicloud_compute_keypair":          ResourceComputeKeypairV2(),
 			"huaweicloud_compute_servergroup":      ResourceComputeServerGroupV2(),
@@ -1026,7 +1026,7 @@ func Provider() *schema.Provider {
 			// Legacy
 			"huaweicloud_networking_eip_associate": eip.ResourceEIPAssociate(),
 
-			"huaweicloud_compute_instance_v2":             ResourceComputeInstanceV2(),
+			"huaweicloud_compute_instance_v2":             ecs.ResourceComputeInstance(),
 			"huaweicloud_compute_interface_attach_v2":     ResourceComputeInterfaceAttachV2(),
 			"huaweicloud_compute_keypair_v2":              ResourceComputeKeypairV2(),
 			"huaweicloud_compute_servergroup_v2":          ResourceComputeServerGroupV2(),

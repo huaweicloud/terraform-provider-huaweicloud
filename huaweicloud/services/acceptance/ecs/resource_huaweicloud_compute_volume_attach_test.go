@@ -192,30 +192,6 @@ resource "huaweicloud_compute_volume_attach" "va_1" {
 `, testAccCompute_data, rName, rName)
 }
 
-const testAccCompute_data = `
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_compute_flavors" "test" {
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  performance_type  = "normal"
-  cpu_core_count    = 2
-  memory_size       = 4
-}
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_images_image" "test" {
-  name        = "Ubuntu 20.04 server 64bit"
-  most_recent = true
-}
-
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
-`
-
 func testAccComputeVolumeAttach_multiple(rName string) string {
 	return fmt.Sprintf(`
 %s
