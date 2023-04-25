@@ -151,6 +151,13 @@ func ResourceCCEClusterV3() *schema.Resource {
 				Computed:     true,
 				RequiredWith: []string{"eni_subnet_id"},
 			},
+			"enable_distribute_management": {
+				Type:         schema.TypeBool,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"eni_subnet_id", "eni_subnet_cidr"},
+				Description:  "schema: Internal",
+			},
 			"authentication_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -479,6 +486,10 @@ func resourceCCEClusterV3Create(ctx context.Context, d *schema.ResourceData, met
 			Cidr:     d.Get("eni_subnet_cidr").(string),
 		}
 		createOpts.Spec.EniNetwork = &eniNetwork
+	}
+
+	if _, ok := d.GetOk("enable_distribute_management"); ok {
+		createOpts.Spec.EnableDistMgt = d.Get("enable_distribute_management").(bool)
 	}
 
 	masters, err := resourceClusterMastersV3(d)
