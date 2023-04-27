@@ -696,7 +696,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_interface_attach": ResourceComputeInterfaceAttachV2(),
 			"huaweicloud_compute_keypair":          ResourceComputeKeypairV2(),
 			"huaweicloud_compute_servergroup":      ecs.ResourceComputeServerGroup(),
-			"huaweicloud_compute_eip_associate":    ResourceComputeFloatingIPAssociateV2(),
+			"huaweicloud_compute_eip_associate":    ecs.ResourceComputeEIPAssociate(),
 			"huaweicloud_compute_volume_attach":    ecs.ResourceComputeVolumeAttach(),
 
 			"huaweicloud_cph_server": cph.ResourceCphServer(),
@@ -1031,7 +1031,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_keypair_v2":              ResourceComputeKeypairV2(),
 			"huaweicloud_compute_servergroup_v2":          ecs.ResourceComputeServerGroup(),
 			"huaweicloud_compute_volume_attach_v2":        ecs.ResourceComputeVolumeAttach(),
-			"huaweicloud_compute_floatingip_associate_v2": ResourceComputeFloatingIPAssociateV2(),
+			"huaweicloud_compute_floatingip_associate_v2": ecs.ResourceComputeEIPAssociate(),
 
 			"huaweicloud_dns_ptrrecord_v2": dns.ResourceDNSPtrRecord(),
 			"huaweicloud_dns_recordset_v2": dns.ResourceDNSRecordSetV2(),

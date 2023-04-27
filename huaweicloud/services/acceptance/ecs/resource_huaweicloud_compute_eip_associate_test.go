@@ -1,11 +1,10 @@
-package huaweicloud
+package ecs
 
 import (
 	"fmt"
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -13,22 +12,23 @@ import (
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	bandwidthsv1 "github.com/chnsz/golangsdk/openstack/networking/v1/bandwidths"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccComputeEIPAssociate_basic(t *testing.T) {
 	var instance cloudservers.CloudServer
 	var eip eips.PublicIp
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_compute_eip_associate.test"
 	partten := `^((25[0-5]|2[0-4]\d|(1\d{2}|[1-9]?\d))\.){3}(25[0-5]|2[0-4]\d|(1\d{2}|[1-9]?\d))$`
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeEIPAssociateDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckComputeEIPAssociateDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeEIPAssociate_basic(rName),
@@ -53,13 +53,13 @@ func TestAccComputeEIPAssociate_fixedIP(t *testing.T) {
 	var instance cloudservers.CloudServer
 	var eip eips.PublicIp
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_compute_eip_associate.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeEIPAssociateDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckComputeEIPAssociateDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeEIPAssociate_fixedIP(rName),
@@ -80,10 +80,10 @@ func TestAccComputeEIPAssociate_fixedIP(t *testing.T) {
 }
 
 func testAccCheckComputeEIPAssociateDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	computeClient, err := config.ComputeV1Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	computeClient, err := config.ComputeV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("Error creating compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -91,11 +91,7 @@ func testAccCheckComputeEIPAssociateDestroy(s *terraform.State) error {
 			continue
 		}
 
-		floatingIP, instanceId, _, err := parseComputeFloatingIPAssociateID(rs.Primary.ID)
-		if err != nil {
-			return err
-		}
-
+		instanceId := rs.Primary.Attributes["instance_id"]
 		instance, err := cloudservers.Get(computeClient, instanceId).Extract()
 		if err != nil {
 			// If the error is a 404, then the instance does not exist,
@@ -111,7 +107,7 @@ func testAccCheckComputeEIPAssociateDestroy(s *terraform.State) error {
 		for _, networkAddresses := range instance.Addresses {
 			for _, address := range networkAddresses {
 				if address.Type == "floating" || address.Type == "fixed" {
-					return fmtp.Errorf("EIP %s is still attached to instance %s", floatingIP, instanceId)
+					return fmt.Errorf("EIP %s is still attached to instance %s", address.Addr, instanceId)
 				}
 			}
 		}
@@ -123,8 +119,8 @@ func testAccCheckComputeEIPAssociateDestroy(s *terraform.State) error {
 func testAccCheckComputeEIPAssociateAssociated(
 	eip *eips.PublicIp, instance *cloudservers.CloudServer, n int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*config.Config)
-		computeClient, err := config.ComputeV1Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		computeClient, err := config.ComputeV1Client(acceptance.HW_REGION_NAME)
 
 		newInstance, err := cloudservers.Get(computeClient, instance.ID).Extract()
 		if err != nil {
@@ -144,7 +140,7 @@ func testAccCheckComputeEIPAssociateAssociated(
 				}
 			}
 		}
-		return fmtp.Errorf("EIP %s was not attached to instance %s", eip.PublicAddress, instance.ID)
+		return fmt.Errorf("EIP %s was not attached to instance %s", eip.PublicAddress, instance.ID)
 	}
 }
 
@@ -159,8 +155,8 @@ func testAccCheckVpcV1EIPExists(n string, eip *eips.PublicIp) resource.TestCheck
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		networkingClient, err := config.NetworkingV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating networking client: %s", err)
 		}
@@ -244,16 +240,16 @@ resource "huaweicloud_compute_eip_associate" "test" {
 
 func TestAccComputeEIPAssociate_bandwidth(t *testing.T) {
 	var portInfo bandwidthsv1.PublicIpinfo
-	randName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	randName := acceptance.RandomAccResourceNameWithDash()
 
 	resourceName := "huaweicloud_compute_eip_associate.test"
 	bwResourceName := "huaweicloud_vpc_bandwidth.bandwidth_1"
 	ecsResourceName := "huaweicloud_compute_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBandWidthAssociateDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckBandWidthAssociateDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeEIPAssociate_bandwidth(randName),
@@ -273,10 +269,10 @@ func TestAccComputeEIPAssociate_bandwidth(t *testing.T) {
 }
 
 func testAccCheckBandWidthAssociateDestroy(s *terraform.State) error {
-	conf := testAccProvider.Meta().(*config.Config)
-	client, err := conf.NetworkingV1Client(HW_REGION_NAME)
+	conf := acceptance.TestAccProvider.Meta().(*config.Config)
+	client, err := conf.NetworkingV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("error creating HuaweiCloud VPC client: %s", err)
+		return fmt.Errorf("error creating VPC client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -308,17 +304,17 @@ func testAccCheckBandWidthAssociateExists(n string, info *bandwidthsv1.PublicIpi
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Bandwidth Associate Resource not found: %s", n)
+			return fmt.Errorf("Bandwidth Associate Resource not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("No ID is set")
 		}
 
-		conf := testAccProvider.Meta().(*config.Config)
-		client, err := conf.NetworkingV1Client(HW_REGION_NAME)
+		conf := acceptance.TestAccProvider.Meta().(*config.Config)
+		client, err := conf.NetworkingV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("error creating HuaweiCloud VPC client: %s", err)
+			return fmt.Errorf("error creating VPC client: %s", err)
 		}
 
 		bwID := rs.Primary.Attributes["bandwidth_id"]
