@@ -129,6 +129,14 @@ func ResourceAlarmRule() *schema.Resource {
 				},
 			},
 
+			"resource_group_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "schema: Internal",
+			},
+
 			"resources": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -138,6 +146,7 @@ func ResourceAlarmRule() *schema.Resource {
 						"dimensions": {
 							Type:     schema.TypeList,
 							Optional: true,
+							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": {
@@ -148,6 +157,7 @@ func ResourceAlarmRule() *schema.Resource {
 									"value": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Computed: true,
 									},
 								},
 							},
@@ -513,6 +523,7 @@ func resourceAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, meta i
 		Name:                  d.Get("alarm_name").(string),
 		Description:           d.Get("alarm_description").(string),
 		Namespace:             namespace,
+		ResourceGroupID:       d.Get("resource_group_id").(string),
 		Resources:             resources,
 		Policies:              buildPoliciesOpts(d, metricName),
 		Type:                  d.Get("alarm_type").(string),
@@ -614,12 +625,18 @@ func resourceAlarmRuleRead(_ context.Context, d *schema.ResourceData, meta inter
 		}
 	}
 
+	var resourceGroupID string
+	if len(rV2.Resources) > 0 {
+		resourceGroupID = rV2.Resources[0].ResourceGroupID
+	}
+
 	mErr = multierror.Append(mErr,
 		d.Set("notification_begin_time", rV2.NotificationBeginTime),
 		d.Set("notification_end_time", rV2.NotificationEndTime),
 		d.Set("condition", conditions),
 		d.Set("metric", flattenMetric(dimensions, metricName, rV2.Namespace)),
 		d.Set("alarm_level", alarmLevel),
+		d.Set("resource_group_id", resourceGroupID),
 		d.Set("resources", resourcesToSet),
 	)
 
