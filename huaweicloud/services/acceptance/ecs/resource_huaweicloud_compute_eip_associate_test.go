@@ -80,8 +80,8 @@ func TestAccComputeEIPAssociate_fixedIP(t *testing.T) {
 }
 
 func testAccCheckComputeEIPAssociateDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	computeClient, err := config.ComputeV1Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	computeClient, err := cfg.ComputeV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating compute client: %s", err)
 	}
@@ -119,8 +119,11 @@ func testAccCheckComputeEIPAssociateDestroy(s *terraform.State) error {
 func testAccCheckComputeEIPAssociateAssociated(
 	eip *eips.PublicIp, instance *cloudservers.CloudServer, n int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		computeClient, err := config.ComputeV1Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		computeClient, err := cfg.ComputeV1Client(acceptance.HW_REGION_NAME)
+		if err != nil {
+			return fmt.Errorf("Error creating compute client: %s", err)
+		}
 
 		newInstance, err := cloudservers.Get(computeClient, instance.ID).Extract()
 		if err != nil {

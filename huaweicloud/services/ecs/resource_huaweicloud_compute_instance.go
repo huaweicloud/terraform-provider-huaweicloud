@@ -1808,7 +1808,6 @@ func checkBlockDeviceConfig(d *schema.ResourceData) error {
 
 func waitForServerTargetState(ctx context.Context, client *golangsdk.ServiceClient, instanceID string, pending, target []string,
 	timeout time.Duration) error {
-
 	stateConf := &resource.StateChangeConf{
 		Pending:      pending,
 		Target:       target,

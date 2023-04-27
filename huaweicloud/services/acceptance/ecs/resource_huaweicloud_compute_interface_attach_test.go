@@ -43,16 +43,16 @@ func TestAccComputeInterfaceAttach_Basic(t *testing.T) {
 	})
 }
 
-func computeInterfaceAttachParseID(id string) (string, string, error) {
+func computeInterfaceAttachParseID(id string) (instanceID string, portID string, err error) {
 	idParts := strings.Split(id, "/")
 	if len(idParts) < 2 {
-		return "", "", fmt.Errorf("Unable to parse the resource ID, must be <instance_id>/<port_id> format")
+		err = fmt.Errorf("unable to parse the resource ID, must be <instance_id>/<port_id> format")
+		return
 	}
 
-	instanceId := idParts[0]
-	attachmentId := idParts[1]
-
-	return instanceId, attachmentId, nil
+	instanceID = idParts[0]
+	portID = idParts[1]
+	return
 }
 
 func testAccCheckComputeInterfaceAttachDestroy(s *terraform.State) error {
