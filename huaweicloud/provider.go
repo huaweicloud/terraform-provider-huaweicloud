@@ -633,6 +633,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_instance_routes":             apig.ResourceInstanceRoutes(),
 			"huaweicloud_apig_instance":                    apig.ResourceApigInstanceV2(),
 			"huaweicloud_apig_response":                    apig.ResourceApigResponseV2(),
+			"huaweicloud_apig_signature_associate":         apig.ResourceSignatureAssociate(),
 			"huaweicloud_apig_signature":                   apig.ResourceSignature(),
 			"huaweicloud_apig_throttling_policy_associate": apig.ResourceThrottlingPolicyAssociate(),
 			"huaweicloud_apig_throttling_policy":           apig.ResourceApigThrottlingPolicyV2(),
