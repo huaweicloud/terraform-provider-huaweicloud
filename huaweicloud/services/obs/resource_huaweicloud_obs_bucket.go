@@ -654,7 +654,7 @@ func resourceObsBucketPolicyUpdate(obsClient *obs.ObsClient, d *schema.ResourceD
 		log.Printf("[DEBUG] OBS bucket: %s, delete policy", bucket)
 		_, err := obsClient.DeleteBucketPolicy(bucket)
 		if err != nil {
-			return getObsError("Error deleting policy of OBS bucket %s: %s", bucket, err)
+			return getObsError("Error deleting policy of OBS bucket", bucket, err)
 		}
 	}
 
@@ -1132,8 +1132,7 @@ func setObsBucketPolicy(obsClient *obs.ObsClient, d *schema.ResourceData) error 
 				}
 				return nil
 			}
-			return fmt.Errorf("Error getting policy of OBS bucket %s: %s,\n Reason: %s",
-				bucket, obsError.Code, obsError.Message)
+			return fmt.Errorf("error getting policy of OBS bucket %s: %s", bucket, err)
 		}
 		return err
 	}
@@ -1184,8 +1183,7 @@ func setObsBucketEncryption(obsClient *obs.ObsClient, d *schema.ResourceData) er
 				}
 				return nil
 			}
-			return fmt.Errorf("Error getting encryption configuration of OBS bucket %s: %s,\n Reason: %s",
-				bucket, obsError.Code, obsError.Message)
+			return fmt.Errorf("error getting encryption configuration of OBS bucket %s: %s", bucket, err)
 		}
 		return err
 	}
@@ -1265,8 +1263,7 @@ func setObsBucketLifecycleConfiguration(obsClient *obs.ObsClient, d *schema.Reso
 				}
 				return nil
 			}
-			return fmt.Errorf("Error getting lifecycle configuration of OBS bucket %s: %s,\n Reason: %s",
-				bucket, obsError.Code, obsError.Message)
+			return fmt.Errorf("error getting lifecycle configuration of OBS bucket %s: %s", bucket, err)
 		}
 		return err
 	}
@@ -1349,8 +1346,7 @@ func setObsBucketWebsiteConfiguration(obsClient *obs.ObsClient, d *schema.Resour
 				}
 				return nil
 			}
-			return fmt.Errorf("Error getting website configuration of OBS bucket %s: %s,\n Reason: %s",
-				bucket, obsError.Code, obsError.Message)
+			return fmt.Errorf("error getting website configuration of OBS bucket %s: %s", bucket, err)
 		}
 		return err
 	}
@@ -1414,8 +1410,7 @@ func setObsBucketCorsRules(obsClient *obs.ObsClient, d *schema.ResourceData) err
 				}
 				return nil
 			}
-			return fmt.Errorf("Error getting CORS configuration of OBS bucket %s: %s,\n Reason: %s",
-				bucket, obsError.Code, obsError.Message)
+			return fmt.Errorf("error getting CORS configuration of OBS bucket %s: %s", bucket, err)
 		}
 		return err
 	}
@@ -1458,8 +1453,7 @@ func setObsBucketTags(obsClient *obs.ObsClient, d *schema.ResourceData) error {
 				}
 				return nil
 			}
-			return fmt.Errorf("Error getting tags of OBS bucket %s: %s,\n Reason: %s",
-				bucket, obsError.Code, obsError.Message)
+			return fmt.Errorf("error getting tags of OBS bucket %s: %s", bucket, err)
 		}
 		return err
 	}
@@ -1479,9 +1473,8 @@ func setObsBucketStorageInfo(obsClient *obs.ObsClient, d *schema.ResourceData) e
 	bucket := d.Id()
 	output, err := obsClient.GetBucketStorageInfo(bucket)
 	if err != nil {
-		if obsError, ok := err.(obs.ObsError); ok {
-			return fmt.Errorf("error getting storage info of OBS bucket %s: %s,\n Reason: %s",
-				bucket, obsError.Code, obsError.Message)
+		if _, ok := err.(obs.ObsError); ok {
+			return fmt.Errorf("error getting storage info of OBS bucket %s: %s", bucket, err)
 		}
 		return err
 	}
@@ -1543,8 +1536,8 @@ func expirationHash(v interface{}) int {
 }
 
 func getObsError(action string, bucket string, err error) error {
-	if obsError, ok := err.(obs.ObsError); ok {
-		return fmt.Errorf("%s %s: %s,\n Reason: %s", action, bucket, obsError.Code, obsError.Message)
+	if _, ok := err.(obs.ObsError); ok {
+		return fmt.Errorf("%s %s: %s", action, bucket, err)
 	}
 	return err
 }
