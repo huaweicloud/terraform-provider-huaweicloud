@@ -1,7 +1,9 @@
-package huaweicloud
+package ecs
 
 import (
 	"fmt"
+	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -11,18 +13,17 @@ import (
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/attachinterfaces"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func ResourceComputeInterfaceAttachV2() *schema.Resource {
+func ResourceComputeInterfaceAttach() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceComputeInterfaceAttachV2Create,
-		Read:   resourceComputeInterfaceAttachV2Read,
-		Update: resourceComputeInterfaceAttachV2Update,
-		Delete: resourceComputeInterfaceAttachV2Delete,
+		Create: resourceComputeInterfaceAttachCreate,
+		Read:   resourceComputeInterfaceAttachRead,
+		Update: resourceComputeInterfaceAttachUpdate,
+		Delete: resourceComputeInterfaceAttachDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -105,18 +106,17 @@ func updateInterfacePort(client *golangsdk.ServiceClient, portId string, securit
 	return err
 }
 
-func resourceComputeInterfaceAttachV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
+func resourceComputeInterfaceAttachCreate(d *schema.ResourceData, meta interface{}) error {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	computeClient, err := cfg.ComputeV2Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
-	nicClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	nicClient, err := cfg.NetworkingV2Client(region)
 	if err != nil {
-		return fmtp.Errorf("error creating VPC v2.0 client: %s", err)
+		return fmt.Errorf("error creating VPC v2.0 client: %s", err)
 	}
-
-	instanceId := d.Get("instance_id").(string)
 
 	var portId string
 	if v, ok := d.GetOk("port_id"); ok {
@@ -140,7 +140,8 @@ func resourceComputeInterfaceAttachV2Create(d *schema.ResourceData, meta interfa
 		FixedIPs:  fixedIPs,
 	}
 
-	logp.Printf("[DEBUG] huaweicloud_compute_interface_attach attach options: %#v", attachOpts)
+	log.Printf("[DEBUG] compute interface attach options: %#v", attachOpts)
+	instanceId := d.Get("instance_id").(string)
 	attachment, err := attachinterfaces.Create(computeClient, instanceId, attachOpts).Extract()
 	if err != nil {
 		return err
@@ -150,21 +151,18 @@ func resourceComputeInterfaceAttachV2Create(d *schema.ResourceData, meta interfa
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"ATTACHING"},
 		Target:     []string{"ATTACHED"},
-		Refresh:    computeInterfaceAttachV2AttachFunc(computeClient, instanceId, portID),
+		Refresh:    computeInterfaceAttachAttachFunc(computeClient, instanceId, portID),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      5 * time.Second,
 		MinTimeout: 5 * time.Second,
 	}
 
 	if _, err = stateConf.WaitForState(); err != nil {
-		return fmtp.Errorf("Error creating huaweicloud_compute_interface_attach %s: %s", instanceId, err)
+		return fmt.Errorf("error creating attaching interface to compute instance %s: %s", instanceId, err)
 	}
 
 	// Use the instance ID and port ID as the resource ID.
 	id := fmt.Sprintf("%s/%s", instanceId, portID)
-
-	logp.Printf("[DEBUG] Created huaweicloud_compute_interface_attach %s: %#v", id, attachment)
-
 	d.SetId(id)
 
 	var (
@@ -173,39 +171,38 @@ func resourceComputeInterfaceAttachV2Create(d *schema.ResourceData, meta interfa
 	)
 	err = updateInterfacePort(nicClient, portID, utils.ExpandToStringList(securityGroupIds), sourceDestCheckEnabled)
 	if err != nil {
-		return fmtp.Errorf("error updating VPC port (%s): %s", portID, err)
+		return fmt.Errorf("error updating VPC port (%s): %s", portID, err)
 	}
 
-	return resourceComputeInterfaceAttachV2Read(d, meta)
+	return resourceComputeInterfaceAttachRead(d, meta)
 }
 
-func resourceComputeInterfaceAttachV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
+func resourceComputeInterfaceAttachRead(d *schema.ResourceData, meta interface{}) error {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	computeClient, err := cfg.ComputeV2Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := cfg.NetworkingV2Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating networking client: %s", err)
 	}
 
-	instanceId, portId, err := computeInterfaceAttachV2ParseID(d.Id())
+	instanceId, portId, err := computeInterfaceAttachParseID(d.Id())
 	if err != nil {
 		return err
 	}
 
 	attachment, err := attachinterfaces.Get(computeClient, instanceId, portId).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "Error retrieving huaweicloud_compute_interface_attach")
+		return common.CheckDeleted(d, err, "error retrieving compute interface attach")
 	}
-
-	logp.Printf("[DEBUG] Retrieved huaweicloud_compute_interface_attach %s: %#v", d.Id(), attachment)
 
 	d.Set("instance_id", instanceId)
 	d.Set("port_id", attachment.PortID)
 	d.Set("network_id", attachment.NetID)
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", region)
 
 	if len(attachment.FixedIPs) > 0 {
 		firstAddress := attachment.FixedIPs[0].IPAddress
@@ -221,13 +218,13 @@ func resourceComputeInterfaceAttachV2Read(d *schema.ResourceData, meta interface
 	return nil
 }
 
-func resourceComputeInterfaceAttachV2Update(d *schema.ResourceData, meta interface{}) error {
+func resourceComputeInterfaceAttachUpdate(d *schema.ResourceData, meta interface{}) error {
 	var err error
 
-	config := meta.(*config.Config)
-	nicClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	cfg := meta.(*config.Config)
+	nicClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating networking client: %s", err)
 	}
 
 	var (
@@ -237,20 +234,20 @@ func resourceComputeInterfaceAttachV2Update(d *schema.ResourceData, meta interfa
 	)
 	err = updateInterfacePort(nicClient, portId, utils.ExpandToStringList(securityGroupIds), sourceDestCheckEnabled)
 	if err != nil {
-		return fmtp.Errorf("error updating VPC port (%s): %s", portId, err)
+		return fmt.Errorf("error updating VPC port (%s): %s", portId, err)
 	}
 
-	return resourceComputeInterfaceAttachV2Read(d, meta)
+	return resourceComputeInterfaceAttachRead(d, meta)
 }
 
-func resourceComputeInterfaceAttachV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
+func resourceComputeInterfaceAttachDelete(d *schema.ResourceData, meta interface{}) error {
+	cfg := meta.(*config.Config)
+	computeClient, err := cfg.ComputeV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
-	instanceId, portId, err := computeInterfaceAttachV2ParseID(d.Id())
+	instanceId, portId, err := computeInterfaceAttachParseID(d.Id())
 	if err != nil {
 		return err
 	}
@@ -258,15 +255,74 @@ func resourceComputeInterfaceAttachV2Delete(d *schema.ResourceData, meta interfa
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{""},
 		Target:     []string{"DETACHED"},
-		Refresh:    computeInterfaceAttachV2DetachFunc(computeClient, instanceId, portId),
+		Refresh:    computeInterfaceAttachDetachFunc(computeClient, instanceId, portId),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      5 * time.Second,
 		MinTimeout: 5 * time.Second,
 	}
 
 	if _, err = stateConf.WaitForState(); err != nil {
-		return fmtp.Errorf("Error detaching huaweicloud_compute_interface_attach %s: %s", d.Id(), err)
+		return fmt.Errorf("error detaching interface from compute instance %s: %s", instanceId, err)
 	}
 
 	return nil
+}
+
+func computeInterfaceAttachAttachFunc(
+	computeClient *golangsdk.ServiceClient, instanceId, attachmentId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		va, err := attachinterfaces.Get(computeClient, instanceId, attachmentId).Extract()
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return va, "ATTACHING", nil
+			}
+			return va, "", err
+		}
+
+		return va, "ATTACHED", nil
+	}
+}
+
+func computeInterfaceAttachDetachFunc(
+	computeClient *golangsdk.ServiceClient, instanceId, attachmentId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		log.Printf("[DEBUG] Attempting to detach interface attachment %s from instance %s",
+			attachmentId, instanceId)
+
+		va, err := attachinterfaces.Get(computeClient, instanceId, attachmentId).Extract()
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return va, "DETACHED", nil
+			}
+			return va, "", err
+		}
+
+		err = attachinterfaces.Delete(computeClient, instanceId, attachmentId).ExtractErr()
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return va, "DETACHED", nil
+			}
+
+			if _, ok := err.(golangsdk.ErrDefault400); ok {
+				return nil, "", nil
+			}
+
+			return nil, "", err
+		}
+
+		log.Printf("[DEBUG] compute interface attachment %s is still active.", attachmentId)
+		return nil, "", nil
+	}
+}
+
+func computeInterfaceAttachParseID(id string) (string, string, error) {
+	idParts := strings.Split(id, "/")
+	if len(idParts) < 2 {
+		return "", "", fmt.Errorf("Unable to parse the resource ID, must be <instance_id>/<port_id> format")
+	}
+
+	instanceId := idParts[0]
+	attachmentId := idParts[1]
+
+	return instanceId, attachmentId, nil
 }
