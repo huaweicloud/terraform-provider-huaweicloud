@@ -1,28 +1,28 @@
-package huaweicloud
+package ecs
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccComputeInstance_basic(t *testing.T) {
 	var instance cloudservers.CloudServer
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_compute_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstance_basic(rName),
@@ -74,16 +74,16 @@ func TestAccComputeInstance_basic(t *testing.T) {
 func TestAccComputeInstance_prePaid(t *testing.T) {
 	var instance cloudservers.CloudServer
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_compute_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheck(t)
-			testAccPreCheckChargingMode(t)
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckChargingMode(t)
 		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstance_prePaid(rName),
@@ -108,13 +108,13 @@ func TestAccComputeInstance_prePaid(t *testing.T) {
 func TestAccComputeInstance_spot(t *testing.T) {
 	var instance cloudservers.CloudServer
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_compute_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstance_spot(rName),
@@ -140,13 +140,13 @@ func TestAccComputeInstance_spot(t *testing.T) {
 func TestAccComputeInstance_powerAction(t *testing.T) {
 	var instance cloudservers.CloudServer
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_compute_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstance_powerAction(rName, "OFF"),
@@ -210,16 +210,16 @@ func TestAccComputeInstance_powerAction(t *testing.T) {
 func TestAccComputeInstance_disk_encryption(t *testing.T) {
 	var instance cloudservers.CloudServer
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_compute_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheck(t)
-			testAccPreCheckKms(t)
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckKms(t)
 		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstance_disk_encryption(rName),
@@ -236,10 +236,10 @@ func TestAccComputeInstance_disk_encryption(t *testing.T) {
 }
 
 func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	computeClient, err := config.ComputeV1Client(HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	computeClient, err := cfg.ComputeV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -250,7 +250,7 @@ func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 		server, err := cloudservers.Get(computeClient, rs.Primary.ID).Extract()
 		if err == nil {
 			if server.Status != "DELETED" {
-				return fmtp.Errorf("Instance still exists")
+				return fmt.Errorf("instance still exists")
 			}
 		}
 	}
@@ -262,17 +262,17 @@ func testAccCheckComputeInstanceExists(n string, instance *cloudservers.CloudSer
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		computeClient, err := config.ComputeV1Client(HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		computeClient, err := cfg.ComputeV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+			return fmt.Errorf("error creating compute client: %s", err)
 		}
 
 		found, err := cloudservers.Get(computeClient, rs.Primary.ID).Extract()
@@ -281,7 +281,7 @@ func testAccCheckComputeInstanceExists(n string, instance *cloudservers.CloudSer
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Instance not found")
+			return fmt.Errorf("instance not found")
 		}
 
 		*instance = *found

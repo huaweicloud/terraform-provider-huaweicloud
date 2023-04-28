@@ -1,4 +1,4 @@
-package huaweicloud
+package ecs
 
 import (
 	"fmt"
@@ -10,7 +10,9 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/servergroups"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccComputeServerGroup_basic(t *testing.T) {
@@ -19,9 +21,9 @@ func TestAccComputeServerGroup_basic(t *testing.T) {
 	resourceName := "huaweicloud_compute_servergroup.sg_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeServerGroupDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckComputeServerGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeServerGroup_basic(rName),
@@ -46,9 +48,9 @@ func TestAccComputeServerGroup_scheduler(t *testing.T) {
 	resourceName := "huaweicloud_compute_servergroup.sg_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeServerGroupDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckComputeServerGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeServerGroup_scheduler(rName),
@@ -70,9 +72,9 @@ func TestAccComputeServerGroup_members(t *testing.T) {
 	resourceName := "huaweicloud_compute_servergroup.sg_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeServerGroupDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckComputeServerGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeServerGroup_members(rName),
@@ -91,9 +93,9 @@ func TestAccComputeServerGroup_concurrency(t *testing.T) {
 	name := fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeServerGroupDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckComputeServerGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeServerGroup_concurrency(name),
@@ -107,10 +109,10 @@ func TestAccComputeServerGroup_concurrency(t *testing.T) {
 }
 
 func testAccCheckComputeServerGroupDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	ecsClient, err := config.ComputeV1Client(HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	ecsClient, err := cfg.ComputeV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -120,7 +122,7 @@ func testAccCheckComputeServerGroupDestroy(s *terraform.State) error {
 
 		_, err := servergroups.Get(ecsClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("ServerGroup still exists")
+			return fmt.Errorf("server group still exists")
 		}
 	}
 
@@ -131,17 +133,17 @@ func testAccCheckComputeServerGroupExists(n string, kp *servergroups.ServerGroup
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		ecsClient, err := config.ComputeV1Client(HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		ecsClient, err := cfg.ComputeV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+			return fmt.Errorf("error creating compute client: %s", err)
 		}
 
 		found, err := servergroups.Get(ecsClient, rs.Primary.ID).Extract()
@@ -150,7 +152,7 @@ func testAccCheckComputeServerGroupExists(n string, kp *servergroups.ServerGroup
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("ServerGroup not found")
+			return fmt.Errorf("server group not found")
 		}
 
 		*kp = *found
@@ -169,7 +171,7 @@ func testAccCheckComputeInstanceInServerGroup(instance *cloudservers.CloudServer
 			}
 		}
 
-		return fmt.Errorf("Instance %s is not part of Server Group %s", instance.ID, sg.ID)
+		return fmt.Errorf("instance %s does not belong to server group %s", instance.ID, sg.ID)
 	}
 }
 

@@ -1,7 +1,7 @@
-package huaweicloud
+package ecs
 
 // This set of code handles all functions required to configure networking
-// on an huaweicloud_compute_instance_v2 resource.
+// on an huaweicloud_compute_instance resource.
 //
 // This is a complicated task because it's not possible to obtain all
 // information in a single API call. In fact, it even traverses multiple
@@ -11,14 +11,17 @@ package huaweicloud
 // understandable network information within the instance resource.
 
 import (
+	"fmt"
+	"log"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/chnsz/golangsdk/openstack/compute/v2/servers"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/ports"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // InstanceNIC is a structured representation of a servers.Server virtual NIC
@@ -55,23 +58,24 @@ func expandInstanceNetworks(d *schema.ResourceData) ([]servers.Network, error) {
 			FixedIP: nic["fixed_ip_v4"].(string),
 		}
 		if network.UUID == "" && network.Port == "" {
-			return nil, fmtp.Errorf(
-				"At least one of network.uuid or network.port must be set.")
+			return nil, fmt.Errorf(
+				"at least one of network.uuid or network.port must be set")
 		}
 		instanceNetworks = append(instanceNetworks, network)
 	}
 
-	logp.Printf("[DEBUG] expand Instance Networks opts: %#v", instanceNetworks)
+	log.Printf("[DEBUG] expand Instance Networks opts: %#v", instanceNetworks)
 	return instanceNetworks, nil
 }
 
 // getInstanceAddresses parses a server.Server's Address field into a structured
 // InstanceNIC list struct.
 func getInstanceAddresses(d *schema.ResourceData, meta interface{}, server *cloudservers.CloudServer) ([]InstanceNIC, error) {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV1Client(GetRegion(d, config))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	networkingClient, err := cfg.NetworkingV1Client(region)
 	if err != nil {
-		return nil, fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return nil, fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	var networkID string
@@ -94,7 +98,7 @@ func getInstanceAddresses(d *schema.ResourceData, meta interface{}, server *clou
 			p, err := ports.Get(networkingClient, addr.PortID)
 			if err != nil {
 				networkID = ""
-				logp.Printf("[DEBUG] getInstanceAddresses: failed to fetch port %s", addr.PortID)
+				log.Printf("[DEBUG] getInstanceAddresses: failed to fetch port %s", addr.PortID)
 				continue
 			} else {
 				networkID = p.NetworkId
@@ -123,7 +127,7 @@ func getInstanceAddresses(d *schema.ResourceData, meta interface{}, server *clou
 		}
 	}
 
-	logp.Printf("[DEBUG] get all of the Instance Addresses from cloud: %#v", allInstanceNics)
+	log.Printf("[DEBUG] get all of the Instance Addresses from cloud: %#v", allInstanceNics)
 
 	return allInstanceNics, nil
 }
@@ -145,7 +149,7 @@ func getAllInstanceNetworks(d *schema.ResourceData) []InstanceNetwork {
 		instanceNetworks = append(instanceNetworks, network)
 	}
 
-	logp.Printf("[DEBUG] get all of the Instance Networks from config: %#v", instanceNetworks)
+	log.Printf("[DEBUG] get all of the Instance Networks from config: %#v", instanceNetworks)
 	return instanceNetworks
 }
 
@@ -191,7 +195,7 @@ func flattenInstanceNetworks(
 		}
 	}
 
-	logp.Printf("[DEBUG] flatten Instance Networks: %#v", networks)
+	log.Printf("[DEBUG] flatten Instance Networks: %#v", networks)
 	return networks, nil
 }
 
@@ -228,7 +232,7 @@ func getInstanceAccessAddresses(
 		}
 	}
 
-	logp.Printf("[DEBUG] compute instance Network Access Addresses: %s, %s", hostv4, hostv6)
+	log.Printf("[DEBUG] compute instance Network Access Addresses: %s, %s", hostv4, hostv6)
 
 	return hostv4, hostv6
 }

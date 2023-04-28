@@ -1,34 +1,34 @@
-package huaweicloud
+package ecs
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/attachinterfaces"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccComputeV2InterfaceAttach_Basic(t *testing.T) {
+func TestAccComputeInterfaceAttach_Basic(t *testing.T) {
 	var ai attachinterfaces.Interface
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_compute_interface_attach.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeV2InterfaceAttachDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckComputeInterfaceAttachDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeV2InterfaceAttach_basic(rName),
+				Config: testAccComputeInterfaceAttach_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InterfaceAttachExists(resourceName, &ai),
-					testAccCheckComputeV2InterfaceAttachIP(&ai, "192.168.0.199"),
+					testAccCheckComputeInterfaceAttachExists(resourceName, &ai),
+					testAccCheckComputeInterfaceAttachIP(&ai, "192.168.0.199"),
 					resource.TestCheckResourceAttr(resourceName, "source_dest_check", "true"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_ids.0",
 						"huaweicloud_networking_secgroup.test", "id"),
@@ -43,11 +43,23 @@ func TestAccComputeV2InterfaceAttach_Basic(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeV2InterfaceAttachDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
+func computeInterfaceAttachParseID(id string) (instanceID string, portID string, err error) {
+	idParts := strings.Split(id, "/")
+	if len(idParts) < 2 {
+		err = fmt.Errorf("unable to parse the resource ID, must be <instance_id>/<port_id> format")
+		return
+	}
+
+	instanceID = idParts[0]
+	portID = idParts[1]
+	return
+}
+
+func testAccCheckComputeInterfaceAttachDestroy(s *terraform.State) error {
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	computeClient, err := cfg.ComputeV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -55,38 +67,38 @@ func testAccCheckComputeV2InterfaceAttachDestroy(s *terraform.State) error {
 			continue
 		}
 
-		instanceId, portId, err := computeInterfaceAttachV2ParseID(rs.Primary.ID)
+		instanceId, portId, err := computeInterfaceAttachParseID(rs.Primary.ID)
 		if err != nil {
 			return err
 		}
 
 		_, err = attachinterfaces.Get(computeClient, instanceId, portId).Extract()
 		if err == nil {
-			return fmtp.Errorf("Volume attachment still exists")
+			return fmt.Errorf("interface attachment still exists")
 		}
 	}
 
 	return nil
 }
 
-func testAccCheckComputeV2InterfaceAttachExists(n string, ai *attachinterfaces.Interface) resource.TestCheckFunc {
+func testAccCheckComputeInterfaceAttachExists(n string, ai *attachinterfaces.Interface) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		computeClient, err := cfg.ComputeV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+			return fmt.Errorf("error creating compute client: %s", err)
 		}
 
-		instanceId, portId, err := computeInterfaceAttachV2ParseID(rs.Primary.ID)
+		instanceId, portId, err := computeInterfaceAttachParseID(rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -98,7 +110,7 @@ func testAccCheckComputeV2InterfaceAttachExists(n string, ai *attachinterfaces.I
 
 		//if found.instanceID != instanceID || found.PortID != portId {
 		if found.PortID != portId {
-			return fmtp.Errorf("InterfaceAttach not found")
+			return fmt.Errorf("interface attachment not found")
 		}
 
 		*ai = *found
@@ -107,7 +119,7 @@ func testAccCheckComputeV2InterfaceAttachExists(n string, ai *attachinterfaces.I
 	}
 }
 
-func testAccCheckComputeV2InterfaceAttachIP(
+func testAccCheckComputeInterfaceAttachIP(
 	ai *attachinterfaces.Interface, ip string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		for _, i := range ai.FixedIPs {
@@ -115,12 +127,12 @@ func testAccCheckComputeV2InterfaceAttachIP(
 				return nil
 			}
 		}
-		return fmtp.Errorf("Requested ip (%s) does not exist on port", ip)
+		return fmt.Errorf("requested ip (%s) does not exist on port", ip)
 
 	}
 }
 
-func testAccComputeV2InterfaceAttach_basic(rName string) string {
+func testAccComputeInterfaceAttach_basic(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 

@@ -1,16 +1,20 @@
-package huaweicloud
+package ecs
 
 import (
+	"fmt"
+	"log"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/servergroups"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func ResourceComputeServerGroupV2() *schema.Resource {
+func ResourceComputeServerGroup() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeServerGroupCreate,
 		Read:   resourceComputeServerGroupRead,
@@ -59,19 +63,19 @@ func ResourceComputeServerGroupV2() *schema.Resource {
 
 func resourceComputeServerGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	cfg := meta.(*config.Config)
-	ecsClient, err := cfg.ComputeV1Client(GetRegion(d, cfg))
+	ecsClient, err := cfg.ComputeV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	createOpts := servergroups.CreateOpts{
 		Name:     d.Get("name").(string),
 		Policies: resourceServerGroupPolicies(d),
 	}
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	newSG, err := servergroups.Create(ecsClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating ServerGroup: %s", err)
+		return fmt.Errorf("error creating ECS server group: %s", err)
 	}
 
 	d.SetId(newSG.ID)
@@ -88,7 +92,7 @@ func resourceComputeServerGroupCreate(d *schema.ResourceData, meta interface{}) 
 		// Release the ECS instance after the binding operation is complete whether it success or not.
 		config.MutexKV.Unlock(instanceId)
 		if err != nil {
-			return fmtp.Errorf("Error to add an instance to ECS server group, err=%s", err)
+			return fmt.Errorf("error binding instance %s to ECS server group: %s", instanceId, err)
 		}
 	}
 
@@ -97,18 +101,18 @@ func resourceComputeServerGroupCreate(d *schema.ResourceData, meta interface{}) 
 
 func resourceComputeServerGroupRead(d *schema.ResourceData, meta interface{}) error {
 	cfg := meta.(*config.Config)
-	region := GetRegion(d, cfg)
+	region := cfg.GetRegion(d)
 	ecsClient, err := cfg.ComputeV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	sg, err := servergroups.Get(ecsClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "server group")
+		return common.CheckDeleted(d, err, "server group")
 	}
 
-	logp.Printf("[DEBUG] Retrieved ServerGroup %s: %+v", d.Id(), sg)
+	log.Printf("[DEBUG] Retrieved server group %s: %+v", d.Id(), sg)
 
 	policies := make([]string, len(sg.Policies))
 	for i, p := range sg.Policies {
@@ -125,9 +129,9 @@ func resourceComputeServerGroupRead(d *schema.ResourceData, meta interface{}) er
 
 func resourceComputeServerGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 	cfg := meta.(*config.Config)
-	ecsClient, err := cfg.ComputeV1Client(GetRegion(d, cfg))
+	ecsClient, err := cfg.ComputeV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute V1 client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	if d.HasChange("members") {
@@ -146,7 +150,7 @@ func resourceComputeServerGroupUpdate(d *schema.ResourceData, meta interface{}) 
 			// Release the ECS instance ID after the binding operation is complete whether it success or not.
 			config.MutexKV.Unlock(instanceId)
 			if err != nil {
-				return fmtp.Errorf("Error to add a instance to ECS server group, err=%s", err)
+				return fmt.Errorf("error binding instance %s to server group: %s", instanceId, err)
 			}
 		}
 
@@ -155,13 +159,13 @@ func resourceComputeServerGroupUpdate(d *schema.ResourceData, meta interface{}) 
 			server, err := cloudservers.Get(ecsClient, instanceId).Extract()
 			if err != nil {
 				if _, ok := err.(golangsdk.ErrDefault404); ok {
-					logp.Printf("[WARN] the compute %s is not exist, ignore to remove it from the group", instanceId)
+					log.Printf("[WARN] the compute %s is not exist, ignore to remove it from the group", instanceId)
 					continue
 				}
-				logp.Printf("[WARN] failed to retrieve compute %s: %s, try to remove it from the group", instanceId, err)
+				log.Printf("[WARN] failed to retrieve compute %s: %s, try to remove it from the group", instanceId, err)
 			} else {
 				if server.Status == "DELETED" {
-					logp.Printf("[WARN] the compute %s was removed, ignore to remove it from the group", instanceId)
+					log.Printf("[WARN] the compute %s was removed, ignore to remove it from the group", instanceId)
 					continue
 				}
 			}
@@ -174,7 +178,7 @@ func resourceComputeServerGroupUpdate(d *schema.ResourceData, meta interface{}) 
 			// Release the ECS instance ID after the unbinding operation is complete whether it success or not.
 			config.MutexKV.Unlock(instanceId)
 			if err != nil {
-				return fmtp.Errorf("Error to remove a instance from ECS server group, err=%s", err)
+				return fmt.Errorf("error unbinding instance %s from ECS server group: %s", instanceId, err)
 			}
 		}
 	}
@@ -196,20 +200,20 @@ func UnlockAll(ids []interface{}) {
 
 func resourceComputeServerGroupDelete(d *schema.ResourceData, meta interface{}) error {
 	cfg := meta.(*config.Config)
-	ecsClient, err := cfg.ComputeV1Client(GetRegion(d, cfg))
+	ecsClient, err := cfg.ComputeV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	members := d.Get("members").(*schema.Set).List()
 	// Make sure that no other operations on the ECS instance are performed during the unbinding process.
 	LockAll(members)
 
-	logp.Printf("[DEBUG] Deleting ServerGroup %s", d.Id())
+	log.Printf("[DEBUG] Deleting server group %s", d.Id())
 	err = servergroups.Delete(ecsClient, d.Id()).ExtractErr()
 	UnlockAll(members)
 	if err != nil {
-		return fmtp.Errorf("Error deleting ServerGroup: %s", err)
+		return fmt.Errorf("error deleting server group: %s", err)
 	}
 
 	return nil
