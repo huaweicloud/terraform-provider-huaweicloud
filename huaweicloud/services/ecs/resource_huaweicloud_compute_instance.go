@@ -399,12 +399,12 @@ func ResourceComputeInstance() *schema.Resource {
 			"agency_name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
+				Computed: true,
 			},
 			"agent_list": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
+				Computed: true,
 			},
 			"tags": {
 				Type:     schema.TypeMap,
@@ -1100,6 +1100,20 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 		_, err := servers.UpdateMetadata(computeClient, d.Id(), metadataOpts).Extract()
 		if err != nil {
 			return diag.Errorf("error updating server (%s) metadata: %s", d.Id(), err)
+		}
+	}
+
+	if d.HasChanges("agency_name", "agent_list ") {
+		metadataOpts := make(servers.MetadataOpts)
+		if d.HasChange("agency_name") {
+			metadataOpts["agency_name"] = d.Get("agency_name").(string)
+		}
+		if d.HasChange("agent_list") {
+			metadataOpts["__support_agent_list"] = d.Get("agent_list").(string)
+		}
+		_, err = servers.UpdateMetadata(computeClient, d.Id(), metadataOpts).Extract()
+		if err != nil {
+			return diag.Errorf("error updating server (%s) metadata(agency_name, agent_list) : %s", d.Id(), err)
 		}
 	}
 
