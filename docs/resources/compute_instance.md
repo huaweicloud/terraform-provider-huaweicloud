@@ -279,8 +279,7 @@ The following arguments are supported:
 * `delete_eip_on_termination` - (Optional, Bool) Specifies whether the EIP is released when the instance is terminated.
   Defaults to *true*.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies a unique id in UUID format of enterprise project .
-  Changing this creates a new instance.
+* `enterprise_project_id` - (Optional, String) Specifies a unique id in UUID format of enterprise project.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance. Valid values are *prePaid*,
   *postPaid* and *spot*, defaults to *postPaid*. Changing this creates a new instance.
