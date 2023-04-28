@@ -1,4 +1,4 @@
-package apig
+package deprecated
 
 import (
 	"context"
@@ -11,8 +11,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/channels"
+	"github.com/chnsz/golangsdk/openstack/apigw/deprecated/dedicated/v2/channels"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
@@ -40,6 +41,10 @@ const (
 
 	ChannelStatusNormal   ChannelStatus = 1
 	ChannelStatusAbnormal ChannelStatus = 2
+
+	ProtocolTypeTCP   ProtocolType = "TCP"
+	ProtocolTypeHTTP  ProtocolType = "HTTP"
+	ProtocolTypeHTTPS ProtocolType = "HTTPS"
 )
 
 var (
@@ -156,11 +161,11 @@ func ResourceApigVpcChannelV2() *schema.Resource {
 			"protocol": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  string(ProtocolTypeTcp),
+				Default:  string(ProtocolTypeTCP),
 				ValidateFunc: validation.StringInSlice([]string{
-					string(ProtocolTypeTcp),
-					string(ProtocolTypeHttp),
-					string(ProtocolTypeHttps),
+					string(ProtocolTypeTCP),
+					string(ProtocolTypeHTTP),
+					string(ProtocolTypeHTTPS),
 				}, false),
 				Description: "The rotocol for performing health checks on backend servers in the VPC channel.",
 			},
@@ -230,7 +235,7 @@ func buildVpcChannelHealthConfig(d *schema.ResourceData) (channels.VpcHealthConf
 		TimeInterval:      d.Get("interval").(int),
 	}
 	// The parameter of HTTP codes is required if protocol is set to 'HTTP' or 'HTTPS'.
-	if ProtocolType(protocol) == ProtocolTypeHttp || ProtocolType(protocol) == ProtocolTypeHttps {
+	if ProtocolType(protocol) == ProtocolTypeHTTP || ProtocolType(protocol) == ProtocolTypeHTTPS {
 		codes, ok := d.GetOk("http_code")
 		if !ok {
 			return result, fmt.Errorf("the HTTP code cannot be empty if the protocol is 'HTTP' or 'HTTPS'")
