@@ -5,6 +5,10 @@
         "huaweicloud_waf_certificate": {
           "block": {
             "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
               "expiration": {
                 "type": "string",
                 "computed": true

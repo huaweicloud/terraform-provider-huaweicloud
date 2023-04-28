@@ -1,0 +1,292 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_channel": {
+          "block": {
+            "attributes": {
+              "balance_strategy": {
+                "type": "number",
+                "description": "The distribution algorithm.",
+                "required": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the channel.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the channel belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "member_type": {
+                "type": "string",
+                "description": "The member type of the channel.",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The channel name.",
+                "required": true
+              },
+              "port": {
+                "type": "number",
+                "description": "The default port for health check in channel.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the dedicated instance is located.",
+                "computed": true
+              },
+              "status": {
+                "type": "number",
+                "description": "The current status of the channel.",
+                "computed": true
+              },
+              "type": {
+                "type": "number",
+                "description": "The type of the channel.",
+                "optional": true,
+                "computed": true
+              }
+            },
+            "block_types": {
+              "health_check": {
+                "block": {
+                  "attributes": {
+                    "enable_client_ssl": {
+                      "type": "bool",
+                      "description": "Whether to enable two-way authentication.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "http_codes": {
+                      "type": "string",
+                      "description": "The response codes for determining a successful HTTP response.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "interval": {
+                      "type": "number",
+                      "description": "The interval between consecutive check, in second.",
+                      "required": true
+                    },
+                    "method": {
+                      "type": "string",
+                      "description": "The request method for health check.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "path": {
+                      "type": "string",
+                      "description": "The destination path for health check.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "port": {
+                      "type": "number",
+                      "description": "The destination host port for health check.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "protocol": {
+                      "type": "string",
+                      "description": "The rotocol for performing health check on backend servers.",
+                      "required": true
+                    },
+                    "status": {
+                      "type": "number",
+                      "description": "The status of health check.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "threshold_abnormal": {
+                      "type": "number",
+                      "description": "The unhealthy threshold, which refers to the number of consecutive failed check required for a backend server to be considered unhealthy.",
+                      "required": true
+                    },
+                    "threshold_normal": {
+                      "type": "number",
+                      "description": "The the healthy threshold, which refers to the number of consecutive successful checks required for a backend server to be considered healthy.",
+                      "required": true
+                    },
+                    "timeout": {
+                      "type": "number",
+                      "description": "The timeout for determining whether a health check fails, in second.",
+                      "required": true
+                    }
+                  },
+                  "description": "The health configuration of cloud servers associated with the load balance channel for APIG regularly check."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "member": {
+                "block": {
+                  "attributes": {
+                    "group_name": {
+                      "type": "string",
+                      "description": "The group name of the backend server.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "host": {
+                      "type": "string",
+                      "description": "The IP address of the backend server.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the backend server.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "is_backup": {
+                      "type": "bool",
+                      "description": "Whether this member is the backup member.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the backend server.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "port": {
+                      "type": "number",
+                      "description": "The port of the backend server.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "status": {
+                      "type": "number",
+                      "description": "The status of the backend server.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "weight": {
+                      "type": "number",
+                      "description": "The weight of current backend server.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The backend servers of the channel."
+                },
+                "nesting_mode": "set"
+              },
+              "member_group": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "description": "The description of the member group.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "microservice_labels": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "The microservice tags of the backend server group.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "microservice_port": {
+                      "type": "number",
+                      "description": "The microservice port of the backend server group.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "microservice_version": {
+                      "type": "string",
+                      "description": "The microservice version of the backend server group.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the member group.",
+                      "required": true
+                    },
+                    "weight": {
+                      "type": "number",
+                      "description": "The weight of the current member group.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The backend server groups of the channel."
+                },
+                "nesting_mode": "list"
+              },
+              "microservice": {
+                "block": {
+                  "block_types": {
+                    "cce_config": {
+                      "block": {
+                        "attributes": {
+                          "cluster_id": {
+                            "type": "string",
+                            "description": "The ID of the CCE cluster.",
+                            "required": true
+                          },
+                          "namespace": {
+                            "type": "string",
+                            "description": "The name of the CCE namespace.",
+                            "required": true
+                          },
+                          "workload_name": {
+                            "type": "string",
+                            "description": "The workload name.",
+                            "required": true
+                          },
+                          "workload_type": {
+                            "type": "string",
+                            "description": "The workload type.",
+                            "required": true
+                          }
+                        },
+                        "description": "The CCE microservice details."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "cse_config": {
+                      "block": {
+                        "description": "schema:Internal; The CSE microservice details."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The configuration of the microservice."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

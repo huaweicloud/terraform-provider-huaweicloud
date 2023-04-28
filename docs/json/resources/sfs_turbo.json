@@ -5,6 +5,10 @@
         "huaweicloud_sfs_turbo": {
           "block": {
             "attributes": {
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
               "availability_zone": {
                 "type": "string",
                 "required": true,
@@ -13,6 +17,12 @@
               "available_capacity": {
                 "type": "string",
                 "computed": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "crypt_key_id": {
                 "type": "string",
@@ -42,6 +52,16 @@
               "name": {
                 "type": "string",
                 "required": true,
+                "forcenew": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
                 "forcenew": true
               },
               "region": {

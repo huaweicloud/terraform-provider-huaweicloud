@@ -5,6 +5,11 @@
         "huaweicloud_waf_rule_data_masking": {
           "block": {
             "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "field": {
                 "type": "string",
                 "required": true

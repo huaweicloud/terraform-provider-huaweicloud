@@ -195,7 +195,8 @@
                           },
                           "value": {
                             "type": "string",
-                            "optional": true
+                            "optional": true,
+                            "computed": true
                           }
                         }
                       },

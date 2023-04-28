@@ -21,12 +21,12 @@
               "agency_name": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true
+                "computed": true
               },
               "agent_list": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true
+                "computed": true
               },
               "auto_renew": {
                 "type": "string",
@@ -75,8 +75,7 @@
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "flavor_id": {
                 "type": "string",

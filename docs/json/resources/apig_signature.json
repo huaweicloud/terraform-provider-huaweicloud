@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_signature": {
+          "block": {
+            "attributes": {
+              "algorithm": {
+                "type": "string",
+                "description": "The signature algorithm.",
+                "optional": true,
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the signature.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the signature belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "key": {
+                "type": "string",
+                "description": "The signature key.",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The signature name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the signature is located.",
+                "computed": true
+              },
+              "secret": {
+                "type": "string",
+                "description": "The signature secret.",
+                "optional": true,
+                "computed": true,
+                "sensitive": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The signature type.",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the signature.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

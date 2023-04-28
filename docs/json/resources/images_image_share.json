@@ -1,0 +1,43 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_images_image_share": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source_image_id": {
+                "type": "string",
+                "description": "Specifies the ID of the source image.",
+                "required": true,
+                "forcenew": true
+              },
+              "target_project_ids": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the IDs of the target projects.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "IMS",
+            "name": "Image Management Service",
+            "catalog": "Compute",
+            "name_cn": "镜像服务",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

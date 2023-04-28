@@ -1,0 +1,121 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_swr_image_trigger": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies the ID of the cluster.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "cluster_name": {
+                "type": "string",
+                "description": "Specifies the name of the cluster.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "condition_type": {
+                "type": "string",
+                "description": "Specifies the trigger condition type.",
+                "required": true,
+                "forcenew": true
+              },
+              "condition_value": {
+                "type": "string",
+                "description": "Specifies the trigger condition value.",
+                "required": true,
+                "forcenew": true
+              },
+              "container": {
+                "type": "string",
+                "description": "Specifies the name of the container to be updated.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the creation time.",
+                "computed": true
+              },
+              "creator_name": {
+                "type": "string",
+                "description": "Indicates the creator name of the trigger.",
+                "computed": true
+              },
+              "enabled": {
+                "type": "string",
+                "description": "Specifies whether to enable the trigger.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the trigger name.",
+                "required": true,
+                "forcenew": true
+              },
+              "namespace": {
+                "type": "string",
+                "description": "Specifies the namespace where the application is located.",
+                "required": true,
+                "forcenew": true
+              },
+              "organization": {
+                "type": "string",
+                "description": "Specifies the name of the organization.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "repository": {
+                "type": "string",
+                "description": "Specifies the name of the repository.",
+                "required": true,
+                "forcenew": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the trigger type.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "workload_name": {
+                "type": "string",
+                "description": "Specifies the name of the application.",
+                "required": true,
+                "forcenew": true
+              },
+              "workload_type": {
+                "type": "string",
+                "description": "Specifies the type of the application.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

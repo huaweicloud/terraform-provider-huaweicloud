@@ -21,6 +21,11 @@
                 "type": "string",
                 "optional": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "id": {
                 "type": "string",
                 "computed": true

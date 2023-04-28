@@ -5,6 +5,12 @@
         "huaweicloud_as_group": {
           "block": {
             "attributes": {
+              "agency_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "availability_zones": {
                 "type": [
                   "list",

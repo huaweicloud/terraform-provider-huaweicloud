@@ -22,7 +22,8 @@
                 "optional": true
               },
               "region": {
-                "type": "string"
+                "type": "string",
+                "computed": true
               },
               "topic_urn": {
                 "type": "string",

@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dds_parameter_template": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "Specifies the parameter template description.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the parameter template name.",
+                "required": true
+              },
+              "node_type": {
+                "type": "string",
+                "description": "Specifies the node type of parameter template.",
+                "required": true,
+                "forcenew": true
+              },
+              "node_version": {
+                "type": "string",
+                "description": "Specifies the database version.",
+                "required": true,
+                "forcenew": true
+              },
+              "parameter_values": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the mapping between parameter names and parameter values.",
+                "optional": true
+              },
+              "parameters": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "name": "string",
+                      "readonly": "bool",
+                      "restart_required": "bool",
+                      "type": "string",
+                      "value": "string",
+                      "value_range": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the parameters defined by users based on the default parameter templates.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}
