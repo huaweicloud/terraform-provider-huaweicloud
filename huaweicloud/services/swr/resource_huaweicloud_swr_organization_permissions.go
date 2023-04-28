@@ -2,14 +2,18 @@ package swr
 
 import (
 	"context"
+	"fmt"
 	"time"
 
-	iam_users "github.com/chnsz/golangsdk/openstack/identity/v3.0/users"
-	"github.com/chnsz/golangsdk/openstack/swr/v2/namespaces"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	iam_users "github.com/chnsz/golangsdk/openstack/identity/v3.0/users"
+	"github.com/chnsz/golangsdk/openstack/swr/v2/namespaces"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -96,8 +100,8 @@ func ResourceSWROrganizationPermissions() *schema.Resource {
 }
 
 func resourceSWROrganizationPermissionsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	swrClient, err := config.SwrV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	swrClient, err := cfg.SwrV2Client(cfg.GetRegion(d))
 
 	if err != nil {
 		return fmtp.DiagErrorf("Unable to create HuaweiCloud SWR client : %s", err)
@@ -107,40 +111,9 @@ func resourceSWROrganizationPermissionsCreate(ctx context.Context, d *schema.Res
 
 	userRaw := d.Get("users").([]interface{})
 
-	users := make([]namespaces.User, len(userRaw))
-	for i, raw := range userRaw {
-		rawMap := raw.(map[string]interface{})
-		auth := resourceSWRPermissionToAuth(rawMap["permission"].(string))
-		users[i] = namespaces.User{
-			UserID: rawMap["user_id"].(string),
-			Auth:   auth,
-		}
-
-		if rawMap["user_name"].(string) != "" {
-			users[i].UserName = rawMap["user_name"].(string)
-		} else {
-			iamClient, err := config.IAMV3Client(config.GetRegion(d))
-			if err != nil {
-				return fmtp.DiagErrorf("Error creating HuaweiCloud iam client: %s", err)
-			}
-
-			user, err := iam_users.Get(iamClient, rawMap["user_id"].(string)).Extract()
-			if err != nil {
-				return fmtp.DiagErrorf("Error retrieving HuaweiCloud user(%s): %s", rawMap["user_id"].(string), err)
-			}
-			logp.Printf("[DEBUG] Retrieved HuaweiCloud user: %#v", user)
-
-			users[i].UserName = user.Name
-		}
-	}
-	createOpts := namespaces.CreateAccessOpts{
-		Users: users,
-	}
-
-	err = namespaces.CreateAccess(swrClient, createOpts, nameSpace).ExtractErr()
-
+	err = addSwrOrganizationPermissions(d, cfg, swrClient, userRaw, nameSpace)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud SWR Organization: %s", err)
+		return diag.FromErr(err)
 	}
 
 	d.SetId(nameSpace)
@@ -200,8 +173,8 @@ func resourceSWROrganizationPermissionsRead(_ context.Context, d *schema.Resourc
 }
 
 func resourceSWROrganizationPermissionsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	swrClient, err := config.SwrV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	swrClient, err := cfg.SwrV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud SWR Client: %s", err)
 	}
@@ -221,8 +194,54 @@ func resourceSWROrganizationPermissionsUpdate(ctx context.Context, d *schema.Res
 	if err != nil {
 		return fmtp.DiagErrorf("Error deleting HuaweiCloud SWR Organization: %s", err)
 	}
+	userRaw := d.Get("users").([]interface{})
+	addUsers := dealAddUsers(userRaw)
+	err = addSwrOrganizationPermissions(d, cfg, swrClient, addUsers, nameSpace)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
-	return resourceSWROrganizationPermissionsCreate(ctx, d, meta)
+	return resourceSWROrganizationPermissionsRead(ctx, d, meta)
+}
+
+func addSwrOrganizationPermissions(d *schema.ResourceData, cfg *config.Config, client *golangsdk.ServiceClient,
+	addUsers []interface{}, nameSpace string) error {
+	users := make([]namespaces.User, len(addUsers))
+	for i, raw := range addUsers {
+		rawMap := raw.(map[string]interface{})
+		auth := resourceSWRPermissionToAuth(rawMap["permission"].(string))
+		users[i] = namespaces.User{
+			UserID: rawMap["user_id"].(string),
+			Auth:   auth,
+		}
+
+		if rawMap["user_name"].(string) != "" {
+			users[i].UserName = rawMap["user_name"].(string)
+		} else {
+			iamClient, err := cfg.IAMV3Client(cfg.GetRegion(d))
+			if err != nil {
+				return fmt.Errorf("error creating iam client: %s", err)
+			}
+
+			user, err := iam_users.Get(iamClient, rawMap["user_id"].(string)).Extract()
+			if err != nil {
+				return fmt.Errorf("error retrieving HuaweiCloud user(%s): %s", rawMap["user_id"].(string), err)
+			}
+			logp.Printf("[DEBUG] Retrieved HuaweiCloud user: %#v", user)
+
+			users[i].UserName = user.Name
+		}
+	}
+	createOpts := namespaces.CreateAccessOpts{
+		Users: users,
+	}
+
+	err := namespaces.CreateAccess(client, createOpts, nameSpace).ExtractErr()
+
+	if err != nil {
+		return fmt.Errorf("error creating SWR Organization: %s", err)
+	}
+	return nil
 }
 
 func resourceSWROrganizationPermissionsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

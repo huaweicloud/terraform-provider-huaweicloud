@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/swr/v2/namespaces"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/swr/v2/namespaces"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
@@ -23,8 +25,7 @@ func getResourcePermissions(conf *config.Config, state *terraform.ResourceState)
 func TestAccSwrOrganizationPermissions_basic(t *testing.T) {
 	var permissions namespaces.Access
 	organizationName := acceptance.RandomAccResourceName()
-	userName1 := acceptance.RandomAccResourceName()
-	userName2 := acceptance.RandomAccResourceName()
+	userName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_swr_organization_permissions.test"
 
 	rc := acceptance.InitResourceCheck(
@@ -42,13 +43,18 @@ func TestAccSwrOrganizationPermissions_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccswrOrganizationPermissions_basic(organizationName, userName1, userName2),
+				Config: testAccswrOrganizationPermissions_basic(organizationName, userName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					acceptance.TestCheckResourceAttrWithVariable(resourceName, "organization",
 						"${huaweicloud_swr_organization.test.name}"),
-					resource.TestCheckResourceAttr(resourceName, "users.0.user_name", userName1),
+					resource.TestCheckResourceAttr(resourceName, "users.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "users.0.user_name", userName+"_1"),
 					resource.TestCheckResourceAttr(resourceName, "users.0.permission", "Read"),
+					resource.TestCheckResourceAttr(resourceName, "users.1.user_name", userName+"_2"),
+					resource.TestCheckResourceAttr(resourceName, "users.1.permission", "Write"),
+					resource.TestCheckResourceAttr(resourceName, "users.2.user_name", userName+"_3"),
+					resource.TestCheckResourceAttr(resourceName, "users.2.permission", "Manage"),
 				),
 			},
 			{
@@ -57,29 +63,46 @@ func TestAccSwrOrganizationPermissions_basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccswrOrganizationPermissions_update(organizationName, userName1, userName2),
+				Config: testAccswrOrganizationPermissions_update(organizationName, userName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					acceptance.TestCheckResourceAttrWithVariable(resourceName, "organization",
 						"${huaweicloud_swr_organization.test.name}"),
-					resource.TestCheckResourceAttr(resourceName, "users.0.user_name", userName1),
+					resource.TestCheckResourceAttr(resourceName, "users.#", "4"),
+					resource.TestCheckResourceAttr(resourceName, "users.0.user_name", userName+"_1"),
 					resource.TestCheckResourceAttr(resourceName, "users.0.permission", "Write"),
-					resource.TestCheckResourceAttr(resourceName, "users.1.user_name", userName2),
+					resource.TestCheckResourceAttr(resourceName, "users.1.user_name", userName+"_2"),
 					resource.TestCheckResourceAttr(resourceName, "users.1.permission", "Read"),
+					resource.TestCheckResourceAttr(resourceName, "users.2.user_name", userName+"_4"),
+					resource.TestCheckResourceAttr(resourceName, "users.2.permission", "Manage"),
+					resource.TestCheckResourceAttr(resourceName, "users.3.user_name", userName+"_5"),
+					resource.TestCheckResourceAttr(resourceName, "users.3.permission", "Read"),
 				),
 			},
 		},
 	})
 }
 
-func testAccswrOrganizationPermissions_basic(organizationName, userName1, userName2 string) string {
+func testAccswrOrganizationPermissions_basic(organizationName, userName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_swr_organization" "test" {
-  name = "%s"
+  name = "%[1]s"
 }
 
 resource "huaweicloud_identity_user" "user_1" {
-  name     = "%s"
+  name     = "%[2]s_1"
+  enabled  = true
+  password = "password12345!"
+}
+
+resource "huaweicloud_identity_user" "user_2" {
+  name     = "%[2]s_2"
+  enabled  = true
+  password = "password12345!"
+}
+
+resource "huaweicloud_identity_user" "user_3" {
+  name     = "%[2]s_3"
   enabled  = true
   password = "password12345!"
 }
@@ -92,24 +115,45 @@ resource "huaweicloud_swr_organization_permissions" "test" {
     user_id    = huaweicloud_identity_user.user_1.id
     permission = "Read"
   }
+  users {
+    user_name  = huaweicloud_identity_user.user_2.name
+    user_id    = huaweicloud_identity_user.user_2.id
+    permission = "Write"
+  }
+  users {
+    user_id    = huaweicloud_identity_user.user_3.id
+    permission = "Manage"
+  }
 }
-`, organizationName, userName1)
+`, organizationName, userName)
 }
 
-func testAccswrOrganizationPermissions_update(organizationName, userName1, userName2 string) string {
+func testAccswrOrganizationPermissions_update(organizationName, userName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_swr_organization" "test" {
-  name = "%s"
+  name = "%[1]s"
 }
 
 resource "huaweicloud_identity_user" "user_1" {
-  name     = "%s"
+  name     = "%[2]s_1"
   enabled  = true
   password = "password12345!"
 }
 
 resource "huaweicloud_identity_user" "user_2" {
-  name     = "%s"
+  name     = "%[2]s_2"
+  enabled  = true
+  password = "password12345!"
+}
+
+resource "huaweicloud_identity_user" "user_4" {
+  name     = "%[2]s_4"
+  enabled  = true
+  password = "password12345!"
+}
+
+resource "huaweicloud_identity_user" "user_5" {
+  name     = "%[2]s_5"
   enabled  = true
   password = "password12345!"
 }
@@ -128,6 +172,16 @@ resource "huaweicloud_swr_organization_permissions" "test" {
     user_id    = huaweicloud_identity_user.user_2.id
     permission = "Read"
   }
+
+  users {
+    user_id    = huaweicloud_identity_user.user_4.id
+    permission = "Manage"
+  }
+
+  users {
+    user_id    = huaweicloud_identity_user.user_5.id
+    permission = "Read"
+  }
 }
-`, organizationName, userName1, userName2)
+`, organizationName, userName)
 }
