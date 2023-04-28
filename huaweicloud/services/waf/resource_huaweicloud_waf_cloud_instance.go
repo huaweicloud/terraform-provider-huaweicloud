@@ -408,8 +408,9 @@ func resourceCloudInstanceUpdate(ctx context.Context, d *schema.ResourceData, me
 	if d.HasChange("resource_spec_code") {
 		var (
 			opts = clouds.UpdateOpts{
-				ProjectId: cfg.GetProjectID(region),
-				IsAutoPay: utils.Bool(true),
+				ProjectId:           cfg.GetProjectID(region),
+				IsAutoPay:           utils.Bool(true),
+				EnterpriseProjectId: common.GetEnterpriseProjectID(d, cfg),
 			}
 		)
 

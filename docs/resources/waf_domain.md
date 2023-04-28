@@ -12,8 +12,12 @@ used. The domain name resource can be used in Cloud Mode.
 ## Example Usage
 
 ```hcl
+variable "enterprise_project_id" {}
+
 resource "huaweicloud_waf_certificate" "certificate_1" {
-  name        = "cert_1"
+  name                  = "cert_1"
+  enterprise_project_id = var.enterprise_project_id
+  
   certificate = <<EOT
 -----BEGIN CERTIFICATE-----
 MIIFmQl5dh2QUAeo39TIKtadgAgh4zHx09kSgayS9Wph9LEqq7MA+2042L3J9aOa
@@ -34,10 +38,11 @@ EOT
 }
 
 resource "huaweicloud_waf_domain" "domain_1" {
-  domain           = "www.example.com"
-  certificate_id   = huaweicloud_waf_certificate.certificate_1.id
-  certificate_name = huaweicloud_waf_certificate.certificate_1.name
-  proxy            = true
+  domain                = "www.example.com"
+  certificate_id        = huaweicloud_waf_certificate.certificate_1.id
+  certificate_name      = huaweicloud_waf_certificate.certificate_1.name
+  proxy                 = true
+  enterprise_project_id = var.enterprise_project_id
 
   server {
     client_protocol = "HTTPS"
@@ -76,6 +81,9 @@ The following arguments are supported:
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the domain. Valid values are *prePaid*
   and *postPaid*, defaults to *prePaid*. Changing this creates a new instance.
+
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF domain.
+  Changing this parameter will create a new resource.
 
 The `server` block supports:
 
