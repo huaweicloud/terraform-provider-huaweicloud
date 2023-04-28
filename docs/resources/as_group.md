@@ -203,6 +203,8 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies the description of the AS group.
   The value can contain 0 to 256 characters.
 
+* `agency_name` - (Optional, String, ForceNew) Specifies the IAM agency name. Changing this creates a new group.
+
 * `delete_publicip` - (Optional, Bool) Specifies whether to delete the elastic IP address bound to the instances of
   AS group when deleting the instances. The options are `true` and `false`.
 

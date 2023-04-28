@@ -193,6 +193,12 @@ func ResourceASGroup() *schema.Resource {
 				Default:      "OLD_CONFIG_OLD_INSTANCE",
 				ValidateFunc: validation.StringInSlice(TerminatePolices, false),
 			},
+			"agency_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"delete_publicip": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -519,6 +525,7 @@ func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta int
 		InstanceTerminatePolicy:   d.Get("instance_terminate_policy").(string),
 		MultiAZPriorityPolicy:     d.Get("multi_az_scaling_policy").(string),
 		Description:               d.Get("description").(string),
+		IamAgencyName:             d.Get("agency_name").(string),
 		IsDeletePublicip:          d.Get("delete_publicip").(bool),
 		EnterpriseProjectID:       common.GetEnterpriseProjectID(d, config),
 	}
@@ -603,6 +610,7 @@ func resourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("availability_zones", asg.AvailableZones),
 		d.Set("multi_az_scaling_policy", asg.MultiAZPriorityPolicy),
 		d.Set("description", asg.Description),
+		d.Set("agency_name", asg.IamAgencyName),
 		d.Set("notifications", asg.Notifications),
 		d.Set("instances", allIDs),
 		d.Set("networks", flattenNetworks(asg.Networks)),
