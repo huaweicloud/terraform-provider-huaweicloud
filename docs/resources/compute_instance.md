@@ -318,11 +318,11 @@ The following arguments are supported:
 * `user_id` - (Optional, String, ForceNew) Specifies a user ID, required when using key_pair in prePaid charging mode.
   Changing this creates a new instance.
 
-* `agency_name` - (Optional, String, ForceNew) Specifies the IAM agency name which is created on IAM to provide
-  temporary credentials for ECS to access cloud services. Changing this creates a new instance.
+* `agency_name` - (Optional, String) Specifies the IAM agency name which is created on IAM to provide
+  temporary credentials for ECS to access cloud services.
 
-* `agent_list` - (Optional, String, ForceNew) Specifies the agent list in comma-separated string.
-  Changing this creates a new instance. Available agents are:
+* `agent_list` - (Optional, String) Specifies the agent list in comma-separated string.
+  Available agents are:
   + `ces`: enable cloud eye monitoring(free).
   + `hss`: enable host security basic(free).
   + `hss,hss-ent`: enable host security enterprise edition.

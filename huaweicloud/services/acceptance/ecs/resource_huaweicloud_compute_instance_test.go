@@ -44,6 +44,8 @@ func TestAccComputeInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "delete_eip_on_termination", "true"),
 					resource.TestCheckResourceAttr(resourceName, "agent_list", "hss"),
 					resource.TestCheckResourceAttr(resourceName, "system_disk_size", "50"),
+					resource.TestCheckResourceAttr(resourceName, "agency_name", "test111"),
+					resource.TestCheckResourceAttr(resourceName, "agent_list", "hss"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
@@ -55,6 +57,8 @@ func TestAccComputeInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName+"-update"),
 					resource.TestCheckResourceAttr(resourceName, "description", "terraform test update"),
 					resource.TestCheckResourceAttr(resourceName, "system_disk_size", "60"),
+					resource.TestCheckResourceAttr(resourceName, "agency_name", "test222"),
+					resource.TestCheckResourceAttr(resourceName, "agent_list", "ces"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key2", "value2"),
 				),
@@ -325,6 +329,7 @@ resource "huaweicloud_compute_instance" "test" {
   flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]
   stop_before_destroy = true
+  agency_name         = "test111"
   agent_list          = "hss"
 
   network {
@@ -359,7 +364,8 @@ resource "huaweicloud_compute_instance" "test" {
   flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]
   stop_before_destroy = true
-  agent_list          = "hss"
+  agency_name         = "test222"
+  agent_list          = "ces"
 
   network {
     uuid              = data.huaweicloud_vpc_subnet.test.id
