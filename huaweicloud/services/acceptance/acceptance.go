@@ -117,6 +117,15 @@ var (
 	// The CFW instance ID
 	HW_CFW_INSTANCE_ID = os.Getenv("HW_CFW_INSTANCE_ID")
 
+	// The cluster ID of the CCE
+	HW_CCE_CLUSTER_ID = os.Getenv("HW_CCE_CLUSTER_ID")
+	// The namespace of the workload is located
+	HW_WORKLOAD_NAMESPACE = os.Getenv("HW_WORKLOAD_NAMESPACE")
+	// The workload type deployed in CCE/CCI
+	HW_WORKLOAD_TYPE = os.Getenv("HW_WORKLOAD_TYPE")
+	// The workload name deployed in CCE/CCI
+	HW_WORKLOAD_NAME = os.Getenv("HW_WORKLOAD_NAME")
+
 	// Deprecated
 	HW_SRC_ACCESS_KEY = os.Getenv("HW_SRC_ACCESS_KEY")
 	HW_SRC_SECRET_KEY = os.Getenv("HW_SRC_SECRET_KEY")
@@ -541,6 +550,34 @@ func TestAccPreCheckDcDirectConnection(t *testing.T) {
 func TestAccPreCheckCfw(t *testing.T) {
 	if HW_CFW_INSTANCE_ID == "" {
 		t.Skip("HW_CFW_INSTANCE_ID must be set for CFW acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckWorkloadType(t *testing.T) {
+	if HW_WORKLOAD_TYPE == "" {
+		t.Skip("HW_WORKLOAD_TYPE must be set for SWR image trigger acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckWorkloadName(t *testing.T) {
+	if HW_WORKLOAD_NAME == "" {
+		t.Skip("HW_WORKLOAD_NAME must be set for SWR image trigger acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCceClusterId(t *testing.T) {
+	if HW_CCE_CLUSTER_ID == "" {
+		t.Skip("HW_CCE_CLUSTER_ID must be set for SWR image trigger acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckWorkloadNameSpace(t *testing.T) {
+	if HW_WORKLOAD_NAMESPACE == "" {
+		t.Skip("HW_WORKLOAD_NAMESPACE must be set for SWR image trigger acceptance tests")
 	}
 }
 
