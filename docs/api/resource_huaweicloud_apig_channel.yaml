@@ -1,6 +1,6 @@
 info:
   version: 
-  title: resource_huaweicloud_apig_vpc_channel
+  title: resource_huaweicloud_apig_channel
   description: 
 schemes:
   - https
@@ -8,10 +8,6 @@ host: huaweicloud.com
 tags:
   - name: APIG
 paths:
-  /v1/{project_id}/cloudservers/{serverID}:
-    get:
-      tag: ECS
-      operationId: Get
   /v2/{project_id}/apigw/instances/{instanceId}/vpc-channels/{chanId}:
     delete:
       tag: APIG
@@ -23,9 +19,6 @@ paths:
       tag: APIG
       operationId: Update
   /v2/{project_id}/apigw/instances/{instanceId}/vpc-channels:
-    get:
-      tag: APIG
-      operationId: List
     post:
       tag: APIG
       operationId: Create

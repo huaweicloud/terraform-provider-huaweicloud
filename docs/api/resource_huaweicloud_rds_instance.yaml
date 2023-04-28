@@ -20,6 +20,17 @@ paths:
     put:
       tag: RDS
       operationId: UpdatePort
+  /v3/{project_id}/instances/{instancesId}/action:
+    post:
+      tag: RDS
+      operationId: RebootInstance
+  /v3/{project_id}/instances/{instancesId}/configurations:
+    get:
+      tag: RDS
+      operationId: GetConfigurations
+    put:
+      tag: RDS
+      operationId: ModifyConfiguration
   /v3/{project_id}/instances/{instancesId}/password:
     post:
       tag: RDS

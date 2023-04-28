@@ -11,10 +11,10 @@ paths:
   /v1/{project_id}/waf/certificate/{id}:
     delete:
       tag: WAF
-      operationId: Delete
+      operationId: DeleteWithEpsID
     get:
       tag: WAF
-      operationId: Get
+      operationId: GetWithEpsID
     put:
       tag: WAF
       operationId: Update

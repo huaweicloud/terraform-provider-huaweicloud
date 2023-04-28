@@ -11,14 +11,14 @@ paths:
   /v1/{project_id}/waf/policy/{policyID}/whiteblackip/{id}:
     delete:
       tag: WAF
-      operationId: Delete
+      operationId: DeleteWithEpsId
     get:
       tag: WAF
-      operationId: Get
+      operationId: GetWithEpsId
     put:
       tag: WAF
-      operationId: Update
+      operationId: UpdateWithEpsId
   /v1/{project_id}/waf/policy/{policyID}/whiteblackip:
     post:
       tag: WAF
-      operationId: Create
+      operationId: CreateWithEpsId

@@ -11,10 +11,10 @@ paths:
   /v1/{project_id}/waf/policy/{policyID}/antitamper/{id}:
     delete:
       tag: WAF
-      operationId: Delete
+      operationId: DeleteWithEpsID
     get:
       tag: WAF
-      operationId: Get
+      operationId: GetWithEpsID
   /v1/{project_id}/waf/policy/{policyID}/antitamper:
     post:
       tag: WAF

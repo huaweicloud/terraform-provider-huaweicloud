@@ -40,6 +40,9 @@ paths:
     get:
       tag: ECS
       operationId: Get
+    get:
+      tag: ECS
+      operationId: Get
     put:
       tag: ECS
       operationId: Update
@@ -63,17 +66,14 @@ paths:
     post:
       tag: ECS
       operationId: Create
-  /v1/ports/{id}:
-    get:
-      tag: VPC
-      operationId: Get
+  /v2.0/ports/{id}:
     put:
       tag: VPC
       operationId: Update
-  /v2.1/{project_id}/servers/{id}/action:
+  /v1/{project_id}/servers/{id}/action:
     post:
       tag: ECS
-      operationId: RemoveServer
+      operationId: ChangeAdminPassword
   /v2.1/{project_id}/servers/{id}/metadata/{key}:
     delete:
       tag: ECS
@@ -89,6 +89,9 @@ paths:
     get:
       tag: ECS
       operationId: Get
+    get:
+      tag: ECS
+      operationId: Get
     put:
       tag: ECS
       operationId: Update
@@ -96,6 +99,10 @@ paths:
     post:
       tag: ECS
       operationId: Create
+  /v1/{project_id}/security-groups:
+    get:
+      tag: VPC
+      operationId: List
   /v1/{project_id}/subnets/{id}:
     get:
       tag: VPC

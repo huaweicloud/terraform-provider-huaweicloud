@@ -1,0 +1,18 @@
+info:
+  version: 
+  title: resource_huaweicloud_identity_user_role_assignment
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: IAM
+paths:
+  /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/users/{userID}/roles/{roleID}:
+    put:
+      tag: IAM
+      operationId: UserPermissionsCreate
+  /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/users/{userID}/roles:
+    get:
+      tag: IAM
+      operationId: UserPermissionsGet
