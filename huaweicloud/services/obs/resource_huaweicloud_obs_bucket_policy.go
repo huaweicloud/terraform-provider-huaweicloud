@@ -141,7 +141,7 @@ func resourceObsBucketPolicyDelete(_ context.Context, d *schema.ResourceData, me
 	log.Printf("[DEBUG] OBS bucket: %s, delete policy", bucket)
 	_, err = obsClient.DeleteBucketPolicy(bucket)
 	if err != nil {
-		return diag.FromErr(getObsError("Error deleting policy of OBS bucket %s: %s", bucket, err))
+		return diag.FromErr(getObsError("Error deleting policy of OBS bucket", bucket, err))
 	}
 
 	return nil
