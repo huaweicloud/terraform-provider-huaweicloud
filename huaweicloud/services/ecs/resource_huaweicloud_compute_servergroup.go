@@ -92,7 +92,7 @@ func resourceComputeServerGroupCreate(d *schema.ResourceData, meta interface{}) 
 		// Release the ECS instance after the binding operation is complete whether it success or not.
 		config.MutexKV.Unlock(instanceId)
 		if err != nil {
-			return fmt.Errorf("error binging instance %s to ECS server group: %s", instanceId, err)
+			return fmt.Errorf("error binding instance %s to ECS server group: %s", instanceId, err)
 		}
 	}
 
@@ -150,7 +150,7 @@ func resourceComputeServerGroupUpdate(d *schema.ResourceData, meta interface{}) 
 			// Release the ECS instance ID after the binding operation is complete whether it success or not.
 			config.MutexKV.Unlock(instanceId)
 			if err != nil {
-				return fmt.Errorf("error bingding instance %s to server group: %s", instanceId, err)
+				return fmt.Errorf("error binding instance %s to server group: %s", instanceId, err)
 			}
 		}
 
@@ -202,7 +202,7 @@ func resourceComputeServerGroupDelete(d *schema.ResourceData, meta interface{}) 
 	cfg := meta.(*config.Config)
 	ecsClient, err := cfg.ComputeV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmt.Errorf("Error creating compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	members := d.Get("members").(*schema.Set).List()

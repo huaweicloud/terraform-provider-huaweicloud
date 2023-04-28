@@ -122,7 +122,7 @@ func testAccCheckComputeServerGroupDestroy(s *terraform.State) error {
 
 		_, err := servergroups.Get(ecsClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("ServerGroup still exists")
+			return fmt.Errorf("server group still exists")
 		}
 	}
 
@@ -133,11 +133,11 @@ func testAccCheckComputeServerGroupExists(n string, kp *servergroups.ServerGroup
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
@@ -152,7 +152,7 @@ func testAccCheckComputeServerGroupExists(n string, kp *servergroups.ServerGroup
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("ServerGroup not found")
+			return fmt.Errorf("server group not found")
 		}
 
 		*kp = *found
@@ -171,7 +171,7 @@ func testAccCheckComputeInstanceInServerGroup(instance *cloudservers.CloudServer
 			}
 		}
 
-		return fmt.Errorf("Instance %s is not part of Server Group %s", instance.ID, sg.ID)
+		return fmt.Errorf("instance %s does not belong to server group %s", instance.ID, sg.ID)
 	}
 }
 

@@ -85,17 +85,17 @@ func testAccCheckComputeInterfaceAttachExists(n string, ai *attachinterfaces.Int
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 		computeClient, err := cfg.ComputeV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating compute client: %s", err)
+			return fmt.Errorf("error creating compute client: %s", err)
 		}
 
 		instanceId, portId, err := computeInterfaceAttachParseID(rs.Primary.ID)
@@ -110,7 +110,7 @@ func testAccCheckComputeInterfaceAttachExists(n string, ai *attachinterfaces.Int
 
 		//if found.instanceID != instanceID || found.PortID != portId {
 		if found.PortID != portId {
-			return fmt.Errorf("InterfaceAttach not found")
+			return fmt.Errorf("interface attachment not found")
 		}
 
 		*ai = *found
@@ -127,7 +127,7 @@ func testAccCheckComputeInterfaceAttachIP(
 				return nil
 			}
 		}
-		return fmt.Errorf("Requested ip (%s) does not exist on port", ip)
+		return fmt.Errorf("requested ip (%s) does not exist on port", ip)
 
 	}
 }

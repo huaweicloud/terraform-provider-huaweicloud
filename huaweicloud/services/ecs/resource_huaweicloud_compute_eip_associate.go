@@ -416,7 +416,7 @@ func parseComputeFloatingIPAssociateID(id string) (string, string, string, error
 	idParts := strings.Split(id, "/")
 	if len(idParts) != 3 && len(idParts) != 2 {
 		return "", "", "",
-			fmt.Errorf("Unable to parse the resource ID, must be <eip address or bandwidth_id>/<instance_id>/<fixed_ip> format")
+			fmt.Errorf("unable to parse the resource ID, must be <eip address or bandwidth_id>/<instance_id>/<fixed_ip> format")
 	}
 
 	publicID := idParts[0]

@@ -59,7 +59,7 @@ func expandInstanceNetworks(d *schema.ResourceData) ([]servers.Network, error) {
 		}
 		if network.UUID == "" && network.Port == "" {
 			return nil, fmt.Errorf(
-				"At least one of network.uuid or network.port must be set.")
+				"at least one of network.uuid or network.port must be set")
 		}
 		instanceNetworks = append(instanceNetworks, network)
 	}
@@ -75,7 +75,7 @@ func getInstanceAddresses(d *schema.ResourceData, meta interface{}, server *clou
 	region := cfg.GetRegion(d)
 	networkingClient, err := cfg.NetworkingV1Client(region)
 	if err != nil {
-		return nil, fmt.Errorf("Error creating networking client: %s", err)
+		return nil, fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	var networkID string

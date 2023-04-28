@@ -186,7 +186,7 @@ func resourceComputeInterfaceAttachRead(d *schema.ResourceData, meta interface{}
 	}
 	networkingClient, err := cfg.NetworkingV2Client(region)
 	if err != nil {
-		return fmt.Errorf("Error creating networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	instanceId, portId, err := computeInterfaceAttachParseID(d.Id())
@@ -224,7 +224,7 @@ func resourceComputeInterfaceAttachUpdate(d *schema.ResourceData, meta interface
 	cfg := meta.(*config.Config)
 	nicClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmt.Errorf("Error creating networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	var (

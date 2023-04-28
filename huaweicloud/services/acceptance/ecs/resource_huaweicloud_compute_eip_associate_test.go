@@ -83,7 +83,7 @@ func testAccCheckComputeEIPAssociateDestroy(s *terraform.State) error {
 	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 	computeClient, err := cfg.ComputeV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -122,7 +122,7 @@ func testAccCheckComputeEIPAssociateAssociated(
 		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 		computeClient, err := cfg.ComputeV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating compute client: %s", err)
+			return fmt.Errorf("error creating compute client: %s", err)
 		}
 
 		newInstance, err := cloudservers.Get(computeClient, instance.ID).Extract()
@@ -151,17 +151,17 @@ func testAccCheckVpcV1EIPExists(n string, eip *eips.PublicIp) resource.TestCheck
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		networkingClient, err := config.NetworkingV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating networking client: %s", err)
+			return fmt.Errorf("error creating networking client: %s", err)
 		}
 
 		found, err := eips.Get(networkingClient, rs.Primary.ID).Extract()
@@ -307,11 +307,11 @@ func testAccCheckBandWidthAssociateExists(n string, info *bandwidthsv1.PublicIpi
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Bandwidth Associate Resource not found: %s", n)
+			return fmt.Errorf("bandwidth associate resource not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		conf := acceptance.TestAccProvider.Meta().(*config.Config)
@@ -334,7 +334,7 @@ func testAccCheckBandWidthAssociateExists(n string, info *bandwidthsv1.PublicIpi
 			}
 		}
 
-		return fmt.Errorf("Resource not found: IPv6 port %s does not exist in bandwidth %s",
+		return fmt.Errorf("resource not found: IPv6 port %s does not exist in bandwidth %s",
 			ipv6PortID, bwID)
 	}
 }

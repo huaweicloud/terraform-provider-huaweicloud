@@ -1418,7 +1418,7 @@ func ServerV1StateRefreshFunc(client *golangsdk.ServiceClient, instanceID string
 
 		// get fault message when status is ERROR
 		if s.Status == "ERROR" {
-			fault := fmt.Errorf("[error code: %d, message: %s]", s.Fault.Code, s.Fault.Message)
+			fault := fmt.Errorf("error code: %d, message: %s", s.Fault.Code, s.Fault.Message)
 			return s, "ERROR", fault
 		}
 		return s, s.Status, nil
@@ -1464,7 +1464,7 @@ func resourceInstanceSecGroupIdsV1(client *golangsdk.ServiceClient, d *schema.Re
 		}
 	}
 	if len(secGroups) != len(rawSecGroups) {
-		return nil, fmt.Errorf("The list contains invalid security groups (num: %d), please check your entry",
+		return nil, fmt.Errorf("the list contains invalid security groups (num: %d), please check your entry",
 			len(rawSecGroups)-len(secGroups))
 	}
 

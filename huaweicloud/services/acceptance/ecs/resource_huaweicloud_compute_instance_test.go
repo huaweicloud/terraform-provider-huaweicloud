@@ -239,7 +239,7 @@ func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 	computeClient, err := cfg.ComputeV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -250,7 +250,7 @@ func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 		server, err := cloudservers.Get(computeClient, rs.Primary.ID).Extract()
 		if err == nil {
 			if server.Status != "DELETED" {
-				return fmt.Errorf("Instance still exists")
+				return fmt.Errorf("instance still exists")
 			}
 		}
 	}
@@ -262,17 +262,17 @@ func testAccCheckComputeInstanceExists(n string, instance *cloudservers.CloudSer
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 		computeClient, err := cfg.ComputeV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating compute client: %s", err)
+			return fmt.Errorf("error creating compute client: %s", err)
 		}
 
 		found, err := cloudservers.Get(computeClient, rs.Primary.ID).Extract()
@@ -281,7 +281,7 @@ func testAccCheckComputeInstanceExists(n string, instance *cloudservers.CloudSer
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Instance not found")
+			return fmt.Errorf("instance not found")
 		}
 
 		*instance = *found
