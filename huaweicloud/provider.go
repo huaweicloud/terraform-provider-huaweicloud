@@ -955,6 +955,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_image_permissions":        swr.ResourceSwrImagePermissions(),
 			"huaweicloud_swr_image_trigger":            swr.ResourceSwrImageTrigger(),
 			"huaweicloud_swr_image_retention_policy":   swr.ResourceSwrImageRetentionPolicy(),
+			"huaweicloud_swr_image_auto_sync":          swr.ResourceSwrImageAutoSync(),
 
 			"huaweicloud_tms_tags": tms.ResourceTmsTag(),
 
