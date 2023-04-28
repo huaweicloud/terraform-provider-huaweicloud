@@ -239,6 +239,51 @@ func TestAccComputeInstance_disk_encryption(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_withEPS(t *testing.T) {
+	var instance cloudservers.CloudServer
+
+	srcEPS := acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
+	destEPS := acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_compute_instance.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckMigrateEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_withEPS(rName, srcEPS),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", srcEPS),
+				),
+			},
+			{
+				Config: testAccComputeInstance_withEPS(rName, destEPS),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", destEPS),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"stop_before_destroy", "delete_eip_on_termination",
+				},
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 	computeClient, err := cfg.ComputeV1Client(acceptance.HW_REGION_NAME)
@@ -521,4 +566,31 @@ resource "huaweicloud_compute_instance" "test" {
   }
 }
 `, testAccCompute_data, rName, rName)
+}
+
+func testAccComputeInstance_withEPS(rName, epsID string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_compute_instance" "test" {
+  name                  = "%s"
+  description           = "terraform test"
+  image_id              = data.huaweicloud_images_image.test.id
+  flavor_id             = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids    = [data.huaweicloud_networking_secgroup.test.id]
+  enterprise_project_id = "%s"
+  system_disk_type      = "SAS"
+  system_disk_size      = 40
+
+  network {
+    uuid              = data.huaweicloud_vpc_subnet.test.id
+    source_dest_check = false
+  }
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, testAccCompute_data, rName, epsID)
 }

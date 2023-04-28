@@ -227,7 +227,7 @@ func TestAccPreCheckEpsID(t *testing.T) {
 
 // lintignore:AT003
 func TestAccPreCheckMigrateEpsID(t *testing.T) {
-	if HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST == "" {
+	if HW_ENTERPRISE_PROJECT_ID_TEST == "" || HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST == "" {
 		t.Skip("The environment variables does not support Migrate Enterprise Project ID for acc tests")
 	}
 }
