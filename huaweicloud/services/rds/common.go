@@ -27,7 +27,20 @@ func handleMultiOperationsError(err error) (bool, error) {
 		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
 			return false, fmt.Errorf("unmarshal the response body failed: %s", jsonErr)
 		}
-		if apiError.ErrCode == "DBS.200019" {
+
+		// Some error codes that need to be retried coming from https://console-intl.huaweicloud.com/apiexplorer/#/errorcenter/RDS.
+		retryErrCodes := map[string]struct{}{
+			"DBS.201202": struct{}{},
+			"DBS.200011": struct{}{},
+			"DBS.200019": struct{}{},
+			"DBS.200047": struct{}{},
+			"DBS.200080": struct{}{},
+			"DBS.201206": struct{}{},
+			"DBS.280011": struct{}{},
+			"DBS.280816": struct{}{},
+		}
+
+		if _, ok := retryErrCodes[apiError.ErrCode]; ok {
 			// The operation failed to execute and needs to be executed again, because other operations are
 			// currently in progress.
 			return true, err
