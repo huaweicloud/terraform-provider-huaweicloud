@@ -76,6 +76,23 @@ SFS Turbo will create two private IP addresses and one virtual IP address under 
 normal use, SFS Turbo will enable the inbound rules for ports *111*, *445*, *2049*, *2051*, *2052*, and *20048* in the
 security group you specified.
 
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the SFS Turbo.
+  Valid values are **prePaid** and **postPaid**, defaults to **postPaid**.
+  Changing this parameter will create a new cluster resource.
+
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the SFS Turbo.
+  Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.
+  Changing this parameter will create a new cluster resource.
+
+* `period` - (Optional, Int, ForceNew) Specifies the charging period of the SFS Turbo.
+  If `period_unit` is set to **month**, the value ranges from `1` to `11`.
+  If `period_unit` is set to **year**, the value ranges from `1` to `3`.
+  This parameter is mandatory if `charging_mode` is set to **prePaid**.
+  Changing this parameter will create a new cluster resource.
+
+* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.  
+  The valid values are **true** and **false**.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -96,8 +113,9 @@ In addition to all arguments above, the following attributes are exported:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 10 minute.
-* `delete` - Default is 10 minute.
+* `create` - Default is 30 minutes.
+* `update` - Default is 15 minutes.
+* `delete` - Default is 10 minutes.
 
 ## Import
 
@@ -105,4 +123,22 @@ SFS Turbo can be imported using the `id`, e.g.
 
 ```
 $ terraform import huaweicloud_sfs_turbo 1e3d5306-24c9-4316-9185-70e9787d71ab
+```
+
+Note that the imported state may not be identical to your resource definition, due to payment attributes missing from
+the API response.
+The missing attributes include: `charging_mode`, `period_unit`, `period`, `auto_renew`.
+It is generally recommended running `terraform plan` after importing an instance.
+You can ignore changes as below.
+
+```hcl
+resource "huaweicloud_sfs_turbo" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      charging_mode, period_unit, period, auto_renew,
+    ]
+  }
+}
 ```

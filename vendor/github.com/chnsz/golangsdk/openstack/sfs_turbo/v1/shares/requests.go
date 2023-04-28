@@ -15,9 +15,17 @@ type CreateOptsBuilder interface {
 	ToShareCreateMap() (map[string]interface{}, error)
 }
 
+// CreateOpts is the structure used to create a new SFS Turbo resource.
+type CreateOpts struct {
+	// Turbo configuration details.
+	Share Share `json:"share" required:"share"`
+	// The configuration of pre-paid billing mode.
+	BssParam *BssParam `json:"bss_param,omitempty"`
+}
+
 // CreateOpts contains the options for create an SFS Turbo. This object is
 // passed to shares.Create().
-type CreateOpts struct {
+type Share struct {
 	// Defines the SFS Turbo file system name
 	Name string `json:"name" required:"true"`
 	// Defines the SFS Turbo file system protocol to use, the vaild value is NFS.
@@ -54,10 +62,30 @@ type Metadata struct {
 	DedicatedStorageID    string `json:"dedicated_storage_id,omitempty"`
 }
 
+// BssParam is an object that represents the prepaid configuration.
+type BssParam struct {
+	// The number of cycles for prepaid.
+	// + minimum: 1
+	// + maximum: 11
+	PeriodNum int `json:"period_num" required:"true"`
+	// The prepaid type.
+	// + 2: month
+	// + 3: year
+	PeriodType int `json:"period_type" require:"true"`
+	// Whether to automatically renew.
+	// + 0: manual renew.
+	// + 1: automatic renew.
+	IsAutoRenew *int `json:"is_auto_renew,omitempty"`
+	// Whether to pay automatically.
+	// + 0: manual payment.
+	// + 1: automatic payment.
+	IsAutoPay *int `json:"is_auto_pay,omitempty"`
+}
+
 // ToShareCreateMap assembles a request body based on the contents of a
 // CreateOpts.
 func (opts CreateOpts) ToShareCreateMap() (map[string]interface{}, error) {
-	return golangsdk.BuildRequestBody(opts, "share")
+	return golangsdk.BuildRequestBody(opts, "")
 }
 
 // Create will create a new SFS Turbo file system based on the values in CreateOpts. To extract
@@ -160,9 +188,19 @@ type ExpandOpts struct {
 	Extend ExtendOpts `json:"extend" required:"true"`
 }
 
+// BssParamExtend is an object that represents the payment detail.
+type BssParamExtend struct {
+	// Whether to pay automatically.
+	// + 0: manual payment.
+	// + 1: automatic payment.
+	IsAutoPay *int `json:"is_auto_pay,omitempty"`
+}
+
 type ExtendOpts struct {
 	// Specifies the post-expansion capacity (GB) of the shared file system.
 	NewSize int `json:"new_size" required:"true"`
+	// The configuration of pre-paid billing mode.
+	BssParam *BssParamExtend `json:"bss_param,omitempty"`
 }
 
 // ToShareExpandMap assembles a request body based on the contents of a
@@ -178,7 +216,7 @@ func Expand(client *golangsdk.ServiceClient, shareId string, opts ExpandOptsBuil
 		r.Err = err
 		return
 	}
-	_, r.Err = client.Post(actionURL(client, shareId), b, nil, &golangsdk.RequestOpts{
+	_, r.Err = client.Post(actionURL(client, shareId), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{202},
 	})
 	return
