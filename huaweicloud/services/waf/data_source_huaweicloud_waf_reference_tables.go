@@ -3,8 +3,9 @@ package waf
 import (
 	"time"
 
-	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/valuelists"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/valuelists"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -25,6 +26,10 @@ func DataSourceWafReferenceTablesV1() *schema.Resource {
 				Computed: true,
 			},
 			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -72,7 +77,10 @@ func dataSourceWafReferenceTablesRead(d *schema.ResourceData, meta interface{}) 
 		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
 	}
 
-	r, err := valuelists.List(client, valuelists.ListValueListOpts{})
+	opts := valuelists.ListValueListOpts{
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
+	}
+	r, err := valuelists.List(client, opts)
 	if err != nil {
 		return common.CheckDeleted(d, err, "Error obtain WAF reference table information")
 	}
