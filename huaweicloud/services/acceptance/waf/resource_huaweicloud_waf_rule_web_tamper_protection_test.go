@@ -8,13 +8,13 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	rules "github.com/chnsz/golangsdk/openstack/waf_hw/v1/webtamperprotection_rules"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccWafRuleWebTamperProtection_basic(t *testing.T) {
@@ -48,6 +48,33 @@ func TestAccWafRuleWebTamperProtection_basic(t *testing.T) {
 	})
 }
 
+func TestAccWafRuleWebTamperProtection_withEpsID(t *testing.T) {
+	var rule rules.WebTamper
+	randName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_waf_rule_web_tamper_protection.rule_1"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckWafWafRuleWebTamperProtectionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWafRuleWebTamperProtection_basic_withEpsID(randName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckWafRuleWebTamperProtectionExists(resourceName, &rule),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "domain", "www.abc.com"),
+					resource.TestCheckResourceAttr(resourceName, "path", "/a"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckWafWafRuleWebTamperProtectionDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	wafClient, err := config.WafV1Client(acceptance.HW_REGION_NAME)
@@ -61,7 +88,7 @@ func testAccCheckWafWafRuleWebTamperProtectionDestroy(s *terraform.State) error 
 		}
 
 		policyID := rs.Primary.Attributes["policy_id"]
-		_, err := rules.Get(wafClient, policyID, rs.Primary.ID).Extract()
+		_, err := rules.GetWithEpsID(wafClient, policyID, rs.Primary.ID, rs.Primary.Attributes["enterprise_project_id"]).Extract()
 		if err == nil {
 			return fmt.Errorf("WAF rule still exists")
 		}
@@ -88,7 +115,7 @@ func testAccCheckWafRuleWebTamperProtectionExists(n string, rule *rules.WebTampe
 		}
 
 		policyID := rs.Primary.Attributes["policy_id"]
-		found, err := rules.Get(wafClient, policyID, rs.Primary.ID).Extract()
+		found, err := rules.GetWithEpsID(wafClient, policyID, rs.Primary.ID, rs.Primary.Attributes["enterprise_project_id"]).Extract()
 		if err != nil {
 			return err
 		}
@@ -113,4 +140,17 @@ resource "huaweicloud_waf_rule_web_tamper_protection" "rule_1" {
   path      = "/a"
 }
 `, testAccWafPolicyV1_basic(name))
+}
+
+func testAccWafRuleWebTamperProtection_basic_withEpsID(name, epsID string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_waf_rule_web_tamper_protection" "rule_1" {
+  policy_id             = huaweicloud_waf_policy.policy_1.id
+  domain                = "www.abc.com"
+  path                  = "/a"
+  enterprise_project_id = "%s"
+}
+`, testAccWafPolicyV1_basic_withEpsID(name, epsID), epsID)
 }
