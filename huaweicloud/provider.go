@@ -912,10 +912,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_networking_vip":           vpc.ResourceNetworkingVip(),
 			"huaweicloud_networking_vip_associate": vpc.ResourceNetworkingVIPAssociateV2(),
 
-			"huaweicloud_obs_bucket":        obs.ResourceObsBucket(),
-			"huaweicloud_obs_bucket_acl":    obs.ResourceOBSBucketAcl(),
-			"huaweicloud_obs_bucket_object": obs.ResourceObsBucketObject(),
-			"huaweicloud_obs_bucket_policy": obs.ResourceObsBucketPolicy(),
+			"huaweicloud_obs_bucket":             obs.ResourceObsBucket(),
+			"huaweicloud_obs_bucket_acl":         obs.ResourceOBSBucketAcl(),
+			"huaweicloud_obs_bucket_object":      obs.ResourceObsBucketObject(),
+			"huaweicloud_obs_bucket_policy":      obs.ResourceObsBucketPolicy(),
+			"huaweicloud_obs_bucket_replication": obs.ResourceObsBucketReplication(),
 
 			"huaweicloud_oms_migration_task":       oms.ResourceMigrationTask(),
 			"huaweicloud_oms_migration_task_group": oms.ResourceMigrationTaskGroup(),
