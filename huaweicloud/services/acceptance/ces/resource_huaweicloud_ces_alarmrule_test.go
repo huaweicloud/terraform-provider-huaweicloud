@@ -218,6 +218,45 @@ func TestAccCESAlarmRule_allInstance(t *testing.T) {
 	})
 }
 
+func TestAccCESAlarmRule_withResourceGroup(t *testing.T) {
+	var ar alarmrule.AlarmRule
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_ces_alarmrule.alarmrule_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&ar,
+		getAlarmRuleResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testCESAlarmRule_withResourceGroup(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "alarm_name", fmt.Sprintf("rule-%s", rName)),
+					resource.TestCheckResourceAttr(resourceName, "alarm_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "alarm_action_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.alarm_level", "3"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.value", "6.5"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.period", "300"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.metric_name", "network_incoming_bytes_rate_inband"),
+					resource.TestCheckResourceAttr(resourceName, "condition.1.alarm_level", "3"),
+					resource.TestCheckResourceAttr(resourceName, "condition.1.value", "6.5"),
+					resource.TestCheckResourceAttr(resourceName, "condition.1.period", "300"),
+					resource.TestCheckResourceAttr(resourceName, "condition.1.metric_name", "network_outgoing_bytes_rate_inband"),
+					resource.TestCheckResourceAttrPair(resourceName, "resource_group_id",
+						"huaweicloud_ces_resource_group.test", "id"),
+				),
+			},
+		},
+	})
+}
+
 func testCESAlarmRule_instanceBase(rName string) string {
 	return fmt.Sprintf(`
 %s
@@ -553,4 +592,78 @@ resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
   }
 }
 `, testCESAlarmRule_topicBase(rName), rName)
+}
+
+func testCESAlarmRule_withResourceGroup(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+%s
+
+resource "huaweicloud_ces_resource_group" "test" {
+  name = "test"
+
+  resources {
+    namespace = "SYS.ECS"
+    dimensions {
+      name  = "instance_id"
+      value = huaweicloud_compute_instance.vm_1.id
+    }
+  }
+}
+
+resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
+  alarm_name           = "rule-%s"
+  alarm_action_enabled = true
+  alarm_type           = "RESOURCE_GROUP"
+  resource_group_id    = huaweicloud_ces_resource_group.test.id
+
+  metric {
+    namespace = "SYS.ECS"
+  }
+
+  resources {
+    dimensions {
+      name  = "instance_id"
+    }
+  }
+
+  condition  {
+    period              = 300
+    filter              = "average"
+    comparison_operator = ">"
+    value               = 6.5
+    unit                = "B/s"
+    count               = 1
+    suppress_duration   = 300
+    metric_name         = "network_incoming_bytes_rate_inband"
+    alarm_level         = 3
+  }
+
+  condition  {
+    period              = 300
+    filter              = "average"
+    comparison_operator = ">"
+    value               = 6.5
+    unit                = "B/s"
+    count               = 1
+    suppress_duration   = 300
+    metric_name         = "network_outgoing_bytes_rate_inband"
+    alarm_level         = 3
+  }
+
+  alarm_actions {
+    type              = "notification"
+    notification_list = [
+      huaweicloud_smn_topic.topic_1.topic_urn
+    ]
+  }
+
+  lifecycle {
+    ignore_changes = [
+      resources
+    ]
+  }
+}
+`, testCESAlarmRule_instanceBase(rName), testCESAlarmRule_topicBase(rName), rName)
 }
