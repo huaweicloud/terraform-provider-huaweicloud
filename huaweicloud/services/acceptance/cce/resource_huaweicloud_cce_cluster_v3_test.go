@@ -4,16 +4,15 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/cce/v3/clusters"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccCluster_basic(t *testing.T) {
@@ -218,7 +217,7 @@ func testAccCheckClusterDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	cceClient, err := config.CceV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
+		return fmt.Errorf("error creating CCE v3 client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -228,7 +227,7 @@ func testAccCheckClusterDestroy(s *terraform.State) error {
 
 		_, err := clusters.Get(cceClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("Cluster still exists")
+			return fmt.Errorf("cluster still exists")
 		}
 	}
 
@@ -239,17 +238,17 @@ func testAccCheckClusterExists(n string, cluster *clusters.Clusters) resource.Te
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("resource not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("resource ID is not set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		cceClient, err := config.CceV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
+			return fmt.Errorf("error creating CCE v3 client: %s", err)
 		}
 
 		found, err := clusters.Get(cceClient, rs.Primary.ID).Extract()
@@ -258,7 +257,7 @@ func testAccCheckClusterExists(n string, cluster *clusters.Clusters) resource.Te
 		}
 
 		if found.Metadata.Id != rs.Primary.ID {
-			return fmtp.Errorf("Cluster not found")
+			return fmt.Errorf("cluster not found")
 		}
 
 		*cluster = *found
