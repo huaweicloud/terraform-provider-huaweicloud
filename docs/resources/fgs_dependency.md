@@ -47,7 +47,7 @@ resource "huaweicloud_fgs_dependency" "test" {
   Only letters, digits, underscores (_), periods (.), and hyphens (-) are allowed.
 
 * `link` - (Required, String) Specifies the OBS bucket path where the dependency package is located. The OBS object URL
-  must be in zip format, such as 'https://obs-terraform.obs.cn-north-4.myhuaweicloud.com/huaweicloudsdkcore.zip'.
+  must be in zip format, such as `https://obs-terraform.obs.cn-north-4.myhuaweicloud.com/huaweicloudsdkcore.zip`.
 
 -> A link can only be used to create at most one dependency package.
 

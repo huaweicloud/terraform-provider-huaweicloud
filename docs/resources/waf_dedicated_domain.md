@@ -40,7 +40,7 @@ The following arguments are supported:
   the provider-level region will be used. Changing this setting will push a new domain.
 
 * `domain` - (Required, String, ForceNew) Specifies the protected domain name or IP address (port allowed). For example,
-  www.example.com or *.example.com or www.example.com:89. Changing this creates a new domain.
+  `www.example.com` or `*.example.com` or `www.example.com:89`. Changing this creates a new domain.
 
 * `server` - (Required, List, ForceNew) The server configuration list of the domain. A maximum of 80 can be configured.
   The object structure is documented below.
@@ -97,7 +97,7 @@ The `server` block supports:
   this creates a new service.
 
 * `address` - (Required, String, ForceNew) IP address or domain name of the web server that the client accesses. For
-  example, 192.168.1.1 or www.example.com. Changing this creates a new service.
+  example, `192.168.1.1` or `www.example.com`. Changing this creates a new service.
 
 * `port` - (Required, Int, ForceNew) Port number used by the web server. The value ranges from 0 to 65535. Changing this
   creates a new service.
