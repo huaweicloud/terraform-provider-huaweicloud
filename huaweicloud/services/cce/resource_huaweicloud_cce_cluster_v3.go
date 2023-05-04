@@ -23,6 +23,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// ResourceCCEClusterV3 defines the CCE cluster resource schema and functions.
+// Deprecated: It's a deprecated function, please refer to the function 'ResourceCluster'.
+func ResourceCCEClusterV3() *schema.Resource {
+	return ResourceCluster()
+}
+
 var associateDeleteSchema *schema.Schema = &schema.Schema{
 	Type:     schema.TypeString,
 	Optional: true,
@@ -42,12 +48,13 @@ var associateDeleteSchemaInternal *schema.Schema = &schema.Schema{
 	Description:   "schema: Internal",
 }
 
-func ResourceCCEClusterV3() *schema.Resource {
+// ResourceCluster defines the CCE cluster resource schema and functions.
+func ResourceCluster() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceCCEClusterV3Create,
-		ReadContext:   resourceCCEClusterV3Read,
-		UpdateContext: resourceCCEClusterV3Update,
-		DeleteContext: resourceCCEClusterV3Delete,
+		CreateContext: resourceClusterCreate,
+		ReadContext:   resourceClusterRead,
+		UpdateContext: resourceClusterUpdate,
+		DeleteContext: resourceClusterDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -325,7 +332,7 @@ func ResourceCCEClusterV3() *schema.Resource {
 	}
 }
 
-func resourceClusterLabelsV3(d *schema.ResourceData) map[string]string {
+func resourceClusterLabels(d *schema.ResourceData) map[string]string {
 	m := make(map[string]string)
 	for key, val := range d.Get("labels").(map[string]interface{}) {
 		m[key] = val.(string)
@@ -333,12 +340,12 @@ func resourceClusterLabelsV3(d *schema.ResourceData) map[string]string {
 	return m
 }
 
-func resourceCCEClusterTags(d *schema.ResourceData) []tags.ResourceTag {
+func resourceClusterTags(d *schema.ResourceData) []tags.ResourceTag {
 	tagRaw := d.Get("tags").(map[string]interface{})
 	return utils.ExpandResourceTags(tagRaw)
 }
 
-func resourceClusterAnnotationsV3(d *schema.ResourceData) map[string]string {
+func resourceClusterAnnotations(d *schema.ResourceData) map[string]string {
 	m := make(map[string]string)
 	for key, val := range d.Get("annotations").(map[string]interface{}) {
 		m[key] = val.(string)
@@ -346,7 +353,7 @@ func resourceClusterAnnotationsV3(d *schema.ResourceData) map[string]string {
 	return m
 }
 
-func resourceClusterExtendParamV3(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func resourceClusterExtendParam(d *schema.ResourceData, config *config.Config) map[string]interface{} {
 	extendParam := make(map[string]interface{})
 	if v, ok := d.GetOk("extend_param"); ok {
 		for key, val := range v.(map[string]interface{}) {
@@ -396,7 +403,7 @@ func resourceClusterExtendParamV3(d *schema.ResourceData, config *config.Config)
 	return extendParam
 }
 
-func resourceClusterMastersV3(d *schema.ResourceData) ([]clusters.MasterSpec, error) {
+func resourceClusterMasters(d *schema.ResourceData) ([]clusters.MasterSpec, error) {
 	if v, ok := d.GetOk("masters"); ok {
 		flavorId := d.Get("flavor_id").(string)
 		mastersRaw := v.([]interface{})
@@ -421,7 +428,7 @@ func resourceClusterMastersV3(d *schema.ResourceData) ([]clusters.MasterSpec, er
 	return nil, nil
 }
 
-func resourceCCEClusterV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
@@ -453,8 +460,8 @@ func resourceCCEClusterV3Create(ctx context.Context, d *schema.ResourceData, met
 		ApiVersion: "v3",
 		Metadata: clusters.CreateMetaData{
 			Name:        clusterName,
-			Labels:      resourceClusterLabelsV3(d),
-			Annotations: resourceClusterAnnotationsV3(d)},
+			Labels:      resourceClusterLabels(d),
+			Annotations: resourceClusterAnnotations(d)},
 		Spec: clusters.Spec{
 			Type:        d.Get("cluster_type").(string),
 			Flavor:      d.Get("flavor_id").(string),
@@ -474,9 +481,9 @@ func resourceCCEClusterV3Create(ctx context.Context, d *schema.ResourceData, met
 				AuthenticatingProxy: authenticating_proxy,
 			},
 			BillingMode:          billingMode,
-			ExtendParam:          resourceClusterExtendParamV3(d, config),
+			ExtendParam:          resourceClusterExtendParam(d, config),
 			KubernetesSvcIPRange: d.Get("service_network_cidr").(string),
-			ClusterTags:          resourceCCEClusterTags(d),
+			ClusterTags:          resourceClusterTags(d),
 		},
 	}
 
@@ -492,7 +499,7 @@ func resourceCCEClusterV3Create(ctx context.Context, d *schema.ResourceData, met
 		createOpts.Spec.EnableDistMgt = d.Get("enable_distribute_management").(bool)
 	}
 
-	masters, err := resourceClusterMastersV3(d)
+	masters, err := resourceClusterMasters(d)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -524,7 +531,7 @@ func resourceCCEClusterV3Create(ctx context.Context, d *schema.ResourceData, met
 			return fmtp.DiagErrorf("Error fetching job id after creating cce cluster: %s", clusterName)
 		}
 
-		clusterID, err := getCCEClusterIDFromJob(ctx, cceClient, jobID, d.Timeout(schema.TimeoutCreate))
+		clusterID, err := getClusterIDFromJob(ctx, cceClient, jobID, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -535,7 +542,7 @@ func resourceCCEClusterV3Create(ctx context.Context, d *schema.ResourceData, met
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Creating"},
 		Target:       []string{"Available"},
-		Refresh:      waitForCCEClusterActive(cceClient, d.Id()),
+		Refresh:      waitForClusterActive(cceClient, d.Id()),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        20 * time.Second,
 		PollInterval: 20 * time.Second,
@@ -564,19 +571,19 @@ func resourceCCEClusterV3Create(ctx context.Context, d *schema.ResourceData, met
 
 	// create a hibernating cluster
 	if d.Get("hibernate").(bool) {
-		err = resourceCCEClusterV3Hibernate(ctx, d, cceClient)
+		err = resourceClusterHibernate(ctx, d, cceClient)
 		if err != nil {
 			diags = append(diags, diag.FromErr(err)...)
 		}
 	}
 
-	diags = append(diags, resourceCCEClusterV3Read(ctx, d, meta)...)
+	diags = append(diags, resourceClusterRead(ctx, d, meta)...)
 
 	return diags
 
 }
 
-func resourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
@@ -669,7 +676,7 @@ func resourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func resourceCCEClusterV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
@@ -688,12 +695,12 @@ func resourceCCEClusterV3Update(ctx context.Context, d *schema.ResourceData, met
 
 	if d.HasChange("hibernate") {
 		if d.Get("hibernate").(bool) {
-			err = resourceCCEClusterV3Hibernate(ctx, d, cceClient)
+			err = resourceClusterHibernate(ctx, d, cceClient)
 			if err != nil {
 				return diag.FromErr(err)
 			}
 		} else {
-			err = resourceCCEClusterV3Awake(ctx, d, cceClient)
+			err = resourceClusterAwake(ctx, d, cceClient)
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -708,13 +715,13 @@ func resourceCCEClusterV3Update(ctx context.Context, d *schema.ResourceData, met
 
 		oldEip, newEip := d.GetChange("eip")
 		if oldEip.(string) != "" {
-			err = resourceCCEClusterV3EipAction(cceClient, eipClient, d.Id(), oldEip.(string), "unbind")
+			err = resourceClusterEipAction(cceClient, eipClient, d.Id(), oldEip.(string), "unbind")
 			if err != nil {
 				return diag.FromErr(err)
 			}
 		}
 		if newEip.(string) != "" {
-			err = resourceCCEClusterV3EipAction(cceClient, eipClient, d.Id(), newEip.(string), "bind")
+			err = resourceClusterEipAction(cceClient, eipClient, d.Id(), newEip.(string), "bind")
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -731,10 +738,10 @@ func resourceCCEClusterV3Update(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
-	return resourceCCEClusterV3Read(ctx, d, meta)
+	return resourceClusterRead(ctx, d, meta)
 }
 
-func resourceCCEClusterV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
@@ -771,7 +778,7 @@ func resourceCCEClusterV3Delete(ctx context.Context, d *schema.ResourceData, met
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Deleting", "Available", "Unavailable"},
 		Target:       []string{"Deleted"},
-		Refresh:      waitForCCEClusterDelete(cceClient, d.Id()),
+		Refresh:      waitForClusterDelete(cceClient, d.Id()),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        60 * time.Second,
 		PollInterval: 20 * time.Second,
@@ -787,7 +794,7 @@ func resourceCCEClusterV3Delete(ctx context.Context, d *schema.ResourceData, met
 	return nil
 }
 
-func waitForCCEClusterActive(cceClient *golangsdk.ServiceClient, clusterId string) resource.StateRefreshFunc {
+func waitForClusterActive(cceClient *golangsdk.ServiceClient, clusterId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		n, err := clusters.Get(cceClient, clusterId).Extract()
 		if err != nil {
@@ -798,7 +805,7 @@ func waitForCCEClusterActive(cceClient *golangsdk.ServiceClient, clusterId strin
 	}
 }
 
-func waitForCCEClusterDelete(cceClient *golangsdk.ServiceClient, clusterId string) resource.StateRefreshFunc {
+func waitForClusterDelete(cceClient *golangsdk.ServiceClient, clusterId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		logp.Printf("[DEBUG] Attempting to delete HuaweiCloud CCE cluster %s.\n", clusterId)
 
@@ -819,7 +826,7 @@ func waitForCCEClusterDelete(cceClient *golangsdk.ServiceClient, clusterId strin
 	}
 }
 
-func getCCEClusterIDFromJob(ctx context.Context, client *golangsdk.ServiceClient, jobID string, timeout time.Duration) (string, error) {
+func getClusterIDFromJob(ctx context.Context, client *golangsdk.ServiceClient, jobID string, timeout time.Duration) (string, error) {
 	stateJob := &resource.StateChangeConf{
 		Pending:      []string{"Initializing", "Running"},
 		Target:       []string{"Success"},
@@ -848,7 +855,7 @@ func getCCEClusterIDFromJob(ctx context.Context, client *golangsdk.ServiceClient
 	return clusterID, nil
 }
 
-func resourceCCEClusterV3Hibernate(ctx context.Context, d *schema.ResourceData, cceClient *golangsdk.ServiceClient) error {
+func resourceClusterHibernate(ctx context.Context, d *schema.ResourceData, cceClient *golangsdk.ServiceClient) error {
 	clusterID := d.Id()
 	err := clusters.Operation(cceClient, clusterID, "hibernate").ExtractErr()
 	if err != nil {
@@ -859,7 +866,7 @@ func resourceCCEClusterV3Hibernate(ctx context.Context, d *schema.ResourceData, 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Available", "Hibernating"},
 		Target:       []string{"Hibernation"},
-		Refresh:      waitForCCEClusterActive(cceClient, clusterID),
+		Refresh:      waitForClusterActive(cceClient, clusterID),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		Delay:        20 * time.Second,
 		PollInterval: 20 * time.Second,
@@ -872,7 +879,7 @@ func resourceCCEClusterV3Hibernate(ctx context.Context, d *schema.ResourceData, 
 	return nil
 }
 
-func resourceCCEClusterV3Awake(ctx context.Context, d *schema.ResourceData, cceClient *golangsdk.ServiceClient) error {
+func resourceClusterAwake(ctx context.Context, d *schema.ResourceData, cceClient *golangsdk.ServiceClient) error {
 	clusterID := d.Id()
 	err := clusters.Operation(cceClient, clusterID, "awake").ExtractErr()
 	if err != nil {
@@ -883,7 +890,7 @@ func resourceCCEClusterV3Awake(ctx context.Context, d *schema.ResourceData, cceC
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Awaking"},
 		Target:       []string{"Available"},
-		Refresh:      waitForCCEClusterActive(cceClient, clusterID),
+		Refresh:      waitForClusterActive(cceClient, clusterID),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		Delay:        100 * time.Second,
 		PollInterval: 20 * time.Second,
@@ -896,7 +903,7 @@ func resourceCCEClusterV3Awake(ctx context.Context, d *schema.ResourceData, cceC
 	return nil
 }
 
-func resourceCCEClusterV3EipAction(cceClient, eipClient *golangsdk.ServiceClient,
+func resourceClusterEipAction(cceClient, eipClient *golangsdk.ServiceClient,
 	clusterID, eip, action string) error {
 	eipID, err := common.GetEipIDbyAddress(eipClient, eip, "all_granted_eps")
 	if err != nil {

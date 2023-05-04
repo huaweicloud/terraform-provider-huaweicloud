@@ -658,7 +658,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cc_connection":       cc.ResourceCloudConnection(),
 			"huaweicloud_cc_network_instance": cc.ResourceNetworkInstance(),
 
-			"huaweicloud_cce_cluster":     cce.ResourceCCEClusterV3(),
+			"huaweicloud_cce_cluster":     cce.ResourceCluster(),
 			"huaweicloud_cce_node":        cce.ResourceCCENodeV3(),
 			"huaweicloud_cce_node_attach": cce.ResourceCCENodeAttachV3(),
 			"huaweicloud_cce_addon":       cce.ResourceCCEAddonV3(),
