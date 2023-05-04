@@ -60,8 +60,8 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the WAF domain resource. If omitted, the
   provider-level region will be used. Changing this setting will push a new certificate.
 
-* `domain` - (Required, String, ForceNew) Specifies the domain name to be protected. For example, www.example.com or
-  *.example.com. Changing this creates a new domain.
+* `domain` - (Required, String, ForceNew) Specifies the domain name to be protected. For example, `www.example.com` or
+  `*.example.com`. Changing this creates a new domain.
 
 * `server` - (Required, List) Specifies an array of origin web servers. The object structure is documented below.
 
@@ -93,7 +93,7 @@ The `server` block supports:
   include `HTTP` and `HTTPS`.
 
 * `address` - (Required, String) IP address or domain name of the web server that the client accesses. For example,
-  192.168.1.1 or www.a.com.
+  `192.168.1.1` or `www.a.com`.
 
 * `port` - (Required, Int) Port number used by the web server. The value ranges from 0 to 65535, for example, 8080.
 

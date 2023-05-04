@@ -24,8 +24,9 @@ data "huaweicloud_cdn_domain_statistics" "test" {
 
 The following arguments are supported:
 
-* `domain_name` - (Required, String) Specifies the domain name list. Domain names are separated by commas (,),
-for example, www.test1.com,www.test2.com. The value all indicates that all domain names under your account are queried.
+* `domain_name` - (Required, String) Specifies the domain name list.
+  Domain names are separated by commas (,), for example, `www.test1.com,www.test2.com`.
+  The value all indicates that all domain names under your account are queried.
 
 * `action` - (Required, String) Specifies the action name. Possible values are: **location_summary** and **location_detail**.
 

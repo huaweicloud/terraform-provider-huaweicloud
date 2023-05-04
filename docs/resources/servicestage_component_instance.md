@@ -469,7 +469,7 @@ The `external_access` block supports:
 
 * `protocol` - (Optional, String) Specifies the protocol. The valid values are **HTTP** and **HTTPS**.
 
-* `address` - (Optional, String) Specifies the access address. For example: www.example.com.
+* `address` - (Optional, String) Specifies the access address. For example: `www.example.com`.
 
 * `port` - (Optional, Int) Specifies the listening port of the application component process.
 
