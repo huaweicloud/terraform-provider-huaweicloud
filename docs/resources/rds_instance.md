@@ -302,7 +302,7 @@ The `parameters` block supports:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - Indicates the DB instance ID.
 
 * `status` - Indicates the DB instance status.
 
@@ -333,15 +333,16 @@ The `nodes` block contains:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 30 minute.
-* `update` - Default is 30 minute.
+* `create` - Default is 30 minutes.
+* `update` - Default is 30 minutes.
+* `delete` - Default is 30 minutes.
 
 ## Import
 
 RDS instance can be imported using the `id`, e.g.
 
 ```
-$ terraform import huaweicloud_rds_instance.instance_1 7117d38e-4c8f-4624-a505-bd96b97d024c
+$ terraform import huaweicloud_rds_instance.instance_1 52e4b497d2c94df88a2eb4c661314903in01
 ```
 
 But due to some attributes missing from the API response, it's required to ignore changes as below.

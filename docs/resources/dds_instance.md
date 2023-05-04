@@ -243,7 +243,7 @@ The `backup_strategy` block supports:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - Indicates the the DB instance ID.
 * `db_username` - Indicates the DB Administator name.
 * `status` - Indicates the the DB instance status.
 * `port` - Indicates the database port number. The port range is 2100 to 9500.
@@ -265,8 +265,9 @@ The `nodes` block contains:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 30 minute.
-* `delete` - Default is 30 minute.
+* `create` - Default is 30 minutes.
+* `update` - Default is 30 minutes.
+* `delete` - Default is 30 minutes.
 
 ## Import
 
