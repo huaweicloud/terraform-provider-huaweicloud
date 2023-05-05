@@ -592,22 +592,6 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error saving nodes to RDS instance (%s): %s", instanceID, err)
 	}
 
-	az1 := instance.Nodes[0].AvailabilityZone
-	if strings.HasSuffix(d.Get("flavor").(string), ".ha") {
-		if len(instance.Nodes) < 2 {
-			return diag.Errorf("error saving availability zone to RDS instance (%s): "+
-				"HA mode must have two availability zone", instanceID)
-		}
-		az2 := instance.Nodes[1].AvailabilityZone
-		if instance.Nodes[1].Role == "master" {
-			d.Set("availability_zone", []string{az2, az1})
-		} else {
-			d.Set("availability_zone", []string{az1, az2})
-		}
-	} else {
-		d.Set("availability_zone", []string{az1})
-	}
-
 	// Set Parameters
 	configs, err := instances.GetConfigurations(client, instanceID).Extract()
 	if err != nil {
