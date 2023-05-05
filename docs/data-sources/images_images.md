@@ -111,6 +111,8 @@ The `images` block contains:
 
 * `status` - The status of the image.
 
+* `backup_id` - The backup ID of the whole image in the CBR vault.
+
 * `created_at` - The date when the image was created.
 
 * `updated_at` - The date when the image was last updated.
