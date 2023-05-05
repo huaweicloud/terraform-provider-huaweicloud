@@ -11,28 +11,63 @@ Manages a Cloud Eye alarm rule resource within HuaweiCloud.
 ### Basic example
 
 ```hcl
-resource "huaweicloud_ces_alarmrule" "alarm_rule" {
-  alarm_name = "alarm_rule"
+variable "instance_id_1" {}
+variable "instance_id_2" {}
+variable "topic_urn" {}
+
+resource "huaweicloud_ces_alarmrule" "test" {
+  alarm_name           = "rule-test"
+  alarm_action_enabled = true
+  alarm_enabled        = true
+  alarm_type           = "MULTI_INSTANCE"
 
   metric {
-    namespace   = "SYS.ECS"
-    metric_name = "network_outgoing_bytes_rate_inband"
+    namespace = "SYS.ECS"
+  }
+
+  resources {
     dimensions {
       name  = "instance_id"
-      value = var.webserver_instance_id
+      value = var.instance_id_1
     }
   }
-  condition {
-    period              = 300
+
+  resources {
+    dimensions {
+      name  = "instance_id"
+      value = var.instance_id_2
+    }
+  }
+
+  condition  {
+    period              = 1200
     filter              = "average"
     comparison_operator = ">"
-    value               = 6
+    value               = 6.5
     unit                = "B/s"
     count               = 1
+    suppress_duration   = 300
+    metric_name         = "network_outgoing_bytes_rate_inband"
+    alarm_level         = 4
   }
+
+  condition  {
+    period              = 3600
+    filter              = "average"
+    comparison_operator = ">="
+    value               = 20
+    unit                = "B/s"
+    count               = 1
+    suppress_duration   = 300
+    metric_name         = "network_outgoing_bytes_rate_inband"
+    alarm_level         = 4
+  }
+
   alarm_actions {
     type              = "notification"
-    notification_list = [var.smn_topic_id]
+    notification_list = [
+      var.topic_urn
+    ]
   }
 }
 ```
@@ -40,28 +75,34 @@ resource "huaweicloud_ces_alarmrule" "alarm_rule" {
 ## Alarm rule for event monitoring
 
 ```hcl
-resource "huaweicloud_ces_alarmrule" "alarm_rule" {
-  alarm_name           = "alarm_rule"
+variable "topic_urn" {}
+
+resource "huaweicloud_ces_alarmrule" "test" {
+  alarm_name           = "rule-test"
   alarm_action_enabled = true
   alarm_type           = "EVENT.SYS"
 
   metric {
-    namespace   = "SYS.ECS"
-    metric_name = "stopServer"
+    namespace = "SYS.ECS"
   }
   
   condition  {
+    metric_name         = "stopServer"
     period              = 0
     filter              = "average"
     comparison_operator = ">="
     value               = 1
     unit                = "count"
     count               = 1
+    suppress_duration   = 0
+    alarm_level         = 2
   }
 
   alarm_actions {
     type              = "notification"
-    notification_list = [var.smn_topic_id]
+    notification_list = [
+      var.topic_urn
+    ]
   }
 }
 ```
@@ -112,16 +153,14 @@ The following arguments are supported:
 -> **Note** If alarm_action_enabled is set to true, either alarm_actions or ok_actions cannot be empty. If alarm_actions
 and ok_actions coexist, their corresponding notification_list must be of the **same value**.
 
-The `resources` block supports:
-
-* `dimensions` - (Optional, List) Specifies the list of metric dimensions. The structure is described below.
-
 The `metric` block supports:
 
 * `namespace` - (Required, String, ForceNew) Specifies the namespace in **service.item** format. **service** and **item**
   each must be a string that starts with a letter and contains only letters, digits, and underscores (_).
   Changing this creates a new resource.
   For details, see [Services Interconnected with Cloud Eye](https://support.huaweicloud.com/intl/en-us/api-ces/ces_03_0059.html).
+
+The `resources` block supports:
 
 * `dimensions` - (Optional, List) Specifies the list of metric dimensions. The structure is described below.
 
