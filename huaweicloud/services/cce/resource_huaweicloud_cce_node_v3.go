@@ -490,6 +490,12 @@ func ResourceCCENodeV3() *schema.Resource {
 				ForceNew:   true,
 				Deprecated: "will be removed after v1.26.0",
 			},
+			"partition": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "schema: Internal",
+			},
 		},
 	}
 }
@@ -826,6 +832,11 @@ func resourceCCENodeV3Create(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 	createOpts.Spec.Login = loginSpec
+
+	// Create a node in the specified partition
+	if v, ok := d.GetOk("partition"); ok {
+		createOpts.Spec.Partition = v.(string)
+	}
 
 	s, err := nodes.Create(nodeClient, clusterid, createOpts).Extract()
 	if err != nil {
