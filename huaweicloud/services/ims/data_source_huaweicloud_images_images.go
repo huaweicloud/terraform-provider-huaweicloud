@@ -171,6 +171,10 @@ func ImagesImageRefSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"backup_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -276,6 +280,7 @@ func flattenImage(image *cloudimages.Image) map[string]interface{} {
 		"checksum":              image.Checksum,
 		"enterprise_project_id": image.EnterpriseProjectID,
 		"status":                image.Status,
+		"backup_id":             image.BackupID,
 		"created_at":            image.CreatedAt.Format(time.RFC3339),
 		"updated_at":            image.UpdatedAt.Format(time.RFC3339),
 	}

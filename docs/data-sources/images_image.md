@@ -95,5 +95,6 @@ In addition to all arguments above, the following attributes are exported:
 * `schema` - The path to the JSON-schema that represent the image or image.
 * `size_bytes` - The size of the image (in bytes).
 * `status` - The status of the image.
+* `backup_id` - The backup ID of the whole image in the CBR vault.
 * `created_at` - The date when the image was created.
 * `updated_at` - The date when the image was last updated.
