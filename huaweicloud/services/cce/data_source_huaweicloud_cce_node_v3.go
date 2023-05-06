@@ -174,30 +174,30 @@ func dataSourceCceNodesV3Read(_ context.Context, d *schema.ResourceData, meta in
 			" Please try a more specific search criteria")
 	}
 
-	Node := refinedNodes[0]
+	node := refinedNodes[0]
 
-	logp.Printf("[DEBUG] Retrieved Nodes using given filter %s: %+v", Node.Metadata.Id, Node)
-	d.SetId(Node.Metadata.Id)
+	logp.Printf("[DEBUG] Retrieved Nodes using given filter %s: %+v", node.Metadata.Id, node)
+	d.SetId(node.Metadata.Id)
 
 	mErr := multierror.Append(nil,
-		d.Set("node_id", Node.Metadata.Id),
-		d.Set("name", Node.Metadata.Name),
-		d.Set("flavor_id", Node.Spec.Flavor),
-		d.Set("availability_zone", Node.Spec.Az),
-		d.Set("os", Node.Spec.Os),
-		d.Set("billing_mode", Node.Spec.BillingMode),
-		d.Set("key_pair", Node.Spec.Login.SshKey),
-		d.Set("subnet_id", Node.Spec.NodeNicSpec.PrimaryNic.SubnetId),
-		d.Set("ecs_group_id", Node.Spec.EcsGroupID),
-		d.Set("server_id", Node.Status.ServerID),
-		d.Set("public_ip", Node.Status.PublicIP),
-		d.Set("private_ip", Node.Status.PrivateIP),
-		d.Set("status", Node.Status.Phase),
+		d.Set("node_id", node.Metadata.Id),
+		d.Set("name", node.Metadata.Name),
+		d.Set("flavor_id", node.Spec.Flavor),
+		d.Set("availability_zone", node.Spec.Az),
+		d.Set("os", node.Spec.Os),
+		d.Set("billing_mode", node.Spec.BillingMode),
+		d.Set("key_pair", node.Spec.Login.SshKey),
+		d.Set("subnet_id", node.Spec.NodeNicSpec.PrimaryNic.SubnetId),
+		d.Set("ecs_group_id", node.Spec.EcsGroupID),
+		d.Set("server_id", node.Status.ServerID),
+		d.Set("public_ip", node.Status.PublicIP),
+		d.Set("private_ip", node.Status.PrivateIP),
+		d.Set("status", node.Status.Phase),
 		d.Set("region", config.GetRegion(d)),
 	)
 
 	var volumes []map[string]interface{}
-	for _, pairObject := range Node.Spec.DataVolumes {
+	for _, pairObject := range node.Spec.DataVolumes {
 		volume := make(map[string]interface{})
 		volume["size"] = pairObject.Size
 		volume["volumetype"] = pairObject.VolumeType
@@ -208,9 +208,9 @@ func dataSourceCceNodesV3Read(_ context.Context, d *schema.ResourceData, meta in
 
 	rootVolume := []map[string]interface{}{
 		{
-			"size":          Node.Spec.RootVolume.Size,
-			"volumetype":    Node.Spec.RootVolume.VolumeType,
-			"extend_params": Node.Spec.RootVolume.ExtendParam,
+			"size":          node.Spec.RootVolume.Size,
+			"volumetype":    node.Spec.RootVolume.VolumeType,
+			"extend_params": node.Spec.RootVolume.ExtendParam,
 		},
 	}
 	mErr = multierror.Append(mErr, d.Set("root_volume", rootVolume))
@@ -221,7 +221,7 @@ func dataSourceCceNodesV3Read(_ context.Context, d *schema.ResourceData, meta in
 		return fmtp.DiagErrorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
-	serverId := Node.Status.ServerID
+	serverId := node.Status.ServerID
 
 	if resourceTags, err := tags.Get(computeClient, "cloudservers", serverId).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)

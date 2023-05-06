@@ -23,7 +23,7 @@ func TestAccCCENodeV3_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	updateName := rName + "update"
 	resourceName := "huaweicloud_cce_node.test"
-	//clusterName here is used to provide the cluster id to fetch cce node.
+	// clusterName here is used to provide the cluster id to fetch cce node.
 	clusterName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -62,7 +62,7 @@ func TestAccCCENodeV3_auto_assign_eip(t *testing.T) {
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cce_node.test"
-	//clusterName here is used to provide the cluster id to fetch cce node.
+	// clusterName here is used to provide the cluster id to fetch cce node.
 	clusterName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -76,7 +76,7 @@ func TestAccCCENodeV3_auto_assign_eip(t *testing.T) {
 					testAccCheckCCENodeV3Exists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestMatchResourceAttr(resourceName, "public_ip",
-						regexp.MustCompile("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$")),
+						regexp.MustCompile(`^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$`)),
 				),
 			},
 		},
@@ -88,7 +88,7 @@ func TestAccCCENodeV3_existing_eip(t *testing.T) {
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cce_node.test"
-	//clusterName here is used to provide the cluster id to fetch cce node.
+	// clusterName here is used to provide the cluster id to fetch cce node.
 	clusterName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -102,7 +102,7 @@ func TestAccCCENodeV3_existing_eip(t *testing.T) {
 					testAccCheckCCENodeV3Exists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestMatchResourceAttr(resourceName, "public_ip",
-						regexp.MustCompile("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$")),
+						regexp.MustCompile(`^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$`)),
 				),
 			},
 		},
@@ -114,7 +114,7 @@ func TestAccCCENodeV3_volume_extendParams(t *testing.T) {
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cce_node.test"
-	//clusterName here is used to provide the cluster id to fetch cce node.
+	// clusterName here is used to provide the cluster id to fetch cce node.
 	clusterName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -140,7 +140,7 @@ func TestAccCCENodeV3_volume_encryption(t *testing.T) {
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cce_node.test"
-	//clusterName here is used to provide the cluster id to fetch cce node.
+	// clusterName here is used to provide the cluster id to fetch cce node.
 	clusterName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -169,7 +169,7 @@ func TestAccCCENodeV3_prePaid(t *testing.T) {
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cce_node.test"
-	//clusterName here is used to provide the cluster id to fetch cce node.
+	// clusterName here is used to provide the cluster id to fetch cce node.
 	clusterName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -207,7 +207,7 @@ func TestAccCCENodeV3_password(t *testing.T) {
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cce_node.test"
-	//clusterName here is used to provide the cluster id to fetch cce node.
+	// clusterName here is used to provide the cluster id to fetch cce node.
 	clusterName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -231,7 +231,7 @@ func TestAccCCENodeV3_storage(t *testing.T) {
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cce_node.test"
-	//clusterName here is used to provide the cluster id to fetch cce node.
+	// clusterName here is used to provide the cluster id to fetch cce node.
 	clusterName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -251,8 +251,8 @@ func TestAccCCENodeV3_storage(t *testing.T) {
 }
 
 func testAccCheckCCENodeV3Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	cceClient, err := config.CceV3Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	cceClient, err := cfg.CceV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
