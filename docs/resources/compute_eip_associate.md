@@ -130,6 +130,6 @@ In addition to all arguments above, the following attributes are exported:
 
 This resource can be imported by specifying all three arguments, separated by a forward slash:
 
-```
+```shell
 $ terraform import huaweicloud_compute_eip_associate.bind <eip address or bandwidth_id>/<instance_id>/<fixed_ip>
 ```
