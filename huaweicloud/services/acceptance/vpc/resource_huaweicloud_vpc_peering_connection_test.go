@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/networking/v2/peerings"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
@@ -15,7 +16,7 @@ import (
 func getPeeringConnectionResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	c, err := conf.NetworkingV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HuaweiCloud Network client: %s", err)
+		return nil, fmt.Errorf("error creating VPC Peering Connection client: %s", err)
 	}
 	return peerings.Get(c, state.Primary.ID).Extract()
 }
@@ -44,10 +45,8 @@ func TestAccVpcPeeringConnection_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", randName),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
-					acceptance.TestCheckResourceAttrWithVariable(resourceName, "vpc_id",
-						"${huaweicloud_vpc.test1.id}"),
-					acceptance.TestCheckResourceAttrWithVariable(resourceName, "peer_vpc_id",
-						"${huaweicloud_vpc.test2.id}"),
+					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "huaweicloud_vpc.test1", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "peer_vpc_id", "huaweicloud_vpc.test2", "id"),
 				),
 			},
 			{
@@ -55,10 +54,8 @@ func TestAccVpcPeeringConnection_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
-					acceptance.TestCheckResourceAttrWithVariable(resourceName, "vpc_id",
-						"${huaweicloud_vpc.test1.id}"),
-					acceptance.TestCheckResourceAttrWithVariable(resourceName, "peer_vpc_id",
-						"${huaweicloud_vpc.test2.id}"),
+					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "huaweicloud_vpc.test1", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "peer_vpc_id", "huaweicloud_vpc.test2", "id"),
 				),
 			},
 			{
