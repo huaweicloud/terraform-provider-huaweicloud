@@ -149,7 +149,7 @@ The `backup_strategy` block supports:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - Indicates the DB instance ID.
 * `status` - Indicates the DB instance status.
 * `port` - Indicates the database port.
 * `mode` - Indicates the instance mode.
@@ -170,14 +170,14 @@ The `nodes` block contains:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 60 minute.
-* `update` - Default is 60 minute.
-* `delete` - Default is 30 minute.
+* `create` - Default is 60 minutes.
+* `update` - Default is 60 minutes.
+* `delete` - Default is 30 minutes.
 
 ## Import
 
 GaussDB instance can be imported using the `id`, e.g.
 
 ```
-$ terraform import huaweicloud_gaussdb_mysql_instance.instance_1 ee678f40-ce8e-4d0c-8221-38dead426f06
+$ terraform import huaweicloud_gaussdb_mysql_instance.instance_1 1a801c1e01e6458d8eed810912e29d0cin07
 ```
