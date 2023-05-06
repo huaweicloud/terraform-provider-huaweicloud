@@ -8,13 +8,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/ecs/v1/block_devices"
-	"github.com/chnsz/golangsdk/openstack/ecs/v1/jobs"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/ecs/v1/block_devices"
+	"github.com/chnsz/golangsdk/openstack/ecs/v1/jobs"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -134,7 +135,7 @@ func resourceComputeVolumeAttachRead(_ context.Context, d *schema.ResourceData, 
 		return diag.Errorf("Error creating compute V1 client: %s", err)
 	}
 
-	instanceId, volumeId, err := ParseComputeVolumeAttachmentId(d.Id())
+	instanceId, volumeId, err := parseComputeVolumeAttachmentId(d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -228,14 +229,14 @@ func parseRequestError(respErr error) error {
 	return respErr
 }
 
-func ParseComputeVolumeAttachmentId(id string) (string, string, error) {
+func parseComputeVolumeAttachmentId(id string) (instanceID, volumeID string, err error) {
 	idParts := strings.Split(id, "/")
 	if len(idParts) < 2 {
-		return "", "", fmt.Errorf("unable to determine volume attachment ID")
+		err = fmt.Errorf("unable to determine volume attachment ID")
+		return
 	}
 
-	instanceId := idParts[0]
-	volumeId := idParts[1]
-
-	return instanceId, volumeId, nil
+	instanceID = idParts[0]
+	volumeID = idParts[1]
+	return
 }

@@ -924,7 +924,7 @@ func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 	// Determine the best IPv4 and IPv6 addresses to access the instance with
-	hostv4, hostv6 := getInstanceAccessAddresses(d, networks)
+	hostv4, hostv6 := getInstanceAccessAddresses(networks)
 
 	// update hostv4/6 by AccessIPv4/v6
 	// currently, AccessIPv4/v6 are Reserved in HuaweiCloud
@@ -1495,17 +1495,17 @@ func resourceInstanceSecGroupIdsV1(client *golangsdk.ServiceClient, d *schema.Re
 	return secGroups, nil
 }
 
-func getOpSvcUserID(d *schema.ResourceData, config *config.Config) string {
+func getOpSvcUserID(d *schema.ResourceData, conf *config.Config) string {
 	if v, ok := d.GetOk("user_id"); ok {
 		return v.(string)
 	}
-	return config.UserID
+	return conf.UserID
 }
 
-func validateComputeInstanceConfig(d *schema.ResourceData, config *config.Config) error {
+func validateComputeInstanceConfig(d *schema.ResourceData, conf *config.Config) error {
 	_, hasSSH := d.GetOk("key_pair")
 	if d.Get("charging_mode").(string) == "prePaid" && hasSSH {
-		if getOpSvcUserID(d, config) == "" {
+		if getOpSvcUserID(d, conf) == "" {
 			return fmt.Errorf("user_id must be specified when charging_mode is set to prePaid and " +
 				"the ECS is logged in using an SSH key")
 		}
@@ -1779,7 +1779,7 @@ func getVpcID(client *golangsdk.ServiceClient, d *schema.ResourceData) (string, 
 
 	subnet, err := subnets.Get(client, networkID).Extract()
 	if err != nil {
-		return "", fmt.Errorf("error retrieving Huaweicloud Subnets: %s", err)
+		return "", fmt.Errorf("error retrieving subnets: %s", err)
 	}
 
 	return subnet.VPC_ID, nil
@@ -1949,12 +1949,12 @@ func calcUnsubscribeResources(d *schema.ResourceData, cfg *config.Config) ([]str
 		}
 
 		eipAddr := d.Get("public_ip").(string)
-		epsID := "all_granted_eps"
-		if eipID, err := common.GetEipIDbyAddress(eipClient, eipAddr, epsID); err == nil {
-			mainResources = append(mainResources, eipID)
-		} else {
+		eipID, err := common.GetEipIDbyAddress(eipClient, eipAddr, "all_granted_eps")
+		if err != nil {
 			return nil, fmt.Errorf("error fetching EIP ID of ECS (%s): %s", d.Id(), err)
 		}
+
+		mainResources = append(mainResources, eipID)
 	}
 
 	return mainResources, nil

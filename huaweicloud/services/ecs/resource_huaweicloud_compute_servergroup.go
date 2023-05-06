@@ -1,9 +1,11 @@
 package ecs
 
 import (
-	"fmt"
+	"context"
 	"log"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -16,12 +18,12 @@ import (
 
 func ResourceComputeServerGroup() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceComputeServerGroupCreate,
-		Read:   resourceComputeServerGroupRead,
-		Update: resourceComputeServerGroupUpdate,
-		Delete: resourceComputeServerGroupDelete,
+		CreateContext: resourceComputeServerGroupCreate,
+		ReadContext:   resourceComputeServerGroupRead,
+		UpdateContext: resourceComputeServerGroupUpdate,
+		DeleteContext: resourceComputeServerGroupDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -61,21 +63,30 @@ func ResourceComputeServerGroup() *schema.Resource {
 	}
 }
 
-func resourceComputeServerGroupCreate(d *schema.ResourceData, meta interface{}) error {
+func buildServerGroupPolicies(d *schema.ResourceData) []string {
+	rawPolicies := d.Get("policies").([]interface{})
+	policies := make([]string, len(rawPolicies))
+	for i, raw := range rawPolicies {
+		policies[i] = raw.(string)
+	}
+	return policies
+}
+
+func resourceComputeServerGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	ecsClient, err := cfg.ComputeV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmt.Errorf("error creating compute client: %s", err)
+		return diag.Errorf("error creating compute client: %s", err)
 	}
 
 	createOpts := servergroups.CreateOpts{
 		Name:     d.Get("name").(string),
-		Policies: resourceServerGroupPolicies(d),
+		Policies: buildServerGroupPolicies(d),
 	}
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	newSG, err := servergroups.Create(ecsClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("error creating ECS server group: %s", err)
+		return diag.Errorf("error creating ECS server group: %s", err)
 	}
 
 	d.SetId(newSG.ID)
@@ -92,46 +103,47 @@ func resourceComputeServerGroupCreate(d *schema.ResourceData, meta interface{}) 
 		// Release the ECS instance after the binding operation is complete whether it success or not.
 		config.MutexKV.Unlock(instanceId)
 		if err != nil {
-			return fmt.Errorf("error binding instance %s to ECS server group: %s", instanceId, err)
+			return diag.Errorf("error binding instance %s to ECS server group: %s", instanceId, err)
 		}
 	}
 
-	return resourceComputeServerGroupRead(d, meta)
+	return resourceComputeServerGroupRead(ctx, d, meta)
 }
 
-func resourceComputeServerGroupRead(d *schema.ResourceData, meta interface{}) error {
+func resourceComputeServerGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	ecsClient, err := cfg.ComputeV1Client(region)
 	if err != nil {
-		return fmt.Errorf("error creating compute client: %s", err)
+		return diag.Errorf("error creating compute client: %s", err)
 	}
 
 	sg, err := servergroups.Get(ecsClient, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "server group")
+		return common.CheckDeletedDiag(d, err, "server group")
 	}
 
 	log.Printf("[DEBUG] Retrieved server group %s: %+v", d.Id(), sg)
 
-	policies := make([]string, len(sg.Policies))
-	for i, p := range sg.Policies {
-		policies[i] = p
-	}
-	d.Set("policies", policies)
-	d.Set("name", sg.Name)
-	d.Set("members", sg.Members)
-	d.Set("fault_domains", sg.FaultDomain.Names)
-	d.Set("region", region)
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("name", sg.Name),
+		d.Set("members", sg.Members),
+		d.Set("policies", sg.Policies),
+		d.Set("fault_domains", sg.FaultDomain.Names),
+	)
 
+	if err := mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error setting server group fields: %s", err)
+	}
 	return nil
 }
 
-func resourceComputeServerGroupUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceComputeServerGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	ecsClient, err := cfg.ComputeV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmt.Errorf("error creating compute client: %s", err)
+		return diag.Errorf("error creating compute client: %s", err)
 	}
 
 	if d.HasChange("members") {
@@ -150,7 +162,7 @@ func resourceComputeServerGroupUpdate(d *schema.ResourceData, meta interface{}) 
 			// Release the ECS instance ID after the binding operation is complete whether it success or not.
 			config.MutexKV.Unlock(instanceId)
 			if err != nil {
-				return fmt.Errorf("error binding instance %s to server group: %s", instanceId, err)
+				return diag.Errorf("error binding instance %s to server group: %s", instanceId, err)
 			}
 		}
 
@@ -163,11 +175,9 @@ func resourceComputeServerGroupUpdate(d *schema.ResourceData, meta interface{}) 
 					continue
 				}
 				log.Printf("[WARN] failed to retrieve compute %s: %s, try to remove it from the group", instanceId, err)
-			} else {
-				if server.Status == "DELETED" {
-					log.Printf("[WARN] the compute %s was removed, ignore to remove it from the group", instanceId)
-					continue
-				}
+			} else if server.Status == "DELETED" {
+				log.Printf("[WARN] the compute %s was removed, ignore to remove it from the group", instanceId)
+				continue
 			}
 
 			var removeMemberOpts servergroups.MemberOpts
@@ -178,12 +188,12 @@ func resourceComputeServerGroupUpdate(d *schema.ResourceData, meta interface{}) 
 			// Release the ECS instance ID after the unbinding operation is complete whether it success or not.
 			config.MutexKV.Unlock(instanceId)
 			if err != nil {
-				return fmt.Errorf("error unbinding instance %s from ECS server group: %s", instanceId, err)
+				return diag.Errorf("error unbinding instance %s from ECS server group: %s", instanceId, err)
 			}
 		}
 	}
 
-	return resourceComputeServerGroupRead(d, meta)
+	return resourceComputeServerGroupRead(ctx, d, meta)
 }
 
 func LockAll(ids []interface{}) {
@@ -198,11 +208,11 @@ func UnlockAll(ids []interface{}) {
 	}
 }
 
-func resourceComputeServerGroupDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceComputeServerGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	ecsClient, err := cfg.ComputeV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmt.Errorf("error creating compute client: %s", err)
+		return diag.Errorf("error creating compute client: %s", err)
 	}
 
 	members := d.Get("members").(*schema.Set).List()
@@ -213,17 +223,8 @@ func resourceComputeServerGroupDelete(d *schema.ResourceData, meta interface{}) 
 	err = servergroups.Delete(ecsClient, d.Id()).ExtractErr()
 	UnlockAll(members)
 	if err != nil {
-		return fmt.Errorf("error deleting server group: %s", err)
+		return diag.Errorf("error deleting server group: %s", err)
 	}
 
 	return nil
-}
-
-func resourceServerGroupPolicies(d *schema.ResourceData) []string {
-	rawPolicies := d.Get("policies").([]interface{})
-	policies := make([]string, len(rawPolicies))
-	for i, raw := range rawPolicies {
-		policies[i] = raw.(string)
-	}
-	return policies
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -17,7 +16,7 @@ import (
 
 func TestAccComputeServerGroup_basic(t *testing.T) {
 	var sg servergroups.ServerGroup
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_compute_servergroup.sg_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -44,7 +43,7 @@ func TestAccComputeServerGroup_basic(t *testing.T) {
 func TestAccComputeServerGroup_scheduler(t *testing.T) {
 	var instance cloudservers.CloudServer
 	var sg servergroups.ServerGroup
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_compute_servergroup.sg_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -68,7 +67,7 @@ func TestAccComputeServerGroup_scheduler(t *testing.T) {
 func TestAccComputeServerGroup_members(t *testing.T) {
 	var instance cloudservers.CloudServer
 	var sg servergroups.ServerGroup
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_compute_servergroup.sg_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -90,7 +89,7 @@ func TestAccComputeServerGroup_members(t *testing.T) {
 }
 
 func TestAccComputeServerGroup_concurrency(t *testing.T) {
-	name := fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -98,7 +97,7 @@ func TestAccComputeServerGroup_concurrency(t *testing.T) {
 		CheckDestroy:      testAccCheckComputeServerGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeServerGroup_concurrency(name),
+				Config: testAccComputeServerGroup_concurrency(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckOutput("members_attached", "true"),
 					resource.TestCheckOutput("volumes_attached", "true"),
