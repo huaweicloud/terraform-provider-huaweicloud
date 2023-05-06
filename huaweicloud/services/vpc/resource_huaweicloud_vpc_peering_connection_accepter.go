@@ -56,6 +56,10 @@ func ResourceVpcPeeringConnectionAccepterV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"vpc_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -143,6 +147,7 @@ func resourceVpcPeeringAccepterRead(_ context.Context, d *schema.ResourceData, m
 		d.Set("region", region),
 		d.Set("name", n.Name),
 		d.Set("status", n.Status),
+		d.Set("description", n.Description),
 		d.Set("vpc_id", n.RequestVpcInfo.VpcId),
 		d.Set("peer_vpc_id", n.AcceptVpcInfo.VpcId),
 		d.Set("peer_tenant_id", n.AcceptVpcInfo.TenantId),
