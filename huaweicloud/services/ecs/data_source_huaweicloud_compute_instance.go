@@ -2,7 +2,6 @@ package ecs
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"strings"
 
@@ -15,6 +14,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/chnsz/golangsdk/openstack/evs/v2/cloudvolumes"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -214,7 +214,7 @@ func buildListOptsWithoutStatus(d *schema.ResourceData, conf *config.Config) *cl
 func queryEcsInstances(client *golangsdk.ServiceClient, opt *cloudservers.ListOpts) ([]cloudservers.CloudServer, error) {
 	pages, err := cloudservers.List(client, opt).AllPages()
 	if err != nil {
-		return []cloudservers.CloudServer{}, fmt.Errorf("error getting cloud servers: %s", err)
+		return nil, err
 	}
 	return cloudservers.ExtractServers(pages)
 }
@@ -230,7 +230,7 @@ func dataSourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, me
 	opt := buildListOptsWithoutStatus(d, conf)
 	allServers, err := queryEcsInstances(ecsClient, opt)
 	if err != nil {
-		return diag.Errorf("unable to retrieve cloud servers: %s", err)
+		return diag.Errorf("unable to retrieve ECS instances: %s", err)
 	}
 
 	filter := map[string]interface{}{
@@ -243,10 +243,10 @@ func dataSourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, me
 	}
 
 	if len(filterServers) < 1 {
-		return diag.Errorf("Your query returned no results, please change your search criteria and try again.")
+		return diag.Errorf("your query returned no results, please change your search criteria and try again.")
 	}
 	if len(filterServers) > 1 {
-		return diag.Errorf("Your query returned more than one result, please try a more specific search criteria.")
+		return diag.Errorf("your query returned more than one result, please try a more specific search criteria.")
 	}
 
 	server := allServers[0]

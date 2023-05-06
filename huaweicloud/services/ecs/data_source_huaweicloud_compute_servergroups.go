@@ -3,10 +3,12 @@ package ecs
 import (
 	"context"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/servergroups"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -100,7 +102,8 @@ func dataSourceComputeServerGroupsRead(_ context.Context, d *schema.ResourceData
 	}
 
 	d.SetId(hashcode.Strings(serverGroupsIds))
-	d.Set("servergroups", serverGroupsToSet)
-
-	return nil
+	mErr := multierror.Append(nil,
+		d.Set("servergroups", serverGroupsToSet),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }

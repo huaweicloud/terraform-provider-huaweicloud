@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
@@ -29,7 +29,7 @@ func getEcsInstanceResourceFunc(conf *config.Config, state *terraform.ResourceSt
 }
 
 func TestAccComputeInstanceDataSource_basic(t *testing.T) {
-	rName := fmt.Sprintf("ecs-data-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	dataSourceName := "data.huaweicloud_compute_instance.this"
 	var instance cloudservers.CloudServer
 
