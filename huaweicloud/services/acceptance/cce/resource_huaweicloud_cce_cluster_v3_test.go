@@ -44,6 +44,9 @@ func TestAccCCEClusterV3_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"certificate_users.0.client_certificate_data", "kube_config_raw",
+				},
 			},
 			{
 				Config: testAccCCEClusterV3_update(rName),
@@ -121,7 +124,7 @@ func TestAccCCEClusterV3_withEip(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"eip",
+					"eip", "certificate_users.0.client_certificate_data", "kube_config_raw",
 				},
 			},
 		},
