@@ -213,6 +213,35 @@ func TestAccCluster_hibernate(t *testing.T) {
 	})
 }
 
+func TestAccCluster_multiContainerNetworkCidrs(t *testing.T) {
+	var cluster clusters.Clusters
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_cce_cluster.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCluster_multiContainerNetworkCidrs(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckClusterExists(resourceName, &cluster),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "Available"),
+					resource.TestCheckResourceAttr(resourceName, "cluster_type", "VirtualMachine"),
+					resource.TestCheckResourceAttr(resourceName, "flavor_id", "cce.s1.small"),
+					resource.TestCheckResourceAttr(resourceName, "container_network_type", "vpc-router"),
+					resource.TestCheckResourceAttr(resourceName, "authentication_mode", "rbac"),
+					resource.TestCheckResourceAttr(resourceName, "service_network_cidr", "10.248.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "container_network_cidr", "172.16.0.0/24,172.16.1.0/24"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckClusterDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	cceClient, err := config.CceV3Client(acceptance.HW_REGION_NAME)
@@ -470,6 +499,27 @@ resource "huaweicloud_cce_cluster" "test" {
   container_network_type = "overlay_l2"
   service_network_cidr   = "10.248.0.0/16"
   hibernate              = false
+}
+`, common.TestVpc(rName), rName)
+}
+
+func testAccCluster_multiContainerNetworkCidrs(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_cce_cluster" "test" {
+  name                   = "%s"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  container_network_type = "vpc-router"
+  container_network_cidr = "172.16.0.0/24,172.16.1.0/24"
+  service_network_cidr   = "10.248.0.0/16"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 `, common.TestVpc(rName), rName)
 }

@@ -429,6 +429,23 @@ func resourceClusterMasters(d *schema.ResourceData) ([]clusters.MasterSpec, erro
 	return nil, nil
 }
 
+func buildContainerNetworkCidrsOpts(cidrs string) []clusters.CidrSpec {
+	if cidrs == "" {
+		return nil
+	}
+
+	cidrList := strings.Split(cidrs, ",")
+
+	res := make([]clusters.CidrSpec, len(cidrList))
+	for i, cidr := range cidrList {
+		res[i] = clusters.CidrSpec{
+			Cidr: cidr,
+		}
+	}
+
+	return res
+}
+
 func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(config.GetRegion(d))
@@ -474,8 +491,8 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 				HighwaySubnet: d.Get("highway_subnet_id").(string),
 			},
 			ContainerNetwork: clusters.ContainerNetworkSpec{
-				Mode: d.Get("container_network_type").(string),
-				Cidr: d.Get("container_network_cidr").(string),
+				Mode:  d.Get("container_network_type").(string),
+				Cidrs: buildContainerNetworkCidrsOpts(d.Get("container_network_cidr").(string)),
 			},
 			Authentication: clusters.AuthenticationSpec{
 				Mode:                d.Get("authentication_mode").(string),
@@ -608,7 +625,7 @@ func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("subnet_id", n.Spec.HostNetwork.SubnetId),
 		d.Set("highway_subnet_id", n.Spec.HostNetwork.HighwaySubnet),
 		d.Set("container_network_type", n.Spec.ContainerNetwork.Mode),
-		d.Set("container_network_cidr", n.Spec.ContainerNetwork.Cidr),
+		d.Set("container_network_cidr", flattenContainerNetworkCidrs(n.Spec.ContainerNetwork)),
 		d.Set("eni_subnet_id", n.Spec.EniNetwork.SubnetId),
 		d.Set("eni_subnet_cidr", n.Spec.EniNetwork.Cidr),
 		d.Set("authentication_mode", n.Spec.Authentication.Mode),
@@ -675,6 +692,20 @@ func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interfa
 	}
 
 	return nil
+}
+
+func flattenContainerNetworkCidrs(containerNetwork clusters.ContainerNetworkSpec) string {
+	cidrs := containerNetwork.Cidrs
+	if len(cidrs) != 0 {
+		cidrList := make([]string, len(cidrs))
+		for i, v := range cidrs {
+			cidrList[i] = v.Cidr
+		}
+
+		return strings.Join(cidrList, ",")
+	}
+
+	return containerNetwork.Cidr
 }
 
 func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
