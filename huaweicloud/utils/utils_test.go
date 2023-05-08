@@ -68,3 +68,16 @@ func TestAccFunction_reverse(t *testing.T) {
 	}
 	t.Logf("The processing result of function 'Reverse' meets expectation: %s", green(expected))
 }
+
+func TestAccFunction_jsonStringsEqual(t *testing.T) {
+	var (
+		jsonStr1 = "{\n\"key1\":\"value1\",\n\"key2\":\"value2\"\n}"
+		jsonStr2 = "{\"key2\":\"value2\",\"key1\":\"value1\"}"
+	)
+
+	if !JSONStringsEqual(jsonStr1, jsonStr2) {
+		t.Fatalf("The processing result of the function 'JSONStringsEqual' is not as expected, want '%v', "+
+			"but got '%v'", green(true), yellow(false))
+	}
+	t.Logf("The processing result of function 'JSONStringsEqual' meets expectation: %s", green(true))
+}
