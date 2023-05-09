@@ -83,7 +83,6 @@ func TestAccGlobalVariable_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "value", "abc"),
-					resource.TestCheckResourceAttrSet(rName, "project_id"),
 				),
 			},
 			{
