@@ -115,6 +115,10 @@ func TestAccResourceDrsJob_basic(t *testing.T) {
 func testAccDrsJob_mysql(index int, name, pwd, ip string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_rds_instance" "test%d" {
+  depends_on = [
+    huaweicloud_networking_secgroup_rule.ingress,
+    huaweicloud_networking_secgroup_rule.egress,
+  ]
   name                = "%s%d"
   flavor              = "rds.mysql.sld4.large.ha"
   security_group_id   = huaweicloud_networking_secgroup.test.id
@@ -150,6 +154,23 @@ func testAccDrsJob_migrate_mysql(name, dbName, pwd string) string {
 
 	return fmt.Sprintf(`
 %s
+
+resource "huaweicloud_networking_secgroup_rule" "ingress" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  ports             = 3306
+  protocol          = "tcp"
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = huaweicloud_networking_secgroup.test.id
+}
+
+resource "huaweicloud_networking_secgroup_rule" "egress" {
+  direction         = "egress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = huaweicloud_networking_secgroup.test.id
+}
 
 data "huaweicloud_availability_zones" "test" {}
 
