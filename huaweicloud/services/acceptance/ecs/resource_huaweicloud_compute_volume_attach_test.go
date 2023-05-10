@@ -4,34 +4,30 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ecs"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/block_devices"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func getVolumeAttachResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	c, err := conf.ComputeV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HuaweiCloud compute v1 client: %s", err)
+		return nil, fmt.Errorf("error creating compute v1 client: %s", err)
 	}
 
-	instanceId, volumeId, err := ecs.ParseComputeVolumeAttachmentId(state.Primary.ID)
-	if err != nil {
-		return nil, err
-	}
-
+	instanceId := state.Primary.Attributes["instance_id"]
+	volumeId := state.Primary.Attributes["volume_id"]
 	found, err := block_devices.Get(c, instanceId, volumeId).Extract()
 	if err != nil {
 		return nil, err
 	}
 
 	if found.ServerId != instanceId || found.VolumeId != volumeId {
-		return nil, fmt.Errorf("volumeAttach not found %s", state.Primary.ID)
+		return nil, fmt.Errorf("volume attach not found %s", state.Primary.ID)
 	}
 
 	return found, nil

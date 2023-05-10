@@ -43,7 +43,7 @@ func TestAccComputeInterfaceAttach_Basic(t *testing.T) {
 	})
 }
 
-func computeInterfaceAttachParseID(id string) (instanceID string, portID string, err error) {
+func computeInterfaceAttachParseID(id string) (instanceID, portID string, err error) {
 	idParts := strings.Split(id, "/")
 	if len(idParts) < 2 {
 		err = fmt.Errorf("unable to parse the resource ID, must be <instance_id>/<port_id> format")
@@ -107,8 +107,6 @@ func testAccCheckComputeInterfaceAttachExists(n string, ai *attachinterfaces.Int
 		if err != nil {
 			return err
 		}
-
-		//if found.instanceID != instanceID || found.PortID != portId {
 		if found.PortID != portId {
 			return fmt.Errorf("interface attachment not found")
 		}
@@ -128,7 +126,6 @@ func testAccCheckComputeInterfaceAttachIP(
 			}
 		}
 		return fmt.Errorf("requested ip (%s) does not exist on port", ip)
-
 	}
 }
 

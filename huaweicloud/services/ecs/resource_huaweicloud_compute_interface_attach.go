@@ -1,11 +1,14 @@
 package ecs
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -20,12 +23,12 @@ import (
 
 func ResourceComputeInterfaceAttach() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceComputeInterfaceAttachCreate,
-		Read:   resourceComputeInterfaceAttachRead,
-		Update: resourceComputeInterfaceAttachUpdate,
-		Delete: resourceComputeInterfaceAttachDelete,
+		CreateContext: resourceComputeInterfaceAttachCreate,
+		ReadContext:   resourceComputeInterfaceAttachRead,
+		UpdateContext: resourceComputeInterfaceAttachUpdate,
+		DeleteContext: resourceComputeInterfaceAttachDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -106,16 +109,16 @@ func updateInterfacePort(client *golangsdk.ServiceClient, portId string, securit
 	return err
 }
 
-func resourceComputeInterfaceAttachCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceComputeInterfaceAttachCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	computeClient, err := cfg.ComputeV2Client(region)
 	if err != nil {
-		return fmt.Errorf("error creating compute client: %s", err)
+		return diag.Errorf("error creating compute client: %s", err)
 	}
 	nicClient, err := cfg.NetworkingV2Client(region)
 	if err != nil {
-		return fmt.Errorf("error creating VPC v2.0 client: %s", err)
+		return diag.Errorf("error creating VPC v2.0 client: %s", err)
 	}
 
 	var portId string
@@ -144,7 +147,7 @@ func resourceComputeInterfaceAttachCreate(d *schema.ResourceData, meta interface
 	instanceId := d.Get("instance_id").(string)
 	attachment, err := attachinterfaces.Create(computeClient, instanceId, attachOpts).Extract()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	portID := attachment.PortID
@@ -157,8 +160,8 @@ func resourceComputeInterfaceAttachCreate(d *schema.ResourceData, meta interface
 		MinTimeout: 5 * time.Second,
 	}
 
-	if _, err = stateConf.WaitForState(); err != nil {
-		return fmt.Errorf("error creating attaching interface to compute instance %s: %s", instanceId, err)
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		return diag.Errorf("error creating attaching interface to compute instance %s: %s", instanceId, err)
 	}
 
 	// Use the instance ID and port ID as the resource ID.
@@ -171,60 +174,69 @@ func resourceComputeInterfaceAttachCreate(d *schema.ResourceData, meta interface
 	)
 	err = updateInterfacePort(nicClient, portID, utils.ExpandToStringList(securityGroupIds), sourceDestCheckEnabled)
 	if err != nil {
-		return fmt.Errorf("error updating VPC port (%s): %s", portID, err)
+		return diag.Errorf("error updating VPC port (%s): %s", portID, err)
 	}
 
-	return resourceComputeInterfaceAttachRead(d, meta)
+	return resourceComputeInterfaceAttachRead(ctx, d, meta)
 }
 
-func resourceComputeInterfaceAttachRead(d *schema.ResourceData, meta interface{}) error {
+func resourceComputeInterfaceAttachRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	computeClient, err := cfg.ComputeV2Client(region)
 	if err != nil {
-		return fmt.Errorf("error creating compute client: %s", err)
+		return diag.Errorf("error creating compute client: %s", err)
 	}
 	networkingClient, err := cfg.NetworkingV2Client(region)
 	if err != nil {
-		return fmt.Errorf("error creating networking client: %s", err)
+		return diag.Errorf("error creating networking client: %s", err)
 	}
 
 	instanceId, portId, err := computeInterfaceAttachParseID(d.Id())
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	attachment, err := attachinterfaces.Get(computeClient, instanceId, portId).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "error retrieving compute interface attach")
+		return common.CheckDeletedDiag(d, err, "error retrieving compute interface attach")
 	}
 
-	d.Set("instance_id", instanceId)
-	d.Set("port_id", attachment.PortID)
-	d.Set("network_id", attachment.NetID)
-	d.Set("region", region)
+	var (
+		securitygroups []string
+		ipAddress      string
+		macAddress     string
+		sdCheck        bool
+	)
 
 	if len(attachment.FixedIPs) > 0 {
-		firstAddress := attachment.FixedIPs[0].IPAddress
-		d.Set("fixed_ip", firstAddress)
+		ipAddress = attachment.FixedIPs[0].IPAddress
 	}
-
 	if port, err := ports.Get(networkingClient, attachment.PortID).Extract(); err == nil {
-		d.Set("security_group_ids", port.SecurityGroups)
-		d.Set("source_dest_check", len(port.AllowedAddressPairs) == 0)
-		d.Set("mac", port.MACAddress)
+		macAddress = port.MACAddress
+		securitygroups = port.SecurityGroups
+		sdCheck = len(port.AllowedAddressPairs) == 0
 	}
 
-	return nil
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("instance_id", instanceId),
+		d.Set("port_id", attachment.PortID),
+		d.Set("network_id", attachment.NetID),
+		d.Set("fixed_ip", ipAddress),
+		d.Set("mac", macAddress),
+		d.Set("security_group_ids", securitygroups),
+		d.Set("source_dest_check", sdCheck),
+	)
+
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceComputeInterfaceAttachUpdate(d *schema.ResourceData, meta interface{}) error {
-	var err error
-
+func resourceComputeInterfaceAttachUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	nicClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmt.Errorf("error creating networking client: %s", err)
+		return diag.Errorf("error creating networking client: %s", err)
 	}
 
 	var (
@@ -234,22 +246,22 @@ func resourceComputeInterfaceAttachUpdate(d *schema.ResourceData, meta interface
 	)
 	err = updateInterfacePort(nicClient, portId, utils.ExpandToStringList(securityGroupIds), sourceDestCheckEnabled)
 	if err != nil {
-		return fmt.Errorf("error updating VPC port (%s): %s", portId, err)
+		return diag.Errorf("error updating VPC port (%s): %s", portId, err)
 	}
 
-	return resourceComputeInterfaceAttachRead(d, meta)
+	return resourceComputeInterfaceAttachRead(ctx, d, meta)
 }
 
-func resourceComputeInterfaceAttachDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceComputeInterfaceAttachDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	computeClient, err := cfg.ComputeV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmt.Errorf("error creating compute client: %s", err)
+		return diag.Errorf("error creating compute client: %s", err)
 	}
 
 	instanceId, portId, err := computeInterfaceAttachParseID(d.Id())
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -261,8 +273,8 @@ func resourceComputeInterfaceAttachDelete(d *schema.ResourceData, meta interface
 		MinTimeout: 5 * time.Second,
 	}
 
-	if _, err = stateConf.WaitForState(); err != nil {
-		return fmt.Errorf("error detaching interface from compute instance %s: %s", instanceId, err)
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		return diag.Errorf("error detaching interface from compute instance %s: %s", instanceId, err)
 	}
 
 	return nil
@@ -315,7 +327,7 @@ func computeInterfaceAttachDetachFunc(
 	}
 }
 
-func computeInterfaceAttachParseID(id string) (instanceID string, portID string, err error) {
+func computeInterfaceAttachParseID(id string) (instanceID, portID string, err error) {
 	idParts := strings.Split(id, "/")
 	if len(idParts) < 2 {
 		err = fmt.Errorf("unable to parse the resource ID, must be <instance_id>/<port_id> format")

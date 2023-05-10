@@ -1,12 +1,15 @@
 package ecs
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -26,11 +29,11 @@ const publicIPv6Type string = "5_dualStack"
 
 func ResourceComputeEIPAssociate() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceComputeEIPAssociateCreate,
-		Read:   resourceComputeEIPAssociateRead,
-		Delete: resourceComputeEIPAssociateDelete,
+		CreateContext: resourceComputeEIPAssociateCreate,
+		ReadContext:   resourceComputeEIPAssociateRead,
+		DeleteContext: resourceComputeEIPAssociateDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceComputeEIPAssociateImportState,
+			StateContext: resourceComputeEIPAssociateImportState,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -95,12 +98,12 @@ func eipAssociateRefreshFunc(client *golangsdk.ServiceClient, serverId, publicIP
 	}
 }
 
-func resourceComputeEIPAssociateCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceComputeEIPAssociateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	ecsClient, err := cfg.ComputeV1Client(region)
 	if err != nil {
-		return fmt.Errorf("error creating compute client: %s", err)
+		return diag.Errorf("error creating compute client: %s", err)
 	}
 
 	var publicID string
@@ -110,19 +113,19 @@ func resourceComputeEIPAssociateCreate(d *schema.ResourceData, meta interface{})
 	if _, ok := d.GetOk("bandwidth_id"); ok {
 		// fixed_ip must be a valid IPv6 address when combining with bandwidth_id
 		if utils.IsIPv4Address(fixedIP) {
-			return fmt.Errorf("the fixed_ip must be a valid IPv6 address, got: %s", fixedIP)
+			return diag.Errorf("the fixed_ip must be a valid IPv6 address, got: %s", fixedIP)
 		}
 	}
 
 	// get port id
 	portID, privateIP, err := getComputeInstancePortIDbyFixedIP(ecsClient, cfg, instanceID, fixedIP)
 	if err != nil {
-		return fmt.Errorf("error getting port id of compute instance: %s", err)
+		return diag.Errorf("error getting port id of compute instance: %s", err)
 	}
 	if v, ok := d.GetOk("public_ip"); ok {
 		vpcClient, err := cfg.NetworkingV1Client(region)
 		if err != nil {
-			return fmt.Errorf("error creating VPC client: %s", err)
+			return diag.Errorf("error creating VPC client: %s", err)
 		}
 
 		// get EIP id
@@ -131,29 +134,30 @@ func resourceComputeEIPAssociateCreate(d *schema.ResourceData, meta interface{})
 		epsID := "all_granted_eps"
 		eipID, err := common.GetEipIDbyAddress(vpcClient, eipAddr, epsID)
 		if err != nil {
-			return fmt.Errorf("error getting EIP: %s", err)
+			return diag.Errorf("error getting EIP: %s", err)
 		}
 
 		err = bindPortToEIP(vpcClient, eipID, portID)
 		if err != nil {
-			return fmt.Errorf("error associating port %s to EIP: %s", portID, err)
+			return diag.Errorf("error associating port %s to EIP: %s", portID, err)
 		}
 	} else {
 		bwClient, err := cfg.NetworkingV2Client(region)
 		if err != nil {
-			return fmt.Errorf("error creating bandwidth v2.0 client: %s", err)
+			return diag.Errorf("error creating bandwidth v2.0 client: %s", err)
 		}
 
 		bwID := d.Get("bandwidth_id").(string)
 		publicID = bwID
 		err = insertPortToBandwidth(bwClient, bwID, portID)
 		if err != nil {
-			return fmt.Errorf("error associating IPv6 port %s to bandwidth: %s", portID, err)
+			return diag.Errorf("error associating IPv6 port %s to bandwidth: %s", portID, err)
 		}
 	}
 
 	id := fmt.Sprintf("%s/%s/%s", publicID, instanceID, privateIP)
 	d.SetId(id)
+
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"STARTING"},
 		Target:       []string{"COMPLETED"},
@@ -162,27 +166,27 @@ func resourceComputeEIPAssociateCreate(d *schema.ResourceData, meta interface{})
 		Delay:        5 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
-	//nolint
-	_, err = stateConf.WaitForState()
+
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmt.Errorf("error waiting for EIP association to complete: %s", err)
+		return diag.Errorf("error waiting for EIP association to complete: %s", err)
 	}
 
-	return resourceComputeEIPAssociateRead(d, meta)
+	return resourceComputeEIPAssociateRead(ctx, d, meta)
 }
 
-func resourceComputeEIPAssociateRead(d *schema.ResourceData, meta interface{}) error {
+func resourceComputeEIPAssociateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
 	vpcClient, err := cfg.NetworkingV1Client(region)
 	if err != nil {
-		return fmt.Errorf("error creating VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	ecsClient, err := cfg.ComputeV1Client(region)
 	if err != nil {
-		return fmt.Errorf("error creating compute client: %s", err)
+		return diag.Errorf("error creating compute client: %s", err)
 	}
 
 	var associated bool
@@ -193,7 +197,7 @@ func resourceComputeEIPAssociateRead(d *schema.ResourceData, meta interface{}) e
 	// get port id of compute instance
 	portID, privateIP, err := getComputeInstancePortIDbyFixedIP(ecsClient, cfg, instanceID, fixedIP)
 	if err != nil {
-		return common.CheckDeleted(d, err, "eip associate")
+		return common.CheckDeletedDiag(d, err, "eip associate")
 	}
 
 	if v, ok := d.GetOk("public_ip"); ok {
@@ -207,7 +211,7 @@ func resourceComputeEIPAssociateRead(d *schema.ResourceData, meta interface{}) e
 				d.SetId("")
 				return nil
 			}
-			return err
+			return diag.FromErr(err)
 		}
 
 		if eipInfo.PortID == portID {
@@ -218,7 +222,7 @@ func resourceComputeEIPAssociateRead(d *schema.ResourceData, meta interface{}) e
 		publicID = bwID
 		band, err := bandwidthsv1.Get(vpcClient, bwID).Extract()
 		if err != nil {
-			return common.CheckDeleted(d, err, "bandwidth")
+			return common.CheckDeletedDiag(d, err, "bandwidth")
 		}
 
 		for _, ipInfo := range band.PublicipInfo {
@@ -237,21 +241,22 @@ func resourceComputeEIPAssociateRead(d *schema.ResourceData, meta interface{}) e
 	id := fmt.Sprintf("%s/%s/%s", publicID, instanceID, privateIP)
 	d.SetId(id)
 
-	// Set the attributes pulled from the composed resource ID
-	d.Set("instance_id", instanceID)
-	d.Set("fixed_ip", privateIP)
-	d.Set("port_id", portID)
-	d.Set("region", region)
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("instance_id", instanceID),
+		d.Set("fixed_ip", privateIP),
+		d.Set("port_id", portID),
+	)
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceComputeEIPAssociateDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceComputeEIPAssociateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	ecsClient, err := cfg.ComputeV1Client(region)
 	if err != nil {
-		return fmt.Errorf("error creating compute client: %s", err)
+		return diag.Errorf("error creating compute client: %s", err)
 	}
 
 	instanceID := d.Get("instance_id").(string)
@@ -260,36 +265,36 @@ func resourceComputeEIPAssociateDelete(d *schema.ResourceData, meta interface{})
 	// get port id of compute instance
 	portID, _, err := getComputeInstancePortIDbyFixedIP(ecsClient, cfg, instanceID, fixedIP)
 	if err != nil {
-		return common.CheckDeleted(d, err, "eip associate")
+		return common.CheckDeletedDiag(d, err, "eip associate")
 	}
 
 	if v, ok := d.GetOk("public_ip"); ok {
 		vpcClient, err := cfg.NetworkingV1Client(region)
 		if err != nil {
-			return fmt.Errorf("error creating VPC client: %s", err)
+			return diag.Errorf("error creating VPC client: %s", err)
 		}
 
 		eipAddr := v.(string)
 		epsID := "all_granted_eps"
 		eipID, err := common.GetEipIDbyAddress(vpcClient, eipAddr, epsID)
 		if err != nil {
-			return fmt.Errorf("error getting EIP: %s", err)
+			return diag.Errorf("error getting EIP: %s", err)
 		}
 
 		err = unbindPortFromEIP(vpcClient, eipID, portID)
 		if err != nil {
-			return fmt.Errorf("error disassociating Floating IP: %s", err)
+			return diag.Errorf("error disassociating Floating IP: %s", err)
 		}
 	} else {
 		bwClient, err := cfg.NetworkingV2Client(region)
 		if err != nil {
-			return fmt.Errorf("error creating bandwidth v2.0 client: %s", err)
+			return diag.Errorf("error creating bandwidth v2.0 client: %s", err)
 		}
 
 		bwID := d.Get("bandwidth_id").(string)
 		err = removePortFromBandwidth(bwClient, bwID, portID)
 		if err != nil {
-			return fmt.Errorf("error associating IPv6 port %s to bandwidth: %s", portID, err)
+			return diag.Errorf("error associating IPv6 port %s to bandwidth: %s", portID, err)
 		}
 	}
 
@@ -412,25 +417,23 @@ func actionOnPort(client *golangsdk.ServiceClient, eipID, portID string) error {
 	return nil
 }
 
-func parseComputeFloatingIPAssociateID(id string) (string, string, string, error) {
+func parseComputeFloatingIPAssociateID(id string) (publicID, instanceID, fixedIP string, err error) {
 	idParts := strings.Split(id, "/")
 	if len(idParts) != 3 && len(idParts) != 2 {
-		return "", "", "",
-			fmt.Errorf("unable to parse the resource ID, must be <eip address or bandwidth_id>/<instance_id>/<fixed_ip> format")
+		err = fmt.Errorf("unable to parse the resource ID, must be <eip address or bandwidth_id>/<instance_id>/<fixed_ip> format")
+		return
 	}
 
-	publicID := idParts[0]
-	instanceID := idParts[1]
-
-	var fixedIP string
+	publicID = idParts[0]
+	instanceID = idParts[1]
 	if len(idParts) == 3 {
 		fixedIP = idParts[2]
 	}
 
-	return publicID, instanceID, fixedIP, nil
+	return
 }
 
-func resourceComputeEIPAssociateImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceComputeEIPAssociateImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	publicID, instanceID, fixedIP, err := parseComputeFloatingIPAssociateID(d.Id())
 	if err != nil {
 		return nil, err

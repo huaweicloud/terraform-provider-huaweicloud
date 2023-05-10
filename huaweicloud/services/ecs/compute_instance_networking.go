@@ -78,7 +78,6 @@ func getInstanceAddresses(d *schema.ResourceData, meta interface{}, server *clou
 		return nil, fmt.Errorf("error creating networking client: %s", err)
 	}
 
-	var networkID string
 	var lastPort string
 	allInstanceNics := make([]InstanceNIC, 0)
 	for _, addresses := range server.Addresses {
@@ -97,15 +96,12 @@ func getInstanceAddresses(d *schema.ResourceData, meta interface{}, server *clou
 			lastPort = addr.PortID
 			p, err := ports.Get(networkingClient, addr.PortID)
 			if err != nil {
-				networkID = ""
-				log.Printf("[DEBUG] getInstanceAddresses: failed to fetch port %s", addr.PortID)
+				log.Printf("[WARN] getInstanceAddresses: failed to fetch port %s", addr.PortID)
 				continue
-			} else {
-				networkID = p.NetworkId
 			}
 
 			instanceNIC := InstanceNIC{
-				NetworkID:       networkID,
+				NetworkID:       p.NetworkId,
 				PortID:          addr.PortID,
 				MAC:             addr.MacAddr,
 				SourceDestCheck: len(p.AllowedAddressPairs) == 0,
@@ -155,9 +151,8 @@ func getAllInstanceNetworks(d *schema.ResourceData) []InstanceNetwork {
 
 // flattenInstanceNetworks collects instance network information from different
 // sources and aggregates it all together into a map array.
-func flattenInstanceNetworks(
-	d *schema.ResourceData, meta interface{}, server *cloudservers.CloudServer) ([]map[string]interface{}, error) {
-
+func flattenInstanceNetworks(d *schema.ResourceData, meta interface{},
+	server *cloudservers.CloudServer) ([]map[string]interface{}, error) {
 	allInstanceNetworks := getAllInstanceNetworks(d)
 	allInstanceNics, _ := getInstanceAddresses(d, meta, server)
 
@@ -203,11 +198,7 @@ func flattenInstanceNetworks(
 // with the instance. It does this by looping through all networks and looking
 // for a valid IP address. Priority is given to a network that was flagged as
 // an access_network.
-func getInstanceAccessAddresses(
-	d *schema.ResourceData, networks []map[string]interface{}) (string, string) {
-
-	var hostv4, hostv6 string
-
+func getInstanceAccessAddresses(networks []map[string]interface{}) (ipv4Addr, ipv6Addr string) {
 	// Loop through all networks
 	// If the network has a valid fixed v4 or fixed v6 address
 	// and hostv4 or hostv6 is not set, set hostv4/hostv6.
@@ -220,19 +211,18 @@ func getInstanceAccessAddresses(
 		}
 
 		if fixedIPv4, ok := n["fixed_ip_v4"].(string); ok && fixedIPv4 != "" {
-			if hostv4 == "" || accessNetwork {
-				hostv4 = fixedIPv4
+			if ipv4Addr == "" || accessNetwork {
+				ipv4Addr = fixedIPv4
 			}
 		}
 
 		if fixedIPv6, ok := n["fixed_ip_v6"].(string); ok && fixedIPv6 != "" {
-			if hostv6 == "" || accessNetwork {
-				hostv6 = fixedIPv6
+			if ipv6Addr == "" || accessNetwork {
+				ipv6Addr = fixedIPv6
 			}
 		}
 	}
 
-	log.Printf("[DEBUG] compute instance Network Access Addresses: %s, %s", hostv4, hostv6)
-
-	return hostv4, hostv6
+	log.Printf("[DEBUG] compute instance Network Access Addresses: %s, %s", ipv4Addr, ipv6Addr)
+	return
 }

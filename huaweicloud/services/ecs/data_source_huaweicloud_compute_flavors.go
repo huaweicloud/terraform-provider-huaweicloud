@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/flavors"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
@@ -102,8 +103,7 @@ func dataSourceEcsFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 	}
 
 	if len(ids) < 1 {
-		return diag.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+		return diag.Errorf("your query returned no results, please change your search criteria and try again.")
 	}
 
 	d.SetId(hashcode.Strings(ids))
