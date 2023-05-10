@@ -111,6 +111,7 @@ func ResourceAlarmRule() *schema.Resource {
 							Computed:      true,
 							Set:           resourceDimensionsHash,
 							ConflictsWith: []string{"resources"},
+							Description:   "schema: Deprecated",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": {
@@ -247,9 +248,10 @@ func ResourceAlarmRule() *schema.Resource {
 			},
 
 			"alarm_level": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: "schema: Deprecated",
 			},
 
 			"alarm_type": {
