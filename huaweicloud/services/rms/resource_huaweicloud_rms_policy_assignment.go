@@ -53,6 +53,7 @@ func ResourcePolicyAssignment() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 				ValidateFunc: validation.All(
 					validation.StringMatch(regexp.MustCompile(`^[A-Za-z][\w-]*$`),
 						"Only letters, digits, hyphens and underscores are allowed, and must start with a letter."),

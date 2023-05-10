@@ -30,7 +30,6 @@ func TestAccPolicyAssignment_basic(t *testing.T) {
 
 		rName       = "huaweicloud_rms_policy_assignment.test"
 		name        = acceptance.RandomAccResourceNameWithDash()
-		updateName  = acceptance.RandomAccResourceNameWithDash()
 		basicConfig = testAccPolicyAssignment_ecsConfig(name)
 	)
 
@@ -78,13 +77,13 @@ func TestAccPolicyAssignment_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccPolicyAssignment_basicUpdate(basicConfig, updateName, "Enabled"),
+				Config: testAccPolicyAssignment_basicUpdate(basicConfig, name, "Enabled"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "type", rms.AssignmentTypeBuiltin),
 					resource.TestCheckResourceAttr(rName, "description", "An ECS is noncompliant if its flavor is "+
 						"not in the specified flavor list (filter by resource tag)."),
-					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttrPair(rName, "policy_definition_id",
 						"data.huaweicloud_rms_policy_definitions.test", "definitions.0.id"),
 					resource.TestCheckResourceAttr(rName, "policy_filter.0.region", acceptance.HW_REGION_NAME),
@@ -229,7 +228,6 @@ func TestAccPolicyAssignment_period(t *testing.T) {
 
 		rName       = "huaweicloud_rms_policy_assignment.test"
 		name        = acceptance.RandomAccResourceNameWithDash()
-		updateName  = acceptance.RandomAccResourceNameWithDash()
 		basicConfig = testAccPolicyAssignment_periodConfig(name)
 	)
 
@@ -273,12 +271,12 @@ func TestAccPolicyAssignment_period(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccPolicyAssignment_periodUpdate(basicConfig, updateName, "Enabled"),
+				Config: testAccPolicyAssignment_periodUpdate(basicConfig, name, "Enabled"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "type", rms.AssignmentTypeBuiltin),
 					resource.TestCheckResourceAttr(rName, "description", ""),
-					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttrPair(rName, "policy_definition_id",
 						"data.huaweicloud_rms_policy_definitions.test", "definitions.0.id"),
 					resource.TestCheckResourceAttr(rName, "period", "Six_Hours"),
@@ -380,7 +378,6 @@ func TestAccPolicyAssignment_custom(t *testing.T) {
 
 		rName        = "huaweicloud_rms_policy_assignment.test"
 		name         = acceptance.RandomAccResourceNameWithDash()
-		updateName   = acceptance.RandomAccResourceNameWithDash()
 		customConfig = testAccPolicyAssignment_customConfig(name)
 	)
 
@@ -422,10 +419,10 @@ func TestAccPolicyAssignment_custom(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccPolicyAssignment_customUpdate(customConfig, updateName, "Enabled"),
+				Config: testAccPolicyAssignment_customUpdate(customConfig, name, "Enabled"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "status", "Enabled"),
 					resource.TestCheckResourceAttr(rName, "parameters.string_test", "\"update_string_value\""),
 					resource.TestCheckResourceAttr(rName, "parameters.update_array_test", "[\"array_element\"]"),
