@@ -1004,6 +1004,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_domain":                           waf.ResourceWafDomainV1(),
 			"huaweicloud_waf_policy":                           waf.ResourceWafPolicyV1(),
 			"huaweicloud_waf_rule_blacklist":                   waf.ResourceWafRuleBlackListV1(),
+			"huaweicloud_waf_rule_cc_protection":               waf.ResourceRuleCCProtection(),
 			"huaweicloud_waf_rule_data_masking":                waf.ResourceWafRuleDataMaskingV1(),
 			"huaweicloud_waf_rule_global_protection_whitelist": waf.ResourceRuleGlobalProtectionWhitelist(),
 			"huaweicloud_waf_rule_precise_protection":          waf.ResourceRulePreciseProtection(),
