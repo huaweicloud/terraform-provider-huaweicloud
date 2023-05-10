@@ -14,7 +14,7 @@ func TestAccCCEAddonTemplateV3DataSource_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCEClusterV3Destroy,
+		CheckDestroy:      testAccCheckClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCCEAddonTemplateV3DataSource_basic(rName),
@@ -42,5 +42,5 @@ data "huaweicloud_cce_addon_template" "nginx_ingress_test" {
   name       = "nginx-ingress"
   version    = "1.2.2"
 }
-`, testAccCCEClusterV3_basic(rName))
+`, testAccCluster_basic(rName))
 }

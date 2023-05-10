@@ -4,19 +4,18 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/cce/v3/clusters"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
-func TestAccCCEClusterV3_basic(t *testing.T) {
+func TestAccCluster_basic(t *testing.T) {
 	var cluster clusters.Clusters
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -25,12 +24,12 @@ func TestAccCCEClusterV3_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCEClusterV3Destroy,
+		CheckDestroy:      testAccCheckClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCEClusterV3_basic(rName),
+				Config: testAccCluster_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCEClusterV3Exists(resourceName, &cluster),
+					testAccCheckClusterExists(resourceName, &cluster),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "Available"),
 					resource.TestCheckResourceAttr(resourceName, "cluster_type", "VirtualMachine"),
@@ -49,7 +48,7 @@ func TestAccCCEClusterV3_basic(t *testing.T) {
 				},
 			},
 			{
-				Config: testAccCCEClusterV3_update(rName),
+				Config: testAccCluster_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "description", "new description"),
 				),
@@ -58,7 +57,7 @@ func TestAccCCEClusterV3_basic(t *testing.T) {
 	})
 }
 
-func TestAccCCEClusterV3_prePaid(t *testing.T) {
+func TestAccCluster_prePaid(t *testing.T) {
 	var cluster clusters.Clusters
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -70,12 +69,12 @@ func TestAccCCEClusterV3_prePaid(t *testing.T) {
 			acceptance.TestAccPreCheckChargingMode(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCEClusterV3Destroy,
+		CheckDestroy:      testAccCheckClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCEClusterV3_prePaid(rName, false),
+				Config: testAccCluster_prePaid(rName, false),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCEClusterV3Exists(resourceName, &cluster),
+					testAccCheckClusterExists(resourceName, &cluster),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
 					resource.TestCheckResourceAttr(resourceName, "period_unit", "month"),
@@ -84,9 +83,9 @@ func TestAccCCEClusterV3_prePaid(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCCEClusterV3_prePaid(rName, true),
+				Config: testAccCluster_prePaid(rName, true),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCEClusterV3Exists(resourceName, &cluster),
+					testAccCheckClusterExists(resourceName, &cluster),
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
 				),
 			},
@@ -94,7 +93,7 @@ func TestAccCCEClusterV3_prePaid(t *testing.T) {
 	})
 }
 
-func TestAccCCEClusterV3_withEip(t *testing.T) {
+func TestAccCluster_withEip(t *testing.T) {
 	var cluster clusters.Clusters
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -103,19 +102,19 @@ func TestAccCCEClusterV3_withEip(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCEClusterV3Destroy,
+		CheckDestroy:      testAccCheckClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCEClusterV3_withEip(rName),
+				Config: testAccCluster_withEip(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCEClusterV3Exists(resourceName, &cluster),
+					testAccCheckClusterExists(resourceName, &cluster),
 					resource.TestCheckResourceAttr(resourceName, "authentication_mode", "rbac"),
 				),
 			},
 			{
-				Config: testAccCCEClusterV3_withEipUpdate(rName),
+				Config: testAccCluster_withEipUpdate(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCEClusterV3Exists(resourceName, &cluster),
+					testAccCheckClusterExists(resourceName, &cluster),
 					resource.TestCheckResourceAttr(resourceName, "authentication_mode", "rbac"),
 				),
 			},
@@ -131,7 +130,7 @@ func TestAccCCEClusterV3_withEip(t *testing.T) {
 	})
 }
 
-func TestAccCCEClusterV3_withEpsId(t *testing.T) {
+func TestAccCluster_withEpsId(t *testing.T) {
 	var cluster clusters.Clusters
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -140,12 +139,12 @@ func TestAccCCEClusterV3_withEpsId(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCEClusterV3Destroy,
+		CheckDestroy:      testAccCheckClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCEClusterV3_withEpsId(rName),
+				Config: testAccCluster_withEpsId(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCEClusterV3Exists(resourceName, &cluster),
+					testAccCheckClusterExists(resourceName, &cluster),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
@@ -153,7 +152,7 @@ func TestAccCCEClusterV3_withEpsId(t *testing.T) {
 	})
 }
 
-func TestAccCCEClusterV3_turbo(t *testing.T) {
+func TestAccCluster_turbo(t *testing.T) {
 	var cluster clusters.Clusters
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -162,12 +161,12 @@ func TestAccCCEClusterV3_turbo(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCEClusterV3Destroy,
+		CheckDestroy:      testAccCheckClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCEClusterV3_turbo(rName),
+				Config: testAccCluster_turbo(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCEClusterV3Exists(resourceName, &cluster),
+					testAccCheckClusterExists(resourceName, &cluster),
 					resource.TestCheckResourceAttr(resourceName, "container_network_type", "eni"),
 				),
 			},
@@ -175,7 +174,7 @@ func TestAccCCEClusterV3_turbo(t *testing.T) {
 	})
 }
 
-func TestAccCCEClusterV3_HibernateAndAwake(t *testing.T) {
+func TestAccCluster_hibernate(t *testing.T) {
 	var cluster clusters.Clusters
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -184,28 +183,28 @@ func TestAccCCEClusterV3_HibernateAndAwake(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCEClusterV3Destroy,
+		CheckDestroy:      testAccCheckClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCEClusterV3_basic(rName),
+				Config: testAccCluster_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCEClusterV3Exists(resourceName, &cluster),
+					testAccCheckClusterExists(resourceName, &cluster),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "Available"),
 				),
 			},
 			{
-				Config: testAccCCEClusterV3_hibernate(rName),
+				Config: testAccCluster_hibernate(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCEClusterV3Exists(resourceName, &cluster),
+					testAccCheckClusterExists(resourceName, &cluster),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "Hibernation"),
 				),
 			},
 			{
-				Config: testAccCCEClusterV3_awake(rName),
+				Config: testAccCluster_awake(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCEClusterV3Exists(resourceName, &cluster),
+					testAccCheckClusterExists(resourceName, &cluster),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "Available"),
 				),
@@ -214,11 +213,11 @@ func TestAccCCEClusterV3_HibernateAndAwake(t *testing.T) {
 	})
 }
 
-func testAccCheckCCEClusterV3Destroy(s *terraform.State) error {
+func testAccCheckClusterDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	cceClient, err := config.CceV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
+		return fmt.Errorf("error creating CCE v3 client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -228,28 +227,28 @@ func testAccCheckCCEClusterV3Destroy(s *terraform.State) error {
 
 		_, err := clusters.Get(cceClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("Cluster still exists")
+			return fmt.Errorf("cluster still exists")
 		}
 	}
 
 	return nil
 }
 
-func testAccCheckCCEClusterV3Exists(n string, cluster *clusters.Clusters) resource.TestCheckFunc {
+func testAccCheckClusterExists(n string, cluster *clusters.Clusters) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("resource not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("resource ID is not set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		cceClient, err := config.CceV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
+			return fmt.Errorf("error creating CCE v3 client: %s", err)
 		}
 
 		found, err := clusters.Get(cceClient, rs.Primary.ID).Extract()
@@ -258,7 +257,7 @@ func testAccCheckCCEClusterV3Exists(n string, cluster *clusters.Clusters) resour
 		}
 
 		if found.Metadata.Id != rs.Primary.ID {
-			return fmtp.Errorf("Cluster not found")
+			return fmt.Errorf("cluster not found")
 		}
 
 		*cluster = *found
@@ -267,7 +266,7 @@ func testAccCheckCCEClusterV3Exists(n string, cluster *clusters.Clusters) resour
 	}
 }
 
-func testAccCCEClusterV3_prePaid(rName string, isAutoRenew bool) string {
+func testAccCluster_prePaid(rName string, isAutoRenew bool) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -292,7 +291,7 @@ resource "huaweicloud_cce_cluster" "test" {
 `, common.TestVpc(rName), rName, isAutoRenew)
 }
 
-func testAccCCEClusterV3_basic(rName string) string {
+func testAccCluster_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -312,7 +311,7 @@ resource "huaweicloud_cce_cluster" "test" {
 `, common.TestVpc(rName), rName)
 }
 
-func testAccCCEClusterV3_update(rName string) string {
+func testAccCluster_update(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -333,7 +332,7 @@ resource "huaweicloud_cce_cluster" "test" {
 `, common.TestVpc(rName), rName)
 }
 
-func testAccCCEClusterV3_withEip(rName string) string {
+func testAccCluster_withEip(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -362,7 +361,7 @@ resource "huaweicloud_cce_cluster" "test" {
 `, common.TestVpc(rName), rName)
 }
 
-func testAccCCEClusterV3_withEipUpdate(rName string) string {
+func testAccCluster_withEipUpdate(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -403,7 +402,7 @@ resource "huaweicloud_cce_cluster" "test" {
 `, common.TestVpc(rName), rName)
 }
 
-func testAccCCEClusterV3_withEpsId(rName string) string {
+func testAccCluster_withEpsId(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -419,7 +418,7 @@ resource "huaweicloud_cce_cluster" "test" {
 `, common.TestVpc(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccCCEClusterV3_turbo(rName string) string {
+func testAccCluster_turbo(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -443,7 +442,7 @@ resource "huaweicloud_cce_cluster" "test" {
 `, common.TestVpc(rName), rName, rName)
 }
 
-func testAccCCEClusterV3_hibernate(rName string) string {
+func testAccCluster_hibernate(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -459,7 +458,7 @@ resource "huaweicloud_cce_cluster" "test" {
 `, common.TestVpc(rName), rName)
 }
 
-func testAccCCEClusterV3_awake(rName string) string {
+func testAccCluster_awake(rName string) string {
 	return fmt.Sprintf(`
 %s
 
