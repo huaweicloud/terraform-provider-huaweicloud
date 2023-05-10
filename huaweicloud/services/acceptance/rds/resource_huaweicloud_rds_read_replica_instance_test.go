@@ -115,8 +115,6 @@ func testAccReadReplicaInstance_basic(name string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_availability_zones" "test" {}
-
 resource "huaweicloud_rds_read_replica_instance" "test" {
   name                = "%s"
   flavor              = "rds.pg.n1.large.2.rr"
@@ -132,14 +130,12 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
     foo = "bar"
   }
 }
-`, common.TestBaseNetwork(name), name)
+`, testAccReadReplicaInstance_base(name), name)
 }
 
 func testAccReadReplicaInstance_update(name string) string {
 	return fmt.Sprintf(`
 %s
-
-data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_rds_read_replica_instance" "test" {
   name                = "%s"
@@ -156,14 +152,12 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
     foo = "bar2"
   }
 }
-`, common.TestBaseNetwork(name), name)
+`, testAccReadReplicaInstance_base(name), name)
 }
 
 func testAccReadReplicaInstance_withEpsId(name string) string {
 	return fmt.Sprintf(`
 %s
-
-data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_rds_read_replica_instance" "test" {
   name                  = "%s"
@@ -176,5 +170,5 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
     type = "CLOUDSSD"
   }
 }
-`, common.TestBaseNetwork(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccReadReplicaInstance_base(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

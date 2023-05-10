@@ -553,8 +553,6 @@ resource "huaweicloud_rds_instance" "test" {
 
 func testAccRdsInstance_sqlserver(name, pwd string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_vpc" "test" {
@@ -565,10 +563,14 @@ data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
 
+data "huaweicloud_networking_secgroup" "test" {
+  name = "default"
+}
+
 resource "huaweicloud_rds_instance" "test" {
   name                = "%s"
   flavor              = "rds.mssql.spec.se.c6.large.4"
-  security_group_id   = huaweicloud_networking_secgroup.test.id
+  security_group_id   = data.huaweicloud_networking_secgroup.test.id
   subnet_id           = data.huaweicloud_vpc_subnet.test.id
   vpc_id              = data.huaweicloud_vpc.test.id
   collation           = "Chinese_PRC_CI_AS"
@@ -589,7 +591,7 @@ resource "huaweicloud_rds_instance" "test" {
     size = 40
   }
 }
-`, common.TestBaseNetwork(name), name, pwd)
+`, name, pwd)
 }
 
 func testAccRdsInstance_prePaid(name, pwd string, isAutoRenew bool) string {
