@@ -651,3 +651,10 @@ func TestAccPreCheckCcePartitionAz(t *testing.T) {
 		t.Skip("Skip the interface acceptance test because of the cce partition az is missing.")
 	}
 }
+
+// lintignore:AT003
+func TestAccPreCheckCnEast3(t *testing.T) {
+	if HW_REGION_NAME != "cn-east-3" {
+		t.Skip("HW_REGION_NAME must be cn-east-3 for this test.")
+	}
+}
