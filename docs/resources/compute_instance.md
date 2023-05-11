@@ -200,8 +200,7 @@ The following arguments are supported:
 * `name` - (Required, String) Specifies a unique name for the instance. The name consists of 1 to 64 characters,
   including letters, digits, underscores (_), hyphens (-), and periods (.).
 
-* `description` - (Optional, String) Specifies the description of the instance. The description consists of 0 to 85
-  characters, and can't contain '<' or '>'.
+* `flavor_id` - (Required, String) Specifies the flavor ID of the instance to be created.
 
 * `image_id` - (Optional, String, ForceNew) Required if `image_name` is empty. Specifies the image ID of the desired
   image for the instance. Changing this creates a new instance.
@@ -209,21 +208,18 @@ The following arguments are supported:
 * `image_name` - (Optional, String, ForceNew) Required if `image_id` is empty. Specifies the name of the desired image
   for the instance. Changing this creates a new instance.
 
-* `flavor_id` - (Optional, String) Required if `flavor_name` is empty. Specifies the flavor ID of the desired flavor for
-  the instance.
-
-* `flavor_name` - (Optional, String) Required if `flavor_id` is empty. Specifies the name of the desired flavor for the
-  instance.
-
 * `security_group_ids` - (Optional, List) Specifies an array of one or more security group IDs to associate with the
   instance.
 
 * `availability_zone` - (Optional, String, ForceNew) Specifies the availability zone in which to create the instance.
-  Please following [reference](https://developer.huaweicloud.com/en-us/endpoint/?ECS)
+  Please following [reference](https://developer.huaweicloud.com/intl/en-us/endpoint/?ECS)
   for the values. Changing this creates a new instance.
 
 * `network` - (Required, List, ForceNew) Specifies an array of one or more networks to attach to the instance. The
   network object structure is documented below. Changing this creates a new instance.
+
+* `description` - (Optional, String) Specifies the description of the instance. The description consists of 0 to 85
+  characters, and can't contain '<' or '>'.
 
 * `admin_pass` - (Optional, String) Specifies the administrative password to assign to the instance.
 
@@ -397,6 +393,7 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - A resource ID in UUID format.
 * `status` - The status of the instance.
 * `system_disk_id` - The system disk voume ID.
+* `flavor_name` - The flavor name of the instance.
 * `security_groups` - An array of one or more security groups to associate with the instance.
 * `public_ip` - The EIP address that is associted to the instance.
 * `access_ip_v4` - The first detected Fixed IPv4 address or the Floating IP.
