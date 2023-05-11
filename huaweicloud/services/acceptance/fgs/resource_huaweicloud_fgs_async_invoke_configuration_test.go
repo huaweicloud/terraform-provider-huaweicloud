@@ -34,12 +34,17 @@ func TestAccAsyncInvokeConfig_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			// The agency should be FunctionGraph and authorize with "FunctionGraph FullAccess" and "DIS Operator"
+			// and "OBS Administrator" and "SMN Administrator"
+			acceptance.TestAccPreCheckFgsTrigger(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAsyncInvokeConfig_basic_step1(name),
+				Config: testAccAsyncInvokeConfig_basic_step1(name, acceptance.HW_FGS_TRIGGER_LTS_AGENCY),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "function_urn",
@@ -54,7 +59,7 @@ func TestAccAsyncInvokeConfig_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccAsyncInvokeConfig_basic_step2(name),
+				Config: testAccAsyncInvokeConfig_basic_step2(name, acceptance.HW_FGS_TRIGGER_LTS_AGENCY),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "function_urn",
@@ -77,7 +82,7 @@ func TestAccAsyncInvokeConfig_basic(t *testing.T) {
 	})
 }
 
-func testAccAsyncInvokeConfig_basic_step1(name string) string {
+func testAccAsyncInvokeConfig_basic_step1(name, agency string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "test" {
   bucket        = "%[1]s"
@@ -98,7 +103,7 @@ resource "huaweicloud_fgs_function" "test" {
   runtime     = "Python2.7"
   code_type   = "inline"
   func_code   = "e42a37a22f4988ba7a681e3042e5c7d13c04e6c1"
-  agency      = "function_test_trust"
+  agency      = "%[2]s"
 }
 
 resource "huaweicloud_fgs_async_invoke_configuration" "test" {
@@ -123,10 +128,10 @@ resource "huaweicloud_fgs_async_invoke_configuration" "test" {
     })
   }
 }
-`, name)
+`, name, agency)
 }
 
-func testAccAsyncInvokeConfig_basic_step2(name string) string {
+func testAccAsyncInvokeConfig_basic_step2(name, agency string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -155,7 +160,7 @@ resource "huaweicloud_fgs_function" "test" {
   runtime     = "Python2.7"
   code_type   = "inline"
   func_code   = "e42a37a22f4988ba7a681e3042e5c7d13c04e6c1"
-  agency      = "function_test_trust"
+  agency      = "%[3]s"
 }
 
 resource "huaweicloud_fgs_async_invoke_configuration" "test" {
@@ -177,5 +182,5 @@ resource "huaweicloud_fgs_async_invoke_configuration" "test" {
     })
   }
 }
-`, common.TestBaseNetwork(name), name)
+`, common.TestBaseNetwork(name), name, agency)
 }
