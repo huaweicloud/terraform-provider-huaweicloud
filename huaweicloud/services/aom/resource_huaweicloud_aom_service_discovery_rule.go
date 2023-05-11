@@ -281,6 +281,10 @@ func resourceServiceDiscoveryRuleCreateOrUpdate(ctx context.Context, d *schema.R
 
 	d.SetId(createOpts.Name)
 
+	// wait for the configuration to take effect
+	// lintignore:R018
+	time.Sleep(30 * time.Second)
+
 	return resourceServiceDiscoveryRuleRead(ctx, d, meta)
 }
 
@@ -344,6 +348,7 @@ func resourceServiceDiscoveryRuleDelete(ctx context.Context, d *schema.ResourceD
 	if err != nil {
 		return diag.Errorf("error deleting AOM service discovery rule %s: %s", d.Id(), err)
 	}
+
 	return nil
 }
 
