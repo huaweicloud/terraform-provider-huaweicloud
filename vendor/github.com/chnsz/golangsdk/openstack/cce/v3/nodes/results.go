@@ -80,6 +80,8 @@ type Spec struct {
 	RunTime *RunTimeSpec `json:"runtime,omitempty"`
 	// taints to created nodes to configure anti-affinity
 	Taints []TaintSpec `json:"taints,omitempty"`
+	// The name of the created partition
+	Partition string `json:"partition,omitempty"`
 }
 
 // Gives the Nic spec of the node

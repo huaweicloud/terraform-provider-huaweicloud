@@ -25,6 +25,7 @@ func TestAccVpcPeeringConnectionDataSource_basic(t *testing.T) {
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "name", randName),
 					resource.TestCheckResourceAttr(dataSourceName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttr(dataSourceName, "description", "vpc1 peers to vpc2"),
 				),
 			},
 		},
@@ -100,21 +101,22 @@ func TestAccVpcPeeringConnectionDataSource_byVpcIds(t *testing.T) {
 func testAccVpcPeeringConnectionDataSource_base(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "vpc_1" {
-  name = "%s_1"
+  name = "%[1]s_1"
   cidr = "172.16.0.0/20"
 }
 
 resource "huaweicloud_vpc" "vpc_2" {
-  name = "%s_2"
+  name = "%[1]s_2"
   cidr = "172.16.128.0/20"
 }
 
 resource "huaweicloud_vpc_peering_connection" "test" {
-  name        = "%s"
+  name        = "%[1]s"
   vpc_id      = huaweicloud_vpc.vpc_1.id
   peer_vpc_id = huaweicloud_vpc.vpc_2.id
+  description = "vpc1 peers to vpc2"
 }
-`, rName, rName, rName)
+`, rName)
 }
 
 func testAccVpcPeeringConnectionDataSource_basic(rName string) string {

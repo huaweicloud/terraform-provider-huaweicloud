@@ -40,6 +40,8 @@ must match exactly one VPC peering connection whose data will be exported as att
 
 * `id` - (Optional, String) The ID of the specific VPC Peering Connection to retrieve.
 
+* `name` - (Optional, String) The name of the specific VPC Peering Connection to retrieve.
+
 * `status` - (Optional, String) The status of the specific VPC Peering Connection to retrieve.
 
 * `vpc_id` - (Optional, String) The ID of the requester VPC of the specific VPC Peering Connection to retrieve.
@@ -49,4 +51,8 @@ must match exactly one VPC peering connection whose data will be exported as att
 * `peer_tenant_id` - (Optional, String) The Tenant ID of the accepter/peer VPC of the specific VPC Peering Connection to
   retrieve.
 
-* `name` - (Optional, String) The name of the specific VPC Peering Connection to retrieve.
+## Attributes Reference
+
+In addition to all arguments above, the following attributes are exported:
+
+* `description` - The description of the VPC Peering Connection.

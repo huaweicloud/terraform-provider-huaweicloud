@@ -41,6 +41,8 @@ The following arguments are supported:
 * `peer_tenant_id` - (Optional, String, ForceNew) Specifies the tenant ID of the accepter tenant. Changing this creates
   a new VPC peering connection.
 
+* `description` - (Optional, String) Specifies the description of the VPC peering connection.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:

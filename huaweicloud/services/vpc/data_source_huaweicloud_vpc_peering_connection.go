@@ -55,6 +55,10 @@ func DataSourceVpcPeeringConnectionV2() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -100,6 +104,7 @@ func dataSourceVpcPeeringConnectionV2Read(_ context.Context, d *schema.ResourceD
 		d.Set("region", region),
 		d.Set("name", item.Name),
 		d.Set("status", item.Status),
+		d.Set("description", item.Description),
 		d.Set("vpc_id", item.RequestVpcInfo.VpcId),
 		d.Set("peer_vpc_id", item.AcceptVpcInfo.VpcId),
 		d.Set("peer_tenant_id", item.AcceptVpcInfo.TenantId),
