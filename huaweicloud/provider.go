@@ -766,8 +766,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_dns_recordset":   dns.ResourceDNSRecordset(),
 			"huaweicloud_dns_zone":        dns.ResourceDNSZone(),
 
-			"huaweicloud_drs_job":     drs.ResourceDrsJob(),
-			"huaweicloud_dws_cluster": dws.ResourceDwsCluster(),
+			"huaweicloud_drs_job":             drs.ResourceDrsJob(),
+			"huaweicloud_dws_cluster":         dws.ResourceDwsCluster(),
+			"huaweicloud_dws_snapshot_policy": dws.ResourceDwsSnapshotPolicy(),
 
 			"huaweicloud_elb_certificate":     elb.ResourceCertificateV3(),
 			"huaweicloud_elb_l7policy":        elb.ResourceL7PolicyV3(),
