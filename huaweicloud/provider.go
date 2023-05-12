@@ -618,6 +618,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_antiddos_basic": antiddos.ResourceCloudNativeAntiDdos(),
 
 			"huaweicloud_aom_alarm_rule":             aom.ResourceAlarmRule(),
+			"huaweicloud_aom_event_alarm_rule":       aom.ResourceEventAlarmRule(),
 			"huaweicloud_aom_service_discovery_rule": aom.ResourceServiceDiscoveryRule(),
 			"huaweicloud_aom_alarm_action_rule":      aom.ResourceAlarmActionRule(),
 
