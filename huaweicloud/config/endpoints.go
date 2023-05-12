@@ -504,6 +504,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v5",
 		Product: "HSS",
 	},
+	"secmaster": {
+		Name:    "secmaster",
+		Version: "v1",
+		Product: "SecMaster",
+	},
 
 	// catalog for Enterprise Intelligence
 	"mrs": {

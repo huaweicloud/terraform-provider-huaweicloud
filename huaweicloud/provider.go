@@ -78,6 +78,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rfs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/scm"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/secmaster"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/servicestage"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/sfs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/smn"
@@ -930,6 +931,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_backup":                   rds.ResourceBackup(),
 
 			"huaweicloud_rms_policy_assignment": rms.ResourcePolicyAssignment(),
+
+			"huaweicloud_secmaster_incident": secmaster.ResourceIncident(),
 
 			"huaweicloud_servicestage_application":                 servicestage.ResourceApplication(),
 			"huaweicloud_servicestage_component_instance":          servicestage.ResourceComponentInstance(),
