@@ -18,7 +18,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/keypairs"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/schedulerhints"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/secgroups"
-	"github.com/chnsz/golangsdk/openstack/compute/v2/flavors"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/servers"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/block_devices"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
@@ -103,12 +102,14 @@ func ResourceComputeInstance() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				DefaultFunc: schema.EnvDefaultFunc("HW_FLAVOR_ID", nil),
+				Description: "schema: Required",
 			},
 			"flavor_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				DefaultFunc: schema.EnvDefaultFunc("HW_FLAVOR_NAME", nil),
+				Description: "schema: Computed",
 			},
 			"admin_pass": {
 				Type:      schema.TypeString,
@@ -589,7 +590,7 @@ func resourceComputeInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	flavorId, err := getFlavorID(computeClient, d)
+	flavorId, err := getFlavorID(d)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -1161,16 +1162,9 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	if d.HasChanges("flavor_id", "flavor_name") {
-		var newFlavorId string
-		var err error
-		if d.HasChange("flavor_id") {
-			newFlavorId = d.Get("flavor_id").(string)
-		} else {
-			newFlavorName := d.Get("flavor_name").(string)
-			newFlavorId, err = flavors.IDFromName(computeClient, newFlavorName)
-			if err != nil {
-				return diag.FromErr(err)
-			}
+		newFlavorId, err := getFlavorID(d)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 
 		extendParam := &cloudservers.ResizeExtendParam{
@@ -1751,16 +1745,20 @@ func computePublicIP(server *cloudservers.CloudServer) string {
 	return publicIP
 }
 
-func getFlavorID(client *golangsdk.ServiceClient, d *schema.ResourceData) (string, error) {
-	if flavorID := d.Get("flavor_id").(string); flavorID != "" {
-		return flavorID, nil
+func getFlavorID(d *schema.ResourceData) (string, error) {
+	var flavorID string
+
+	// both flavor_id and flavor_name are the same value
+	if v1, ok := d.GetOk("flavor_id"); ok {
+		flavorID = v1.(string)
+	} else if v2, ok := d.GetOk("flavor_name"); ok {
+		flavorID = v2.(string)
 	}
 
-	if flavorName := d.Get("flavor_name").(string); flavorName != "" {
-		return flavors.IDFromName(client, flavorName)
+	if flavorID == "" {
+		return "", fmt.Errorf("missing required argument: the `flavor_id` must be specified")
 	}
-
-	return "", fmt.Errorf("one of `flavor_id, flavor_name` must be specified")
+	return flavorID, nil
 }
 
 func getVpcID(client *golangsdk.ServiceClient, d *schema.ResourceData) (string, error) {
