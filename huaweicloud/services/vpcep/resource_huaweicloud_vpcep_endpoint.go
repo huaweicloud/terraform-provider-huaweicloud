@@ -76,6 +76,12 @@ func ResourceVPCEndpoint() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -116,6 +122,7 @@ func resourceVPCEndpointCreate(ctx context.Context, d *schema.ResourceData, meta
 		VpcID:           d.Get("vpc_id").(string),
 		SubnetID:        d.Get("network_id").(string),
 		PortIP:          d.Get("ip_address").(string),
+		Description:     d.Get("description").(string),
 		EnableDNS:       &enableDNS,
 		EnableWhitelist: &enableACL,
 	}
@@ -183,6 +190,7 @@ func resourceVPCEndpointRead(_ context.Context, d *schema.ResourceData, meta int
 	d.Set("vpc_id", ep.VpcID)
 	d.Set("network_id", ep.SubnetID)
 	d.Set("ip_address", ep.IPAddr)
+	d.Set("description", ep.Description)
 	d.Set("enable_dns", ep.EnableDNS)
 	d.Set("enable_whitelist", ep.EnableWhitelist)
 	d.Set("whitelist", ep.Whitelist)

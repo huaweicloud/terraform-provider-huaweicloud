@@ -34,6 +34,8 @@ type CreateOpts struct {
 	RouteTables []string `json:"routeTables,omitempty"`
 	// Specifies the resource tags in key/value format
 	Tags []tags.ResourceTag `json:"tags,omitempty"`
+	// Specifies the description of the VPC endpoint service
+	Description string `json:"description,omitempty"`
 }
 
 // ToEndpointCreateMap assembles a request body based on the contents of a CreateOpts.

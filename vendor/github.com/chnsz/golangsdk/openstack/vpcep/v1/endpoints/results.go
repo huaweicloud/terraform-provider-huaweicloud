@@ -41,6 +41,8 @@ type Endpoint struct {
 	Tags []tags.ResourceTag `json:"tags"`
 	// the project ID
 	ProjectID string `json:"project_id"`
+	// the description of the VPC endpoint
+	Description string `json:"description"`
 	// the creation time of the VPC endpoint
 	Created string `json:"created_at"`
 	// the update time of the VPC endpoint

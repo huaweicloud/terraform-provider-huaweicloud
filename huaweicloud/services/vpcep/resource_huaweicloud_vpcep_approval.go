@@ -75,6 +75,10 @@ func ResourceVPCEndpointApproval() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"description": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},

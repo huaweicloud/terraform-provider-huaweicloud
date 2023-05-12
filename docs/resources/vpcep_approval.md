@@ -72,6 +72,7 @@ In addition to all arguments above, the following attributes are exported:
   + `packet_id` - The packet ID of the VPC endpoint.
   + `domain_id` - The user's domain ID.
   + `status` - The connection status of the VPC endpoint.
+  + `description` - The description of the VPC endpoint service connection.
 
 ## Timeouts
 

@@ -36,6 +36,7 @@ func TestAccVPCEPService_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "available"),
 					resource.TestCheckResourceAttr(resourceName, "approval", "false"),
+					resource.TestCheckResourceAttr(resourceName, "description", "test description"),
 					resource.TestCheckResourceAttr(resourceName, "server_type", "VM"),
 					resource.TestCheckResourceAttr(resourceName, "service_type", "interface"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "tf-acc"),
@@ -50,6 +51,7 @@ func TestAccVPCEPService_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", "tf-"+rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "available"),
 					resource.TestCheckResourceAttr(resourceName, "approval", "true"),
+					resource.TestCheckResourceAttr(resourceName, "description", "test description update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "tf-acc-update"),
 					resource.TestCheckResourceAttr(resourceName, "port_mapping.0.protocol", "TCP"),
 					resource.TestCheckResourceAttr(resourceName, "port_mapping.0.service_port", "8088"),
@@ -142,6 +144,7 @@ resource "huaweicloud_vpcep_service" "test" {
   vpc_id      = data.huaweicloud_vpc.myvpc.id
   port_id     = huaweicloud_compute_instance.ecs.network[0].port
   approval    = false
+  description = "test description"
 
   port_mapping {
     service_port  = 8080
@@ -164,6 +167,7 @@ resource "huaweicloud_vpcep_service" "test" {
   vpc_id      = data.huaweicloud_vpc.myvpc.id
   port_id     = huaweicloud_compute_instance.ecs.network[0].port
   approval    = true
+  description = "test description update"
 
   port_mapping {
     service_port  = 8088

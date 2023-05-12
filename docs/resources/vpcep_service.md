@@ -17,6 +17,7 @@ resource "huaweicloud_vpcep_service" "demo" {
   server_type = "VM"
   vpc_id      = var.vpc_id
   port_id     = var.vm_port
+  description = "test description"
 
   port_mapping {
     service_port  = 8080
@@ -56,6 +57,8 @@ The following arguments are supported:
 * `permissions` - (Optional, List) Specifies the list of accounts to access the VPC endpoint service. The record is in
   the `iam:domain::domain_id` format, while `*` allows all users to access the VPC endpoint service.
 
+* `description` - (Optional, String) Specifies the description of the VPC endpoint service.
+
 * `tags` - (Optional, Map) The key/value pairs to associate with the VPC endpoint service.
 
 The `port_mapping` block supports:
@@ -86,6 +89,7 @@ In addition to all arguments above, the following attributes are exported:
   + `packet_id` - The packet ID of the VPC endpoint.
   + `domain_id` - The user's domain ID.
   + `status` - The connection status of the VPC endpoint.
+  + `description` - The description of the VPC endpoint service connection.
 
 ## Timeouts
 
