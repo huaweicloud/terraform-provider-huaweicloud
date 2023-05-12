@@ -298,6 +298,10 @@ func testAccWafDedicatedDomainV1_policy(name string) string {
 
 resource "huaweicloud_waf_policy" "policy_1" {
   name = "%s"
+
+  depends_on = [
+    huaweicloud_waf_dedicated_instance.instance_1
+  ]
 }
 
 resource "huaweicloud_waf_dedicated_domain" "domain_1" {
