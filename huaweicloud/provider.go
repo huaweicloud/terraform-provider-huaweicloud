@@ -78,6 +78,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rfs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/scm"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/secmaster"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/servicestage"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/sfs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/smn"
@@ -387,7 +388,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_availability_zones": DataSourceAvailabilityZones(),
 
 			"huaweicloud_bms_flavors": bms.DataSourceBmsFlavors(),
-			"huaweicloud_cbr_vaults":  cbr.DataSourceCbrVaultsV3(),
+
+			"huaweicloud_cbr_backup": cbr.DataSourceBackup(),
+			"huaweicloud_cbr_vaults": cbr.DataSourceCbrVaultsV3(),
 
 			"huaweicloud_cbh_instances": cbh.DataSourceCbhInstances(),
 
@@ -931,6 +934,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_rms_policy_assignment": rms.ResourcePolicyAssignment(),
 
+			"huaweicloud_secmaster_incident": secmaster.ResourceIncident(),
+
 			"huaweicloud_servicestage_application":                 servicestage.ResourceApplication(),
 			"huaweicloud_servicestage_component_instance":          servicestage.ResourceComponentInstance(),
 			"huaweicloud_servicestage_component":                   servicestage.ResourceComponent(),
@@ -995,6 +1000,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_policy":                     waf.ResourceWafPolicyV1(),
 			"huaweicloud_waf_rule_blacklist":             waf.ResourceWafRuleBlackListV1(),
 			"huaweicloud_waf_rule_data_masking":          waf.ResourceWafRuleDataMaskingV1(),
+			"huaweicloud_waf_rule_precise_protection":    waf.ResourceRulePreciseProtection(),
 			"huaweicloud_waf_rule_web_tamper_protection": waf.ResourceWafRuleWebTamperProtectionV1(),
 			"huaweicloud_waf_dedicated_instance":         waf.ResourceWafDedicatedInstance(),
 			"huaweicloud_waf_dedicated_domain":           waf.ResourceWafDedicatedDomainV1(),

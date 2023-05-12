@@ -5,13 +5,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -73,7 +73,18 @@ func TestAccCBHInstance_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "bastion_type", "OEM"),
+					resource.TestCheckResourceAttr(rName, "flavor_id", "cbh.basic.10"),
+					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttrPair(rName, "vpc_id",
+						"data.huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "subnet_id",
+						"data.huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "security_group_id",
+						"data.huaweicloud_networking_secgroup.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "public_ip_id",
+						"huaweicloud_vpc_eip.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "public_ip",
+						"huaweicloud_vpc_eip.test", "address"),
 				),
 			},
 			{
@@ -81,16 +92,25 @@ func TestAccCBHInstance_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "bastion_type", "OEM"),
+					resource.TestCheckResourceAttr(rName, "flavor_id", "cbh.basic.10"),
+					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttrPair(rName, "vpc_id",
+						"data.huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "subnet_id",
+						"data.huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "security_group_id",
+						"data.huaweicloud_networking_secgroup.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "public_ip_id",
+						"huaweicloud_vpc_eip.test_update", "id"),
+					resource.TestCheckResourceAttrPair(rName, "public_ip",
+						"huaweicloud_vpc_eip.test_update", "address"),
 				),
 			},
 			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{"availability_zone", "charging_mode", "cloud_service_type",
-					"flavor_id", "hx_password", "password", "nics", "period", "period_unit", "product_info",
-					"security_groups", "public_ip"},
+				ResourceName:            rName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"charging_mode", "password", "period", "period_unit", "auto_renew"},
 			},
 		},
 	})
@@ -109,38 +129,19 @@ func flattenGetInstancesResponseBodyInstanceTest(resp interface{}) map[string]in
 	return rst
 }
 
-func testCBHInstance_basic(name string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_cbh_instance" "test" {
-  flavor_id          = "cbh.basic.50"
-  name               = "%s"
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
-  security_group_id  = huaweicloud_networking_secgroup.test.id
-  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-  region             = "%s"
-  hx_password        = "test_123456"
-  bastion_type       = "OEM"
-  charging_mode      = "prePaid"
-  period_unit        = "month"
-  auto_renew         = "false"
-  period             = "1"
-
-  product_info {
-    product_id         = "OFFI740586375358963717"
-    resource_size      = "1"
-  }
-}
-`, common.TestBaseNetwork(name), name, acceptance.HW_REGION_NAME)
+func testCBHInstance_base() string {
+	return `
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
 }
 
-func testCBHInstance_basic_update(name string) string {
-	return fmt.Sprintf(`
-%s
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_networking_secgroup" "test" {
+  name = "default"
+}
 
 data "huaweicloud_availability_zones" "test" {}
 
@@ -156,33 +157,63 @@ resource "huaweicloud_vpc_eip" "test" {
     charge_mode = "traffic"
   }
 }
+`
+}
+
+func testCBHInstance_basic(name string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_cbh_instance" "test" {
-  flavor_id          = "cbh.basic.50"
-  name               = "%s"
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
-  security_group_id  = huaweicloud_networking_secgroup.test.id
+  flavor_id         = "cbh.basic.10"
+  name              = "%s"
+  vpc_id            = data.huaweicloud_vpc.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  public_ip_id      = huaweicloud_vpc_eip.test.id
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  region            = "%s"
+  password          = "test_123456"
+  charging_mode     = "prePaid"
+  period_unit       = "month"
+  auto_renew        = "false"
+  period            = 1
+}
+`, testCBHInstance_base(), name, acceptance.HW_REGION_NAME)
+}
 
-  public_ip {
-    id      = huaweicloud_vpc_eip_v1.test.id
-    address = huaweicloud_vpc_eip_v1.test.address
+func testCBHInstance_basic_update(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_vpc_eip" "test_update" {
+  publicip {
+    type = "5_bgp"
   }
 
-  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-  region             = "%s"
-  hx_password        = "test_123456"
-  password           = "test_147258"
-  bastion_type       = "OEM"
-  charging_mode      = "prePaid"
-  period_unit        = "month"
-  auto_renew         = "false"
-  period             = "1"
-  
-  product_info {
-    product_id         = "OFFI740586375358963717"
-    resource_size      = "1"
+  bandwidth {
+    name        = "test"
+    size        = 5
+    share_type  = "PER"
+    charge_mode = "traffic"
   }
 }
-`, common.TestBaseNetwork(name), name, acceptance.HW_REGION_NAME)
+
+resource "huaweicloud_cbh_instance" "test" {
+  flavor_id         = "cbh.basic.10"
+  name              = "%s"
+  vpc_id            = data.huaweicloud_vpc.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  public_ip_id      = huaweicloud_vpc_eip.test_update.id
+  public_ip         = huaweicloud_vpc_eip.test_update.address
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  region            = "%s"
+  password          = "test_147258"
+  charging_mode     = "prePaid"
+  period_unit       = "month"
+  auto_renew        = "true"
+  period            = 1
+}
+`, testCBHInstance_base(), name, acceptance.HW_REGION_NAME)
 }

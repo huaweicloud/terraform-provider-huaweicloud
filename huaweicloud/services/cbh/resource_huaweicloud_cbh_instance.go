@@ -12,12 +12,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/jmespath/go-jmespath"
 )
 
 func ResourceCBHInstance() *schema.Resource {
@@ -31,8 +33,8 @@ func ResourceCBHInstance() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(30 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(60 * time.Minute),
+			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -42,27 +44,35 @@ func ResourceCBHInstance() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"flavor_id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Specifies the product ID of the CBH server.`,
-			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
 				Description: `Specifies the name of the CBH instance.`,
 			},
+			"flavor_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Specifies the product ID of the CBH server.`,
+			},
+			"vpc_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Specifies the ID of a VPC.`,
+			},
 			"subnet_id": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: `Specifies the ID of a subnet.`,
 			},
 			"security_group_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Specifies the ID list of the security group.`,
+				ForceNew:    true,
+				Description: `Specifies the ID of the security group.`,
 			},
 			"availability_zone": {
 				Type:        schema.TypeString,
@@ -70,18 +80,11 @@ func ResourceCBHInstance() *schema.Resource {
 				ForceNew:    true,
 				Description: `Specifies the availability zone name.`,
 			},
-			"hx_password": {
+			"password": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
-				Description: `Specifies the front end login password.`,
 				Sensitive:   true,
-			},
-			"bastion_type": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Specifies the type of the bastion.`,
+				Description: `Specifies the password for logging in to the management console.`,
 			},
 			"charging_mode": {
 				Type:     schema.TypeString,
@@ -110,87 +113,26 @@ func ResourceCBHInstance() *schema.Resource {
 			},
 			"auto_renew": {
 				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Specifies whether auto renew is enabled. Valid values are "true" and "false". Defaults to **false**.`,
-			},
-			"image_id": {
-				Type:        schema.TypeString,
 				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: `Specifies a image ID.`,
+				Description: `Specifies whether auto renew is enabled.`,
 			},
-			"user_data": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: `Specifies the inject user data.`,
-			},
-			"password": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the initial password.`,
-				Sensitive:   true,
-			},
-			"key_name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: `Specifies the secret key of the admin.`,
-			},
-			"vpc_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: `Specifies the ID of a VPC.`,
-			},
-			"ip_address": {
+			"subnet_address": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: `Specifies the IP address of the subnet.`,
 			},
-			"public_ip": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Elem:     CBHInstancePublicIPSchema(),
-				Optional: true,
-			},
-			"root_volume": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Elem:     CBHInstanceRootVolumeSchema(),
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-			"data_volume": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Elem:     CBHInstanceDataVolumeSchema(),
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-			"slave_availability_zone": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				Description: `Specifies the slave availability zone name. The slave machine will be created when
-this field is not empty.`,
-			},
-			"metadata": {
+			"public_ip_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: `Specifies the metadata of the service.`,
+				Description: `Specifies the ID of the elastic IP.`,
+			},
+			"public_ip": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"public_ip_id"},
+				Description:  `Specifies the elastic IP address.`,
 			},
 			"ipv6_enable": {
 				Type:        schema.TypeBool,
@@ -199,323 +141,89 @@ this field is not empty.`,
 				ForceNew:    true,
 				Description: `Specifies whether the IPv6 network is enabled.`,
 			},
-			"end_time": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: `Specifies the end time.`,
-			},
-			"relative_resource_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: `Specifies the new capacity expansion.`,
-			},
-			"product_info": {
-				Type:     schema.TypeList,
-				Elem:     CBHInstanceProductInfoSchema(),
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-			"network_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"create", "renewals", "change",
-				}, false),
-				Description: `Specifies the type of the network operation.`,
-			},
-			"publicip_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the ID of the elastic IP.`,
-			},
-			"exp_time": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the expire time of the instance.`,
-			},
-			"start_time": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the start time of the instance.`,
-			},
-			"release_time": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the release time of the instance.`,
-			},
-			"instance_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the server id of the instance.`,
-			},
 			"private_ip": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Indicates the private ip of the instance.`,
-			},
-			"task_status": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the task status of the instance.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Indicates the status of the instance.`,
 			},
-			"update": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates whether the instance image can be upgraded.`,
-			},
-			"instance_key": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the ID of the instance.`,
-			},
-			"resource_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the ID of the resource.`,
-			},
-			"alter_permit": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates whether the front-end displays the capacity expansion button.`,
-			},
-			"bastion_version": {
+			"version": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Indicates the current version of the instance image.`,
 			},
-			"new_bastion_version": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the latest version of the instance image.`,
-			},
-			"instance_status": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the status of the instance.`,
-			},
-			"description": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the type of the bastion.`,
-			},
 		},
 	}
-}
-
-func CBHInstancePublicIPSchema() *schema.Resource {
-	sc := schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Specifies the ID of the elastic IP.`,
-			},
-			"address": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Specifies the elastic IP address.`,
-			},
-			"eip": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Elem:     CBHInstancePublicIPEipSchema(),
-				Optional: true,
-			},
-		},
-	}
-	return &sc
-}
-
-func CBHInstancePublicIPEipSchema() *schema.Resource {
-	sc := schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"type": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Specifies the type of EIP.`,
-			},
-			"flavor_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Specifies the product ID of the IP associated with.`,
-			},
-			"bandwidth": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Elem:     CBHInstanceEipBandwidthSchema(),
-				Optional: true,
-			},
-		},
-	}
-	return &sc
-}
-
-func CBHInstanceEipBandwidthSchema() *schema.Resource {
-	sc := schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"size": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Specifies the size of the bandwidth.`,
-			},
-			"share_type": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Specifies the share type. Only PER is supported.`,
-			},
-			"charge_mode": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Specifies the charge type. The value can be traffic or empty.`,
-			},
-			"flavor_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Specifies the product ID of the bandwidth associated with.`,
-			},
-		},
-	}
-	return &sc
-}
-
-func CBHInstanceRootVolumeSchema() *schema.Resource {
-	sc := schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"type": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the type of volume.`,
-			},
-			"size": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the size of the root volume, unit is GB.`,
-			},
-			"extend_param": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the info of the volume.`,
-			},
-		},
-	}
-	return &sc
-}
-
-func CBHInstanceDataVolumeSchema() *schema.Resource {
-	sc := schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"type": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the type of volume.`,
-			},
-			"size": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the size of the data volume, unit is GB.`,
-			},
-			"extend_param": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the info of the volume.`,
-			},
-		},
-	}
-	return &sc
-}
-
-func CBHInstanceProductInfoSchema() *schema.Resource {
-	sc := schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"product_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the ID of the product.`,
-			},
-			"resource_size_measure_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the resource capacity measurement ID.`,
-			},
-			"resource_size": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the size of the resource capacity.`,
-			},
-		},
-	}
-	return &sc
 }
 
 func resourceCBHInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		createCbhInstanceProduct = "cbh"
+	)
+
+	createCbhInstanceClient, err := cfg.NewServiceClient(createCbhInstanceProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating CBH Client: %s", err)
+	}
 
 	// createInstance: create CBH instance
-	instanceKey, slaveInstanceKey, err := createInstance(d, config, region)
+	instanceKey, err := createInstance(d, cfg, createCbhInstanceClient)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if instanceKey == nil {
 		return diag.Errorf("error creating CbhInstance: instance_key is empty")
 	}
 
 	// createOrder: create instance order
-	resourceId, err := createOrder(ctx, d, config, region, instanceKey.(string))
+	orderId, err := createOrder(d, cfg, createCbhInstanceClient, region, instanceKey.(string))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
-	// createSlaveOrder: create slave instance order
-	if slaveInstanceKey != nil {
-		_, err = createOrder(ctx, d, config, region, slaveInstanceKey.(string))
-		if err != nil {
-			return err
-		}
+	// pay order
+	resourceId, err := payOrder(ctx, d, cfg, orderId)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	instanceId, err := getInstanceIdByResourceId(d, config, region, resourceId)
+	instanceId, err := getInstanceIdByResourceId(createCbhInstanceClient, resourceId)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(instanceId)
 
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{"BUILD"},
+		Target:     []string{"ACTIVE"},
+		Refresh:    cbhInstanceStateRefreshFunc(createCbhInstanceClient, instanceId),
+		Timeout:    d.Timeout(schema.TimeoutCreate),
+		Delay:      10 * time.Second,
+		MinTimeout: 10 * time.Second,
+	}
+
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		return diag.Errorf("timeout waiting for instance to active: %s", err)
+	}
+
 	return resourceCBHInstanceRead(ctx, d, meta)
 }
 
-func createInstance(d *schema.ResourceData, config *config.Config, region string) (interface{}, interface{}, diag.Diagnostics) {
+func createInstance(d *schema.ResourceData, cfg *config.Config, client *golangsdk.ServiceClient) (interface{}, error) {
 	// createInstance: create CBH instance
 	var (
 		createInstanceHttpUrl = "v1/{project_id}/cbs/instance/create"
-		createInstanceProduct = "cbh"
 	)
-	createInstanceClient, err := config.NewServiceClient(createInstanceProduct, region)
-	if err != nil {
-		return "", "", diag.Errorf("error creating CBHInstance Client: %s", err)
-	}
 
-	createInstancePath := createInstanceClient.Endpoint + createInstanceHttpUrl
-	createInstancePath = strings.ReplaceAll(createInstancePath, "{project_id}", createInstanceClient.ProjectID)
+	createInstancePath := client.Endpoint + createInstanceHttpUrl
+	createInstancePath = strings.ReplaceAll(createInstancePath, "{project_id}", client.ProjectID)
 
 	createInstanceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -523,122 +231,88 @@ func createInstance(d *schema.ResourceData, config *config.Config, region string
 			200,
 		},
 	}
-	createInstanceOpt.JSONBody = utils.RemoveNil(buildCreateInstanceBodyParams(d, config))
-	createInstanceResp, err := createInstanceClient.Request("POST", createInstancePath, &createInstanceOpt)
+	params, err := buildCreateInstanceBodyParams(d, cfg)
 	if err != nil {
-		return "", "", diag.Errorf("error creating CBHInstance: err: %s", err)
+		return "", err
+	}
+	createInstanceOpt.JSONBody = utils.RemoveNil(params)
+	createInstanceResp, err := client.Request("POST", createInstancePath, &createInstanceOpt)
+	if err != nil {
+		return "", fmt.Errorf("error creating CBHInstance: err: %s", err)
 	}
 
 	createInstanceRespBody, err := utils.FlattenResponse(createInstanceResp)
 	if err != nil {
-		return "", "", diag.FromErr(err)
+		return "", err
 	}
 
 	instanceKey, err := jmespath.Search("instance_key", createInstanceRespBody)
 	if err != nil {
-		return "", "", diag.Errorf("error creating CbhInstance: instance_key is not found in API response")
+		return "", fmt.Errorf("error creating CbhInstance: instance_key is not found in API response")
 	}
-
-	slaveInstanceKey, err := jmespath.Search("slaveInstanceKey", createInstanceRespBody)
-	if err != nil {
-		return "", "", diag.Errorf("error creating CbhInstance: slaveInstanceKey is not found in API response")
-	}
-	return instanceKey, slaveInstanceKey, nil
+	return instanceKey, nil
 }
 
-func createOrder(ctx context.Context, d *schema.ResourceData, config *config.Config, region,
-	instanceKey string) (string, diag.Diagnostics) {
+func createOrder(d *schema.ResourceData, cfg *config.Config, client *golangsdk.ServiceClient,
+	region, instanceKey string) (string, error) {
 	var (
-		createInstanceHttpUrl = "v1/{project_id}/cbs/period/order"
-		payOrderHttpUrl       = "v3/orders/customer-orders/pay"
-		createInstanceProduct = "cbh"
-		payOrderProduct       = "bssv2"
+		createOrderHttpUrl = "v1/{project_id}/cbs/period/order"
 	)
-	createInstanceClient, err := config.NewServiceClient(createInstanceProduct, region)
-	if err != nil {
-		return "", diag.Errorf("error creating CBHInstance Client: %s", err)
-	}
 
-	createInstancePath := createInstanceClient.Endpoint + createInstanceHttpUrl
-	createInstancePath = strings.ReplaceAll(createInstancePath, "{project_id}", createInstanceClient.ProjectID)
+	createOrderPath := client.Endpoint + createOrderHttpUrl
+	createOrderPath = strings.ReplaceAll(createOrderPath, "{project_id}", client.ProjectID)
 
-	createInstanceOpt := golangsdk.RequestOpts{
+	createOrderOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		OkCodes: []int{
 			200,
 		},
 	}
-	createInstanceOpt.JSONBody = utils.RemoveNil(buildCreateOrderParams(d, config, region, instanceKey))
-	createInstanceResp, err := createInstanceClient.Request("POST", createInstancePath, &createInstanceOpt)
+
+	productId, err := getOrderProductId(d, cfg, region)
 	if err != nil {
-		return "", diag.Errorf("error creating CBHOrder: %s", err)
+		return "", err
+	}
+	createOrderOpt.JSONBody = utils.RemoveNil(buildCreateOrderParams(d, strings.TrimSpace(productId), region, instanceKey))
+	createOrderResp, err := client.Request("POST", createOrderPath, &createOrderOpt)
+	if err != nil {
+		return "", fmt.Errorf("error creating CBHOrder: %s", err)
 	}
 
-	createInstanceRespBody, err := utils.FlattenResponse(createInstanceResp)
+	createOrderRespBody, err := utils.FlattenResponse(createOrderResp)
 	if err != nil {
-		return "", diag.FromErr(err)
+		return "", err
 	}
 
-	orderId, err := jmespath.Search("order_id", createInstanceRespBody)
+	orderId, err := jmespath.Search("order_id", createOrderRespBody)
 	if err != nil {
-		return "", diag.Errorf("error creating CBHOrder: order ID is not found in API response")
+		return "", fmt.Errorf("error creating CBHOrder: order ID is not found in API response")
 	}
-
-	bssClient, err := config.NewServiceClient(payOrderProduct, region)
-	if err != nil {
-		return "", diag.Errorf("error creating BSS v2 Client: %s", err)
-	}
-
-	payOrderPath := bssClient.Endpoint + payOrderHttpUrl
-
-	// pay order
-	err = payOrder(bssClient, orderId.(string), payOrderPath)
-	if err != nil {
-		return "", diag.Errorf("error pay CBHOrder: %s", err)
-	}
-
-	// wait for order success
-	err = common.WaitOrderComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return "", diag.FromErr(err)
-	}
-	resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId.(string),
-		d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return "", diag.Errorf("error waiting for replica order resource %s complete: %s", orderId.(string), err)
-	}
-
-	return resourceId, nil
+	return orderId.(string), nil
 }
 
-func getInstanceIdByResourceId(d *schema.ResourceData, config *config.Config, region, resourceId string) (string,
-	diag.Diagnostics) {
-	instances, err := getInstanceList(d, config, region)
+func getInstanceIdByResourceId(client *golangsdk.ServiceClient, resourceId string) (string, error) {
+	instances, err := getInstanceList(client)
 	if err != nil {
-		return "", diag.Errorf("%s", err)
+		return "", err
 	}
 	for _, v := range instances {
 		instance := v.(map[string]interface{})
-		if instance["resource_id"].(string) == resourceId {
-			return instance["instance_id"].(string), nil
+		if instance["resourceId"] != nil && instance["resourceId"].(string) == resourceId {
+			return instance["instanceId"].(string), nil
 		}
 	}
-	return "", diag.Errorf("error get instance by resource_id: %s", resourceId)
+	return "", fmt.Errorf("error getting instance_id by resource_id: %s", resourceId)
 }
 
-func getInstanceList(d *schema.ResourceData, config *config.Config, region string) ([]interface{}, error) {
+func getInstanceList(client *golangsdk.ServiceClient) ([]interface{}, error) {
 	// getCbhInstances: Query the List of CBH instances
 	var (
 		getCbhInstancesHttpUrl = "v1/{project_id}/cbs/instance/list"
-		getCbhInstancesProduct = "cbh"
 	)
-	getCbhInstancesClient, err := config.NewServiceClient(getCbhInstancesProduct, region)
-	if err != nil {
-		return nil, fmt.Errorf("error creating CbhInstances Client: %s", err)
-	}
 
-	getCbhInstancesPath := getCbhInstancesClient.Endpoint + getCbhInstancesHttpUrl
-	getCbhInstancesPath = strings.ReplaceAll(getCbhInstancesPath, "{project_id}", getCbhInstancesClient.ProjectID)
+	getCbhInstancesPath := client.Endpoint + getCbhInstancesHttpUrl
+	getCbhInstancesPath = strings.ReplaceAll(getCbhInstancesPath, "{project_id}", client.ProjectID)
 
 	getCbhInstancesOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -646,7 +320,7 @@ func getInstanceList(d *schema.ResourceData, config *config.Config, region strin
 			200,
 		},
 	}
-	getCbhInstancesResp, err := getCbhInstancesClient.Request("GET", getCbhInstancesPath, &getCbhInstancesOpt)
+	getCbhInstancesResp, err := client.Request("GET", getCbhInstancesPath, &getCbhInstancesOpt)
 
 	if err != nil {
 		return nil, err
@@ -656,10 +330,22 @@ func getInstanceList(d *schema.ResourceData, config *config.Config, region strin
 	if err != nil {
 		return nil, err
 	}
-	return flattenGetInstancesResponseBodyInstance(getCbhInstancesRespBody), nil
+	instances := utils.PathSearch("instance", getCbhInstancesRespBody, make([]interface{}, 0)).([]interface{})
+	return instances, nil
 }
 
-func payOrder(bssClient *golangsdk.ServiceClient, orderId, payOrderPath string) error {
+func payOrder(ctx context.Context, d *schema.ResourceData, cfg *config.Config, orderId string) (string, error) {
+	region := cfg.GetRegion(d)
+	var (
+		payOrderHttpUrl = "v3/orders/customer-orders/pay"
+		payOrderProduct = "bssv2"
+	)
+	bssClient, err := cfg.NewServiceClient(payOrderProduct, region)
+	if err != nil {
+		return "", fmt.Errorf("error creating BSS v2 Client: %s", err)
+	}
+
+	payOrderPath := bssClient.Endpoint + payOrderHttpUrl
 	payOrderOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		OkCodes: []int{
@@ -667,67 +353,75 @@ func payOrder(bssClient *golangsdk.ServiceClient, orderId, payOrderPath string) 
 		},
 	}
 	payOrderOpt.JSONBody = utils.RemoveNil(buildPayOrderBodyParams(orderId))
-	_, err := bssClient.Request("POST", payOrderPath, &payOrderOpt)
-	return err
-}
-
-func buildCreateInstanceBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
-	bodyParams := map[string]interface{}{
-		"server": buildCreateInstanceParams(d, config),
+	_, err = bssClient.Request("POST", payOrderPath, &payOrderOpt)
+	if err != nil {
+		return "", fmt.Errorf("error pay CBH order(%s): %s", orderId, err)
 	}
-	return bodyParams
-}
-
-func buildCreateInstanceParams(d *schema.ResourceData, config *config.Config) interface{} {
-	bodyParams := map[string]interface{}{
-		"image_ref":               utils.ValueIngoreEmpty(d.Get("image_id")),
-		"flavor_ref":              utils.ValueIngoreEmpty(d.Get("flavor_id")),
-		"instance_name":           utils.ValueIngoreEmpty(d.Get("name")),
-		"user_data":               utils.ValueIngoreEmpty(d.Get("user_data")),
-		"password":                utils.ValueIngoreEmpty(d.Get("password")),
-		"key_name":                utils.ValueIngoreEmpty(d.Get("key_name")),
-		"vpc_id":                  utils.ValueIngoreEmpty(d.Get("vpc_id")),
-		"nics":                    buildCreateInstanceNicsChildBody(d),
-		"public_ip":               buildCreateInstancePublicIpChildBody(d),
-		"root_volume":             buildCreateInstanceRootVolumeChildBody(d),
-		"data_volume":             buildCreateInstanceDataVolumeChildBody(d),
-		"security_groups":         buildCreateInstanceSecurityGroupsChildBody(d),
-		"availability_zone":       utils.ValueIngoreEmpty(d.Get("availability_zone")),
-		"region":                  config.GetRegion(d),
-		"slave_availability_zone": utils.ValueIngoreEmpty(d.Get("slave_availability_zone")),
-		"metadata":                utils.ValueIngoreEmpty(d.Get("metadata")),
-		"hx_password":             utils.ValueIngoreEmpty(d.Get("hx_password")),
-		"bastion_type":            utils.ValueIngoreEmpty(d.Get("bastion_type")),
-		"ipv6_enable":             utils.ValueIngoreEmpty(d.Get("ipv6_enable")),
-		"end_time":                utils.ValueIngoreEmpty(d.Get("end_time")),
+	// wait for order success
+	err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return "", err
 	}
-	return bodyParams
+	resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return "", fmt.Errorf("error waiting for CBH instance order %s complete: %s", orderId, err)
+	}
+	return resourceId, err
 }
 
-func buildCreateOrderParams(d *schema.ResourceData, config *config.Config, region,
-	instanceKey string) map[string]interface{} {
+func buildCreateInstanceBodyParams(d *schema.ResourceData, cfg *config.Config) (map[string]interface{}, error) {
+	params, err := buildCreateInstanceParams(d, cfg)
+	if err != nil {
+		return nil, err
+	}
 	bodyParams := map[string]interface{}{
-		"instance_key":         instanceKey,
-		"region_id":            region,
-		"end_time":             utils.ValueIngoreEmpty(d.Get("end_time")),
-		"cloud_service_type":   "hws.service.type.cbh",
-		"period_num":           utils.ValueIngoreEmpty(d.Get("period")),
-		"subscription_num":     1,
-		"relative_resource_id": utils.ValueIngoreEmpty(d.Get("relative_resource_id")),
-		"product_infos":        buildCreateInstanceProductInfoChildBody(d),
+		"server": params,
+	}
+	return bodyParams, nil
+}
+
+func buildCreateInstanceParams(d *schema.ResourceData, cfg *config.Config) (interface{}, error) {
+	publicIp, err := buildCreateInstancePublicIpChildBody(d, cfg)
+	if err != nil {
+		return nil, err
+	}
+	bodyParams := map[string]interface{}{
+		"flavor_ref":        utils.ValueIngoreEmpty(d.Get("flavor_id")),
+		"instance_name":     utils.ValueIngoreEmpty(d.Get("name")),
+		"vpc_id":            utils.ValueIngoreEmpty(d.Get("vpc_id")),
+		"nics":              buildCreateInstanceNicsChildBody(d),
+		"public_ip":         publicIp,
+		"security_groups":   buildCreateInstanceSecurityGroupsChildBody(d),
+		"availability_zone": utils.ValueIngoreEmpty(d.Get("availability_zone")),
+		"region":            cfg.GetRegion(d),
+		"hx_password":       utils.ValueIngoreEmpty(d.Get("password")),
+		"bastion_type":      "OEM",
+		"ipv6_enable":       utils.ValueIngoreEmpty(d.Get("ipv6_enable")),
+	}
+	return bodyParams, nil
+}
+
+func buildCreateOrderParams(d *schema.ResourceData, productId, region, instanceKey string) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"instance_key":       instanceKey,
+		"region_id":          region,
+		"cloud_service_type": "hws.service.type.cbh",
+		"period_num":         utils.ValueIngoreEmpty(d.Get("period")),
+		"subscription_num":   1,
+		"product_infos":      buildCreateInstanceProductInfoChildBody(d, productId),
 	}
 	if d.Get("charging_mode").(string) == "prePaid" {
 		bodyParams["charging_mode"] = 0
 	}
 	if d.Get("period_unit").(string) == "year" {
-		bodyParams["period_type"] = 1
+		bodyParams["period_type"] = 3
 	} else {
 		bodyParams["period_type"] = 2
 	}
 	if d.Get("auto_renew").(string) == "true" {
-		bodyParams["is_auto_renew"] = 0
-	} else {
 		bodyParams["is_auto_renew"] = 1
+	} else {
+		bodyParams["is_auto_renew"] = 0
 	}
 	return bodyParams
 }
@@ -736,90 +430,30 @@ func buildCreateInstanceNicsChildBody(d *schema.ResourceData) interface{} {
 	return []map[string]interface{}{
 		{
 			"subnet_id":  utils.ValueIngoreEmpty(d.Get("subnet_id")),
-			"ip_address": utils.ValueIngoreEmpty(d.Get("ip_address")),
+			"ip_address": utils.ValueIngoreEmpty(d.Get("subnet_address")),
 		},
 	}
 }
 
-func buildCreateInstancePublicIpChildBody(d *schema.ResourceData) interface{} {
-	rawParams := d.Get("public_ip").([]interface{})
-	if len(rawParams) == 0 {
-		return nil
+func buildCreateInstancePublicIpChildBody(d *schema.ResourceData, cfg *config.Config) (interface{}, error) {
+	publicIpId := d.Get("public_ip_id").(string)
+	if publicIpId == "" {
+		return nil, nil
 	}
 
-	raw := rawParams[0].(map[string]interface{})
+	publicIp := d.Get("public_ip").(string)
+	if publicIp == "" {
+		address, err := getPublicAddressById(d, cfg, publicIpId)
+		if err != nil {
+			return nil, err
+		}
+		publicIp = address
+	}
 	params := map[string]interface{}{
-		"id":         utils.ValueIngoreEmpty(raw["id"]),
-		"public_eip": utils.ValueIngoreEmpty(raw["address"]),
-		"eip":        buildCreateInstancePublicIpEipChildBody(d),
+		"id":         publicIpId,
+		"public_eip": publicIp,
 	}
-
-	return params
-}
-
-func buildCreateInstancePublicIpEipChildBody(d *schema.ResourceData) interface{} {
-	rawParams := d.Get("public_ip.0.eip").([]interface{})
-	if len(rawParams) == 0 {
-		return nil
-	}
-
-	raw := rawParams[0].(map[string]interface{})
-	params := map[string]interface{}{
-		"type":      utils.ValueIngoreEmpty(raw["type"]),
-		"flavor_id": utils.ValueIngoreEmpty(raw["flavor_id"]),
-		"bandwidth": buildCreateInstancePublicIpEipBandwidthChildBody(d),
-	}
-
-	return params
-}
-
-func buildCreateInstancePublicIpEipBandwidthChildBody(d *schema.ResourceData) interface{} {
-	rawParams := d.Get("public_ip.0.eip.0.bandwidth").([]interface{})
-	if len(rawParams) == 0 {
-		return nil
-	}
-
-	raw := rawParams[0].(map[string]interface{})
-	params := map[string]interface{}{
-		"size":        utils.ValueIngoreEmpty(raw["size"]),
-		"share_type":  utils.ValueIngoreEmpty(raw["share_type"]),
-		"charge_mode": utils.ValueIngoreEmpty(raw["charge_mode"]),
-		"flavor_id":   utils.ValueIngoreEmpty(raw["flavor_id"]),
-	}
-
-	return params
-}
-
-func buildCreateInstanceRootVolumeChildBody(d *schema.ResourceData) interface{} {
-	rawParams := d.Get("root_volume").([]interface{})
-	if len(rawParams) == 0 {
-		return nil
-	}
-
-	raw := rawParams[0].(map[string]interface{})
-	params := map[string]interface{}{
-		"volume_type":  utils.ValueIngoreEmpty(raw["type"]),
-		"size":         utils.ValueIngoreEmpty(raw["size"]),
-		"extend_param": utils.ValueIngoreEmpty(raw["extend_param"]),
-	}
-
-	return params
-}
-
-func buildCreateInstanceDataVolumeChildBody(d *schema.ResourceData) interface{} {
-	rawParams := d.Get("data_volume").([]interface{})
-	if len(rawParams) == 0 {
-		return nil
-	}
-
-	raw := rawParams[0].(map[string]interface{})
-	params := map[string]interface{}{
-		"volume_type":  utils.ValueIngoreEmpty(raw["type"]),
-		"size":         utils.ValueIngoreEmpty(raw["size"]),
-		"extend_param": utils.ValueIngoreEmpty(raw["extend_param"]),
-	}
-
-	return params
+	return params, nil
 }
 
 func buildCreateInstanceSecurityGroupsChildBody(d *schema.ResourceData) interface{} {
@@ -830,28 +464,17 @@ func buildCreateInstanceSecurityGroupsChildBody(d *schema.ResourceData) interfac
 	}
 }
 
-func buildCreateInstanceProductInfoChildBody(d *schema.ResourceData) interface{} {
-	rawParams := d.Get("product_info").([]interface{})
-	if len(rawParams) == 0 {
-		return nil
+func buildCreateInstanceProductInfoChildBody(d *schema.ResourceData, productId string) interface{} {
+	param := map[string]interface{}{
+		"product_id":               productId,
+		"cloud_service_type":       "hws.service.type.cbh",
+		"resource_type":            "hws.resource.type.cbh.ins",
+		"resource_spec_code":       utils.ValueIngoreEmpty(d.Get("flavor_id")),
+		"resource_size_measure_id": "14",
+		"resource_size":            "1",
 	}
 
-	params := make([]map[string]interface{}, 0)
-	for _, rawParam := range rawParams {
-		raw := rawParam.(map[string]interface{})
-		param := map[string]interface{}{
-			"product_id":               utils.ValueIngoreEmpty(raw["product_id"]),
-			"cloud_service_type":       "hws.service.type.cbh",
-			"resource_type":            "hws.resource.type.cbh.ins",
-			"resource_spec_code":       utils.ValueIngoreEmpty(d.Get("flavor_id")),
-			"available_zone_id":        utils.ValueIngoreEmpty(d.Get("availability_zone")),
-			"resource_size_measure_id": utils.ValueIngoreEmpty(raw["resource_size_measure_id"]),
-			"resource_size":            utils.ValueIngoreEmpty(raw["resource_size"]),
-		}
-		params = append(params, param)
-	}
-
-	return params
+	return []map[string]interface{}{param}
 }
 
 func buildPayOrderBodyParams(orderId string) map[string]interface{} {
@@ -863,83 +486,146 @@ func buildPayOrderBodyParams(orderId string) map[string]interface{} {
 	return bodyParams
 }
 
+func getOrderProductId(d *schema.ResourceData, cfg *config.Config, region string) (string, error) {
+	var (
+		getCbhOrderProductIdHttpUrl = "v2/bills/ratings/period-resources/subscribe-rate"
+		getCbhOrderProductIdProduct = "bss"
+	)
+	getCbhOrderProductIdClient, err := cfg.NewServiceClient(getCbhOrderProductIdProduct, region)
+	if err != nil {
+		return "", fmt.Errorf("error creating BSS Client: %s", err)
+	}
+
+	getCbhOrderProductIdPath := getCbhOrderProductIdClient.Endpoint + getCbhOrderProductIdHttpUrl
+
+	getCbhOrderProductIdOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			200,
+		},
+	}
+	getCbhOrderProductIdOpt.JSONBody = utils.RemoveNil(buildGetCbhFlavorsBodyParams(d,
+		getCbhOrderProductIdClient.ProjectID, region))
+	getCbhOrderProductIdResp, err := getCbhOrderProductIdClient.Request("POST",
+		getCbhOrderProductIdPath, &getCbhOrderProductIdOpt)
+
+	if err != nil {
+		return "", fmt.Errorf("error getting CBH order product id: %s", err)
+	}
+
+	getCbhOrderProductIdRespBody, err := utils.FlattenResponse(getCbhOrderProductIdResp)
+	if err != nil {
+		return "", err
+	}
+	curJson := utils.PathSearch("official_website_rating_result.product_rating_results",
+		getCbhOrderProductIdRespBody, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
+		return "", fmt.Errorf("fail to get CBH order product id")
+	}
+	productId := utils.PathSearch("product_id", curArray[0], "")
+	return productId.(string), nil
+}
+
+func buildGetCbhFlavorsBodyParams(d *schema.ResourceData, projectId, region string) map[string]interface{} {
+	periodUnit := d.Get("period_unit").(string)
+	var periodType string
+	if periodUnit == "month" {
+		periodType = "2"
+	} else {
+		periodType = "3"
+	}
+
+	params := make(map[string]interface{})
+	params["id"] = "1"
+	params["cloud_service_type"] = "hws.service.type.cbh"
+	params["resource_type"] = "hws.resource.type.cbh.ins"
+	params["resource_spec"] = utils.ValueIngoreEmpty(d.Get("flavor_id"))
+	params["region"] = region
+	params["period_type"] = periodType
+	params["period_num"] = utils.ValueIngoreEmpty(d.Get("period"))
+	params["subscription_num"] = "1"
+
+	bodyParams := map[string]interface{}{
+		"project_id":    projectId,
+		"product_infos": []map[string]interface{}{params},
+	}
+	return bodyParams
+}
+
 func resourceCBHInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// updateInstance: update the CBH instance
 	var (
-		bindEipHttpUrl        = "v1/{project_id}/cbs/instance/{server_id}/eip/bind"
-		unbindEipHttpUrl      = "v1/{project_id}/cbs/instance/{server_id}/eip/unbind"
-		updateAdminPassword   = "v1/{project_id}/cbs/instance/password"
-		updateNetworkHttpUrl  = "v1/{project_id}/cbs/{server_id}/network/change"
-		updateInstanceProduct = "cbh"
+		bindEipHttpUrl           = "v1/{project_id}/cbs/instance/{server_id}/eip/bind"
+		unbindEipHttpUrl         = "v1/{project_id}/cbs/instance/{server_id}/eip/unbind"
+		updateAdminPassword      = "v1/{project_id}/cbs/instance/password"
+		updateCBHInstanceProduct = "cbh"
 	)
 
-	if d.HasChanges("public_ip") {
-		oPublicIpIdRaw, nPublicIpIdRaw := d.GetChange("public_ip.0.id")
-		oPublicIpEipRaw, nPublicIpEipRaw := d.GetChange("public_ip.0.address")
-		oPublicIpId := oPublicIpIdRaw.(string)
-		nPublicIpId := nPublicIpIdRaw.(string)
-		oPublicIpEip := oPublicIpEipRaw.(string)
-		nPublicIpEip := nPublicIpEipRaw.(string)
-		operateType := 0
-		if len(nPublicIpId) == 0 || len(nPublicIpEip) == 0 {
-			operateType = 1
-		}
-		if len(oPublicIpId) == 0 || len(oPublicIpEip) == 0 {
-			operateType = 2
-		}
-		switch operateType {
-		case 1:
-			err := unbindEip(d, config, region, updateInstanceProduct, oPublicIpId, oPublicIpEip, unbindEipHttpUrl)
-			if err != nil {
-				return diag.Errorf("error unbind eip from CBH instance: %s", err)
-			}
-		case 2:
-			err := bindEip(d, config, region, updateInstanceProduct, nPublicIpId, nPublicIpEip, bindEipHttpUrl)
-			if err != nil {
-				return diag.Errorf("error bind eip to CBH instance: %s", err)
-			}
-		default:
-			err := unbindEip(d, config, region, updateInstanceProduct, oPublicIpId, oPublicIpEip, unbindEipHttpUrl)
-			if err != nil {
-				return diag.Errorf("error unbind eip from CBH instance: %s", err)
-			}
-			err = bindEip(d, config, region, updateInstanceProduct, nPublicIpId, nPublicIpEip, bindEipHttpUrl)
-			if err != nil {
-				// if bind new eip fail, then bind the old eip to CBH instance
-				_ = bindEip(d, config, region, updateInstanceProduct, oPublicIpId, oPublicIpEip, bindEipHttpUrl)
-				return diag.Errorf("error bind eip to CBH instance: %s", err)
-			}
-		}
+	updateCbhInstanceClient, err := cfg.NewServiceClient(updateCBHInstanceProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating CBH Client: %s", err)
 	}
 
-	if d.HasChanges("network_type", "subnet_id", "ip_address", "security_group_id") {
-		err := updateNetwork(d, config, region, updateInstanceProduct, updateNetworkHttpUrl)
-		if err != nil {
-			return diag.Errorf("error update CBH network: %s", err)
+	if d.HasChanges("public_ip_id", "public_ip") {
+		oPublicIpIdRaw, nPublicIpIdRaw := d.GetChange("public_ip_id")
+		oPublicIpRaw, nPublicIpRaw := d.GetChange("public_ip")
+		oPublicIpId := strings.TrimSpace(oPublicIpIdRaw.(string))
+		nPublicIpId := strings.TrimSpace(nPublicIpIdRaw.(string))
+		oPublicIp := oPublicIpRaw.(string)
+		nPublicIp := nPublicIpRaw.(string)
+
+		if oPublicIpId == nPublicIpId && oPublicIp != nPublicIp {
+			return diag.Errorf("the public ip is not match the public ip id")
+		}
+		if len(oPublicIpId) > 0 {
+			err = unbindEip(d, updateCbhInstanceClient, oPublicIpId, oPublicIp, unbindEipHttpUrl)
+			if err != nil {
+				return diag.Errorf("error unbind eip from CBH instance: %s", err)
+			}
+		}
+		if len(nPublicIpId) > 0 {
+			err = bindEip(d, updateCbhInstanceClient, cfg, nPublicIpId, nPublicIp, bindEipHttpUrl)
+			if err != nil {
+				// if bind new eip fail, then bind the old eip to CBH instance
+				if len(oPublicIpId) > 0 {
+					_ = bindEip(d, updateCbhInstanceClient, cfg, oPublicIpId, oPublicIp, bindEipHttpUrl)
+				}
+				return diag.Errorf("error bind eip to CBH instance: %s", err)
+			}
 		}
 	}
 
 	if d.HasChanges("password") {
-		err := updatePassword(d, config, region, updateInstanceProduct, updateAdminPassword)
+		err = updatePassword(d, updateCbhInstanceClient, updateAdminPassword)
 		if err != nil {
 			return diag.Errorf("error update CBH admin password: %s", err)
+		}
+	}
+
+	if d.HasChange("auto_renew") {
+		bssClient, err := cfg.BssV2Client(region)
+		if err != nil {
+			return diag.Errorf("error creating BSS V2 client: %s", err)
+		}
+		resourceId, err := getResourceIdByInstanceId(updateCbhInstanceClient, d.Id())
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), resourceId); err != nil {
+			return diag.Errorf("error updating the auto-renew of the CBH instance (%s): %s", d.Id(), err)
 		}
 	}
 	return resourceCBHInstanceRead(ctx, d, meta)
 }
 
-func bindEip(d *schema.ResourceData, config *config.Config, region, product, publicipId, publicEip,
-	httpUrl string) error {
-	updateInstanceClient, err := config.NewServiceClient(product, region)
-	if err != nil {
-		return err
-	}
-
-	getCbhInstancesPath := updateInstanceClient.Endpoint + httpUrl
-	getCbhInstancesPath = strings.ReplaceAll(getCbhInstancesPath, "{project_id}", updateInstanceClient.ProjectID)
+func bindEip(d *schema.ResourceData, client *golangsdk.ServiceClient, cfg *config.Config, publicIpId,
+	publicIp, httpUrl string) error {
+	getCbhInstancesPath := client.Endpoint + httpUrl
+	getCbhInstancesPath = strings.ReplaceAll(getCbhInstancesPath, "{project_id}", client.ProjectID)
 	getCbhInstancesPath = strings.ReplaceAll(getCbhInstancesPath, "{server_id}", d.Id())
 
 	bindEipOpt := golangsdk.RequestOpts{
@@ -948,10 +634,17 @@ func bindEip(d *schema.ResourceData, config *config.Config, region, product, pub
 			200,
 		},
 	}
-	bindEipOpt.JSONBody = utils.RemoveNil(buildUpdateEipBodyParams(publicipId, publicEip))
-	bindEipResp, err := updateInstanceClient.Request("POST", getCbhInstancesPath, &bindEipOpt)
+	if publicIp == "" {
+		address, err := getPublicAddressById(d, cfg, publicIpId)
+		if err != nil {
+			return err
+		}
+		publicIp = address
+	}
+	bindEipOpt.JSONBody = utils.RemoveNil(buildUpdateEipBodyParams(publicIpId, publicIp))
+	bindEipResp, err := client.Request("POST", getCbhInstancesPath, &bindEipOpt)
 	if err != nil {
-		return err
+		return fmt.Errorf("error bind EIP to CBH instance: %s", err)
 	}
 	bindEipRespBody, err := utils.FlattenResponse(bindEipResp)
 	if err != nil {
@@ -964,15 +657,11 @@ func bindEip(d *schema.ResourceData, config *config.Config, region, product, pub
 	return nil
 }
 
-func unbindEip(d *schema.ResourceData, config *config.Config, region, product, publicipId, publicEip,
+func unbindEip(d *schema.ResourceData, client *golangsdk.ServiceClient, publicIpId, publicIp,
 	httpUrl string) error {
-	updateInstanceClient, err := config.NewServiceClient(product, region)
-	if err != nil {
-		return err
-	}
 
-	getCbhInstancesPath := updateInstanceClient.Endpoint + httpUrl
-	getCbhInstancesPath = strings.ReplaceAll(getCbhInstancesPath, "{project_id}", updateInstanceClient.ProjectID)
+	getCbhInstancesPath := client.Endpoint + httpUrl
+	getCbhInstancesPath = strings.ReplaceAll(getCbhInstancesPath, "{project_id}", client.ProjectID)
 	getCbhInstancesPath = strings.ReplaceAll(getCbhInstancesPath, "{server_id}", d.Id())
 
 	unbindEipOpt := golangsdk.RequestOpts{
@@ -981,8 +670,8 @@ func unbindEip(d *schema.ResourceData, config *config.Config, region, product, p
 			200,
 		},
 	}
-	unbindEipOpt.JSONBody = utils.RemoveNil(buildUpdateEipBodyParams(publicipId, publicEip))
-	unbindEipResp, err := updateInstanceClient.Request("POST", getCbhInstancesPath, &unbindEipOpt)
+	unbindEipOpt.JSONBody = utils.RemoveNil(buildUpdateEipBodyParams(publicIpId, publicIp))
+	unbindEipResp, err := client.Request("POST", getCbhInstancesPath, &unbindEipOpt)
 	if err != nil {
 		return fmt.Errorf("error unbind EIP from CBH instance: %s", err)
 	}
@@ -997,36 +686,9 @@ func unbindEip(d *schema.ResourceData, config *config.Config, region, product, p
 	return nil
 }
 
-func updateNetwork(d *schema.ResourceData, config *config.Config, region, product, httpUrl string) error {
-	updateInstanceClient, err := config.NewServiceClient(product, region)
-	if err != nil {
-		return err
-	}
-
-	updateNetworkPath := updateInstanceClient.Endpoint + httpUrl
-	updateNetworkPath = strings.ReplaceAll(updateNetworkPath, "{project_id}", updateInstanceClient.ProjectID)
-	updateNetworkPath = strings.ReplaceAll(updateNetworkPath, "{server_id}", d.Id())
-
-	updateNetworkOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	updateNetworkOpt.JSONBody = utils.RemoveNil(buildUpdateNetworkBodyParams(d, config))
-	_, err = updateInstanceClient.Request("POST", updateNetworkPath, &updateNetworkOpt)
-
-	return err
-}
-
-func updatePassword(d *schema.ResourceData, config *config.Config, region, product, httpUrl string) error {
-	updateInstanceClient, err := config.NewServiceClient(product, region)
-	if err != nil {
-		return err
-	}
-
-	updatePasswordPath := updateInstanceClient.Endpoint + httpUrl
-	updatePasswordPath = strings.ReplaceAll(updatePasswordPath, "{project_id}", updateInstanceClient.ProjectID)
+func updatePassword(d *schema.ResourceData, client *golangsdk.ServiceClient, httpUrl string) error {
+	updatePasswordPath := client.Endpoint + httpUrl
+	updatePasswordPath = strings.ReplaceAll(updatePasswordPath, "{project_id}", client.ProjectID)
 
 	updatePasswordOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -1034,8 +696,8 @@ func updatePassword(d *schema.ResourceData, config *config.Config, region, produ
 			200,
 		},
 	}
-	updatePasswordOpt.JSONBody = utils.RemoveNil(buildUpdateAdminPasswordParams(d, config))
-	updatePasswordResp, err := updateInstanceClient.Request("PUT", updatePasswordPath, &updatePasswordOpt)
+	updatePasswordOpt.JSONBody = utils.RemoveNil(buildUpdateAdminPasswordParams(d))
+	updatePasswordResp, err := client.Request("PUT", updatePasswordPath, &updatePasswordOpt)
 	if err != nil {
 		return fmt.Errorf("error update CBH instance password: %s", err)
 	}
@@ -1051,15 +713,15 @@ func updatePassword(d *schema.ResourceData, config *config.Config, region, produ
 	return nil
 }
 
-func buildUpdateEipBodyParams(publicipId, publicEip string) map[string]interface{} {
+func buildUpdateEipBodyParams(publicIpId, publicEip string) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"publicip_id": publicipId,
+		"publicip_id": publicIpId,
 		"public_eip":  publicEip,
 	}
 	return bodyParams
 }
 
-func buildUpdateAdminPasswordParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildUpdateAdminPasswordParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"new_password": utils.ValueIngoreEmpty(d.Get("password")),
 		"server_id":    d.Id(),
@@ -1067,101 +729,98 @@ func buildUpdateAdminPasswordParams(d *schema.ResourceData, config *config.Confi
 	return bodyParams
 }
 
-func buildUpdateNetworkBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
-	bodyParams := map[string]interface{}{
-		"type":            utils.ValueIngoreEmpty(d.Get("network_type")),
-		"nics":            buildUpdateInstanceNicsChildBody(d),
-		"security_groups": buildUpdateInstanceSecurityGroupsChildBody(d),
-	}
-	return bodyParams
-}
+func resourceCBHInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
-func buildUpdateInstanceNicsChildBody(d *schema.ResourceData) interface{} {
-	return []map[string]interface{}{
-		{
-			"subnet_id":  utils.ValueIngoreEmpty(d.Get("subnet_id").(string)),
-			"ip_address": utils.ValueIngoreEmpty(d.Get("ip_address").(string)),
-		},
-	}
-}
+	var (
+		getCbhInstanceProduct = "cbh"
+	)
 
-func buildUpdateInstanceSecurityGroupsChildBody(d *schema.ResourceData) interface{} {
-	return []map[string]interface{}{
-		{
-			"security_group_id": utils.ValueIngoreEmpty(d.Get("security_group_id")),
-		},
+	getCbhInstanceClient, err := cfg.NewServiceClient(getCbhInstanceProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating CBH Client: %s", err)
 	}
-}
-
-func resourceCBHInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
 
 	var mErr *multierror.Error
-
-	instances, err := getInstanceList(d, config, region)
+	instances, err := getInstanceList(getCbhInstanceClient)
 	if err != nil {
-		return diag.Errorf("%s", err)
+		return diag.FromErr(err)
 	}
-	for _, v := range instances {
+	if len(instances) == 0 {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+	}
+	for index, v := range instances {
 		instance := v.(map[string]interface{})
-		if instance["instance_id"].(string) == d.Id() {
-			mErr = multierror.Append(
-				mErr,
-				d.Set("region", region),
-				d.Set("publicip_id", instance["publicip_id"]),
-				d.Set("exp_time", instance["exp_time"]),
-				d.Set("start_time", instance["start_time"]),
-				d.Set("end_time", instance["end_time"]),
-				d.Set("release_time", instance["release_time"]),
-				d.Set("name", instance["name"]),
-				d.Set("instance_id", instance["instance_id"]),
-				d.Set("private_ip", instance["private_ip"]),
-				d.Set("task_status", instance["task_status"]),
-				d.Set("status", instance["status"]),
-				d.Set("vpc_id", instance["vpc_id"]),
-				d.Set("subnet_id", instance["subnet_id"]),
-				d.Set("security_group_id", instance["security_group_id"]),
-				d.Set("flavor_id", instance["flavor_id"]),
-				d.Set("update", instance["update"]),
-				d.Set("instance_key", instance["instance_key"]),
-				d.Set("resource_id", instance["resource_id"]),
-				d.Set("bastion_type", instance["bastion_type"]),
-				d.Set("alter_permit", instance["alter_permit"]),
-				d.Set("bastion_version", instance["bastion_version"]),
-				d.Set("new_bastion_version", instance["new_bastion_version"]),
-				d.Set("instance_status", instance["instance_status"]),
-				d.Set("description", instance["description"]),
-				d.Set("auto_renew", instance["auto_renew"]),
-			)
-			break
+		if instance["instanceId"].(string) != d.Id() {
+			if index == len(instances)-1 {
+				return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+			}
+			continue
 		}
+		publicIpId := instance["publicId"]
+		var publicIp string
+		if publicIpId != nil && strings.TrimSpace(publicIpId.(string)) != "" {
+			publicIp, err = getPublicAddressById(d, cfg, strings.TrimSpace(publicIpId.(string)))
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+		mErr = multierror.Append(
+			mErr,
+			d.Set("region", region),
+			d.Set("public_ip_id", publicIpId),
+			d.Set("public_ip", publicIp),
+			d.Set("name", instance["name"]),
+			d.Set("private_ip", instance["privateIp"]),
+			d.Set("status", instance["status"]),
+			d.Set("vpc_id", instance["vpcId"]),
+			d.Set("subnet_id", instance["subnetId"]),
+			d.Set("security_group_id", instance["securityGroupId"]),
+			d.Set("flavor_id", instance["specification"]),
+			d.Set("availability_zone", instance["zone"]),
+			d.Set("version", instance["bastionVersion"]),
+		)
+		break
 	}
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
+func getPublicAddressById(d *schema.ResourceData, cfg *config.Config, publicIpId string) (string, error) {
+	region := cfg.GetRegion(d)
+	networkingClient, err := cfg.NetworkingV1Client(region)
+	if err != nil {
+		return "", fmt.Errorf("error creating VPC v1 client: %s", err)
+	}
+	publicIp, err := eips.Get(networkingClient, publicIpId).Extract()
+	if err != nil {
+		return "", fmt.Errorf("error get public IP by public IP ID %s, err: %s", publicIpId, err)
+	}
+	return publicIp.PublicAddress, nil
+}
+
 func resourceCBHInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var (
 		getCbhInstancesProduct = "cbh"
 	)
 
-	getCbhInstancesClient, err := config.NewServiceClient(getCbhInstancesProduct, region)
+	getCbhInstanceClient, err := cfg.NewServiceClient(getCbhInstancesProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CBH Client: %s", err)
 	}
 
 	id := d.Id()
-	resourceId, err := getResourceIdByInstanceId(d, config, region, id)
+	resourceId, err := getResourceIdByInstanceId(getCbhInstanceClient, id)
 	if err != nil {
 		return diag.Errorf("%s", err)
 	}
 
 	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
-		if err = common.UnsubscribePrePaidResource(d, config, []string{resourceId}); err != nil {
+		if err = common.UnsubscribePrePaidResource(d, cfg, []string{resourceId}); err != nil {
 			return diag.Errorf("error unsubscribe CBH instance: %s", err)
 		}
 	} else {
@@ -1171,10 +830,10 @@ func resourceCBHInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"ACTIVE", "DELETING"},
 		Target:     []string{"DELETED"},
-		Refresh:    CbhInstanceStateRefreshFunc(getCbhInstancesClient, d.Id()),
+		Refresh:    cbhInstanceStateRefreshFunc(getCbhInstanceClient, id),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Delay:      30 * time.Second,
+		MinTimeout: 10 * time.Second,
 	}
 
 	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
@@ -1185,21 +844,21 @@ func resourceCBHInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func getResourceIdByInstanceId(d *schema.ResourceData, config *config.Config, region, instanceId string) (string, error) {
-	instances, err := getInstanceList(d, config, region)
+func getResourceIdByInstanceId(client *golangsdk.ServiceClient, instanceId string) (string, error) {
+	instances, err := getInstanceList(client)
 	if err != nil {
 		return "", err
 	}
 	for _, v := range instances {
 		instance := v.(map[string]interface{})
-		if instance["instance_id"].(string) == instanceId {
-			return instance["resource_id"].(string), nil
+		if instance["instanceId"].(string) == instanceId {
+			return instance["resourceId"].(string), nil
 		}
 	}
 	return "", fmt.Errorf("error get resource_id by instance_id: %s", instanceId)
 }
 
-func CbhInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func cbhInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getCbhInstancesPath := client.Endpoint + "v1/{project_id}/cbs/instance/list"
 		getCbhInstancesPath = strings.ReplaceAll(getCbhInstancesPath, "{project_id}", client.ProjectID)
@@ -1210,7 +869,6 @@ func CbhInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID str
 			},
 		}
 		v, err := client.Request("GET", getCbhInstancesPath, &getRocketmqInstanceOpt)
-
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				return v, "DELETED", nil
@@ -1221,10 +879,10 @@ func CbhInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID str
 		if err != nil {
 			return nil, "", err
 		}
-		instances := flattenGetInstancesResponseBodyInstance(respBody)
+		instances := utils.PathSearch("instance", respBody, make([]interface{}, 0)).([]interface{})
 		for _, value := range instances {
 			instance := value.(map[string]interface{})
-			if instance["instance_id"].(string) == instanceID {
+			if instance["instanceId"].(string) == instanceID {
 				return instance, instance["status"].(string), nil
 			}
 		}
