@@ -769,8 +769,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_dns_recordset":   dns.ResourceDNSRecordset(),
 			"huaweicloud_dns_zone":        dns.ResourceDNSZone(),
 
-			"huaweicloud_drs_job":     drs.ResourceDrsJob(),
-			"huaweicloud_dws_cluster": dws.ResourceDwsCluster(),
+			"huaweicloud_drs_job":             drs.ResourceDrsJob(),
+			"huaweicloud_dws_cluster":         dws.ResourceDwsCluster(),
+			"huaweicloud_dws_snapshot_policy": dws.ResourceDwsSnapshotPolicy(),
 
 			"huaweicloud_elb_certificate":     elb.ResourceCertificateV3(),
 			"huaweicloud_elb_l7policy":        elb.ResourceL7PolicyV3(),
@@ -871,10 +872,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_lb_pool":         lb.ResourcePoolV2(),
 			"huaweicloud_lb_whitelist":    lb.ResourceWhitelistV2(),
 
-			"huaweicloud_live_domain":          live.ResourceDomain(),
-			"huaweicloud_live_recording":       live.ResourceRecording(),
-			"huaweicloud_live_record_callback": live.ResourceRecordCallback(),
-			"huaweicloud_live_transcoding":     live.ResourceTranscoding(),
+			"huaweicloud_live_domain":               live.ResourceDomain(),
+			"huaweicloud_live_recording":            live.ResourceRecording(),
+			"huaweicloud_live_record_callback":      live.ResourceRecordCallback(),
+			"huaweicloud_live_transcoding":          live.ResourceTranscoding(),
+			"huaweicloud_live_bucket_authorization": live.ResourceLiveBucketAuthorization(),
 
 			"huaweicloud_lts_group":  ResourceLTSGroupV2(),
 			"huaweicloud_lts_stream": ResourceLTSStreamV2(),

@@ -246,6 +246,7 @@ resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
     value               = 3600
     unit                = "bit/s"
     count               = 2
+    suppress_duration   = 300
   }
 
   alarm_actions {
