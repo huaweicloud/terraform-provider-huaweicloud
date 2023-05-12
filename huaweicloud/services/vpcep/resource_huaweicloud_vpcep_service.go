@@ -106,6 +106,11 @@ func ResourceVPCEndpointService() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"service_name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -132,6 +137,10 @@ func ResourceVPCEndpointService() *schema.Resource {
 							Computed: true,
 						},
 						"status": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"description": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -191,6 +200,7 @@ func resourceVPCEndpointServiceCreate(ctx context.Context, d *schema.ResourceDat
 		ServerType:  d.Get("server_type").(string),
 		ServiceName: d.Get("name").(string),
 		ServiceType: d.Get("service_type").(string),
+		Description: d.Get("description").(string),
 		Approval:    &approval,
 		Ports:       expandPortMappingOpts(d),
 	}
@@ -260,6 +270,7 @@ func resourceVPCEndpointServiceRead(_ context.Context, d *schema.ResourceData, m
 	d.Set("approval", n.Approval)
 	d.Set("server_type", n.ServerType)
 	d.Set("service_type", n.ServiceType)
+	d.Set("description", n.Description)
 
 	ports := make([]map[string]interface{}, len(n.Ports))
 	for i, v := range n.Ports {
@@ -298,9 +309,10 @@ func resourceVPCEndpointServiceUpdate(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
 
-	if d.HasChanges("name", "approval", "port_id", "port_mapping") {
+	if d.HasChanges("name", "approval", "port_id", "port_mapping", "description") {
 		updateOpts := services.UpdateOpts{
 			ServiceName: d.Get("name").(string),
+			Description: utils.String(d.Get("description").(string)),
 		}
 
 		if d.HasChange("approval") {
@@ -395,6 +407,7 @@ func flattenVPCEndpointConnections(client *golangsdk.ServiceClient, id string) (
 			"packet_id":   v.MarkerID,
 			"domain_id":   v.DomainID,
 			"status":      v.Status,
+			"description": v.Description,
 		}
 	}
 

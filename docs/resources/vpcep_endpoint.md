@@ -49,10 +49,11 @@ resource "huaweicloud_vpcep_service" "demo" {
 }
 
 resource "huaweicloud_vpcep_endpoint" "demo" {
-  service_id = huaweicloud_vpcep_service.demo.id
-  vpc_id     = var.vpc_id
-  network_id = var.network_id
-  enable_dns = true
+  service_id  = huaweicloud_vpcep_service.demo.id
+  vpc_id      = var.vpc_id
+  network_id  = var.network_id
+  enable_dns  = true
+  description = "test description"
 }
 ```
 
@@ -83,6 +84,10 @@ The following arguments are supported:
 
 * `whitelist` - (Optional, List, ForceNew) Specifies the list of IP address or CIDR block which can be accessed to the
   VPC endpoint. Changing this creates a new VPC endpoint.
+
+* `description` - (Optional, String, ForceNew) Specifies the description of the VPC endpoint.
+
+  Changing this creates a new VPC endpoint.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the VPC endpoint.
 

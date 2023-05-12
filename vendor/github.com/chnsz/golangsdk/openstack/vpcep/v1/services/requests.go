@@ -36,6 +36,8 @@ type CreateOpts struct {
 	TCPProxy string `json:"tcp_proxy,omitempty"`
 	// Specifies the resource tags in key/value format
 	Tags []tags.ResourceTag `json:"tags,omitempty"`
+	// Specifies the description
+	Description string `json:"description,omitempty"`
 }
 
 // PortOpts contains the port mappings opened to the VPC endpoint service.
@@ -90,6 +92,8 @@ type UpdateOpts struct {
 	Ports []PortOpts `json:"ports,omitempty"`
 	// Specifies the ID of the virtual NIC to which the virtual IP address is bound.
 	VipPortID string `json:"vip_port_id,omitempty"`
+	// Specifies the description
+	Description *string `json:"description,omitempty"`
 }
 
 // ToServiceUpdateMap builds an update body based on UpdateOpts.

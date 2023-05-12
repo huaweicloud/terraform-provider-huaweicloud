@@ -37,6 +37,8 @@ type Service struct {
 	Tags []tags.ResourceTag `json:"tags"`
 	// the error message when the status of the VPC endpoint service changes to failed
 	Error []ErrorInfo `json:"error"`
+	// the description of the VPC endpoint service
+	Description string `json:"description"`
 	// the creation time of the VPC endpoint service
 	Created string `json:"created_at"`
 	// the update time of the VPC endpoint service
@@ -163,6 +165,8 @@ type Connection struct {
 	Updated string `json:"updated_at"`
 	// the error message when the status of the VPC endpoint service changes to failed
 	Error []ErrorInfo `json:"error"`
+	// the description of endpoint service connection
+	Description string `json:"description"`
 }
 
 // ConnectionResult represents the result of a list connections.

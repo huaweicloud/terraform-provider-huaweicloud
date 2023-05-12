@@ -34,6 +34,7 @@ func TestAccVPCEndpoint_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "accepted"),
 					resource.TestCheckResourceAttr(resourceName, "enable_dns", "true"),
 					resource.TestCheckResourceAttr(resourceName, "service_type", "interface"),
+					resource.TestCheckResourceAttr(resourceName, "description", "test description"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "tf-acc"),
 					resource.TestCheckResourceAttrSet(resourceName, "service_name"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_domain_name"),
@@ -143,6 +144,7 @@ resource "huaweicloud_vpcep_endpoint" "test" {
   vpc_id      = data.huaweicloud_vpc.myvpc.id
   network_id  = data.huaweicloud_vpc_subnet.test.id
   enable_dns  = true
+  description = "test description"
 
   tags = {
     owner = "tf-acc"
@@ -176,6 +178,7 @@ resource "huaweicloud_vpcep_endpoint" "test" {
   vpc_id      = data.huaweicloud_vpc.myvpc.id
   network_id  = data.huaweicloud_vpc_subnet.test.id
   enable_dns  = true
+  description = "test description"
 
   tags = {
     owner = "tf-acc-update"
