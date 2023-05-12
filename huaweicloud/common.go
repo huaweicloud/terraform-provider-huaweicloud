@@ -58,11 +58,6 @@ func checkForRetryableError(err error) *resource.RetryError {
 	}
 }
 
-func hasFilledOpt(d *schema.ResourceData, param string) bool {
-	_, b := d.GetOk(param)
-	return b
-}
-
 // UnsubscribePrePaidResource impl the action of unsubscribe resource
 func UnsubscribePrePaidResource(d *schema.ResourceData, config *config.Config, resourceIDs []string) error {
 	bssV2Client, err := config.BssV2Client(GetRegion(d, config))

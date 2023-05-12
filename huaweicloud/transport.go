@@ -87,20 +87,6 @@ func replaceVarsForTest(rs *terraform.ResourceState, linkTmpl string) (string, e
 	return strings.Replace(s, "replace_holder/", "", 1), nil
 }
 
-func navigateMap(d interface{}, index []string) (interface{}, error) {
-	for _, i := range index {
-		d1, ok := d.(map[string]interface{})
-		if !ok {
-			return nil, fmt.Errorf("navigateMap:: Can not convert to map")
-		}
-		d, ok = d1[i]
-		if !ok {
-			return nil, fmt.Errorf("navigateMap:: '%s' may not exist", i)
-		}
-	}
-	return d, nil
-}
-
 func navigateValue(d interface{}, index []string, arrayIndex map[string]int) (interface{}, error) {
 	for n, i := range index {
 		if d == nil {
