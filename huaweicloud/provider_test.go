@@ -12,6 +12,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
+//nolint:revive
 var (
 	HW_AVAILABILITY_ZONE          = os.Getenv("HW_AVAILABILITY_ZONE")
 	HW_DEPRECATED_ENVIRONMENT     = os.Getenv("HW_DEPRECATED_ENVIRONMENT")
