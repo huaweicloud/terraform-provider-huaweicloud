@@ -156,7 +156,9 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the cluster description.
 
-* `container_network_cidr` - (Optional, String, ForceNew) Specifies the container network segment.
+* `container_network_cidr` - (Optional, String, ForceNew) Specifies the container network segments.
+  In clusters of v1.21 and later, when the `container_network_type` is **vpc-router**, you can add multiple container
+  segments, separated with comma (,). In other situations, only the first segment takes effect.
   Changing this parameter will create a new cluster resource.
 
 * `service_network_cidr` - (Optional, String, ForceNew) Specifies the service network segment.
