@@ -11,11 +11,8 @@
               },
               "delegated_domain_name": {
                 "type": "string",
-                "optional": true
-              },
-              "delegated_service_name": {
-                "type": "string",
-                "optional": true
+                "description": "schema: Required",
+                "required": true
               },
               "description": {
                 "type": "string",

@@ -11,10 +11,10 @@ paths:
   /v1/{project_id}/waf/policy/{id}:
     delete:
       tag: WAF
-      operationId: Delete
+      operationId: DeleteWithEpsID
     get:
       tag: WAF
-      operationId: Get
+      operationId: GetWithEpsID
     patch:
       tag: WAF
       operationId: Update

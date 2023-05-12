@@ -34,4 +34,4 @@ In addition to all arguments above, the following attributes are exported:
 
 * `cidr` - Indicates the IP address range for the VPC.
 * `mode` - Indicates the mode of the IEC VPC. Possible values are *SYSTEM* and *CUSTOMER*.
-* `subent_num` - Indicates the number of subents.
+* `subnet_num` - Indicates the number of subnets.

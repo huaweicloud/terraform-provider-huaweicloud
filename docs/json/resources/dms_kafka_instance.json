@@ -19,8 +19,8 @@
                   "set",
                   "string"
                 ],
-                "optional": true,
-                "computed": true,
+                "description": "schema: Required",
+                "required": true,
                 "forcenew": true
               },
               "broker_num": {

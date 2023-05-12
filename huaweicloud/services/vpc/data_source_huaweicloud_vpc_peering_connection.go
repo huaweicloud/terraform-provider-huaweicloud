@@ -4,9 +4,12 @@ import (
 	"context"
 	"log"
 
-	"github.com/chnsz/golangsdk/openstack/networking/v2/peerings"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk/openstack/networking/v2/peerings"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -52,15 +55,20 @@ func DataSourceVpcPeeringConnectionV2() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
 
 func dataSourceVpcPeeringConnectionV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	peeringClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	peeringClient, err := cfg.NetworkingV2Client(region)
 	if err != nil {
-		return diag.Errorf("error creating Vpc client: %s", err)
+		return diag.Errorf("error creating VPC Peering Connection client: %s", err)
 	}
 
 	listOpts := peerings.ListOpts{
@@ -74,7 +82,7 @@ func dataSourceVpcPeeringConnectionV2Read(_ context.Context, d *schema.ResourceD
 
 	refinedPeering, err := peerings.List(peeringClient, listOpts)
 	if err != nil {
-		return diag.Errorf("unable to retrieve vpc peering connections: %s", err)
+		return diag.Errorf("unable to retrieve VPC Peering Connections: %s", err)
 	}
 
 	if len(refinedPeering) < 1 {
@@ -83,22 +91,24 @@ func dataSourceVpcPeeringConnectionV2Read(_ context.Context, d *schema.ResourceD
 	}
 
 	if len(refinedPeering) > 1 {
-		return diag.Errorf("multiple VPC peering connections matched." +
-			" Use additional constraints to reduce matches to a single VPC peering connection")
+		return diag.Errorf("multiple VPC Peering Connections matched." +
+			" Use additional constraints to reduce matches to a single VPC Peering Connection")
 	}
 
-	Peering := refinedPeering[0]
+	item := refinedPeering[0]
 
-	log.Printf("[INFO] Retrieved Vpc peering Connections using given filter %s: %+v", Peering.ID, Peering)
-	d.SetId(Peering.ID)
+	log.Printf("[INFO] Retrieved Vpc peering Connections using given filter %s: %+v", item.ID, item)
+	d.SetId(item.ID)
 
-	d.Set("id", Peering.ID)
-	d.Set("name", Peering.Name)
-	d.Set("status", Peering.Status)
-	d.Set("vpc_id", Peering.RequestVpcInfo.VpcId)
-	d.Set("peer_vpc_id", Peering.AcceptVpcInfo.VpcId)
-	d.Set("peer_tenant_id", Peering.AcceptVpcInfo.TenantId)
-	d.Set("region", config.GetRegion(d))
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("name", item.Name),
+		d.Set("status", item.Status),
+		d.Set("description", item.Description),
+		d.Set("vpc_id", item.RequestVpcInfo.VpcId),
+		d.Set("peer_vpc_id", item.AcceptVpcInfo.VpcId),
+		d.Set("peer_tenant_id", item.AcceptVpcInfo.TenantId),
+	)
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }

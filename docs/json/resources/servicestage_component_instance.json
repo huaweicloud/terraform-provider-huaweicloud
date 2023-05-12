@@ -174,7 +174,8 @@
                                           "list",
                                           "string"
                                         ],
-                                        "required": true
+                                        "optional": true,
+                                        "computed": true
                                       },
                                       "host": {
                                         "type": "string",
@@ -183,11 +184,13 @@
                                       },
                                       "path": {
                                         "type": "string",
-                                        "required": true
+                                        "optional": true,
+                                        "computed": true
                                       },
                                       "port": {
                                         "type": "number",
-                                        "required": true
+                                        "optional": true,
+                                        "computed": true
                                       }
                                     }
                                   },
@@ -217,7 +220,8 @@
                                           "list",
                                           "string"
                                         ],
-                                        "required": true
+                                        "optional": true,
+                                        "computed": true
                                       },
                                       "host": {
                                         "type": "string",
@@ -226,11 +230,13 @@
                                       },
                                       "path": {
                                         "type": "string",
-                                        "required": true
+                                        "optional": true,
+                                        "computed": true
                                       },
                                       "port": {
                                         "type": "number",
-                                        "required": true
+                                        "optional": true,
+                                        "computed": true
                                       }
                                     }
                                   },

@@ -1,0 +1,42 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dli_agency": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "roles": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "The list of roles.",
+                "required": true
+              },
+              "version": {
+                "type": "string",
+                "description": "Agency version information.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Analytics",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

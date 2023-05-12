@@ -95,7 +95,7 @@ func TestAccDmsRocketMQTopic_basic(t *testing.T) {
 				ResourceName:            rName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_id"},
+				ImportStateVerifyIgnore: []string{"instance_id", "queue_num"},
 			},
 		},
 	})
@@ -133,6 +133,7 @@ func testDmsRocketMQTopic_basic(name string) string {
 resource "huaweicloud_dms_rocketmq_topic" "test" {
   instance_id = huaweicloud_dms_rocketmq_instance.test.id
   name        = "%s"
+  queue_num   = 3
 
   brokers {
     name = "broker-0"

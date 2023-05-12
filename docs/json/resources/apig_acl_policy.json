@@ -1,0 +1,62 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_acl_policy": {
+          "block": {
+            "attributes": {
+              "entity_type": {
+                "type": "string",
+                "description": "The entity type of the ACL policy.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the ACL policy belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the ACL policy.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the ACL policy is located.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the ACL policy.",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the ACL policy.",
+                "computed": true
+              },
+              "value": {
+                "type": "string",
+                "description": "One or more objects from which the access will be controlled.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

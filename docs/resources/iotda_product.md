@@ -160,6 +160,9 @@ The valid values are **int**, **decimal**, **string**, **DateTime**, **jsonObjec
   + **w**: writable.
   + **RW**: readable and writable.
 
+* `method` - (Required, String) Specifies the access mode of the device property.
+  Options: **RW**, **W**, **R**.
+
 * `description` - (Optional, String) Specifies the description of the parameter. The description contains a maximum of
 128 characters. Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following special
 characters are allowed: `?'#().,&%@!`.
@@ -178,6 +181,8 @@ The unit contains a maximum of 16 characters.
 
 * `max_length` - (Optional, Int) Specifies the max length of the parameter when the `type` is **string**, **DateTime**,
 **jsonObject** or **string list**. Value range: 0 ~ 2147483647. Defaults to **0**.
+
+* `enum_list` - (Optional, List) Specifies the list of enumerated values of the device property.
 
 <a name="IoTDA_service_commands"></a>
 The `commands` block supports:
@@ -220,6 +225,8 @@ The unit contains a maximum of 16 characters.
 
 * `max_length` - (Optional, Int) Specifies the max length of the parameter when the `type` is **string**, **DateTime**,
 **jsonObject** or **string list**. Value range: 0 ~ 2147483647. Defaults to **0**.
+
+* `enum_list` - (Optional, List) Specifies the list of enumerated values of the parameter.
 
 ## Attributes Reference
 

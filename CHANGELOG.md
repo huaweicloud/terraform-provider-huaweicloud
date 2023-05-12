@@ -1,5 +1,100 @@
 # CHANGELOG
 
+## 1.48.0 (April 28, 2023)
+
+* **New Resurce:**
+  + `huaweicloud_images_image_share` [GH-2885]
+  + `huaweicloud_images_image_share_accepter` [GH-2885]
+  + `huaweicloud_apig_acl_policy_associate` [GH-2892]
+  + `huaweicloud_dli_template_sql` [GH-2898]
+  + `huaweicloud_dds_parameter_template` [GH-2899]
+  + `huaweicloud_dds_audit_log_policy` [GH-2900]
+  + `huaweicloud_dcs_backup` [GH-2901]
+  + `huaweicloud_ces_resource_group` [GH-2902]
+  + `huaweicloud_waf_address_group` [GH-2903]
+  + `huaweicloud_as_instance_attach` [GH-2904]
+  + `huaweicloud_ces_alarm_template` [GH-2905]
+  + `huaweicloud_smn_message_template` [GH-2906]
+  + `huaweicloud_dli_template_flink` [GH-2909]
+  + `huaweicloud_dli_template_spark` [GH-2920]
+  + `huaweicloud_dli_global_variable` [GH-2924]
+  + `huaweicloud_oms_migration_task_group` [GH-2928]
+  + `huaweicloud_dli_agency` [GH-2931]
+  + `huaweicloud_apig_signature` [GH-2932]
+  + `huaweicloud_identity_group_role_assignment` [GH-2934]
+  + `huaweicloud_identity_user_role_assignment` [GH-2934]
+  + `huaweicloud_apig_signature_associate` [GH-2942]
+  + `huaweicloud_obs_bucket_acl` [GH-2946]
+  + `huaweicloud_obs_bucket_replication` [GH-2954]
+  + `huaweicloud_swr_image_permissions` [GH-2948]
+  + `huaweicloud_swr_image_trigger` [GH-2949]
+  + `huaweicloud_swr_image_retention_policy` [GH-2950]
+  + `huaweicloud_swr_image_auto_sync` [GH-2951]
+  + `huaweicloud_apig_channel` [GH-2958]
+
+ENHANCEMENTS:
+
+* resource/WAF: Add enterprise_project_id support for all of the WAF resources [GH-2939,GH-2955,GH-2964,GH-2965,GH-2967]
+* resource/huaweicloud_waf_rule_blacklist: Support `name` and `address_group_id` parameters [GH-2910]
+* resource/huaweicloud_gaussdb_opengauss_instance: Support setting `replica_num` to 2 [GH-2936]
+* resource/huaweicloud_dds_instance: Support configuration template [GH-2938]
+* resource/huaweicloud_as_group: Support `agency_name` parameter [GH-2953]
+* resource/huaweicloud_sfs_turbo: Support prePaid charging mode [GH-2961]
+* resource/huaweicloud_rds_instance: Support configuration parameter [GH-2962]
+* resource/huaweicloud_compute_instance: Support updating `agency_name`, `agent_list` and `enterprise_project_id` [GH-2968,GH-2969]
+
+BUG FIXES:
+
+* resource/huaweicloud_cce_node_attach: Fix the issue that `lvm_config` parameter doesn't work [GH-2811]
+* resource/huaweicloud_servicestage_component_instance: Fix the built logic and update param behavior [GH-2915]
+* resource/huaweicloud_dli_queue: Fix the wrong query URI when queue_type is general [GH-2941]
+
+DEPRECATE:
+
+* resource/huaweicloud_compute_keypair [GH-2918]
+* resource/huaweicloud_identity_role_assignment [GH-2934]
+* resource/huaweicloud_apig_vpc_channel` [GH-2958]
+
+## 1.47.1 (April 7, 2023)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_ces_alarmrule: Support `ALL_INSTANCE` alarm type and add new `resources` param [GH-2896]
+* resource/huaweicloud_mapreduce_cluster: Support setting component configurations during cluster creation [GH-2912]
+
+## 1.47.0 (March 31, 2023)
+
+* **New Resurce:**
+  + `huaweicloud_nat_private_dnat_rule` [GH-2817]
+  + `huaweicloud_nat_private_snat_rule` [GH-2821]
+  + `huaweicloud_dli_datasource_connection` [GH-2809]
+  + `huaweicloud_dli_datasource_auth` [GH-2830]
+  + `huaweicloud_dns_custom_line` [GH-2833]
+  + `huaweicloud_images_image_copy` [GH-2836]
+  + `huaweicloud_cfw_address_group` [GH-2832]
+  + `huaweicloud_cfw_address_group_member` [GH-2832]
+  + `huaweicloud_cfw_service_group` [GH-2841]
+  + `huaweicloud_cfw_service_group_member` [GH-2841]
+  + `huaweicloud_cfw_black_white_list` [GH-2846]
+  + `huaweicloud_apig_acl_policy` [GH-2859]
+  + `huaweicloud_fgs_async_invoke_configuration` [GH-2875]
+  + `huaweicloud_apig_instance_routes` [GH-2879]
+
+* **New Data Source:**
+  + `huaweicloud_ddm_schemas` [GH-2793]
+  + `huaweicloud_ddm_accounts` [GH-2823]
+  + `huaweicloud_dms_rabbitmq_flavors` [GH-2834]
+  + `huaweicloud_modelarts_notebook_flavors` [GH-2842]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_as_group: Add `source_dest_check` parameter [GH-2827]
+* resource/huaweicloud_dns_recordset: Support multi-line record set configuration [GH-2825]
+* resource/huaweicloud_cse_microservice_engine: Add `enterprise_project_id` field [GH-2835]
+* resource/huaweicloud_ddm_instance: Support updating `auto_renew` parameter [GH-2853]
+* data/huaweicloud_networking_secgroups: Support filter security groups by id [GH-2850]
+* data/huaweicloud_cfw_firewalls: Support filter CFW instances by id [GH-2871]
+
 ## 1.46.0 (March 17, 2023)
 
 * **New Resurce:**

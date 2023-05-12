@@ -10,6 +10,7 @@ import (
 	"math/big"
 	"net/http"
 	"os"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -458,4 +459,48 @@ func FlattenResponse(resp *http.Response) (interface{}, error) {
 		return nil, err
 	}
 	return respBody, nil
+}
+
+// Reverse is a function that used to reverse the order of the characters in the given string.
+func Reverse(s string) string {
+	bs := []byte(s)
+	for left, right := 0, len(s)-1; left < right; left++ {
+		bs[left], bs[right] = bs[right], bs[left]
+		right--
+	}
+	return string(bs)
+}
+
+func jsonBytesEqual(b1, b2 []byte) bool {
+	var o1 interface{}
+	if err := json.Unmarshal(b1, &o1); err != nil {
+		return false
+	}
+
+	var o2 interface{}
+	if err := json.Unmarshal(b2, &o2); err != nil {
+		return false
+	}
+
+	return reflect.DeepEqual(o1, o2)
+}
+
+// JSONStringsEqual is the function for comparing the contents of two json strings regardless of their formatting.
+// Tabs (\r \n \t) and the order of elements are not included in the comparison.
+// These json strings are same:
+// + "{\n\"key1\":\"value1\",\n\"key2\":\"value2\"\n}"
+// + "{\"key1\":\"value1\",\"key2\":\"value2\"}"
+// + "{\"key2\":\"value2\",\"key1\":\"value1\"}"
+func JSONStringsEqual(s1, s2 string) bool {
+	b1 := bytes.NewBufferString("")
+	if err := json.Compact(b1, []byte(s1)); err != nil {
+		return false
+	}
+
+	b2 := bytes.NewBufferString("")
+	if err := json.Compact(b2, []byte(s2)); err != nil {
+		return false
+	}
+
+	return jsonBytesEqual(b1.Bytes(), b2.Bytes())
 }

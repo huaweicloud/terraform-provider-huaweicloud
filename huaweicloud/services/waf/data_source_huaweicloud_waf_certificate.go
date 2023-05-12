@@ -3,13 +3,14 @@ package waf
 import (
 	"time"
 
-	"github.com/chnsz/golangsdk/openstack/waf/v1/certificates"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk/openstack/waf/v1/certificates"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 const (
@@ -46,6 +47,10 @@ func DataSourceWafCertificateV1() *schema.Resource {
 					EXP_STATUS_NOT_EXPIRED, EXP_STATUS_EXPIRED, EXP_STATUS_EXPIRED_SOON,
 				}),
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"expiration": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -63,10 +68,11 @@ func dataSourceWafCertificateV1Read(d *schema.ResourceData, meta interface{}) er
 
 	expStatus := d.Get("expire_status").(int)
 	listOpts := certificates.ListOpts{
-		Page:      DEFAULT_PAGE_NUM,
-		Pagesize:  DEFAULT_PAGE_SIZE,
-		Name:      d.Get("name").(string),
-		ExpStatus: &expStatus,
+		Page:                DEFAULT_PAGE_NUM,
+		Pagesize:            DEFAULT_PAGE_SIZE,
+		Name:                d.Get("name").(string),
+		ExpStatus:           &expStatus,
+		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
 	}
 
 	page, err := certificates.List(wafClient, listOpts).AllPages()

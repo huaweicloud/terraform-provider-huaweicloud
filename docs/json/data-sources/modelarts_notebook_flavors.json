@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelarts_notebook_flavors": {
+          "block": {
+            "attributes": {
+              "category": {
+                "type": "string",
+                "description": "Processor type. The valid values are: **CPU**, **GPU**, **ASCEND**.",
+                "optional": true
+              },
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "arch": "string",
+                      "billing": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "code": "string",
+                            "unit_num": "number"
+                          }
+                        ]
+                      ],
+                      "category": "string",
+                      "description": "string",
+                      "feature": "string",
+                      "free": "bool",
+                      "gpu": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "gpu": "number",
+                            "gpu_memory": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "memory": "number",
+                      "name": "string",
+                      "sold_out": "bool",
+                      "vcpus": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of flavors.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Cluster type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

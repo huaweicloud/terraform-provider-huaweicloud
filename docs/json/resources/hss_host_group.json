@@ -16,8 +16,8 @@
                   "set",
                   "string"
                 ],
-                "description": "The list of host IDs.",
-                "optional": true
+                "description": "schema: Required; The list of host IDs.",
+                "required": true
               },
               "host_num": {
                 "type": "number",
@@ -49,7 +49,7 @@
                   "string"
                 ],
                 "description": "The ID list of the unprotect hosts.",
-                "optional": true
+                "computed": true
               },
               "unprotect_host_num": {
                 "type": "number",

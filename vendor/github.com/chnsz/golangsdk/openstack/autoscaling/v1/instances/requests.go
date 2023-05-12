@@ -5,8 +5,8 @@ import (
 	"github.com/chnsz/golangsdk/pagination"
 )
 
-//ListOptsBuilder is an interface by which can be able to build the query string
-//of the list function
+// ListOptsBuilder is an interface by which can be able to build the query string
+// of the list function
 type ListOptsBuilder interface {
 	ToInstancesListQuery() (string, error)
 }
@@ -21,8 +21,8 @@ func (opts ListOpts) ToInstancesListQuery() (string, error) {
 	return q.String(), err
 }
 
-//List is a method by which can be able to access the list function that can get
-//instances of a group
+// List is a method by which can be able to access the list function that can get
+// instances of a group
 func List(client *golangsdk.ServiceClient, groupID string, opts ListOptsBuilder) pagination.Pager {
 	url := listURL(client, groupID)
 	if opts != nil {
@@ -37,8 +37,8 @@ func List(client *golangsdk.ServiceClient, groupID string, opts ListOptsBuilder)
 	})
 }
 
-//DeleteOptsBuilder is an interface by whick can be able to build the query string
-//of instance deletion
+// DeleteOptsBuilder is an interface by whick can be able to build the query string
+// of instance deletion
 type DeleteOptsBuilder interface {
 	ToInstanceDeleteQuery() (string, error)
 }
@@ -52,7 +52,7 @@ func (opts DeleteOpts) ToInstanceDeleteQuery() (string, error) {
 	return q.String(), err
 }
 
-//Delete is a method by which can be able to delete an instance from a group
+// Delete is a method by which can be able to delete an instance from a group
 func Delete(client *golangsdk.ServiceClient, id string, opts DeleteOptsBuilder) (r DeleteResult) {
 	url := deleteURL(client, id)
 	if opts != nil {
@@ -67,24 +67,25 @@ func Delete(client *golangsdk.ServiceClient, id string, opts DeleteOptsBuilder) 
 	return
 }
 
-//BatchOptsBuilder is an interface which can build the query body of batch operation
+// BatchOptsBuilder is an interface which can build the query body of batch operation
 type BatchOptsBuilder interface {
 	ToInstanceBatchMap() (map[string]interface{}, error)
 }
 
-//BatchOpts is a struct which represents parameters of batch operations
+// BatchOpts is a struct which represents parameters of batch operations
 type BatchOpts struct {
+	Action      string   `json:"action" required:"true"`
 	Instances   []string `json:"instances_id" required:"true"`
+	AppendEcs   string   `json:"instance_append,omitempty"`
 	IsDeleteEcs string   `json:"instance_delete,omitempty"`
-	Action      string   `json:"action,omitempty"`
 }
 
 func (opts BatchOpts) ToInstanceBatchMap() (map[string]interface{}, error) {
 	return golangsdk.BuildRequestBody(opts, "")
 }
 
-//batch is method which can be able to add/delete numbers instances
-func batch(client *golangsdk.ServiceClient, groupID string, opts BatchOptsBuilder) (r BatchResult) {
+// BatchAction is method which can be able to add/delete/protect/un-protect/standby/un-standby numbers instances
+func BatchAction(client *golangsdk.ServiceClient, groupID string, opts BatchOptsBuilder) (r BatchResult) {
 	b, err := opts.ToInstanceBatchMap()
 	if err != nil {
 		r.Err = err
@@ -96,21 +97,21 @@ func batch(client *golangsdk.ServiceClient, groupID string, opts BatchOptsBuilde
 	return
 }
 
-//BatchAdd is a method by which can add numbers of instances into a group
+// BatchAdd is a method by which can add numbers of instances into a group
 func BatchAdd(client *golangsdk.ServiceClient, groupID string, instances []string) (r BatchResult) {
 	var opts = BatchOpts{
 		Instances: instances,
 		Action:    "ADD",
 	}
-	return batch(client, groupID, opts)
+	return BatchAction(client, groupID, opts)
 }
 
-//BatchDelete is a method by which can delete numbers of instances from a group
+// BatchDelete is a method by which can delete numbers of instances from a group
 func BatchDelete(client *golangsdk.ServiceClient, groupID string, instances []string, deleteEcs string) (r BatchResult) {
 	var opts = BatchOpts{
 		Instances:   instances,
 		IsDeleteEcs: deleteEcs,
 		Action:      "REMOVE",
 	}
-	return batch(client, groupID, opts)
+	return BatchAction(client, groupID, opts)
 }

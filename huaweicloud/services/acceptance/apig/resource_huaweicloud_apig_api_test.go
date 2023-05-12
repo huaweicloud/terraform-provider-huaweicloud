@@ -11,6 +11,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getApiFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -131,6 +132,29 @@ func testAccApi_base(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+resource "huaweicloud_compute_instance" "test" {
+  name               = "%[2]s"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+  system_disk_type   = "SSD"
+
+  network {
+    uuid = huaweicloud_vpc_subnet.test.id
+  }
+}
+
+resource "huaweicloud_apig_instance" "test" {
+  name                  = "%[2]s"
+  edition               = "BASIC"
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  enterprise_project_id = "0"
+  availability_zones    = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
+}
+
 resource "huaweicloud_apig_group" "test" {
   name        = "%[2]s"
   instance_id = huaweicloud_apig_instance.test.id
@@ -195,7 +219,7 @@ resource "huaweicloud_apig_custom_authorizer" "test" {
   type         = "BACKEND"
   cache_age    = 60
 }
-`, testAccVpcChannel_base(name), name)
+`, common.TestBaseComputeResources(name), name)
 }
 
 func testAccApi_basic(relatedConfig, name string) string {

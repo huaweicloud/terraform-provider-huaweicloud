@@ -78,3 +78,28 @@ jobs:
           go install
           cd ${{ github.workspace }}/terraform-provider-huaweicloud
           tfproviderlint -V011=false -V012=false -V013=false -V014=false -R019=false ./...
+
+  schema-markdown-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: ">=1.18"
+
+      - name: Check schemas and markdown docs
+        shell: bash {0}
+        run: |
+          cd scripts/markdown_check
+          go build -o markdown_check main.go
+          ./markdown_check >check_result.log
+
+          # There are three known issues for huaweicloud_mapreduce_cluster
+          ret=$(($?-3))
+          if [ $ret -gt 0 ]; then
+            echo "ERROR: find $ret inconsistencies between schemas and markdown docs"
+            echo -e "please ignore the errors in huaweicloud_mapreduce_cluster\n"
+            grep -B1 "\[ERROR\]" check_result.log
+          fi
+          exit $ret

@@ -48,9 +48,9 @@ The following arguments are supported:
 <a name="dms_kafka_policies"></a>
 The `policies` block supports:
 
-* `user_name` -(Required, String) Specifies the user name.
+* `user_name` - (Required, String) Specifies the username.
 
-* `access_policy` -(Required, String) Specifies the permissions type. The value can be:
+* `access_policy` - (Required, String) Specifies the permissions type. The value can be:
   + **all**: publish and subscribe permissions.
   + **pub**: publish permissions.
   + **sub**: subscribe permissions.

@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
-func getDmsRabitMqInstanceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getDmsRabbitMqInstanceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.DmsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating HuaweiCloud DMS client(V2): %s", err)
@@ -30,7 +30,7 @@ func TestAccDmsRabbitmqInstances_basic(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&instance,
-		getDmsRabitMqInstanceFunc,
+		getDmsRabbitMqInstanceFunc,
 	)
 
 	// DMS instances use the tenant-level shared lock, the instances cannot be created or modified in parallel.
@@ -79,7 +79,7 @@ func TestAccDmsRabbitmqInstances_withEpsId(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&instance,
-		getDmsRabitMqInstanceFunc,
+		getDmsRabbitMqInstanceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -109,7 +109,7 @@ func TestAccDmsRabbitmqInstances_compatible(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&instance,
-		getDmsRabitMqInstanceFunc,
+		getDmsRabbitMqInstanceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -146,7 +146,7 @@ func TestAccDmsRabbitmqInstances_single(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&instance,
-		getDmsRabitMqInstanceFunc,
+		getDmsRabbitMqInstanceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -173,18 +173,16 @@ data "huaweicloud_availability_zones" "test" {}
 data "huaweicloud_dms_product" "test1" {
   engine        = "rabbitmq"
   instance_type = "cluster"
-  version       = "3.7.17"
+  version       = "3.8.35"
   node_num      = 3
 }
 
 data "huaweicloud_dms_product" "test2" {
   engine        = "rabbitmq"
   instance_type = "cluster"
-  version       = "3.7.17"
+  version       = "3.8.35"
   node_num      = 5
 }
-
-data "huaweicloud_availability_zones" "test" {}
 `, common.TestBaseNetwork(rName))
 }
 
@@ -320,7 +318,7 @@ func testAccDmsRabbitmqInstance_single(rName string) string {
 data "huaweicloud_dms_product" "single" {
   engine           = "rabbitmq"
   instance_type    = "single"
-  version          = "3.7.17"
+  version          = "3.8.35"
   node_num         = 1
 }
 

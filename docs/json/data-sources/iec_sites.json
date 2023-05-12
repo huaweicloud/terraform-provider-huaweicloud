@@ -21,10 +21,6 @@
                 "type": "string",
                 "optional": true
               },
-              "region": {
-                "type": "string",
-                "computed": true
-              },
               "sites": {
                 "type": [
                   "list",

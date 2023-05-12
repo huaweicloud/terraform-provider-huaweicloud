@@ -47,8 +47,6 @@
                       "direction": "string",
                       "ethertype": "string",
                       "id": "string",
-                      "port_range_max": "number",
-                      "port_range_min": "number",
                       "ports": "string",
                       "priority": "number",
                       "protocol": "string",

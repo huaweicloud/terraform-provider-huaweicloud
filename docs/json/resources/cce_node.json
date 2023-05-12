@@ -5,14 +5,6 @@
         "huaweicloud_cce_node": {
           "block": {
             "attributes": {
-              "annotations": {
-                "type": [
-                  "map",
-                  "string"
-                ],
-                "optional": true,
-                "forcenew": true
-              },
               "auto_renew": {
                 "type": "string",
                 "optional": true
@@ -48,11 +40,6 @@
                 "optional": true,
                 "forcenew": true
               },
-              "ecs_performance_type": {
-                "type": "string",
-                "optional": true,
-                "forcenew": true
-              },
               "eip_id": {
                 "type": "string",
                 "optional": true,
@@ -84,10 +71,6 @@
                 "type": "string",
                 "optional": true,
                 "forcenew": true
-              },
-              "keep_ecs": {
-                "type": "bool",
-                "optional": true
               },
               "key_pair": {
                 "type": "string",
@@ -151,19 +134,9 @@
                 "optional": true,
                 "sensitive": true
               },
-              "product_id": {
-                "type": "string",
-                "optional": true,
-                "forcenew": true
-              },
               "public_ip": {
                 "type": "string",
                 "computed": true
-              },
-              "public_key": {
-                "type": "string",
-                "optional": true,
-                "forcenew": true
               },
               "region": {
                 "type": "string",
@@ -215,11 +188,6 @@
                       "computed": true,
                       "forcenew": true
                     },
-                    "hw_passthrough": {
-                      "type": "bool",
-                      "optional": true,
-                      "forcenew": true
-                    },
                     "kms_key_id": {
                       "type": "string",
                       "optional": true,
@@ -252,11 +220,6 @@
                       ],
                       "optional": true,
                       "computed": true,
-                      "forcenew": true
-                    },
-                    "hw_passthrough": {
-                      "type": "bool",
-                      "optional": true,
                       "forcenew": true
                     },
                     "kms_key_id": {

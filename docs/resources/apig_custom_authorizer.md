@@ -69,7 +69,7 @@ The `identity` block supports:
 
 * `location` - (Required, String) Specifies the parameter location, which support **HEADER** and **QUERY**.
 
-* `validation` - (Required, String) Specifies the parameter verification expression.
+* `validation` - (Optional, String) Specifies the parameter verification expression.
   If omitted, the custom authorizer will not perform verification.
   The valid value is range form `1` to `2,048`.
 

@@ -6,9 +6,11 @@ subcategory: "Virtual Private Cloud (VPC)"
 
 Provides a resource to manage a VPC Peering Connection resource.
 
--> **NOTE:** For cross-tenant (requester's tenant differs from the accepter's tenant) VPC Peering Connections, use
-the `huaweicloud_vpc_peering_connection` resource to manage the requester's side of the connection and use
-the `huaweicloud_vpc_peering_connection_accepter` resource to manage the accepter's side of the connection.
+-> **NOTE:** For cross-tenant (requester's tenant differs from the accepter's tenant) VPC Peering Connections,
+  use the `huaweicloud_vpc_peering_connection` resource to manage the requester's side of the connection and
+  use the `huaweicloud_vpc_peering_connection_accepter` resource to manage the accepter's side of the connection.
+  <br/>If you create a VPC peering connection with another VPC of your own, the connection is created without the need
+  for you to accept the connection.
 
 ## Example Usage
 
@@ -39,6 +41,8 @@ The following arguments are supported:
 * `peer_tenant_id` - (Optional, String, ForceNew) Specifies the tenant ID of the accepter tenant. Changing this creates
   a new VPC peering connection.
 
+* `description` - (Optional, String) Specifies the description of the VPC peering connection.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -48,17 +52,12 @@ In addition to all arguments above, the following attributes are exported:
 * `status` - The VPC peering connection status. The value can be PENDING_ACCEPTANCE, REJECTED, EXPIRED, DELETED, or
   ACTIVE.
 
-## Notes
-
-If you create a VPC peering connection with another VPC of your own, the connection is created without the need for you
-to accept the connection.
-
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 10 minute.
-* `delete` - Default is 10 minute.
+* `create` - Default is 10 minutes.
+* `delete` - Default is 10 minutes.
 
 ## Import
 

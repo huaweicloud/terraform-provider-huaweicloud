@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_obs_bucket_replication": {
+          "block": {
+            "attributes": {
+              "agency": {
+                "type": "string",
+                "required": true
+              },
+              "bucket": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "destination_bucket": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "rule": {
+                "block": {
+                  "attributes": {
+                    "enabled": {
+                      "type": "bool",
+                      "optional": true,
+                      "default": true
+                    },
+                    "history_enabled": {
+                      "type": "bool",
+                      "optional": true,
+                      "default": false
+                    },
+                    "id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "prefix": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "storage_class": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "OBS",
+            "name": "Object Storage Service",
+            "catalog": "Storage",
+            "name_cn": "对象存储服务",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

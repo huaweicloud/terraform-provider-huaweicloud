@@ -15,11 +15,6 @@ func dataSourceIecSites() *schema.Resource {
 		Read: dataSourceIecSitesV1Read,
 
 		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
 			"area": {
 				Type:     schema.TypeString,
 				Optional: true,

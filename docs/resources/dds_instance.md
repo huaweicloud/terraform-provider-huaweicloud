@@ -49,7 +49,7 @@ resource "huaweicloud_dds_instance" "instance" {
 }
 ```
 
-## Example Usage: Creating a Replica Set
+## Example Usage: Creating a Replica Set Community Edition
 
 ```hcl
 resource "huaweicloud_dds_instance" "instance" {
@@ -72,6 +72,33 @@ resource "huaweicloud_dds_instance" "instance" {
     storage   = "ULTRAHIGH"
     size      = 30
     spec_code = "dds.mongodb.c3.medium.4.repset"
+  }
+}
+```
+
+## Example Usage: Creating a Single Community Edition
+
+```hcl
+resource "huaweicloud_dds_instance" "instance" {
+  name = "dds-instance"
+  datastore {
+    type           = "DDS-Community"
+    version        = "3.4"
+    storage_engine = "wiredTiger"
+  }
+  availability_zone = "{{ availability_zone }}"
+  vpc_id            = "{{ vpc_id }}"
+  subnet_id         = "{{ subnet_network_id }}}"
+  security_group_id = "{{ security_group_id }}"
+  password          = "Test@123"
+  mode              = "Single"
+  
+  flavor {
+    type      = "single"
+    num       = 1
+    storage   = "ULTRAHIGH"
+    size      = 30
+    spec_code = "dds.mongodb.s6.large.2.single"
   }
 }
 ```
@@ -100,11 +127,14 @@ The following arguments are supported:
 
 * `password` - (Required, String) Specifies the Administrator password of the database instance.
 
-* `disk_encryption_id` - (Required, String, ForceNew) Specifies the disk encryption ID of the instance. Changing this
+* `disk_encryption_id` - (Optional, String, ForceNew) Specifies the disk encryption ID of the instance. Changing this
   creates a new instance.
 
 * `mode` - (Required, String, ForceNew) Specifies the mode of the database instance. Changing this creates a new
   instance.
+
+* `configuration` - (Optional, List, ForceNew) Specifies the configuration information.
+  The structure is described below. Changing this creates a new instance.
 
 * `flavor` - (Required, List, ForceNew) Specifies the flavors information. The structure is described below. Changing
   this creates a new instance.
@@ -139,8 +169,9 @@ The following arguments are supported:
   This parameter is mandatory if `charging_mode` is set to *prePaid*.
   Changing this creates a new instance.
 
-* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
+* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto-renew is enabled.
   Valid values are `true` and `false`, defaults to `false`.
+  Changing this creates a new instance.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the DDS instance.
 
@@ -153,6 +184,17 @@ The `datastore` block supports:
 
 * `storage_engine` - (Optional, String, ForceNew) Specifies the storage engine of the DB instance. DDS Community Edition
   supports wiredTiger engine, and the Enhanced Edition supports rocksDB engine.
+
+The `configuration` block supports:
+
+* `type` - (Required, String, ForceNew) Specifies the node type. Valid value:
+  + For a Community Edition cluster instance, the value can be **mongos**, **shard** or **config**.
+  + For a Community Edition replica set instance, the value is **replica**.
+  + For a Community Edition single node instance, the value is **single**.
+    Changing this creates a new instance.
+
+* `id` - (Required, String, ForceNew) Specifies the ID of the template.
+  Changing this creates a new instance.
 
 The `flavor` block supports:
 
@@ -191,7 +233,7 @@ The `backup_strategy` block supports:
   + The HH value must be 1 greater than the hh value.
   + The values from mm and MM must be the same and must be set to any of the following 00, 15, 30, or 45.
 
-* `keep_days` - (Optional, Int) Specifies the number of days to retain the generated backup files. The value range is
+* `keep_days` - (Required, Int) Specifies the number of days to retain the generated backup files. The value range is
   from 0 to 732.
   + If this parameter is set to 0, the automated backup policy is not set.
   + If this parameter is not transferred, the automated backup policy is enabled by default. Backup files are stored
@@ -201,7 +243,7 @@ The `backup_strategy` block supports:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - Indicates the the DB instance ID.
 * `db_username` - Indicates the DB Administator name.
 * `status` - Indicates the the DB instance status.
 * `port` - Indicates the database port number. The port range is 2100 to 9500.
@@ -223,8 +265,9 @@ The `nodes` block contains:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 30 minute.
-* `delete` - Default is 30 minute.
+* `create` - Default is 30 minutes.
+* `update` - Default is 30 minutes.
+* `delete` - Default is 30 minutes.
 
 ## Import
 
@@ -236,7 +279,7 @@ terraform import huaweicloud_dds_instance.instance 9c6d6ff2cba3434293fd479571517
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason.
-The missing attributes include: `password`, `availability_zone`, `flavor`.
+The missing attributes include: `password`, `availability_zone`, `flavor`, configuration.
 It is generally recommended running `terraform plan` after importing an instance.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to
 align with the instance. Also you can ignore changes as below.
@@ -247,7 +290,7 @@ resource "huaweicloud_dds_instance" "instance" {
 
   lifecycle {
     ignore_changes = [
-      password, availability_zone, flavor,
+      password, availability_zone, flavor, configuration,
     ]
   }
 }

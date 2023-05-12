@@ -11,28 +11,63 @@ Manages a Cloud Eye alarm rule resource within HuaweiCloud.
 ### Basic example
 
 ```hcl
-resource "huaweicloud_ces_alarmrule" "alarm_rule" {
-  alarm_name = "alarm_rule"
+variable "instance_id_1" {}
+variable "instance_id_2" {}
+variable "topic_urn" {}
+
+resource "huaweicloud_ces_alarmrule" "test" {
+  alarm_name           = "rule-test"
+  alarm_action_enabled = true
+  alarm_enabled        = true
+  alarm_type           = "MULTI_INSTANCE"
 
   metric {
-    namespace   = "SYS.ECS"
-    metric_name = "network_outgoing_bytes_rate_inband"
+    namespace = "SYS.ECS"
+  }
+
+  resources {
     dimensions {
       name  = "instance_id"
-      value = var.webserver_instance_id
+      value = var.instance_id_1
     }
   }
-  condition {
-    period              = 300
+
+  resources {
+    dimensions {
+      name  = "instance_id"
+      value = var.instance_id_2
+    }
+  }
+
+  condition  {
+    period              = 1200
     filter              = "average"
     comparison_operator = ">"
-    value               = 6
+    value               = 6.5
     unit                = "B/s"
     count               = 1
+    suppress_duration   = 300
+    metric_name         = "network_outgoing_bytes_rate_inband"
+    alarm_level         = 4
   }
+
+  condition  {
+    period              = 3600
+    filter              = "average"
+    comparison_operator = ">="
+    value               = 20
+    unit                = "B/s"
+    count               = 1
+    suppress_duration   = 300
+    metric_name         = "network_outgoing_bytes_rate_inband"
+    alarm_level         = 4
+  }
+
   alarm_actions {
     type              = "notification"
-    notification_list = [var.smn_topic_id]
+    notification_list = [
+      var.topic_urn
+    ]
   }
 }
 ```
@@ -40,28 +75,34 @@ resource "huaweicloud_ces_alarmrule" "alarm_rule" {
 ## Alarm rule for event monitoring
 
 ```hcl
-resource "huaweicloud_ces_alarmrule" "alarm_rule" {
-  alarm_name           = "alarm_rule"
+variable "topic_urn" {}
+
+resource "huaweicloud_ces_alarmrule" "test" {
+  alarm_name           = "rule-test"
   alarm_action_enabled = true
   alarm_type           = "EVENT.SYS"
 
   metric {
-    namespace   = "SYS.ECS"
-    metric_name = "stopServer"
+    namespace = "SYS.ECS"
   }
   
   condition  {
+    metric_name         = "stopServer"
     period              = 0
     filter              = "average"
     comparison_operator = ">="
     value               = 1
     unit                = "count"
     count               = 1
+    suppress_duration   = 0
+    alarm_level         = 2
   }
 
   alarm_actions {
     type              = "notification"
-    notification_list = [var.smn_topic_id]
+    notification_list = [
+      var.topic_urn
+    ]
   }
 }
 ```
@@ -81,18 +122,21 @@ The following arguments are supported:
 
 * `condition` - (Required, List) Specifies the alarm triggering condition. The structure is described below.
 
+* `resources` - (Optional, List) Specifies the list of the resources to add into the alarm rule.
+  The structure is described below.
+
 * `alarm_description` - (Optional, String) The value can be a string of 0 to 256 characters.
 
 * `alarm_enabled` - (Optional, Bool) Specifies whether to enable the alarm. The default value is true.
 
-* `alarm_type` - (Optional, String) Specifies the alarm type. The value can be **EVENT.SYS**, **EVENT.CUSTOM**
-  or **MULTI_INSTANCE**. Defaults to **MULTI_INSTANCE**.
+* `alarm_type` - (Optional, String) Specifies the alarm type. The value can be **EVENT.SYS**, **EVENT.CUSTOM**,
+  **MULTI_INSTANCE** and **ALL_INSTANCE**. Defaults to **MULTI_INSTANCE**.
 
-* `alarm_actions` - (Optional, List, ForceNew) Specifies the action triggered by an alarm. The structure is described
-  below. Changing this creates a new resource.
+* `alarm_actions` - (Optional, List) Specifies the action triggered by an alarm. The structure is described
+  below.
 
-* `ok_actions` - (Optional, List, ForceNew) Specifies the action triggered by the clearing of an alarm. The structure is
-  described below. Changing this creates a new resource.
+* `ok_actions` - (Optional, List) Specifies the action triggered by the clearing of an alarm. The structure is
+  described below.
 
 * `alarm_action_enabled` - (Optional, Bool) Specifies whether to enable the action to be triggered by an alarm. The
   default value is true.
@@ -116,6 +160,8 @@ The `metric` block supports:
   Changing this creates a new resource.
   For details, see [Services Interconnected with Cloud Eye](https://support.huaweicloud.com/intl/en-us/api-ces/ces_03_0059.html).
 
+The `resources` block supports:
+
 * `dimensions` - (Optional, List) Specifies the list of metric dimensions. The structure is described below.
 
 The `dimensions` block supports:
@@ -123,7 +169,7 @@ The `dimensions` block supports:
 * `name` - (Required, String) Specifies the dimension name. The value can be a string of 1 to 32 characters
   that must start with a letter and contain only letters, digits, underscores (_), and hyphens (-).
 
-* `value` - (Required, String) Specifies the dimension value. The value can be a string of 1 to 64 characters
+* `value` - (Optional, String) Specifies the dimension value. The value can be a string of 1 to 64 characters
   that must start with a letter or a number and contain only letters, digits, underscores (_), and hyphens (-).
 
 The `condition` block supports:
@@ -144,11 +190,11 @@ The `condition` block supports:
 
 * `count` - (Required, Int) Specifies the number of consecutive occurrence times. The value ranges from 1 to 5.
 
-* `unit` - (Optional, String, ForceNew) Specifies the data unit. Changing this creates a new resource.
+* `unit` - (Optional, String) Specifies the data unit.
   For details, see [Services Interconnected with Cloud Eye](https://support.huaweicloud.com/intl/en-us/api-ces/ces_03_0059.html).
 
-* `suppress_duration` - (Optional, Int, ForceNew) Specifies the interval for triggering an alarm if the alarm persists.
-  Changing this creates a new resource. Possible values are as follows:
+* `suppress_duration` - (Optional, Int) Specifies the interval for triggering an alarm if the alarm persists.
+  Possible values are as follows:
   + **0**: Cloud Eye triggers the alarm only once;
   + **300**: Cloud Eye triggers the alarm every 5 minutes;
   + **600**: Cloud Eye triggers the alarm every 10 minutes;
@@ -172,7 +218,7 @@ The `condition` block supports:
 
 the `alarm_actions` block supports:
 
-* `type` - (Optional, String) specifies the type of action triggered by an alarm. the
+* `type` - (Required, String) Specifies the type of action triggered by an alarm. the
   value can be *notification* or *autoscaling*.
     + notification: indicates that a notification will be sent to the user.
     + autoscaling: indicates that a scaling action will be triggered.
@@ -186,7 +232,7 @@ the `alarm_actions` block supports:
 
 the `ok_actions` block supports:
 
-* `type` - (Optional, String) specifies the type of action triggered by an alarm. the value is notification.
+* `type` - (Required, String) Specifies the type of action triggered by an alarm. the value is notification.
   notification: indicates that a notification will be sent to the user.
 
 * `notification_list` - (Required, List) specifies the list of objects to be notified if the alarm status changes, the

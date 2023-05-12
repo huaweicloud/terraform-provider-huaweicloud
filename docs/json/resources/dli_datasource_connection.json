@@ -1,0 +1,115 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dli_datasource_connection": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of a datasource connection.",
+                "required": true,
+                "forcenew": true
+              },
+              "queues": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "List of queue names that are available for datasource connections.",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "route_table_id": {
+                "type": "string",
+                "description": "The route table ID associated with the subnet of the service to be connected.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The connection status.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "The subnet ID of the service to be connected.",
+                "required": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The key/value pairs to associate with the datasource connection.",
+                "optional": true,
+                "forcenew": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "The VPC ID of the service to be connected.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "hosts": {
+                "block": {
+                  "attributes": {
+                    "ip": {
+                      "type": "string",
+                      "description": "IPv4 address of the host.",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The user-defined host name.",
+                      "required": true
+                    }
+                  },
+                  "description": "The user-defined host information. A maximum of 20,000 records are supported."
+                },
+                "nesting_mode": "list"
+              },
+              "routes": {
+                "block": {
+                  "attributes": {
+                    "cidr": {
+                      "type": "string",
+                      "description": "The CIDR of the route.",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The route Name",
+                      "required": true
+                    }
+                  },
+                  "description": "List of routes."
+                },
+                "nesting_mode": "set"
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Analytics",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

@@ -166,6 +166,10 @@ func DataSourceImagesImageV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"backup_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -296,6 +300,7 @@ func dataSourceImagesImageV2Attributes(_ context.Context, d *schema.ResourceData
 		d.Set("schema", image.Schema),
 		d.Set("enterprise_project_id", image.EnterpriseProjectID),
 		d.Set("status", image.Status),
+		d.Set("backup_id", image.BackupID),
 		d.Set("created_at", image.CreatedAt.Format(time.RFC3339)),
 		d.Set("updated_at", image.UpdatedAt.Format(time.RFC3339)),
 	)

@@ -95,9 +95,10 @@ resource "huaweicloud_rms_policy_assignment" "test" {
 
 The following arguments are supported:
 
-* `name` - (Required, String) Specifies the name of the policy assignment.  
+* `name` - (Required, String, ForceNew) Specifies the name of the policy assignment.  
   The valid length is limited from `1` to `64`, only letters, digits, hyphens (-) and underscores (_) are allowed.  
   The name must start with a letter.
+  Change this parameter will create a new resource.
 
 * `description` - (Optional, String) Specifies the description of the policy assignment, which contain maximum of
   `512` characters.

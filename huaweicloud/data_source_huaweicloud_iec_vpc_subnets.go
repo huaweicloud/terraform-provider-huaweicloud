@@ -59,11 +59,10 @@ func DataSourceIECVpcSubnets() *schema.Resource {
 						},
 						"dns_list": {
 							Type:     schema.TypeList,
-							Optional: true,
+							Computed: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
-							Computed: true,
 						},
 						"status": {
 							Type:     schema.TypeString,

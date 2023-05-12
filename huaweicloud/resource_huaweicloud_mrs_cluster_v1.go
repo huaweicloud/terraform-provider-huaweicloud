@@ -105,9 +105,6 @@ func ResourceMRSClusterV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"SAS", "SSD", "GPSSD", "ESSD", "SATA",
-				}, false),
 			},
 			"volume_size": {
 				Type:     schema.TypeInt,

@@ -1,6 +1,7 @@
 package cfw
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -26,6 +27,13 @@ func TestAccDatasourceFirewalls_basic(t *testing.T) {
 					// more attributes check will be added
 					// when the resource to create a firewall is available
 					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "records.0.fw_instance_id", acceptance.HW_CFW_INSTANCE_ID),
+				),
+			},
+			{
+				Config: testAccDatasourceFirewalls_empty(),
+				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
 				),
 			},
 		},
@@ -33,9 +41,15 @@ func TestAccDatasourceFirewalls_basic(t *testing.T) {
 }
 
 func testAccDatasourceFirewalls_basic() string {
-	return `
+	return fmt.Sprintf(`
 data "huaweicloud_cfw_firewalls" "test" {
-  service_type = "0"
+  fw_instance_id = "%s"
 }
+`, acceptance.HW_CFW_INSTANCE_ID)
+}
+
+func testAccDatasourceFirewalls_empty() string {
+	return `
+data "huaweicloud_cfw_firewalls" "test" {}
 `
 }

@@ -90,6 +90,7 @@ func ResourceDataset() *schema.Resource {
 						"type": {
 							Type:     schema.TypeString,
 							Required: true,
+							ForceNew: true,
 							ValidateFunc: validation.StringInSlice([]string{"String", "Short", "Int", "Long", "Double",
 								"Float", "Byte", "Date", "Timestamp", "Boolean"}, false),
 						},
@@ -97,6 +98,7 @@ func ResourceDataset() *schema.Resource {
 						"name": {
 							Type:     schema.TypeString,
 							Required: true,
+							ForceNew: true,
 						},
 					},
 				},

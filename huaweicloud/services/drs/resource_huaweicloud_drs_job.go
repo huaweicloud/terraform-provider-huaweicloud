@@ -75,6 +75,7 @@ func ResourceDrsJob() *schema.Resource {
 			"source_db": {
 				Type:     schema.TypeList,
 				Required: true,
+				ForceNew: true,
 				MaxItems: 1,
 				Elem:     dbInfoSchemaResource(),
 			},
@@ -82,6 +83,7 @@ func ResourceDrsJob() *schema.Resource {
 			"destination_db": {
 				Type:     schema.TypeList,
 				Required: true,
+				ForceNew: true,
 				MaxItems: 1,
 				Elem:     dbInfoSchemaResource(),
 			},

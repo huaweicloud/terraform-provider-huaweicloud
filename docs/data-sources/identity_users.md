@@ -22,7 +22,7 @@ data "huaweicloud_identity_users" "one" {
 
 * `name` - (Optional, String) Specifies the IAM user name.
 
-* `enabled` - (Optional, String) Specifies the status of the IAM user, the default value is **true**.
+* `enabled` - (Optional, Bool) Specifies the status of the IAM user, the default value is **true**.
 
 ## Attributes Reference
 

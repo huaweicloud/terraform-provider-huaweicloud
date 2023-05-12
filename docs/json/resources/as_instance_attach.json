@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_as_instance_attach": {
+          "block": {
+            "attributes": {
+              "append_instance": {
+                "type": "bool",
+                "optional": true
+              },
+              "health_status": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "instance_name": {
+                "type": "string",
+                "computed": true
+              },
+              "protected": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "scaling_group_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "standby": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AS",
+            "name": "Auto Scaling",
+            "catalog": "Compute",
+            "name_cn": "弹性伸缩",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

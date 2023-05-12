@@ -332,13 +332,13 @@ The `strategy` block supports:
 <a name="servicestage_lifecycle"></a>
 The `lifecycle` block supports:
 
-* `entrypoint` - (Required, List) Specifies the startup commands.
+* `entrypoint` - (Optional, List) Specifies the startup commands.
   The [object](#servicestage_entrypoint) structure is documented below.
 
-* `post_start` - (Required, List) Specifies the post-start processing.
+* `post_start` - (Optional, List) Specifies the post-start processing.
   The [object](#servicestage_lifecycle_process) structure is documented below.
 
-* `pre_stop` - (Required, List) Specifies the pre-stop processing.
+* `pre_stop` - (Optional, List) Specifies the pre-stop processing.
   The [object](#servicestage_lifecycle_process) structure is documented below.
 
 <a name="servicestage_log_collection_policies"></a>
@@ -383,17 +383,17 @@ The `post_start` and `pre_stop` block supports:
 <a name="servicestage_process_param"></a>
 The `parameters` block supports:
 
-* `commands` - (Required, List) Specifies the commands, such as **["sleep", "1"]**.
-  This parameter is applicable to **command** type.
-
-* `port` - (Required, Int) Specifies the port number.
-  This parameter is applicable to **http** type.
-
-* `path` - (Required, String) Specifies the request URL.
-  This parameter is applicable to **http** type.
+* `commands` - (Optional, List) Specifies the commands, such as **["sleep", "1"]**.
+  This parameter is required if process type is **command**, and it is applicable to **command** type.
 
 * `host` - (Optional, String) Specifies the custom IP address. The default address is pod IP address.
-  This parameter is applicable to **http** type.
+  This parameter is required if process type is **http**, and it is applicable to **http** type.
+
+* `port` - (Optional, Int) Specifies the port number.
+  This parameter is required if process type is **http**, and it is applicable to **http** type.
+
+* `path` - (Optional, String) Specifies the request URL.
+  This parameter is required if process type is **http**, and it is applicable to **http** type.
 
 <a name="servicestage_scheduler"></a>
 The `scheduler` block supports:
@@ -469,7 +469,7 @@ The `external_access` block supports:
 
 * `protocol` - (Optional, String) Specifies the protocol. The valid values are **HTTP** and **HTTPS**.
 
-* `address` - (Optional, String) Specifies the access address. For example: www.example.com.
+* `address` - (Optional, String) Specifies the access address. For example: `www.example.com`.
 
 * `port` - (Optional, Int) Specifies the listening port of the application component process.
 

@@ -11,7 +11,7 @@ Add a node to a CCE cluster.
 ```hcl
 data "huaweicloud_availability_zones" "myaz" {}
 
-resource "huaweicloud_compute_keypair" "mykp" {
+resource "huaweicloud_kps_keypair" "mykp" {
   name       = "mykp"
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
 }
@@ -30,7 +30,7 @@ resource "huaweicloud_cce_node" "node" {
   name              = "node"
   flavor_id         = "s3.large.2"
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
-  key_pair          = huaweicloud_compute_keypair.mykp.name
+  key_pair          = huaweicloud_kps_keypair.mykp.name
 
   root_volume {
     size       = 40
@@ -51,7 +51,7 @@ resource "huaweicloud_cce_node" "mynode" {
   name              = "mynode"
   flavor_id         = "s3.large.2"
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
-  key_pair          = huaweicloud_compute_keypair.mykp.name
+  key_pair          = huaweicloud_kps_keypair.mykp.name
 
   root_volume {
     size       = 40
@@ -90,7 +90,7 @@ resource "huaweicloud_cce_node" "mynode" {
   name              = "mynode"
   flavor_id         = "s3.large.2"
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
-  key_pair          = huaweicloud_compute_keypair.mykp.name
+  key_pair          = huaweicloud_kps_keypair.mykp.name
 
   root_volume {
     size       = 40
@@ -114,7 +114,7 @@ resource "huaweicloud_cce_node" "mynode" {
   name              = "mynode"
   flavor_id         = "s3.large.2"
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
-  key_pair          = huaweicloud_compute_keypair.mykp.name
+  key_pair          = huaweicloud_kps_keypair.mykp.name
 
   root_volume {
     size       = 40
@@ -360,7 +360,7 @@ The `groups` block supports:
 
 * `name` - (Required, String, ForceNew) Specifies the name of a virtual storage group. Each group name must be unique.
   Changing this parameter will create a new resource.
-* `cce_managed`  - (Optional, Bool, ForceNew) Specifies the whether the storage space is for **kubernetes** and
+* `cce_managed` - (Optional, Bool, ForceNew) Specifies the whether the storage space is for **kubernetes** and
   **runtime** components. Only one group can be set to true. The default value is **false**.
   Changing this parameter will create a new resource.
 * `selector_names` - (Required, List, ForceNew) Specifies the list of names of seletors to match.
@@ -390,6 +390,7 @@ In addition to all arguments above, the following attributes are exported:
 * `server_id` - ID of the ECS instance associated with the node.
 * `private_ip` - Private IP of the CCE node.
 * `public_ip` - Public IP of the CCE node.
+* `status` - The status of the CCE node.
 
 ## Timeouts
 

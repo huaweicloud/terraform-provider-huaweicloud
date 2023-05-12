@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cfw_black_white_list": {
+          "block": {
+            "attributes": {
+              "address": {
+                "type": "string",
+                "description": "Specifies the address.",
+                "required": true
+              },
+              "address_type": {
+                "type": "number",
+                "description": "Specifies the IP address type.",
+                "required": true
+              },
+              "direction": {
+                "type": "number",
+                "description": "Specifies the address direction.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "list_type": {
+                "type": "number",
+                "description": "Specifies the list type.",
+                "required": true,
+                "forcenew": true
+              },
+              "object_id": {
+                "type": "string",
+                "description": "Specifies the protected object ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "port": {
+                "type": "string",
+                "description": "Specifies the destination port.",
+                "required": true
+              },
+              "protocol": {
+                "type": "number",
+                "description": "Specifies the protocol type.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

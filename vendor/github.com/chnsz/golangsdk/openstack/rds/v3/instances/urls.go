@@ -29,3 +29,11 @@ func engineURL(c *golangsdk.ServiceClient, dbName string) string {
 func resetRootPasswordURL(c *golangsdk.ServiceClient, instancesId string) string {
 	return c.ServiceURL("instances", instancesId, "password")
 }
+
+func configurationsURL(c *golangsdk.ServiceClient, instancesId string) string {
+	return c.ServiceURL("instances", instancesId, "configurations")
+}
+
+func actionURL(c *golangsdk.ServiceClient, instancesId string) string {
+	return c.ServiceURL("instances", instancesId, "action")
+}

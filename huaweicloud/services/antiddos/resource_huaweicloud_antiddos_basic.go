@@ -72,6 +72,7 @@ func ResourceCloudNativeAntiDdos() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+				ForceNew: true,
 			},
 			"eip_id": {
 				Type:     schema.TypeString,

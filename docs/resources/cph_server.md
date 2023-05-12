@@ -72,7 +72,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `availability_zone` - (Required, String, ForceNew) The name of the AZ where the cloud server is located.
+* `availability_zone` - (Optional, String, ForceNew) The name of the AZ where the cloud server is located.
 
   Changing this parameter will create a new resource.
 

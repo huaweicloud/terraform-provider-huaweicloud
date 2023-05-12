@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ddm_schemas": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of DDM instance.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the DDM schema.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "schemas": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "data_nodes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "name": "string",
+                            "status": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "shard_mode": "string",
+                      "shard_number": "number",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of DDM schema.",
+                "computed": true
+              },
+              "shard_mode": {
+                "type": "string",
+                "description": "Specifies the sharding mode of the schema.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the DDM schema.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDM",
+            "name": "Distributed Database Middleware",
+            "catalog": "Databases",
+            "name_cn": "分布式数据库中间件",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

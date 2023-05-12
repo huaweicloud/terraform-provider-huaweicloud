@@ -4,11 +4,15 @@ import (
 	"strings"
 	"time"
 
-	rules "github.com/chnsz/golangsdk/openstack/waf_hw/v1/whiteblackip_rules"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	rules "github.com/chnsz/golangsdk/openstack/waf_hw/v1/whiteblackip_rules"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -49,9 +53,29 @@ func ResourceWafRuleBlackListV1() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"ip_address": {
+			"name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "schema: Required",
+			},
+			"enterprise_project_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				ForceNew: true,
+			},
+			"ip_address": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ExactlyOneOf: []string{"ip_address", "address_group_id"},
+			},
+			"address_group_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"action": {
 				Type:     schema.TypeInt,
@@ -60,6 +84,14 @@ func ResourceWafRuleBlackListV1() *schema.Resource {
 				ValidateFunc: validation.IntInSlice([]int{
 					PROTECTION_ACTION_BLOCK, PROTECTION_ACTION_ALLOW, PROTECTION_ACTION_LOG,
 				}),
+			},
+			"address_group_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"address_group_size": {
+				Type:     schema.TypeInt,
+				Computed: true,
 			},
 		},
 	}
@@ -73,13 +105,25 @@ func resourceWafRuleBlackListCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	policyID := d.Get("policy_id").(string)
+	epsID := config.GetEnterpriseProjectID(d)
 	createOpts := rules.CreateOpts{
-		Addr:  d.Get("ip_address").(string),
 		White: d.Get("action").(int),
+	}
+	if v, ok := d.GetOk("name"); ok {
+		createOpts.Name = v.(string)
+	}
+	if v, ok := d.GetOk("ip_address"); ok {
+		createOpts.Addr = v.(string)
+	}
+	if v, ok := d.GetOk("address_group_id"); ok {
+		createOpts.IPGroupID = v.(string)
+	}
+	if v, ok := d.GetOk("description"); ok {
+		createOpts.Description = v.(string)
 	}
 
 	logp.Printf("[DEBUG] WAF black list rule creating opts: %#v", createOpts)
-	rule, err := rules.Create(wafClient, policyID, createOpts).Extract()
+	rule, err := rules.CreateWithEpsId(wafClient, createOpts, policyID, epsID).Extract()
 	if err != nil {
 		return fmtp.Errorf("error creating WAF black list rule: %s", err)
 	}
@@ -98,17 +142,38 @@ func resourceWafRuleBlackListRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	policyID := d.Get("policy_id").(string)
-	n, err := rules.Get(wafClient, policyID, d.Id()).Extract()
+	n, err := rules.GetWithEpsId(wafClient, policyID, d.Id(), config.GetEnterpriseProjectID(d)).Extract()
 	if err != nil {
 		return common.CheckDeleted(d, err, "WAF Black List Rule")
 	}
 	logp.Printf("[DEBUG] fetching WAF black list rule: %#v", n)
 
 	d.SetId(n.Id)
-	d.Set("policy_id", n.PolicyID)
-	d.Set("ip_address", n.Addr)
-	d.Set("action", n.White)
+	mErr := multierror.Append(nil,
+		d.Set("policy_id", n.PolicyID),
+		d.Set("name", n.Name),
+		d.Set("ip_address", n.Addr),
+		d.Set("description", n.Description),
+		d.Set("action", n.White),
+	)
 
+	ipGroup := n.IPGroup
+	if ipGroup != nil {
+		mErr = multierror.Append(mErr,
+			d.Set("address_group_id", ipGroup.ID),
+			d.Set("address_group_name", ipGroup.Name),
+			d.Set("address_group_size", ipGroup.Size),
+		)
+	} else {
+		mErr = multierror.Append(mErr,
+			d.Set("address_group_id", ""),
+			d.Set("address_group_name", ""),
+			d.Set("address_group_size", 0),
+		)
+	}
+	if mErr.ErrorOrNil() != nil {
+		return fmtp.Errorf("error setting WAF rule blacklist fields: %s", mErr)
+	}
 	return nil
 }
 
@@ -119,18 +184,24 @@ func resourceWafRuleBlackListUpdate(d *schema.ResourceData, meta interface{}) er
 		return fmtp.Errorf("error creating HuaweiCloud WAF Client: %s", err)
 	}
 
-	// Only support to modify 'ip_address' and 'action'.
-	// After modifying 'policy_id', it will deleted and created.
-	if d.HasChanges("ip_address", "action") {
-		white := d.Get("action").(int)
+	if d.HasChanges("name", "ip_address", "address_group_id", "description", "action") {
 		updateOpts := rules.UpdateOpts{
-			Addr:  d.Get("ip_address").(string),
-			White: &white,
+			White:       utils.Int(d.Get("action").(int)),
+			Name:        d.Get("name").(string),
+			Description: d.Get("description").(string),
 		}
+		if v, ok := d.GetOk("ip_address"); ok {
+			updateOpts.Addr = v.(string)
+		}
+		if v, ok := d.GetOk("address_group_id"); ok {
+			updateOpts.IPGroupID = v.(string)
+		}
+
 		logp.Printf("[DEBUG] updating blacklist and whitelist rule, updateOpts: %#v", updateOpts)
 
 		policyID := d.Get("policy_id").(string)
-		_, err = rules.Update(wafClient, policyID, d.Id(), updateOpts).Extract()
+		epsID := config.GetEnterpriseProjectID(d)
+		_, err = rules.UpdateWithEpsId(wafClient, updateOpts, policyID, d.Id(), epsID).Extract()
 		if err != nil {
 			return fmtp.Errorf("error updating HuaweiCloud WAF Blacklist and Whitelist Rule: %s", err)
 		}
@@ -147,7 +218,7 @@ func resourceWafRuleBlackListDelete(d *schema.ResourceData, meta interface{}) er
 	}
 
 	policyID := d.Get("policy_id").(string)
-	err = rules.Delete(wafClient, policyID, d.Id()).ExtractErr()
+	err = rules.DeleteWithEpsId(wafClient, policyID, d.Id(), config.GetEnterpriseProjectID(d)).ExtractErr()
 	if err != nil {
 		return fmtp.Errorf("error deleting HuaweiCloud WAF Blacklist and Whitelist Rule: %s", err)
 	}

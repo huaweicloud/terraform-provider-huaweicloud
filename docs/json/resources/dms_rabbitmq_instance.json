@@ -15,8 +15,8 @@
                   "set",
                   "string"
                 ],
-                "optional": true,
-                "computed": true,
+                "description": "schema: Required",
+                "required": true,
                 "forcenew": true
               },
               "connect_address": {

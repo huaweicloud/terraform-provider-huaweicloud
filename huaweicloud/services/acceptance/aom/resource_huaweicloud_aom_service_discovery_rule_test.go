@@ -3,6 +3,7 @@ package aom
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	aomservice "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/aom"
@@ -19,6 +20,10 @@ func getServiceDiscoveryRuleResourceFunc(conf *config.Config, state *terraform.R
 	if err != nil {
 		return nil, fmt.Errorf("error creating AOM client: %s", err)
 	}
+
+	// wait 30 seconds before listing the rule, to avoid error
+	// lintignore:R018
+	time.Sleep(30 * time.Second)
 
 	response, err := c.ListServiceDiscoveryRules(&aom.ListServiceDiscoveryRulesRequest{})
 	if err != nil {

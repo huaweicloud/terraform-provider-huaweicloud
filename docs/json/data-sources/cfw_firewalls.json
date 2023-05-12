@@ -5,6 +5,11 @@
         "huaweicloud_cfw_firewalls": {
           "block": {
             "attributes": {
+              "fw_instance_id": {
+                "type": "string",
+                "description": "|-\n                    The firewall instance ID.",
+                "optional": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -79,7 +84,7 @@
               "service_type": {
                 "type": "number",
                 "description": "|-\n                    Service type\n                      0. North-south firewall\n                      1. East-west firewall",
-                "required": true
+                "optional": true
               }
             }
           },

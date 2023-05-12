@@ -61,7 +61,8 @@
                           {
                             "id": "string",
                             "ipv6_bandwidth_id": "string",
-                            "ipv6_enable": "bool"
+                            "ipv6_enable": "bool",
+                            "source_dest_check": "bool"
                           }
                         ]
                       ],

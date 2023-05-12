@@ -1,0 +1,123 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ces_alarm_template": {
+          "block": {
+            "attributes": {
+              "association_alarm_total": {
+                "type": "number",
+                "description": "Indicates the total num of the alarm that associated with the alarm template.",
+                "computed": true
+              },
+              "delete_associate_alarm": {
+                "type": "bool",
+                "description": "Specifies whether delete the alarm rule which the alarm template associated with",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the CES alarm template.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the CES alarm template.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Indicates the type of the CES alarm template.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "policies": {
+                "block": {
+                  "attributes": {
+                    "alarm_level": {
+                      "type": "number",
+                      "description": "Specifies the alarm level.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "comparison_operator": {
+                      "type": "string",
+                      "description": "Specifies the comparison conditions for alarm threshold.",
+                      "required": true
+                    },
+                    "count": {
+                      "type": "number",
+                      "description": "Specifies the number of consecutive triggering of alarms.",
+                      "required": true
+                    },
+                    "dimension_name": {
+                      "type": "string",
+                      "description": "Specifies the Resource dimension.",
+                      "required": true
+                    },
+                    "filter": {
+                      "type": "string",
+                      "description": "Specifies the data rollup methods.",
+                      "required": true
+                    },
+                    "metric_name": {
+                      "type": "string",
+                      "description": "Specifies the alarm metric name.",
+                      "required": true
+                    },
+                    "namespace": {
+                      "type": "string",
+                      "description": "Specifies the namespace of the service.",
+                      "required": true
+                    },
+                    "period": {
+                      "type": "number",
+                      "description": "Specifies the judgment period of alarm condition.",
+                      "required": true
+                    },
+                    "suppress_duration": {
+                      "type": "number",
+                      "description": "Specifies the alarm suppression cycle.",
+                      "required": true
+                    },
+                    "unit": {
+                      "type": "string",
+                      "description": "Specifies the unit string of the alarm threshold.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "value": {
+                      "type": "number",
+                      "description": "Specifies the alarm threshold.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the policy list of the CES alarm template."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CES",
+            "name": "Cloud Eye",
+            "catalog": "Management & Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

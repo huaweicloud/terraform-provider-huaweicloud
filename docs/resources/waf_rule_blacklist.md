@@ -11,15 +11,34 @@ used. The blacklist and whitelist rule resource can be used in Cloud Mode, Dedic
 
 ## Example Usage
 
-```hcl
-resource "huaweicloud_waf_policy" "policy_1" {
-  name = "policy_1"
-}
+### WAF rule blacklist and whitelist with ip address
 
-resource "huaweicloud_waf_rule_blacklist" "rule_1" {
-  policy_id  = huaweicloud_waf_policy.policy_1.id
-  ip_address = "192.168.0.0/24"
-  action     = 0
+```hcl
+variable "policy_id" {}
+
+resource "huaweicloud_waf_rule_blacklist" "rule" {
+  policy_id   = var.policy_id
+  ip_address  = "192.168.0.0/24"
+  action      = 0
+  name        = "test_name"
+  description = "test description"
+}
+```
+
+### WAF rule blacklist and whitelist with address group
+
+```hcl
+variable "policy_id" {}
+variable "address_group_id" {}
+variable "enterprise_project_id" {}
+
+resource "huaweicloud_waf_rule_blacklist" "rule" {
+  policy_id             = var.policy_id
+  address_group_id      = var.address_group_id
+  enterprise_project_id = var.enterprise_project_id
+  action                = 1
+  name                  = "test_name"
+  description           = "test description"
 }
 ```
 
@@ -33,7 +52,21 @@ The following arguments are supported:
 * `policy_id` - (Required, String, ForceNew) Specifies the WAF policy ID. Changing this creates a new rule. Please make
   sure that the region which the policy belongs to be consistent with the `region`.
 
-* `ip_address` - (Required, String) Specifies the IP address or range. For example, 192.168.0.125 or 192.168.0.0/24.
+* `name` - (Required, String) Specifies the Rule name. The value can contain a maximum of 64 characters.
+  Only letters, digits, hyphens (-), underscores (_) and periods (.) are allowed.
+
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF rule blacklist
+  and whitelist. Changing this parameter will create a new resource.
+
+* `ip_address` - (Optional, String) Specifies the IP address or range. For example, 192.168.0.125 or 192.168.0.0/24.
+  This parameter is required when `address_group_id` is not specified. The parameter `address_group_id` and `ip_address`
+  can not be configured together.
+
+* `address_group_id` - (Optional, String) Specifies the WAF address group id.
+  This parameter is required when `ip_address` is not specified. The parameter `address_group_id` and `ip_address`
+  can not be configured together.
+
+* `description` - (Optional, String) Specifies the rule description of the WAF address group.
 
 * `action` - (Optional, Int) Specifies the protective action. Defaults is `0`. The value can be:
   + `0`: block the request.
@@ -46,9 +79,13 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The rule ID in UUID format.
 
+* `address_group_name` - The name of the IP address group.
+
+* `address_group_size` - The number of IP addresses or IP address ranges in the IP address group.
+
 ## Import
 
-Blacklist and Whiltelist Rules can be imported using the policy ID and rule ID separated by a slash, e.g.:
+Blacklist and Whitelist Rules can be imported using the policy ID and rule ID separated by a slash, e.g.:
 
 ```sh
 terraform import huaweicloud_waf_rule_blacklist.rule_1 d78b439fd5e54ea08886e5f63ee7b3f5/ac01a092d50e4e6ba3cd622c1128ba2c

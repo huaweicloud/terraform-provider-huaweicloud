@@ -37,8 +37,9 @@ func dataSourceIECNetworkACL() *schema.Resource {
 			},
 			// Computed but always be empty due to the API response
 			"networks": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "schema: Internal",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"vpc_id": {

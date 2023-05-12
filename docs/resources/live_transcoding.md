@@ -69,7 +69,7 @@ contains letters, digits and hyphens (-).
   + **When the video encoding is H264**, value range: 32 ~ 2160 and must be a multiple of 2.
   + **When the video encoding is H265**, value range: 240 ~ 2160 and must be a multiple of 4.
 
-* `bitrate` - (Optional, Int) Specifies the bitrate of a transcoded video, in kbit/s. Value range: 40 ~ 30000.
+* `bitrate` - (Required, Int) Specifies the bitrate of a transcoded video, in kbit/s. Value range: 40 ~ 30000.
 
 * `frame_rate` - (Optional, Int) Specifies the frame rate of the transcoded video, in fps. Value range: 0 ~ 30.
 Value 0 indicates that the frame rate remains unchanged.

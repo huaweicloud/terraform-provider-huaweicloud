@@ -139,6 +139,24 @@
                 "nesting_mode": "list",
                 "max_items": 1
               },
+              "configuration": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              },
               "datastore": {
                 "block": {
                   "attributes": {

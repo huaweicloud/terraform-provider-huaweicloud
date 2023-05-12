@@ -10,9 +10,14 @@ import (
 
 // TurboResponse contains the information of creating response
 type TurboResponse struct {
-	ID     string `json:"id"`
-	Name   string `json:"name"`
+	// The ID of the SFS Turbo file system.
+	ID string `json:"id"`
+	// The name of the SFS Turbo file system.
+	Name string `json:"name"`
+	// The status of the SFS Turbo file system.
 	Status string `json:"status"`
+	// The order ID.
+	OrderId string `json:"orderId"`
 }
 
 // Turbo contains all information associated with an SFS Turbo file system
@@ -64,8 +69,12 @@ type Turbo struct {
 }
 
 type TurboExpandResponse struct {
-	ID   string `json:"id"`
+	// The ID of the SFS Turbo file system.
+	ID string `json:"id"`
+	// The name of the SFS Turbo file system.
 	Name string `json:"name"`
+	// The order ID.
+	OrderId string `json:"orderId"`
 }
 
 func (r *Turbo) UnmarshalJSON(b []byte) error {

@@ -106,9 +106,10 @@ func ResourceCCENodeV3() *schema.Resource {
 							ForceNew: true,
 						},
 						"hw_passthrough": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							ForceNew: true,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "schema: Internal",
 						},
 						"extend_param": {
 							Type:       schema.TypeString,
@@ -148,9 +149,10 @@ func ResourceCCENodeV3() *schema.Resource {
 							ForceNew: true,
 						},
 						"hw_passthrough": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							ForceNew: true,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "schema: Internal",
 						},
 						"extend_param": {
 							Type:       schema.TypeString,
@@ -361,14 +363,16 @@ func ResourceCCENodeV3() *schema.Resource {
 				ForceNew: true,
 			},
 			"ecs_performance_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "schema: Internal",
 			},
 			"product_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "schema: Internal",
 			},
 			"max_pods": {
 				Type:     schema.TypeInt,
@@ -376,9 +380,10 @@ func ResourceCCENodeV3() *schema.Resource {
 				ForceNew: true,
 			},
 			"public_key": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "schema: Internal",
 			},
 			"preinstall": {
 				Type:      schema.TypeString,
@@ -401,10 +406,11 @@ func ResourceCCENodeV3() *schema.Resource {
 			//(node/ecs_tags)
 			"tags": common.TagsSchema(),
 			"annotations": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "schema: Internal",
 			},
 
 			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
@@ -432,8 +438,9 @@ func ResourceCCENodeV3() *schema.Resource {
 				ForceNew: true,
 			},
 			"keep_ecs": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "schema: Internal",
 			},
 			"private_ip": {
 				Type:     schema.TypeString,
@@ -806,7 +813,7 @@ func resourceCCENodeV3Create(ctx context.Context, d *schema.ResourceData, meta i
 		loginSpec = nodes.LoginSpec{
 			SshKey: d.Get("key_pair").(string),
 		}
-	} else if common.HasFilledOpt(d, "password") {
+	} else {
 		password, err := utils.TryPasswordEncrypt(d.Get("password").(string))
 		if err != nil {
 			return diag.FromErr(err)
@@ -1061,7 +1068,7 @@ func resourceCCENodeV3Delete(ctx context.Context, d *schema.ResourceData, meta i
 			loginSpec = nodes.LoginSpec{
 				SshKey: d.Get("key_pair").(string),
 			}
-		} else if common.HasFilledOpt(d, "password") {
+		} else {
 			password, err := utils.TryPasswordEncrypt(d.Get("password").(string))
 			if err != nil {
 				return diag.FromErr(err)
@@ -1102,10 +1109,10 @@ func resourceCCENodeV3Delete(ctx context.Context, d *schema.ResourceData, meta i
 				server, err := cloudservers.Get(computeClient, serverID).Extract()
 				if err != nil {
 					return common.CheckDeletedDiag(d, err, "error retrieving compute instance")
-				} else {
-					if server.Status != "DELETED" && server.Status != "SOFT_DELETED" {
-						resourceIDs = append(resourceIDs, serverID)
-					}
+				}
+
+				if server.Status != "DELETED" && server.Status != "SOFT_DELETED" {
+					resourceIDs = append(resourceIDs, serverID)
 				}
 			}
 
@@ -1181,9 +1188,9 @@ func getResourceIDFromJob(ctx context.Context, client *golangsdk.ServiceClient, 
 		if job, ok := v.(*nodes.Job); ok {
 			return "", fmtp.Errorf("Error waiting for job (%s) to become success: %s, reason: %s",
 				jobID, err, job.Status.Reason)
-		} else {
-			return "", fmtp.Errorf("Error waiting for job (%s) to become success: %s", jobID, err)
 		}
+
+		return "", fmtp.Errorf("Error waiting for job (%s) to become success: %s", jobID, err)
 	}
 
 	job := v.(*nodes.Job)
@@ -1275,7 +1282,7 @@ func waitForJobStatus(cceClient *golangsdk.ServiceClient, jobID string) resource
 	}
 }
 
-func resourceCCENodeV3Import(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceCCENodeV3Import(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
 		err := fmtp.Errorf("Invalid format specified for CCE Node. Format must be <cluster id>/<node id>")
@@ -1291,11 +1298,12 @@ func resourceCCENodeV3Import(_ context.Context, d *schema.ResourceData, meta int
 	return []*schema.ResourceData{d}, nil
 }
 
-func waitForServerTargetState(ctx context.Context, client *golangsdk.ServiceClient, ID string, pending, target []string, timeout time.Duration) error {
+func waitForServerTargetState(ctx context.Context, client *golangsdk.ServiceClient, id string,
+	pending, target []string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:      pending,
 		Target:       target,
-		Refresh:      ServerV1StateRefreshFunc(client, ID),
+		Refresh:      ServerV1StateRefreshFunc(client, id),
 		Timeout:      timeout,
 		Delay:        5 * time.Second,
 		PollInterval: 5 * time.Second,
@@ -1303,7 +1311,7 @@ func waitForServerTargetState(ctx context.Context, client *golangsdk.ServiceClie
 
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("error waiting for instance (%s) to become target state (%v): %s", ID, target, err)
+		return fmtp.Errorf("error waiting for instance (%s) to become target state (%v): %s", id, target, err)
 	}
 	return nil
 }

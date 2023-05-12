@@ -185,9 +185,12 @@ The `volume` block supports:
 
 * `size` - (Required, Int) Specifies the volume size in GB, which must be a multiple of 10.
 
-* `volume_type` - (Required, String, ForceNew) Specifies the volume type. COMMON: Common I/O. The SATA disk is used.
-  HIGH: High I/O. The SAS disk is used. ULTRAHIGH: Ultra-high I/O. The solid-state drive (SSD) is used. Changing this
-  parameter will create a new resource.
+* `volume_type` - (Required, String, ForceNew) Specifies the volume type. Value options are as follows:
+  + **COMMON**: Common I/O. The SATA disk is used.
+  + **HIGH**: High I/O. The SAS disk is used.
+  + **ULTRAHIGH**: Ultra-high I/O. The solid-state drive (SSD) is used.
+
+  Changing this parameter will create a new resource.
 
 <a name="Css_ess_node_config_volume_forceNew"></a>
 The `master_node_config` and `client_node_config` block supports:
@@ -239,8 +242,7 @@ The `vpcep_endpoint` block supports:
 
 * `endpoint_with_dns_name` - (Required, Bool) Specifies whether to enable the private domain name.
 
-* `whitelist` - (Optional, String) Specifies the whitelist of access control.
-  Separate the whitelisted Account IDs with commas (,), and each of them must be unique.
+* `whitelist` - (Optional, List) Specifies the whitelist of access control. The whitelisted account id must be unique.
 
 The `backup_strategy` block supports:
 

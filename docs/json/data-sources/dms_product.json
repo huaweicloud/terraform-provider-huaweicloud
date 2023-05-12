@@ -59,7 +59,6 @@
                   "list",
                   "string"
                 ],
-                "optional": true,
                 "computed": true
               },
               "version": {

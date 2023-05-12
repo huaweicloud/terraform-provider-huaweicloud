@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/dns/v2/ptrrecords"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -49,14 +48,14 @@ func ResourceDNSPtrRecord() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
 			"floatingip_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"ttl": {
 				Type:         schema.TypeInt,
@@ -86,21 +85,11 @@ func resourceDNSPtrRecordCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
 
-	tagmap := d.Get("tags").(map[string]interface{})
-	taglist := []ptrrecords.Tag{}
-	for k, v := range tagmap {
-		tag := ptrrecords.Tag{
-			Key:   k,
-			Value: v.(string),
-		}
-		taglist = append(taglist, tag)
-	}
-
 	createOpts := ptrrecords.CreateOpts{
 		PtrName:             d.Get("name").(string),
 		Description:         d.Get("description").(string),
 		TTL:                 d.Get("ttl").(int),
-		Tags:                taglist,
+		Tags:                getPtrRecordsTagList(d),
 		EnterpriseProjectID: common.GetEnterpriseProjectID(d, conf),
 	}
 
@@ -111,22 +100,9 @@ func resourceDNSPtrRecordCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating DNS PTR record: %s", err)
 	}
 
-	log.Printf("[DEBUG] Waiting for DNS PTR record (%s) to become ACTIVE", n.ID)
-	stateConf := &resource.StateChangeConf{
-		Target:     []string{"ACTIVE"},
-		Pending:    []string{"PENDING_CREATE"},
-		Refresh:    waitForDNSPtrRecord(dnsClient, n.ID),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
-	}
-
-	_, err = stateConf.WaitForStateContext(ctx)
-
+	err = waitForDNSPtrRecordCreateOrUpdate(ctx, dnsClient, n.ID, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return diag.Errorf(
-			"error waiting for PTR record (%s) to become ACTIVE for creation: %s",
-			n.ID, err)
+		return diag.FromErr(err)
 	}
 	d.SetId(n.ID)
 
@@ -134,9 +110,41 @@ func resourceDNSPtrRecordCreate(ctx context.Context, d *schema.ResourceData, met
 	return resourceDNSPtrRecordRead(ctx, d, meta)
 }
 
+func getPtrRecordsTagList(d *schema.ResourceData) []ptrrecords.Tag {
+	tagMap := d.Get("tags").(map[string]interface{})
+	var tagList []ptrrecords.Tag
+	for k, v := range tagMap {
+		tagList = append(tagList, ptrrecords.Tag{
+			Key:   k,
+			Value: v.(string),
+		})
+	}
+	return tagList
+}
+
+func waitForDNSPtrRecordCreateOrUpdate(ctx context.Context, dnsClient *golangsdk.ServiceClient, id string,
+	timeout time.Duration) error {
+	log.Printf("[DEBUG] Waiting for DNS PTR record (%s) to become ACTIVE", id)
+	stateConf := &resource.StateChangeConf{
+		Target:       []string{"ACTIVE"},
+		Pending:      []string{"PENDING_CREATE"},
+		Refresh:      waitForDNSPtrRecord(dnsClient, id),
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 3 * time.Second,
+	}
+	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf(
+			"error waiting for PTR record (%s) create or update: %s", id, err)
+	}
+	return nil
+}
+
 func resourceDNSPtrRecordRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	dnsClient, err := conf.DnsV2Client(conf.GetRegion(d))
+	region := conf.GetRegion(d)
+
+	dnsClient, err := conf.DnsV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
@@ -155,6 +163,7 @@ func resourceDNSPtrRecordRead(_ context.Context, d *schema.ResourceData, meta in
 	}
 
 	mErr := multierror.Append(nil,
+		d.Set("region", region),
 		d.Set("name", n.PtrName),
 		d.Set("description", n.Description),
 		d.Set("floatingip_id", fipID),
@@ -166,14 +175,8 @@ func resourceDNSPtrRecordRead(_ context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error setting resource: %s", mErr)
 	}
 
-	// save tags
-	if resourceTags, err := tags.Get(dnsClient, "DNS-ptr_record", d.Id()).Extract(); err == nil {
-		tagmap := utils.TagsToMap(resourceTags.Tags)
-		if err := d.Set("tags", tagmap); err != nil {
-			return diag.Errorf("error saving tags to state for DNS PTR record (%s): %s", d.Id(), err)
-		}
-	} else {
-		log.Printf("[WARN] Error fetching tags of DNS PTR record (%s): %s", d.Id(), err)
+	if err := utils.SetResourceTagsToState(d, dnsClient, "DNS-ptr_record", d.Id()); err != nil {
+		return diag.FromErr(err)
 	}
 
 	return nil
@@ -201,21 +204,8 @@ func resourceDNSPtrRecordUpdate(ctx context.Context, d *schema.ResourceData, met
 			return diag.Errorf("error updating DNS PTR record: %s", err)
 		}
 
-		log.Printf("[DEBUG] Waiting for DNS PTR record (%s) to become ACTIVE", n.ID)
-		stateConf := &resource.StateChangeConf{
-			Target:     []string{"ACTIVE"},
-			Pending:    []string{"PENDING_CREATE"},
-			Refresh:    waitForDNSPtrRecord(dnsClient, n.ID),
-			Timeout:    d.Timeout(schema.TimeoutCreate),
-			Delay:      5 * time.Second,
-			MinTimeout: 3 * time.Second,
-		}
-
-		_, err = stateConf.WaitForStateContext(ctx)
-		if err != nil {
-			return diag.Errorf(
-				"error waiting for PTR record (%s) to become ACTIVE for update: %s",
-				n.ID, err)
+		if err = waitForDNSPtrRecordCreateOrUpdate(ctx, dnsClient, n.ID, d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return diag.FromErr(err)
 		}
 
 		log.Printf("[DEBUG] Updated DNS PTR record %s: %#v", n.ID, n)
@@ -244,12 +234,12 @@ func resourceDNSPtrRecordDelete(ctx context.Context, d *schema.ResourceData, met
 
 	log.Printf("[DEBUG] Waiting for DNS PTR record (%s) to be deleted", d.Id())
 	stateConf := &resource.StateChangeConf{
-		Target:     []string{"DELETED"},
-		Pending:    []string{"ACTIVE", "PENDING_DELETE", "ERROR"},
-		Refresh:    waitForDNSPtrRecord(dnsClient, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Target:       []string{"DELETED"},
+		Pending:      []string{"ACTIVE", "PENDING_DELETE", "ERROR"},
+		Refresh:      waitForDNSPtrRecord(dnsClient, d.Id()),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        5 * time.Second,
+		PollInterval: 3 * time.Second,
 	}
 
 	_, err = stateConf.WaitForStateContext(ctx)
@@ -258,24 +248,21 @@ func resourceDNSPtrRecordDelete(ctx context.Context, d *schema.ResourceData, met
 			"error waiting for PTR record (%s) to become DELETED for deletion: %s",
 			d.Id(), err)
 	}
-
 	d.SetId("")
 	return nil
 }
 
 func waitForDNSPtrRecord(dnsClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		ptrrecord, err := ptrrecords.Get(dnsClient, id).Extract()
+		ptrRecord, err := ptrrecords.Get(dnsClient, id).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return ptrrecord, "DELETED", nil
+				return ptrRecord, "DELETED", nil
 			}
-
 			return nil, "", err
 		}
-
-		log.Printf("[DEBUG] DNS PTR record (%s) current status: %s", ptrrecord.ID, ptrrecord.Status)
-		return ptrrecord, ptrrecord.Status, nil
+		log.Printf("[DEBUG] DNS PTR record (%s) current status: %s", ptrRecord.ID, ptrRecord.Status)
+		return ptrRecord, ptrRecord.Status, nil
 	}
 }
 

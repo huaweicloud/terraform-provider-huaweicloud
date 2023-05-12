@@ -137,7 +137,7 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "computed": true
               },
               "type": {
                 "type": "string",

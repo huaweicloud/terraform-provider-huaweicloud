@@ -1,0 +1,22 @@
+info:
+  version: 
+  title: resource_huaweicloud_apig_signature_associate
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: APIG
+paths:
+  /v2/{project_id}/apigw/instances/{instanceId}/sign-bindings/binded-apis:
+    get:
+      tag: APIG
+      operationId: ListBind
+  /v2/{project_id}/apigw/instances/{instanceId}/sign-bindings/{bindId}:
+    delete:
+      tag: APIG
+      operationId: Unbind
+  /v2/{project_id}/apigw/instances/{instanceId}/sign-bindings:
+    post:
+      tag: APIG
+      operationId: Bind

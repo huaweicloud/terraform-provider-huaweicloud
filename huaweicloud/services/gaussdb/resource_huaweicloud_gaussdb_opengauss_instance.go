@@ -164,9 +164,6 @@ func ResourceOpenGaussInstance() *schema.Resource {
 					2, 3,
 				}),
 				Default: 3,
-				ConflictsWith: []string{
-					"sharding_num", "coordinator_num",
-				},
 			},
 			"security_group_id": {
 				Type:     schema.TypeString,
@@ -571,7 +568,7 @@ func setOpenGaussNodesAndRelatedNumbers(d *schema.ResourceData, instance instanc
 	}
 
 	if shardingNum > 0 && coordinatorNum > 0 {
-		*dnNum = shardingNum / 3
+		*dnNum = shardingNum / d.Get("replica_num").(int)
 		return multierror.Append(nil,
 			d.Set("nodes", nodesList),
 			d.Set("sharding_num", dnNum),

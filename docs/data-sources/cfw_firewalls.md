@@ -21,7 +21,10 @@ The following arguments are supported:
 * `region` - (Optional, String) Specifies the region in which to query the data source.
   If omitted, the provider-level region will be used.
 
-* `service_type` - (Required, Int) Specifies the service type. The value can be:
+* `fw_instance_id` - (Optional, String) Specifies the firewall instance ID.
+  If not specified, the first instance will be returned.
+
+* `service_type` - (Optional, Int) Specifies the service type. The value can be:
   + **0**: North-south firewall;
   + **1**: East-west firewall;
 

@@ -1,42 +1,17 @@
 package channels
 
 import (
-	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
 )
 
-type commonResult struct {
-	golangsdk.Result
-}
-
-// GetResult represents the result of a create operation.
-type CreateResult struct {
-	commonResult
-}
-
-// UdpateResult represents the result of a update operation.
-type UpdateResult struct {
-	commonResult
-}
-
-// GetResult represents the result of a update operation.
-type GetResult struct {
-	commonResult
-}
-
-type VpcChannel struct {
-	// VPC channel name.
-	// A VPC channel name can contain 3 to 64 characters, starting with a letter.
+// Channel is the structure that represents the channel detail.
+type Channel struct {
+	// Channel name.
+	// A channel name can contain 3 to 64 characters, starting with a letter.
 	// Only letters, digits, hyphens (-), and underscores (_) are allowed.
 	// Chinese characters must be in UTF-8 or Unicode format.
 	Name string `json:"name"`
-	// VPC channel type.
-	// 1: private network ELB channel (to be deprecated)
-	// 2: fast channel with the load balancing function
-	Type int `json:"type"`
-	// Host port of the VPC channel.
-	// This parameter is valid only when the VPC channel type is set to 2.
-	// This parameter is required if the VPC channel type is set to 2.
+	// Host port of the channel.
 	// The value range is 1–65535.
 	Port int `json:"port"`
 	// Distribution algorithm.
@@ -44,109 +19,107 @@ type VpcChannel struct {
 	// 2: WLC
 	// 3: SH
 	// 4: URI hashing
-	// This parameter is mandatory if the VPC channel type is set to 2.
 	BalanceStrategy int `json:"balance_strategy"`
-	// Member type of the VPC channel.
+	// Member type of the channel.
 	// ip
 	// ecs (default)
-	// This parameter is required if the VPC channel type is set to 2.
 	MemberType string `json:"member_type"`
-	// Time when the VPC channel is created.
+	// Channel type.
+	// + 2: Server type.
+	// + 3: Microservice type.
+	Type int `json:"type"`
+	// Dictionary code of the channel.
+	// The value can contain letters, digits, hyphens (-), underscores (_), and periods (.).
+	DictCode string `json:"dict_code"`
+	// Time when the channel is created.
 	CreateTime string `json:"create_time"`
-	// VPC channel ID.
-	Id string `json:"id"`
-	// VPC channel status.
+	// Channel ID.
+	ID string `json:"id"`
+	// Channel status.
 	// 1: normal
 	// 2: abnormal
 	Status int `json:"status"`
-	// ID of a private network ELB channel.
-	// This parameter is valid only when the VPC channel type is set to 1.
-	ElbId string `json:"elb_id"`
-	// Backend server list. Only one backend server is included if the VPC channel type is set to 1.
+	// Backend server groups of the channel.
+	MemberGroups []MemberGroup `json:"member_groups"`
+	// Backend server list. Only one backend server is included if the channel type is set to 1.
 	Members []MemberInfo `json:"members"`
 	// Health check details.
-	VpcHealthConfig VpcHealthConfig `json:"vpc_health_config"`
+	VpcHealthConfig *VpcHealthConfig `json:"vpc_health_config"`
+	// Microservice details.
+	MicroserviceConfig *MicroserviceConfig `json:"microservice_info"`
 }
 
-func (r commonResult) Extract() (*VpcChannel, error) {
-	var s VpcChannel
-	err := r.ExtractInto(&s)
-	return &s, err
-}
-
-// The ChannelPage represents the result of a List operation.
+// ChannelPage is a single page maximum result representing a query by offset page.
 type ChannelPage struct {
-	pagination.SinglePageBase
+	pagination.OffsetPageBase
 }
 
-// ExtractChannels its Extract method to interpret it as a channel array.
-func ExtractChannels(r pagination.Page) ([]VpcChannel, error) {
-	var s []VpcChannel
+// IsEmpty checks whether a ChannelPage struct is empty.
+func (b ChannelPage) IsEmpty() (bool, error) {
+	arr, err := ExtractChannels(b)
+	return len(arr) == 0, err
+}
+
+// ExtractChannels is a method to extract the list of channels.
+func ExtractChannels(r pagination.Page) ([]Channel, error) {
+	var s []Channel
 	err := r.(ChannelPage).Result.ExtractIntoSlicePtr(&s, "vpc_channels")
 	return s, err
 }
 
-type DeleteResult struct {
-	golangsdk.ErrResult
-}
-
-type MemberResult struct {
-	golangsdk.Result
-}
-
-type AddBackendResult struct {
-	MemberResult
-}
-
-type GetBackendResult struct {
-	MemberResult
-}
-
 type Member struct {
-	// VPC channel name.
-	// A VPC channel name can contain 3 to 64 characters, starting with a letter.
+	// Channel name.
+	// A channel name can contain 3 to 64 characters, starting with a letter.
 	// Only letters, digits, hyphens (-), and underscores (_) are allowed.
 	// Chinese characters must be in UTF-8 or Unicode format.
 	Name string `json:"name"`
-	// VPC channel type.
+	// Channel type.
 	// 1: private network ELB channel (to be deprecated)
 	// 2: fast channel with the load balancing function
 	Type int `json:"type"`
-	// Host port of the VPC channel.
-	// This parameter is valid only when the VPC channel type is set to 2. The value range is 1–65535.
-	// This parameter is required if the VPC channel type is set to 2.
+	// Host port of the channel.
+	// This parameter is valid only when the channel type is set to 2. The value range is 1–65535.
+	// This parameter is required if the channel type is set to 2.
 	Port int `json:"port"`
 	// Distribution algorithm.
 	// 1: WRR (default)
 	// 2: WLC
 	// 3: SH
 	// 4: URI hashing
-	// This parameter is mandatory if the VPC channel type is set to 2.
+	// This parameter is mandatory if the channel type is set to 2.
 	BalanceStrategy int `json:"balance_strategy"`
-	// Member type of the VPC channel.
+	// Member type of the channel.
 	// ip
 	// ecs (default)
-	// This parameter is required if the VPC channel type is set to 2.
+	// This parameter is required if the channel type is set to 2.
 	MemberType string `json:"member_type"`
-	// Time when the VPC channel is created.
+	// Time when the channel is created.
 	CreateTime string `json:"create_time"`
-	// VPC channel ID.
+	// Channel ID.
 	Id string `json:"id"`
-	// VPC channel status.
+	// Channel status.
 	// 1: normal
 	// 2: abnormal
 	Status int `json:"status"`
 	// ID of a private network ELB channel.
-	// This parameter is valid only when the VPC channel type is set to 1.
+	// This parameter is valid only when the channel type is set to 1.
 	ElbId string `json:"elb_id"`
 }
 
-func (r MemberResult) Extract() ([]Member, error) {
-	var s []Member
-	err := r.ExtractIntoStructPtr(&s, "members")
-	return s, err
+// MemberPage is a single page maximum result representing a query by offset page.
+type MemberPage struct {
+	pagination.OffsetPageBase
 }
 
-type RemoveResult struct {
-	golangsdk.ErrResult
+// IsEmpty checks whether a MemberPage struct is empty.
+func (b MemberPage) IsEmpty() (bool, error) {
+	arr, err := ExtractMembers(b)
+	return len(arr) == 0, err
+}
+
+// ExtractMembers is a method to extract the list of backend members.
+func ExtractMembers(r pagination.Page) ([]MemberInfo, error) {
+	var s []MemberInfo
+	err := r.(MemberPage).Result.ExtractIntoSlicePtr(&s, "members")
+	return s, err
 }

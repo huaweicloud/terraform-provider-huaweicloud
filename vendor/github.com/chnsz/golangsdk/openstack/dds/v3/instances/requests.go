@@ -8,28 +8,34 @@ import (
 )
 
 type CreateOpts struct {
-	Name                string         `json:"name"  required:"true"`
-	DataStore           DataStore      `json:"datastore" required:"true"`
-	Region              string         `json:"region" required:"true"`
-	AvailabilityZone    string         `json:"availability_zone" required:"true"`
-	VpcId               string         `json:"vpc_id" required:"true"`
-	SubnetId            string         `json:"subnet_id" required:"true"`
-	SecurityGroupId     string         `json:"security_group_id" required:"true"`
-	Password            string         `json:"password" required:"true"`
-	Port                string         `json:"port,omitempty"`
-	DiskEncryptionId    string         `json:"disk_encryption_id,omitempty"`
-	Ssl                 string         `json:"ssl_option,omitempty"`
-	Mode                string         `json:"mode" required:"true"`
-	Flavor              []Flavor       `json:"flavor" required:"true"`
-	BackupStrategy      BackupStrategy `json:"backup_strategy,omitempty"`
-	EnterpriseProjectID string         `json:"enterprise_project_id,omitempty"`
-	ChargeInfo          *ChargeInfo    `json:"charge_info,omitempty"`
+	Name                string          `json:"name"  required:"true"`
+	DataStore           DataStore       `json:"datastore" required:"true"`
+	Region              string          `json:"region" required:"true"`
+	AvailabilityZone    string          `json:"availability_zone" required:"true"`
+	VpcId               string          `json:"vpc_id" required:"true"`
+	SubnetId            string          `json:"subnet_id" required:"true"`
+	SecurityGroupId     string          `json:"security_group_id" required:"true"`
+	Password            string          `json:"password" required:"true"`
+	Port                string          `json:"port,omitempty"`
+	DiskEncryptionId    string          `json:"disk_encryption_id,omitempty"`
+	Ssl                 string          `json:"ssl_option,omitempty"`
+	Mode                string          `json:"mode" required:"true"`
+	Configuration       []Configuration `json:"configurations,omitempty"`
+	Flavor              []Flavor        `json:"flavor" required:"true"`
+	BackupStrategy      BackupStrategy  `json:"backup_strategy,omitempty"`
+	EnterpriseProjectID string          `json:"enterprise_project_id,omitempty"`
+	ChargeInfo          *ChargeInfo     `json:"charge_info,omitempty"`
 }
 
 type DataStore struct {
 	Type          string `json:"type" required:"true"`
 	Version       string `json:"version" required:"true"`
 	StorageEngine string `json:"storage_engine" required:"true"`
+}
+
+type Configuration struct {
+	Type string `json:"type" required:"true"`
+	Id   string `json:"configuration_id" required:"true"`
 }
 
 type Flavor struct {

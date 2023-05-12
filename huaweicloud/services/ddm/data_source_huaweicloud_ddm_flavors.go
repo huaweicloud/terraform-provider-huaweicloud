@@ -287,5 +287,5 @@ func buildGetDdmFlavorsQueryParams(d *schema.ResourceData, offset int) string {
 
 func updatePathOffset(path string, offset int) string {
 	index := strings.Index(path, "offset")
-	return fmt.Sprintf("%s&offset=%v", path[:index], offset)
+	return fmt.Sprintf("%soffset=%v", path[:index], offset)
 }

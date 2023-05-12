@@ -15,20 +15,9 @@
                 "computed": true,
                 "forcenew": true
               },
-              "flavor": {
-                "type": "string",
-                "optional": true,
-                "forcenew": true
-              },
               "id": {
                 "type": "string",
                 "computed": true
-              },
-              "loadbalancer_provider": {
-                "type": "string",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
               },
               "name": {
                 "type": "string",
@@ -40,14 +29,6 @@
               },
               "region": {
                 "type": "string",
-                "computed": true
-              },
-              "security_group_ids": {
-                "type": [
-                  "set",
-                  "string"
-                ],
-                "optional": true,
                 "computed": true
               },
               "tags": {

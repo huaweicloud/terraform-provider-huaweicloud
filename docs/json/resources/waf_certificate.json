@@ -10,6 +10,11 @@
                 "required": true,
                 "forcenew": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "expiration": {
                 "type": "string",
                 "computed": true

@@ -36,18 +36,23 @@ var (
 	HW_ENTERPRISE_PROJECT_ID = os.Getenv("HW_ENTERPRISE_PROJECT_ID")
 	HW_MAPREDUCE_CUSTOM      = os.Getenv("HW_MAPREDUCE_CUSTOM")
 	HW_ADMIN                 = os.Getenv("HW_ADMIN")
-	HW_OBS_BUCKET_NAME       = os.Getenv("HW_OBS_BUCKET_NAME")
+
+	HW_OBS_BUCKET_NAME        = os.Getenv("HW_OBS_BUCKET_NAME")
+	HW_OBS_DESTINATION_BUCKET = os.Getenv("HW_OBS_DESTINATION_BUCKET")
+
+	HW_OMS_ENABLE_FLAG = os.Getenv("HW_OMS_ENABLE_FLAG")
 
 	HW_DEPRECATED_ENVIRONMENT = os.Getenv("HW_DEPRECATED_ENVIRONMENT")
 	HW_INTERNAL_USED          = os.Getenv("HW_INTERNAL_USED")
 
 	HW_WAF_ENABLE_FLAG = os.Getenv("HW_WAF_ENABLE_FLAG")
 
-	HW_DEST_REGION         = os.Getenv("HW_DEST_REGION")
-	HW_DEST_PROJECT_ID     = os.Getenv("HW_DEST_PROJECT_ID")
-	HW_CHARGING_MODE       = os.Getenv("HW_CHARGING_MODE")
-	HW_HIGH_COST_ALLOW     = os.Getenv("HW_HIGH_COST_ALLOW")
-	HW_SWR_SHARING_ACCOUNT = os.Getenv("HW_SWR_SHARING_ACCOUNT")
+	HW_DEST_REGION          = os.Getenv("HW_DEST_REGION")
+	HW_DEST_PROJECT_ID      = os.Getenv("HW_DEST_PROJECT_ID")
+	HW_DEST_PROJECT_ID_TEST = os.Getenv("HW_DEST_PROJECT_ID_TEST")
+	HW_CHARGING_MODE        = os.Getenv("HW_CHARGING_MODE")
+	HW_HIGH_COST_ALLOW      = os.Getenv("HW_HIGH_COST_ALLOW")
+	HW_SWR_SHARING_ACCOUNT  = os.Getenv("HW_SWR_SHARING_ACCOUNT")
 
 	HW_CERTIFICATE_KEY_PATH         = os.Getenv("HW_CERTIFICATE_KEY_PATH")
 	HW_CERTIFICATE_CHAIN_PATH       = os.Getenv("HW_CERTIFICATE_CHAIN_PATH")
@@ -58,7 +63,6 @@ var (
 	HW_CERTIFICATE_NAME             = os.Getenv("HW_CERTIFICATE_NAME")
 	HW_DMS_ENVIRONMENT              = os.Getenv("HW_DMS_ENVIRONMENT")
 	HW_SMS_SOURCE_SERVER            = os.Getenv("HW_SMS_SOURCE_SERVER")
-	HW_CFW_ENVIRONMENT              = os.Getenv("HW_CFW_ENVIRONMENT")
 
 	HW_DLI_FLINK_JAR_OBS_PATH           = os.Getenv("HW_DLI_FLINK_JAR_OBS_PATH")
 	HW_DLI_DS_AUTH_CSS_OBS_PATH         = os.Getenv("HW_DLI_DS_AUTH_CSS_OBS_PATH")
@@ -66,13 +70,15 @@ var (
 	HW_DLI_DS_AUTH_KAFKA_KEY_OBS_PATH   = os.Getenv("HW_DLI_DS_AUTH_KAFKA_KEY_OBS_PATH")
 	HW_DLI_DS_AUTH_KRB_CONF_OBS_PATH    = os.Getenv("HW_DLI_DS_AUTH_KRB_CONF_OBS_PATH")
 	HW_DLI_DS_AUTH_KRB_TAB_OBS_PATH     = os.Getenv("HW_DLI_DS_AUTH_KRB_TAB_OBS_PATH")
+	HW_DLI_AGENCY_FLAG                  = os.Getenv("HW_DLI_AGENCY_FLAG")
 
-	HW_GITHUB_REPO_HOST      = os.Getenv("HW_GITHUB_REPO_HOST")      // Repository host (Github, Gitlab, Gitee)
-	HW_GITHUB_PERSONAL_TOKEN = os.Getenv("HW_GITHUB_PERSONAL_TOKEN") // Personal access token (Github, Gitlab, Gitee)
-	HW_GITHUB_REPO_PWD       = os.Getenv("HW_GITHUB_REPO_PWD")       // Repository password (DevCloud, BitBucket)
-	HW_GITHUB_REPO_URL       = os.Getenv("HW_GITHUB_REPO_URL")       // Repository URL (Github, Gitlab, Gitee)
-	HW_OBS_STORAGE_URL       = os.Getenv("HW_OBS_STORAGE_URL")       // OBS storage URL where ZIP file is located
-	HW_BUILD_IMAGE_URL       = os.Getenv("HW_BUILD_IMAGE_URL")       // SWR Image URL for component deployment
+	HW_GITHUB_REPO_HOST        = os.Getenv("HW_GITHUB_REPO_HOST")        // Repository host (Github, Gitlab, Gitee)
+	HW_GITHUB_PERSONAL_TOKEN   = os.Getenv("HW_GITHUB_PERSONAL_TOKEN")   // Personal access token (Github, Gitlab, Gitee)
+	HW_GITHUB_REPO_PWD         = os.Getenv("HW_GITHUB_REPO_PWD")         // Repository password (DevCloud, BitBucket)
+	HW_GITHUB_REPO_URL         = os.Getenv("HW_GITHUB_REPO_URL")         // Repository URL (Github, Gitlab, Gitee)
+	HW_OBS_STORAGE_URL         = os.Getenv("HW_OBS_STORAGE_URL")         // OBS storage URL where ZIP file is located
+	HW_BUILD_IMAGE_URL         = os.Getenv("HW_BUILD_IMAGE_URL")         // SWR Image URL for component deployment
+	HW_BUILD_IMAGE_URL_UPDATED = os.Getenv("HW_BUILD_IMAGE_URL_UPDATED") // SWR Image URL for component deployment update
 
 	HW_VOD_WATERMARK_FILE   = os.Getenv("HW_VOD_WATERMARK_FILE")
 	HW_VOD_MEDIA_ASSET_FILE = os.Getenv("HW_VOD_MEDIA_ASSET_FILE")
@@ -111,11 +117,29 @@ var (
 	// The direct connection ID (provider does not support direct connection resource).
 	HW_DC_DIRECT_CONNECT_ID = os.Getenv("HW_DC_DIRECT_CONNECT_ID")
 
+	// The CFW instance ID
+	HW_CFW_INSTANCE_ID = os.Getenv("HW_CFW_INSTANCE_ID")
+
+	// The cluster ID of the CCE
+	HW_CCE_CLUSTER_ID = os.Getenv("HW_CCE_CLUSTER_ID")
+	// The namespace of the workload is located
+	HW_WORKLOAD_NAMESPACE = os.Getenv("HW_WORKLOAD_NAMESPACE")
+	// The workload type deployed in CCE/CCI
+	HW_WORKLOAD_TYPE = os.Getenv("HW_WORKLOAD_TYPE")
+	// The workload name deployed in CCE/CCI
+	HW_WORKLOAD_NAME = os.Getenv("HW_WORKLOAD_NAME")
+	// The target region of SWR image auto sync
+	HW_SWR_TARGET_REGION = os.Getenv("HW_SWR_TARGET_REGION")
+	// The target organization of SWR image auto sync
+	HW_SWR_TARGET_ORGANIZATION = os.Getenv("HW_SWR_TARGET_ORGANIZATION")
+
 	// Deprecated
 	HW_SRC_ACCESS_KEY = os.Getenv("HW_SRC_ACCESS_KEY")
 	HW_SRC_SECRET_KEY = os.Getenv("HW_SRC_SECRET_KEY")
 	HW_EXTGW_ID       = os.Getenv("HW_EXTGW_ID")
 	HW_POOL_NAME      = os.Getenv("HW_POOL_NAME")
+
+	HW_IMAGE_SHARE_SOURCE_IMAGE_ID = os.Getenv("HW_IMAGE_SHARE_SOURCE_IMAGE_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -204,7 +228,7 @@ func TestAccPreCheckEpsID(t *testing.T) {
 
 // lintignore:AT003
 func TestAccPreCheckMigrateEpsID(t *testing.T) {
-	if HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST == "" {
+	if HW_ENTERPRISE_PROJECT_ID_TEST == "" || HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST == "" {
 		t.Skip("The environment variables does not support Migrate Enterprise Project ID for acc tests")
 	}
 }
@@ -275,6 +299,13 @@ func TestAccPrecheckWafInstance(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckOmsInstance(t *testing.T) {
+	if HW_OMS_ENABLE_FLAG == "" {
+		t.Skip("Jump the OMS acceptance tests.")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckAdminOnly(t *testing.T) {
 	if HW_ADMIN == "" {
 		t.Skip("Skipping test because it requires the admin privileges")
@@ -285,6 +316,13 @@ func TestAccPreCheckAdminOnly(t *testing.T) {
 func TestAccPreCheckReplication(t *testing.T) {
 	if HW_DEST_REGION == "" || HW_DEST_PROJECT_ID == "" {
 		t.Skip("Jump the replication policy acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckProjectId(t *testing.T) {
+	if HW_DEST_PROJECT_ID_TEST == "" {
+		t.Skip("Skipping test because it requires the test project id.")
 	}
 }
 
@@ -306,6 +344,13 @@ func TestAccPreCheckOBS(t *testing.T) {
 func TestAccPreCheckOBSBucket(t *testing.T) {
 	if HW_OBS_BUCKET_NAME == "" {
 		t.Skip("HW_OBS_BUCKET_NAME must be set for OBS object acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckOBSDestinationBucket(t *testing.T) {
+	if HW_OBS_DESTINATION_BUCKET == "" {
+		t.Skip("HW_OBS_DESTINATION_BUCKET must be set for OBS destination tests")
 	}
 }
 
@@ -378,6 +423,13 @@ func TestAccPreCheckDliDsAuthKrb(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckDliAgency(t *testing.T) {
+	if HW_DLI_AGENCY_FLAG == "" {
+		t.Skip("HW_DLI_AGENCY_FLAG must be set for DLI datasource DLI agency acceptance tests.")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckRepoTokenAuth(t *testing.T) {
 	if HW_GITHUB_REPO_HOST == "" || HW_GITHUB_PERSONAL_TOKEN == "" {
 		t.Skip("Repository configurations are not completed for acceptance test of personal access token authorization.")
@@ -402,6 +454,13 @@ func TestAccPreCheckComponent(t *testing.T) {
 func TestAccPreCheckComponentDeployment(t *testing.T) {
 	if HW_BUILD_IMAGE_URL == "" {
 		t.Skip("SWR image URL configuration is not completed for acceptance test of component deployment.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckImageUrlUpdated(t *testing.T) {
+	if HW_BUILD_IMAGE_URL_UPDATED == "" {
+		t.Skip("SWR image update URL configuration is not completed for acceptance test of component deployment.")
 	}
 }
 
@@ -510,7 +569,56 @@ func TestAccPreCheckDcDirectConnection(t *testing.T) {
 
 // lintignore:AT003
 func TestAccPreCheckCfw(t *testing.T) {
-	if HW_CFW_ENVIRONMENT == "" {
-		t.Skip("This environment does not support CFW tests")
+	if HW_CFW_INSTANCE_ID == "" {
+		t.Skip("HW_CFW_INSTANCE_ID must be set for CFW acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckWorkloadType(t *testing.T) {
+	if HW_WORKLOAD_TYPE == "" {
+		t.Skip("HW_WORKLOAD_TYPE must be set for SWR image trigger acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckWorkloadName(t *testing.T) {
+	if HW_WORKLOAD_NAME == "" {
+		t.Skip("HW_WORKLOAD_NAME must be set for SWR image trigger acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCceClusterId(t *testing.T) {
+	if HW_CCE_CLUSTER_ID == "" {
+		t.Skip("HW_CCE_CLUSTER_ID must be set for SWR image trigger acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckWorkloadNameSpace(t *testing.T) {
+	if HW_WORKLOAD_NAMESPACE == "" {
+		t.Skip("HW_WORKLOAD_NAMESPACE must be set for SWR image trigger acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSwrTargetRegion(t *testing.T) {
+	if HW_SWR_TARGET_REGION == "" {
+		t.Skip("HW_SWR_TARGET_REGION must be set for SWR image auto sync tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSwrTargetOrigination(t *testing.T) {
+	if HW_SWR_TARGET_ORGANIZATION == "" {
+		t.Skip("HW_SWR_TARGET_ORGANIZATION must be set for SWR image auto sync tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSourceImage(t *testing.T) {
+	if HW_IMAGE_SHARE_SOURCE_IMAGE_ID == "" {
+		t.Skip("Skip the interface acceptance test because of the source image ID is missing.")
 	}
 }

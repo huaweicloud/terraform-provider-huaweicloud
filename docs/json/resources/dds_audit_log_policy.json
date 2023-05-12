@@ -1,0 +1,61 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dds_audit_log_policy": {
+          "block": {
+            "attributes": {
+              "audit_scope": {
+                "type": "string",
+                "description": "Specifies the audit scope.",
+                "optional": true,
+                "computed": true
+              },
+              "audit_types": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the audit type.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the DDS instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "keep_days": {
+                "type": "number",
+                "description": "Specifies the number of days for storing audit logs.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "reserve_auditlogs": {
+                "type": "string",
+                "description": "Specifies whether the historical audit logs are retained when SQL audit is disabled.",
+                "optional": true,
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

@@ -5,7 +5,7 @@ import (
 	"github.com/chnsz/golangsdk/pagination"
 )
 
-//Instance is a struct which represents all the infromation of a instance
+// Instance is a struct which represents all the infromation of a instance
 type Instance struct {
 	ID                string `json:"instance_id"`
 	Name              string `json:"instance_name"`
@@ -16,9 +16,10 @@ type Instance struct {
 	ConfigurationName string `json:"scaling_configuration_name"`
 	ConfigurationID   string `json:"scaling_configuration_id"`
 	CreateTime        string `json:"create_time"`
+	Protected         bool   `json:"protect_from_scaling_down"`
 }
 
-//InstancePage is a struct which can do the page function
+// InstancePage is a struct which can do the page function
 type InstancePage struct {
 	pagination.SinglePageBase
 }
@@ -35,12 +36,12 @@ func (r InstancePage) Extract() ([]Instance, error) {
 	return instances, err
 }
 
-//DeleteResult is a struct which contains the result of deletion instance
+// DeleteResult is a struct which contains the result of deletion instance
 type DeleteResult struct {
 	golangsdk.ErrResult
 }
 
-//BatchResult is a struct which contains the result of batch operations
+// BatchResult is a struct which contains the result of batch operations
 type BatchResult struct {
 	golangsdk.ErrResult
 }

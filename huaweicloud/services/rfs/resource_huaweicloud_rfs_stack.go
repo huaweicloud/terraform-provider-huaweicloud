@@ -72,16 +72,17 @@ func ResourceStack() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							ForceNew:    true,
-							Description: `The name of IAM agency authorized to IAC account for resources modification.`,
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: "schema: Required; The name of IAM agency authorized to IAC account for " +
+								"resources modification.",
 						},
 						"provider_name": {
 							Type:        schema.TypeString,
 							Optional:    true,
 							ForceNew:    true,
-							Description: `The name of the provider corresponding to the IAM agency.`,
+							Description: "schema: Required; The name of the provider corresponding to the IAM agency.",
 						},
 					},
 				},

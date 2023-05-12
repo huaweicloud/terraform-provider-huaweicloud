@@ -11,7 +11,8 @@
               },
               "app": {
                 "type": "string",
-                "optional": true
+                "description": "schema: Required",
+                "required": true
               },
               "app_agency": {
                 "type": "string",

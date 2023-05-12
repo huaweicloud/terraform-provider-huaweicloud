@@ -138,6 +138,7 @@ func ResourceCssCluster() *schema.Resource {
 				ForceNew:     true,
 				RequiredWith: []string{"vpc_id", "subnet_id", "security_group_id"},
 				Computed:     true,
+				Description:  "schema: Required",
 			},
 
 			"vpc_id": {
@@ -481,8 +482,6 @@ func cssNodeSchema(min, max int, canExtendsVolume bool) *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
-							ValidateFunc: validation.StringInSlice([]string{"COMMON", "HIGH", "ULTRAHIGH"},
-								false),
 						},
 					},
 				},

@@ -96,9 +96,6 @@ func ResourceCCIPersistentVolumeClaimV1() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Default:  "sas",
-				ValidateFunc: validation.StringInSlice([]string{
-					"sas", "ssd", "sata", "obs", "nfs-rw", "efs-standard", "efs-performance",
-				}, false),
 			},
 			"access_modes": {
 				Type:     schema.TypeList,

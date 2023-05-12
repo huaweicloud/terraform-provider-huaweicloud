@@ -266,6 +266,45 @@
                 "forcenew": true,
                 "max_items": 1
               },
+              "component_configs": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "block_types": {
+                    "configs": {
+                      "block": {
+                        "attributes": {
+                          "config_file_name": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "key": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true,
+                      "min_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              },
               "custom_nodes": {
                 "block": {
                   "attributes": {

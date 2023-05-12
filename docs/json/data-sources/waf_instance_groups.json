@@ -13,27 +13,7 @@
                     {
                       "body_limit": "number",
                       "connection_timeout": "number",
-                      "dedicated_instances": [
-                        "list",
-                        [
-                          "object",
-                          {
-                            "id": "string",
-                            "name": "string"
-                          }
-                        ]
-                      ],
                       "description": "string",
-                      "domain_names": [
-                        "list",
-                        [
-                          "object",
-                          {
-                            "id": "string",
-                            "name": "string"
-                          }
-                        ]
-                      ],
                       "header_limit": "number",
                       "load_balancers": [
                         "list",

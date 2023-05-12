@@ -12,8 +12,12 @@ used. The domain name resource can be used in Cloud Mode.
 ## Example Usage
 
 ```hcl
+variable "enterprise_project_id" {}
+
 resource "huaweicloud_waf_certificate" "certificate_1" {
-  name        = "cert_1"
+  name                  = "cert_1"
+  enterprise_project_id = var.enterprise_project_id
+  
   certificate = <<EOT
 -----BEGIN CERTIFICATE-----
 MIIFmQl5dh2QUAeo39TIKtadgAgh4zHx09kSgayS9Wph9LEqq7MA+2042L3J9aOa
@@ -34,10 +38,11 @@ EOT
 }
 
 resource "huaweicloud_waf_domain" "domain_1" {
-  domain           = "www.example.com"
-  certificate_id   = huaweicloud_waf_certificate.certificate_1.id
-  certificate_name = huaweicloud_waf_certificate.certificate_1.name
-  proxy            = true
+  domain                = "www.example.com"
+  certificate_id        = huaweicloud_waf_certificate.certificate_1.id
+  certificate_name      = huaweicloud_waf_certificate.certificate_1.name
+  proxy                 = true
+  enterprise_project_id = var.enterprise_project_id
 
   server {
     client_protocol = "HTTPS"
@@ -55,15 +60,15 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the WAF domain resource. If omitted, the
   provider-level region will be used. Changing this setting will push a new certificate.
 
-* `domain` - (Required, String, ForceNew) Specifies the domain name to be protected. For example, www.example.com or
-  *.example.com. Changing this creates a new domain.
+* `domain` - (Required, String, ForceNew) Specifies the domain name to be protected. For example, `www.example.com` or
+  `*.example.com`. Changing this creates a new domain.
 
 * `server` - (Required, List) Specifies an array of origin web servers. The object structure is documented below.
 
-* `certificate_id` - (Required, String) Specifies the certificate ID. This parameter is mandatory when `client_protocol`
+* `certificate_id` - (Optional, String) Specifies the certificate ID. This parameter is mandatory when `client_protocol`
   is set to HTTPS.
 
-* `certificate_name` - (Required, String) Specifies the certificate name. This parameter is mandatory
+* `certificate_name` - (Optional, String) Specifies the certificate name. This parameter is mandatory
   when `client_protocol` is set to HTTPS.
 
 * `policy_id` - (Optional, String, ForceNew) Specifies the policy ID associated with the domain. If not specified, a new
@@ -77,6 +82,9 @@ The following arguments are supported:
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the domain. Valid values are *prePaid*
   and *postPaid*, defaults to *prePaid*. Changing this creates a new instance.
 
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF domain.
+  Changing this parameter will create a new resource.
+
 The `server` block supports:
 
 * `client_protocol` - (Required, String) Protocol type of the client. The options include `HTTP` and `HTTPS`.
@@ -85,7 +93,7 @@ The `server` block supports:
   include `HTTP` and `HTTPS`.
 
 * `address` - (Required, String) IP address or domain name of the web server that the client accesses. For example,
-  192.168.1.1 or www.a.com.
+  `192.168.1.1` or `www.a.com`.
 
 * `port` - (Required, Int) Port number used by the web server. The value ranges from 0 to 65535, for example, 8080.
 

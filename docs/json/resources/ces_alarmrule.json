@@ -152,7 +152,7 @@
                           },
                           "value": {
                             "type": "string",
-                            "required": true
+                            "optional": true
                           }
                         }
                       },
@@ -182,6 +182,29 @@
                   }
                 },
                 "nesting_mode": "list"
+              },
+              "resources": {
+                "block": {
+                  "block_types": {
+                    "dimensions": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "set"
               }
             }
           },

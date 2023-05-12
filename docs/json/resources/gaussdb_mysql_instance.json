@@ -121,24 +121,6 @@
                 "type": "string",
                 "computed": true
               },
-              "proxy_address": {
-                "type": "string",
-                "computed": true
-              },
-              "proxy_flavor": {
-                "type": "string",
-                "optional": true,
-                "computed": true
-              },
-              "proxy_node_num": {
-                "type": "number",
-                "optional": true,
-                "computed": true
-              },
-              "proxy_port": {
-                "type": "number",
-                "computed": true
-              },
               "read_replicas": {
                 "type": "number",
                 "optional": true,

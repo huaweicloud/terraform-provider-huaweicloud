@@ -29,7 +29,7 @@ func TestAccASGroup_basic(t *testing.T) {
 					testAccCheckASGroupExists(resourceName, &asGroup),
 					resource.TestCheckResourceAttr(resourceName, "desire_instance_number", "0"),
 					resource.TestCheckResourceAttr(resourceName, "min_instance_number", "0"),
-					resource.TestCheckResourceAttr(resourceName, "max_instance_number", "0"),
+					resource.TestCheckResourceAttr(resourceName, "max_instance_number", "5"),
 					resource.TestCheckResourceAttr(resourceName, "lbaas_listeners.0.protocol_port", "8080"),
 					resource.TestCheckResourceAttr(resourceName, "networks.0.source_dest_check", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
@@ -243,6 +243,7 @@ resource "huaweicloud_as_group" "acc_as_group"{
   scaling_group_name       = "%s"
   scaling_configuration_id = huaweicloud_as_configuration.acc_as_config.id
   vpc_id                   = huaweicloud_vpc.test.id
+  max_instance_number      = 5
 
   networks {
     id = huaweicloud_vpc_subnet.test.id
@@ -270,6 +271,7 @@ resource "huaweicloud_as_group" "acc_as_group"{
   scaling_group_name       = "%s"
   scaling_configuration_id = huaweicloud_as_configuration.acc_as_config.id
   vpc_id                   = huaweicloud_vpc.test.id
+  max_instance_number      = 5
   enable                   = false
 
   networks {
@@ -298,6 +300,7 @@ resource "huaweicloud_as_group" "acc_as_group"{
   scaling_group_name       = "%s"
   scaling_configuration_id = huaweicloud_as_configuration.acc_as_config.id
   vpc_id                   = huaweicloud_vpc.test.id
+  max_instance_number      = 5
   enable                   = true
 
   multi_az_scaling_policy            = "PICK_FIRST"

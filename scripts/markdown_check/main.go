@@ -14,19 +14,28 @@ import (
 
 func main() {
 	provider := huaweicloud.Provider()
-	CheckResourceMarkdown(provider)
-	CheckDataSourcesMarkdown(provider)
+
+	var errCode int
+	errCode += CheckResourceMarkdown(provider)
+	errCode += CheckDataSourcesMarkdown(provider)
+	os.Exit(errCode)
 }
 
-func CheckResourceMarkdown(provider *schema.Provider) {
-	checkMarkdown(provider.ResourcesMap, "../../docs/", "resources")
+func CheckResourceMarkdown(provider *schema.Provider) int {
+	errCount := checkMarkdown(provider.ResourcesMap, "../../docs/", "resources")
+	fmt.Printf("\n====== Summary: Find <%d> inconsistencies between schemas and docs in resources ======\n", errCount)
+	return errCount
 }
 
-func CheckDataSourcesMarkdown(provider *schema.Provider) {
-	checkMarkdown(provider.DataSourcesMap, "../../docs/", "data-sources")
+func CheckDataSourcesMarkdown(provider *schema.Provider) int {
+	errCount := checkMarkdown(provider.DataSourcesMap, "../../docs/", "data-sources")
+	fmt.Printf("\n====== Summary: Find <%d> inconsistencies between schemas and docs in data sources ======\n", errCount)
+	return errCount
 }
 
-func checkMarkdown(resources map[string]*schema.Resource, parentDir, rType string) {
+func checkMarkdown(resources map[string]*schema.Resource, parentDir, rType string) int {
+	var totalCount int
+
 	r := regexp.MustCompile("_v[1-9]$")
 	for k, v := range resources {
 		if r.MatchString(k) {
@@ -46,12 +55,12 @@ func checkMarkdown(resources map[string]*schema.Resource, parentDir, rType strin
 		_, err = os.Stat(filePath)
 		if isInternalResource(k) {
 			if err == nil {
-				fmt.Printf("\n[WARN] %s is only used for internal, please delete the file %s!\n", k, filePath)
+				fmt.Printf("\n[WARN] %s is only used for internal, please check the file %s!\n", k, filePath)
 			}
 			continue
 		}
 
-		fmt.Printf("\n====== Checking for %s %s =====\n", rType, k)
+		fmt.Printf("\n====== Checking for %s %s ======\n", rType, k)
 		if err != nil {
 			fmt.Printf("\n[WARN] can not state the markdown file: %s\n", err)
 			continue
@@ -64,15 +73,18 @@ func checkMarkdown(resources map[string]*schema.Resource, parentDir, rType strin
 		}
 
 		mdStr := string(mdBytes)
-		checkMarkdownSchemas(v, "", &mdStr)
+		totalCount += checkMarkdownSchemas(v, v, "", &mdStr)
 	}
+
+	return totalCount
 }
 
-func checkMarkdownSchemas(res *schema.Resource, parent string, mdContent *string) {
+func checkMarkdownSchemas(res, rootRes *schema.Resource, parent string, mdContent *string) int {
 	if len(res.Schema) == 0 {
-		return
+		return 0
 	}
 
+	var count int
 	for name, schemaObject := range res.Schema {
 		fieldPath := buildFieldPath(parent, name)
 
@@ -81,9 +93,10 @@ func checkMarkdownSchemas(res *schema.Resource, parent string, mdContent *string
 
 		extentStr, deprecated := buildAttributeString(schemaObject)
 		// check deprecated field
-		if deprecated || isDeprecatedField(name) {
+		if (deprecated || isDeprecatedField(name)) && !hasIdenticalSchemaField(rootRes, name) {
 			if isExist {
-				fmt.Printf("`%s` was deprecated, should be deleted in Markdown\n", fieldPath)
+				count++
+				fmt.Printf("[ERROR] `%s` was deprecated, should be deleted in Markdown\n", fieldPath)
 			}
 			continue
 		}
@@ -96,22 +109,53 @@ func checkMarkdownSchemas(res *schema.Resource, parent string, mdContent *string
 		}
 
 		if !isExist {
-			fmt.Printf("can not find `%s`, please check it\n", fieldPath)
+			count++
+			fmt.Printf("[ERROR] can not find `%s`, please check it\n", fieldPath)
 		} else if extentStr != "" {
 			// check the format of field
 			reg += fmt.Sprintf("\\(%s\\)", extentStr)
 			if !checkArgumentExist(*mdContent, reg) {
-				fmt.Printf("the format of `%s` is not correct, should be (%s)\n", fieldPath, extentStr)
+				count++
+				fmt.Printf("[ERROR] the format of `%s` is not correct, should be (%s)\n", fieldPath, extentStr)
 			}
 		}
 
 		// check nested block
 		if schemaObject.Elem != nil {
 			if nestedRes, ok := schemaObject.Elem.(*schema.Resource); ok {
-				checkMarkdownSchemas(nestedRes, fieldPath, mdContent)
+				count += checkMarkdownSchemas(nestedRes, rootRes, fieldPath, mdContent)
 			}
 		}
 	}
+	return count
+}
+
+// check the identical field which is not deprecated
+func hasIdenticalSchemaField(res *schema.Resource, key string) bool {
+	if len(res.Schema) == 0 {
+		return false
+	}
+
+	for name, schemaObject := range res.Schema {
+		if _, deprecated := buildAttributeString(schemaObject); deprecated || isDeprecatedField(name) {
+			continue
+		}
+
+		if name == key {
+			return true
+		}
+
+		// find key in nested block
+		if schemaObject.Elem != nil {
+			if nestedRes, ok := schemaObject.Elem.(*schema.Resource); ok {
+				if ret := hasIdenticalSchemaField(nestedRes, key); ret {
+					return true
+				}
+			}
+		}
+	}
+
+	return false
 }
 
 func checkArgumentExist(mdStr, regStr string) bool {
@@ -204,9 +248,11 @@ func isInternalResource(key string) bool {
 		"apm_aksk", "aom_alarm_policy", "aom_prometheus_instance",
 		"aom_application", "aom_component", "aom_environment", "aom_cmdb_resource_relationships",
 		"lts_access_rule", "lts_dashboard", "lts_struct_template", "elb_log",
+		// the followings have changed to rds_mysql_xxx after v1.47.0
+		"rds_account", "rds_database", "rds_database_privilege",
+		"rf_stack", // changed to rfs_stack after v1.47.0
 		// the fellowings are legacy
-		"ges_graph", "iam_agency", "networking_eip_associate",
-		"vpc_ids", "vpc_route_ids",
+		"ges_graph", "iam_agency", "networking_eip_associate", "vpc_ids", "identity_role_assignment",
 	}
 	for _, v := range internalResources {
 		if strings.HasSuffix(key, v) {

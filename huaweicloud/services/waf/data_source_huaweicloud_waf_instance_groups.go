@@ -79,8 +79,9 @@ func DataSourceWafInstanceGroups() *schema.Resource {
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 						"dedicated_instances": {
-							Type:     schema.TypeList,
-							Computed: true,
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "schema: Internal; check it later",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"id": {
@@ -95,8 +96,9 @@ func DataSourceWafInstanceGroups() *schema.Resource {
 							},
 						},
 						"domain_names": {
-							Type:     schema.TypeList,
-							Computed: true,
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "schema: Internal; check it later",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"id": {

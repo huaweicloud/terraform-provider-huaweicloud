@@ -528,7 +528,7 @@ func flattenGetProtectionRuleResponseBodyRuleDestinationAddressDto(resp interfac
 }
 
 func buildGetProtectionRuleQueryParams(d *schema.ResourceData) string {
-	res := "?offset=0&limit=10"
+	res := "?offset=0&limit=1024"
 	res = fmt.Sprintf("%s&object_id=%v", res, d.Get("object_id"))
 
 	return res
@@ -549,24 +549,24 @@ func resourceProtectionRuleUpdate(ctx context.Context, d *schema.ResourceData, m
 		"long_connect_time_minute",
 		"long_connect_time_second",
 		"name",
-		"sequence",
 		"service",
 		"source",
 		"status",
 		"type",
 	}
 
+	var (
+		updateProtectionRuleHttpUrl      = "v1/{project_id}/acl-rule/{id}"
+		updateProtectionRuleOrderHttpUrl = "v1/{project_id}/acl-rule/order/{id}"
+		updateProtectionRuleProduct      = "cfw"
+	)
+	updateProtectionRuleClient, err := config.NewServiceClient(updateProtectionRuleProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating ProtectionRule Client: %s", err)
+	}
+
 	if d.HasChanges(updateProtectionRulehasChanges...) {
 		// updateProtectionRule: Update the configuration of CFW Protection Rule
-		var (
-			updateProtectionRuleHttpUrl = "v1/{project_id}/acl-rule/{id}"
-			updateProtectionRuleProduct = "cfw"
-		)
-		updateProtectionRuleClient, err := config.NewServiceClient(updateProtectionRuleProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating ProtectionRule Client: %s", err)
-		}
-
 		updateProtectionRulePath := updateProtectionRuleClient.Endpoint + updateProtectionRuleHttpUrl
 		updateProtectionRulePath = strings.ReplaceAll(updateProtectionRulePath, "{project_id}", updateProtectionRuleClient.ProjectID)
 		updateProtectionRulePath = strings.ReplaceAll(updateProtectionRulePath, "{id}", d.Id())
@@ -583,6 +583,26 @@ func resourceProtectionRuleUpdate(ctx context.Context, d *schema.ResourceData, m
 			return diag.Errorf("error updating ProtectionRule: %s", err)
 		}
 	}
+
+	if d.HasChange("sequence") {
+		// updateProtectionRuleOrder: Update the order of CFW Protection Rule
+		updateProtectionRuleOrderPath := updateProtectionRuleClient.Endpoint + updateProtectionRuleOrderHttpUrl
+		updateProtectionRuleOrderPath = strings.ReplaceAll(updateProtectionRuleOrderPath, "{project_id}", updateProtectionRuleClient.ProjectID)
+		updateProtectionRuleOrderPath = strings.ReplaceAll(updateProtectionRuleOrderPath, "{id}", d.Id())
+
+		updateProtectionRuleOrderOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			OkCodes: []int{
+				200,
+			},
+		}
+		updateProtectionRuleOrderOpt.JSONBody = utils.RemoveNil(buildUpdateProtectionRuleRequestBodyOrderRuleAclDto(d.Get("sequence")))
+		_, err = updateProtectionRuleClient.Request("PUT", updateProtectionRuleOrderPath, &updateProtectionRuleOrderOpt)
+		if err != nil {
+			return diag.Errorf("error updating protection rule order: %s", err)
+		}
+	}
+
 	return resourceProtectionRuleRead(ctx, d, meta)
 }
 
@@ -597,7 +617,6 @@ func buildUpdateProtectionRuleBodyParams(d *schema.ResourceData, config *config.
 		"long_connect_time_minute": utils.ValueIngoreEmpty(d.Get("long_connect_time_minute")),
 		"long_connect_time_second": utils.ValueIngoreEmpty(d.Get("long_connect_time_second")),
 		"name":                     utils.ValueIngoreEmpty(d.Get("name")),
-		"sequence":                 buildUpdateProtectionRuleRequestBodyOrderRuleAclDto(d.Get("sequence")),
 		"service":                  buildUpdateProtectionRuleRequestBodyRuleServiceDto(d.Get("service")),
 		"source":                   buildUpdateProtectionRuleRequestBodyRuleAddressDto(d.Get("source")),
 		"destination":              buildUpdateProtectionRuleRequestBodyRuleAddressDto(d.Get("destination")),

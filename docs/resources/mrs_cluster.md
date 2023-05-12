@@ -94,8 +94,11 @@ The following arguments are supported:
 * `subnet_id` - (Required, String, ForceNew) Specifies the network id of a subnet. Changing this parameter will create a
   new resource.
 
-* `volume_type` - (Required, String, ForceNew) Type of disks SATA and SSD are supported. SATA: common I/O; SAS
-  high-speed I/O; SSD: super high-speed I/O.
+* `volume_type` - (Required, String, ForceNew) Specifies the data disk storage type of master and core nodes.
+  Value options are as follows:
+  + **SAS**: high I/O.
+  + **SSD**: ultra-high I/O.
+  + **GPSSD**: general-purpose SSD.
 
 * `volume_size` - (Required, Int, ForceNew) Data disk storage space of a Core node. Value range: 100 GB to 32000 GB
 
@@ -207,6 +210,7 @@ In addition to all arguments above, the following attributes are exported:
 * `master_node_ip` - IP address of a Master node.
 * `externalIp` - Internal IP address.
 * `private_ip_first` - Primary private IP address.
+* `internal_ip` - Internal IP address.
 * `external_ip` - External IP address.
 * `slave_security_groups_id` - Standby security group ID.
 * `security_groups_id` - Security group ID.

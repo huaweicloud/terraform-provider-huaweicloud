@@ -184,7 +184,7 @@ func testAccCCEAddonV3_basic(rName string) string {
 
 resource "huaweicloud_cce_addon" "test" {
   cluster_id    = huaweicloud_cce_cluster.test.id
-  version       = "1.2.1"
+  version       = "1.3.6"
   template_name = "metrics-server"
   depends_on    = [huaweicloud_cce_node.test]
 }
@@ -222,27 +222,29 @@ resource "huaweicloud_cce_node_pool" "test" {
 data "huaweicloud_cce_addon_template" "test" {
   cluster_id = huaweicloud_cce_cluster.test.id
   name       = "autoscaler"
-  version    = "1.21.1"
+  version    = "1.25.21"
 }
 
 resource "huaweicloud_cce_addon" "test" {
   cluster_id    = huaweicloud_cce_cluster.test.id
   template_name = "autoscaler"
-  version       = "1.21.1"
+  version       = "1.25.21"
 
   values {
-    basic  = jsondecode(data.huaweicloud_cce_addon_template.test.spec).basic
-    custom = merge(
+    basic       = jsondecode(data.huaweicloud_cce_addon_template.test.spec).basic
+    custom_json = jsonencode(merge(
       jsondecode(data.huaweicloud_cce_addon_template.test.spec).parameters.custom,
       {
         cluster_id = huaweicloud_cce_cluster.test.id
         tenant_id  = "%s"
       }
-    )
+    ))
     flavor_json = jsonencode(jsondecode(data.huaweicloud_cce_addon_template.test.spec).parameters.flavor2)
   }
   
-  depends_on = [huaweicloud_cce_node_pool.test]
+  depends_on = [
+    huaweicloud_cce_node_pool.test,
+  ]
 }
 `, testAccCCENodePool_Base(rName), rName, acceptance.HW_PROJECT_ID)
 }

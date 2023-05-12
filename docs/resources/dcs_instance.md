@@ -134,6 +134,7 @@ The following arguments are supported:
   Changing this creates a new instance resource.
 
 * `port` - (Optional, Int) Port customization, which is supported only by Redis 4.0 and Redis 5.0 instances.
+  Redis instance defaults to 6379. Memcached instance does not use this argument.
 
 * `password` - (Optional, String, ForceNew) Specifies the password of a DCS instance.
   Changing this creates a new instance.
@@ -142,7 +143,6 @@ The following arguments are supported:
   + Must contain three combinations of the following four characters: Lower case letters, uppercase letter, digital,
     Special characters include (`~!@#$^&*()-_=+\\|{}:,<.>/?).
   + The new password cannot be the same as the old password.
-    Redis instance defaults to 6379. Memcached instance does not use this argument.
 
 * `whitelists` - (Optional, List) Specifies the IP addresses which can access the instance.
   This parameter is valid for Redis 4.0 and 5.0 versions. The structure is described below.
@@ -223,7 +223,8 @@ The `backup_policy` block supports:
   + `auto`: automatic backup.
   + `manual`: manual backup.
 
-* `save_days` - (Required, Int) Retention time. Unit: day, the value ranges from 1 to 7.
+* `save_days` - (Optional, Int) Retention time. Unit: day, the value ranges from 1 to 7.
+  This parameter is required if the backup_type is **auto**.
 
 * `period_type` - (Optional, String) Interval at which backup is performed. Default value is `weekly`.
   Currently, only weekly backup is supported.

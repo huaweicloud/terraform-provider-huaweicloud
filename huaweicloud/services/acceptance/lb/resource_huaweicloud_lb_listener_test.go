@@ -4,22 +4,24 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-
-	"github.com/chnsz/golangsdk/openstack/elb/v2/listeners"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/elb/v2/listeners"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getL7ListenerResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	c, err := conf.LoadBalancerClient(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HuaweiCloud LB v2 client: %s", err)
+		return nil, fmt.Errorf("error creating ELB v2 Client: %s", err)
 	}
 	resp, err := listeners.Get(c, state.Primary.ID).Extract()
 	if resp == nil && err == nil {
-		return resp, fmt.Errorf("Unable to find the listener (%s)", state.Primary.ID)
+		return resp, fmt.Errorf("unable to find the listener (%s)", state.Primary.ID)
 	}
 	return resp, err
 }
@@ -70,17 +72,21 @@ func TestAccLBV2Listener_basic(t *testing.T) {
 	})
 }
 
-func testAccLBV2ListenerConfig_basic(rName string) string {
+func testAccLBV2ListenerConfig_base(rName string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
+%s
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
   name          = "%s"
   description   = "created by acceptance test"
-  vip_subnet_id = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  vip_subnet_id = huaweicloud_vpc_subnet.test.ipv4_subnet_id
 }
+`, common.TestVpc(rName), rName)
+}
+
+func testAccLBV2ListenerConfig_basic(rName string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_lb_listener" "listener_1" {
   name            = "%s"
@@ -94,20 +100,12 @@ resource "huaweicloud_lb_listener" "listener_1" {
     owner = "terraform"
   }
 }
-`, rName, rName)
+`, testAccLBV2ListenerConfig_base(rName), rName)
 }
 
 func testAccLBV2ListenerConfig_update(rName, rNameUpdate string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name          = "%s"
-  description   = "created by acceptance test"
-  vip_subnet_id = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
-}
+%s
 
 resource "huaweicloud_lb_listener" "listener_1" {
   name            = "%s"
@@ -121,5 +119,5 @@ resource "huaweicloud_lb_listener" "listener_1" {
     owner = "terraform_update"
   }
 }
-`, rName, rNameUpdate)
+`, testAccLBV2ListenerConfig_base(rName), rNameUpdate)
 }

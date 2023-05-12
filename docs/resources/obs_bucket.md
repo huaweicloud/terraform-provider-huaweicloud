@@ -222,7 +222,7 @@ The `logging` object supports the following:
 
 The `website` object supports the following:
 
-* `index_document` - (Required, String)  Unless using `redirect_all_requests_to`. Specifies the default homepage of the
+* `index_document` - (Optional, String)  Unless using `redirect_all_requests_to`. Specifies the default homepage of the
   static website, only HTML web pages are supported. OBS only allows files such as `index.html` in the root directory of
   a bucket to function as the default homepage. That is to say, do not set the default homepage with a multi-level
   directory structure (for example, /page/index.html).

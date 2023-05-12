@@ -10,12 +10,38 @@
                 "optional": true,
                 "default": 0
               },
+              "address_group_id": {
+                "type": "string",
+                "optional": true
+              },
+              "address_group_name": {
+                "type": "string",
+                "computed": true
+              },
+              "address_group_size": {
+                "type": "number",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
               },
               "ip_address": {
                 "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "schema: Required",
                 "required": true
               },
               "policy_id": {

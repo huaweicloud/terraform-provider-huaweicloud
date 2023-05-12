@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
@@ -101,6 +102,39 @@ func TestAccSFSTurbo_withEpsId(t *testing.T) {
 					testAccCheckSFSTurboExists(resourceName, &turbo),
 					resource.TestCheckResourceAttr(resourceName, "name", turboName),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+		},
+	})
+}
+
+func TestAccSFSTurbo_prePaid(t *testing.T) {
+	randName := fmt.Sprintf("sfs-turbo-acc-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_sfs_turbo.test"
+	var turbo shares.Turbo
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccPreCheckChargingMode(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSFSTurboDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSFSTurbo_prePaid_step1(randName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSFSTurboExists(resourceName, &turbo),
+					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "size", "500"),
+				),
+			},
+			{
+				Config: testAccSFSTurbo_prePaid_step2(randName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSFSTurboExists(resourceName, &turbo),
+					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "size", "600"),
 				),
 			},
 		},
@@ -263,4 +297,52 @@ resource "huaweicloud_sfs_turbo" "sfs-turbo1" {
   enterprise_project_id  = "%s"
 }
 `, testAccNetworkPreConditions(suffix), suffix, HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccSFSTurbo_prePaid_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_sfs_turbo" "test" {
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  security_group_id      = huaweicloud_networking_secgroup.test.id
+  availability_zone      = data.huaweicloud_availability_zones.test.names[0]
+  name                   = "%[2]s"
+  size                   = 500
+  share_proto            = "NFS"
+  enterprise_project_id  = "0"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = false
+}
+`, common.TestBaseNetwork(name), name)
+}
+
+func testAccSFSTurbo_prePaid_step2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_sfs_turbo" "test" {
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  security_group_id      = huaweicloud_networking_secgroup.test.id
+  availability_zone      = data.huaweicloud_availability_zones.test.names[0]
+  name                   = "%[2]s"
+  size                   = 600
+  share_proto            = "NFS"
+  enterprise_project_id  = "0"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = true
+}
+`, common.TestBaseNetwork(name), name)
 }

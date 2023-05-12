@@ -634,7 +634,7 @@ resource "huaweicloud_cce_node_pool" "test" {
     volumetype = "SSD"
   }
 }
-`, testAccCCEClusterV3_turbo(rName), rName)
+`, testAccCluster_turbo(rName), rName)
 }
 
 func testAccCCENodePool_tagsLabelsTaints(rName string) string {

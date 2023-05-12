@@ -199,6 +199,21 @@
                 "min_items": 1,
                 "max_items": 1
               },
+              "parameters": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              },
               "volume": {
                 "block": {
                   "attributes": {

@@ -78,7 +78,7 @@ The `target_server_disks` block supports:
 * `name` - (Required, String, ForceNew) Specifies the disk name, e.g. "/dev/sda".
   Changing this parameter will create a new resource.
 
-* `size` - (Required, int, ForceNew) Specifies the volume size in MB. Changing this parameter will create a new resource.
+* `size` - (Required, Int, ForceNew) Specifies the volume size in MB. Changing this parameter will create a new resource.
 
 * `device_type` - (Required, String, ForceNew) Specifies the disk type. The value can be **NORMAL** and **BOOT**.
   Changing this parameter will create a new resource.
@@ -86,7 +86,7 @@ The `target_server_disks` block supports:
 * `disk_id` - (Optional, String, ForceNew) Specifies the disk index, e.g. "0".
   Changing this parameter will create a new resource.
 
-* `used_size` - (Optional, int, ForceNew) Specifies the used space in MB. Changing this parameter will create a new resource.
+* `used_size` - (Optional, Int, ForceNew) Specifies the used space in MB. Changing this parameter will create a new resource.
 
 * `physical_volumes` - (Optional, List, ForceNew) Specifies an array of physical volume informations.
   The [object](#physical_volumes_object) is documented below. Changing this parameter will create a new resource.
@@ -98,7 +98,7 @@ The `physical_volumes` block supports:
   and in Linux, it indicates the device ID, e.g. "/dev/sda1".
   Changing this parameter will create a new resource.
 
-* `size` - (Required, int, ForceNew) Specifies the volume size in MB. Changing this parameter will create a new resource.
+* `size` - (Required, Int, ForceNew) Specifies the volume size in MB. Changing this parameter will create a new resource.
 
 * `device_type` - (Required, String, ForceNew) Specifies the partition type. The value can be **NORMAL** and **OS**.
   Changing this parameter will create a new resource.
@@ -112,7 +112,7 @@ The `physical_volumes` block supports:
 * `index` - (Required, Int, ForceNew) Specifies the serial number of the volume.
   Changing this parameter will create a new resource.
 
-* `used_size` - (Optional, int, ForceNew) Specifies the used space in MB.
+* `used_size` - (Optional, Int, ForceNew) Specifies the used space in MB.
   Changing this parameter will create a new resource.
 
 * `uuid` - (Optional, String, ForceNew) Specifies the GUID of the volume.

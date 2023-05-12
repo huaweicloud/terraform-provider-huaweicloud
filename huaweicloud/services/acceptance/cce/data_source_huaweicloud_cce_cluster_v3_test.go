@@ -57,5 +57,5 @@ data "huaweicloud_cce_cluster" "test" {
 
   depends_on = [huaweicloud_cce_cluster.test]
 }
-`, testAccCCEClusterV3_basic(rName))
+`, testAccCluster_basic(rName))
 }

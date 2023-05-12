@@ -19,13 +19,13 @@ data "huaweicloud_dms_maintainwindow" "maintainwindow1" {
 * `region` - (Optional, String) The region in which to obtain the dms maintainwindows. If omitted, the provider-level
   region will be used.
 
-* `seq` - (Required, Int) Indicates the sequential number of a maintenance time window.
+* `seq` - (Optional, Int) Indicates the sequential number of a maintenance time window.
 
 * `begin` - (Optional, String) Indicates the time at which a maintenance time window starts.
 
-* `end` - (Required, String) Indicates the time at which a maintenance time window ends.
+* `end` - (Optional, String) Indicates the time at which a maintenance time window ends.
 
-* `default` - (Required, Bool) Indicates whether a maintenance time window is set to the default time segment.
+* `default` - (Optional, Bool) Indicates whether a maintenance time window is set to the default time segment.
 
 ## Attributes Reference
 

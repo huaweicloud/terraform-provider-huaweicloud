@@ -19,14 +19,15 @@ func TestAccVpcPeeringConnectionAccepter_basic(t *testing.T) {
 		CheckDestroy:      testAccCheckVpcPeeringConnectionAccepterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccVpcPeeringConnectionAccepter_basic(randName), //TODO: Research why normal scenario with peer tenant id is not working in acceptance tests
-				ExpectError: regexp.MustCompile(`VPC peering action not permitted: Can not accept/reject peering request not in PENDING_ACCEPTANCE state.`),
+				Config: testAccVpcPeeringConnectionAccepter_basic(randName),
+				ExpectError: regexp.MustCompile(
+					`VPC peering action not permitted: Can not accept/reject peering request not in PENDING_ACCEPTANCE state.`),
 			},
 		},
 	})
 }
 
-func testAccCheckVpcPeeringConnectionAccepterDestroy(s *terraform.State) error {
+func testAccCheckVpcPeeringConnectionAccepterDestroy(_ *terraform.State) error {
 	// We don't destroy the underlying VPC Peering Connection.
 	return nil
 }

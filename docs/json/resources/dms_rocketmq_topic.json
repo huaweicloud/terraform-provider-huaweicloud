@@ -71,7 +71,7 @@
                       "computed": true
                     }
                   },
-                  "description": "Specifies the list of associated brokers of the topic."
+                  "description": "schema: Required; Specifies the list of associated brokers of the topic."
                 },
                 "nesting_mode": "list",
                 "forcenew": true

@@ -97,14 +97,14 @@ linters-settings:
       - name: var-naming
         disabled: false
         arguments:
-          - ["API", "ID", "IP", "VM", "JSON", "HTTP", "URL", "XML", "YAML","CSS"] # AllowList
+          - ["API", "ID", "IP", "VM", "JSON", "HTTP", "URL", "XML", "YAML", "CSS", "ACL", "CPU"] # AllowList
           - [] # DenyList
       - name: argument-limit
         disabled: false
         arguments: [6]
       - name: function-result-limit
         disabled: false
-        arguments: [3]
+        arguments: [4]
       - name: line-length-limit
         disabled: false
         arguments: [150]

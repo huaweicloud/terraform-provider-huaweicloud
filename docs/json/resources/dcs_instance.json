@@ -20,8 +20,8 @@
                   "list",
                   "string"
                 ],
-                "optional": true,
-                "computed": true,
+                "description": "schema: Required",
+                "required": true,
                 "forcenew": true
               },
               "capacity": {
@@ -61,8 +61,8 @@
               },
               "flavor": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "description": "schema: Required",
+                "required": true
               },
               "id": {
                 "type": "string",

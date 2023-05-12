@@ -81,19 +81,22 @@ func ResourceCCENodeAttachV3() *schema.Resource {
 				ForceNew: true,
 			},
 			"nic_multi_queue": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "schema: Internal",
 			},
 			"nic_threshold": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "schema: Internal",
 			},
 			"image_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "schema: Internal",
 			},
 			"preinstall": {
 				Type:      schema.TypeString,
@@ -162,17 +165,23 @@ func ResourceCCENodeAttachV3() *schema.Resource {
 							Computed: true,
 						},
 						"hw_passthrough": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "schema: Internal",
 						},
 						"extend_param": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:       schema.TypeString,
+							Computed:   true,
+							Deprecated: "use extend_params instead",
 						},
 						"extend_params": {
 							Type:     schema.TypeMap,
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+						"kms_key_id": {
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 					}},
 			},
@@ -190,12 +199,14 @@ func ResourceCCENodeAttachV3() *schema.Resource {
 							Computed: true,
 						},
 						"hw_passthrough": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "schema: Internal",
 						},
 						"extend_param": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:       schema.TypeString,
+							Computed:   true,
+							Deprecated: "use extend_params instead",
 						},
 						"extend_params": {
 							Type:     schema.TypeMap,
@@ -258,7 +269,7 @@ func resourceCCENodeAttachV3ServerConfig(d *schema.ResourceData) *nodes.ServerCo
 }
 
 func resourceCCENodeAttachV3VolumeConfig(d *schema.ResourceData) *nodes.VolumeConfig {
-	if v, ok := d.GetOk("lmv_config"); ok {
+	if v, ok := d.GetOk("lvm_config"); ok {
 		volumeConfig := nodes.VolumeConfig{
 			LvmConfig: v.(string),
 		}

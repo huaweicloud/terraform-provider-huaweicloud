@@ -27,12 +27,12 @@
               },
               "period": {
                 "type": "number",
-                "optional": true,
+                "required": true,
                 "forcenew": true
               },
               "period_unit": {
                 "type": "string",
-                "optional": true,
+                "required": true,
                 "forcenew": true
               },
               "region": {

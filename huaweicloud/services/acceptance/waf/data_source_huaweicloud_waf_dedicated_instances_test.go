@@ -30,7 +30,7 @@ func TestAccDataSourceWafDedicatedInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName1, "name", name),
 					resource.TestCheckResourceAttr(resourceName1, "instances.#", "1"),
 					resource.TestCheckResourceAttrSet(resourceName1, "instances.0.available_zone"),
-					resource.TestCheckResourceAttrSet(resourceName1, "instances.0.cpu_flavor"),
+					resource.TestCheckResourceAttrSet(resourceName1, "instances.0.ecs_flavor"),
 					resource.TestCheckResourceAttrSet(resourceName1, "instances.0.cpu_architecture"),
 					resource.TestCheckResourceAttrSet(resourceName1, "instances.0.security_group.#"),
 					resource.TestCheckResourceAttrSet(resourceName1, "instances.0.server_id"),

@@ -119,14 +119,18 @@ The following arguments are supported:
 * `force_import` - (Optional, Bool) If specified, try to import the instance instead of creating if the name already
   existed.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the GaussDB Mysql instance.
+
 * `volume_size` - (Optional, Int) Specifies the volume size of the instance. The new storage space must be greater than
   the current storage and must be a multiple of 10 GB. Only valid when in prePaid mode.
 
 The `datastore` block supports:
 
-* `engine` - (Optional, String, ForceNew) Specifies the database engine. Only "gauss-mysql" is supported now.
+* `engine` - (Required, String, ForceNew) Specifies the database engine. Only "gaussdb-mysql" is supported now.
+  Changing this parameter will create a new resource.
 
-* `version` - (Optional, String, ForceNew) Specifies the database version. Only "8.0" is supported now.
+* `version` - (Required, String, ForceNew) Specifies the database version. Only "8.0" is supported now.
+  Changing this parameter will create a new resource.
 
 The `backup_strategy` block supports:
 
@@ -145,7 +149,7 @@ The `backup_strategy` block supports:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - Indicates the DB instance ID.
 * `status` - Indicates the DB instance status.
 * `port` - Indicates the database port.
 * `mode` - Indicates the instance mode.
@@ -166,14 +170,14 @@ The `nodes` block contains:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 60 minute.
-* `update` - Default is 60 minute.
-* `delete` - Default is 30 minute.
+* `create` - Default is 60 minutes.
+* `update` - Default is 60 minutes.
+* `delete` - Default is 30 minutes.
 
 ## Import
 
 GaussDB instance can be imported using the `id`, e.g.
 
 ```
-$ terraform import huaweicloud_gaussdb_mysql_instance.instance_1 ee678f40-ce8e-4d0c-8221-38dead426f06
+$ terraform import huaweicloud_gaussdb_mysql_instance.instance_1 1a801c1e01e6458d8eed810912e29d0cin07
 ```

@@ -1,0 +1,32 @@
+info:
+  version: 
+  title: resource_huaweicloud_identity_group_role_assignment
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: IAM
+paths:
+  /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{userID}/roles/{roleID}:
+    delete:
+      tag: IAM
+      operationId: UserGroupPermissionsDelete
+    put:
+      tag: IAM
+      operationId: UserGroupPermissionsCreate
+  /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{userID}/roles:
+    get:
+      tag: IAM
+      operationId: UserGroupPermissionsGet
+  /v3/{targetType}/{targetID}/{actorType}/{actorID}/roles/{roleID}:
+    delete:
+      tag: IAM
+      operationId: Unassign
+    put:
+      tag: IAM
+      operationId: Assign
+  /v3/{targetType}/{targetID}/{actorType}/{actorID}/roles:
+    get:
+      tag: IAM
+      operationId: ListAssignments

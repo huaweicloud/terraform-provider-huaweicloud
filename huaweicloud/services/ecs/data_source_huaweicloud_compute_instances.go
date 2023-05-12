@@ -3,10 +3,12 @@ package ecs
 import (
 	"context"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
@@ -184,7 +186,7 @@ func dataSourceComputeInstancesRead(_ context.Context, d *schema.ResourceData, m
 	opts := buildListOptsWithoutIP(d, conf)
 	allServers, err := queryEcsInstances(ecsClient, opts)
 	if err != nil {
-		return diag.Errorf("unable to retrieve cloud servers: %s", err)
+		return diag.Errorf("unable to retrieve ECS instances: %s", err)
 	}
 
 	servers, ids := filterCloudServers(d, allServers)
@@ -234,7 +236,6 @@ func setComputeInstancesParams(d *schema.ResourceData, conf *config.Config, serv
 			vols, sysDiskID := flattenEcsInstanceVolumeAttached(ecsClient, evsClient, item.ID)
 			server["volume_attached"] = vols
 			server["system_disk_id"] = sysDiskID
-
 		}
 
 		if len(item.Addresses) > 0 {
@@ -246,8 +247,8 @@ func setComputeInstancesParams(d *schema.ResourceData, conf *config.Config, serv
 		result[i] = server
 	}
 
-	if err := d.Set("instances", result); err != nil {
-		return diag.Errorf("error setting cloud server list: %s", err)
-	}
-	return nil
+	mErr := multierror.Append(nil,
+		d.Set("instances", result),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }

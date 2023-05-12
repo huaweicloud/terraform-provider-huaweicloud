@@ -4,10 +4,12 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/valuelists"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/valuelists"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -56,13 +58,18 @@ func ResourceWafReferenceTableV1() *schema.Resource {
 					Type:         schema.TypeString,
 					ValidateFunc: validation.StringLenBetween(1, 2048),
 				},
+				Description: "schema: Required",
+			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 			},
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 128),
 			},
-
 			"creation_time": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -80,10 +87,11 @@ func resourceWafReferenceTableCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	opt := valuelists.CreateOpts{
-		Name:        d.Get("name").(string),
-		Type:        d.Get("type").(string),
-		Values:      utils.ExpandToStringList(d.Get("conditions").([]interface{})),
-		Description: d.Get("description").(string),
+		Name:                d.Get("name").(string),
+		Type:                d.Get("type").(string),
+		Values:              utils.ExpandToStringList(d.Get("conditions").([]interface{})),
+		Description:         d.Get("description").(string),
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 	}
 	logp.Printf("[DEBUG] Create WAF reference table options: %#v", opt)
 
@@ -105,7 +113,7 @@ func resourceWafReferenceTableRead(d *schema.ResourceData, meta interface{}) err
 		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
 	}
 
-	r, err := valuelists.Get(client, d.Id())
+	r, err := valuelists.GetWithEpsID(client, d.Id(), config.GetEnterpriseProjectID(d))
 	if err != nil {
 		return common.CheckDeleted(d, err, "Error obtain WAF reference table information")
 	}
@@ -138,9 +146,10 @@ func resourceWafReferenceTableUpdate(d *schema.ResourceData, meta interface{}) e
 	opt := valuelists.UpdateValueListOpts{
 		Name: d.Get("name").(string),
 		// Type is required, but it cannot be changed.
-		Type:        d.Get("type").(string),
-		Values:      utils.ExpandToStringList(d.Get("conditions").([]interface{})),
-		Description: &desc,
+		Type:                d.Get("type").(string),
+		Values:              utils.ExpandToStringList(d.Get("conditions").([]interface{})),
+		Description:         &desc,
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 	}
 	logp.Printf("[DEBUG] Update WAF reference table options: %#v", opt)
 
@@ -160,7 +169,7 @@ func resourceWafReferenceTableDelete(d *schema.ResourceData, meta interface{}) e
 		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
 	}
 
-	_, err = valuelists.Delete(client, d.Id())
+	_, err = valuelists.DeleteWithEpsID(client, d.Id(), config.GetEnterpriseProjectID(d))
 	if err != nil {
 		return fmtp.Errorf("error deleting WAF reference table: %s", err)
 	}

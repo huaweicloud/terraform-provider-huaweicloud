@@ -67,7 +67,7 @@ func ResourceHostGroup() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: "The list of host IDs.",
+				Description: "schema: Required; The list of host IDs.",
 			},
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
@@ -93,7 +93,7 @@ func ResourceHostGroup() *schema.Resource {
 			},
 			"unprotect_host_ids": {
 				Type:        schema.TypeList,
-				Optional:    true,
+				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "The ID list of the unprotect hosts.",
 			},

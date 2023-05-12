@@ -58,10 +58,8 @@ func getDdmInstanceResourceFunc(cfg *config.Config, state *terraform.ResourceSta
 func TestAccDdmInstance_basic(t *testing.T) {
 	var obj interface{}
 
-	name := acceptance.RandomAccResourceName()
-	updateName := acceptance.RandomAccResourceName()
-	name = strings.ReplaceAll(name, "_", "-")
-	updateName = strings.ReplaceAll(updateName, "_", "-")
+	name := acceptance.RandomAccResourceNameWithDash()
+	updateName := acceptance.RandomAccResourceNameWithDash()
 	rName := "huaweicloud_ddm_instance.test"
 
 	rc := acceptance.InitResourceCheck(
@@ -82,16 +80,16 @@ func TestAccDdmInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "node_num", "2"),
 					resource.TestCheckResourceAttr(rName, "admin_user", "test_user_1"),
-					acceptance.TestCheckResourceAttrWithVariable(rName, "flavor_id",
-						"${data.huaweicloud_ddm_flavors.test.flavors.0.id}"),
-					acceptance.TestCheckResourceAttrWithVariable(rName, "engine_id",
-						"${data.huaweicloud_ddm_engines.test.engines.0.id}"),
-					acceptance.TestCheckResourceAttrWithVariable(rName, "vpc_id",
-						"${huaweicloud_vpc.test.id}"),
-					acceptance.TestCheckResourceAttrWithVariable(rName, "subnet_id",
-						"${huaweicloud_vpc_subnet.test.id}"),
-					acceptance.TestCheckResourceAttrWithVariable(rName, "security_group_id",
-						"${huaweicloud_networking_secgroup.test.id}"),
+					resource.TestCheckResourceAttrPair(rName, "flavor_id",
+						"data.huaweicloud_ddm_flavors.test", "flavors.0.id"),
+					resource.TestCheckResourceAttrPair(rName, "engine_id",
+						"data.huaweicloud_ddm_engines.test", "engines.0.id"),
+					resource.TestCheckResourceAttrPair(rName, "vpc_id",
+						"huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "subnet_id",
+						"huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "security_group_id",
+						"huaweicloud_networking_secgroup.test", "id"),
 				),
 			},
 			{
@@ -101,16 +99,16 @@ func TestAccDdmInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "name", updateName),
 					resource.TestCheckResourceAttr(rName, "node_num", "4"),
 					resource.TestCheckResourceAttr(rName, "admin_user", "test_user_1"),
-					acceptance.TestCheckResourceAttrWithVariable(rName, "flavor_id",
-						"${data.huaweicloud_ddm_flavors.test.flavors.1.id}"),
-					acceptance.TestCheckResourceAttrWithVariable(rName, "engine_id",
-						"${data.huaweicloud_ddm_engines.test.engines.0.id}"),
-					acceptance.TestCheckResourceAttrWithVariable(rName, "vpc_id",
-						"${huaweicloud_vpc.test.id}"),
-					acceptance.TestCheckResourceAttrWithVariable(rName, "subnet_id",
-						"${huaweicloud_vpc_subnet.test.id}"),
-					acceptance.TestCheckResourceAttrWithVariable(rName, "security_group_id",
-						"${huaweicloud_networking_secgroup.test_update.id}"),
+					resource.TestCheckResourceAttrPair(rName, "flavor_id",
+						"data.huaweicloud_ddm_flavors.test", "flavors.1.id"),
+					resource.TestCheckResourceAttrPair(rName, "engine_id",
+						"data.huaweicloud_ddm_engines.test", "engines.0.id"),
+					resource.TestCheckResourceAttrPair(rName, "vpc_id",
+						"huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "subnet_id",
+						"huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "security_group_id",
+						"huaweicloud_networking_secgroup.test_update", "id"),
 				),
 			},
 			{
@@ -120,16 +118,16 @@ func TestAccDdmInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "name", updateName),
 					resource.TestCheckResourceAttr(rName, "node_num", "2"),
 					resource.TestCheckResourceAttr(rName, "admin_user", "test_user_1"),
-					acceptance.TestCheckResourceAttrWithVariable(rName, "flavor_id",
-						"${data.huaweicloud_ddm_flavors.test.flavors.1.id}"),
-					acceptance.TestCheckResourceAttrWithVariable(rName, "engine_id",
-						"${data.huaweicloud_ddm_engines.test.engines.0.id}"),
-					acceptance.TestCheckResourceAttrWithVariable(rName, "vpc_id",
-						"${huaweicloud_vpc.test.id}"),
-					acceptance.TestCheckResourceAttrWithVariable(rName, "subnet_id",
-						"${huaweicloud_vpc_subnet.test.id}"),
-					acceptance.TestCheckResourceAttrWithVariable(rName, "security_group_id",
-						"${huaweicloud_networking_secgroup.test_update.id}"),
+					resource.TestCheckResourceAttrPair(rName, "flavor_id",
+						"data.huaweicloud_ddm_flavors.test", "flavors.1.id"),
+					resource.TestCheckResourceAttrPair(rName, "engine_id",
+						"data.huaweicloud_ddm_engines.test", "engines.0.id"),
+					resource.TestCheckResourceAttrPair(rName, "vpc_id",
+						"huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "subnet_id",
+						"huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "security_group_id",
+						"huaweicloud_networking_secgroup.test_update", "id"),
 				),
 			},
 			{
@@ -137,6 +135,73 @@ func TestAccDdmInstance_basic(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"admin_password", "engine_id", "flavor_id"},
+			},
+		},
+	})
+}
+
+func TestAccDdmInstance_prepaid(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceNameWithDash()
+	updateName := acceptance.RandomAccResourceNameWithDash()
+	rName := "huaweicloud_ddm_instance.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getDdmInstanceResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testDdmInstance_prepaid(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "node_num", "2"),
+					resource.TestCheckResourceAttr(rName, "admin_user", "test_user_1"),
+					resource.TestCheckResourceAttrPair(rName, "flavor_id",
+						"data.huaweicloud_ddm_flavors.test", "flavors.0.id"),
+					resource.TestCheckResourceAttrPair(rName, "engine_id",
+						"data.huaweicloud_ddm_engines.test", "engines.0.id"),
+					resource.TestCheckResourceAttrPair(rName, "vpc_id",
+						"huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "subnet_id",
+						"huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "security_group_id",
+						"huaweicloud_networking_secgroup.test", "id"),
+				),
+			},
+			{
+				Config: testDdmInstance_prepaid_update(name, updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "node_num", "2"),
+					resource.TestCheckResourceAttr(rName, "admin_user", "test_user_1"),
+					resource.TestCheckResourceAttrPair(rName, "flavor_id",
+						"data.huaweicloud_ddm_flavors.test", "flavors.0.id"),
+					resource.TestCheckResourceAttrPair(rName, "engine_id",
+						"data.huaweicloud_ddm_engines.test", "engines.0.id"),
+					resource.TestCheckResourceAttrPair(rName, "vpc_id",
+						"huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "subnet_id",
+						"huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "security_group_id",
+						"huaweicloud_networking_secgroup.test_update", "id"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"admin_password", "engine_id", "flavor_id",
+					"charging_mode", "auto_renew", "period", "period_unit"},
 			},
 		},
 	})
@@ -223,6 +288,64 @@ resource "huaweicloud_ddm_instance" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test_update.id
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+}
+`, testDdmInstance_base(name), updateName)
+}
+
+func testDdmInstance_prepaid(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_ddm_instance" "test" {
+  name              = "%[2]s"
+  flavor_id         = data.huaweicloud_ddm_flavors.test.flavors[0].id
+  node_num          = 2
+  engine_id         = data.huaweicloud_ddm_engines.test.engines[0].id
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  admin_user        = "test_user_1"
+  admin_password    = "test_password_123"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = false
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+}
+`, testDdmInstance_base(name), name)
+}
+
+func testDdmInstance_prepaid_update(name, updateName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_networking_secgroup" "test_update" {
+  name = "%[2]s"
+}
+
+resource "huaweicloud_ddm_instance" "test" {
+  name              = "%[2]s"
+  flavor_id         = data.huaweicloud_ddm_flavors.test.flavors[0].id
+  node_num          = 2
+  engine_id         = data.huaweicloud_ddm_engines.test.engines[0].id
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test_update.id
+  admin_user        = "test_user_1"
+  admin_password    = "test_password_456"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = true
 
   availability_zones = [
     data.huaweicloud_availability_zones.test.names[0]

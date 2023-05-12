@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_swr_image_retention_policy": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "number": {
+                "type": "number",
+                "description": "Specifies the number of retention.",
+                "required": true
+              },
+              "organization": {
+                "type": "string",
+                "description": "Specifies the name of the organization.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "repository": {
+                "type": "string",
+                "description": "Specifies the name of the repository.",
+                "required": true,
+                "forcenew": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the retention policy type.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "tag_selectors": {
+                "block": {
+                  "attributes": {
+                    "kind": {
+                      "type": "string",
+                      "description": "Specifies the Matching rule.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "pattern": {
+                      "type": "string",
+                      "description": "Specifies the Matching pattern.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the image tags that are not counted in the retention policy"
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

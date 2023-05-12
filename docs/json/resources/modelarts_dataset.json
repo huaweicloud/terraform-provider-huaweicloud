@@ -166,11 +166,13 @@
                   "attributes": {
                     "name": {
                       "type": "string",
-                      "required": true
+                      "required": true,
+                      "forcenew": true
                     },
                     "type": {
                       "type": "string",
-                      "required": true
+                      "required": true,
+                      "forcenew": true
                     }
                   }
                 },

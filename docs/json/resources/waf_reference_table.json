@@ -10,7 +10,8 @@
                   "list",
                   "string"
                 ],
-                "optional": true
+                "description": "schema: Required",
+                "required": true
               },
               "creation_time": {
                 "type": "string",
@@ -19,6 +20,11 @@
               "description": {
                 "type": "string",
                 "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
               },
               "id": {
                 "type": "string",

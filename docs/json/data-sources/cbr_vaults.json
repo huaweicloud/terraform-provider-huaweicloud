@@ -47,46 +47,22 @@
               "type": {
                 "type": "string",
                 "optional": true
-              }
-            },
-            "block_types": {
+              },
               "vaults": {
-                "block": {
-                  "attributes": {
-                    "allocated": {
-                      "type": "number",
-                      "computed": true
-                    },
-                    "auto_expand_enabled": {
-                      "type": "bool",
-                      "computed": true
-                    },
-                    "consistent_level": {
-                      "type": "string",
-                      "computed": true
-                    },
-                    "enterprise_project_id": {
-                      "type": "string",
-                      "computed": true
-                    },
-                    "id": {
-                      "type": "string",
-                      "computed": true
-                    },
-                    "name": {
-                      "type": "string",
-                      "computed": true
-                    },
-                    "policy_id": {
-                      "type": "string",
-                      "computed": true
-                    },
-                    "protection_type": {
-                      "type": "string",
-                      "computed": true
-                    },
-                    "resources": {
-                      "type": [
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "allocated": "number",
+                      "auto_expand_enabled": "bool",
+                      "consistent_level": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "name": "string",
+                      "policy_id": "string",
+                      "protection_type": "string",
+                      "resources": [
                         "list",
                         [
                           "object",
@@ -103,42 +79,20 @@
                           }
                         ]
                       ],
-                      "computed": true
-                    },
-                    "size": {
-                      "type": "number",
-                      "computed": true
-                    },
-                    "spec_code": {
-                      "type": "string",
-                      "computed": true
-                    },
-                    "status": {
-                      "type": "string",
-                      "computed": true
-                    },
-                    "storage": {
-                      "type": "string",
-                      "computed": true
-                    },
-                    "tags": {
-                      "type": [
+                      "size": "number",
+                      "spec_code": "string",
+                      "status": "string",
+                      "storage": "string",
+                      "tags": [
                         "map",
                         "string"
                       ],
-                      "computed": true
-                    },
-                    "type": {
                       "type": "string",
-                      "computed": true
-                    },
-                    "used": {
-                      "type": "number",
-                      "computed": true
+                      "used": "number"
                     }
-                  }
-                },
-                "nesting_mode": "list"
+                  ]
+                ],
+                "computed": true
               }
             }
           },

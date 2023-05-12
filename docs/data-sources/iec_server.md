@@ -24,16 +24,18 @@ The following arguments are supported:
 
 * `status` - (Optional, String) Specifies the status of IEC server.
 
+* `edgecloud_id` - (Optional, String) Specifies the ID of the edgecloud service.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The IEC server ID in UUID format.
-* `edgecloud_id` - The ID of the edgecloud service.
 * `edgecloud_name` - The Name of the edgecloud service.
 * `coverage_sites` - An array of site ID and operator for the IEC server. The object structure is documented below.
 * `flavor_id` - The flavor ID of the IEC server.
 * `flavor_name` - The flavor name of the IEC server.
+* `image_id` - The image ID of the IEC server.
 * `image_name` - The image name of the IEC server.
 * `vpc_id` - The ID of vpc for the IEC server.
 * `security_groups` - An array of one or more security group IDs to associate with the IEC server.
@@ -42,6 +44,8 @@ In addition to all arguments above, the following attributes are exported:
   below.
 * `public_ip` - The EIP address that is associted to the IEC server.
 * `system_disk_id` - The system disk voume ID.
+* `key_pair` - The name of a key pair to put on the IEC server.
+* `user_data` - The user data (information after encoding) configured during IEC server creation.
 
 The `coverage_sites` block supports:
 

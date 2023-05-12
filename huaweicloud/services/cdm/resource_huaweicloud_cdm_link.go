@@ -5,14 +5,15 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/chnsz/golangsdk/openstack/cdm/v1/link"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk/openstack/cdm/v1/link"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 const (
@@ -88,9 +89,9 @@ func ResourceCdmLink() *schema.Resource {
 }
 
 func resourceCdmLinkCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.CdmV11Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.CdmV11Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CDM v1 client, err=%s", err)
 	}
@@ -113,9 +114,9 @@ func resourceCdmLinkCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 	clusterId := d.Get("cluster_id").(string)
 
-	rst, createErr := link.Create(client, clusterId, opts)
-	if createErr != nil {
-		return fmtp.DiagErrorf("Error creating CDM link: %s", createErr)
+	rst, err := link.Create(client, clusterId, opts)
+	if err != nil {
+		return diag.Errorf("error creating CDM link: %s", err)
 	}
 
 	d.SetId(fmt.Sprintf("%s/%s", clusterId, rst.Name))
@@ -128,15 +129,15 @@ func buildLinkConfigParamter(d *schema.ResourceData) (*link.LinkConfigs, error) 
 	configRaw := d.Get("config").(map[string]interface{})
 
 	if len(configRaw) < 1 {
-		return nil, fmtp.Errorf("The config is Required.")
+		return nil, fmt.Errorf("the config is required")
 	}
 
 	for k, v := range configRaw {
-		config := link.Input{
+		conf := link.Input{
 			Name:  fmt.Sprintf("%s%s", configPref, k),
 			Value: v.(string),
 		}
-		configs = append(configs, config)
+		configs = append(configs, conf)
 	}
 
 	connector := d.Get("connector").(string)
@@ -179,7 +180,7 @@ func buildLinkConfigParamter(d *schema.ResourceData) (*link.LinkConfigs, error) 
 		}
 	}
 
-	LinkConfigValues := link.LinkConfigs{
+	linkConfigValues := link.LinkConfigs{
 		Configs: []link.Configs{
 			{
 				Name:   "linkConfig",
@@ -188,14 +189,13 @@ func buildLinkConfigParamter(d *schema.ResourceData) (*link.LinkConfigs, error) 
 		},
 	}
 
-	return &LinkConfigValues, nil
-
+	return &linkConfigValues, nil
 }
 
 func resourceCdmLinkRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.CdmV11Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.CdmV11Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CDM v1 client, err=%s", err)
 	}
@@ -205,9 +205,9 @@ func resourceCdmLinkRead(_ context.Context, d *schema.ResourceData, meta interfa
 		return diag.FromErr(err)
 	}
 
-	resp, gErr := link.Get(client, clusterId, linkName)
-	if gErr != nil {
-		return common.CheckDeletedDiag(d, err, "Error retrieving CDM link")
+	resp, err := link.Get(client, clusterId, linkName)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving CDM link")
 	}
 
 	detail := resp.Links[0]
@@ -221,7 +221,7 @@ func resourceCdmLinkRead(_ context.Context, d *schema.ResourceData, meta interfa
 	)
 
 	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf("Error setting CDM link fields: %s", mErr)
+		return diag.Errorf("error setting CDM link fields: %s", mErr)
 	}
 
 	return nil
@@ -238,14 +238,14 @@ func setConfigToState(d *schema.ResourceData, configs []link.Configs) error {
 			for _, v := range item.Inputs {
 				if v.Value != "" {
 					key := strings.Replace(v.Name, configPref, "", 1)
-
-					if key == "password" {
+					switch key {
+					case "password":
 						d.Set("password", v.Value)
-					} else if key == "securityKey" || key == "sk" {
+					case "securityKey", "sk":
 						d.Set("secret_key", v.Value)
-					} else if key == "accessKey" || key == "ak" {
+					case "accessKey", "ak":
 						d.Set("access_key", v.Value)
-					} else {
+					default:
 						result[key] = v.Value
 					}
 				}
@@ -256,9 +256,9 @@ func setConfigToState(d *schema.ResourceData, configs []link.Configs) error {
 }
 
 func resourceCdmLinkUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.CdmV11Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.CdmV11Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CDM v1 client, err=%s", err)
 	}
@@ -286,19 +286,19 @@ func resourceCdmLinkUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		},
 	}
 
-	_, updateErr := link.Update(client, clusterId, linkName, opts)
-	if updateErr != nil {
-		return fmtp.DiagErrorf("Error update CDM link: %s", updateErr)
+	_, err = link.Update(client, clusterId, linkName, opts)
+	if err != nil {
+		return diag.Errorf("error update CDM link: %s", err)
 	}
 
 	d.SetId(fmt.Sprintf("%s/%s", clusterId, newName))
 	return resourceCdmLinkRead(ctx, d, meta)
 }
 
-func resourceCdmLinkDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.CdmV11Client(region)
+func resourceCdmLinkDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.CdmV11Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CDM v1 client, err=%s", err)
 	}
@@ -308,16 +308,14 @@ func resourceCdmLinkDelete(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.FromErr(err)
 	}
 
-	_, dErr := link.Delete(client, clusterId, linkName)
-	if dErr != nil {
-		return fmtp.DiagErrorf("delete CDM link failed. %q:%s", d.Id(), dErr)
+	_, err = link.Delete(client, clusterId, linkName)
+	if err != nil {
+		return diag.Errorf("delete CDM link failed. %q: %s", d.Id(), err)
 	}
 
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
-	d.SetId("")
 
 	return nil
 }
@@ -325,7 +323,7 @@ func resourceCdmLinkDelete(ctx context.Context, d *schema.ResourceData, meta int
 func ParseLinkInfoFromId(id string) (clusterId, linkName string, err error) {
 	idArrays := strings.SplitN(id, "/", 2)
 	if len(idArrays) != 2 {
-		err = fmtp.Errorf("Invalid format specified for ID. Format must be <cluster_id>/<link_name>")
+		err = fmt.Errorf("invalid format specified for ID. Format must be <cluster_id>/<link_name>")
 		return
 	}
 

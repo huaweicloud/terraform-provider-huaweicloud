@@ -90,16 +90,18 @@ func ResourceDcsInstance() *schema.Resource {
 				Required: true,
 			},
 			"flavor": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: "schema: Required",
 			},
 			"availability_zones": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "schema: Required",
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,
@@ -599,8 +601,9 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 
-	// create whiteList if configured.
-	if d.Get("whitelists").(*schema.Set).Len() > 0 {
+	// create whitelist when the function is enabled and configured
+	enabled := d.Get("whitelist_enable").(bool)
+	if enabled && d.Get("whitelists").(*schema.Set).Len() > 0 {
 		whitelistOpts := buildWhiteListParams(d)
 		logp.Printf("[DEBUG] Create whitelist options: %#v", whitelistOpts)
 

@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dcs_backup": {
+          "block": {
+            "attributes": {
+              "backup_format": {
+                "type": "string",
+                "description": "Specifies the format of the DCS instance backup.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "begin_time": {
+                "type": "string",
+                "description": "Indicates the time when the backup task is created.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of DCS instance backup.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Indicates the time at which DCS instance backup is completed.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the DCS instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "is_support_restore": {
+                "type": "string",
+                "description": "Indicates whether restoration is supported. Value Options: **TRUE**, **FALSE**.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Indicates the backup name.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "size": {
+                "type": "number",
+                "description": "Indicates the size of the backup file (byte).",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the backup status.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Indicates the backup type. Valid value:\n",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

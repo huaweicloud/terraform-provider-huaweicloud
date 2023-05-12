@@ -5,17 +5,21 @@ import (
 	"log"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/networking/v2/peerings"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/networking/v2/peerings"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceVpcPeeringConnectionAccepterV2() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceVPCPeeringAccepterV2Create,
+		CreateContext: resourceVPCPeeringAccepterCreate,
 		ReadContext:   resourceVpcPeeringAccepterRead,
 		UpdateContext: resourceVPCPeeringAccepterUpdate,
 		DeleteContext: resourceVPCPeeringAccepterDelete,
@@ -52,6 +56,10 @@ func ResourceVpcPeeringConnectionAccepterV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"vpc_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -68,16 +76,15 @@ func ResourceVpcPeeringConnectionAccepterV2() *schema.Resource {
 	}
 }
 
-func resourceVPCPeeringAccepterV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	peeringClient, err := config.NetworkingV2Client(config.GetRegion(d))
-
+func resourceVPCPeeringAccepterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	peeringClient, err := cfg.NetworkingV2Client(region)
 	if err != nil {
-		return diag.Errorf("error creating Peering client: %s", err)
+		return diag.Errorf("error creating VPC Peering Connection client: %s", err)
 	}
 
 	id := d.Get("vpc_peering_connection_id").(string)
-
 	n, err := peerings.Get(peeringClient, id).Extract()
 	if err != nil {
 		return diag.Errorf("error retrieving Vpc Peering Connection: %s", err)
@@ -90,19 +97,16 @@ func resourceVPCPeeringAccepterV2Create(ctx context.Context, d *schema.ResourceD
 	var expectedStatus string
 
 	if _, ok := d.GetOk("accept"); ok {
-
 		expectedStatus = "ACTIVE"
-		_, err := peerings.Accept(peeringClient, id).ExtractResult()
 
+		_, err := peerings.Accept(peeringClient, id).ExtractResult()
 		if err != nil {
 			return diag.Errorf("unable to accept VPC Peering Connection: %s", err)
 		}
-
 	} else {
 		expectedStatus = "REJECTED"
 
 		_, err := peerings.Reject(peeringClient, id).ExtractResult()
-
 		if err != nil {
 			return diag.Errorf("unable to reject VPC Peering Connection: %s", err)
 		}
@@ -119,53 +123,53 @@ func resourceVPCPeeringAccepterV2Create(ctx context.Context, d *schema.ResourceD
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		log.Printf("[ERROR] Error deleting VPC Peering Connection: %s", err)
+		return diag.Errorf("error waiting for the VPC Peering Connection: %s", err)
 	}
+
 	d.SetId(n.ID)
-	log.Printf("[INFO] VPC Peering Connection status: %s", expectedStatus)
-
 	return resourceVpcPeeringAccepterRead(ctx, d, meta)
-
 }
 
 func resourceVpcPeeringAccepterRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	peeringclient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	peeringClient, err := cfg.NetworkingV2Client(region)
 	if err != nil {
-		return diag.Errorf("error creating peering client: %s", err)
+		return diag.Errorf("error creating VPC Peering Connection client: %s", err)
 	}
 
-	n, err := peerings.Get(peeringclient, d.Id()).Extract()
+	n, err := peerings.Get(peeringClient, d.Id()).Extract()
 	if err != nil {
-		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			d.SetId("")
-			return nil
-		}
-
-		return diag.Errorf("error retrieving Vpc Peering Connection: %s", err)
+		return common.CheckDeletedDiag(d, err, "error retrieving VPC Peering Connection")
 	}
 
-	d.Set("name", n.Name)
-	d.Set("status", n.Status)
-	d.Set("vpc_id", n.RequestVpcInfo.VpcId)
-	d.Set("peer_vpc_id", n.AcceptVpcInfo.VpcId)
-	d.Set("peer_tenant_id", n.AcceptVpcInfo.TenantId)
-	d.Set("region", config.GetRegion(d))
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("name", n.Name),
+		d.Set("status", n.Status),
+		d.Set("description", n.Description),
+		d.Set("vpc_id", n.RequestVpcInfo.VpcId),
+		d.Set("peer_vpc_id", n.AcceptVpcInfo.VpcId),
+		d.Set("peer_tenant_id", n.AcceptVpcInfo.TenantId),
+	)
+
+	if err := mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error setting VPC Peering Connection fields: %s", err)
+	}
 
 	return nil
 }
 
 func resourceVPCPeeringAccepterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-
 	if d.HasChange("accept") {
-		return diag.Errorf("VPC peering action not permitted: Can not accept/reject peering request not in pending_acceptance state.'")
+		return diag.Errorf("VPC peering action not permitted: Can not accept/reject peering request not in pending_acceptance state.")
 	}
 
 	return resourceVpcPeeringAccepterRead(ctx, d, meta)
 }
 
-func resourceVPCPeeringAccepterDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Printf("[WARN] Will not delete VPC peering connection. Terraform will remove this resource from the state file, however resources may remain.")
+func resourceVPCPeeringAccepterDelete(_ context.Context, d *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	log.Printf("[WARN] Will not delete VPC peering connection. Terraform will remove this resource from the state file, resources may remain.")
 	d.SetId("")
 	return nil
 }

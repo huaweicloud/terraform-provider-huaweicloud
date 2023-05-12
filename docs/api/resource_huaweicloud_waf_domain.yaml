@@ -14,7 +14,7 @@ paths:
       operationId: Delete
     get:
       tag: WAF
-      operationId: Get
+      operationId: GetWithEpsID
     put:
       tag: WAF
       operationId: Update
@@ -25,7 +25,7 @@ paths:
   /v1/{project_id}/waf/policy/{id}:
     delete:
       tag: WAF
-      operationId: Delete
+      operationId: DeleteWithEpsID
     put:
       tag: WAF
       operationId: UpdateHosts

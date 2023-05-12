@@ -11,8 +11,8 @@
               },
               "availability_zone": {
                 "type": "string",
-                "optional": true,
-                "computed": true,
+                "description": "schema: Required",
+                "required": true,
                 "forcenew": true
               },
               "charging_mode": {
@@ -100,8 +100,8 @@
               },
               "security_group_id": {
                 "type": "string",
-                "optional": true,
-                "computed": true,
+                "description": "schema: Required",
+                "required": true,
                 "forcenew": true
               },
               "security_mode": {
@@ -115,8 +115,8 @@
               },
               "subnet_id": {
                 "type": "string",
-                "optional": true,
-                "computed": true,
+                "description": "schema: Required",
+                "required": true,
                 "forcenew": true
               },
               "tags": {
@@ -128,8 +128,8 @@
               },
               "vpc_id": {
                 "type": "string",
-                "optional": true,
-                "computed": true,
+                "description": "schema: Required",
+                "required": true,
                 "forcenew": true
               },
               "vpcep_endpoint_id": {
@@ -216,7 +216,6 @@
                   }
                 },
                 "nesting_mode": "list",
-                "forcenew": true,
                 "max_items": 1
               },
               "cold_node_config": {
@@ -255,7 +254,6 @@
                   }
                 },
                 "nesting_mode": "list",
-                "forcenew": true,
                 "max_items": 1
               },
               "ess_node_config": {
@@ -291,10 +289,10 @@
                       "min_items": 1,
                       "max_items": 1
                     }
-                  }
+                  },
+                  "description": "schema: Required"
                 },
                 "nesting_mode": "list",
-                "forcenew": true,
                 "max_items": 1
               },
               "kibana_public_access": {
@@ -358,7 +356,6 @@
                   }
                 },
                 "nesting_mode": "list",
-                "forcenew": true,
                 "max_items": 1
               },
               "public_access": {

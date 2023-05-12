@@ -77,11 +77,13 @@ state file and management, but will not destroy the VPC Peering Connection.
 
 In addition to all arguments above, the following attributes are exported:
 
-* `name` - The VPC peering connection name.
-
 * `id` - The VPC peering connection ID.
 
+* `name` - The VPC peering connection name.
+
 * `status` - The VPC peering connection status.
+
+* `description` - The description of the VPC peering connection.
 
 * `vpc_id` - The ID of requester VPC involved in a VPC peering connection.
 
@@ -93,5 +95,5 @@ In addition to all arguments above, the following attributes are exported:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 10 minute.
-* `delete` - Default is 10 minute.
+* `create` - Default is 10 minutes.
+* `delete` - Default is 10 minutes.
