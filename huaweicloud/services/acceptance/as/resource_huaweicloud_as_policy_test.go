@@ -270,6 +270,7 @@ resource "huaweicloud_ces_alarmrule" "alarm_rule" {
     value               = 60
     unit                = "%%"
     count               = 1
+    suppress_duration   = 300
   }
   alarm_actions {
     type              = "autoscaling"
