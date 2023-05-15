@@ -16,6 +16,7 @@ import (
 func TestAccASGroup_basic(t *testing.T) {
 	var asGroup groups.Group
 	rName := acceptance.RandomAccResourceName()
+	updateName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_as_group.acc_as_group"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -27,6 +28,8 @@ func TestAccASGroup_basic(t *testing.T) {
 				Config: testASGroup_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckASGroupExists(resourceName, &asGroup),
+					resource.TestCheckResourceAttr(resourceName, "scaling_group_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "this is a basic AS group"),
 					resource.TestCheckResourceAttr(resourceName, "desire_instance_number", "0"),
 					resource.TestCheckResourceAttr(resourceName, "min_instance_number", "0"),
 					resource.TestCheckResourceAttr(resourceName, "max_instance_number", "5"),
@@ -40,6 +43,19 @@ func TestAccASGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "health_periodic_audit_grace_period", "600"),
 					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
 					resource.TestCheckResourceAttrSet(resourceName, "availability_zones.#"),
+				),
+			},
+			{
+				Config: testASGroup_update(rName, updateName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "scaling_group_name", updateName),
+					resource.TestCheckResourceAttr(resourceName, "description", "this is an updated AS group"),
+					resource.TestCheckResourceAttr(resourceName, "min_instance_number", "0"),
+					resource.TestCheckResourceAttr(resourceName, "max_instance_number", "5"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "agency_name", "ims_admin"),
+					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
 				),
 			},
 			{
@@ -244,6 +260,7 @@ resource "huaweicloud_as_group" "acc_as_group"{
   scaling_configuration_id = huaweicloud_as_configuration.acc_as_config.id
   vpc_id                   = huaweicloud_vpc.test.id
   max_instance_number      = 5
+  description              = "this is a basic AS group"
 
   networks {
     id = huaweicloud_vpc_subnet.test.id
@@ -261,6 +278,38 @@ resource "huaweicloud_as_group" "acc_as_group"{
   }
 }
 `, testASGroup_Base(rName), rName)
+}
+
+// update the following fields:
+// scaling_group_name, description, agency_name, tags
+func testASGroup_update(rName, newName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_as_group" "acc_as_group"{
+  scaling_group_name       = "%s"
+  scaling_configuration_id = huaweicloud_as_configuration.acc_as_config.id
+  vpc_id                   = huaweicloud_vpc.test.id
+  max_instance_number      = 5
+  description              = "this is an updated AS group"
+  agency_name              = "ims_admin"
+
+  networks {
+    id = huaweicloud_vpc_subnet.test.id
+  }
+  security_groups {
+    id = huaweicloud_networking_secgroup.test.id
+  }
+  lbaas_listeners {
+    pool_id       = huaweicloud_lb_pool.pool_1.id
+    protocol_port = huaweicloud_lb_listener.listener_1.protocol_port
+  }
+  tags = {
+    foo   = "bar"
+    owner = "terraform"
+  }
+}
+`, testASGroup_Base(rName), newName)
 }
 
 func testASGroup_basic_disable(rName string) string {
