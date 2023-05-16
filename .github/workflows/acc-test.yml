@@ -30,31 +30,29 @@ jobs:
 
       - id: get-comment-body
         run: |
-          body="$(cat pr-acc-test.log)"
-          body="${body//'%'/'%25'}"
-          body="${body//$'\n'/'%0A'}"
-          body="${body//$'\r'/'%0D'}" 
-          commentLength="${#body}"
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          cat pr-acc-test.log >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
           failed="$(grep -P -o '###\s\[summary\]\s\d*' pr-acc-test.log| grep -P -o '\d*')"
           reactions="laugh,rocket"
           if [ $failed -gt 0 ]; then
             reactions="confused,eyes"
           fi
 
-          echo "::set-output name=body::$body"
-          echo "::set-output name=commentLength::$commentLength"
-          echo "::set-output name=reactions::$reactions"
+          echo "reactions=$reactions" >> $GITHUB_OUTPUT
+          echo "lines=$(wc -l pr-acc-test.log | awk '{print $1}')" >> $GITHUB_OUTPUT
 
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v2
-        if: ${{ steps.get-comment-body.outputs.commentLength > 0 }}
+        if: ${{ steps.get-comment-body.outputs.lines > 2 }}
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: ${{ steps.get-comment-body.outputs.body }}
           reactions: ${{ steps.get-comment-body.outputs.reactions }}
 
       - uses: actions/upload-artifact@v3
-        if: ${{ steps.get-comment-body.outputs.commentLength > 0 }}
+        if: ${{ steps.get-comment-body.outputs.lines > 2 }}
         with:
           name: acceptance-test
           path: |
