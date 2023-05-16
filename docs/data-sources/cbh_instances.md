@@ -38,9 +38,7 @@ The following arguments are supported:
 
 * `flavor_id` - (Optional, String) Specifies the specification of the instance.
 
-* `bastion_type` - (Optional, String) Specifies the type of the bastion.
-
-* `bastion_version` - (Optional, String) Specifies the current version of the instance image
+* `version` - (Optional, String) Specifies the current version of the instance image
 
 ## Attributes Reference
 
@@ -54,23 +52,15 @@ In addition to all arguments above, the following attributes are exported:
 <a name="CbhInstances_Instance"></a>
 The `Instance` block supports:
 
-* `publicip_id` - Indicates the ID of the elastic IP.
+* `id` - Indicates the ID of the instance.
 
-* `exp_time` - Indicates the expire time of the instance.
+* `public_ip_id` - Indicates the ID of the elastic IP.
 
-* `start_time` - Indicates the start time of the instance.
-
-* `end_time` - Indicates the end time of the instance.
-
-* `release_time` - Indicates the release time of the instance.
+* `public_ip` - Indicates the elastic IP address.
 
 * `name` - Indicates the instance name.
 
-* `instance_id` - Indicates the server id of the instance.
-
 * `private_ip` - Indicates the private ip of the instance.
-
-* `task_status` - Indicates the task status of the instance.
 
 * `status` - Indicates the status of the instance.
 
@@ -82,24 +72,6 @@ The `Instance` block supports:
 
 * `flavor_id` - Indicates the specification of the instance.
 
-* `update` - Indicates whether the instance image can be upgraded.
+* `availability_zone` - Indicates the availability zone name.
 
-* `instance_key` - Indicates the ID of the instance.
-
-* `resource_id` - Indicates the ID of the resource.
-
-* `period` - Indicates the duration of tenant purchase.
-
-* `bastion_type` - Indicates the type of the bastion.
-
-* `alter_permit` - Indicates whether the front-end displays the capacity expansion button.
-
-* `bastion_version` - Indicates the current version of the instance image.
-
-* `new_bastion_version` - Indicates the latest version of the instance image.
-
-* `instance_status` - Indicates the status of the instance.
-
-* `description` - Indicates the type of the bastion.
-
-* `auto_renew` - Indicates whether auto renew is enabled.
+* `version` - Indicates the current version of the instance image.

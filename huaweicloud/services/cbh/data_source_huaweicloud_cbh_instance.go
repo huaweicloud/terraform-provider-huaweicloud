@@ -9,11 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func DataSourceCbhInstances() *schema.Resource {
@@ -50,19 +46,14 @@ func DataSourceCbhInstances() *schema.Resource {
 				Optional:    true,
 				Description: `Specifies the specification of the instance.`,
 			},
-			"bastion_type": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Specifies the type of the bastion.`,
-			},
-			"bastion_version": {
+			"version": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `Specifies the current version of the instance image`,
 			},
 			"instances": {
 				Type:        schema.TypeList,
-				Elem:        CbhInstancesInstanceSchema(),
+				Elem:        instancesInstanceSchema(),
 				Computed:    true,
 				Description: `Indicates the list of CBH instance.`,
 			},
@@ -70,53 +61,33 @@ func DataSourceCbhInstances() *schema.Resource {
 	}
 }
 
-func CbhInstancesInstanceSchema() *schema.Resource {
+func instancesInstanceSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"publicip_id": {
+			"id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the ID of the instance.`,
+			},
+			"public_ip_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Indicates the ID of the elastic IP.`,
 			},
-			"exp_time": {
+			"public_ip": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the expire time of the instance.`,
-			},
-			"start_time": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the start time of the instance.`,
-			},
-			"end_time": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the end time of the instance.`,
-			},
-			"release_time": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the release time of the instance.`,
+				Description: `Indicates the elastic IP address.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Indicates the instance name.`,
 			},
-			"instance_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the server id of the instance.`,
-			},
 			"private_ip": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Indicates the private ip of the instance.`,
-			},
-			"task_status": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the task status of the instance.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
@@ -143,110 +114,47 @@ func CbhInstancesInstanceSchema() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates the specification of the instance.`,
 			},
-			"update": {
+			"availability_zone": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates whether the instance image can be upgraded.`,
+				Description: `Indicates the availability zone name.`,
 			},
-			"instance_key": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the ID of the instance.`,
-			},
-			"resource_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the ID of the resource.`,
-			},
-			"period": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the duration of tenant purchase.`,
-			},
-			"bastion_type": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the type of the bastion.`,
-			},
-			"alter_permit": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates whether the front-end displays the capacity expansion button.`,
-			},
-			"bastion_version": {
+			"version": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Indicates the current version of the instance image.`,
-			},
-			"new_bastion_version": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the latest version of the instance image.`,
-			},
-			"instance_status": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the status of the instance.`,
-			},
-			"description": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the type of the bastion.`,
-			},
-			"auto_renew": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates whether auto renew is enabled.`,
 			},
 		},
 	}
 	return &sc
 }
 
-func resourceCbhInstancesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceCbhInstancesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
 	// getCbhInstances: Query the List of CBH instances
 	var (
-		getCbhInstancesHttpUrl = "v1/{project_id}/cbs/instance/list"
 		getCbhInstancesProduct = "cbh"
 	)
-	getCbhInstancesClient, err := config.NewServiceClient(getCbhInstancesProduct, region)
+	getCbhInstancesClient, err := cfg.NewServiceClient(getCbhInstancesProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CbhInstances Client: %s", err)
 	}
 
-	getCbhInstancesPath := getCbhInstancesClient.Endpoint + getCbhInstancesHttpUrl
-	getCbhInstancesPath = strings.ReplaceAll(getCbhInstancesPath, "{project_id}", getCbhInstancesClient.ProjectID)
-
-	getCbhInstancesOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	getCbhInstancesResp, err := getCbhInstancesClient.Request("GET", getCbhInstancesPath, &getCbhInstancesOpt)
-
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving CbhInstances")
-	}
-
-	getCbhInstancesRespBody, err := utils.FlattenResponse(getCbhInstancesResp)
+	instances, err := getInstanceList(getCbhInstancesClient)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	instances := utils.PathSearch("instance", getCbhInstancesRespBody, make([]interface{}, 0)).([]interface{})
 
 	name := d.Get("name").(string)
 	vpcId := d.Get("vpc_id").(string)
 	subnetId := d.Get("subnet_id").(string)
 	securityGroupId := d.Get("security_group_id").(string)
 	flavorId := d.Get("flavor_id").(string)
-	bastionType := d.Get("bastion_type").(string)
-	bastionVersion := d.Get("bastion_version").(string)
+	version := d.Get("version").(string)
 
 	res := make([]interface{}, 0)
 	for _, v := range instances {
@@ -254,32 +162,50 @@ func resourceCbhInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 		if len(name) > 0 && instance["name"].(string) != name {
 			continue
 		}
-		if len(vpcId) > 0 && instance["vpc_id"].(string) != vpcId {
+		if len(vpcId) > 0 && instance["vpcId"].(string) != vpcId {
 			continue
 		}
-		if len(subnetId) > 0 && instance["subnet_id"].(string) != subnetId {
+		if len(subnetId) > 0 && instance["subnetId"].(string) != subnetId {
 			continue
 		}
-		if len(securityGroupId) > 0 && instance["security_group_id"].(string) != securityGroupId {
+		if len(securityGroupId) > 0 && instance["securityGroupId"].(string) != securityGroupId {
 			continue
 		}
-		if len(flavorId) > 0 && instance["flavor_id"].(string) != flavorId {
+		if len(flavorId) > 0 && instance["specification"].(string) != flavorId {
 			continue
 		}
-		if len(bastionType) > 0 && instance["bastion_type"].(string) != bastionType {
+		if len(version) > 0 && instance["bastionVersion"].(string) != version {
 			continue
 		}
-		if len(bastionVersion) > 0 && instance["bastion_version"].(string) != bastionVersion {
-			continue
+		publicIpId := instance["publicId"]
+		var publicIp string
+		if publicIpId != nil && strings.TrimSpace(publicIpId.(string)) != "" {
+			publicIp, err = getPublicAddressById(d, cfg, strings.TrimSpace(publicIpId.(string)))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
-		res = append(res, v)
+		res = append(res, map[string]interface{}{
+			"id":                instance["instanceId"],
+			"public_ip_id":      publicIpId,
+			"public_ip":         publicIp,
+			"name":              instance["name"],
+			"private_ip":        instance["privateIp"],
+			"status":            instance["status"],
+			"vpc_id":            instance["vpcId"],
+			"subnet_id":         instance["subnetId"],
+			"security_group_id": instance["securityGroupId"],
+			"flavor_id":         instance["specification"],
+			"availability_zone": instance["zone"],
+			"version":           instance["bastionVersion"],
+		})
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	dataSourceId, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(dataSourceId)
 
 	mErr = multierror.Append(
 		mErr,
