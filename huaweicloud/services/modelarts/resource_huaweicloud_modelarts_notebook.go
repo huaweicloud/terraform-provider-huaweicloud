@@ -328,17 +328,17 @@ func resourceNotebookUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		if err != nil {
 			return fmtp.DiagErrorf("Error update ModelArts notebook: %s", err)
 		}
-	}
 
-	//start
-	_, err = notebook.Start(client, d.Id(), -1)
-	if err != nil {
-		return diag.FromErr(err)
-	}
+		// start the instance
+		_, err = notebook.Start(client, d.Id(), -1)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 
-	err = waitingNotebookForRunning(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
-	if err != nil {
-		return diag.FromErr(err)
+		err = waitingNotebookForRunning(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return resourceNotebookRead(ctx, d, meta)
