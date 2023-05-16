@@ -57,6 +57,7 @@ github.com/chnsz/golangsdk/openstack/cce/v3/addons
 github.com/chnsz/golangsdk/openstack/cce/v3/clusters
 github.com/chnsz/golangsdk/openstack/cce/v3/nodepools
 github.com/chnsz/golangsdk/openstack/cce/v3/nodes
+github.com/chnsz/golangsdk/openstack/cce/v3/partitions
 github.com/chnsz/golangsdk/openstack/cce/v3/templates
 github.com/chnsz/golangsdk/openstack/cci/v1/namespaces
 github.com/chnsz/golangsdk/openstack/cci/v1/networks

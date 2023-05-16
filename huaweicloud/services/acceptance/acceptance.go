@@ -122,6 +122,8 @@ var (
 
 	// The cluster ID of the CCE
 	HW_CCE_CLUSTER_ID = os.Getenv("HW_CCE_CLUSTER_ID")
+	// The partition az of the CCE
+	HW_CCE_PARTITION_AZ = os.Getenv("HW_CCE_PARTITION_AZ")
 	// The namespace of the workload is located
 	HW_WORKLOAD_NAMESPACE = os.Getenv("HW_WORKLOAD_NAMESPACE")
 	// The workload type deployed in CCE/CCI
@@ -630,5 +632,12 @@ func TestAccPreCheckSourceImage(t *testing.T) {
 func TestAccPreCheckSecMaster(t *testing.T) {
 	if HW_SECMASTER_WORKSPACE_ID == "" {
 		t.Skip("HW_SECMASTER_WORKSPACE_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCcePartitionAz(t *testing.T) {
+	if HW_CCE_PARTITION_AZ == "" {
+		t.Skip("Skip the interface acceptance test because of the cce partition az is missing.")
 	}
 }
