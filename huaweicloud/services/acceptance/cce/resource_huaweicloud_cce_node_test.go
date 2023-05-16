@@ -7,7 +7,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -17,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func TestAccCCENodeV3_basic(t *testing.T) {
+func TestAccNode_basic(t *testing.T) {
 	var node nodes.Nodes
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -29,12 +28,12 @@ func TestAccCCENodeV3_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCENodeV3Destroy,
+		CheckDestroy:      testAccCheckNodeDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCENodeV3_basic(rName),
+				Config: testAccNode_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodeV3Exists(resourceName, clusterName, &node),
+					testAccCheckNodeExists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
@@ -47,7 +46,7 @@ func TestAccCCENodeV3_basic(t *testing.T) {
 				ImportStateIdFunc: testAccCCENodeImportStateIdFunc(),
 			},
 			{
-				Config: testAccCCENodeV3_update(rName, updateName),
+				Config: testAccNode_update(rName, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
@@ -57,7 +56,7 @@ func TestAccCCENodeV3_basic(t *testing.T) {
 	})
 }
 
-func TestAccCCENodeV3_auto_assign_eip(t *testing.T) {
+func TestAccNode_auto_assign_eip(t *testing.T) {
 	var node nodes.Nodes
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -68,12 +67,12 @@ func TestAccCCENodeV3_auto_assign_eip(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCENodeV3Destroy,
+		CheckDestroy:      testAccCheckNodeDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCENodeV3_auto_assign_eip(rName),
+				Config: testAccNode_auto_assign_eip(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodeV3Exists(resourceName, clusterName, &node),
+					testAccCheckNodeExists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestMatchResourceAttr(resourceName, "public_ip",
 						regexp.MustCompile(`^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$`)),
@@ -83,7 +82,7 @@ func TestAccCCENodeV3_auto_assign_eip(t *testing.T) {
 	})
 }
 
-func TestAccCCENodeV3_existing_eip(t *testing.T) {
+func TestAccNode_existing_eip(t *testing.T) {
 	var node nodes.Nodes
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -94,12 +93,12 @@ func TestAccCCENodeV3_existing_eip(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCENodeV3Destroy,
+		CheckDestroy:      testAccCheckNodeDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCENodeV3_existing_eip(rName),
+				Config: testAccNode_existing_eip(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodeV3Exists(resourceName, clusterName, &node),
+					testAccCheckNodeExists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestMatchResourceAttr(resourceName, "public_ip",
 						regexp.MustCompile(`^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$`)),
@@ -109,7 +108,7 @@ func TestAccCCENodeV3_existing_eip(t *testing.T) {
 	})
 }
 
-func TestAccCCENodeV3_volume_extendParams(t *testing.T) {
+func TestAccNode_volume_extendParams(t *testing.T) {
 	var node nodes.Nodes
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -120,12 +119,12 @@ func TestAccCCENodeV3_volume_extendParams(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCENodeV3Destroy,
+		CheckDestroy:      testAccCheckNodeDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCENodeV3_volume_extendParams(rName),
+				Config: testAccNode_volume_extendParams(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodeV3Exists(resourceName, clusterName, &node),
+					testAccCheckNodeExists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "root_volume.0.extend_params.test_key", "test_val"),
 					resource.TestCheckResourceAttr(resourceName, "data_volumes.0.extend_params.test_key", "test_val"),
@@ -135,7 +134,7 @@ func TestAccCCENodeV3_volume_extendParams(t *testing.T) {
 	})
 }
 
-func TestAccCCENodeV3_volume_encryption(t *testing.T) {
+func TestAccNode_volume_encryption(t *testing.T) {
 	var node nodes.Nodes
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -149,12 +148,12 @@ func TestAccCCENodeV3_volume_encryption(t *testing.T) {
 			acceptance.TestAccPreCheckKms(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCENodeV3Destroy,
+		CheckDestroy:      testAccCheckNodeDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCENodeV3_volume_encryption(rName),
+				Config: testAccNode_volume_encryption(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodeV3Exists(resourceName, clusterName, &node),
+					testAccCheckNodeExists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttrSet(resourceName, "root_volume.0.kms_key_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "data_volumes.0.kms_key_id"),
@@ -164,7 +163,7 @@ func TestAccCCENodeV3_volume_encryption(t *testing.T) {
 	})
 }
 
-func TestAccCCENodeV3_prePaid(t *testing.T) {
+func TestAccNode_prePaid(t *testing.T) {
 	var node nodes.Nodes
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -178,12 +177,12 @@ func TestAccCCENodeV3_prePaid(t *testing.T) {
 			acceptance.TestAccPreCheckChargingMode(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCENodeV3Destroy,
+		CheckDestroy:      testAccCheckNodeDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCENodeV3_prePaid(rName, false),
+				Config: testAccNode_prePaid(rName, false),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodeV3Exists(resourceName, clusterName, &node),
+					testAccCheckNodeExists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
 					resource.TestCheckResourceAttr(resourceName, "period_unit", "month"),
@@ -192,9 +191,9 @@ func TestAccCCENodeV3_prePaid(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCCENodeV3_prePaid(rName, true),
+				Config: testAccNode_prePaid(rName, true),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodeV3Exists(resourceName, clusterName, &node),
+					testAccCheckNodeExists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
 				),
 			},
@@ -202,7 +201,7 @@ func TestAccCCENodeV3_prePaid(t *testing.T) {
 	})
 }
 
-func TestAccCCENodeV3_password(t *testing.T) {
+func TestAccNode_password(t *testing.T) {
 	var node nodes.Nodes
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -213,12 +212,12 @@ func TestAccCCENodeV3_password(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCENodeV3Destroy,
+		CheckDestroy:      testAccCheckNodeDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCENodeV3_password(rName),
+				Config: testAccNode_password(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodeV3Exists(resourceName, clusterName, &node),
+					testAccCheckNodeExists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 				),
 			},
@@ -226,7 +225,7 @@ func TestAccCCENodeV3_password(t *testing.T) {
 	})
 }
 
-func TestAccCCENodeV3_storage(t *testing.T) {
+func TestAccNode_storage(t *testing.T) {
 	var node nodes.Nodes
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -237,12 +236,12 @@ func TestAccCCENodeV3_storage(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCENodeV3Destroy,
+		CheckDestroy:      testAccCheckNodeDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCENodeV3_storage(rName),
+				Config: testAccNode_storage(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodeV3Exists(resourceName, clusterName, &node),
+					testAccCheckNodeExists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 				),
 			},
@@ -250,11 +249,11 @@ func TestAccCCENodeV3_storage(t *testing.T) {
 	})
 }
 
-func testAccCheckCCENodeV3Destroy(s *terraform.State) error {
+func testAccCheckNodeDestroy(s *terraform.State) error {
 	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 	cceClient, err := cfg.CceV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
+		return fmt.Errorf("error creating CCE client: %s", err)
 	}
 
 	var clusterId string
@@ -270,35 +269,35 @@ func testAccCheckCCENodeV3Destroy(s *terraform.State) error {
 
 		_, err := nodes.Get(cceClient, clusterId, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("Node still exists")
+			return fmt.Errorf("node still exists")
 		}
 	}
 
 	return nil
 }
 
-func testAccCheckCCENodeV3Exists(n string, cluster string, node *nodes.Nodes) resource.TestCheckFunc {
+func testAccCheckNodeExists(n string, cluster string, node *nodes.Nodes) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 		c, ok := s.RootModule().Resources[cluster]
 		if !ok {
-			return fmtp.Errorf("Cluster not found: %s", c)
+			return fmt.Errorf("cluster not found: %s", c)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 		if c.Primary.ID == "" {
-			return fmtp.Errorf("Cluster id is not set")
+			return fmt.Errorf("cluster id is not set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		cceClient, err := config.CceV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
+			return fmt.Errorf("error creating CCE client: %s", err)
 		}
 
 		found, err := nodes.Get(cceClient, c.Primary.ID, rs.Primary.ID).Extract()
@@ -307,7 +306,7 @@ func testAccCheckCCENodeV3Exists(n string, cluster string, node *nodes.Nodes) re
 		}
 
 		if found.Metadata.Id != rs.Primary.ID {
-			return fmtp.Errorf("Node not found")
+			return fmt.Errorf("node not found")
 		}
 
 		*node = *found
@@ -320,20 +319,20 @@ func testAccCCENodeImportStateIdFunc() resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		cluster, ok := s.RootModule().Resources["huaweicloud_cce_cluster.test"]
 		if !ok {
-			return "", fmtp.Errorf("Cluster not found: %s", cluster)
+			return "", fmt.Errorf("cluster not found: %s", cluster)
 		}
 		node, ok := s.RootModule().Resources["huaweicloud_cce_node.test"]
 		if !ok {
-			return "", fmtp.Errorf("Node not found: %s", node)
+			return "", fmt.Errorf("node not found: %s", node)
 		}
 		if cluster.Primary.ID == "" || node.Primary.ID == "" {
-			return "", fmtp.Errorf("resource not found: %s/%s", cluster.Primary.ID, node.Primary.ID)
+			return "", fmt.Errorf("resource not found: %s/%s", cluster.Primary.ID, node.Primary.ID)
 		}
 		return fmt.Sprintf("%s/%s", cluster.Primary.ID, node.Primary.ID), nil
 	}
 }
 
-func testAccCCENodeV3_Base(rName string) string {
+func testAccNode_Base(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -355,7 +354,7 @@ resource "huaweicloud_cce_cluster" "test" {
 `, common.TestVpc(rName), rName)
 }
 
-func testAccCCENodeV3_basic(rName string) string {
+func testAccNode_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -379,10 +378,10 @@ resource "huaweicloud_cce_node" "test" {
     key = "value"
   }
 }
-`, testAccCCENodeV3_Base(rName), rName)
+`, testAccNode_Base(rName), rName)
 }
 
-func testAccCCENodeV3_update(rName, updateName string) string {
+func testAccNode_update(rName, updateName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -406,10 +405,10 @@ resource "huaweicloud_cce_node" "test" {
     key = "value_update"
   }
 }
-`, testAccCCENodeV3_Base(rName), updateName)
+`, testAccNode_Base(rName), updateName)
 }
 
-func testAccCCENodeV3_auto_assign_eip(rName string) string {
+func testAccNode_auto_assign_eip(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -435,10 +434,10 @@ resource "huaweicloud_cce_node" "test" {
   sharetype= "PER"
   bandwidth_size= 100
 }
-`, testAccCCENodeV3_Base(rName), rName)
+`, testAccNode_Base(rName), rName)
 }
 
-func testAccCCENodeV3_existing_eip(rName string) string {
+func testAccNode_existing_eip(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -473,10 +472,10 @@ resource "huaweicloud_cce_node" "test" {
   // Assign existing EIP
   eip_id = huaweicloud_vpc_eip.test.id
 }
-`, testAccCCENodeV3_Base(rName), rName)
+`, testAccNode_Base(rName), rName)
 }
 
-func testAccCCENodeV3_volume_extendParams(rName string) string {
+func testAccNode_volume_extendParams(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -506,10 +505,10 @@ resource "huaweicloud_cce_node" "test" {
     key = "value"
   }
 }
-`, testAccCCENodeV3_Base(rName), rName)
+`, testAccNode_Base(rName), rName)
 }
 
-func testAccCCENodeV3_volume_encryption(rName string) string {
+func testAccNode_volume_encryption(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -540,10 +539,10 @@ resource "huaweicloud_cce_node" "test" {
     key = "value"
   }
 }
-`, testAccCCENodeV3_Base(rName), rName, rName)
+`, testAccNode_Base(rName), rName, rName)
 }
 
-func testAccCCENodeV3_prePaid(rName string, isAutoRenew bool) string {
+func testAccNode_prePaid(rName string, isAutoRenew bool) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -569,10 +568,10 @@ resource "huaweicloud_cce_node" "test" {
     volumetype = "SSD"
   }
 }
-`, testAccCCENodeV3_Base(rName), rName, isAutoRenew)
+`, testAccNode_Base(rName), rName, isAutoRenew)
 }
 
-func testAccCCENodeV3_password(rName string) string {
+func testAccNode_password(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -619,10 +618,10 @@ resource "huaweicloud_cce_node" "test" {
     ]
   }
 }
-`, testAccCCENodeV3_Base(rName), rName)
+`, testAccNode_Base(rName), rName)
 }
 
-func testAccCCENodeV3_storage(rName string) string {
+func testAccNode_storage(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -702,5 +701,5 @@ resource "huaweicloud_cce_node" "test" {
     }
   }
 }
-`, testAccCCENodeV3_Base(rName), rName, rName)
+`, testAccNode_Base(rName), rName, rName)
 }

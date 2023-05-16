@@ -175,7 +175,7 @@ resource "huaweicloud_cce_node" "test" {
     volumetype = "SSD"
   }
 }
-`, testAccCCENodeV3_Base(rName), rName)
+`, testAccNode_Base(rName), rName)
 }
 
 func testAccCCEAddonV3_basic(rName string) string {

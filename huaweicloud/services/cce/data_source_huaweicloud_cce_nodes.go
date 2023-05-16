@@ -2,23 +2,23 @@ package cce
 
 import (
 	"context"
+	"log"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
-
-	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
-	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func DataSourceCCENodes() *schema.Resource {
+func DataSourceNodes() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceCceNodesRead,
+		ReadContext: dataSourceNodesRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -156,11 +156,11 @@ func DataSourceCCENodes() *schema.Resource {
 	}
 }
 
-func dataSourceCceNodesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceNodesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to create HuaweiCloud CCE client : %s", err)
+		return diag.Errorf("unable to create CCE client : %s", err)
 	}
 
 	listOpts := nodes.ListOpts{
@@ -172,14 +172,14 @@ func dataSourceCceNodesRead(_ context.Context, d *schema.ResourceData, meta inte
 	refinedNodes, err := nodes.List(cceClient, d.Get("cluster_id").(string), listOpts)
 
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve Nodes: %s", err)
+		return diag.Errorf("unable to retrieve Nodes: %s", err)
 	}
 
 	ids := make([]string, 0, len(refinedNodes))
 	nodesToSet := make([]map[string]interface{}, 0, len(refinedNodes))
 
 	for _, v := range refinedNodes {
-		logp.Printf("[DEBUG] Retrieved Nodes using given filter %s: %+v", v.Metadata.Id, v)
+		log.Printf("[DEBUG] Retrieved Nodes using given filter %s: %+v", v.Metadata.Id, v)
 		ids = append(ids, v.Metadata.Id)
 		node := map[string]interface{}{
 			"id":                v.Metadata.Id,
@@ -219,7 +219,7 @@ func dataSourceCceNodesRead(_ context.Context, d *schema.ResourceData, meta inte
 		// fetch tags from ECS instance
 		computeClient, err := config.ComputeV1Client(config.GetRegion(d))
 		if err != nil {
-			return fmtp.DiagErrorf("Error creating HuaweiCloud compute client: %s", err)
+			return diag.Errorf("error creating compute client: %s", err)
 		}
 
 		serverId := v.Status.ServerID
@@ -228,7 +228,7 @@ func dataSourceCceNodesRead(_ context.Context, d *schema.ResourceData, meta inte
 			tagmap := utils.TagsToMap(resourceTags.Tags)
 			node["tags"] = tagmap
 		} else {
-			logp.Printf("[WARN] Error fetching tags of CCE Node (%s): %s", serverId, err)
+			log.Printf("[WARN] Error fetching tags of CCE Node (%s): %s", serverId, err)
 		}
 
 		nodesToSet = append(nodesToSet, node)
@@ -241,7 +241,7 @@ func dataSourceCceNodesRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("ids", ids),
 	)
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting cce nodes fields: %s", err)
+		return diag.Errorf("error setting cce nodes fields: %s", err)
 	}
 
 	return nil

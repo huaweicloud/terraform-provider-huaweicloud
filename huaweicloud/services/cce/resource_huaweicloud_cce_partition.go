@@ -185,7 +185,7 @@ func resourcePartitionUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
-	return resourceCCENodeV3Read(ctx, d, meta)
+	return resourceNodeRead(ctx, d, meta)
 }
 
 func resourcePartitionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
