@@ -100,6 +100,13 @@ func TestAccWafCertificateV1_withEpsID(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 				),
 			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"certificate", "private_key"},
+				ImportStateIdFunc:       testWAFResourceImportState(resourceName),
+			},
 		},
 	})
 }

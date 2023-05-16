@@ -62,7 +62,7 @@ func ResourceCloudInstance() *schema.Resource {
 		DeleteContext: resourceCloudInstanceDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceWAFImportState,
 		},
 
 		Timeouts: &schema.ResourceTimeout{

@@ -65,10 +65,18 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-Certificates can be imported using the `id`, e.g.
+There are two ways to import WAF certificate state.
 
-```sh
-terraform import huaweicloud_waf_certificate.certificate_2 3ebd3201238d41f9bfc3623b61435954
+* Using the `id`, e.g.
+
+```bash
+$ terraform import huaweicloud_waf_certificate.test <id>
+```
+
+* Using `id` and `enterprise_project_id`, separated by a slash, e.g.
+
+```bash
+$ terraform import huaweicloud_waf_certificate.test <id>/<enterprise_project_id>
 ```
 
 Note that the imported state is not identical to your resource definition, due to security reason. The missing

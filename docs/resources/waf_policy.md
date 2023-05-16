@@ -91,8 +91,16 @@ The `options` block supports:
 
 ## Import
 
-Policies can be imported using the `id`, e.g.
+There are two ways to import WAF policy state.
 
-```sh
-terraform import huaweicloud_waf_policy.policy_2 25e1df831bea4022a6e22bebe678915a
+* Using the `id`, e.g.
+
+```bash
+$ terraform import huaweicloud_waf_policy.test <id>
+```
+
+* Using `id` and `enterprise_project_id`, separated by a slash, e.g.
+
+```bash
+$ terraform import huaweicloud_waf_policy.test <id>/<enterprise_project_id>
 ```

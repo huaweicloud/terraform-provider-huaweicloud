@@ -62,8 +62,16 @@ The `rules` block supports:
 
 ## Import
 
-The WAF address group can be imported using the `id`, e.g.
+There are two ways to import WAF address group state.
+
+* Using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_waf_address_group.test 0ce123456a00f2591fabc00385ff1234
+$ terraform import huaweicloud_waf_address_group.test <id>
+```
+
+* Using `id` and `enterprise_project_id`, separated by a slash, e.g.
+
+```bash
+$ terraform import huaweicloud_waf_address_group.test <id>/<enterprise_project_id>
 ```

@@ -28,7 +28,7 @@ func ResourceWafDomainV1() *schema.Resource {
 		Update: resourceWafDomainV1Update,
 		Delete: resourceWafDomainV1Delete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: resourceWAFImportState,
 		},
 
 		Timeouts: &schema.ResourceTimeout{

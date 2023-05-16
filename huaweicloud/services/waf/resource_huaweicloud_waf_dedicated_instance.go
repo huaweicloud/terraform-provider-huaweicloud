@@ -2,7 +2,6 @@ package waf
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -46,7 +45,7 @@ func ResourceWafDedicatedInstance() *schema.Resource {
 		UpdateContext: resourceDedicatedInstanceUpdate,
 		DeleteContext: resourceDedicatedInstanceDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceWafDedicatedInstanceImport,
+			StateContext: resourceWAFImportState,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -373,23 +372,4 @@ func resourceDedicatedInstanceDelete(ctx context.Context, d *schema.ResourceData
 	}
 	d.SetId("")
 	return nil
-}
-
-func resourceWafDedicatedInstanceImport(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
-	if !strings.Contains(d.Id(), "/") {
-		return []*schema.ResourceData{d}, nil
-	}
-
-	parts := strings.SplitN(d.Id(), "/", 2)
-	if len(parts) != 2 {
-		err := fmtp.Errorf("Invalid format specified for WAF Dedicated. Format must be <instance id>/<eps id>")
-		return nil, err
-	}
-	instanceId := parts[0]
-	epsId := parts[1]
-
-	d.SetId(instanceId)
-	d.Set("enterprise_project_id", epsId)
-
-	return []*schema.ResourceData{d}, nil
 }

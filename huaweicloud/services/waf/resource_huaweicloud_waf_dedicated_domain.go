@@ -33,7 +33,7 @@ func ResourceWafDedicatedDomainV1() *schema.Resource {
 		Delete: resourceWafDedicatedDomainV1Delete,
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: resourceWAFImportState,
 		},
 
 		Schema: map[string]*schema.Schema{

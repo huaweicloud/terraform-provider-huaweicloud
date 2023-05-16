@@ -112,8 +112,16 @@ The following attributes are exported:
 
 ## Import
 
-Domains can be imported using the `id`, e.g.
+There are two ways to import WAF domain state.
 
-```sh
-terraform import huaweicloud_waf_domain.domain_2 7902bd9e01104cb794dcb668f235e0c5
+* Using the `id`, e.g.
+
+```bash
+$ terraform import huaweicloud_waf_domain.test <id>
+```
+
+* Using `id` and `enterprise_project_id`, separated by a slash, e.g.
+
+```bash
+$ terraform import huaweicloud_waf_domain.test <id>/<enterprise_project_id>
 ```

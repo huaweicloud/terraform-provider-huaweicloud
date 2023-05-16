@@ -25,7 +25,7 @@ func ResourceWafReferenceTableV1() *schema.Resource {
 		Update: resourceWafReferenceTableUpdate,
 		Delete: resourceWafReferenceTableDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: resourceWAFImportState,
 		},
 
 		Schema: map[string]*schema.Schema{

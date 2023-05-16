@@ -120,6 +120,19 @@ func TestAccCloudInstance_withEpsID(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "auto_renew", "true"),
 				),
 			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"enterprise_project_id",
+					"charging_mode",
+					"period_unit",
+					"period",
+					"auto_renew",
+				},
+				ImportStateIdFunc: testWAFResourceImportState(rName),
+			},
 		},
 	})
 }

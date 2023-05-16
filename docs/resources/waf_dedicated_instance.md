@@ -103,20 +103,16 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-There are two ways to import state, include `Without Enterprise Project ID` and `With Enterprise Project ID`.
+There are two ways to import WAF dedicated instance state.
 
-### Without Enterprise Project ID
+* Using the `id`, e.g.
 
-WAF dedicated instance can be imported using the `id`, e.g.
-
-```sh
-terraform import huaweicloud_waf_dedicated_instance.instance_1 2f87641090206b821f07e0f6bd6
+```bash
+$ terraform import huaweicloud_waf_dedicated_instance.test <id>
 ```
 
-### With Enterprise Project ID
+* Using `id` and `enterprise_project_id`, separated by a slash, e.g.
 
-WAF dedicated instance can be imported using the instance ID and Enterprise Project ID separated by a slash, e.g.:
-
-```sh
-terraform import huaweicloud_waf_dedicated_instance.instance_1 2003b024bee141bcb3aed2fc4142033c/3cf9c5a4-583e-4259-aba1-b7745690246f
+```bash
+$ terraform import huaweicloud_waf_dedicated_instance.test <id>/<enterprise_project_id>
 ```

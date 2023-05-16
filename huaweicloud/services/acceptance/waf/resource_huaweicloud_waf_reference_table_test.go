@@ -96,6 +96,12 @@ func TestAccWafReferenceTableV1_withEpsID(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "creation_time"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testWAFResourceImportState(resourceName),
+			},
 		},
 	})
 }
