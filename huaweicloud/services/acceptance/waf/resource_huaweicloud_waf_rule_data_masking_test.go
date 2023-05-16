@@ -61,7 +61,7 @@ func TestAccWafRuleDataMasking_basic(t *testing.T) {
 				ResourceName:      resourceName1,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccWafRuleImportStateIdFunc(resourceName1),
+				ImportStateIdFunc: testWAFRuleImportState(resourceName1),
 			},
 		},
 	})
@@ -100,6 +100,12 @@ func TestAccWafRuleDataMasking_withEpsID(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "subfield", "secret"),
 					resource.TestCheckResourceAttr(resourceName, "field", "params"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testWAFRuleImportState(resourceName),
 			},
 		},
 	})

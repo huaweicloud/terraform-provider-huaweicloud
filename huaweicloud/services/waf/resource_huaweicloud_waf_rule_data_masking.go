@@ -31,7 +31,7 @@ func ResourceWafRuleDataMaskingV1() *schema.Resource {
 		Update: resourceWafRuleDataMaskingUpdate,
 		Delete: resourceWafRuleDataMaskingDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceWafRulesImport,
+			StateContext: resourceWAFRuleImportState,
 		},
 
 		Schema: map[string]*schema.Schema{

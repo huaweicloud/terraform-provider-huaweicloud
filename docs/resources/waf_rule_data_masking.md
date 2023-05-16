@@ -54,8 +54,16 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-Data Masking Rules can be imported using the policy ID and rule ID separated by a slash, e.g.:
+There are two ways to import WAF rule data masking state.
 
-```sh
-terraform import huaweicloud_waf_rule_data_masking.rule_1 d78b439fd5e54ea08886e5f63ee7b3f5/ac01a092d50e4e6ba3cd622c1128ba2c
+* Using `policy_id` and `rule_id`, separated by a slash, e.g.
+
+```bash
+$ terraform import huaweicloud_waf_rule_data_masking.test <policy_id>/<rule_id>
+```
+
+* Using `policy_id`, `rule_id` and `enterprise_project_id`, separated by slashes, e.g.
+
+```bash
+$ terraform import huaweicloud_waf_rule_data_masking.test <policy_id>/<rule_id>/<enterprise_project_id>
 ```

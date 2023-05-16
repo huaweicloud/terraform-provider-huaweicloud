@@ -48,8 +48,16 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-Web Tamper Protection Rules can be imported using the policy ID and rule ID separated by a slash, e.g.:
+There are two ways to import WAF rule web tamper protection state.
 
-```sh
-terraform import huaweicloud_waf_rule_web_tamper_protection.rule_1 840c6dfdd5604c1781eea033eae2004f/c6dbc13bb7e74788ae53ecc9254b3ea8
+* Using `policy_id` and `rule_id`, separated by a slash, e.g.
+
+```bash
+$ terraform import huaweicloud_waf_rule_web_tamper_protection.test <policy_id>/<rule_id>
+```
+
+* Using `policy_id`, `rule_id` and `enterprise_project_id`, separated by slashes, e.g.
+
+```bash
+$ terraform import huaweicloud_waf_rule_web_tamper_protection.test <policy_id>/<rule_id>/<enterprise_project_id>
 ```

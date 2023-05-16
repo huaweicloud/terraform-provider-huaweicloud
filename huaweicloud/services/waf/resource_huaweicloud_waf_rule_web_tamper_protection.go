@@ -23,7 +23,7 @@ func ResourceWafRuleWebTamperProtectionV1() *schema.Resource {
 		Read:   resourceWafRuleWebTamperProtectionRead,
 		Delete: resourceWafRuleWebTamperProtectionDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceWafRulesImport,
+			StateContext: resourceWAFRuleImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
