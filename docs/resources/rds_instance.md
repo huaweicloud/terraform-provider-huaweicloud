@@ -282,6 +282,15 @@ The `volume` block supports:
 * `disk_encryption_id` - (Optional, String, ForceNew) Specifies the key ID for disk encryption.
   Changing this parameter will create a new resource.
 
+* `limit_size` - (Optional, Int) Specifies the upper limit of automatic expansion of storage, in GB.
+
+* `trigger_threshold` - (Optional, Int) Specifies the threshold to trigger automatic expansion.  
+  If the available storage drops to this threshold or `10` GB, the automatic expansion is triggered.  
+  The valid values are as follows:
+  + **10**
+  + **15**
+  + **20**
+
 The `backup_strategy` block supports:
 
 * `keep_days` - (Optional, Int) Specifies the retention days for specific backup files. The value range is from 0 to
