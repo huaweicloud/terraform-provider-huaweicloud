@@ -32,12 +32,6 @@ func ResourceAggregator() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -84,8 +78,7 @@ func resourceAggregatorCreate(ctx context.Context, d *schema.ResourceData, meta 
 	)
 
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	createAggregatorClient, err := cfg.NewServiceClient(createAggregatorProduct, region)
+	createAggregatorClient, err := cfg.NewServiceClient(createAggregatorProduct, cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating RMS Client: %s", err)
 	}
@@ -127,8 +120,7 @@ func resourceAggregatorRead(_ context.Context, d *schema.ResourceData, meta inte
 	)
 
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	getAggregatorClient, err := cfg.NewServiceClient(getAggregatorProduct, region)
+	getAggregatorClient, err := cfg.NewServiceClient(getAggregatorProduct, cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating RMS Client: %s", err)
 	}
@@ -154,7 +146,6 @@ func resourceAggregatorRead(_ context.Context, d *schema.ResourceData, meta inte
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("region", region),
 		d.Set("name", utils.PathSearch("aggregator_name", getAggregatorRespBody, nil)),
 		d.Set("type", utils.PathSearch("aggregator_type", getAggregatorRespBody, nil)),
 		d.Set("account_ids", utils.PathSearch("account_aggregation_sources.domain_ids", getAggregatorRespBody, nil)),
@@ -165,23 +156,22 @@ func resourceAggregatorRead(_ context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourceAggregatorUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		updateAggregatorHttpUrl = "v1/resource-manager/domains/{domain_id}/aggregators/{id}"
+		updateAggregatorProduct = "rms"
+	)
+
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	updateAggregatorClient, err := cfg.NewServiceClient(updateAggregatorProduct, cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating RMS Client: %s", err)
+	}
 
 	updateAggregatorChanges := []string{
 		"account_ids",
 	}
 
 	if d.HasChanges(updateAggregatorChanges...) {
-		var (
-			updateAggregatorHttpUrl = "v1/resource-manager/domains/{domain_id}/aggregators/{id}"
-			updateAggregatorProduct = "rms"
-		)
-		updateAggregatorClient, err := cfg.NewServiceClient(updateAggregatorProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating RMS Client: %s", err)
-		}
-
 		updateAggregatorPath := updateAggregatorClient.Endpoint + updateAggregatorHttpUrl
 		updateAggregatorPath = strings.ReplaceAll(updateAggregatorPath, "{domain_id}", cfg.DomainID)
 		updateAggregatorPath = strings.ReplaceAll(updateAggregatorPath, "{id}", d.Id())
@@ -208,8 +198,7 @@ func resourceAggregatorDelete(_ context.Context, d *schema.ResourceData, meta in
 	)
 
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	deleteAggregatorClient, err := cfg.NewServiceClient(deleteAggregatorProduct, region)
+	deleteAggregatorClient, err := cfg.NewServiceClient(deleteAggregatorProduct, cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating RMS Client: %s", err)
 	}

@@ -32,12 +32,6 @@ func ResourceAggregationAuthorization() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
 			"account_id": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -72,8 +66,7 @@ func resourceAggregationAuthCreate(ctx context.Context, d *schema.ResourceData, 
 	)
 
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	createAggregationAuthClient, err := cfg.NewServiceClient(createAggregationAuthProduct, region)
+	createAggregationAuthClient, err := cfg.NewServiceClient(createAggregationAuthProduct, cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating RMS Client: %s", err)
 	}
@@ -114,8 +107,7 @@ func resourceAggregationAuthRead(_ context.Context, d *schema.ResourceData, meta
 	)
 
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	getAggregationAuthClient, err := cfg.NewServiceClient(getAggregationAuthProduct, region)
+	getAggregationAuthClient, err := cfg.NewServiceClient(getAggregationAuthProduct, cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating RMS Client: %s", err)
 	}
@@ -146,7 +138,6 @@ func resourceAggregationAuthRead(_ context.Context, d *schema.ResourceData, meta
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("region", region),
 		d.Set("urn", utils.PathSearch("aggregation_authorization_urn", item, nil)),
 		d.Set("account_id", utils.PathSearch("authorized_account_id", item, nil)),
 		d.Set("created_at", utils.PathSearch("created_at", item, nil)),
@@ -162,8 +153,7 @@ func resourceAggregationAuthDelete(_ context.Context, d *schema.ResourceData, me
 	)
 
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	deleteAggregationAuthClient, err := cfg.NewServiceClient(deleteAggregationAuthProduct, region)
+	deleteAggregationAuthClient, err := cfg.NewServiceClient(deleteAggregationAuthProduct, cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating RMS Client: %s", err)
 	}

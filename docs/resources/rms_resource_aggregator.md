@@ -36,9 +36,6 @@ resource "huaweicloud_rms_resource_aggregator" "organization" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
-  If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
-
 * `name` - (Required, String, ForceNew) Specifies the resource aggregator name.
   Changing this parameter will create a new resource.
 

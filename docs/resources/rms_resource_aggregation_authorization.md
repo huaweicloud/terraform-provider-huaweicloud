@@ -20,9 +20,6 @@ resource "huaweicloud_rms_resource_aggregation_authorization" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
-  If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
-
 * `account_id` - (Required, String, ForceNew) Specifies the ID of the resource aggregation account to be authorized.
   Changing this parameter will create a new resource.
 
