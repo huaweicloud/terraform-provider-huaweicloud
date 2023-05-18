@@ -46,6 +46,40 @@ resource "huaweicloud_images_image" "ims_test_file" {
 }
 ```
 
+### Creating a whole image from an existing ECS
+
+```hcl
+variable "vault_id" {}
+variable "instance_id" {}
+
+resource "huaweicloud_images_image" "test" {
+  name        = "test_whole_image"
+  instance_id = var.instance_id
+  vault_id    = var.vault_id
+
+  tags = {
+    foo = "bar2"
+    key = "value"
+  }
+}
+```
+
+### Creating a whole image from CBR backup
+
+```hcl
+variable "backup_id" {}
+
+resource "huaweicloud_images_image" "test" {
+  name      = "test_whole_image"
+  backup_id = var.backup_id
+
+  tags = {
+    foo = "bar1"
+    key = "value"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -55,7 +89,11 @@ The following arguments are supported:
 * `description` - (Optional, String, ForceNew) A description of the image.
 
 * `instance_id` - (Optional, String, ForceNew) The ID of the ECS that needs to be converted into an image. This
-  parameter is mandatory when you create a privete image from an ECS.
+  parameter is mandatory when you create a private image or a private whole image from an ECS.
+  If the value of `vault_id` is not empty, then a whole image will be created.
+
+* `backup_id` - (Optional, String, ForceNew) The ID of the CBR backup that needs to be converted into an image. This
+  parameter is mandatory when you create a private whole image from a CBR backup.
 
 * `image_url` - (Optional, String, ForceNew) The URL of the external image file in the OBS bucket. This parameter is
   mandatory when you create a private image from an external file uploaded to an OBS bucket. The format is *OBS bucket
@@ -85,6 +123,9 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the image. Changing this creates a
   new image.
 
+* `vault_id` - (Optional, String, ForceNew) The ID of the vault to which an ECS is to be added or has been added.
+  This parameter is mandatory when you create a private whole image from an ECS.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -93,7 +134,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `visibility` - Whether the image is visible to other tenants.
 
-* `data_origin` - The image resource. The pattern can be 'instance,*instance_id*' or 'file,*image_url*'.
+* `data_origin` - The image resource. The pattern can be 'instance,*instance_id*', 'file,*image_url*'
+  or 'server_backup,*backup_id*'.
 
 * `disk_format` - The image file format. The value can be `vhd`, `zvhd`, `raw`, `zvhd2`, or `qcow2`.
 
@@ -107,13 +149,13 @@ In addition to all arguments above, the following attributes are exported:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 10 minute.
-* `delete` - Default is 3 minute.
+* `create` - Default is 20 minutes.
+* `delete` - Default is 10 minutes.
 
 ## Import
 
 Images can be imported using the `id`, e.g.
 
-```sh
+```bash
 terraform import huaweicloud_images_image.my_image 7886e623-f1b3-473e-b882-67ba1c35887f
 ```
