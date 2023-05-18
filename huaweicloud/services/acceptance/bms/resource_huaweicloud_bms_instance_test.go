@@ -22,7 +22,7 @@ func TestAccBmsInstance_basic(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			acceptance.TestAccPreCheckBms(t)
+			acceptance.TestAccPreCheckUserId(t)
 			acceptance.TestAccPreCheckEpsID(t)
 			acceptance.TestAccPreCheckChargingMode(t)
 		},
