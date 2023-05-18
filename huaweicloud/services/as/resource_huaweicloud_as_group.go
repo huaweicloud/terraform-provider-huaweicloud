@@ -197,7 +197,6 @@ func ResourceASGroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"delete_publicip": {
 				Type:     schema.TypeBool,
@@ -715,6 +714,10 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		IsDeletePublicip:          d.Get("delete_publicip").(bool),
 		Description:               utils.String(d.Get("description").(string)),
 		EnterpriseProjectID:       common.GetEnterpriseProjectID(d, conf),
+	}
+
+	if d.HasChange("agency_name") {
+		updateOpts.IamAgencyName = d.Get("agency_name").(string)
 	}
 
 	log.Printf("[DEBUG] AS Group update options: %#v", updateOpts)
