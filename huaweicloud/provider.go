@@ -930,6 +930,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_obs_bucket":             obs.ResourceObsBucket(),
 			"huaweicloud_obs_bucket_acl":         obs.ResourceOBSBucketAcl(),
 			"huaweicloud_obs_bucket_object":      obs.ResourceObsBucketObject(),
+			"huaweicloud_obs_bucket_object_acl":  obs.ResourceOBSBucketObjectAcl(),
 			"huaweicloud_obs_bucket_policy":      obs.ResourceObsBucketPolicy(),
 			"huaweicloud_obs_bucket_replication": obs.ResourceObsBucketReplication(),
 
