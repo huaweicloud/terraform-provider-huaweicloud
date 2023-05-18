@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestAccCCENodesDataSource_basic(t *testing.T) {
+func TestAccNodesDataSource_basic(t *testing.T) {
 	dataSourceName := "data.huaweicloud_cce_nodes.test"
 	dc := acceptance.InitDataSourceCheck(dataSourceName)
 	rName := acceptance.RandomAccResourceNameWithDash()
@@ -19,7 +19,7 @@ func TestAccCCENodesDataSource_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCENodesDataSource_basic(rName),
+				Config: testAccNodesDataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "nodes.0.name", rName),
@@ -29,7 +29,7 @@ func TestAccCCENodesDataSource_basic(t *testing.T) {
 	})
 }
 
-func testAccCCENodesDataSource_basic(rName string) string {
+func testAccNodesDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 

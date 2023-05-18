@@ -397,8 +397,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_addon_template": cce.DataSourceCCEAddonTemplateV3(),
 			"huaweicloud_cce_cluster":        cce.DataSourceCCEClusterV3(),
 			"huaweicloud_cce_clusters":       cce.DataSourceCCEClusters(),
-			"huaweicloud_cce_node":           cce.DataSourceCCENodeV3(),
-			"huaweicloud_cce_nodes":          cce.DataSourceCCENodes(),
+			"huaweicloud_cce_node":           cce.DataSourceNode(),
+			"huaweicloud_cce_nodes":          cce.DataSourceNodes(),
 			"huaweicloud_cce_node_pool":      cce.DataSourceCCENodePoolV3(),
 			"huaweicloud_cci_namespaces":     cci.DataSourceCciNamespaces(),
 
@@ -565,7 +565,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_subnet_ids_v1":         vpc.DataSourceVpcSubnetIdsV1(),
 
 			"huaweicloud_cce_cluster_v3": cce.DataSourceCCEClusterV3(),
-			"huaweicloud_cce_node_v3":    cce.DataSourceCCENodeV3(),
+			"huaweicloud_cce_node_v3":    cce.DataSourceNode(),
 
 			"huaweicloud_dms_product_v1":        dms.DataSourceDmsProduct(),
 			"huaweicloud_dms_maintainwindow_v1": dms.DataSourceDmsMaintainWindow(),
@@ -664,7 +664,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cc_network_instance": cc.ResourceNetworkInstance(),
 
 			"huaweicloud_cce_cluster":     cce.ResourceCluster(),
-			"huaweicloud_cce_node":        cce.ResourceCCENodeV3(),
+			"huaweicloud_cce_node":        cce.ResourceNode(),
 			"huaweicloud_cce_node_attach": cce.ResourceCCENodeAttachV3(),
 			"huaweicloud_cce_addon":       cce.ResourceCCEAddonV3(),
 			"huaweicloud_cce_node_pool":   cce.ResourceCCENodePool(),
@@ -1114,7 +1114,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_subnet_v1":                      vpc.ResourceVpcSubnetV1(),
 
 			"huaweicloud_cce_cluster_v3": cce.ResourceCCEClusterV3(),
-			"huaweicloud_cce_node_v3":    cce.ResourceCCENodeV3(),
+			"huaweicloud_cce_node_v3":    cce.ResourceNode(),
 
 			"huaweicloud_as_configuration_v1": as.ResourceASConfiguration(),
 			"huaweicloud_as_group_v1":         as.ResourceASGroup(),

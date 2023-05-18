@@ -23,12 +23,12 @@ func TestAccCCENodeAttachV3_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCENodeV3Destroy,
+		CheckDestroy:      testAccCheckNodeDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCCENodeAttachV3_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodeV3Exists(resourceName, clusterName, &node),
+					testAccCheckNodeExists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
@@ -38,7 +38,7 @@ func TestAccCCENodeAttachV3_basic(t *testing.T) {
 			{
 				Config: testAccCCENodeAttachV3_update(rName, rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodeV3Exists(resourceName, clusterName, &node),
+					testAccCheckNodeExists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key_update", "value_update"),
@@ -48,7 +48,7 @@ func TestAccCCENodeAttachV3_basic(t *testing.T) {
 			{
 				Config: testAccCCENodeAttachV3_reset(rName, rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodeV3Exists(resourceName, clusterName, &node),
+					testAccCheckNodeExists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key_update", "value_update"),
@@ -73,12 +73,12 @@ func TestAccCCENodeAttachV3_prePaid(t *testing.T) {
 			acceptance.TestAccPreCheckChargingMode(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCENodeV3Destroy,
+		CheckDestroy:      testAccCheckNodeDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCCENodeAttachV3_prePaid(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodeV3Exists(resourceName, clusterName, &node),
+					testAccCheckNodeExists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),

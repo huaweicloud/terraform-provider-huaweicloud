@@ -18,7 +18,7 @@ import (
 func ResourceCCENodeAttachV3() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCCENodeAttachV3Create,
-		ReadContext:   resourceCCENodeV3Read,
+		ReadContext:   resourceNodeRead,
 		UpdateContext: resourceCCENodeAttachV3Update,
 		DeleteContext: resourceCCENodeAttachV3Delete,
 
@@ -254,7 +254,7 @@ func ResourceCCENodeAttachV3() *schema.Resource {
 func resourceCCENodeAttachV3ServerConfig(d *schema.ResourceData) *nodes.ServerConfig {
 	if common.HasFilledOpt(d, "tags") || common.HasFilledOpt(d, "image_id") {
 		serverConfig := nodes.ServerConfig{
-			UserTags: resourceCCENodeTags(d),
+			UserTags: buildResourceNodeTags(d),
 		}
 
 		if v, ok := d.GetOk("image_id"); ok {
@@ -292,8 +292,8 @@ func resourceCCENodeAttachV3K8sOptions(d *schema.ResourceData) *nodes.K8sOptions
 	if common.HasFilledOpt(d, "labels") || common.HasFilledOpt(d, "taints") || common.HasFilledOpt(d, "max_pods") ||
 		common.HasFilledOpt(d, "nic_multi_queue") || common.HasFilledOpt(d, "nic_threshold") {
 		k8sOptions := nodes.K8sOptions{
-			Labels:        resourceCCENodeK8sTags(d),
-			Taints:        resourceCCETaint(d),
+			Labels:        buildResourceNodeK8sTags(d),
+			Taints:        buildResourceNodeTaint(d),
 			MaxPods:       d.Get("max_pods").(int),
 			NicMultiQueue: d.Get("nic_multi_queue").(string),
 			NicThreshold:  d.Get("nic_threshold").(string),
@@ -392,7 +392,7 @@ func resourceCCENodeAttachV3Create(ctx context.Context, d *schema.ResourceData, 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Build", "Installing"},
 		Target:       []string{"Active"},
-		Refresh:      waitForCceNodeActive(nodeClient, clusterID, nodeID),
+		Refresh:      waitForNodeActive(nodeClient, clusterID, nodeID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        20 * time.Second,
 		PollInterval: 20 * time.Second,
@@ -402,7 +402,7 @@ func resourceCCENodeAttachV3Create(ctx context.Context, d *schema.ResourceData, 
 		return fmtp.DiagErrorf("Error adding HuaweiCloud CCE Node: %s", err)
 	}
 
-	return resourceCCENodeV3Read(ctx, d, meta)
+	return resourceNodeRead(ctx, d, meta)
 }
 
 func resourceCCENodeAttachV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -469,7 +469,7 @@ func resourceCCENodeAttachV3Update(ctx context.Context, d *schema.ResourceData, 
 		stateConf := &resource.StateChangeConf{
 			Pending:      []string{"Build", "Installing"},
 			Target:       []string{"Active"},
-			Refresh:      waitForCceNodeActive(nodeClient, clusterID, nodeID),
+			Refresh:      waitForNodeActive(nodeClient, clusterID, nodeID),
 			Timeout:      d.Timeout(schema.TimeoutUpdate),
 			Delay:        20 * time.Second,
 			PollInterval: 20 * time.Second,
@@ -479,10 +479,10 @@ func resourceCCENodeAttachV3Update(ctx context.Context, d *schema.ResourceData, 
 			return fmtp.DiagErrorf("Error resetting HuaweiCloud CCE Node: %s", err)
 		}
 
-		return resourceCCENodeV3Read(ctx, d, config)
+		return resourceNodeRead(ctx, d, config)
 
 	} else {
-		return resourceCCENodeV3Update(ctx, d, config)
+		return resourceNodeUpdate(ctx, d, config)
 	}
 }
 
@@ -529,7 +529,7 @@ func resourceCCENodeAttachV3Delete(ctx context.Context, d *schema.ResourceData, 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Deleting"},
 		Target:       []string{"Deleted"},
-		Refresh:      waitForCceNodeDelete(nodeClient, clusterID, d.Id()),
+		Refresh:      waitForNodeDelete(nodeClient, clusterID, d.Id()),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        60 * time.Second,
 		PollInterval: 20 * time.Second,
