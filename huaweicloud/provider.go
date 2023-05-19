@@ -394,7 +394,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cbh_instances": cbh.DataSourceCbhInstances(),
 
-			"huaweicloud_cce_addon_template": cce.DataSourceCCEAddonTemplateV3(),
+			"huaweicloud_cce_addon_template": cce.DataSourceAddonTemplate(),
 			"huaweicloud_cce_cluster":        cce.DataSourceCCEClusterV3(),
 			"huaweicloud_cce_clusters":       cce.DataSourceCCEClusters(),
 			"huaweicloud_cce_node":           cce.DataSourceNode(),
@@ -666,7 +666,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_cluster":     cce.ResourceCluster(),
 			"huaweicloud_cce_node":        cce.ResourceNode(),
 			"huaweicloud_cce_node_attach": cce.ResourceCCENodeAttachV3(),
-			"huaweicloud_cce_addon":       cce.ResourceCCEAddonV3(),
+			"huaweicloud_cce_addon":       cce.ResourceAddon(),
 			"huaweicloud_cce_node_pool":   cce.ResourceCCENodePool(),
 			"huaweicloud_cce_namespace":   cce.ResourceCCENamespaceV1(),
 			"huaweicloud_cce_pvc":         cce.ResourceCcePersistentVolumeClaimsV1(),
