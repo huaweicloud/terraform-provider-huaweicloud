@@ -82,6 +82,10 @@ The following arguments are supported:
   + **mongodb**: Mongodb migration use.
   + **cloudDataGuard-mysql**: Disaster recovery use.
   + **gaussdbv5**: GaussDB (for openGauss) synchronization use.
+  + **mysql-to-kafka**: Synchronization from MySQL to Kafka use.
+  + **taurus-to-kafka**: Synchronization from GaussDB(for MySQL) to Kafka use.
+  + **gaussdbv5ha-to-kafka**: Synchronization from GaussDB primary/standby to Kafka use.
+  + **postgresql**: Synchronization from PostgreSQL to PostgreSQL use.
 
 * `direction` - (Required, String, ForceNew) Specifies the direction of data flow.
  Changing this parameter will create a new resource. The options are as follows:
@@ -104,7 +108,7 @@ The following arguments are supported:
   + **vpc**: suitable for migration from one cloud database to another.
   + **vpn**: suitable for migration from an on-premises self-built database to a destination cloud database,
    or from one cloud database to another in a different region.
-  
+
  The default value is `eip`.
 
 * `migration_type` - (Optional, String, ForceNew) Specifies migration type.
@@ -116,7 +120,7 @@ The following arguments are supported:
   + **FULL_INCR_TRANS**:  Full+Incremental migration. This allows to migrate data with minimal downtime. After a full
    migration initializes the destination database, an incremental migration parses logs to ensure data consistency
    between the source and destination databases.
-  
+
  The default value is `FULL_INCR_TRANS`.
 
 * `migrate_definer` - (Optional, Bool, ForceNew) Specifies whether to migrate the definers of all source database

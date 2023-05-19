@@ -51,25 +51,21 @@ func ResourceDrsJob() *schema.Resource {
 			},
 
 			"type": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"migration", "sync", "cloudDataGuard"}, false),
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 
 			"engine_type": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{"mysql", "mongodb", "cloudDataGuard-mysql",
-					"gaussdbv5"}, false),
 			},
 
 			"direction": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"up", "down", "non-dbs"}, false),
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 
 			"source_db": {
@@ -96,19 +92,17 @@ func ResourceDrsJob() *schema.Resource {
 			},
 
 			"net_type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Default:      "eip",
-				ValidateFunc: validation.StringInSlice([]string{"vpn", "vpc", "eip"}, false),
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  "eip",
 			},
 
 			"migration_type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Default:      "FULL_INCR_TRANS",
-				ValidateFunc: validation.StringInSlice([]string{"FULL_TRANS", "FULL_INCR_TRANS", "INCR_TRANS"}, false),
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  "FULL_INCR_TRANS",
 			},
 
 			"description": {
