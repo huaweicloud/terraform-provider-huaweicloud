@@ -12,7 +12,7 @@ Manages an IMS image share resource within HuaweiCloud.
 variable "source_image_id" {}
 variable "target_project_ids" {}
 
-resource "resource_huaweicloud_images_image_share" "test" {
+resource "huaweicloud_images_image_share" "test" {
   source_image_id    = var.source_image_id
   target_project_ids = var.target_project_ids
 }

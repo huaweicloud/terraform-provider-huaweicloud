@@ -11,7 +11,7 @@ Manages an IMS image share accepter resource within HuaweiCloud.
 ```hcl
 variable "image_id" {}
 
-resource "resource_huaweicloud_images_image_share_accepter" "test" {
+resource "huaweicloud_images_image_share_accepter" "test" {
   image_id   = var.image_id
 }
 ```
