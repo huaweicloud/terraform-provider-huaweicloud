@@ -61,13 +61,13 @@ func resourceImsImageShareCreate(ctx context.Context, d *schema.ResourceData, me
 	cfg := meta.(*config.Config)
 
 	projectIds := d.Get("target_project_ids")
-	err := dealImageMembers(ctx, d, cfg, "POST", schema.TimeoutCreate, projectIds.(*schema.Set).List())
+	sourceImageId := d.Get("source_image_id").(string)
+	err := dealImageMembers(ctx, d, cfg, "POST", sourceImageId, projectIds.(*schema.Set).List())
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	sourceImageId := d.Get("source_image_id")
-	d.SetId(sourceImageId.(string))
+	d.SetId(sourceImageId)
 
 	return resourceImsImageShareRead(ctx, d, meta)
 }
@@ -80,13 +80,13 @@ func resourceImsImageShareUpdate(ctx context.Context, d *schema.ResourceData, me
 		shareProjectIds := nProjectIdsRaw.(*schema.Set).Difference(oProjectIdsRaw.(*schema.Set))
 		unShareProjectIds := oProjectIdsRaw.(*schema.Set).Difference(nProjectIdsRaw.(*schema.Set))
 		if shareProjectIds.Len() > 0 {
-			err := dealImageMembers(ctx, d, cfg, "POST", schema.TimeoutCreate, shareProjectIds.List())
+			err := dealImageMembers(ctx, d, cfg, "POST", d.Id(), shareProjectIds.List())
 			if err != nil {
 				return diag.FromErr(err)
 			}
 		}
 		if unShareProjectIds.Len() > 0 {
-			err := dealImageMembers(ctx, d, cfg, "DELETE", schema.TimeoutDelete, unShareProjectIds.List())
+			err := dealImageMembers(ctx, d, cfg, "DELETE", d.Id(), unShareProjectIds.List())
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -104,7 +104,7 @@ func resourceImsImageShareDelete(ctx context.Context, d *schema.ResourceData, me
 	cfg := meta.(*config.Config)
 
 	projectIds := d.Get("target_project_ids")
-	err := dealImageMembers(ctx, d, cfg, "DELETE", schema.TimeoutDelete, projectIds.(*schema.Set).List())
+	err := dealImageMembers(ctx, d, cfg, "DELETE", d.Id(), projectIds.(*schema.Set).List())
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -113,7 +113,7 @@ func resourceImsImageShareDelete(ctx context.Context, d *schema.ResourceData, me
 }
 
 func dealImageMembers(ctx context.Context, d *schema.ResourceData, cfg *config.Config, requestMethod,
-	timeout string, projectIds []interface{}) error {
+	imageId string, projectIds []interface{}) error {
 	region := cfg.GetRegion(d)
 	var (
 		imageMemberHttpUrl = "v1/cloudimages/members"
@@ -133,11 +133,13 @@ func dealImageMembers(ctx context.Context, d *schema.ResourceData, cfg *config.C
 			200,
 		},
 	}
-	imageMemberOpt.JSONBody = utils.RemoveNil(buildImageMemberBodyParams(d, projectIds))
+	imageMemberOpt.JSONBody = utils.RemoveNil(buildImageMemberBodyParams(imageId, projectIds))
 	imageMemberResp, err := imageMemberClient.Request(requestMethod, imageMemberPath, &imageMemberOpt)
 	operateMethod := "creating"
+	timeout := schema.TimeoutCreate
 	if requestMethod == "DELETE" {
 		operateMethod = "deleting"
+		timeout = schema.TimeoutDelete
 	}
 	if err != nil {
 		return fmt.Errorf("error %s IMS image share: %s", operateMethod, err)
@@ -160,9 +162,9 @@ func dealImageMembers(ctx context.Context, d *schema.ResourceData, cfg *config.C
 	return nil
 }
 
-func buildImageMemberBodyParams(d *schema.ResourceData, projectIds []interface{}) map[string]interface{} {
+func buildImageMemberBodyParams(imageId string, projectIds []interface{}) map[string]interface{} {
 	imagesParams := []interface{}{
-		utils.ValueIngoreEmpty(d.Id()),
+		utils.ValueIngoreEmpty(imageId),
 	}
 	bodyParams := map[string]interface{}{
 		"images":   imagesParams,
