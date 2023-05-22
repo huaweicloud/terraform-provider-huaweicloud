@@ -30,6 +30,10 @@ func TestAccAddon_basic(t *testing.T) {
 				Config: testAccAddon_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAddonExists(resourceName, clusterName, &addon),
+					resource.TestCheckResourceAttrPair(resourceName, "cluster_id",
+						"huaweicloud_cce_cluster.test", "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "version"),
+					resource.TestCheckResourceAttr(resourceName, "template_name", "metrics-server"),
 					resource.TestCheckResourceAttr(resourceName, "status", "running"),
 				),
 			},
@@ -62,6 +66,22 @@ func TestAccAddon_values(t *testing.T) {
 				Config: testAccAddon_values(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAddonExists(resourceName, clusterName, &addon),
+					resource.TestCheckResourceAttrPair(resourceName, "cluster_id",
+						"huaweicloud_cce_cluster.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "version", "1.25.21"),
+					resource.TestCheckResourceAttr(resourceName, "template_name", "autoscaler"),
+					resource.TestCheckResourceAttr(resourceName, "status", "running"),
+				),
+			},
+			{
+				Config: testAccAddon_values_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAddonExists(resourceName, clusterName, &addon),
+					// the values not set, only check if the updating request is successful
+					resource.TestCheckResourceAttrPair(resourceName, "cluster_id",
+						"huaweicloud_cce_cluster.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "version", "1.25.21"),
+					resource.TestCheckResourceAttr(resourceName, "template_name", "autoscaler"),
 					resource.TestCheckResourceAttr(resourceName, "status", "running"),
 				),
 			},
@@ -183,14 +203,13 @@ func testAccAddon_basic(rName string) string {
 
 resource "huaweicloud_cce_addon" "test" {
   cluster_id    = huaweicloud_cce_cluster.test.id
-  version       = "1.3.6"
   template_name = "metrics-server"
   depends_on    = [huaweicloud_cce_node.test]
 }
 `, testAccAddon_Base(rName))
 }
 
-func testAccAddon_values(rName string) string {
+func testAccAddon_values_base(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -223,6 +242,12 @@ data "huaweicloud_cce_addon_template" "test" {
   name       = "autoscaler"
   version    = "1.25.21"
 }
+`, testAccCCENodePool_Base(rName), rName)
+}
+
+func testAccAddon_values(rName string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_cce_addon" "test" {
   cluster_id    = huaweicloud_cce_cluster.test.id
@@ -236,6 +261,36 @@ resource "huaweicloud_cce_addon" "test" {
       {
         cluster_id = huaweicloud_cce_cluster.test.id
         tenant_id  = "%s"
+        logLevel   = 3
+      }
+    ))
+    flavor_json = jsonencode(jsondecode(data.huaweicloud_cce_addon_template.test.spec).parameters.flavor1)
+  }
+  
+  depends_on = [
+    huaweicloud_cce_node_pool.test,
+  ]
+}
+`, testAccAddon_values_base(rName), acceptance.HW_PROJECT_ID)
+}
+
+func testAccAddon_values_update(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_cce_addon" "test" {
+  cluster_id    = huaweicloud_cce_cluster.test.id
+  template_name = "autoscaler"
+  version       = "1.25.21"
+
+  values {
+    basic       = jsondecode(data.huaweicloud_cce_addon_template.test.spec).basic
+    custom_json = jsonencode(merge(
+      jsondecode(data.huaweicloud_cce_addon_template.test.spec).parameters.custom,
+      {
+        cluster_id = huaweicloud_cce_cluster.test.id
+        tenant_id  = "%s"
+        logLevel   = 4
       }
     ))
     flavor_json = jsonencode(jsondecode(data.huaweicloud_cce_addon_template.test.spec).parameters.flavor2)
@@ -245,5 +300,5 @@ resource "huaweicloud_cce_addon" "test" {
     huaweicloud_cce_node_pool.test,
   ]
 }
-`, testAccCCENodePool_Base(rName), rName, acceptance.HW_PROJECT_ID)
+`, testAccAddon_values_base(rName), acceptance.HW_PROJECT_ID)
 }

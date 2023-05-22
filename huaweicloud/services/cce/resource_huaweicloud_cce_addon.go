@@ -26,6 +26,7 @@ func ResourceAddon() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAddonCreate,
 		ReadContext:   resourceAddonRead,
+		UpdateContext: resourceAddonUpdate,
 		DeleteContext: resourceAddonDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -34,6 +35,7 @@ func ResourceAddon() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(3 * time.Minute),
 		},
 
@@ -49,42 +51,31 @@ func ResourceAddon() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"version": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
 			"template_name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"status": {
+			"version": {
 				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"description": {
-				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 			"values": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"basic": {
 							Type:         schema.TypeMap,
 							Optional:     true,
-							ForceNew:     true,
 							Elem:         &schema.Schema{Type: schema.TypeString},
 							ExactlyOneOf: []string{"values.0.basic", "values.0.basic_json"},
 						},
 						"basic_json": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ForceNew:     true,
 							ValidateFunc: validation.StringIsJSON,
 							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 								equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
@@ -95,14 +86,12 @@ func ResourceAddon() *schema.Resource {
 						"custom": {
 							Type:          schema.TypeMap,
 							Optional:      true,
-							ForceNew:      true,
 							Elem:          &schema.Schema{Type: schema.TypeString},
 							ConflictsWith: []string{"values.0.custom_json"},
 						},
 						"custom_json": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ForceNew:     true,
 							ValidateFunc: validation.StringIsJSON,
 							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 								equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
@@ -113,14 +102,12 @@ func ResourceAddon() *schema.Resource {
 						"flavor": {
 							Type:          schema.TypeMap,
 							Optional:      true,
-							ForceNew:      true,
 							Elem:          &schema.Schema{Type: schema.TypeString},
 							ConflictsWith: []string{"values.0.flavor_json"},
 						},
 						"flavor_json": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ForceNew:     true,
 							ValidateFunc: validation.StringIsJSON,
 							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 								equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
@@ -130,6 +117,14 @@ func ResourceAddon() *schema.Resource {
 						},
 					},
 				},
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -197,7 +192,7 @@ func resourceAddonCreate(ctx context.Context, d *schema.ResourceData, meta inter
 		Kind:       "Addon",
 		ApiVersion: "v3",
 		Metadata: addons.CreateMetadata{
-			Anno: addons.Annotations{
+			Anno: addons.CreateAnnotations{
 				AddonInstallType: "install",
 			},
 		},
@@ -265,6 +260,63 @@ func resourceAddonRead(_ context.Context, d *schema.ResourceData, meta interface
 	}
 
 	return nil
+}
+
+func resourceAddonUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	cceClient, err := cfg.CceAddonV3Client(cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("unable to create CCE client : %s", err)
+	}
+
+	var clusterID = d.Get("cluster_id").(string)
+
+	basic, custom, flavor, err := getValuesValues(d)
+	if err != nil {
+		return diag.Errorf("error getting values for CCE addon: %s", err)
+	}
+
+	updateOpts := addons.UpdateOpts{
+		Kind:       "Addon",
+		ApiVersion: "v3",
+		Metadata: addons.UpdateMetadata{
+			Anno: addons.UpdateAnnotations{
+				AddonUpgradeType: "upgrade",
+			},
+		},
+		Spec: addons.RequestSpec{
+			Version:           d.Get("version").(string),
+			ClusterID:         clusterID,
+			AddonTemplateName: d.Get("template_name").(string),
+			Values: addons.Values{
+				Basic:  basic,
+				Custom: custom,
+				Flavor: flavor,
+			},
+		},
+	}
+
+	update, err := addons.Update(cceClient, updateOpts, d.Id(), clusterID).Extract()
+	if err != nil {
+		return diag.Errorf("error updating CCEAddon: %s", err)
+	}
+
+	log.Printf("[DEBUG] Waiting for CCEAddon (%s) to become available", update.Metadata.Id)
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"installing", "abnormal"},
+		Target:       []string{"running", "available"},
+		Refresh:      waitForAddonActive(cceClient, update.Metadata.Id, clusterID),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return diag.Errorf("error updating CCEAddon: %s", err)
+	}
+
+	return resourceAddonRead(ctx, d, meta)
 }
 
 func resourceAddonDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

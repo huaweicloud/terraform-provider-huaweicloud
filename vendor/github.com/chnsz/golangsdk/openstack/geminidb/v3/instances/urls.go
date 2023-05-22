@@ -45,3 +45,11 @@ func listURL(c *golangsdk.ServiceClient) string {
 func listDehURL(c *golangsdk.ServiceClient) string {
 	return c.ServiceURL("dedicated-resources")
 }
+
+func updateSslURL(c *golangsdk.ServiceClient, instanceID string) string {
+	return c.ServiceURL("instances", instanceID, "ssl-option")
+}
+
+func updatePublicIpURL(c *golangsdk.ServiceClient, instanceID, nodeID string) string {
+	return c.ServiceURL("instances", instanceID, "nodes", nodeID, "public-ip")
+}
