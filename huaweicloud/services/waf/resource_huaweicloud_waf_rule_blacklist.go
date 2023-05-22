@@ -1,7 +1,6 @@
 package waf
 
 import (
-	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -33,7 +32,7 @@ func ResourceWafRuleBlackListV1() *schema.Resource {
 		Update: resourceWafRuleBlackListUpdate,
 		Delete: resourceWafRuleBlackListDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceWafRulesImport,
+			StateContext: resourceWAFRuleImportState,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -225,22 +224,4 @@ func resourceWafRuleBlackListDelete(d *schema.ResourceData, meta interface{}) er
 
 	d.SetId("")
 	return nil
-}
-
-// resourceWafRulesImport query the rules from HuaweiCloud and imports them to Terraform.
-// It is a common function in waf and is also called by other rule resources.
-func resourceWafRulesImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.SplitN(d.Id(), "/", 2)
-	if len(parts) != 2 {
-		err := fmtp.Errorf("Invalid format specified for WAF rule. Format must be <policy id>/<rule id>")
-		return nil, err
-	}
-
-	policyID := parts[0]
-	ruleID := parts[1]
-
-	d.SetId(ruleID)
-	d.Set("policy_id", policyID)
-
-	return []*schema.ResourceData{d}, nil
 }

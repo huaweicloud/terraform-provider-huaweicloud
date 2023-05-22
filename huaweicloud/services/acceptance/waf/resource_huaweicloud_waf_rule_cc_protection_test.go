@@ -126,7 +126,7 @@ func TestAccRuleCCProtection_basic(t *testing.T) {
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testRuleCCProtectionImportState(rName),
+				ImportStateIdFunc: testWAFRuleImportState(rName),
 			},
 		},
 	})
@@ -177,7 +177,7 @@ func TestAccRuleCCProtection_withEpsID(t *testing.T) {
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testRuleCCProtectionImportState(rName),
+				ImportStateIdFunc: testWAFRuleImportState(rName),
 			},
 		},
 	})
@@ -288,24 +288,4 @@ resource "huaweicloud_waf_rule_cc_protection" "test" {
   }
 }
 `, testAccWafPolicyV1_basic_withEpsID(name, epsID), name, epsID)
-}
-
-func testRuleCCProtectionImportState(name string) resource.ImportStateIdFunc {
-	return func(s *terraform.State) (string, error) {
-		rs, ok := s.RootModule().Resources[name]
-		if !ok {
-			return "", fmt.Errorf("resource (%s) not found: %s", name, rs)
-		}
-
-		policyID := rs.Primary.Attributes["policy_id"]
-		if policyID == "" {
-			return "", fmt.Errorf("attribute (policy_id) of Resource (%s) not found: %s", name, rs)
-		}
-
-		epsID := rs.Primary.Attributes["enterprise_project_id"]
-		if epsID == "" {
-			return policyID + "/" + rs.Primary.ID, nil
-		}
-		return policyID + "/" + rs.Primary.ID + "/" + epsID, nil
-	}
 }

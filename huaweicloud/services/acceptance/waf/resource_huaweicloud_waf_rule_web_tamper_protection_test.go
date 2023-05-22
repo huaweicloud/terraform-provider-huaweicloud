@@ -42,7 +42,7 @@ func TestAccWafRuleWebTamperProtection_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccWafRuleImportStateIdFunc(resourceName),
+				ImportStateIdFunc: testWAFRuleImportState(resourceName),
 			},
 		},
 	})
@@ -70,6 +70,12 @@ func TestAccWafRuleWebTamperProtection_withEpsID(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "domain", "www.abc.com"),
 					resource.TestCheckResourceAttr(resourceName, "path", "/a"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testWAFRuleImportState(resourceName),
 			},
 		},
 	})

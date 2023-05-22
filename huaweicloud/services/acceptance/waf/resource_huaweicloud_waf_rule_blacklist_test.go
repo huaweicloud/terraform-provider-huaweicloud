@@ -71,7 +71,7 @@ func TestAccWafRuleBlackList_basic(t *testing.T) {
 				ResourceName:      rName1,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccWafRuleImportStateIdFunc(rName1),
+				ImportStateIdFunc: testWAFRuleImportState(rName1),
 			},
 		},
 	})
@@ -115,6 +115,12 @@ func TestAccWafRuleBlackList_withEpsID(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "address_group_name"),
 					resource.TestCheckResourceAttrSet(rName, "address_group_size"),
 				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testWAFRuleImportState(rName),
 			},
 		},
 	})
@@ -172,26 +178,6 @@ func testAccCheckWafRuleBlackListExists(n string, rule *rules.WhiteBlackIP) reso
 		*rule = *found
 
 		return nil
-	}
-}
-
-// testAccWafRuleImportStateIdFunc is used to test exporting rule information from the HuaweiCloud to terraform.
-// It is also called by other rules unit tests.
-func testAccWafRuleImportStateIdFunc(name string) resource.ImportStateIdFunc {
-	return func(s *terraform.State) (string, error) {
-		policy, ok := s.RootModule().Resources["huaweicloud_waf_policy.policy_1"]
-		if !ok {
-			return "", fmt.Errorf("WAF policy not found")
-		}
-		rule, ok := s.RootModule().Resources[name]
-		if !ok {
-			return "", fmt.Errorf("WAF rule not found")
-		}
-
-		if policy.Primary.ID == "" || rule.Primary.ID == "" {
-			return "", fmt.Errorf("resource not found: %s/%s", policy.Primary.ID, rule.Primary.ID)
-		}
-		return fmt.Sprintf("%s/%s", policy.Primary.ID, rule.Primary.ID), nil
 	}
 }
 

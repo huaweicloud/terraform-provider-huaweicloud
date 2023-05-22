@@ -159,20 +159,15 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-There are two ways to import state, include `Without Enterprise Project ID` and `With Enterprise Project ID`.
+There are two ways to import WAF rule global protection whitelist state.
 
-### Without Enterprise Project ID
-
-The waf global protection whitelist rule can be imported using `policy_id`, `rule_id`, separated by a slash, e.g.
+* Using `policy_id` and `rule_id`, separated by a slash, e.g.
 
 ```bash
 $ terraform import huaweicloud_waf_rule_global_protection_whitelist.test <policy_id>/<rule_id>
 ```
 
-### With Enterprise Project ID
-
-The waf global protection whitelist rule can be imported using `policy_id`, `rule_id`, `enterprise_project_id`,
-separated by slashes, e.g.
+* Using `policy_id`, `rule_id` and `enterprise_project_id`, separated by slashes, e.g.
 
 ```bash
 $ terraform import huaweicloud_waf_rule_global_protection_whitelist.test <policy_id>/<rule_id>/<enterprise_project_id>

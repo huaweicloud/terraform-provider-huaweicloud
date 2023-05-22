@@ -118,7 +118,7 @@ func TestAccRulePreciseProtection_basic(t *testing.T) {
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testRulePreciseProtectionImportState(rName),
+				ImportStateIdFunc: testWAFRuleImportState(rName),
 			},
 		},
 	})
@@ -177,7 +177,7 @@ func TestAccRulePreciseProtection_WithEpsID(t *testing.T) {
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testRulePreciseProtectionImportState(rName),
+				ImportStateIdFunc: testWAFRuleImportState(rName),
 			},
 		},
 	})
@@ -310,7 +310,8 @@ resource "huaweicloud_waf_rule_precise_protection" "test" {
 `, testAccWafPolicyV1_basic_withEpsID(name, epsID), name, epsID)
 }
 
-func testRulePreciseProtectionImportState(name string) resource.ImportStateIdFunc {
+// testWAFRuleImportState use to return an id with format <policy_id>/<id> or <policy_id>/<id>/<enterprise_project_id>
+func testWAFRuleImportState(name string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {
