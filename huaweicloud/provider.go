@@ -776,6 +776,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dws_event_subscription": dws.ResourceDwsEventSubs(),
 			"huaweicloud_dws_snapshot":           dws.ResourceDwsSnapshot(),
 			"huaweicloud_dws_snapshot_policy":    dws.ResourceDwsSnapshotPolicy(),
+			"huaweicloud_dws_ext_data_source":    dws.ResourceDwsExtDataSource(),
 
 			"huaweicloud_elb_certificate":     elb.ResourceCertificateV3(),
 			"huaweicloud_elb_l7policy":        elb.ResourceL7PolicyV3(),
