@@ -181,6 +181,32 @@ type CreateByOBSOpts struct {
 	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
 }
 
+// CreateWholeImageOpts represents options used to create an image.
+type CreateWholeImageOpts struct {
+	// the name of the system disk image
+	Name string `json:"name" required:"true"`
+	// Description of image
+	Description string `json:"description,omitempty"`
+	// the ID of the instance
+	InstanceId string `json:"instance_id,omitempty"`
+	// the ID of the CBR backup
+	BackupId string `json:"backup_id,omitempty"`
+	// image label "key.value"
+	Tags []string `json:"tags,omitempty"`
+	// One or more tag key and value pairs to associate with the image
+	ImageTags []ImageTag `json:"image_tags,omitempty"`
+	// the maximum memory of the image in the unit of MB
+	MaxRam int `json:"max_ram,omitempty"`
+	// the minimum memory of the image in the unit of MB
+	MinRam int `json:"min_ram,omitempty"`
+	// Enterprise project ID
+	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
+	// the ID of the vault to which an ECS is to be added or has been added
+	VaultId string `json:"vault_id,omitempty"`
+	// the method of creating a full-ECS image
+	WholeImageType string `json:"whole_image_type,omitempty"`
+}
+
 // CreateOpts represents options used to create an image.
 type CreateDataImageByServerOpts struct {
 	// the data disks to be converted
@@ -239,6 +265,10 @@ func (opts CreateDataImageByOBSOpts) ToImageCreateMap() (map[string]interface{},
 	return golangsdk.BuildRequestBody(opts, "")
 }
 
+func (opts CreateWholeImageOpts) ToImageCreateMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
 // Create implements create image request.
 func CreateImageByServer(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (r JobResult) {
 	b, err := opts.ToImageCreateMap()
@@ -284,5 +314,29 @@ func CreateDataImageByOBS(client *golangsdk.ServiceClient, opts CreateOptsBuilde
 	}
 
 	_, r.Err = client.Post(createDataImageURL(client), b, &r.Body, &golangsdk.RequestOpts{OkCodes: []int{200}})
+	return
+}
+
+// Create implements create whole image request.
+func CreateWholeImageByServer(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (r JobResult) {
+	b, err := opts.ToImageCreateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(createWholeImageURL(client), b, &r.Body, nil)
+	return
+}
+
+// Create implements create image request.
+func CreateWholeImageByBackup(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (r JobResult) {
+	b, err := opts.ToImageCreateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(createWholeImageURL(client), b, &r.Body, nil)
 	return
 }

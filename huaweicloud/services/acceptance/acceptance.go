@@ -135,6 +135,9 @@ var (
 	// The target organization of SWR image auto sync
 	HW_SWR_TARGET_ORGANIZATION = os.Getenv("HW_SWR_TARGET_ORGANIZATION")
 
+	// The ID of the CBR backup
+	HW_IMS_BACKUP_ID = os.Getenv("HW_IMS_BACKUP_ID")
+
 	// The SecMaster workspace ID
 	HW_SECMASTER_WORKSPACE_ID = os.Getenv("HW_SECMASTER_WORKSPACE_ID")
 
@@ -618,6 +621,13 @@ func TestAccPreCheckSwrTargetRegion(t *testing.T) {
 func TestAccPreCheckSwrTargetOrigination(t *testing.T) {
 	if HW_SWR_TARGET_ORGANIZATION == "" {
 		t.Skip("HW_SWR_TARGET_ORGANIZATION must be set for SWR image auto sync tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckImsBackupId(t *testing.T) {
+	if HW_IMS_BACKUP_ID == "" {
+		t.Skip("HW_IMS_BACKUP_ID must be set for IMS whole image with CBR backup id")
 	}
 }
 

@@ -63,6 +63,7 @@ type Image struct {
 	Platform               string `json:"__platform"`
 	ImageSourceType        string `json:"__image_source_type"`
 	Imagetype              string `json:"__imagetype"`
+	WholeImage             string `json:"__whole_image"`
 	Originalimagename      string `json:"__originalimagename"`
 	BackupID               string `json:"__backup_id"`
 	Productcode            string `json:"__productcode"`
