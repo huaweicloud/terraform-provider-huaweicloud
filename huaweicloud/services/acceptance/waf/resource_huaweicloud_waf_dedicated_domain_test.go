@@ -174,6 +174,13 @@ func TestAccWafDedicateDomainV1_withEpsID(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "policy_id"),
 				),
 			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"keep_policy"},
+				ImportStateIdFunc:       testWAFResourceImportState(resourceName),
+			},
 		},
 	})
 }

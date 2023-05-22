@@ -114,6 +114,13 @@ func TestAccWafDomainV1_withEpsID(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "proxy", "true"),
 				),
 			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"keep_policy", "charging_mode"},
+				ImportStateIdFunc:       testWAFResourceImportState(resourceName),
+			},
 		},
 	})
 }

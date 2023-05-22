@@ -131,8 +131,16 @@ The following attributes are exported:
 
 ## Import
 
-Dedicated mode domain can be imported using the `id`, e.g.
+There are two ways to import WAF dedicated domain state.
 
-```sh
-terraform import huaweicloud_waf_dedicated_domain.domain_1 69e9a86becb4424298cc6bdeacbf69d5
+* Using the `id`, e.g.
+
+```bash
+$ terraform import huaweicloud_waf_dedicated_domain.test <id>
+```
+
+* Using `id` and `enterprise_project_id`, separated by a slash, e.g.
+
+```bash
+$ terraform import huaweicloud_waf_dedicated_domain.test <id>/<enterprise_project_id>
 ```

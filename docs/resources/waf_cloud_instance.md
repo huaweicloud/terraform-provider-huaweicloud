@@ -109,10 +109,18 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-Cloud WAFs can be imported using their `id`, e.g.
+There are two ways to import WAF cloud instance state.
 
-```shell
-$ terraform import huaweicloud_waf_cloud_instance.test f4e99b39a0bf40619dd6b776e77410ff
+* Using the `id`, e.g.
+
+```bash
+$ terraform import huaweicloud_waf_cloud_instance.test <id>
+```
+
+* Using `id` and `enterprise_project_id`, separated by a slash, e.g.
+
+```bash
+$ terraform import huaweicloud_waf_cloud_instance.test <id>/<enterprise_project_id>
 ```
 
 Note that the imported state is not identical to your resource definition, due to API response reason.  

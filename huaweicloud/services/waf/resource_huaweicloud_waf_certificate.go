@@ -23,7 +23,7 @@ func ResourceWafCertificateV1() *schema.Resource {
 		Update: resourceWafCertificateV1Update,
 		Delete: resourceWafCertificateV1Delete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: resourceWAFImportState,
 		},
 
 		Timeouts: &schema.ResourceTimeout{

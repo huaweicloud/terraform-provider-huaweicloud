@@ -130,6 +130,12 @@ func TestAccAddressGroup_withEpsId(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "rules.#"),
 				),
 			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testWAFResourceImportState(rName),
+			},
 		},
 	})
 }
@@ -175,4 +181,19 @@ resource "huaweicloud_waf_address_group" "test" {
   depends_on = [huaweicloud_waf_dedicated_instance.instance_1]
 }
 `, testAccWafDedicatedInstance_epsId(name, enterpriseProjectID), name, enterpriseProjectID)
+}
+
+// testWAFResourceImportState use to return an id with format <id> or <id>/<enterprise_project_id>
+func testWAFResourceImportState(name string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return "", fmt.Errorf("resource (%s) not found: %s", name, rs)
+		}
+		epsID := rs.Primary.Attributes["enterprise_project_id"]
+		if epsID == "" {
+			return rs.Primary.ID, nil
+		}
+		return fmt.Sprintf("%s/%s", rs.Primary.ID, epsID), nil
+	}
 }

@@ -130,7 +130,7 @@ func TestAccWafDedicatedInstance_withEpsId(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccWafDedicatedInstanceImportStateIdFunc(resourceName),
+				ImportStateIdFunc: testWAFResourceImportState(resourceName),
 			},
 		},
 	})
@@ -178,18 +178,6 @@ func TestAccWafDedicatedInstance_elb_model(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccWafDedicatedInstanceImportStateIdFunc(resourceName string) resource.ImportStateIdFunc {
-	return func(s *terraform.State) (string, error) {
-		rs, ok := s.RootModule().Resources[resourceName]
-		if !ok {
-			return "", fmtp.Errorf("resource not found")
-		}
-		instanceId := rs.Primary.ID
-		epsId := rs.Primary.Attributes["enterprise_project_id"]
-		return fmt.Sprintf("%s/%s", instanceId, epsId), nil
-	}
 }
 
 func testAccWafDedicatedInstanceV1_conf(name string) string {

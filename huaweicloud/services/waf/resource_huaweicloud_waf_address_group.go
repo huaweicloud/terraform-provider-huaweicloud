@@ -29,7 +29,7 @@ func ResourceWafAddressGroup() *schema.Resource {
 		ReadContext:   resourceAddressGroupRead,
 		DeleteContext: resourceAddressGroupDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceWAFImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -333,4 +333,22 @@ func resourceAddressGroupDelete(_ context.Context, d *schema.ResourceData, meta 
 	}
 
 	return nil
+}
+
+// resourceWAFImportState use to import an id with format <id> or <id>/<enterprise_project_id>
+func resourceWAFImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	if !strings.Contains(d.Id(), "/") {
+		return []*schema.ResourceData{d}, nil
+	}
+
+	parts := strings.SplitN(d.Id(), "/", 2)
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid format specified for import id, must be <id>/<enterprise_project_id>")
+	}
+	d.SetId(parts[0])
+	mErr := multierror.Append(nil, d.Set("enterprise_project_id", parts[1]))
+	if err := mErr.ErrorOrNil(); err != nil {
+		return nil, fmt.Errorf("failed to set value to state when import with epsid, %s", err)
+	}
+	return []*schema.ResourceData{d}, nil
 }

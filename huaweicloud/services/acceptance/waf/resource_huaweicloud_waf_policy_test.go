@@ -88,6 +88,12 @@ func TestAccWafPolicyV1_withEpsID(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "level", "3"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testWAFResourceImportState(resourceName),
+			},
 		},
 	})
 }
