@@ -59,7 +59,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"identity": {
 		Name:             "iam",
 		Version:          "v3",
-		Scope:            "global",
 		Admin:            true,
 		WithOutProjectID: true,
 		Product:          "IAM",
@@ -67,7 +66,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"iam_no_version": {
 		Name:             "iam",
 		Version:          "",
-		Scope:            "global",
 		Admin:            true,
 		WithOutProjectID: true,
 		Product:          "IAM",
@@ -76,7 +74,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"iam": {
 		Name:             "iam",
 		Version:          "v3.0",
-		Scope:            "global",
 		Admin:            true,
 		WithOutProjectID: true,
 		Product:          "IAM",

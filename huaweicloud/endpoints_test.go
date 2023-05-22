@@ -58,7 +58,7 @@ func TestAccServiceEndpoints_IAM(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud IAM client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://iam.%s/v3.0/", cfg.Cloud)
+	expectedURL = fmt.Sprintf("https://iam.%s.%s/v3.0/", HW_REGION_NAME, cfg.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("IAM endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -70,7 +70,7 @@ func TestAccServiceEndpoints_IAM(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud identity client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://iam.%s/v3/", cfg.Cloud)
+	expectedURL = fmt.Sprintf("https://iam.%s.%s/v3/", HW_REGION_NAME, cfg.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("Identity endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -82,7 +82,7 @@ func TestAccServiceEndpoints_IAM(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud IAM client without version number: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://iam.%s/", cfg.Cloud)
+	expectedURL = fmt.Sprintf("https://iam.%s.%s/", HW_REGION_NAME, cfg.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("Identity endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
