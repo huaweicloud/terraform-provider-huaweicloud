@@ -419,12 +419,16 @@ func buildCreateConnectionVpnConnectionChildBody(d *schema.ResourceData, config 
 		"psk":                   utils.ValueIngoreEmpty(d.Get("psk")),
 		"tunnel_local_address":  utils.ValueIngoreEmpty(d.Get("tunnel_local_address")),
 		"tunnel_peer_address":   utils.ValueIngoreEmpty(d.Get("tunnel_peer_address")),
-		"enable_nqa":            utils.ValueIngoreEmpty(d.Get("enable_nqa")),
 		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, config)),
 		"ikepolicy":             buildCreateConnectionIkepolicyChildBody(d),
 		"ipsecpolicy":           buildCreateConnectionIpsecpolicyChildBody(d),
 		"policy_rules":          buildCreateConnectionPolicyRulesChildBody(d),
 	}
+
+	if enableNqa, ok := d.GetOk("enable_nqa"); ok {
+		params["enable_nqa"] = enableNqa
+	}
+
 	return params
 }
 
@@ -745,7 +749,6 @@ func buildUpdateConnectionBodyParams(d *schema.ResourceData, config *config.Conf
 func buildUpdateConnectionVpnConnectionChildBody(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
 		"cgw_id":               utils.ValueIngoreEmpty(d.Get("customer_gateway_id")),
-		"enable_nqa":           utils.ValueIngoreEmpty(d.Get("enable_nqa")),
 		"name":                 utils.ValueIngoreEmpty(d.Get("name")),
 		"peer_subnets":         utils.ValueIngoreEmpty(d.Get("peer_subnets")),
 		"psk":                  utils.ValueIngoreEmpty(d.Get("psk")),
@@ -755,6 +758,11 @@ func buildUpdateConnectionVpnConnectionChildBody(d *schema.ResourceData) map[str
 		"ipsecpolicy":          buildUpdateConnectionIpsecpolicyChildBody(d),
 		"policy_rules":         buildCreateConnectionPolicyRulesChildBody(d),
 	}
+
+	if enableNqa, ok := d.GetOk("enable_nqa"); ok {
+		params["enable_nqa"] = enableNqa
+	}
+
 	return params
 }
 
@@ -771,12 +779,19 @@ func buildUpdateConnectionIkepolicyChildBody(d *schema.ResourceData) map[string]
 		"encryption_algorithm":     utils.ValueIngoreEmpty(raw["encryption_algorithm"]),
 		"ike_version":              utils.ValueIngoreEmpty(raw["ike_version"]),
 		"lifetime_seconds":         utils.ValueIngoreEmpty(raw["lifetime_seconds"]),
-		"local_id":                 utils.ValueIngoreEmpty(raw["local_id"]),
 		"local_id_type":            utils.ValueIngoreEmpty(raw["local_id_type"]),
-		"peer_id":                  utils.ValueIngoreEmpty(raw["peer_id"]),
 		"peer_id_type":             utils.ValueIngoreEmpty(raw["peer_id_type"]),
 		"pfs":                      utils.ValueIngoreEmpty(raw["pfs"]),
 		"phase1_negotiation_mode":  utils.ValueIngoreEmpty(raw["phase1_negotiation_mode"]),
+	}
+
+	// if the id type is ip, the id must be empty
+	if raw["local_id_type"] != "ip" {
+		params["local_id"] = utils.ValueIngoreEmpty(raw["local_id"])
+	}
+
+	if raw["peer_id_type"] != "ip" {
+		params["peer_id"] = utils.ValueIngoreEmpty(raw["peer_id"])
 	}
 
 	return params
