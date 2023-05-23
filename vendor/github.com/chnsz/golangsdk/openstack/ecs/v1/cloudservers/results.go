@@ -1,6 +1,7 @@
 package cloudservers
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/chnsz/golangsdk"
@@ -165,7 +166,7 @@ func (r GetResult) Extract() (*CloudServer, error) {
 // ServerPage abstracts the raw results of making a List() request against
 // the API.
 type ServerPage struct {
-	pagination.LinkedPageBase
+	pagination.PageSizeBase
 }
 
 // IsEmpty returns true if a page contains no Server results.
@@ -174,17 +175,26 @@ func (r ServerPage) IsEmpty() (bool, error) {
 	return len(s) == 0, err
 }
 
-// NextPageURL uses the response's embedded link reference to navigate to the
-// next page of results.
+// NextPageURL returns the next page with offset and limit.
 func (r ServerPage) NextPageURL() (string, error) {
-	var s struct {
-		Links []golangsdk.Link `json:"servers_links"`
+	pageName := "offset"
+	currentURL := r.URL
+
+	q := currentURL.Query()
+	pageNum := q.Get(pageName)
+	if pageNum == "" {
+		pageNum = "1"
 	}
-	err := r.ExtractInto(&s)
+
+	sizeVal, err := strconv.ParseInt(pageNum, 10, 32)
 	if err != nil {
 		return "", err
 	}
-	return golangsdk.ExtractNextURL(s.Links)
+
+	pageNum = strconv.Itoa(int(sizeVal + 1))
+	q.Set(pageName, pageNum)
+	currentURL.RawQuery = q.Encode()
+	return currentURL.String(), nil
 }
 
 // ExtractServers interprets the results of a single page from a List() call,
