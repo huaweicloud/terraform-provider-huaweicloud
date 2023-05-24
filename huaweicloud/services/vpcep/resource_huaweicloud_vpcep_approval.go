@@ -6,11 +6,15 @@ import (
 	"log"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/vpcep/v1/services"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/vpcep/v1/services"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -87,9 +91,9 @@ func ResourceVPCEndpointApproval() *schema.Resource {
 }
 
 func resourceVPCEndpointApprovalCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	vpcepClient, err := config.VPCEPClient(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	vpcepClient, err := cfg.VPCEPClient(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
@@ -101,7 +105,7 @@ func resourceVPCEndpointApprovalCreate(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("error retrieving VPC endpoint service %s: %s", serviceID, err)
 	}
 	if n.Status != "available" {
-		return diag.Errorf("error the status of VPC endpoint service is %s, expected to be available", n.Status)
+		return diag.Errorf("the status of VPC endpoint service is %s, expected to be available", n.Status)
 	}
 
 	raw := d.Get("endpoints").(*schema.Set).List()
@@ -115,33 +119,34 @@ func resourceVPCEndpointApprovalCreate(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceVPCEndpointApprovalRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	vpcepClient, err := config.VPCEPClient(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	vpcepClient, err := cfg.VPCEPClient(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
 
 	serviceID := d.Get("service_id").(string)
-	if conns, err := flattenVPCEndpointConnections(vpcepClient, serviceID); err == nil {
-		d.Set("connections", conns)
+	connections, err := flattenVPCEndpointConnections(vpcepClient, serviceID)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "VPC endpoint service connection")
 	}
-
-	return nil
+	mErr := multierror.Append(nil, d.Set("connections", connections))
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceVPCEndpointApprovalUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	vpcepClient, err := config.VPCEPClient(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	vpcepClient, err := cfg.VPCEPClient(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
 
 	if d.HasChange("endpoints") {
-		old, new := d.GetChange("endpoints")
-		oldConnSet := old.(*schema.Set)
-		newConnSet := new.(*schema.Set)
+		oldVal, newVal := d.GetChange("endpoints")
+		oldConnSet := oldVal.(*schema.Set)
+		newConnSet := newVal.(*schema.Set)
 		received := newConnSet.Difference(oldConnSet)
 		rejected := oldConnSet.Difference(newConnSet)
 
@@ -160,9 +165,9 @@ func resourceVPCEndpointApprovalUpdate(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceVPCEndpointApprovalDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	vpcepClient, err := config.VPCEPClient(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	vpcepClient, err := cfg.VPCEPClient(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
@@ -184,7 +189,8 @@ func doConnectionAction(ctx context.Context, d *schema.ResourceData, client *gol
 	}
 
 	if _, ok := approvalActionStatusMap[action]; !ok {
-		return fmt.Errorf("approval action(%s) is invalid, only support %s or %s", action, actionReceive, actionReject)
+		return fmt.Errorf("approval action(%s) is invalid, only support %s or %s", action, actionReceive,
+			actionReject)
 	}
 
 	targetStatus := approvalActionStatusMap[action]
@@ -213,14 +219,16 @@ func doConnectionAction(ctx context.Context, d *schema.ResourceData, client *gol
 
 		_, stateErr := stateConf.WaitForStateContext(ctx)
 		if stateErr != nil {
-			return fmt.Errorf("error waiting for VPC endpoint(%s) to become %s: %s", epID, targetStatus, stateErr)
+			return fmt.Errorf("error waiting for VPC endpoint(%s) to become %s: %s", epID, targetStatus,
+				stateErr)
 		}
 	}
 
 	return nil
 }
 
-func waitForVPCEndpointConnected(vpcepClient *golangsdk.ServiceClient, serviceId, endpointId string) resource.StateRefreshFunc {
+func waitForVPCEndpointConnected(vpcepClient *golangsdk.ServiceClient, serviceId,
+	endpointId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		listOpts := services.ListConnOpts{
 			EndpointID: endpointId,
