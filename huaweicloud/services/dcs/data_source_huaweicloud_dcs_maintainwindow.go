@@ -2,16 +2,17 @@ package dcs
 
 import (
 	"context"
+	"log"
 	"strconv"
 
-	"github.com/chnsz/golangsdk/openstack/dcs/v2/maintainwindows"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/chnsz/golangsdk/openstack/dcs/v2/maintainwindows"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceDcsMaintainWindow() *schema.Resource {
@@ -49,10 +50,11 @@ func DataSourceDcsMaintainWindow() *schema.Resource {
 }
 
 func dataSourceDcsMaintainWindowRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	dcsV2Client, err := config.DcsV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	dcsV2Client, err := cfg.DcsV2Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating DCS key client: %s", err)
+		return diag.Errorf("error creating DCS client: %s", err)
 	}
 
 	v, err := maintainwindows.Get(dcsV2Client).Extract()
@@ -67,19 +69,23 @@ func dataSourceDcsMaintainWindowRead(_ context.Context, d *schema.ResourceData, 
 		"Default": d.Get("default").(bool),
 	})
 	if err != nil {
-		return fmtp.DiagErrorf("Error while filtering data : %s", err)
+		return diag.Errorf("error while filtering data : %s", err)
 	}
 
 	if len(filteredMVs) < 1 {
-		return fmtp.DiagErrorf("Your query returned no results. " +
+		return diag.Errorf("your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 	mw := filteredMVs[0].(maintainwindows.MaintainWindow)
 	d.SetId(strconv.Itoa(mw.ID))
-	d.Set("begin", mw.Begin)
-	d.Set("end", mw.End)
-	d.Set("default", mw.Default)
-	logp.Printf("[DEBUG] Dcs MaintainWindow : %+v", mw)
 
-	return nil
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("begin", mw.Begin),
+		d.Set("end", mw.End),
+		d.Set("default", mw.Default),
+	)
+	log.Printf("[DEBUG] Dcs MaintainWindow : %+v", mw)
+
+	return diag.FromErr(mErr.ErrorOrNil())
 }

@@ -17,11 +17,12 @@ import (
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/pagination"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -61,7 +62,7 @@ func DataSourceDcsInstance() *schema.Resource {
 			},
 			"instances": {
 				Type:        schema.TypeList,
-				Elem:        DcsInstanceInstanceSchema(),
+				Elem:        InstanceInstanceSchema(),
 				Computed:    true,
 				Description: `Indicates the list of DCS instances.`,
 			},
@@ -69,7 +70,7 @@ func DataSourceDcsInstance() *schema.Resource {
 	}
 }
 
-func DcsInstanceInstanceSchema() *schema.Resource {
+func InstanceInstanceSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -209,9 +210,9 @@ func DcsInstanceInstanceSchema() *schema.Resource {
 	return &sc
 }
 
-func resourceDcsInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceDcsInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -220,9 +221,9 @@ func resourceDcsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 		getDCSInstancesHttpUrl = "v2/{project_id}/instances"
 		getDCSInstancesProduct = "dcs"
 	)
-	getDCSInstancesClient, err := config.NewServiceClient(getDCSInstancesProduct, region)
+	getDCSInstancesClient, err := cfg.NewServiceClient(getDCSInstancesProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating DcsInstance Client: %s", err)
+		return diag.Errorf("error creating DCS Client: %s", err)
 	}
 
 	getDCSInstancesPath := getDCSInstancesClient.Endpoint + getDCSInstancesHttpUrl
@@ -251,11 +252,11 @@ func resourceDcsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	dataSourceId, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(dataSourceId)
 
 	mErr = multierror.Append(
 		mErr,
