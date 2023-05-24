@@ -113,6 +113,7 @@ func SchemaAutoPay(conflicts []string) *schema.Schema {
 			"true", "false",
 		}, false),
 		ConflictsWith: conflicts,
+		Deprecated:    "Deprecated",
 	}
 
 	return &resourceSchema
