@@ -40,6 +40,7 @@ type CreateGeminiDBOpts struct {
 	EnterpriseProjectId string             `json:"enterprise_project_id,omitempty"`
 	DedicatedResourceId string             `json:"dedicated_resource_id,omitempty"`
 	Ssl                 string             `json:"ssl_option,omitempty"`
+	Port                string             `json:"port,omitempty"`
 	DataStore           DataStore          `json:"datastore" required:"true"`
 	Flavor              []FlavorOpt        `json:"flavor" required:"true"`
 	BackupStrategy      *BackupStrategyOpt `json:"backup_strategy,omitempty"`
@@ -408,4 +409,66 @@ func ListDeh(client *golangsdk.ServiceClient) pagination.Pager {
 	pageList.Headers = map[string]string{"Content-Type": "application/json"}
 
 	return pageList
+}
+
+type UpdateSslOpts struct {
+	Ssl string `json:"ssl_option" required:"true"`
+}
+
+type UpdateSslBuilder interface {
+	ToSslUpdateMap() (map[string]interface{}, error)
+}
+
+func (opts UpdateSslOpts) ToSslUpdateMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func UpdateSsl(client *golangsdk.ServiceClient, instanceId string, opts UpdateSslBuilder) (r UpdateResult) {
+	b, err := opts.ToSslUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(updateSslURL(client, instanceId), b, nil, &golangsdk.RequestOpts{
+		OkCodes:     []int{202},
+		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+	})
+	return
+}
+
+type UpdatePublicIpOpts struct {
+	Action     string `json:"action" required:"true"`
+	PublicIp   string `json:"public_ip,omitempty"`
+	PublicIpId string `json:"public_ip_id,omitempty"`
+}
+
+type UpdatePublicIpBuilder interface {
+	ToPublicIpUpdateMap() (map[string]interface{}, error)
+}
+
+func (opts UpdatePublicIpOpts) ToPublicIpUpdateMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func UpdatePublicIp(client *golangsdk.ServiceClient, instanceId, nodeId string, opts UpdatePublicIpOpts) (r PublicIpResult) {
+	b, err := opts.ToPublicIpUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(updatePublicIpURL(client, instanceId, nodeId), b, nil, &golangsdk.RequestOpts{
+		OkCodes:     []int{202},
+		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+	})
+	return
 }

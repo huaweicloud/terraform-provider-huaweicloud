@@ -41,6 +41,7 @@ type GeminiDBBase struct {
 type CreateResponse struct {
 	GeminiDBBase
 	JobId            string            `json:"job_id"`
+	OrderId          string            `json:"order_id"`
 	AvailabilityZone string            `json:"availability_zone"`
 	Flavor           []Flavor          `json:"flavor"`
 	BackupStrategy   BackupStrategyOpt `json:"backup_strategy"`
@@ -81,6 +82,7 @@ type Nodes struct {
 	Name             string `json:"name"`
 	Status           string `json:"status"`
 	PrivateIp        string `json:"private_ip"`
+	PublicIp         string `json:"public_ip"`
 	SpecCode         string `json:"spec_code"`
 	AvailabilityZone string `json:"availability_zone"`
 	SupportReduce    bool   `json:"support_reduce"`
@@ -190,4 +192,32 @@ func ExtractDehResources(r pagination.Page) (ListDehResponse, error) {
 	var s ListDehResponse
 	err := (r.(DehResourcePage)).ExtractInto(&s)
 	return s, err
+}
+
+type SslResult struct {
+	commonResult
+}
+
+type SslResponse struct {
+	JobId string `json:"job_id"`
+}
+
+func (r SslResult) Extract() (*SslResponse, error) {
+	var response SslResponse
+	err := r.ExtractInto(&response)
+	return &response, err
+}
+
+type PublicIpResult struct {
+	commonResult
+}
+
+type PublicIpResponse struct {
+	JobId string `json:"job_id"`
+}
+
+func (r PublicIpResult) Extract() (*PublicIpResponse, error) {
+	var response PublicIpResponse
+	err := r.ExtractInto(&response)
+	return &response, err
 }

@@ -6,26 +6,27 @@ import (
 )
 
 type CreateOpts struct {
-	Name                string          `json:"name"  required:"true"`
-	Datastore           *Datastore      `json:"datastore" required:"true"`
-	Ha                  *Ha             `json:"ha,omitempty"`
-	ConfigurationId     string          `json:"configuration_id,omitempty"`
-	Port                string          `json:"port,omitempty"`
-	Password            string          `json:"password" required:"true"`
-	BackupStrategy      *BackupStrategy `json:"backup_strategy,omitempty"`
-	EnterpriseProjectId string          `json:"enterprise_project_id,omitempty"`
-	DiskEncryptionId    string          `json:"disk_encryption_id,omitempty"`
-	FlavorRef           string          `json:"flavor_ref" required:"true"`
-	Volume              *Volume         `json:"volume" required:"true"`
-	Region              string          `json:"region" required:"true"`
-	AvailabilityZone    string          `json:"availability_zone" required:"true"`
-	VpcId               string          `json:"vpc_id" required:"true"`
-	SubnetId            string          `json:"subnet_id" required:"true"`
-	SecurityGroupId     string          `json:"security_group_id" required:"true"`
-	ChargeInfo          *ChargeInfo     `json:"charge_info,omitempty"`
-	TimeZone            string          `json:"time_zone,omitempty"`
-	FixedIp             string          `json:"data_vip,omitempty"`
-	Collation           string          `json:"collation,omitempty"`
+	Name                string             `json:"name"  required:"true"`
+	Datastore           *Datastore         `json:"datastore" required:"true"`
+	Ha                  *Ha                `json:"ha,omitempty"`
+	ConfigurationId     string             `json:"configuration_id,omitempty"`
+	Port                string             `json:"port,omitempty"`
+	Password            string             `json:"password" required:"true"`
+	BackupStrategy      *BackupStrategy    `json:"backup_strategy,omitempty"`
+	EnterpriseProjectId string             `json:"enterprise_project_id,omitempty"`
+	DiskEncryptionId    string             `json:"disk_encryption_id,omitempty"`
+	FlavorRef           string             `json:"flavor_ref" required:"true"`
+	Volume              *Volume            `json:"volume" required:"true"`
+	Region              string             `json:"region" required:"true"`
+	AvailabilityZone    string             `json:"availability_zone" required:"true"`
+	VpcId               string             `json:"vpc_id" required:"true"`
+	SubnetId            string             `json:"subnet_id" required:"true"`
+	SecurityGroupId     string             `json:"security_group_id" required:"true"`
+	ChargeInfo          *ChargeInfo        `json:"charge_info,omitempty"`
+	TimeZone            string             `json:"time_zone,omitempty"`
+	FixedIp             string             `json:"data_vip,omitempty"`
+	Collation           string             `json:"collation,omitempty"`
+	UnchangeableParam   *UnchangeableParam `json:"unchangeable_param,omitempty"`
 }
 
 type CreateReplicaOpts struct {
@@ -48,6 +49,10 @@ type Datastore struct {
 type Ha struct {
 	Mode            string `json:"mode" required:"true"`
 	ReplicationMode string `json:"replication_mode,omitempty"`
+}
+
+type UnchangeableParam struct {
+	LowerCaseTableNames string `json:"lower_case_table_names"`
 }
 
 type BackupStrategy struct {
@@ -494,4 +499,92 @@ func RebootInstance(c *golangsdk.ServiceClient, instanceID string) (r RebootResu
 		OkCodes: []int{200, 202},
 	})
 	return
+}
+
+var (
+	enableAutoExpand  bool = true
+	disableAutoExpand bool = false
+)
+
+// EnableAutoExpandOpts is the structure used to enable the volume automatic expansion of RDS instance.
+type EnableAutoExpandOpts struct {
+	// The instnace ID.
+	InstanceId string `json:"-" required:"true"`
+	// The upper limit of automatic expansion of storage, in GB.
+	// This parameter is mandatory when switch_option is set to true.
+	// The value ranges from 40 GB to 4,000 GB and must be no less than the current storage of the instance.
+	LimitSize int `json:"limit_size" required:"true"`
+	// The threshold to trigger automatic expansion.
+	// If the available storage drops to this threshold or 10 GB, the automatic expansion is triggered.
+	// This parameter is mandatory when switch_option is set to true.
+	// The valid values are as follows:
+	// + 10
+	// + 15
+	// + 20
+	TriggerThreshold int `json:"trigger_threshold" required:"true"`
+}
+
+// autoExpandOpts is the structure used to configure the volume automatic expansion of RDS instance.
+type autoExpandOpts struct {
+	// Whether the auto-expansion is enabled.
+	SwitchOption *bool `json:"switch_option" required:"true"`
+	// The upper limit of automatic expansion of storage, in GB.
+	// This parameter is mandatory when switch_option is set to true.
+	// The value ranges from 40 GB to 4,000 GB and must be no less than the current storage of the instance.
+	LimitSize int `json:"limit_size,omitempty"`
+	// The threshold to trigger automatic expansion.
+	// If the available storage drops to this threshold or 10 GB, the automatic expansion is triggered.
+	// This parameter is mandatory when switch_option is set to true.
+	// The valid values are as follows:
+	// + 10
+	// + 15
+	// + 20
+	TriggerThreshold int `json:"trigger_threshold,omitempty"`
+}
+
+var requestOpts = golangsdk.RequestOpts{
+	MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+}
+
+// EnableAutoExpand is a method used to configure the volume automatic expansion of RDS instance.
+func EnableAutoExpand(c *golangsdk.ServiceClient, opts EnableAutoExpandOpts) error {
+	enableOpts := autoExpandOpts{
+		SwitchOption:     &enableAutoExpand,
+		LimitSize:        opts.LimitSize,
+		TriggerThreshold: opts.TriggerThreshold,
+	}
+	b, err := golangsdk.BuildRequestBody(enableOpts, "")
+	if err != nil {
+		return err
+	}
+
+	_, err = c.Put(autoExpandURL(c, opts.InstanceId), b, nil, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return err
+}
+
+// DisableAutoExpand is a method used to remove the volume automatic expansion configuration of RDS instance.
+func DisableAutoExpand(c *golangsdk.ServiceClient, instanceId string) error {
+	autoExpandOpts := autoExpandOpts{
+		SwitchOption: &disableAutoExpand,
+	}
+	b, err := golangsdk.BuildRequestBody(autoExpandOpts, "")
+	if err != nil {
+		return err
+	}
+
+	_, err = c.Put(autoExpandURL(c, instanceId), b, nil, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return err
+}
+
+// GetAutoExpand is a method used to obtain the automatic expansion configuarion of instance storage.
+func GetAutoExpand(c *golangsdk.ServiceClient, instanceId string) (*AutoExpansion, error) {
+	var r AutoExpansion
+	_, err := c.Get(autoExpandURL(c, instanceId), &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return &r, err
 }
