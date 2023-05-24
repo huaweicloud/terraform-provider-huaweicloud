@@ -3,15 +3,16 @@ package cce
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"reflect"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/chnsz/golangsdk/openstack/cce/v3/addons"
-	"github.com/chnsz/golangsdk/openstack/cce/v3/templates"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk/openstack/cce/v3/addons"
+	"github.com/chnsz/golangsdk/openstack/cce/v3/templates"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -29,9 +30,9 @@ func (t Template) IsEmpty() bool {
 	return reflect.DeepEqual(t, Template{})
 }
 
-func DataSourceCCEAddonTemplateV3() *schema.Resource {
+func DataSourceAddonTemplate() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceCCEAddonTemplateV3Read,
+		ReadContext: dataSourceAddonTemplateRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -87,25 +88,25 @@ func DataSourceCCEAddonTemplateV3() *schema.Resource {
 	}
 }
 
-func dataSourceCCEAddonTemplateV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.CceAddonV3Client(region)
+func dataSourceAddonTemplateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.CceAddonV3Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client : %s", err)
+		return diag.Errorf("error creating CCE client : %s", err)
 	}
 	// Get all addon templates by List function
 	cluster_id := d.Get("cluster_id").(string)
 	templateList, err := templates.List(client, cluster_id).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve template list: %s", err)
+		return diag.Errorf("unable to retrieve template list: %s", err)
 	}
 
 	name := d.Get("name").(string)
 	version := d.Get("version").(string)
 	template, err := getTemplateByNameAndVersion(templateList, name, version)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to find specifies template by name (%s) and version (%s): %s", name, version, err)
+		return diag.Errorf("unable to find specifies template by name (%s) and version (%s): %s", name, version, err)
 	}
 
 	d.SetId(template.UID)
@@ -117,7 +118,7 @@ func dataSourceCCEAddonTemplateV3Read(_ context.Context, d *schema.ResourceData,
 		setTemplateSupportVersionState(d, template.SupportVersions),
 	)
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting template fields: %s", err)
+		return diag.Errorf("error setting template fields: %s", err)
 	}
 	return nil
 }
@@ -142,7 +143,7 @@ func getTemplateByNameAndVersion(templateList []templates.Template, specName, sp
 				// Return a json string to the user, which contains the contents of the basic and custom fields.
 				specBytes, err := json.Marshal(ver.Input)
 				if err != nil {
-					return result, fmtp.Errorf("Error converting input struct")
+					return result, fmt.Errorf("error converting input struct")
 				}
 				result.Spec = string(specBytes)
 				result.Stable = ver.Stable
@@ -155,7 +156,7 @@ func getTemplateByNameAndVersion(templateList []templates.Template, specName, sp
 		}
 	}
 	if result.IsEmpty() {
-		return result, fmtp.Errorf("Your query returned no results, please change your search criteria and try again")
+		return result, fmt.Errorf("your query returned no results, please change your search criteria and try again")
 	}
 
 	return result, nil

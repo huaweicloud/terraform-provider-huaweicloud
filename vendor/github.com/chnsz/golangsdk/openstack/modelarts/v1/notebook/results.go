@@ -1,6 +1,10 @@
 package notebook
 
-import "github.com/chnsz/golangsdk/pagination"
+import (
+	"strconv"
+
+	"github.com/chnsz/golangsdk/pagination"
+)
 
 const (
 	StatusInit         = "INIT"
@@ -110,16 +114,45 @@ type ImagePage struct {
 	pagination.OffsetPageBase
 }
 
-// IsEmpty checks whether a RouteTablePage struct is empty.
-func (b ImagePage) IsEmpty() (bool, error) {
-	arr, err := ExtractImages(b)
-	return len(arr) == 0, err
+// IsEmpty checks whether a ImagePage struct is empty.
+func (current ImagePage) IsEmpty() (bool, error) {
+	resp, err := extractImagesResp(current)
+	if err != nil {
+		return false, err
+	}
+	return len(resp.Data) == 0, nil
+}
+
+func extractImagesResp(r pagination.Page) (ImagesResp, error) {
+	var s ImagesResp
+	err := (r.(ImagePage)).ExtractInto(&s)
+	return s, err
 }
 
 func ExtractImages(r pagination.Page) ([]ImageDetail, error) {
 	var s ImagesResp
 	err := (r.(ImagePage)).ExtractInto(&s)
 	return s.Data, err
+}
+
+// NextPageURL generates the URL for the page of results after this one.
+func (current ImagePage) NextPageURL() (string, error) {
+	next := current.NextOffset()
+	if next == 0 {
+		return "", nil
+	}
+	resp, _ := extractImagesResp(current)
+	currentURL := current.URL
+	q := currentURL.Query()
+
+	if resp.Current+1 >= resp.Pages {
+		// This page is the last page.
+		return "", nil
+	}
+
+	q.Set("offset", strconv.Itoa(next))
+	currentURL.RawQuery = q.Encode()
+	return currentURL.String(), nil
 }
 
 type flavorResp struct {

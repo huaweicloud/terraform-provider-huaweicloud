@@ -37,3 +37,7 @@ func configurationsURL(c *golangsdk.ServiceClient, instancesId string) string {
 func actionURL(c *golangsdk.ServiceClient, instancesId string) string {
 	return c.ServiceURL("instances", instancesId, "action")
 }
+
+func autoExpandURL(c *golangsdk.ServiceClient, instancesId string) string {
+	return c.ServiceURL("instances", instancesId, "disk-auto-expansion")
+}

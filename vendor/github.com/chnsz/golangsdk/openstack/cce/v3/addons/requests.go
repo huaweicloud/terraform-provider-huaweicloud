@@ -101,17 +101,17 @@ type CreateOpts struct {
 }
 
 type CreateMetadata struct {
-	Anno Annotations `json:"annotations" required:"true"`
+	Anno CreateAnnotations `json:"annotations" required:"true"`
 }
 
-type Annotations struct {
+type CreateAnnotations struct {
 	AddonInstallType string `json:"addon.install/type" required:"true"`
 }
 
-//Specifications to create an addon
+// Specifications to create an addon
 type RequestSpec struct {
 	// For the addon version.
-	Version string `json:"version" required:"true"`
+	Version string `json:"version,omitempty"`
 	// Cluster ID.
 	ClusterID string `json:"clusterID" required:"true"`
 	// Addon Template Name.
@@ -124,6 +124,30 @@ type Values struct {
 	Basic  map[string]interface{} `json:"basic" required:"true"`
 	Custom map[string]interface{} `json:"custom,omitempty"`
 	Flavor map[string]interface{} `json:"flavor,omitempty"`
+}
+
+// UpdateOptsBuilder allows extensions to add additional parameters to the Update request.
+type UpdateOptsBuilder interface {
+	ToAddonUpdateMap() (map[string]interface{}, error)
+}
+
+type UpdateOpts struct {
+	// API type, fixed value Addon
+	Kind string `json:"kind" required:"true"`
+	// API version, fixed value v3
+	ApiVersion string `json:"apiVersion" required:"true"`
+	// Metadata required to create an addon
+	Metadata UpdateMetadata `json:"metadata" required:"true"`
+	// specifications to create an addon
+	Spec RequestSpec `json:"spec" required:"true"`
+}
+
+type UpdateMetadata struct {
+	Anno UpdateAnnotations `json:"annotations" required:"true"`
+}
+
+type UpdateAnnotations struct {
+	AddonUpgradeType string `json:"addon.upgrade/type" required:"true"`
 }
 
 // ToAddonCreateMap builds a create request body from CreateOpts.
@@ -141,6 +165,23 @@ func Create(c *golangsdk.ServiceClient, opts CreateOptsBuilder, cluster_id strin
 	}
 	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{201}}
 	_, r.Err = c.Post(rootURL(c, cluster_id), b, &r.Body, reqOpt)
+	return
+}
+
+// ToAddonUpdateMap builds a update request body from UpdateOpts.
+func (opts UpdateOpts) ToAddonUpdateMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+// Update accepts a UpdateOpts struct and uses the values to update the addon.
+func Update(c *golangsdk.ServiceClient, opts UpdateOptsBuilder, id, cluster_id string) (r UpdateResult) {
+	b, err := opts.ToAddonUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{200}}
+	_, r.Err = c.Put(resourceURL(c, id, cluster_id), b, &r.Body, reqOpt)
 	return
 }
 

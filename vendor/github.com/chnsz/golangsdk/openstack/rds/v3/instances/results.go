@@ -361,3 +361,21 @@ type VersionInfo struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 }
+
+// AutoExpansion is an object that represents the automatic expansion configuration.
+type AutoExpansion struct {
+	// Whether the automatic expansion is enabled.
+	SwitchOption bool `json:"switch_option"`
+	// The upper limit of automatic expansion of storage, in GB.
+	// This parameter is mandatory when switch_option is set to true.
+	// The value ranges from 40 GB to 4,000 GB and must be no less than the current storage of the instance.
+	LimitSize int `json:"limit_size"`
+	// The threshold to trigger automatic expansion.
+	// If the available storage drops to this threshold or 10 GB, the automatic expansion is triggered.
+	// This parameter is mandatory when switch_option is set to true.
+	// The valid values are as follows:
+	// + 10
+	// + 15
+	// + 20
+	TriggerThreshold int `json:"trigger_threshold"`
+}
