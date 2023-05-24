@@ -33,24 +33,26 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the VPC endpoint service. If omitted, the
   provider-level region will be used. Changing this creates a new VPC endpoint service resource.
 
-* `name` - (Optional, String) Specifies the name of the VPC endpoint service. The value contains a maximum of 16
-  characters, including letters, digits, underscores (_), and hyphens (-).
-
 * `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC to which the backend resource of the VPC endpoint
   service belongs. Changing this creates a new VPC endpoint service.
 
-* `server_type` - (Required, String, ForceNew) Specifies the backend resource type. The value can be **VM**, **VIP**
-  or **LB**. Changing this creates a new VPC endpoint service.
+* `server_type` - (Required, String, ForceNew) Specifies the backend resource type. The valid values are as follows:
+  + **VM**: Indicates the cloud server, which can be used as a server.
+  + **LB**: Indicates the shared load balancer, which is applicable to services with high access traffic and services
+    that require high reliability and disaster recovery.
+
+  Changing this creates a new VPC endpoint service.
 
 * `port_id` - (Required, String) Specifies the ID for identifying the backend resource of the VPC endpoint service.
   + If the `server_type` is **VM**, the value is the NIC ID of the ECS where the VPC endpoint service is deployed.
-  + If the `server_type` is **VIP**, the value is the NIC ID of the physical server where virtual resources are
-      created.
   + If the `server_type` is **LB**, the value is the ID of the port bound to the private IP address of the load
-      balancer.
+    balancer.
 
 * `port_mapping` - (Required, List) Specifies the port mappings opened to the VPC endpoint service. Structure is
   documented below.
+
+* `name` - (Optional, String) Specifies the name of the VPC endpoint service. The value contains a maximum of 16
+  characters, including letters, digits, underscores (_), and hyphens (-).
 
 * `approval` - (Optional, Bool) Specifies whether connection approval is required. The default value is false.
 
@@ -63,14 +65,13 @@ The following arguments are supported:
 
 The `port_mapping` block supports:
 
-* `protocol` - (Optional, String) Specifies the protocol used in port mappings. The value can be **TCP** or **UDP**. The
-  default value is **TCP**.
-
-* `service_port` - (Optional, Int) Specifies the port for accessing the VPC endpoint service. This port is provided by
+* `service_port` - (Required, Int) Specifies the port for accessing the VPC endpoint service. This port is provided by
   the backend service to provide services. The value ranges from 1 to 65535.
 
-* `terminal_port` - (Optional, Int) Specifies the port for accessing the VPC endpoint. This port is provided by the VPC
+* `terminal_port` - (Required, Int) Specifies the port for accessing the VPC endpoint. This port is provided by the VPC
   endpoint, allowing you to access the VPC endpoint service. The value ranges from 1 to 65535.
+
+* `protocol` - (Optional, String) Specifies the protocol used in port mappings. Only **TCP** is supported.
 
 ## Attributes Reference
 
@@ -80,9 +81,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - The status of the VPC endpoint service. The value can be **available** or **failed**.
 
-* `service_name` - The full name of the VPC endpoint service in the format: *region.name.id*.
+* `service_name` - The full name of the VPC endpoint service in the format: *region.name.id* or *region.id*.
 
-* `service_type` - The type of the VPC endpoint service. Only **interface** can be configured.
+* `service_type` - The type of the VPC endpoint service.
 
 * `connections` - An array of VPC endpoints connect to the VPC endpoint service. Structure is documented below.
   + `endpoint_id` - The unique ID of the VPC endpoint.
@@ -102,6 +103,6 @@ This resource provides the following timeouts configuration options:
 
 VPC endpoint services can be imported using the `id`, e.g.
 
-```
-$ terraform import huaweicloud_vpcep_service.test_service 950cd3ba-9d0e-4451-97c1-3e97dd515d46
+```bash
+$ terraform import huaweicloud_vpcep_service.test_service <id>
 ```
