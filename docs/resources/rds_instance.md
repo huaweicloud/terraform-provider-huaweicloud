@@ -224,7 +224,7 @@ The following arguments are supported:
   to *month*, the value ranges from 1 to 9. If `period_unit` is set to *year*, the value ranges from 1 to 3. This
   parameter is mandatory if `charging_mode` is set to *prePaid*. Changing this creates a new resource.
 
-* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled. Valid values are "true" and "false".
+* `auto_renew` - (Optional, String) Specifies whether auto-renew is enabled. Valid values are "true" and "false".
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the RDS instance. Changing this
   parameter creates a new RDS instance.
@@ -306,7 +306,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - Indicates the DB instance status.
 
-* `db/user_name` - Indicates the default user name of database.
+* `db/user_name` - Indicates the default username of database.
 
 * `created` - Indicates the creation time.
 
@@ -345,7 +345,11 @@ RDS instance can be imported using the `id`, e.g.
 $ terraform import huaweicloud_rds_instance.instance_1 52e4b497d2c94df88a2eb4c661314903in01
 ```
 
-But due to some attributes missing from the API response, it's required to ignore changes as below.
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attributes include: `db`, `collation`, `availability_zone`.
+It is generally recommended running `terraform plan` after importing a RDS instance. You can then decide if changes
+should be applied to the instance, or the resource definition should be updated to align with the instance.
+Also, you can ignore changes as below.
 
 ```
 resource "huaweicloud_rds_instance" "instance_1" {
@@ -353,7 +357,7 @@ resource "huaweicloud_rds_instance" "instance_1" {
 
   lifecycle {
     ignore_changes = [
-      "db", "collation"
+      "db", "collation", "availability_zone"
     ]
   }
 }
