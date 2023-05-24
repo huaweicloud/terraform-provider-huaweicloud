@@ -287,6 +287,12 @@ func ResourceRdsInstance() *schema.Resource {
 				Computed: true,
 			},
 
+			"lower_case_table_names": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+
 			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
@@ -337,6 +343,7 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		Volume:              buildRdsInstanceVolume(d),
 		BackupStrategy:      buildRdsInstanceBackupStrategy(d),
 		Ha:                  buildRdsInstanceHaReplicationMode(d),
+		UnchangeableParam:   buildRdsInstanceUnchangeableParam(d),
 	}
 
 	// PrePaid
@@ -845,6 +852,15 @@ func buildRdsInstanceBackupStrategy(d *schema.ResourceData) *instances.BackupStr
 		backupStrategy.KeepDays = backupRaw[0].(map[string]interface{})["keep_days"].(int)
 	}
 	return backupStrategy
+}
+
+func buildRdsInstanceUnchangeableParam(d *schema.ResourceData) *instances.UnchangeableParam {
+	var unchangeableParam *instances.UnchangeableParam
+	if v, ok := d.GetOk("lower_case_table_names"); ok {
+		unchangeableParam = new(instances.UnchangeableParam)
+		unchangeableParam.LowerCaseTableNames = v.(string)
+	}
+	return unchangeableParam
 }
 
 func buildRdsInstanceHaReplicationMode(d *schema.ResourceData) *instances.Ha {

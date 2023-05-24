@@ -200,6 +200,11 @@ The following arguments are supported:
   -> **NOTE:** async indicates the asynchronous replication mode. semisync indicates the semi-synchronous replication
   mode. sync indicates the synchronous replication mode.
 
+* `lower_case_table_names` - (Optional, String, ForceNew) Specifies the case-sensitive state of the database table name,
+  the default value is "1". Changing this parameter will create a new resource.
+    + 0: Table names are stored as fixed and table names are case-sensitive.
+    + 1: Table names will be stored in lower case and table names are not case-sensitive.
+
 * `param_group_id` - (Optional, String, ForceNew) Specifies the parameter group ID. Changing this parameter will create
   a new resource.
 
@@ -346,7 +351,7 @@ $ terraform import huaweicloud_rds_instance.instance_1 52e4b497d2c94df88a2eb4c66
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `db`, `collation`, `availability_zone`.
+API response, security or some other reason. The missing attributes include: `db`, `collation`, `availability_zone`,`lower_case_table_names`.
 It is generally recommended running `terraform plan` after importing a RDS instance. You can then decide if changes
 should be applied to the instance, or the resource definition should be updated to align with the instance.
 Also, you can ignore changes as below.
@@ -357,7 +362,7 @@ resource "huaweicloud_rds_instance" "instance_1" {
 
   lifecycle {
     ignore_changes = [
-      "db", "collation", "availability_zone"
+      "db", "collation", "availability_zone", "lower_case_table_names"
     ]
   }
 }
