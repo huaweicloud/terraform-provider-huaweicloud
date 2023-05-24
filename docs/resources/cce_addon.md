@@ -31,38 +31,30 @@ The following arguments are supported:
 * `template_name` - (Required, String, ForceNew) Specifies the name of the add-on template.
   Changing this parameter will create a new resource.
 
-* `version` - (Required, String, ForceNew) Specifies the version of the add-on.
-  Changing this parameter will create a new resource.
+* `version` - (Optional, String) Specifies the version of the add-on.
 
-* `values` - (Optional, List, ForceNew) Specifies the add-on template installation parameters.
+* `values` - (Optional, List) Specifies the add-on template installation parameters.
   These parameters vary depending on the add-on. Structure is documented below.
-  Changing this parameter will create a new resource.
 
 * The `values` block supports:
 
-* `basic_json` - (Optional, String, ForceNew) Specifies the json string vary depending on the add-on.
-  Changing this parameter will create a new resource.
+* `basic_json` - (Optional, String) Specifies the json string vary depending on the add-on.
 
-* `custom_json` - (Optional, String, ForceNew) Specifies the json string vary depending on the add-on.
-  Changing this parameter will create a new resource.
+* `custom_json` - (Optional, String) Specifies the json string vary depending on the add-on.
 
-* `flavor_json` - (Optional, String, ForceNew) Specifies the json string vary depending on the add-on.
-  Changing this parameter will create a new resource.
+* `flavor_json` - (Optional, String) Specifies the json string vary depending on the add-on.
 
-* `basic` - (Optional, Map, ForceNew) Specifies the key/value pairs vary depending on the add-on.
+* `basic` - (Optional, Map) Specifies the key/value pairs vary depending on the add-on.
   Only supports non-nested structure and only supports string type elements.
   This is an alternative to `basic_json`, but it is not recommended.
-  Changing this parameter will create a new resource.
 
-* `custom` - (Optional, Map, ForceNew) Specifies the key/value pairs vary depending on the add-on.
+* `custom` - (Optional, Map) Specifies the key/value pairs vary depending on the add-on.
   Only supports non-nested structure and only supports string type elements.
   This is an alternative to `custom_json`, but it is not recommended.
-  Changing this parameter will create a new resource.
 
-* `flavor` - (Optional, Map, ForceNew) Specifies the key/value pairs vary depending on the add-on.
+* `flavor` - (Optional, Map) Specifies the key/value pairs vary depending on the add-on.
   Only supports non-nested structure and only supports string type elements.
   This is an alternative to `flavor_json`, but it is not recommended.
-  Changing this parameter will create a new resource.
 
 Arguments which can be passed to the `basic_json`, `custom_json` and `flavor_json` add-on parameters depends on
 the add-on type and version. For more detailed description of add-ons
@@ -81,6 +73,7 @@ In addition to all arguments above, the following attributes are exported:
 This resource provides the following timeouts configuration options:
 
 * `create` - Default is 10 minute.
+* `update` - Default is 10 minute.
 * `delete` - Default is 3 minute.
 
 ## Import

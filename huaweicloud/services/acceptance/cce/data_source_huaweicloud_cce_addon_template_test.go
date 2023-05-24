@@ -6,10 +6,11 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccCCEAddonTemplateV3DataSource_basic(t *testing.T) {
+func TestAccAddonTemplateDataSource_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -17,7 +18,7 @@ func TestAccCCEAddonTemplateV3DataSource_basic(t *testing.T) {
 		CheckDestroy:      testAccCheckClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCEAddonTemplateV3DataSource_basic(rName),
+				Config: testAccAddonTemplateDataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.huaweicloud_cce_addon_template.spark_operator_test", "spec"),
 					resource.TestCheckResourceAttrSet("data.huaweicloud_cce_addon_template.nginx_ingress_test", "spec"),
@@ -27,7 +28,7 @@ func TestAccCCEAddonTemplateV3DataSource_basic(t *testing.T) {
 	})
 }
 
-func testAccCCEAddonTemplateV3DataSource_basic(rName string) string {
+func testAccAddonTemplateDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
