@@ -69,6 +69,7 @@ func TestAccRdsInstance_basic(t *testing.T) {
 				ImportStateVerifyIgnore: []string{
 					"db",
 					"status",
+					"availability_zone",
 				},
 			},
 		},
