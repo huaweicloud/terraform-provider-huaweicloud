@@ -7,12 +7,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/vpcep/v1/services"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/vpcep/v1/services"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -152,15 +155,16 @@ func ResourceVPCEndpointService() *schema.Resource {
 	}
 }
 
-func expandPortMappingOpts(d *schema.ResourceData) []services.PortOpts {
+func buildPortMappingOpts(d *schema.ResourceData) []services.PortOpts {
 	portMapping := d.Get("port_mapping").([]interface{})
-
 	portOpts := make([]services.PortOpts, len(portMapping))
 	for i, raw := range portMapping {
 		port := raw.(map[string]interface{})
-		portOpts[i].Protocol = port["protocol"].(string)
-		portOpts[i].ServerPort = port["service_port"].(int)
-		portOpts[i].ClientPort = port["terminal_port"].(int)
+		portOpts[i] = services.PortOpts{
+			Protocol:   port["protocol"].(string),
+			ServerPort: port["service_port"].(int),
+			ClientPort: port["terminal_port"].(int),
+		}
 	}
 	return portOpts
 }
@@ -169,11 +173,7 @@ func doPermissionAction(client *golangsdk.ServiceClient, serviceID, action strin
 	if len(raw) == 0 {
 		return nil
 	}
-
-	permissions := make([]string, len(raw))
-	for i, v := range raw {
-		permissions[i] = v.(string)
-	}
+	permissions := utils.ExpandToStringList(raw)
 	permOpts := services.PermActionOpts{
 		Action:      action,
 		Permissions: permissions,
@@ -181,19 +181,17 @@ func doPermissionAction(client *golangsdk.ServiceClient, serviceID, action strin
 
 	log.Printf("[DEBUG] %s permissions %#v to VPC endpoint service %s", action, permissions, serviceID)
 	result := services.PermAction(client, serviceID, permOpts)
-
 	return result.Err
 }
 
 func resourceVPCEndpointServiceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	vpcepClient, err := config.VPCEPClient(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	vpcepClient, err := cfg.VPCEPClient(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
 
-	approval := d.Get("approval").(bool)
 	createOpts := services.CreateOpts{
 		VpcID:       d.Get("vpc_id").(string),
 		PortID:      d.Get("port_id").(string),
@@ -201,16 +199,10 @@ func resourceVPCEndpointServiceCreate(ctx context.Context, d *schema.ResourceDat
 		ServiceName: d.Get("name").(string),
 		ServiceType: d.Get("service_type").(string),
 		Description: d.Get("description").(string),
-		Approval:    &approval,
-		Ports:       expandPortMappingOpts(d),
+		Approval:    utils.Bool(d.Get("approval").(bool)),
+		Ports:       buildPortMappingOpts(d),
+		Tags:        utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
-	//set tags
-	tagRaw := d.Get("tags").(map[string]interface{})
-	if len(tagRaw) > 0 {
-		taglist := utils.ExpandResourceTags(tagRaw)
-		createOpts.Tags = taglist
-	}
-
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	n, err := services.Create(vpcepClient, createOpts).Extract()
 	if err != nil {
@@ -244,67 +236,54 @@ func resourceVPCEndpointServiceCreate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceVPCEndpointServiceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	vpcepClient, err := config.VPCEPClient(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	vpcepClient, err := cfg.VPCEPClient(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
 
 	n, err := services.Get(vpcepClient, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "VPC endpoint")
+		return common.CheckDeletedDiag(d, err, "VPC endpoint service")
 	}
 
 	log.Printf("[DEBUG] retrieving VPC endpoint service: %#v", n)
-	d.Set("region", region)
-	d.Set("status", n.Status)
-	d.Set("service_name", n.ServiceName)
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("status", n.Status),
+		d.Set("service_name", n.ServiceName),
+		d.Set("vpc_id", n.VpcID),
+		d.Set("port_id", n.PortID),
+		d.Set("approval", n.Approval),
+		d.Set("server_type", n.ServerType),
+		d.Set("service_type", n.ServiceType),
+		d.Set("description", n.Description),
+		d.Set("port_mapping", flattenVPCEndpointServicePorts(n)),
+		d.Set("tags", utils.TagsToMap(n.Tags)),
+	)
+
 	nameList := strings.Split(n.ServiceName, ".")
 	if len(nameList) > 2 {
-		d.Set("name", nameList[1])
+		mErr = multierror.Append(mErr, d.Set("name", nameList[1]))
 	}
-
-	d.Set("vpc_id", n.VpcID)
-	d.Set("port_id", n.PortID)
-	d.Set("approval", n.Approval)
-	d.Set("server_type", n.ServerType)
-	d.Set("service_type", n.ServiceType)
-	d.Set("description", n.Description)
-
-	ports := make([]map[string]interface{}, len(n.Ports))
-	for i, v := range n.Ports {
-		ports[i] = map[string]interface{}{
-			"protocol":      v.Protocol,
-			"service_port":  v.ServerPort,
-			"terminal_port": v.ClientPort,
-		}
-	}
-	d.Set("port_mapping", ports)
-
-	// fetch tags from Services.Service
-	tagmap := make(map[string]string)
-	for _, val := range n.Tags {
-		tagmap[val.Key] = val.Value
-	}
-	d.Set("tags", tagmap)
 
 	// fetch connections
-	if conns, err := flattenVPCEndpointConnections(vpcepClient, d.Id()); err == nil {
-		d.Set("connections", conns)
+	if connections, err := flattenVPCEndpointConnections(vpcepClient, d.Id()); err == nil {
+		mErr = multierror.Append(mErr, d.Set("connections", connections))
 	}
 
 	// fetch permissions
 	if perms, err := flattenVPCEndpointPermissions(vpcepClient, d.Id()); err == nil {
-		d.Set("permissions", perms)
+		mErr = multierror.Append(mErr, d.Set("permissions", perms))
 	}
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceVPCEndpointServiceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	vpcepClient, err := config.VPCEPClient(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	vpcepClient, err := cfg.VPCEPClient(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
@@ -323,7 +302,7 @@ func resourceVPCEndpointServiceUpdate(ctx context.Context, d *schema.ResourceDat
 			updateOpts.PortID = d.Get("port_id").(string)
 		}
 		if d.HasChange("port_mapping") {
-			updateOpts.Ports = expandPortMappingOpts(d)
+			updateOpts.Ports = buildPortMappingOpts(d)
 		}
 
 		_, err = services.Update(vpcepClient, d.Id(), updateOpts).Extract()
@@ -332,7 +311,7 @@ func resourceVPCEndpointServiceUpdate(ctx context.Context, d *schema.ResourceDat
 		}
 	}
 
-	//update tags
+	// update tags
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(vpcepClient, d, tagVPCEPService, d.Id())
 		if tagErr != nil {
@@ -342,9 +321,9 @@ func resourceVPCEndpointServiceUpdate(ctx context.Context, d *schema.ResourceDat
 
 	// update
 	if d.HasChange("permissions") {
-		old, new := d.GetChange("permissions")
-		oldPermSet := old.(*schema.Set)
-		newPermSet := new.(*schema.Set)
+		oldVal, newVal := d.GetChange("permissions")
+		oldPermSet := oldVal.(*schema.Set)
+		newPermSet := newVal.(*schema.Set)
 		added := newPermSet.Difference(oldPermSet)
 		removed := oldPermSet.Difference(newPermSet)
 
@@ -363,9 +342,9 @@ func resourceVPCEndpointServiceUpdate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceVPCEndpointServiceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	vpcepClient, err := config.VPCEPClient(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	vpcepClient, err := cfg.VPCEPClient(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
@@ -392,16 +371,28 @@ func resourceVPCEndpointServiceDelete(ctx context.Context, d *schema.ResourceDat
 	return nil
 }
 
+func flattenVPCEndpointServicePorts(n *services.Service) []map[string]interface{} {
+	ports := make([]map[string]interface{}, len(n.Ports))
+	for i, v := range n.Ports {
+		ports[i] = map[string]interface{}{
+			"protocol":      v.Protocol,
+			"service_port":  v.ServerPort,
+			"terminal_port": v.ClientPort,
+		}
+	}
+	return ports
+}
+
 func flattenVPCEndpointConnections(client *golangsdk.ServiceClient, id string) ([]map[string]interface{}, error) {
-	allConns, err := services.ListConnections(client, id, nil)
+	allConnections, err := services.ListConnections(client, id, nil)
 	if err != nil {
 		log.Printf("[WARN] Error querying connections of VPC endpoint service: %s", err)
 		return nil, err
 	}
 
-	log.Printf("[DEBUG] retrieving connections of VPC endpoint service: %#v", allConns)
-	connections := make([]map[string]interface{}, len(allConns))
-	for i, v := range allConns {
+	log.Printf("[DEBUG] retrieving connections of VPC endpoint service: %#v", allConnections)
+	connections := make([]map[string]interface{}, len(allConnections))
+	for i, v := range allConnections {
 		connections[i] = map[string]interface{}{
 			"endpoint_id": v.EndpointID,
 			"packet_id":   v.MarkerID,

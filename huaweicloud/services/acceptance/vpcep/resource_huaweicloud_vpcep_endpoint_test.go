@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/vpcep/v1/endpoints"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/vpcep/v1/endpoints"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
@@ -188,7 +190,7 @@ resource "huaweicloud_vpcep_endpoint" "test" {
 `, testAccVPCEndpoint_Precondition(rName), rName)
 }
 
-var testAccVPCEndpointPublic string = `
+var testAccVPCEndpointPublic = `
 data "huaweicloud_vpc" "myvpc" {
   name = "vpc-default"
 }

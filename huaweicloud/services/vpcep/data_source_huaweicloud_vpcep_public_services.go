@@ -3,11 +3,13 @@ package vpcep
 import (
 	"context"
 
-	"github.com/chnsz/golangsdk/openstack/vpcep/v1/services"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk/openstack/vpcep/v1/services"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -62,9 +64,9 @@ func DataSourceVPCEPPublicServices() *schema.Resource {
 }
 
 func dataSourceVpcepPublicRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	vpcepClient, err := config.VPCEPClient(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	vpcepClient, err := cfg.VPCEPClient(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
@@ -79,11 +81,11 @@ func dataSourceVpcepPublicRead(_ context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("unable to retrieve VPC endpoint public services: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	id, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(id)
 
 	mErr := multierror.Append(
 		d.Set("region", region),
@@ -97,9 +99,9 @@ func flattenListVpcEndpointsServices(allServices []services.PublicService) []map
 	if allServices == nil {
 		return nil
 	}
-	services := make([]map[string]interface{}, len(allServices))
+	endpointServices := make([]map[string]interface{}, len(allServices))
 	for i, v := range allServices {
-		services[i] = map[string]interface{}{
+		endpointServices[i] = map[string]interface{}{
 			"id":           v.ID,
 			"service_name": v.ServiceName,
 			"service_type": v.ServiceType,
@@ -107,5 +109,5 @@ func flattenListVpcEndpointsServices(allServices []services.PublicService) []map
 			"is_charge":    v.IsChange,
 		}
 	}
-	return services
+	return endpointServices
 }
