@@ -12,7 +12,7 @@ Manages an IMS image share accepter resource within HuaweiCloud.
 variable "image_id" {}
 
 resource "huaweicloud_images_image_share_accepter" "test" {
-  image_id   = var.image_id
+  image_id = var.image_id
 }
 ```
 
@@ -37,3 +37,10 @@ The following arguments are supported:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
+
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 5 minutes.
+* `delete` - Default is 5 minutes.

@@ -47,8 +47,6 @@ func ResourceImsImage() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"tags": common.TagsSchema(),
-
 			"max_ram": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -65,6 +63,12 @@ func ResourceImsImage() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				ExactlyOneOf: []string{"image_url", "backup_id"},
+			},
+			"vault_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"instance_id"},
 			},
 			// backup_id is required for creating an image from backup of ECS
 			"backup_id": {
@@ -113,12 +117,7 @@ func ResourceImsImage() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
-			"vault_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				RequiredWith: []string{"instance_id"},
-			},
+			"tags": common.TagsSchema(),
 			// following are additional attributes
 			"visibility": {
 				Type:     schema.TypeString,
@@ -298,7 +297,7 @@ func GetCloudImage(client *golangsdk.ServiceClient, id string) (*cloudimages.Ima
 	}
 
 	if len(allImages) < 1 {
-		return nil, fmt.Errorf("unable to find images %s: Maybe not existed", id)
+		return nil, golangsdk.ErrDefault404{}
 	}
 
 	img := allImages[0]
@@ -370,7 +369,10 @@ func resourceImsImageRead(_ context.Context, d *schema.ResourceData, meta interf
 				d.Set("instance_id", backup.ResourceId),
 			)
 		}
-		d.Set("data_origin", img.DataOrigin)
+		mErr = multierror.Append(
+			mErr,
+			d.Set("data_origin", img.DataOrigin),
+		)
 	}
 	if img.DataOrigin != "" && img.WholeImage != "true" {
 		mErr = multierror.Append(
@@ -480,8 +482,8 @@ func resourceImsImageDelete(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	log.Printf("[DEBUG] Deleting Image %s", d.Id())
-	if err := images.Delete(imageClient, d.Id()).Err; err != nil {
-		return diag.Errorf("error deleting Image: %s", err)
+	if err = images.Delete(imageClient, d.Id()).Err; err != nil {
+		return common.CheckDeletedDiag(d, err, "error deleting Image")
 	}
 
 	stateConf := &resource.StateChangeConf{

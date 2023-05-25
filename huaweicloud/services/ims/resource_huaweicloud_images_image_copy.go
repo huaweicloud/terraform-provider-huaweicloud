@@ -252,7 +252,7 @@ func resourceImsImageCopyRead(_ context.Context, d *schema.ResourceData, meta in
 
 	img, err := GetCloudImage(imsClient, d.Id())
 	if err != nil {
-		return diag.Errorf("image %s not found: %s", d.Id(), err)
+		return common.CheckDeletedDiag(d, err, "error retrieving image copy")
 	}
 	log.Printf("[DEBUG] Retrieved Image %s: %#v", d.Id(), img)
 
@@ -293,7 +293,7 @@ func resourceImsImageCopyDelete(ctx context.Context, d *schema.ResourceData, met
 
 	log.Printf("[DEBUG] Deleting Image %s", d.Id())
 	if err = images.Delete(imsClient, d.Id()).Err; err != nil {
-		return diag.Errorf("error deleting image copy: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting image copy")
 	}
 
 	stateConf := &resource.StateChangeConf{

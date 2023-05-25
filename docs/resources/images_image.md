@@ -157,5 +157,22 @@ This resource provides the following timeouts configuration options:
 Images can be imported using the `id`, e.g.
 
 ```bash
-terraform import huaweicloud_images_image.my_image 7886e623-f1b3-473e-b882-67ba1c35887f
+terraform import huaweicloud_images_image.my_image <id>
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response. The missing attributes include: `vault_id`. It is generally recommended running `terraform plan` after
+importing the image. You can then decide if changes should be applied to the image, or the resource
+definition should be updated to align with the image. Also you can ignore changes as below.
+
+```
+resource "huaweicloud_images_image" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      vault_id,
+    ]
+  }
+}
 ```
