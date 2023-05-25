@@ -34,6 +34,9 @@ func ResourceVPCEndpointApproval() *schema.Resource {
 		ReadContext:   resourceVPCEndpointApprovalRead,
 		UpdateContext: resourceVPCEndpointApprovalUpdate,
 		DeleteContext: resourceVPCEndpointApprovalDelete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -126,12 +129,16 @@ func resourceVPCEndpointApprovalRead(_ context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
 
-	serviceID := d.Get("service_id").(string)
+	serviceID := d.Id()
 	connections, err := flattenVPCEndpointConnections(vpcepClient, serviceID)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "VPC endpoint service connection")
 	}
-	mErr := multierror.Append(nil, d.Set("connections", connections))
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("connections", connections),
+		d.Set("service_id", serviceID),
+	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
