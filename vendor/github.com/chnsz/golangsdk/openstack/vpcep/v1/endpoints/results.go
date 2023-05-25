@@ -13,6 +13,10 @@ type Endpoint struct {
 	Status string `json:"status"`
 	// the account status: frozen or active
 	ActiveStatus []string `json:"active_status"`
+	// the endpoint status is enabled: enable or disable
+	EnableStatus string `json:"enable_status"`
+	// the specification name of VPC endpoint
+	SpecificationName string `json:"specification_name"`
 	// the type of the VPC endpoint service that is associated with the VPC endpoint
 	ServiceType string `json:"service_type"`
 	// the name of the VPC endpoint service
@@ -56,6 +60,12 @@ type commonResult struct {
 // CreateResult represents the result of a create operation. Call its Extract
 // method to interpret it as a Endpoint.
 type CreateResult struct {
+	commonResult
+}
+
+// UpdateResult represents the result of a update operation. Call its Extract
+// method to interpret it as an Endpoint.
+type UpdateResult struct {
 	commonResult
 }
 

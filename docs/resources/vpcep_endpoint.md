@@ -64,8 +64,8 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the VPC endpoint. If omitted, the provider-level
   region will be used. Changing this creates a new VPC endpoint.
 
-* `service_id` - (Required, String, ForceNew) Specifies the ID of the VPC endpoint service. Changing this creates a new
-  VPC endpoint.
+* `service_id` - (Required, String, ForceNew) Specifies the ID of the VPC endpoint service.
+  The VPC endpoint service could be private or public. Changing this creates a new VPC endpoint.
 
 * `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC where the VPC endpoint is to be created. Changing
   this creates a new VPC endpoint.
@@ -79,15 +79,15 @@ The following arguments are supported:
 * `enable_dns` - (Optional, Bool, ForceNew) Specifies whether to create a private domain name. The default value is
   true. Changing this creates a new VPC endpoint.
 
-* `enable_whitelist` - (Optional, Bool, ForceNew) Specifies whether to enable access control. The default value is
-  false. Changing this creates a new VPC endpoint.
-
-* `whitelist` - (Optional, List, ForceNew) Specifies the list of IP address or CIDR block which can be accessed to the
-  VPC endpoint. Changing this creates a new VPC endpoint.
-
 * `description` - (Optional, String, ForceNew) Specifies the description of the VPC endpoint.
 
   Changing this creates a new VPC endpoint.
+
+* `enable_whitelist` - (Optional, Bool) Specifies whether to enable access control. The default value is
+  false.
+
+* `whitelist` - (Optional, List) Specifies the list of IP address or CIDR block which can be accessed to the
+  VPC endpoint. This field is valid when `enable_whitelist` is set to **true**. The max length of whitelist is 20.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the VPC endpoint.
 
@@ -119,6 +119,6 @@ This resource provides the following timeouts configuration options:
 
 VPC endpoint can be imported using the `id`, e.g.
 
-```
-$ terraform import huaweicloud_vpcep_endpoint.test 828907cc-40c9-42fe-8206-ecc1bdd30060
+```bash
+$ terraform import huaweicloud_vpcep_endpoint.test <id>
 ```
