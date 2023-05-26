@@ -98,7 +98,7 @@ resource "huaweicloud_dms_kafka_instance" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the DMS Kafka instance resource. If omitted, the
+* `region` - (Optional, String, ForceNew) The region in which to create the DMS Kafka instances. If omitted, the
   provider-level region will be used. Changing this creates a new instance resource.
 
 * `name` - (Required, String) Specifies the name of the DMS Kafka instance. An instance name starts with a letter,
@@ -116,8 +116,8 @@ The following arguments are supported:
   broker changes may cause storage capacity changes. So, if you specify the value of `storage_space`, you need to
   manually modify the value of `storage_space` after changing the `product_id`.
 
-* `engine_version` - (Required, String, ForceNew) Specifies the version of the Kafka engine. Valid values are **1.1.0**
-  and **2.3.0**. Changing this creates a new instance resource.
+* `engine_version` - (Required, String, ForceNew) Specifies the version of the Kafka engine,
+  such as 1.1.0, 2.3.0, 2.7 or other supported versions. Changing this creates a new instance resource.
 
 * `storage_spec_code` - (Required, String, ForceNew) Specifies the storage I/O specification.
   If the instance is created with `flavor_id`, the valid values are as follows:
@@ -170,15 +170,15 @@ The following arguments are supported:
 * `broker_num` - (Optional, Int) Specifies the broker numbers.
   It is required when creating an instance with `flavor_id`.
 
-* `access_user` - (Optional, String, ForceNew) Specifies a username. A username consists of 4 to 64 characters and
-  supports only letters, digits, and hyphens (-). Changing this creates a new instance resource.
+* `access_user` - (Optional, String, ForceNew) Specifies the username of SASL_SSL user. A username consists of 4
+  to 64 characters and supports only letters, digits, and hyphens (-). Changing this creates a new instance resource.
 
-* `password` - (Optional, String, ForceNew) Specifies the password of the DMS Kafka instance. A password must meet the
+* `password` - (Optional, String, ForceNew) Specifies the password of SASL_SSL user. A password must meet the
   following complexity requirements: Must be 8 to 32 characters long. Must contain at least 2 of the following character
   types: lowercase letters, uppercase letters, digits, and special characters (`~!@#$%^&*()-_=+\\|[{}]:'",<.>/?).
   Changing this creates a new instance resource.
 
-  -> **NOTE:** If `access_user` and `password` are specified, Kafka SASL_SSL will be automatically enabled.
+  -> **NOTE:** If `access_user` and `password` are specified, the SASL_SSL is enabled for a Kafka instance.
 
 * `description` - (Optional, String) Specifies the description of the DMS Kafka instance. It is a character string
   containing not more than 1,024 characters.
@@ -213,18 +213,20 @@ The following arguments are supported:
   + **time_base**: Automatically delete the earliest messages.
   + **produce_reject**: Stop producing new messages.
 
-* `dumping` - (Optional, Bool, ForceNew) Specifies whether to enable dumping. Changing this creates a new instance
-  resource.
+* `dumping` - (Optional, Bool, ForceNew) Specifies whether to enable message dumping.
+  Changing this creates a new instance resource.
 
 * `enable_auto_topic` - (Optional, Bool, ForceNew) Specifies whether to enable automatic topic creation. If automatic
   topic creation is enabled, a topic will be automatically created with 3 partitions and 3 replicas when a message is
-  produced to or consumed from a topic that does not exist. Changing this creates a new instance resource.
+  produced to or consumed from a topic that does not exist.
+  The default value is false.
+  Changing this creates a new instance resource.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the Kafka instance.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the DMS Kafka instance.
 
-* `cross_vpc_accesses` - (Optional, List) Specifies the access information of cross-VPC.
+* `cross_vpc_accesses` - (Optional, List) Specifies the cross-VPC access information.
   The [object](#dms_cross_vpc_accesses) structure is documented below.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance. Valid values are *prePaid*
@@ -251,7 +253,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies a resource ID in UUID format.
 * `engine` - Indicates the message engine.
-* `partition_num` - Indicates the maximum number of topics in the DMS Kafka instance.
+* `partition_num` - Indicates the number of partitions in Kafka instance.
 * `used_storage_space` - Indicates the used message storage space. Unit: GB
 * `port` - Indicates the port number of the DMS Kafka instance.
 * `status` - Indicates the status of the DMS Kafka instance.
@@ -262,7 +264,7 @@ In addition to all arguments above, the following attributes are exported:
 * `user_id` - Indicates the ID of the user who created the DMS Kafka instance
 * `user_name` - Indicates the name of the user who created the DMS Kafka instance
 * `connect_address` - Indicates the IP address of the DMS Kafka instance.
-* `management_connect_address` - Indicates the connection address of the Kafka Manager of a Kafka instance.
+* `management_connect_address` - Indicates the Kafka Manager connection address of a Kafka instance.
 * `cross_vpc_accesses` - Indicates the Access information of cross-VPC. The structure is documented below.
 * `charging_mode` - Indicates the charging mode of the instance.
 
