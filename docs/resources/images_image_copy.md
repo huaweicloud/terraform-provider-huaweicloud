@@ -96,3 +96,10 @@ In addition to all arguments above, the following attributes are exported:
 * `checksum` - Indicates the checksum of the data associated with the image.
 
 * `status` - Indicates the status of the image.
+
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 60 minutes.
+* `delete` - Default is 3 minutes.
