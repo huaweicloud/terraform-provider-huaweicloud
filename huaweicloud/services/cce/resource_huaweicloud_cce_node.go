@@ -618,8 +618,8 @@ func buildResourceNodeExtendParam(d *schema.ResourceData) map[string]interface{}
 	if v, ok := d.GetOk("billing_mode"); ok {
 		billingMode = v.(int)
 	}
-	if isPrePaid || billingMode == 2 {
-		extendParam["chargingMode"] = 2
+	if isPrePaid || billingMode == 1 {
+		extendParam["chargingMode"] = 1
 		extendParam["isAutoRenew"] = "false"
 		extendParam["isAutoPay"] = common.GetAutoPay(d)
 	}
@@ -660,73 +660,136 @@ func buildResourceNodeExtendParam(d *schema.ResourceData) map[string]interface{}
 }
 
 func buildResourceNodeStorage(d *schema.ResourceData) *nodes.StorageSpec {
-	if v, ok := d.GetOk("storage"); ok {
-		var storageSpec nodes.StorageSpec
-		storageSpecRaw := v.([]interface{})
-		storageSpecRawMap := storageSpecRaw[0].(map[string]interface{})
-		storageSelectorSpecRaw := storageSpecRawMap["selectors"].([]interface{})
-		storageGroupSpecRaw := storageSpecRawMap["groups"].([]interface{})
-
-		var selectors []nodes.StorageSelectorsSpec
-		for _, s := range storageSelectorSpecRaw {
-			var selector nodes.StorageSelectorsSpec
-			sMap := s.(map[string]interface{})
-			selector.Name = sMap["name"].(string)
-			selector.StorageType = sMap["type"].(string)
-			selector.MatchLabels.Size = sMap["match_label_size"].(string)
-			selector.MatchLabels.VolumeType = sMap["match_label_volume_type"].(string)
-			selector.MatchLabels.MetadataEncrypted = sMap["match_label_metadata_encrypted"].(string)
-			selector.MatchLabels.MetadataCmkid = sMap["match_label_metadata_cmkid"].(string)
-			selector.MatchLabels.Count = sMap["match_label_count"].(string)
-
-			selectors = append(selectors, selector)
-		}
-		storageSpec.StorageSelectors = selectors
-
-		var groups []nodes.StorageGroupsSpec
-		for _, g := range storageGroupSpecRaw {
-			var group nodes.StorageGroupsSpec
-			gMap := g.(map[string]interface{})
-			group.Name = gMap["name"].(string)
-			group.CceManaged = gMap["cce_managed"].(bool)
-
-			selectorNamesRaw := gMap["selector_names"].([]interface{})
-			selectorNames := make([]string, 0, len(selectorNamesRaw))
-			for _, v := range selectorNamesRaw {
-				selectorNames = append(selectorNames, v.(string))
-			}
-			group.SelectorNames = selectorNames
-
-			virtualSpacesRaw := gMap["virtual_spaces"].([]interface{})
-			virtualSpaces := make([]nodes.VirtualSpacesSpec, 0, len(virtualSpacesRaw))
-			for _, v := range virtualSpacesRaw {
-				var virtualSpace nodes.VirtualSpacesSpec
-				virtualSpaceMap := v.(map[string]interface{})
-				virtualSpace.Name = virtualSpaceMap["name"].(string)
-				virtualSpace.Size = virtualSpaceMap["size"].(string)
-				if virtualSpaceMap["lvm_lv_type"].(string) != "" {
-					var lvmConfig nodes.LVMConfigSpec
-					lvmConfig.LvType = virtualSpaceMap["lvm_lv_type"].(string)
-					lvmConfig.Path = virtualSpaceMap["lvm_path"].(string)
-					virtualSpace.LVMConfig = &lvmConfig
-				}
-				if virtualSpaceMap["runtime_lv_type"].(string) != "" {
-					var runtimeConfig nodes.RuntimeConfigSpec
-					runtimeConfig.LvType = virtualSpaceMap["runtime_lv_type"].(string)
-					virtualSpace.RuntimeConfig = &runtimeConfig
-				}
-
-				virtualSpaces = append(virtualSpaces, virtualSpace)
-			}
-			group.VirtualSpaces = virtualSpaces
-
-			groups = append(groups, group)
-		}
-
-		storageSpec.StorageGroups = groups
-		return &storageSpec
+	v, ok := d.GetOk("storage")
+	if !ok {
+		return nil
 	}
-	return nil
+
+	var storageSpec nodes.StorageSpec
+	storageSpecRaw := v.([]interface{})
+	storageSpecRawMap := storageSpecRaw[0].(map[string]interface{})
+	storageSelectorSpecRaw := storageSpecRawMap["selectors"].([]interface{})
+	storageGroupSpecRaw := storageSpecRawMap["groups"].([]interface{})
+
+	var selectors []nodes.StorageSelectorsSpec
+	for _, s := range storageSelectorSpecRaw {
+		sMap := s.(map[string]interface{})
+		selector := nodes.StorageSelectorsSpec{
+			Name:        sMap["name"].(string),
+			StorageType: sMap["type"].(string),
+			MatchLabels: nodes.MatchLabelsSpec{
+				Size:              sMap["match_label_size"].(string),
+				VolumeType:        sMap["match_label_volume_type"].(string),
+				MetadataEncrypted: sMap["match_label_metadata_encrypted"].(string),
+				MetadataCmkid:     sMap["match_label_metadata_cmkid"].(string),
+				Count:             sMap["match_label_count"].(string),
+			},
+		}
+		selectors = append(selectors, selector)
+	}
+	storageSpec.StorageSelectors = selectors
+
+	var groups []nodes.StorageGroupsSpec
+	for _, g := range storageGroupSpecRaw {
+		gMap := g.(map[string]interface{})
+		group := nodes.StorageGroupsSpec{
+			Name:          gMap["name"].(string),
+			CceManaged:    gMap["cce_managed"].(bool),
+			SelectorNames: utils.ExpandToStringList(gMap["selector_names"].([]interface{})),
+		}
+
+		virtualSpacesRaw := gMap["virtual_spaces"].([]interface{})
+		virtualSpaces := make([]nodes.VirtualSpacesSpec, 0, len(virtualSpacesRaw))
+		for _, v := range virtualSpacesRaw {
+			virtualSpaceMap := v.(map[string]interface{})
+			virtualSpace := nodes.VirtualSpacesSpec{
+				Name: virtualSpaceMap["name"].(string),
+				Size: virtualSpaceMap["size"].(string),
+			}
+
+			if virtualSpaceMap["lvm_lv_type"].(string) != "" {
+				lvmConfig := nodes.LVMConfigSpec{
+					LvType: virtualSpaceMap["lvm_lv_type"].(string),
+					Path:   virtualSpaceMap["lvm_path"].(string),
+				}
+				virtualSpace.LVMConfig = &lvmConfig
+			}
+
+			if virtualSpaceMap["runtime_lv_type"].(string) != "" {
+				runtimeConfig := nodes.RuntimeConfigSpec{
+					LvType: virtualSpaceMap["runtime_lv_type"].(string),
+				}
+				virtualSpace.RuntimeConfig = &runtimeConfig
+			}
+
+			virtualSpaces = append(virtualSpaces, virtualSpace)
+		}
+		group.VirtualSpaces = virtualSpaces
+
+		groups = append(groups, group)
+	}
+
+	storageSpec.StorageGroups = groups
+	return &storageSpec
+}
+
+func buildResourceNodePublicIP(d *schema.ResourceData) nodes.PublicIPSpec {
+	// eipCount must be specified when bandwidth_size parameters was set
+	eipCount := 0
+	if _, ok := d.GetOk("bandwidth_size"); ok {
+		eipCount = 1
+	}
+
+	res := nodes.PublicIPSpec{
+		Ids:   buildResourceNodeEipIDs(d),
+		Count: eipCount,
+		Eip: nodes.EipSpec{
+			IpType: d.Get("iptype").(string),
+			Bandwidth: nodes.BandwidthOpts{
+				ChargeMode: d.Get("bandwidth_charge_mode").(string),
+				Size:       d.Get("bandwidth_size").(int),
+				ShareType:  d.Get("sharetype").(string),
+			},
+		},
+	}
+
+	return res
+}
+
+func buildResourceNodeNicSpec(d *schema.ResourceData) nodes.NodeNicSpec {
+	res := nodes.NodeNicSpec{
+		PrimaryNic: nodes.PrimaryNic{
+			SubnetId: d.Get("subnet_id").(string),
+		},
+	}
+
+	if v, ok := d.GetOk("fixed_ip"); ok {
+		res.PrimaryNic.FixedIps = []string{v.(string)}
+	}
+
+	return res
+}
+
+func buildResourceNodeLoginpec(d *schema.ResourceData) (nodes.LoginSpec, error) {
+	var loginSpec nodes.LoginSpec
+	if v, ok := d.GetOk("key_pair"); ok {
+		loginSpec = nodes.LoginSpec{
+			SshKey: v.(string),
+		}
+	} else {
+		password, err := utils.TryPasswordEncrypt(d.Get("password").(string))
+		if err != nil {
+			return loginSpec, err
+		}
+		loginSpec = nodes.LoginSpec{
+			UserPassword: nodes.UserPassword{
+				Username: "root",
+				Password: password,
+			},
+		}
+	}
+
+	return loginSpec, nil
 }
 
 func resourceNodeCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -738,16 +801,11 @@ func resourceNodeCreate(ctx context.Context, d *schema.ResourceData, meta interf
 
 	// validation
 	billingMode := 0
-	if d.Get("charging_mode").(string) == "prePaid" || d.Get("billing_mode").(int) == 2 {
-		billingMode = 2
+	if d.Get("charging_mode").(string) == "prePaid" || d.Get("billing_mode").(int) == 1 {
+		billingMode = 1
 		if err := common.ValidatePrePaidChargeInfo(d); err != nil {
 			return diag.FromErr(err)
 		}
-	}
-	// eipCount must be specified when bandwidth_size parameters was set
-	eipCount := 0
-	if _, ok := d.GetOk("bandwidth_size"); ok {
-		eipCount = 1
 	}
 
 	// wait for the cce cluster to become available
@@ -778,25 +836,10 @@ func resourceNodeCreate(ctx context.Context, d *schema.ResourceData, meta interf
 			RootVolume:  buildResourceNodeRootVolume(d),
 			DataVolumes: buildResourceNodeDataVolume(d),
 			Storage:     buildResourceNodeStorage(d),
-			PublicIP: nodes.PublicIPSpec{
-				Ids:   buildResourceNodeEipIDs(d),
-				Count: eipCount,
-				Eip: nodes.EipSpec{
-					IpType: d.Get("iptype").(string),
-					Bandwidth: nodes.BandwidthOpts{
-						ChargeMode: d.Get("bandwidth_charge_mode").(string),
-						Size:       d.Get("bandwidth_size").(int),
-						ShareType:  d.Get("sharetype").(string),
-					},
-				},
-			},
+			PublicIP:    buildResourceNodePublicIP(d),
 			BillingMode: billingMode,
 			Count:       1,
-			NodeNicSpec: nodes.NodeNicSpec{
-				PrimaryNic: nodes.PrimaryNic{
-					SubnetId: d.Get("subnet_id").(string),
-				},
-			},
+			NodeNicSpec: buildResourceNodeNicSpec(d),
 			EcsGroupID:  d.Get("ecs_group_id").(string),
 			ExtendParam: buildResourceNodeExtendParam(d),
 			Taints:      buildResourceNodeTaint(d),
@@ -805,40 +848,25 @@ func resourceNodeCreate(ctx context.Context, d *schema.ResourceData, meta interf
 		},
 	}
 
-	if v, ok := d.GetOk("fixed_ip"); ok {
-		createOpts.Spec.NodeNicSpec.PrimaryNic.FixedIps = []string{v.(string)}
-	}
 	if v, ok := d.GetOk("runtime"); ok {
 		createOpts.Spec.RunTime = &nodes.RunTimeSpec{
 			Name: v.(string),
 		}
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
-	// Add loginSpec here so it wouldn't go in the above log entry
-	var loginSpec nodes.LoginSpec
-	if common.HasFilledOpt(d, "key_pair") {
-		loginSpec = nodes.LoginSpec{
-			SshKey: d.Get("key_pair").(string),
-		}
-	} else {
-		password, err := utils.TryPasswordEncrypt(d.Get("password").(string))
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		loginSpec = nodes.LoginSpec{
-			UserPassword: nodes.UserPassword{
-				Username: "root",
-				Password: password,
-			},
-		}
-	}
-	createOpts.Spec.Login = loginSpec
-
 	// Create a node in the specified partition
 	if v, ok := d.GetOk("partition"); ok {
 		createOpts.Spec.Partition = v.(string)
 	}
+
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+
+	// Add loginSpec here so it wouldn't go in the above log entry
+	loginSpec, err := buildResourceNodeLoginpec(d)
+	if err != nil {
+		diag.FromErr(err)
+	}
+	createOpts.Spec.Login = loginSpec
 
 	s, err := nodes.Create(nodeClient, clusterid, createOpts).Extract()
 	if err != nil {
@@ -908,6 +936,12 @@ func resourceNodeRead(_ context.Context, d *schema.ResourceData, meta interface{
 		d.Set("key_pair", s.Spec.Login.SshKey),
 		d.Set("subnet_id", s.Spec.NodeNicSpec.PrimaryNic.SubnetId),
 		d.Set("ecs_group_id", s.Spec.EcsGroupID),
+		d.Set("server_id", s.Status.ServerID),
+		d.Set("private_ip", s.Status.PrivateIP),
+		d.Set("public_ip", s.Status.PublicIP),
+		d.Set("status", s.Status.Phase),
+		d.Set("root_volume", flattenResourceNodeRootVolume(s.Spec.RootVolume)),
+		d.Set("data_volumes", flattenResourceNodeDataVolume(s.Spec.DataVolumes)),
 	)
 
 	if s.Spec.BillingMode != 0 {
@@ -917,49 +951,12 @@ func resourceNodeRead(_ context.Context, d *schema.ResourceData, meta interface{
 		mErr = multierror.Append(mErr, d.Set("runtime", s.Spec.RunTime.Name))
 	}
 
-	var volumes []map[string]interface{}
-	for _, pairObject := range s.Spec.DataVolumes {
-		volume := make(map[string]interface{})
-		volume["size"] = pairObject.Size
-		volume["volumetype"] = pairObject.VolumeType
-		volume["hw_passthrough"] = pairObject.HwPassthrough
-		volume["extend_params"] = pairObject.ExtendParam
-		volume["extend_param"] = ""
-		if pairObject.Metadata != nil {
-			volume["kms_key_id"] = pairObject.Metadata.SystemCmkid
-		}
-		volumes = append(volumes, volume)
-	}
-	mErr = multierror.Append(mErr, d.Set("data_volumes", volumes))
-
-	rootVolume := []map[string]interface{}{
-		{
-			"size":           s.Spec.RootVolume.Size,
-			"volumetype":     s.Spec.RootVolume.VolumeType,
-			"hw_passthrough": s.Spec.RootVolume.HwPassthrough,
-			"extend_params":  s.Spec.RootVolume.ExtendParam,
-			"extend_param":   "",
-		},
-	}
-	if s.Spec.RootVolume.Metadata != nil {
-		rootVolume[0]["kms_key_id"] = s.Spec.RootVolume.Metadata.SystemCmkid
-	}
-	mErr = multierror.Append(mErr, d.Set("root_volume", rootVolume))
-
-	// set computed attributes
-	serverId := s.Status.ServerID
-	mErr = multierror.Append(mErr,
-		d.Set("server_id", serverId),
-		d.Set("private_ip", s.Status.PrivateIP),
-		d.Set("public_ip", s.Status.PublicIP),
-		d.Set("status", s.Status.Phase),
-	)
-
 	computeClient, err := config.ComputeV1Client(config.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating compute client: %s", err)
 	}
 
+	serverId := s.Status.ServerID
 	// fetch key_pair from ECS instance
 	if server, err := cloudservers.Get(computeClient, serverId).Extract(); err == nil {
 		mErr = multierror.Append(mErr, d.Set("key_pair", server.KeyName))
@@ -979,6 +976,46 @@ func resourceNodeRead(_ context.Context, d *schema.ResourceData, meta interface{
 		return diag.Errorf("error setting CCE Node fields: %s", err)
 	}
 	return nil
+}
+
+func flattenResourceNodeRootVolume(rootVolume nodes.VolumeSpec) []map[string]interface{} {
+	res := []map[string]interface{}{
+		{
+			"size":           rootVolume.Size,
+			"volumetype":     rootVolume.VolumeType,
+			"hw_passthrough": rootVolume.HwPassthrough,
+			"extend_params":  rootVolume.ExtendParam,
+			"extend_param":   "",
+		},
+	}
+	if rootVolume.Metadata != nil {
+		res[0]["kms_key_id"] = rootVolume.Metadata.SystemCmkid
+	}
+
+	return res
+}
+
+func flattenResourceNodeDataVolume(dataVolumes []nodes.VolumeSpec) []map[string]interface{} {
+	if len(dataVolumes) == 0 {
+		return nil
+	}
+
+	res := make([]map[string]interface{}, len(dataVolumes))
+	for i, v := range dataVolumes {
+		res[i] = map[string]interface{}{
+			"size":           v.Size,
+			"volumetype":     v.VolumeType,
+			"hw_passthrough": v.HwPassthrough,
+			"extend_params":  v.ExtendParam,
+			"extend_param":   "",
+		}
+
+		if v.Metadata != nil {
+			res[i]["kms_key_id"] = v.Metadata.SystemCmkid
+		}
+	}
+
+	return res
 }
 
 func resourceNodeUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1074,31 +1111,21 @@ func resourceNodeDelete(ctx context.Context, d *schema.ResourceData, meta interf
 	clusterid := d.Get("cluster_id").(string)
 	// remove node without deleting ecs
 	if d.Get("keep_ecs").(bool) {
-		var removeOpts nodes.RemoveOpts
+		loginSpec, err := buildResourceNodeLoginpec(d)
+		if err != nil {
+			diag.FromErr(err)
+		}
 
-		var loginSpec nodes.LoginSpec
-		if common.HasFilledOpt(d, "key_pair") {
-			loginSpec = nodes.LoginSpec{
-				SshKey: d.Get("key_pair").(string),
-			}
-		} else {
-			password, err := utils.TryPasswordEncrypt(d.Get("password").(string))
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			loginSpec = nodes.LoginSpec{
-				UserPassword: nodes.UserPassword{
-					Username: "root",
-					Password: password,
+		removeOpts := nodes.RemoveOpts{
+			Spec: nodes.RemoveNodeSpec{
+				Login: loginSpec,
+				Nodes: []nodes.NodeItem{
+					{
+						Uid: d.Id(),
+					},
 				},
-			}
+			},
 		}
-		removeOpts.Spec.Login = loginSpec
-
-		nodeItem := nodes.NodeItem{
-			Uid: d.Id(),
-		}
-		removeOpts.Spec.Nodes = append(removeOpts.Spec.Nodes, nodeItem)
 
 		err = nodes.Remove(nodeClient, clusterid, removeOpts).ExtractErr()
 		if err != nil {
@@ -1106,7 +1133,7 @@ func resourceNodeDelete(ctx context.Context, d *schema.ResourceData, meta interf
 		}
 	} else {
 		// for prePaid node, firstly, we should unsubscribe the ecs server, and then delete it
-		if d.Get("charging_mode").(string) == "prePaid" || d.Get("billing_mode").(int) == 2 {
+		if d.Get("charging_mode").(string) == "prePaid" || d.Get("billing_mode").(int) == 1 {
 			serverID := d.Get("server_id").(string)
 			publicIP := d.Get("public_ip").(string)
 
