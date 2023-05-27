@@ -56,6 +56,39 @@ func Create(c *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateResult)
 	return
 }
 
+// UpdateOptsBuilder allows extensions to add parameters to the
+// Update request.
+type UpdateOptsBuilder interface {
+	ToEndpointUpdateMap() (map[string]interface{}, error)
+}
+
+// UpdateOpts contains the options for update a VPC endpoint
+// This object is passed to Update().
+type UpdateOpts struct {
+	// Specifies whether to enable access control
+	EnableWhitelist *bool `json:"enable_whitelist,omitempty"`
+	// Specifies the whitelist for controlling access to the VPC endpoint.
+	// If the value is [], means delete all white list
+	Whitelist []string `json:"whitelist"`
+}
+
+// ToEndpointUpdateMap assembles a request body based on the contents of a UpdateOpts.
+func (opts UpdateOpts) ToEndpointUpdateMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+// Update accepts a UpdateOpts struct and uses the values to update a VPC endpoint
+func Update(c *golangsdk.ServiceClient, opts UpdateOptsBuilder, endpointID string) (r UpdateResult) {
+	b, err := opts.ToEndpointUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = c.Put(resourceURL(c, endpointID), b, &r.Body, nil)
+	return
+}
+
 // Get retrieves a particular VPC endpoint based on its unique ID
 func Get(c *golangsdk.ServiceClient, endpointID string) (r GetResult) {
 	_, r.Err = c.Get(resourceURL(c, endpointID), &r.Body, nil)

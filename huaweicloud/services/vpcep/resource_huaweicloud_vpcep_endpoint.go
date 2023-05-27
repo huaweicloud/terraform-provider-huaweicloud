@@ -55,29 +55,17 @@ func ResourceVPCEndpoint() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"ip_address": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
-			},
 			"enable_dns": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
 				Default:  true,
 			},
-			"enable_whitelist": {
-				Type:     schema.TypeBool,
+			"ip_address": {
+				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-			},
-			"whitelist": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Computed: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -85,6 +73,17 @@ func ResourceVPCEndpoint() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
+			"enable_whitelist": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"whitelist": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+			"tags": common.TagsSchema(),
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -105,7 +104,6 @@ func ResourceVPCEndpoint() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"tags": common.TagsSchema(),
 		},
 	}
 }
@@ -186,10 +184,16 @@ func resourceVPCEndpointRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("description", ep.Description),
 		d.Set("enable_dns", ep.EnableDNS),
 		d.Set("enable_whitelist", ep.EnableWhitelist),
-		d.Set("whitelist", ep.Whitelist),
 		d.Set("packet_id", ep.MarkerID),
 		d.Set("tags", utils.TagsToMap(ep.Tags)),
 	)
+
+	if len(ep.Whitelist) == 0 {
+		// if the "whitelist" is not specified, the api will return an empty array
+		mErr = multierror.Append(mErr, d.Set("whitelist", nil))
+	} else {
+		mErr = multierror.Append(mErr, d.Set("whitelist", ep.Whitelist))
+	}
 
 	if len(ep.DNSNames) > 0 {
 		mErr = multierror.Append(mErr, d.Set("private_domain_name", ep.DNSNames[0]))
@@ -206,8 +210,16 @@ func resourceVPCEndpointUpdate(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
-
-	// update tags
+	if d.HasChanges("enable_whitelist", "whitelist") {
+		updateOpts := endpoints.UpdateOpts{
+			EnableWhitelist: utils.Bool(d.Get("enable_whitelist").(bool)),
+			Whitelist:       utils.ExpandToStringList(d.Get("whitelist").(*schema.Set).List()),
+		}
+		_, err := endpoints.Update(vpcepClient, updateOpts, d.Id()).Extract()
+		if err != nil {
+			return diag.Errorf("error updating VPC endpoint whitelist: %s", err)
+		}
+	}
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(vpcepClient, d, tagVPCEP, d.Id())
 		if tagErr != nil {

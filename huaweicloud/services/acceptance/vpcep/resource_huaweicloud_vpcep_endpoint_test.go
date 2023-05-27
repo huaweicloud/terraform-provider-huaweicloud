@@ -38,6 +38,8 @@ func TestAccVPCEndpoint_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "service_type", "interface"),
 					resource.TestCheckResourceAttr(resourceName, "description", "test description"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "tf-acc"),
+					resource.TestCheckResourceAttr(resourceName, "enable_whitelist", "true"),
+					resource.TestCheckResourceAttr(resourceName, "whitelist.0", "192.168.0.0/24"),
 					resource.TestCheckResourceAttrSet(resourceName, "service_name"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_domain_name"),
 				),
@@ -48,6 +50,8 @@ func TestAccVPCEndpoint_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "accepted"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "tf-acc-update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "enable_whitelist", "false"),
+					resource.TestCheckResourceAttr(resourceName, "whitelist.#", "0"),
 				),
 			},
 			{
@@ -118,12 +122,6 @@ resource "huaweicloud_compute_instance" "ecs" {
     uuid = data.huaweicloud_vpc_subnet.test.id
   }
 }
-`, testAccCompute_data, rName)
-}
-
-func testAccVPCEndpoint_Basic(rName string) string {
-	return fmt.Sprintf(`
-%s
 
 resource "huaweicloud_vpcep_service" "test" {
   name        = "%s"
@@ -140,54 +138,47 @@ resource "huaweicloud_vpcep_service" "test" {
     owner = "tf-acc"
   }
 }
+`, testAccCompute_data, rName, rName)
+}
+
+func testAccVPCEndpoint_Basic(rName string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_vpcep_endpoint" "test" {
-  service_id  = huaweicloud_vpcep_service.test.id
-  vpc_id      = data.huaweicloud_vpc.myvpc.id
-  network_id  = data.huaweicloud_vpc_subnet.test.id
-  enable_dns  = true
-  description = "test description"
+  service_id       = huaweicloud_vpcep_service.test.id
+  vpc_id           = data.huaweicloud_vpc.myvpc.id
+  network_id       = data.huaweicloud_vpc_subnet.test.id
+  enable_dns       = true
+  description      = "test description"
+  enable_whitelist = true
+  whitelist        = ["192.168.0.0/24"]
 
   tags = {
     owner = "tf-acc"
   }
 }
-`, testAccVPCEndpoint_Precondition(rName), rName)
+`, testAccVPCEndpoint_Precondition(rName))
 }
 
 func testAccVPCEndpoint_Update(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_vpcep_service" "test" {
-  name        = "tf-%s"
-  server_type = "VM"
-  vpc_id      = data.huaweicloud_vpc.myvpc.id
-  port_id     = huaweicloud_compute_instance.ecs.network[0].port
-  approval    = false
-
-  port_mapping {
-    service_port  = 8088
-    terminal_port = 80
-  }
-  tags = {
-    owner = "tf-acc"
-  }
-}
-
 resource "huaweicloud_vpcep_endpoint" "test" {
-  service_id  = huaweicloud_vpcep_service.test.id
-  vpc_id      = data.huaweicloud_vpc.myvpc.id
-  network_id  = data.huaweicloud_vpc_subnet.test.id
-  enable_dns  = true
-  description = "test description"
+  service_id       = huaweicloud_vpcep_service.test.id
+  vpc_id           = data.huaweicloud_vpc.myvpc.id
+  network_id       = data.huaweicloud_vpc_subnet.test.id
+  enable_dns       = true
+  description      = "test description"
+  enable_whitelist = false
 
   tags = {
     owner = "tf-acc-update"
     foo   = "bar"
   }
 }
-`, testAccVPCEndpoint_Precondition(rName), rName)
+`, testAccVPCEndpoint_Precondition(rName))
 }
 
 var testAccVPCEndpointPublic = `
