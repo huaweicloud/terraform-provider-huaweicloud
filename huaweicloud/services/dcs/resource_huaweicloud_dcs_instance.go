@@ -768,10 +768,8 @@ func resourceDcsInstancesRead(_ context.Context, d *schema.ResourceData, meta in
 	// some regions (cn-south-1) will fail to call the API due to the cloud reason
 	// ignore the error temporarily.
 	wList, err := whitelists.Get(client, d.Id()).Extract()
-	if err != nil {
-		return diag.Errorf("error fetching whitelists for DCS instance, error: %s", err)
-	}
-	if wList == nil || len(wList.Groups) == 0 {
+	if err != nil || wList == nil || len(wList.Groups) == 0 {
+		log.Printf("error fetching whitelists for DCS instance, error: %s", err)
 		// Set to the default value, otherwise it will prompt change after importing resources.
 		mErr = multierror.Append(
 			mErr,

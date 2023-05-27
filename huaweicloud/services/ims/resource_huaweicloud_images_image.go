@@ -2,10 +2,8 @@ package ims
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 	"time"
 
@@ -47,16 +45,19 @@ func ResourceImsImage() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 			},
 			"tags": common.TagsSchema(),
 
 			"max_ram": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				ForceNew: true,
 			},
 			"min_ram": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				ForceNew: true,
 			},
 			// instance_id is required for creating an image from an ECS
 			"instance_id": {
@@ -332,12 +333,9 @@ func resourceImsImageRead(_ context.Context, d *schema.ResourceData, meta interf
 	}
 	log.Printf("[DEBUG] Retrieved Image %s: %#v", d.Id(), img)
 
-	bytes, _ := json.Marshal(img)
-	fmt.Println("img info: ", string(bytes))
 	mErr := multierror.Append(
 		d.Set("name", img.Name),
 		d.Set("description", img.Description),
-		d.Set("min_ram", img.MinRam),
 		d.Set("visibility", img.Visibility),
 		d.Set("disk_format", img.DiskFormat),
 		d.Set("image_size", img.ImageSize),
@@ -345,9 +343,6 @@ func resourceImsImageRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("checksum", img.Checksum),
 		d.Set("status", img.Status),
 	)
-	if maxRam, err := strconv.Atoi(img.MaxRam); err == nil {
-		mErr = multierror.Append(mErr, d.Set("min_ram", maxRam))
-	}
 
 	if img.OsVersion != "" {
 		mErr = multierror.Append(mErr, d.Set("os_version", img.OsVersion))
@@ -435,16 +430,10 @@ func resourceImsImageUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error creating IMS client: %s", err)
 	}
 
-	if d.HasChanges("name", "description", "min_ram", "max_ram") {
+	if d.HasChange("name") {
 		updateOpts := make(images.UpdateOpts, 0)
-		name := images.ReplaceImageAttribute{AttributeName: "name", AttributeValue: d.Get("name").(string)}
-		description := images.ReplaceImageAttribute{AttributeName: "__description", AttributeValue: d.Get("description").(string)}
-		minRam := images.ReplaceImageAttribute{AttributeName: "min_ram", AttributeValue: d.Get("min_ram").(string)}
-		maxRam := images.ReplaceImageAttribute{AttributeName: "max_ram", AttributeValue: d.Get("max_ram").(string)}
-		updateOpts = append(updateOpts, name)
-		updateOpts = append(updateOpts, description)
-		updateOpts = append(updateOpts, minRam)
-		updateOpts = append(updateOpts, maxRam)
+		v := images.ReplaceImageName{NewName: d.Get("name").(string)}
+		updateOpts = append(updateOpts, v)
 
 		log.Printf("[DEBUG] Update Options: %#v", updateOpts)
 		_, err = images.Update(imsClient, d.Id(), updateOpts).Extract()

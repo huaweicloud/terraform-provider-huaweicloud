@@ -86,6 +86,8 @@ The following arguments are supported:
 
 * `name` - (Required, String) The name of the image.
 
+* `description` - (Optional, String, ForceNew) A description of the image.
+
 * `instance_id` - (Optional, String, ForceNew) The ID of the ECS that needs to be converted into an image. This
   parameter is mandatory when you create a private image or a private whole image from an ECS.
   If the value of `vault_id` is not empty, then a whole image will be created.
@@ -97,12 +99,10 @@ The following arguments are supported:
   mandatory when you create a private image from an external file uploaded to an OBS bucket. The format is *OBS bucket
   name:Image file name*.
 
-* `min_ram` - (Optional, Int) The minimum memory of the image in the unit of MB. The default value is 0,
+* `min_ram` - (Optional, Int, ForceNew) The minimum memory of the image in the unit of MB. The default value is 0,
   indicating that the memory is not restricted.
 
-* `max_ram` - (Optional, Int) The maximum memory of the image in the unit of MB.
-
-* `description` - (Optional, String) A description of the image.
+* `max_ram` - (Optional, Int, ForceNew) The maximum memory of the image in the unit of MB.
 
 * `tags` - (Optional, Map) The tags of the image.
 
