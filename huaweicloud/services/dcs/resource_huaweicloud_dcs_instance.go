@@ -4,10 +4,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
@@ -15,17 +22,10 @@ import (
 	"github.com/chnsz/golangsdk/openstack/dcs/v2/instances"
 	dcsTags "github.com/chnsz/golangsdk/openstack/dcs/v2/tags"
 	"github.com/chnsz/golangsdk/openstack/dcs/v2/whitelists"
-	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 const (
@@ -38,10 +38,15 @@ var (
 		0: chargeModePostPaid,
 		1: chargeModePrePaid,
 	}
+
+	redisEngineVersion = map[string]bool{
+		"4.0": true,
+		"5.0": true,
+		"6.0": true,
+	}
 )
 
 func ResourceDcsInstance() *schema.Resource {
-
 	return &schema.Resource{
 		CreateContext: resourceDcsInstancesCreate,
 		ReadContext:   resourceDcsInstancesRead,
@@ -51,8 +56,8 @@ func ResourceDcsInstance() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(20 * time.Minute),
-			Update: schema.DefaultTimeout(20 * time.Minute),
+			Create: schema.DefaultTimeout(120 * time.Minute),
+			Update: schema.DefaultTimeout(120 * time.Minute),
 			Delete: schema.DefaultTimeout(15 * time.Minute),
 		},
 
@@ -402,16 +407,16 @@ func resourceDcsInstancesCheck(d *schema.ResourceData) error {
 	engineVersion := d.Get("engine_version").(string)
 	secGroupID := d.Get("security_group_id").(string)
 
-	// check for Redis 4.0 and 5.0
-	if engineVersion == "4.0" || engineVersion == "5.0" {
+	// check for Redis 4.0, 5.0 and 6.0
+	if _, ok := redisEngineVersion[engineVersion]; ok {
 		if secGroupID != "" {
-			return fmtp.Errorf("security_group_id is not supported for Redis 4.0 and 5.0. " +
+			return fmt.Errorf("security_group_id is not supported for Redis 4.0, 5.0 and 6.0. " +
 				"please configure the whitelists alternatively")
 		}
 	} else {
 		// check for Memcached and Redis 3.0
 		if secGroupID == "" {
-			return fmtp.Errorf("security_group_id is mandatory for this DCS instance")
+			return fmt.Errorf("security_group_id is mandatory for this DCS instance")
 		}
 	}
 
@@ -431,9 +436,9 @@ func buildBssParamParams(d *schema.ResourceData) instances.DcsBssParam {
 	return bp
 }
 
-func buildDcsTagsParams(tags map[string]interface{}) []dcsTags.ResourceTag {
-	tagArr := make([]dcsTags.ResourceTag, 0, len(tags))
-	for k, v := range tags {
+func buildDcsTagsParams(tagsMap map[string]interface{}) []dcsTags.ResourceTag {
+	tagArr := make([]dcsTags.ResourceTag, 0, len(tagsMap))
+	for k, v := range tagsMap {
 		tag := dcsTags.ResourceTag{
 			Key:   k,
 			Value: v.(string),
@@ -488,10 +493,11 @@ func refreshForWhiteListEnableStatus(c *golangsdk.ServiceClient, id string) reso
 }
 
 func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	client, err := conf.DcsV2Client(conf.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.DcsV2Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud DCS Client(v2): %s", err)
+		return diag.Errorf("error creating DCS Client(v2): %s", err)
 	}
 
 	if err = resourceDcsInstancesCheck(d); err != nil {
@@ -535,7 +541,7 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 		VpcId:               d.Get("vpc_id").(string),
 		SubnetId:            d.Get("subnet_id").(string),
 		SecurityGroupId:     d.Get("security_group_id").(string),
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, conf),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 		Description:         d.Get("description").(string),
 		PrivateIp:           d.Get("private_ip").(string),
 		MaintainBegin:       d.Get("maintain_begin").(string),
@@ -549,14 +555,7 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 	// build and set rename command if configured.
 	renameCmds := d.Get("rename_commands").(map[string]interface{})
 	if createOpts.Engine == "Redis" && len(renameCmds) > 0 {
-		renameCommands := instances.RedisCommand{
-			Command:  renameCmds["command"].(string),
-			Keys:     renameCmds["keys"].(string),
-			Flushdb:  renameCmds["flushdb"].(string),
-			Flushall: renameCmds["flushall"].(string),
-			Hgetall:  renameCmds["hgetall"].(string),
-		}
-		createOpts.RenameCommands = renameCommands
+		createOpts.RenameCommands = createRenameCommandsOpt(renameCmds)
 	}
 
 	// build and set backup policy if configured.
@@ -564,7 +563,7 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 	if backupPolicy != nil {
 		createOpts.BackupPolicy = backupPolicy
 	}
-	logp.Printf("[DEBUG] Create DCS instance options(hide password) : %#v", createOpts)
+	log.Printf("[DEBUG] Create DCS instance options(hide password) : %#v", createOpts)
 
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.Password = d.Get("password").(string)
@@ -572,23 +571,14 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 	// create instance
 	r, err := instances.Create(client, createOpts)
 	if err != nil || len(r.Instances) == 0 {
-		return fmtp.DiagErrorf("error in creating DCS instance : %s", err)
+		return diag.Errorf("error in creating DCS instance : %s", err)
 	}
 	id := r.Instances[0].InstanceId
 	d.SetId(id)
 
 	// If charging mode is PrePaid, wait for the order to be completed.
 	if strings.EqualFold(d.Get("charging_mode").(string), chargeModePrePaid) {
-		bssClient, err := conf.BssV2Client(conf.GetRegion(d))
-		if err != nil {
-			return diag.Errorf("error creating BSS v2 client: %s", err)
-		}
-		err = common.WaitOrderComplete(ctx, bssClient, r.OrderId, d.Timeout(schema.TimeoutCreate))
-		if err != nil {
-			return fmtp.DiagErrorf("[DEBUG] Error the order is not completed while "+
-				"creating DCS instance. %s : %#v", d.Id(), err)
-		}
-		_, err = common.WaitOrderResourceComplete(ctx, bssClient, r.OrderId, d.Timeout(schema.TimeoutCreate))
+		err = waitForOrderComplete(ctx, d, cfg, region, r.OrderId)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -605,25 +595,58 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 	enabled := d.Get("whitelist_enable").(bool)
 	if enabled && d.Get("whitelists").(*schema.Set).Len() > 0 {
 		whitelistOpts := buildWhiteListParams(d)
-		logp.Printf("[DEBUG] Create whitelist options: %#v", whitelistOpts)
+		log.Printf("[DEBUG] Create whitelist options: %#v", whitelistOpts)
 
 		err = whitelists.Put(client, id, whitelistOpts).ExtractErr()
 		if err != nil {
-			return fmtp.DiagErrorf("Error creating whitelist for DCS instance (%s): %s", id, err)
+			return diag.Errorf("error creating whitelist for DCS instance (%s): %s", id, err)
 		}
 		// wait for whitelist created
 		err = waitForWhiteListCompleted(ctx, client, d)
 		if err != nil {
-			return fmtp.DiagErrorf("Error while waiting to create DCS whitelist: %s", err)
+			return diag.Errorf("Error while waiting to create DCS whitelist: %s", err)
 		}
 	}
 
 	return resourceDcsInstancesRead(ctx, d, meta)
 }
 
+func createRenameCommandsOpt(renameCmds map[string]interface{}) instances.RedisCommand {
+	renameCommands := instances.RedisCommand{}
+	if v, ok := renameCmds["command"]; ok {
+		renameCommands.Command = v.(string)
+	}
+	if v, ok := renameCmds["keys"]; ok {
+		renameCommands.Keys = v.(string)
+	}
+	if v, ok := renameCmds["flushdb"]; ok {
+		renameCommands.Flushdb = v.(string)
+	}
+	if v, ok := renameCmds["flushall"]; ok {
+		renameCommands.Flushdb = v.(string)
+	}
+	if v, ok := renameCmds["hgetall"]; ok {
+		renameCommands.Hgetall = v.(string)
+	}
+	return renameCommands
+}
+
+func waitForOrderComplete(ctx context.Context, d *schema.ResourceData, cfg *config.Config, region, orderId string) error {
+	bssClient, err := cfg.BssV2Client(region)
+	if err != nil {
+		return fmt.Errorf("error creating BSS v2 client: %s", err)
+	}
+	err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return fmt.Errorf("[DEBUG] error the order is not completed while "+
+			"creating DCS instance. %s : %#v", d.Id(), err)
+	}
+	_, err = common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
+	return err
+}
+
 func waitForDcsInstanceCompleted(ctx context.Context, c *golangsdk.ServiceClient, id string, timeout time.Duration,
 	padding []string, target []string) error {
-
 	stateConf := &resource.StateChangeConf{
 		Pending:      padding,
 		Target:       target,
@@ -634,7 +657,7 @@ func waitForDcsInstanceCompleted(ctx context.Context, c *golangsdk.ServiceClient
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("[DEBUG] Error while waiting to create/resize/delete DCS instance. %s : %#v",
+		return fmt.Errorf("[DEBUG] error while waiting to create/resize/delete DCS instance. %s : %#v",
 			id, err)
 	}
 	return nil
@@ -654,18 +677,19 @@ func refreshDcsInstanceState(c *golangsdk.ServiceClient, id string) resource.Sta
 	}
 }
 
-func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	client, err := conf.DcsV2Client(conf.GetRegion(d))
+func resourceDcsInstancesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	regin := cfg.GetRegion(d)
+	client, err := cfg.DcsV2Client(regin)
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud DCS Client(v2): %s", err)
+		return diag.Errorf("error creating DCS Client(v2): %s", err)
 	}
 
 	r, err := instances.Get(client, d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "DCS instance")
 	}
-	logp.Printf("[DEBUG] Get DCS instance : %#v", r)
+	log.Printf("[DEBUG] Get DCS instance : %#v", r)
 
 	// capacity
 	capacity := r.Capacity
@@ -681,7 +705,7 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 
 	// batch set attributes
 	mErr := multierror.Append(nil,
-		d.Set("region", conf.GetRegion(d)),
+		d.Set("region", regin),
 		d.Set("name", r.Name),
 		d.Set("engine", r.Engine),
 		d.Set("engine_version", r.EngineVersion),
@@ -709,11 +733,10 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 		d.Set("user_id", r.UserId),
 		d.Set("user_name", r.UserName),
 		d.Set("access_user", r.AccessUser),
-		d.Set("order_id", r.OrderId),
 	)
 
 	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf("error setting DCS instance attributes: %s", mErr)
+		return diag.Errorf("error setting DCS instance attributes: %s", mErr)
 	}
 
 	// set backup_policy attribute
@@ -728,28 +751,34 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 				"backup_at":   backupPolicy.Policy.PeriodicalBackupPlan.BackupAt,
 			},
 		}
-		d.Set("backup_policy", bakPolicy)
+		mErr = multierror.Append(mErr, d.Set("backup_policy", bakPolicy))
 	}
 
 	// set tags
 	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
 		tagMap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagMap); err != nil {
-			return fmtp.DiagErrorf("[DEBUG] Error saving tag to state for DCS instance (%s): %s", d.Id(), err)
+			return diag.Errorf("[DEBUG] error saving tag to state for DCS instance (%s): %s", d.Id(), err)
 		}
 	} else {
-		logp.Printf("[WARN] fetching tags of DCS instance failed: %s", err)
+		log.Printf("[WARN] fetching tags of DCS instance failed: %s", err)
 	}
 
 	// set white list
 	// some regions (cn-south-1) will fail to call the API due to the cloud reason
 	// ignore the error temporarily.
 	wList, err := whitelists.Get(client, d.Id()).Extract()
-	if err != nil || wList == nil {
-		logp.Printf("[WARN] Error fetching whitelists for DCS instance, error: %s", err)
+	if err != nil || wList == nil || len(wList.Groups) == 0 {
+		log.Printf("error fetching whitelists for DCS instance, error: %s", err)
+		// Set to the default value, otherwise it will prompt change after importing resources.
+		mErr = multierror.Append(
+			mErr,
+			d.Set("whitelist_enable", true),
+		)
+		return diag.FromErr(mErr.ErrorOrNil())
 	}
 
-	logp.Printf("[DEBUG] Find DCS instance white list : %#v", wList.Groups)
+	log.Printf("[DEBUG] Find DCS instance white list : %#v", wList.Groups)
 	whiteList := make([]map[string]interface{}, len(wList.Groups))
 	for i, group := range wList.Groups {
 		whiteList[i] = map[string]interface{}{
@@ -757,22 +786,20 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 			"ip_address": group.IPList,
 		}
 	}
-	if len(whiteList) > 0 {
-		d.Set("whitelists", whiteList)
-		d.Set("whitelist_enable", wList.Enable)
-	} else {
-		// Set to the default value, otherwise it will prompt change after importing resources.
-		d.Set("whitelist_enable", true)
-	}
+	mErr = multierror.Append(
+		mErr,
+		d.Set("whitelists", whiteList),
+		d.Set("whitelist_enable", wList.Enable),
+	)
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.DcsV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.DcsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud DCS Client(v2): %s", err)
+		return diag.Errorf("error creating DCS Client(v2): %s", err)
 	}
 
 	// update basic params
@@ -789,7 +816,7 @@ func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, met
 			SecurityGroupId: &securityGroupID,
 			BackupPolicy:    buildBackupPolicyParams(d),
 		}
-		logp.Printf("[DEBUG] Update DCS instance options : %#v", opts)
+		log.Printf("[DEBUG] Update DCS instance options : %#v", opts)
 
 		_, err = instances.Update(client, d.Id(), opts)
 		if err != nil {
@@ -822,22 +849,22 @@ func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, met
 	// update whitelist
 	if d.HasChanges("whitelists", "whitelist_enable") {
 		whitelistOpts := buildWhiteListParams(d)
-		logp.Printf("[DEBUG] Update DCS instance whitelist options: %#v", whitelistOpts)
+		log.Printf("[DEBUG] Update DCS instance whitelist options: %#v", whitelistOpts)
 
 		err = whitelists.Put(client, d.Id(), whitelistOpts).ExtractErr()
 		if err != nil {
-			return fmtp.DiagErrorf("Error updating whitelist for instance (%s): %s", d.Id(), err)
+			return diag.Errorf("error updating whitelist for instance (%s): %s", d.Id(), err)
 		}
 
 		// wait for whitelist updated
 		err = waitForWhiteListCompleted(ctx, client, d)
 		if err != nil {
-			return fmtp.DiagErrorf("Error while waiting to create DCS whitelist: %s", err)
+			return diag.Errorf("error while waiting to create DCS whitelist: %s", err)
 		}
 	}
 
 	if d.HasChange("auto_renew") {
-		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
@@ -861,7 +888,7 @@ func waitForPortUpdated(ctx context.Context, c *golangsdk.ServiceClient, d *sche
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("[DEBUG] Error while waiting to create/resize/delete DCS instance. %s : %#v",
+		return fmt.Errorf("[DEBUG] error while waiting to create/resize/delete DCS instance. %s : %#v",
 			d.Id(), err)
 	}
 	return nil
@@ -899,10 +926,11 @@ func updateDcsTags(c *golangsdk.ServiceClient, id string, oldVal, newVal map[str
 }
 
 func resizeDcsInstance(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.DcsV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.DcsV2Client(region)
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud DCS Client(v2): %s", err)
+		return fmt.Errorf("error creating DCS Client(v2): %s", err)
 	}
 
 	if d.HasChanges("flavor", "capacity") {
@@ -913,10 +941,10 @@ func resizeDcsInstance(ctx context.Context, d *schema.ResourceData, meta interfa
 		}
 		if d.Get("charging_mode").(string) == chargeModePrePaid {
 			opts.BssParam = instances.DcsBssParamOpts{
-				IsAutoPay: common.GetAutoPay(d),
+				IsAutoPay: "true",
 			}
 		}
-		logp.Printf("[DEBUG] Resize DCS dcs instance options : %#v", opts)
+		log.Printf("[DEBUG] Resize DCS instance options : %#v", opts)
 
 		r, err := instances.ResizeInstance(client, d.Id(), opts)
 		if err != nil {
@@ -925,7 +953,7 @@ func resizeDcsInstance(ctx context.Context, d *schema.ResourceData, meta interfa
 
 		if d.Get("charging_mode").(string) == chargeModePrePaid {
 			// wait for order pay
-			bssClient, err := config.BssV2Client(config.GetRegion(d))
+			bssClient, err := cfg.BssV2Client(region)
 			if err != nil {
 				return fmt.Errorf("error creating BSS v2 client: %s", err)
 			}
@@ -948,25 +976,25 @@ func resizeDcsInstance(ctx context.Context, d *schema.ResourceData, meta interfa
 			return common.CheckDeleted(d, err, "DCS instance")
 		}
 		if instance.SpecCode != d.Get("flavor").(string) {
-			return fmtp.Errorf("[ERROR] Change flavor failed, "+
-				"after changed the DCS flavor still is: %s, expected: %s.", instance.SpecCode, specCode)
+			return fmt.Errorf("change flavor failed, after changed the DCS flavor still is: %s, expected: %s",
+				instance.SpecCode, specCode)
 		}
 	}
 	return nil
 }
 
 func resourceDcsInstancesDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	client, err := conf.DcsV2Client(conf.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.DcsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud DCS Client(v2): %s", err)
+		return diag.Errorf("error creating DCS Client(v2): %s", err)
 	}
 
 	// for prePaid mode, we should unsubscribe the resource
 	if d.Get("charging_mode").(string) == chargeModePrePaid {
-		err = common.UnsubscribePrePaidResource(d, conf, []string{d.Id()})
+		err = common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()})
 		if err != nil {
-			return fmtp.DiagErrorf("error unsubscribing HuaweiCloud DCS redis instance : %s", err)
+			return diag.Errorf("error unsubscribing DCS redis instance : %s", err)
 		}
 	} else {
 		err = instances.Delete(client, d.Id())
@@ -989,7 +1017,7 @@ func resourceDcsInstancesDelete(ctx context.Context, d *schema.ResourceData, met
 func getAvailableZoneCodeByID(client *golangsdk.ServiceClient, azIds []interface{}) ([]string, error) {
 	azCodes := make([]string, 0, len(azIds))
 	if len(azIds) == 0 {
-		return azCodes, fmtp.Errorf("availability_zones are required")
+		return azCodes, fmt.Errorf("availability_zones are required")
 	}
 
 	list, err := availablezones.List(client)
@@ -1004,11 +1032,10 @@ func getAvailableZoneCodeByID(client *golangsdk.ServiceClient, azIds []interface
 
 	for _, id := range azIds {
 		azID := id.(string)
-		if v, ok := mapping[azID]; ok {
-			azCodes = append(azCodes, v)
-		} else {
-			return azCodes, fmtp.Errorf("Invalid available zone code: %s", azID)
+		if _, ok := mapping[azID]; !ok {
+			return azCodes, fmt.Errorf("invalid available zone code: %s", azID)
 		}
+		azCodes = append(azCodes, mapping[azID])
 	}
 
 	return azCodes, nil
