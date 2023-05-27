@@ -3,7 +3,6 @@ package vpcep
 import (
 	"context"
 	"log"
-	"regexp"
 	"strings"
 	"time"
 
@@ -11,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/vpcep/v1/services"
@@ -49,10 +47,9 @@ func ResourceVPCEndpointService() *schema.Resource {
 				ForceNew: true,
 			},
 			"server_type": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"VM", "LB", "VIP"}, false),
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,
@@ -74,12 +71,14 @@ func ResourceVPCEndpointService() *schema.Resource {
 							Default:  "TCP",
 						},
 						"service_port": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: "schema: Required",
 						},
 						"terminal_port": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: "schema: Required",
 						},
 					},
 				},
@@ -88,15 +87,12 @@ func ResourceVPCEndpointService() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[a-zA-Z0-9_-]{0,16}$"),
-					"The name must have a maximum of 16 characters, and only contains letters, digits, underscores (_), and hyphens (-)."),
 			},
 			"service_type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "interface",
-				Description:  "schema: Computed",
-				ValidateFunc: validation.StringInSlice([]string{"interface"}, false),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "interface",
+				Description: "schema: Computed",
 			},
 			"approval": {
 				Type:     schema.TypeBool,
@@ -114,6 +110,7 @@ func ResourceVPCEndpointService() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"tags": common.TagsSchema(),
 			"service_name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -150,7 +147,6 @@ func ResourceVPCEndpointService() *schema.Resource {
 					},
 				},
 			},
-			"tags": common.TagsSchema(),
 		},
 	}
 }
@@ -295,8 +291,7 @@ func resourceVPCEndpointServiceUpdate(ctx context.Context, d *schema.ResourceDat
 		}
 
 		if d.HasChange("approval") {
-			approval := d.Get("approval").(bool)
-			updateOpts.Approval = &approval
+			updateOpts.Approval = utils.Bool(d.Get("approval").(bool))
 		}
 		if d.HasChange("port_id") {
 			updateOpts.PortID = d.Get("port_id").(string)
@@ -319,7 +314,7 @@ func resourceVPCEndpointServiceUpdate(ctx context.Context, d *schema.ResourceDat
 		}
 	}
 
-	// update
+	// update permissions
 	if d.HasChange("permissions") {
 		oldVal, newVal := d.GetChange("permissions")
 		oldPermSet := oldVal.(*schema.Set)
