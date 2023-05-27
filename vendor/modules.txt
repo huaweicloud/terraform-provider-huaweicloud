@@ -75,10 +75,8 @@ github.com/chnsz/golangsdk/openstack/common/structs
 github.com/chnsz/golangsdk/openstack/common/tags
 github.com/chnsz/golangsdk/openstack/compute/v2/extensions/attachinterfaces
 github.com/chnsz/golangsdk/openstack/compute/v2/extensions/availabilityzones
-github.com/chnsz/golangsdk/openstack/compute/v2/extensions/bootfromvolume
 github.com/chnsz/golangsdk/openstack/compute/v2/extensions/floatingips
 github.com/chnsz/golangsdk/openstack/compute/v2/extensions/keypairs
-github.com/chnsz/golangsdk/openstack/compute/v2/extensions/schedulerhints
 github.com/chnsz/golangsdk/openstack/compute/v2/extensions/secgroups
 github.com/chnsz/golangsdk/openstack/compute/v2/flavors
 github.com/chnsz/golangsdk/openstack/compute/v2/images
