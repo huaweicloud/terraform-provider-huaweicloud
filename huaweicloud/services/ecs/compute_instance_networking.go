@@ -16,7 +16,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk/openstack/compute/v2/servers"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/ports"
 
@@ -43,29 +42,6 @@ type InstanceNetwork struct {
 	Port          string
 	FixedIP       string
 	AccessNetwork bool
-}
-
-// expandInstanceNetworks builds a []servers.Network for use in creating an Instance.
-func expandInstanceNetworks(d *schema.ResourceData) ([]servers.Network, error) {
-	var instanceNetworks []servers.Network
-
-	networks := d.Get("network").([]interface{})
-	for _, v := range networks {
-		nic := v.(map[string]interface{})
-		network := servers.Network{
-			UUID:    nic["uuid"].(string),
-			Port:    nic["port"].(string),
-			FixedIP: nic["fixed_ip_v4"].(string),
-		}
-		if network.UUID == "" && network.Port == "" {
-			return nil, fmt.Errorf(
-				"at least one of network.uuid or network.port must be set")
-		}
-		instanceNetworks = append(instanceNetworks, network)
-	}
-
-	log.Printf("[DEBUG] expand Instance Networks opts: %#v", instanceNetworks)
-	return instanceNetworks, nil
 }
 
 // getInstanceAddresses parses a server.Server's Address field into a structured
