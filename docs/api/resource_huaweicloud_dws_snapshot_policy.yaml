@@ -1,0 +1,23 @@
+info:
+    title: resource_huaweicloud_dws_snapshot_policy
+    description: 'Manages a DWS snapshot policy resource within HuaweiCloud.  '
+host: myhuaweicloud.com
+tags:
+    - name: DWS
+servers:
+    - url: https://dws.myhuaweicloud.com
+paths:
+    /v1.0/{project_id}/clusters/{cluster_id}/snapshot-policies/{id}:
+        DELETE:
+            tag: DWS
+            operationId: DeleteDwsSnapshotPolicy
+            x-ref-api: DELETE /v1.0/{project_id}/clusters/{cluster_id}/snapshot-policies/{id}
+    /v2/{project_id}/clusters/{cluster_id}/snapshot-policies:
+        GET:
+            tag: DWS
+            operationId: GetDwsSnapshotPolicy
+            x-ref-api: GET /v2/{project_id}/clusters/{cluster_id}/snapshot-policies
+        POST:
+            tag: DWS
+            operationId: CreateDwsSnapshotPolicy
+            x-ref-api: POST /v2/{project_id}/clusters/{cluster_id}/snapshot-policies

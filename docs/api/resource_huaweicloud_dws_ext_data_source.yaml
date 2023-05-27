@@ -1,0 +1,32 @@
+info:
+    title: resource_huaweicloud_dws_ext_data_source
+    description: 'Manages a DWS external data source resource within HuaweiCloud.  '
+host: myhuaweicloud.com
+tags:
+    - name: DWS
+servers:
+    - url: https://dws.myhuaweicloud.com
+paths:
+    /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources:
+        GET:
+            tag: DWS
+            operationId: GetDwsExtDataSource
+            x-ref-api: GET /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources
+        POST:
+            tag: DWS
+            operationId: CreateDwsExtDataSource
+            x-ref-api: POST /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources
+    /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources/{id}:
+        DELETE:
+            tag: DWS
+            operationId: DeleteDwsExtDataSource
+            x-ref-api: DELETE /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources/{id}
+        PUT:
+            tag: AWS
+            operationId: UpdateDwsExtDataSource
+            x-ref-api: PUT /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources/{id}
+    /v1.0/{project_id}/job/{job_id}:
+        GET:
+            tag: DWS
+            operationId: DeleteDwsExtDataSourceWaiting
+            x-ref-api: GET /v1.0/{project_id}/job/{job_id}

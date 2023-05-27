@@ -1,0 +1,24 @@
+info:
+  version: 
+  title: resource_huaweicloud_apig_plugin
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: APIG
+paths:
+  /v2/{project_id}/apigw/instances/{instanceId}/plugins/{pluginId}:
+    delete:
+      tag: APIG
+      operationId: Delete
+    get:
+      tag: APIG
+      operationId: Get
+    put:
+      tag: APIG
+      operationId: Update
+  /v2/{project_id}/apigw/instances/{instanceId}/plugins:
+    post:
+      tag: APIG
+      operationId: Create

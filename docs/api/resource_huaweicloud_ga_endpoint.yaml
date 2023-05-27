@@ -19,7 +19,7 @@ paths:
             x-ref-api: DELETE /v1/endpoint-groups/{endpoint_group_id}/endpoints/{id}
         GET:
             tag: GA
-            operationId: DeleteEndpointWaiting
+            operationId: GetEndpoint
             x-ref-api: GET /v1/endpoint-groups/{endpoint_group_id}/endpoints/{id}
         PUT:
             tag: GA

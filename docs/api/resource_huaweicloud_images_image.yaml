@@ -6,12 +6,20 @@ schemes:
   - https
 host: huaweicloud.com
 tags:
-  - name: IMS
+  - name: IMAGES
 paths:
+  /v3/{project_id}/backups/{backupId}:
+    get:
+      tag: CBR
+      operationId: Get
   /v2/cloudimages/action:
     post:
       tag: IMS
       operationId: CreateImageByServer
+  /v1/cloudimages/wholeimages/action:
+    post:
+      tag: IMS
+      operationId: CreateWholeImageByServer
   /v2/cloudimages:
     get:
       tag: IMS

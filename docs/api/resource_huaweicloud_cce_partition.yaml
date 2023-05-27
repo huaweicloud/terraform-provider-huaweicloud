@@ -1,6 +1,6 @@
 info:
   version: 
-  title: resource_huaweicloud_cce_addon
+  title: resource_huaweicloud_cce_partition
   description: 
 schemes:
   - https
@@ -8,7 +8,7 @@ host: huaweicloud.com
 tags:
   - name: CCE
 paths:
-  /api/v3/addons/id+?cluster_id=+cluster_id:
+  /api/v3/projects/{project_id}/clusters/{clusterid}/partitions/{partitionName}:
     delete:
       tag: CCE
       operationId: Delete
@@ -18,7 +18,7 @@ paths:
     put:
       tag: CCE
       operationId: Update
-  /api/v3/addons:
+  /api/v3/projects/{project_id}/clusters/{clusterid}/partitions:
     post:
       tag: CCE
       operationId: Create

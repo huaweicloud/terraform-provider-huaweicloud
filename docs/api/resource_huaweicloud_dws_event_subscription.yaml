@@ -1,0 +1,27 @@
+info:
+    title: resource_huaweicloud_dws_event_subscription
+    description: 'Manages a DWS event subscription resource within HuaweiCloud.  '
+host: myhuaweicloud.com
+tags:
+    - name: DWS
+servers:
+    - url: https://dws.myhuaweicloud.com
+paths:
+    /v2/{project_id}/event-subs:
+        GET:
+            tag: DWS
+            operationId: GetDwsEventSubs
+            x-ref-api: GET /v2/{project_id}/event-subs
+        POST:
+            tag: DWS
+            operationId: CreateDwsEventSubs
+            x-ref-api: POST /v2/{project_id}/event-subs
+    /v2/{project_id}/event-subs/{id}:
+        DELETE:
+            tag: DWS
+            operationId: DeleteDwsEventSubs
+            x-ref-api: DELETE /v2/{project_id}/event-subs/{id}
+        PUT:
+            tag: AWS
+            operationId: UpdateDwsEventSubs
+            x-ref-api: PUT /v2/{project_id}/event-subs/{id}

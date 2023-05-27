@@ -10,5 +10,5 @@ paths:
     /v1/cloudimages/members:
         PUT:
             tag: IMS
-            operationId: CreateImageShareAccepter
+            operationId: DeleteImageShareAccepter
             x-ref-api: PUT /v1/cloudimages/members

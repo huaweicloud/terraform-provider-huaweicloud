@@ -58,10 +58,6 @@ paths:
     get:
       tag: EVS
       operationId: Get
-  /v2.1/{project_id}/flavors/detail:
-    get:
-      tag: ECS
-      operationId: IDFromName
   /v2.1/{project_id}/os-volumes_boot:
     post:
       tag: ECS
@@ -70,10 +66,10 @@ paths:
     put:
       tag: VPC
       operationId: Update
-  /v1/{project_id}/servers/{id}/action:
+  /v2.1/{project_id}/servers/{id}/action:
     post:
       tag: ECS
-      operationId: ChangeAdminPassword
+      operationId: RemoveServer
   /v2.1/{project_id}/servers/{id}/metadata/{key}:
     delete:
       tag: ECS

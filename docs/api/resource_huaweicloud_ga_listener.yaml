@@ -19,7 +19,7 @@ paths:
             x-ref-api: DELETE /v1/listeners/{id}
         GET:
             tag: GA
-            operationId: DeleteListenerWaiting
+            operationId: UpdateListenerWaiting
             x-ref-api: GET /v1/listeners/{id}
         PUT:
             tag: GA

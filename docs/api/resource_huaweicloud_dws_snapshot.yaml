@@ -1,0 +1,23 @@
+info:
+    title: resource_huaweicloud_dws_snapshot
+    description: 'Manages a DWS snapshot resource within HuaweiCloud.  '
+host: myhuaweicloud.com
+tags:
+    - name: DWS
+servers:
+    - url: https://dws.myhuaweicloud.com
+paths:
+    /v1.0/{project_id}/snapshots:
+        POST:
+            tag: DWS
+            operationId: CreateDwsSnapshot
+            x-ref-api: POST /v1.0/{project_id}/snapshots
+    /v1.0/{project_id}/snapshots/{id}:
+        DELETE:
+            tag: DWS
+            operationId: DeleteDwsSnapshot
+            x-ref-api: DELETE /v1.0/{project_id}/snapshots/{id}
+        GET:
+            tag: DWS
+            operationId: GetDwsSnapshot
+            x-ref-api: GET /v1.0/{project_id}/snapshots/{id}

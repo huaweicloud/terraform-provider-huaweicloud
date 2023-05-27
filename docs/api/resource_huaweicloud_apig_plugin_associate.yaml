@@ -1,0 +1,22 @@
+info:
+  version: 
+  title: resource_huaweicloud_apig_plugin_associate
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: APIG
+paths:
+  /v2/{project_id}/apigw/instances/{instanceId}/plugins/{pluginId}/attached-apis:
+    get:
+      tag: APIG
+      operationId: ListBind
+  /v2/{project_id}/apigw/instances/{instanceId}/plugins/{pluginId}/attach:
+    post:
+      tag: APIG
+      operationId: Bind
+  /v2/{project_id}/apigw/instances/{instanceId}/plugins/{pluginId}/detach:
+    put:
+      tag: APIG
+      operationId: Unbind
