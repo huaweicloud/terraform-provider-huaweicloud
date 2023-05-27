@@ -25,7 +25,7 @@ func TestAccNetworkingSecGroupsDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(dataSourceName, "security_groups.#", "1"),
 					resource.TestCheckResourceAttr(dataSourceName, "security_groups.0.name", rName),
 					resource.TestCheckResourceAttr(dataSourceName, "security_groups.0.description",
-						"[Acc Test] The security group created by Terraform."),
+						"[Acc Test] The security group name is "+rName),
 					resource.TestCheckResourceAttrPair(dataSourceName, "security_groups.0.id",
 						"huaweicloud_networking_secgroup.test", "id"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "security_groups.0.enterprise_project_id"),
@@ -54,7 +54,7 @@ func TestAccNetworkingSecGroupsDataSource_description(t *testing.T) {
 					resource.TestCheckResourceAttr(dataSourceName, "security_groups.#", "1"),
 					resource.TestCheckResourceAttr(dataSourceName, "security_groups.0.name", rName),
 					resource.TestCheckResourceAttr(dataSourceName, "security_groups.0.description",
-						"[Acc Test] The security group created by Terraform."),
+						"[Acc Test] The security group name is "+rName),
 					resource.TestCheckResourceAttrPair(dataSourceName, "security_groups.0.id",
 						"huaweicloud_networking_secgroup.test", "id"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "security_groups.0.enterprise_project_id"),
@@ -83,7 +83,7 @@ func TestAccNetworkingSecGroupsDataSource_id(t *testing.T) {
 					resource.TestCheckResourceAttr(dataSourceName, "security_groups.#", "1"),
 					resource.TestCheckResourceAttr(dataSourceName, "security_groups.0.name", rName),
 					resource.TestCheckResourceAttr(dataSourceName, "security_groups.0.description",
-						"[Acc Test] The security group created by Terraform."),
+						"[Acc Test] The security group name is "+rName),
 					resource.TestCheckResourceAttrPair(dataSourceName, "security_groups.0.id",
 						"huaweicloud_networking_secgroup.test", "id"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "security_groups.0.enterprise_project_id"),
@@ -99,9 +99,9 @@ func testAccNetworkingSecGroupsDataSource_base(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_networking_secgroup" "test" {
   name        = "%s"
-  description = "[Acc Test] The security group created by Terraform."
+  description = "[Acc Test] The security group name is %s"
 }
-`, rName)
+`, rName, rName)
 }
 
 func testAccNetworkingSecGroupsDataSource_basic(rName string) string {
