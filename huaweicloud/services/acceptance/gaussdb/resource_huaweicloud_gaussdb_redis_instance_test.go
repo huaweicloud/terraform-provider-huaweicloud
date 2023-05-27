@@ -4,16 +4,17 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/geminidb/v3/instances"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/geminidb/v3/instances"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccGaussRedisInstance_basic(t *testing.T) {
@@ -41,7 +42,18 @@ func TestAccGaussRedisInstance_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccGaussRedisInstanceConfig_update(rName, newPassword),
+				Config: testAccGaussRedisInstanceConfig_update(rName, newPassword, 5),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGaussRedisInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", rName)),
+					resource.TestCheckResourceAttr(resourceName, "password", newPassword),
+					resource.TestCheckResourceAttr(resourceName, "node_num", "5"),
+					resource.TestCheckResourceAttr(resourceName, "volume_size", "100"),
+					resource.TestCheckResourceAttr(resourceName, "status", "normal"),
+				),
+			},
+			{
+				Config: testAccGaussRedisInstanceConfig_update(rName, newPassword, 4),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGaussRedisInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", rName)),
@@ -51,13 +63,19 @@ func TestAccGaussRedisInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "normal"),
 				),
 			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"availability_zone", "password"},
+			},
 		},
 	})
 }
 
 func testAccCheckGaussRedisInstanceDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	client, err := config.GeminiDBV3Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	client, err := cfg.GeminiDBV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussRedis client: %s", err)
 	}
@@ -93,8 +111,8 @@ func testAccCheckGaussRedisInstanceExists(n string, instance *instances.GeminiDB
 			return fmtp.Errorf("No ID is set.")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		client, err := config.GeminiDBV3Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		client, err := cfg.GeminiDBV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud GuassRedis client: %s", err)
 		}
@@ -121,6 +139,14 @@ func testAccGaussRedisInstanceConfig_basic(rName, password string) string {
 
 data "huaweicloud_availability_zones" "test" {}
 
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
 data "huaweicloud_gaussdb_nosql_flavors" "test" {
   vcpus             = 2
   engine            = "redis"
@@ -132,8 +158,8 @@ resource "huaweicloud_gaussdb_redis_instance" "test" {
   password    = "%s"
   flavor      = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
   volume_size = 50
-  vpc_id      = huaweicloud_vpc.test.id
-  subnet_id   = huaweicloud_vpc_subnet.test.id
+  vpc_id      = data.huaweicloud_vpc.test.id
+  subnet_id   = data.huaweicloud_vpc_subnet.test.id
   node_num    = 3
 
   security_group_id = huaweicloud_networking_secgroup.test.id
@@ -149,14 +175,22 @@ resource "huaweicloud_gaussdb_redis_instance" "test" {
     key = "value"
   }
 }
-`, common.TestBaseNetwork(rName), rName, password)
+`, common.TestSecGroup(rName), rName, password)
 }
 
-func testAccGaussRedisInstanceConfig_update(rName, password string) string {
+func testAccGaussRedisInstanceConfig_update(rName, password string, nodeNum int) string {
 	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_gaussdb_nosql_flavors" "test" {
   vcpus             = 4
@@ -169,9 +203,9 @@ resource "huaweicloud_gaussdb_redis_instance" "test" {
   password    = "%s"
   flavor      = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
   volume_size = 100
-  vpc_id      = huaweicloud_vpc.test.id
-  subnet_id   = huaweicloud_vpc_subnet.test.id
-  node_num    = 4
+  vpc_id      = data.huaweicloud_vpc.test.id
+  subnet_id   = data.huaweicloud_vpc_subnet.test.id
+  node_num    = %d
 
   security_group_id = huaweicloud_networking_secgroup.test.id
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
@@ -186,5 +220,5 @@ resource "huaweicloud_gaussdb_redis_instance" "test" {
     key = "value"
   }
 }
-`, common.TestBaseNetwork(rName), rName, password)
+`, common.TestSecGroup(rName+"_update"), rName, password, nodeNum)
 }
