@@ -1,0 +1,176 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_incident": {
+          "block": {
+            "attributes": {
+              "close_comment": {
+                "type": "string",
+                "description": "Specifies the close comment.",
+                "optional": true,
+                "computed": true
+              },
+              "close_reason": {
+                "type": "string",
+                "description": "Specifies the close reason.",
+                "optional": true,
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The created time.",
+                "computed": true
+              },
+              "creator": {
+                "type": "string",
+                "description": "The name creator name.",
+                "computed": true
+              },
+              "debugging_data": {
+                "type": "bool",
+                "description": "Specifies whether it's a debugging data.",
+                "optional": true,
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the incident description.",
+                "required": true
+              },
+              "first_occurrence_time": {
+                "type": "string",
+                "description": "Specifies the first occurrence time of the incident.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "labels": {
+                "type": "string",
+                "description": "Specifies the labels.",
+                "optional": true,
+                "computed": true
+              },
+              "last_occurrence_time": {
+                "type": "string",
+                "description": "Specifies the last occurrence time of the incident.",
+                "optional": true,
+                "computed": true
+              },
+              "level": {
+                "type": "string",
+                "description": "Specifies the incident level.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the incident name.",
+                "required": true
+              },
+              "owner": {
+                "type": "string",
+                "description": "Specifies the user name of the owner.",
+                "optional": true,
+                "computed": true
+              },
+              "planned_closure_time": {
+                "type": "string",
+                "description": "Specifies the planned closure time of the incident.",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "stage": {
+                "type": "string",
+                "description": "Specifies the stage of the incident.",
+                "optional": true,
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the incident status.",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The updated time.",
+                "computed": true
+              },
+              "verification_status": {
+                "type": "string",
+                "description": "Specifies the verification status.",
+                "optional": true,
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the ID of the workspace to which the incident belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "data_source": {
+                "block": {
+                  "attributes": {
+                    "product_feature": {
+                      "type": "string",
+                      "description": "Specifies the product feature.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "product_name": {
+                      "type": "string",
+                      "description": "Specifies the product name.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "source_type": {
+                      "type": "number",
+                      "description": "Specifies the source type.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "Specifies the data source configuration."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 1
+              },
+              "type": {
+                "block": {
+                  "attributes": {
+                    "category": {
+                      "type": "string",
+                      "description": "Specifies the category.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "incident_type": {
+                      "type": "string",
+                      "description": "Specifies the incident type.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "Specifies the incident type configuration."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

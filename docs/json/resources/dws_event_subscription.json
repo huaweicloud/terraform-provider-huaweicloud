@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dws_event_subscription": {
+          "block": {
+            "attributes": {
+              "category": {
+                "type": "string",
+                "description": "The category of source event.",
+                "optional": true,
+                "computed": true
+              },
+              "enable": {
+                "type": "string",
+                "description": "whether the event subscription is enabled.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the event subscription.",
+                "required": true
+              },
+              "notification_target": {
+                "type": "string",
+                "description": "The notification target.",
+                "required": true
+              },
+              "notification_target_name": {
+                "type": "string",
+                "description": "The name of notification target.",
+                "required": true
+              },
+              "notification_target_type": {
+                "type": "string",
+                "description": "The type of notification target. Currently only **SMN** is supported.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "severity": {
+                "type": "string",
+                "description": "The severity of source event.",
+                "optional": true,
+                "computed": true
+              },
+              "source_id": {
+                "type": "string",
+                "description": "ID of source event.",
+                "optional": true,
+                "computed": true
+              },
+              "source_type": {
+                "type": "string",
+                "description": "The type of source event.",
+                "optional": true,
+                "computed": true
+              },
+              "time_zone": {
+                "type": "string",
+                "description": "The time_zone of the event subscription.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DWS",
+            "name": "Data Warehouse Service",
+            "catalog": "Analytics",
+            "name_cn": "数据仓库服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_aom_alarm_silence_rule": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "number",
+                "description": "The creation time.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the rule name.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "time_zone": {
+                "type": "string",
+                "description": "Specifies the time zone.",
+                "required": true,
+                "forcenew": true
+              },
+              "updated_at": {
+                "type": "number",
+                "description": "The last update time.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "silence_conditions": {
+                "block": {
+                  "block_types": {
+                    "conditions": {
+                      "block": {
+                        "attributes": {
+                          "key": {
+                            "type": "string",
+                            "description": "Specifies the key of the match condition.",
+                            "required": true
+                          },
+                          "operate": {
+                            "type": "string",
+                            "description": "Specifies the operate of the match condition.",
+                            "required": true
+                          },
+                          "value": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "Specifies the value list of the match condition.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "Specifies the serial conditions."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  },
+                  "description": "Specifies the silence conditions of the rule."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "silence_time": {
+                "block": {
+                  "attributes": {
+                    "ends_at": {
+                      "type": "number",
+                      "description": "Specifies the end time of the silence rule.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "scope": {
+                      "type": [
+                        "list",
+                        "number"
+                      ],
+                      "description": "Specifies the silence time of the rule.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "starts_at": {
+                      "type": "number",
+                      "description": "Specifies the start time of the silence rule.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the effective time type of the silence rule.",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "AOM",
+            "name": "Application Operations Management",
+            "catalog": "Management & Governance",
+            "name_cn": "应用运维管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

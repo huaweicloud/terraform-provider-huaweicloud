@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_live_snapshot": {
+          "block": {
+            "attributes": {
+              "app_name": {
+                "type": "string",
+                "description": "Specifies the application name.",
+                "required": true,
+                "forcenew": true
+              },
+              "call_back_auth_key": {
+                "type": "string",
+                "description": "Specifies the callback authentication key value.",
+                "optional": true,
+                "computed": true
+              },
+              "call_back_enabled": {
+                "type": "string",
+                "description": "Specifies whether to enable callback notifications.",
+                "optional": true,
+                "computed": true
+              },
+              "call_back_url": {
+                "type": "string",
+                "description": "Specifies the notification server address. ",
+                "optional": true,
+                "computed": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the ingest domain name.",
+                "required": true,
+                "forcenew": true
+              },
+              "frequency": {
+                "type": "number",
+                "description": "Specifies the screenshot frequency.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "storage_bucket": {
+                "type": "string",
+                "description": "Specifies the bucket name of the OBS.",
+                "required": true
+              },
+              "storage_mode": {
+                "type": "number",
+                "description": "Specifies the store mode in OBS bucket.",
+                "required": true
+              },
+              "storage_path": {
+                "type": "string",
+                "description": "Specifies the path of OBS object.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Live",
+            "name": "Live",
+            "catalog": "Media Services",
+            "name_cn": "视频直播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

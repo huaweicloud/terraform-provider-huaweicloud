@@ -11,6 +11,7 @@
                   [
                     "object",
                     {
+                      "description": "string",
                       "domain_id": "string",
                       "endpoint_id": "string",
                       "packet_id": "number",

@@ -1,0 +1,107 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_waf_rule_global_protection_whitelist": {
+          "block": {
+            "attributes": {
+              "advanced_content": {
+                "type": "string",
+                "description": "Specifies the advanced content.",
+                "optional": true
+              },
+              "advanced_field": {
+                "type": "string",
+                "description": "Specifies the advanced field. The following fields are supported:\n**params**, **cookie**, **header**, **body** and **multipart**.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of WAF global protection whitelist rule.",
+                "optional": true
+              },
+              "domains": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the protected domain name bound with the policy or manually enter a single\ndomain name corresponding to the wildcard domain name.",
+                "required": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID of WAF global protection whitelist rule.",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ignore_waf_protection": {
+                "type": "string",
+                "description": "Specifies the ignore waf protection rule.",
+                "required": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "Specifies the policy ID of WAF global protection whitelist rule.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "number",
+                "description": "Specifies the status of WAF global protection whitelist rule.",
+                "optional": true,
+                "default": 1
+              }
+            },
+            "block_types": {
+              "conditions": {
+                "block": {
+                  "attributes": {
+                    "content": {
+                      "type": "string",
+                      "description": "Specifies the content of the match condition.",
+                      "required": true
+                    },
+                    "field": {
+                      "type": "string",
+                      "description": "Specifies the field type. The value can be **ip**, **url**, **params**, **cookie** \nor **header**.",
+                      "required": true
+                    },
+                    "logic": {
+                      "type": "string",
+                      "description": "Specifies the condition matching logic.",
+                      "required": true
+                    },
+                    "subfield": {
+                      "type": "string",
+                      "description": "Specifies the subfield of the condition.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the match condition list."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

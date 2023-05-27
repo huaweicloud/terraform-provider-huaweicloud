@@ -16,6 +16,7 @@
                   [
                     "object",
                     {
+                      "description": "string",
                       "domain_id": "string",
                       "endpoint_id": "string",
                       "packet_id": "number",
@@ -23,6 +24,11 @@
                     }
                   ]
                 ],
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true,
                 "computed": true
               },
               "id": {
@@ -91,11 +97,13 @@
                     },
                     "service_port": {
                       "type": "number",
-                      "optional": true
+                      "description": "schema: Required",
+                      "required": true
                     },
                     "terminal_port": {
                       "type": "number",
-                      "optional": true
+                      "description": "schema: Required",
+                      "required": true
                     }
                   }
                 },

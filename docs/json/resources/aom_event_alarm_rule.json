@@ -1,0 +1,108 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_aom_event_alarm_rule": {
+          "block": {
+            "attributes": {
+              "action_rule": {
+                "type": "string",
+                "description": "Specifies the action rule name.",
+                "optional": true,
+                "computed": true
+              },
+              "alarm_source": {
+                "type": "string",
+                "description": "Specifies the alarm source of the rule.",
+                "required": true
+              },
+              "alarm_type": {
+                "type": "string",
+                "description": "Specifies the alarm type of the rule.",
+                "required": true
+              },
+              "comparison_operator": {
+                "type": "string",
+                "description": "Specifies the comparison condition of alarm.",
+                "optional": true,
+                "computed": true
+              },
+              "created_at": {
+                "type": "number",
+                "description": "The creation time.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the rule.",
+                "optional": true,
+                "computed": true
+              },
+              "enabled": {
+                "type": "bool",
+                "description": "Specifies whether the rule is enabled.",
+                "optional": true,
+                "default": true
+              },
+              "grouping_rule": {
+                "type": "string",
+                "description": "Specifies the route grouping rule name.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the rule.",
+                "required": true,
+                "forcenew": true
+              },
+              "period": {
+                "type": "number",
+                "description": "Specifies the monitoring period in seconds.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "select_object": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the select object of the rule.",
+                "required": true
+              },
+              "trigger_count": {
+                "type": "number",
+                "description": "Specifies the accumulated times to trigger the alarm.",
+                "optional": true
+              },
+              "trigger_type": {
+                "type": "string",
+                "description": "Specifies the trigger type.",
+                "required": true
+              },
+              "updated_at": {
+                "type": "number",
+                "description": "The last updated time.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AOM",
+            "name": "Application Operations Management",
+            "catalog": "Management & Governance",
+            "name_cn": "应用运维管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

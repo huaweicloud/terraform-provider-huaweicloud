@@ -5,16 +5,6 @@
         "huaweicloud_cbh_instances": {
           "block": {
             "attributes": {
-              "bastion_type": {
-                "type": "string",
-                "description": "Specifies the type of the bastion.",
-                "optional": true
-              },
-              "bastion_version": {
-                "type": "string",
-                "description": "Specifies the current version of the instance image",
-                "optional": true
-              },
               "flavor_id": {
                 "type": "string",
                 "description": "Specifies the specification of the instance.",
@@ -30,30 +20,17 @@
                   [
                     "object",
                     {
-                      "alter_permit": "string",
-                      "auto_renew": "string",
-                      "bastion_type": "string",
-                      "bastion_version": "string",
-                      "description": "string",
-                      "end_time": "string",
-                      "exp_time": "string",
+                      "availability_zone": "string",
                       "flavor_id": "string",
-                      "instance_id": "string",
-                      "instance_key": "string",
-                      "instance_status": "string",
+                      "id": "string",
                       "name": "string",
-                      "new_bastion_version": "string",
-                      "period": "string",
                       "private_ip": "string",
-                      "publicip_id": "string",
-                      "release_time": "string",
-                      "resource_id": "string",
+                      "public_ip": "string",
+                      "public_ip_id": "string",
                       "security_group_id": "string",
-                      "start_time": "string",
                       "status": "string",
                       "subnet_id": "string",
-                      "task_status": "string",
-                      "update": "string",
+                      "version": "string",
                       "vpc_id": "string"
                     }
                   ]
@@ -78,6 +55,11 @@
               "subnet_id": {
                 "type": "string",
                 "description": "Specifies the ID of a subnet.",
+                "optional": true
+              },
+              "version": {
+                "type": "string",
+                "description": "Specifies the current version of the instance image",
                 "optional": true
               },
               "vpc_id": {

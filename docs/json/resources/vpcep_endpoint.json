@@ -5,6 +5,12 @@
         "huaweicloud_vpcep_endpoint": {
           "block": {
             "attributes": {
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "enable_dns": {
                 "type": "bool",
                 "optional": true,

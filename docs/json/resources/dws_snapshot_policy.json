@@ -2,13 +2,14 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_vpc_peering_connection": {
+        "huaweicloud_dws_snapshot_policy": {
           "block": {
             "attributes": {
-              "description": {
+              "cluster_id": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "description": "The cluster ID of which the automated snapshot policy belongs to.",
+                "required": true,
+                "forcenew": true
               },
               "id": {
                 "type": "string",
@@ -16,16 +17,7 @@
               },
               "name": {
                 "type": "string",
-                "required": true
-              },
-              "peer_tenant_id": {
-                "type": "string",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
-              },
-              "peer_vpc_id": {
-                "type": "string",
+                "description": "The name of the automated snapshot policy.",
                 "required": true,
                 "forcenew": true
               },
@@ -33,23 +25,26 @@
                 "type": "string",
                 "computed": true
               },
-              "status": {
+              "strategy": {
                 "type": "string",
-                "computed": true
+                "description": "The strategy of the automated snapshot policy.",
+                "required": true,
+                "forcenew": true
               },
-              "vpc_id": {
+              "type": {
                 "type": "string",
+                "description": "The type of the automated snapshot policy.",
                 "required": true,
                 "forcenew": true
               }
             }
           },
           "product": {
-            "short": "VPC",
-            "name": "Virtual Private Cloud",
-            "catalog": "Networking",
-            "name_cn": "虚拟私有云",
-            "catalog_cn": "网络"
+            "short": "DWS",
+            "name": "Data Warehouse Service",
+            "catalog": "Analytics",
+            "name_cn": "数据仓库服务",
+            "catalog_cn": "大数据"
           }
         }
       }

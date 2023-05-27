@@ -9,6 +9,10 @@
                 "type": "string",
                 "optional": true
               },
+              "backup_id": {
+                "type": "string",
+                "computed": true
+              },
               "checksum": {
                 "type": "string",
                 "computed": true

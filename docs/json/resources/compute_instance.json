@@ -79,12 +79,12 @@
               },
               "flavor_id": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "description": "schema: Required",
+                "required": true
               },
               "flavor_name": {
                 "type": "string",
-                "optional": true,
+                "description": "schema: Computed",
                 "computed": true
               },
               "id": {

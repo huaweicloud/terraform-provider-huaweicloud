@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dws_alarm_subscription": {
+          "block": {
+            "attributes": {
+              "alarm_level": {
+                "type": "string",
+                "description": "The level of alarm. separate multiple alarm levels with commas (,).\n",
+                "optional": true,
+                "computed": true
+              },
+              "enable": {
+                "type": "number",
+                "description": "whether the alarm subscription is enabled.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the alarm subscription.",
+                "required": true
+              },
+              "notification_target": {
+                "type": "string",
+                "description": "The notification target.",
+                "required": true
+              },
+              "notification_target_name": {
+                "type": "string",
+                "description": "The name of notification target.",
+                "required": true
+              },
+              "notification_target_type": {
+                "type": "string",
+                "description": "The type of notification target. Currently only **SMN** is supported.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "time_zone": {
+                "type": "string",
+                "description": "The time_zone of the alarm subscription.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DWS",
+            "name": "Data Warehouse Service",
+            "catalog": "Analytics",
+            "name_cn": "数据仓库服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

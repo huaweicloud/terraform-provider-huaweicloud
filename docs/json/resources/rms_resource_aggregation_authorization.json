@@ -1,0 +1,41 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rms_resource_aggregation_authorization": {
+          "block": {
+            "attributes": {
+              "account_id": {
+                "type": "string",
+                "description": "Specifies the ID of the resource aggregation account to be authorized.",
+                "required": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the time when the resource aggregation account was authorized.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "urn": {
+                "type": "string",
+                "description": "Indicates the authorization identifier of the resource aggregation account.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RMS",
+            "name": "Resource Management Service",
+            "catalog": "Management & Governance",
+            "name_cn": "资源管理服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

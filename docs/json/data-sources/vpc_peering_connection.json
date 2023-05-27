@@ -5,6 +5,10 @@
         "huaweicloud_vpc_peering_connection": {
           "block": {
             "attributes": {
+              "description": {
+                "type": "string",
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "optional": true,

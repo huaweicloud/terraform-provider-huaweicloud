@@ -58,6 +58,11 @@
                 "type": "string",
                 "computed": true
               },
+              "lower_case_table_names": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "name": {
                 "type": "string",
                 "required": true

@@ -1,0 +1,104 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dws_ext_data_source": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "configure_status": {
+                "type": "string",
+                "description": "The configure status of the external data source.",
+                "computed": true
+              },
+              "connect_info": {
+                "type": "string",
+                "description": "The connection information of the external data source. It is mandatory when **type** is **OBS**.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the external data source.",
+                "computed": true
+              },
+              "data_source_id": {
+                "type": "string",
+                "description": "ID of the external data source. It is mandatory when **type** is **MRS**.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the external data source.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the external data source.",
+                "required": true,
+                "forcenew": true
+              },
+              "reboot": {
+                "type": "bool",
+                "description": "Whether to reboot the cluster.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the external data source.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the external data source.",
+                "required": true,
+                "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The updated time of the external data source.",
+                "computed": true
+              },
+              "user_name": {
+                "type": "string",
+                "description": "The user name of the external data source.",
+                "required": true
+              },
+              "user_pwd": {
+                "type": "string",
+                "description": "The password of the external data source. It is mandatory when **type** is **MRS**.",
+                "optional": true,
+                "forcenew": true,
+                "sensitive": true
+              }
+            }
+          },
+          "product": {
+            "short": "DWS",
+            "name": "Data Warehouse Service",
+            "catalog": "Analytics",
+            "name_cn": "数据仓库服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

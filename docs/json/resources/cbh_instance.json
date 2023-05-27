@@ -5,16 +5,10 @@
         "huaweicloud_cbh_instance": {
           "block": {
             "attributes": {
-              "alter_permit": {
-                "type": "string",
-                "description": "Indicates whether the front-end displays the capacity expansion button.",
-                "computed": true
-              },
               "auto_renew": {
                 "type": "string",
-                "description": "Specifies whether auto renew is enabled. Valid values are \"true\" and \"false\". Defaults to **false**.",
-                "required": true,
-                "forcenew": true
+                "description": "Specifies whether auto renew is enabled.",
+                "optional": true
               },
               "availability_zone": {
                 "type": "string",
@@ -22,39 +16,11 @@
                 "required": true,
                 "forcenew": true
               },
-              "bastion_type": {
-                "type": "string",
-                "description": "Specifies the type of the bastion.",
-                "required": true,
-                "forcenew": true
-              },
-              "bastion_version": {
-                "type": "string",
-                "description": "Indicates the current version of the instance image.",
-                "computed": true
-              },
               "charging_mode": {
                 "type": "string",
                 "description": "Specifies the charging mode of the read replica instance.",
                 "required": true,
                 "forcenew": true
-              },
-              "description": {
-                "type": "string",
-                "description": "Indicates the type of the bastion.",
-                "computed": true
-              },
-              "end_time": {
-                "type": "string",
-                "description": "Specifies the end time.",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
-              },
-              "exp_time": {
-                "type": "string",
-                "description": "Indicates the expire time of the instance.",
-                "computed": true
               },
               "flavor_id": {
                 "type": "string",
@@ -62,62 +28,13 @@
                 "required": true,
                 "forcenew": true
               },
-              "hx_password": {
-                "type": "string",
-                "description": "Specifies the front end login password.",
-                "required": true,
-                "forcenew": true,
-                "sensitive": true
-              },
               "id": {
                 "type": "string",
-                "computed": true
-              },
-              "image_id": {
-                "type": "string",
-                "description": "Specifies a image ID.",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
-              },
-              "instance_id": {
-                "type": "string",
-                "description": "Indicates the server id of the instance.",
-                "computed": true
-              },
-              "instance_key": {
-                "type": "string",
-                "description": "Indicates the ID of the instance.",
-                "computed": true
-              },
-              "instance_status": {
-                "type": "string",
-                "description": "Indicates the status of the instance.",
-                "computed": true
-              },
-              "ip_address": {
-                "type": "string",
-                "description": "Specifies the IP address of the subnet.",
-                "optional": true,
                 "computed": true
               },
               "ipv6_enable": {
                 "type": "bool",
                 "description": "Specifies whether the IPv6 network is enabled.",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
-              },
-              "key_name": {
-                "type": "string",
-                "description": "Specifies the secret key of the admin.",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
-              },
-              "metadata": {
-                "type": "string",
-                "description": "Specifies the metadata of the service.",
                 "optional": true,
                 "computed": true,
                 "forcenew": true
@@ -128,22 +45,10 @@
                 "required": true,
                 "forcenew": true
               },
-              "network_type": {
-                "type": "string",
-                "description": "Specifies the type of the network operation.",
-                "optional": true,
-                "computed": true
-              },
-              "new_bastion_version": {
-                "type": "string",
-                "description": "Indicates the latest version of the instance image.",
-                "computed": true
-              },
               "password": {
                 "type": "string",
-                "description": "Specifies the initial password.",
-                "optional": true,
-                "computed": true,
+                "description": "Specifies the password for logging in to the management console.",
+                "required": true,
                 "sensitive": true
               },
               "period": {
@@ -163,232 +68,54 @@
                 "description": "Indicates the private ip of the instance.",
                 "computed": true
               },
-              "publicip_id": {
+              "public_ip": {
                 "type": "string",
-                "description": "Indicates the ID of the elastic IP.",
+                "description": "Specifies the elastic IP address.",
+                "optional": true,
                 "computed": true
+              },
+              "public_ip_id": {
+                "type": "string",
+                "description": "Specifies the ID of the elastic IP.",
+                "optional": true
               },
               "region": {
                 "type": "string",
                 "computed": true
               },
-              "relative_resource_id": {
-                "type": "string",
-                "description": "Specifies the new capacity expansion.",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
-              },
-              "release_time": {
-                "type": "string",
-                "description": "Indicates the release time of the instance.",
-                "computed": true
-              },
-              "resource_id": {
-                "type": "string",
-                "description": "Indicates the ID of the resource.",
-                "computed": true
-              },
               "security_group_id": {
                 "type": "string",
-                "description": "Specifies the ID list of the security group.",
-                "required": true
-              },
-              "slave_availability_zone": {
-                "type": "string",
-                "description": "Specifies the slave availability zone name. The slave machine will be created when\nthis field is not empty.",
-                "optional": true,
-                "computed": true,
+                "description": "Specifies the ID of the security group.",
+                "required": true,
                 "forcenew": true
-              },
-              "start_time": {
-                "type": "string",
-                "description": "Indicates the start time of the instance.",
-                "computed": true
               },
               "status": {
                 "type": "string",
                 "description": "Indicates the status of the instance.",
                 "computed": true
               },
+              "subnet_address": {
+                "type": "string",
+                "description": "Specifies the IP address of the subnet.",
+                "optional": true,
+                "computed": true
+              },
               "subnet_id": {
                 "type": "string",
                 "description": "Specifies the ID of a subnet.",
-                "required": true
-              },
-              "task_status": {
-                "type": "string",
-                "description": "Indicates the task status of the instance.",
-                "computed": true
-              },
-              "update": {
-                "type": "string",
-                "description": "Indicates whether the instance image can be upgraded.",
-                "computed": true
-              },
-              "user_data": {
-                "type": "string",
-                "description": "Specifies the inject user data.",
-                "optional": true,
-                "computed": true,
+                "required": true,
                 "forcenew": true
+              },
+              "version": {
+                "type": "string",
+                "description": "Indicates the current version of the instance image.",
+                "computed": true
               },
               "vpc_id": {
                 "type": "string",
                 "description": "Specifies the ID of a VPC.",
-                "optional": true,
-                "computed": true,
+                "required": true,
                 "forcenew": true
-              }
-            },
-            "block_types": {
-              "data_volume": {
-                "block": {
-                  "attributes": {
-                    "extend_param": {
-                      "type": "string",
-                      "description": "Specifies the info of the volume.",
-                      "optional": true,
-                      "computed": true
-                    },
-                    "size": {
-                      "type": "string",
-                      "description": "Specifies the size of the data volume, unit is GB.",
-                      "optional": true,
-                      "computed": true
-                    },
-                    "type": {
-                      "type": "string",
-                      "description": "Specifies the type of volume.",
-                      "optional": true,
-                      "computed": true
-                    }
-                  }
-                },
-                "nesting_mode": "list",
-                "forcenew": true,
-                "max_items": 1
-              },
-              "product_info": {
-                "block": {
-                  "attributes": {
-                    "product_id": {
-                      "type": "string",
-                      "description": "Specifies the ID of the product.",
-                      "optional": true,
-                      "computed": true
-                    },
-                    "resource_size": {
-                      "type": "string",
-                      "description": "Specifies the size of the resource capacity.",
-                      "optional": true,
-                      "computed": true
-                    },
-                    "resource_size_measure_id": {
-                      "type": "string",
-                      "description": "Specifies the resource capacity measurement ID.",
-                      "optional": true,
-                      "computed": true
-                    }
-                  }
-                },
-                "nesting_mode": "list",
-                "forcenew": true
-              },
-              "public_ip": {
-                "block": {
-                  "attributes": {
-                    "address": {
-                      "type": "string",
-                      "description": "Specifies the elastic IP address.",
-                      "optional": true
-                    },
-                    "id": {
-                      "type": "string",
-                      "description": "Specifies the ID of the elastic IP.",
-                      "optional": true
-                    }
-                  },
-                  "block_types": {
-                    "eip": {
-                      "block": {
-                        "attributes": {
-                          "flavor_id": {
-                            "type": "string",
-                            "description": "Specifies the product ID of the IP associated with.",
-                            "optional": true
-                          },
-                          "type": {
-                            "type": "string",
-                            "description": "Specifies the type of EIP.",
-                            "optional": true
-                          }
-                        },
-                        "block_types": {
-                          "bandwidth": {
-                            "block": {
-                              "attributes": {
-                                "charge_mode": {
-                                  "type": "string",
-                                  "description": "Specifies the charge type. The value can be traffic or empty.",
-                                  "optional": true
-                                },
-                                "flavor_id": {
-                                  "type": "string",
-                                  "description": "Specifies the product ID of the bandwidth associated with.",
-                                  "optional": true
-                                },
-                                "share_type": {
-                                  "type": "string",
-                                  "description": "Specifies the share type. Only PER is supported.",
-                                  "optional": true
-                                },
-                                "size": {
-                                  "type": "string",
-                                  "description": "Specifies the size of the bandwidth.",
-                                  "optional": true
-                                }
-                              }
-                            },
-                            "nesting_mode": "list",
-                            "max_items": 1
-                          }
-                        }
-                      },
-                      "nesting_mode": "list",
-                      "max_items": 1
-                    }
-                  }
-                },
-                "nesting_mode": "list",
-                "max_items": 1
-              },
-              "root_volume": {
-                "block": {
-                  "attributes": {
-                    "extend_param": {
-                      "type": "string",
-                      "description": "Specifies the info of the volume.",
-                      "optional": true,
-                      "computed": true
-                    },
-                    "size": {
-                      "type": "string",
-                      "description": "Specifies the size of the root volume, unit is GB.",
-                      "optional": true,
-                      "computed": true
-                    },
-                    "type": {
-                      "type": "string",
-                      "description": "Specifies the type of volume.",
-                      "optional": true,
-                      "computed": true
-                    }
-                  }
-                },
-                "nesting_mode": "list",
-                "forcenew": true,
-                "max_items": 1
               }
             }
           },

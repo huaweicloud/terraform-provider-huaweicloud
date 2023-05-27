@@ -1,0 +1,118 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_waf_rule_precise_protection": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "Specifies the protective action of the precise protection rule.",
+                "optional": true,
+                "default": "block"
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of WAF precise protection rule.",
+                "optional": true,
+                "computed": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the time when the precise protection rule expires.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID of WAF precise protection rule.",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of WAF precise protection rule.",
+                "required": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "Specifies the policy ID of WAF precise protection rule.",
+                "required": true,
+                "forcenew": true
+              },
+              "priority": {
+                "type": "number",
+                "description": "Specifies the priority of a rule.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the time when the precise protection rule takes effect.",
+                "optional": true
+              },
+              "status": {
+                "type": "number",
+                "description": "Specifies the status of WAF precise protection rule.",
+                "optional": true,
+                "default": 1
+              }
+            },
+            "block_types": {
+              "conditions": {
+                "block": {
+                  "attributes": {
+                    "content": {
+                      "type": "string",
+                      "description": "Specifies the content of the match condition.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "field": {
+                      "type": "string",
+                      "description": "Specifies the field of the condition.",
+                      "required": true
+                    },
+                    "logic": {
+                      "type": "string",
+                      "description": "Specifies the condition matching logic.",
+                      "required": true
+                    },
+                    "reference_table_id": {
+                      "type": "string",
+                      "description": "Specifies the reference table id.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "subfield": {
+                      "type": "string",
+                      "description": "Specifies the subfield of the condition.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the match condition list."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

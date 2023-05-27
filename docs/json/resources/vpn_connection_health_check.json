@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_vpn_connection_health_check": {
+          "block": {
+            "attributes": {
+              "connection_id": {
+                "type": "string",
+                "description": "Specifies the ID of the VPN connection to monitor.",
+                "required": true,
+                "forcenew": true
+              },
+              "destination_ip": {
+                "type": "string",
+                "description": "The destination IP address of the VPN connection.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source_ip": {
+                "type": "string",
+                "description": "The source IP address of the VPN connection.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the connection health check.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

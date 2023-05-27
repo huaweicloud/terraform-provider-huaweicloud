@@ -1,0 +1,256 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cbr_backup": {
+          "block": {
+            "attributes": {
+              "checkpoint_id": {
+                "type": "string",
+                "description": "The restore point ID.",
+                "computed": true
+              },
+              "children": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "checkpoint_id": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "expired_at": "string",
+                      "extend_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "auto_trigger": "bool",
+                            "bootable": "bool",
+                            "contain_system_disk": "bool",
+                            "encrypted": "bool",
+                            "incremental": "bool",
+                            "is_system_disk": "bool",
+                            "os_registry_images": [
+                              "list",
+                              "string"
+                            ],
+                            "snapshot_id": "string",
+                            "support_lld": "bool",
+                            "supported_restore_mode": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "name": "string",
+                      "replication_records": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "created_at": "string",
+                            "destination_backup_id": "string",
+                            "destination_checkpoint_id": "string",
+                            "destination_project_id": "string",
+                            "destination_region": "string",
+                            "destination_vault_id": "string",
+                            "extra_info": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "auto_trigger": "bool",
+                                  "destination_vault_id": "string",
+                                  "fail_code": "string",
+                                  "fail_reason": "string",
+                                  "progress": "number"
+                                }
+                              ]
+                            ],
+                            "id": "string",
+                            "source_backup_id": "string",
+                            "source_checkpoint_id": "string",
+                            "source_project_id": "string",
+                            "source_region": "string",
+                            "status": "string",
+                            "vault_id": "string"
+                          }
+                        ]
+                      ],
+                      "resource_az": "string",
+                      "resource_id": "string",
+                      "resource_name": "string",
+                      "resource_size": "number",
+                      "resource_type": "string",
+                      "status": "string",
+                      "type": "string",
+                      "updated_at": "string",
+                      "vault_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The backup list of the sub-backup resources.",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the backup.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The backup description.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The enterprise project to which the backup resource belongs.",
+                "computed": true
+              },
+              "expired_at": {
+                "type": "string",
+                "description": "The expiration time of the backup.",
+                "computed": true
+              },
+              "extend_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "auto_trigger": "bool",
+                      "bootable": "bool",
+                      "contain_system_disk": "bool",
+                      "encrypted": "bool",
+                      "incremental": "bool",
+                      "is_system_disk": "bool",
+                      "os_registry_images": [
+                        "list",
+                        "string"
+                      ],
+                      "snapshot_id": "string",
+                      "support_lld": "bool",
+                      "supported_restore_mode": "string"
+                    }
+                  ]
+                ],
+                "description": "The extended information.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "description": "The backup ID.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The backup name.",
+                "computed": true
+              },
+              "parent_id": {
+                "type": "string",
+                "description": "The parent backup ID.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the CBR backup is located."
+              },
+              "replication_records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "destination_backup_id": "string",
+                      "destination_checkpoint_id": "string",
+                      "destination_project_id": "string",
+                      "destination_region": "string",
+                      "destination_vault_id": "string",
+                      "extra_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "auto_trigger": "bool",
+                            "destination_vault_id": "string",
+                            "fail_code": "string",
+                            "fail_reason": "string",
+                            "progress": "number"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "source_backup_id": "string",
+                      "source_checkpoint_id": "string",
+                      "source_project_id": "string",
+                      "source_region": "string",
+                      "status": "string",
+                      "vault_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The replication records.",
+                "computed": true
+              },
+              "resource_az": {
+                "type": "string",
+                "description": "The availability zone where the backup resource is located.",
+                "computed": true
+              },
+              "resource_id": {
+                "type": "string",
+                "description": "The backup resource ID.",
+                "computed": true
+              },
+              "resource_name": {
+                "type": "string",
+                "description": "The backup resource name.",
+                "computed": true
+              },
+              "resource_size": {
+                "type": "number",
+                "description": "The backup resource size, in GB.",
+                "computed": true
+              },
+              "resource_type": {
+                "type": "string",
+                "description": "The backup resource type.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The backup status.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The backup type.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the backup.",
+                "computed": true
+              },
+              "vault_id": {
+                "type": "string",
+                "description": "The vault to which the backup resource belongs.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

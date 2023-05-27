@@ -5,6 +5,11 @@
         "huaweicloud_images_image": {
           "block": {
             "attributes": {
+              "backup_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "checksum": {
                 "type": "string",
                 "computed": true
@@ -93,6 +98,11 @@
                 "optional": true
               },
               "type": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "vault_id": {
                 "type": "string",
                 "optional": true,
                 "forcenew": true

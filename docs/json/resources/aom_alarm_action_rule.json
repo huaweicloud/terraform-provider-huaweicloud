@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_aom_alarm_action_rule": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "number",
+                "description": "The creation time.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the action rule description.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the action rule name.",
+                "required": true,
+                "forcenew": true
+              },
+              "notification_template": {
+                "type": "string",
+                "description": "Specifies the notification template.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the action rule type.",
+                "required": true
+              },
+              "updated_at": {
+                "type": "number",
+                "description": "The last update time.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "smn_topics": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the SMN topic name.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "topic_urn": {
+                      "type": "string",
+                      "description": "Specifies the SMN topic URN.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the SMN topic configurations."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "AOM",
+            "name": "Application Operations Management",
+            "catalog": "Management & Governance",
+            "name_cn": "应用运维管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

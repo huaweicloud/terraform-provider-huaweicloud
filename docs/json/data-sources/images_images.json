@@ -33,6 +33,7 @@
                   [
                     "object",
                     {
+                      "backup_id": "string",
                       "checksum": "string",
                       "container_format": "string",
                       "created_at": "string",

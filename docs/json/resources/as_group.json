@@ -8,8 +8,7 @@
               "agency_name": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "availability_zones": {
                 "type": [

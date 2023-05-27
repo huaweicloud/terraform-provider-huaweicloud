@@ -19,11 +19,6 @@
                 "optional": true,
                 "default": true
               },
-              "alarm_level": {
-                "type": "number",
-                "optional": true,
-                "computed": true
-              },
               "alarm_name": {
                 "type": "string",
                 "required": true
@@ -154,7 +149,8 @@
                             "type": "string",
                             "optional": true
                           }
-                        }
+                        },
+                        "description": "schema: Deprecated"
                       },
                       "nesting_mode": "set"
                     }

@@ -33,8 +33,8 @@
               },
               "version": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "optional": true,
+                "computed": true
               }
             },
             "block_types": {
@@ -46,44 +46,37 @@
                         "map",
                         "string"
                       ],
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "basic_json": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "custom": {
                       "type": [
                         "map",
                         "string"
                       ],
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "custom_json": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "flavor": {
                       "type": [
                         "map",
                         "string"
                       ],
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "flavor_json": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     }
                   }
                 },
                 "nesting_mode": "list",
-                "forcenew": true,
                 "max_items": 1
               }
             }

@@ -9,6 +9,10 @@
                 "type": "bool",
                 "optional": true
               },
+              "description": {
+                "type": "string",
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true

@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_plugin": {
+          "block": {
+            "attributes": {
+              "content": {
+                "type": "string",
+                "description": "The configuration details for plugin.",
+                "required": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the plugin.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The plugin description.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the plugin belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The plugin name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the plugin is located.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The plugin type.",
+                "required": true,
+                "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the plugin.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

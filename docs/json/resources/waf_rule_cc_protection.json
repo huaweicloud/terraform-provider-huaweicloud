@@ -1,0 +1,156 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_waf_rule_cc_protection": {
+          "block": {
+            "attributes": {
+              "all_waf_instances": {
+                "type": "bool",
+                "description": "Specifies whether to enable global counting. Default to false.",
+                "optional": true,
+                "computed": true
+              },
+              "block_page_type": {
+                "type": "string",
+                "description": "Specifies the type of the returned page.\nThe options are **application/json**, **text/html** and **text/xml**.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of WAF cc protection rule.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID of WAF cc protection rule.",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "limit_num": {
+                "type": "number",
+                "description": "Specifies the number of requests allowed from a web visitor in a rate limiting period.\nThe value ranges from 1 to 2,147,483,647.",
+                "required": true
+              },
+              "limit_period": {
+                "type": "number",
+                "description": "Specifies the rate limiting period. The value ranges from 1 to 3,600 in seconds.",
+                "required": true
+              },
+              "lock_time": {
+                "type": "number",
+                "description": "Specifies the lock time for resuming normal page access after blocking can be set.\nThe value ranges from 0 to 65,535 in seconds.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the rule name of WAF cc protection rule.",
+                "required": true
+              },
+              "other_user_identifier": {
+                "type": "string",
+                "description": "Specifies the other user identifier.",
+                "optional": true
+              },
+              "page_content": {
+                "type": "string",
+                "description": "Specifies the content of the returned page.",
+                "optional": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "Specifies the policy ID of WAF cc protection rule.",
+                "required": true,
+                "forcenew": true
+              },
+              "protective_action": {
+                "type": "string",
+                "description": "Specifies the protective action taken when the number of requests reaches the upper limit.\nThe value can be **captcha**, **block**, **log** or **dynamic_block**.",
+                "required": true
+              },
+              "rate_limit_mode": {
+                "type": "string",
+                "description": "Specifies the rate limit mode.\nValid values are **ip**, **cookie**, **header**, **other**, **policy**, **domain**, **url**.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "request_aggregation": {
+                "type": "bool",
+                "description": "Specifies whether to enable domain aggregation statistics. Default to false.",
+                "optional": true,
+                "computed": true
+              },
+              "status": {
+                "type": "number",
+                "description": "The status of a cc protection rule.",
+                "optional": true,
+                "default": 1
+              },
+              "unlock_num": {
+                "type": "number",
+                "description": "Specifies the allowable frequency. The value ranges from 0 to 2,147,483,647.",
+                "optional": true
+              },
+              "user_identifier": {
+                "type": "string",
+                "description": "Specifies the user identifier.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "conditions": {
+                "block": {
+                  "attributes": {
+                    "content": {
+                      "type": "string",
+                      "description": "Specifies the content of the match condition.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "field": {
+                      "type": "string",
+                      "description": "Specifies the field type.\nThe value can be **url**, **ip**, **ipv6**, **params**, **cookie**, **header** or **response_code**.",
+                      "required": true
+                    },
+                    "logic": {
+                      "type": "string",
+                      "description": "Specifies the condition matching logic.",
+                      "required": true
+                    },
+                    "reference_table_id": {
+                      "type": "string",
+                      "description": "Specifies the reference table id.",
+                      "optional": true
+                    },
+                    "subfield": {
+                      "type": "string",
+                      "description": "Specifies the subfield of the condition.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the match condition list."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

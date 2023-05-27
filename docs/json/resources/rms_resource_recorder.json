@@ -1,0 +1,97 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rms_resource_recorder": {
+          "block": {
+            "attributes": {
+              "agency_name": {
+                "type": "string",
+                "description": "Specifies the IAM agency name.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "obs_channel": {
+                "block": {
+                  "attributes": {
+                    "bucket": {
+                      "type": "string",
+                      "description": "Specifies the OBS bucket name.",
+                      "required": true
+                    },
+                    "region": {
+                      "type": "string",
+                      "description": "Specifies the region where this bucket is located.",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "selector": {
+                "block": {
+                  "attributes": {
+                    "all_supported": {
+                      "type": "bool",
+                      "description": "Specifies whether to select all supported resources.",
+                      "required": true
+                    },
+                    "resource_types": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "description": "Specifies the resource type list.",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "smn_channel": {
+                "block": {
+                  "attributes": {
+                    "project_id": {
+                      "type": "string",
+                      "description": "Specifies the project ID where this SMN topic is located.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "region": {
+                      "type": "string",
+                      "description": "Specifies the region where this SMN topic is located.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "topic_urn": {
+                      "type": "string",
+                      "description": "Specifies the SMN topic URN.",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "RMS",
+            "name": "Resource Management Service",
+            "catalog": "Management & Governance",
+            "name_cn": "资源管理服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

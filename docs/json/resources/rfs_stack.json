@@ -97,6 +97,13 @@
                 "forcenew": true
               }
             }
+          },
+          "product": {
+            "short": "AOS",
+            "name": "Application Orchestration Service",
+            "catalog": "Containers",
+            "name_cn": "应用编排服务",
+            "catalog_cn": "容器"
           }
         }
       }

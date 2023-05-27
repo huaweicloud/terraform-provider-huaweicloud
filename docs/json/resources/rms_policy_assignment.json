@@ -22,7 +22,8 @@
               "name": {
                 "type": "string",
                 "description": "The name of the policy assignment.",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "parameters": {
                 "type": [
