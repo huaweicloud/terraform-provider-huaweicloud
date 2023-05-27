@@ -96,7 +96,6 @@ func dataSourceNotebookImagesRead(_ context.Context, d *schema.ResourceData, met
 		Namespace:   d.Get("organization").(string),
 		Type:        d.Get("type").(string),
 		WorkspaceId: d.Get("workspace_id").(string),
-		Limit:       200,
 		Offset:      0,
 	}
 
