@@ -24,8 +24,8 @@ The following arguments are supported:
 
 * `name` - (Optional, String) Specifies the name of an instance.
 
-* `status` - (Optional, String) Specifies the cache instance status. The valid values are **RUNNING**, **ERROR**, **RESTARTING**,
-  **FROZEN**, **EXTENDING**, **RESTORING**, **FLUSHING**.
+* `status` - (Optional, String) Specifies the cache instance status. The valid values are **RUNNING**, **ERROR**,
+  **RESTARTING**, **FROZEN**, **EXTENDING**, **RESTORING**, **FLUSHING**.
 
 * `private_ip` - (Optional, String) Specifies the subnet Network ID.
 

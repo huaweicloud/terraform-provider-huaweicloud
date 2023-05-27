@@ -22,10 +22,10 @@ The following arguments are supported:
   If omitted, the provider-level region will be used.
 
 * `capacity` - (Required, Float) The total memory of the cache, in GB.
-  + **Redis4.0 and Redis5.0**: Stand-alone and active/standby type instance values:
+  + **Redis4.0, Redis5.0 and Redis6.0**: Stand-alone and active/standby type instance values:
     `0.125`, `0.25`, `0.5`, `1`, `2`, `4`, `8`, `16`, `32` and `64`.
-    Cluster instance specifications support `24`, `32`, `48`, `64`, `96`, `128`, `192`, `256`, `384`, `512`, `768` and
-    `1024`.
+    Cluster instance specifications support `4`,`8`,`16`,`24`, `32`, `48`, `64`, `96`, `128`, `192`,
+    `256`, `384`, `512`, `768` and `1024`.
   + **Redis3.0**: Stand-alone and active/standby type instance values: `2`, `4`, `8`, `16`, `32` and `64`.
     Proxy cluster instance specifications support `64`, `128`, `256`, `512`, and `1024`.
   + **Memcached**: Stand-alone and active/standby type instance values: `2`, `4`, `8`, `16`, `32` and `64`.
@@ -34,14 +34,14 @@ The following arguments are supported:
   Default value is *Redis*.
 
 * `engine_version` - (Optional, String) The version of a cache engine.
-  It is mandatory when the engine is *Redis*, the value can be `3.0`, `4.0`, or `5.0`.
+  It is mandatory when the engine is *Redis*, the value can be `3.0`, `4.0`, `5.0`, or `6.0`.
 
 * `cache_mode` - (Optional, String) The mode of a cache engine. The valid values are as follows:
   + `single` - Single-node.
   + `ha` - Master/Standby.
   + `cluster` - Redis Cluster.
-  + `proxy` - Proxy Cluster.
-  + `ha_rw_split` - Read/Write splitting.
+  + `proxy` - Proxy Cluster. Redis6.0 not support this mode.
+  + `ha_rw_split` - Read/Write splitting. Redis6.0 not support this mode.
   
 * `name` - (Optional, String) The flavor name of the cache instance.
 
