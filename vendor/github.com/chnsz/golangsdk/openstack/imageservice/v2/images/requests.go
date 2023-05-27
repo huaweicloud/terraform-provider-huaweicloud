@@ -293,6 +293,21 @@ func (r ReplaceImageName) ToImagePatchMap() map[string]interface{} {
 	}
 }
 
+// ReplaceImageAttribute represents an updated image attribute property request.
+type ReplaceImageAttribute struct {
+	AttributeName  string
+	AttributeValue interface{}
+}
+
+// ToImagePatchMap assembles a request body based on ReplaceImageAttribute.
+func (r ReplaceImageAttribute) ToImagePatchMap() map[string]interface{} {
+	return map[string]interface{}{
+		"op":    "replace",
+		"path":  "/" + r.AttributeName,
+		"value": r.AttributeValue,
+	}
+}
+
 // ReplaceImageChecksum represents an updated checksum property request.
 type ReplaceImageChecksum struct {
 	Checksum string
