@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -61,25 +60,16 @@ func ResourceDdsInstanceV3() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"DDS-Community", "DDS-Enhanced",
-							}, true),
 						},
 						"version": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"4.0", "3.4", "3.2",
-							}, true),
 						},
 						"storage_engine": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"wiredTiger", "rocksDB",
-							}, true),
 						},
 					},
 				},
@@ -107,10 +97,6 @@ func ResourceDdsInstanceV3() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: validation.Any(
-					validation.IntBetween(2100, 9500),
-					validation.IntBetween(27017, 27019),
-				),
 			},
 			"password": {
 				Type:      schema.TypeString,
@@ -126,9 +112,6 @@ func ResourceDdsInstanceV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"Sharding", "ReplicaSet", "Single",
-				}, true),
 			},
 			"configuration": {
 				Type:     schema.TypeList,
@@ -159,9 +142,6 @@ func ResourceDdsInstanceV3() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"mongos", "shard", "config", "replica", "single",
-							}, true),
 						},
 						"num": {
 							Type:     schema.TypeInt,
@@ -171,9 +151,6 @@ func ResourceDdsInstanceV3() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"ULTRAHIGH",
-							}, true),
 						},
 						"size": {
 							Type:     schema.TypeInt,

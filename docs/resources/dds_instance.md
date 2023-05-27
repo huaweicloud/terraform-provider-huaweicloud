@@ -130,8 +130,8 @@ The following arguments are supported:
 * `disk_encryption_id` - (Optional, String, ForceNew) Specifies the disk encryption ID of the instance. Changing this
   creates a new instance.
 
-* `mode` - (Required, String, ForceNew) Specifies the mode of the database instance. Changing this creates a new
-  instance.
+* `mode` - (Required, String, ForceNew) Specifies the mode of the database instance. **Sharding**, **ReplicaSet**,
+  **Single** are supported. Changing this creates a new instance.
 
 * `configuration` - (Optional, List, ForceNew) Specifies the configuration information.
   The structure is described below. Changing this creates a new instance.
@@ -139,8 +139,8 @@ The following arguments are supported:
 * `flavor` - (Required, List, ForceNew) Specifies the flavors information. The structure is described below. Changing
   this creates a new instance.
 
-* `port` - (Optional, Int) Specifies the database access port. The valid values are range from `2,100` to `9,500` and
-  `27,017`, `27,018`, `27,019`. Defaults to `8,635`.
+* `port` - (Optional, Int) Specifies the database access port. The valid values are range from `2100` to `9500` and
+  `27017`, `27018`, `27019`. Defaults to `8635`.
 
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy. The structure is described below.
 
@@ -177,13 +177,14 @@ The following arguments are supported:
 
 The `datastore` block supports:
 
-* `type` - (Required, String, ForceNew) Specifies the DB engine. 'DDS-Community' and 'DDS-Enhanced' are supported.
+* `type` - (Required, String, ForceNew) Specifies the DB engine. **DDS-Community** is supported.
 
 * `version` - (Required, String, ForceNew) Specifies the DB instance version. For the Community Edition, the valid
-  values are 3.2, 3.4, or 4.0. For the Enhanced Edition, only 3.4 is supported now.
+  values are `3.2`, `3.4`, `4.0`, `4.2`, or `4.4`.
 
-* `storage_engine` - (Optional, String, ForceNew) Specifies the storage engine of the DB instance. DDS Community Edition
-  supports wiredTiger engine, and the Enhanced Edition supports rocksDB engine.
+* `storage_engine` - (Optional, String, ForceNew) Specifies the storage engine of the DB instance.
+  If `version` is set to `3.2`, `3.4`, or `4.0`, the value is **wiredTiger**.
+  If `period_unit` is set to `4.2`, or `4.4`, the value is **rocksDB**.
 
 The `configuration` block supports:
 
@@ -199,10 +200,10 @@ The `configuration` block supports:
 The `flavor` block supports:
 
 * `type` - (Required, String, ForceNew) Specifies the node type. Valid value:
-  + For a Community Edition cluster instance, the value can be mongos, shard, or config.
-  + For an Enhanced Edition cluster instance, the value is shard.
-  + For a Community Edition replica set instance, the value is replica.
-  + For a Community Edition single node instance, the value is single.
+  + For a Community Edition cluster instance, the value can be **mongos**, **shard**, or **config**.
+  + For an Enhanced Edition cluster instance, the value is **shard**.
+  + For a Community Edition replica set instance, the value is **replica**.
+  + For a Community Edition single node instance, the value is **single**.
 
 * `num` - (Required, Int) Specifies the node quantity. Valid value:
   + In a Community Edition cluster instance,the number of mongos ranges from 2 to 16.
@@ -212,7 +213,8 @@ The `flavor` block supports:
   + replica: the value is 1.
   + single: The value is 1. This parameter can be updated when the value of `type` is mongos or shard.
 
-* `storage` - (Optional, String, ForceNew) Specifies the disk type. Valid value: ULTRAHIGH which indicates the type SSD.
+* `storage` - (Optional, String, ForceNew) Specifies the disk type.
+  Valid value: **ULTRAHIGH** which indicates the type SSD.
 
 * `size` - (Optional, Int) Specifies the disk size. The value must be a multiple of 10. The unit is GB. This parameter
   is mandatory for nodes except mongos and invalid for mongos. This parameter can be updated when the value of `type` is
