@@ -3,12 +3,12 @@ package eps
 import (
 	"context"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -48,11 +48,11 @@ func DataSourceEnterpriseProject() *schema.Resource {
 }
 
 func dataSourceEnterpriseProjectRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	epsClient, err := config.EnterpriseProjectClient(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	epsClient, err := cfg.EnterpriseProjectClient(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud eps client %s", err)
+		return diag.Errorf("Error creating EPS client %s", err)
 	}
 
 	listOpts := enterpriseprojects.ListOpts{
@@ -63,16 +63,16 @@ func dataSourceEnterpriseProjectRead(_ context.Context, d *schema.ResourceData, 
 	projects, err := enterpriseprojects.List(epsClient, listOpts).Extract()
 
 	if err != nil {
-		return fmtp.DiagErrorf("Error retrieving enterprise projects %s", err)
+		return diag.Errorf("Error retrieving enterprise projects %s", err)
 	}
 
 	if len(projects) < 1 {
-		return fmtp.DiagErrorf("Your query returned no results. " +
+		return diag.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(projects) > 1 {
-		return fmtp.DiagErrorf("Your query returned more than one result." +
+		return diag.Errorf("Your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
@@ -88,7 +88,7 @@ func dataSourceEnterpriseProjectRead(_ context.Context, d *schema.ResourceData, 
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("error setting HuaweiCloud enterprise project fields: %w", err)
+		return diag.Errorf("error setting enterprise project fields: %w", err)
 	}
 
 	return nil
