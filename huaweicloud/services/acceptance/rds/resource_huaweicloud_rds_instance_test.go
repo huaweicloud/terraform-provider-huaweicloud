@@ -147,27 +147,41 @@ func TestAccRdsInstance_mysql(t *testing.T) {
 		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRdsInstance_mysql(name, pwd),
+				Config: testAccRdsInstance_mysql_step1(name, pwd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.mysql.sld4.large.ha"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_rds_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.limit_size", "400"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.trigger_threshold", "15"),
 					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.58"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "3306"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.password", pwd),
 				),
 			},
 			{
-				Config: testAccRdsInstance_mysqlUpdate(name, newPwd),
+				Config: testAccRdsInstance_mysql_step2(name, newPwd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.mysql.sld4.large.ha"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_rds_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.limit_size", "500"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.trigger_threshold", "20"),
 					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.58"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "3308"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.password", newPwd),
+				),
+			},
+			{
+				Config: testAccRdsInstance_mysql_step3(name, newPwd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.limit_size", "0"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.trigger_threshold", "0"),
 				),
 			},
 		},
@@ -482,70 +496,115 @@ resource "huaweicloud_rds_instance" "test" {
 `, common.TestBaseNetwork(name), name)
 }
 
-func testAccRdsInstance_mysql(name, pwd string) string {
+func testAccRdsInstance_mysql_step1(name, pwd string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 data "huaweicloud_availability_zones" "test" {}
 
+data "huaweicloud_rds_flavors" "test" {
+  db_type       = "MySQL"
+  db_version    = "8.0"
+  instance_mode = "single"
+  group_type    = "dedicated"
+}
+
 resource "huaweicloud_rds_instance" "test" {
-  name                = "%s"
-  flavor              = "rds.mysql.sld4.large.ha"
+  name                = "%[2]s"
+  flavor              = data.huaweicloud_rds_flavors.test.flavors[0].name
   security_group_id   = huaweicloud_networking_secgroup.test.id
   subnet_id           = huaweicloud_vpc_subnet.test.id
   vpc_id              = huaweicloud_vpc.test.id
   fixed_ip            = "192.168.0.58"
-  ha_replication_mode = "semisync"
-
-  availability_zone = [
-    data.huaweicloud_availability_zones.test.names[0],
-    data.huaweicloud_availability_zones.test.names[3],
-  ]
+  availability_zone   = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
 
   db {
-    password = "%s"
+    password = "%[3]s"
     type     = "MySQL"
-    version  = "5.7"
+    version  = "8.0"
     port     = 3306
   }
 
   volume {
-    type = "LOCALSSD"
-    size = 40
+    type              = "CLOUDSSD"
+    size              = 40
+    limit_size        = 400
+    trigger_threshold = 15
   }
 }
 `, common.TestBaseNetwork(name), name, pwd)
 }
 
-func testAccRdsInstance_mysqlUpdate(name, pwd string) string {
+func testAccRdsInstance_mysql_step2(name, pwd string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 data "huaweicloud_availability_zones" "test" {}
 
+data "huaweicloud_rds_flavors" "test" {
+  db_type       = "MySQL"
+  db_version    = "8.0"
+  instance_mode = "single"
+  group_type    = "dedicated"
+}
+
 resource "huaweicloud_rds_instance" "test" {
-  name                = "%s"
-  flavor              = "rds.mysql.sld4.large.ha"
+  name                = "%[2]s"
+  flavor              = data.huaweicloud_rds_flavors.test.flavors[0].name
   security_group_id   = huaweicloud_networking_secgroup.test.id
   subnet_id           = huaweicloud_vpc_subnet.test.id
   vpc_id              = huaweicloud_vpc.test.id
   fixed_ip            = "192.168.0.58"
-  ha_replication_mode = "semisync"
-
-  availability_zone = [
-    data.huaweicloud_availability_zones.test.names[0],
-    data.huaweicloud_availability_zones.test.names[3],
-  ]
+  availability_zone   = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
 
   db {
-    password = "%s"
+    password = "%[3]s"
     type     = "MySQL"
-    version  = "5.7"
+    version  = "8.0"
     port     = 3308
   }
 
   volume {
-    type = "LOCALSSD"
+    type              = "CLOUDSSD"
+    size              = 40
+    limit_size        = 500
+    trigger_threshold = 20
+  }
+}
+`, common.TestBaseNetwork(name), name, pwd)
+}
+
+func testAccRdsInstance_mysql_step3(name, pwd string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_rds_flavors" "test" {
+  db_type       = "MySQL"
+  db_version    = "8.0"
+  instance_mode = "single"
+  group_type    = "dedicated"
+}
+
+resource "huaweicloud_rds_instance" "test" {
+  name                = "%[2]s"
+  flavor              = data.huaweicloud_rds_flavors.test.flavors[0].name
+  security_group_id   = huaweicloud_networking_secgroup.test.id
+  subnet_id           = huaweicloud_vpc_subnet.test.id
+  vpc_id              = huaweicloud_vpc.test.id
+  fixed_ip            = "192.168.0.58"
+  availability_zone   = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
+
+  db {
+    password = "%[3]s"
+    type     = "MySQL"
+    version  = "8.0"
+    port     = 3308
+  }
+
+  volume {
+    type = "CLOUDSSD"
     size = 40
   }
 }

@@ -126,6 +126,16 @@ func ResourceRdsInstance() *schema.Resource {
 							Computed: true,
 							ForceNew: true,
 						},
+						"limit_size": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							RequiredWith: []string{"volume.0.trigger_threshold"},
+						},
+						"trigger_threshold": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							RequiredWith: []string{"volume.0.limit_size"},
+						},
 					},
 				},
 			},
@@ -500,6 +510,19 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
+	if size := d.Get("volume.0.limit_size").(int); size > 0 {
+		opts := instances.EnableAutoExpandOpts{
+			InstanceId:       instanceID,
+			LimitSize:        size,
+			TriggerThreshold: d.Get("volume.0.trigger_threshold").(int),
+		}
+
+		err = instances.EnableAutoExpand(client, opts)
+		if err != nil {
+			return diag.Errorf("error configuring auto-expansion: %v", err)
+		}
+	}
+
 	return resourceRdsInstanceRead(ctx, d, meta)
 }
 
@@ -551,13 +574,21 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 		d.Set("fixed_ip", privateIps[0])
 	}
 
-	volume := make([]map[string]interface{}, 1)
-	volume[0] = map[string]interface{}{
+	volume := map[string]interface{}{
 		"type":               instance.Volume.Type,
 		"size":               instance.Volume.Size,
 		"disk_encryption_id": instance.DiskEncryptionId,
 	}
-	if err := d.Set("volume", volume); err != nil {
+	// Only MySQL engines are supported.
+	resp, err := instances.GetAutoExpand(client, instanceID)
+	if err != nil {
+		log.Printf("[ERROR] error query automatic expansion configuration of the instance storage: %s", err)
+	}
+	if resp.SwitchOption {
+		volume["limit_size"] = resp.LimitSize
+		volume["trigger_threshold"] = resp.TriggerThreshold
+	}
+	if err := d.Set("volume", []map[string]interface{}{volume}); err != nil {
 		return diag.Errorf("error saving volume to RDS instance (%s): %s", instanceID, err)
 	}
 
@@ -732,6 +763,26 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 		// Sending parametersChanged to Read to warn users the instance needs a reboot.
 		ctx = context.WithValue(ctx, ctxType("parametersChanged"), "true")
+	}
+
+	if d.HasChanges("volume.0.limit_size", "volume.0.trigger_threshold") {
+		limitSize := d.Get("volume.0.limit_size").(int)
+		if limitSize > 0 {
+			opts := instances.EnableAutoExpandOpts{
+				InstanceId:       instanceID,
+				LimitSize:        limitSize,
+				TriggerThreshold: d.Get("volume.0.trigger_threshold").(int),
+			}
+			err = instances.EnableAutoExpand(client, opts)
+			if err != nil {
+				return diag.Errorf("an error occurred while enable automatic expansion of instance storage: %v", err)
+			}
+		} else {
+			err = instances.DisableAutoExpand(client, instanceID)
+			if err != nil {
+				return diag.Errorf("an error occurred while disable automatic expansion of instance storage: %v", err)
+			}
+		}
 	}
 
 	return resourceRdsInstanceRead(ctx, d, meta)
