@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/css/v1/cluster"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/css/v1/cluster"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
@@ -59,6 +61,49 @@ func TestAccCssCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "8"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccCssCluster_localDisk(t *testing.T) {
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_css_cluster.test"
+
+	var obj cluster.ClusterDetailResponse
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getCssClusterFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCssCluster_localDisk(rName, 1),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "security_mode", "true"),
+					resource.TestCheckResourceAttr(resourceName, "https_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.flavor", "ess.spec-ds.xlarge.8"),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.instance_number", "1"),
+					resource.TestCheckResourceAttr(resourceName, "cold_node_config.0.flavor", "ess.spec-ds.2xlarge.8"),
+					resource.TestCheckResourceAttr(resourceName, "cold_node_config.0.instance_number", "1"),
+				),
+			},
+			{
+				Config: testAccCssCluster_localDisk(rName, 2),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.flavor", "ess.spec-ds.xlarge.8"),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.instance_number", "2"),
+					resource.TestCheckResourceAttr(resourceName, "cold_node_config.0.flavor", "ess.spec-ds.2xlarge.8"),
+					resource.TestCheckResourceAttr(resourceName, "cold_node_config.0.instance_number", "2"),
 				),
 			},
 		},
@@ -168,6 +213,34 @@ resource "huaweicloud_css_cluster" "test" {
   }
 }
 `, testAccCssBase(rName), rName, nodeNum, keepDays, tag)
+}
+
+func testAccCssCluster_localDisk(rName string, nodeNum int) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_css_cluster" "test" {
+  name           = "%[2]s"
+  engine_version = "7.10.2"
+  security_mode  = true
+  password       = "Test@passw0rd"
+
+  ess_node_config {
+    flavor          = "ess.spec-ds.xlarge.8"
+    instance_number = %[3]d
+  }
+
+  cold_node_config {
+    flavor          = "ess.spec-ds.2xlarge.8"
+    instance_number = %[3]d
+  }
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+}
+`, testAccCssBase(rName), rName, nodeNum)
 }
 
 func testAccCssCluster_prePaid(rName string, nodeNum int, isAutoRenew bool) string {

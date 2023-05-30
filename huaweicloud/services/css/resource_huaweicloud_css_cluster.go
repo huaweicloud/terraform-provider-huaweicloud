@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
 	v1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1/model"
@@ -107,7 +108,7 @@ func ResourceCssCluster() *schema.Resource {
 				ExactlyOneOf:  []string{"node_config", "ess_node_config"},
 				ConflictsWith: []string{"expect_node_num"},
 				Computed:      true,
-				Elem:          cssNodeSchema(1, 200, true),
+				Elem:          essOrColdNodeSchema(1, 200),
 				Description:   "schema: Required",
 			},
 
@@ -115,21 +116,21 @@ func ResourceCssCluster() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
-				Elem:     cssNodeSchema(3, 10, false),
+				Elem:     masterOrClientNodeSchema(3, 10),
 			},
 
 			"client_node_config": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
-				Elem:     cssNodeSchema(1, 32, false),
+				Elem:     masterOrClientNodeSchema(1, 32),
 			},
 
 			"cold_node_config": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
-				Elem:     cssNodeSchema(1, 32, true),
+				Elem:     essOrColdNodeSchema(1, 32),
 			},
 
 			"availability_zone": {
@@ -450,7 +451,47 @@ func ResourceCssCluster() *schema.Resource {
 	}
 }
 
-func cssNodeSchema(min, max int, canExtendsVolume bool) *schema.Resource {
+func essOrColdNodeSchema(min, max int) *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"flavor": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+
+			"instance_number": {
+				Type:         schema.TypeInt,
+				Required:     true,
+				ValidateFunc: validation.IntBetween(min, max),
+			},
+
+			"volume": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"size": {
+							Type:         schema.TypeInt,
+							Required:     true,
+							ValidateFunc: validation.IntDivisibleBy(10),
+						},
+						"volume_type": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func masterOrClientNodeSchema(min, max int) *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"flavor": {
@@ -475,7 +516,7 @@ func cssNodeSchema(min, max int, canExtendsVolume bool) *schema.Resource {
 						"size": {
 							Type:         schema.TypeInt,
 							Required:     true,
-							ForceNew:     !canExtendsVolume,
+							ForceNew:     true,
 							ValidateFunc: validation.IntDivisibleBy(10),
 						},
 						"volume_type": {
@@ -676,17 +717,22 @@ func buildClusterCreateParameters(d *schema.ResourceData, config *config.Config)
 }
 
 func buildCreateClusterRole(node map[string]interface{}, nodeType string) cssv2model.CreateClusterRolesBody {
-	volume := node["volume"].([]interface{})[0].(map[string]interface{})
-
-	return cssv2model.CreateClusterRolesBody{
+	clusterRolesBody := cssv2model.CreateClusterRolesBody{
 		FlavorRef:   node["flavor"].(string),
 		Type:        nodeType,
 		InstanceNum: int32(node["instance_number"].(int)),
-		Volume: &cssv2model.CreateClusterInstanceVolumeBody{
+	}
+
+	// Ess node and cold node support local disk. The volume value is empty.
+	// Master node and client node do not support local volume. The volume value is required.
+	if volumes := node["volume"].([]interface{}); len(volumes) > 0 {
+		volume := volumes[0].(map[string]interface{})
+		clusterRolesBody.Volume = &cssv2model.CreateClusterInstanceVolumeBody{
 			Size:       int32(volume["size"].(int)),
 			VolumeType: volume["volume_type"].(string),
-		},
+		}
 	}
+	return clusterRolesBody
 }
 
 func buildCssTags(tagmap map[string]interface{}) *[]cssv2model.CreateClusterTagsBody {
