@@ -38,6 +38,8 @@ resource "huaweicloud_enterprise_project" "test" {
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - Indicates the ID of the enterprise project.
+
 * `status` - Indicates the status of an enterprise project.
   + **1**: Indicates enabled.
   + **2**: Indicates disabled.

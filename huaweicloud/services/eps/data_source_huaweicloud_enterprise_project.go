@@ -2,13 +2,14 @@ package eps
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -48,11 +49,11 @@ func DataSourceEnterpriseProject() *schema.Resource {
 }
 
 func dataSourceEnterpriseProjectRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	epsClient, err := config.EnterpriseProjectClient(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	epsClient, err := cfg.EnterpriseProjectClient(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud eps client %s", err)
+		return diag.Errorf("Error creating EPS client %s", err)
 	}
 
 	listOpts := enterpriseprojects.ListOpts{
@@ -63,21 +64,13 @@ func dataSourceEnterpriseProjectRead(_ context.Context, d *schema.ResourceData, 
 	projects, err := enterpriseprojects.List(epsClient, listOpts).Extract()
 
 	if err != nil {
-		return fmtp.DiagErrorf("Error retrieving enterprise projects %s", err)
+		return diag.Errorf("Error retrieving enterprise projects %s", err)
 	}
 
-	if len(projects) < 1 {
-		return fmtp.DiagErrorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+	project, err := flattenEnterpriseProject(d, projects)
+	if err != nil {
+		return diag.FromErr(err)
 	}
-
-	if len(projects) > 1 {
-		return fmtp.DiagErrorf("Your query returned more than one result." +
-			" Please try a more specific search criteria")
-	}
-
-	project := projects[0]
-
 	d.SetId(project.ID)
 	mErr := multierror.Append(nil,
 		d.Set("name", project.Name),
@@ -88,8 +81,35 @@ func dataSourceEnterpriseProjectRead(_ context.Context, d *schema.ResourceData, 
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("error setting HuaweiCloud enterprise project fields: %w", err)
+		return diag.Errorf("Error setting enterprise project fields: %s", err)
 	}
 
 	return nil
+}
+
+func flattenEnterpriseProject(d *schema.ResourceData, projects []enterpriseprojects.Project) (
+	*enterpriseprojects.Project, error) {
+	if len(projects) < 1 {
+		return nil, fmt.Errorf("your query returned no results." +
+			" Please change your search criteria and try again")
+	}
+
+	if len(projects) > 1 {
+		name := d.Get("name").(string)
+		// there is no condition to find the target enterprise project
+		if name == "" {
+			return nil, fmt.Errorf("your query returned more than one result." +
+				" Please specify your enterprise project name or enterprise project id")
+		}
+
+		for _, v := range projects {
+			if v.Name == name {
+				// use name to find the target enterprise project
+				return &v, nil
+			}
+		}
+		return nil, fmt.Errorf("cannot find the target enterprise project through your input name." +
+			" Please change your search criteria and try again")
+	}
+	return &projects[0], nil
 }
