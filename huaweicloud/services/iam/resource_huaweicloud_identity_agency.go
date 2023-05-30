@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -69,9 +70,10 @@ func ResourceIAMAgencyV3() *schema.Resource {
 				Computed: true,
 			},
 			"duration": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "FOREVER",
+				Type:             schema.TypeString,
+				Optional:         true,
+				Default:          "FOREVER",
+				DiffSuppressFunc: suppressDurationDiffs,
 			},
 			"project_role": {
 				Type:         schema.TypeSet,
@@ -112,6 +114,21 @@ func ResourceIAMAgencyV3() *schema.Resource {
 			},
 		},
 	}
+}
+
+// If `duration` is set to "ONEDAY" in the configuration, it will be set to "1" in the state.
+// they have the same meaning, so we should suppress the difference.
+//
+//nolint:revive // keep same with the definition of SchemaDiffSuppressFunc
+func suppressDurationDiffs(k, oldValue, newValue string, d *schema.ResourceData) bool {
+	if oldValue == "ONEDAY" {
+		oldValue = "1"
+	}
+	if newValue == "ONEDAY" {
+		newValue = "1"
+	}
+
+	return oldValue == newValue
 }
 
 func resourceIAMAgencyProRoleHash(v interface{}) int {
@@ -236,6 +253,20 @@ func buildDelegatedDomain(d *schema.ResourceData) string {
 	return d.Get("delegated_service_name").(string)
 }
 
+// the type of duration can be string or int in Create and Update methods
+func buildAgencyDuration(d *schema.ResourceData) interface{} {
+	raw := d.Get("duration").(string)
+	if raw == "" {
+		return nil
+	}
+
+	// try to convert duration to int, if suceess, return the converted value
+	if days, err := strconv.Atoi(raw); err == nil {
+		return days
+	}
+	return raw
+}
+
 func resourceIAMAgencyV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -257,7 +288,7 @@ func resourceIAMAgencyV3Create(ctx context.Context, d *schema.ResourceData, meta
 		DomainID:        domainID,
 		Name:            d.Get("name").(string),
 		Description:     d.Get("description").(string),
-		Duration:        d.Get("duration").(string),
+		Duration:        buildAgencyDuration(d),
 		DelegatedDomain: buildDelegatedDomain(d),
 	}
 
@@ -319,6 +350,28 @@ func resourceIAMAgencyV3Create(ctx context.Context, d *schema.ResourceData, meta
 	return resourceIAMAgencyV3Read(ctx, d, meta)
 }
 
+// the value can be "FOREVER" or the period in hour
+// we should convert the period in day
+func normalizeAgencyDuration(dura interface{}) string {
+	var result string
+	switch v := dura.(type) {
+	case string:
+		if hours, err := strconv.Atoi(v); err == nil {
+			days := hours / 24
+			result = strconv.Itoa(days)
+		} else {
+			result = v
+		}
+	case int:
+		days := v / 24
+		result = strconv.Itoa(days)
+	default:
+		result = "FOREVER"
+	}
+
+	return result
+}
+
 func resourceIAMAgencyV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -343,13 +396,8 @@ func resourceIAMAgencyV3Read(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("description", a.Description),
 		d.Set("expire_time", a.ExpireTime),
 		d.Set("create_time", a.CreateTime),
+		d.Set("duration", normalizeAgencyDuration(a.Duration)),
 	)
-
-	if a.Duration != "" {
-		mErr = multierror.Append(mErr, d.Set("duration", a.Duration))
-	} else {
-		mErr = multierror.Append(mErr, d.Set("duration", "FOREVER"))
-	}
 
 	match, _ := regexp.MatchString("^op_svc_[A-Za-z]+$", a.DelegatedDomainName)
 	if match {
@@ -547,7 +595,7 @@ func resourceIAMAgencyV3Update(ctx context.Context, d *schema.ResourceData, meta
 	if d.HasChanges("delegated_domain_name", "delegated_service_name", "description", "duration") {
 		updateOpts := agency.UpdateOpts{
 			Description:     d.Get("description").(string),
-			Duration:        d.Get("duration").(string),
+			Duration:        buildAgencyDuration(d),
 			DelegatedDomain: buildDelegatedDomain(d),
 		}
 

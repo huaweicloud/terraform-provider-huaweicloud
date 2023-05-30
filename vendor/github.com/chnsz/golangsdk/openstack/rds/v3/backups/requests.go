@@ -41,3 +41,11 @@ func Update(c *golangsdk.ServiceClient, id string, opts UpdateOptsBuilder) (r Up
 	_, r.Err = c.Put(resourceURL(c, id), b, nil, reqOpt)
 	return
 }
+
+// Get the backup policy of the instance
+func Get(client *golangsdk.ServiceClient, instanceID string) (r GetResult) {
+	_, r.Err = client.Get(resourceURL(client, instanceID), &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
+	return
+}
