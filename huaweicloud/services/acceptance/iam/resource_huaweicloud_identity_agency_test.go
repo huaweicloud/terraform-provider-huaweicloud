@@ -48,24 +48,31 @@ func TestAccIdentityAgency_domain(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "This is a test agency"),
 					resource.TestCheckResourceAttr(resourceName, "delegated_domain_name", acceptance.HW_DOMAIN_NAME),
 					resource.TestCheckResourceAttr(resourceName, "duration", "FOREVER"),
-					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "2"),
+				),
+			},
+			{
+				Config: testAccIdentityAgency_domainUpdate(rName, "ONEDAY"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "This is a updated test agency"),
+					resource.TestCheckResourceAttr(resourceName, "delegated_domain_name", acceptance.HW_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(resourceName, "duration", "1"),
+					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "3"),
+				),
+			},
+			{
+				Config: testAccIdentityAgency_domainUpdate(rName, "30"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "duration", "30"),
+					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "3"),
 				),
 			},
 			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-			},
-			{
-				Config: testAccIdentityAgency_domainUpdate(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "description", "This is a updated test agency"),
-					resource.TestCheckResourceAttr(resourceName, "delegated_domain_name", acceptance.HW_DOMAIN_NAME),
-					resource.TestCheckResourceAttr(resourceName, "duration", "FOREVER"),
-					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "2"),
-				),
 			},
 		},
 	})
@@ -79,23 +86,26 @@ resource "huaweicloud_identity_agency" "test" {
   delegated_domain_name = "%s"
 
   domain_roles = [
+    "Server Administrator",
     "Anti-DDoS Administrator",
   ]
 }
 `, rName, acceptance.HW_DOMAIN_NAME)
 }
 
-func testAccIdentityAgency_domainUpdate(rName string) string {
+func testAccIdentityAgency_domainUpdate(rName, duration string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_agency" "test" {
   name                  = "%s"
   description           = "This is a updated test agency"
+  duration              = "%s"
   delegated_domain_name = "%s"
 
   domain_roles = [
     "Anti-DDoS Administrator",
+    "SMN Administrator",
     "Ticket Administrator",
   ]
 }
-`, rName, acceptance.HW_DOMAIN_NAME)
+`, rName, duration, acceptance.HW_DOMAIN_NAME)
 }

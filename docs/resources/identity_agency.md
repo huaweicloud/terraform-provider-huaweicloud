@@ -36,8 +36,8 @@ The following arguments are supported:
 
 * `delegated_domain_name` - (Required, String) Specifies the name of delegated user domain.
 
-* `duration` - (Optional, String) Specifies the validity period of an agency. The valid value are *ONEDAY* and *FOREVER*
-  , defaults to *FOREVER*.
+* `duration` - (Optional, String) Specifies the validity period of an agency. The valid value are *FOREVER*, *ONEDAY*
+  or the specific days, for example, "20". The default value is *FOREVER*.
 
 * `project_role` - (Optional, List) Specifies an array of one or more roles and projects which are used to grant
   permissions to agency on project. The structure is documented below.
@@ -64,6 +64,14 @@ In addition to all arguments above, the following attributes are exported:
 * `expire_time` - The expiration time of agency.
 * `create_time` - The time when the agency was created.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 10 minutes.
+* `update` - Default is 10 minutes.
+* `delete` - Default is 5 minutes.
+
 ## Import
 
 Agencies can be imported using the `id`, e.g.
@@ -71,11 +79,3 @@ Agencies can be imported using the `id`, e.g.
 ```
 $ terraform import huaweicloud_identity_agency.agency 0b97661f9900f23f4fc2c00971ea4dc0
 ```
-
-## Timeouts
-
-This resource provides the following timeouts configuration options:
-
-* `create` - Default is 10 minute.
-* `update` - Default is 10 minute.
-* `delete` - Default is 5 minute.

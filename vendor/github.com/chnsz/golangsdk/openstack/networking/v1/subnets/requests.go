@@ -186,8 +186,8 @@ type CreateOpts struct {
 }
 
 type ExtraDhcpOpt struct {
-	OptName  string `json:"opt_name" required:"true"`
-	OptValue string `json:"opt_value,omitempty"`
+	OptName  string  `json:"opt_name" required:"true"`
+	OptValue *string `json:"opt_value"`
 }
 
 // ToSubnetCreateMap builds a create request body from CreateOpts.

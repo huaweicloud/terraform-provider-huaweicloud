@@ -12,9 +12,12 @@ type Agency struct {
 	DelegatedDomainID   string `json:"trust_domain_id"`
 	DelegatedDomainName string `json:"trust_domain_name"`
 	Description         string `json:"description"`
-	Duration            string `json:"duration"`
 	ExpireTime          string `json:"expire_time"`
 	CreateTime          string `json:"create_time"`
+	// validity period of the agency
+	// In create and update response, it can be "FOREVER" or validity hours in int, for example, 480
+	// In get response, it can be "FOREVER" or validity hours in string, for example, "480"
+	Duration interface{} `json:"duration"`
 }
 
 type commonResult struct {

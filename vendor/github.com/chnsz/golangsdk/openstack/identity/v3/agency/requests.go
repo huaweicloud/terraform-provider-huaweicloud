@@ -9,7 +9,8 @@ type CreateOpts struct {
 	DomainID        string `json:"domain_id" required:"true"`
 	DelegatedDomain string `json:"trust_domain_name" required:"true"`
 	Description     string `json:"description,omitempty"`
-	Duration        string `json:"duration,omitempty"`
+	// the duration can be string("FOREVER", "ONEDAY") or specific days in int(1, 2, 3...)
+	Duration interface{} `json:"duration,omitempty"`
 }
 
 type CreateOptsBuilder interface {
@@ -34,7 +35,8 @@ func Create(c *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateResult)
 type UpdateOpts struct {
 	DelegatedDomain string `json:"trust_domain_name,omitempty"`
 	Description     string `json:"description,omitempty"`
-	Duration        string `json:"duration,omitempty"`
+	// the duration can be string("FOREVER", "ONEDAY") or specific days in int(1, 2, 3...)
+	Duration interface{} `json:"duration,omitempty"`
 }
 
 type UpdateOptsBuilder interface {
