@@ -33,6 +33,16 @@ resource "huaweicloud_vpc_subnet" "subnet_with_tags" {
   }
 }
 
+resource "huaweicloud_vpc_subnet" "subnet_with_dhcp" {
+  name       = var.subnet_name
+  cidr       = var.subnet_cidr
+  gateway_ip = var.subnet_gateway_ip
+  vpc_id     = huaweicloud_vpc.vpc.id
+
+  dhcp_lease_time    = "24h"
+  ntp_server_address = "10.100.0.33,10.100.0.34"
+}
+
  ```
 
 ## Argument Reference
@@ -67,6 +77,14 @@ The following arguments are supported:
 
 * `secondary_dns` - (Optional, String) Specifies the IP address of DNS server 2 on the subnet. The value must be a valid
   IP address.
+
+* `dhcp_lease_time` - (Optional, String) Specifies the DHCP lease expiration time. The value can be -1, which indicates
+  unlimited lease time, or Number+h. the number ranges from 1 to 30,000. For example, the value can be 5h. The default
+  value is 24h.
+
+* `ntp_server_address` - (Optional, String) Specifies the NTP server address. Currently only IPv4 addresses are supported.
+  A maximum of four IP addresses can be configured, and each address must be unique. Multiple IP addresses must be
+  separated using commas(,). Removing this parameter indicates that no NTP server is configured.
 
 * `dns_list` - (Optional, List) Specifies the DNS server address list of a subnet. This field is required if you need to
   use more than two DNS servers. This parameter value is the superset of both DNS server address 1 and DNS server

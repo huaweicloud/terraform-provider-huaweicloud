@@ -150,6 +150,15 @@ func ResourceVpcSubnetV1() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
+			"ntp_server_address": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"dhcp_lease_time": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"subnet_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -176,6 +185,34 @@ func ResourceVpcSubnetV1() *schema.Resource {
 	}
 }
 
+func buildDhcpOpts(d *schema.ResourceData, update bool) []subnets.ExtraDhcpOpt {
+	var result []subnets.ExtraDhcpOpt
+	if v, ok := d.GetOk("dhcp_lease_time"); ok {
+		addressVal := v.(string)
+		addressTime := subnets.ExtraDhcpOpt{
+			OptName:  "addresstime",
+			OptValue: &addressVal,
+		}
+		result = append(result, addressTime)
+	}
+
+	if v, ok := d.GetOk("ntp_server_address"); ok {
+		ntpVal := v.(string)
+		ntp := subnets.ExtraDhcpOpt{
+			OptName:  "ntp",
+			OptValue: &ntpVal,
+		}
+		result = append(result, ntp)
+	} else if update {
+		ntp := subnets.ExtraDhcpOpt{
+			OptName: "ntp",
+		}
+		result = append(result, ntp)
+	}
+
+	return result
+}
+
 func resourceVpcSubnetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
@@ -197,6 +234,7 @@ func resourceVpcSubnetCreate(ctx context.Context, d *schema.ResourceData, meta i
 		PRIMARY_DNS:      d.Get("primary_dns").(string),
 		SECONDARY_DNS:    d.Get("secondary_dns").(string),
 		DnsList:          ResourceSubnetDNSListV1(d, region),
+		ExtraDhcpOpts:    buildDhcpOpts(d, false),
 	}
 	log.Printf("[DEBUG] Create VPC subnet options: %#v", createOpts)
 
@@ -292,6 +330,15 @@ func resourceVpcSubnetRead(_ context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating VpcSubnet client: %s", err)
 	}
 
+	// set dhcp extra opts ntp and addresstime
+	for _, val := range n.ExtraDhcpOpts {
+		if val.OptName == "ntp" {
+			mErr = multierror.Append(mErr, d.Set("ntp_server_address", val.OptValue))
+		} else if val.OptName == "addresstime" {
+			mErr = multierror.Append(mErr, d.Set("dhcp_lease_time", val.OptValue))
+		}
+	}
+
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting VPC subnet fields: %s", err)
 	}
@@ -306,7 +353,8 @@ func resourceVpcSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating networking client: %s", err)
 	}
 
-	if d.HasChanges("name", "description", "dhcp_enable", "primary_dns", "secondary_dns", "dns_list", "ipv6_enable") {
+	if d.HasChanges("name", "description", "dhcp_enable", "primary_dns", "secondary_dns", "dns_list",
+		"ipv6_enable", "dhcp_lease_time", "ntp_server_address") {
 		var updateOpts subnets.UpdateOpts
 
 		// name is mandatory while updating subnet
@@ -335,6 +383,9 @@ func resourceVpcSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		if d.HasChange("dns_list") {
 			dnsList := ResourceSubnetDNSListV1(d, "")
 			updateOpts.DnsList = &dnsList
+		}
+		if d.HasChanges("dhcp_lease_time", "ntp_server_address") {
+			updateOpts.ExtraDhcpOpts = buildDhcpOpts(d, true)
 		}
 
 		log.Printf("[DEBUG] Update VPC subnet options: %#v", updateOpts)
