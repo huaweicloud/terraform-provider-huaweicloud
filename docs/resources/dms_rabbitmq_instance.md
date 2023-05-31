@@ -8,35 +8,64 @@ Manage DMS RabbitMQ instance resources within HuaweiCloud.
 
 ## Example Usage
 
-### Basic Instance
+### Basic Instance for cluster
 
 ```hcl
-variable vpc_id {}
-variable subnet_id {}
-variable security_group_id {}
+variable "vpc_id" {}
+variable "subnet_id" {}
+variable "security_group_id" {}
+variable "availability_zones" {
+   default = ["your_availability_zones_a", "your_availability_zones_b", "your_availability_zones_c"]
+}
 
-data "huaweicloud_availability_zones" "zones" {}
-
-data "huaweicloud_dms_product" "test" {
-  engine        = "rabbitmq"
-  instance_type = "cluster"
-  version       = "3.7.17"
-  node_num      = 3
+data "huaweicloud_dms_rabbitmq_flavors" "test" {
+  type              = "cluster"
+  storage_spec_code = "dms.physical.storage.ultra.v2"
 }
 
 resource "huaweicloud_dms_rabbitmq_instance" "test" {
   name              = "instance_1"
-  product_id        = data.huaweicloud_dms_product.test.id
-  engine_version    = data.huaweicloud_dms_product.test.version
-  storage_spec_code = data.huaweicloud_dms_product.test.storage_spec_code
+  flavor_id         = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0].flavor.id
+  engine_version    = data.huaweicloud_dms_rabbitmq_flavors.test.versions[0]
+  storage_spec_code = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0].ios[0].storage_spec_code
+  broker_num        = 3
 
   vpc_id             = var.vpc_id
   network_id         = var.subnet_id
   security_group_id  = var.security_group_id
-  availability_zones = [
-    data.huaweicloud_availability_zones.zones.names[0]
-  ]
+  availability_zones = var.availability_zones
 
+  access_user = "user"
+  password    = "Rabbitmqtest@123"
+}
+```
+
+### Basic Instance for single
+
+```hcl
+variable "vpc_id" {}
+variable "subnet_id" {}
+variable "security_group_id" {}
+variable "availability_zones" {
+   default = ["your_availability_zones_a", "your_availability_zones_b", "your_availability_zones_c"]
+}
+
+data "huaweicloud_dms_rabbitmq_flavors" "test" {
+  type              = "single"
+  storage_spec_code = "dms.physical.storage.ultra.v2"
+}
+
+resource "huaweicloud_dms_rabbitmq_instance" "test" {
+  name              = "instance_1"
+  flavor_id         = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0].flavor.id
+  engine_version    = data.huaweicloud_dms_rabbitmq_flavors.test.versions[0]
+  storage_spec_code = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0].ios[0].storage_spec_code
+
+  vpc_id             = var.vpc_id
+  network_id         = var.subnet_id
+  security_group_id  = var.security_group_id
+  availability_zones = var.availability_zones
+  
   access_user = "user"
   password    = "Rabbitmqtest@123"
 }
@@ -52,10 +81,13 @@ The following arguments are supported:
 * `name` - (Required, String) Specifies the name of the DMS RabbitMQ instance. An instance name starts with a letter,
   consists of 4 to 64 characters, and supports only letters, digits, hyphens (-) and underscores (_).
 
-* `product_id` - (Required, String) Specifies a product ID. Changing this creates a new instance resource.
+* `flavor_id` - (Optional, String) Specifies a flavor ID. Changing this creates a new instance resource.
+
+* `broker_num` - (Optional, Int, ForceNew) Specifies the broker numbers.
+  It is required when creating a cluster instance with `flavor_id`.
 
   -> **NOTE:** Change this will change number of nodes and storage capacity. If you specify the value of
-  `storage_space`, you need to manually modify the value of `storage_space` after changing the `product_id`.
+  `storage_space`, you need to manually modify the value of `storage_space` after changing the `broker_num`.
 
 * `engine_version` - (Optional, String, ForceNew) Specifies the version of the RabbitMQ engine. Default to "3.7.17".
   Changing this creates a new instance resource.
@@ -86,7 +118,8 @@ The following arguments are supported:
   and special characters (`~!@#$%^&*()-_=+\\|[{}]:'",<.>/?).
   Changing this creates a new instance resource.
 
-* `storage_space` - (Optional, Int, ForceNew) Specifies the message storage space, unit is GB. Value range:
+* `storage_space` - (Optional, Int, ForceNew) Specifies the message storage space, unit is GB.
+  It is required when creating a instance with `flavor_id`. Value range:
   + Single-node RabbitMQ instance: 100–90,000 GB
   + Cluster RabbitMQ instance: 100 GB x number of nodes to 90,000 GB, 200 GB x number of nodes to 90,000 GB,
     and 300 GB x number of nodes to 90,000 GB

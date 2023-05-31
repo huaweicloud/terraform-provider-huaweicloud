@@ -72,6 +72,102 @@ func TestAccDmsRabbitmqInstances_basic(t *testing.T) {
 	})
 }
 
+func TestAccDmsRabbitmqInstances_newFormat_cluster(t *testing.T) {
+	var instance instances.Instance
+	rName := acceptance.RandomAccResourceNameWithDash()
+	updateName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_dms_rabbitmq_instance.test"
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDmsRabbitMqInstanceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDmsRabbitmqInstance_newFormat_cluster(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "rabbitmq test"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+				),
+			},
+			{
+				Config: testAccDmsRabbitmqInstance_newFormat_cluster_update(rName, updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
+					resource.TestCheckResourceAttr(resourceName, "description", "rabbitmq test update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"password", "used_storage_space",
+				},
+			},
+		},
+	})
+}
+
+func TestAccDmsRabbitmqInstances_newFormat_single(t *testing.T) {
+	var instance instances.Instance
+	rName := acceptance.RandomAccResourceNameWithDash()
+	updateName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_dms_rabbitmq_instance.test"
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDmsRabbitMqInstanceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDmsRabbitmqInstance_newFormat_single(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "rabbitmq test"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+				),
+			},
+			{
+				Config: testAccDmsRabbitmqInstance_newFormat_single_update(rName, updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
+					resource.TestCheckResourceAttr(resourceName, "description", "rabbitmq test update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"password", "used_storage_space",
+				},
+			},
+		},
+	})
+}
+
 func TestAccDmsRabbitmqInstances_withEpsId(t *testing.T) {
 	var instance instances.Instance
 	rName := acceptance.RandomAccResourceNameWithDash()
@@ -341,4 +437,171 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
   password    = "%[3]s"
 }
 `, testAccDmsRabbitmqInstance_Base(rName), rName, randPwd)
+}
+
+func testAccDmsRabbitmqInstance_newFormat_cluster(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dms_rabbitmq_flavors" "test" {
+  type = "cluster"
+}
+
+locals {
+  query_results = data.huaweicloud_dms_rabbitmq_flavors.test
+  flavor        = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0]
+}
+
+resource "huaweicloud_dms_rabbitmq_instance" "test" {
+  name        = "%s"
+  description = "rabbitmq test"
+  
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  flavor_id         = local.flavor.id
+  engine_version    = element(local.query_results.versions, length(local.query_results.versions)-1)
+  storage_space     = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
+  storage_spec_code = local.flavor.ios[0].storage_spec_code
+  broker_num        = 3
+  access_user       = "user"
+  password          = "Rabbitmqtest@123"
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+}`, common.TestBaseNetwork(rName), rName)
+}
+
+func testAccDmsRabbitmqInstance_newFormat_cluster_update(rName, updateName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dms_rabbitmq_flavors" "test" {
+  type = "cluster"
+}
+
+locals {
+  query_results = data.huaweicloud_dms_rabbitmq_flavors.test
+  flavor        = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0]
+  newFlavor     = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[1]
+}
+
+resource "huaweicloud_dms_rabbitmq_instance" "test" {
+  name        = "%s"
+  description = "rabbitmq test update"
+  
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  flavor_id         = local.newFlavor.id
+  engine_version    = element(local.query_results.versions, length(local.query_results.versions)-1)
+  storage_space     = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
+  storage_spec_code = local.flavor.ios[0].storage_spec_code
+  broker_num        = 3
+  access_user       = "user"
+  password          = "Rabbitmqtest@123"
+
+  tags = {
+    key1  = "value"
+    owner = "terraform_update"
+  }
+}`, common.TestBaseNetwork(rName), updateName)
+}
+
+func testAccDmsRabbitmqInstance_newFormat_single(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dms_rabbitmq_flavors" "test" {
+  type = "single"
+}
+
+locals {
+  query_results = data.huaweicloud_dms_rabbitmq_flavors.test
+  flavor        = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0]
+}
+
+resource "huaweicloud_dms_rabbitmq_instance" "test" {
+  name        = "%s"
+  description = "rabbitmq test"
+  
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  flavor_id         = local.flavor.id
+  engine_version    = element(local.query_results.versions, length(local.query_results.versions)-1)
+  storage_space     = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
+  storage_spec_code = local.flavor.ios[0].storage_spec_code
+  access_user       = "user"
+  password          = "Rabbitmqtest@123"
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+}`, common.TestBaseNetwork(rName), rName)
+}
+
+func testAccDmsRabbitmqInstance_newFormat_single_update(rName, updateName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dms_rabbitmq_flavors" "test" {
+  type = "single"
+}
+
+locals {
+  query_results = data.huaweicloud_dms_rabbitmq_flavors.test
+  newFlavor     = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[1]
+}
+
+resource "huaweicloud_dms_rabbitmq_instance" "test" {
+  name        = "%s"
+  description = "rabbitmq test update"
+  
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  flavor_id         = local.newFlavor.id
+  engine_version    = element(local.query_results.versions, length(local.query_results.versions)-1)
+  storage_space     = 600
+  storage_spec_code = local.newFlavor.ios[0].storage_spec_code
+  access_user       = "user"
+  password          = "Rabbitmqtest@123"
+
+  tags = {
+    key1  = "value"
+    owner = "terraform_update"
+  }
+}`, common.TestBaseNetwork(rName), updateName)
 }

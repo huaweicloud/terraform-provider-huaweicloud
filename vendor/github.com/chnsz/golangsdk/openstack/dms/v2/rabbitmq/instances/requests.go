@@ -68,6 +68,9 @@ type CreateOps struct {
 	// Indicates a product ID.
 	ProductID string `json:"product_id" required:"true"`
 
+	// Indicates the maximum number of brokers in a RabbitMQ instance.
+	BrokerNum int `json:"broker_num,omitempty"`
+
 	// Indicates the time at which a maintenance time window starts.
 	// Format: HH:mm:ss
 	MaintainBegin string `json:"maintain_begin,omitempty"`
@@ -93,6 +96,26 @@ type CreateOps struct {
 
 	// Indicates the tags of the instance
 	Tags []tags.ResourceTag `json:"tags,omitempty"`
+
+	// Indicates the parameter related to the yearly/monthly billing mode.
+	BssParam *BssParam `json:"bss_param,omitempty"`
+}
+
+type BssParam struct {
+	// Indicates the charging mode of the instance.
+	ChargingMode string `json:"charging_mode" required:"true"`
+
+	// Indicates the charging period unit of the instance
+	PeriodType string `json:"period_type,omitempty"`
+
+	// Indicates the charging period of the instance.
+	PeriodNum int `json:"period_num,omitempty"`
+
+	// Indicates whether auto renew is enabled.
+	IsAutoRenew *bool `json:"is_auto_renew,omitempty"`
+
+	// Indicates whether the order is automatically or manually paid.
+	IsAutoPay *bool `json:"is_auto_pay,omitempty"`
 }
 
 // ToInstanceCreateMap is used for type convert
@@ -109,6 +132,21 @@ func Create(client *golangsdk.ServiceClient, ops CreateOpsBuilder) (r CreateResu
 	}
 
 	_, r.Err = client.Post(createURL(client), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes: []int{200},
+	})
+
+	return
+}
+
+// Create an instance with given parameters.
+func CreateWithEngine(client *golangsdk.ServiceClient, ops CreateOpsBuilder) (r CreateResult) {
+	b, err := ops.ToInstanceCreateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(createWithEngineURL(client), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{200},
 	})
 
@@ -228,8 +266,11 @@ func List(client *golangsdk.ServiceClient, opts ListOpsBuilder) pagination.Pager
 }
 
 type ResizeInstanceOpts struct {
-	NewSpecCode     string `json:"new_spec_code" required:"true"`
-	NewStorageSpace int    `json:"new_storage_space" required:"true"`
+	OperType        *string `json:"oper_type,omitempty"`
+	NewSpecCode     *string `json:"new_spec_code,omitempty"`
+	NewStorageSpace *int    `json:"new_storage_space,omitempty"`
+	NewBrokerNum    *int    `json:"new_broker_num,omitempty"`
+	NewProductID    *string `json:"new_product_id,omitempty"`
 }
 
 func Resize(client *golangsdk.ServiceClient, id string, opts ResizeInstanceOpts) (string, error) {
