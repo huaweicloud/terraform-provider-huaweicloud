@@ -59,3 +59,23 @@ func (r ListRolesResult) ExtractRoles() ([]roles.Role, error) {
 	err := r.ExtractInto(&s)
 	return s.Roles, err
 }
+
+type InheritedRole struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+
+	// Links contains referencing links to the role.
+	Links map[string]interface{} `json:"links"`
+}
+
+type ListInheritedRolesResult struct {
+	golangsdk.Result
+}
+
+func (r ListInheritedRolesResult) ExtractRoles() ([]InheritedRole, error) {
+	var s struct {
+		Roles []InheritedRole `json:"roles"`
+	}
+	err := r.ExtractInto(&s)
+	return s.Roles, err
+}

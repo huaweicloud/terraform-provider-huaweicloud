@@ -78,7 +78,7 @@ func ResourceIAMAgencyV3() *schema.Resource {
 			"project_role": {
 				Type:         schema.TypeSet,
 				Optional:     true,
-				AtLeastOneOf: []string{"project_role", "domain_roles"},
+				AtLeastOneOf: []string{"project_role", "domain_roles", "all_resources_roles"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"project": {
@@ -100,6 +100,12 @@ func ResourceIAMAgencyV3() *schema.Resource {
 				Type:     schema.TypeSet,
 				Optional: true,
 				MaxItems: 25,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+			"all_resources_roles": {
+				Type:     schema.TypeSet,
+				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
@@ -307,44 +313,20 @@ func resourceIAMAgencyV3Create(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	prs := d.Get("project_role").(*schema.Set).List()
-	for _, v := range prs {
-		pr := v.(map[string]interface{})
-		pname := pr["project"].(string)
-		pid, err := getProjectIDByName(identityClient, domainID, pname)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-
-		rs := pr["roles"].(*schema.Set).List()
-		for _, role := range rs {
-			r := role.(string)
-			rid, ok := allRoleIDs[r]
-			if !ok {
-				return diag.Errorf("the project role(%s) is not exist", r)
-			}
-
-			err = agency.AttachRoleByProject(iamClient, agencyID, pid, rid).ExtractErr()
-			if err != nil {
-				return diag.Errorf("error attaching role(%s) by project(%s) to agency(%s): %s",
-					rid, pid, agencyID, err)
-			}
-		}
+	rawRoles := d.Get("project_role").(*schema.Set)
+	pRoles := buildProjectRoles(rawRoles)
+	if err := attachProjectRoles(iamClient, identityClient, allRoleIDs, pRoles, domainID, agencyID); err != nil {
+		return diag.FromErr(err)
 	}
 
-	drs := d.Get("domain_roles").(*schema.Set)
-	for _, role := range drs.List() {
-		r := role.(string)
-		rid, ok := allRoleIDs[r]
-		if !ok {
-			return diag.Errorf("the domain role(%s) is not exist", r)
-		}
+	domainRoles := utils.ExpandToStringListBySet(d.Get("domain_roles").(*schema.Set))
+	if err := attachDomainRoles(iamClient, allRoleIDs, domainRoles, domainID, agencyID); err != nil {
+		return diag.FromErr(err)
+	}
 
-		err = agency.AttachRoleByDomain(iamClient, agencyID, domainID, rid).ExtractErr()
-		if err != nil {
-			return diag.Errorf("error attaching role(%s) by domain(%s) to agency(%s): %s",
-				rid, domainID, agencyID, err)
-		}
+	inheritedRoles := utils.ExpandToStringListBySet(d.Get("all_resources_roles").(*schema.Set))
+	if err := attachAllResourcesRoles(iamClient, allRoleIDs, inheritedRoles, domainID, agencyID); err != nil {
+		return diag.FromErr(err)
 	}
 
 	return resourceIAMAgencyV3Read(ctx, d, meta)
@@ -450,15 +432,26 @@ func resourceIAMAgencyV3Read(_ context.Context, d *schema.ResourceData, meta int
 		}
 		err = d.Set("domain_roles", &v)
 		if err != nil {
-			log.Printf("[ERROR] Set domain_roles failed: %s", err)
+			log.Printf("[ERROR] set domain_roles failed: %s", err)
 		}
 	}
 
+	// Unable to fetch all_resources_roles because the API response does not include `display_name` field
+	// https://support.huaweicloud.com/api-iam/iam_12_0014.html
 	return nil
 }
 
-func changeToPRPair(prs *schema.Set) (r map[string]bool) {
-	r = make(map[string]bool)
+func buildProjectRoles(prs *schema.Set) []string {
+	addprs := changeToPRPair(prs)
+	pRoles := make([]string, len(addprs))
+	for key := range addprs {
+		pRoles = append(pRoles, key)
+	}
+	return pRoles
+}
+
+func changeToPRPair(prs *schema.Set) map[string]bool {
+	r := make(map[string]bool)
 	for _, v := range prs.List() {
 		pr := v.(map[string]interface{})
 
@@ -469,7 +462,7 @@ func changeToPRPair(prs *schema.Set) (r map[string]bool) {
 			r[key] = true
 		}
 	}
-	return
+	return r
 }
 
 func diffChangeOfProjectRole(oldVal, newVal *schema.Set) (remove, add []string) {
@@ -493,12 +486,40 @@ func diffChangeOfProjectRole(oldVal, newVal *schema.Set) (remove, add []string) 
 	return
 }
 
-func updateProjectRoles(d *schema.ResourceData, iamClient, identityClient *golangsdk.ServiceClient,
-	allRoleIDs map[string]string, domainID, agencyID string) error {
-	o, n := d.GetChange("project_role")
-	deleteprs, addprs := diffChangeOfProjectRole(o.(*schema.Set), n.(*schema.Set))
-	for _, v := range deleteprs {
+func attachProjectRoles(iamClient, identityClient *golangsdk.ServiceClient, allRoleIDs map[string]string,
+	pRoles []string, domainID, agencyID string) error {
+	for _, v := range pRoles {
 		pr := strings.Split(v, "|")
+		if len(pr) != 2 {
+			return fmt.Errorf("error parsing project role from %s: invalid format", v)
+		}
+
+		pid, err := getProjectIDByName(identityClient, domainID, pr[0])
+		if err != nil {
+			return fmt.Errorf("the project(%s) is not exist", pr[0])
+		}
+		rid, ok := allRoleIDs[pr[1]]
+		if !ok {
+			return fmt.Errorf("the role(%s) to be attached is not exist", pr[1])
+		}
+
+		err = agency.AttachRoleByProject(iamClient, agencyID, pid, rid).ExtractErr()
+		if err != nil {
+			return fmt.Errorf("error attaching role(%s) by project(%s) to agency(%s): %s",
+				rid, pid, agencyID, err)
+		}
+	}
+
+	return nil
+}
+
+func detachProjectRoles(iamClient, identityClient *golangsdk.ServiceClient, allRoleIDs map[string]string,
+	pRoles []string, domainID, agencyID string) error {
+	for _, v := range pRoles {
+		pr := strings.Split(v, "|")
+		if len(pr) != 2 {
+			return fmt.Errorf("error parsing project role from %s: invalid format", v)
+		}
 
 		pid, err := getProjectIDByName(identityClient, domainID, pr[0])
 		if err != nil {
@@ -518,36 +539,33 @@ func updateProjectRoles(d *schema.ResourceData, iamClient, identityClient *golan
 		}
 	}
 
-	for _, v := range addprs {
-		pr := strings.Split(v, "|")
-		pid, err := getProjectIDByName(identityClient, domainID, pr[0])
-		if err != nil {
-			return fmt.Errorf("the project(%s) is not exist", pr[0])
-		}
-		rid, ok := allRoleIDs[pr[1]]
-		if !ok {
-			return fmt.Errorf("the role(%s) to be attached is not exist", pr[1])
-		}
-
-		err = agency.AttachRoleByProject(iamClient, agencyID, pid, rid).ExtractErr()
-		if err != nil {
-			return fmt.Errorf("error attaching role(%s) by project(%s) to agency(%s): %s",
-				rid, pid, agencyID, err)
-		}
-	}
 	return nil
 }
 
-func updateDomainRoles(d *schema.ResourceData, iamClient *golangsdk.ServiceClient,
-	allRoleIDs map[string]string, domainID, agencyID string) error {
-	o, n := d.GetChange("domain_roles")
-	oldr := o.(*schema.Set)
-	newr := n.(*schema.Set)
-
-	for _, r := range oldr.Difference(newr).List() {
-		rid, ok := allRoleIDs[r.(string)]
+func attachDomainRoles(iamClient *golangsdk.ServiceClient, allRoleIDs map[string]string,
+	roleNames []string, domainID, agencyID string) error {
+	for _, r := range roleNames {
+		rid, ok := allRoleIDs[r]
 		if !ok {
-			log.Printf("[WARN] the role(%s) to be detached is not exist", r.(string))
+			return fmt.Errorf("the role(%s) to be attached is not exist", r)
+		}
+
+		err := agency.AttachRoleByDomain(iamClient, agencyID, domainID, rid).ExtractErr()
+		if err != nil {
+			return fmt.Errorf("error attaching role(%s) by domain(%s) to agency(%s): %s",
+				rid, domainID, agencyID, err)
+		}
+	}
+
+	return nil
+}
+
+func detachDomainRoles(iamClient *golangsdk.ServiceClient, allRoleIDs map[string]string,
+	roleNames []string, domainID, agencyID string) error {
+	for _, r := range roleNames {
+		rid, ok := allRoleIDs[r]
+		if !ok {
+			log.Printf("[WARN] the role(%s) to be detached is not exist", r)
 			continue
 		}
 
@@ -558,17 +576,97 @@ func updateDomainRoles(d *schema.ResourceData, iamClient *golangsdk.ServiceClien
 		}
 	}
 
-	for _, r := range newr.Difference(oldr).List() {
-		rid, ok := allRoleIDs[r.(string)]
+	return nil
+}
+
+func attachAllResourcesRoles(iamClient *golangsdk.ServiceClient, allRoleIDs map[string]string,
+	roleNames []string, domainID, agencyID string) error {
+	for _, r := range roleNames {
+		rid, ok := allRoleIDs[r]
 		if !ok {
-			return fmt.Errorf("the role(%s) to be attached is not exist", r.(string))
+			return fmt.Errorf("the role(%s) to be attached is not exist", r)
 		}
 
-		err := agency.AttachRoleByDomain(iamClient, agencyID, domainID, rid).ExtractErr()
+		err := agency.AttachAllResources(iamClient, agencyID, domainID, rid).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("error attaching role(%s) by domain(%s) to agency(%s): %s",
-				rid, domainID, agencyID, err)
+			return fmt.Errorf("error attaching role(%s) in all resources to agency(%s): %s",
+				r, agencyID, err)
 		}
+	}
+
+	return nil
+}
+
+func detachAllResourcesRoles(iamClient *golangsdk.ServiceClient, allRoleIDs map[string]string,
+	roleNames []string, domainID, agencyID string) error {
+	for _, r := range roleNames {
+		rid, ok := allRoleIDs[r]
+		if !ok {
+			return fmt.Errorf("the role(%s) to be detached is not exist", r)
+		}
+
+		err := agency.DetachAllResources(iamClient, agencyID, domainID, rid).ExtractErr()
+		if err != nil {
+			return fmt.Errorf("error detaching role(%s) in all resources to agency(%s): %s",
+				r, agencyID, err)
+		}
+	}
+
+	return nil
+}
+
+func updateProjectRoles(d *schema.ResourceData, iamClient, identityClient *golangsdk.ServiceClient,
+	allRoleIDs map[string]string, domainID, agencyID string) error {
+	o, n := d.GetChange("project_role")
+	deleteprs, addprs := diffChangeOfProjectRole(o.(*schema.Set), n.(*schema.Set))
+
+	if err := detachProjectRoles(iamClient, identityClient, allRoleIDs, deleteprs, domainID, agencyID); err != nil {
+		return err
+	}
+
+	//nolint:revive
+	if err := attachProjectRoles(iamClient, identityClient, allRoleIDs, addprs, domainID, agencyID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func updateDomainRoles(d *schema.ResourceData, iamClient *golangsdk.ServiceClient,
+	allRoleIDs map[string]string, domainID, agencyID string) error {
+	o, n := d.GetChange("domain_roles")
+	oldr := o.(*schema.Set)
+	newr := n.(*schema.Set)
+
+	detachRoles := utils.ExpandToStringListBySet(oldr.Difference(newr))
+	if err := detachDomainRoles(iamClient, allRoleIDs, detachRoles, domainID, agencyID); err != nil {
+		return err
+	}
+
+	attachRoles := utils.ExpandToStringListBySet(newr.Difference(oldr))
+	//nolint:revive
+	if err := attachDomainRoles(iamClient, allRoleIDs, attachRoles, domainID, agencyID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func updateAllResourcesRoles(d *schema.ResourceData, iamClient *golangsdk.ServiceClient,
+	allRoleIDs map[string]string, domainID, agencyID string) error {
+	o, n := d.GetChange("all_resources_roles")
+	oldr := o.(*schema.Set)
+	newr := n.(*schema.Set)
+
+	detachRoles := utils.ExpandToStringListBySet(oldr.Difference(newr))
+	if err := detachAllResourcesRoles(iamClient, allRoleIDs, detachRoles, domainID, agencyID); err != nil {
+		return err
+	}
+
+	attachRoles := utils.ExpandToStringListBySet(newr.Difference(oldr))
+	//nolint:revive
+	if err := attachAllResourcesRoles(iamClient, allRoleIDs, attachRoles, domainID, agencyID); err != nil {
+		return err
 	}
 
 	return nil
@@ -615,7 +713,7 @@ func resourceIAMAgencyV3Update(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	var allRoles map[string]string
-	if d.HasChanges("project_role", "domain_roles") {
+	if d.HasChanges("project_role", "domain_roles", "all_resources_roles") {
 		allRoles, err = getAllRolesOfDomain(identityClient, domainID)
 		if err != nil {
 			return diag.Errorf("error querying the roles: %s", err)
@@ -630,6 +728,12 @@ func resourceIAMAgencyV3Update(ctx context.Context, d *schema.ResourceData, meta
 
 	if d.HasChange("domain_roles") {
 		if err = updateDomainRoles(d, iamClient, allRoles, domainID, agencyID); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("all_resources_roles") {
+		if err = updateAllResourcesRoles(d, iamClient, allRoles, domainID, agencyID); err != nil {
 			return diag.FromErr(err)
 		}
 	}

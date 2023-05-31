@@ -49,6 +49,7 @@ func TestAccIdentityAgency_domain(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "delegated_domain_name", acceptance.HW_DOMAIN_NAME),
 					resource.TestCheckResourceAttr(resourceName, "duration", "FOREVER"),
 					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "all_resources_roles.#", "1"),
 				),
 			},
 			{
@@ -59,6 +60,7 @@ func TestAccIdentityAgency_domain(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "delegated_domain_name", acceptance.HW_DOMAIN_NAME),
 					resource.TestCheckResourceAttr(resourceName, "duration", "1"),
 					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "all_resources_roles.#", "1"),
 				),
 			},
 			{
@@ -67,12 +69,14 @@ func TestAccIdentityAgency_domain(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "duration", "30"),
 					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "all_resources_roles.#", "1"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"all_resources_roles"},
 			},
 		},
 	})
@@ -88,6 +92,9 @@ resource "huaweicloud_identity_agency" "test" {
   domain_roles = [
     "Server Administrator",
     "Anti-DDoS Administrator",
+  ]
+  all_resources_roles = [
+    "VPC Administrator"
   ]
 }
 `, rName, acceptance.HW_DOMAIN_NAME)
@@ -105,6 +112,9 @@ resource "huaweicloud_identity_agency" "test" {
     "Anti-DDoS Administrator",
     "SMN Administrator",
     "Ticket Administrator",
+  ]
+  all_resources_roles = [
+    "VPCEndpoint Administrator"
   ]
 }
 `, rName, duration, acceptance.HW_DOMAIN_NAME)
