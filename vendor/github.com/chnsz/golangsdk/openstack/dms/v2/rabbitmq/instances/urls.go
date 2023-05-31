@@ -5,9 +5,16 @@ import "github.com/chnsz/golangsdk"
 // endpoint/instances
 const resourcePath = "instances"
 
+const rabbitMqEngine = "rabbitmq"
+
 // createURL will build the rest query url of creation
 func createURL(client *golangsdk.ServiceClient) string {
 	return client.ServiceURL(client.ProjectID, resourcePath)
+}
+
+// createWithEngineURL will build the rest query url of creation
+func createWithEngineURL(client *golangsdk.ServiceClient) string {
+	return client.ServiceURL(rabbitMqEngine, client.ProjectID, resourcePath)
 }
 
 // deleteURL will build the url of deletion

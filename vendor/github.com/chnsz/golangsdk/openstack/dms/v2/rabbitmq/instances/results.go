@@ -47,6 +47,7 @@ type Instance struct {
 	Status                   string             `json:"status"`
 	InstanceID               string             `json:"instance_id"`
 	ResourceSpecCode         string             `json:"resource_spec_code"`
+	BrokerNum                int                `json:"broker_num"`
 	ChargingMode             int                `json:"charging_mode"`
 	VPCID                    string             `json:"vpc_id"`
 	VPCName                  string             `json:"vpc_name"`
