@@ -81,7 +81,8 @@ The following arguments are supported:
 * `name` - (Required, String) Specifies the name of the DMS RabbitMQ instance. An instance name starts with a letter,
   consists of 4 to 64 characters, and supports only letters, digits, hyphens (-) and underscores (_).
 
-* `flavor_id` - (Optional, String) Specifies a flavor ID. Changing this creates a new instance resource.
+* `flavor_id` - (Optional, String) Specifies a flavor ID.
+  It is mandatory when the `charging_mode` is **prePaid**.
 
 * `broker_num` - (Optional, Int, ForceNew) Specifies the broker numbers.
   It is required when creating a cluster instance with `flavor_id`.
@@ -152,6 +153,19 @@ The following arguments are supported:
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the RabbitMQ instance.
 
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance. Valid values are
+  **prePaid** and **postPaid**, defaults to **postPaid**. Changing this creates a new resource.
+
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the instance.
+  Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.
+  Changing this creates a new resource.
+
+* `period` - (Optional, Int, ForceNew) Specifies the charging period of the instance. If `period_unit` is set to
+  **month**, the value ranges from 1 to 9. If `period_unit` is set to **year**, the value ranges from 1 to 3.
+  This parameter is mandatory if `charging_mode` is set to **prePaid**. Changing this creates a new resource.
+
+* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled. Valid values are **true** and **false**.
+
 * `tags` - (Optional, Map) The key/value pairs to associate with the DMS RabbitMQ instance.
 
 ## Attributes Reference
@@ -191,9 +205,9 @@ DMS RabbitMQ instance can be imported using the instance id, e.g.
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
-`password`. It is generally recommended running `terraform plan` after importing a DMS RabbitMQ instance. You can then
-decide if changes should be applied to the instance, or the resource definition should be updated to align with the
-instance. Also you can ignore changes as below.
+`password`, `auto_renew`, `period` and `period_unit`. It is generally recommended running `terraform plan` after
+importing a DMS RabbitMQ instance. You can then decide if changes should be applied to the instance, or the resource
+definition should be updated to align with the instance. Also you can ignore changes as below.
 
 ```
 resource "huaweicloud_dms_rabbitmq_instance" "instance_1" {
@@ -201,7 +215,7 @@ resource "huaweicloud_dms_rabbitmq_instance" "instance_1" {
 
   lifecycle {
     ignore_changes = [
-      password
+      password, auto_renew, period, period_unit,
     ]
   }
 }

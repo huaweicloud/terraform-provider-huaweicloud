@@ -8,14 +8,15 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/dms/v2/products"
-	"github.com/chnsz/golangsdk/openstack/dms/v2/rabbitmq/instances"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/openstack/dms/v2/products"
+	"github.com/chnsz/golangsdk/openstack/dms/v2/rabbitmq/instances"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -141,6 +142,11 @@ func ResourceDmsRabbitmqInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"charging_mode": common.SchemaChargingMode(nil),
+			"period_unit":   common.SchemaPeriodUnit(nil),
+			"period":        common.SchemaPeriod(nil),
+			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
+
 			"tags": common.TagsSchema(),
 			"engine": {
 				Type:     schema.TypeString,
@@ -310,6 +316,21 @@ func createRabbitMQInstanceWithFlavor(ctx context.Context, d *schema.ResourceDat
 		EnterpriseProjectID: common.GetEnterpriseProjectID(d, cfg),
 	}
 
+	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
+		var autoRenew bool
+		if d.Get("auto_renew").(string) == "true" {
+			autoRenew = true
+		}
+		isAutoPay := true
+		createOpts.BssParam = &instances.BssParam{
+			ChargingMode: d.Get("charging_mode").(string),
+			PeriodType:   d.Get("period_unit").(string),
+			PeriodNum:    d.Get("period").(int),
+			IsAutoRenew:  &autoRenew,
+			IsAutoPay:    &isAutoPay,
+		}
+	}
+
 	if pubIpID, ok := d.GetOk("public_ip_id"); ok {
 		createOpts.EnablePublicIP = true
 		createOpts.PublicIpID = pubIpID.(string)
@@ -333,12 +354,21 @@ func createRabbitMQInstanceWithFlavor(ctx context.Context, d *schema.ResourceDat
 	d.SetId(instanceID)
 	log.Printf("[INFO] Creating RabbitMQ instance, ID: %s", instanceID)
 
+	var delayTime time.Duration = 300
+	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
+		err = waitForRabbitMQOrderComplete(ctx, d, cfg, client, instanceID)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		delayTime = 5
+	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"CREATING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      rabbitmqInstanceStateRefreshFunc(client, instanceID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        300 * time.Second,
+		Delay:        delayTime * time.Second,
 		PollInterval: 15 * time.Second,
 	}
 
@@ -347,6 +377,64 @@ func createRabbitMQInstanceWithFlavor(ctx context.Context, d *schema.ResourceDat
 	}
 
 	return nil
+}
+
+func waitForRabbitMQOrderComplete(ctx context.Context, d *schema.ResourceData, conf *config.Config,
+	client *golangsdk.ServiceClient, instanceID string) error {
+	region := conf.GetRegion(d)
+	orderId, err := getRabbitMQInstanceOrderId(ctx, d, client, instanceID)
+	if err != nil {
+		return err
+	}
+	if orderId == "" {
+		log.Printf("[WARN] error get order id by instance ID: %s", instanceID)
+		return nil
+	}
+
+	bssClient, err := conf.BssV2Client(region)
+	if err != nil {
+		return fmt.Errorf("error creating BSS v2 client: %s", err)
+	}
+	// wait for order success
+	err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return err
+	}
+	_, err = common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return fmt.Errorf("error waiting for RabbitMQ order resource %s complete: %s", orderId, err)
+	}
+	return nil
+}
+
+func getRabbitMQInstanceOrderId(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	instanceID string) (string, error) {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"EMPTY"},
+		Target:       []string{"CREATING"},
+		Refresh:      rabbitMQInstanceCreatingFunc(client, instanceID),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        500 * time.Millisecond,
+		PollInterval: 500 * time.Millisecond,
+	}
+	orderId, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return "", fmt.Errorf("error waiting for RabbitMQ instance (%s) to creating: %s", instanceID, err)
+	}
+	return orderId.(string), nil
+}
+
+func rabbitMQInstanceCreatingFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		instance, err := instances.Get(client, instanceID).Extract()
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return instance, "EMPTY", nil
+			}
+			return nil, "", err
+		}
+		return instance.OrderID, "CREATING", nil
+	}
 }
 
 func createRabbitMQInstanceWithProductID(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -460,6 +548,11 @@ func resourceDmsRabbitmqInstanceRead(_ context.Context, d *schema.ResourceData, 
 	asCodes, err := getAvailableZoneCodeByID(cfg, region, azIDs)
 	mErr := multierror.Append(nil, err)
 
+	var chargingMode = "postPaid"
+	if v.ChargingMode == 0 {
+		chargingMode = "prePaid"
+	}
+
 	d.SetId(v.InstanceID)
 	mErr = multierror.Append(mErr,
 		d.Set("region", region),
@@ -497,6 +590,7 @@ func resourceDmsRabbitmqInstanceRead(_ context.Context, d *schema.ResourceData, 
 		d.Set("user_name", v.UserName),
 		d.Set("type", v.Type),
 		d.Set("access_user", v.AccessUser),
+		d.Set("charging_mode", chargingMode),
 	)
 
 	// set tags
@@ -683,9 +777,15 @@ func resourceDmsRabbitmqInstanceDelete(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("error initializing DMS RabbitMQ(v2) client: %s", err)
 	}
 
-	err = instances.Delete(client, d.Id()).ExtractErr()
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "failed to delete DMS RabbitMQ instance")
+	if d.Get("charging_mode") == "prePaid" {
+		if err = common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()}); err != nil {
+			return diag.Errorf("error unsubscribe RabbitMQ instance: %s", err)
+		}
+	} else {
+		err = instances.Delete(client, d.Id()).ExtractErr()
+		if err != nil {
+			return common.CheckDeletedDiag(d, err, "failed to delete RabbitMQ instance")
+		}
 	}
 
 	// Wait for the instance to delete before moving on.
