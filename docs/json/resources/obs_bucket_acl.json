@@ -48,7 +48,7 @@
                   },
                   "description": "Specifies the account permissions."
                 },
-                "nesting_mode": "list"
+                "nesting_mode": "set"
               },
               "log_delivery_user_permission": {
                 "block": {

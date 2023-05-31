@@ -10,6 +10,10 @@
                 "required": true,
                 "forcenew": true
               },
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
               "availability_zones": {
                 "type": [
                   "set",
@@ -17,6 +21,18 @@
                 ],
                 "description": "schema: Required",
                 "required": true,
+                "forcenew": true
+              },
+              "broker_num": {
+                "type": "number",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "connect_address": {
@@ -45,6 +61,10 @@
                 "type": "string",
                 "optional": true,
                 "computed": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "optional": true
               },
               "id": {
                 "type": "string",
@@ -79,13 +99,19 @@
                 "forcenew": true,
                 "sensitive": true
               },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "port": {
                 "type": "number",
                 "computed": true
-              },
-              "product_id": {
-                "type": "string",
-                "required": true
               },
               "public_ip_id": {
                 "type": "string",

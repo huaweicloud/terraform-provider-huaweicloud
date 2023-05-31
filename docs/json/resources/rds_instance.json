@@ -228,9 +228,17 @@
                       "computed": true,
                       "forcenew": true
                     },
+                    "limit_size": {
+                      "type": "number",
+                      "optional": true
+                    },
                     "size": {
                       "type": "number",
                       "required": true
+                    },
+                    "trigger_threshold": {
+                      "type": "number",
+                      "optional": true
                     },
                     "type": {
                       "type": "string",

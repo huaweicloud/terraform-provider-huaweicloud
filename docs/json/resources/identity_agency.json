@@ -5,6 +5,13 @@
         "huaweicloud_identity_agency": {
           "block": {
             "attributes": {
+              "all_resources_roles": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true
+              },
               "create_time": {
                 "type": "string",
                 "computed": true

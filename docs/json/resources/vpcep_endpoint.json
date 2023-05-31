@@ -19,8 +19,7 @@
               },
               "enable_whitelist": {
                 "type": "bool",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "id": {
                 "type": "string",
@@ -83,8 +82,7 @@
                   "set",
                   "string"
                 ],
-                "optional": true,
-                "forcenew": true
+                "optional": true
               }
             }
           },

@@ -1,0 +1,116 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_obs_bucket_object_acl": {
+          "block": {
+            "attributes": {
+              "bucket": {
+                "type": "string",
+                "description": "Specifies the name of the bucket which the object belongs to.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key": {
+                "type": "string",
+                "description": "Specifies the name of the object to which to set the acl.",
+                "required": true,
+                "forcenew": true
+              },
+              "owner_permission": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_to_acl": [
+                        "list",
+                        "string"
+                      ],
+                      "access_to_object": [
+                        "list",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "account_permission": {
+                "block": {
+                  "attributes": {
+                    "access_to_acl": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the access to acl. Valid values are **READ_ACP** and **WRITE_ACP**.",
+                      "optional": true
+                    },
+                    "access_to_object": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the access to object. Only **READ** supported.",
+                      "optional": true
+                    },
+                    "account_id": {
+                      "type": "string",
+                      "description": "Specifies the account id to authorize. The account id cannot be the object owner, \nand must be unique.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the object account permissions."
+                },
+                "nesting_mode": "set"
+              },
+              "public_permission": {
+                "block": {
+                  "attributes": {
+                    "access_to_acl": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the access to acl. Valid values are **READ_ACP** and **WRITE_ACP**.",
+                      "optional": true
+                    },
+                    "access_to_object": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the access to object. Only **READ** supported.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the object public permission."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "OBS",
+            "name": "Object Storage Service",
+            "catalog": "Storage",
+            "name_cn": "对象存储服务",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

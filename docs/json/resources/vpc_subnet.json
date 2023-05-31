@@ -25,6 +25,11 @@
                 "optional": true,
                 "default": true
               },
+              "dhcp_lease_time": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "dns_list": {
                 "type": [
                   "list",
@@ -65,6 +70,10 @@
               "name": {
                 "type": "string",
                 "required": true
+              },
+              "ntp_server_address": {
+                "type": "string",
+                "optional": true
               },
               "primary_dns": {
                 "type": "string",
