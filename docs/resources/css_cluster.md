@@ -73,6 +73,35 @@ resource "huaweicloud_css_cluster" "cluster" {
 }
 ```
 
+### create a cluster with ess-data node and cold node use local disk
+
+```hcl
+variable "availability_zone" {}
+variable "vpc_id" {}
+variable "subnet_id" {}
+variable "secgroup_id" {}
+
+resource "huaweicloud_css_cluster" "cluster" {
+  name           = "terraform_test_cluster"
+  engine_version = "7.10.2"
+
+  ess_node_config {
+    flavor          = "ess.spec-ds.xlarge.8"
+    instance_number = 1
+  }
+
+  cold_node_config {
+    flavor          = "ess.spec-ds.2xlarge.8"
+    instance_number = 2
+  }
+
+  availability_zone = var.availability_zone
+  vpc_id            = var.vpc_id
+  subnet_id         = var.subnet_id
+  security_group_id = var.secgroup_id
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -177,8 +206,17 @@ The `ess_node_config` and `cold_node_config` block supports:
   + When it is `ess_node_config`, The value range is 1 to 200.
   + When it is `cold_node_config`, The value range is 1 to 32.
 
-* `volume` - (Required, List) Specifies the information about the volume.
-  The [volume](#Css_volume) structure is documented below.
+* `volume` - (Optional, List, ForceNew) Specifies the information about the volume. This field should not be specified
+  when `flavor` is set to a local dist flavor. But It is required when `flavor` is not a local disk flavor.
+  Currently, the following local disk flavors are supported:
+  + ess.spec-i3small
+  + ess.spec-i3medium
+  + ess.spec-i3.8xlarge.8
+  + ess.spec-ds.xlarge.8
+  + ess.spec-ds.2xlarge.8
+  + ess.spec-ds.4xlarge.8
+
+  The [volume](#Css_volume) structure is documented below. Changing this parameter will create a new resource.
 
 <a name="Css_volume"></a>
 The `volume` block supports:
@@ -213,9 +251,12 @@ The `volume` block supports:
 * `size` - (Required, Int, ForceNew) Specifies the volume size in GB, which must be a multiple of 10.
   Changing this parameter will create a new resource.
 
-* `volume_type` - (Required, String, ForceNew) Specifies the volume type. COMMON: Common I/O. The SATA disk is used.
-  HIGH: High I/O. The SAS disk is used. ULTRAHIGH: Ultra-high I/O. The solid-state drive (SSD) is used. Changing this
-  parameter will create a new resource.
+* `volume_type` - (Required, String, ForceNew) Specifies the volume type. Value options are as follows:
+  + **COMMON**: Common I/O. The SATA disk is used.
+  + **HIGH**: High I/O. The SAS disk is used.
+  + **ULTRAHIGH**: Ultra-high I/O. The solid-state drive (SSD) is used.
+
+  Changing this parameter will create a new resource.
 
 <a name="Css_public_access"></a>
 The `public_access` block supports:
