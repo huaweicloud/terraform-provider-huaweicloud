@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/dms/v2/rabbitmq/instances"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/dms/v2/rabbitmq/instances"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -162,6 +163,62 @@ func TestAccDmsRabbitmqInstances_newFormat_single(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
 					"password", "used_storage_space",
+				},
+			},
+		},
+	})
+}
+
+func TestAccDmsRabbitmqInstances_prePaid(t *testing.T) {
+	var instance instances.Instance
+	rName := acceptance.RandomAccResourceNameWithDash()
+	updateName := rName + "update"
+	resourceName := "huaweicloud_dms_rabbitmq_instance.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getKafkaInstanceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDmsRabbitmqInstance_prePaid(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "rabbitmq test"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttr(resourceName, "broker_num", "3"),
+				),
+			},
+			{
+				Config: testAccDmsRabbitmqInstance_prePaid_update(rName, updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
+					resource.TestCheckResourceAttr(resourceName, "description", "rabbitmq test update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttr(resourceName, "broker_num", "3"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"password",
+					"auto_renew",
+					"period",
+					"period_unit",
 				},
 			},
 		},
@@ -598,6 +655,102 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
   storage_spec_code = local.newFlavor.ios[0].storage_spec_code
   access_user       = "user"
   password          = "Rabbitmqtest@123"
+
+  tags = {
+    key1  = "value"
+    owner = "terraform_update"
+  }
+}`, common.TestBaseNetwork(rName), updateName)
+}
+
+func testAccDmsRabbitmqInstance_prePaid(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dms_rabbitmq_flavors" "test" {
+  type = "cluster"
+}
+
+locals {
+  query_results = data.huaweicloud_dms_rabbitmq_flavors.test
+  flavor        = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0]
+}
+
+resource "huaweicloud_dms_rabbitmq_instance" "test" {
+  name        = "%s"
+  description = "rabbitmq test"
+  
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  flavor_id         = local.flavor.id
+  engine_version    = element(local.query_results.versions, length(local.query_results.versions)-1)
+  storage_space     = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
+  storage_spec_code = local.flavor.ios[0].storage_spec_code
+  broker_num        = 3
+
+  access_user = "user"
+  password    = "Rabbitmqtest@123"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = true
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+}`, common.TestBaseNetwork(rName), rName)
+}
+
+func testAccDmsRabbitmqInstance_prePaid_update(rName, updateName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dms_rabbitmq_flavors" "test" {
+  type = "cluster"
+}
+
+locals {
+  query_results = data.huaweicloud_dms_rabbitmq_flavors.test
+  flavor        = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0]
+}
+
+resource "huaweicloud_dms_rabbitmq_instance" "test" {
+  name        = "%s"
+  description = "rabbitmq test update"
+  
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  flavor_id         = local.flavor.id
+  engine_version    = element(local.query_results.versions, length(local.query_results.versions)-1)
+  storage_space     = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
+  storage_spec_code = local.flavor.ios[0].storage_spec_code
+  broker_num        = 3
+
+  access_user = "user"
+  password    = "Rabbitmqtest@123"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = true
 
   tags = {
     key1  = "value"
