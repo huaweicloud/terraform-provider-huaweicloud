@@ -14,85 +14,50 @@ Manage DMS Kafka instance resources within HuaweiCloud.
 variable "vpc_id" {}
 variable "subnet_id" {}
 variable "security_group_id" {}
-variable "instance_name" {}
+
+variable "availability_zones" {
+  default = ["your_availability_zones_a", "your_availability_zones_b", "your_availability_zones_c"]
+}
+variable "flavor_id" {
+  default = "your_flavor_id, such: c6.2u4g.cluster"
+}
+variable "storage_spec_code" {
+  default = "your_storage_spec_code, such: dms.physical.storage.ultra.v2"
+}
 
 data "huaweicloud_dms_kafka_flavors" "test" {
-  type = "cluster"
-}
-
-locals {
-  query_results = data.huaweicloud_dms_kafka_flavors.test
-
-  advertised_ips = ["", "www.terraform-test.com", "192.168.0.53"]
+  type               = "cluster"
+  flavor_id          = var.flavor_id
+  availability_zones = var.availability_zones
+  storage_spec_code  = var.storage_spec_code
 }
 
 resource "huaweicloud_dms_kafka_instance" "test" {
-  name              = var.instance_name
+  name              = "kafka_test"
   vpc_id            = var.vpc_id
   network_id        = var.subnet_id
   security_group_id = var.security_group_id
 
-  flavor_id          = local.query_results.flavors[0].id
-  storage_spec_code  = local.query_results.flavors[0].ios[0].storage_spec_code
-  availability_zones = local.query_results.flavors[0].ios[0].availability_zones
-  engine_version     = element(local.query_results.versions, length(local.query_results.versions)-1)
-  storage_space      = local.query_results.flavors[0].properties[0].min_broker * local.query_results.flavors[0].properties[0].min_storage_per_node
-  broker_num         = local.query_results.flavors[0].properties[0].min_broker
+  flavor_id          = var.flavor_id
+  storage_spec_code  = var.storage_spec_code
+  availability_zones = var.availability_zones
+  engine_version     = "2.7"
+  storage_space      = 600
+  broker_num         = 3
 
   access_user = "user"
-  password    = "Kafkatest@123"
+  password    = "Kafka_%^&_Test"
 
-  manager_user     = "kafka-user"
-  manager_password = "Kafkatest@123"
+  manager_user     = "kafka_manager"
+  manager_password = "Kafka_Test^&*("
 
-  dynamic "cross_vpc_accesses" {
-    for_each = local.advertised_ips
-    content {
-      advertised_ip = cross_vpc_accesses.value
-    }
-  }
+  depends_on = ["data.huaweicloud_dms_kafka_flavors.test"]
 }
 ```
 
-### Create a Kafka instance using product ID
-
-```hcl
-variable "vpc_id" {}
-variable "subnet_id" {}
-variable "security_group_id" {}
-variable "instance_name" {}
-
-data "huaweicloud_availability_zones" "test" {}
-data "huaweicloud_dms_product" "test" {
-  engine            = "kafka"
-  instance_type     = "cluster"
-  version           = "2.3.0"
-  bandwidth         = "100MB"
-  storage_spec_code = "dms.physical.storage.ultra"
-}
-
-resource "huaweicloud_dms_kafka_instance" "test" {
-  name               = "instance_1"
-  product_id         = data.huaweicloud_dms_product.product_1.id
-  engine_version     = data.huaweicloud_dms_product.product_1.version
-  storage_spec_code  = data.huaweicloud_dms_product.product_1.storage_spec_code
-  availability_zones = [
-    data.huaweicloud_availability_zones.zones.names[0],
-    data.huaweicloud_availability_zones.zones.names[1],
-    data.huaweicloud_availability_zones.zones.names[2]
-  ]
-  
-  vpc_id            = var.vpc_id
-  network_id        = var.subnet_id
-  security_group_id = var.security_group_id
-
-  access_user = "user"
-  password    = "Kafkatest@123"
-
-  manager_user     = "kafka-user"
-  manager_password = "Kafkatest@123"
-}
-```
+-> **Why depend on "data.huaweicloud_dms_kafka_flavors.test", it is not used?**
+  The specified `flavor_id` and `storage_spec_code` are not valid in all regions.
+  Before creating kafka, verify their validity through datasource to avoid creation errors.
 
 ## Argument Reference
 
