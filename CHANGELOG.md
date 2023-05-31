@@ -1,5 +1,61 @@
 # CHANGELOG
 
+## 1.49.0 (May 31, 2023)
+
+* **New Resurce:**
+  + `huaweicloud_secmaster_incident` [GH-2943]
+  + `huaweicloud_live_bucket_authorization` [GH-2992]
+  + `huaweicloud_live_snapshot` [GH-2994]
+  + `huaweicloud_apig_plugin` [GH-3008]
+  + `huaweicloud_apig_plugin_associate` [GH-3013]
+  + `huaweicloud_vpn_connection_health_check` [GH-3022]
+  + `huaweicloud_obs_bucket_object_acl` [GH-3027]
+
+  + `huaweicloud_aom_alarm_action_rule` [GH-3006]
+  + `huaweicloud_aom_alarm_silence_rule` [GH-3011]
+  + `huaweicloud_aom_event_alarm_rule` [GH-3016]
+
+  + `huaweicloud_rms_resource_aggregator` [GH-3000]
+  + `huaweicloud_rms_resource_aggregation_authorization` [GH-3000]
+  + `huaweicloud_rms_resource_recorder` [GH-3029]
+
+  + `huaweicloud_waf_rule_precise_protection` [GH-2984]
+  + `huaweicloud_waf_rule_global_protection_whitelist` [GH-2996]
+  + `huaweicloud_waf_rule_cc_protection` [GH-3001]
+
+  + `huaweicloud_dws_snapshot` [GH-2981]
+  + `huaweicloud_dws_snapshot_policy` [GH-2995]
+  + `huaweicloud_dws_event_subscription` [GH-3007]
+  + `huaweicloud_dws_alarm_subscription` [GH-3031]
+  + `huaweicloud_dws_ext_data_source` [GH-3025]
+
+* **New Data Source:**
+  + `huaweicloud_cbr_backup` [GH-2988]
+
+ENHANCEMENTS:
+
+* data/huaweicloud_images_images: export `backup_id` attribute [GH-2979]
+* resource/huaweicloud_vpc_peering_connection: support `description` parameter [GH-2987]
+* resource/huaweicloud_cce_cluster: support multi container network CIDR [GH-2990]
+* resource/huaweicloud_vpcep_service: support `description` parameter [GH-3012]
+* resource/huaweicloud_as_group: support updating `agency_name` parameter [GH-3018]
+* resource/huaweicloud_images_image: support building whole images [GH-3023]
+* resource/huaweicloud_rds_instance: support automatic expansion [GH-3024]
+* resource/huaweicloud_cce_addon: support updating version and values [GH-3034]
+* resource/huaweicloud_rds_instance: support case-sensitive table names [GH-3037]
+* resource/huaweicloud_vpcep_endpoint: support updating whitelist and enable_whitelist [GH-3045]
+* resource/huaweicloud_css_cluster: support creating clusters with local dist flavor [GH-3056]
+* resource/huaweicloud_identity_agency: support specific days for duration [GH-3058]
+* resource/huaweicloud_vpc_subnet: support extra dhcp options [GH-3060]
+* resource/huaweicloud_identity_agency: support granting roles to agency on all resources [GH-3062]
+* resource/huaweicloud_dms_rabbitmq_instance: support prePaid charging mode [GH-3063]
+
+BUG FIXES:
+
+* resource/huaweicloud_vpn_connection: fix issue caused by `enable_nqa` field [GH-3009]
+* data/huaweicloud_modelarts_notebook_images: fix the next page calculation of URL [GH-3026]
+* data/huaweicloud_enterprise_project: support exact match by name [GH-3053]
+
 ## 1.48.0 (April 28, 2023)
 
 * **New Resurce:**
