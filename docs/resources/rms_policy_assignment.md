@@ -97,7 +97,6 @@ The following arguments are supported:
 
 * `name` - (Required, String, ForceNew) Specifies the name of the policy assignment.  
   The valid length is limited from `1` to `64`, only letters, digits, hyphens (-) and underscores (_) are allowed.  
-  The name must start with a letter.
   Change this parameter will create a new resource.
 
 * `description` - (Optional, String) Specifies the description of the policy assignment, which contain maximum of
@@ -130,6 +129,7 @@ The following arguments are supported:
 * `parameters` - (Optional, Map) Specifies the rule definition of the policy assignment.
 
 * `status` - (Optional, String) Specifies the expect status of the policy.
+  The valid values are **Enabled** and **Disabled**.
 
 <a name="rms_policy_filter"></a>
 The `policy_filter` block supports:

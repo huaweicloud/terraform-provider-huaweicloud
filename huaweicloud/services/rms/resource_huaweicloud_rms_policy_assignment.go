@@ -55,8 +55,8 @@ func ResourcePolicyAssignment() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z][\w-]*$`),
-						"Only letters, digits, hyphens and underscores are allowed, and must start with a letter."),
+					validation.StringMatch(regexp.MustCompile(`^[\w-]*$`),
+						"Only letters, digits, hyphens and underscores are allowed."),
 					validation.StringLenBetween(1, 64),
 				),
 				Description: "The name of the policy assignment.",
@@ -74,15 +74,8 @@ func ResourcePolicyAssignment() *schema.Resource {
 				ConflictsWith: []string{"custom_policy"},
 			},
 			"period": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"One_Hour",
-					"Three_Hours",
-					"Six_Hours",
-					"Twelve_Hours",
-					"TwentyFour_Hours",
-				}, false),
+				Type:          schema.TypeString,
+				Optional:      true,
 				Description:   "The period of the policy rule check.",
 				ConflictsWith: []string{"policy_filter"},
 			},
@@ -168,13 +161,9 @@ func ResourcePolicyAssignment() *schema.Resource {
 				Description: "The rule definition of the policy assignment.",
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					AssignmentStatusDisabled,
-					AssignmentStatusEnabled,
-				}, false),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
 				Description: "The expect status of the policy.",
 			},
 			"type": {
