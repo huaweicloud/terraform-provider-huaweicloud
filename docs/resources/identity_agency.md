@@ -20,7 +20,8 @@ resource "huaweicloud_identity_agency" "agency" {
     project = "cn-north-1"
     roles   = ["Tenant Administrator"]
   }
-  domain_roles = ["Anti-DDoS Administrator"]
+  domain_roles        = ["Anti-DDoS Administrator"]
+  all_resources_roles = ["Server Administrator"]
 }
 ```
 
@@ -45,16 +46,20 @@ The following arguments are supported:
 * `domain_roles` - (Optional, List) Specifies an array of one or more role names which stand for the permissions to be
   granted to agency on domain.
 
+* `all_resources_roles` - (Optional, List) Specifies an array of one or more role names which stand for the permissions
+  to be granted to agency on all resources, including those in enterprise projects, region-specific projects,
+  and global services under your account.
+
+-> **NOTE**
+At least one of `project_role`, `domain_roles` and `all_resources_roles` must be specified when creating an agency.
+We can get all **System-Defined Roles** form
+[HuaweiCloud](https://support.huaweicloud.com/intl/en-us/usermanual-permissions/iam_01_0001.html).
+
 The `project_role` block supports:
 
 * `project` - (Required, String) Specifies the name of project.
 
 * `roles` - (Required, List) Specifies an array of role names.
-
--> **NOTE**
-At least one of `project_role` and `domain_roles` must be specified when creating an agency. We can get all **
-System-Defined Roles** form
-[HuaweiCloud](https://support.huaweicloud.com/intl/en-us/usermanual-permissions/iam_01_0001.html).
 
 ## Attributes Reference
 
@@ -78,4 +83,19 @@ Agencies can be imported using the `id`, e.g.
 
 ```
 $ terraform import huaweicloud_identity_agency.agency 0b97661f9900f23f4fc2c00971ea4dc0
+```
+
+Note that the imported state may not be identical to your resource definition, due to `all_resources_roles` field is
+missing from the API response. It is generally recommended running `terraform plan` after importing an agency.
+You can then decide if changes should be applied to the agency, or the resource definition should be updated to
+align with the agency. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_identity_agency" "agency" {
+    ...
+
+  lifecycle {
+    ignore_changes = [all_resources_roles]
+  }
+}
 ```
