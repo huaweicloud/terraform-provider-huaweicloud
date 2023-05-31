@@ -31,6 +31,13 @@ paths:
     put:
       tag: RDS
       operationId: ModifyConfiguration
+  /v3/{project_id}/instances/{instancesId}/disk-auto-expansion:
+    get:
+      tag: RDS
+      operationId: GetAutoExpand
+    put:
+      tag: RDS
+      operationId: EnableAutoExpand
   /v3/{project_id}/instances/{instancesId}/password:
     post:
       tag: RDS

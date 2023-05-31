@@ -19,7 +19,7 @@ paths:
             x-ref-api: DELETE /v5/{project_id}/vpn-connection/{id}
         GET:
             tag: VPN
-            operationId: UpdateConnectionWaiting
+            operationId: GetConnection
             x-ref-api: GET /v5/{project_id}/vpn-connection/{id}
         PUT:
             tag: VPN

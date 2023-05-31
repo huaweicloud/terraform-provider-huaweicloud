@@ -8,6 +8,10 @@ host: huaweicloud.com
 tags:
   - name: RabbitMQ
 paths:
+  /v2/rabbitmq/{project_id}/instances:
+    post:
+      tag: RabbitMQ
+      operationId: CreateWithEngine
   /v2/{project_id}/instances/{id}/extend:
     post:
       tag: RabbitMQ

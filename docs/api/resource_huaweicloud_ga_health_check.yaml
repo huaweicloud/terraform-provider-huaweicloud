@@ -19,7 +19,7 @@ paths:
             x-ref-api: DELETE /v1/health-checks/{id}
         GET:
             tag: GA
-            operationId: UpdateHealthCheckWaiting
+            operationId: CreateHealthCheckWaiting
             x-ref-api: GET /v1/health-checks/{id}
         PUT:
             tag: GA

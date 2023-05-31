@@ -1,0 +1,27 @@
+info:
+    title: resource_huaweicloud_dws_alarm_subscription
+    description: 'Manages a DWS alarm subscription resource within HuaweiCloud.  '
+host: myhuaweicloud.com
+tags:
+    - name: DWS
+servers:
+    - url: https://dws.myhuaweicloud.com
+paths:
+    /v2/{project_id}/alarm-subs:
+        GET:
+            tag: DWS
+            operationId: GetDwsAlarmSubs
+            x-ref-api: GET /v2/{project_id}/alarm-subs
+        POST:
+            tag: DWS
+            operationId: CreateDwsAlarmSubs
+            x-ref-api: POST /v2/{project_id}/alarm-subs
+    /v2/{project_id}/alarm-subs/{id}:
+        DELETE:
+            tag: DWS
+            operationId: DeleteDwsAlarmSubs
+            x-ref-api: DELETE /v2/{project_id}/alarm-subs/{id}
+        PUT:
+            tag: DWS
+            operationId: UpdateDwsAlarmSubs
+            x-ref-api: PUT /v2/{project_id}/alarm-subs/{id}

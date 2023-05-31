@@ -15,6 +15,9 @@ paths:
     get:
       tag: VPCEP
       operationId: Get
+    put:
+      tag: VPCEP
+      operationId: Update
   /v1/{project_id}/vpc-endpoints:
     post:
       tag: VPCEP

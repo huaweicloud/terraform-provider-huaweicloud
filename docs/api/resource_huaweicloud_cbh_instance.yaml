@@ -44,6 +44,6 @@ paths:
             x-ref-api: POST /v1/{project_id}/cbs/period/order
     /v3/orders/customer-orders/pay:
         POST:
-            tag: CBH
-            operationId: PayOrder
+            tag: BSS
+            operationId: DeleteInstance
             x-ref-api: POST /v3/orders/customer-orders/pay

@@ -1,0 +1,22 @@
+info:
+    title: resource_huaweicloud_rms_resource_recorder
+    description: Manages a RMS recorder resource within HuaweiCloud.
+host: myhuaweicloud.com
+tags:
+    - name: RMS
+servers:
+    - url: https://rms.myhuaweicloud.com
+paths:
+    /v1/resource-manager/domains/{domain_id}/tracker-config:
+        DELETE:
+            tag: RMS
+            operationId: DeleteRecorder
+            x-ref-api: DELETE /v1/resource-manager/domains/{domain_id}/tracker-config
+        GET:
+            tag: RMS
+            operationId: GetRecorder
+            x-ref-api: GET /v1/resource-manager/domains/{domain_id}/tracker-config
+        PUT:
+            tag: RMS
+            operationId: CreateRecorder
+            x-ref-api: PUT /v1/resource-manager/domains/{domain_id}/tracker-config

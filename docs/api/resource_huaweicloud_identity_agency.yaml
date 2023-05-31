@@ -25,7 +25,13 @@ paths:
   /v3.0/OS-AGENCY/{resource}/{resourceID}/agencies/{agencyID}/roles/{roleID}:
     delete:
       tag: IAM
+      operationId: DetachRoleByDomain
+    delete:
+      tag: IAM
       operationId: DetachRoleByProject
+    put:
+      tag: IAM
+      operationId: AttachRoleByDomain
     put:
       tag: IAM
       operationId: AttachRoleByProject
