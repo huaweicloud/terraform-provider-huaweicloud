@@ -112,6 +112,38 @@ func TestAccVpcSubnetV1_ipv6(t *testing.T) {
 	})
 }
 
+func TestAccVpcSubnetV1_dhcp(t *testing.T) {
+	var subnet subnets.Subnet
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_vpc_subnet.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckVpcSubnetV1Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVpcSubnetV1_dhcp(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVpcSubnetV1Exists(resourceName, &subnet),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "dhcp_lease_time", "48h"),
+					resource.TestCheckResourceAttr(resourceName, "ntp_server_address", "10.100.0.33"),
+				),
+			},
+			{
+				Config: testAccVpcSubnetV1_dhcp2(rName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "dhcp_lease_time", "72h"),
+					resource.TestCheckResourceAttr(resourceName, "ntp_server_address", "10.100.0.33,10.100.0.34"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckVpcSubnetV1Destroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	subnetClient, err := config.NetworkingV1Client(acceptance.HW_REGION_NAME)
@@ -231,6 +263,40 @@ resource "huaweicloud_vpc_subnet" "test" {
     foo = "bar"
     key = "value"
   }
+}
+`, testAccVpcSubnet_base(rName), rName)
+}
+
+func testAccVpcSubnetV1_dhcp(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_vpc_subnet" "test" {
+  name              = "%s"
+  cidr              = "192.168.0.0/24"
+  gateway_ip        = "192.168.0.1"
+  vpc_id            = huaweicloud_vpc.test.id
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+
+  dhcp_lease_time    = "48h"
+  ntp_server_address = "10.100.0.33"
+}
+`, testAccVpcSubnet_base(rName), rName)
+}
+
+func testAccVpcSubnetV1_dhcp2(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_vpc_subnet" "test" {
+  name              = "%s"
+  cidr              = "192.168.0.0/24"
+  gateway_ip        = "192.168.0.1"
+  vpc_id            = huaweicloud_vpc.test.id
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+
+  dhcp_lease_time    = "72h"
+  ntp_server_address = "10.100.0.33,10.100.0.34"
 }
 `, testAccVpcSubnet_base(rName), rName)
 }
