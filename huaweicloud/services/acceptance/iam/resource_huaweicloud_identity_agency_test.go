@@ -111,7 +111,7 @@ resource "huaweicloud_identity_agency" "test" {
   domain_roles = [
     "Anti-DDoS Administrator",
     "SMN Administrator",
-    "Ticket Administrator",
+    "OBS Administrator",
   ]
   all_resources_roles = [
     "VPCEndpoint Administrator"

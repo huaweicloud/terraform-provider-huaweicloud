@@ -106,6 +106,7 @@ func ResourceIAMAgencyV3() *schema.Resource {
 			"all_resources_roles": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				MaxItems: 25,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
@@ -399,6 +400,11 @@ func resourceIAMAgencyV3Read(_ context.Context, d *schema.ResourceData, meta int
 
 	prs := schema.Set{F: resourceIAMAgencyProRoleHash}
 	for pn, pid := range allProjects {
+		// MOS is a special project, not visible to the user
+		if pn == "MOS" {
+			continue
+		}
+
 		allRoles, err := agency.ListRolesAttachedOnProject(iamClient, agencyID, pid).ExtractRoles()
 		if err != nil && !utils.IsResourceNotFound(err) {
 			log.Printf("[ERROR] error querying the roles attached on project(%s): %s", pn, err)
