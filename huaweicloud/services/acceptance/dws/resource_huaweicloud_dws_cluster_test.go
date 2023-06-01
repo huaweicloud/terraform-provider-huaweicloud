@@ -4,17 +4,18 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
-
-	"github.com/chnsz/golangsdk/openstack/dws/v1/cluster"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/dws/v1/cluster"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
-func getDwsResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := config.DwsV1Client(acceptance.HW_REGION_NAME)
+func getDwsResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.DwsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DWS v1 client, err=%s", err)
 	}
@@ -76,9 +77,8 @@ func testAccDwsCluster_basic(rName string, numberOfNode int, publicIpBindType, p
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_dws_flavors" "test" {
-  vcpus             = 8
-  memory            = 64
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  datastore_type    = "dws"
 }
 
 resource "huaweicloud_dws_cluster" "test" {
