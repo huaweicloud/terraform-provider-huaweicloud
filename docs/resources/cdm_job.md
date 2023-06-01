@@ -36,7 +36,7 @@ resource "huaweicloud_cdm_job" "test" {
 
   source_connector = "obs-connector"
   source_link_name = var.obs_link_name
-  source_config = {
+  source_job_config = {
     "bucketName"               = var.obs_input_bucket
     "inputDirectory"           = "/"
     "listTextFile"             = "false"
@@ -240,6 +240,24 @@ This resource provides the following timeouts configuration options:
 Jobs can be imported by `id`. It is composed of the ID of CDM cluster which this job run in and the name of job,
  separated by a slash. For example,
 
-```
+```bash
 terraform import huaweicloud_cdm_job.test b11b407c-e604-4e8d-8bc4-92398320b847/jobName
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attributes include: `source_job_config` and `destination_job_config`.
+ It is generally recommended running `terraform plan` after importing a cluster.
+ You can then decide if changes should be applied to the cluster, or the resource definition
+should be updated to align with the cluster. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_cdm_cluster" "test" {
+    ...
+
+  lifecycle {
+    ignore_changes = [
+      source_job_config, destination_job_config,
+    ]
+  }
+}
 ```

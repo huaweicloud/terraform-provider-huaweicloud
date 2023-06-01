@@ -140,7 +140,7 @@ In addition to all arguments above, the following attributes are exported:
 The link can be imported by `id`, It is composed of the ID of CDM cluster and the name of job, separated by a slash.
  For example,
 
-```
+```bash
 terraform import huaweicloud_cdm_link.test b11b407c-e604-4e8d-8bc4-92398320b847/linkName
 ```
 
@@ -150,7 +150,7 @@ It is generally recommended running `terraform plan` after importing an instance
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to
 align with the instance. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_cdm_link" "test" {
     ...
 

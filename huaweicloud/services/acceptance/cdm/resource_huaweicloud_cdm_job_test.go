@@ -4,20 +4,20 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/cdm/v1/job"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cdm"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/cdm/v1/job"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cdm"
 )
 
-func getCdmJobResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := config.CdmV11Client(acceptance.HW_REGION_NAME)
+func getCdmJobResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.CdmV11Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("error creating CDM v1.1 client, err=%s", err)
+		return nil, fmt.Errorf("error creating CDM v1.1 client, err=%s", err)
 	}
 	clusterId, jobName, err := cdm.ParseJobInfoFromId(state.Primary.ID)
 	if err != nil {
@@ -49,6 +49,7 @@ func TestAccResourceCdmJob_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCdmJob_basic(name, bucketName, acceptance.HW_ACCESS_KEY, acceptance.HW_SECRET_KEY),
+
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -63,9 +64,10 @@ func TestAccResourceCdmJob_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"source_job_config", "destination_job_config"},
 			},
 		},
 	})
@@ -150,6 +152,12 @@ resource "huaweicloud_cdm_job" "test" {
     throttling_record_dirty_data = false
     throttling_max_error_records = 10
     throttling_loader_number     = 1
+  }
+
+  lifecycle {
+    ignore_changes = [
+      source_job_config, destination_job_config,
+    ]
   }
 }
 `, clusterConfig, bucketName, bucketName, name, ak, sk, name)

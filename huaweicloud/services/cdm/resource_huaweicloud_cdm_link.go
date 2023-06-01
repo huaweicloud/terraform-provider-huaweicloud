@@ -217,7 +217,7 @@ func resourceCdmLinkRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("cluster_id", clusterId),
 		d.Set("connector", detail.ConnectorName),
 		d.Set("enabled", detail.Enabled),
-		setConfigToState(d, detail.LinkConfigValues.Configs),
+		setLinkConfigToState(d, detail.LinkConfigValues.Configs),
 	)
 
 	if mErr.ErrorOrNil() != nil {
@@ -227,7 +227,7 @@ func resourceCdmLinkRead(_ context.Context, d *schema.ResourceData, meta interfa
 	return nil
 }
 
-func setConfigToState(d *schema.ResourceData, configs []link.Configs) error {
+func setLinkConfigToState(d *schema.ResourceData, configs []link.Configs) error {
 	if len(configs) == 0 {
 		return nil
 	}
