@@ -351,6 +351,13 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v3",
 		Product: "RDS",
 	},
+	"ram": {
+		Name:             "ram",
+		Version:          "v1",
+		WithOutProjectID: true,
+		Scope:            "global",
+		Product:          "RAM",
+	},
 	"dds": {
 		Name:    "dds",
 		Version: "v3",

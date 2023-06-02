@@ -74,6 +74,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/oms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/projectman"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ram"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rds"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rfs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rms"
@@ -505,6 +506,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_obs_buckets":       obs.DataSourceObsBuckets(),
 			"huaweicloud_obs_bucket_object": obs.DataSourceObsBucketObject(),
+
+			"huaweicloud_ram_permissions": ram.DataSourceRAMPermissions(),
 
 			"huaweicloud_rds_flavors":         rds.DataSourceRdsFlavor(),
 			"huaweicloud_rds_engine_versions": rds.DataSourceRdsEngineVersionsV3(),
