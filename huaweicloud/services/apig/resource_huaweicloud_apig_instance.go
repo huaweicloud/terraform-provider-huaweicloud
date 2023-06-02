@@ -139,8 +139,7 @@ func ResourceApigInstanceV2() *schema.Resource {
 			"bandwidth_size": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.IntBetween(1, 2000),
+				ValidateFunc: validation.IntBetween(0, 2000),
 				Description:  `The egress bandwidth size of the dedicated instance.`,
 			},
 			"eip_id": {

@@ -84,7 +84,7 @@ The following arguments are supported:
   This parameter is required for enterprise users. Changing this will create a new resource.
 
 * `bandwidth_size` - (Optional, Int) Specifies the egress bandwidth size of the dedicated instance.  
-  The valid value is range from `1` to `2,000`.
+  The valid value ranges from `0` to `2,000`.
 
 * `maintain_begin` - (Optional, String) Specifies the start time of the maintenance time window.  
   The format is **xx:00:00**, the value of **xx** can be `02`, `06`, `10`, `14`, `18` or `22`.
