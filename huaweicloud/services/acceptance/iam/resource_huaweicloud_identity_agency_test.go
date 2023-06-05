@@ -21,7 +21,7 @@ func getIdentityAgencyResourceFunc(c *config.Config, state *terraform.ResourceSt
 	return agency.Get(client, state.Primary.ID).Extract()
 }
 
-func TestAccIdentityAgency_domain(t *testing.T) {
+func TestAccIdentityAgency_basic(t *testing.T) {
 	var agency agency.Agency
 	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_identity_agency.test"
@@ -48,6 +48,7 @@ func TestAccIdentityAgency_domain(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "This is a test agency"),
 					resource.TestCheckResourceAttr(resourceName, "delegated_domain_name", acceptance.HW_DOMAIN_NAME),
 					resource.TestCheckResourceAttr(resourceName, "duration", "FOREVER"),
+					resource.TestCheckResourceAttr(resourceName, "project_role.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "all_resources_roles.#", "1"),
 				),
@@ -59,6 +60,7 @@ func TestAccIdentityAgency_domain(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "This is a updated test agency"),
 					resource.TestCheckResourceAttr(resourceName, "delegated_domain_name", acceptance.HW_DOMAIN_NAME),
 					resource.TestCheckResourceAttr(resourceName, "duration", "1"),
+					resource.TestCheckResourceAttr(resourceName, "project_role.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "all_resources_roles.#", "1"),
 				),
@@ -68,6 +70,7 @@ func TestAccIdentityAgency_domain(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "duration", "30"),
+					resource.TestCheckResourceAttr(resourceName, "project_role.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "all_resources_roles.#", "1"),
 				),
@@ -89,6 +92,10 @@ resource "huaweicloud_identity_agency" "test" {
   description           = "This is a test agency"
   delegated_domain_name = "%s"
 
+  project_role {
+    project = "%s"
+    roles   = ["CCE Administrator"]
+  }
   domain_roles = [
     "Server Administrator",
     "Anti-DDoS Administrator",
@@ -97,7 +104,7 @@ resource "huaweicloud_identity_agency" "test" {
     "VPC Administrator"
   ]
 }
-`, rName, acceptance.HW_DOMAIN_NAME)
+`, rName, acceptance.HW_DOMAIN_NAME, acceptance.HW_REGION_NAME)
 }
 
 func testAccIdentityAgency_domainUpdate(rName, duration string) string {
@@ -108,6 +115,10 @@ resource "huaweicloud_identity_agency" "test" {
   duration              = "%s"
   delegated_domain_name = "%s"
 
+  project_role {
+    project = "%s"
+    roles   = ["RDS Administrator"]
+  }
   domain_roles = [
     "Anti-DDoS Administrator",
     "SMN Administrator",
@@ -117,5 +128,5 @@ resource "huaweicloud_identity_agency" "test" {
     "VPCEndpoint Administrator"
   ]
 }
-`, rName, duration, acceptance.HW_DOMAIN_NAME)
+`, rName, duration, acceptance.HW_DOMAIN_NAME, acceptance.HW_REGION_NAME)
 }
