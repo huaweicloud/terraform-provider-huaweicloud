@@ -73,6 +73,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/nat"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/oms"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/organizations"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/projectman"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rds"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rfs"
@@ -584,6 +585,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_ddm_instances":      ddm.DataSourceDdmInstances(),
 			"huaweicloud_ddm_schemas":        ddm.DataSourceDdmSchemas(),
 			"huaweicloud_ddm_accounts":       ddm.DataSourceDdmAccounts(),
+
+			"huaweicloud_organizations": organizations.DataSourceOrganizations(),
 
 			// Deprecated ongoing (without DeprecationMessage), used by other providers
 			"huaweicloud_vpc_route":        vpc.DataSourceVpcRouteV2(),
@@ -1139,6 +1142,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_ges_graph_v1":   ResourceGesGraphV1(),
 			"huaweicloud_css_cluster_v1": css.ResourceCssCluster(),
 			"huaweicloud_dis_stream_v2":  dis.ResourceDisStream(),
+
+			"huaweicloud_organizations_unit": organizations.ResourceOrganizationsUnit(),
+			"huaweicloud_organizations":      organizations.ResourceOrganizations(),
 
 			"huaweicloud_dli_queue_v1":                dli.ResourceDliQueue(),
 			"huaweicloud_networking_vip_v2":           vpc.ResourceNetworkingVip(),

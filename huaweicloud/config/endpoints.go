@@ -766,6 +766,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "NAT",
 	},
+	"organizations": {
+		Name:             "organizations",
+		Version:          "v1",
+		WithOutProjectID: true,
+		Product:          "Organizations",
+	},
 }
 
 // GetServiceEndpoint try to get the endpoint from customizing map
