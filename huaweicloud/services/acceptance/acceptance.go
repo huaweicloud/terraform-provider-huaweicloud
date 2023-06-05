@@ -185,6 +185,14 @@ func preCheckRequiredEnvVars(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckDeprecatedEnvironment(t *testing.T) {
+	// Do not run the test if this is a deprecated testing environment.
+	if HW_DEPRECATED_ENVIRONMENT != "" {
+		t.Skip("This environment only runs deprecated tests")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheck(t *testing.T) {
 	// Do not run the test if this is a deprecated testing environment.
 	if HW_DEPRECATED_ENVIRONMENT != "" {
