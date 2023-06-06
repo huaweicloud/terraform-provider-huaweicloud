@@ -40,6 +40,42 @@ resource "huaweicloud_cbr_vault" "test" {
 }
 ```
 
+### Create a server type vault and associate backup and reprecation policies
+
+```hcl
+variable "destination_region" {}
+variable "destination_vault_name" {}
+variable "vault_name" {}
+variable "backup_policy_id" {}
+variable "replication_policy_id" {}
+
+resource "huaweicloud_cbr_vault" "destination" {
+  region          = var.destination_region
+  name            = var.destination_vault_name
+  type            = "server"
+  protection_type = "replication"
+  size            = 500
+}
+
+resource "huaweicloud_cbr_vault" "test" {
+  name             = var.vault_name
+  type             = "server"
+  protection_type  = "backup"
+  consistent_level = "crash_consistent"
+  size             = 500
+
+  ... // Associated instances
+
+  policy {
+    id = var.backup_policy_id
+  }
+  policy {
+    id                   = var.replication_policy_id
+    destination_vault_id = huaweicloud_cbr_vault.destination.id
+  }
+}
+```
+
 ### Create a disk type vault
 
 ```hcl
@@ -146,8 +182,8 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies a unique ID in UUID format of enterprise project.
   Changing this will create a new vault.
 
-* `policy_id` - (Optional, String) Specifies a policy to associate with the CBR vault.
-  `policy_id` cannot be used with the vault of replicate protection type.
+* `policy` - (Optional, List) Specifies the policy details to associate with the CBR vault.
+  The [object](#cbr_vault_policies) structure is documented below.
 
 * `resources` - (Optional, List) Specifies an array of one or more resources to attach to the CBR vault.
   The [object](#cbr_vault_resources) structure is documented below.
@@ -173,6 +209,16 @@ The following arguments are supported:
 
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
   Valid values are **true** and **false**. Defaults to **false**.
+
+<a name="cbr_vault_policies"></a>
+The `policy` block supports:
+
+* `id` - (Required, String) Specifies the policy ID.
+
+* `destination_vault_id` - (Optional, String) Specifies the ID of destination vault to which the replication policy
+  will associated.
+
+-> Only one policy of each type (backup and replication) can be associated.
 
 <a name="cbr_vault_resources"></a>
 The `resources` block supports:

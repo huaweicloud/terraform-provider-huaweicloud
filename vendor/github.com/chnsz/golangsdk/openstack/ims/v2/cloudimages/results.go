@@ -118,6 +118,12 @@ type commonResult struct {
 	golangsdk.Result
 }
 
+// UpdateResult represents the result of an Update operation. Call its Extract
+// method to interpret it as an Image.
+type UpdateResult struct {
+	commonResult
+}
+
 // Extract will get the Image object out of the commonResult object.
 func (r commonResult) Extract() (*Image, error) {
 	var s Image

@@ -71,6 +71,8 @@ type Spec struct {
 	Masters []MasterSpec `json:"masters,omitempty"`
 	//Range of kubernetes clusterIp
 	KubernetesSvcIPRange string `json:"kubernetesSvcIpRange,omitempty"`
+	//Custom san list for certificates
+	CustomSan []string `json:"customSan,omitempty"`
 	// Tags of cluster, key value pair format
 	ClusterTags []tags.ResourceTag `json:"clusterTags,omitempty"`
 }

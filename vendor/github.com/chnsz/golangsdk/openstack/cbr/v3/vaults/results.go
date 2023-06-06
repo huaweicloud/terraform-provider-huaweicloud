@@ -143,7 +143,11 @@ type BindPolicyResult struct {
 }
 
 type PolicyBinding struct {
-	VaultID  string `json:"vault_id"`
+	// The destination vault ID, returned only for replication policy association.
+	DestinationVaultId string `json:"destination_vault_id"`
+	// The policy ID.
+	VaultID string `json:"vault_id"`
+	// The policy ID list.
 	PolicyID string `json:"policy_id"`
 }
 
