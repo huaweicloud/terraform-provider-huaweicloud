@@ -61,6 +61,7 @@ func ResourceImsImage() *schema.Resource {
 			"instance_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
 				ForceNew:     true,
 				ExactlyOneOf: []string{"image_url", "backup_id"},
 			},
@@ -74,6 +75,7 @@ func ResourceImsImage() *schema.Resource {
 			"backup_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 			// image_url and min_disk are required for creating an image from an OBS
@@ -367,6 +369,7 @@ func resourceImsImageRead(_ context.Context, d *schema.ResourceData, meta interf
 			mErr = multierror.Append(
 				mErr,
 				d.Set("instance_id", backup.ResourceId),
+				d.Set("backup_id", backup.ID),
 			)
 		}
 		mErr = multierror.Append(
