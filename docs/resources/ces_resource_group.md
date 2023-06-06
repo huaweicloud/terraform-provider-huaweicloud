@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Eye"
+subcategory: "Cloud Eye (CES)"
 ---
 
 # huaweicloud_ces_resource_group
