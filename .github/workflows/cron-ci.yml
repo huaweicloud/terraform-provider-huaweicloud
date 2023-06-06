@@ -62,6 +62,7 @@ jobs:
     env:
       HW_ACCESS_KEY: ${{ secrets.HW_ACCESS_KEY }}
       HW_SECRET_KEY: ${{ secrets.HW_SECRET_KEY }}
+      HW_DOMAIN_NAME: ${{ secrets.HW_DOMAIN_NAME }}
       HW_REGION_NAME: cn-north-4
       HW_ADMIN: "true"
       HW_ENTERPRISE_PROJECT_ID: "0"
