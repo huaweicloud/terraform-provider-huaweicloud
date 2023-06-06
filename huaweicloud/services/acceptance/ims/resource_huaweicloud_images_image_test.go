@@ -34,16 +34,52 @@ func TestAccImsImage_basic(t *testing.T) {
 					testAccCheckImsImageExists(resourceName, &image),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "active"),
+					resource.TestCheckResourceAttr(resourceName, "min_ram", "0"),
+					resource.TestCheckResourceAttr(resourceName, "max_ram", "0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
 			},
 			{
-				Config: testAccImsImage_update(rNameUpdate),
+				Config: testAccImsImage_update(rName, rNameUpdate, 1024, 4096),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImsImageExists(resourceName, &image),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "status", "active"),
+					resource.TestCheckResourceAttr(resourceName, "description",
+						"created by Terraform AccTest for update"),
+					resource.TestCheckResourceAttr(resourceName, "min_ram", "1024"),
+					resource.TestCheckResourceAttr(resourceName, "max_ram", "4096"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key2", "value2"),
+				),
+			},
+			{
+				Config: testAccImsImage_update(rName, rNameUpdate, 4096, 8192),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckImsImageExists(resourceName, &image),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "status", "active"),
+					resource.TestCheckResourceAttr(resourceName, "description",
+						"created by Terraform AccTest for update"),
+					resource.TestCheckResourceAttr(resourceName, "min_ram", "4096"),
+					resource.TestCheckResourceAttr(resourceName, "max_ram", "8192"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key2", "value2"),
+				),
+			},
+			{
+				Config: testAccImsImage_update(rName, rNameUpdate, 0, 0),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckImsImageExists(resourceName, &image),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "status", "active"),
+					resource.TestCheckResourceAttr(resourceName, "description",
+						"created by Terraform AccTest for update"),
+					resource.TestCheckResourceAttr(resourceName, "min_ram", "0"),
+					resource.TestCheckResourceAttr(resourceName, "max_ram", "0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key2", "value2"),
@@ -104,11 +140,39 @@ func TestAccImsImage_wholeImage_withServer(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccImsImage_wholeImage_withServer_update(rName, rNameUpdate),
+				Config: testAccImsImage_wholeImage_withServer_update(rName, rNameUpdate, 1024, 4096),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImsImageExists(resourceName, &image),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "status", "active"),
+					resource.TestCheckResourceAttr(resourceName, "min_ram", "1024"),
+					resource.TestCheckResourceAttr(resourceName, "max_ram", "4096"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key2", "value2"),
+				),
+			},
+			{
+				Config: testAccImsImage_wholeImage_withServer_update(rName, rNameUpdate, 4096, 8192),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckImsImageExists(resourceName, &image),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "status", "active"),
+					resource.TestCheckResourceAttr(resourceName, "min_ram", "4096"),
+					resource.TestCheckResourceAttr(resourceName, "max_ram", "8192"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key2", "value2"),
+				),
+			},
+			{
+				Config: testAccImsImage_wholeImage_withServer_update(rName, rNameUpdate, 0, 0),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckImsImageExists(resourceName, &image),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "status", "active"),
+					resource.TestCheckResourceAttr(resourceName, "min_ram", "0"),
+					resource.TestCheckResourceAttr(resourceName, "max_ram", "0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key2", "value2"),
@@ -245,7 +309,6 @@ resource "huaweicloud_compute_instance" "test" {
 resource "huaweicloud_images_image" "test" {
   name        = "%[2]s"
   instance_id = huaweicloud_compute_instance.test.id
-  description = "created by Terraform AccTest"
 
   tags = {
     foo = "bar"
@@ -255,7 +318,7 @@ resource "huaweicloud_images_image" "test" {
 `, common.TestBaseNetwork(rName), rName)
 }
 
-func testAccImsImage_update(rName string) string {
+func testAccImsImage_update(rName, rNameUpdate string, minRAM, maxRAM int) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -281,9 +344,11 @@ resource "huaweicloud_compute_instance" "test" {
 }
 
 resource "huaweicloud_images_image" "test" {
-  name        = "%[2]s"
+  name        = "%[3]s"
   instance_id = huaweicloud_compute_instance.test.id
-  description = "created by Terraform AccTest"
+  description = "created by Terraform AccTest for update"
+  min_ram     = %[4]d
+  max_ram     = %[5]d
 
   tags = {
     foo  = "bar"
@@ -291,7 +356,7 @@ resource "huaweicloud_images_image" "test" {
     key2 = "value2"
   }
 }
-`, common.TestBaseNetwork(rName), rName)
+`, common.TestBaseNetwork(rName), rName, rNameUpdate, minRAM, maxRAM)
 }
 
 func testAccImsImage_withEpsId(rName string) string {
@@ -396,7 +461,7 @@ resource "huaweicloud_images_image" "test" {
 `, common.TestBaseNetwork(rName), testAccImsImage_wholeImage_base(rName), rName)
 }
 
-func testAccImsImage_wholeImage_withServer_update(rName, updateName string) string {
+func testAccImsImage_wholeImage_withServer_update(rName, updateName string, minRAM, maxRAM int) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -407,6 +472,8 @@ resource "huaweicloud_images_image" "test" {
   instance_id = huaweicloud_compute_instance.test.id
   description = "created by Terraform AccTest"
   vault_id    = huaweicloud_cbr_vault.test.id
+  min_ram     = %[4]d
+  max_ram     = %[5]d
 
   tags = {
     foo  = "bar"
@@ -414,7 +481,7 @@ resource "huaweicloud_images_image" "test" {
     key2 = "value2"
   }
 }
-`, common.TestBaseNetwork(rName), testAccImsImage_wholeImage_base(rName), updateName)
+`, common.TestBaseNetwork(rName), testAccImsImage_wholeImage_base(rName), updateName, minRAM, maxRAM)
 }
 
 func testAccImsImage_wholeImage_withBackup(rName string) string {

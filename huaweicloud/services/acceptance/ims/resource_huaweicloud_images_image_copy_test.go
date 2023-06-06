@@ -56,17 +56,33 @@ func TestAccImsImageCopy_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "description", "it's a test"),
+					resource.TestCheckResourceAttr(rName, "min_ram", "1024"),
+					resource.TestCheckResourceAttr(rName, "max_ram", "4096"),
 					resource.TestCheckResourceAttr(rName, "tags.key1", "value1"),
 					resource.TestCheckResourceAttr(rName, "tags.key2", "value2"),
 				),
 			},
 			{
-				Config: testImsImageCopy_update(sourceImageName, updateName),
+				Config: testImsImageCopy_update(sourceImageName, updateName, 4096, 8192),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
 					resource.TestCheckResourceAttr(rName, "description", "it's a test"),
+					resource.TestCheckResourceAttr(rName, "min_ram", "4096"),
+					resource.TestCheckResourceAttr(rName, "max_ram", "8192"),
+					resource.TestCheckResourceAttr(rName, "tags.key1", "value1_update"),
+					resource.TestCheckResourceAttr(rName, "tags.key3", "value3"),
+					resource.TestCheckResourceAttr(rName, "tags.key4", "value4"),
+				),
+			},
+			{
+				Config: testImsImageCopy_update(sourceImageName, updateName, 0, 0),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "description", "it's a test"),
+					resource.TestCheckResourceAttr(rName, "min_ram", "0"),
+					resource.TestCheckResourceAttr(rName, "max_ram", "0"),
 					resource.TestCheckResourceAttr(rName, "tags.key1", "value1_update"),
 					resource.TestCheckResourceAttr(rName, "tags.key3", "value3"),
 					resource.TestCheckResourceAttr(rName, "tags.key4", "value4"),
@@ -125,34 +141,37 @@ func testImsImageCopy_basic(baseImageName, copyImageName string) string {
 %s
 
 resource "huaweicloud_images_image_copy" "test" {
- source_image_id = huaweicloud_images_image.test.id
- name            = "%s"
- description     = "it's a test"
+  source_image_id = huaweicloud_images_image.test.id
+  name            = "%s"
+  min_ram         = 1024
+  max_ram         = 4096
 
- tags = {
+  tags = {
     key1 = "value1"
     key2 = "value2"
- }
+  }
 }
 `, testAccImsImage_basic(baseImageName), copyImageName)
 }
 
-func testImsImageCopy_update(baseImageName, copyImageName string) string {
+func testImsImageCopy_update(baseImageName, copyImageName string, minRAM, maxRAM int) string {
 	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_images_image_copy" "test" {
- source_image_id = huaweicloud_images_image.test.id
- name            = "%s"
- description     = "it's a test"
+  source_image_id = huaweicloud_images_image.test.id
+  name            = "%[2]s"
+  description     = "it's a test"
+  min_ram         = %[3]d
+  max_ram         = %[4]d
 
- tags = {
+  tags = {
     key1 = "value1_update"
     key3 = "value3"
     key4 = "value4"
- }
+  }
 }
-`, testAccImsImage_basic(baseImageName), copyImageName)
+`, testAccImsImage_basic(baseImageName), copyImageName, minRAM, maxRAM)
 }
 
 func testImsImageCopy_basic_cross_region(baseImageName, copyImageName string) string {
