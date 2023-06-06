@@ -54,6 +54,9 @@ var (
 	HW_HIGH_COST_ALLOW      = os.Getenv("HW_HIGH_COST_ALLOW")
 	HW_SWR_SHARING_ACCOUNT  = os.Getenv("HW_SWR_SHARING_ACCOUNT")
 
+	HW_RAM_SHARE_ACCOUNT_ID   = os.Getenv("HW_RAM_SHARE_ACCOUNT_ID")
+	HW_RAM_SHARE_RESOURCE_URN = os.Getenv("HW_RAM_SHARE_RESOURCE_URN")
+
 	HW_CERTIFICATE_KEY_PATH         = os.Getenv("HW_CERTIFICATE_KEY_PATH")
 	HW_CERTIFICATE_CHAIN_PATH       = os.Getenv("HW_CERTIFICATE_CHAIN_PATH")
 	HW_CERTIFICATE_PRIVATE_KEY_PATH = os.Getenv("HW_CERTIFICATE_PRIVATE_KEY_PATH")
@@ -392,6 +395,14 @@ func TestAccPreCheckSWRDomian(t *testing.T) {
 	if HW_SWR_SHARING_ACCOUNT == "" {
 		t.Skip("HW_SWR_SHARING_ACCOUNT must be set for swr domian tests, " +
 			"the value of HW_SWR_SHARING_ACCOUNT should be another IAM user name")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRAM(t *testing.T) {
+	if HW_RAM_SHARE_ACCOUNT_ID == "" || HW_RAM_SHARE_RESOURCE_URN == "" {
+		t.Skip("HW_RAM_SHARE_ACCOUNT_ID and HW_RAM_SHARE_RESOURCE_URN must be set for ram tests, " +
+			"the value of HW_RAM_SHARE_ACCOUNT_ID should be another account id")
 	}
 }
 

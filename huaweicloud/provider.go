@@ -942,6 +942,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_oms_migration_task":       oms.ResourceMigrationTask(),
 			"huaweicloud_oms_migration_task_group": oms.ResourceMigrationTaskGroup(),
 
+			"huaweicloud_ram_resource_share": ram.ResourceRAMShare(),
+
 			"huaweicloud_rds_mysql_account":            rds.ResourceRdsAccount(),
 			"huaweicloud_rds_mysql_database":           rds.ResourceRdsDatabase(),
 			"huaweicloud_rds_mysql_database_privilege": rds.ResourceRdsDatabasePrivilege(),
