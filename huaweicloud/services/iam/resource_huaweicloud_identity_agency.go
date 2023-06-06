@@ -449,7 +449,7 @@ func resourceIAMAgencyV3Read(_ context.Context, d *schema.ResourceData, meta int
 
 func buildProjectRoles(prs *schema.Set) []string {
 	addprs := changeToPRPair(prs)
-	pRoles := make([]string, len(addprs))
+	pRoles := make([]string, 0, len(addprs))
 	for key := range addprs {
 		pRoles = append(pRoles, key)
 	}
@@ -494,6 +494,10 @@ func diffChangeOfProjectRole(oldVal, newVal *schema.Set) (remove, add []string) 
 
 func attachProjectRoles(iamClient, identityClient *golangsdk.ServiceClient, allRoleIDs map[string]string,
 	pRoles []string, domainID, agencyID string) error {
+	if len(pRoles) > 0 {
+		log.Printf("[DEBUG] attaching roles %v in project scope to agency %s", pRoles, agencyID)
+	}
+
 	for _, v := range pRoles {
 		pr := strings.Split(v, "|")
 		if len(pr) != 2 {
@@ -521,6 +525,10 @@ func attachProjectRoles(iamClient, identityClient *golangsdk.ServiceClient, allR
 
 func detachProjectRoles(iamClient, identityClient *golangsdk.ServiceClient, allRoleIDs map[string]string,
 	pRoles []string, domainID, agencyID string) error {
+	if len(pRoles) > 0 {
+		log.Printf("[DEBUG] detaching roles %v in project scope from agency %s", pRoles, agencyID)
+	}
+
 	for _, v := range pRoles {
 		pr := strings.Split(v, "|")
 		if len(pr) != 2 {
@@ -550,6 +558,10 @@ func detachProjectRoles(iamClient, identityClient *golangsdk.ServiceClient, allR
 
 func attachDomainRoles(iamClient *golangsdk.ServiceClient, allRoleIDs map[string]string,
 	roleNames []string, domainID, agencyID string) error {
+	if len(roleNames) > 0 {
+		log.Printf("[DEBUG] attaching roles %v in domain scope to agency %s", roleNames, agencyID)
+	}
+
 	for _, r := range roleNames {
 		rid, ok := allRoleIDs[r]
 		if !ok {
@@ -568,6 +580,10 @@ func attachDomainRoles(iamClient *golangsdk.ServiceClient, allRoleIDs map[string
 
 func detachDomainRoles(iamClient *golangsdk.ServiceClient, allRoleIDs map[string]string,
 	roleNames []string, domainID, agencyID string) error {
+	if len(roleNames) > 0 {
+		log.Printf("[DEBUG] detaching roles %v in domain scope from agency %s", roleNames, agencyID)
+	}
+
 	for _, r := range roleNames {
 		rid, ok := allRoleIDs[r]
 		if !ok {
@@ -587,6 +603,10 @@ func detachDomainRoles(iamClient *golangsdk.ServiceClient, allRoleIDs map[string
 
 func attachAllResourcesRoles(iamClient *golangsdk.ServiceClient, allRoleIDs map[string]string,
 	roleNames []string, domainID, agencyID string) error {
+	if len(roleNames) > 0 {
+		log.Printf("[DEBUG] attaching roles %v in all resources to agency %s", roleNames, agencyID)
+	}
+
 	for _, r := range roleNames {
 		rid, ok := allRoleIDs[r]
 		if !ok {
@@ -605,6 +625,10 @@ func attachAllResourcesRoles(iamClient *golangsdk.ServiceClient, allRoleIDs map[
 
 func detachAllResourcesRoles(iamClient *golangsdk.ServiceClient, allRoleIDs map[string]string,
 	roleNames []string, domainID, agencyID string) error {
+	if len(roleNames) > 0 {
+		log.Printf("[DEBUG] detaching roles %v in all resources from agency %s", roleNames, agencyID)
+	}
+
 	for _, r := range roleNames {
 		rid, ok := allRoleIDs[r]
 		if !ok {
@@ -613,7 +637,7 @@ func detachAllResourcesRoles(iamClient *golangsdk.ServiceClient, allRoleIDs map[
 
 		err := agency.DetachAllResources(iamClient, agencyID, domainID, rid).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("error detaching role(%s) in all resources to agency(%s): %s",
+			return fmt.Errorf("error detaching role(%s) in all resources from agency(%s): %s",
 				r, agencyID, err)
 		}
 	}
