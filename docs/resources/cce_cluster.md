@@ -96,10 +96,17 @@ resource "huaweicloud_vpc_subnet" "mysubnet" {
   vpc_id        = huaweicloud_vpc.myvpc.id
 }
 
-resource "huaweicloud_vpc_subnet" "eni_test" {
-  name          = "subnet-eni"
+resource "huaweicloud_vpc_subnet" "eni_test_1" {
+  name          = "subnet-eni-1"
   cidr          = "192.168.2.0/24"
   gateway_ip    = "192.168.2.1"
+  vpc_id        = huaweicloud_vpc.test.id
+}
+
+resource "huaweicloud_vpc_subnet" "eni_test_2" {
+  name          = "subnet-eni-2"
+  cidr          = "192.168.3.0/24"
+  gateway_ip    = "192.168.3.1"
   vpc_id        = huaweicloud_vpc.test.id
 }
 
@@ -109,8 +116,10 @@ resource "huaweicloud_cce_cluster" "test" {
   vpc_id                 = huaweicloud_vpc.myvpc.id
   subnet_id              = huaweicloud_vpc_subnet.mysubnet.id
   container_network_type = "eni"
-  eni_subnet_id          = huaweicloud_vpc_subnet.eni_test.ipv4_subnet_id
-  eni_subnet_cidr        = huaweicloud_vpc_subnet.eni_test.cidr
+  eni_subnet_id          = join(",", [
+    huaweicloud_vpc_subnet.eni_test_1.ipv4_subnet_id,
+    huaweicloud_vpc_subnet.eni_test_2.ipv4_subnet_id,
+  ])
 }
 ```
 
@@ -164,11 +173,9 @@ The following arguments are supported:
 * `service_network_cidr` - (Optional, String, ForceNew) Specifies the service network segment.
   Changing this parameter will create a new cluster resource.
 
-* `eni_subnet_id` - (Optional, String, ForceNew) Specifies the **IPv4 subnet ID** of the subnet where the ENI resides.
-  Specified when creating a CCE Turbo cluster. Changing this parameter will create a new cluster resource.
-
-* `eni_subnet_cidr` - (Optional, String, ForceNew) Specifies the ENI network segment. Specified when creating a CCE
-  Turbo cluster. Changing this parameter will create a new cluster resource.
+* `eni_subnet_id` - (Optional, String) Specifies the **IPv4 subnet ID** of the subnet where the ENI resides.
+  Specified when creating a CCE Turbo cluster. You can add multiple IPv4 subnet ID, separated with comma (,).
+  Only adding subnets is allowed, removing subnets is not allowed.
 
 * `authentication_mode` - (Optional, String, ForceNew) Specifies the authentication mode of the cluster, possible values
   are **rbac** and **authenticating_proxy**. Defaults to **rbac**.
@@ -270,6 +277,8 @@ In addition to all arguments above, the following attributes are exported:
 * `certificate_users` - The certificate users. Structure is documented below.
 
 * `security_group_id` - Security group ID of the cluster.
+
+* `eni_subnet_cidr` - The ENI network segment. This value is valid when only one eni_subnet_id is specified.
 
 * `kube_config_raw` - Raw Kubernetes config to be used by kubectl and other compatible tools.
 

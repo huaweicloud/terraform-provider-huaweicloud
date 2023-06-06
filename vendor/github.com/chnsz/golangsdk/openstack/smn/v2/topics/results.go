@@ -20,6 +20,11 @@ type TopicGet struct {
 	EnterpriseProjectId string `json:"enterprise_project_id"`
 }
 
+type Policies struct {
+	AccessPolicy string `json:"access_policy"`
+	Introduction string `json:"introduction"`
+}
+
 // Extract will get the topic object out of the commonResult object.
 func (r commonResult) Extract() (*Topic, error) {
 	var s Topic
@@ -62,6 +67,10 @@ type ListResult struct {
 	golangsdk.Result
 }
 
+type GetPoliciesResult struct {
+	commonResult
+}
+
 func (lr ListResult) Extract() ([]TopicGet, error) {
 	var a struct {
 		Topics []TopicGet `json:"topics"`
@@ -85,4 +94,12 @@ func ExtractTopics(r pagination.Page) ([]TopicGet, error) {
 	}
 	err := (r.(TopicPage)).ExtractInto(&s)
 	return s.Topics, err
+}
+
+func (r GetPoliciesResult) Extract() (Policies, error) {
+	var a struct {
+		Policies Policies `json:"attributes"`
+	}
+	err := r.Result.ExtractInto(&a)
+	return a.Policies, err
 }

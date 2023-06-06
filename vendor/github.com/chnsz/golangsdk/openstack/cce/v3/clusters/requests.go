@@ -181,6 +181,8 @@ type UpdateOpts struct {
 type UpdateSpec struct {
 	// Cluster description
 	Description string `json:"description,omitempty"`
+	//ENI network parameters
+	EniNetwork *EniNetworkSpec `json:"eniNetwork,omitempty"`
 }
 
 // UpdateOptsBuilder allows extensions to add additional parameters to the

@@ -164,10 +164,19 @@ func TestAccCluster_turbo(t *testing.T) {
 		CheckDestroy:      testAccCheckClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCluster_turbo(rName),
+				Config: testAccCluster_turbo(rName, 2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckClusterExists(resourceName, &cluster),
 					resource.TestCheckResourceAttr(resourceName, "container_network_type", "eni"),
+					resource.TestCheckOutput("is_eni_subnet_id_different", "false"),
+				),
+			},
+			{
+				Config: testAccCluster_turbo(rName, 3),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckClusterExists(resourceName, &cluster),
+					resource.TestCheckResourceAttr(resourceName, "container_network_type", "eni"),
+					resource.TestCheckOutput("is_eni_subnet_id_different", "false"),
 				),
 			},
 		},
@@ -447,28 +456,33 @@ resource "huaweicloud_cce_cluster" "test" {
 `, common.TestVpc(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccCluster_turbo(rName string) string {
+func testAccCluster_turbo(rName string, eniNum int) string {
 	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_vpc_subnet" "eni_test" {
-  name          = "%s-eni"
-  cidr          = "192.168.2.0/24"
-  gateway_ip    = "192.168.2.1"
-  vpc_id        = huaweicloud_vpc.test.id
+  count      = %[3]d
+
+  name       = "%[2]s-eni-${count.index}"
+  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 8, count.index + 1)
+  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 8, count.index + 1), 1)
+  vpc_id     = huaweicloud_vpc.test.id
 }
 
 resource "huaweicloud_cce_cluster" "test" {
-  name                   = "%s"
+  name                   = "%[2]s"
   flavor_id              = "cce.s1.small"
   vpc_id                 = huaweicloud_vpc.test.id
   subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "eni"
-  eni_subnet_id          = huaweicloud_vpc_subnet.eni_test.ipv4_subnet_id
-  eni_subnet_cidr        = huaweicloud_vpc_subnet.eni_test.cidr
+  eni_subnet_id          = join(",", huaweicloud_vpc_subnet.eni_test[*].ipv4_subnet_id)
 }
 
-`, common.TestVpc(rName), rName, rName)
+output "is_eni_subnet_id_different" {
+  value = length(setsubtract(split(",", huaweicloud_cce_cluster.test.eni_subnet_id),
+  huaweicloud_vpc_subnet.eni_test[*].ipv4_subnet_id)) != 0
+}
+`, common.TestVpc(rName), rName, eniNum)
 }
 
 func testAccCluster_hibernate(rName string) string {
