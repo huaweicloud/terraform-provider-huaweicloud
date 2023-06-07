@@ -96,7 +96,7 @@ resource "huaweicloud_apig_instance" "test" {
 
 resource "huaweicloud_compute_instance" "test" {
   name               = "%[2]s"
-  image_id           = data.huaweicloud_images_images.test.images[0].id
+  image_id           = data.huaweicloud_images_image.test.id
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids = [huaweicloud_networking_secgroup.test.id]
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
