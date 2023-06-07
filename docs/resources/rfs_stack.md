@@ -1,5 +1,5 @@
 ---
-subcategory: "Application Orchestration Service (AOS)"
+subcategory: "Resource Formation (RFS)"
 ---
 
 # huaweicloud_rfs_stack
