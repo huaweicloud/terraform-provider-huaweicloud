@@ -53,7 +53,7 @@ func TestAccRdsInstance_basic(t *testing.T) {
 					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", name)),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "2"),
-					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.n1.xlarge.2"),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.n1.large.2"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "100"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_updated"),
@@ -390,7 +390,7 @@ data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_rds_instance" "test" {
   name              = "%s-update"
-  flavor            = "rds.pg.n1.xlarge.2"
+  flavor            = "rds.pg.n1.large.2"
   availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
   security_group_id = huaweicloud_networking_secgroup.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
