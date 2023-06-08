@@ -242,6 +242,12 @@ The following arguments are supported:
 * `system_disk_size` - (Optional, Int) Specifies the system disk size in GB, The value range is 1 to 1024.
   Shrinking the disk is not supported.
 
+* `system_disk_kms_key_id` - (Optional, String, ForceNew) Specifies the ID of a KMS key used to encrypt the system disk.
+  Changing this creates a new instance.
+
+  -> **NOTE:** This parameter is only supported in some regions, such as ap-southeast-3.
+    If not supported, please contact technical support.
+
 * `data_disks` - (Optional, List, ForceNew) Specifies an array of one or more data disks to attach to the instance.
   The data_disks object structure is documented below. Changing this creates a new instance.
 
