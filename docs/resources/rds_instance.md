@@ -172,7 +172,9 @@ The following arguments are supported:
 
 * `flavor` - (Required, String) Specifies the specification code.
 
-  -> **NOTE:** Services will be interrupted for 5 to 10 minutes when you change RDS instance flavor.
+  -> **NOTE:** Services will be interrupted for 5 to 10 minutes when you change RDS instance flavor.If this parameter is
+  changed, a temporary instance will be generated. This temporary instance will occupy the association of the VPC
+  security group and cannot be deleted for 12 hours.
 
 * `db` - (Required, List, ForceNew) Specifies the database information. Structure is documented below. Changing this
   parameter will create a new resource.
