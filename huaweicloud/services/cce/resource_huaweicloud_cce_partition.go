@@ -32,6 +32,7 @@ func ResourcePartition() *schema.Resource {
 			Create: schema.DefaultTimeout(5 * time.Minute),
 		},
 
+		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,

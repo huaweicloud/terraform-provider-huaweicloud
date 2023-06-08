@@ -53,7 +53,7 @@ func checkMarkdown(resources map[string]*schema.Resource, parentDir, rType strin
 		}
 
 		_, err = os.Stat(filePath)
-		if isInternalResource(k) {
+		if isInternalResource(v, k) {
 			if err == nil {
 				fmt.Printf("\n[WARN] %s is only used for internal, please check the file %s!\n", k, filePath)
 			}
@@ -243,7 +243,7 @@ func buildMarkdownFilePath(parent, ty, name string) (string, error) {
 	return path.Join(parent, ty, fmt.Sprintf("%s.md", subParts[1])), nil
 }
 
-func isInternalResource(key string) bool {
+func isInternalResource(resource *schema.Resource, key string) bool {
 	internalResources := []string{
 		"apm_aksk", "aom_alarm_policy", "aom_prometheus_instance",
 		"aom_application", "aom_component", "aom_environment", "aom_cmdb_resource_relationships",
@@ -259,6 +259,15 @@ func isInternalResource(key string) bool {
 			return true
 		}
 	}
+
+	if resource.Description != "" {
+		// get extent attributes from description
+		extent := parseExtentAttribute(resource.Description)
+		if hasExtentAttribute(extent, "Internal") {
+			return true
+		}
+	}
+
 	return false
 }
 
