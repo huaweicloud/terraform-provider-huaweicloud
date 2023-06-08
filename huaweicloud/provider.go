@@ -507,7 +507,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_obs_buckets":       obs.DataSourceObsBuckets(),
 			"huaweicloud_obs_bucket_object": obs.DataSourceObsBucketObject(),
 
-			"huaweicloud_ram_permissions": ram.DataSourceRAMPermissions(),
+			"huaweicloud_ram_resource_permissions": ram.DataSourceRAMPermissions(),
 
 			"huaweicloud_rds_flavors":         rds.DataSourceRdsFlavor(),
 			"huaweicloud_rds_engine_versions": rds.DataSourceRdsEngineVersionsV3(),

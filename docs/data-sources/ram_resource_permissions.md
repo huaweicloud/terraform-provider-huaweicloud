@@ -2,7 +2,7 @@
 subcategory: "Resource Access Manager (RAM)"
 ---
 
-# huaweicloud_ram_permissions
+# huaweicloud_ram_resource_permissions
 
 Use this data source to get the list of RAM permissions.
 
@@ -12,7 +12,7 @@ Use this data source to get the list of RAM permissions.
 variable "resource_type" {}
 variable "name" {}
 
-data "huaweicloud_ram_permissions" "test" {
+data "huaweicloud_ram_resource_permissions" "test" {
   resource_type = var.resource_type
   name          = var.name
 }

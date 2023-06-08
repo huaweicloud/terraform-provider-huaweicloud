@@ -9,7 +9,7 @@ import (
 )
 
 func TestAccDatasourceRAMPermissions_basic(t *testing.T) {
-	rName := "data.huaweicloud_ram_permissions.test"
+	rName := "data.huaweicloud_ram_resource_permissions.test"
 	dc := acceptance.InitDataSourceCheck(rName)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -37,21 +37,21 @@ func TestAccDatasourceRAMPermissions_basic(t *testing.T) {
 
 func testAccDatasourceRAMPermissions_basic() string {
 	return `
-data "huaweicloud_ram_permissions" "test" {
+data "huaweicloud_ram_resource_permissions" "test" {
 }
 
-data "huaweicloud_ram_permissions" "resource_type_filter" {
+data "huaweicloud_ram_resource_permissions" "resource_type_filter" {
   resource_type = "vpc:subnets"
 }
 output "resource_type_filter_is_useful" {
-  value = alltrue([for v in data.huaweicloud_ram_permissions.resource_type_filter.permissions[*].resource_type : v == "vpc:subnets"])
+  value = alltrue([for v in data.huaweicloud_ram_resource_permissions.resource_type_filter.permissions[*].resource_type : v == "vpc:subnets"])
 }
 
-data "huaweicloud_ram_permissions" "name_filter" {
+data "huaweicloud_ram_resource_permissions" "name_filter" {
   name = "default vpc subnets statement"
 }
 output "name_filter_is_useful" {
-  value = alltrue([for v in data.huaweicloud_ram_permissions.name_filter.permissions[*].name : v == "default vpc subnets statement"])
+  value = alltrue([for v in data.huaweicloud_ram_resource_permissions.name_filter.permissions[*].name : v == "default vpc subnets statement"])
 }
 `
 }
