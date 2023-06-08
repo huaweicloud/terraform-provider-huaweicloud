@@ -29,6 +29,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cfw"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cloudtable"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cmdb"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cnad"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/codehub"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cph"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cpts"
@@ -410,7 +411,10 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cdn_domain_statistics": cdn.DataSourceStatistics(),
 
-			"huaweicloud_cfw_firewalls":        cfw.DataSourceFirewalls(),
+			"huaweicloud_cfw_firewalls": cfw.DataSourceFirewalls(),
+
+			"huaweicloud_cnad_advanced_instances": cnad.DataSourceInstances(),
+
 			"huaweicloud_compute_flavors":      ecs.DataSourceEcsFlavors(),
 			"huaweicloud_compute_instance":     ecs.DataSourceComputeInstance(),
 			"huaweicloud_compute_instances":    ecs.DataSourceComputeInstances(),
