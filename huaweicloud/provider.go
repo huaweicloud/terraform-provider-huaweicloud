@@ -833,7 +833,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_influx_instance":    gaussdb.ResourceGaussDBInfluxInstanceV3(),
 			"huaweicloud_gaussdb_mongo_instance":     gaussdb.ResourceGaussDBMongoInstanceV3(),
 
-			"huaweicloud_ges_graph": ges.ResourceGesGraph(),
+			"huaweicloud_ges_graph":    ges.ResourceGesGraph(),
+			"huaweicloud_ges_metadata": ges.ResourceGesMetadata(),
 
 			"huaweicloud_hss_host_group": hss.ResourceHostGroup(),
 
