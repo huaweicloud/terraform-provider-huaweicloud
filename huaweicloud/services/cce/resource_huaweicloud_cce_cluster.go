@@ -145,19 +145,16 @@ func ResourceCluster() *schema.Resource {
 				ForceNew: true,
 			},
 			"eni_subnet_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Computed:     true,
-				RequiredWith: []string{"eni_subnet_cidr"},
-				Description:  "the IPv4 subnet ID of the subnet where the ENI resides",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "the IPv4 subnet ID of the subnet where the ENI resides",
 			},
 			"eni_subnet_cidr": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Computed:     true,
-				RequiredWith: []string{"eni_subnet_id"},
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "schema: Computed",
 			},
 			"enable_distribute_management": {
 				Type:         schema.TypeBool,
@@ -446,6 +443,26 @@ func buildContainerNetworkCidrsOpts(cidrs string) []clusters.CidrSpec {
 	return res
 }
 
+func buildEniNetworkOpts(eniSubnetID string) *clusters.EniNetworkSpec {
+	if eniSubnetID == "" {
+		return nil
+	}
+
+	subnetIDs := strings.Split(eniSubnetID, ",")
+	subnets := make([]clusters.EniSubnetSpec, len(subnetIDs))
+	for i, subnetID := range subnetIDs {
+		subnets[i] = clusters.EniSubnetSpec{
+			SubnetID: subnetID,
+		}
+	}
+
+	eniNetwork := clusters.EniNetworkSpec{
+		Subnets: subnets,
+	}
+
+	return &eniNetwork
+}
+
 func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(config.GetRegion(d))
@@ -494,6 +511,7 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 				Mode:  d.Get("container_network_type").(string),
 				Cidrs: buildContainerNetworkCidrsOpts(d.Get("container_network_cidr").(string)),
 			},
+			EniNetwork: buildEniNetworkOpts(d.Get("eni_subnet_id").(string)),
 			Authentication: clusters.AuthenticationSpec{
 				Mode:                d.Get("authentication_mode").(string),
 				AuthenticatingProxy: authenticating_proxy,
@@ -503,14 +521,6 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 			KubernetesSvcIPRange: d.Get("service_network_cidr").(string),
 			ClusterTags:          resourceClusterTags(d),
 		},
-	}
-
-	if _, ok := d.GetOk("eni_subnet_id"); ok {
-		eniNetwork := clusters.EniNetworkSpec{
-			SubnetId: d.Get("eni_subnet_id").(string),
-			Cidr:     d.Get("eni_subnet_cidr").(string),
-		}
-		createOpts.Spec.EniNetwork = &eniNetwork
 	}
 
 	if _, ok := d.GetOk("enable_distribute_management"); ok {
@@ -626,7 +636,7 @@ func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("highway_subnet_id", n.Spec.HostNetwork.HighwaySubnet),
 		d.Set("container_network_type", n.Spec.ContainerNetwork.Mode),
 		d.Set("container_network_cidr", flattenContainerNetworkCidrs(n.Spec.ContainerNetwork)),
-		d.Set("eni_subnet_id", n.Spec.EniNetwork.SubnetId),
+		d.Set("eni_subnet_id", flattenEniSubnetID(n.Spec.EniNetwork)),
 		d.Set("eni_subnet_cidr", n.Spec.EniNetwork.Cidr),
 		d.Set("authentication_mode", n.Spec.Authentication.Mode),
 		d.Set("security_group_id", n.Spec.HostNetwork.SecurityGroup),
@@ -708,6 +718,20 @@ func flattenContainerNetworkCidrs(containerNetwork clusters.ContainerNetworkSpec
 	return containerNetwork.Cidr
 }
 
+func flattenEniSubnetID(eniNetwork *clusters.EniNetworkSpec) string {
+	if eniNetwork == nil {
+		return ""
+	}
+
+	subnets := eniNetwork.Subnets
+	subnetIDs := make([]string, len(subnets))
+	for i, v := range subnets {
+		subnetIDs[i] = v.SubnetID
+	}
+
+	return strings.Join(subnetIDs, ",")
+}
+
 func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(config.GetRegion(d))
@@ -715,11 +739,18 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error creating CCE v3 client: %s", err)
 	}
 
-	if d.HasChange("description") {
-		var updateOpts clusters.UpdateOpts
-		updateOpts.Spec.Description = d.Get("description").(string)
-		_, err = clusters.Update(cceClient, d.Id(), updateOpts).Extract()
+	var updateOpts clusters.UpdateOpts
 
+	if d.HasChanges("description") {
+		updateOpts.Spec.Description = d.Get("description").(string)
+	}
+
+	if d.HasChanges("eni_subnet_id") {
+		updateOpts.Spec.EniNetwork = buildEniNetworkOpts(d.Get("eni_subnet_id").(string))
+	}
+
+	if updateOpts != (clusters.UpdateOpts{}) {
+		_, err = clusters.Update(cceClient, d.Id(), updateOpts).Extract()
 		if err != nil {
 			return diag.Errorf("error updating CCE cluster: %s", err)
 		}

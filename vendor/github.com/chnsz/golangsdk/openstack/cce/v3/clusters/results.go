@@ -106,10 +106,16 @@ type CidrSpec struct {
 }
 
 type EniNetworkSpec struct {
-	//Eni network subnet id
-	SubnetId string `json:"eniSubnetId" required:"true"`
-	//Eni network cidr
-	Cidr string `json:"eniSubnetCIDR" required:"true"`
+	//Eni network subnet id, will be deprecated in the future
+	SubnetId string `json:"eniSubnetId,omitempty"`
+	//Eni network cidr, will be deprecated in the future
+	Cidr string `json:"eniSubnetCIDR,omitempty"`
+	// Eni network subnet IDs
+	Subnets []EniSubnetSpec `json:"subnets" required:"true"`
+}
+
+type EniSubnetSpec struct {
+	SubnetID string `json:"subnetID" required:"true"`
 }
 
 // Authentication parameters
