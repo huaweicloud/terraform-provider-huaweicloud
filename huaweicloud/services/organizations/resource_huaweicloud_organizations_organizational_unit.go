@@ -7,7 +7,6 @@ package organizations
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"strings"
 
@@ -98,6 +97,7 @@ func resourceOrganizationalUnitCreate(ctx context.Context, d *schema.ResourceDat
 	if err != nil {
 		return diag.Errorf("error creating Organizations organizational unit: ID is not found in API response")
 	}
+
 	d.SetId(id.(string))
 
 	return resourceOrganizationalUnitRead(ctx, d, meta)
@@ -128,8 +128,7 @@ func resourceOrganizationalUnitRead(_ context.Context, d *schema.ResourceData, m
 	}
 
 	getOrganizationalUnitPath := getOrganizationalUnitClient.Endpoint + getOrganizationalUnitHttpUrl
-	getOrganizationalUnitPath = strings.ReplaceAll(getOrganizationalUnitPath, "{organizational_unit_id}",
-		fmt.Sprintf("%v", d.Id()))
+	getOrganizationalUnitPath = strings.ReplaceAll(getOrganizationalUnitPath, "{organizational_unit_id}", d.Id())
 
 	getOrganizationalUnitOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -188,8 +187,8 @@ func resourceOrganizationalUnitUpdate(ctx context.Context, d *schema.ResourceDat
 
 	if d.HasChange("name") {
 		updateOrganizationalUnitPath := updateOrganizationalUnitClient.Endpoint + updateOrganizationalUnitHttpUrl
-		updateOrganizationalUnitPath = strings.ReplaceAll(updateOrganizationalUnitPath, "{organizational_unit_id}",
-			fmt.Sprintf("%v", d.Id()))
+		updateOrganizationalUnitPath = strings.ReplaceAll(updateOrganizationalUnitPath,
+			"{organizational_unit_id}", d.Id())
 
 		updateOrganizationalUnitOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -235,8 +234,8 @@ func resourceOrganizationalUnitDelete(_ context.Context, d *schema.ResourceData,
 	}
 
 	deleteOrganizationalUnitPath := deleteOrganizationalUnitClient.Endpoint + deleteOrganizationalUnitHttpUrl
-	deleteOrganizationalUnitPath = strings.ReplaceAll(deleteOrganizationalUnitPath, "{organizational_unit_id}",
-		fmt.Sprintf("%v", d.Id()))
+	deleteOrganizationalUnitPath = strings.ReplaceAll(deleteOrganizationalUnitPath,
+		"{organizational_unit_id}", d.Id())
 
 	deleteOrganizationalUnitOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,

@@ -105,6 +105,8 @@ var (
 
 	HW_KMS_ENVIRONMENT = os.Getenv("HW_KMS_ENVIRONMENT")
 
+	HW_ORGANIZATIONS_ENVIRONMENT = os.Getenv("HW_ORGANIZATIONS_ENVIRONMENT")
+
 	HW_ER_TEST_ON = os.Getenv("HW_ER_TEST_ON") // Whether to run the ER related tests.
 
 	// The OBS address where the HCL/JSON template archive (No variables) is located.
@@ -185,10 +187,9 @@ func preCheckRequiredEnvVars(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckDeprecatedEnvironment(t *testing.T) {
-	// Do not run the test if this is a deprecated testing environment.
-	if HW_DEPRECATED_ENVIRONMENT != "" {
-		t.Skip("This environment only runs deprecated tests")
+func TestAccPreCheckOrganizations(t *testing.T) {
+	if HW_ORGANIZATIONS_ENVIRONMENT != "" {
+		t.Skip("This environment does not support Organizations tests")
 	}
 }
 

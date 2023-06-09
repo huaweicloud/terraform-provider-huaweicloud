@@ -52,7 +52,7 @@ func TestAccOrganization_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckDeprecatedEnvironment(t) },
+		PreCheck:          func() { acceptance.TestAccPreCheckOrganizations(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{

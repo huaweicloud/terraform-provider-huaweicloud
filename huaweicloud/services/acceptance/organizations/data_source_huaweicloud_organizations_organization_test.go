@@ -14,7 +14,7 @@ func TestAccDatasourceOrganization_basic(t *testing.T) {
 	dc := acceptance.InitDataSourceCheck(rName)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckDeprecatedEnvironment(t) },
+		PreCheck:          func() { acceptance.TestAccPreCheckOrganizations(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
