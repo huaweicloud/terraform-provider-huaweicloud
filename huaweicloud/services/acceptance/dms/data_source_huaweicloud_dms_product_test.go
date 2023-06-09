@@ -123,7 +123,7 @@ data "huaweicloud_dms_product" "product1" {
 var testAccDmsProductDataSource_kafkaVmSpec = `
 data "huaweicloud_dms_product" "test" {
   instance_type    = "cluster"
-  version          = "2.3.0"
+  version          = "2.7"
   engine           = "kafka"
   vm_specification = "c6.large.2"
 }
