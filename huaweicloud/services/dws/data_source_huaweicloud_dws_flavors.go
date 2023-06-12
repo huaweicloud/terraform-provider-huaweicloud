@@ -11,16 +11,18 @@ import (
 	"log"
 	"strings"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/jmespath/go-jmespath"
+
+	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/jmespath/go-jmespath"
 )
 
 func DataSourceDwsFlavors() *schema.Resource {
@@ -138,9 +140,9 @@ func dwsFlavorsFlavorsElasticVolumeSpecSchema() *schema.Resource {
 	return &sc
 }
 
-func resourceDwsFlavorsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceDwsFlavorsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -149,7 +151,7 @@ func resourceDwsFlavorsRead(ctx context.Context, d *schema.ResourceData, meta in
 		listFlavorsHttpUrl = "v2/{project_id}/node-types"
 		listFlavorsProduct = "dws"
 	)
-	listFlavorsClient, err := config.NewServiceClient(listFlavorsProduct, region)
+	listFlavorsClient, err := cfg.NewServiceClient(listFlavorsProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating DwsFlavors Client: %s", err)
 	}
@@ -158,7 +160,7 @@ func resourceDwsFlavorsRead(ctx context.Context, d *schema.ResourceData, meta in
 	listFlavorsPath = strings.ReplaceAll(listFlavorsPath, "{project_id}", listFlavorsClient.ProjectID)
 
 	listFlavorsOpt := golangsdk.RequestOpts{
-		MoreHeaders:      map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json;charset=UTF-8"},
 		KeepResponseBody: true,
 		OkCodes: []int{
 			200,
