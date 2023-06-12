@@ -76,6 +76,20 @@ func StringToInt(i *string) *int {
 	return &r
 }
 
+// StringToBool convert the string to boolean, and return the pointer of boolean value
+func StringToBool(v interface{}) *bool {
+	if v, ok := v.(string); ok {
+		b, err := strconv.ParseBool(v)
+		if err != nil {
+			log.Printf("[ERROR] convert the string %q to boolean failed.", v)
+		}
+
+		return &b
+	}
+
+	return nil
+}
+
 // StringValue returns the string value
 func StringValue(v *string) string {
 	if v == nil {

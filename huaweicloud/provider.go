@@ -59,6 +59,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/fgs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ga"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/gaussdb"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ges"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/hss"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
@@ -826,7 +827,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_influx_instance":    gaussdb.ResourceGaussDBInfluxInstanceV3(),
 			"huaweicloud_gaussdb_mongo_instance":     gaussdb.ResourceGaussDBMongoInstanceV3(),
 
-			"huaweicloud_ges_graph": ResourceGesGraphV1(),
+			"huaweicloud_ges_graph": ges.ResourceGesGraph(),
 
 			"huaweicloud_hss_host_group": hss.ResourceHostGroup(),
 
@@ -1136,7 +1137,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_identity_provider_conversion": iam.ResourceIAMProviderConversion(),
 
 			"huaweicloud_cdm_cluster_v1": cdm.ResourceCdmCluster(),
-			"huaweicloud_ges_graph_v1":   ResourceGesGraphV1(),
 			"huaweicloud_css_cluster_v1": css.ResourceCssCluster(),
 			"huaweicloud_dis_stream_v2":  dis.ResourceDisStream(),
 
