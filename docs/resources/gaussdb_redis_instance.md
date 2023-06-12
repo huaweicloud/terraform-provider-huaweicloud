@@ -95,8 +95,18 @@ The following arguments are supported:
 * `datastore` - (Optional, List, ForceNew) Specifies the database information. Structure is documented below. Changing
   this parameter will create a new resource.
 
+* `port` - (Optional, Int, ForceNew) Specifies the port number for accessing the instance. You can specify a port number
+  based on your requirements. The port number ranges from **1024** to **65535**, excluding **2180**, **2887**, **3887**,
+  **6377**, **6378**, **6380**, **8018**, **8079**, **8091**, **8479**, **8484**, **8999**, **12017**, **12333**, and
+  **50069**. Defaults to **6379**.
+  If you want to use this instance for dual-active DR, set the port to **8635**.
+
+  Changing this parameter will create a new resource.
+
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy. Structure is documented below. Do nothing
   in update method if change this parameter.
+
+* `ssl` - (Optional, Bool) Specifies whether SSL is enabled. Defaults to **false**.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the instance.
 
@@ -141,7 +151,6 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - Indicates the DB instance ID.
 * `status` - Indicates the DB instance status.
-* `port` - Indicates the database port.
 * `mode` - Indicates the instance type.
 * `db_user_name` - Indicates the default username.
 * `nodes` - Indicates the instance nodes information. Structure is documented below.
@@ -155,6 +164,7 @@ The `nodes` block contains:
 * `name` - Indicates the node name.
 * `status` - Indicates the node status.
 * `support_reduce` - Indicates whether the node support reduce or not.
+* `public_ip` - Indicates the public IP address of a node.
 * `private_ip` - Indicates the private IP address of a node.
 
 ## Timeouts

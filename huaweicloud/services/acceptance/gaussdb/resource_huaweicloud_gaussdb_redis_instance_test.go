@@ -39,6 +39,8 @@ func TestAccGaussRedisInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "node_num", "3"),
 					resource.TestCheckResourceAttr(resourceName, "volume_size", "50"),
 					resource.TestCheckResourceAttr(resourceName, "status", "normal"),
+					resource.TestCheckResourceAttr(resourceName, "port", "8888"),
+					resource.TestCheckResourceAttr(resourceName, "ssl", "true"),
 				),
 			},
 			{
@@ -50,6 +52,8 @@ func TestAccGaussRedisInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "node_num", "5"),
 					resource.TestCheckResourceAttr(resourceName, "volume_size", "100"),
 					resource.TestCheckResourceAttr(resourceName, "status", "normal"),
+					resource.TestCheckResourceAttr(resourceName, "port", "8888"),
+					resource.TestCheckResourceAttr(resourceName, "ssl", "false"),
 				),
 			},
 			{
@@ -67,7 +71,7 @@ func TestAccGaussRedisInstance_basic(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"availability_zone", "password"},
+				ImportStateVerifyIgnore: []string{"availability_zone", "password", "ssl"},
 			},
 		},
 	})
@@ -135,7 +139,7 @@ func testAccCheckGaussRedisInstanceExists(n string, instance *instances.GeminiDB
 
 func testAccGaussRedisInstanceConfig_basic(rName, password string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 data "huaweicloud_availability_zones" "test" {}
 
@@ -154,13 +158,15 @@ data "huaweicloud_gaussdb_nosql_flavors" "test" {
 }
 
 resource "huaweicloud_gaussdb_redis_instance" "test" {
-  name        = "%s"
-  password    = "%s"
+  name        = "%[2]s"
+  password    = "%[3]s"
   flavor      = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
   volume_size = 50
   vpc_id      = data.huaweicloud_vpc.test.id
   subnet_id   = data.huaweicloud_vpc_subnet.test.id
   node_num    = 3
+  port        = 8888
+  ssl         = true
 
   security_group_id = huaweicloud_networking_secgroup.test.id
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
@@ -180,7 +186,7 @@ resource "huaweicloud_gaussdb_redis_instance" "test" {
 
 func testAccGaussRedisInstanceConfig_update(rName, password string, nodeNum int) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 data "huaweicloud_availability_zones" "test" {}
 
@@ -199,13 +205,15 @@ data "huaweicloud_gaussdb_nosql_flavors" "test" {
 }
 
 resource "huaweicloud_gaussdb_redis_instance" "test" {
-  name        = "%s-update"
-  password    = "%s"
+  name        = "%[2]s-update"
+  password    = "%[3]s"
   flavor      = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
   volume_size = 100
   vpc_id      = data.huaweicloud_vpc.test.id
   subnet_id   = data.huaweicloud_vpc_subnet.test.id
-  node_num    = %d
+  node_num    = %[4]d
+  port        = 8888
+  ssl         = false
 
   security_group_id = huaweicloud_networking_secgroup.test.id
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
