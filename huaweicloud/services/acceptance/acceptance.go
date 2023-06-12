@@ -108,6 +108,8 @@ var (
 
 	HW_KMS_ENVIRONMENT = os.Getenv("HW_KMS_ENVIRONMENT")
 
+	HW_ORGANIZATIONS_ENVIRONMENT = os.Getenv("HW_ORGANIZATIONS_ENVIRONMENT")
+
 	HW_ER_TEST_ON = os.Getenv("HW_ER_TEST_ON") // Whether to run the ER related tests.
 
 	// The OBS address where the HCL/JSON template archive (No variables) is located.
@@ -184,6 +186,13 @@ func init() {
 func preCheckRequiredEnvVars(t *testing.T) {
 	if HW_REGION_NAME == "" {
 		t.Fatal("HW_REGION_NAME must be set for acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckOrganizations(t *testing.T) {
+	if HW_ORGANIZATIONS_ENVIRONMENT != "" {
+		t.Skip("This environment does not support Organizations tests")
 	}
 }
 

@@ -448,6 +448,13 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "RMS",
 	},
+	"organizations": {
+		Name:             "organizations",
+		Version:          "v1",
+		Scope:            "global",
+		WithOutProjectID: true,
+		Product:          "Organizations",
+	},
 	// catalog for Meeting service, only used for API scan
 	"meeting": {
 		Name:             "api.meeting",
