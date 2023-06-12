@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"reflect"
 	"strings"
 	"time"
 
@@ -739,7 +740,7 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error creating CCE v3 client: %s", err)
 	}
 
-	var updateOpts clusters.UpdateOpts
+	var updateOpts = clusters.UpdateOpts{}
 
 	if d.HasChanges("description") {
 		updateOpts.Spec.Description = d.Get("description").(string)
@@ -749,7 +750,7 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		updateOpts.Spec.EniNetwork = buildEniNetworkOpts(d.Get("eni_subnet_id").(string))
 	}
 
-	if updateOpts != (clusters.UpdateOpts{}) {
+	if !reflect.DeepEqual(updateOpts, clusters.UpdateOpts{}) {
 		_, err = clusters.Update(cceClient, d.Id(), updateOpts).Extract()
 		if err != nil {
 			return diag.Errorf("error updating CCE cluster: %s", err)
