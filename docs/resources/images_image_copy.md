@@ -55,9 +55,6 @@ The following arguments are supported:
 * `target_region` - (Optional, String, ForceNew) Specifies the target region name.
   If specified, it means cross-region replication.
 
-* `description` - (Optional, String, ForceNew) Specifies the description of the copy image.
-  Changing this parameter will create a new resource.
-
 * `kms_key_id` - (Optional, String, ForceNew) Specifies the master key used for encrypting an image.
   Only copying scene within a region is supported. Changing this parameter will create a new resource.
 
@@ -70,6 +67,13 @@ The following arguments are supported:
 * `vault_id` - (Optional, String, ForceNew) Specifies the ID of the vault. It is used in the cross-region scene,
   and it is mandatory if you are replicating a full-ECS image.
   Changing this parameter will create a new resource.
+
+* `min_ram` - (Optional, Int) The minimum memory of the copy image in the unit of MB. The default value is 0,
+  indicating that the memory is not restricted.
+
+* `max_ram` - (Optional, Int) The maximum memory of the copy image in the unit of MB.
+
+* `description` - (Optional, String) A description of the copy image.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the copy image.
 

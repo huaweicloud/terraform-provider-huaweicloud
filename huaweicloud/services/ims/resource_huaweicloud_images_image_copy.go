@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -63,7 +64,6 @@ func ResourceImsImageCopy() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `Specifies the description of the copy image.`,
 			},
 			"kms_key_id": {
@@ -93,6 +93,16 @@ func ResourceImsImageCopy() *schema.Resource {
 				Computed:    true,
 				ForceNew:    true,
 				Description: `Specifies the ID of the vault.`,
+			},
+			"max_ram": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"min_ram": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
 			},
 			"tags": common.TagsSchema(),
 			// following are additional attributes
@@ -198,6 +208,26 @@ func resourceImsImageCopyCreate(ctx context.Context, d *schema.ResourceData, met
 
 	d.SetId(imageId.(string))
 
+	updateOpts := make(cloudimages.UpdateOpts, 0)
+	if v, ok := d.GetOk("max_ram"); ok {
+		maxRAM := cloudimages.UpdateImageProperty{
+			Op:    cloudimages.ReplaceOp,
+			Name:  "max_ram",
+			Value: strconv.Itoa(v.(int)),
+		}
+		updateOpts = append(updateOpts, maxRAM)
+	}
+	if v, ok := d.GetOk("min_ram"); ok {
+		minRAM := cloudimages.UpdateImageProperty{Op: cloudimages.ReplaceOp, Name: "min_ram", Value: v.(int)}
+		updateOpts = append(updateOpts, minRAM)
+	}
+	if len(updateOpts) > 0 {
+		_, err = cloudimages.Update(imsV2Client, d.Id(), updateOpts).Extract()
+		if err != nil {
+			return diag.Errorf("error setting attributes of images %s: %s", d.Id(), err)
+		}
+	}
+
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
@@ -218,15 +248,49 @@ func resourceImsImageCopyUpdate(ctx context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 
-	if d.HasChange("name") {
-		updateOpts := make(images.UpdateOpts, 0)
-		v := images.ReplaceImageName{NewName: d.Get("name").(string)}
-		updateOpts = append(updateOpts, v)
+	if d.HasChanges("name", "min_ram", "max_ram") {
+		updateOpts := make(cloudimages.UpdateOpts, 0)
+		name := cloudimages.UpdateImageProperty{
+			Op:    cloudimages.ReplaceOp,
+			Name:  "name",
+			Value: d.Get("name").(string),
+		}
+		minRAM := cloudimages.UpdateImageProperty{
+			Op:    cloudimages.ReplaceOp,
+			Name:  "min_ram",
+			Value: d.Get("min_ram").(int),
+		}
+		maxRAM := cloudimages.UpdateImageProperty{
+			Op:    cloudimages.ReplaceOp,
+			Name:  "max_ram",
+			Value: strconv.Itoa(d.Get("max_ram").(int)),
+		}
+		updateOpts = append(updateOpts, name, minRAM, maxRAM)
 
 		log.Printf("[DEBUG] Update Options: %#v", updateOpts)
-		_, err = images.Update(imsClient, d.Id(), updateOpts).Extract()
+		_, err = cloudimages.Update(imsClient, d.Id(), updateOpts).Extract()
+
 		if err != nil {
 			return diag.Errorf("error updating image: %s", err)
+		}
+	}
+
+	if d.HasChange("description") {
+		updateOpts := make(cloudimages.UpdateOpts, 0)
+		description := cloudimages.UpdateImageProperty{
+			Op:    cloudimages.ReplaceOp,
+			Name:  "__description",
+			Value: d.Get("description").(string),
+		}
+		updateOpts = append(updateOpts, description)
+
+		log.Printf("[DEBUG] Update description Options: %#v", updateOpts)
+		_, err = cloudimages.Update(imsClient, d.Id(), updateOpts).Extract()
+		if err != nil {
+			err = dealModifyDescriptionErr(d, imsClient, err)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 
@@ -260,6 +324,7 @@ func resourceImsImageCopyRead(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("region", region),
 		d.Set("name", img.Name),
 		d.Set("description", img.Description),
+		d.Set("min_ram", img.MinRam),
 		d.Set("kms_key_id", img.SystemCmkid),
 		d.Set("instance_id", getInstanceID(img.DataOrigin)),
 		d.Set("os_version", img.OsVersion),
@@ -271,6 +336,9 @@ func resourceImsImageCopyRead(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("status", img.Status),
 		d.Set("enterprise_project_id", img.EnterpriseProjectID),
 	)
+	if maxRAM, err := strconv.Atoi(img.MaxRam); err == nil {
+		mErr = multierror.Append(mErr, d.Set("max_ram", maxRAM))
+	}
 
 	// fetch tags
 	if resourceTags, err := tags.Get(imsClient, "image", d.Id()).Extract(); err == nil {

@@ -2,8 +2,10 @@ package ims
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
@@ -11,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cbr/v3/backups"
@@ -41,21 +44,6 @@ func ResourceImsImage() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-			"max_ram": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
-			},
-			"min_ram": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
 			},
 			// instance_id is required for creating an image from an ECS
 			"instance_id": {
@@ -117,6 +105,21 @@ func ResourceImsImage() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"max_ram": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"min_ram": {
+				Type:     schema.TypeInt,
+				Optional: true,
 				Computed: true,
 			},
 			"tags": common.TagsSchema(),
@@ -337,6 +340,7 @@ func resourceImsImageRead(_ context.Context, d *schema.ResourceData, meta interf
 	mErr := multierror.Append(
 		d.Set("name", img.Name),
 		d.Set("description", img.Description),
+		d.Set("min_ram", img.MinRam),
 		d.Set("visibility", img.Visibility),
 		d.Set("disk_format", img.DiskFormat),
 		d.Set("image_size", img.ImageSize),
@@ -344,6 +348,9 @@ func resourceImsImageRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("checksum", img.Checksum),
 		d.Set("status", img.Status),
 	)
+	if maxRAM, err := strconv.Atoi(img.MaxRam); err == nil {
+		mErr = multierror.Append(mErr, d.Set("max_ram", maxRAM))
+	}
 
 	if img.OsVersion != "" {
 		mErr = multierror.Append(mErr, d.Set("os_version", img.OsVersion))
@@ -435,15 +442,49 @@ func resourceImsImageUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error creating IMS client: %s", err)
 	}
 
-	if d.HasChange("name") {
-		updateOpts := make(images.UpdateOpts, 0)
-		v := images.ReplaceImageName{NewName: d.Get("name").(string)}
-		updateOpts = append(updateOpts, v)
+	if d.HasChanges("name", "min_ram", "max_ram") {
+		updateOpts := make(cloudimages.UpdateOpts, 0)
+		name := cloudimages.UpdateImageProperty{
+			Op:    cloudimages.ReplaceOp,
+			Name:  "name",
+			Value: d.Get("name").(string),
+		}
+		minRAM := cloudimages.UpdateImageProperty{
+			Op:    cloudimages.ReplaceOp,
+			Name:  "min_ram",
+			Value: d.Get("min_ram").(int),
+		}
+		maxRAM := cloudimages.UpdateImageProperty{
+			Op:    cloudimages.ReplaceOp,
+			Name:  "max_ram",
+			Value: strconv.Itoa(d.Get("max_ram").(int)),
+		}
+		updateOpts = append(updateOpts, name, minRAM, maxRAM)
 
 		log.Printf("[DEBUG] Update Options: %#v", updateOpts)
-		_, err = images.Update(imsClient, d.Id(), updateOpts).Extract()
+		_, err = cloudimages.Update(imsClient, d.Id(), updateOpts).Extract()
+
 		if err != nil {
 			return diag.Errorf("error updating image: %s", err)
+		}
+	}
+
+	if d.HasChange("description") {
+		updateOpts := make(cloudimages.UpdateOpts, 0)
+		description := cloudimages.UpdateImageProperty{
+			Op:    cloudimages.ReplaceOp,
+			Name:  "__description",
+			Value: d.Get("description").(string),
+		}
+		updateOpts = append(updateOpts, description)
+
+		log.Printf("[DEBUG] Update description Options: %#v", updateOpts)
+		_, err = cloudimages.Update(imsClient, d.Id(), updateOpts).Extract()
+		if err != nil {
+			err = dealModifyDescriptionErr(d, imsClient, err)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 
@@ -473,6 +514,38 @@ func resourceImsImageUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	return resourceImsImageRead(ctx, d, meta)
+}
+
+// if the argument of description is not set when creating the image or has been removed, it will cause error if you
+// change it directly, and it is needed to add it first
+func dealModifyDescriptionErr(d *schema.ResourceData, client *golangsdk.ServiceClient, err error) error {
+	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
+			return jsonErr
+		}
+		errorCode, errorCodeErr := jmespath.Search("error.code", apiError)
+		if errorCodeErr != nil {
+			return fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
+		}
+		if errorCode != "IMG.0035" {
+			return err
+		}
+		updateOpts := make(cloudimages.UpdateOpts, 0)
+		description := cloudimages.UpdateImageProperty{
+			Op:    cloudimages.AddOp,
+			Name:  "__description",
+			Value: d.Get("description").(string),
+		}
+		updateOpts = append(updateOpts, description)
+
+		_, err = cloudimages.Update(client, d.Id(), updateOpts).Extract()
+		if err != nil {
+			return fmt.Errorf("error updating image description: %s", err)
+		}
+		return nil
+	}
+	return fmt.Errorf("error updating image description: %s", err)
 }
 
 func resourceImsImageDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
