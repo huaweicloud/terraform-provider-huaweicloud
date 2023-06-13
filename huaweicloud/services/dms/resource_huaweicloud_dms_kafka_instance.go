@@ -759,16 +759,21 @@ func kafkaInstanceCreatingFunc(client *golangsdk.ServiceClient, instanceID strin
 	}
 }
 
-func flattenCrossVpcInfo(crossVpcInfoStr string) ([]map[string]interface{}, error) {
+func flattenCrossVpcInfo(str string) (result []map[string]interface{}, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("[ERROR] Recover panic when flattening Cross-VPC structure: %#v \nCrossVpcInfo: %s", r, str)
+			err = fmt.Errorf("faield to flattening Cross-VPC structure: %#v", r)
+		}
+	}()
+
+	return unmarshalFlattenCrossVpcInfo(str)
+}
+
+func unmarshalFlattenCrossVpcInfo(crossVpcInfoStr string) ([]map[string]interface{}, error) {
 	if crossVpcInfoStr == "" {
 		return nil, nil
 	}
-
-	defer func() {
-		if r := recover(); r != nil {
-			log.Printf("[ERROR] Recover panic when flattening cross-VPC infos structure: %#v", r)
-		}
-	}()
 
 	crossVpcInfos := make(map[string]interface{})
 	err := json.Unmarshal([]byte(crossVpcInfoStr), &crossVpcInfos)

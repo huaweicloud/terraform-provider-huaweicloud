@@ -241,9 +241,10 @@ func TestAccKafkaInstance_newFormat(t *testing.T) {
 						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.ios.0.storage_spec_code"),
 					resource.TestCheckResourceAttr(resourceName, "storage_space", "600"),
 
-					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.0.advertised_ip", "192.168.0.51"),
+					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.0.advertised_ip", "192.168.0.61"),
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.1.advertised_ip", "test.terraform.com"),
-					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.2.advertised_ip", "192.168.0.53"),
+					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.2.advertised_ip", "192.168.0.62"),
+					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.3.advertised_ip", "192.168.0.63"),
 				),
 			},
 		},
@@ -506,13 +507,16 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   manager_password = "Kafkatest@123"
 
   cross_vpc_accesses {
-    advertised_ip = "192.168.0.51"
+    advertised_ip = "192.168.0.61"
   }
   cross_vpc_accesses {
     advertised_ip = "test.terraform.com"
   }
   cross_vpc_accesses {
-    advertised_ip = "192.168.0.53"
+    advertised_ip = "192.168.0.62"
+  }
+  cross_vpc_accesses {
+    advertised_ip = "192.168.0.63"
   }
 }`, common.TestBaseNetwork(rName), rName)
 }
