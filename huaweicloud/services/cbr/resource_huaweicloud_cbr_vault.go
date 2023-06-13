@@ -125,9 +125,22 @@ func ResourceVault() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"policy_id": {
-				Type:     schema.TypeString,
+			"policy": {
+				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"destination_vault_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
 			},
 			"resources": {
 				Type:     schema.TypeSet,
@@ -179,6 +192,12 @@ func ResourceVault() *schema.Resource {
 			"storage": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			// Deprecated arguments
+			"policy_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "schema:Deprecated; Using parameter 'policy' instead",
 			},
 		},
 	}
@@ -328,9 +347,9 @@ func resourceVaultCreate(ctx context.Context, d *schema.ResourceData, meta inter
 
 	opts := vaults.CreateOpts{
 		Name:                d.Get("name").(string),
-		BackupPolicyID:      d.Get("policy_id").(string),
 		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
 		Resources:           resources,
+		BackupPolicyID:      d.Get("policy_id").(string),
 		Billing:             buildBillingStructure(d),
 		AutoExpand:          ae.(bool),
 		AutoBind:            d.Get("auto_bind").(bool),
@@ -391,10 +410,10 @@ func resourceVaultCreate(ctx context.Context, d *schema.ResourceData, meta inter
 		d.SetId(vault.ID)
 	}
 
-	if policy, ok := d.GetOk("policy_id"); ok {
-		_, err := vaults.BindPolicy(client, d.Id(), vaults.BindPolicyOpts{PolicyID: policy.(string)}).Extract()
+	if _, ok = d.GetOk("policy"); ok {
+		err := updatePolicyBindings(d, client)
 		if err != nil {
-			return diag.Errorf("error binding policy to vault: %s", err)
+			return diag.FromErr(err)
 		}
 	}
 
@@ -459,24 +478,21 @@ func setResources(d *schema.ResourceData, vType string, resources []vaults.Resou
 	return nil
 }
 
-func getPolicyByVaultId(client *golangsdk.ServiceClient, vaultId string) (string, error) {
+func getPoliciesByVaultId(client *golangsdk.ServiceClient, vaultId string) ([]policies.Policy, error) {
 	listOpts := policies.ListOpts{
 		VaultID: vaultId,
 	}
 	allPages, err := policies.List(client, listOpts).AllPages()
 	if err != nil {
-		return "", fmt.Errorf("error getting policy by vault ID (%s): %s", vaultId, err)
+		return nil, fmt.Errorf("error getting policy by vault ID (%s): %s", vaultId, err)
 	}
 
 	policyList, err := policies.ExtractPolicies(allPages)
 	if err != nil {
-		return "", fmt.Errorf("error extracting vault list: %s", err)
+		return nil, fmt.Errorf("error extracting policy list: %s", err)
 	}
 
-	if len(policyList) >= 1 {
-		return policyList[0].ID, nil
-	}
-	return "", nil
+	return policyList, nil
 }
 
 // Convert Mega Bytes to Giga Bytes, the result is to two decimal places.
@@ -485,12 +501,32 @@ func getNumberInGB(megaBytes float64) float64 {
 	return math.Trunc(float64(megaBytes) / denominator * 1e2 * 1e-2)
 }
 
-func setPolicyId(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	policyId, err := getPolicyByVaultId(client, d.Id())
+func flattenPolicies(d *schema.ResourceData, client *golangsdk.ServiceClient) []map[string]interface{} {
+	vaultId := d.Id()
+	policyList, err := getPoliciesByVaultId(client, vaultId)
 	if err != nil {
-		return err
+		log.Printf("[ERROR] error querying CBR policies by vault ID (%s): %v", vaultId, err)
+		return nil
 	}
-	return d.Set("policy_id", policyId)
+	if len(policyList) < 1 {
+		return nil
+	}
+	result := make([]map[string]interface{}, len(policyList))
+	for i, val := range policyList {
+		policy := map[string]interface{}{
+			"id": val.ID,
+		}
+		if len(val.AssociatedVaults) > 0 {
+			for _, v := range val.AssociatedVaults {
+				if v.VaultID == vaultId {
+					policy["destination_vault_id"] = v.DestinationVaultID
+					break
+				}
+			}
+		}
+		result[i] = policy
+	}
+	return result
 }
 
 func setCbrVaultCharging(d *schema.ResourceData, billing vaults.Billing) error {
@@ -527,8 +563,8 @@ func resourceVaultRead(ctx context.Context, d *schema.ResourceData, meta interfa
 		d.Set("enterprise_project_id", resp.EnterpriseProjectID),
 		d.Set("tags", utils.TagsToMap(resp.Tags)),
 		d.Set("bind_rules", utils.TagsToMap(resp.BindRules.Tags)),
+		d.Set("policy", flattenPolicies(d, client)),
 		setResources(d, resp.Billing.ObjectType, resp.Resources),
-		setPolicyId(d, client),
 		setCbrVaultCharging(d, resp.Billing),
 		// Computed
 		// The result of 'allocated' and 'used' is in MB, and now we need to use GB as the unit.
@@ -585,22 +621,32 @@ func updateResources(d *schema.ResourceData, client *golangsdk.ServiceClient) er
 	return nil
 }
 
-func updatePolicy(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	oldP, newP := d.GetChange("policy_id")
-	if newP != "" {
-		// The BindPolicy method can overwrite the old policy binding.
-		_, err := vaults.BindPolicy(client, d.Id(), vaults.BindPolicyOpts{
-			PolicyID: newP.(string),
+func updatePolicyBindings(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		vaultId        = d.Id()
+		oldVal, newVal = d.GetChange("policy")
+		rmRaw          = oldVal.(*schema.Set).Difference(newVal.(*schema.Set))
+		newRaw         = newVal.(*schema.Set).Difference(oldVal.(*schema.Set))
+	)
+	for _, policy := range rmRaw.List() {
+		pm := policy.(map[string]interface{})
+		_, err := vaults.UnbindPolicy(client, vaultId, vaults.BindPolicyOpts{
+			PolicyID: pm["id"].(string),
 		}).Extract()
 		if err != nil {
-			return fmt.Errorf("error binding policy to vault: %s", err)
+			return fmt.Errorf("error unbinding policy from vault (%s): %w", vaultId, err)
 		}
-	} else {
-		_, err := vaults.UnbindPolicy(client, d.Id(), vaults.BindPolicyOpts{
-			PolicyID: oldP.(string),
+	}
+	for _, policy := range newRaw.List() {
+		pm := policy.(map[string]interface{})
+		// Although the BindPolicy method can override the old policy binding, it is difficult for us to know what type
+		// of policy is in the old configuration. Overwriting rashly will only cause problems in unbinding.
+		_, err := vaults.BindPolicy(client, vaultId, vaults.BindPolicyOpts{
+			DestinationVaultId: pm["destination_vault_id"].(string),
+			PolicyID:           pm["id"].(string),
 		}).Extract()
 		if err != nil {
-			return fmt.Errorf("error unbinding policy from vault: %s", err)
+			return fmt.Errorf("error binding policy to vault (%s): %w", vaultId, err)
 		}
 	}
 	return nil
@@ -652,8 +698,8 @@ func resourceVaultUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 			return diag.FromErr(err)
 		}
 	}
-	if d.HasChange("policy_id") {
-		if err := updatePolicy(d, client); err != nil {
+	if d.HasChange("policy") {
+		if err := updatePolicyBindings(d, client); err != nil {
 			return diag.FromErr(err)
 		}
 	}

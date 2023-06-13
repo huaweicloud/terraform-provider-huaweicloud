@@ -167,7 +167,12 @@ func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) pagination.Page
 }
 
 type BindPolicyOpts struct {
-	PolicyID string `json:"policy_id" required:"true"`
+	// The destination vault ID, only required if associate replication policy.
+	DestinationVaultId string `json:"destination_vault_id,omitempty"`
+	// The policy ID.
+	PolicyID string `json:"policy_id,omitempty"`
+	// The policy ID list.
+	PolicyIDs []string `json:"add_policy_ids,omitempty"`
 }
 
 func (opts BindPolicyOpts) ToBindPolicyMap() (map[string]interface{}, error) {

@@ -340,3 +340,68 @@ func CreateWholeImageByBackup(client *golangsdk.ServiceClient, opts CreateOptsBu
 	_, r.Err = client.Post(createWholeImageURL(client), b, &r.Body, nil)
 	return
 }
+
+// Update implements image updated request.
+func Update(client *golangsdk.ServiceClient, id string, opts UpdateOptsBuilder) (r UpdateResult) {
+	b, err := opts.ToImageUpdateMap()
+	if err != nil {
+		r.Err = err
+		return r
+	}
+	_, r.Err = client.Patch(updateURL(client, id), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{200},
+		MoreHeaders: map[string]string{"Content-Type": "application/openstack-images-v2.1-json-patch"},
+	})
+	return
+}
+
+// UpdateOptsBuilder allows extensions to add additional parameters to the Update request.
+type UpdateOptsBuilder interface {
+	ToImageUpdateMap() ([]interface{}, error)
+}
+
+// UpdateOpts implements UpdateOpts
+type UpdateOpts []Patch
+
+// ToImageUpdateMap assembles a request body based on the contents of UpdateOpts.
+func (opts UpdateOpts) ToImageUpdateMap() ([]interface{}, error) {
+	m := make([]interface{}, len(opts))
+	for i, patch := range opts {
+		patchJSON := patch.ToImagePatchMap()
+		m[i] = patchJSON
+	}
+	return m, nil
+}
+
+// Patch represents a single update to an existing image. Multiple updates
+// to an image can be submitted at the same time.
+type Patch interface {
+	ToImagePatchMap() map[string]interface{}
+}
+
+// UpdateOp represents a valid update operation.
+type UpdateOp string
+
+const (
+	AddOp     UpdateOp = "add"
+	ReplaceOp UpdateOp = "replace"
+	RemoveOp  UpdateOp = "remove"
+)
+
+// UpdateImageProperty represents an update property request.
+type UpdateImageProperty struct {
+	Op    UpdateOp
+	Name  string
+	Value interface{}
+}
+
+// ToImagePatchMap assembles a request body based on UpdateImageProperty.
+func (r UpdateImageProperty) ToImagePatchMap() map[string]interface{} {
+	updateMap := map[string]interface{}{
+		"op":    r.Op,
+		"path":  fmt.Sprintf("/%s", r.Name),
+		"value": r.Value,
+	}
+
+	return updateMap
+}
