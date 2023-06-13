@@ -1,0 +1,107 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ges_metadata": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "Metadata description.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "metadata_path": {
+                "type": "string",
+                "description": "OBS Path for storing the metadata.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Metadata name.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Status of a metadata. **200** is available.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "encryption": {
+                "block": {
+                  "attributes": {
+                    "enable": {
+                      "type": "bool",
+                      "description": "Whether to enable data encryption The value can be true or false. The default value is false.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "master_key_id": {
+                      "type": "string",
+                      "description": "ID of the customer master key created by DEW in the project where the graph is created.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "ges_metadata": {
+                "block": {
+                  "block_types": {
+                    "labels": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "description": "Name of a label.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "properties": {
+                            "type": [
+                              "list",
+                              [
+                                "map",
+                                "string"
+                              ]
+                            ],
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "Label list"
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "GES",
+            "name": "Graph Engine Service",
+            "catalog": "AI",
+            "name_cn": "图引擎服务",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

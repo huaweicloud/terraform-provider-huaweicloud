@@ -17,8 +17,7 @@
               "bandwidth_size": {
                 "type": "number",
                 "description": "The egress bandwidth size of the dedicated instance.",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "created_at": {
                 "type": "string",

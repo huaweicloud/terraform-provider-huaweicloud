@@ -66,10 +66,6 @@
                 "optional": true,
                 "forcenew": true
               },
-              "policy_id": {
-                "type": "string",
-                "optional": true
-              },
               "protection_type": {
                 "type": "string",
                 "required": true,
@@ -113,6 +109,21 @@
               }
             },
             "block_types": {
+              "policy": {
+                "block": {
+                  "attributes": {
+                    "destination_vault_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              },
               "resources": {
                 "block": {
                   "attributes": {

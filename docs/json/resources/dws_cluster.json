@@ -7,13 +7,21 @@
             "attributes": {
               "availability_zone": {
                 "type": "string",
-                "optional": true,
-                "computed": true,
+                "description": "The availability zone in which to create the cluster instance. ",
+                "required": true,
                 "forcenew": true
               },
               "created": {
                 "type": "string",
+                "description": "The creation time of the cluster.",
                 "computed": true
+              },
+              "dss_pool_id": {
+                "type": "string",
+                "description": "Dedicated storage pool ID.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "endpoints": {
                 "type": [
@@ -26,10 +34,12 @@
                     }
                   ]
                 ],
+                "description": "Private network connection information about the cluster.",
                 "computed": true
               },
               "enterprise_project_id": {
                 "type": "string",
+                "description": "The enterprise project ID.",
                 "optional": true,
                 "computed": true,
                 "forcenew": true
@@ -38,41 +48,75 @@
                 "type": "string",
                 "computed": true
               },
+              "keep_last_manual_snapshot": {
+                "type": "number",
+                "description": "The number of latest manual snapshots that need to be retained when deleting the cluster.",
+                "optional": true
+              },
+              "kms_key_id": {
+                "type": "string",
+                "description": "The KMS key ID.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "maintain_window": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "day": "string",
+                      "end_time": "string",
+                      "start_time": "string"
+                    }
+                  ]
+                ],
+                "description": "Cluster maintenance window.",
+                "computed": true
+              },
               "name": {
                 "type": "string",
+                "description": "The cluster name.",
                 "required": true,
                 "forcenew": true
               },
               "network_id": {
                 "type": "string",
+                "description": "The subnet ID.",
                 "required": true,
                 "forcenew": true
               },
               "node_type": {
                 "type": "string",
+                "description": "The flavor of the cluster.",
                 "required": true,
                 "forcenew": true
               },
               "number_of_cn": {
                 "type": "number",
-                "optional": true,
+                "description": "schema: Required",
+                "required": true,
                 "forcenew": true
               },
               "number_of_node": {
                 "type": "number",
+                "description": "Number of nodes in a cluster.",
                 "required": true
               },
               "port": {
                 "type": "number",
+                "description": "Service port of a cluster (8000 to 10000). The default value is 8000.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "forcenew": true,
+                "default": 8000
               },
               "private_ip": {
                 "type": [
                   "list",
                   "string"
                 ],
+                "description": "List of private network IP addresses.",
                 "computed": true
               },
               "public_endpoints": {
@@ -86,6 +130,7 @@
                     }
                   ]
                 ],
+                "description": "Public network connection information about the cluster.",
                 "computed": true
               },
               "recent_event": {
@@ -98,15 +143,18 @@
               },
               "security_group_id": {
                 "type": "string",
+                "description": "The security group ID.",
                 "required": true,
                 "forcenew": true
               },
               "status": {
                 "type": "string",
+                "description": "The cluster status.",
                 "computed": true
               },
               "sub_status": {
                 "type": "string",
+                "description": "Sub-status of clusters in the AVAILABLE state.",
                 "computed": true
               },
               "tags": {
@@ -114,32 +162,42 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "description": "The key/value pairs to associate with the cluster.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "task_status": {
                 "type": "string",
+                "description": "Cluster management task.",
                 "computed": true
               },
               "updated": {
                 "type": "string",
+                "description": "The updated time of the cluster.",
                 "computed": true
               },
               "user_name": {
                 "type": "string",
+                "description": "Administrator username for logging in to a data warehouse cluster.",
                 "required": true,
                 "forcenew": true
               },
               "user_pwd": {
                 "type": "string",
+                "description": "Administrator password for logging in to a data warehouse cluster.",
                 "required": true,
                 "sensitive": true
               },
               "version": {
                 "type": "string",
-                "computed": true
+                "description": "schema: Required",
+                "required": true,
+                "forcenew": true
               },
               "vpc_id": {
                 "type": "string",
+                "description": "The VPC ID.",
                 "required": true,
                 "forcenew": true
               }
@@ -150,17 +208,39 @@
                   "attributes": {
                     "eip_id": {
                       "type": "string",
+                      "description": "The EIP ID.",
                       "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     },
                     "public_bind_type": {
                       "type": "string",
+                      "description": "The bind type of public IP.",
                       "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     }
                   }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "volume": {
+                "block": {
+                  "attributes": {
+                    "capacity": {
+                      "type": "string",
+                      "description": "The capacity size, in GB.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The volume type.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "schema: Required"
                 },
                 "nesting_mode": "list",
                 "forcenew": true,

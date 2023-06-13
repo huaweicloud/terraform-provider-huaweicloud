@@ -23,6 +23,10 @@
                 "type": "string",
                 "computed": true
               },
+              "introduction": {
+                "type": "string",
+                "optional": true
+              },
               "name": {
                 "type": "string",
                 "required": true,
@@ -35,6 +39,10 @@
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "services_publish_allowed": {
+                "type": "string",
+                "optional": true
               },
               "tags": {
                 "type": [
@@ -50,6 +58,10 @@
               "update_time": {
                 "type": "string",
                 "computed": true
+              },
+              "users_publish_allowed": {
+                "type": "string",
+                "optional": true
               }
             }
           },

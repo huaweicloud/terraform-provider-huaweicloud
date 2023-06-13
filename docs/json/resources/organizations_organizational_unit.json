@@ -1,0 +1,46 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_organizations_organizational_unit": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the time when the OU was created.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the organizational unit.",
+                "required": true
+              },
+              "parent_id": {
+                "type": "string",
+                "description": "Specifies the ID of the root or organizational unit in which you\nwant to create a new organizational unit.",
+                "required": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "urn": {
+                "type": "string",
+                "description": "Indicates the uniform resource name of the organizational unit.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

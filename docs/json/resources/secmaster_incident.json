@@ -168,6 +168,13 @@
                 "max_items": 1
               }
             }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
           }
         }
       }

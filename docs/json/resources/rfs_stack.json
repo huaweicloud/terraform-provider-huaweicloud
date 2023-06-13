@@ -99,11 +99,11 @@
             }
           },
           "product": {
-            "short": "AOS",
-            "name": "Application Orchestration Service",
-            "catalog": "Containers",
-            "name_cn": "应用编排服务",
-            "catalog_cn": "容器"
+            "short": "RFS",
+            "name": "Resource Formation",
+            "catalog": "Management & Governance",
+            "name_cn": "资源编排服务",
+            "catalog_cn": "管理与监管"
           }
         }
       }

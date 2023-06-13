@@ -184,6 +184,12 @@
                 "type": "string",
                 "computed": true
               },
+              "system_disk_kms_key_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "system_disk_size": {
                 "type": "number",
                 "optional": true,

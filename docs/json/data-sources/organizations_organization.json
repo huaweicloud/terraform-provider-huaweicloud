@@ -1,0 +1,61 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_organizations_organization": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the time when the organization was created.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "master_account_id": {
+                "type": "string",
+                "description": "Indicates the unique ID of the organization's management account.",
+                "computed": true
+              },
+              "master_account_name": {
+                "type": "string",
+                "description": "Indicates the name of the organization's management account.",
+                "computed": true
+              },
+              "root_id": {
+                "type": "string",
+                "description": "Indicates the ID of the root.",
+                "computed": true
+              },
+              "root_name": {
+                "type": "string",
+                "description": "Indicates the name of the root.",
+                "computed": true
+              },
+              "root_tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Indicates the key/value attached to the root.",
+                "computed": true
+              },
+              "root_urn": {
+                "type": "string",
+                "description": "Indicates the urn of the root.",
+                "computed": true
+              },
+              "urn": {
+                "type": "string",
+                "description": "Indicates the uniform resource name of the organization.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

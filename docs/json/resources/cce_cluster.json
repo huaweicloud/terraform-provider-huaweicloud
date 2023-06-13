@@ -118,16 +118,14 @@
               },
               "eni_subnet_cidr": {
                 "type": "string",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
+                "description": "schema: Computed",
+                "computed": true
               },
               "eni_subnet_id": {
                 "type": "string",
                 "description": "the IPv4 subnet ID of the subnet where the ENI resides",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "enterprise_project_id": {
                 "type": "string",

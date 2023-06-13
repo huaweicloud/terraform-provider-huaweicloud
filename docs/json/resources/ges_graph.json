@@ -1,0 +1,253 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ges_graph": {
+          "block": {
+            "attributes": {
+              "az_code": {
+                "type": "string",
+                "description": "AZ code",
+                "computed": true
+              },
+              "cpu_arch": {
+                "type": "string",
+                "description": "Graph instance's CPU architecture type.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "crypt_algorithm": {
+                "type": "string",
+                "description": "Graph instance cryptography algorithm.",
+                "required": true,
+                "forcenew": true
+              },
+              "enable_full_text_index": {
+                "type": "bool",
+                "description": "Whether to enable full-text index control for the created graph.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "enable_https": {
+                "type": "bool",
+                "description": "Whether to enable the security mode. This mode may damage GES performance greatly.",
+                "required": true,
+                "forcenew": true
+              },
+              "enable_hyg": {
+                "type": "bool",
+                "description": "Whether to enable HyG for the graph. This parameter is available for database edition graphs only.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "enable_multi_az": {
+                "type": "bool",
+                "description": "Whether the created graph supports the cross-AZ mode. The default value is false.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "enable_rbac": {
+                "type": "bool",
+                "description": "Whether to enable granular permission control for the created graph.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The enterprise project ID.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "graph_size_type_index": {
+                "type": "string",
+                "description": "Graph size type index.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "keep_backup": {
+                "type": "bool",
+                "description": "Whether to retain the backups of a graph after it is deleted.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The graph name.",
+                "required": true,
+                "forcenew": true
+              },
+              "private_ip": {
+                "type": "string",
+                "description": "Floating IP address of a graph instance.",
+                "computed": true
+              },
+              "product_type": {
+                "type": "string",
+                "description": "Graph product type",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "replication": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "description": "The security group ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Status of a graph.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "The subnet ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The key/value pairs to associate with the graph.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "traffic_ip_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Physical addresses of a graph instance for access from private networks.",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "The VPC ID.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "encryption": {
+                "block": {
+                  "attributes": {
+                    "enable": {
+                      "type": "bool",
+                      "description": "Whether to enable data encryption The value can be true or false. The default value is false.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "master_key_id": {
+                      "type": "string",
+                      "description": "ID of the customer master key created by DEW in the project corresponding to the graph creation.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "Whether to enable data encryption The value can be true or false."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "lts_operation_trace": {
+                "block": {
+                  "attributes": {
+                    "audit_log_group_name": {
+                      "type": "string",
+                      "description": "LTS log group name.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "enable_audit": {
+                      "type": "bool",
+                      "description": "Whether to enable graph audit. The default value is false.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "public_ip": {
+                "block": {
+                  "attributes": {
+                    "eip_id": {
+                      "type": "string",
+                      "description": "The EIP ID.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "public_bind_type": {
+                      "type": "string",
+                      "description": "The bind type of public IP.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The information about public IP."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "vertex_id_type": {
+                "block": {
+                  "attributes": {
+                    "id_length": {
+                      "type": "number",
+                      "description": "The length of ID.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "id_type": {
+                      "type": "string",
+                      "description": "Vertex ID type.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "ID type of vertices. This parameter is mandatory only for database edition graphs."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "GES",
+            "name": "Graph Engine Service",
+            "catalog": "AI",
+            "name_cn": "图引擎服务",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

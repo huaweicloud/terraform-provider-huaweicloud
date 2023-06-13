@@ -23,9 +23,7 @@
               "description": {
                 "type": "string",
                 "description": "Specifies the description of the copy image.",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
+                "optional": true
               },
               "disk_format": {
                 "type": "string",
@@ -56,6 +54,16 @@
                 "optional": true,
                 "computed": true,
                 "forcenew": true
+              },
+              "max_ram": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "min_ram": {
+                "type": "number",
+                "optional": true,
+                "computed": true
               },
               "name": {
                 "type": "string",

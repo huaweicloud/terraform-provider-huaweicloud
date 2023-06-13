@@ -1,0 +1,106 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ram_resource_share": {
+          "block": {
+            "attributes": {
+              "associated_permissions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "permission_id": "string",
+                      "permission_name": "string",
+                      "resource_type": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the RAM share.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the resource share.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the resource share.",
+                "required": true
+              },
+              "owning_account_id": {
+                "type": "string",
+                "description": "The owning account id of the RAM share.",
+                "computed": true
+              },
+              "permission_ids": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the list of RAM permissions associated with the resource share.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "principals": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the list of one or more principals associated with the resource share.",
+                "required": true,
+                "forcenew": true
+              },
+              "resource_urns": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the list of URNs of one or more resources associated with the resource share.",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the RAM share.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the RAM share.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RAM",
+            "name": "Resource Access Manager",
+            "catalog": "Management & Governance",
+            "name_cn": "资源访问管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}
