@@ -106,6 +106,11 @@ func ResourceEvsVolume() *schema.Resource {
 				ForceNew: true,
 				Default:  false,
 			},
+			"dedicated_storage_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
@@ -140,6 +145,10 @@ func ResourceEvsVolume() *schema.Resource {
 				Set: resourceVolumeAttachmentHash,
 			},
 			"wwn": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"dedicated_storage_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -203,6 +212,10 @@ func buildEvsVolumeCreateOpts(d *schema.ResourceData, config *config.Config) clo
 	}
 	if v, ok := d.GetOk("charging_mode"); ok && v == "prePaid" {
 		result.ChargeInfo = buildBssParamParams(d)
+	}
+
+	if v, ok := d.GetOk("dedicated_storage_id"); ok {
+		result.Scheduler.StorageID = v.(string)
 	}
 	return result
 }
@@ -323,6 +336,8 @@ func resourceEvsVolumeRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("wwn", resp.WWN),
 		d.Set("multiattach", resp.Multiattach),
 		d.Set("tags", resp.Tags),
+		d.Set("dedicated_storage_id", resp.DedicatedStorageID),
+		d.Set("dedicated_storage_name", resp.DedicatedStorageName),
 		setEvsVolumeChargingInfo(d, resp),
 		setEvsVolumeDeviceType(d, resp),
 		setEvsVolumeImageId(d, resp),

@@ -100,6 +100,8 @@ The following arguments are supported:
 * `device_type` - (Optional, String, ForceNew) Specifies the device type of disk to create. Valid options are VBD and
   SCSI. Defaults to VBD. Changing this creates a new disk.
 
+* `dedicated_storage_id` - (Optional, String, ForceNew) Specifies the ID of the DSS storage pool accommodating the disk.
+
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the disk. Changing this
   creates a new disk.
 
@@ -145,6 +147,8 @@ The `attachment` block supports:
 * `instance_id` - The ID of the server to which the disk is attached.
 
 * `device` - The device name.
+
+* `dedicated_storage_name` - The name of the DSS storage pool accommodating the disk.
 
 ## Import
 
