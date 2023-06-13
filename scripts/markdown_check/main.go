@@ -252,7 +252,7 @@ func isInternalResource(resource *schema.Resource, key string) bool {
 		"rds_account", "rds_database", "rds_database_privilege",
 		"rf_stack", // changed to rfs_stack after v1.47.0
 		// the fellowings are legacy
-		"ges_graph", "iam_agency", "networking_eip_associate", "vpc_ids", "identity_role_assignment",
+		"iam_agency", "networking_eip_associate", "vpc_ids", "identity_role_assignment",
 	}
 	for _, v := range internalResources {
 		if strings.HasSuffix(key, v) {
