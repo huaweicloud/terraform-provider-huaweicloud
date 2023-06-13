@@ -94,28 +94,32 @@ type DeleteResult struct {
 
 // RolePage is a single page of Role results.
 type RolePage struct {
-	pagination.LinkedPageBase
+	pagination.PageSizeBase
 }
 
 // IsEmpty determines whether or not a page of Roles contains any results.
 func (r RolePage) IsEmpty() (bool, error) {
 	roles, err := ExtractRoles(r)
-	return len(roles) == 0, err
-}
-
-// NextPageURL extracts the "next" link from the links section of the result.
-func (r RolePage) NextPageURL() (string, error) {
-	var s struct {
-		Links struct {
-			Next     string `json:"next"`
-			Previous string `json:"previous"`
-		} `json:"links"`
-	}
-	err := r.ExtractInto(&s)
 	if err != nil {
-		return "", err
+		return false, err
 	}
-	return s.Links.Next, err
+
+	realCount := len(roles)
+	if realCount == 0 {
+		return true, nil
+	}
+
+	currentURL := r.URL
+	q := currentURL.Query()
+	pageSize := q.Get("per_page")
+	if pageSize != "" {
+		expectCount, _ := strconv.ParseInt(pageSize, 10, 32)
+		if int64(realCount) < expectCount {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
 
 // ExtractRoles returns a slice of Roles contained in a single page of

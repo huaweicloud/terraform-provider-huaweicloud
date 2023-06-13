@@ -62,7 +62,6 @@ func ResourceDmsRabbitmqInstance() *schema.Resource {
 			"storage_space": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"storage_spec_code": {
@@ -113,10 +112,10 @@ func ResourceDmsRabbitmqInstance() *schema.Resource {
 				RequiredWith: []string{"storage_space"},
 			},
 			"broker_num": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"flavor_id"},
 			},
 			"maintain_begin": {
 				Type:     schema.TypeString,
@@ -672,7 +671,7 @@ func resourceDmsRabbitmqInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 		}
 	}
 
-	if d.HasChanges("product_id", "flavor_id") {
+	if d.HasChanges("product_id", "flavor_id", "broker_num", "storage_space") {
 		err = resizeRabbitMQInstance(ctx, d, meta, engineRabbitMQ)
 		if err != nil {
 			mErr = multierror.Append(mErr, err)
@@ -728,12 +727,41 @@ func resizeRabbitMQInstance(ctx context.Context, d *schema.ResourceData, meta in
 		}
 	}
 
+	if d.HasChanges("broker_num") {
+		brokerNum := d.Get("broker_num").(int)
+		operType := "horizontal"
+		resizeOpts := instances.ResizeInstanceOpts{
+			OperType:     &operType,
+			NewBrokerNum: &brokerNum,
+		}
+		log.Printf("[DEBUG] Resize RabbitMQ instance broker num options: %s", utils.MarshalValue(resizeOpts))
+
+		if err = doRabbitMQInstanceResize(ctx, d, client, resizeOpts); err != nil {
+			return err
+		}
+	}
+
+	if d.HasChanges("storage_space") {
+		storageSpace := d.Get("storage_space").(int)
+		operType := "storage"
+		resizeOpts := instances.ResizeInstanceOpts{
+			OperType:        &operType,
+			NewStorageSpace: &storageSpace,
+		}
+		log.Printf("[DEBUG] Resize RabbitMQ instance storage space options: %s", utils.MarshalValue(resizeOpts))
+
+		if err = doRabbitMQInstanceResize(ctx, d, client, resizeOpts); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
-func doRabbitMQInstanceResize(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, opts instances.ResizeInstanceOpts) error {
+func doRabbitMQInstanceResize(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	opts instances.ResizeInstanceOpts) error {
 	if _, err := instances.Resize(client, d.Id(), opts); err != nil {
-		return fmt.Errorf("resize RabbitMQ instance failed: %s", err)
+		return fmt.Errorf("resize RabbitMQ instance failed: resizeInstanceOpts: %#v, err: %s", opts, err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -741,7 +769,7 @@ func doRabbitMQInstanceResize(ctx context.Context, d *schema.ResourceData, clien
 		Target:       []string{"RUNNING"},
 		Refresh:      rabbitMQResizeStateRefresh(client, d, opts.OperType),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
-		Delay:        10 * time.Second,
+		Delay:        60 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
@@ -762,7 +790,7 @@ func rabbitMQResizeStateRefresh(client *golangsdk.ServiceClient, d *schema.Resou
 			return nil, "failed", err
 		}
 
-		if (operType == nil || *operType == "vertical") && v.ProductID != productID {
+		if v.Task.Status != "" && v.Task.Status != "SUCCESS" {
 			return v, "PENDING", nil
 		}
 

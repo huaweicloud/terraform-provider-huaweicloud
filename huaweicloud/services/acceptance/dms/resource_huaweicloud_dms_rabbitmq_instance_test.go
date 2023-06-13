@@ -568,9 +568,9 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
 
   flavor_id         = local.newFlavor.id
   engine_version    = element(local.query_results.versions, length(local.query_results.versions)-1)
-  storage_space     = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
+  storage_space     = 1000
   storage_spec_code = local.flavor.ios[0].storage_spec_code
-  broker_num        = 3
+  broker_num        = 5
   access_user       = "user"
   password          = "Rabbitmqtest@123"
 
