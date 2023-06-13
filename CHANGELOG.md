@@ -1,5 +1,31 @@
 # CHANGELOG
 
+## 1.50.0 (June 13, 2023)
+
+* **New Resurce:**
+  + `huaweicloud_organizations_organization` [GH-3076]
+  + `huaweicloud_organizations_organizational_unit` [GH-3076]
+  + `huaweicloud_ram_resource_share` [GH-3081]
+  + `huaweicloud_ges_graph` [GH-3079]
+  + `huaweicloud_ges_metadata` [GH-3090]
+
+* **New Data Source:**
+  + `huaweicloud_ram_resource_permissions` [GH-3069]
+  + `huaweicloud_organizations_organization` [GH-3076]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_compute_instance: support root volume encryption in some regions [GH-3073]
+* resource/huaweicloud_cce_cluster: support setting and updating multi ENI subnet IDs [GH-3077]
+* resource/huaweicloud_smn_topic: support policies in topic [GH-3080]
+* resource/huaweicloud_cbr_vault: add `policy` parameter to bind all type of policies [GH-3082]
+* resource/huaweicloud_images_image: support updating description, min_ram and max_ram fields [GH-3083]
+
+BUG FIXES:
+
+* resource/huaweicloud_identity_agency: fix append project_role issue when creating [GH-3072]
+* resource/huaweicloud_images_image: set `backup_id` even if the image is created by instance_id [GH-3084]
+
 ## 1.49.0 (May 31, 2023)
 
 * **New Resurce:**
