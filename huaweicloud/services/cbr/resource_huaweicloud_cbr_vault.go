@@ -63,15 +63,17 @@ func ResourceVault() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "The region where the vault is located.",
 			},
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringLenBetween(1, 64),
+				Description:  "The vault name.",
 			},
 			"type": {
 				Type:     schema.TypeString,
@@ -81,6 +83,7 @@ func ResourceVault() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					VaultTypeServer, VaultTypeDisk, VaultTypeTurbo,
 				}, false),
+				Description: "The vault type.",
 			},
 			"protection_type": {
 				Type:     schema.TypeString,
@@ -89,11 +92,13 @@ func ResourceVault() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"backup", "replication",
 				}, false),
+				Description: "The protection type.",
 			},
 			"size": {
 				Type:         schema.TypeInt,
 				Required:     true,
 				ValidateFunc: validation.IntBetween(1, 10485760),
+				Description:  "The capacity of the vault, in GB.",
 			},
 			"consistent_level": {
 				Type:     schema.TypeString,
@@ -103,27 +108,32 @@ func ResourceVault() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"crash_consistent", "app_consistent",
 				}, false),
+				Description: "The consistent level (specification) of the vault.",
 			},
 			"auto_expand": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: "Whether to enable auto capacity expansion for the vault.",
 			},
 			"auto_bind": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: "Whether automatic association is supported.",
 			},
 			"bind_rules": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "The rules for automatic association.",
 			},
 			"enterprise_project_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "The enterprise project ID to which the vault belongs.",
 			},
 			"policy": {
 				Type:     schema.TypeSet,
@@ -132,15 +142,18 @@ func ResourceVault() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The policy ID.",
 						},
 						"destination_vault_id": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The ID of destination vault to which the replication policy will associated.",
 						},
 					},
 				},
+				Description: "The policy details to associate with the CBR vault.",
 			},
 			"resources": {
 				Type:     schema.TypeSet,
@@ -149,55 +162,66 @@ func ResourceVault() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"server_id": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The ID of the ECS instance to be backed up.",
 						},
 						"excludes": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: "The array of disk IDs which will be excluded in the backup.",
 						},
 						"includes": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: "The array of disk or SFS file system IDs which will be included in the backup.",
 						},
 					},
 				},
+				Description: "The array of one or more resources to attach to the CBR vault.",
 			},
+			// Public parameters.
 			"tags":          common.TagsSchema(),
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
 			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
 			"auto_pay":      common.SchemaAutoPay(nil),
+			// Computed parameters.
 			"allocated": {
-				Type:     schema.TypeFloat,
-				Computed: true,
+				Type:        schema.TypeFloat,
+				Computed:    true,
+				Description: "The allocated capacity, in GB.",
 			},
 			"used": {
-				Type:     schema.TypeFloat,
-				Computed: true,
+				Type:        schema.TypeFloat,
+				Computed:    true,
+				Description: "The used capacity, in GB.",
 			},
 			"spec_code": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The specification code.",
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The vault status.",
 			},
 			"storage": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The name of the bucket for the vault.",
 			},
 			// Deprecated arguments
 			"policy_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "schema:Deprecated; Using parameter 'policy' instead",
+				Description: "schema:Deprecated; Using parameter 'policy' instead.",
 			},
 		},
 	}

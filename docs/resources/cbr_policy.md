@@ -52,20 +52,21 @@ resource "huaweicloud_cbr_policy" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to create the CBR policy. If omitted, the
+* `region` - (Optional, String, ForceNew) Specifies the region where the policy is located. If omitted, the
   provider-level region will be used. Changing this will create a new policy.
 
-* `name` - (Required, String) Specifies a unique name of the CBR policy. This parameter can contain a maximum of 64
+* `name` - (Required, String) Specifies the policy name.  
+  This parameter can contain a maximum of 64
   characters, which may consist of chinese characters, letters, digits, underscores(_) and hyphens (-).
 
-* `type` - (Required, String, ForceNew) Specifies the protection type of the CBR policy.
+* `type` - (Required, String, ForceNew) Specifies the protection type of the policy.
   Valid values are **backup** and **replication**.
   Changing this will create a new policy.
 
-* `backup_cycle` - (Required, List) Specifies the scheduling rule for the CBR policy backup execution.
+* `backup_cycle` - (Required, List) Specifies the scheduling rule for the policy backup execution.
   The [object](#cbr_policy_backup_cycle) structure is documented below.
 
-* `enabled` - (Optional, Bool) Specifies whether to enable the CBR policy. Default to **true**.
+* `enabled` - (Optional, Bool) Specifies whether to enable the policy. Default to **true**.
 
 * `destination_region` - (Optional, String) Specifies the name of the replication destination region, which is mandatory
   for cross-region replication. Required if `protection_type` is **replication**.
@@ -88,7 +89,7 @@ The following arguments are supported:
   When the number of retained backups exceeds the preset value (number of `backup_quantity`), the system automatically
   deletes the earliest backups. By default, the system automatically clears data every other day.
 
-* `time_zone` - (Optional, String) Specifies the UTC time zone, e.g.: `UTC+08:00`.
+* `time_zone` - (Optional, String) Specifies the UTC time zone, e.g. `UTC+08:00`.
   Only available if `long_term_retention` is set.
 
 <a name="cbr_policy_backup_cycle"></a>

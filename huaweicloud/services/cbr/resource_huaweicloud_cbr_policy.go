@@ -28,20 +28,23 @@ func ResourceCBRPolicyV3() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "The region where the policy is located.",
 			},
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringLenBetween(1, 64),
+				Description:  "The policy name.",
 			},
 			"enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: "Whether to enable the CBR policy.",
 			},
 			"type": {
 				Type:     schema.TypeString,
@@ -50,6 +53,7 @@ func ResourceCBRPolicyV3() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"backup", "replication",
 				}, false),
+				Description: "The protection type of the CBR policy.",
 			},
 			"backup_cycle": {
 				Type:     schema.TypeList,
@@ -87,26 +91,31 @@ func ResourceCBRPolicyV3() *schema.Resource {
 						},
 					},
 				},
+				Description: "The scheduling rule for the CBR policy backup execution.",
 			},
 			"destination_region": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The name of the replication destination region.",
 			},
 			"destination_project_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				RequiredWith: []string{"destination_region"},
+				Description:  "The ID of the replication destination project.",
 			},
 			"backup_quantity": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ValidateFunc: validation.IntBetween(2, 99999),
+				Description:  "The maximum number of retained backups.",
 			},
 			"time_period": {
 				Type:          schema.TypeInt,
 				Optional:      true,
 				ValidateFunc:  validation.IntBetween(2, 99999),
 				ConflictsWith: []string{"backup_quantity"},
+				Description:   "The duration (in days) for retained backups.",
 			},
 			"long_term_retention": {
 				Type:     schema.TypeList,
@@ -118,25 +127,30 @@ func ResourceCBRPolicyV3() *schema.Resource {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							ValidateFunc: validation.IntBetween(1, 100),
+							Description:  "The latest backup of each day is saved in the long term.",
 						},
 						"weekly": {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							ValidateFunc: validation.IntBetween(1, 100),
+							Description:  "The latest backup of each week is saved in the long term.",
 						},
 						"monthly": {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							ValidateFunc: validation.IntBetween(1, 100),
+							Description:  "The latest backup of each month is saved in the long term.",
 						},
 						"yearly": {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							ValidateFunc: validation.IntBetween(1, 100),
+							Description:  "The latest backup of each year is saved in the long term.",
 						},
 					},
 				},
 				RequiredWith: []string{"backup_quantity", "time_zone"},
+				Description:  "The long-term retention rules.",
 			},
 			"time_zone": {
 				Type:     schema.TypeString,
@@ -144,6 +158,7 @@ func ResourceCBRPolicyV3() *schema.Resource {
 				Computed: true,
 				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^UTC[+-]\d{2}:00$`),
 					"The time zone must be in UTC format, such as 'UTC+08:00'."),
+				Description: "The UTC time zone.",
 			},
 		},
 	}

@@ -23,13 +23,15 @@ func DataSourceCbrVaultsV3() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The region in which to query the vaults.",
 			},
 			"name": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(1, 64),
+				Description:  "The vault name.",
 			},
 			"type": {
 				Type:     schema.TypeString,
@@ -38,6 +40,7 @@ func DataSourceCbrVaultsV3() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					VaultTypeServer, VaultTypeDisk, VaultTypeTurbo,
 				}, false),
+				Description: "The object type of the vault.",
 			},
 			"consistent_level": {
 				Type:     schema.TypeString,
@@ -45,6 +48,7 @@ func DataSourceCbrVaultsV3() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"crash_consistent", "app_consistent",
 				}, false),
+				Description: "The consistent level (specification) of the vault.",
 			},
 			"protection_type": {
 				Type:     schema.TypeString,
@@ -52,27 +56,33 @@ func DataSourceCbrVaultsV3() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"backup", "replication",
 				}, false),
+				Description: "The protection type of the vault.",
 			},
 			"size": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ValidateFunc: validation.IntBetween(1, 10485760),
+				Description:  "The vault sapacity, in GB.",
 			},
 			"auto_expand_enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Whether to enable automatic expansion of the backup protection type vault.",
 			},
 			"enterprise_project_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The ID of the enterprise project to which the vault belongs.",
 			},
 			"policy_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The ID of the policy associated with the vault.",
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The vault status.",
 			},
 			"vaults": {
 				Type:     schema.TypeList,
@@ -80,65 +90,80 @@ func DataSourceCbrVaultsV3() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The vault ID in UUID format.",
 						},
 						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The vault name.",
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The object type of the vault.",
 						},
 						"consistent_level": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The consistent level (specification) of the vault.",
 						},
 						"protection_type": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The protection type of the vault.",
 						},
 						"size": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The vault capacity, in GB.",
 						},
 						"auto_expand_enabled": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Whether to enable automatic expansion of the backup protection type vault.",
 						},
 						"enterprise_project_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The enterprise project ID.",
 						},
 						"policy_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The ID of the policy associated with the vault.",
 						},
 						"allocated": {
-							Type:     schema.TypeFloat,
-							Computed: true,
+							Type:        schema.TypeFloat,
+							Computed:    true,
+							Description: "The allocated capacity of the vault, in GB.",
 						},
 						"used": {
-							Type:     schema.TypeFloat,
-							Computed: true,
+							Type:        schema.TypeFloat,
+							Computed:    true,
+							Description: "The used capacity, in GB.",
 						},
 						"spec_code": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The specification code.",
 						},
 						"status": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The vault status.",
 						},
 						"storage": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name of the bucket for the vault.",
 						},
 						"tags": {
-							Type:     schema.TypeMap,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
+							Type:        schema.TypeMap,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: "The key/value pairs to associate with the vault.",
 						},
 						"resources": {
 							Type:     schema.TypeList,
@@ -146,21 +171,25 @@ func DataSourceCbrVaultsV3() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"server_id": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The ID of the ECS instance to be backed up.",
 									},
 									"excludes": {
-										Type:     schema.TypeList,
-										Computed: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
+										Type:        schema.TypeList,
+										Computed:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Description: "The array of disk IDs which will be excluded in the backup.",
 									},
 									"includes": {
-										Type:     schema.TypeList,
-										Computed: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
+										Type:        schema.TypeList,
+										Computed:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Description: "The array of disk or SFS file system IDs which will be included in the backup.",
 									},
 								},
 							},
+							Description: "The array of one or more resources to attach to the vault.",
 						},
 					},
 				},
