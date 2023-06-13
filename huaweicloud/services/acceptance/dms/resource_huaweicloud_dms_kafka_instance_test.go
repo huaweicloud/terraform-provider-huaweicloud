@@ -241,10 +241,9 @@ func TestAccKafkaInstance_newFormat(t *testing.T) {
 						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.ios.0.storage_spec_code"),
 					resource.TestCheckResourceAttr(resourceName, "storage_space", "600"),
 
-					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.0.advertised_ip", "172.16.35.62"),
-					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.1.advertised_ip", "www.terraform-test-1.com"),
+					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.0.advertised_ip", "192.168.0.51"),
+					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.1.advertised_ip", "test.terraform.com"),
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.2.advertised_ip", "192.168.0.53"),
-					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.3.advertised_ip", "192.168.0.54"),
 				),
 			},
 		},
@@ -260,7 +259,7 @@ data "huaweicloud_availability_zones" "test" {}
 data "huaweicloud_dms_product" "test" {
   engine            = "kafka"
   instance_type     = "cluster"
-  version           = "2.3.0"
+  version           = "2.7"
   bandwidth         = "100MB"
   storage_spec_code = "dms.physical.storage.ultra"
 }
@@ -300,7 +299,7 @@ data "huaweicloud_availability_zones" "test" {}
 data "huaweicloud_dms_product" "test" {
   engine            = "kafka"
   instance_type     = "cluster"
-  version           = "2.3.0"
+  version           = "2.7"
   bandwidth         = "300MB"
   storage_spec_code = "dms.physical.storage.ultra"
 }
@@ -383,7 +382,7 @@ data "huaweicloud_dms_az" "test" {}
 data "huaweicloud_dms_product" "test" {
   engine            = "kafka"
   instance_type     = "cluster"
-  version           = "2.3.0"
+  version           = "2.7"
   bandwidth         = "300MB"
   storage_spec_code = "dms.physical.storage.ultra"
 }
@@ -441,10 +440,14 @@ resource "huaweicloud_dms_kafka_instance" "test" {
 
   flavor_id          = local.flavor.id
   storage_spec_code  = local.flavor.ios[0].storage_spec_code
-  availability_zones = local.flavor.ios[0].availability_zones
-  engine_version     = element(local.query_results.versions, length(local.query_results.versions)-1)
-  storage_space      = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
-  broker_num         = 3
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[1],
+    data.huaweicloud_availability_zones.test.names[2]
+  ]
+  engine_version = element(local.query_results.versions, length(local.query_results.versions)-1)
+  storage_space  = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
+  broker_num     = 3
 
   access_user      = "user"
   password         = "Kafkatest@123"
@@ -488,10 +491,14 @@ resource "huaweicloud_dms_kafka_instance" "test" {
 
   flavor_id          = local.newFlavor.id
   storage_spec_code  = local.flavor.ios[0].storage_spec_code
-  availability_zones = local.flavor.ios[0].availability_zones
-  engine_version     = element(local.query_results.versions, length(local.query_results.versions)-1)
-  storage_space      = 600
-  broker_num         = 4
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[1],
+    data.huaweicloud_availability_zones.test.names[2]
+  ]
+  engine_version = element(local.query_results.versions, length(local.query_results.versions)-1)
+  storage_space  = 600
+  broker_num     = 4
 
   access_user      = "user"
   password         = "Kafkatest@123"
@@ -499,16 +506,13 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   manager_password = "Kafkatest@123"
 
   cross_vpc_accesses {
-    advertised_ip = "172.16.35.62"
+    advertised_ip = "192.168.0.51"
   }
   cross_vpc_accesses {
-    advertised_ip = "www.terraform-test-1.com"
+    advertised_ip = "test.terraform.com"
   }
   cross_vpc_accesses {
     advertised_ip = "192.168.0.53"
-  }
-  cross_vpc_accesses {
-    advertised_ip = "192.168.0.54"
   }
 }`, common.TestBaseNetwork(rName), rName)
 }
