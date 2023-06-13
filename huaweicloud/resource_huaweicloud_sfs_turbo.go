@@ -111,6 +111,16 @@ func ResourceSFSTurbo() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
+			"dedicated_flavor": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"dedicated_storage_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"tags":          common.TagsSchema(),
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
@@ -143,6 +153,12 @@ func buildTurboCreateOpts(cfg *config.Config, d *schema.ResourceData) shares.Cre
 	}
 	if _, ok := d.GetOk("enhanced"); ok {
 		metaOpts.ExpandType = "bandwidth"
+	}
+	if v, ok := d.GetOk("dedicated_flavor"); ok {
+		metaOpts.DedicatedFlavor = v.(string)
+	}
+	if v, ok := d.GetOk("dedicated_storage_id"); ok {
+		metaOpts.DedicatedStorageID = v.(string)
 	}
 
 	result := shares.CreateOpts{
