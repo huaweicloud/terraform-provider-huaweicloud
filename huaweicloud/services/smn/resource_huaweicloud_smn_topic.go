@@ -2,8 +2,10 @@ package smn
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -60,6 +62,18 @@ func ResourceTopic() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
+			"users_publish_allowed": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"services_publish_allowed": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"introduction": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"tags": common.TagsSchema(),
 
 			"topic_urn": {
@@ -104,6 +118,12 @@ func resourceTopicCreate(ctx context.Context, d *schema.ResourceData, meta inter
 
 	log.Printf("[DEBUG] successfully created SMN topic: %s", topic.TopicUrn)
 	d.SetId(topic.TopicUrn)
+
+	// set policies
+	err = updatePolicies(client, d, d.Id())
+	if err != nil {
+		diag.Errorf("error updating the policies of topic: %s", err)
+	}
 
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
@@ -150,6 +170,48 @@ func resourceTopicRead(_ context.Context, d *schema.ResourceData, meta interface
 		d.Set("enterprise_project_id", topicGet.EnterpriseProjectId),
 	)
 
+	// fetch access policies
+	policy, err := topics.GetPolicies(client, topicUrn, "access_policy").Extract()
+	if err != nil {
+		return diag.Errorf("error fetching the access_policy of the topic: %s", err)
+	}
+
+	var (
+		usersPublishAllowed    string
+		servicesPublishAllowed string
+	)
+
+	if policy.AccessPolicy != "" {
+		var accessPolicy map[string]interface{}
+		err = json.Unmarshal([]byte(policy.AccessPolicy), &accessPolicy)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		csp := utils.PathSearch("Statement[?Sid== '__user_pub_0'].Principal.CSP|[0]", accessPolicy, "")
+		if csp == "" || csp == "*" {
+			usersPublishAllowed = csp.(string)
+		} else {
+			usersPublishAllowed = strings.Join(utils.ExpandToStringList(csp.([]interface{})), ",")
+		}
+
+		services := utils.PathSearch("Statement[?Sid== '__service_pub_0'].Principal.Service|[0]", accessPolicy, []interface{}{})
+		servicesPublishAllowed = strings.Join(utils.ExpandToStringList(services.([]interface{})), ",")
+	}
+
+	mErr = multierror.Append(mErr,
+		d.Set("users_publish_allowed", usersPublishAllowed),
+		d.Set("services_publish_allowed", servicesPublishAllowed),
+	)
+
+	// fetch introduction
+	introduction, err := topics.GetPolicies(client, topicUrn, "introduction").Extract()
+	if err != nil {
+		return diag.Errorf("error fetching the introduction of the topic: %s", err)
+	}
+
+	mErr = multierror.Append(mErr, d.Set("introduction", introduction.Introduction))
+
 	// fetch tags
 	tagClient, err := cfg.SmnV2TagClient(region)
 	if err != nil {
@@ -190,6 +252,13 @@ func resourceTopicUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 		}
 	}
 
+	if d.HasChanges("users_publish_allowed", "services_publish_allowed", "introduction") {
+		err := updatePolicies(client, d, id)
+		if err != nil {
+			diag.Errorf("error updating the policies of topic: %s", err)
+		}
+	}
+
 	// update tags
 	if d.HasChange("tags") {
 		tagClient, err := cfg.SmnV2TagClient(region)
@@ -206,6 +275,93 @@ func resourceTopicUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 
 	return resourceTopicRead(ctx, d, meta)
+}
+
+func updatePolicies(client *golangsdk.ServiceClient, d *schema.ResourceData, id string) error {
+	if d.HasChanges("users_publish_allowed", "services_publish_allowed") {
+		value, err := buildUpdateAccessPolicy(d)
+		if err != nil {
+			return err
+		}
+		opts := topics.UpdatePoliciesOpts{
+			Value: value,
+		}
+		_, err = topics.UpdatePolicies(client, opts, id, "access_policy").Extract()
+		if err != nil {
+			return err
+		}
+	}
+
+	if d.HasChange("introduction") {
+		opts := topics.UpdatePoliciesOpts{
+			Value: d.Get("introduction").(string),
+		}
+		_, err := topics.UpdatePolicies(client, opts, id, "introduction").Extract()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func buildUpdateAccessPolicy(d *schema.ResourceData) (string, error) {
+	statement := []map[string]interface{}{}
+	if v, ok := d.GetOk("users_publish_allowed"); ok {
+		var csp interface{}
+		if v == "*" {
+			csp = "*"
+		} else {
+			csp = strings.Split(v.(string), ",")
+		}
+
+		statement = append(statement, map[string]interface{}{
+			"Sid":    "__user_pub_0",
+			"Effect": "Allow",
+			"Principal": map[string]interface{}{
+				"CSP": csp,
+			},
+			"Action": []interface{}{
+				"SMN:Publish",
+				"SMN:QueryTopicDetail",
+			},
+			"Resource": d.Id(),
+		})
+	}
+
+	if v, ok := d.GetOk("services_publish_allowed"); ok {
+		service := strings.Split(v.(string), ",")
+
+		statement = append(statement, map[string]interface{}{
+			"Sid":    "__service_pub_0",
+			"Effect": "Allow",
+			"Principal": map[string]interface{}{
+				"Service": service,
+			},
+			"Action": []interface{}{
+				"SMN:Publish",
+				"SMN:QueryTopicDetail",
+			},
+			"Resource": d.Id(),
+		})
+	}
+
+	if len(statement) == 0 {
+		return "", nil
+	}
+
+	params := map[string]interface{}{
+		"Version":   "2016-09-07",
+		"Id":        "__default_policy_ID",
+		"Statement": statement,
+	}
+
+	jsonData, err := json.Marshal(params)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonData), nil
 }
 
 func resourceTopicDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

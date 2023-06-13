@@ -8,10 +8,24 @@ Manages an SMN topic resource within HuaweiCloud.
 
 ## Example Usage
 
+### Basic Usage
+
 ```hcl
 resource "huaweicloud_smn_topic" "topic_1" {
   name         = "topic_1"
   display_name = "The display name of topic_1"
+}
+```
+
+### Topic with policies
+
+```hcl
+resource "huaweicloud_smn_topic" "topic_1" {
+  name                     = "topic_1"
+  display_name             = "The display name of topic_1"
+  users_publish_allowed    = "urn:csp:iam::0970d7b7d400f2470fbec00316a03560:root,urn:csp:iam::0970d7b7d400f2470fbec00316a03561:root"
+  services_publish_allowed = "obs,vod,cce"
+  introduction             = "created by terraform"
 }
 ```
 
@@ -28,6 +42,17 @@ The following arguments are supported:
 
 * `display_name` - (Optional, String) Specifies the topic display name, which is presented as the name of the email
   sender in an email message. The name can contains of 0 to 192 characters.
+
+* `users_publish_allowed` - (Optional, String) Specifies the users who can publish messages to this topic.
+  The value can be **\*** which indicates all users or user account URNs separated by comma(,). The format of
+  user account URN is **urn:csp:iam::domainId:root**. **domainId** indicates the account ID of another user.
+  If left empty, that means only the topic creator can publish messages.
+
+* `services_publish_allowed` - (Optional, String) Specifies the services that can publish messages to this topic
+  separated by comma(,). If left empty, that means no service allowed.
+
+* `introduction` - (Optional, String) Specifies the introduction of the topic,
+  this will be contained in the subscription invitation.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the SMN Topic, Value 0
   indicates the default enterprise project. Changing this parameter will create a new resource.
