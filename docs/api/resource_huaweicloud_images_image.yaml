@@ -20,6 +20,10 @@ paths:
     post:
       tag: IMS
       operationId: CreateWholeImageByServer
+  /v2/cloudimages/{imageID}:
+    patch:
+      tag: IMS
+      operationId: Update
   /v2/cloudimages:
     get:
       tag: IMS

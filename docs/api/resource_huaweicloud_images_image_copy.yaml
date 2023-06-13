@@ -16,6 +16,10 @@ paths:
     post:
       tag: IMS
       operationId: CrossRegionCopy
+  /{project_id}/cloudimages/{imageID}:
+    patch:
+      tag: IMAGES
+      operationId: Update
   /{project_id}/image/{id}/tags:
     get:
       tag: IMAGES

@@ -6,24 +6,24 @@ schemes:
   - https
 host: huaweicloud.com
 tags:
-  - name: AOS
+  - name: RFS
 paths:
   /v1/{project_id}/stacks/{stackName}/deployments:
     post:
-      tag: AOS
+      tag: RFS
       operationId: Deploy
   /v1/{project_id}/stacks/{stackName}/events:
     get:
-      tag: AOS
+      tag: RFS
       operationId: ListAllEvents
   /v1/{project_id}/stacks/{stackName}:
     delete:
-      tag: AOS
+      tag: RFS
       operationId: Delete
   /v1/{project_id}/stacks:
     get:
-      tag: AOS
+      tag: RFS
       operationId: ListAll
     post:
-      tag: AOS
+      tag: RFS
       operationId: Create

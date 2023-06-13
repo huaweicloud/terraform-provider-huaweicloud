@@ -16,6 +16,14 @@ paths:
     get:
       tag: SMN
       operationId: Get
+  /v2/{project_id}/notifications/topics/{id}/attributes/{policyName}:
+    put:
+      tag: SMN
+      operationId: UpdatePolicies
+  /v2/{project_id}/notifications/topics/{id}/attributes?name=+policyName:
+    get:
+      tag: SMN
+      operationId: GetPolicies
   /v2/{project_id}/notifications/topics/{id}:
     delete:
       tag: SMN

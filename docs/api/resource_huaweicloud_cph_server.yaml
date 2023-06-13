@@ -8,10 +8,6 @@ servers:
     - url: https://sdg.myhuaweicloud.com
 paths:
     /v1/{project_id}/cloud-phone/servers/{id}:
-        DELETE:
-            tag: CPH
-            operationId: DeleteCphServer
-            x-ref-api: DELETE /v1/{project_id}/cloud-phone/servers/{id}
         GET:
             tag: CPH
             operationId: GetCphServer
@@ -25,3 +21,8 @@ paths:
             tag: CPH
             operationId: CreateCphServer
             x-ref-api: POST /v2/{project_id}/cloud-phone/servers
+    /v2/orders/subscriptions/resources/unsubscribe:
+        POST:
+            tag: BSS
+            operationId: DeleteCphServer
+            x-ref-api: POST /v2/orders/subscriptions/resources/unsubscribe

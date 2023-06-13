@@ -1,29 +1,38 @@
 info:
-  version: 
-  title: resource_huaweicloud_dws_cluster
-  description: 
-schemes:
-  - https
-host: huaweicloud.com
+    title: resource_huaweicloud_dws_cluster
+    description: 'Manages a DWS cluster resource within HuaweiCloud.  '
+host: myhuaweicloud.com
 tags:
-  - name: DWS
+    - name: DWS
+servers:
+    - url: https://dws.myhuaweicloud.com
 paths:
-  /v1.0/{project_id}/clusters/{clusterId}/reset-password:
-    post:
-      tag: DWS
-      operationId: ResetPassword
-  /v1.0/{project_id}/clusters/{clusterId}/resize:
-    post:
-      tag: DWS
-      operationId: Resize
-  /v1.0/{project_id}/clusters/{id}:
-    delete:
-      tag: DWS
-      operationId: Delete
-    get:
-      tag: DWS
-      operationId: Get
-  /v1.0/{project_id}/clusters:
-    post:
-      tag: DWS
-      operationId: Create
+    /v1.0/{project_id}/clusters/{id}:
+        DELETE:
+            tag: DWS
+            operationId: DeleteDwsCluster
+            x-ref-api: DELETE /v1.0/{project_id}/clusters/{id}
+        GET:
+            tag: DWS
+            operationId: DeleteDwsClusterWaiting
+            x-ref-api: GET /v1.0/{project_id}/clusters/{id}
+    /v1.0/{project_id}/clusters/{id}/expand-instance-storage:
+        POST:
+            tag: DWS
+            operationId: expandInstanceStorage
+            x-ref-api: POST /v1.0/{project_id}/clusters/{id}/expand-instance-storage
+    /v1.0/{project_id}/clusters/{id}/reset-password:
+        POST:
+            tag: DWS
+            operationId: resetPasswordOfCluster
+            x-ref-api: POST /v1.0/{project_id}/clusters/{id}/reset-password
+    /v1.0/{project_id}/clusters/{id}/resize:
+        POST:
+            tag: DWS
+            operationId: ScaleOutCluster
+            x-ref-api: POST /v1.0/{project_id}/clusters/{id}/resize
+    /v2/{project_id}/clusters:
+        POST:
+            tag: DWS
+            operationId: CreateDwsCluster
+            x-ref-api: POST /v2/{project_id}/clusters
