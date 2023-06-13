@@ -122,7 +122,7 @@ This resource provides the following timeouts configuration options:
 
 Clusters can be imported by `id`. For example,
 
-```
+```bash
 terraform import huaweicloud_cdm_cluster.test b11b407c-e604-4e8d-8bc4-92398320b847
 ```
 
@@ -132,7 +132,7 @@ API response, security or some other reason. The missing attributes include: `em
  You can then decide if changes should be applied to the cluster, or the resource definition
 should be updated to align with the cluster. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_cdm_cluster" "test" {
     ...
 

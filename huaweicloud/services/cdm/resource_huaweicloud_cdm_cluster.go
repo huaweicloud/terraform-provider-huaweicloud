@@ -2,21 +2,23 @@ package cdm
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/cdm/v1/clusters"
-	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/cdm/v1/clusters"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceCdmCluster() *schema.Resource {
@@ -205,22 +207,22 @@ func ResourceCdmCluster() *schema.Resource {
 }
 
 func resourceCdmClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.CdmV11Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.CdmV11Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CDM v1 client, err=%s", err)
 	}
 
 	opts := clusters.ClusterCreateOpts{}
-	buildClusterParamter(d, &opts, config.GetEnterpriseProjectID(d))
+	buildClusterParamter(d, &opts, cfg.GetEnterpriseProjectID(d))
 	buildNotifyParamter(d, &opts)
 
-	logp.Printf("[DEBUG] Creating CDM cluster opts: %#v", opts)
+	log.Printf("[DEBUG] Creating CDM cluster opts: %#v", opts)
 
 	rst, createErr := clusters.Create(client, opts)
 	if createErr != nil {
-		return fmtp.DiagErrorf("Error creating CDM cluster: %s", createErr)
+		return diag.Errorf("error creating CDM cluster: %s", createErr)
 	}
 
 	d.SetId(rst.Id)
@@ -233,7 +235,6 @@ func resourceCdmClusterCreate(ctx context.Context, d *schema.ResourceData, meta 
 }
 
 func buildClusterParamter(d *schema.ResourceData, opts *clusters.ClusterCreateOpts, enterpriseProjectID string) {
-
 	cluster := clusters.ClusterRequest{
 		Name:      d.Get("name").(string),
 		VpcId:     d.Get("vpc_id").(string),
@@ -291,16 +292,16 @@ func buildNotifyParamter(d *schema.ResourceData, opts *clusters.ClusterCreateOpt
 }
 
 func resourceCdmClusterRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.CdmV11Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.CdmV11Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CDM v1 client, err=%s", err)
 	}
 
 	detail, err := clusters.Get(client, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Error retrieving CDM cluster")
+		return common.CheckDeletedDiag(d, err, "error retrieving CDM cluster")
 	}
 
 	mErr := multierror.Append(
@@ -314,7 +315,7 @@ func resourceCdmClusterRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("security_group_id", detail.SecurityGroupId),
 		d.Set("is_auto_off", detail.IsAutoOff),
 		d.Set("name", detail.Name),
-		setInstancesToState(d, detail.Instances),
+		d.Set("instances", flattenInstancs(detail.Instances)),
 		d.Set("schedule_boot_time", detail.ScheduleBootTime),
 		d.Set("schedule_off_time", detail.ScheduleOffTime),
 		d.Set("created", detail.Created),
@@ -323,19 +324,15 @@ func resourceCdmClusterRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("status", detail.StatusDetail),
 	)
 
-	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf("Error setting CDM fields: %s", mErr)
-	}
-
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func setInstancesToState(d *schema.ResourceData, items []clusters.Instance) error {
+func flattenInstancs(items []clusters.Instance) []map[string]interface{} {
 	if len(items) == 0 {
 		return nil
 	}
 
-	result := make([]interface{}, 0, len(items))
+	result := make([]map[string]interface{}, 0, len(items))
 	for _, instance := range items {
 		item := map[string]interface{}{
 			"id":         instance.Id,
@@ -350,28 +347,26 @@ func setInstancesToState(d *schema.ResourceData, items []clusters.Instance) erro
 		result = append(result, item)
 	}
 
-	return d.Set("instances", result)
+	return result
 }
 
 func resourceCdmClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.CdmV11Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.CdmV11Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CDM v1 client, err=%s", err)
 	}
 
 	dErr := clusters.Delete(client, d.Id(), clusters.ClusterDeleteOpts{})
 	if dErr.Err != nil {
-		return fmtp.DiagErrorf("delete CDM cluster failed. %q:%s", d.Id(), dErr)
+		return diag.Errorf("delete CDM cluster failed. %q:%s", d.Id(), dErr)
 	}
 
 	err = waitingforClusterDeleted(ctx, client, d.Id(), d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
-	d.SetId("")
 
 	return nil
 }
@@ -383,23 +378,23 @@ func waitingforClusterCreated(ctx context.Context, client *golangsdk.ServiceClie
 		Target:  []string{clusters.StatusNormal},
 		Refresh: func() (interface{}, string, error) {
 			cluster, err := clusters.Get(client, id)
-			logp.Printf("[DEBUG] query CDM cluster in create check func: %#v,%s", cluster, err)
+			log.Printf("[DEBUG] query CDM cluster in create check func: %#v,%s", cluster, err)
 			if err != nil {
 				return nil, "", err
 			}
 
 			if cluster.Status == clusters.StatusCreationFailed || cluster.Status == clusters.StatusFailed {
-				return cluster, "failed", fmtp.Errorf("%s:%s", cluster.Status, cluster.StatusDetail)
+				return cluster, "failed", fmt.Errorf("%s:%s", cluster.Status, cluster.StatusDetail)
 			}
 			return cluster, cluster.Status, nil
 		},
 		Timeout:      timeout,
-		PollInterval: 20 * timeout,
+		PollInterval: 20 * time.Second,
 		Delay:        20 * time.Second,
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("error waiting for CDM cluster (%s) to be created: %s", id, err)
+		return fmt.Errorf("error waiting for CDM cluster (%s) to be created: %s", id, err)
 	}
 	return nil
 }
@@ -410,22 +405,22 @@ func waitingforClusterDeleted(ctx context.Context, client *golangsdk.ServiceClie
 		Target:  []string{"Done"},
 		Refresh: func() (interface{}, string, error) {
 			cluster, err := clusters.Get(client, id)
-			logp.Printf("[DEBUG] query CDM cluster in delete check func: %#v,%s", cluster, err)
+			log.Printf("[DEBUG] query CDM cluster in delete check func: %#v,%s", cluster, err)
 			if err != nil {
 				if _, ok := err.(golangsdk.ErrDefault404); ok {
 					return true, "Done", nil
 				}
-				return nil, "", nil
+				return nil, "", err
 			}
 			return true, "Pending", nil
 		},
 		Timeout:      timeout,
-		PollInterval: 20 * timeout,
+		PollInterval: 20 * time.Second,
 		Delay:        20 * time.Second,
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("error waiting for CDM cluster (%s) to be deleted: %s", id, err)
+		return fmt.Errorf("error waiting for CDM cluster (%s) to be deleted: %s", id, err)
 	}
 	return nil
 }

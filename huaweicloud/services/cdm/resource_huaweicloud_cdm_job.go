@@ -4,23 +4,24 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/cdm/v1/job"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/cdm/v1/job"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 const (
@@ -215,9 +216,9 @@ func ResourceCdmJob() *schema.Resource {
 }
 
 func resourceCdmJobCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.CdmV11Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.CdmV11Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CDM v1.1 client, err=%s", err)
 	}
@@ -248,11 +249,11 @@ func resourceCdmJobCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		},
 	}
 
-	logp.Printf("[DEBUG] Creating CDM job opts: %#v", opts)
+	log.Printf("[DEBUG] Creating CDM job opts: %#v", opts)
 	clusterId := d.Get("cluster_id").(string)
 	rst, createErr := job.Create(client, clusterId, opts)
 	if createErr != nil {
-		return fmtp.DiagErrorf("Error creating CDM job: %s", createErr)
+		return diag.Errorf("error creating CDM job: %s", createErr)
 	}
 
 	d.SetId(fmt.Sprintf("%s/%s", clusterId, rst.Name))
@@ -265,9 +266,9 @@ func resourceCdmJobCreate(ctx context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourceCdmJobRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.CdmV11Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.CdmV11Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CDM v1.1 client, err=%s", err)
 	}
@@ -278,7 +279,7 @@ func resourceCdmJobRead(_ context.Context, d *schema.ResourceData, meta interfac
 	}
 
 	rst, gErr := job.Get(client, clusterId, jobName, job.GetJobsOpts{})
-	logp.Printf("[DEBUG] read CDM job opts: %#v", gErr)
+	log.Printf("[DEBUG] read CDM job opts: %#v", gErr)
 
 	if gErr != nil {
 		return common.CheckDeletedDiag(d, parseCdmJobErrorToError404(gErr), "Error retrieving CDM job")
@@ -301,21 +302,21 @@ func resourceCdmJobRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("destination_connector", detail.ToConnectorName),
 		d.Set("destination_link_name", detail.ToLinkName),
 		d.Set("destination_job_config", flattenFromOrToConfig(toJobConfig, detail.ToConfigValues.Configs)),
-		setConfigtoState(d, detail.DriverConfigValues.Configs),
+		setJobConfigtoState(d, detail.DriverConfigValues.Configs),
 		d.Set("status", detail.Status),
 	)
 
 	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf("Error setting CDM job fields: %s", mErr)
+		return diag.Errorf("error setting CDM job fields: %s", mErr)
 	}
 
 	return nil
 }
 
 func resourceCdmJobUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.CdmV11Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.CdmV11Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CDM v1.1 client, err=%s", err)
 	}
@@ -330,13 +331,13 @@ func resourceCdmJobUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		return common.CheckDeletedDiag(d, parseCdmJobErrorToError404(gErr), "Error retrieving CDM job")
 	}
 
-	if d.HasChanges("source_job_config", "destination_job_config", "config") {
+	if d.HasChanges("name", "source_job_config", "destination_job_config", "config") {
 		status := rst.Jobs[0].Status
 		// shutdown job
 		if status == "BOOTING" || status == "RUNNING" {
 			sErr := job.Stop(client, clusterId, jobName)
 			if sErr != nil {
-				return fmtp.DiagErrorf("stop job failed when update CDM job. %q:%s", d.Id(), sErr)
+				return diag.Errorf("stop job failed when update CDM job. %q:%s", d.Id(), sErr)
 			}
 		}
 
@@ -354,18 +355,23 @@ func resourceCdmJobUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 			Jobs: []job.Job{
 				{
 					Name:               d.Get("name").(string),
+					JobType:            d.Get("job_type").(string),
+					FromLinkName:       d.Get("source_link_name").(string),
+					FromConnectorName:  d.Get("source_connector").(string),
 					FromConfigValues:   *fromConfig,
+					ToLinkName:         d.Get("destination_link_name").(string),
+					ToConnectorName:    d.Get("destination_connector").(string),
 					ToConfigValues:     *toConfig,
 					DriverConfigValues: buildDriverConfigParamter(d),
 				},
 			},
 		}
 
-		logp.Printf("[DEBUG] update CDM job opts: %#v", opts)
+		log.Printf("[DEBUG] update CDM job opts: %#v", opts)
 
 		_, uErr := job.Update(client, clusterId, jobName, opts)
 		if uErr != nil {
-			return fmtp.DiagErrorf("Error update CDM job: %s", uErr)
+			return diag.Errorf("error update CDM job: %s", uErr)
 		}
 
 		checkErr := waitingforJobRunning(ctx, client, clusterId, jobName, d.Timeout(schema.TimeoutUpdate))
@@ -377,10 +383,10 @@ func resourceCdmJobUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourceCdmJobDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.CdmV11Client(region)
+func resourceCdmJobDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.CdmV11Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CDM v1.1 client, err=%s", err)
 	}
@@ -400,14 +406,14 @@ func resourceCdmJobDelete(ctx context.Context, d *schema.ResourceData, meta inte
 	if status == "BOOTING" || status == "RUNNING" {
 		stopResp := job.Stop(client, clusterId, jobName)
 		if stopResp.Err != nil {
-			return fmtp.DiagErrorf("stop job failed when delete CDM job %q. response= %s", d.Id(), stopResp)
+			return diag.Errorf("stop job failed when delete CDM job %q. response= %s", d.Id(), stopResp)
 		}
 	}
 
 	// delete job
 	resp, dErr := job.Delete(client, clusterId, jobName)
 	if dErr != nil {
-		return fmtp.DiagErrorf("delete CDM job %q failed. err= %s, response= %s", d.Id(), dErr, resp)
+		return diag.Errorf("delete CDM job %q failed. err= %s, response= %s", d.Id(), dErr, resp)
 	}
 
 	d.SetId("")
@@ -416,26 +422,26 @@ func resourceCdmJobDelete(ctx context.Context, d *schema.ResourceData, meta inte
 }
 
 func buildConfigParamter(d *schema.ResourceData, inputConfigName, outConfigName string) (*job.JobConfigs, error) {
-	var configs []job.Input
+	var confs []job.Input
 	configRaw := d.Get(inputConfigName).(map[string]interface{})
 
 	if len(configRaw) < 1 {
-		return nil, fmtp.Errorf("The %s is Required.", inputConfigName)
+		return nil, fmt.Errorf("the %s is Required", inputConfigName)
 	}
 
 	for k, v := range configRaw {
-		config := job.Input{
+		conf := job.Input{
 			Name:  fmt.Sprintf("%s.%s", outConfigName, k),
 			Value: v.(string),
 		}
-		configs = append(configs, config)
+		confs = append(confs, conf)
 	}
 
 	rst := job.JobConfigs{
 		Configs: []job.Configs{
 			{
 				Name:   outConfigName,
-				Inputs: configs,
+				Inputs: confs,
 			},
 		},
 	}
@@ -489,9 +495,8 @@ func buildDriverConfigParamter(d *schema.ResourceData) job.JobConfigs {
 		})
 	}
 
-	logp.Printf("[DEBUG] create CDM job opts: %#v", configs)
+	log.Printf("[DEBUG] create CDM job opts: %#v", configs)
 	return job.JobConfigs{Configs: configs}
-
 }
 
 func buildThrottlingConfigParamter(d *schema.ResourceData) []job.Input {
@@ -618,7 +623,8 @@ func flattenFromOrToConfig(configName string, configs []job.Configs) map[string]
 	return result
 }
 
-func setConfigtoState(d *schema.ResourceData, configs []job.Configs) error {
+// nolint:gocyclo
+func setJobConfigtoState(d *schema.ResourceData, configs []job.Configs) error {
 	var err *multierror.Error
 	var pErr error
 	result := make(map[string]interface{})
@@ -682,27 +688,27 @@ func waitingforJobRunning(ctx context.Context, client *golangsdk.ServiceClient, 
 	// start job
 	startResp, startErr := job.Start(client, clusterId, jobName)
 	if startErr != nil {
-		return fmtp.Errorf("Error start CDM job: %s", startErr)
+		return fmt.Errorf("error start CDM job: %s", startErr)
 	}
 	if startResp.Submissions[0].Status == "FAILURE_ON_SUBMIT" || startResp.Submissions[0].Status == "FAILED" ||
 		startResp.Submissions[0].Status == "NEVER_EXECUTED" {
-		return fmtp.Errorf("Error start CDM job:%s,%s", startResp.Submissions[0].Progress,
+		return fmt.Errorf("error start CDM job:%f,%s", startResp.Submissions[0].Progress,
 			startResp.Submissions[0].Status)
 	}
 
-	//check job status
+	// check job status
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{job.StatusBooting},
 		Target:  []string{job.StatusRunning, job.StatusSucceeded},
 		Refresh: func() (interface{}, string, error) {
 			rst, gErr := job.Get(client, clusterId, jobName, job.GetJobsOpts{})
-			logp.Printf("[DEBUG] query CDM job in running check func:%s", gErr)
+			log.Printf("[DEBUG] query CDM job in running check func:%s", gErr)
 			if gErr != nil {
 				return nil, "", gErr
 			}
 			detail := rst.Jobs[0]
 			if detail.Status == job.StatusFailed || detail.Status == job.StatusFailureOnSubmit {
-				return detail, "failed", fmtp.Errorf("%s", detail.Status)
+				return detail, "failed", fmt.Errorf("%s", detail.Status)
 			}
 			return detail, detail.Status, nil
 		},
@@ -712,7 +718,7 @@ func waitingforJobRunning(ctx context.Context, client *golangsdk.ServiceClient, 
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("error waiting for CDM job (%s/%s) to be created: %s", clusterId, jobName, err)
+		return fmt.Errorf("error waiting for CDM job (%s/%s) to be created: %s", clusterId, jobName, err)
 	}
 	return nil
 }
@@ -720,7 +726,7 @@ func waitingforJobRunning(ctx context.Context, client *golangsdk.ServiceClient, 
 func ParseJobInfoFromId(id string) (clusterId, jobName string, err error) {
 	idArrays := strings.SplitN(id, "/", 2)
 	if len(idArrays) != 2 {
-		err = fmtp.Errorf("Invalid format specified for ID. Format must be <cluster_id>/<job_name>")
+		err = fmt.Errorf("invalid format specified for ID. Format must be <cluster_id>/<job_name>")
 		return
 	}
 
