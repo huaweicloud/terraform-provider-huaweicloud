@@ -23,3 +23,7 @@ paths:
     delete:
       tag: FunctionGraph
       operationId: Delete
+  /v2/{project_id}/fgs/functions:
+    post:
+      tag: FunctionGraph
+      operationId: Create

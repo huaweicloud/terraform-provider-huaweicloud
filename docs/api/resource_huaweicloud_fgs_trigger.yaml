@@ -17,6 +17,9 @@ paths:
       tag: APIG
       operationId: List
   /v2/{project_id}/fgs/triggers/{functionUrn}/{triggerTypeCode}/{triggerId}:
+    delete:
+      tag: FunctionGraph
+      operationId: Delete
     put:
       tag: FunctionGraph
       operationId: Update

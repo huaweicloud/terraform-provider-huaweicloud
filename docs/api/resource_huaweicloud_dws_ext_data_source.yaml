@@ -28,5 +28,5 @@ paths:
     /v1.0/{project_id}/job/{job_id}:
         GET:
             tag: DWS
-            operationId: CreateDwsExtDataSourceWaiting
+            operationId: DeleteDwsExtDataSourceWaiting
             x-ref-api: GET /v1.0/{project_id}/job/{job_id}

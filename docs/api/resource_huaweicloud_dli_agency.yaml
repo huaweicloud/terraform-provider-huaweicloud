@@ -14,5 +14,5 @@ paths:
             x-ref-api: GET /v2/{project_id}/agency
         POST:
             tag: DLI
-            operationId: CreateAgency
+            operationId: DeleteAgency
             x-ref-api: POST /v2/{project_id}/agency

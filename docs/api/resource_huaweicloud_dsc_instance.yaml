@@ -13,11 +13,12 @@ paths:
             operationId: CreateDscInstance
             x-ref-api: POST /v1/{project_id}/period/order
     /v1/{project_id}/period/product/specification:
-        DELETE:
-            tag: DSC
-            operationId: DeleteDscInstance
-            x-ref-api: DELETE /v1/{project_id}/period/product/specification
         GET:
             tag: DSC
             operationId: GetDscInstance
             x-ref-api: GET /v1/{project_id}/period/product/specification
+    /v2/orders/subscriptions/resources/unsubscribe:
+        POST:
+            tag: BSS
+            operationId: DeleteDscInstance
+            x-ref-api: POST /v2/orders/subscriptions/resources/unsubscribe

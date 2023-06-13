@@ -19,5 +19,5 @@ paths:
             x-ref-api: DELETE /v1.0/{project_id}/snapshots/{id}
         GET:
             tag: DWS
-            operationId: GetDwsSnapshot
+            operationId: CreateDwsSnapshotWaiting
             x-ref-api: GET /v1.0/{project_id}/snapshots/{id}
