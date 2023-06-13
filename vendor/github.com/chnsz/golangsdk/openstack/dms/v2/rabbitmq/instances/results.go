@@ -91,7 +91,14 @@ type Instance struct {
 	DiskEncrypted            bool               `json:"disk_encrypted"`
 	CesVersion               string             `json:"ces_version"`
 	AccessUser               string             `json:"access_user"`
+	Task                     Task               `json:"task"`
 	Tags                     []tags.ResourceTag `json:"tags"`
+}
+
+type Task struct {
+	Name      string `json:"name"`
+	Status    string `json:"status"`
+	CreatedAt string `json:"created_at"`
 }
 
 // UpdateResult is a struct from which can get the result of update method
