@@ -613,6 +613,10 @@ func (c *Config) VbsV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("vbs", region)
 }
 
+func (c *Config) SdrsV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("sdrs", region)
+}
+
 // ********** client for Network **********
 func (c *Config) NetworkingV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("vpc", region)
