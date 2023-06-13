@@ -110,7 +110,6 @@ func ResourceImsImage() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"max_ram": {
 				Type:     schema.TypeInt,

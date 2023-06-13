@@ -63,7 +63,6 @@ func ResourceImsImageCopy() *schema.Resource {
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Computed:    true,
 				Description: `Specifies the description of the copy image.`,
 			},
 			"kms_key_id": {
