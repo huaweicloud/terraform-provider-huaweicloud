@@ -183,6 +183,11 @@ The following arguments are supported:
 * `resources` - (Optional, List) Specifies an array of one or more resources to attach to the CBR vault.
   The [object](#cbr_vault_resources) structure is documented below.
 
+* `backup_name_prefix` - (Optional, String, ForceNew) Specifies the backup name prefix.
+  Changing this will create a new vault.
+
+-> If configured, the names of all automatic backups generated for the vault will use this prefix.
+
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the CBR vault.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the vault.

@@ -57,6 +57,7 @@ func TestAccVault_backupServer(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "size", "200"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(resourceName, "backup_name_prefix", "test-prefix-"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "resources.0.excludes.#", "2"),
@@ -73,6 +74,7 @@ func TestAccVault_backupServer(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "size", "300"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(resourceName, "backup_name_prefix", "test-prefix-"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo1", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 					resource.TestCheckResourceAttr(resourceName, "resources.0.excludes.#", "2"),
@@ -152,6 +154,7 @@ resource "huaweicloud_cbr_vault" "test" {
   protection_type       = "backup"
   size                  = 200
   enterprise_project_id = "0"
+  backup_name_prefix    = "test-prefix-"
 
   resources {
     server_id = huaweicloud_compute_instance.test.id
@@ -177,6 +180,7 @@ resource "huaweicloud_cbr_vault" "test" {
   protection_type       = "backup"
   size                  = 300
   enterprise_project_id = "0"
+  backup_name_prefix    = "test-prefix-"
 
   resources {
     server_id = huaweicloud_compute_instance.test.id

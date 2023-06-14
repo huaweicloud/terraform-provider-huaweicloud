@@ -172,6 +172,13 @@ func ResourceVault() *schema.Resource {
 				},
 				Description: "The array of one or more resources to attach to the CBR vault.",
 			},
+			"backup_name_prefix": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "The backup name prefix.",
+			},
 			// Public parameters.
 			"tags":          common.TagsSchema(),
 			"charging_mode": common.SchemaChargingMode(nil),
@@ -388,6 +395,7 @@ func buildVaultCreateOpts(cfg *config.Config, d *schema.ResourceData) (*vaults.C
 		Billing:             buildBillingStructure(d),
 		AutoExpand:          isAutoExpand.(bool),
 		AutoBind:            d.Get("auto_bind").(bool),
+		BackupNamePrefix:    d.Get("backup_name_prefix").(string),
 	}
 
 	bindRulesRaw, ok := d.Get("bind_rules").(map[string]interface{})
@@ -594,6 +602,7 @@ func resourceVaultRead(_ context.Context, d *schema.ResourceData, meta interface
 		d.Set("auto_expand", resp.AutoExpand),
 		d.Set("auto_bind", resp.AutoBind),
 		d.Set("enterprise_project_id", resp.EnterpriseProjectID),
+		d.Set("backup_name_prefix", resp.BackupNamePrefix),
 		d.Set("tags", utils.TagsToMap(resp.Tags)),
 		d.Set("bind_rules", utils.TagsToMap(resp.BindRules.Tags)),
 		d.Set("policy", flattenPolicies(client, vaultId)),

@@ -140,6 +140,7 @@ func TestAccPolicy_retention(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "long_term_retention.0.daily", "10"),
 					resource.TestCheckResourceAttr(resourceName, "long_term_retention.0.weekly", "10"),
 					resource.TestCheckResourceAttr(resourceName, "long_term_retention.0.monthly", "1"),
+					resource.TestCheckResourceAttr(resourceName, "long_term_retention.0.full_backup_interval", "-1"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.days", "SA,SU"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.execution_times.0", "08:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.execution_times.1", "20:00"),
@@ -158,6 +159,7 @@ func TestAccPolicy_retention(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "long_term_retention.0.weekly", "20"),
 					resource.TestCheckResourceAttr(resourceName, "long_term_retention.0.monthly", "6"),
 					resource.TestCheckResourceAttr(resourceName, "long_term_retention.0.yearly", "1"),
+					resource.TestCheckResourceAttr(resourceName, "long_term_retention.0.full_backup_interval", "5"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.days", "SA,SU"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.execution_times.0", "08:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.execution_times.1", "20:00"),
@@ -181,9 +183,10 @@ resource "huaweicloud_cbr_policy" "test" {
 
   time_zone       = "UTC+08:00"
   long_term_retention {
-    daily   = 10
-    weekly  = 10
-    monthly = 1
+    daily                = 10
+    weekly               = 10
+    monthly              = 1
+    full_backup_interval = -1
   }
 
   backup_cycle {
@@ -203,10 +206,11 @@ resource "huaweicloud_cbr_policy" "test" {
 
   time_zone       = "UTC+08:00"
   long_term_retention {
-    daily   = 20
-    weekly  = 20
-    monthly = 6
-    yearly  = 1
+    daily                = 20
+    weekly               = 20
+    monthly              = 6
+    yearly               = 1
+    full_backup_interval = 5
   }
 
   backup_cycle {
@@ -248,6 +252,7 @@ func TestAccPolicy_replication(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "destination_region", acceptance.HW_DEST_REGION),
 					resource.TestCheckResourceAttr(resourceName, "destination_project_id", acceptance.HW_DEST_PROJECT_ID),
 					resource.TestCheckResourceAttr(resourceName, "time_period", "20"),
+					resource.TestCheckResourceAttr(resourceName, "enable_acceleration", "true"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.interval", "5"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.execution_times.0", "06:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.execution_times.1", "18:00"),
@@ -257,6 +262,9 @@ func TestAccPolicy_replication(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"enable_acceleration",
+				},
 			},
 		},
 	})
@@ -270,6 +278,7 @@ resource "huaweicloud_cbr_policy" "test" {
   destination_region     = "%[2]s"
   destination_project_id = "%[3]s"
   time_period            = 20
+  enable_acceleration    = true
 
   backup_cycle {
     interval        = 5
