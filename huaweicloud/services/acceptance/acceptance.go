@@ -191,7 +191,7 @@ func preCheckRequiredEnvVars(t *testing.T) {
 
 // lintignore:AT003
 func TestAccPreCheckOrganizations(t *testing.T) {
-	if HW_ORGANIZATIONS_ENVIRONMENT != "" {
+	if HW_ORGANIZATIONS_ENVIRONMENT == "" {
 		t.Skip("This environment does not support Organizations tests")
 	}
 }
