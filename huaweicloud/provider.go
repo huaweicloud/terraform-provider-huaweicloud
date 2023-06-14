@@ -834,6 +834,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_mysql_proxy":              gaussdb.ResourceGaussDBProxy(),
 			"huaweicloud_gaussdb_mysql_database":           gaussdb.ResourceGaussDBDatabase(),
 			"huaweicloud_gaussdb_mysql_account":            gaussdb.ResourceGaussDBAccount(),
+			"huaweicloud_gaussdb_mysql_sql_control_rule":   gaussdb.ResourceGaussDBSqlControlRule(),
 			"huaweicloud_gaussdb_mysql_parameter_template": gaussdb.ResourceGaussDBMysqlTemplate(),
 
 			"huaweicloud_gaussdb_opengauss_instance": gaussdb.ResourceOpenGaussInstance(),
