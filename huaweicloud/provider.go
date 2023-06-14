@@ -1027,6 +1027,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_tms_tags": tms.ResourceTmsTag(),
 
 			"huaweicloud_ucs_policy": ucs.ResourcePolicy(),
+			"huaweicloud_ucs_fleet":  ucs.ResourceFleet(),
 
 			"huaweicloud_vod_media_asset":                vod.ResourceMediaAsset(),
 			"huaweicloud_vod_media_category":             vod.ResourceMediaCategory(),
