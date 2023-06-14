@@ -30,14 +30,14 @@ resource "huaweicloud_cbr_policy" "test" {
 
 ```hcl
 variable "policy_name" {}
-variable "dest_region" {}
-variable "dest_project_id" {}
+variable "destination_region" {}
+variable "destination_project_id" {}
 
 resource "huaweicloud_cbr_policy" "test" {
   name                   = var.policy_name
   type                   = "replication"
-  destination_region     = var.dest_region
-  destination_project_id = var.dest_project_id
+  destination_region     = var.destination_region
+  destination_project_id = var.destination_project_id
   backup_quantity        = 20
 
   backup_cycle {

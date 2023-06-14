@@ -44,10 +44,9 @@ The following arguments are supported:
 * `size` - (Optional, Int) Specifies the vault sapacity, in GB. The valid value range is `1` to `10,485,760`.
 
 * `auto_expand_enabled` - (Optional, Bool) Specifies whether to enable automatic expansion of the backup protection
-  type vault. Default to **false**.
+  type vault. Defaults to **false**.
 
 * `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the vault belongs.
-  Changing this will create a new vault.
 
 * `policy_id` - (Optional, String) Specifies the ID of the policy associated with the vault.
   The `policy_id` cannot be used with the vault of replicate protection type.

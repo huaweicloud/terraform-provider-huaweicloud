@@ -4,42 +4,49 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/cbr/v3/policies"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/cbr/v3/policies"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func getResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getPolicyResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	c, err := conf.CbrV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HuaweiCloud CBR client: %s", err)
+		return nil, fmt.Errorf("error creating CBR v3 client: %s", err)
 	}
 	return policies.Get(c, state.Primary.ID).Extract()
 }
 
-func TestAccCBRV3Policy_basic(t *testing.T) {
-	var asPolicy policies.Policy
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_cbr_policy.test"
+func TestAccPolicy_basic(t *testing.T) {
+	var (
+		policy       policies.Policy
+		name         = acceptance.RandomAccResourceName()
+		updateName   = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_cbr_policy.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
-		&asPolicy,
-		getResourceFunc,
+		&policy,
+		getPolicyResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testCBRV3Policy_basic(randName),
+				Config: testAccPolicy_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "time_period", "20"),
@@ -49,10 +56,10 @@ func TestAccCBRV3Policy_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testCBRV3Policy_update(randName),
+				Config: testAccPolicy_basic_step2(updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", randName+"-update"),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "backup_quantity", "5"),
@@ -70,27 +77,62 @@ func TestAccCBRV3Policy_basic(t *testing.T) {
 	})
 }
 
-func TestAccCBRV3Policy_retention(t *testing.T) {
-	var asPolicy policies.Policy
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_cbr_policy.test"
+func testAccPolicy_basic_step1(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_cbr_policy" "test" {
+  name        = "%s"
+  type        = "backup"
+  time_period = 20
+
+  backup_cycle {
+    days            = "MO,TU"
+    execution_times = ["06:00", "18:00"]
+  }
+}
+`, name)
+}
+
+func testAccPolicy_basic_step2(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_cbr_policy" "test" {
+  name            = "%s"
+  type            = "backup"
+  backup_quantity = 5
+
+  backup_cycle {
+    days            = "SA,SU"
+    execution_times = ["08:00", "20:00"]
+  }
+}
+`, name)
+}
+
+func TestAccPolicy_retention(t *testing.T) {
+	var (
+		policy       policies.Policy
+		name         = acceptance.RandomAccResourceName()
+		updateName   = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_cbr_policy.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
-		&asPolicy,
-		getResourceFunc,
+		&policy,
+		getPolicyResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testCBRV3Policy_retention(randName),
+				Config: testAccPolicy_retention_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "backup_quantity", "15"),
@@ -104,10 +146,10 @@ func TestAccCBRV3Policy_retention(t *testing.T) {
 				),
 			},
 			{
-				Config: testCBRV3Policy_retention_update(randName),
+				Config: testAccPolicy_retention_step2(updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "backup_quantity", "35"),
@@ -130,83 +172,10 @@ func TestAccCBRV3Policy_retention(t *testing.T) {
 	})
 }
 
-func TestAccCBRV3Policy_replication(t *testing.T) {
-	var asPolicy policies.Policy
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_cbr_policy.test"
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&asPolicy,
-		getResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckReplication(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testCBRV3Policy_replication(randName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", randName),
-					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "type", "replication"),
-					resource.TestCheckResourceAttr(resourceName, "destination_region", acceptance.HW_DEST_REGION),
-					resource.TestCheckResourceAttr(resourceName, "destination_project_id", acceptance.HW_DEST_PROJECT_ID),
-					resource.TestCheckResourceAttr(resourceName, "time_period", "20"),
-					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.interval", "5"),
-					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.execution_times.0", "06:00"),
-					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.execution_times.1", "18:00"),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func testCBRV3Policy_basic(rName string) string {
+func testAccPolicy_retention_step1(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cbr_policy" "test" {
-  name        = "%s"
-  type        = "backup"
-  time_period = 20
-
-  backup_cycle {
-    days            = "MO,TU"
-    execution_times = ["06:00", "18:00"]
-  }
-}
-`, rName)
-}
-
-func testCBRV3Policy_update(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_cbr_policy" "test" {
-  name            = "%s-update"
-  type            = "backup"
-  backup_quantity = 5
-
-  backup_cycle {
-    days            = "SA,SU"
-    execution_times = ["08:00", "20:00"]
-  }
-}
-`, rName)
-}
-
-func testCBRV3Policy_retention(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_cbr_policy" "test" {
-  name            = "%s"
+  name            = "%[1]s"
   type            = "backup"
   backup_quantity = 15
 
@@ -222,10 +191,10 @@ resource "huaweicloud_cbr_policy" "test" {
     execution_times = ["08:00", "20:00"]
   }
 }
-`, rName)
+`, name)
 }
 
-func testCBRV3Policy_retention_update(rName string) string {
+func testAccPolicy_retention_step2(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cbr_policy" "test" {
   name            = "%s"
@@ -245,16 +214,61 @@ resource "huaweicloud_cbr_policy" "test" {
     execution_times = ["08:00", "20:00"]
   }
 }
-`, rName)
+`, name)
 }
 
-func testCBRV3Policy_replication(rName string) string {
+func TestAccPolicy_replication(t *testing.T) {
+	var (
+		policy       policies.Policy
+		name         = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_cbr_policy.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&policy,
+		getPolicyResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckReplication(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPolicy_replication_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "type", "replication"),
+					resource.TestCheckResourceAttr(resourceName, "destination_region", acceptance.HW_DEST_REGION),
+					resource.TestCheckResourceAttr(resourceName, "destination_project_id", acceptance.HW_DEST_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "time_period", "20"),
+					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.interval", "5"),
+					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.execution_times.0", "06:00"),
+					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.execution_times.1", "18:00"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccPolicy_replication_step1(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cbr_policy" "test" {
-  name                   = "%s"
+  name                   = "%[1]s"
   type                   = "replication"
-  destination_region     = "%s"
-  destination_project_id = "%s"
+  destination_region     = "%[2]s"
+  destination_project_id = "%[3]s"
   time_period            = 20
 
   backup_cycle {
@@ -262,5 +276,5 @@ resource "huaweicloud_cbr_policy" "test" {
     execution_times = ["06:00", "18:00"]
   }
 }
-`, rName, acceptance.HW_DEST_REGION, acceptance.HW_DEST_PROJECT_ID)
+`, name, acceptance.HW_DEST_REGION, acceptance.HW_DEST_PROJECT_ID)
 }

@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"math"
-	"reflect"
 	"strconv"
 	"time"
 
@@ -13,11 +11,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cbr/v3/policies"
 	"github.com/chnsz/golangsdk/openstack/cbr/v3/vaults"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -39,11 +37,13 @@ const (
 	ResourceTypeTurbo = "OS::Sfs::Turbo"
 )
 
-var ResourceType map[string]string = map[string]string{
-	VaultTypeServer: ResourceTypeServer,
-	VaultTypeDisk:   ResourceTypeDisk,
-	VaultTypeTurbo:  ResourceTypeTurbo,
-}
+var (
+	resourceType = map[string]string{
+		VaultTypeServer: ResourceTypeServer,
+		VaultTypeDisk:   ResourceTypeDisk,
+		VaultTypeTurbo:  ResourceTypeTurbo,
+	}
+)
 
 func ResourceVault() *schema.Resource {
 	return &schema.Resource{
@@ -70,44 +70,32 @@ func ResourceVault() *schema.Resource {
 				Description: "The region where the vault is located.",
 			},
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringLenBetween(1, 64),
-				Description:  "The vault name.",
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The vault name.",
 			},
 			"type": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				//If the validation content has changed, please update the resource type map.
-				ValidateFunc: validation.StringInSlice([]string{
-					VaultTypeServer, VaultTypeDisk, VaultTypeTurbo,
-				}, false),
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 				Description: "The vault type.",
 			},
 			"protection_type": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"backup", "replication",
-				}, false),
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 				Description: "The protection type.",
 			},
 			"size": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ValidateFunc: validation.IntBetween(1, 10485760),
-				Description:  "The capacity of the vault, in GB.",
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "The capacity of the vault, in GB.",
 			},
 			"consistent_level": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Default:  "crash_consistent",
-				ValidateFunc: validation.StringInSlice([]string{
-					"crash_consistent", "app_consistent",
-				}, false),
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Default:     "crash_consistent",
 				Description: "The consistent level (specification) of the vault.",
 			},
 			"auto_expand": {
@@ -178,7 +166,7 @@ func ResourceVault() *schema.Resource {
 							Optional:    true,
 							Computed:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
-							Description: "The array of disk or SFS file system IDs which will be included in the backup.",
+							Description: "The array of disk or SFS file systems which will be included in the backup.",
 						},
 					},
 				},
@@ -228,27 +216,30 @@ func ResourceVault() *schema.Resource {
 }
 
 func buildAssociateResourcesForServer(rType string, resources []interface{}) ([]vaults.ResourceCreate, error) {
-	if len(resources) == 0 {
-		return []vaults.ResourceCreate{}, nil
-	}
 	results := make([]vaults.ResourceCreate, len(resources))
+
 	for i, val := range resources {
-		res := val.(map[string]interface{})
+		res, ok := val.(map[string]interface{})
+		if !ok {
+			return nil, fmt.Errorf("invalid object type of the parameter 'resources', want 'map[string]interface{}', "+
+				"but got '%T'", val)
+		}
+		if includes, ok := res["includes"].(*schema.Set); ok && includes.Len() > 0 {
+			return results, fmt.Errorf("server type vault does not support 'includes'")
+		}
+
 		result := vaults.ResourceCreate{
 			ID:        res["server_id"].(string),
 			Type:      rType,
 			ExtraInfo: &vaults.ResourceExtraInfo{},
 		}
 		// The server vault only support excludes (blacklist).
-		if res["excludes"].(*schema.Set).Len() > 0 {
-			volumes := make([]string, res["excludes"].(*schema.Set).Len())
-			for i, v := range res["excludes"].(*schema.Set).List() {
+		if excludes, ok := res["excludes"].(*schema.Set); ok && excludes.Len() > 0 {
+			volumes := make([]string, excludes.Len())
+			for i, v := range excludes.List() {
 				volumes[i] = v.(string)
 			}
 			result.ExtraInfo.ExcludeVolumes = volumes
-		}
-		if res["includes"].(*schema.Set).Len() > 0 {
-			return results, fmt.Errorf("server vault does not support includes")
 		}
 		results[i] = result
 	}
@@ -257,15 +248,19 @@ func buildAssociateResourcesForServer(rType string, resources []interface{}) ([]
 
 func buildAssociateResourcesForDisk(rType string, resources []interface{}) ([]vaults.ResourceCreate, error) {
 	if len(resources) > 1 {
-		return []vaults.ResourceCreate{},
-			fmt.Errorf("the size of resources cannot grant than one for disk and turbo vault")
+		return nil, fmt.Errorf("the size of resources cannot grant than one for disk and turbo vault")
 	} else if len(resources) == 0 {
 		return []vaults.ResourceCreate{}, nil
 	}
-	res := resources[0].(map[string]interface{})
-	if res["includes"].(*schema.Set).Len() > 0 {
-		result := make([]vaults.ResourceCreate, res["includes"].(*schema.Set).Len())
-		for i, v := range res["includes"].(*schema.Set).List() {
+
+	res, ok := resources[0].(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("invalid object type of the parameter 'resources', want 'map[string]interface{}', "+
+			"but got '%T'", resources[0])
+	}
+	if includes, ok := res["includes"].(*schema.Set); ok && includes.Len() > 0 {
+		result := make([]vaults.ResourceCreate, includes.Len())
+		for i, v := range includes.List() {
 			result[i] = vaults.ResourceCreate{
 				ID:   v.(string),
 				Type: rType,
@@ -273,17 +268,17 @@ func buildAssociateResourcesForDisk(rType string, resources []interface{}) ([]va
 		}
 		return result, nil
 	}
-	return []vaults.ResourceCreate{}, fmt.Errorf("only includes can be set for disk and turbo vault")
+	return nil, fmt.Errorf("only includes can be set for disk type and turbo type vault")
 }
 
 func buildAssociateResources(vType string, resources *schema.Set) ([]vaults.ResourceCreate, error) {
 	var result []vaults.ResourceCreate
 	var err error
-	rType, ok := ResourceType[vType]
+	rType, ok := resourceType[vType]
 	if !ok {
 		return nil, fmt.Errorf("invalid resource type: %s", vType)
 	}
-	log.Printf("[DEBUG] The resource type is %s", rType)
+	log.Printf("[DEBUG] The resource type is: %s", rType)
 	switch rType {
 	case ResourceTypeServer:
 		result, err = buildAssociateResourcesForServer(rType, resources.List())
@@ -295,34 +290,52 @@ func buildAssociateResources(vType string, resources *schema.Set) ([]vaults.Reso
 	return result, err
 }
 
-func buildDissociateResourcesForServer(rType string, resources []interface{}) []string {
-	result := make([]string, len(resources))
-	for i, val := range resources {
-		res := val.(map[string]interface{})
+func buildDissociateResourcesForServer(resources []interface{}) ([]string, error) {
+	result := make([]string, 0, len(resources))
+	for _, val := range resources {
+		res, ok := val.(map[string]interface{})
+		if !ok {
+			return nil, fmt.Errorf("invalid object type of the parameter 'resources', want 'map[string]interface{}', "+
+				"but got '%T'", resources[0])
+		}
 		// ID list of all servers attached in the specified vault.
-		result[i] = res["server_id"].(string)
+		serverId, ok := res["server_id"].(string)
+		if !ok {
+			return nil, fmt.Errorf("invalid type of the parameter 'server_id', want 'string', but got '%T'",
+				res["server_id"])
+		}
+		result = append(result, serverId)
 	}
-	return result
+	return result, nil
 }
 
-func buildDissociateResourcesForDisk(rType string, resources []interface{}) []string {
-	rMap := resources[0].(map[string]interface{})
+func buildDissociateResourcesForDisk(resources []interface{}) ([]string, error) {
+	res, ok := resources[0].(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("invalid type of the parameter 'resources', want 'map[string]interface{}', but got '%T'",
+			resources[0])
+	}
+	includes, ok := res["includes"].(*schema.Set)
+	if !ok {
+		return nil, fmt.Errorf("invalid type of the parameter 'resources.includes', want '*schema.Set', but got '%T'",
+			res["includes"])
+	}
 
 	// All disks attached in the specified vault.
-	return utils.ExpandToStringList(rMap["includes"].(*schema.Set).List())
+	return utils.ExpandToStringListBySet(includes), nil
 }
 
 func buildDissociateResources(vType string, resources *schema.Set) ([]string, error) {
-	rType, ok := ResourceType[vType]
+	rType, ok := resourceType[vType]
 	if !ok {
 		return nil, fmt.Errorf("invalid resource type: %s", vType)
 	}
 	log.Printf("[DEBUG] The resource type is %s", rType)
 	switch rType {
 	case ResourceTypeServer:
-		return buildDissociateResourcesForServer(rType, resources.List()), nil
+		return buildDissociateResourcesForServer(resources.List())
 	case ResourceTypeDisk, ResourceTypeTurbo:
-		return buildDissociateResourcesForDisk(rType, resources.List()), nil
+		return buildDissociateResourcesForDisk(resources.List())
 	default:
 		return nil, fmt.Errorf("the vault type only support server, disk and turbo")
 	}
@@ -351,80 +364,79 @@ func buildBillingStructure(d *schema.ResourceData) *vaults.BillingCreate {
 	return billing
 }
 
-func resourceVaultCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.CbrV3Client(region)
+func buildVaultCreateOpts(cfg *config.Config, d *schema.ResourceData) (*vaults.CreateOpts, error) {
+	res, ok := d.Get("resources").(*schema.Set)
+	if !ok {
+		return nil, fmt.Errorf("invalid type of the parameter 'resources', want '*schema.Set', but got '%T'",
+			d.Get("resources"))
+	}
+	resources, err := buildAssociateResources(d.Get("type").(string), res)
 	if err != nil {
-		return diag.Errorf("error creating CBR v3 client: %s", err)
+		return nil, fmt.Errorf("error building the structure of associated resources: %s", err)
 	}
 
-	resources, err := buildAssociateResources(d.Get("type").(string), d.Get("resources").(*schema.Set))
-	if err != nil {
-		return diag.Errorf("error building vault resources: %s", err)
-	}
-
-	ae, ok := d.GetOk("auto_expand")
+	isAutoExpand, ok := d.GetOk("auto_expand")
 	if ok && isPrePaid(d) {
-		return diag.Errorf("the prepaid vault do not support the auto_expand parameter")
+		return nil, fmt.Errorf("the prepaid vault do not support the parameter 'auto_expand'")
 	}
 
-	opts := vaults.CreateOpts{
+	result := vaults.CreateOpts{
 		Name:                d.Get("name").(string),
-		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 		Resources:           resources,
-		BackupPolicyID:      d.Get("policy_id").(string),
+		BackupPolicyID:      d.Get("policy_id").(string), // The deprecated parameter (can only bind backup policy).
 		Billing:             buildBillingStructure(d),
-		AutoExpand:          ae.(bool),
+		AutoExpand:          isAutoExpand.(bool),
 		AutoBind:            d.Get("auto_bind").(bool),
 	}
 
-	bindRulesRaw := d.Get("bind_rules").(map[string]interface{})
+	bindRulesRaw, ok := d.Get("bind_rules").(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("invalid type of the parameter 'bind_rules', want 'map[string]interface{}', "+
+			"but got '%T'", d.Get("bind_rules"))
+	}
 	binRulesList := utils.ExpandResourceTags(bindRulesRaw)
 	if len(binRulesList) > 0 {
 		bindRules := &vaults.VaultBindRules{
 			Tags: binRulesList,
 		}
-		opts.BindRules = bindRules
+		result.BindRules = bindRules
+	}
+	return &result, nil
+}
+
+func resourceVaultCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.CbrV3Client(region)
+	if err != nil {
+		return diag.Errorf("error creating CBR v3 client: %s", err)
 	}
 
+	opts, err := buildVaultCreateOpts(cfg, d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	log.Printf("[DEBUG] The createOpts is: %+v", opts)
 	result := vaults.Create(client, opts)
 
 	if isPrePaid(d) {
 		resp, err := result.ExtractOrder()
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		if len(resp.Orders) < 1 {
+		if err != nil || len(resp.Orders) < 1 || resp.Orders[0].ID == "" {
 			return diag.Errorf("unable to find any order information after creating CBR vault")
 		}
-		if resp.Orders[0].ID == "" {
-			return diag.Diagnostics{
-				{
-					Severity: diag.Warning,
-					Summary:  "Unsupported Region",
-					Detail: fmt.Sprintf("Currently, we does not support prepaid creation completely in this region "+
-						"(%s), because of the API response does not include vault ID. But the order has been created, "+
-						"if you don't want it, you can unsubscribe in the console. Also you can manage it by import "+
-						"operation using ID. You cannot create a new vault with the same configuration until you "+
-						"unsubscribe.", region),
-				},
-			}
-		}
-		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating BSS v2 client: %s", err)
 		}
-		err = common.WaitOrderComplete(ctx, bssClient, resp.Orders[0].ID, d.Timeout(schema.TimeoutCreate))
-		if err != nil {
+		orderId := resp.Orders[0].ID
+		if err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate)); err != nil {
 			return diag.Errorf("the order is not completed while creating CBR vault: %v", err)
 		}
-		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, resp.Orders[0].ID, d.Timeout(schema.TimeoutCreate))
+		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return diag.FromErr(err)
 		}
-
 		d.SetId(resourceId)
 	} else {
 		vault, err := result.Extract()
@@ -434,7 +446,8 @@ func resourceVaultCreate(ctx context.Context, d *schema.ResourceData, meta inter
 		d.SetId(vault.ID)
 	}
 
-	if _, ok = d.GetOk("policy"); ok {
+	// Bind backup(/replication) policy to the vault, not batch bind.
+	if _, ok := d.GetOk("policy"); ok {
 		err := updatePolicyBindings(d, client)
 		if err != nil {
 			return diag.FromErr(err)
@@ -448,7 +461,7 @@ func resourceVaultCreate(ctx context.Context, d *schema.ResourceData, meta inter
 	return resourceVaultRead(ctx, d, meta)
 }
 
-func makeVaultResourcesForServer(resources []vaults.ResourceResp) []map[string]interface{} {
+func parseVaultResourcesForServer(resources []vaults.ResourceResp) []map[string]interface{} {
 	results := make([]map[string]interface{}, len(resources))
 	for i, res := range resources {
 		result := map[string]interface{}{
@@ -470,8 +483,7 @@ func makeVaultResourcesForServer(resources []vaults.ResourceResp) []map[string]i
 	return results
 }
 
-// MakeVaultResourcesForDisk is a method for constructing a map list based on the resources response of the server.
-func MakeVaultResourcesForDisk(resources []vaults.ResourceResp) []map[string]interface{} {
+func parseVaultResourcesForDisk(resources []vaults.ResourceResp) []map[string]interface{} {
 	includeVolumes := make([]string, len(resources))
 	for i, res := range resources {
 		includeVolumes[i] = res.ID
@@ -483,21 +495,13 @@ func MakeVaultResourcesForDisk(resources []vaults.ResourceResp) []map[string]int
 	}
 }
 
-func makeVaultResources(vType string, resources []vaults.ResourceResp) []map[string]interface{} {
-	var result []map[string]interface{}
+func flattenVaultResources(vType string, resources []vaults.ResourceResp) []map[string]interface{} {
 	switch vType {
 	case VaultTypeServer:
-		result = makeVaultResourcesForServer(resources)
+		return parseVaultResourcesForServer(resources)
 	case VaultTypeDisk, VaultTypeTurbo:
-		result = MakeVaultResourcesForDisk(resources)
-	}
-	return result
-}
-
-func setResources(d *schema.ResourceData, vType string, resources []vaults.ResourceResp) error {
-	result := makeVaultResources(vType, resources)
-	if len(result) != 0 {
-		return d.Set("resources", result)
+		return parseVaultResourcesForDisk(resources)
+	default:
 	}
 	return nil
 }
@@ -522,11 +526,11 @@ func getPoliciesByVaultId(client *golangsdk.ServiceClient, vaultId string) ([]po
 // Convert Mega Bytes to Giga Bytes, the result is to two decimal places.
 func getNumberInGB(megaBytes float64) float64 {
 	denominator := float64(1024)
-	return math.Trunc(float64(megaBytes) / denominator * 1e2 * 1e-2)
+	result, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", megaBytes/denominator), 64)
+	return result
 }
 
-func flattenPolicies(d *schema.ResourceData, client *golangsdk.ServiceClient) []map[string]interface{} {
-	vaultId := d.Id()
+func flattenPolicies(client *golangsdk.ServiceClient, vaultId string) []map[string]interface{} {
 	policyList, err := getPoliciesByVaultId(client, vaultId)
 	if err != nil {
 		log.Printf("[ERROR] error querying CBR policies by vault ID (%s): %v", vaultId, err)
@@ -540,43 +544,48 @@ func flattenPolicies(d *schema.ResourceData, client *golangsdk.ServiceClient) []
 		policy := map[string]interface{}{
 			"id": val.ID,
 		}
-		if len(val.AssociatedVaults) > 0 {
-			for _, v := range val.AssociatedVaults {
-				if v.VaultID == vaultId {
-					policy["destination_vault_id"] = v.DestinationVaultID
-					break
-				}
+		if len(val.AssociatedVaults) < 1 {
+			continue
+		}
+		for _, v := range val.AssociatedVaults {
+			if v.VaultID == vaultId {
+				policy["destination_vault_id"] = v.DestinationVaultID
+				break
 			}
 		}
+
 		result[i] = policy
 	}
 	return result
 }
 
-func setCbrVaultCharging(d *schema.ResourceData, billing vaults.Billing) error {
+func parseVaultChargingMode(billing vaults.Billing) string {
 	switch billing.ChargingMode {
 	case "pre_paid":
-		return d.Set("charging_mode", "prePaid")
+		return "prePaid"
 	case "post_paid":
-		return d.Set("charging_mode", "postPaid")
+		return "postPaid"
 	}
-	return nil
+	return ""
 }
 
-func resourceVaultRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.CbrV3Client(config.GetRegion(d))
+func resourceVaultRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.CbrV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CBR v3 client: %s", err)
 	}
 
-	resp, err := vaults.Get(client, d.Id()).Extract()
+	vaultId := d.Id()
+	resp, err := vaults.Get(client, vaultId).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error getting vault details")
+		return common.CheckDeletedDiag(d, err, "CBR vault")
 	}
 
 	mErr := multierror.Append(
 		// Required && Optional
+		d.Set("region", region),
 		d.Set("name", resp.Name),
 		d.Set("type", resp.Billing.ObjectType),
 		d.Set("protection_type", resp.Billing.ProtectType),
@@ -587,9 +596,9 @@ func resourceVaultRead(ctx context.Context, d *schema.ResourceData, meta interfa
 		d.Set("enterprise_project_id", resp.EnterpriseProjectID),
 		d.Set("tags", utils.TagsToMap(resp.Tags)),
 		d.Set("bind_rules", utils.TagsToMap(resp.BindRules.Tags)),
-		d.Set("policy", flattenPolicies(d, client)),
-		setResources(d, resp.Billing.ObjectType, resp.Resources),
-		setCbrVaultCharging(d, resp.Billing),
+		d.Set("policy", flattenPolicies(client, vaultId)),
+		d.Set("resources", flattenVaultResources(resp.Billing.ObjectType, resp.Resources)),
+		d.Set("charging_mode", parseVaultChargingMode(resp.Billing)),
 		// Computed
 		// The result of 'allocated' and 'used' is in MB, and now we need to use GB as the unit.
 		d.Set("allocated", getNumberInGB(float64(resp.Billing.Allocated))),
@@ -599,46 +608,121 @@ func resourceVaultRead(ctx context.Context, d *schema.ResourceData, meta interfa
 		d.Set("storage", resp.Billing.StorageUnit),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting vault fields: %s", err)
+		return diag.Errorf("error setting vault resource fields: %s", err)
 	}
 
 	return nil
 }
 
-func updateResources(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	oldResources, newResources := d.GetChange("resources")
-	addRaws := newResources.(*schema.Set).Difference(oldResources.(*schema.Set))
-	delRaws := oldResources.(*schema.Set).Difference(newResources.(*schema.Set))
+func waitForAllResourcesDissociated(ctx context.Context, client *golangsdk.ServiceClient, vaultId string,
+	resourceIds []string, timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			resp, err := vaults.Get(client, vaultId).Extract()
+			if err != nil {
+				return nil, "FAILED", fmt.Errorf("error getting vault by ID (%s)", vaultId)
+			}
+			for _, queryRes := range resp.Resources {
+				for _, resId := range resourceIds {
+					if queryRes.ID == resId {
+						return resp, "PENDING", nil
+					}
+				}
+			}
+			return resp, "COMPLETED", nil
+		},
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("timeout waiting for dissociate resources to complete: %s", err)
+	}
+	return nil
+}
+
+func waitForAllResourcesAssociated(ctx context.Context, client *golangsdk.ServiceClient, vaultId string,
+	resources []vaults.ResourceCreate, timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			resp, err := vaults.Get(client, vaultId).Extract()
+			if err != nil {
+				return nil, "FAILED", fmt.Errorf("error getting vault by ID (%s)", vaultId)
+			}
+			for _, res := range resources {
+				for _, queryRes := range resp.Resources {
+					if res.ID != "" {
+						if queryRes.ID == res.ID || len(queryRes.ExtraInfo.ExcludeVolumes) == len(res.ExtraInfo.ExcludeVolumes) {
+							return resp, "COMPLETED", nil
+						}
+					} else if len(queryRes.ExtraInfo.IncludeVolumes) == len(res.ExtraInfo.IncludeVolumes) {
+						return resp, "COMPLETED", nil
+					}
+				}
+			}
+			return resp, "PENDING", nil
+		},
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("timeout waiting for associate resources to complete: %s", err)
+	}
+	return nil
+}
+
+func updateAssociatedResources(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		vaultId   = d.Id()
+		vaultType = d.Get("type").(string)
+
+		oldResources, newResources = d.GetChange("resources")
+		addRaws                    = newResources.(*schema.Set).Difference(oldResources.(*schema.Set))
+		delRaws                    = oldResources.(*schema.Set).Difference(newResources.(*schema.Set))
+	)
 
 	// Remove all resources bound to the vault.
 	if delRaws.Len() > 0 {
-		resources, err := buildDissociateResources(d.Get("type").(string), delRaws)
+		resources, err := buildDissociateResources(vaultType, delRaws)
 		if err != nil {
 			return fmt.Errorf("error building dissociate list of vault resources: %s", err)
 		}
-		dissociateOpt := vaults.DissociateResourcesOpts{
+		opts := vaults.DissociateResourcesOpts{
 			ResourceIDs: resources,
 		}
-		log.Printf("[DEBUG] The dissociate opt is: %+v", dissociateOpt)
-		_, err = vaults.DissociateResources(client, d.Id(), dissociateOpt).Extract()
+		log.Printf("[DEBUG] The dissociate opts is: %#v", opts)
+		_, err = vaults.DissociateResources(client, vaultId, opts).Extract()
 		if err != nil {
 			return fmt.Errorf("error dissociating resources: %s", err)
+		}
+		if waitForAllResourcesDissociated(ctx, client, vaultId, resources, d.Timeout(schema.TimeoutUpdate)) != nil {
+			return err
 		}
 	}
 
 	// Add resources to the specified vault.
 	if addRaws.Len() > 0 {
-		resources, err := buildAssociateResources(d.Get("type").(string), addRaws)
+		resources, err := buildAssociateResources(vaultType, addRaws)
 		if err != nil {
 			return fmt.Errorf("error building associate list of vault resources: %s", err)
 		}
-		associateOpt := vaults.AssociateResourcesOpts{
+		opts := vaults.AssociateResourcesOpts{
 			Resources: resources,
 		}
-		log.Printf("[DEBUG] The associate opt is: %+v", associateOpt)
-		_, err = vaults.AssociateResources(client, d.Id(), associateOpt).Extract()
+		log.Printf("[DEBUG] The associate opts is: %#v", opts)
+		_, err = vaults.AssociateResources(client, vaultId, opts).Extract()
 		if err != nil {
-			return fmt.Errorf("error binding resources: %s", err)
+			return fmt.Errorf("error associating resources: %s", err)
+		}
+		if waitForAllResourcesAssociated(ctx, client, vaultId, resources, d.Timeout(schema.TimeoutUpdate)) != nil {
+			return err
 		}
 	}
 
@@ -676,13 +760,7 @@ func updatePolicyBindings(d *schema.ResourceData, client *golangsdk.ServiceClien
 	return nil
 }
 
-func resourceVaultUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.CbrV3Client(config.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating CBR v3 client: %s", err)
-	}
-
+func updateBasicParameters(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	opts := vaults.UpdateOpts{}
 	if d.HasChange("name") {
 		opts.Name = d.Get("name").(string)
@@ -690,35 +768,50 @@ func resourceVaultUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 
 	if d.HasChanges("size", "auto_expand", "auto_bind") {
 		if isPrePaid(d) {
-			return diag.Errorf("cannot update size or auto_expand if the vault is prepaid mode")
+			return fmt.Errorf("cannot update 'size', 'auto_expand' or 'auto_bind' if the vault is prepaid mode")
 		}
-		ae := d.Get("auto_expand").(bool)
-		ab := d.Get("auto_bind").(bool)
-		opts.AutoExpand = &ae
-		opts.AutoBind = &ab
+		opts.AutoExpand = utils.Bool(d.Get("auto_expand").(bool))
+		opts.AutoBind = utils.Bool(d.Get("auto_bind").(bool))
 		opts.Billing = &vaults.BillingUpdate{
 			Size: d.Get("size").(int),
 		}
 	}
 
 	if d.HasChanges("bind_rules") {
-		bindRulesRaw := d.Get("bind_rules").(map[string]interface{})
+		bindRulesRaw, ok := d.Get("bind_rules").(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("invalid type of the parameter 'bind_rules', want 'map[string]interface{}', "+
+				"but got '%T'", d.Get("bind_rules"))
+		}
 		binRulesList := utils.ExpandResourceTags(bindRulesRaw)
 		bindRules := &vaults.VaultBindRules{
 			Tags: binRulesList,
 		}
 		opts.BindRules = bindRules
 	}
+	_, err := vaults.Update(client, d.Id(), opts).Extract()
+	if err != nil {
+		return fmt.Errorf("error updating the vault: %s", err)
+	}
+	return nil
+}
 
-	if !reflect.DeepEqual(opts, vaults.UpdateOpts{}) {
-		_, err := vaults.Update(client, d.Id(), opts).Extract()
-		if err != nil {
-			return diag.Errorf("error updating the vault: %s", err)
+func resourceVaultUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.CbrV3Client(region)
+	if err != nil {
+		return diag.Errorf("error creating CBR v3 client: %s", err)
+	}
+
+	if d.HasChanges("name", "size", "auto_expand", "auto_bind", "bind_rules") {
+		if err = updateBasicParameters(client, d); err != nil {
+			return diag.Errorf("cannot update 'size', 'auto_expand' or 'auto_bind' if the vault is prepaid mode")
 		}
 	}
 
 	if d.HasChange("resources") {
-		if err := updateResources(d, client); err != nil {
+		if err := updateAssociatedResources(ctx, d, client); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -735,7 +828,7 @@ func resourceVaultUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 
 	if d.HasChange("auto_renew") {
-		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
@@ -748,14 +841,14 @@ func resourceVaultUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 }
 
 func resourceVaultDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.CbrV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.CbrV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating CBR v3 client: %s", err)
 	}
 
 	if isPrePaid(d) {
-		err = common.UnsubscribePrePaidResource(d, config, []string{d.Id()})
+		err = common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()})
 		if err != nil {
 			return diag.Errorf("error unsubscribing vault (%s): %s", d.Id(), err)
 		}
@@ -766,18 +859,17 @@ func resourceVaultDelete(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"available", "deleting"},
-		Target:     []string{"deleted"},
-		Refresh:    vaultStateRefreshFunc(client, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Pending:      []string{"available", "deleting"},
+		Target:       []string{"deleted"},
+		Refresh:      vaultStateRefreshFunc(client, d.Id()),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        5 * time.Second,
+		PollInterval: 20 * time.Second,
 	}
 
 	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
 		return diag.Errorf("timeout waiting for vault deletion to complete: %s", err)
 	}
-	d.SetId("")
 
 	return nil
 }
