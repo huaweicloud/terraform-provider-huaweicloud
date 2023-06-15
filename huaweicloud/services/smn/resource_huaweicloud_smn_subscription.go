@@ -113,7 +113,7 @@ func resourceSubscriptionRead(_ context.Context, d *schema.ResourceData, meta in
 	log.Printf("[DEBUG] fetching subscription: %s", id)
 	subscriptionslist, err := subscriptions.ListFromTopic(client, topicUrn).Extract()
 	if err != nil {
-		return diag.Errorf("error fetching the list of subscriptions: %s", err)
+		return common.CheckDeletedDiag(d, err, "error fetching the subscriptions")
 	}
 
 	var targetSubscription *subscriptions.SubscriptionGet
