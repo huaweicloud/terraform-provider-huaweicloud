@@ -1,0 +1,30 @@
+---
+subcategory: "Storage Disaster Recovery Service (SDRS)"
+---
+
+# huaweicloud_sdrs_domain
+
+Use this data source to get an available SDRS domain.
+
+## Example Usage
+
+```hcl
+data "huaweicloud_sdrs_domain" "test" {}
+```
+
+## Argument Reference
+
+The following arguments are supported:
+
+* `region` - (Optional, String) Specifies the region in which to query the data source.
+  If omitted, the provider-level region will be used.
+
+* `name` - (Optional, String) Specifies the name of an available SDRS domain.
+
+## Attributes Reference
+
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - The resource ID.
+
+* `description` - Indicates the description of the SDRS domain.

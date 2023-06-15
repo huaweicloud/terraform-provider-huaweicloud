@@ -81,6 +81,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rfs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/scm"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/sdrs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/secmaster"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/servicestage"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/sfs"
@@ -518,6 +519,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_storage_types":   rds.DataSourceStoragetype(),
 
 			"huaweicloud_rms_policy_definitions": rms.DataSourcePolicyDefinitions(),
+
+			"huaweicloud_sdrs_domain": sdrs.DataSourceSDRSDomain(),
 
 			"huaweicloud_servicestage_component_runtimes": servicestage.DataSourceComponentRuntimes(),
 

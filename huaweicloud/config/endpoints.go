@@ -238,6 +238,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v2",
 		Product: "VBS",
 	},
+	"sdrs": {
+		Name:    "sdrs",
+		Version: "v1",
+		Product: "SDRS",
+	},
 
 	// ******* catalog for network ******
 	"vpc": {
