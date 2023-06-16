@@ -68,6 +68,7 @@ type Cluster struct {
 	EipId                 string            `json:"eipId"`
 	EipAddress            string            `json:"eipAddress"`
 	Eipv6Address          string            `json:"eipv6Address"`
+	Tags                  string            `json:"tags"`
 }
 
 type Component struct {

@@ -25,9 +25,8 @@ type GroupNodeNum struct {
 func TestAccMrsMapReduceCluster_basic(t *testing.T) {
 	var clusterGet cluster.Cluster
 	resourceName := "huaweicloud_mapreduce_cluster.test"
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	password := fmt.Sprintf("TF%s%s%d", acctest.RandString(10), acctest.RandStringFromCharSet(1, "-_"),
-		acctest.RandIntRange(0, 99))
+	rName := acceptance.RandomAccResourceNameWithDash()
+	password := acceptance.RandomPassword()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -74,9 +73,8 @@ func TestAccMrsMapReduceCluster_basic(t *testing.T) {
 func TestAccMrsMapReduceCluster_keypair(t *testing.T) {
 	var clusterGet cluster.Cluster
 	resourceName := "huaweicloud_mapreduce_cluster.test"
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	password := fmt.Sprintf("TF%s%s%d", acctest.RandString(10), acctest.RandStringFromCharSet(1, "-_"),
-		acctest.RandIntRange(0, 99))
+	rName := acceptance.RandomAccResourceNameWithDash()
+	password := acceptance.RandomPassword()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -108,9 +106,8 @@ func TestAccMrsMapReduceCluster_keypair(t *testing.T) {
 func TestAccMrsMapReduceCluster_analysis(t *testing.T) {
 	var clusterGet cluster.Cluster
 	resourceName := "huaweicloud_mapreduce_cluster.test"
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	password := fmt.Sprintf("TF%s%s%d", acctest.RandString(10), acctest.RandStringFromCharSet(1, "-_"),
-		acctest.RandIntRange(0, 99))
+	rName := acceptance.RandomAccResourceNameWithDash()
+	password := acceptance.RandomPassword()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -169,9 +166,8 @@ func TestAccMrsMapReduceCluster_analysis(t *testing.T) {
 func TestAccMrsMapReduceCluster_stream(t *testing.T) {
 	var clusterGet cluster.Cluster
 	resourceName := "huaweicloud_mapreduce_cluster.test"
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	password := fmt.Sprintf("TF%s%s%d", acctest.RandString(10), acctest.RandStringFromCharSet(1, "-_"),
-		acctest.RandIntRange(0, 99))
+	rName := acceptance.RandomAccResourceNameWithDash()
+	password := acceptance.RandomPassword()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -230,9 +226,8 @@ func TestAccMrsMapReduceCluster_stream(t *testing.T) {
 func TestAccMrsMapReduceCluster_hybrid(t *testing.T) {
 	var clusterGet cluster.Cluster
 	resourceName := "huaweicloud_mapreduce_cluster.test"
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	password := fmt.Sprintf("TF%s%s%d", acctest.RandString(10), acctest.RandStringFromCharSet(1, "-_"),
-		acctest.RandIntRange(0, 99))
+	rName := acceptance.RandomAccResourceNameWithDash()
+	password := acceptance.RandomPassword()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -310,8 +305,7 @@ func TestAccMrsMapReduceCluster_custom_compact(t *testing.T) {
 	var clusterGet cluster.Cluster
 	resourceName := "huaweicloud_mapreduce_cluster.test"
 	rName := acceptance.RandomAccResourceName()
-	password := fmt.Sprintf("TF%s%s%d", acctest.RandString(10), acctest.RandStringFromCharSet(1, "-_"),
-		acctest.RandIntRange(0, 99))
+	password := acceptance.RandomPassword()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -350,8 +344,7 @@ func TestAccMrsMapReduceCluster_custom_separate(t *testing.T) {
 	var clusterGet cluster.Cluster
 	resourceName := "huaweicloud_mapreduce_cluster.test"
 	rName := acceptance.RandomAccResourceName()
-	password := fmt.Sprintf("TF%s%s%d", acctest.RandString(10), acctest.RandStringFromCharSet(1, "-_"),
-		acctest.RandIntRange(0, 99))
+	password := acceptance.RandomPassword()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -391,8 +384,7 @@ func TestAccMrsMapReduceCluster_custom_fullsize(t *testing.T) {
 	var clusterGet cluster.Cluster
 	resourceName := "huaweicloud_mapreduce_cluster.test"
 	rName := acceptance.RandomAccResourceName()
-	password := fmt.Sprintf("TF%s%s%d", acctest.RandString(10), acctest.RandStringFromCharSet(1, "-_"),
-		acctest.RandIntRange(0, 99))
+	password := acceptance.RandomPassword()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -19,9 +18,8 @@ import (
 func TestAccMrsMapReduceJob_basic(t *testing.T) {
 	var job jobs.Job
 	resourceName := "huaweicloud_mapreduce_job.test"
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	pwd := fmt.Sprintf("TF%s%s%d", acctest.RandString(10), acctest.RandStringFromCharSet(1, "-_"),
-		acctest.RandIntRange(0, 99))
+	rName := acceptance.RandomAccResourceNameWithDash()
+	pwd := acceptance.RandomPassword()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },

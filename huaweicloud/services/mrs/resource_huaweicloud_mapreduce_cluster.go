@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/mrs/v1/cluster"
 	clusterV2 "github.com/chnsz/golangsdk/openstack/mrs/v2/clusters"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
@@ -224,7 +223,6 @@ func ResourceMRSClusterV2() *schema.Resource {
 				ForceNew: true,
 				Elem:     componentConfigsSchemaResource(),
 			},
-
 			"tags": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -385,18 +383,6 @@ func componentConfigsSchemaResource() *schema.Resource {
 	}
 }
 
-// The 'component_list' type of the request body is string, before body build, it should be conversation from set to string.
-func buildMrsComponents(d *schema.ResourceData) string {
-	components := d.Get("component_list").(*schema.Set)
-	return buildStringBySet(components)
-}
-
-// The 'security_group_ids' type of the request body is string, before body build, it should be conversation from set to string.
-func buildMrsSecurityGroupIds(d *schema.ResourceData) string {
-	secgroupIds := d.Get("security_group_ids").(*schema.Set)
-	return buildStringBySet(secgroupIds)
-}
-
 // The 'log_collection' type of the request body is int,
 func buildLogCollection(d *schema.ResourceData) *int {
 	if d.Get("log_collection").(bool) {
@@ -411,14 +397,6 @@ func buildMrsSafeMode(d *schema.ResourceData) string {
 		return "KERBEROS"
 	}
 	return "SIMPLE"
-}
-
-func buildStringBySet(set *schema.Set) string {
-	slice := make([]string, set.Len())
-	for i, v := range set.List() {
-		slice[i] = v.(string)
-	}
-	return strings.Join(slice, ",")
 }
 
 // buildMrsClusterNodeGroups is a method which to build a node group list with all node group arguments.
@@ -549,23 +527,6 @@ func waitForMrsClusterStateCompleted(ctx context.Context, client *golangsdk.Serv
 	return nil
 }
 
-// addTagsToMrsCluster method is inherited from MRS V1 resources.
-func addTagsToMrsCluster(d *schema.ResourceData, cfg *config.Config) error {
-	client, err := cfg.MrsV1Client(cfg.GetRegion(d))
-	if err != nil {
-		return fmt.Errorf("error creating MRS V1 client: %s", err)
-	}
-
-	tagRaw := d.Get("tags").(map[string]interface{})
-	if len(tagRaw) > 0 {
-		taglist := utils.ExpandResourceTags(tagRaw)
-		if tagErr := tags.Create(client, "clusters", d.Id(), taglist).ExtractErr(); tagErr != nil {
-			return fmt.Errorf("error setting tags of MRS cluster %s: %s", d.Id(), tagErr)
-		}
-	}
-	return nil
-}
-
 func resourceMRSClusterV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -613,14 +574,15 @@ func resourceMRSClusterV2Create(ctx context.Context, d *schema.ResourceData, met
 		SubnetName:           subnetResp.Name,
 		EipId:                eipId,
 		EipAddress:           publicIp,
-		Components:           buildMrsComponents(d),
+		Components:           strings.Join(utils.ExpandToStringListBySet(d.Get("component_list").(*schema.Set)), ","),
 		EnterpriseProjectId:  common.GetEnterpriseProjectID(d, cfg),
 		LogCollection:        buildLogCollection(d),
 		NodeGroups:           buildMrsClusterNodeGroups(d),
 		SafeMode:             buildMrsSafeMode(d),
-		SecurityGroupsIds:    buildMrsSecurityGroupIds(d),
+		SecurityGroupsIds:    strings.Join(utils.ExpandToStringListBySet(d.Get("security_group_ids").(*schema.Set)), ","),
 		ComponentConfigs:     buildComponentConfigOpts(d),
 		TemplateId:           d.Get("template_id").(string),
+		Tags:                 utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
 	if v, ok := d.GetOk("node_key_pair"); ok {
 		createOpts.NodeKeypair = v.(string)
@@ -645,10 +607,6 @@ func resourceMRSClusterV2Create(ctx context.Context, d *schema.ResourceData, met
 	// After request send, check the cluster state and wait for it become running.
 	if err = waitForMrsClusterStateCompleted(ctx, mrsV1Client, d.Id(), refresh); err != nil {
 		d.SetId("")
-		return diag.Errorf("error waiting for MapReduce cluster (%s) to become ready: %s", d.Id(), err)
-	}
-	// After MapReduce cluster state become running, add some tags to the cluster.
-	if err = addTagsToMrsCluster(d, cfg); err != nil {
 		return diag.Errorf("error waiting for MapReduce cluster (%s) to become ready: %s", d.Id(), err)
 	}
 
@@ -695,27 +653,6 @@ func setMrsClsuterType(d *schema.ResourceData, resp *cluster.Cluster) error {
 		return fmt.Errorf("the cluster type of the response is '%d', not in the map", resp.ClusterType)
 	}
 	return d.Set("type", clusterType[resp.ClusterType])
-}
-
-func setMrsClsuterSafeMode(d *schema.ResourceData, resp *cluster.Cluster) error {
-	result := true
-	if resp.Safemode == 0 {
-		result = false
-	}
-	return d.Set("safe_mode", result)
-}
-
-func setMRSClusterLogCollection(d *schema.ResourceData, resp *cluster.Cluster) error {
-	result := true
-	if resp.LogCollection == 0 {
-		result = false
-	}
-	return d.Set("log_collection", result)
-}
-
-func setMrsClsuterSecurityGroupIds(d *schema.ResourceData, resp *cluster.Cluster) error {
-	secGroupsIds := strings.Split(resp.Securitygroupsid, ",")
-	return d.Set("security_group_ids", secGroupsIds)
 }
 
 func setMrsClsuterTotalNodeNumber(d *schema.ResourceData, resp *cluster.Cluster) error {
@@ -833,13 +770,19 @@ func parseHostIps(groupName string, isCustomNode bool, clustHostMap map[string][
 	return rt
 }
 
-func setClsuterTags(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	resourceTags, err := tags.Get(client, "clusters", d.Id()).Extract()
-	if err != nil {
-		return fmt.Errorf("error fetching tags of MapReduce cluster form server: %s", err)
+func flattenTags(tagsString string) map[string]string {
+	// the format of tagsRaw: "d=d2,aa=aa"
+	result := make(map[string]string)
+	if len(tagsString) > 0 {
+		tagsArray := strings.Split(tagsString, ",")
+		for _, item := range tagsArray {
+			tag := strings.SplitN(item, "=", 2)
+			if len(tag) == 2 {
+				result[tag[0]] = tag[1]
+			}
+		}
 	}
-	tagmap := utils.TagsToMap(resourceTags.Tags)
-	return d.Set("tags", tagmap)
+	return result
 }
 
 func getMrsClusterFromServer(client *golangsdk.ServiceClient, clusterID string) (*cluster.Cluster, error) {
@@ -885,16 +828,15 @@ func resourceMRSClusterV2Read(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("eip_id", resp.EipId),
 		setMrsClsuterType(d, resp),
 		setMrsClsuterComponentList(d, resp),
-		setMrsClsuterSafeMode(d, resp),
-		setMRSClusterLogCollection(d, resp),
-		setMrsClsuterSecurityGroupIds(d, resp),
+		d.Set("safe_mode", resp.Safemode == 1),
+		d.Set("log_collection", resp.LogCollection == 1),
+		d.Set("security_group_ids", strings.Split(resp.Securitygroupsid, ",")),
 		setMrsClsuterTotalNodeNumber(d, resp),
 		setMrsClsuterCreateTimestamp(d, resp),
 		setMrsClsuterUpdateTimestamp(d, resp),
 		setMrsClsuterChargingTimestamp(d, resp),
-		setMrsClsuterCreateTimestamp(d, resp),
 		setMrsClusterNodeGroups(d, client, resp),
-		setClsuterTags(d, client),
+		d.Set("tags", flattenTags(resp.Tags)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -928,7 +870,7 @@ func resizeMRSClusterCoreNodes(ctx context.Context, client *golangsdk.ServiceCli
 		PollInterval: 15 * time.Second,
 	}
 	if err = waitForMrsClusterStateCompleted(ctx, client, id, refresh); err != nil {
-		return fmt.Errorf("error waiting for Mrs cluster resize to be complated: %s", err)
+		return fmt.Errorf("error waiting for MRS cluster resize to be complated: %s", err)
 	}
 	return nil
 }
@@ -1111,7 +1053,7 @@ func resourceMRSClusterV2Delete(ctx context.Context, d *schema.ResourceData, met
 	}
 	if err = waitForMrsClusterStateCompleted(ctx, client, d.Id(), refresh); err != nil {
 		d.SetId("")
-		return diag.Errorf("error waiting for Mrs cluster (%s) to be terminated: %s", d.Id(), err)
+		return diag.Errorf("error waiting for MRS cluster (%s) to be terminated: %s", d.Id(), err)
 	}
 
 	return nil
