@@ -33,14 +33,9 @@ func ResourceIAMAgencyV3() *schema.Resource {
 		ReadContext:   resourceIAMAgencyV3Read,
 		UpdateContext: resourceIAMAgencyV3Update,
 		DeleteContext: resourceIAMAgencyV3Delete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
-		},
-
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -404,6 +399,11 @@ func resourceIAMAgencyV3Read(_ context.Context, d *schema.ResourceData, meta int
 		if pn == "MOS" {
 			continue
 		}
+
+		// the provider will query the roles in all projects, but the API rate limit threshold is 10 times per second.
+		// so we should wait for some time to avoid exceeding the rate limit.
+		// lintignore:R018
+		time.Sleep(200 * time.Millisecond)
 
 		allRoles, err := agency.ListRolesAttachedOnProject(iamClient, agencyID, pid).ExtractRoles()
 		if err != nil && !utils.IsResourceNotFound(err) {
