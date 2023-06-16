@@ -66,6 +66,11 @@ The following arguments are supported:
 * `crypt_key_id` - (Optional, String, ForceNew) Specifies the ID of a KMS key to encrypt the file system. Changing this
   will create a new resource.
 
+* `dedicated_flavor` - (Optional, String, ForceNew) Specifies the VM flavor used for creating a dedicated file system.
+
+* `dedicated_storage_id` - (Optional, String, ForceNew) Specifies the ID of the dedicated distributed storage used
+  when creating a dedicated file system.
+
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the file system. Changing this
   will create a new resource.
 
