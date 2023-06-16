@@ -167,7 +167,13 @@ func ResourceRdsInstance() *schema.Resource {
 							Required: true,
 						},
 						"keep_days": {
-							Type:     schema.TypeInt,
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "schema: Required",
+						},
+						"period": {
+							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 						},
@@ -351,7 +357,6 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		AvailabilityZone:    buildRdsInstanceAvailabilityZone(d),
 		Datastore:           buildRdsInstanceDatastore(d),
 		Volume:              buildRdsInstanceVolume(d),
-		BackupStrategy:      buildRdsInstanceBackupStrategy(d),
 		Ha:                  buildRdsInstanceHaReplicationMode(d),
 		UnchangeableParam:   buildRdsInstanceUnchangeableParam(d),
 	}
@@ -522,6 +527,10 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
+	if err := updateRdsInstanceBackupStrategy(d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
 	return resourceRdsInstanceRead(ctx, d, meta)
 }
 
@@ -533,6 +542,11 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	instanceID := d.Id()
+	backupStrategy, err := backups.Get(client, instanceID).Extract()
+	if err != nil {
+		return diag.Errorf("error getting RDS backup strategy: %s", err)
+	}
+
 	instance, err := GetRdsInstanceByID(client, instanceID)
 	if err != nil {
 		return diag.Errorf("error getting RDS instance: %s", err)
@@ -610,6 +624,7 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 	backup[0] = map[string]interface{}{
 		"start_time": instance.BackupStrategy.StartTime,
 		"keep_days":  instance.BackupStrategy.KeepDays,
+		"period":     backupStrategy.Period,
 	}
 	if err := d.Set("backup_strategy", backup); err != nil {
 		return diag.Errorf("error saving backup strategy to RDS instance (%s): %s", instanceID, err)
@@ -707,7 +722,7 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	if err := updateRdsInstanceBackpStrategy(d, client, instanceID); err != nil {
+	if err := updateRdsInstanceBackupStrategy(d, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -1035,7 +1050,7 @@ func updateRdsInstanceVolumeSize(d *schema.ResourceData, client *golangsdk.Servi
 	return nil
 }
 
-func updateRdsInstanceBackpStrategy(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
+func updateRdsInstanceBackupStrategy(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
 	if !d.HasChange("backup_strategy") {
 		return nil
 	}
@@ -1043,11 +1058,14 @@ func updateRdsInstanceBackpStrategy(d *schema.ResourceData, client *golangsdk.Se
 	backupRaw := d.Get("backup_strategy").([]interface{})
 	rawMap := backupRaw[0].(map[string]interface{})
 	keepDays := rawMap["keep_days"].(int)
-
+	period := rawMap["period"].(string)
+	if period == "" {
+		period = "1,2,3,4,5,6,7"
+	}
 	updateOpts := backups.UpdateOpts{
 		KeepDays:  &keepDays,
 		StartTime: rawMap["start_time"].(string),
-		Period:    "1,2,3,4,5,6,7",
+		Period:    period,
 	}
 
 	log.Printf("[DEBUG] updateOpts: %#v", updateOpts)
@@ -1076,11 +1094,11 @@ func updateRdsInstanceDBPort(d *schema.ResourceData, client *golangsdk.ServiceCl
 		return nil
 	}
 
-	udpateOpts := securities.PortOpts{
+	updateOpts := securities.PortOpts{
 		Port: d.Get("db.0.port").(int),
 	}
-	log.Printf("[DEBUG] Update opts of Database port: %+v", udpateOpts)
-	_, err := securities.UpdatePort(client, instanceID, udpateOpts).Extract()
+	log.Printf("[DEBUG] Update opts of Database port: %+v", updateOpts)
+	_, err := securities.UpdatePort(client, instanceID, updateOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("error updating instance database port: %s ", err)
 	}
@@ -1105,11 +1123,11 @@ func updateRdsInstanceSecurityGroup(d *schema.ResourceData, client *golangsdk.Se
 		return nil
 	}
 
-	udpateOpts := securities.SecGroupOpts{
+	updateOpts := securities.SecGroupOpts{
 		SecurityGroupId: d.Get("security_group_id").(string),
 	}
-	log.Printf("[DEBUG] Update opts of security group: %+v", udpateOpts)
-	_, err := securities.UpdateSecGroup(client, instanceID, udpateOpts).Extract()
+	log.Printf("[DEBUG] Update opts of security group: %+v", updateOpts)
+	_, err := securities.UpdateSecGroup(client, instanceID, updateOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("error updating instance security group: %s ", err)
 	}
@@ -1154,11 +1172,11 @@ func updateRdsParameters(d *schema.ResourceData, client *golangsdk.ServiceClient
 
 func configRdsInstanceSSL(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
 	sslEnable := d.Get("ssl_enable").(bool)
-	udpateOpts := securities.SSLOpts{
+	updateOpts := securities.SSLOpts{
 		SSLEnable: &sslEnable,
 	}
-	log.Printf("[DEBUG] Update opts of SSL configuration: %+v", udpateOpts)
-	err := securities.UpdateSSL(client, instanceID, udpateOpts).ExtractErr()
+	log.Printf("[DEBUG] Update opts of SSL configuration: %+v", updateOpts)
+	err := securities.UpdateSSL(client, instanceID, updateOpts).ExtractErr()
 	if err != nil {
 		return fmt.Errorf("error updating instance SSL configuration: %s ", err)
 	}

@@ -293,8 +293,7 @@ The `volume` block supports:
 
 The `backup_strategy` block supports:
 
-* `keep_days` - (Optional, Int) Specifies the retention days for specific backup files. The value range is from 0 to
-  732. If this parameter is not specified or set to 0, the automated backup policy is disabled.
+* `keep_days` - (Required, Int) Specifies the retention days for specific backup files. The value range is from 0 to 732.
 
   -> **NOTE:** Primary/standby DB instances of Microsoft SQL Server do not support disabling the automated backup
   policy.
@@ -304,6 +303,11 @@ The `backup_strategy` block supports:
   format. The current time is in the UTC format. The HH value must be 1 greater than the hh value. The values of mm and
   MM must be the same and must be set to any of the following: 00, 15, 30, or 45. Example value: 08:15-09:15 23:00-00:
   00.
+
+* `period` - (Optional, String) Specifies the backup cycle. Automatic backups will be performed on the specified days of
+  the week, except when disabling the automatic backup policy. The value range is a comma-separated number, where each
+  number represents a day of the week. For example, a value of 1,2,3,4 would set the backup cycle to Monday, Tuesday,
+  Wednesday, and Thursday. The default value is 1,2,3,4,5,6,7.
 
 The `parameters` block supports:
 
