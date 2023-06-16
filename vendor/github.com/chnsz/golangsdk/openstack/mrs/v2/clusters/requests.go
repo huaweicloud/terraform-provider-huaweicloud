@@ -33,6 +33,7 @@ type CreateOpts struct {
 	// Click Virtual Private Cloud and select Virtual Private Cloud from the left list.
 	// On the Virtual Private Cloud page, obtain the VPC name from the list.
 	VpcName string `json:"vpc_name" required:"true"`
+	VpcId   string `json:"vpc_id,omitempty"`
 	// List of component names, which are separated by commas (,). The options are as follows:
 	// MRS 3.0.5
 	//   ANALYSIS: Hadoop,Spark2x,HBase,Hive,Hue,Loader,Flink,Oozie,ZooKeeper,Ranger,Tez,Impala,Presto,Kudu,Alluxio
@@ -126,8 +127,6 @@ type CreateOpts struct {
 }
 
 type ExternalDatasource struct {
-	// Data connection association ID
-	MapId         string `json:"map_id,omitempty"`
 	ConnectorId   string `json:"connector_id,omitempty"`
 	ComponentName string `json:"component_name,omitempty"`
 	/**
@@ -146,10 +145,6 @@ type ExternalDatasource struct {
 		gaussdb-mysql: GaussDB(for MySQL)
 	**/
 	SourceType string `json:"source_type,omitempty"`
-	// ID of the associated cluster
-	ClusterId string `json:"cluster_id,omitempty"`
-	// Data connection status. The options are as follows: 0: normal; 1: in use
-	Status string `json:"status,omitempty"`
 }
 
 // ChargeInfo is a structure representing billing information.

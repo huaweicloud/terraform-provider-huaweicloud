@@ -13,7 +13,7 @@ type CreateOpts struct {
 	Enabled             *bool           `json:"enabled,omitempty"`
 }
 
-// PolicyODCreate is policy operation definition
+// PolicyODCreate is the operation definition used to create the policy.
 type PolicyODCreate struct {
 	DailyBackups          int    `json:"day_backups,omitempty"`
 	WeekBackups           int    `json:"week_backups,omitempty"`
@@ -25,6 +25,7 @@ type PolicyODCreate struct {
 	EnableAcceleration    bool   `json:"enable_acceleration,omitempty"`
 	DestinationProjectID  string `json:"destination_project_id,omitempty"`
 	DestinationRegion     string `json:"destination_region,omitempty"`
+	FullBackupInterval    *int   `json:"full_backup_interval,omitempty"`
 }
 
 type TriggerProperties struct {

@@ -969,6 +969,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rms_resource_aggregation_authorization": rms.ResourceAggregationAuthorization(),
 			"huaweicloud_rms_resource_recorder":                  rms.ResourceRecorder(),
 
+			"huaweicloud_sdrs_drill":              sdrs.ResourceDrill(),
 			"huaweicloud_sdrs_replication_pair":   sdrs.ResourceReplicationPair(),
 			"huaweicloud_sdrs_protection_group":   sdrs.ResourceProtectionGroup(),
 			"huaweicloud_sdrs_protected_instance": sdrs.ResourceProtectedInstance(),
