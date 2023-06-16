@@ -279,6 +279,7 @@ github.com/chnsz/golangsdk/openstack/rf/v1/stacks
 github.com/chnsz/golangsdk/openstack/rms/v1/policyassignments
 github.com/chnsz/golangsdk/openstack/scm/v3/certificates
 github.com/chnsz/golangsdk/openstack/sdrs/v1/domains
+github.com/chnsz/golangsdk/openstack/sdrs/v1/replications
 github.com/chnsz/golangsdk/openstack/sdrs/v1/protectiongroups
 github.com/chnsz/golangsdk/openstack/servicestage/v1/repositories
 github.com/chnsz/golangsdk/openstack/servicestage/v2/applications
