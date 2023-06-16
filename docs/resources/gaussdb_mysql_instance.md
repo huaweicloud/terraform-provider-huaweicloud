@@ -145,6 +145,8 @@ The `backup_strategy` block supports:
 
 * `audit_log_enabled` - (Optional, Bool) Specifies whether audit log is enabled. The default value is `false`.
 
+* `sql_filter_enabled` - (Optional, Bool) Specifies whether sql filter is enabled. The default value is `false`.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
