@@ -118,6 +118,38 @@ type CreateOpts struct {
 	Tags []tags.ResourceTag `json:"tags,omitempty"`
 	// the component configurations of MRS cluster.
 	ComponentConfigs []ComponentConfigOpts `json:"component_configs,omitempty"`
+	// When deploying components such as Hive and Ranger, you can associate data connections and store metadata in associated databases
+	ExternalDatasources []ExternalDatasource `json:"external_datasources,omitempty"`
+	// The OBS path to which cluster logs are dumped.
+	// This parameter is available only for cluster versions that support dumping cluster logs to OBS.
+	LogURI string `json:"log_uri,omitempty"`
+}
+
+type ExternalDatasource struct {
+	// Data connection association ID
+	MapId         string `json:"map_id,omitempty"`
+	ConnectorId   string `json:"connector_id,omitempty"`
+	ComponentName string `json:"component_name,omitempty"`
+	/**
+	Component role type. The options are as follows:
+		hive_metastore: Hive Metastore role
+		hive_data: Hive role
+		hbase_data: HBase role
+		ranger_data: Ranger role
+	**/
+	RoleType string `json:"role_type,omitempty"`
+	/**
+	Data connection type. The options are as follows:
+		LOCAL_DB: local metadata
+		RDS_POSTGRES: RDS PostgreSQL database
+		RDS_MYSQL: RDS MySQL database
+		gaussdb-mysql: GaussDB(for MySQL)
+	**/
+	SourceType string `json:"source_type,omitempty"`
+	// ID of the associated cluster
+	ClusterId string `json:"cluster_id,omitempty"`
+	// Data connection status. The options are as follows: 0: normal; 1: in use
+	Status string `json:"status,omitempty"`
 }
 
 // ChargeInfo is a structure representing billing information.

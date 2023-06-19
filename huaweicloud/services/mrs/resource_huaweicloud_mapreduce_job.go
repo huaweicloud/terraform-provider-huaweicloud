@@ -1,20 +1,24 @@
 package mrs
 
 import (
+	"context"
+	"fmt"
+	"log"
 	"regexp"
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/mrs/v2/jobs"
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/mrs/v2/jobs"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 const (
@@ -41,12 +45,11 @@ const (
 // ResourceMRSJobV2 is a schema resource to provider the MRS job.
 func ResourceMRSJobV2() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceMRSJobV2Create,
-		Read:   resourceMRSJobV2Read,
-		Delete: resourceMRSJobV2Delete,
-
+		CreateContext: resourceMRSJobV2Create,
+		ReadContext:   resourceMRSJobV2Read,
+		DeleteContext: resourceMRSJobV2Delete,
 		Importer: &schema.ResourceImporter{
-			State: resourceMRSClusterSubResourceImportState,
+			StateContext: resourceMRSClusterSubResourceImportState,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -135,7 +138,7 @@ func buildMRSJobProgramParameters(programs map[string]interface{}) []string {
 		result = append(result, k)
 		result = append(result, v.(string))
 	}
-	logp.Printf("[DEBUG] The program parameters are: %+v", result)
+	log.Printf("[DEBUG] The program parameters are: %+v", result)
 	return result
 }
 
@@ -214,7 +217,7 @@ func buildMRSJobProperties(d *schema.ResourceData) map[string]string {
 	for k, v := range properties {
 		result[k] = v.(string)
 	}
-	logp.Printf("[DEBUG] The properties are: %+v", result)
+	log.Printf("[DEBUG] The properties are: %+v", result)
 	return result
 }
 
@@ -237,18 +240,18 @@ func buildMRSJobCreateParameters(d *schema.ResourceData) jobs.CreateOpts {
 	return opts
 }
 
-func resourceMRSJobV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.MrsV2Client(config.GetRegion(d))
+func resourceMRSJobV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.MrsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud MRS V2 client: %s", err)
+		return diag.Errorf("error creating MRS V2 client: %s", err)
 	}
 
 	opts := buildMRSJobCreateParameters(d)
 	clusterId := d.Get("cluster_id").(string)
 	resp, err := jobs.Create(client, clusterId, opts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error execution MapReduce job: %s", err)
+		return diag.Errorf("error execution MapReduce job: %s", err)
 	}
 	d.SetId(resp.JobSubmitResult.JobId)
 
@@ -260,12 +263,12 @@ func resourceMRSJobV2Create(d *schema.ResourceData, meta interface{}) error {
 		Delay:        30 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Error waiting for job (%s) to become ready: %s ", d.Id(), err)
+		return diag.Errorf("error waiting for job (%s) to become ready: %s ", d.Id(), err)
 	}
 
-	return resourceMRSJobV2Read(d, meta)
+	return resourceMRSJobV2Read(ctx, d, meta)
 }
 
 func mrsJobStateRefreshFunc(client *golangsdk.ServiceClient, clusterId, jobId string) resource.StateRefreshFunc {
@@ -295,12 +298,12 @@ func makeMRSArgumentsByString(str string) []string {
 }
 
 // The string arguments of the flink job is: 'run -d <program parameters> -m yarn-cluster <parameters>'.
-func makeMRSFlinkJobParameters(job *jobs.Job) (string, string, map[string]interface{}, error) {
-	programs := make(map[string]interface{})
+func makeMRSFlinkJobParameters(job *jobs.Job) (jarPath, parameters string, programs map[string]interface{}, err error) {
+	programs = make(map[string]interface{})
 	arguments := makeMRSArgumentsByString(job.Arguments)
 	// The arguments must contain a head of 'run' and '-d'.
 	if len(arguments) < 2 {
-		return "", "", programs, fmtp.Errorf("Wrong flink arguments length of the API response")
+		return "", "", programs, fmt.Errorf("wrong flink arguments length of the API response")
 	}
 	arguments = arguments[2:] // remove 'run -d' program argument.
 	for arguments[0] != "-m" && len(arguments) > 1 {
@@ -309,13 +312,13 @@ func makeMRSFlinkJobParameters(job *jobs.Job) (string, string, map[string]interf
 	}
 	// The remaining elements of arguments must contain '-m', 'yarn-cluster' and jar path.
 	if len(arguments) < 3 {
-		return "", "", programs, fmtp.Errorf("Wrong flink arguments length of the API response")
+		return "", "", programs, fmt.Errorf("Wrong flink arguments length of the API response")
 	}
 	arguments = arguments[2:] // remove '-m yarn-cluster'.
 	// get jar path and remove it from argument list.
-	jarPath := arguments[0]
+	jarPath = arguments[0]
 	arguments = arguments[1:] // remove jar path.
-	parameters := strings.Join(arguments, " ")
+	parameters = strings.Join(arguments, " ")
 	return jarPath, parameters, programs, nil
 }
 
@@ -329,23 +332,23 @@ func makeMRSSQLJobParameters(job *jobs.Job) (string, map[string]interface{}, err
 		arguments = arguments[2:]
 	}
 	if len(arguments) < 1 {
-		return "", programs, fmtp.Errorf("The arguments of the API response has not contain statement of SQL file")
+		return "", programs, fmt.Errorf("the arguments of the API response has not contain statement of SQL file")
 	}
 	return arguments[0], programs, nil
 }
 
 // The string arguments of the flink job is: '<jar path (/python path)> <parameters>'.
-func makeMRSMapReduceJobParameters(job *jobs.Job) (string, string, error) {
+func makeMRSMapReduceJobParameters(job *jobs.Job) (jarPath string, parameters string, err error) {
 	arguments := makeMRSArgumentsByString(job.Arguments)
 	// The arguments must contain jar path.
 	if len(arguments) < 1 {
-		return "", "", fmtp.Errorf("Wrong arguments length of the API response")
+		return "", "", fmt.Errorf("wrong arguments length of the API response")
 	}
 	// get jar path and remove it from argument list.
-	jarPath := arguments[0]
+	jarPath = arguments[0]
 	arguments = arguments[1:]
 	// get parameters string.
-	parameters := strings.Join(arguments, " ")
+	parameters = strings.Join(arguments, " ")
 
 	return jarPath, parameters, nil
 }
@@ -353,8 +356,8 @@ func makeMRSMapReduceJobParameters(job *jobs.Job) (string, string, error) {
 // The string arguments of the flink job is:
 //
 //	'<program parameters> --master yarn-cluster <jar path (/python path)> <parameters>'.
-func makeMRSSparkSubmitJobParameters(job *jobs.Job) (string, string, map[string]interface{}, error) {
-	programs := make(map[string]interface{})
+func makeMRSSparkSubmitJobParameters(job *jobs.Job) (jarPath, parameters string, programs map[string]interface{}, err error) {
+	programs = make(map[string]interface{})
 	arguments := makeMRSArgumentsByString(job.Arguments)
 
 	for arguments[0] != "--master" && len(arguments) > 1 {
@@ -364,14 +367,14 @@ func makeMRSSparkSubmitJobParameters(job *jobs.Job) (string, string, map[string]
 	}
 	// The remaining elements of arguments must contain '--master', 'yarn-cluster' and jar path (/python path).
 	if len(arguments) < 3 {
-		return "", "", programs, fmtp.Errorf("Wrong arguments length of the API response")
+		return "", "", programs, fmt.Errorf("wrong arguments length of the API response")
 	}
 	arguments = arguments[2:] // remove '--master' and 'yarn-clsuter' program arguments.
 	// get jar path (/python path) and remove it from argument list.
-	jarPath := arguments[0]
+	jarPath = arguments[0]
 	arguments = arguments[1:]
 	// get parameters string.
-	parameters := strings.Join(arguments, " ")
+	parameters = strings.Join(arguments, " ")
 
 	return jarPath, parameters, programs, nil
 }
@@ -388,7 +391,7 @@ func setMRSFlinkJob(d *schema.ResourceData, resp *jobs.Job) error {
 		d.Set("program_parameters", programs),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.Errorf("Error setting job fields(: jar path, parameters or program parameters): %s", err)
+		return fmt.Errorf("error setting job fields(: jar path, parameters or program parameters): %s", err)
 	}
 
 	return nil
@@ -405,7 +408,7 @@ func setMRSSQLJob(d *schema.ResourceData, resp *jobs.Job) error {
 		d.Set("program_parameters", programs),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.Errorf("Error setting job fields(: sql or program parameters): %s", err)
+		return fmt.Errorf("error setting job fields(: sql or program parameters): %s", err)
 	}
 
 	return nil
@@ -422,7 +425,7 @@ func setMRSMapReduceSubmitJob(d *schema.ResourceData, resp *jobs.Job) error {
 		d.Set("parameters", parameters),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.Errorf("Error setting job fields (jar path or parameters): %s", err)
+		return fmt.Errorf("error setting job fields (jar path or parameters): %s", err)
 	}
 
 	return nil
@@ -440,7 +443,7 @@ func setMRSSparkSubmitJob(d *schema.ResourceData, resp *jobs.Job) error {
 		d.Set("program_parameters", programs),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.Errorf("Error setting job fields(: jar path, parameters or program parameters): %s", err)
+		return fmt.Errorf("error setting job fields(: jar path, parameters or program parameters): %s", err)
 	}
 
 	return nil
@@ -479,7 +482,7 @@ func setMRSJobProperties(d *schema.ResourceData, resp string) error {
 				properties[property[0]] = property[1]
 				continue
 			}
-			return fmtp.Errorf("The property (%s) of the MRS job is invalid", element)
+			return fmt.Errorf("the property (%s) of the MRS job is invalid", element)
 		}
 	}
 
@@ -492,23 +495,23 @@ func setMRSTimeProperties(d *schema.ResourceData, key string, value int) error {
 	return d.Set(key, keyTime.Format(time.RFC3339))
 }
 
-func resourceMRSJobV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.MrsV2Client(config.GetRegion(d))
+func resourceMRSJobV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.MrsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud MRS client: %s", err)
+		return diag.Errorf("error creating MRS client: %s", err)
 	}
 
 	clusterId := d.Get("cluster_id").(string)
 	resp, err := jobs.Get(client, clusterId, d.Id()).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error getting MRS job form server: %s", err)
+		return diag.Errorf("error getting MRS job form server: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Retrieved MRS job (%s): %+v", d.Id(), resp)
+	log.Printf("[DEBUG] Retrieved MRS job (%s): %+v", d.Id(), resp)
 	d.SetId(resp.JobId)
 	mErr := multierror.Append(
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("type", resp.JobType),
 		d.Set("name", resp.JobName),
 		d.Set("status", resp.JobState),
@@ -518,18 +521,15 @@ func resourceMRSJobV2Read(d *schema.ResourceData, meta interface{}) error {
 		setMRSTimeProperties(d, "submit_time", resp.SubmittedTime/1000),
 		setMRSTimeProperties(d, "finish_time", resp.FinishedTime/1000),
 	)
-	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.Errorf("Error setting MRS job fields: %s", err)
-	}
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceMRSJobV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.MrsV2Client(config.GetRegion(d))
+func resourceMRSJobV2Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.MrsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud MRS client: %s", err)
+		return diag.Errorf("error creating MRS client: %s", err)
 	}
 
 	clusterId := d.Get("cluster_id").(string)
@@ -538,20 +538,20 @@ func resourceMRSJobV2Delete(d *schema.ResourceData, meta interface{}) error {
 	}
 	err = jobs.Delete(client, clusterId, opts).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud MRS job: %s", err)
+		return diag.Errorf("error deleting MRS job: %s", err)
 	}
 
-	d.SetId("")
 	return nil
 }
 
-func resourceMRSClusterSubResourceImportState(d *schema.ResourceData,
-	meta interface{}) ([]*schema.ResourceData, error) {
+func resourceMRSClusterSubResourceImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		return nil, fmtp.Errorf("Invalid format specified for import IDs, must be <cluster_id>/<id>")
+		return nil, fmt.Errorf("invalid format specified for import id, must be <cluster_id>/<id>")
 	}
-	d.SetId(parts[1])
+
 	d.Set("cluster_id", parts[0])
+	d.SetId(parts[1])
+
 	return []*schema.ResourceData{d}, nil
 }

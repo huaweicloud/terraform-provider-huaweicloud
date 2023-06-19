@@ -1,27 +1,29 @@
 package mrs
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/mrs/v1/cluster"
-	clusterV2 "github.com/chnsz/golangsdk/openstack/mrs/v2/clusters"
-	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/mrs/v1/cluster"
+	clusterV2 "github.com/chnsz/golangsdk/openstack/mrs/v2/clusters"
+	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 const (
@@ -51,13 +53,12 @@ type stateRefresh struct {
 
 func ResourceMRSClusterV2() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceMRSClusterV2Create,
-		Read:   resourceMRSClusterV2Read,
-		Update: resourceMRSClusterV2Update,
-		Delete: resourceMRSClusterV2Delete,
-
+		CreateContext: resourceMRSClusterV2Create,
+		ReadContext:   resourceMRSClusterV2Read,
+		UpdateContext: resourceMRSClusterV2Update,
+		DeleteContext: resourceMRSClusterV2Delete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -120,9 +121,6 @@ func ResourceMRSClusterV2() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Default:  typeAnalysis,
-				ValidateFunc: validation.StringInSlice([]string{
-					typeAnalysis, typeStream, typeHybrid, typeCustom,
-				}, false),
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -225,7 +223,6 @@ func ResourceMRSClusterV2() *schema.Resource {
 				ForceNew: true,
 				Elem:     componentConfigsSchemaResource(),
 			},
-
 			"tags": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -386,18 +383,6 @@ func componentConfigsSchemaResource() *schema.Resource {
 	}
 }
 
-// The 'component_list' type of the request body is string, before body build, it should be conversation from set to string.
-func buildMrsComponents(d *schema.ResourceData) string {
-	components := d.Get("component_list").(*schema.Set)
-	return buildStringBySet(components)
-}
-
-// The 'security_group_ids' type of the request body is string, before body build, it should be conversation from set to string.
-func buildMrsSecurityGroupIds(d *schema.ResourceData) string {
-	secgroupIds := d.Get("security_group_ids").(*schema.Set)
-	return buildStringBySet(secgroupIds)
-}
-
 // The 'log_collection' type of the request body is int,
 func buildLogCollection(d *schema.ResourceData) *int {
 	if d.Get("log_collection").(bool) {
@@ -412,14 +397,6 @@ func buildMrsSafeMode(d *schema.ResourceData) string {
 		return "KERBEROS"
 	}
 	return "SIMPLE"
-}
-
-func buildStringBySet(set *schema.Set) string {
-	slice := make([]string, set.Len())
-	for i, v := range set.List() {
-		slice[i] = v.(string)
-	}
-	return strings.Join(slice, ",")
 }
 
 // buildMrsClusterNodeGroups is a method which to build a node group list with all node group arguments.
@@ -533,7 +510,7 @@ func clusterV2StateRefreshFunc(client *golangsdk.ServiceClient, clusterId string
 	}
 }
 
-func waitForMrsClusterStateCompleted(client *golangsdk.ServiceClient, id string, refresh stateRefresh) error {
+func waitForMrsClusterStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, id string, refresh stateRefresh) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:      refresh.Pending,
 		Target:       refresh.Target,
@@ -542,63 +519,46 @@ func waitForMrsClusterStateCompleted(client *golangsdk.ServiceClient, id string,
 		Delay:        refresh.Delay,
 		PollInterval: refresh.PollInterval,
 	}
-	_, err := stateConf.WaitForState()
+	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		//the system will recyle the cluster when creating failed
+		// the system will recyle the cluster when creating failed
 		return err
 	}
 	return nil
 }
 
-// addTagsToMrsCluster method is inherited from MRS V1 resources.
-func addTagsToMrsCluster(d *schema.ResourceData, config *config.Config) error {
-	client, err := config.MrsV1Client(config.GetRegion(d))
+func resourceMRSClusterV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	mrsV1Client, err := cfg.MrsV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud MRS V1 client: %s", err)
+		return diag.Errorf("error creating MRS V1 client: %s", err)
 	}
-
-	tagRaw := d.Get("tags").(map[string]interface{})
-	if len(tagRaw) > 0 {
-		taglist := utils.ExpandResourceTags(tagRaw)
-		if tagErr := tags.Create(client, "clusters", d.Id(), taglist).ExtractErr(); tagErr != nil {
-			return fmtp.Errorf("Error setting tags of MRS cluster %s: %s", d.Id(), tagErr)
-		}
-	}
-	return nil
-}
-
-func resourceMRSClusterV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	mrsV1Client, err := config.MrsV1Client(region)
+	mrsV2Client, err := cfg.MrsV2Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud MRS V1 client: %s", err)
-	}
-	mrsV2Client, err := config.MrsV2Client(region)
-	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud MRS V2 client: %s", err)
+		return diag.Errorf("error creating MRS V2 client: %s", err)
 	}
 
 	vpcId := d.Get("vpc_id").(string)
-	vpcResp, err := vpc.GetVpcById(config, region, vpcId)
+	vpcResp, err := vpc.GetVpcById(cfg, region, vpcId)
 	if err != nil {
-		return fmtp.Errorf("Unable to find the vpc (%s) on the server: %s", vpcId, err)
+		return diag.Errorf("unable to find the vpc (%s) on the server: %s", vpcId, err)
 	}
 	subnetId := d.Get("subnet_id").(string)
-	subnetResp, err := vpc.GetVpcSubnetById(config, region, subnetId)
+	subnetResp, err := vpc.GetVpcSubnetById(cfg, region, subnetId)
 	if err != nil {
-		return fmtp.Errorf("Unable to find the subnet (%s) on the server: %s", subnetId, err)
+		return diag.Errorf("unable to find the subnet (%s) on the server: %s", subnetId, err)
 	}
 
-	networkingClient, err := config.NetworkingV1Client(region)
+	networkingClient, err := cfg.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating networking client: %s", err)
+		return diag.Errorf("error creating networking client: %s", err)
 	}
 
 	epsID := "all_granted_eps"
 	eipId, publicIp, err := queryEipInfo(networkingClient, d.Get("eip_id").(string), d.Get("public_ip").(string), epsID)
 	if err != nil {
-		return fmtp.Errorf("Unable to find the eip_id=%s,public_ip=%s on the server: %s", d.Get("eip_id").(string),
+		return diag.Errorf("unable to find the eip_id=%s,public_ip=%s on the server: %s", d.Get("eip_id").(string),
 			d.Get("public_ip").(string), err)
 	}
 
@@ -614,14 +574,15 @@ func resourceMRSClusterV2Create(d *schema.ResourceData, meta interface{}) error 
 		SubnetName:           subnetResp.Name,
 		EipId:                eipId,
 		EipAddress:           publicIp,
-		Components:           buildMrsComponents(d),
-		EnterpriseProjectId:  common.GetEnterpriseProjectID(d, config),
+		Components:           strings.Join(utils.ExpandToStringListBySet(d.Get("component_list").(*schema.Set)), ","),
+		EnterpriseProjectId:  common.GetEnterpriseProjectID(d, cfg),
 		LogCollection:        buildLogCollection(d),
 		NodeGroups:           buildMrsClusterNodeGroups(d),
 		SafeMode:             buildMrsSafeMode(d),
-		SecurityGroupsIds:    buildMrsSecurityGroupIds(d),
+		SecurityGroupsIds:    strings.Join(utils.ExpandToStringListBySet(d.Get("security_group_ids").(*schema.Set)), ","),
 		ComponentConfigs:     buildComponentConfigOpts(d),
 		TemplateId:           d.Get("template_id").(string),
+		Tags:                 utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
 	if v, ok := d.GetOk("node_key_pair"); ok {
 		createOpts.NodeKeypair = v.(string)
@@ -633,7 +594,7 @@ func resourceMRSClusterV2Create(d *schema.ResourceData, meta interface{}) error 
 
 	resp, err := clusterV2.Create(mrsV2Client, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating Cluster: %s", err)
+		return diag.Errorf("error creating Cluster: %s", err)
 	}
 	d.SetId(resp.ID)
 	refresh := stateRefresh{
@@ -644,20 +605,16 @@ func resourceMRSClusterV2Create(d *schema.ResourceData, meta interface{}) error 
 		PollInterval: 15 * time.Second,
 	}
 	// After request send, check the cluster state and wait for it become running.
-	if err = waitForMrsClusterStateCompleted(mrsV1Client, d.Id(), refresh); err != nil {
+	if err = waitForMrsClusterStateCompleted(ctx, mrsV1Client, d.Id(), refresh); err != nil {
 		d.SetId("")
-		return fmtp.Errorf("Error waiting for MapReduce cluster (%s) to become ready: %s", d.Id(), err)
-	}
-	// After MapReduce cluster state become running, add some tags to the cluster.
-	if err = addTagsToMrsCluster(d, config); err != nil {
-		return fmtp.Errorf("Error waiting for MapReduce cluster (%s) to become ready: %s", d.Id(), err)
+		return diag.Errorf("error waiting for MapReduce cluster (%s) to become ready: %s", d.Id(), err)
 	}
 
-	return resourceMRSClusterV2Read(d, meta)
+	return resourceMRSClusterV2Read(ctx, d, meta)
 }
 
-func queryEipInfo(client *golangsdk.ServiceClient, eipId, PublicIp, epsID string) (string, string, error) {
-	if eipId == "" && PublicIp == "" {
+func queryEipInfo(client *golangsdk.ServiceClient, eipId, publicIp, epsID string) (eipID string, publicIP string, err error) {
+	if eipId == "" && publicIp == "" {
 		return "", "", nil
 	}
 
@@ -667,8 +624,8 @@ func queryEipInfo(client *golangsdk.ServiceClient, eipId, PublicIp, epsID string
 	if eipId != "" {
 		listOpts.Id = []string{eipId}
 	}
-	if PublicIp != "" {
-		listOpts.PublicIp = []string{PublicIp}
+	if publicIp != "" {
+		listOpts.PublicIp = []string{publicIp}
 	}
 
 	pages, err := eips.List(client, listOpts).AllPages()
@@ -678,11 +635,11 @@ func queryEipInfo(client *golangsdk.ServiceClient, eipId, PublicIp, epsID string
 
 	allEips, err := eips.ExtractPublicIPs(pages)
 	if err != nil {
-		return "", "", fmtp.Errorf("Unable to retrieve eips: %s ", err)
+		return "", "", fmt.Errorf("unable to retrieve eips: %s ", err)
 	}
 
 	if len(allEips) < 1 {
-		return "", "", fmtp.Errorf("Unable to retrieve eips")
+		return "", "", fmt.Errorf("unable to retrieve eips")
 	}
 
 	return allEips[0].ID, allEips[0].PublicAddress, nil
@@ -693,30 +650,9 @@ func setMrsClsuterType(d *schema.ResourceData, resp *cluster.Cluster) error {
 	// which respectively represent:'ANALYSIS','STREAMING' ,'MIXED' and 'CUSTOM'.
 	clusterType := []string{"ANALYSIS", "STREAMING", "MIXED", "CUSTOM"}
 	if resp.ClusterType >= len(clusterType) || resp.ClusterType < 0 {
-		return fmtp.Errorf("The cluster type of the response is '%d', not in the map", resp.ClusterType)
+		return fmt.Errorf("the cluster type of the response is '%d', not in the map", resp.ClusterType)
 	}
 	return d.Set("type", clusterType[resp.ClusterType])
-}
-
-func setMrsClsuterSafeMode(d *schema.ResourceData, resp *cluster.Cluster) error {
-	result := true
-	if resp.Safemode == 0 {
-		result = false
-	}
-	return d.Set("safe_mode", result)
-}
-
-func setMRSClusterLogCollection(d *schema.ResourceData, resp *cluster.Cluster) error {
-	result := true
-	if resp.LogCollection == 0 {
-		result = false
-	}
-	return d.Set("log_collection", result)
-}
-
-func setMrsClsuterSecurityGroupIds(d *schema.ResourceData, resp *cluster.Cluster) error {
-	secGroupsIds := strings.Split(resp.Securitygroupsid, ",")
-	return d.Set("security_group_ids", secGroupsIds)
 }
 
 func setMrsClsuterTotalNodeNumber(d *schema.ResourceData, resp *cluster.Cluster) error {
@@ -790,7 +726,7 @@ func setMrsClusterNodeGroups(d *schema.ResourceData, mrsV1Client *golangsdk.Serv
 		}
 		hostIps := parseHostIps(node.GroupName, isCustomNode, clustHostMap)
 		if len(hostIps) == 0 {
-			logp.Printf("[WARN]One nodeGroup lost host_ips information by some internal error,nodeGroup= %+v", node)
+			log.Printf("[WARN] One nodeGroup lost host_ips information by some internal error,nodeGroup= %+v", node)
 		}
 		groupMap["host_ips"] = hostIps
 
@@ -804,14 +740,14 @@ func setMrsClusterNodeGroups(d *schema.ResourceData, mrsV1Client *golangsdk.Serv
 			groupMap["data_volume_size"] = node.DataVolumeSize
 			groupMap["data_volume_count"] = node.DataVolumeCount
 		}
-		logp.Printf("[DEBUG] node group '%s' is : %+v", value, groupMap)
+		log.Printf("[DEBUG] node group '%s' is : %+v", value, groupMap)
 		values[value] = append(values[value], groupMap)
 	}
 
 	for k, v := range values {
 		//lintignore:R001
 		if err := d.Set(k, v); err != nil {
-			return fmtp.Errorf("set nodeGroup= %s error", k)
+			return fmt.Errorf("set nodeGroup= %s error", k)
 		}
 	}
 
@@ -834,13 +770,19 @@ func parseHostIps(groupName string, isCustomNode bool, clustHostMap map[string][
 	return rt
 }
 
-func setClsuterTags(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	resourceTags, err := tags.Get(client, "clusters", d.Id()).Extract()
-	if err != nil {
-		return fmtp.Errorf("Error Fetching tags of MapReduce cluster form server: %s", err)
+func flattenTags(tagsString string) map[string]string {
+	// the format of tagsRaw: "d=d2,aa=aa"
+	result := make(map[string]string)
+	if len(tagsString) > 0 {
+		tagsArray := strings.Split(tagsString, ",")
+		for _, item := range tagsArray {
+			tag := strings.SplitN(item, "=", 2)
+			if len(tag) == 2 {
+				result[tag[0]] = tag[1]
+			}
+		}
 	}
-	tagmap := utils.TagsToMap(resourceTags.Tags)
-	return d.Set("tags", tagmap)
+	return result
 }
 
 func getMrsClusterFromServer(client *golangsdk.ServiceClient, clusterID string) (*cluster.Cluster, error) {
@@ -850,27 +792,26 @@ func getMrsClusterFromServer(client *golangsdk.ServiceClient, clusterID string) 
 	}
 
 	if resp.Clusterstate == "terminated" {
-		logp.Printf("[WARN] Retrieved Cluster %s, but it was terminated, abort it", clusterID)
+		log.Printf("[WARN] Retrieved Cluster %s, but it was terminated, abort it", clusterID)
 		return nil, golangsdk.ErrDefault404{}
 	}
 	return resp, nil
 }
 
-func resourceMRSClusterV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.MrsV1Client(config.GetRegion(d))
+func resourceMRSClusterV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.MrsV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud MRS client: %s", err)
+		return diag.Errorf("error creating MRS client: %s", err)
 	}
 
 	clusterID := d.Id()
 	resp, err := getMrsClusterFromServer(client, clusterID)
 	if err != nil {
-		return common.CheckDeleted(d, err, "error getting MapReduce cluster:")
+		return common.CheckDeletedDiag(d, err, "error getting MapReduce cluster")
 	}
 
-	logp.Printf("[DEBUG] Retrieved Cluster %s: %#v", clusterID, resp)
-	d.SetId(resp.Clusterid)
+	log.Printf("[DEBUG] Retrieved Cluster %s: %#v", clusterID, resp)
 	mErr := multierror.Append(
 		d.Set("region", resp.Datacenter),
 		d.Set("availability_zone", resp.AvailabilityZone),
@@ -887,27 +828,23 @@ func resourceMRSClusterV2Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("eip_id", resp.EipId),
 		setMrsClsuterType(d, resp),
 		setMrsClsuterComponentList(d, resp),
-		setMrsClsuterSafeMode(d, resp),
-		setMRSClusterLogCollection(d, resp),
-		setMrsClsuterSecurityGroupIds(d, resp),
+		d.Set("safe_mode", resp.Safemode == 1),
+		d.Set("log_collection", resp.LogCollection == 1),
+		d.Set("security_group_ids", strings.Split(resp.Securitygroupsid, ",")),
 		setMrsClsuterTotalNodeNumber(d, resp),
 		setMrsClsuterCreateTimestamp(d, resp),
 		setMrsClsuterUpdateTimestamp(d, resp),
 		setMrsClsuterChargingTimestamp(d, resp),
-		setMrsClsuterCreateTimestamp(d, resp),
 		setMrsClusterNodeGroups(d, client, resp),
-		setClsuterTags(d, client),
+		d.Set("tags", flattenTags(resp.Tags)),
 	)
-	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.Errorf("Error setting vault fields: %s", err)
-	}
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 // resizeMRSClusterCoreNodes is a method which used to resize core node for each cluster type.
 // The resizeCount is a number of the group size changing, nagetive means scale in group.
-func resizeMRSClusterCoreNodes(client *golangsdk.ServiceClient, id, groupType string, resizeCount int) error {
+func resizeMRSClusterCoreNodes(ctx context.Context, client *golangsdk.ServiceClient, id, groupType string, resizeCount int) error {
 	var isScaleOut = "scale_out"
 	if resizeCount < 0 {
 		isScaleOut = "scale_in"
@@ -923,7 +860,7 @@ func resizeMRSClusterCoreNodes(client *golangsdk.ServiceClient, id, groupType st
 	}
 	_, err := cluster.Update(client, id, opts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error resizing core node")
+		return fmt.Errorf("error resizing core node")
 	}
 	refresh := stateRefresh{
 		Pending:      []string{"scaling-out", "scaling-in"},
@@ -932,15 +869,20 @@ func resizeMRSClusterCoreNodes(client *golangsdk.ServiceClient, id, groupType st
 		Timeout:      1 * time.Hour,
 		PollInterval: 15 * time.Second,
 	}
-	if err = waitForMrsClusterStateCompleted(client, id, refresh); err != nil {
-		return fmtp.Errorf("Error waiting for Mrs cluster resize to be complated: %s", err)
+	if err = waitForMrsClusterStateCompleted(ctx, client, id, refresh); err != nil {
+		return fmt.Errorf("error waiting for MRS cluster resize to be complated: %s", err)
 	}
 	return nil
 }
 
 // resizeMRSClusterTaskNodes is a method which use to scale out/in the (analysis/streaming) nodes.
-func resizeMRSClusterTaskNodes(client *golangsdk.ServiceClient, id, groupType string, oldList, newList []interface{},
-	resizeCount int) error {
+func resizeMRSClusterTaskNodes(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	groupType, nodeType string) error {
+	oldRaws, newRaws := d.GetChange(nodeType)
+	oldList := oldRaws.([]interface{})
+	newList := newRaws.([]interface{})
+	resizeCount := getNodeResizeNumber(oldList, newList)
+
 	var isScaleOut = "scale_out"
 	newRaw := newList[0].(map[string]interface{})
 
@@ -965,9 +907,9 @@ func resizeMRSClusterTaskNodes(client *golangsdk.ServiceClient, id, groupType st
 	opts := cluster.UpdateOpts{
 		Parameters: params,
 	}
-	_, err := cluster.Update(client, id, opts).Extract()
+	_, err := cluster.Update(client, d.Id(), opts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error resizing task node")
+		return fmt.Errorf("error resizing task node")
 	}
 	refresh := stateRefresh{
 		Pending:      []string{"scaling-out", "scaling-in"},
@@ -976,8 +918,8 @@ func resizeMRSClusterTaskNodes(client *golangsdk.ServiceClient, id, groupType st
 		Timeout:      1 * time.Hour,
 		PollInterval: 15 * time.Second,
 	}
-	if err = waitForMrsClusterStateCompleted(client, id, refresh); err != nil {
-		return fmtp.Errorf("Error waiting for Mrs cluster resize to be complated: %s", err)
+	if err = waitForMrsClusterStateCompleted(ctx, client, d.Id(), refresh); err != nil {
+		return fmt.Errorf("error waiting for MRS cluster resize to be complated: %s", err)
 	}
 	return nil
 }
@@ -1014,22 +956,19 @@ func parseCustomNodeResize(oldList, newList []interface{}) map[string]int {
 	return rst
 }
 
-func updateMRSClusterNodes(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+func updateMRSClusterNodes(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	clusterType := d.Get("type").(string)
 	if clusterType == typeAnalysis || clusterType == typeHybrid {
 		if d.HasChange("analysis_core_nodes") {
 			oldRaws, newRaws := d.GetChange("analysis_core_nodes")
 			num := getNodeResizeNumber(oldRaws.([]interface{}), newRaws.([]interface{}))
-			err := resizeMRSClusterCoreNodes(client, d.Id(), analysisCoreGroup, num)
+			err := resizeMRSClusterCoreNodes(ctx, client, d.Id(), analysisCoreGroup, num)
 			if err != nil {
 				return err
 			}
 		}
 		if d.HasChange("analysis_task_nodes") {
-			oldRaws, newRaws := d.GetChange("analysis_task_nodes")
-			num := getNodeResizeNumber(oldRaws.([]interface{}), newRaws.([]interface{}))
-			err := resizeMRSClusterTaskNodes(client, d.Id(), analysisTaskGroup,
-				oldRaws.([]interface{}), newRaws.([]interface{}), num)
+			err := resizeMRSClusterTaskNodes(ctx, client, d, analysisTaskGroup, "analysis_task_nodes")
 			if err != nil {
 				return err
 			}
@@ -1039,16 +978,13 @@ func updateMRSClusterNodes(d *schema.ResourceData, client *golangsdk.ServiceClie
 		if d.HasChange("streaming_core_nodes") {
 			oldRaws, newRaws := d.GetChange("streaming_core_nodes")
 			num := getNodeResizeNumber(oldRaws.([]interface{}), newRaws.([]interface{}))
-			err := resizeMRSClusterCoreNodes(client, d.Id(), streamingCoreGroup, num)
+			err := resizeMRSClusterCoreNodes(ctx, client, d.Id(), streamingCoreGroup, num)
 			if err != nil {
 				return err
 			}
 		}
 		if d.HasChange("streaming_task_nodes") {
-			oldRaws, newRaws := d.GetChange("streaming_task_nodes")
-			num := getNodeResizeNumber(oldRaws.([]interface{}), newRaws.([]interface{}))
-			err := resizeMRSClusterTaskNodes(client, d.Id(), streamingTaskGroup,
-				oldRaws.([]interface{}), newRaws.([]interface{}), num)
+			err := resizeMRSClusterTaskNodes(ctx, client, d, streamingTaskGroup, "streaming_task_nodes")
 			if err != nil {
 				return err
 			}
@@ -1060,54 +996,53 @@ func updateMRSClusterNodes(d *schema.ResourceData, client *golangsdk.ServiceClie
 			oldRaws, newRaws := d.GetChange("custom_nodes")
 			scaleMap := parseCustomNodeResize(oldRaws.([]interface{}), newRaws.([]interface{}))
 			for k, num := range scaleMap {
-				err := resizeMRSClusterCoreNodes(client, d.Id(), k, num)
+				err := resizeMRSClusterCoreNodes(ctx, client, d.Id(), k, num)
 				if err != nil {
 					return err
 				}
 			}
-
 		}
 	}
 
 	return nil
 }
 
-func resourceMRSClusterV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.MrsV1Client(config.GetRegion(d))
+func resourceMRSClusterV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.MrsV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud MRS client: %s", err)
+		return diag.Errorf("error creating MRS client: %s", err)
 	}
 
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(client, d, "clusters", d.Id())
 		if tagErr != nil {
-			return fmtp.Errorf("Error updating tags of MRS cluster:%s, err:%s", d.Id(), tagErr)
+			return diag.Errorf("error updating tags of MRS cluster:%s, err:%s", d.Id(), tagErr)
 		}
 	}
 
 	//lintignore:R019
 	if d.HasChanges("analysis_core_nodes", "streaming_core_nodes", "analysis_task_nodes",
 		"streaming_task_nodes", "custom_nodes") {
-		err = updateMRSClusterNodes(d, client)
+		err = updateMRSClusterNodes(ctx, d, client)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
-	return resourceMRSClusterV2Read(d, meta)
+	return resourceMRSClusterV2Read(ctx, d, meta)
 }
 
-func resourceMRSClusterV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.MrsV1Client(config.GetRegion(d))
+func resourceMRSClusterV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.MrsV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud MRS client: %s", err)
+		return diag.Errorf("error creating MRS V1 client: %s", err)
 	}
 
 	err = cluster.Delete(client, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud Cluster: %s", err)
+		return diag.Errorf("error deleting Cluster: %s", err)
 	}
 	refresh := stateRefresh{
 		Pending:      []string{"running", "terminating"},
@@ -1116,12 +1051,11 @@ func resourceMRSClusterV2Delete(d *schema.ResourceData, meta interface{}) error 
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		PollInterval: 10 * time.Second,
 	}
-	if err = waitForMrsClusterStateCompleted(client, d.Id(), refresh); err != nil {
+	if err = waitForMrsClusterStateCompleted(ctx, client, d.Id(), refresh); err != nil {
 		d.SetId("")
-		return fmtp.Errorf("Error waiting for Mrs cluster (%s) to be terminated: %s", d.Id(), err)
+		return diag.Errorf("error waiting for MRS cluster (%s) to be terminated: %s", d.Id(), err)
 	}
 
-	d.SetId("")
 	return nil
 }
 
@@ -1130,7 +1064,6 @@ When the host type is core, the map key format: {type}-{groupName},
 parse from the host name : {clustId}_{groupName}xxxx[-000x]
 */
 func queryMrsClusterHosts(d *schema.ResourceData, mrsV1Client *golangsdk.ServiceClient) (map[string][]string, error) {
-
 	clusterId := d.Id()
 
 	hostOpts := cluster.HostOpts{
@@ -1140,9 +1073,9 @@ func queryMrsClusterHosts(d *schema.ResourceData, mrsV1Client *golangsdk.Service
 
 	resp, err := cluster.ListHosts(mrsV1Client, clusterId, hostOpts)
 	if err != nil {
-		return nil, fmtp.Errorf("query mapreduce cluster host failed: %s", err)
+		return nil, fmt.Errorf("query mapreduce cluster host failed: %s", err)
 	}
-	logp.Printf("[DEBUG] Get mapreduce cluster host list response: %#v", resp)
+	log.Printf("[DEBUG] Get mapreduce cluster host list response: %#v", resp)
 	hostsMap := make(map[string][]string)
 	if len(resp.Hosts) > 0 {
 		for _, item := range resp.Hosts {
@@ -1160,13 +1093,13 @@ func queryMrsClusterHosts(d *schema.ResourceData, mrsV1Client *golangsdk.Service
 			default:
 				reg := regexp.MustCompile(fmt.Sprintf(`%s_(\w*)\w{4}(-\d{4})?`, clusterId))
 				allSubMatchStr := reg.FindAllStringSubmatch(item.Name, -1)
-				if len(allSubMatchStr) > 0 {
-					key := fmt.Sprintf("%s-%s", hostType, allSubMatchStr[0][1])
-					hostsMap[key] = append(hostsMap[key], item.Ip)
-				} else {
-					return nil, fmtp.Errorf("parse host info failed. host=%v", item)
+
+				if len(allSubMatchStr) < 1 {
+					return nil, fmt.Errorf("parse host info failed. host=%v", item)
 				}
 
+				key := fmt.Sprintf("%s-%s", hostType, allSubMatchStr[0][1])
+				hostsMap[key] = append(hostsMap[key], item.Ip)
 			}
 		}
 	}

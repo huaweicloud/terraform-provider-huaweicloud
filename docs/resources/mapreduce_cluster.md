@@ -355,8 +355,8 @@ The following arguments are supported:
 * `subnet_id` - (Required, String, ForceNew) Specifies the network ID of a subnet which bound to the MapReduce cluster.
   Changing this will create a new MapReduce cluster resource.
 
-* `type` - (Optional, String, ForceNew) Specifies the type of the MapReduce cluster. The valid values are *ANALYSIS*,
-  *STREAMING* and *MIXED*, default to *ANALYSIS*. Changing this will create a new MapReduce cluster resource.
+* `type` - (Optional, String, ForceNew) Specifies the type of the MapReduce cluster. The valid values are **ANALYSIS***,
+  **STREAMING** and **MIXED**, defaults to **ANALYSIS**. Changing this will create a new MapReduce cluster resource.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies a unique ID in UUID format of enterprise project.
   Changing this will create a new MapReduce cluster resource.
@@ -370,7 +370,7 @@ The EIP must have been created and must be in the same region as the cluster.
  Changing this will create a new MapReduce cluster resource.
 
 * `log_collection` - (Optional, Bool, ForceNew) Specifies whether logs are collected when cluster installation fails.
-  Default to true. If `log_collection` set true, the OBS buckets will be created and only used to collect logs that
+  Defaults to true. If `log_collection` set true, the OBS buckets will be created and only used to collect logs that
   record MapReduce cluster creation failures. Changing this will create a new MapReduce cluster resource.
 
 * `node_admin_pass` - (Optional, String, ForceNew) Specifies the administrator password, which is used to log in to the
@@ -383,22 +383,22 @@ The EIP must have been created and must be in the same region as the cluster.
   nodes(/ECSs). Changing this will create a new MapReduce cluster resource.
 
 * `safe_mode` - (Optional, Bool, ForceNew) Specifies whether the running mode of the MapReduce cluster is secure,
-  default to true.
-  + true: enable Kerberos authentication.
-  + false: disable Kerberos authentication. Changing this will create a new MapReduce cluster resource.
+  defaults to **true**. The options are as follows:
+  + **true**: enable Kerberos authentication.
+  + **false**: disable Kerberos authentication. Changing this will create a new MapReduce cluster resource.
 
 * `security_group_ids` - (Optional, List, ForceNew) Specifies an array of one or more security group ID to attach to the
   MapReduce cluster. If using the specified security group, the group need to open the specified port (9022) rules.
 
 * `template_id` - (Optional, String, ForceNew) Specifies the template used for node deployment when the cluster type is
-  CUSTOM.
-  + mgmt_control_combined_v2: template for jointly deploying the management and control nodes. The management and
+  **CUSTOM**. The options are as follows:
+  + **mgmt_control_combined_v2**: template for jointly deploying the management and control nodes. The management and
   control roles are co-deployed on the Master node, and data instances are deployed in the same node group. This
   deployment mode applies to scenarios where the number of control nodes is less than 100, reducing costs.
-  + mgmt_control_separated_v2: The management and control roles are deployed on different master nodes, and data
+  + **mgmt_control_separated_v2**: The management and control roles are deployed on different master nodes, and data
   instances are deployed in the same node group. This deployment mode is applicable to a cluster with 100 to 500 nodes
   and delivers better performance in high-concurrency load scenarios.
-  + mgmt_control_data_separated_v2: The management role and control role are deployed on different Master nodes,
+  + **mgmt_control_data_separated_v2**: The management role and control role are deployed on different Master nodes,
   and data instances are deployed in different node groups. This deployment mode is applicable to a cluster with more
   than 500 nodes. Components can be deployed separately, which can be used for a larger cluster scale.
 
@@ -436,14 +436,14 @@ The `nodes` block supports:
 
 * `group_name` - (Optional, String, ForceNew) Specifies the name of nodes for the node group.
 
-  -> **NOTE:** This parameter is only valid and mandatory for `custom_nodes`.
+  -> This parameter is only valid and mandatory for `custom_nodes`.
 
 * `flavor` - (Required, String, ForceNew) Specifies the instance specifications for each nodes in node group.
   Changing this will create a new MapReduce cluster resource.
 
 * `node_number` - (Required, Int) Specifies the number of nodes for the node group.
 
-  -> **NOTE:** Only the core node group and task node group are allowed to be updated. The number of nodes after scaling
+  -> Only the core node group and task node group are allowed to be updated. The number of nodes after scaling
   cannot be less than the number of nodes originally created.
 
 * `root_volume_type` - (Required, String, ForceNew) Specifies the system disk flavor of the nodes. Changing this will
@@ -454,27 +454,27 @@ The `nodes` block supports:
 
 * `data_volume_count` - (Required, Int, ForceNew) Specifies the data disk number of the nodes. The number configuration
   of each node are as follows:
-  + master_nodes: 1.
-  + analysis_core_nodes: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
-  + streaming_core_nodes: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
-  + analysis_task_nodes: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
-  + streaming_task_nodes: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
+  + **master_nodes**: 1.
+  + **analysis_core_nodes**: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
+  + **streaming_core_nodes**: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
+  + **analysis_task_nodes**: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
+  + **streaming_task_nodes**: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
 
   Changing this will create a new MapReduce cluster resource.
   
 * `data_volume_type` - (Optional, String, ForceNew) Specifies the data disk flavor of the nodes.
   Required if `data_volume_count` is greater than zero. Changing this will create a new MapReduce cluster resource.
    The following disk types are supported:
-  + `SATA`: common I/O disk
-  + `SAS`: high I/O disk
-  + `SSD`: ultra-high I/O disk
+  + **SATA**: common I/O disk.
+  + **SAS**: high I/O disk.
+  + **SSD**: ultra-high I/O disk.
 
 * `data_volume_size` - (Optional, Int, ForceNew) Specifies the data disk size of the nodes,in GB. The value range is 10
   to 32768. Required if `data_volume_count` is greater than zero. Changing this will create a new MapReduce
   cluster resource.
 
 * `assigned_roles` - (Optional, List, ForceNew) Specifies the roles deployed in a node group.This argument is mandatory
- when the cluster type is CUSTOM. Each character string represents a role expression.
+ when the cluster type is **CUSTOM**. Each character string represents a role expression.
 
   **Role expression definition:**
 
@@ -525,7 +525,7 @@ In addition to all arguments above, the following attributes are exported:
 * `update_time` - The cluster update time, in RFC-3339 format.
 * `charging_start_time` - The charging start time which is the start time of billing, in RFC-3339 format.
 * `node` - all the nodes attributes: master_nodes/analysis_core_nodes/streaming_core_nodes/analysis_task_nodes
-/streaming_task_nodes.
+  /streaming_task_nodes.
   + `host_ips` - The host list of this nodes group in the cluster.
 
 ## Timeouts
@@ -540,7 +540,7 @@ This resource provides the following timeouts configuration options:
 
 Clusters can be imported by their `id`. For example,
 
-```
+```bash
 terraform import huaweicloud_mapreduce_cluster.test b11b407c-e604-4e8d-8bc4-92398320b847
 ```
 
@@ -551,7 +551,7 @@ It is generally recommended running `terraform plan` after importing a cluster.
 You can then decide if changes should be applied to the cluster, or the resource definition
 should be updated to align with the cluster. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_mapreduce_cluster" "test" {
     ...
 

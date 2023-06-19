@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/mrs/v1/cluster"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/mrs/v1/cluster"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 type GroupNodeNum struct {
@@ -24,9 +25,8 @@ type GroupNodeNum struct {
 func TestAccMrsMapReduceCluster_basic(t *testing.T) {
 	var clusterGet cluster.Cluster
 	resourceName := "huaweicloud_mapreduce_cluster.test"
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	password := fmt.Sprintf("TF%s%s%d", acctest.RandString(10), acctest.RandStringFromCharSet(1, "-_"),
-		acctest.RandIntRange(0, 99))
+	rName := acceptance.RandomAccResourceNameWithDash()
+	password := acceptance.RandomPassword()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -73,9 +73,8 @@ func TestAccMrsMapReduceCluster_basic(t *testing.T) {
 func TestAccMrsMapReduceCluster_keypair(t *testing.T) {
 	var clusterGet cluster.Cluster
 	resourceName := "huaweicloud_mapreduce_cluster.test"
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	password := fmt.Sprintf("TF%s%s%d", acctest.RandString(10), acctest.RandStringFromCharSet(1, "-_"),
-		acctest.RandIntRange(0, 99))
+	rName := acceptance.RandomAccResourceNameWithDash()
+	password := acceptance.RandomPassword()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -107,9 +106,8 @@ func TestAccMrsMapReduceCluster_keypair(t *testing.T) {
 func TestAccMrsMapReduceCluster_analysis(t *testing.T) {
 	var clusterGet cluster.Cluster
 	resourceName := "huaweicloud_mapreduce_cluster.test"
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	password := fmt.Sprintf("TF%s%s%d", acctest.RandString(10), acctest.RandStringFromCharSet(1, "-_"),
-		acctest.RandIntRange(0, 99))
+	rName := acceptance.RandomAccResourceNameWithDash()
+	password := acceptance.RandomPassword()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -168,9 +166,8 @@ func TestAccMrsMapReduceCluster_analysis(t *testing.T) {
 func TestAccMrsMapReduceCluster_stream(t *testing.T) {
 	var clusterGet cluster.Cluster
 	resourceName := "huaweicloud_mapreduce_cluster.test"
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	password := fmt.Sprintf("TF%s%s%d", acctest.RandString(10), acctest.RandStringFromCharSet(1, "-_"),
-		acctest.RandIntRange(0, 99))
+	rName := acceptance.RandomAccResourceNameWithDash()
+	password := acceptance.RandomPassword()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -229,9 +226,8 @@ func TestAccMrsMapReduceCluster_stream(t *testing.T) {
 func TestAccMrsMapReduceCluster_hybrid(t *testing.T) {
 	var clusterGet cluster.Cluster
 	resourceName := "huaweicloud_mapreduce_cluster.test"
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	password := fmt.Sprintf("TF%s%s%d", acctest.RandString(10), acctest.RandStringFromCharSet(1, "-_"),
-		acctest.RandIntRange(0, 99))
+	rName := acceptance.RandomAccResourceNameWithDash()
+	password := acceptance.RandomPassword()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -309,8 +305,7 @@ func TestAccMrsMapReduceCluster_custom_compact(t *testing.T) {
 	var clusterGet cluster.Cluster
 	resourceName := "huaweicloud_mapreduce_cluster.test"
 	rName := acceptance.RandomAccResourceName()
-	password := fmt.Sprintf("TF%s%s%d", acctest.RandString(10), acctest.RandStringFromCharSet(1, "-_"),
-		acctest.RandIntRange(0, 99))
+	password := acceptance.RandomPassword()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -349,8 +344,7 @@ func TestAccMrsMapReduceCluster_custom_separate(t *testing.T) {
 	var clusterGet cluster.Cluster
 	resourceName := "huaweicloud_mapreduce_cluster.test"
 	rName := acceptance.RandomAccResourceName()
-	password := fmt.Sprintf("TF%s%s%d", acctest.RandString(10), acctest.RandStringFromCharSet(1, "-_"),
-		acctest.RandIntRange(0, 99))
+	password := acceptance.RandomPassword()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -390,8 +384,7 @@ func TestAccMrsMapReduceCluster_custom_fullsize(t *testing.T) {
 	var clusterGet cluster.Cluster
 	resourceName := "huaweicloud_mapreduce_cluster.test"
 	rName := acceptance.RandomAccResourceName()
-	password := fmt.Sprintf("TF%s%s%d", acctest.RandString(10), acctest.RandStringFromCharSet(1, "-_"),
-		acctest.RandIntRange(0, 99))
+	password := acceptance.RandomPassword()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -437,10 +430,10 @@ func buildGroupNodeNumbers(analysisCoreNum, streamCoreNum, analysisTaskNum, stre
 }
 
 func testAccCheckMRSV2ClusterDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	client, err := config.MrsV1Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	client, err := cfg.MrsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating huaweicloud mrs: %s", err)
+		return fmt.Errorf("error creating mrs: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -453,7 +446,7 @@ func testAccCheckMRSV2ClusterDestroy(s *terraform.State) error {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				return nil
 			}
-			return fmt.Errorf("MRS cluster (%s) is still exists", rs.Primary.ID)
+			return fmt.Errorf("the MRS cluster (%s) is still exists", rs.Primary.ID)
 		}
 		if clusterGet.Clusterstate == "terminated" {
 			return nil
@@ -467,17 +460,17 @@ func testAccCheckMRSV2ClusterExists(n string, clusterGet *cluster.Cluster) resou
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Resource %s not found", n)
+			return fmt.Errorf("resource %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No MRS cluster ID")
+			return fmt.Errorf("no MRS cluster ID")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		mrsClient, err := config.MrsV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating huaweicloud MRS client: %s ", err)
+			return fmt.Errorf("error creating MRS client: %s ", err)
 		}
 
 		found, err := cluster.Get(mrsClient, rs.Primary.ID).Extract()

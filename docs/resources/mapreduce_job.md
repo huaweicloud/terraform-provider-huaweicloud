@@ -106,6 +106,6 @@ This resource provides the following timeouts configuration options:
 MapReduce jobs can be imported using their `id` and the IDs of the MapReduce cluster to which the job belongs, separated
 by a slash, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_mapreduce_job.test <cluster_id>/<id>
 ```

@@ -4,23 +4,22 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/mrs/v2/jobs"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/mrs/v2/jobs"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	mrsRes "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mrs"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccMrsMapReduceJob_basic(t *testing.T) {
 	var job jobs.Job
 	resourceName := "huaweicloud_mapreduce_job.test"
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	pwd := fmt.Sprintf("TF%s%s%d", acctest.RandString(10), acctest.RandStringFromCharSet(1, "-_"),
-		acctest.RandIntRange(0, 99))
+	rName := acceptance.RandomAccResourceNameWithDash()
+	pwd := acceptance.RandomPassword()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -48,10 +47,10 @@ func TestAccMrsMapReduceJob_basic(t *testing.T) {
 }
 
 func testAccCheckMRSV2JobDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	client, err := config.MrsV1Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	client, err := cfg.MrsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating huaweicloud mrs: %s", err)
+		return fmt.Errorf("error creating mrs: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -64,7 +63,7 @@ func testAccCheckMRSV2JobDestroy(s *terraform.State) error {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				return nil
 			}
-			return fmt.Errorf("MRS cluster (%s) is still exists", rs.Primary.ID)
+			return fmt.Errorf("the MRS cluster (%s) is still exists", rs.Primary.ID)
 		}
 	}
 
@@ -75,17 +74,17 @@ func testAccCheckMRSV2JobExists(n string, job *jobs.Job) resource.TestCheckFunc 
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Resource %s not found", n)
+			return fmt.Errorf("resource %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No MRS cluster ID")
+			return fmt.Errorf("no MRS cluster ID")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		client, err := config.MrsV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating huaweicloud MRS client: %s ", err)
+			return fmt.Errorf("error creating MRS client: %s ", err)
 		}
 
 		found, err := jobs.Get(client, rs.Primary.Attributes["cluster_id"], rs.Primary.ID).Extract()
@@ -101,7 +100,7 @@ func testAccMRSClusterSubResourceImportStateIdFunc(name string) resource.ImportS
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {
-			return "", fmt.Errorf("Resource (%s) not found: %s", name, rs)
+			return "", fmt.Errorf("resource (%s) not found: %s", name, rs)
 		}
 		if rs.Primary.ID == "" || rs.Primary.Attributes["cluster_id"] == "" {
 			return "", fmt.Errorf("resource not found: %s/%s", rs.Primary.Attributes["cluster_id"], rs.Primary.ID)
