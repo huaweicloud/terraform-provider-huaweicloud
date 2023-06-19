@@ -410,7 +410,6 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 	// for prePaid charge mode
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"BUILD"},
 		Target:       []string{"ACTIVE", "BACKING UP"},
 		Refresh:      rdsInstanceStateRefreshFunc(client, instanceID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
@@ -1221,7 +1220,9 @@ func rdsInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID str
 		if instance.Id == "" {
 			return instance, "DELETED", nil
 		}
-
+		if instance.Status == "FAILED" {
+			return nil, instance.Status, fmt.Errorf("the instance status is: %s", instance.Status)
+		}
 		return instance, instance.Status, nil
 	}
 }
