@@ -33,10 +33,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      name: Checkout source code
 
-    - uses: terraform-linters/setup-tflint@v1
+    - uses: terraform-linters/setup-tflint@v3
       name: Setup TFLint
-      with:
+
+    - name: Init TFLint
+      run: tflint --init
+      env: 
         github_token: ${{ secrets.github_token }}
 
     - name: Show version
@@ -51,7 +55,7 @@ jobs:
           targets=$(ls -d ${sub_dir}/*)
           for DIRECTORY in ${targets}; do
             echo -e "\nlinting directory: ${DIRECTORY}"
-            tflint -c ${WORK_DIR}/.tflint.hcl ${DIRECTORY}
+            tflint --chdir ${DIRECTORY} --config ../../.tflint.hcl
           done
         done
 
