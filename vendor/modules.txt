@@ -283,6 +283,7 @@ github.com/chnsz/golangsdk/openstack/sdrs/v1/drill
 github.com/chnsz/golangsdk/openstack/sdrs/v1/protectedinstances
 github.com/chnsz/golangsdk/openstack/sdrs/v1/protectiongroups
 github.com/chnsz/golangsdk/openstack/sdrs/v1/replications
+github.com/chnsz/golangsdk/openstack/sdrs/v1/attachreplication
 github.com/chnsz/golangsdk/openstack/servicestage/v1/repositories
 github.com/chnsz/golangsdk/openstack/servicestage/v2/applications
 github.com/chnsz/golangsdk/openstack/servicestage/v2/components
