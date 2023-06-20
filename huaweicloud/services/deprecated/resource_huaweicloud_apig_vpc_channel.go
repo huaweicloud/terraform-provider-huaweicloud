@@ -76,6 +76,7 @@ func ResourceApigVpcChannelV2() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceVpcChannelResourceImportState,
 		},
+		DeprecationMessage: "VPC channel has been deprecated.",
 
 		Schema: map[string]*schema.Schema{
 			"region": {
