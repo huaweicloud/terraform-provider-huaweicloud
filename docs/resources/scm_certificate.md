@@ -1,5 +1,5 @@
 ---
-subcategory: "SSL Certificate Manager (SCM)"
+subcategory: "Cloud Certificate Manager (CCM)"
 ---
 
 # huaweicloud_scm_certificate
