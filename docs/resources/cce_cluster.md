@@ -157,6 +157,13 @@ The following arguments are supported:
     capability of VPC, uses the VPC CIDR block to allocate container addresses, and supports direct connections between
     ELB and containers to provide high performance.
 
+* `security_group_id` - (Optional, String) Specifies the default worker node security group ID of the cluster.
+  If left empty, the system will automatically create a default worker node security group for you.
+  The default worker node security group needs to allow access from certain ports to ensure normal communications.
+  For details, see [documentation](https://support.huaweicloud.com/intl/en-us/cce_faq/cce_faq_00265.html).
+  If updated, the modified security group will only be applied to nodes newly created or accepted.
+  For existing nodes, you need to manually modify the security group rules for them.
+
 * `cluster_version` - (Optional, String, ForceNew) Specifies the cluster version, defaults to the latest supported
   version. Changing this parameter will create a new cluster resource.
 
@@ -275,8 +282,6 @@ In addition to all arguments above, the following attributes are exported:
 * `certificate_clusters` - The certificate clusters. Structure is documented below.
 
 * `certificate_users` - The certificate users. Structure is documented below.
-
-* `security_group_id` - Security group ID of the cluster.
 
 * `eni_subnet_cidr` - The ENI network segment. This value is valid when only one eni_subnet_id is specified.
 

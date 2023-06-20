@@ -185,6 +185,13 @@ type UpdateSpec struct {
 	CustomSan []string `json:"customSan,omitempty"`
 	// ENI network parameters
 	EniNetwork *EniNetworkSpec `json:"eniNetwork,omitempty"`
+	// Node network parameters
+	HostNetwork *UpdateHostNetworkSpec `json:"hostNetwork,omitempty"`
+}
+
+type UpdateHostNetworkSpec struct {
+	//The ID of the Security Group used to create the node
+	SecurityGroup string `json:"SecurityGroup,omitempty"`
 }
 
 // UpdateOptsBuilder allows extensions to add additional parameters to the

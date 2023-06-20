@@ -127,6 +127,11 @@ func ResourceCluster() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"security_group_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"highway_subnet_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -267,10 +272,6 @@ func ResourceCluster() *schema.Resource {
 				}, true),
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"security_group_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -507,6 +508,7 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 				VpcId:         d.Get("vpc_id").(string),
 				SubnetId:      d.Get("subnet_id").(string),
 				HighwaySubnet: d.Get("highway_subnet_id").(string),
+				SecurityGroup: d.Get("security_group_id").(string),
 			},
 			ContainerNetwork: clusters.ContainerNetworkSpec{
 				Mode:  d.Get("container_network_type").(string),
@@ -748,6 +750,12 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 
 	if d.HasChanges("eni_subnet_id") {
 		updateOpts.Spec.EniNetwork = buildEniNetworkOpts(d.Get("eni_subnet_id").(string))
+	}
+
+	if d.HasChange("security_group_id") {
+		updateOpts.Spec.HostNetwork = &clusters.UpdateHostNetworkSpec{
+			SecurityGroup: d.Get("security_group_id").(string),
+		}
 	}
 
 	if !reflect.DeepEqual(updateOpts, clusters.UpdateOpts{}) {
