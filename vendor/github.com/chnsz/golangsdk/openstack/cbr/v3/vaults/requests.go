@@ -12,11 +12,15 @@ type CreateOpts struct {
 	Resources           []ResourceCreate   `json:"resources" required:"true"`
 	AutoBind            bool               `json:"auto_bind,omitempty"`
 	AutoExpand          bool               `json:"auto_expand,omitempty"`
+	BackupNamePrefix    string             `json:"backup_name_prefix"`
 	BackupPolicyID      string             `json:"backup_policy_id,omitempty"`
 	BindRules           *VaultBindRules    `json:"bind_rules,omitempty"`
+	DemandBilling       *bool              `json:"demand_billing,omitempty"`
 	Description         string             `json:"description,omitempty"`
 	EnterpriseProjectID string             `json:"enterprise_project_id,omitempty"`
+	SmnNotify           *bool              `json:"smn_notify,omitempty"`
 	Tags                []tags.ResourceTag `json:"tags,omitempty"`
+	Threshold           int                `json:"threshold,omitempty"`
 }
 
 type BillingCreate struct {
@@ -97,6 +101,8 @@ type UpdateOpts struct {
 	AutoBind   *bool           `json:"auto_bind,omitempty"`
 	BindRules  *VaultBindRules `json:"bind_rules,omitempty"`
 	AutoExpand *bool           `json:"auto_expand,omitempty"`
+	SmnNotify  *bool           `json:"smn_notify,omitempty"`
+	Threshold  int             `json:"threshold,omitempty"`
 }
 
 type BillingUpdate struct {

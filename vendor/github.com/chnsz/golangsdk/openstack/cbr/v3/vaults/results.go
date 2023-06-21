@@ -43,6 +43,9 @@ type Vault struct {
 	UserID              string             `json:"user_id"`
 	CreatedAt           string             `json:"created_at"`
 	AutoExpand          bool               `json:"auto_expand"`
+	SmnNotify           bool               `json:"smn_notify"`
+	Threshold           int                `json:"threshold"`
+	BackupNamePrefix    string             `json:"backup_name_prefix"`
 }
 
 type Billing struct {
