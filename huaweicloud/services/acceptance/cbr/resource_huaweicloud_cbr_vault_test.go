@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/cbr/v3/vaults"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/cbr/v3/vaults"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
@@ -21,10 +23,15 @@ func getVaultResourceFunc(conf *config.Config, state *terraform.ResourceState) (
 	return vaults.Get(c, state.Primary.ID).Extract()
 }
 
-func TestAccVault_BasicServer(t *testing.T) {
-	var vault vaults.Vault
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_cbr_vault.test"
+func TestAccVault_backupServer(t *testing.T) {
+	var (
+		vault vaults.Vault
+
+		resourceName = "huaweicloud_cbr_vault.test"
+		name         = acceptance.RandomAccResourceName()
+		updateName   = acceptance.RandomAccResourceName()
+		basicConfig  = testAccVault_base(name)
+	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -35,38 +42,37 @@ func TestAccVault_BasicServer(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVault_serverBasic(randName),
+				Config: testAccVault_backupServer_step1(basicConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "consistent_level", "app_consistent"),
 					resource.TestCheckResourceAttr(resourceName, "type", cbr.VaultTypeServer),
 					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "size", "200"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "resources.0.excludes.#", "2"),
 				),
 			},
 			{
-				Config: testAccVault_serverUpdate(randName),
+				Config: testAccVault_backupServer_step2(basicConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", randName+"-update"),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "consistent_level", "app_consistent"),
 					resource.TestCheckResourceAttr(resourceName, "type", cbr.VaultTypeServer),
 					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "size", "300"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo1", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 					resource.TestCheckResourceAttr(resourceName, "resources.0.excludes.#", "2"),
@@ -81,10 +87,117 @@ func TestAccVault_BasicServer(t *testing.T) {
 	})
 }
 
-func TestAccVault_ReplicaServer(t *testing.T) {
-	var vault vaults.Vault
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_cbr_vault.test"
+func testAccVault_base(name string) string {
+	return fmt.Sprintf(`
+variable "volume_configuration" {
+  type = list(object({
+    volume_type = string
+    size        = number
+    device_type = string
+  }))
+  default = [
+    {volume_type = "SSD", size = 50, device_type = "VBD"},
+    {volume_type = "GPSSD", size = 100, device_type = "VBD"},
+    {volume_type = "SAS", size = 100, device_type = "SCSI"},
+  ]
+}
+
+// base compute resources
+%[1]s
+
+resource "huaweicloud_compute_instance" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  name              = "%[2]s"
+  image_id          = data.huaweicloud_images_image.test.id
+  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
+
+  system_disk_type = "SSD"
+  system_disk_size = 50
+
+  security_group_ids = [
+    huaweicloud_networking_secgroup.test.id
+  ]
+
+  network {
+    uuid = huaweicloud_vpc_subnet.test.id
+  }
+}
+
+resource "huaweicloud_evs_volume" "test" {
+  count = length(var.volume_configuration)
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  volume_type       = var.volume_configuration[count.index].volume_type
+  name              = format("%[2]s_%%d", count.index)
+  size              = var.volume_configuration[count.index].size
+  device_type       = var.volume_configuration[count.index].device_type
+}
+
+resource "huaweicloud_compute_volume_attach" "test" {
+  count = length(var.volume_configuration)
+
+  instance_id = huaweicloud_compute_instance.test.id
+  volume_id   = huaweicloud_evs_volume.test[count.index].id
+}`, common.TestBaseComputeResources(name), name)
+}
+
+func testAccVault_backupServer_step1(basicConfig, name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cbr_vault" "test" {
+  name                  = "%[2]s"
+  type                  = "server"
+  consistent_level      = "app_consistent"
+  protection_type       = "backup"
+  size                  = 200
+  enterprise_project_id = "0"
+
+  resources {
+    server_id = huaweicloud_compute_instance.test.id
+    excludes  = slice(huaweicloud_compute_volume_attach.test[*].volume_id, 0, 2)
+  }
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, basicConfig, name)
+}
+
+func testAccVault_backupServer_step2(basicConfig, name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cbr_vault" "test" {
+  name                  = "%[2]s"
+  type                  = "server"
+  consistent_level      = "app_consistent"
+  protection_type       = "backup"
+  size                  = 300
+  enterprise_project_id = "0"
+
+  resources {
+    server_id = huaweicloud_compute_instance.test.id
+    excludes  = slice(huaweicloud_compute_volume_attach.test[*].volume_id, 1, 3)
+  }
+
+  tags = {
+    foo1 = "bar"
+    key  = "value_update"
+  }
+}
+`, basicConfig, name)
+}
+
+func TestAccVault_replicationServer(t *testing.T) {
+	var (
+		vault vaults.Vault
+
+		resourceName = "huaweicloud_cbr_vault.test"
+		name         = acceptance.RandomAccResourceName()
+	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -95,16 +208,15 @@ func TestAccVault_ReplicaServer(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVault_serverReplication(randName),
+				Config: testAccVault_replicationServer_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "consistent_level", "crash_consistent"),
 					resource.TestCheckResourceAttr(resourceName, "type", cbr.VaultTypeServer),
 					resource.TestCheckResourceAttr(resourceName, "protection_type", "replication"),
@@ -120,10 +232,28 @@ func TestAccVault_ReplicaServer(t *testing.T) {
 	})
 }
 
+func testAccVault_replicationServer_step1(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_cbr_vault" "test" {
+  name                  = "%s"
+  type                  = "server"
+  consistent_level      = "crash_consistent"
+  protection_type       = "replication"
+  size                  = 200
+  enterprise_project_id = "0"
+}
+`, name)
+}
+
 func TestAccVault_prePaidServer(t *testing.T) {
-	var vault vaults.Vault
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_cbr_vault.test"
+	var (
+		vault vaults.Vault
+
+		resourceName = "huaweicloud_cbr_vault.test"
+		name         = acceptance.RandomAccResourceName()
+		updateName   = acceptance.RandomAccResourceName()
+		basicConfig  = testAccVault_base(name)
+	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -134,42 +264,42 @@ func TestAccVault_prePaidServer(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
 			acceptance.TestAccPreCheckChargingMode(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVault_serverPrePaid(randName),
+				Config: testAccVault_prePaidBackupServer_step1(basicConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
-					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "consistent_level", "app_consistent"),
 					resource.TestCheckResourceAttr(resourceName, "type", cbr.VaultTypeServer),
 					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "size", "200"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "resources.0.excludes.#", "2"),
 				),
 			},
 			{
-				Config: testAccVault_serverPrePaidUpdate(randName),
+				Config: testAccVault_prePaidBackupServer_step2(basicConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
-					resource.TestCheckResourceAttr(resourceName, "name", randName+"-update"),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "consistent_level", "app_consistent"),
 					resource.TestCheckResourceAttr(resourceName, "type", cbr.VaultTypeServer),
 					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "size", "200"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo1", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 					resource.TestCheckResourceAttr(resourceName, "resources.0.excludes.#", "2"),
@@ -190,10 +320,75 @@ func TestAccVault_prePaidServer(t *testing.T) {
 	})
 }
 
-func TestAccVault_BasicVolume(t *testing.T) {
-	var vault vaults.Vault
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_cbr_vault.test"
+func testAccVault_prePaidBackupServer_step1(basicConfig, name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cbr_vault" "test" {
+  name                  = "%[2]s"
+  type                  = "server"
+  consistent_level      = "app_consistent"
+  protection_type       = "backup"
+  size                  = 200
+  enterprise_project_id = "0"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "false"
+
+  resources {
+    server_id = huaweicloud_compute_instance.test.id
+    excludes  = slice(huaweicloud_compute_volume_attach.test[*].volume_id, 0, 2)
+  }
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, basicConfig, name)
+}
+
+func testAccVault_prePaidBackupServer_step2(basicConfig, name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cbr_vault" "test" {
+  name                  = "%[2]s"
+  type                  = "server"
+  consistent_level      = "app_consistent"
+  protection_type       = "backup"
+  size                  = 200
+  enterprise_project_id = "0"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "true"
+
+  resources {
+    server_id = huaweicloud_compute_instance.test.id
+    excludes  = slice(huaweicloud_compute_volume_attach.test[*].volume_id, 1, 3)
+  }
+
+  tags = {
+    foo1 = "bar"
+    key  = "value_update"
+  }
+}
+`, basicConfig, name)
+}
+
+func TestAccVault_volume(t *testing.T) {
+	var (
+		vault vaults.Vault
+
+		resourceName = "huaweicloud_cbr_vault.test"
+		name         = acceptance.RandomAccResourceName()
+		updateName   = acceptance.RandomAccResourceName()
+		basicConfig  = testAccVault_base(name)
+	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -204,38 +399,37 @@ func TestAccVault_BasicVolume(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVault_volumeBasic(randName),
+				Config: testAccVault_volume_step1(basicConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "consistent_level", "crash_consistent"),
 					resource.TestCheckResourceAttr(resourceName, "type", cbr.VaultTypeDisk),
 					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "size", "50"),
 					resource.TestCheckResourceAttr(resourceName, "auto_expand", "false"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttr(resourceName, "resources.0.includes.#", "2"),
 				),
 			},
 			{
-				Config: testAccVault_volumeUpdate(randName),
+				Config: testAccVault_volume_step2(basicConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", randName+"-update"),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "consistent_level", "crash_consistent"),
 					resource.TestCheckResourceAttr(resourceName, "type", cbr.VaultTypeDisk),
 					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "size", "100"),
 					resource.TestCheckResourceAttr(resourceName, "auto_expand", "true"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttr(resourceName, "resources.0.includes.#", "2"),
 				),
 			},
@@ -248,10 +442,51 @@ func TestAccVault_BasicVolume(t *testing.T) {
 	})
 }
 
-func TestAccVault_BasicTurbo(t *testing.T) {
-	var vault vaults.Vault
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_cbr_vault.test"
+func testAccVault_volume_step1(basicConfig, name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cbr_vault" "test" {
+  name                  = "%[2]s"
+  type                  = "disk"
+  protection_type       = "backup"
+  size                  = 50
+  enterprise_project_id = "0"
+
+  resources {
+    includes = slice(huaweicloud_compute_volume_attach.test[*].volume_id, 0, 2)
+  }
+}
+`, basicConfig, name)
+}
+
+func testAccVault_volume_step2(basicConfig, name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cbr_vault" "test" {
+  name                  = "%[2]s"
+  type                  = "disk"
+  protection_type       = "backup"
+  size                  = 100
+  auto_expand           = true
+  enterprise_project_id = "0"
+
+  resources {
+    includes = slice(huaweicloud_compute_volume_attach.test[*].volume_id, 1, 3)
+  }
+}
+`, basicConfig, name)
+}
+
+func TestAccVault_backupTurbo(t *testing.T) {
+	var (
+		vault vaults.Vault
+
+		resourceName = "huaweicloud_cbr_vault.test"
+		name         = acceptance.RandomAccResourceName()
+		updateName   = acceptance.RandomAccResourceName()
+	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -262,35 +497,34 @@ func TestAccVault_BasicTurbo(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVault_turboBasic(randName),
+				Config: testAccVault_backupTurbo_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "consistent_level", "crash_consistent"),
 					resource.TestCheckResourceAttr(resourceName, "type", cbr.VaultTypeTurbo),
 					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "size", "800"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 				),
 			},
 			{
-				Config: testAccVault_turboUpdate(randName),
+				Config: testAccVault_backupTurbo_step2(updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", randName+"-update"),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "consistent_level", "crash_consistent"),
 					resource.TestCheckResourceAttr(resourceName, "type", cbr.VaultTypeTurbo),
 					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "size", "1000"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 				),
 			},
 			{
@@ -302,10 +536,69 @@ func TestAccVault_BasicTurbo(t *testing.T) {
 	})
 }
 
-func TestAccVault_ReplicaTurbo(t *testing.T) {
-	var vault vaults.Vault
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_cbr_vault.test"
+// Vaults of type 'turbo'
+func testAccVault_backupTurbo_base(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_sfs_turbo" "test" {
+  count = 3
+
+  name              = format("%[2]s_%%d", count.index)
+  size              = 500
+  share_proto       = "NFS"
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+}`, common.TestBaseNetwork(name), name)
+}
+
+func testAccVault_backupTurbo_step1(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cbr_vault" "test" {
+  name                  = "%[2]s"
+  type                  = "turbo"
+  protection_type       = "backup"
+  size                  = 800
+  enterprise_project_id = "0"
+
+  resources {
+    includes = slice(huaweicloud_sfs_turbo.test[*].id, 0, 2)
+  }
+}
+`, testAccVault_backupTurbo_base(rName), rName)
+}
+
+func testAccVault_backupTurbo_step2(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cbr_vault" "test" {
+  name                  = "%[2]s"
+  type                  = "turbo"
+  protection_type       = "backup"
+  size                  = 1000
+  enterprise_project_id = "0"
+
+  resources {
+    includes = slice(huaweicloud_sfs_turbo.test[*].id, 1, 3)
+  }
+}
+`, testAccVault_backupTurbo_base(rName), rName)
+}
+
+func TestAccVault_replicationTurbo(t *testing.T) {
+	var (
+		vault vaults.Vault
+
+		resourceName = "huaweicloud_cbr_vault.test"
+		name         = acceptance.RandomAccResourceName()
+	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -316,21 +609,20 @@ func TestAccVault_ReplicaTurbo(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVault_turboReplication(randName),
+				Config: testAccVault_replicationTurbo_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "consistent_level", "crash_consistent"),
 					resource.TestCheckResourceAttr(resourceName, "type", cbr.VaultTypeTurbo),
 					resource.TestCheckResourceAttr(resourceName, "protection_type", "replication"),
 					resource.TestCheckResourceAttr(resourceName, "size", "1000"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 				),
 			},
 			{
@@ -342,10 +634,25 @@ func TestAccVault_ReplicaTurbo(t *testing.T) {
 	})
 }
 
+func testAccVault_replicationTurbo_step1(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_cbr_vault" "test" {
+  name                  = "%s"
+  type                  = "turbo"
+  protection_type       = "replication"
+  size                  = 1000
+  enterprise_project_id = "0"
+}
+`, rName)
+}
+
 func TestAccVault_AutoBind(t *testing.T) {
-	var vault vaults.Vault
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_cbr_vault.test"
+	var (
+		vault vaults.Vault
+
+		randName     = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_cbr_vault.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -395,337 +702,16 @@ func TestAccVault_AutoBind(t *testing.T) {
 	})
 }
 
-func testAccEvsVolumeConfiguration_basic() string {
-	return `
-variable "volume_configuration" {
-  type = list(object({
-    volume_type = string
-    size        = number
-    device_type = string
-  }))
-  default = [
-    {volume_type = "SSD", size = 100, device_type = "VBD"},
-    {volume_type = "SSD", size = 100, device_type = "SCSI"},
-  ]
-}`
-}
-
-func testAccEvsVolumeConfiguration_update() string {
-	return `
-variable "volume_configuration" {
-  type = list(object({
-    volume_type = string
-    size        = number
-    device_type = string
-  }))
-  default = [
-    {volume_type = "GPSSD", size = 100, device_type = "VBD"},
-    {volume_type = "SAS", size = 100, device_type = "SCSI"},
-  ]
-}`
-}
-
-func testAccVaultBasicConfiguration(config, rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-// base compute resources
-%[2]s
-
-resource "huaweicloud_compute_instance" "test" {
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  name              = "%[3]s"
-  image_id          = data.huaweicloud_images_image.test.id
-  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
-
-  system_disk_type = "SSD"
-  system_disk_size = 50
-
-  security_group_ids = [
-    huaweicloud_networking_secgroup.test.id
-  ]
-
-  network {
-    uuid = huaweicloud_vpc_subnet.test.id
-  }
-}
-
-resource "huaweicloud_evs_volume" "test" {
-  count = length(var.volume_configuration)
-
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  volume_type       = var.volume_configuration[count.index].volume_type
-  name              = "%[3]s_${tostring(count.index)}"
-  size              = var.volume_configuration[count.index].size
-  device_type       = var.volume_configuration[count.index].device_type
-}
-
-resource "huaweicloud_compute_volume_attach" "test" {
-  count = length(var.volume_configuration)
-
-  instance_id = huaweicloud_compute_instance.test.id
-  volume_id   = huaweicloud_evs_volume.test[count.index].id
-}`, config, common.TestBaseComputeResources(rName), rName)
-}
-
-func testAccVault_serverBasic(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_cbr_vault" "test" {
-  name                  = "%[2]s"
-  type                  = "server"
-  consistent_level      = "app_consistent"
-  protection_type       = "backup"
-  size                  = 200
-  enterprise_project_id = "%[3]s"
-
-  resources {
-    server_id = huaweicloud_compute_instance.test.id
-    excludes  = huaweicloud_compute_volume_attach.test[*].volume_id
-  }
-
-  tags = {
-    foo = "bar"
-    key = "value"
-  }
-}
-`, testAccVaultBasicConfiguration(testAccEvsVolumeConfiguration_basic(), rName),
-		rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-func testAccVault_serverUpdate(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_cbr_vault" "test" {
-  name                  = "%[2]s-update"
-  type                  = "server"
-  consistent_level      = "app_consistent"
-  protection_type       = "backup"
-  size                  = 300
-  enterprise_project_id = "%[3]s"
-
-  resources {
-    server_id = huaweicloud_compute_instance.test.id
-
-    excludes = huaweicloud_compute_volume_attach.test[*].volume_id
-  }
-
-  tags = {
-    foo1 = "bar"
-    key  = "value_update"
-  }
-}
-`, testAccVaultBasicConfiguration(testAccEvsVolumeConfiguration_update(), rName),
-		rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-func testAccVault_serverReplication(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_cbr_vault" "test" {
-  name                  = "%s"
-  type                  = "server"
-  consistent_level      = "crash_consistent"
-  protection_type       = "replication"
-  size                  = 200
-  enterprise_project_id = "%s"
-}
-`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-func testAccVault_serverPrePaid(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_cbr_vault" "test" {
-  name                  = "%s"
-  type                  = "server"
-  consistent_level      = "app_consistent"
-  protection_type       = "backup"
-  size                  = 200
-  enterprise_project_id = "%s"
-
-  charging_mode = "prePaid"
-  period_unit   = "month"
-  period        = 1
-
-  resources {
-    server_id = huaweicloud_compute_instance.test.id
-
-    excludes = huaweicloud_compute_volume_attach.test[*].volume_id
-  }
-
-  tags = {
-    foo = "bar"
-    key = "value"
-  }
-}
-`, testAccVaultBasicConfiguration(testAccEvsVolumeConfiguration_update(), rName),
-		rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-func testAccVault_serverPrePaidUpdate(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_cbr_vault" "test" {
-  name                  = "%[2]s-update"
-  type                  = "server"
-  consistent_level      = "app_consistent"
-  protection_type       = "backup"
-  size                  = 200
-  enterprise_project_id = "%[3]s"
-
-  charging_mode = "prePaid"
-  period_unit   = "month"
-  period        = 1
-  auto_renew    = "true"
-
-  resources {
-    server_id = huaweicloud_compute_instance.test.id
-
-    excludes = huaweicloud_compute_volume_attach.test[*].volume_id
-  }
-
-  tags = {
-    foo1 = "bar"
-    key  = "value_update"
-  }
-}
-`, testAccVaultBasicConfiguration(testAccEvsVolumeConfiguration_update(), rName),
-		rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-func testAccVault_volumeBasic(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_cbr_vault" "test" {
-  name                  = "%s"
-  type                  = "disk"
-  protection_type       = "backup"
-  size                  = 50
-  enterprise_project_id = "%s"
-
-  resources {
-    includes = huaweicloud_compute_volume_attach.test[*].volume_id
-  }
-}
-`, testAccVaultBasicConfiguration(testAccEvsVolumeConfiguration_basic(), rName),
-		rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-func testAccVault_volumeUpdate(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_cbr_vault" "test" {
-  name                  = "%[2]s-update"
-  type                  = "disk"
-  protection_type       = "backup"
-  size                  = 100
-  auto_expand           = true
-  enterprise_project_id = "%[3]s"
-
-  resources {
-    includes = huaweicloud_compute_volume_attach.test[*].volume_id
-  }
-}
-`, testAccVaultBasicConfiguration(testAccEvsVolumeConfiguration_basic(), rName),
-		rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-// Vaults of type 'turbo'
-func testAccVault_turboBase(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_sfs_turbo" "test1" {
-  name              = "%s-1"
-  size              = 500
-  share_proto       = "NFS"
-  vpc_id            = huaweicloud_vpc.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-}`, common.TestBaseNetwork(rName), rName)
-}
-
-func testAccVault_turboBasic(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_cbr_vault" "test" {
-  name                  = "%s"
-  type                  = "turbo"
-  protection_type       = "backup"
-  size                  = 800
-  enterprise_project_id = "%s"
-
-  resources {
-    includes = [
-      huaweicloud_sfs_turbo.test1.id
-    ]
-  }
-}
-`, testAccVault_turboBase(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-func testAccVault_turboUpdate(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_sfs_turbo" "test2" {
-  name              = "%[2]s-2"
-  size              = 500
-  share_proto       = "NFS"
-  vpc_id            = huaweicloud_vpc.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-}
-
-resource "huaweicloud_cbr_vault" "test" {
-  name                  = "%[2]s-update"
-  type                  = "turbo"
-  protection_type       = "backup"
-  size                  = 1000
-  enterprise_project_id = "%[3]s"
-
-  resources {
-    includes = [
-      huaweicloud_sfs_turbo.test1.id,
-      huaweicloud_sfs_turbo.test2.id
-    ]
-  }
-}
-`, testAccVault_turboBase(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-func testAccVault_turboReplication(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_cbr_vault" "test" {
-  name                  = "%s"
-  type                  = "turbo"
-  protection_type       = "replication"
-  size                  = 1000
-  enterprise_project_id = "%s"
-}
-`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
 func testAccVault_autoBind(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cbr_vault" "test" {
-  name            = "%s"
+  name            = "%[1]s"
   type            = "server"
   protection_type = "backup"
   size            = 800
   auto_bind       = true
-  bind_rules      = {
+
+  bind_rules = {
     foo = "bar"
     key = "value"
   }
@@ -736,7 +722,7 @@ resource "huaweicloud_cbr_vault" "test" {
 func testAccVault_autoBindUpdate(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cbr_vault" "test" {
-  name            = "%s"
+  name            = "%[1]s"
   type            = "server"
   protection_type = "backup"
   size            = 800
@@ -747,7 +733,8 @@ resource "huaweicloud_cbr_vault" "test" {
 
 func TestAccVault_bindPolicies(t *testing.T) {
 	var (
-		vault        vaults.Vault
+		vault vaults.Vault
+
 		randName     = acceptance.RandomAccResourceName()
 		mainRcName   = "huaweicloud_cbr_vault.test"
 		legacyRcName = "huaweicloud_cbr_vault.legacy"

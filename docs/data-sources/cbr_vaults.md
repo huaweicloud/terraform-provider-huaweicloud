@@ -20,38 +20,38 @@ data "huaweicloud_cbr_vaults" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the CBR vaults.
+* `region` - (Optional, String) Specifies the region in which to query the vaults.
   If omitted, the provider-level region will be used.
 
-* `name` - (Optional, String) Specifies a unique name of the CBR vault. This parameter can contain a maximum of 64
+* `name` - (Optional, String) Specifies the vault name. This parameter can contain a maximum of 64
   characters, which may consist of letters, digits, underscores(_) and hyphens (-).
 
-* `type` - (Optional, String) Specifies the object type of the CBR vault. The vaild values are as follows:
+* `type` - (Optional, String) Specifies the object type of the vault. The vaild values are as follows:
   + **server** (Cloud Servers)
   + **disk** (EVS Disks)
   + **turbo** (SFS Turbo file systems)
 
-* `consistent_level` - (Optional, String) Specifies the backup specifications.
+* `consistent_level` - (Optional, String) Specifies the consistent level (specification) of the vault.
   The valid values are as follows:
   + **[crash_consistent](https://support.huaweicloud.com/intl/en-us/usermanual-cbr/cbr_03_0109.html)**
   + **[app_consistent](https://support.huaweicloud.com/intl/en-us/usermanual-cbr/cbr_03_0109.html)**
 
   Only server type vaults support application consistent.
 
-* `protection_type` - (Optional, String) Specifies the protection type of the CBR vault.
+* `protection_type` - (Optional, String) Specifies the protection type of the vault.
   The valid values are **backup** and **replication**. Vaults of type **disk** don't support **replication**.
 
 * `size` - (Optional, Int) Specifies the vault sapacity, in GB. The valid value range is `1` to `10,485,760`.
 
 * `auto_expand_enabled` - (Optional, Bool) Specifies whether to enable automatic expansion of the backup protection
-  type vault. Default to **false**.
+  type vault. Defaults to **false**.
 
-* `enterprise_project_id` - (Optional, String) Specifies a unique ID in UUID format of enterprise project.
+* `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the vault belongs.
 
-* `policy_id` - (Optional, String) Specifies a policy to associate with the CBR vault.
+* `policy_id` - (Optional, String) Specifies the ID of the policy associated with the vault.
   The `policy_id` cannot be used with the vault of replicate protection type.
 
-* `status` - (Optional, String) Specifies the CBR vault status, including **available**, **lock**, **frozen** and **error**.
+* `status` - (Optional, String) Specifies the vault status, including **available**, **lock**, **frozen** and **error**.
 
 ## Attributes Reference
 
@@ -59,19 +59,19 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID in hashcode format.
 
-* `vaults` - List of CBR vault details. The object structure of each CBR vault is documented below.
+* `vaults` - List of vault details. The object structure of each vault is documented below.
 
 The `vaults` block supports:
 
 * `id` - The vault ID in UUID format.
 
-* `name` - The CBR vault name.
+* `name` - The vault name.
 
-* `type` - The object type of the CBR vault.
+* `type` - The object type of the vault.
 
-* `consistent_level` - The backup specifications.
+* `consistent_level` - The consistent level (specification) of the vault.
 
-* `protection_type` - The protection type of the CBR vault.
+* `protection_type` - The protection type of the vault.
 
 * `size` - The vault capacity, in GB.
 
@@ -79,7 +79,7 @@ The `vaults` block supports:
 
 * `enterprise_project_id` - The enterprise project ID.
 
-* `policy_id` - The policy associated with the CBR vault.
+* `policy_id` - The ID of the policy associated with the vault.
 
 * `allocated` - The allocated capacity of the vault, in GB.
 
@@ -91,9 +91,9 @@ The `vaults` block supports:
 
 * `storage` - The name of the bucket for the vault.
 
-* `tags` - The key/value pairs to associate with the CBR vault.
+* `tags` - The key/value pairs to associate with the vault.
 
-* `resources` - An array of one or more resources to attach to the CBR vault.
+* `resources` - The array of one or more resources to attach to the vault.
   The [object](#cbr_vault_resources) structure is documented below.
 
 <a name="cbr_vault_resources"></a>
@@ -101,6 +101,6 @@ The `resources` block supports:
 
 * `server_id` - The ID of the ECS instance to be backed up.
 
-* `excludes` - An array of disk IDs which will be excluded in the backup.
+* `excludes` - The array of disk IDs which will be excluded in the backup.
 
-* `includes` - An array of disk or SFS file system IDs which will be included in the backup.
+* `includes` - The array of disk or SFS file system IDs which will be included in the backup.

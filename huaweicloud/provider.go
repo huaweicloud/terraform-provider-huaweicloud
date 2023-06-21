@@ -394,7 +394,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_bms_flavors": bms.DataSourceBmsFlavors(),
 
 			"huaweicloud_cbr_backup": cbr.DataSourceBackup(),
-			"huaweicloud_cbr_vaults": cbr.DataSourceCbrVaultsV3(),
+			"huaweicloud_cbr_vaults": cbr.DataSourceVaults(),
 
 			"huaweicloud_cbh_instances": cbh.DataSourceCbhInstances(),
 
@@ -668,7 +668,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_bms_instance": bms.ResourceBmsInstance(),
 			"huaweicloud_bcs_instance": resourceBCSInstanceV2(),
 
-			"huaweicloud_cbr_policy": cbr.ResourceCBRPolicyV3(),
+			"huaweicloud_cbr_policy": cbr.ResourcePolicy(),
 			"huaweicloud_cbr_vault":  cbr.ResourceVault(),
 
 			"huaweicloud_cbh_instance": cbh.ResourceCBHInstance(),

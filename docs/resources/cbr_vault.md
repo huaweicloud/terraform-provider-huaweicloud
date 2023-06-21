@@ -13,10 +13,8 @@ Manages a CBR Vault resource within Huaweicloud.
 ```hcl
 variable "vault_name" {}
 variable "ecs_instance_id" {}
-variable "evs_volume_id" {}
-
-data "huaweicloud_compute_instance" "test" {
-  ...
+variable "attached_volume_ids" {
+  type = list(string)
 }
 
 resource "huaweicloud_cbr_vault" "test" {
@@ -28,10 +26,7 @@ resource "huaweicloud_cbr_vault" "test" {
 
   resources {
     server_id = var.ecs_instance_id
-  
-    excludes = [
-      var.evs_volume_id
-    ]
+    excludes  = var.attached_volume_ids
   }
 
   tags = {
@@ -80,19 +75,19 @@ resource "huaweicloud_cbr_vault" "test" {
 
 ```hcl
 variable "vault_name" {}
-variable "evs_volume_id" {}
+variable "evs_volume_ids" {
+  type = list(string)
+}
 
 resource "huaweicloud_cbr_vault" "test" {
-  name             = var.vault_name
-  type             = "disk"
-  protection_type  = "backup"
-  size             = 50
-  auto_expand      = true
+  name            = var.vault_name
+  type            = "disk"
+  protection_type = "backup"
+  size            = 50
+  auto_expand     = true
 
   resources {
-    includes = [
-      var.evs_volume_id
-    ]
+    includes = var.evs_volume_ids
   }
 
   tags = {
@@ -105,18 +100,18 @@ resource "huaweicloud_cbr_vault" "test" {
 
 ```hcl
 variable "vault_name" {}
-variable "sfs_turbo_id" {}
+variable "sfs_turbo_ids" {
+  type = list(string)
+}
 
 resource "huaweicloud_cbr_vault" "test" {
-  name             = var.vault_name
-  type             = "turbo"
-  protection_type  = "backup"
-  size             = 1000
+  name            = var.vault_name
+  type            = "turbo"
+  protection_type = "backup"
+  size            = 1000
 
   resources {
-    includes = [
-      var.sfs_turbo_id
-    ]
+    includes = var.sfs_turbo_ids
   }
 
   tags = {
@@ -131,10 +126,10 @@ resource "huaweicloud_cbr_vault" "test" {
 variable "vault_name" {}
 
 resource "huaweicloud_cbr_vault" "test" {
-  name             = var.vault_name
-  type             = "turbo"
-  protection_type  = "replication"
-  size             = 1000
+  name            = var.vault_name
+  type            = "turbo"
+  protection_type = "replication"
+  size            = 1000
 }
 ```
 
@@ -162,7 +157,7 @@ The following arguments are supported:
 
   -> You cannot update `size` if the vault is **prePaid** mode.
 
-* `consistent_level` - (Optional, String, ForceNew) Specifies the backup specifications.
+* `consistent_level` - (Optional, String, ForceNew) Specifies the consistent level (specification) of the vault.
   The valid values are as follows:
   + **[crash_consistent](https://support.huaweicloud.com/intl/en-us/usermanual-cbr/cbr_03_0109.html)**
   + **[app_consistent](https://support.huaweicloud.com/intl/en-us/usermanual-cbr/cbr_03_0109.html)**
@@ -179,8 +174,8 @@ The following arguments are supported:
 
 * `bind_rules` - (Optional, Map) Specifies the tags to filter resources for automatic association with **auto_bind**.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies a unique ID in UUID format of enterprise project.
-  Changing this will create a new vault.
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the ID of the enterprise project to which the vault
+  belongs. Changing this will create a new vault.
 
 * `policy` - (Optional, List) Specifies the policy details to associate with the CBR vault.
   The [object](#cbr_vault_policies) structure is documented below.
@@ -270,7 +265,7 @@ with the vault. Also you can ignore changes as below.
 
 ```
 resource "huaweicloud_cbr_vault" "test" {
-    ...
+  ...
 
   lifecycle {
     ignore_changes = [
