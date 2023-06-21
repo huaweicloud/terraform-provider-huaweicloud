@@ -95,6 +95,16 @@ func ResourceGaussRedisInstanceV3() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"port": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"ssl": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"force_import": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -158,10 +168,6 @@ func ResourceGaussRedisInstanceV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"port": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
 			"mode": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -197,6 +203,10 @@ func ResourceGaussRedisInstanceV3() *schema.Resource {
 						},
 						"support_reduce": {
 							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"public_ip": {
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"private_ip": {
@@ -354,6 +364,14 @@ func resourceGaussRedisInstanceV3Create(ctx context.Context, d *schema.ResourceD
 		BackupStrategy:      resourceGaussRedisBackupStrategy(d),
 	}
 
+	if port, ok := d.GetOk("port"); ok {
+		createOpts.Port = strconv.Itoa(port.(int))
+	}
+
+	if ssl := d.Get("ssl").(bool); ssl {
+		createOpts.Ssl = "1"
+	}
+
 	// PrePaid
 	if d.Get("charging_mode") == "prePaid" {
 		if err = common.ValidatePrePaidChargeInfo(d); err != nil {
@@ -477,6 +495,7 @@ func resourceGaussRedisInstanceV3Read(_ context.Context, d *schema.ResourceData,
 				"id":             Node.Id,
 				"name":           Node.Name,
 				"status":         Node.Status,
+				"public_ip":      Node.PublicIp,
 				"private_ip":     Node.PrivateIp,
 				"support_reduce": Node.SupportReduce,
 			}
@@ -607,6 +626,12 @@ func resourceGaussRedisInstanceV3Update(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
+	if d.HasChange("ssl") {
+		if err = gaussRedisInstanceUpdateSsl(ctx, d, client); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	if d.HasChange("volume_size") {
 		err = gaussRedisInstanceUpdateVolumeSize(ctx, d, client, bssClient)
 		if err != nil {
@@ -644,6 +669,52 @@ func resourceGaussRedisInstanceV3Update(ctx context.Context, d *schema.ResourceD
 	return resourceGaussRedisInstanceV3Read(ctx, d, meta)
 }
 
+func waitForInstanceReady(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, pending []string) error {
+	// 2. wait instance status
+	stateConf := &resource.StateChangeConf{
+		Pending:      pending,
+		Target:       []string{"available"},
+		Refresh:      GaussRedisInstanceUpdateRefreshFunc(client, d.Id(), pending),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        15 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for instance (%s) to become ready: %s", d.Id(), err)
+	}
+	return nil
+}
+
+// lintignore:R018
+func gaussRedisInstanceUpdateSsl(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	ssl := "off"
+	if v := d.Get("ssl").(bool); v {
+		ssl = "on"
+	}
+	updateSslOpts := instances.UpdateSslOpts{
+		Ssl: ssl,
+	}
+
+	err := resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+		err := instances.UpdateSsl(client, d.Id(), updateSslOpts).ExtractErr()
+		isRetry, err := handleOperationError(err)
+		if isRetry {
+			return resource.RetryableError(err)
+		}
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("error updating ssl for GaussDB redis instance ssl %s: %s", d.Id(), err)
+	}
+
+	return waitForInstanceReady(ctx, d, client, []string{"SWITCH_SSL"})
+}
+
 func gaussRedisInstanceUpdateVolumeSize(ctx context.Context, d *schema.ResourceData,
 	client, bssClient *golangsdk.ServiceClient) error {
 	extendOpts := instances.ExtendVolumeOpts{
@@ -678,19 +749,9 @@ func gaussRedisInstanceUpdateVolumeSize(ctx context.Context, d *schema.ResourceD
 	}
 
 	// 2. wait instance status
-	stateConf := &resource.StateChangeConf{
-		Pending: []string{"RESIZE_VOLUME", "PERIOD_RESOURCE_SPEC_CHG"},
-		Target:  []string{"available"},
-		Refresh: GaussRedisInstanceUpdateRefreshFunc(client, d.Id(),
-			map[string]bool{"RESIZE_VOLUME": true, "PERIOD_RESOURCE_SPEC_CHG": true}),
-		Timeout:    d.Timeout(schema.TimeoutUpdate),
-		MinTimeout: 10 * time.Second,
-	}
-
-	_, err = stateConf.WaitForStateContext(ctx)
+	err = waitForInstanceReady(ctx, d, client, []string{"RESIZE_VOLUME", "PERIOD_RESOURCE_SPEC_CHG"})
 	if err != nil {
-		return fmt.Errorf(
-			"error waiting for huaweicloud_gaussdb_redis_instance %s to become ready: %s", d.Id(), err)
+		return err
 	}
 
 	// 3. check whether the order take effect
@@ -736,18 +797,9 @@ func gaussRedisInstanceUpdateSecurityGroup(ctx context.Context, d *schema.Resour
 			"error updating security group for huaweicloud_gaussdb_redis_instance %s: %s", d.Id(), err)
 	}
 
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"MODIFY_SECURITYGROUP"},
-		Target:       []string{"available"},
-		Refresh:      GaussRedisInstanceUpdateRefreshFunc(client, d.Id(), map[string]bool{"MODIFY_SECURITYGROUP": true}),
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
-		PollInterval: 3 * time.Second,
-	}
-
-	_, err = stateConf.WaitForStateContext(ctx)
+	err = waitForInstanceReady(ctx, d, client, []string{"MODIFY_SECURITYGROUP"})
 	if err != nil {
-		return fmt.Errorf(
-			"error waiting for huaweicloud_gaussdb_redis_instance %s to become ready: %s", d.Id(), err)
+		return err
 	}
 	return nil
 }
@@ -801,19 +853,9 @@ func gaussRedisInstanceEnlargeNodeNum(ctx context.Context, d *schema.ResourceDat
 	}
 
 	// 2. wait instance status
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"GROWING"},
-		Target:       []string{"available"},
-		Refresh:      GaussRedisInstanceUpdateRefreshFunc(client, d.Id(), map[string]bool{"GROWING": true}),
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
-		Delay:        15 * time.Second,
-		PollInterval: 20 * time.Second,
-	}
-
-	_, err = stateConf.WaitForStateContext(ctx)
+	err = waitForInstanceReady(ctx, d, client, []string{"GROWING"})
 	if err != nil {
-		return fmt.Errorf(
-			"error waiting for huaweicloud_gaussdb_redis_instance %s to become ready: %s", d.Id(), err)
+		return err
 	}
 
 	// 3. check whether the order take effect
@@ -868,19 +910,9 @@ func gaussRedisInstanceReduceNodeNum(ctx context.Context, d *schema.ResourceData
 			}
 		}
 
-		stateConf := &resource.StateChangeConf{
-			Pending:      []string{"REDUCING"},
-			Target:       []string{"available"},
-			Refresh:      GaussRedisInstanceUpdateRefreshFunc(client, d.Id(), map[string]bool{"REDUCING": true}),
-			Timeout:      d.Timeout(schema.TimeoutUpdate),
-			Delay:        15 * time.Second,
-			PollInterval: 20 * time.Second,
-		}
-
-		_, err = stateConf.WaitForStateContext(ctx)
+		err = waitForInstanceReady(ctx, d, client, []string{"REDUCING"})
 		if err != nil {
-			return fmt.Errorf(
-				"error waiting for huaweicloud_gaussdb_redis_instance %s to become ready: %s", d.Id(), err)
+			return err
 		}
 
 		// 3. check whether the order take effect
@@ -902,7 +934,11 @@ func gaussRedisInstanceReduceNodeNum(ctx context.Context, d *schema.ResourceData
 }
 
 func GaussRedisInstanceUpdateRefreshFunc(client *golangsdk.ServiceClient, instanceID string,
-	states map[string]bool) resource.StateRefreshFunc {
+	states []string) resource.StateRefreshFunc {
+	statesMap := make(map[string]bool)
+	for _, state := range states {
+		statesMap[state] = true
+	}
 	return func() (interface{}, string, error) {
 		instance, err := instances.GetInstanceByID(client, instanceID)
 
@@ -913,7 +949,7 @@ func GaussRedisInstanceUpdateRefreshFunc(client *golangsdk.ServiceClient, instan
 			return instance, "deleted", nil
 		}
 		for _, action := range instance.Actions {
-			if _, ok := states[action]; ok {
+			if _, ok := statesMap[action]; ok {
 				return instance, action, nil
 			}
 		}
