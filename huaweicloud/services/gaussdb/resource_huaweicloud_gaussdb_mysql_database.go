@@ -408,7 +408,7 @@ func waitForJobComplete(ctx context.Context, client *golangsdk.ServiceClient, ti
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Pending", "Running", "Failed"},
 		Target:       []string{"Completed"},
-		Refresh:      gaussDBMysqlDatabaseStatusRefreshFunc(client, instanceId, jobId),
+		Refresh:      gaussDBMysqlDatabaseStatusRefreshFunc(client, jobId),
 		Timeout:      timeout,
 		Delay:        1 * time.Second,
 		PollInterval: 1 * time.Second,
@@ -419,45 +419,6 @@ func waitForJobComplete(ctx context.Context, client *golangsdk.ServiceClient, ti
 		return fmt.Errorf("error waiting for GaussDB MySQL job (%s) to complete: %s", instanceId, err)
 	}
 	return nil
-}
-
-func gaussDBMysqlDatabaseStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId,
-	jobId string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		var (
-			getJobStatusHttpUrl = "v3/{project_id}/jobs"
-		)
-
-		getJobStatusPath := client.Endpoint + getJobStatusHttpUrl + buildQueryJobParam(jobId)
-		getJobStatusPath = strings.ReplaceAll(getJobStatusPath, "{project_id}", client.ProjectID)
-		getJobStatusPath = strings.ReplaceAll(getJobStatusPath, "{instance_id}", instanceId)
-
-		getJobStatusOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
-			MoreHeaders: map[string]string{
-				"Content-Type": "application/json",
-			},
-		}
-		getJobStatusResp, err := client.Request("GET", getJobStatusPath, &getJobStatusOpt)
-		if err != nil {
-			return nil, "Failed", err
-		}
-
-		getJobStatusRespBody, err := utils.FlattenResponse(getJobStatusResp)
-		if err != nil {
-			return nil, "", err
-		}
-
-		status := utils.PathSearch("job.status", getJobStatusRespBody, "")
-		return getJobStatusRespBody, status.(string), nil
-	}
-}
-
-func buildQueryJobParam(jobId string) string {
-	return "?id=" + jobId
 }
 
 func handleGaussDBMysqlOperationError(err error) (bool, error) {
