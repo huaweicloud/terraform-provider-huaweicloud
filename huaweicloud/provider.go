@@ -838,6 +838,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_ges_graph":    ges.ResourceGesGraph(),
 			"huaweicloud_ges_metadata": ges.ResourceGesMetadata(),
+			"huaweicloud_ges_backup":   ges.ResourceGesBackup(),
 
 			"huaweicloud_hss_host_group": hss.ResourceHostGroup(),
 
