@@ -137,7 +137,7 @@ func QueryAssociationById(client *golangsdk.ServiceClient, instanceId, routeTabl
 	if err != nil {
 		return nil, err
 	}
-	if len(resp) < 1 {
+	if len(result) < 1 {
 		return nil, golangsdk.ErrDefault404{
 			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
 				Body: []byte(fmt.Sprintf("the association (%s) does not exist", associationId)),
@@ -145,8 +145,12 @@ func QueryAssociationById(client *golangsdk.ServiceClient, instanceId, routeTabl
 		}
 	}
 
-	association := result[0].(associations.Association)
-	log.Printf("[DEBUG] The details of the association (%s) is: %#v", associationId, association)
+	log.Printf("[DEBUG] The result filtered by resource ID (%s) is: %#v", associationId, result)
+	association, ok := result[0].(associations.Association)
+	if !ok {
+		return nil, fmt.Errorf("the element type of filter result is incorrect, want 'associations.Association', "+
+			"but got '%T'", result[0])
+	}
 
 	return &association, nil
 }
