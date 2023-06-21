@@ -197,12 +197,12 @@ func listRolesOfDomain(client *golangsdk.ServiceClient, domainID string) (map[st
 	opts := roles.ListOpts{
 		DomainID: domainID,
 	}
-	allPages, err := roles.List(client, &opts).AllPages()
+	allPages, err := roles.ListWithPages(client, opts).AllPages()
 	if err != nil {
 		return nil, fmt.Errorf("failed to query roles: %s", err)
 	}
 
-	allItems, err := roles.ExtractRoles(allPages)
+	allItems, err := roles.ExtractOffsetRoles(allPages)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract roles: %s", err)
 	}
