@@ -84,7 +84,7 @@ The following arguments are supported:
 * `flavor_id` - (Optional, String) Specifies a flavor ID.
   It is mandatory when the `charging_mode` is **prePaid**.
 
-* `broker_num` - (Optional, Int, ForceNew) Specifies the broker numbers.
+* `broker_num` - (Optional, Int) Specifies the broker numbers.
   It is required when creating a cluster instance with `flavor_id`.
 
   -> **NOTE:** Change this will change number of nodes and storage capacity. If you specify the value of
@@ -119,13 +119,13 @@ The following arguments are supported:
   and special characters (`~!@#$%^&*()-_=+\\|[{}]:'",<.>/?).
   Changing this creates a new instance resource.
 
-* `storage_space` - (Optional, Int, ForceNew) Specifies the message storage space, unit is GB.
+* `storage_space` - (Optional, Int) Specifies the message storage space, unit is GB.
   It is required when creating a instance with `flavor_id`. Value range:
   + Single-node RabbitMQ instance: 100–90,000 GB
   + Cluster RabbitMQ instance: 100 GB x number of nodes to 90,000 GB, 200 GB x number of nodes to 90,000 GB,
     and 300 GB x number of nodes to 90,000 GB
 
-  The storage capacity of the product used by default. Changing this creates a new instance resource.
+  The storage capacity of the product used by default.
 
 * `description` - (Optional, String) Specifies the description of the DMS RabbitMQ instance.
   It is a character string containing not more than 1,024 characters.
