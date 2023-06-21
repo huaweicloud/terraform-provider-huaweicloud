@@ -32,6 +32,7 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 					testAccCheckGaussDBInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "audit_log_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "sql_filter_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
@@ -42,6 +43,7 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 					testAccCheckGaussDBInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "audit_log_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "sql_filter_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 				),
@@ -150,6 +152,7 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   subnet_id             = huaweicloud_vpc_subnet.test.id
   security_group_id     = huaweicloud_networking_secgroup.test.id
   enterprise_project_id = "0"
+  sql_filter_enabled    = true
 
   tags = {
     foo = "bar"
@@ -174,6 +177,7 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   security_group_id     = huaweicloud_networking_secgroup.test.id
   enterprise_project_id = "0"
   audit_log_enabled     = true
+  sql_filter_enabled    = false
 
   tags = {
     foo_update = "bar"

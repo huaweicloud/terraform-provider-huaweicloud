@@ -2,9 +2,16 @@ package gaussdb
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
@@ -13,10 +20,8 @@ import (
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/backups"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/configurations"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances"
-	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/sqlfilter"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -192,6 +197,11 @@ func ResourceGaussDBInstance() *schema.Resource {
 						},
 					},
 				},
+			},
+			"sql_filter_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
 			},
 			"proxy_flavor": {
 				Type:       schema.TypeString,
@@ -530,6 +540,14 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
+	// sql-filter switch
+	if v, ok := d.GetOk("sql_filter_enabled"); ok {
+		err = switchSQLFilter(client, id, v.(bool), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return err
+		}
+	}
+
 	if common.HasFilledOpt(d, "backup_strategy") {
 		var updateOpts backups.UpdateOpts
 		backupRaw := d.Get("backup_strategy").([]interface{})
@@ -731,6 +749,14 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 			status = true
 		}
 		d.Set("audit_log_enabled", status)
+	}
+
+	// set sql filter status
+	res, err := sqlfilter.Get(client, instanceID).Extract()
+	if err != nil {
+		log.Printf("[DEBUG] query Instance %s sql filter status failed: %s", instanceID, err)
+	} else {
+		d.Set("sql_filter_enabled", res.SwitchStatus == "ON")
 	}
 
 	// save tags
@@ -1030,6 +1056,14 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
+	if d.HasChange("sql_filter_enabled") {
+		err = switchSQLFilter(client, instanceId, d.Get("sql_filter_enabled").(bool),
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+
 	// update tags
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(client, d, "instances", d.Id())
@@ -1110,4 +1144,70 @@ func switchAuditLog(client *golangsdk.ServiceClient, instanceId string, v bool) 
 	}
 
 	return nil
+}
+
+func switchSQLFilter(client *golangsdk.ServiceClient, instanceId string, isSQLFilterEnabled bool,
+	timeout time.Duration) error {
+	flag := "OFF"
+	if isSQLFilterEnabled {
+		flag = "ON"
+	}
+	opts := sqlfilter.UpdateSqlFilterOpts{
+		SwitchStatus: flag,
+	}
+
+	res, err := sqlfilter.Update(client, instanceId, opts).ExtractJobResponse()
+	if err != nil {
+		return fmt.Errorf("switch SQL filter to %q failed: %s", flag, err)
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"Pending", "Running", "Failed"},
+		Target:       []string{"Completed"},
+		Refresh:      gaussDBMysqlDatabaseStatusRefreshFunc(client, res.JobID),
+		Timeout:      timeout,
+		Delay:        1 * time.Second,
+		PollInterval: 1 * time.Second,
+	}
+
+	//nolint:staticcheck
+	_, err = stateConf.WaitForState()
+	if err != nil {
+		return fmt.Errorf("error waiting for switch SQL filter job (%s) to complete: %s", instanceId, err)
+	}
+	return nil
+}
+
+func gaussDBMysqlDatabaseStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		var (
+			getJobStatusHttpUrl = "v3/{project_id}/jobs?id={job_id}"
+		)
+
+		getJobStatusPath := client.Endpoint + getJobStatusHttpUrl
+		getJobStatusPath = strings.ReplaceAll(getJobStatusPath, "{project_id}", client.ProjectID)
+		getJobStatusPath = strings.ReplaceAll(getJobStatusPath, "{job_id}", jobId)
+
+		getJobStatusOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			OkCodes: []int{
+				200,
+			},
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+		}
+		getJobStatusResp, err := client.Request("GET", getJobStatusPath, &getJobStatusOpt)
+		if err != nil {
+			return nil, "Failed", err
+		}
+
+		getJobStatusRespBody, err := utils.FlattenResponse(getJobStatusResp)
+		if err != nil {
+			return nil, "", err
+		}
+
+		status := utils.PathSearch("job.status", getJobStatusRespBody, "")
+		return getJobStatusRespBody, status.(string), nil
+	}
 }
