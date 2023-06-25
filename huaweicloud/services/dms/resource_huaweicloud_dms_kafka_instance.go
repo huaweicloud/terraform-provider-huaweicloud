@@ -95,7 +95,6 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				ForceNew:  true,
 			},
 			"availability_zones": {
-				// There is a problem with order of elements in Availability Zone list returned by Kafka API.
 				Type:        schema.TypeSet,
 				Optional:    true,
 				Computed:    true,
@@ -417,7 +416,7 @@ func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData,
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"BOUND"},
-		Refresh:      portBindStatusRefreshFunc(client, d.Id(), 0),
+		Refresh:      kafkaInstanceCrossVpcInfoRefreshFunc(client, d.Id()),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -1023,7 +1022,7 @@ func resizeKafkaInstance(ctx context.Context, d *schema.ResourceData, meta inter
 		stateConf := &resource.StateChangeConf{
 			Pending:      []string{"PENDING"},
 			Target:       []string{"BOUND"},
-			Refresh:      portBindStatusRefreshFunc(client, d.Id(), brokerNum),
+			Refresh:      kafkaInstanceBrokerNumberRefreshFunc(client, d.Id(), brokerNum),
 			Timeout:      d.Timeout(schema.TimeoutUpdate),
 			Delay:        10 * time.Second,
 			PollInterval: 10 * time.Second,
@@ -1087,9 +1086,9 @@ func kafkaResizeStateRefresh(client *golangsdk.ServiceClient, d *schema.Resource
 			return nil, "failed", err
 		}
 
-		if ((operType == nil || *operType == "vertical") && v.ProductID != flavorID) ||
-			(operType != nil && *operType == "storage" && v.TotalStorageSpace != storageSpace) ||
-			(operType != nil && *operType == "horizontal" && v.BrokerNum != brokerNum) {
+		if ((operType == nil || *operType == "vertical") && v.ProductID != flavorID) || // change flavor
+			(operType != nil && *operType == "storage" && v.TotalStorageSpace != storageSpace) || // expansion
+			(operType != nil && *operType == "horizontal" && v.BrokerNum != brokerNum) { // expand broker number
 			return v, "PENDING", nil
 		}
 
@@ -1137,16 +1136,14 @@ func resourceDmsKafkaInstanceDelete(ctx context.Context, d *schema.ResourceData,
 	return nil
 }
 
-func portBindStatusRefreshFunc(client *golangsdk.ServiceClient, instanceID string, brokerNum int) resource.StateRefreshFunc {
+func kafkaInstanceBrokerNumberRefreshFunc(client *golangsdk.ServiceClient, instanceID string, brokerNum int) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := instances.Get(client, instanceID).Extract()
 		if err != nil {
 			return nil, "QUERY ERROR", err
 		}
-		if brokerNum == 0 && resp.CrossVpcInfo != "" {
-			return resp, "BOUND", nil
-		}
-		if brokerNum != 0 && resp.CrossVpcInfo != "" {
+
+		if brokerNum == resp.BrokerNum && resp.CrossVpcInfo != "" {
 			crossVpcInfoMap, err := flattenCrossVpcInfo(resp.CrossVpcInfo)
 			if err != nil {
 				return resp, "ParseError", err
@@ -1155,6 +1152,19 @@ func portBindStatusRefreshFunc(client *golangsdk.ServiceClient, instanceID strin
 			if len(crossVpcInfoMap) == brokerNum {
 				return resp, "BOUND", nil
 			}
+		}
+		return resp, "PENDING", nil
+	}
+}
+
+func kafkaInstanceCrossVpcInfoRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		resp, err := instances.Get(client, instanceID).Extract()
+		if err != nil {
+			return nil, "QUERY ERROR", err
+		}
+		if resp.CrossVpcInfo != "" {
+			return resp, "BOUND", nil
 		}
 		return resp, "PENDING", nil
 	}
