@@ -354,3 +354,20 @@ func DeleteAsyncInvokeConfig(c *golangsdk.ServiceClient, functionUrn string) err
 	})
 	return err
 }
+
+// MaxInstanceConfig is the structure used to update the max instance configuration for function.
+type MaxInstanceConfig struct {
+	// The maximum number of instances of the function.
+	Number *int `json:"max_instance_num,omitempty"`
+}
+
+func UpdateMaxInstanceNumber(c *golangsdk.ServiceClient, functionUrn string, num int) (*Function, error) {
+	config := MaxInstanceConfig{
+		Number: &num,
+	}
+	var r Function
+	_, err := c.Put(maxInstanceNumberURL(c, functionUrn), config, &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return &r, err
+}

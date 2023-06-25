@@ -1,6 +1,8 @@
 package fgs
 
 import (
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -219,6 +221,20 @@ func ResourceFgsFunctionV2() *schema.Resource {
 					"code_type",
 				},
 			},
+			"max_instance_num": {
+				// The original type of this parameter is int, but its zero value is meaningful.
+				// So, the following types of parameter passing are realized through the logic of terraform's implicit
+				// conversion of int:
+				//   + -1: the number of instances is unlimited.
+				//   + 0: this function is disabled.
+				//   + (0, +1000]: Specific value (2023.06.26).
+				//   + empty: keep the default (latest updated) value.
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^\-?\d+$`),
+					`invalid value of maximum instance number, want an integer number or integer string.`),
+			},
 			"version": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -326,6 +342,15 @@ func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
+	if strNum, ok := d.GetOk("max_instance_num"); ok {
+		// The integer string of the maximum instance number has been already checked in the schema validation.
+		maxInstanceNum, _ := strconv.Atoi(strNum.(string))
+		_, err = function.UpdateMaxInstanceNumber(fgsClient, urn, maxInstanceNum)
+		if err != nil {
+			return err
+		}
+	}
+
 	return resourceFgsFunctionV2Read(d, meta)
 }
 
@@ -425,6 +450,7 @@ func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("enterprise_project_id", f.EnterpriseProjectID),
 		d.Set("functiongraph_version", f.Type),
 		d.Set("custom_image", flattenFgsCustomImage(f.CustomImage)),
+		d.Set("max_instance_num", strconv.Itoa(*f.StrategyConfig.Concurrency)),
 		setFgsFunctionApp(d, f.Package),
 		setFgsFunctionAgency(d, f.Xrole),
 		setFgsFunctionVpcAccess(d, f.FuncVpc),
@@ -458,6 +484,14 @@ func resourceFgsFunctionV2Update(d *schema.ResourceData, meta interface{}) error
 		"user_data", "agency", "app_agency", "description", "initializer_handler", "initializer_timeout",
 		"vpc_id", "network_id", "mount_user_id", "mount_user_group_id", "func_mounts", "custom_image") {
 		err := resourceFgsFunctionV2MetadataUpdate(fgsClient, urn, d)
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("max_instance_num") {
+		// The integer string of the maximum instance number has been already checked in the schema validation.
+		maxInstanceNum, _ := strconv.Atoi(d.Get("max_instance_num").(string))
+		_, err = function.UpdateMaxInstanceNumber(fgsClient, urn, maxInstanceNum)
 		if err != nil {
 			return err
 		}
