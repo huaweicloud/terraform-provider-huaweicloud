@@ -101,6 +101,13 @@ func ResourcePolicy() *schema.Resource {
 				Optional:    true,
 				Description: "The name of the replication destination region.",
 			},
+			"enable_acceleration": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Description: "Whether to enable the acceleration function to shorten the replication time for " +
+					"cross-region",
+			},
 			"destination_project_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -143,6 +150,13 @@ func ResourcePolicy() *schema.Resource {
 							Type:        schema.TypeInt,
 							Optional:    true,
 							Description: "The latest backup of each year is saved in the long term.",
+						},
+						"full_backup_interval": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(-1, 100),
+							Description: "How often (after how many incremental backups) a full backup is " +
+								"performed.",
 						},
 					},
 				},
@@ -203,6 +217,10 @@ func buildPolicyOpDefinition(d *schema.ResourceData) *policies.PolicyODCreate {
 	if destinationProjectID, ok := d.GetOk("destination_project_id"); ok {
 		policyODCreate.DestinationProjectID = destinationProjectID.(string)
 		policyODCreate.DestinationRegion = d.Get("destination_region").(string)
+		// Users with the permission 'OP_GATED_CSBS_REP_ACCELERATION' cannot use this parameter, and an error will be
+		// reported when 'true' is configured: 'BackupService.9900', 'invalid key enable_acceleration'.
+		// The default value is 'false' in the API definition (2023.06.16).
+		policyODCreate.EnableAcceleration = d.Get("enable_acceleration").(bool)
 	}
 
 	// The backup_quantity and time_period are both left blank means the backups are retained permanently
@@ -222,6 +240,7 @@ func buildPolicyOpDefinition(d *schema.ResourceData) *policies.PolicyODCreate {
 		policyODCreate.MonthBackups = d.Get("long_term_retention.0.monthly").(int)
 		policyODCreate.YearBackups = d.Get("long_term_retention.0.yearly").(int)
 		policyODCreate.Timezone = d.Get("time_zone").(string)
+		policyODCreate.FullBackupInterval = utils.Int(d.Get("long_term_retention.0.full_backup_interval").(int))
 	}
 
 	return &policyODCreate
@@ -302,10 +321,11 @@ func flattenLongTermRetention(resp *policies.PolicyODCreate) []map[string]interf
 	}
 	return []map[string]interface{}{
 		{
-			"daily":   resp.DailyBackups,
-			"weekly":  resp.WeekBackups,
-			"monthly": resp.MonthBackups,
-			"yearly":  resp.YearBackups,
+			"daily":                resp.DailyBackups,
+			"weekly":               resp.WeekBackups,
+			"monthly":              resp.MonthBackups,
+			"yearly":               resp.YearBackups,
+			"full_backup_interval": resp.FullBackupInterval,
 		},
 	}
 }
@@ -388,7 +408,7 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 			},
 		}
 	}
-	if d.HasChanges("backup_quantity", "time_period", "destination_region", "long_term_retention", "time_zone") {
+	if d.HasChangesExcept("name", "enabled", "backup_cycle") {
 		updateOpts.OperationDefinition = buildPolicyOpDefinition(d)
 	}
 
