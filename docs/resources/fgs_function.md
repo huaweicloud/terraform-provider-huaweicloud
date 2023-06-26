@@ -169,6 +169,8 @@ The following arguments are supported:
 
   -> This parameter is only supported by the `v2` version of the function.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the function.
+
 The `func_mounts` block supports:
 
 * `mount_type` - (Required, String) Specifies the mount type. Options: sfs, sfsTurbo, and ecs.
@@ -206,4 +208,22 @@ Functions can be imported using the `id`, e.g.
 
 ```
 $ terraform import huaweicloud_fgs_function.my-func 7117d38e-4c8f-4624-a505-bd96b97d024c
+```
+
+Note that the imported state may not be identical to your resource definition, due to the attribute missing from the
+API response. The missing attributes are:
+`app`, `func_code`, `agency`, `tags"`.
+It is generally recommended running `terraform plan` after importing a function.
+You can then decide if changes should be applied to the function, or the resource definition should be updated to align
+with the function. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_fgs_function" "test" {
+  ...
+  lifecycle {
+    ignore_changes = [
+      app, func_code, agency, tags,
+    ]
+  }
+}
 ```
