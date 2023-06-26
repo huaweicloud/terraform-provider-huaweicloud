@@ -119,6 +119,7 @@ func ResourceInstance() *schema.Resource {
 				Computed:    true,
 				Description: `The ID of the default association route table.`,
 			},
+			"tags": common.TagsSchema(),
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -136,6 +137,39 @@ func ResourceInstance() *schema.Resource {
 			},
 		},
 	}
+}
+
+func addResourceTags(client *golangsdk.ServiceClient, resourceType, resourceId, key, value string) error {
+	var (
+		addTagsHttpUrl = "v3/{project_id}/{resource_type}/{resource_id}/tags"
+	)
+
+	addTagsPath := client.Endpoint + addTagsHttpUrl
+	addTagsPath = strings.ReplaceAll(addTagsPath, "{project_id}", client.ProjectID)
+	addTagsPath = strings.ReplaceAll(addTagsPath, "{resource_type}", resourceType)
+	addTagsPath = strings.ReplaceAll(addTagsPath, "{resource_id}", resourceId)
+
+	addTagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
+	}
+	addTagsOpt.JSONBody = map[string]interface{}{
+		"tag": map[string]interface{}{
+			"key":   key,
+			"value": value,
+		},
+	}
+	_, err := client.Request("POST", addTagsPath, &addTagsOpt)
+	if err != nil {
+		return fmt.Errorf("error adding tags to ER instance: %s", err)
+	}
+
+	return nil
 }
 
 func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -211,6 +245,15 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 	_, err = utils.FlattenResponse(updateInstanceDefaultRouteTablesResp)
 	if err != nil {
 		return diag.FromErr(err)
+	}
+
+	if tags, ok := d.GetOk("tags"); ok {
+		for k, v := range tags.(map[string]interface{}) {
+			err := addResourceTags(createInstanceClient, "instance", id.(string), k, v.(string))
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
 	}
 
 	return resourceInstanceRead(ctx, d, meta)
@@ -364,14 +407,68 @@ func resourceInstanceRead(ctx context.Context, d *schema.ResourceData, meta inte
 		d.Set("default_association_route_table_id", utils.PathSearch("instance.default_association_route_table_id", getInstanceRespBody, nil)),
 		d.Set("availability_zones", utils.PathSearch("instance.availability_zone_ids", getInstanceRespBody, nil)),
 		d.Set("auto_accept_shared_attachments", utils.PathSearch("instance.auto_accept_shared_attachments", getInstanceRespBody, nil)),
+		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("instance.tags", getInstanceRespBody, nil))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
+func deleteResourceTags(client *golangsdk.ServiceClient, resourceType, resourceId, key string) error {
+	var (
+		deleteTagsHttpUrl = "v3/{project_id}/{resource_type}/{resource_id}/tags/{key}"
+	)
+
+	deleteTagsPath := client.Endpoint + deleteTagsHttpUrl
+	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{project_id}", client.ProjectID)
+	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{resource_type}", resourceType)
+	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{resource_id}", resourceId)
+	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{key}", key)
+
+	deleteTagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
+	}
+
+	_, err := client.Request("DELETE", deleteTagsPath, &deleteTagsOpt)
+	if err != nil {
+		return fmt.Errorf("error deleting tags from ER instance: %s", err)
+	}
+
+	return nil
+}
+
+func updateResourceTags(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	oRaw, nRaw := d.GetChange("tags")
+	oMap := oRaw.(map[string]interface{})
+	nMap := nRaw.(map[string]interface{})
+	instanceId := d.Id()
+
+	for k := range oMap {
+		err := deleteResourceTags(client, "instance", instanceId, k)
+		if err != nil {
+			return err
+		}
+	}
+
+	for k, v := range nMap {
+		err := addResourceTags(client, "instance", instanceId, k, v.(string))
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
+	client, err := config.NewServiceClient("er", region)
+	if err != nil {
+		return diag.Errorf("error creating ER Client: %s", err)
+	}
 
 	updateInstancehasChanges := []string{
 		"name",
@@ -385,18 +482,10 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 
 	if d.HasChanges(updateInstancehasChanges...) {
 		// updateInstance: Update the configuration of Enterprise router instance
-		var (
-			updateInstanceHttpUrl = "v3/{project_id}/enterprise-router/instances/{id}"
-			updateInstanceProduct = "er"
-		)
-		updateInstanceClient, err := config.NewServiceClient(updateInstanceProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating Instance Client: %s", err)
-		}
-
-		updateInstancePath := updateInstanceClient.Endpoint + updateInstanceHttpUrl
-		updateInstancePath = strings.Replace(updateInstancePath, "{project_id}", updateInstanceClient.ProjectID, -1)
-		updateInstancePath = strings.Replace(updateInstancePath, "{id}", d.Id(), -1)
+		updateInstanceHttpUrl := "v3/{project_id}/enterprise-router/instances/{id}"
+		updateInstancePath := client.Endpoint + updateInstanceHttpUrl
+		updateInstancePath = strings.ReplaceAll(updateInstancePath, "{project_id}", client.ProjectID)
+		updateInstancePath = strings.ReplaceAll(updateInstancePath, "{id}", d.Id())
 
 		updateInstanceOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -405,7 +494,7 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 			},
 		}
 		updateInstanceOpt.JSONBody = utils.RemoveNil(buildUpdateInstanceBodyParams(d, config))
-		_, err = updateInstanceClient.Request("PUT", updateInstancePath, &updateInstanceOpt)
+		_, err = client.Request("PUT", updateInstancePath, &updateInstanceOpt)
 		if err != nil {
 			return diag.Errorf("error updating Instance: %s", err)
 		}
@@ -421,18 +510,10 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 
 	if d.HasChanges(updateInstanceAvailabilityZoneshasChanges...) {
 		// updateInstanceAvailabilityZones: Update the availability zone list where the Enterprise router instance is located
-		var (
-			updateInstanceAvailabilityZonesHttpUrl = "v3/{project_id}/enterprise-router/instances/{id}/change-availability-zone-ids"
-			updateInstanceAvailabilityZonesProduct = "er"
-		)
-		updateInstanceAvailabilityZonesClient, err := config.NewServiceClient(updateInstanceAvailabilityZonesProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating Instance Client: %s", err)
-		}
-
-		updateInstanceAvailabilityZonesPath := updateInstanceAvailabilityZonesClient.Endpoint + updateInstanceAvailabilityZonesHttpUrl
-		updateInstanceAvailabilityZonesPath = strings.Replace(updateInstanceAvailabilityZonesPath, "{project_id}", updateInstanceAvailabilityZonesClient.ProjectID, -1)
-		updateInstanceAvailabilityZonesPath = strings.Replace(updateInstanceAvailabilityZonesPath, "{id}", d.Id(), -1)
+		updateInstanceAvailabilityZonesHttpUrl := "v3/{project_id}/enterprise-router/instances/{id}/change-availability-zone-ids"
+		updateInstanceAvailabilityZonesPath := client.Endpoint + updateInstanceAvailabilityZonesHttpUrl
+		updateInstanceAvailabilityZonesPath = strings.ReplaceAll(updateInstanceAvailabilityZonesPath, "{project_id}", client.ProjectID)
+		updateInstanceAvailabilityZonesPath = strings.ReplaceAll(updateInstanceAvailabilityZonesPath, "{id}", d.Id())
 
 		updateInstanceAvailabilityZonesOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -441,13 +522,19 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 			},
 		}
 		updateInstanceAvailabilityZonesOpt.JSONBody = utils.RemoveNil(buildUpdateInstanceAvailabilityZonesBodyParams(d, config))
-		_, err = updateInstanceAvailabilityZonesClient.Request("POST", updateInstanceAvailabilityZonesPath, &updateInstanceAvailabilityZonesOpt)
+		_, err = client.Request("POST", updateInstanceAvailabilityZonesPath, &updateInstanceAvailabilityZonesOpt)
 		if err != nil {
 			return diag.Errorf("error updating Instance: %s", err)
 		}
 		err = instanceWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return diag.Errorf("error waiting for the Update of Instance (%s) to complete: %s", d.Id(), err)
+		}
+	}
+
+	if d.HasChange("tags") {
+		if err := updateResourceTags(client, d); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 	return resourceInstanceRead(ctx, d, meta)

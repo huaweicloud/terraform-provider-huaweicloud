@@ -58,28 +58,35 @@ func TestAccInstance_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testInstance_basic(name, bgpAsNum),
+				Config: testInstance_basic_step1(name, bgpAsNum),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "availability_zones.0", acceptance.HW_AVAILABILITY_ZONE),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttr(rName, "asn", fmt.Sprintf("%v", bgpAsNum)),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
 					resource.TestCheckResourceAttrSet(rName, "status"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
 				),
 			},
 			{
-				Config: testInstance_basic(name, bgpAsNum+1),
+				Config: testInstance_basic_step2(name, bgpAsNum),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "asn", fmt.Sprintf("%v", bgpAsNum+1)),
+					resource.TestCheckResourceAttr(rName, "asn", fmt.Sprintf("%v", bgpAsNum)),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "baar"),
+					resource.TestCheckResourceAttr(rName, "tags.newkey", "value"),
 				),
 			},
 			{
@@ -91,13 +98,38 @@ func TestAccInstance_basic(t *testing.T) {
 	})
 }
 
-func testInstance_basic(name string, bgpAsNum int) string {
+func testInstance_basic_step1(name string, bgpAsNum int) string {
 	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
 resource "huaweicloud_er_instance" "test" {
-  availability_zones = ["%[1]s"]
+  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
 
   name = "%[2]s"
   asn  = %[3]d
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, acceptance.HW_AVAILABILITY_ZONE, name, bgpAsNum)
+}
+
+func testInstance_basic_step2(name string, bgpAsNum int) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_er_instance" "test" {
+  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+
+  name = "%[2]s"
+  asn  = %[3]d
+
+  tags = {
+    foo    = "baar"
+    newkey = "value"
+  }
 }
 `, acceptance.HW_AVAILABILITY_ZONE, name, bgpAsNum)
 }
