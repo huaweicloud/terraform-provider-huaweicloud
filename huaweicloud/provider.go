@@ -975,6 +975,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_sdrs_replication_pair":   sdrs.ResourceReplicationPair(),
 			"huaweicloud_sdrs_protection_group":   sdrs.ResourceProtectionGroup(),
 			"huaweicloud_sdrs_protected_instance": sdrs.ResourceProtectedInstance(),
+			"huaweicloud_sdrs_replication_attach": sdrs.ResourceReplicationAttach(),
 
 			"huaweicloud_secmaster_incident": secmaster.ResourceIncident(),
 
