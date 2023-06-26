@@ -21,12 +21,16 @@ resource "huaweicloud_networking_secgroup" "secgroup" {
 # List the availability zones in the current region.
 data "huaweicloud_availability_zones" "zones" {}
 
-# Find the product ID
-data "huaweicloud_dms_product" "product_1" {
-  engine            = "rabbitmq"
-  instance_type     = "cluster"
-  version           = "3.7.17"
-  storage_spec_code = "dms.physical.storage.high"
+# Query flavor information based on flavorID and storage I/O specification.
+# Make sure the flavors are available in the availability zone.
+data "huaweicloud_dms_rabbitmq_flavors" "test" {
+  type              = "cluster"
+  flavor_id         = "c6.2u4g.cluster"
+  storage_spec_code = "dms.physical.storage.ultra.v2"
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.zones.names[0],
+  ]
 }
 
 # Create the DMS RabbitMQ instance.
@@ -42,12 +46,14 @@ resource "huaweicloud_dms_rabbitmq_instance" "instance_1" {
   security_group_id = huaweicloud_networking_secgroup.secgroup.id
 
   availability_zones = [
-    data.huaweicloud_availability_zones.zones.names[0]
+    data.huaweicloud_availability_zones.zones.names[0],
   ]
 
-  product_id        = data.huaweicloud_dms_product.product_1.id
-  engine_version    = data.huaweicloud_dms_product.product_1.version
-  storage_spec_code = data.huaweicloud_dms_product.product_1.storage_spec_code
+  flavor_id         = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0].id
+  engine_version    = "3.8.35"
+  broker_num        = 3
+  storage_space     = 600
+  storage_spec_code = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0].ios[0].storage_spec_code
 
   tags = {
     key   = "value"
