@@ -215,7 +215,10 @@ func buildEvsVolumeCreateOpts(d *schema.ResourceData, config *config.Config) clo
 	}
 
 	if v, ok := d.GetOk("dedicated_storage_id"); ok {
-		result.Scheduler.StorageID = v.(string)
+		scheduler := cloudvolumes.SchedulerOpts{
+			StorageID: v.(string),
+		}
+		result.Scheduler = &scheduler
 	}
 	return result
 }
