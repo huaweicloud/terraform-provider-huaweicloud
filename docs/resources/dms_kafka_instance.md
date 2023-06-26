@@ -25,6 +25,8 @@ variable "storage_spec_code" {
   default = "your_storage_spec_code, such: dms.physical.storage.ultra.v2"
 }
 
+# Query flavor information based on flavorID and storage I/O specification.
+# Make sure the flavors are available in the availability zone.
 data "huaweicloud_dms_kafka_flavors" "test" {
   type               = "cluster"
   flavor_id          = var.flavor_id
@@ -38,8 +40,8 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   network_id        = var.subnet_id
   security_group_id = var.security_group_id
 
-  flavor_id          = var.flavor_id
-  storage_spec_code  = var.storage_spec_code
+  flavor_id          = data.huaweicloud_dms_kafka_flavors.test.flavor_id
+  storage_spec_code  = data.huaweicloud_dms_kafka_flavors.test.flavors[0].ios[0].storage_spec_code
   availability_zones = var.availability_zones
   engine_version     = "2.7"
   storage_space      = 600
@@ -50,14 +52,8 @@ resource "huaweicloud_dms_kafka_instance" "test" {
 
   manager_user     = "kafka_manager"
   manager_password = "Kafka_Test^&*("
-
-  depends_on = ["data.huaweicloud_dms_kafka_flavors.test"]
 }
 ```
-
--> **Why depend on "data.huaweicloud_dms_kafka_flavors.test", it is not used?**
-  The specified `flavor_id` and `storage_spec_code` are not valid in all regions.
-  Before creating kafka, verify their validity through datasource to avoid creation errors.
 
 ## Argument Reference
 
