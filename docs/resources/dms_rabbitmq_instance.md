@@ -18,15 +18,18 @@ variable "availability_zones" {
    default = ["your_availability_zones_a", "your_availability_zones_b", "your_availability_zones_c"]
 }
 
+# Query flavor information based on flavorID and storage I/O specification.
+# Make sure the flavors are available in the availability zone.
 data "huaweicloud_dms_rabbitmq_flavors" "test" {
-  type              = "cluster"
-  storage_spec_code = "dms.physical.storage.ultra.v2"
+  type               = "cluster"
+  storage_spec_code  = "dms.physical.storage.ultra.v2"
+  availability_zones = var.availability_zones
 }
 
 resource "huaweicloud_dms_rabbitmq_instance" "test" {
   name              = "instance_1"
   flavor_id         = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0].flavor.id
-  engine_version    = data.huaweicloud_dms_rabbitmq_flavors.test.versions[0]
+  engine_version    = "3.8.35"
   storage_spec_code = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0].ios[0].storage_spec_code
   broker_num        = 3
 
