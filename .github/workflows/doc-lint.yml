@@ -68,6 +68,7 @@ jobs:
         with:
           github_token: ${{ secrets.github_token }}
           locale: "US"
+          ignore: "cancelled"
           pattern: |
             *.md
             *.tf
