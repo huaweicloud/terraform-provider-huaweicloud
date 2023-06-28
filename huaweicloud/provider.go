@@ -1015,9 +1015,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_vod_transcoding_template_group": vod.ResourceTranscodingTemplateGroup(),
 			"huaweicloud_vod_watermark_template":         vod.ResourceWatermarkTemplate(),
 
-			"huaweicloud_vpc_bandwidth":     eip.ResourceVpcBandWidthV2(),
-			"huaweicloud_vpc_eip":           eip.ResourceVpcEIPV1(),
-			"huaweicloud_vpc_eip_associate": eip.ResourceEIPAssociate(),
+			"huaweicloud_vpc_bandwidth":           eip.ResourceVpcBandWidthV2(),
+			"huaweicloud_vpc_bandwidth_associate": eip.ResourceBandWidthAssociate(),
+			"huaweicloud_vpc_eip":                 eip.ResourceVpcEIPV1(),
+			"huaweicloud_vpc_eip_associate":       eip.ResourceEIPAssociate(),
 
 			"huaweicloud_vpc_peering_connection":          vpc.ResourceVpcPeeringConnectionV2(),
 			"huaweicloud_vpc_peering_connection_accepter": vpc.ResourceVpcPeeringConnectionAccepterV2(),
