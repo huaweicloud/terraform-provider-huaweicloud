@@ -82,7 +82,6 @@ func ResourceMRSClusterV2() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 				ValidateFunc: validation.StringMatch(
 					regexp.MustCompile("^[A-Za-z][A-Za-z0-9_-]{1,63}$"),
 					"The name consists of 2 to 64 characters, starting with a letter. "+
@@ -1007,11 +1006,60 @@ func updateMRSClusterNodes(ctx context.Context, d *schema.ResourceData, client *
 	return nil
 }
 
+func updateClusterName(d *schema.ResourceData, cfg *config.Config) error {
+	region := cfg.GetRegion(d)
+
+	var (
+		updateNameHttpUrl = "v2/{project_id}/clusters/{id}/cluster-name"
+		updateNameProduct = "mrs"
+	)
+	updateNameClient, err := cfg.NewServiceClient(updateNameProduct, region)
+	if err != nil {
+		return fmt.Errorf("error creating MRS Client: %s", err)
+	}
+
+	updateNamePath := updateNameClient.Endpoint + updateNameHttpUrl
+	updateNamePath = strings.ReplaceAll(updateNamePath, "{project_id}", updateNameClient.ProjectID)
+	updateNamePath = strings.ReplaceAll(updateNamePath, "{id}", d.Id())
+
+	updateNameOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			200,
+		},
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
+	}
+
+	updateNameOpt.JSONBody = utils.RemoveNil(buildUpdateNameBodyParams(d))
+	_, err = updateNameClient.Request("PUT", updateNamePath, &updateNameOpt)
+	if err != nil {
+		return fmt.Errorf("error updating name of MRS cluster: %s", err)
+	}
+
+	return nil
+}
+
+func buildUpdateNameBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"cluster_name": d.Get("name"),
+	}
+	return bodyParams
+}
+
 func resourceMRSClusterV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.MrsV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating MRS client: %s", err)
+	}
+
+	if d.HasChange("name") {
+		err = updateClusterName(d, cfg)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	if d.HasChange("tags") {

@@ -329,9 +329,8 @@ The following arguments are supported:
   Please following [reference](https://developer.huaweicloud.com/intl/en-us/endpoint?all)
   Changing this will create a new MapReduce cluster resource.
 
-* `name` - (Required, String, ForceNew) Specifies the name of the MapReduce cluster. The name can contain 2 to 64
-  characters, which may consist of letters, digits, underscores (_) and hyphens (-). Changing this will create a new
-  MapReduce cluster resource.
+* `name` - (Required, String) Specifies the name of the MapReduce cluster. The name can contain 2 to 64
+  characters, which may consist of letters, digits, underscores (_) and hyphens (-).
 
 * `version` - (Required, String, ForceNew) Specifies the MapReduce cluster version. The valid values are `MRS 1.9.2`
   , `MRS 3.0.5` and `MRS 3.1.0`. Changing this will create a new MapReduce cluster resource.

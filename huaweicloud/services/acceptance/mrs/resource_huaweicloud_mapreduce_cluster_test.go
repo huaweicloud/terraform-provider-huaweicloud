@@ -46,10 +46,10 @@ func TestAccMrsMapReduceCluster_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccMrsMapReduceClusterConfig_update(rName, password),
+				Config: testAccMrsMapReduceClusterConfig_update(rName, password, rName+"Update"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "name", rName+"Update"),
 					resource.TestCheckResourceAttr(resourceName, "type", "STREAMING"),
 					resource.TestCheckResourceAttr(resourceName, "safe_mode", "true"),
 					resource.TestCheckResourceAttr(resourceName, "status", "running"),
@@ -551,7 +551,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
 }`, testAccMrsMapReduceClusterConfig_base(rName), rName, pwd, pwd)
 }
 
-func testAccMrsMapReduceClusterConfig_update(rName, pwd string) string {
+func testAccMrsMapReduceClusterConfig_update(rName, pwd, newName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -598,7 +598,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
     foo1 = "bar"
     key  = "update_value"
   }
-}`, testAccMrsMapReduceClusterConfig_base(rName), rName, pwd, pwd)
+}`, testAccMrsMapReduceClusterConfig_base(rName), newName, pwd, pwd)
 }
 
 func testAccMrsMapReduceClusterConfig_keypair(rName, pwd string) string {
