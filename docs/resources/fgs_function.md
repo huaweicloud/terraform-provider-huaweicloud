@@ -161,6 +161,14 @@ The following arguments are supported:
 * `custom_image` - (Optional, List) Specifies the custom image configuration for creating function.
   The [object](#functiongraph_custom_image) structure is documented below.
 
+* `max_instance_num` - (Optional, String) Specifies the maximum number of instances of the function.  
+  The valid value ranges from `-1` to `1000`, defaults to `400`.
+  + The minimum value is `-1` and means the number of instances is unlimited.
+  + `0` means this function is disabled.
+  + The empty value means to keep the default (latest updated) value.
+
+  -> This parameter is only supported by the `v2` version of the function.
+
 The `func_mounts` block supports:
 
 * `mount_type` - (Required, String) Specifies the mount type. Options: sfs, sfsTurbo, and ecs.
