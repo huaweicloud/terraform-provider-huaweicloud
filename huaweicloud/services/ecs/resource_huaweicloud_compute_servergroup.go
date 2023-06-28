@@ -94,14 +94,7 @@ func resourceComputeServerGroupCreate(ctx context.Context, d *schema.ResourceDat
 	membersToAdd := d.Get("members").(*schema.Set)
 	for _, v := range membersToAdd.List() {
 		instanceId := v.(string)
-		// The ECS instances do not support other operations when binding server groups.
-		config.MutexKV.Lock(instanceId)
-
-		var addMemberOpts servergroups.MemberOpts
-		addMemberOpts.InstanceID = instanceId
-		err := servergroups.UpdateMember(ecsClient, addMemberOpts, "add_member", d.Id()).ExtractErr()
-		// Release the ECS instance after the binding operation is complete whether it success or not.
-		config.MutexKV.Unlock(instanceId)
+		err := addServerGroupMember(ecsClient, d.Id(), instanceId)
 		if err != nil {
 			return diag.Errorf("error binding instance %s to ECS server group: %s", instanceId, err)
 		}
@@ -118,13 +111,13 @@ func resourceComputeServerGroupRead(_ context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating compute client: %s", err)
 	}
 
-	sg, err := servergroups.Get(ecsClient, d.Id()).Extract()
+	groupID := d.Id()
+	sg, err := servergroups.Get(ecsClient, groupID).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "server group")
 	}
 
-	log.Printf("[DEBUG] Retrieved server group %s: %+v", d.Id(), sg)
-
+	log.Printf("[DEBUG] Retrieved server group %s: %+v", groupID, sg)
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("name", sg.Name),
@@ -152,43 +145,19 @@ func resourceComputeServerGroupUpdate(ctx context.Context, d *schema.ResourceDat
 		membersToAdd := newMemberSet.Difference(oldMemberSet)
 		membersToRemove := oldMemberSet.Difference(newMemberSet)
 
-		for _, v := range membersToAdd.List() {
-			var addMemberOpts servergroups.MemberOpts
+		for _, v := range membersToRemove.List() {
 			instanceId := v.(string)
-			// The ECS instances do not support other operations when binding server groups.
-			config.MutexKV.Lock(instanceId)
-			addMemberOpts.InstanceID = instanceId
-			err = servergroups.UpdateMember(ecsClient, addMemberOpts, "add_member", d.Id()).ExtractErr()
-			// Release the ECS instance ID after the binding operation is complete whether it success or not.
-			config.MutexKV.Unlock(instanceId)
+			err := removeServerGroupMember(ecsClient, d.Id(), instanceId)
 			if err != nil {
-				return diag.Errorf("error binding instance %s to server group: %s", instanceId, err)
+				return diag.Errorf("error unbinding instance %s from ECS server group: %s", instanceId, err)
 			}
 		}
 
-		for _, v := range membersToRemove.List() {
+		for _, v := range membersToAdd.List() {
 			instanceId := v.(string)
-			server, err := cloudservers.Get(ecsClient, instanceId).Extract()
+			err := addServerGroupMember(ecsClient, d.Id(), instanceId)
 			if err != nil {
-				if _, ok := err.(golangsdk.ErrDefault404); ok {
-					log.Printf("[WARN] the compute %s is not exist, ignore to remove it from the group", instanceId)
-					continue
-				}
-				log.Printf("[WARN] failed to retrieve compute %s: %s, try to remove it from the group", instanceId, err)
-			} else if server.Status == "DELETED" {
-				log.Printf("[WARN] the compute %s was removed, ignore to remove it from the group", instanceId)
-				continue
-			}
-
-			var removeMemberOpts servergroups.MemberOpts
-			// Any operations are not supported when an ECS instance is unbound from a server group.
-			config.MutexKV.Lock(instanceId)
-			removeMemberOpts.InstanceID = instanceId
-			err = servergroups.UpdateMember(ecsClient, removeMemberOpts, "remove_member", d.Id()).ExtractErr()
-			// Release the ECS instance ID after the unbinding operation is complete whether it success or not.
-			config.MutexKV.Unlock(instanceId)
-			if err != nil {
-				return diag.Errorf("error unbinding instance %s from ECS server group: %s", instanceId, err)
+				return diag.Errorf("error binding instance %s to server group: %s", instanceId, err)
 			}
 		}
 	}
@@ -227,4 +196,38 @@ func resourceComputeServerGroupDelete(_ context.Context, d *schema.ResourceData,
 	}
 
 	return nil
+}
+
+func addServerGroupMember(client *golangsdk.ServiceClient, groupID, serverID string) error {
+	// the ECS instances do not support other operations when binding server groups.
+	config.MutexKV.Lock(serverID)
+	defer config.MutexKV.Unlock(serverID)
+
+	addMemberOpts := servergroups.MemberOpts{
+		InstanceID: serverID,
+	}
+	return servergroups.UpdateMember(client, addMemberOpts, "add_member", groupID).ExtractErr()
+}
+
+func removeServerGroupMember(client *golangsdk.ServiceClient, groupID, serverID string) error {
+	server, err := cloudservers.Get(client, serverID).Extract()
+	if err != nil {
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
+			log.Printf("[WARN] the compute %s is not exist, ignore to remove it from the group", serverID)
+			return nil
+		}
+		log.Printf("[WARN] failed to retrieve compute %s: %s, try to remove it from the group", serverID, err)
+	} else if server.Status == "DELETED" || server.Status == "SOFT_DELETED" {
+		log.Printf("[WARN] the compute %s was removed, ignore to remove it from the group", serverID)
+		return nil
+	}
+
+	// the ECS instances do not support other operations when binding server groups.
+	config.MutexKV.Lock(serverID)
+	defer config.MutexKV.Unlock(serverID)
+
+	removeMemberOpts := servergroups.MemberOpts{
+		InstanceID: serverID,
+	}
+	return servergroups.UpdateMember(client, removeMemberOpts, "remove_member", groupID).ExtractErr()
 }
