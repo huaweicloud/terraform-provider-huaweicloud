@@ -1170,8 +1170,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_cluster_v1": css.ResourceCssCluster(),
 			"huaweicloud_dis_stream_v2":  dis.ResourceDisStream(),
 
-			"huaweicloud_organizations_organizational_unit": organizations.ResourceOrganizationalUnit(),
 			"huaweicloud_organizations_organization":        organizations.ResourceOrganization(),
+			"huaweicloud_organizations_organizational_unit": organizations.ResourceOrganizationalUnit(),
+			"huaweicloud_organizations_account":             organizations.ResourceAccount(),
+			"huaweicloud_organizations_account_associate":   organizations.ResourceAccountAssociate(),
 			"huaweicloud_organizations_account_invite":      organizations.ResourceAccountInvite(),
 			"huaweicloud_organizations_trusted_service":     organizations.ResourceTrustedService(),
 
