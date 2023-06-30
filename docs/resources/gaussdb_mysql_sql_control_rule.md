@@ -1,5 +1,5 @@
 ---
-subcategory: "GaussDB"
+subcategory: "GaussDB(for MySQL)"
 ---
 
 # huaweicloud_gaussdb_mysql_sql_control_rule
