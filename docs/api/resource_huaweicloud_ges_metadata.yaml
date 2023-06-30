@@ -19,7 +19,7 @@ paths:
             x-ref-api: GET /v2/{project_id}/graphs/metadatas
         POST:
             tag: GES
-            operationId: UpdateMetadata
+            operationId: CreateMetadata
             x-ref-api: POST /v2/{project_id}/graphs/metadatas
     /v2/{project_id}/graphs/metadatas/{id}:
         DELETE:

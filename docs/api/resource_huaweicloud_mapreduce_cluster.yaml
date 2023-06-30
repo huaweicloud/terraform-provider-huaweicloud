@@ -20,13 +20,9 @@ paths:
       tag: MRS
       operationId: ListHosts
   /v1.1/{project_id}/clusters/{id}/tags/action:
-    post:
+    POST:
       tag: MRS
-      operationId: Create
-  /v1.1/{project_id}/clusters/{id}/tags:
-    get:
-      tag: MRS
-      operationId: Get
+      operationId: batchUpdate
   /v1.1/{project_id}/clusters/{id}:
     delete:
       tag: MRS

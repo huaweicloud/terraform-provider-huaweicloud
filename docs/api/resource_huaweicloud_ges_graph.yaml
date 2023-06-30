@@ -19,7 +19,7 @@ paths:
             x-ref-api: DELETE /v2/{project_id}/graphs/{id}
         GET:
             tag: GES
-            operationId: expandGraphReplicationWaiting
+            operationId: CreateGraphWaiting
             x-ref-api: GET /v2/{project_id}/graphs/{id}
     /v2/{project_id}/graphs/{id}/expand:
         POST:

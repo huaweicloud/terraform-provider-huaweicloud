@@ -20,7 +20,7 @@ paths:
     post:
       tag: EIP
       operationId: Remove
-  /v1/{project_id}/bandwidths/{id}:
+  /v2.0/{project_id}/bandwidths/{id}:
     get:
       tag: EIP
       operationId: Get

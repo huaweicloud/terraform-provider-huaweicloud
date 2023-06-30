@@ -10,5 +10,5 @@ paths:
     /v1/{project_id}/obs/authority:
         PUT:
             tag: Live
-            operationId: DeleteLiveBucketAuthorization
+            operationId: CreateLiveBucketAuthorization
             x-ref-api: PUT /v1/{project_id}/obs/authority

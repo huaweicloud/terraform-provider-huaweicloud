@@ -1,0 +1,28 @@
+info:
+    title: resource_huaweicloud_organizations_account
+    description: |-
+        Manages an Organizations account resource within HuaweiCloud.
+
+        -> **NOTE:** Deleting Organizations account is not support. If you destroy a resource of Organizations account,
+        the Organizations account is only removed from the state, but it remains in the cloud
+host: myhuaweicloud.com
+tags:
+    - name: Organizations
+servers:
+    - url: https://organizations.cn-north-4.myhuaweicloud.com
+paths:
+    /v1/organizations/accounts/{account_id}:
+        GET:
+            tag: Organizations
+            operationId: GetAccount
+            x-ref-api: GET /v1/organizations/accounts/{account_id}
+    /v1/organizations/accounts/{account_id}/move:
+        POST:
+            tag: Organizations
+            operationId: UpdateAccount
+            x-ref-api: POST /v1/organizations/accounts/{account_id}/move
+    /v1/organizations/entities:
+        GET:
+            tag: Organizations
+            operationId: GetAccount
+            x-ref-api: GET /v1/organizations/entities

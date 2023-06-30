@@ -70,6 +70,13 @@ paths:
     post:
       tag: GaussDBforMySQL
       operationId: EnableProxy
+  /v3/{project_id}/instances/{instanceId}/sql-filter/switch:
+    get:
+      tag: GaussDBforMySQL
+      operationId: Get
+    post:
+      tag: GaussDBforMySQL
+      operationId: Update
   /v3/{project_id}/instances/{instanceID}/volume/extend:
     post:
       tag: GaussDBforMySQL

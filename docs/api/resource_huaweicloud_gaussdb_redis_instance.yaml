@@ -44,6 +44,10 @@ paths:
     put:
       tag: GaussDBforNoSQL
       operationId: UpdateSg
+  /v3/{project_id}/instances/{instanceID}/ssl-option:
+    post:
+      tag: GaussDBforNoSQL
+      operationId: UpdateSsl
   /v3/{project_id}/instances/{instanceID}:
     delete:
       tag: GaussDBforNoSQL

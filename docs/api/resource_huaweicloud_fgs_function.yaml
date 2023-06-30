@@ -12,6 +12,10 @@ paths:
     put:
       tag: FunctionGraph
       operationId: UpdateCode
+  /v2/{project_id}/fgs/functions/{functionUrn}/config-max-instance:
+    put:
+      tag: FunctionGraph
+      operationId: UpdateMaxInstanceNumber
   /v2/{project_id}/fgs/functions/{functionUrn}/config:
     get:
       tag: FunctionGraph
@@ -27,3 +31,10 @@ paths:
     post:
       tag: FunctionGraph
       operationId: Create
+  /v2/{project_id}/functions/{functionUrn}/tags/{action}:
+    delete:
+      tag: FunctionGraph
+      operationId: DeleteResourceTags
+    post:
+      tag: FunctionGraph
+      operationId: CreateResourceTags

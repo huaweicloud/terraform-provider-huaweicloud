@@ -14,7 +14,7 @@ paths:
             x-ref-api: DELETE /v1.0/{project_id}/clusters/{id}
         GET:
             tag: DWS
-            operationId: DeleteDwsClusterWaiting
+            operationId: CreateDwsClusterWaiting
             x-ref-api: GET /v1.0/{project_id}/clusters/{id}
     /v1.0/{project_id}/clusters/{id}/expand-instance-storage:
         POST:

@@ -1,0 +1,28 @@
+info:
+  version: 
+  title: resource_huaweicloud_sdrs_protection_group
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: SDRS
+paths:
+  /v1/{project_id}/server-groups/{id}/action:
+    post:
+      tag: SDRS
+      operationId: Enable
+  /v1/{project_id}/server-groups/{id}:
+    delete:
+      tag: SDRS
+      operationId: Delete
+    get:
+      tag: SDRS
+      operationId: Get
+    put:
+      tag: SDRS
+      operationId: Update
+  /v1/{project_id}/server-groups:
+    post:
+      tag: SDRS
+      operationId: Create
