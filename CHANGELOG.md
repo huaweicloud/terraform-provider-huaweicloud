@@ -1,5 +1,49 @@
 # CHANGELOG
 
+## 1.51.0 (June 30, 2023)
+
+* **New Resurce:**
+  + `huaweicloud_ges_backup` [GH-3112]
+  + `huaweicloud_vpc_bandwidth_associate` [GH-3153]
+  + `huaweicloud_sdrs_protection_group` [GH-3117]
+  + `huaweicloud_sdrs_protected_instance` [GH-3119]
+  + `huaweicloud_sdrs_replication_pair` [GH-3121]
+  + `huaweicloud_sdrs_drill` [GH-3129]
+  + `huaweicloud_sdrs_replication_attach` [GH-3130]
+  + `huaweicloud_gaussdb_mysql_parameter_template` [GH-3113]
+  + `huaweicloud_gaussdb_mysql_database` [GH-3114]
+  + `huaweicloud_gaussdb_mysql_account` [GH-3115]
+  + `huaweicloud_gaussdb_mysql_sql_control_rule` [GH-3118]
+  + `huaweicloud_gaussdb_mysql_account_privilege` [GH-3122]
+  + `huaweicloud_gaussdb_redis_eip_associate` [GH-3125]
+  + `huaweicloud_organizations_trusted_service` [GH-3150]
+  + `huaweicloud_organizations_account_invite` [GH-3155]
+  + `huaweicloud_organizations_account_invite_accepter` [GH-3156]
+  + `huaweicloud_organizations_account_associate` [GH-3163]
+  + `huaweicloud_organizations_account` [GH-3163]
+
+* **New Data Source:**
+  + `huaweicloud_sdrs_domain` [GH-3106]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_rds_instance: Support specifying the backup cycle in `backup_strategy` block [GH-3059]
+* resource/huaweicloud_gaussdb_redis_instance: Add `ssl` and `port` parameters [GH-3100]
+* resource/huaweicloud_cce_cluster: Support specifying the default worker node security group ID [GH-3102]
+* resource/huaweicloud_evs_volume: Add `dedicated_storage_id` parameter [GH-3107]
+* resource/huaweicloud_sfs_turbo: Add `dedicated_storage_id` parameter [GH-3108]
+* resource/huaweicloud_dms_rabbitmq_instance: Support updating broker num and storage space [GH-3109]
+* resource/huaweicloud_gaussdb_mysql_instance: Support switching SQL filter [GH-3124]
+* resource/huaweicloud_cbr_vault: Add `backup_name_prefix` parameter [GH-3139]
+* resource/huaweicloud_cbr_policy: Add `enable_acceleration` and `full_back_interval` parameters [GH-3139]
+* resource/huaweicloud_mapreduce_cluster: Support updating cluster name [GH-3140]
+* resource/huaweicloud_fgs_function: Add tags support [GH-3148]
+* resource/huaweicloud_er_instance: Add tags support [GH-3149]
+
+BUG FIXES:
+
+* resource/huaweicloud_identity_agency: Sleep 200ms to avoid API rate limiting [GH-3120]
+
 ## 1.50.0 (June 13, 2023)
 
 * **New Resurce:**
